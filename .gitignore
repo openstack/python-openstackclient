@@ -1,0 +1,9 @@
+*.log
+*.pyc
+*.swp
+*~
+.openstackclient-venv
+.venv
+build
+dist
+python_openstackclient.egg-info
