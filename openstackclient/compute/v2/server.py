@@ -12,8 +12,14 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+#
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-from glanceclient.common import utils
+"""
+Server action implementations
+"""
+
+from openstackclient.common import utils
 
 
 def _find_server(cs, server):
