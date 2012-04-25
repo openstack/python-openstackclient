@@ -19,6 +19,10 @@
 Server action implementations
 """
 
+import logging
+
+from cliff.command import Command
+
 from openstackclient.common import utils
 
 
@@ -53,9 +57,41 @@ def _print_server(cs, server):
 
     utils.print_dict(info)
 
-@utils.arg('server', metavar='<server>', help='Name or ID of server.')
-def do_show_server(cs, args):
-    """Show details about the given server."""
-    print "do_show_server(%s)" % args.server
-    #s = _find_server(cs, args.server)
-    #_print_server(cs, s)
+class List_Server(Command):
+    "List server command."
+
+    log = logging.getLogger(__name__)
+
+    def get_parser(self, prog_name):
+        parser = super(List_Server, self).get_parser(prog_name)
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help='Additional fields are listed in output')
+        return parser
+
+    def run(self, parsed_args):
+        self.log.info('List_Server()')
+        self.log.info(' run(%s)' % parsed_args)
+        self.app.stdout.write('hi!\n')
+
+class Show_Server(Command):
+    "Show server command."
+
+    log = logging.getLogger(__name__)
+
+    def get_parser(self, prog_name):
+        parser = super(Show_Server, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Name or ID of server to display')
+        return parser
+
+    def run(self, parsed_args):
+        self.log.info('Show_Server()')
+        self.log.info(' run(%s)' % parsed_args)
+        self.app.stdout.write('hi!\n')
+        #s = _find_server(cs, args.server)
+        #_print_server(cs, s)

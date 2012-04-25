@@ -7,6 +7,8 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 requirements = [
+        'cliff',
+        'distribute',
         'httplib2', 
         'prettytable',
         "python-keystoneclient >= 2012.1",
@@ -43,7 +45,11 @@ setup(
     test_suite = "nose.collector",
 
     entry_points = {
-        'console_scripts': ['stack = openstackclient.shell:main']
+        'console_scripts': ['stack = openstackclient.shell:main'],
+        'openstack.cli': [
+            'list_server = openstackclient.compute.v2.server:List_Server',
+            'show_server = openstackclient.compute.v2.server:Show_Server',
+        ]
     }
 )
 
