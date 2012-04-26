@@ -19,8 +19,8 @@
 Command-line interface to the OpenStack APIs
 """
 
+import argparse
 import logging
-import optparse
 import os
 import sys
 
@@ -65,52 +65,52 @@ class OpenStackShell(App):
             )
 
         # Global arguments
-        parser.add_option('--os-auth-url', metavar='<auth-url>',
+        parser.add_argument('--os-auth-url', metavar='<auth-url>',
             default=env('OS_AUTH_URL'),
             help='Authentication URL (Env: OS_AUTH_URL)')
 
-        parser.add_option('--os-tenant-name', metavar='<auth-tenant-name>',
+        parser.add_argument('--os-tenant-name', metavar='<auth-tenant-name>',
             default=env('OS_TENANT_NAME'),
             help='Authentication tenant name (Env: OS_TENANT_NAME)')
 
-        parser.add_option('--os-tenant-id', metavar='<auth-tenant-id>',
+        parser.add_argument('--os-tenant-id', metavar='<auth-tenant-id>',
             default=env('OS_TENANT_ID'),
             help='Authentication tenant ID (Env: OS_TENANT_ID)')
 
-        parser.add_option('--os-username', metavar='<auth-username>',
+        parser.add_argument('--os-username', metavar='<auth-username>',
             default=utils.env('OS_USERNAME'),
             help='Authentication username (Env: OS_USERNAME)')
 
-        parser.add_option('--os-password', metavar='<auth-password>',
+        parser.add_argument('--os-password', metavar='<auth-password>',
             default=utils.env('OS_PASSWORD'),
             help='Authentication password (Env: OS_PASSWORD)')
 
-        parser.add_option('--os-region-name', metavar='<auth-region-name>',
+        parser.add_argument('--os-region-name', metavar='<auth-region-name>',
             default=env('OS_REGION_NAME'),
             help='Authentication region name (Env: OS_REGION_NAME)')
 
-        parser.add_option('--os-identity-api-version',
+        parser.add_argument('--os-identity-api-version',
             metavar='<identity-api-version>',
             default=env('OS_IDENTITY_API_VERSION', default='2.0'),
             help='Identity API version, default=2.0 (Env: OS_IDENTITY_API_VERSION)')
 
-        parser.add_option('--os-compute-api-version',
+        parser.add_argument('--os-compute-api-version',
             metavar='<compute-api-version>',
             default=env('OS_COMPUTE_API_VERSION', default='2'),
             help='Compute API version, default=2.0 (Env: OS_COMPUTE_API_VERSION)')
 
-        parser.add_option('--os-image-api-version',
+        parser.add_argument('--os-image-api-version',
             metavar='<image-api-version>',
             default=env('OS_IMAGE_API_VERSION', default='1.0'),
             help='Image API version, default=1.0 (Env: OS_IMAGE_API_VERSION)')
 
-        parser.add_option('--service-token', metavar='<service-token>',
+        parser.add_argument('--service-token', metavar='<service-token>',
             default=env('SERVICE_TOKEN'),
-            help='deprecated')
+            help=argparse.SUPPRESS)
 
-        parser.add_option('--service-endpoint', metavar='<service-endpoint>',
+        parser.add_argument('--service-endpoint', metavar='<service-endpoint>',
             default=env('SERVICE_ENDPOINT'),
-            help='deprecated')
+            help=argparse.SUPPRESS)
 
         return parser
 
