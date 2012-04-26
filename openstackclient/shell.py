@@ -27,6 +27,9 @@ import sys
 from cliff.app import App
 from cliff.commandmanager import CommandManager
 
+from keystoneclient.v2_0 import client as ksclient
+
+from openstackclient.common import exceptions as exc
 from openstackclient.common import utils
 
 
@@ -57,6 +60,22 @@ class OpenStackShell(App):
             version=VERSION,
             command_manager=CommandManager('openstack.cli'),
             )
+
+    def _authenticate(self, **kwargs):
+        """Get an auth token from Keystone
+
+        :param username: name of user
+        :param password: user's password
+        :param tenant_id: unique identifier of tenant
+        :param tenant_name: name of tenant
+        :param auth_url: endpoint to authenticate against
+        """
+        _ksclient = ksclient.Client(username=kwargs.get('username'),
+                                    password=kwargs.get('password'),
+                                    tenant_id=kwargs.get('tenant_id'),
+                                    tenant_name=kwargs.get('tenant_name'),
+                                    auth_url=kwargs.get('auth_url'))
+        return _ksclient.auth_token
 
     def build_option_parser(self, description, version):
         parser = super(OpenStackShell, self).build_option_parser(
@@ -97,20 +116,20 @@ class OpenStackShell(App):
         parser.add_argument('--os-compute-api-version',
             metavar='<compute-api-version>',
             default=env('OS_COMPUTE_API_VERSION', default='2'),
-            help='Compute API version, default=2.0 (Env: OS_COMPUTE_API_VERSION)')
+            help='Compute API version, default=2 (Env: OS_COMPUTE_API_VERSION)')
 
         parser.add_argument('--os-image-api-version',
             metavar='<image-api-version>',
             default=env('OS_IMAGE_API_VERSION', default='1.0'),
             help='Image API version, default=1.0 (Env: OS_IMAGE_API_VERSION)')
 
-        parser.add_argument('--service-token', metavar='<service-token>',
-            default=env('SERVICE_TOKEN'),
-            help=argparse.SUPPRESS)
+        parser.add_argument('--os-token', metavar='<token>',
+            default=env('OS_TOKEN'),
+            help='Defaults to env[OS_TOKEN]')
 
-        parser.add_argument('--service-endpoint', metavar='<service-endpoint>',
-            default=env('SERVICE_ENDPOINT'),
-            help=argparse.SUPPRESS)
+        parser.add_argument('--os-url', metavar='<url>',
+            default=env('OS_URL'),
+            help='Defaults to env[OS_URL]')
 
         return parser
 
@@ -129,6 +148,39 @@ class OpenStackShell(App):
         if self.options.debug:
             print "API: Identity=%s Compute=%s Image=%s" % (self.api_version['identity'], self.api_version['compute'], self.api_version['image'])
             print "cmd: %s" % cmd
+
+        # do checking of os_username, etc here
+        if (self.options.os_token and self.options.os_url):
+            # do token auth
+            endpoint = self.options.os_url
+            token = self.options.os_token
+        else:
+            if not self.options.os_username:
+                raise exc.CommandError("You must provide a username via"
+                        " either --os-username or env[OS_USERNAME]")
+
+            if not self.options.os_password:
+                raise exc.CommandError("You must provide a password via"
+                        " either --os-password or env[OS_PASSWORD]")
+
+            if not (self.options.os_tenant_id or self.options.os_tenant_name):
+                raise exc.CommandError("You must provide a tenant_id via"
+                        " either --os-tenant-id or via env[OS_TENANT_ID]")
+
+            if not self.options.os_auth_url:
+                raise exc.CommandError("You must provide an auth url via"
+                        " either --os-auth-url or via env[OS_AUTH_URL]")
+            kwargs = {
+                'username': self.options.os_username,
+                'password': self.options.os_password,
+                'tenant_id': self.options.os_tenant_id,
+                'tenant_name': self.options.os_tenant_name,
+                'auth_url': self.options.os_auth_url
+            }
+            token = self._authenticate(**kwargs)
+            # get service catalog via cmd.api
+        # get client instance here
+        print "api: %s" % cmd.api
 
     def clean_up(self, cmd, result, err):
         self.log.debug('clean_up %s', cmd.__class__.__name__)

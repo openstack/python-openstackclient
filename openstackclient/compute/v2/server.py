@@ -21,8 +21,7 @@ Server action implementations
 
 import logging
 
-from cliff.command import Command
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
@@ -57,9 +56,10 @@ def _print_server(cs, server):
 
     utils.print_dict(info)
 
-class List_Server(Command):
+class List_Server(command.OpenStackCommand):
     "List server command."
 
+    api = 'compute'
     log = logging.getLogger(__name__)
 
     def get_parser(self, prog_name):
@@ -74,9 +74,10 @@ class List_Server(Command):
     def run(self, parsed_args):
         self.log.info('v2.List_Server.run(%s)' % parsed_args)
 
-class Show_Server(Command):
+class Show_Server(command.OpenStackCommand):
     "Show server command."
 
+    api = 'compute'
     log = logging.getLogger(__name__)
 
     def get_parser(self, prog_name):
