@@ -72,9 +72,7 @@ class List_Server(Command):
         return parser
 
     def run(self, parsed_args):
-        self.log.info('List_Server()')
-        self.log.info(' run(%s)' % parsed_args)
-        self.app.stdout.write('hi!\n')
+        self.log.info('v2.List_Server.run(%s)' % parsed_args)
 
 class Show_Server(Command):
     "Show server command."
@@ -90,8 +88,6 @@ class Show_Server(Command):
         return parser
 
     def run(self, parsed_args):
-        self.log.info('Show_Server()')
-        self.log.info(' run(%s)' % parsed_args)
-        self.app.stdout.write('hi!\n')
+        self.log.info('v2.Show_Server.run(%s)' % parsed_args)
         #s = _find_server(cs, args.server)
         #_print_server(cs, s)
