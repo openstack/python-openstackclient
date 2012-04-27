@@ -70,12 +70,12 @@ class OpenStackShell(App):
         :param tenant_name: name of tenant
         :param auth_url: endpoint to authenticate against
         """
-        _ksclient = ksclient.Client(username=kwargs.get('username'),
+        self.ksclient = ksclient.Client(username=kwargs.get('username'),
                                     password=kwargs.get('password'),
                                     tenant_id=kwargs.get('tenant_id'),
                                     tenant_name=kwargs.get('tenant_name'),
                                     auth_url=kwargs.get('auth_url'))
-        return _ksclient.auth_token
+        return self.ksclient.auth_token
 
     def build_option_parser(self, description, version):
         parser = super(OpenStackShell, self).build_option_parser(
@@ -178,9 +178,12 @@ class OpenStackShell(App):
                 'auth_url': self.options.os_auth_url
             }
             token = self._authenticate(**kwargs)
-            # get service catalog via cmd.api
-        # get client instance here
-        print "api: %s" % cmd.api
+            endpoint = self.ksclient.service_catalog.url_for(service_type=cmd.api)
+
+        if self.options.debug:
+            print "api: %s" % cmd.api
+            print "token: %s" % token
+            print "endpoint: %s" % endpoint
 
     def clean_up(self, cmd, result, err):
         self.log.debug('clean_up %s', cmd.__class__.__name__)
