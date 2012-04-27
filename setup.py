@@ -49,6 +49,7 @@ setup(
         'openstack.cli': [
             'list_server = openstackclient.compute.v2.server:List_Server',
             'show_server = openstackclient.compute.v2.server:Show_Server',
+            'list_service = openstackclient.identity.v2_0.service:List_Service',
         ]
     }
 )
