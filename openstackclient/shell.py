@@ -61,22 +61,6 @@ class OpenStackShell(App):
             command_manager=CommandManager('openstack.cli'),
             )
 
-    def _authenticate(self, **kwargs):
-        """Get an auth token from Keystone
-
-        :param username: name of user
-        :param password: user's password
-        :param tenant_id: unique identifier of tenant
-        :param tenant_name: name of tenant
-        :param auth_url: endpoint to authenticate against
-        """
-        self.ksclient = ksclient.Client(username=kwargs.get('username'),
-                                    password=kwargs.get('password'),
-                                    tenant_id=kwargs.get('tenant_id'),
-                                    tenant_name=kwargs.get('tenant_name'),
-                                    auth_url=kwargs.get('auth_url'))
-        return self.ksclient.auth_token
-
     def build_option_parser(self, description, version):
         parser = super(OpenStackShell, self).build_option_parser(
             description,
@@ -177,13 +161,22 @@ class OpenStackShell(App):
                 'tenant_name': self.options.os_tenant_name,
                 'auth_url': self.options.os_auth_url
             }
-            token = self._authenticate(**kwargs)
-            endpoint = self.ksclient.service_catalog.url_for(service_type=cmd.api)
+            self.auth_client = ksclient.Client(
+                username=kwargs.get('username'),
+                password=kwargs.get('password'),
+                tenant_id=kwargs.get('tenant_id'),
+                tenant_name=kwargs.get('tenant_name'),
+                auth_url=kwargs.get('auth_url'),
+            )
+            token = self.auth_client.auth_token
+            endpoint = self.auth_client.service_catalog.url_for(service_type=cmd.api)
 
         if self.options.debug:
             print "api: %s" % cmd.api
             print "token: %s" % token
             print "endpoint: %s" % endpoint
+
+        # get a client for the desired api here
 
     def clean_up(self, cmd, result, err):
         self.log.debug('clean_up %s', cmd.__class__.__name__)
