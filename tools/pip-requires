@@ -1,9 +1,8 @@
+cliff
 argparse
 coverage
 httplib2
 mock
-mox
-nose
-pep8>=0.6.1
 prettytable
 simplejson
+-e git://github.com/openstack/python-keystoneclient.git#egg=python-keystoneclient

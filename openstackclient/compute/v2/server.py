@@ -29,6 +29,7 @@ def _find_server(cs, server):
     """Get a server by name or ID."""
     return utils.find_resource(cs.servers, server)
 
+
 def _print_server(cs, server):
     # By default when searching via name we will do a
     # findall(name=blah) and due a REST /details which is not the same
@@ -56,6 +57,7 @@ def _print_server(cs, server):
 
     utils.print_dict(info)
 
+
 class List_Server(command.OpenStackCommand):
     "List server command."
 
@@ -73,6 +75,7 @@ class List_Server(command.OpenStackCommand):
 
     def run(self, parsed_args):
         self.log.info('v2.List_Server.run(%s)' % parsed_args)
+
 
 class Show_Server(command.OpenStackCommand):
     "Show server command."

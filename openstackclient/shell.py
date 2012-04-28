@@ -95,17 +95,20 @@ class OpenStackShell(App):
         parser.add_argument('--os-identity-api-version',
             metavar='<identity-api-version>',
             default=env('OS_IDENTITY_API_VERSION', default='2.0'),
-            help='Identity API version, default=2.0 (Env: OS_IDENTITY_API_VERSION)')
+            help='Identity API version, default=2.0 '\
+                                '(Env: OS_IDENTITY_API_VERSION)')
 
         parser.add_argument('--os-compute-api-version',
             metavar='<compute-api-version>',
             default=env('OS_COMPUTE_API_VERSION', default='2'),
-            help='Compute API version, default=2 (Env: OS_COMPUTE_API_VERSION)')
+            help='Compute API version, default=2 '\
+                                '(Env: OS_COMPUTE_API_VERSION)')
 
         parser.add_argument('--os-image-api-version',
             metavar='<image-api-version>',
             default=env('OS_IMAGE_API_VERSION', default='1.0'),
-            help='Image API version, default=1.0 (Env: OS_IMAGE_API_VERSION)')
+            help='Image API version, default=1.0 '\
+                                '(Env: OS_IMAGE_API_VERSION)')
 
         parser.add_argument('--os-token', metavar='<token>',
             default=env('OS_TOKEN'),
@@ -130,7 +133,10 @@ class OpenStackShell(App):
         }
 
         if self.options.debug:
-            print "API: Identity=%s Compute=%s Image=%s" % (self.api_version['identity'], self.api_version['compute'], self.api_version['image'])
+            print "API: Identity=%s Compute=%s Image=%s" % (
+                self.api_version['identity'],
+                self.api_version['compute'],
+                self.api_version['image'])
             print "cmd: %s" % cmd
 
         # do checking of os_username, etc here
@@ -169,7 +175,8 @@ class OpenStackShell(App):
                 auth_url=kwargs.get('auth_url'),
             )
             token = self.auth_client.auth_token
-            endpoint = self.auth_client.service_catalog.url_for(service_type=cmd.api)
+            endpoint = self.auth_client.service_catalog.url_for(
+                service_type=cmd.api)
 
         if self.options.debug:
             print "api: %s" % cmd.api

@@ -7,3 +7,5 @@
 build
 dist
 python_openstackclient.egg-info
+.tox/
+ChangeLog

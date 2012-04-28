@@ -1,0 +1,9 @@
+distribute>=0.6.24
+
+mox
+nose
+nose-exclude
+nosexcover
+openstack.nose_plugin
+pep8==0.6.1
+sphinx>=1.1.2
