@@ -22,7 +22,7 @@ Contributing
 The master repo is kept on `GitHub`__, please follow the usual protocol
 for social coding interaction and whatnot.
 
-__ https://github.com/dtroyer/python-openstackclient
+__ http://github.com/openstack/python-openstackclient
 
 Index
 =====
