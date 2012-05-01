@@ -52,6 +52,8 @@ def env(*vars, **kwargs):
 
 class OpenStackShell(App):
 
+    CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(message)s'
+
     log = logging.getLogger(__name__)
 
     def __init__(self):
@@ -60,6 +62,10 @@ class OpenStackShell(App):
             version=VERSION,
             command_manager=CommandManager('openstack.cli'),
             )
+
+        # This is instantiated in initialize_app() only when using
+        # password flow auth
+        self.auth_client = None
 
     def build_option_parser(self, description, version):
         parser = super(OpenStackShell, self).build_option_parser(
@@ -120,9 +126,15 @@ class OpenStackShell(App):
 
         return parser
 
-    def prepare_to_run_command(self, cmd):
-        """Set up auth and API versions"""
-        self.log.debug('prepare_to_run_command %s', cmd.__class__.__name__)
+    def initialize_app(self):
+        """Global app init bits:
+
+        * set up API versions
+        * validate authentication info
+        * authenticate against Identity if requested
+        """
+
+        super(OpenStackShell, self).initialize_app()
 
         # stash selected API versions for later
         # TODO(dtroyer): how do extenstions add their version requirements?
@@ -132,18 +144,17 @@ class OpenStackShell(App):
             'image': self.options.os_image_api_version,
         }
 
-        if self.options.debug:
-            print "API: Identity=%s Compute=%s Image=%s" % (
-                self.api_version['identity'],
-                self.api_version['compute'],
-                self.api_version['image'])
-            print "cmd: %s" % cmd
+        self.log.debug("API: Identity=%s Compute=%s Image=%s" % (
+            self.api_version['identity'],
+            self.api_version['compute'],
+            self.api_version['image'])
+        )
 
         # do checking of os_username, etc here
         if (self.options.os_token and self.options.os_url):
             # do token auth
-            endpoint = self.options.os_url
-            token = self.options.os_token
+            self.endpoint = self.options.os_url
+            self.token = self.options.os_token
         else:
             if not self.options.os_username:
                 raise exc.CommandError("You must provide a username via"
@@ -174,14 +185,29 @@ class OpenStackShell(App):
                 tenant_name=kwargs.get('tenant_name'),
                 auth_url=kwargs.get('auth_url'),
             )
-            token = self.auth_client.auth_token
-            endpoint = self.auth_client.service_catalog.url_for(
+            self.token = self.auth_client.auth_token
+            # Since we don't know which command is being executed yet, defer
+            # selection of a service API until later
+            self.endpoint = None
+
+        self.log.debug("token: %s" % self.token)
+        self.log.debug("endpoint: %s" % self.endpoint)
+
+    def prepare_to_run_command(self, cmd):
+        """Set up auth and API versions"""
+        self.log.debug('prepare_to_run_command %s', cmd.__class__.__name__)
+
+        self.log.debug("api: %s" % cmd.api)
+
+        # See if we are using password flow auth, i.e. we have a
+        # service catalog to select endpoints from
+        if self.auth_client and self.auth_client.service_catalog:
+            self.endpoint = self.auth_client.service_catalog.url_for(
                 service_type=cmd.api)
 
-        if self.options.debug:
-            print "api: %s" % cmd.api
-            print "token: %s" % token
-            print "endpoint: %s" % endpoint
+        # self.endpoint == None here is an error...
+        if not self.endpoint:
+            raise RuntimeError('no endpoint found')
 
         # get a client for the desired api here
 
