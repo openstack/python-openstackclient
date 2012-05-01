@@ -17,7 +17,7 @@ def read(fname):
 
 setuptools.setup(
     name="python-openstackclient",
-    version="2012.2",
+    version="0.1",
     description="OpenStack command-line client",
     long_description=read('README.rst'),
     url='https://github.com/openstack/python-openstackclient',
