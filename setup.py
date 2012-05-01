@@ -2,6 +2,7 @@ import os
 
 import setuptools
 
+from openstackclient.openstack.common.setup import generate_authors
 from openstackclient.openstack.common.setup import parse_requirements
 from openstackclient.openstack.common.setup import parse_dependency_links
 from openstackclient.openstack.common.setup import write_git_changelog
@@ -10,6 +11,7 @@ from openstackclient.openstack.common.setup import write_git_changelog
 requires = parse_requirements()
 dependency_links = parse_dependency_links()
 write_git_changelog()
+generate_authors()
 
 
 def read(fname):

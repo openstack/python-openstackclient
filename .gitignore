@@ -4,6 +4,7 @@
 *~
 .openstackclient-venv
 .venv
+AUTHORS
 build
 dist
 python_openstackclient.egg-info
