@@ -19,7 +19,6 @@
 Command-line interface to the OpenStack APIs
 """
 
-import argparse
 import logging
 import os
 import sys
@@ -27,9 +26,7 @@ import sys
 from cliff.app import App
 from cliff.commandmanager import CommandManager
 
-from keystoneclient.v2_0 import client as ksclient
-
-from openstackclient.common import exceptions as exc
+from openstackclient.common import clientmanager
 from openstackclient.common import utils
 
 
@@ -144,72 +141,32 @@ class OpenStackShell(App):
             'image': self.options.os_image_api_version,
         }
 
+        self.client_manager = clientmanager.ClientManager(
+            token=self.options.os_token,
+            url=self.options.os_url,
+            auth_url=self.options.os_auth_url,
+            tenant_name=self.options.os_tenant_name,
+            tenant_id=self.options.os_tenant_id,
+            username=self.options.os_username,
+            password=self.options.os_password,
+            region_name=self.options.os_region_name,
+            identity_api_version=self.options.os_identity_api_version,
+            compute_api_version=self.options.os_compute_api_version,
+            image_api_version=self.options.os_image_api_version,
+            )
+
         self.log.debug("API: Identity=%s Compute=%s Image=%s" % (
             self.api_version['identity'],
             self.api_version['compute'],
             self.api_version['image'])
         )
 
-        # do checking of os_username, etc here
-        if (self.options.os_token and self.options.os_url):
-            # do token auth
-            self.endpoint = self.options.os_url
-            self.token = self.options.os_token
-        else:
-            if not self.options.os_username:
-                raise exc.CommandError("You must provide a username via"
-                        " either --os-username or env[OS_USERNAME]")
-
-            if not self.options.os_password:
-                raise exc.CommandError("You must provide a password via"
-                        " either --os-password or env[OS_PASSWORD]")
-
-            if not (self.options.os_tenant_id or self.options.os_tenant_name):
-                raise exc.CommandError("You must provide a tenant_id via"
-                        " either --os-tenant-id or via env[OS_TENANT_ID]")
-
-            if not self.options.os_auth_url:
-                raise exc.CommandError("You must provide an auth url via"
-                        " either --os-auth-url or via env[OS_AUTH_URL]")
-            kwargs = {
-                'username': self.options.os_username,
-                'password': self.options.os_password,
-                'tenant_id': self.options.os_tenant_id,
-                'tenant_name': self.options.os_tenant_name,
-                'auth_url': self.options.os_auth_url
-            }
-            self.auth_client = ksclient.Client(
-                username=kwargs.get('username'),
-                password=kwargs.get('password'),
-                tenant_id=kwargs.get('tenant_id'),
-                tenant_name=kwargs.get('tenant_name'),
-                auth_url=kwargs.get('auth_url'),
-            )
-            self.token = self.auth_client.auth_token
-            # Since we don't know which command is being executed yet, defer
-            # selection of a service API until later
-            self.endpoint = None
-
-        self.log.debug("token: %s" % self.token)
-        self.log.debug("endpoint: %s" % self.endpoint)
-
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""
         self.log.debug('prepare_to_run_command %s', cmd.__class__.__name__)
 
-        self.log.debug("api: %s" % cmd.api)
-
-        # See if we are using password flow auth, i.e. we have a
-        # service catalog to select endpoints from
-        if self.auth_client and self.auth_client.service_catalog:
-            self.endpoint = self.auth_client.service_catalog.url_for(
-                service_type=cmd.api)
-
-        # self.endpoint == None here is an error...
-        if not self.endpoint:
-            raise RuntimeError('no endpoint found')
-
-        # get a client for the desired api here
+        self.log.debug("api: %s" % cmd.api if hasattr(cmd, 'api') else None)
+        return
 
     def clean_up(self, cmd, result, err):
         self.log.debug('clean_up %s', cmd.__class__.__name__)

@@ -1,4 +1,5 @@
 *.log
+*.log.*
 *.pyc
 *.swp
 *~
@@ -10,3 +11,4 @@ dist
 python_openstackclient.egg-info
 .tox/
 ChangeLog
+TAGS

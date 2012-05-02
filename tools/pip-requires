@@ -6,3 +6,4 @@ mock
 prettytable
 simplejson
 -e git://github.com/openstack/python-keystoneclient.git#egg=python-keystoneclient
+-e git+https://github.com/openstack/python-novaclient.git#egg=python_novaclient
