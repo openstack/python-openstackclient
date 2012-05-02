@@ -40,7 +40,7 @@ setuptools.setup(
     dependency_links=dependency_links,
     test_suite="nose.collector",
     entry_points={
-        'console_scripts': ['stack=openstackclient.shell:main'],
+        'console_scripts': ['openstack=openstackclient.shell:main'],
         'openstack.cli': [
             'list_server=openstackclient.compute.v2.server:List_Server',
             'show_server=openstackclient.compute.v2.server:Show_Server',
