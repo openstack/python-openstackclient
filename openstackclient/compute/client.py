@@ -9,8 +9,6 @@ def make_client(instance):
     """Returns a compute service client.
     """
     LOG.debug('instantiating compute client')
-    # FIXME(dhellmann): Where is the endpoint value used?
-    # url = instance.get_endpoint_for_service_type('compute')
     client = nova_client.Client(
         version=instance._compute_api_version,
         username=instance._username,
@@ -28,5 +26,10 @@ def make_client(instance):
         # FIXME(dhellmann): what is service_name?
         service_name='',
         )
-    client.authenticate()
+
+    # Populate the Nova client to skip another auth query to Identity
+    client.client.management_url = instance.get_endpoint_for_service_type(
+        'compute')
+    client.client.service_catalog = instance._service_catalog
+    client.client.auth_token = instance._token
     return client

@@ -5,8 +5,7 @@ import logging
 
 from openstackclient.common import exceptions as exc
 from openstackclient.compute import client as compute_client
-
-from keystoneclient.v2_0 import client as keystone_client
+from openstackclient.identity import client as identity_client
 
 LOG = logging.getLogger(__name__)
 
@@ -31,6 +30,9 @@ class ClientManager(object):
     """Manages access to API clients, including authentication.
     """
 
+    # Identity client is instantiated in init_token()
+    # otherwise we have a recursion problem
+    identity = None
     compute = ClientCache(compute_client.make_client)
 
     def __init__(self, token=None, url=None,
@@ -82,15 +84,11 @@ class ClientManager(object):
                 "You must provide an auth url via"
                 " either --os-auth-url or via env[OS_AUTH_URL]")
 
-        kwargs = {
-            'username': self._username,
-            'password': self._password,
-            'tenant_id': self._tenant_id,
-            'tenant_name': self._tenant_name,
-            'auth_url': self._auth_url
-        }
-        self._auth_client = keystone_client.Client(**kwargs)
-        self._token = self._auth_client.auth_token
+        # Get an Identity client and keep a token and catalog
+        if not self.identity:
+            self.identity = identity_client.make_client(self)
+        self._token = self.identity.auth_token
+        self._service_catalog = self.identity.service_catalog
         return
 
     def get_endpoint_for_service_type(self, service_type):
@@ -98,8 +96,8 @@ class ClientManager(object):
         """
         # See if we are using password flow auth, i.e. we have a
         # service catalog to select endpoints from
-        if self._auth_client and self._auth_client.service_catalog:
-            endpoint = self._auth_client.service_catalog.url_for(
+        if self._service_catalog:
+            endpoint = self._service_catalog.url_for(
                 service_type=service_type)
         else:
             # Hope we were given the correct URL.
