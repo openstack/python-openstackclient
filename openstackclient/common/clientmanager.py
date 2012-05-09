@@ -21,7 +21,6 @@ class ClientCache(object):
     def __get__(self, instance, owner):
         # Tell the ClientManager to login to keystone
         if self._handle is None:
-            instance.init_token()
             self._handle = self.factory(instance)
         return self._handle
 
@@ -30,9 +29,7 @@ class ClientManager(object):
     """Manages access to API clients, including authentication.
     """
 
-    # Identity client is instantiated in init_token()
-    # otherwise we have a recursion problem
-    identity = None
+    identity = ClientCache(identity_client.make_client)
     compute = ClientCache(compute_client.make_client)
 
     def __init__(self, token=None, url=None,
@@ -55,40 +52,16 @@ class ClientManager(object):
         self._identity_api_version = identity_api_version
         self._compute_api_version = compute_api_version
         self._image_api_version = image_api_version
+        self._service_catalog = None
 
-    def init_token(self):
-        """Return the auth token and endpoint.
-        """
-        if self._token:
-            LOG.debug('using existing auth token')
-            return
+        # Create the identity client
+        self.identity
 
-        LOG.debug('validating authentication options')
-        if not self._username:
-            raise exc.CommandError(
-                "You must provide a username via"
-                " either --os-username or env[OS_USERNAME]")
+        if not self._url:
+            # Populate other password flow attributes
+            self._token = self.identity.auth_token
+            self._service_catalog = self.identity.service_catalog
 
-        if not self._password:
-            raise exc.CommandError(
-                "You must provide a password via"
-                " either --os-password or env[OS_PASSWORD]")
-
-        if not (self._tenant_id or self._tenant_name):
-            raise exc.CommandError(
-                "You must provide a tenant_id via"
-                " either --os-tenant-id or via env[OS_TENANT_ID]")
-
-        if not self._auth_url:
-            raise exc.CommandError(
-                "You must provide an auth url via"
-                " either --os-auth-url or via env[OS_AUTH_URL]")
-
-        # Get an Identity client and keep a token and catalog
-        if not self.identity:
-            self.identity = identity_client.make_client(self)
-        self._token = self.identity.auth_token
-        self._service_catalog = self.identity.service_catalog
         return
 
     def get_endpoint_for_service_type(self, service_type):

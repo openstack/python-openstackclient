@@ -27,6 +27,7 @@ from cliff.app import App
 from cliff.commandmanager import CommandManager
 
 from openstackclient.common import clientmanager
+from openstackclient.common import exceptions as exc
 from openstackclient.common import utils
 
 
@@ -140,6 +141,41 @@ class OpenStackShell(App):
             'identity': self.options.os_identity_api_version,
             'image': self.options.os_image_api_version,
         }
+
+        self.log.debug('validating authentication options')
+        if self.options.os_token or self.options.os_url:
+            # Token flow auth takes priority
+            if not self.options.os_token:
+                raise exc.CommandError(
+                    "You must provide a token via"
+                    " either --os-token or env[OS_TOKEN]")
+
+            if not self.options.os_url:
+                raise exc.CommandError(
+                    "You must provide a service URL via"
+                    " either --os-url or env[OS_URL]")
+
+        else:
+            # Validate password flow auth
+            if not self.options.os_username:
+                raise exc.CommandError(
+                    "You must provide a username via"
+                    " either --os-username or env[OS_USERNAME]")
+
+            if not self.options.os_password:
+                raise exc.CommandError(
+                    "You must provide a password via"
+                    " either --os-password or env[OS_PASSWORD]")
+
+            if not (self.options.os_tenant_id or self.options.os_tenant_name):
+                raise exc.CommandError(
+                    "You must provide a tenant_id via"
+                    " either --os-tenant-id or via env[OS_TENANT_ID]")
+
+            if not self.options.os_auth_url:
+                raise exc.CommandError(
+                    "You must provide an auth url via"
+                    " either --os-auth-url or via env[OS_AUTH_URL]")
 
         self.client_manager = clientmanager.ClientManager(
             token=self.options.os_token,
