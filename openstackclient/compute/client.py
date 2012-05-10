@@ -27,7 +27,7 @@ def make_client(instance):
     """
     LOG.debug('instantiating compute client')
     client = nova_client.Client(
-        version=instance._compute_api_version,
+        version=instance._api_version['compute'],
         username=instance._username,
         api_key=instance._password,
         project_id=instance._tenant_name,

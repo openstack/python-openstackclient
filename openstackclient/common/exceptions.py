@@ -39,6 +39,12 @@ class EndpointNotFound(Exception):
     pass
 
 
+class UnsupportedVersion(Exception):
+    """Indicates that the user is trying to use an unsupported
+       version of the API"""
+    pass
+
+
 class ClientException(Exception):
     """
     The base exception class for all exceptions this library raises.

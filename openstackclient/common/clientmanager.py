@@ -54,9 +54,7 @@ class ClientManager(object):
                  tenant_name=None, tenant_id=None,
                  username=None, password=None,
                  region_name=None,
-                 identity_api_version=None,
-                 compute_api_version=None,
-                 image_api_version=None,
+                 api_version=None,
                  ):
         self._token = token
         self._url = url
@@ -66,9 +64,7 @@ class ClientManager(object):
         self._username = username
         self._password = password
         self._region_name = region_name
-        self._identity_api_version = identity_api_version
-        self._compute_api_version = compute_api_version
-        self._image_api_version = image_api_version
+        self._api_version = api_version
         self._service_catalog = None
 
         if not self._url:

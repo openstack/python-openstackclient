@@ -172,9 +172,7 @@ class OpenStackShell(App):
             username=self.options.os_username,
             password=self.options.os_password,
             region_name=self.options.os_region_name,
-            identity_api_version=self.options.os_identity_api_version,
-            compute_api_version=self.options.os_compute_api_version,
-            image_api_version=self.options.os_image_api_version,
+            api_version=self.api_version,
             )
         return
 

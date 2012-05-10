@@ -17,23 +17,42 @@
 
 import logging
 
-from keystoneclient.v2_0 import client as identity_client
+from openstackclient.common import exceptions as exc
+from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
+
+API_VERSIONS = {
+    '2.0': 'keystoneclient.v2_0.client.Client',
+}
+
+
+def get_client_class(version):
+    """Returns the client class for the requested API version
+    """
+    try:
+        client_path = API_VERSIONS[str(version)]
+    except (KeyError, ValueError):
+        msg = "Invalid client version '%s'. must be one of: %s" % (
+              (version, ', '.join(API_VERSIONS.keys())))
+        raise exc.UnsupportedVersion(msg)
+
+    return utils.import_class(client_path)
 
 
 def make_client(instance):
     """Returns an identity service client.
     """
+    identity_client = get_client_class(instance._api_version['identity'])
     if instance._url:
         LOG.debug('instantiating identity client: token flow')
-        client = identity_client.Client(
+        client = identity_client(
             endpoint=instance._url,
             token=instance._token,
         )
     else:
         LOG.debug('instantiating identity client: password flow')
-        client = identity_client.Client(
+        client = identity_client(
             username=instance._username,
             password=instance._password,
             tenant_name=instance._tenant_name,
