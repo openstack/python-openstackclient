@@ -95,7 +95,29 @@ def env(*vars, **kwargs):
 
 
 def import_class(import_str):
-    """Returns a class from a string including module and class."""
+    """Returns a class from a string including module and class
+
+    :param import_str: a string representation of the class name
+    :rtype: the requested class
+    """
     mod_str, _sep, class_str = import_str.rpartition('.')
     __import__(mod_str)
     return getattr(sys.modules[mod_str], class_str)
+
+
+def get_client_class(api_name, version, version_map):
+    """Returns the client class for the requested API version
+
+    :param api_name: the name of the API, e.g. 'compute', 'image', etc
+    :param version: the requested API version
+    :param version_map: a dict of client classes keyed by version
+    :rtype: a client class for the requested API version
+    """
+    try:
+        client_path = version_map[str(version)]
+    except (KeyError, ValueError):
+        msg = "Invalid %s client version '%s'. must be one of: %s" % (
+              (api_name, version, ', '.join(version_map.keys())))
+        raise exc.UnsupportedVersion(msg)
+
+    return import_class(client_path)

@@ -21,13 +21,15 @@ from novaclient import client as nova_client
 
 LOG = logging.getLogger(__name__)
 
+API_NAME = 'compute'
+
 
 def make_client(instance):
     """Returns a compute service client.
     """
     LOG.debug('instantiating compute client')
     client = nova_client.Client(
-        version=instance._api_version['compute'],
+        version=instance._api_version[API_NAME],
         username=instance._username,
         api_key=instance._password,
         project_id=instance._tenant_name,
@@ -39,7 +41,7 @@ def make_client(instance):
         endpoint_type='publicURL',
         # FIXME(dhellmann): add extension discovery
         extensions=[],
-        service_type='compute',
+        service_type=API_NAME,
         # FIXME(dhellmann): what is service_name?
         service_name='',
         )
@@ -51,7 +53,7 @@ def make_client(instance):
     else:
         # password flow
         client.client.management_url = instance.get_endpoint_for_service_type(
-            'compute')
+            API_NAME)
         client.client.service_catalog = instance._service_catalog
     client.client.auth_token = instance._token
     return client

@@ -201,12 +201,6 @@ class OpenStackShell(App):
         if cmd_name != 'help':
             self.authenticate_user()
 
-        self.log.debug("API: Identity=%s Compute=%s Image=%s" % (
-            self.api_version['identity'],
-            self.api_version['compute'],
-            self.api_version['image'])
-        )
-
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""
         self.log.debug('prepare_to_run_command %s', cmd.__class__.__name__)

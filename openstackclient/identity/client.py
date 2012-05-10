@@ -22,28 +22,20 @@ from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
 
+API_NAME = 'identity'
 API_VERSIONS = {
     '2.0': 'keystoneclient.v2_0.client.Client',
 }
 
 
-def get_client_class(version):
-    """Returns the client class for the requested API version
-    """
-    try:
-        client_path = API_VERSIONS[str(version)]
-    except (KeyError, ValueError):
-        msg = "Invalid client version '%s'. must be one of: %s" % (
-              (version, ', '.join(API_VERSIONS.keys())))
-        raise exc.UnsupportedVersion(msg)
-
-    return utils.import_class(client_path)
-
-
 def make_client(instance):
     """Returns an identity service client.
     """
-    identity_client = get_client_class(instance._api_version['identity'])
+    identity_client = utils.get_client_class(
+        API_NAME,
+        instance._api_version[API_NAME],
+        API_VERSIONS,
+    )
     if instance._url:
         LOG.debug('instantiating identity client: token flow')
         client = identity_client(
