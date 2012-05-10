@@ -124,24 +124,10 @@ class OpenStackShell(App):
 
         return parser
 
-    def initialize_app(self):
-        """Global app init bits:
-
-        * set up API versions
-        * validate authentication info
-        * authenticate against Identity if requested
+    def authenticate_user(self):
+        """Make sure the user has provided all of the authentication
+        info we need.
         """
-
-        super(OpenStackShell, self).initialize_app()
-
-        # stash selected API versions for later
-        # TODO(dtroyer): how do extenstions add their version requirements?
-        self.api_version = {
-            'compute': self.options.os_compute_api_version,
-            'identity': self.options.os_identity_api_version,
-            'image': self.options.os_image_api_version,
-        }
-
         self.log.debug('validating authentication options')
         if self.options.os_token or self.options.os_url:
             # Token flow auth takes priority
@@ -190,6 +176,32 @@ class OpenStackShell(App):
             compute_api_version=self.options.os_compute_api_version,
             image_api_version=self.options.os_image_api_version,
             )
+        return
+
+    def initialize_app(self, argv):
+        """Global app init bits:
+
+        * set up API versions
+        * validate authentication info
+        * authenticate against Identity if requested
+        """
+
+        super(OpenStackShell, self).initialize_app(argv)
+
+        # stash selected API versions for later
+        # TODO(dtroyer): how do extenstions add their version requirements?
+        self.api_version = {
+            'compute': self.options.os_compute_api_version,
+            'identity': self.options.os_identity_api_version,
+            'image': self.options.os_image_api_version,
+        }
+
+        # If the user is not asking for help, make sure they
+        # have given us auth.
+        cmd_info = self.command_manager.find_command(argv)
+        cmd_factory, cmd_name, sub_argv = cmd_info
+        if cmd_name != 'help':
+            self.authenticate_user()
 
         self.log.debug("API: Identity=%s Compute=%s Image=%s" % (
             self.api_version['identity'],

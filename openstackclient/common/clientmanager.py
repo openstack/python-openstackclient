@@ -71,9 +71,6 @@ class ClientManager(object):
         self._image_api_version = image_api_version
         self._service_catalog = None
 
-        # Create the identity client
-        self.identity
-
         if not self._url:
             # Populate other password flow attributes
             self._token = self.identity.auth_token
