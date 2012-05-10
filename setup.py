@@ -65,8 +65,13 @@ setuptools.setup(
                 'openstackclient.identity.v2_0.service:Create_Service',
             'list_service=openstackclient.identity.v2_0.service:List_Service',
             'show_service=openstackclient.identity.v2_0.service:Show_Service',
+            'create_tenant=' +
+                'openstackclient.identity.v2_0.tenant:Create_Tenant',
+            'delete_tenant=' +
+                'openstackclient.identity.v2_0.tenant:Delete_Tenant',
             'list_tenant=openstackclient.identity.v2_0.tenant:List_Tenant',
             'show_tenant=openstackclient.identity.v2_0.tenant:Show_Tenant',
+            'set_tenant=openstackclient.identity.v2_0.tenant:Set_Tenant',
         ]
     }
 )

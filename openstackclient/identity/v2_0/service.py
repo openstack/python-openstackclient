@@ -28,51 +28,27 @@ from openstackclient.common import command
 from openstackclient.common import utils
 
 
-def get_service_properties(service, fields, formatters={}):
-    """Return a tuple containing the service properties.
-
-    :param server: a single Service resource
-    :param fields: tuple of strings with the desired field names
-    :param formatters: dictionary mapping field names to callables
-       to format the values
-    """
-    row = []
-    mixed_case_fields = []
-
-    for field in fields:
-        if field in formatters:
-            row.append(formatters[field](service))
-        else:
-            if field in mixed_case_fields:
-                field_name = field.replace(' ', '_')
-            else:
-                field_name = field.lower().replace(' ', '_')
-            data = getattr(service, field_name, '')
-            row.append(data)
-    return tuple(row)
-
-
 class Create_Service(command.OpenStackCommand):
-    "Create service command."
+    """Create service command"""
 
+    # FIXME(dtroyer): Service commands are still WIP
     api = 'identity'
     log = logging.getLogger(__name__)
 
     def get_parser(self, prog_name):
         parser = super(Create_Service, self).get_parser(prog_name)
         parser.add_argument(
-            '--long',
-            action='store_true',
-            default=False,
-            help='Additional fields are listed in output')
+            'service_name',
+            metavar='<service-name>',
+            help='New service name')
         return parser
 
-    def run(self, parsed_args):
-        self.log.info('v2.Create_Service.run(%s)' % parsed_args)
+    def get_data(self, parsed_args):
+        self.log.info('v2.Create_Service.get_data(%s)' % parsed_args)
 
 
 class List_Service(command.OpenStackCommand, lister.Lister):
-    "List service command."
+    """List service command"""
 
     api = 'identity'
     log = logging.getLogger(__name__)
@@ -87,26 +63,22 @@ class List_Service(command.OpenStackCommand, lister.Lister):
         return parser
 
     def get_data(self, parsed_args):
-        self.log.debug('v2.List_Service.run(%s)' % parsed_args)
+        self.log.debug('v2.List_Service.get_data(%s)' % parsed_args)
         if parsed_args.long:
             columns = ('ID', 'Name', 'Type', 'Description')
         else:
             columns = ('ID', 'Name')
         data = self.app.client_manager.identity.services.list()
-        print "data: %s" % data
         return (columns,
-                (get_service_properties(
+                (utils.get_item_properties(
                     s, columns,
                     formatters={},
                     ) for s in data),
                 )
 
-    #def run(self, parsed_args):
-    #    self.log.info('v2.List_Service.run(%s)' % parsed_args)
 
-
-class Show_Service(command.OpenStackCommand):
-    "Show service command."
+class Show_Service(command.OpenStackCommand, show.ShowOne):
+    """Show service command"""
 
     api = 'identity'
     log = logging.getLogger(__name__)
@@ -114,11 +86,20 @@ class Show_Service(command.OpenStackCommand):
     def get_parser(self, prog_name):
         parser = super(Show_Service, self).get_parser(prog_name)
         parser.add_argument(
-            '--long',
-            action='store_true',
-            default=False,
-            help='Additional fields are listed in output')
+            'service',
+            metavar='<service>',
+            help='Name or ID of service to display')
         return parser
 
-    def run(self, parsed_args):
-        self.log.info('v2.Show_Service.run(%s)' % parsed_args)
+    def get_data(self, parsed_args):
+        self.log.info('v2.Show_Service.get_data(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
+        service = utils.find_resource(
+            identity_client.services, parsed_args.service)
+
+        info = {}
+        info.update(user._info)
+
+        columns = sorted(info.keys())
+        values = [info[c] for c in columns]
+        return (columns, values)

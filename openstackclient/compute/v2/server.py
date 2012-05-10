@@ -44,30 +44,6 @@ def _format_servers_list_networks(server):
     return '; '.join(output)
 
 
-def get_server_properties(server, fields, formatters={}):
-    """Return a tuple containing the server properties.
-
-    :param server: a single Server resource
-    :param fields: tuple of strings with the desired field names
-    :param formatters: dictionary mapping field names to callables
-       to format the values
-    """
-    row = []
-    mixed_case_fields = ['serverId']
-
-    for field in fields:
-        if field in formatters:
-            row.append(formatters[field](server))
-        else:
-            if field in mixed_case_fields:
-                field_name = field.replace(' ', '_')
-            else:
-                field_name = field.lower().replace(' ', '_')
-            data = getattr(server, field_name, '')
-            row.append(data)
-    return tuple(row)
-
-
 class List_Server(command.OpenStackCommand, lister.Lister):
     "List server command."
 
@@ -142,7 +118,7 @@ class List_Server(command.OpenStackCommand, lister.Lister):
         columns = ('ID', 'Name', 'Status', 'Networks')
         data = nova_client.servers.list(search_opts=search_opts)
         return (columns,
-                (get_server_properties(
+                (utils.get_item_properties(
                     s, columns,
                     formatters={'Networks': _format_servers_list_networks},
                     ) for s in data),

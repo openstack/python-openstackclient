@@ -28,50 +28,149 @@ from openstackclient.common import command
 from openstackclient.common import utils
 
 
-def get_tenant_properties(tenant, fields, formatters={}):
-    """Return a tuple containing the server properties.
-
-    :param server: a single Server resource
-    :param fields: tuple of strings with the desired field names
-    :param formatters: dictionary mapping field names to callables
-       to format the values
-    """
-    row = []
-    mixed_case_fields = []
-
-    for field in fields:
-        if field in formatters:
-            row.append(formatters[field](tenant))
-        else:
-            if field in mixed_case_fields:
-                field_name = field.replace(' ', '_')
-            else:
-                field_name = field.lower().replace(' ', '_')
-            data = getattr(tenant, field_name, '')
-            row.append(data)
-    return tuple(row)
-
-
-class List_Tenant(command.OpenStackCommand, lister.Lister):
-    "List tenant command."
+class Create_Tenant(command.OpenStackCommand, show.ShowOne):
+    """Create tenant command"""
 
     api = 'identity'
     log = logging.getLogger(__name__)
 
+    def get_parser(self, prog_name):
+        parser = super(Create_Tenant, self).get_parser(prog_name)
+        parser.add_argument(
+            'tenant_name',
+            metavar='<tenant-name>',
+            help='New tenant name')
+        parser.add_argument(
+            '--description',
+            metavar='<tenant-description>',
+            help='New tenant description')
+        parser.add_argument(
+            '--enabled',
+            metavar='<true|false>',
+            default=True,
+            help='Initial tenant enabled status (default true)')
+        return parser
+
     def get_data(self, parsed_args):
-        self.log.debug('v2.List_Service.run(%s)' % parsed_args)
-        columns = ('ID', 'Name', 'Enabled')
+        self.log.debug('v2_0.Create_Tenant.get_data(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
+        tenant = identity_client.tenants.create(
+            parsed_args.tenant_name,
+            description=parsed_args.description,
+            enabled=parsed_args.enabled,
+        )
+
+        info = {}
+        info.update(tenant._info)
+
+        columns = sorted(info.keys())
+        values = [info[c] for c in columns]
+        return (columns, values)
+
+
+class Delete_Tenant(command.OpenStackCommand):
+    """Delete tenant command"""
+
+    api = 'identity'
+    log = logging.getLogger(__name__)
+
+    def get_parser(self, prog_name):
+        parser = super(Delete_Tenant, self).get_parser(prog_name)
+        parser.add_argument(
+            'tenant',
+            metavar='<tenant>',
+            help='Name or ID of tenant to delete')
+        return parser
+
+    def run(self, parsed_args):
+        self.log.debug('v2_0.Delete_Tenant.run(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
+        tenant = utils.find_resource(
+            identity_client.tenants, parsed_args.tenant)
+        identity_client.tenants.delete(tenant.id)
+        return
+
+
+class List_Tenant(command.OpenStackCommand, lister.Lister):
+    """List tenant command"""
+
+    api = 'identity'
+    log = logging.getLogger(__name__)
+
+    def get_parser(self, prog_name):
+        parser = super(List_Tenant, self).get_parser(prog_name)
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help='Additional fields are listed in output')
+        return parser
+
+    def get_data(self, parsed_args):
+        self.log.debug('v2_0.List_Tenant.get_data(%s)' % parsed_args)
+        if parsed_args.long:
+            columns = ('ID', 'Name', 'Description', 'Enabled')
+        else:
+            columns = ('ID', 'Name')
         data = self.app.client_manager.identity.tenants.list()
         return (columns,
-                (get_tenant_properties(
+                (utils.get_item_properties(
                     s, columns,
                     formatters={},
-                    ) for s in data),
-                )
+                ) for s in data),
+               )
+
+
+class Set_Tenant(command.OpenStackCommand):
+    """Set tenant command"""
+
+    api = 'identity'
+    log = logging.getLogger(__name__)
+
+    def get_parser(self, prog_name):
+        parser = super(Set_Tenant, self).get_parser(prog_name)
+        parser.add_argument(
+            'tenant',
+            metavar='<tenant>',
+            help='Name or ID of tenant to change')
+        parser.add_argument(
+            '--name',
+            metavar='<new-tenant-name>',
+            help='New tenant name')
+        parser.add_argument(
+            '--description',
+            metavar='<tenant-description>',
+            help='New tenant description')
+        parser.add_argument(
+            '--enabled',
+            metavar='<true|false>',
+            help='New tenant enabled status')
+        return parser
+
+    def run(self, parsed_args):
+        self.log.debug('v2_0.Set_Tenant.run(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
+        tenant = utils.find_resource(
+            identity_client.tenants, parsed_args.tenant)
+        kwargs = {}
+        if parsed_args.name:
+            kwargs.update({'name': parsed_args.name})
+        if parsed_args.description:
+            kwargs.update({'description': parsed_args.description})
+        if parsed_args.enabled:
+            kwargs.update(
+                {'enabled': utils.string_to_bool(parsed_args.enabled)},
+            )
+
+        if kwargs == {}:
+            print "Tenant not updated, no arguments present."
+            return
+        tenant.update(**kwargs)
+        return
 
 
 class Show_Tenant(command.OpenStackCommand, show.ShowOne):
-    "Show server command."
+    """Show tenant command"""
 
     api = 'identity'
     log = logging.getLogger(__name__)
@@ -85,16 +184,13 @@ class Show_Tenant(command.OpenStackCommand, show.ShowOne):
         return parser
 
     def get_data(self, parsed_args):
-        self.log.debug('v2.Show_Tenant.run(%s)' % parsed_args)
+        self.log.debug('v2_0.Show_Tenant.get_data(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         tenant = utils.find_resource(
             identity_client.tenants, parsed_args.tenant)
 
         info = {}
         info.update(tenant._info)
-
-        # Remove a couple of values that are long and not too useful
-        #info.pop('links', None)
 
         columns = sorted(info.keys())
         values = [info[c] for c in columns]
