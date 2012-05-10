@@ -70,8 +70,15 @@ setuptools.setup(
             'delete_tenant=' +
                 'openstackclient.identity.v2_0.tenant:Delete_Tenant',
             'list_tenant=openstackclient.identity.v2_0.tenant:List_Tenant',
-            'show_tenant=openstackclient.identity.v2_0.tenant:Show_Tenant',
             'set_tenant=openstackclient.identity.v2_0.tenant:Set_Tenant',
+            'show_tenant=openstackclient.identity.v2_0.tenant:Show_Tenant',
+            'create_user=' +
+                'openstackclient.identity.v2_0.user:CreateUser',
+            'delete_user=' +
+                'openstackclient.identity.v2_0.user:DeleteUser',
+            'list_user=openstackclient.identity.v2_0.user:ListUser',
+            'set_user=openstackclient.identity.v2_0.user:SetUser',
+            'show_user=openstackclient.identity.v2_0.user:ShowUser',
         ]
     }
 )
