@@ -62,9 +62,11 @@ setuptools.setup(
             'list_server=openstackclient.compute.v2.server:List_Server',
             'show_server=openstackclient.compute.v2.server:Show_Server',
             'create_service=' +
-                'openstackclient.identity.v2_0.service:Create_Service',
-            'list_service=openstackclient.identity.v2_0.service:List_Service',
-            'show_service=openstackclient.identity.v2_0.service:Show_Service',
+                'openstackclient.identity.v2_0.service:CreateService',
+            'delete_service=' +
+                'openstackclient.identity.v2_0.service:DeleteService',
+            'list_service=openstackclient.identity.v2_0.service:ListService',
+            'show_service=openstackclient.identity.v2_0.service:ShowService',
             'create_tenant=' +
                 'openstackclient.identity.v2_0.tenant:Create_Tenant',
             'delete_tenant=' +

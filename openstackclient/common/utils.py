@@ -47,10 +47,17 @@ def find_resource(manager, name_or_id):
     # finally try to find entity by name
     try:
         return manager.find(name=name_or_id)
-    except exceptions.NotFound:
-        msg = "No %s with a name or ID of '%s' exists." % \
-              (manager.resource_class.__name__.lower(), name_or_id)
-        raise exceptions.CommandError(msg)
+    # FIXME(dtroyer): The exception to catch here is dependent on which
+    #                 client library the manager passed in belongs to.
+    #                 Eventually this should be pulled from a common set
+    #                 of client exceptions.
+    except Exception as ex:
+        if '.NotFound' in type(ex).__name__:
+            msg = "No %s with a name or ID of '%s' exists." % \
+                (manager.resource_class.__name__.lower(), name_or_id)
+            raise exceptions.CommandError(msg)
+        else:
+            raise
 
 
 def get_item_properties(item, fields, mixed_case_fields=[], formatters={}):

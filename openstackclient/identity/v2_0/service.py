@@ -24,37 +24,81 @@ import logging
 from cliff import lister
 from cliff import show
 
+from keystoneclient import exceptions as identity_exc
 from openstackclient.common import command
+from openstackclient.common import exceptions
 from openstackclient.common import utils
 
 
-class Create_Service(command.OpenStackCommand):
+class CreateService(command.OpenStackCommand, show.ShowOne):
     """Create service command"""
 
-    # FIXME(dtroyer): Service commands are still WIP
     api = 'identity'
-    log = logging.getLogger(__name__)
+    log = logging.getLogger(__name__ + '.CreateService')
 
     def get_parser(self, prog_name):
-        parser = super(Create_Service, self).get_parser(prog_name)
+        parser = super(CreateService, self).get_parser(prog_name)
         parser.add_argument(
-            'service_name',
+            'name',
             metavar='<service-name>',
             help='New service name')
+        parser.add_argument(
+            '--type',
+            metavar='<service-type>',
+            required=True,
+            help='New service type',
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<service-description>',
+            help='New service description',
+        )
         return parser
 
     def get_data(self, parsed_args):
-        self.log.info('v2.Create_Service.get_data(%s)' % parsed_args)
+        self.log.debug('get_data(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
+        service = identity_client.services.create(
+            parsed_args.name,
+            parsed_args.type,
+            parsed_args.description,
+        )
+
+        info = {}
+        info.update(service._info)
+        return zip(*sorted(info.iteritems()))
 
 
-class List_Service(command.OpenStackCommand, lister.Lister):
+class DeleteService(command.OpenStackCommand):
+    """Delete service command"""
+
+    api = 'identity'
+    log = logging.getLogger(__name__ + '.DeleteService')
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteService, self).get_parser(prog_name)
+        parser.add_argument(
+            'service',
+            metavar='<service-id>',
+            help='ID of service to delete',
+        )
+        return parser
+
+    def run(self, parsed_args):
+        self.log.debug('run(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
+        identity_client.services.delete(parsed_args.service)
+        return
+
+
+class ListService(command.OpenStackCommand, lister.Lister):
     """List service command"""
 
     api = 'identity'
-    log = logging.getLogger(__name__)
+    log = logging.getLogger(__name__ + '.ListService')
 
     def get_parser(self, prog_name):
-        parser = super(List_Service, self).get_parser(prog_name)
+        parser = super(ListService, self).get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
@@ -63,7 +107,7 @@ class List_Service(command.OpenStackCommand, lister.Lister):
         return parser
 
     def get_data(self, parsed_args):
-        self.log.debug('v2.List_Service.get_data(%s)' % parsed_args)
+        self.log.debug('get_data(%s)' % parsed_args)
         if parsed_args.long:
             columns = ('ID', 'Name', 'Type', 'Description')
         else:
@@ -73,33 +117,43 @@ class List_Service(command.OpenStackCommand, lister.Lister):
                 (utils.get_item_properties(
                     s, columns,
                     formatters={},
-                    ) for s in data),
-                )
+                ) for s in data),
+               )
 
 
-class Show_Service(command.OpenStackCommand, show.ShowOne):
+class ShowService(command.OpenStackCommand, show.ShowOne):
     """Show service command"""
 
     api = 'identity'
-    log = logging.getLogger(__name__)
+    log = logging.getLogger(__name__ + '.ShowService')
 
     def get_parser(self, prog_name):
-        parser = super(Show_Service, self).get_parser(prog_name)
+        parser = super(ShowService, self).get_parser(prog_name)
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Name or ID of service to display')
+            help='Type, name or ID of service to display')
         return parser
 
     def get_data(self, parsed_args):
-        self.log.info('v2.Show_Service.get_data(%s)' % parsed_args)
+        self.log.debug('get_data(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        service = utils.find_resource(
-            identity_client.services, parsed_args.service)
+        try:
+            # search for the usual ID or name
+            service = utils.find_resource(
+                identity_client.services, parsed_args.service)
+        except exceptions.CommandError:
+            try:
+                # search for service type
+                service = identity_client.services.find(
+                    type=parsed_args.service)
+            # FIXME(dtroyer): This exception should eventually come from
+            #                 common client exceptions
+            except identity_exc.NotFound:
+                msg = "No service with a type, name or ID of '%s' exists." % \
+                    name_or_id
+                raise exceptions.CommandError(msg)
 
         info = {}
-        info.update(user._info)
-
-        columns = sorted(info.keys())
-        values = [info[c] for c in columns]
-        return (columns, values)
+        info.update(service._info)
+        return zip(*sorted(info.iteritems()))
