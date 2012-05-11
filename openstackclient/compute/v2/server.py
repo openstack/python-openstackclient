@@ -99,7 +99,7 @@ class List_Server(command.OpenStackCommand, lister.Lister):
         return parser
 
     def get_data(self, parsed_args):
-        self.log.debug('v2.List_Server.run(%s)' % parsed_args)
+        self.log.debug('get_data(%s)' % parsed_args)
         nova_client = self.app.client_manager.compute
         search_opts = {
             'all_tenants': parsed_args.all_tenants,
@@ -140,7 +140,7 @@ class Show_Server(command.OpenStackCommand, show.ShowOne):
         return parser
 
     def get_data(self, parsed_args):
-        self.log.debug('v2.Show_Server.run(%s)' % parsed_args)
+        self.log.debug('get_data(%s)' % parsed_args)
         nova_client = self.app.client_manager.compute
         server = utils.find_resource(nova_client.servers, parsed_args.server)
 

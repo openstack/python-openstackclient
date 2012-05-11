@@ -50,7 +50,7 @@ def env(*vars, **kwargs):
 
 class OpenStackShell(App):
 
-    CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(message)s'
+    CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(name)s %(message)s'
 
     log = logging.getLogger(__name__)
 

@@ -39,20 +39,31 @@ class Create_Tenant(command.OpenStackCommand, show.ShowOne):
         parser.add_argument(
             'tenant_name',
             metavar='<tenant-name>',
-            help='New tenant name')
+            help='New tenant name',
+        )
         parser.add_argument(
             '--description',
             metavar='<tenant-description>',
-            help='New tenant description')
-        parser.add_argument(
-            '--enabled',
-            metavar='<true|false>',
+            help='New tenant description',
+        )
+        enable_group = parser.add_mutually_exclusive_group()
+        enable_group.add_argument(
+            '--enable',
+            dest='enabled',
+            action='store_true',
             default=True,
-            help='Initial tenant enabled status (default true)')
+            help='Enable tenant',
+        )
+        enable_group.add_argument(
+            '--disable',
+            dest='enabled',
+            action='store_false',
+            help='Disable tenant',
+        )
         return parser
 
     def get_data(self, parsed_args):
-        self.log.debug('v2_0.Create_Tenant.get_data(%s)' % parsed_args)
+        self.log.debug('get_data(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         tenant = identity_client.tenants.create(
             parsed_args.tenant_name,
@@ -79,11 +90,12 @@ class Delete_Tenant(command.OpenStackCommand):
         parser.add_argument(
             'tenant',
             metavar='<tenant>',
-            help='Name or ID of tenant to delete')
+            help='Name or ID of tenant to delete',
+        )
         return parser
 
     def run(self, parsed_args):
-        self.log.debug('v2_0.Delete_Tenant.run(%s)' % parsed_args)
+        self.log.debug('run(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         tenant = utils.find_resource(
             identity_client.tenants, parsed_args.tenant)
@@ -103,11 +115,12 @@ class List_Tenant(command.OpenStackCommand, lister.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='Additional fields are listed in output')
+            help='Additional fields are listed in output',
+        )
         return parser
 
     def get_data(self, parsed_args):
-        self.log.debug('v2_0.List_Tenant.get_data(%s)' % parsed_args)
+        self.log.debug('get_data(%s)' % parsed_args)
         if parsed_args.long:
             columns = ('ID', 'Name', 'Description', 'Enabled')
         else:
@@ -132,39 +145,50 @@ class Set_Tenant(command.OpenStackCommand):
         parser.add_argument(
             'tenant',
             metavar='<tenant>',
-            help='Name or ID of tenant to change')
+            help='Name or ID of tenant to change',
+        )
         parser.add_argument(
             '--name',
             metavar='<new-tenant-name>',
-            help='New tenant name')
+            help='New tenant name',
+        )
         parser.add_argument(
             '--description',
             metavar='<tenant-description>',
-            help='New tenant description')
-        parser.add_argument(
-            '--enabled',
-            metavar='<true|false>',
-            help='New tenant enabled status')
+            help='New tenant description',
+        )
+        enable_group = parser.add_mutually_exclusive_group()
+        enable_group.add_argument(
+            '--enable',
+            dest='enabled',
+            action='store_true',
+            default=True,
+            help='Enable tenant (default)',
+        )
+        enable_group.add_argument(
+            '--disable',
+            dest='enabled',
+            action='store_false',
+            help='Disable tenant',
+        )
         return parser
 
     def run(self, parsed_args):
-        self.log.debug('v2_0.Set_Tenant.run(%s)' % parsed_args)
+        self.log.debug('run(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         tenant = utils.find_resource(
             identity_client.tenants, parsed_args.tenant)
         kwargs = {}
         if parsed_args.name:
-            kwargs.update({'name': parsed_args.name})
+            kwargs['name'] = parsed_args.name
         if parsed_args.description:
-            kwargs.update({'description': parsed_args.description})
-        if parsed_args.enabled:
-            kwargs.update(
-                {'enabled': utils.string_to_bool(parsed_args.enabled)},
-            )
+            kwargs['description'] = parsed_args.description
+        if 'enabled' in parsed_args:
+            kwargs['enabled'] = parsed_args.enabled
 
         if kwargs == {}:
-            print "Tenant not updated, no arguments present."
-            return
+            stdout.write("Tenant not updated, no arguments present")
+            return 0
         tenant.update(**kwargs)
         return
 
@@ -180,11 +204,12 @@ class Show_Tenant(command.OpenStackCommand, show.ShowOne):
         parser.add_argument(
             'tenant',
             metavar='<tenant>',
-            help='Name or ID of tenant to display')
+            help='Name or ID of tenant to display',
+        )
         return parser
 
     def get_data(self, parsed_args):
-        self.log.debug('v2_0.Show_Tenant.get_data(%s)' % parsed_args)
+        self.log.debug('get_data(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         tenant = utils.find_resource(
             identity_client.tenants, parsed_args.tenant)
