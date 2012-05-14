@@ -61,6 +61,14 @@ setuptools.setup(
         'openstack.cli': [
             'list_server=openstackclient.compute.v2.server:ListServer',
             'show_server=openstackclient.compute.v2.server:ShowServer',
+            'create_endpoint=' +
+                'openstackclient.identity.v2_0.endpoint:CreateEndpoint',
+            'delete_endpoint=' +
+                'openstackclient.identity.v2_0.endpoint:DeleteEndpoint',
+            'list_endpoint=' +
+                'openstackclient.identity.v2_0.endpoint:ListEndpoint',
+            'show_endpoint=' +
+                'openstackclient.identity.v2_0.endpoint:ShowEndpoint',
             'create_service=' +
                 'openstackclient.identity.v2_0.service:CreateService',
             'delete_service=' +

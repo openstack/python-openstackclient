@@ -52,7 +52,7 @@ def find_resource(manager, name_or_id):
     #                 Eventually this should be pulled from a common set
     #                 of client exceptions.
     except Exception as ex:
-        if '.NotFound' in type(ex).__name__:
+        if type(ex).__name__ == 'NotFound':
             msg = "No %s with a name or ID of '%s' exists." % \
                 (manager.resource_class.__name__.lower(), name_or_id)
             raise exceptions.CommandError(msg)
