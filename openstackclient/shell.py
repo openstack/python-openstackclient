@@ -196,9 +196,11 @@ class OpenStackShell(App):
 
         # If the user is not asking for help, make sure they
         # have given us auth.
-        cmd_info = self.command_manager.find_command(argv)
-        cmd_factory, cmd_name, sub_argv = cmd_info
-        if cmd_name != 'help':
+        cmd_name = None
+        if argv:
+            cmd_info = self.command_manager.find_command(argv)
+            cmd_factory, cmd_name, sub_argv = cmd_info
+        if self.interactive_mode or cmd_name != 'help':
             self.authenticate_user()
 
     def prepare_to_run_command(self, cmd):
@@ -215,7 +217,10 @@ class OpenStackShell(App):
 
 
 def main(argv=sys.argv[1:]):
-    return OpenStackShell().run(argv)
+    try:
+        return OpenStackShell().run(argv)
+    except:
+        return 1
 
 
 if __name__ == "__main__":
