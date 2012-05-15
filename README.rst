@@ -14,6 +14,35 @@ operations in OpenStack.
 python-openstackclient is designed to add support for API extensions via a
 plugin mechanism
 
+For release management:
+
+ * https://launchpad.net/python-openstackclient
+
+For blueprints and feature specifications:
+
+ * https://blueprints.launchpad.net/python-openstackclient
+
+For issue tracking:
+
+ * https://bugs.launchpad.net/python-openstackclient
+
+Getting Started
+===============
+
+Once you have downloaded the client it can be built from setup.py with::
+   python setup.py install
+
+Alternatively you can build without installing with::
+   python setup.py build
+
+Toxicity tests can be ran simply by running ``run_tests.sh``
+
+The client can be called interactively by simply typing::
+   openstack
+
+Alternatively command line parameters can be called non-interactively::
+   openstack --help
+
 
 Configuration
 =============
@@ -55,3 +84,27 @@ are listed here::
    --verbose | -v      # Increase verbosity of output. Can be repeated.
    --quiet | -q        # suppress output except warnings and errors
    --help | -h         # show a help message and exit
+
+Building Contributor Documentation
+==================================
+
+This documentation is written by contributors, for contributors.
+
+The source is maintained in the ``docs/source`` folder using
+`reStructuredText`_ and built by `Sphinx`_
+
+.. _reStructuredText: http://docutils.sourceforge.net/rst.html
+.. _Sphinx: http://sphinx.pocoo.org/
+
+* Building Automatically::
+
+    $ ./run_tests.sh --docs
+
+* Building Manually::
+
+    $ export DJANGO_SETTINGS_MODULE=local.local_settings
+    $ python doc/generate_autodoc_index.py
+    $ sphinx-build -b html doc/source build/sphinx/html
+
+Results are in the `build/sphinx/html` directory
+
