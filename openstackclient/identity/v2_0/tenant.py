@@ -28,14 +28,14 @@ from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class Create_Tenant(command.OpenStackCommand, show.ShowOne):
+class CreateTenant(command.OpenStackCommand, show.ShowOne):
     """Create tenant command"""
 
     api = 'identity'
-    log = logging.getLogger(__name__)
+    log = logging.getLogger(__name__ + '.CreateTenant')
 
     def get_parser(self, prog_name):
-        parser = super(Create_Tenant, self).get_parser(prog_name)
+        parser = super(CreateTenant, self).get_parser(prog_name)
         parser.add_argument(
             'tenant_name',
             metavar='<tenant-name>',
@@ -73,20 +73,17 @@ class Create_Tenant(command.OpenStackCommand, show.ShowOne):
 
         info = {}
         info.update(tenant._info)
-
-        columns = sorted(info.keys())
-        values = [info[c] for c in columns]
-        return (columns, values)
+        return zip(*sorted(info.iteritems()))
 
 
-class Delete_Tenant(command.OpenStackCommand):
+class DeleteTenant(command.OpenStackCommand):
     """Delete tenant command"""
 
     api = 'identity'
-    log = logging.getLogger(__name__)
+    log = logging.getLogger(__name__ + '.DeleteTenant')
 
     def get_parser(self, prog_name):
-        parser = super(Delete_Tenant, self).get_parser(prog_name)
+        parser = super(DeleteTenant, self).get_parser(prog_name)
         parser.add_argument(
             'tenant',
             metavar='<tenant>',
@@ -103,14 +100,14 @@ class Delete_Tenant(command.OpenStackCommand):
         return
 
 
-class List_Tenant(command.OpenStackCommand, lister.Lister):
+class ListTenant(command.OpenStackCommand, lister.Lister):
     """List tenant command"""
 
     api = 'identity'
-    log = logging.getLogger(__name__)
+    log = logging.getLogger(__name__ + '.ListTenant')
 
     def get_parser(self, prog_name):
-        parser = super(List_Tenant, self).get_parser(prog_name)
+        parser = super(ListTenant, self).get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
@@ -134,14 +131,14 @@ class List_Tenant(command.OpenStackCommand, lister.Lister):
                )
 
 
-class Set_Tenant(command.OpenStackCommand):
+class SetTenant(command.OpenStackCommand):
     """Set tenant command"""
 
     api = 'identity'
-    log = logging.getLogger(__name__)
+    log = logging.getLogger(__name__ + '.SetTenant')
 
     def get_parser(self, prog_name):
-        parser = super(Set_Tenant, self).get_parser(prog_name)
+        parser = super(SetTenant, self).get_parser(prog_name)
         parser.add_argument(
             'tenant',
             metavar='<tenant>',
@@ -193,14 +190,14 @@ class Set_Tenant(command.OpenStackCommand):
         return
 
 
-class Show_Tenant(command.OpenStackCommand, show.ShowOne):
+class ShowTenant(command.OpenStackCommand, show.ShowOne):
     """Show tenant command"""
 
     api = 'identity'
-    log = logging.getLogger(__name__)
+    log = logging.getLogger(__name__ + '.ShowTenant')
 
     def get_parser(self, prog_name):
-        parser = super(Show_Tenant, self).get_parser(prog_name)
+        parser = super(ShowTenant, self).get_parser(prog_name)
         parser.add_argument(
             'tenant',
             metavar='<tenant>',
@@ -216,7 +213,4 @@ class Show_Tenant(command.OpenStackCommand, show.ShowOne):
 
         info = {}
         info.update(tenant._info)
-
-        columns = sorted(info.keys())
-        values = [info[c] for c in columns]
-        return (columns, values)
+        return zip(*sorted(info.iteritems()))
