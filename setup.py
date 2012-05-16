@@ -59,8 +59,8 @@ setuptools.setup(
     entry_points={
         'console_scripts': ['openstack=openstackclient.shell:main'],
         'openstack.cli': [
-            'list_server=openstackclient.compute.v2.server:List_Server',
-            'show_server=openstackclient.compute.v2.server:Show_Server',
+            'list_server=openstackclient.compute.v2.server:ListServer',
+            'show_server=openstackclient.compute.v2.server:ShowServer',
             'create_service=' +
                 'openstackclient.identity.v2_0.service:CreateService',
             'delete_service=' +
@@ -68,12 +68,12 @@ setuptools.setup(
             'list_service=openstackclient.identity.v2_0.service:ListService',
             'show_service=openstackclient.identity.v2_0.service:ShowService',
             'create_tenant=' +
-                'openstackclient.identity.v2_0.tenant:Create_Tenant',
+                'openstackclient.identity.v2_0.tenant:CreateTenant',
             'delete_tenant=' +
-                'openstackclient.identity.v2_0.tenant:Delete_Tenant',
-            'list_tenant=openstackclient.identity.v2_0.tenant:List_Tenant',
-            'set_tenant=openstackclient.identity.v2_0.tenant:Set_Tenant',
-            'show_tenant=openstackclient.identity.v2_0.tenant:Show_Tenant',
+                'openstackclient.identity.v2_0.tenant:DeleteTenant',
+            'list_tenant=openstackclient.identity.v2_0.tenant:ListTenant',
+            'set_tenant=openstackclient.identity.v2_0.tenant:SetTenant',
+            'show_tenant=openstackclient.identity.v2_0.tenant:ShowTenant',
             'create_user=' +
                 'openstackclient.identity.v2_0.user:CreateUser',
             'delete_user=' +

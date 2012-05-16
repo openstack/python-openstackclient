@@ -44,14 +44,14 @@ def _format_servers_list_networks(server):
     return '; '.join(output)
 
 
-class List_Server(command.OpenStackCommand, lister.Lister):
-    "List server command."
+class ListServer(command.OpenStackCommand, lister.Lister):
+    """List server command"""
 
     api = 'compute'
-    log = logging.getLogger(__name__)
+    log = logging.getLogger(__name__ + '.ListServer')
 
     def get_parser(self, prog_name):
-        parser = super(List_Server, self).get_parser(prog_name)
+        parser = super(ListServer, self).get_parser(prog_name)
         parser.add_argument(
             '--reservation-id',
             help='only return instances that match the reservation',
@@ -125,14 +125,14 @@ class List_Server(command.OpenStackCommand, lister.Lister):
                 )
 
 
-class Show_Server(command.OpenStackCommand, show.ShowOne):
-    "Show server command."
+class ShowServer(command.OpenStackCommand, show.ShowOne):
+    """Show server command"""
 
     api = 'compute'
-    log = logging.getLogger(__name__)
+    log = logging.getLogger(__name__ + '.ShowServer')
 
     def get_parser(self, prog_name):
-        parser = super(Show_Server, self).get_parser(prog_name)
+        parser = super(ShowServer, self).get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -164,7 +164,4 @@ class Show_Server(command.OpenStackCommand, show.ShowOne):
 
         # Remove a couple of values that are long and not too useful
         info.pop('links', None)
-
-        columns = sorted(info.keys())
-        values = [info[c] for c in columns]
-        return (columns, values)
+        return zip(*sorted(info.iteritems()))
