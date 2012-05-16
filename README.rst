@@ -29,11 +29,17 @@ For issue tracking:
 Getting Started
 ===============
 
-Once you have downloaded the client it can be built from setup.py with::
-   python setup.py install
+We recommend using a virtualenv to install the client. This description
+uses `virtualenvwrapper`_ to create the virtualenv. Install the prereqs,
+then build the egg, and install the client into the virtualenv:
 
-Alternatively you can build without installing with::
-   python setup.py build
+    mkvirtualenv openstackclient
+    pip install -r tools/pip-requires
+    python setup.py build
+    easy_install dist/python_openstackclient-0.1-py2.7.egg 
+
+.. _virtualenvwrapper: http://www.doughellmann.com/projects/virtualenvwrapper
+
 
 Toxicity tests can be ran simply by running ``run_tests.sh``
 
