@@ -31,12 +31,12 @@ Getting Started
 
 We recommend using a virtualenv to install the client. This description
 uses `virtualenvwrapper`_ to create the virtualenv. Install the prereqs,
-then build the egg, and install the client into the virtualenv:
+then build the egg, and install the client into the virtualenv::
 
     mkvirtualenv openstackclient
     pip install -r tools/pip-requires
     python setup.py build
-    easy_install dist/python_openstackclient-0.1-py2.7.egg 
+    easy_install dist/python_openstackclient-0.1-py2.7.egg
 
 .. _virtualenvwrapper: http://www.doughellmann.com/projects/virtualenvwrapper
 
