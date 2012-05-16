@@ -59,6 +59,16 @@ setuptools.setup(
     entry_points={
         'console_scripts': ['openstack=openstackclient.shell:main'],
         'openstack.cli': [
+            'add_role=' +
+                'openstackclient.identity.v2_0.role:AddRole',
+            'create_role=' +
+                'openstackclient.identity.v2_0.role:CreateRole',
+            'delete_role=' +
+                'openstackclient.identity.v2_0.role:DeleteRole',
+            'list_role=openstackclient.identity.v2_0.role:ListRole',
+            'remove_role=' +
+                'openstackclient.identity.v2_0.role:RemoveRole',
+            'show_role=openstackclient.identity.v2_0.role:ShowRole',
             'list_server=openstackclient.compute.v2.server:ListServer',
             'show_server=openstackclient.compute.v2.server:ShowServer',
             'create_endpoint=' +
@@ -89,6 +99,7 @@ setuptools.setup(
             'list_user=openstackclient.identity.v2_0.user:ListUser',
             'set_user=openstackclient.identity.v2_0.user:SetUser',
             'show_user=openstackclient.identity.v2_0.user:ShowUser',
+            'list_user-role=openstackclient.identity.v2_0.role:ListUserRole',
         ]
     }
 )
