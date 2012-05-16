@@ -1,8 +1,6 @@
 cliff
 argparse
-coverage
 httplib2
-mock
 prettytable
 simplejson
 -e git://github.com/openstack/python-keystoneclient.git#egg=python-keystoneclient
