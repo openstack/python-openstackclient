@@ -40,6 +40,11 @@ then build the egg, and install the client into the virtualenv::
 
 .. _virtualenvwrapper: http://www.doughellmann.com/projects/virtualenvwrapper
 
+If you want to work in development mode, do this instead::
+
+    mkvirtualenv openstackclient
+    pip install -r tools/pip-requires
+    python setup.py develop
 
 Toxicity tests can be ran simply by running ``run_tests.sh``
 
