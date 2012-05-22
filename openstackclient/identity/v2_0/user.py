@@ -167,6 +167,11 @@ class SetUser(command.OpenStackCommand):
             help='Name or ID of user to change',
         )
         parser.add_argument(
+            '--name',
+            metavar='<new-user-name>',
+            help='New user name',
+        )
+        parser.add_argument(
             '--password',
             metavar='<user-password>',
             help='New user password',
@@ -217,7 +222,7 @@ class SetUser(command.OpenStackCommand):
         if not len(kwargs):
             stdout.write("User not updated, no arguments present")
             return
-        identity_client.users.delete(user.id)
+        identity_client.users.update(user.id, **kwargs)
         return
 
 
