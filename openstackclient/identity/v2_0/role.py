@@ -234,7 +234,6 @@ class RemoveRole(command.OpenStackCommand):
             identity_client.tenants, parsed_args.tenant)
         user = utils.find_resource(
             identity_client.users, parsed_args.user)
-        print "role: %s" % role
         identity_client.roles.remove_user_role(
             user.id,
             role.id,
