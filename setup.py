@@ -42,7 +42,7 @@ setuptools.setup(
     url='https://github.com/openstack/python-openstackclient',
     license="Apache License, Version 2.0",
     author='OpenStack Client Contributors',
-    author_email='openstackclient@example.com',
+    author_email='openstack@lists.launchpad.net',
     packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
     classifiers=[
        'Development Status :: 2 - Pre-Alpha',

@@ -115,7 +115,7 @@ The source is maintained in the ``docs/source`` folder using
 
     $ export DJANGO_SETTINGS_MODULE=local.local_settings
     $ python doc/generate_autodoc_index.py
-    $ sphinx-build -b html doc/source build/sphinx/html
+    $ sphinx-build -b html docs/source build/sphinx/html
 
 Results are in the `build/sphinx/html` directory
 

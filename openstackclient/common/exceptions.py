@@ -128,7 +128,7 @@ _code_map = dict((c.http_status, c) for c in [BadRequest, Unauthorized,
 
 def from_response(response, body):
     """
-    Return an instance of an ClientException or subclass
+    Return an instance of a ClientException or subclass
     based on an httplib2 response.
 
     Usage::
