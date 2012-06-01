@@ -21,14 +21,14 @@ Tenant action implementations
 
 import logging
 
+from cliff import command
 from cliff import lister
 from cliff import show
 
-from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class CreateTenant(command.OpenStackCommand, show.ShowOne):
+class CreateTenant(show.ShowOne):
     """Create tenant command"""
 
     api = 'identity'
@@ -62,8 +62,8 @@ class CreateTenant(command.OpenStackCommand, show.ShowOne):
         )
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         tenant = identity_client.tenants.create(
             parsed_args.tenant_name,
@@ -76,7 +76,7 @@ class CreateTenant(command.OpenStackCommand, show.ShowOne):
         return zip(*sorted(info.iteritems()))
 
 
-class DeleteTenant(command.OpenStackCommand):
+class DeleteTenant(command.Command):
     """Delete tenant command"""
 
     api = 'identity'
@@ -91,8 +91,8 @@ class DeleteTenant(command.OpenStackCommand):
         )
         return parser
 
-    def run(self, parsed_args):
-        self.log.debug('run(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         tenant = utils.find_resource(
             identity_client.tenants, parsed_args.tenant)
@@ -100,7 +100,7 @@ class DeleteTenant(command.OpenStackCommand):
         return
 
 
-class ListTenant(command.OpenStackCommand, lister.Lister):
+class ListTenant(lister.Lister):
     """List tenant command"""
 
     api = 'identity'
@@ -116,8 +116,8 @@ class ListTenant(command.OpenStackCommand, lister.Lister):
         )
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         if parsed_args.long:
             columns = ('ID', 'Name', 'Description', 'Enabled')
         else:
@@ -131,7 +131,7 @@ class ListTenant(command.OpenStackCommand, lister.Lister):
                )
 
 
-class SetTenant(command.OpenStackCommand):
+class SetTenant(command.Command):
     """Set tenant command"""
 
     api = 'identity'
@@ -170,8 +170,8 @@ class SetTenant(command.OpenStackCommand):
         )
         return parser
 
-    def run(self, parsed_args):
-        self.log.debug('run(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         tenant = utils.find_resource(
             identity_client.tenants, parsed_args.tenant)
@@ -190,7 +190,7 @@ class SetTenant(command.OpenStackCommand):
         return
 
 
-class ShowTenant(command.OpenStackCommand, show.ShowOne):
+class ShowTenant(show.ShowOne):
     """Show tenant command"""
 
     api = 'identity'
@@ -205,8 +205,8 @@ class ShowTenant(command.OpenStackCommand, show.ShowOne):
         )
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         tenant = utils.find_resource(
             identity_client.tenants, parsed_args.tenant)

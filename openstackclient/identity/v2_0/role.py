@@ -21,14 +21,14 @@ Role action implementations
 
 import logging
 
+from cliff import command
 from cliff import lister
 from cliff import show
 
-from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class AddRole(command.OpenStackCommand, show.ShowOne):
+class AddRole(show.ShowOne):
     """Add role to tenant:user"""
 
     api = 'identity'
@@ -55,8 +55,8 @@ class AddRole(command.OpenStackCommand, show.ShowOne):
         )
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         role = utils.find_resource(
             identity_client.roles, parsed_args.role)
@@ -75,7 +75,7 @@ class AddRole(command.OpenStackCommand, show.ShowOne):
         return zip(*sorted(info.iteritems()))
 
 
-class CreateRole(command.OpenStackCommand, show.ShowOne):
+class CreateRole(show.ShowOne):
     """Create new role"""
 
     api = 'identity'
@@ -90,8 +90,8 @@ class CreateRole(command.OpenStackCommand, show.ShowOne):
         )
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         role = identity_client.roles.create(
             parsed_args.role_name,
@@ -102,7 +102,7 @@ class CreateRole(command.OpenStackCommand, show.ShowOne):
         return zip(*sorted(info.iteritems()))
 
 
-class DeleteRole(command.OpenStackCommand):
+class DeleteRole(command.Command):
     """Delete existing role"""
 
     api = 'identity'
@@ -117,8 +117,8 @@ class DeleteRole(command.OpenStackCommand):
         )
         return parser
 
-    def run(self, parsed_args):
-        self.log.debug('run(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         role = utils.find_resource(
             identity_client.roles, parsed_args.role)
@@ -126,14 +126,14 @@ class DeleteRole(command.OpenStackCommand):
         return
 
 
-class ListRole(command.OpenStackCommand, lister.Lister):
+class ListRole(lister.Lister):
     """List roles"""
 
     api = 'identity'
     log = logging.getLogger(__name__ + '.ListRole')
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         columns = ('ID', 'Name')
         data = self.app.client_manager.identity.roles.list()
         return (columns,
@@ -144,7 +144,7 @@ class ListRole(command.OpenStackCommand, lister.Lister):
                )
 
 
-class ListUserRole(command.OpenStackCommand, lister.Lister):
+class ListUserRole(lister.Lister):
     """List user-role assignments"""
 
     api = 'identity'
@@ -165,8 +165,8 @@ class ListUserRole(command.OpenStackCommand, lister.Lister):
         )
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         columns = ('ID', 'Name', 'Tenant ID', 'User ID')
         identity_client = self.app.client_manager.identity
 
@@ -198,7 +198,7 @@ class ListUserRole(command.OpenStackCommand, lister.Lister):
                )
 
 
-class RemoveRole(command.OpenStackCommand):
+class RemoveRole(command.Command):
     """Remove role from tenant:user"""
 
     api = 'identity'
@@ -225,8 +225,8 @@ class RemoveRole(command.OpenStackCommand):
         )
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         role = utils.find_resource(
             identity_client.roles, parsed_args.role)
@@ -241,7 +241,7 @@ class RemoveRole(command.OpenStackCommand):
         )
 
 
-class ShowRole(command.OpenStackCommand, show.ShowOne):
+class ShowRole(show.ShowOne):
     """Show single role"""
 
     api = 'identity'
@@ -256,8 +256,8 @@ class ShowRole(command.OpenStackCommand, show.ShowOne):
         )
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         role = utils.find_resource(
             identity_client.roles, parsed_args.role)

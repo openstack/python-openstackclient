@@ -21,16 +21,16 @@ Service action implementations
 
 import logging
 
+from cliff import command
 from cliff import lister
 from cliff import show
 
 from keystoneclient import exceptions as identity_exc
-from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 
 
-class CreateService(command.OpenStackCommand, show.ShowOne):
+class CreateService(show.ShowOne):
     """Create service command"""
 
     api = 'identity'
@@ -55,8 +55,8 @@ class CreateService(command.OpenStackCommand, show.ShowOne):
         )
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         service = identity_client.services.create(
             parsed_args.name,
@@ -69,7 +69,7 @@ class CreateService(command.OpenStackCommand, show.ShowOne):
         return zip(*sorted(info.iteritems()))
 
 
-class DeleteService(command.OpenStackCommand):
+class DeleteService(command.Command):
     """Delete service command"""
 
     api = 'identity'
@@ -84,14 +84,14 @@ class DeleteService(command.OpenStackCommand):
         )
         return parser
 
-    def run(self, parsed_args):
-        self.log.debug('run(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         identity_client.services.delete(parsed_args.service)
         return
 
 
-class ListService(command.OpenStackCommand, lister.Lister):
+class ListService(lister.Lister):
     """List service command"""
 
     api = 'identity'
@@ -106,8 +106,8 @@ class ListService(command.OpenStackCommand, lister.Lister):
             help='Additional fields are listed in output')
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         if parsed_args.long:
             columns = ('ID', 'Name', 'Type', 'Description')
         else:
@@ -121,7 +121,7 @@ class ListService(command.OpenStackCommand, lister.Lister):
                )
 
 
-class ShowService(command.OpenStackCommand, show.ShowOne):
+class ShowService(show.ShowOne):
     """Show service command"""
 
     api = 'identity'
@@ -135,8 +135,8 @@ class ShowService(command.OpenStackCommand, show.ShowOne):
             help='Type, name or ID of service to display')
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         try:
             # search for the usual ID or name

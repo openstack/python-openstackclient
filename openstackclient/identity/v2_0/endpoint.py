@@ -21,16 +21,16 @@ Endpoint action implementations
 
 import logging
 
+from cliff import command
 from cliff import lister
 from cliff import show
 
 from keystoneclient import exceptions as identity_exc
-from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 
 
-class CreateEndpoint(command.OpenStackCommand, show.ShowOne):
+class CreateEndpoint(show.ShowOne):
     """Create endpoint command"""
 
     api = 'identity'
@@ -60,8 +60,8 @@ class CreateEndpoint(command.OpenStackCommand, show.ShowOne):
             help='New endpoint internal URL')
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         service = utils.find_resource(
             identity_client.services, parsed_args.service)
@@ -80,7 +80,7 @@ class CreateEndpoint(command.OpenStackCommand, show.ShowOne):
         return zip(*sorted(info.iteritems()))
 
 
-class DeleteEndpoint(command.OpenStackCommand):
+class DeleteEndpoint(command.Command):
     """Delete endpoint command"""
 
     api = 'identity'
@@ -94,14 +94,14 @@ class DeleteEndpoint(command.OpenStackCommand):
             help='ID of endpoint to delete')
         return parser
 
-    def run(self, parsed_args):
-        self.log.debug('run(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         identity_client.endpoints.delete(parsed_args.endpoint)
         return
 
 
-class ListEndpoint(command.OpenStackCommand, lister.Lister):
+class ListEndpoint(lister.Lister):
     """List endpoint command"""
 
     api = 'identity'
@@ -116,8 +116,8 @@ class ListEndpoint(command.OpenStackCommand, lister.Lister):
             help='Additional fields are listed in output')
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         if parsed_args.long:
             columns = ('ID', 'Region', 'Service Name', 'Service Type',
@@ -139,7 +139,7 @@ class ListEndpoint(command.OpenStackCommand, lister.Lister):
                )
 
 
-class ShowEndpoint(command.OpenStackCommand, show.ShowOne):
+class ShowEndpoint(show.ShowOne):
     """Show endpoint command"""
 
     api = 'identity'
@@ -172,8 +172,8 @@ class ShowEndpoint(command.OpenStackCommand, show.ShowOne):
             help='Show all endpoints for this service')
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
         if not parsed_args.all:

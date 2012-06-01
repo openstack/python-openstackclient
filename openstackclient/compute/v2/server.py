@@ -22,10 +22,10 @@ Server action implementations
 import logging
 import os
 
+from cliff import command
 from cliff import lister
 from cliff import show
 
-from openstackclient.common import command
 from openstackclient.common import utils
 
 
@@ -44,7 +44,7 @@ def _format_servers_list_networks(server):
     return '; '.join(output)
 
 
-class ListServer(command.OpenStackCommand, lister.Lister):
+class ListServer(lister.Lister):
     """List server command"""
 
     api = 'compute'
@@ -98,8 +98,8 @@ class ListServer(command.OpenStackCommand, lister.Lister):
             )
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         nova_client = self.app.client_manager.compute
         search_opts = {
             'all_tenants': parsed_args.all_tenants,
@@ -125,7 +125,7 @@ class ListServer(command.OpenStackCommand, lister.Lister):
                 )
 
 
-class ShowServer(command.OpenStackCommand, show.ShowOne):
+class ShowServer(show.ShowOne):
     """Show server command"""
 
     api = 'compute'
@@ -139,8 +139,8 @@ class ShowServer(command.OpenStackCommand, show.ShowOne):
             help='Name or ID of server to display')
         return parser
 
-    def get_data(self, parsed_args):
-        self.log.debug('get_data(%s)' % parsed_args)
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
         nova_client = self.app.client_manager.compute
         server = utils.find_resource(nova_client.servers, parsed_args.server)
 
