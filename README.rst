@@ -101,7 +101,7 @@ Building Contributor Documentation
 
 This documentation is written by contributors, for contributors.
 
-The source is maintained in the ``docs/source`` folder using
+The source is maintained in the ``doc/source`` folder using
 `reStructuredText`_ and built by `Sphinx`_
 
 .. _reStructuredText: http://docutils.sourceforge.net/rst.html
@@ -115,7 +115,7 @@ The source is maintained in the ``docs/source`` folder using
 
     $ export DJANGO_SETTINGS_MODULE=local.local_settings
     $ python doc/generate_autodoc_index.py
-    $ sphinx-build -b html docs/source build/sphinx/html
+    $ sphinx-build -b html doc/source build/sphinx/html
 
 Results are in the `build/sphinx/html` directory
 
