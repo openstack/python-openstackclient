@@ -99,19 +99,19 @@ class OpenStackShell(App):
         parser.add_argument('--os-identity-api-version',
             metavar='<identity-api-version>',
             default=env('OS_IDENTITY_API_VERSION', default='2.0'),
-            help='Identity API version, default=2.0 '\
+            help='Identity API version, default=2.0 '
                                 '(Env: OS_IDENTITY_API_VERSION)')
 
         parser.add_argument('--os-compute-api-version',
             metavar='<compute-api-version>',
             default=env('OS_COMPUTE_API_VERSION', default='2'),
-            help='Compute API version, default=2 '\
+            help='Compute API version, default=2 '
                                 '(Env: OS_COMPUTE_API_VERSION)')
 
         parser.add_argument('--os-image-api-version',
             metavar='<image-api-version>',
             default=env('OS_IMAGE_API_VERSION', default='1.0'),
-            help='Image API version, default=1.0 '\
+            help='Image API version, default=1.0 '
                                 '(Env: OS_IMAGE_API_VERSION)')
 
         parser.add_argument('--os-token', metavar='<token>',

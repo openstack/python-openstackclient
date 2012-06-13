@@ -155,7 +155,7 @@ class ShowEndpoint(command.OpenStackCommand, show.ShowOne):
             '--type',
             metavar='<endpoint-type>',
             default='publicURL',
-            help='Endpoint type: publicURL, internalURL, adminURL ' + \
+            help='Endpoint type: publicURL, internalURL, adminURL ' +
                 '(default publicURL)')
         parser.add_argument(
             '--attr',
