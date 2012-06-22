@@ -19,10 +19,13 @@ Getting Started
 Contributing
 ============
 
-The master repo is kept on `GitHub`__, please follow the usual protocol
-for social coding interaction and whatnot.
+Code is hosted `on GitHub`_. Submit bugs to the Python-OpenStackClient project
+on  `Launchpad`_. Submit code to the openstack/python-openstackclient project
+using `Gerrit`_.
 
-__ http://github.com/openstack/python-openstackclient
+.. _on GitHub: https://github.com/openstack/python-openstackclient
+.. _Launchpad: https://launchpad.net/python-openstackclient
+.. _Gerrit: http://wiki.openstack.org/GerritWorkflow
 
 Index
 =====
