@@ -1,5 +1,6 @@
 include AUTHORS
 include LICENSE
 include README.rst
+include openstackclient/versioninfo
 recursive-include doc *
 recursive-include tests *

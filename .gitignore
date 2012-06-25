@@ -12,3 +12,4 @@ python_openstackclient.egg-info
 .tox/
 ChangeLog
 TAGS
+openstackclient/versioninfo

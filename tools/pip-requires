@@ -3,6 +3,5 @@ argparse
 httplib2
 prettytable
 simplejson
--e git://github.com/openstack/python-keystoneclient.git#egg=python-keystoneclient
--e git+https://github.com/openstack/python-novaclient.git#egg=python_novaclient
-
+https://github.com/openstack/python-keystoneclient/zipball/master#egg=python-keystoneclient
+https://github.com/openstack/python-novaclient/zipball/master#egg=python-novaclient
