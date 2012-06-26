@@ -3,7 +3,7 @@ OpenStack Client
 
 This is a command-line client for OpenStack that unifies the operation
 of python-keystoneclient, python-novaclient and python-glanceclient
-(formerly glance clienti) in a single shell with a uniform command
+(formerly glance client) in a single shell with a uniform command
 structure.
 
 Contents:
