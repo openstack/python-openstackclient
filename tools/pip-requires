@@ -2,6 +2,6 @@ cliff
 argparse
 httplib2
 prettytable
+python-keystoneclient>=0.1,<0.2
+python-novaclient>=2,<3
 simplejson
-https://github.com/openstack/python-keystoneclient/zipball/master#egg=python-keystoneclient
-https://github.com/openstack/python-novaclient/zipball/master#egg=python-novaclient
