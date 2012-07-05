@@ -19,6 +19,7 @@
 Command-line interface to the OpenStack APIs
 """
 
+import getpass
 import logging
 import os
 import sys
@@ -149,9 +150,20 @@ class OpenStackShell(App):
                     " either --os-username or env[OS_USERNAME]")
 
             if not self.options.os_password:
-                raise exc.CommandError(
-                    "You must provide a password via"
-                    " either --os-password or env[OS_PASSWORD]")
+                # No password, if we've got a tty, try prompting for it
+                if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
+                    # Check for Ctl-D
+                    try:
+                        self.options.os_password = getpass.getpass()
+                    except EOFError:
+                        pass
+                # No password because we did't have a tty or the
+                # user Ctl-D when prompted?
+                if not self.options.os_password:
+                    raise exc.CommandError(
+                        "You must provide a password via"
+                        " either --os-password, or env[OS_PASSWORD], "
+                        " or prompted response")
 
             if not (self.options.os_tenant_id or self.options.os_tenant_name):
                 raise exc.CommandError(
