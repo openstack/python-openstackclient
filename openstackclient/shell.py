@@ -29,10 +29,12 @@ from cliff.commandmanager import CommandManager
 
 from openstackclient.common import clientmanager
 from openstackclient.common import exceptions as exc
+from openstackclient.common import openstackkeyring
 from openstackclient.common import utils
 
 
 VERSION = '0.1'
+KEYRING_SERVICE = 'openstack'
 
 
 def env(*vars, **kwargs):
@@ -123,6 +125,18 @@ class OpenStackShell(App):
             default=env('OS_URL'),
             help='Defaults to env[OS_URL]')
 
+        env_os_keyring = env('OS_USE_KEYRING', default=False)
+        if type(env_os_keyring) == str:
+            if env_os_keyring.lower() in ['true', '1']:
+                env_os_keyring = True
+            else:
+                env_os_keyring = False
+        parser.add_argument('--os-use-keyring',
+                            default=env_os_keyring,
+                            action='store_true',
+                            help='Use keyring to store password, '
+                                 'default=False (Env: OS_USE_KEYRING)')
+
         return parser
 
     def authenticate_user(self):
@@ -149,12 +163,14 @@ class OpenStackShell(App):
                     "You must provide a username via"
                     " either --os-username or env[OS_USERNAME]")
 
+            self.get_password_from_keyring()
             if not self.options.os_password:
                 # No password, if we've got a tty, try prompting for it
                 if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
                     # Check for Ctl-D
                     try:
                         self.options.os_password = getpass.getpass()
+                        self.set_password_in_keyring()
                     except EOFError:
                         pass
                 # No password because we did't have a tty or the
@@ -187,6 +203,34 @@ class OpenStackShell(App):
             api_version=self.api_version,
             )
         return
+
+    def init_keyring_backend(self):
+        """Initialize openstack backend to use for keyring"""
+        return openstackkeyring.os_keyring()
+
+    def get_password_from_keyring(self):
+        """Get password from keyring, if it's set"""
+        if self.options.os_use_keyring:
+            service = KEYRING_SERVICE
+            backend = self.init_keyring_backend()
+            if not self.options.os_password:
+                password = backend.get_password(service,
+                                                self.options.os_username)
+                self.options.os_password = password
+
+    def set_password_in_keyring(self):
+        """Set password in keyring for this user"""
+        if self.options.os_use_keyring:
+            service = KEYRING_SERVICE
+            backend = self.init_keyring_backend()
+            if self.options.os_password:
+                password = backend.get_password(service,
+                                                self.options.os_username)
+                # either password is not set in keyring, or it is different
+                if password != self.options.os_password:
+                    backend.set_password(service,
+                                         self.options.os_username,
+                                         self.options.os_password)
 
     def initialize_app(self, argv):
         """Global app init bits:
