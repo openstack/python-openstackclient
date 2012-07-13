@@ -66,14 +66,17 @@ The 'password flow' variation is most commonly used::
    export OS_AUTH_URL=<url-to-openstack-identity>
    export OS_TENANT_NAME=<tenant-name>
    export OS_USERNAME=<user-name>
-   export OS_PASSWORD=<password>    # yes, it isn't secure, we'll address it in the future
+   export OS_PASSWORD=<password> # (optional)
 
 The corresponding command-line options look very similar::
 
    --os-auth-url <url>
    --os-tenant-name <tenant-name>
    --os-username <user-name>
-   --os-password <password>
+   [--os-password <password>]
+
+If a password is not provided above (in plaintext), you will be interactively
+prompted to provide one securely.
 
 The token flow variation for authentication uses an already-aquired token
 and a URL pointing directly to the service API that presumably was acquired
