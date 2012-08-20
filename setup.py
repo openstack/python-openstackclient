@@ -55,6 +55,15 @@ setuptools.setup(
     entry_points={
         'console_scripts': ['openstack=openstackclient.shell:main'],
         'openstack.cli': [
+            'create_endpoint=' +
+                'openstackclient.identity.v2_0.endpoint:CreateEndpoint',
+            'delete_endpoint=' +
+                'openstackclient.identity.v2_0.endpoint:DeleteEndpoint',
+            'list_endpoint=' +
+                'openstackclient.identity.v2_0.endpoint:ListEndpoint',
+            'show_endpoint=' +
+                'openstackclient.identity.v2_0.endpoint:ShowEndpoint',
+
             'add_role=' +
                 'openstackclient.identity.v2_0.role:AddRole',
             'create_role=' +
@@ -65,22 +74,25 @@ setuptools.setup(
             'remove_role=' +
                 'openstackclient.identity.v2_0.role:RemoveRole',
             'show_role=openstackclient.identity.v2_0.role:ShowRole',
+
+            'create_server=openstackclient.compute.v2.server:CreateServer',
+            'delete_server=openstackclient.compute.v2.server:DeleteServer',
             'list_server=openstackclient.compute.v2.server:ListServer',
+            'pause_server=openstackclient.compute.v2.server:PauseServer',
+            'reboot_server=openstackclient.compute.v2.server:RebootServer',
+            'rebuild_server=openstackclient.compute.v2.server:RebuildServer',
+            'resume_server=openstackclient.compute.v2.server:ResumeServer',
             'show_server=openstackclient.compute.v2.server:ShowServer',
-            'create_endpoint=' +
-                'openstackclient.identity.v2_0.endpoint:CreateEndpoint',
-            'delete_endpoint=' +
-                'openstackclient.identity.v2_0.endpoint:DeleteEndpoint',
-            'list_endpoint=' +
-                'openstackclient.identity.v2_0.endpoint:ListEndpoint',
-            'show_endpoint=' +
-                'openstackclient.identity.v2_0.endpoint:ShowEndpoint',
+            'suspend_server=openstackclient.compute.v2.server:SuspendServer',
+            'unpause_server=openstackclient.compute.v2.server:UnpauseServer',
+
             'create_service=' +
                 'openstackclient.identity.v2_0.service:CreateService',
             'delete_service=' +
                 'openstackclient.identity.v2_0.service:DeleteService',
             'list_service=openstackclient.identity.v2_0.service:ListService',
             'show_service=openstackclient.identity.v2_0.service:ShowService',
+
             'create_tenant=' +
                 'openstackclient.identity.v2_0.tenant:CreateTenant',
             'delete_tenant=' +
@@ -88,6 +100,7 @@ setuptools.setup(
             'list_tenant=openstackclient.identity.v2_0.tenant:ListTenant',
             'set_tenant=openstackclient.identity.v2_0.tenant:SetTenant',
             'show_tenant=openstackclient.identity.v2_0.tenant:ShowTenant',
+
             'create_user=' +
                 'openstackclient.identity.v2_0.user:CreateUser',
             'delete_user=' +
