@@ -66,7 +66,7 @@ class ShellTest(utils.TestCase):
         # Make a fake shell object, a helping wrapper to call it, and a quick
         # way of asserting that certain API calls were made.
         global shell, _shell, assert_called, assert_called_anytime
-        shell = lambda sh,cmd: sh.run(cmd.split())
+        shell = lambda sh, cmd: sh.run(cmd.split())
 
         # Patch out some common methods
         #self.auth_patch = mock.patch(
