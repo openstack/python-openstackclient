@@ -17,19 +17,28 @@
 
 import logging
 
-from novaclient import client as nova_client
+from openstackclient.common import exceptions as exc
+from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
 
 API_NAME = 'compute'
+API_VERSIONS = {
+    '1.1': 'novaclient.v1_1.client.Client',
+    '2': 'novaclient.v1_1.client.Client',
+}
 
 
 def make_client(instance):
     """Returns a compute service client.
     """
-    LOG.debug('instantiating compute client')
-    client = nova_client.Client(
-        version=instance._api_version[API_NAME],
+    compute_client = utils.get_client_class(
+        API_NAME,
+        instance._api_version[API_NAME],
+        API_VERSIONS,
+    )
+    LOG.debug('instantiating compute client: %s' % compute_client)
+    client = compute_client(
         username=instance._username,
         api_key=instance._password,
         project_id=instance._tenant_name,
