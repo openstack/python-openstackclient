@@ -6,6 +6,6 @@ keyring
 prettytable
 pyparsing
 pycrypto
-python-keystoneclient>=0.1
+python-keystoneclient>=0.2,<1.0
 python-novaclient>=2
 simplejson
