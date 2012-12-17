@@ -4,7 +4,7 @@ cmd2
 httplib2
 keyring
 prettytable
-pyparsing
+pyparsing>=1.5.6,<2.0
 pycrypto
 python-keystoneclient>=0.1,<0.2
 python-novaclient>=2,<3
