@@ -23,6 +23,7 @@ import logging
 from openstackclient.common import exceptions as exc
 from openstackclient.compute import client as compute_client
 from openstackclient.identity import client as identity_client
+from openstackclient.image import client as image_client
 
 LOG = logging.getLogger(__name__)
 
@@ -46,8 +47,9 @@ class ClientManager(object):
     """Manages access to API clients, including authentication.
     """
 
-    identity = ClientCache(identity_client.make_client)
     compute = ClientCache(compute_client.make_client)
+    identity = ClientCache(identity_client.make_client)
+    image = ClientCache(image_client.make_client)
 
     def __init__(self, token=None, url=None,
                  auth_url=None,
