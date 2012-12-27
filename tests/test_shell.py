@@ -18,6 +18,7 @@
 import os
 import mock
 
+import fixtures
 from openstackclient import shell as os_shell
 from tests import utils
 
@@ -50,18 +51,25 @@ def make_shell():
 
 class ShellTest(utils.TestCase):
 
+    FAKE_ENV = {
+        'OS_AUTH_URL': DEFAULT_AUTH_URL,
+        'OS_TENANT_ID': DEFAULT_TENANT_ID,
+        'OS_TENANT_NAME': DEFAULT_TENANT_NAME,
+        'OS_USERNAME': DEFAULT_USERNAME,
+        'OS_PASSWORD': DEFAULT_PASSWORD,
+        'OS_REGION_NAME': DEFAULT_REGION_NAME,
+    }
+
     def setUp(self):
         """ Patch os.environ to avoid required auth info"""
-        global _old_env
-        fake_env = {
-            'OS_AUTH_URL': DEFAULT_AUTH_URL,
-            'OS_TENANT_ID': DEFAULT_TENANT_ID,
-            'OS_TENANT_NAME': DEFAULT_TENANT_NAME,
-            'OS_USERNAME': DEFAULT_USERNAME,
-            'OS_PASSWORD': DEFAULT_PASSWORD,
-            'OS_REGION_NAME': DEFAULT_REGION_NAME,
-        }
-        _old_env, os.environ = os.environ, fake_env.copy()
+        super(ShellTest, self).setUp()
+        for var in self.FAKE_ENV:
+            self.useFixture(
+                fixtures.EnvironmentVariable(
+                    var,
+                    self.FAKE_ENV[var]
+                )
+            )
 
         # Make a fake shell object, a helping wrapper to call it, and a quick
         # way of asserting that certain API calls were made.
@@ -77,10 +85,9 @@ class ShellTest(utils.TestCase):
         self.cmd_save = self.cmd_patch.start()
 
     def tearDown(self):
-        global _old_env
-        os.environ = _old_env
         #self.auth_patch.stop()
         self.cmd_patch.stop()
+        super(ShellTest, self).tearDown()
 
     def test_shell_args(self):
         sh = make_shell()

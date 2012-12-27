@@ -1,13 +1,14 @@
 distribute>=0.6.24
 
 coverage
+fixtures
 mock
 mox
 nose
 nose-exclude
+nosehtmloutput
 nosexcover
 openstack.nose_plugin
-nosehtmloutput
 pep8==0.6.1
 sphinx>=1.1.2
-unittest2
+testtools>=0.9.22
