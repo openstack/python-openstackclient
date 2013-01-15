@@ -3,10 +3,10 @@
 import time
 
 import mox
-import unittest2
+import testtools
 
 
-class TestCase(unittest2.TestCase):
+class TestCase(testtools.TestCase):
 
     def setUp(self):
         super(TestCase, self).setUp()
@@ -16,6 +16,6 @@ class TestCase(unittest2.TestCase):
 
     def tearDown(self):
         time.time = self._original_time
-        super(TestCase, self).tearDown()
         self.mox.UnsetStubs()
         self.mox.VerifyAll()
+        super(TestCase, self).tearDown()
