@@ -110,6 +110,9 @@ setuptools.setup(
             'set_user=openstackclient.identity.v2_0.user:SetUser',
             'show_user=openstackclient.identity.v2_0.user:ShowUser',
             'list_user-role=openstackclient.identity.v2_0.role:ListUserRole',
+            'list_image=openstackclient.image.v2.image:ListImage',
+            'show_image=openstackclient.image.v2.image:ShowImage',
+            'save_image=openstackclient.image.v2.image:SaveImage',
         ]
     }
 )
