@@ -112,6 +112,18 @@ setuptools.setup(
             'list_image=openstackclient.image.v2.image:ListImage',
             'show_image=openstackclient.image.v2.image:ShowImage',
             'save_image=openstackclient.image.v2.image:SaveImage',
+            'create_group=openstackclient.identity.v3.group:CreateGroup',
+            'delete_group=openstackclient.identity.v3.group:DeleteGroup',
+            'set_group=openstackclient.identity.v3.group:SetGroup',
+            'show_group=openstackclient.identity.v3.group:ShowGroup',
+            'list_group=openstackclient.identity.v3.group:ListGroup',
+            'create_project=' +
+                'openstackclient.identity.v3.project:CreateProject',
+            'delete_project=' +
+                'openstackclient.identity.v3.project:DeleteProject',
+            'set_project=openstackclient.identity.v3.project:SetProject',
+            'show_project=openstackclient.identity.v3.project:ShowProject',
+            'list_project=openstackclient.identity.v3.project:ListProject',
         ]
     }
 )

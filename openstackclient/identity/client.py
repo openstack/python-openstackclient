@@ -24,6 +24,7 @@ LOG = logging.getLogger(__name__)
 API_NAME = 'identity'
 API_VERSIONS = {
     '2.0': 'keystoneclient.v2_0.client.Client',
+    '3': 'keystoneclient.v3.client.Client',
 }
 
 
