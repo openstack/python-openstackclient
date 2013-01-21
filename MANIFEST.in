@@ -1,6 +1,13 @@
 include AUTHORS
+include ChangeLog
 include LICENSE
-include README.rst
 include openstackclient/versioninfo
+include README.rst
+
 recursive-include doc *
 recursive-include tests *
+
+exclude .gitignore
+exclude .gitreview
+
+global-exclude *.pyc
