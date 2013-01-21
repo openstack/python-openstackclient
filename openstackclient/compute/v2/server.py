@@ -21,7 +21,6 @@ Server action implementations
 
 import logging
 import os
-import sys
 import time
 
 from cliff import command

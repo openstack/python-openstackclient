@@ -17,7 +17,6 @@
 
 import logging
 
-from openstackclient.common import exceptions as exc
 from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)

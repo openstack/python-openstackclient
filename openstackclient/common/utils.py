@@ -23,8 +23,6 @@ import os
 import sys
 import uuid
 
-import prettytable
-
 from openstackclient.common import exceptions
 
 

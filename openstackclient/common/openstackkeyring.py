@@ -21,7 +21,6 @@ Keyring backend for Openstack, to store encrypted password in a file.
 
 from Crypto.Cipher import AES
 
-import crypt
 import keyring
 import os
 

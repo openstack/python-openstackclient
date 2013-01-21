@@ -20,7 +20,6 @@
 
 import logging
 
-from openstackclient.common import exceptions as exc
 from openstackclient.compute import client as compute_client
 from openstackclient.identity import client as identity_client
 from openstackclient.image import client as image_client

@@ -98,7 +98,6 @@ Additional command-line options and their associated environment variables
 are listed here::
 
    --debug             # turns on some debugging of the API conversation
-                         (via httplib2)
    --verbose | -v      # Increase verbosity of output. Can be repeated.
    --quiet | -q        # suppress output except warnings and errors
    --help | -h         # show a help message and exit
