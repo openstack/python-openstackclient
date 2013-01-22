@@ -52,7 +52,6 @@ setuptools.setup(
     install_requires=requires,
     dependency_links=dependency_links,
     cmdclass=setup.get_cmdclass(),
-    test_suite="nose.collector",
     entry_points={
         'console_scripts': ['openstack=openstackclient.shell:main'],
         'openstack.cli': [

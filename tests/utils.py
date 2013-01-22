@@ -1,17 +1,20 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
+import os
 
-import time
-
+import fixtures
 import testtools
 
 
 class TestCase(testtools.TestCase):
-
     def setUp(self):
         super(TestCase, self).setUp()
-        self._original_time = time.time
-        time.time = lambda: 1234
+        if (os.environ.get("OS_STDOUT_NOCAPTURE") == "True" and
+                os.environ.get("OS_STDOUT_NOCAPTURE") == "1"):
+            stdout = self.useFixture(fixtures.StringStream("stdout")).stream
+            self.useFixture(fixtures.MonkeyPatch("sys.stdout", stdout))
+        if (os.environ.get("OS_STDERR_NOCAPTURE") == "True" and
+                os.environ.get("OS_STDERR_NOCAPTURE") == "1"):
+            stderr = self.useFixture(fixtures.StringStream("stderr")).stream
+            self.useFixture(fixtures.MonkeyPatch("sys.stderr", stderr))
 
     def tearDown(self):
-        time.time = self._original_time
         super(TestCase, self).tearDown()
