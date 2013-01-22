@@ -211,8 +211,6 @@ class ShowEndpoint(show.ShowOne):
                     msg = "No service with a type, name or ID of '%s' exists" \
                         % parsed_args.service
                     raise exceptions.CommandError(msg)
-            else:
-                raise
 
             data = identity_client.endpoints.list()
             for ep in data:
