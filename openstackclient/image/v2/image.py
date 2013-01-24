@@ -19,6 +19,7 @@ import logging
 
 from cliff import command
 from cliff import lister
+from cliff import show
 
 from glanceclient.common import utils as gc_utils
 from openstackclient.common import utils
@@ -35,12 +36,12 @@ class ListImage(lister.Lister):
         parser.add_argument(
             "--page-size",
             metavar="<size>",
-            help="Number of images to request in each paginated request.",
-            )
+            help="Number of images to request in each paginated request.")
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)" % parsed_args)
+
         image_client = self.app.client_manager.image
 
         kwargs = {}
@@ -50,11 +51,7 @@ class ListImage(lister.Lister):
         data = image_client.images.list(**kwargs)
         columns = ["ID", "Name"]
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                    ) for s in data),
-                )
+        return (columns, (utils.get_item_properties(s, columns) for s in data))
 
 
 class SaveImage(command.Command):
@@ -68,26 +65,25 @@ class SaveImage(command.Command):
         parser.add_argument(
             "--file",
             metavar="<file>",
-            help="Local file to save downloaded image data to. "
-                "If this is not specified the image data will be "
-                "written to stdout.",
-            )
+            help="Local file to save downloaded image data "
+                 "to. If this is not specified the image "
+                 "data will be written to stdout.")
         parser.add_argument(
             "id",
             metavar="<image_id>",
-            help="ID of image to describe.",
-            )
+            help="ID of image to describe.")
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)" % parsed_args)
-        image_client = self.app.client_manager.image
 
+        image_client = self.app.client_manager.image
         data = image_client.images.data(parsed_args.id)
+
         gc_utils.save_image(data, parsed_args.file)
 
 
-class ShowImage(command.Command):
+class ShowImage(show.ShowOne):
     """Show image command"""
 
     api = "image"
@@ -98,12 +94,13 @@ class ShowImage(command.Command):
         parser.add_argument(
             "id",
             metavar="<image_id>",
-            help="ID of image to describe.",
-            )
+            help="ID of image to describe.")
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)" % parsed_args)
-        image_client = self.app.client_manager.image
 
-        gc_utils.print_dict(image_client.images.get(parsed_args.id))
+        image_client = self.app.client_manager.image
+        data = image_client.images.get(parsed_args.id)
+
+        return zip(*sorted(data.iteritems()))
