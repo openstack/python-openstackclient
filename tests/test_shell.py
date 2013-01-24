@@ -13,10 +13,10 @@
 #   under the License.
 #
 
+import fixtures
 import os
 import mock
 
-import fixtures
 from openstackclient import shell as os_shell
 from tests import utils
 
@@ -47,8 +47,7 @@ def make_shell():
     return _shell
 
 
-class ShellTest(utils.TestCase):
-
+class TestShell(utils.TestCase):
     FAKE_ENV = {
         'OS_AUTH_URL': DEFAULT_AUTH_URL,
         'OS_TENANT_ID': DEFAULT_TENANT_ID,
@@ -60,7 +59,7 @@ class ShellTest(utils.TestCase):
 
     def setUp(self):
         """ Patch os.environ to avoid required auth info"""
-        super(ShellTest, self).setUp()
+        super(TestShell, self).setUp()
         for var in self.FAKE_ENV:
             self.useFixture(
                 fixtures.EnvironmentVariable(
@@ -85,7 +84,7 @@ class ShellTest(utils.TestCase):
     def tearDown(self):
         #self.auth_patch.stop()
         self.cmd_patch.stop()
-        super(ShellTest, self).tearDown()
+        super(TestShell, self).tearDown()
 
     def test_shell_args(self):
         sh = make_shell()

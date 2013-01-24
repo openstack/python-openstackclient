@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2013 OpenStack, LLC.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -12,25 +12,3 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-
-from openstackclient.common import clientmanager
-
-
-def factory(inst):
-    return object()
-
-
-class Container(object):
-
-    attr = clientmanager.ClientCache(factory)
-
-    def init_token(self):
-        return
-
-
-def test_singleton():
-    # Verify that the ClientCache descriptor only
-    # invokes the factory one time and always
-    # returns the same value after that.
-    c = Container()
-    assert c.attr is c.attr
