@@ -20,6 +20,7 @@ import setuptools
 from openstackclient.openstack.common import setup
 
 
+project = "python-openstackclient"
 requires = setup.parse_requirements()
 dependency_links = setup.parse_dependency_links()
 
@@ -27,9 +28,10 @@ dependency_links = setup.parse_dependency_links()
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+
 setuptools.setup(
-    name="python-openstackclient",
-    version=setup.get_post_version('openstackclient'),
+    name=project,
+    version=setup.get_version(project),
     description="OpenStack command-line client",
     long_description=read('README.rst'),
     url='https://github.com/openstack/python-openstackclient',
