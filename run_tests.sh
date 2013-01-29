@@ -9,13 +9,11 @@ function usage {
   echo "  -V, --virtual-env        Always use virtualenv.  Install automatically if not present"
   echo "  -N, --no-virtual-env     Don't use virtualenv.  Run tests in local environment"
   echo "  -s, --no-site-packages   Isolate the virtualenv from the global Python environment"
-  echo "  -x, --stop               Stop running tests after the first error or failure."
   echo "  -f, --force              Force a clean re-build of the virtual environment. Useful when dependencies have been added."
   echo "  -p, --pep8               Just run pep8"
   echo "  -P, --no-pep8            Don't run pep8"
   echo "  -c, --coverage           Generate coverage report"
   echo "  -h, --help               Print this usage message"
-  echo "  --hide-elapsed           Don't print the elapsed time for each test along with slow test list"
   echo ""
   echo "Note: with no options specified, the script will try to run the tests in a virtual environment,"
   echo "      If no virtualenv is found, the script will ask if you would like to create one.  If you "
@@ -177,6 +175,6 @@ fi
 
 if [ $coverage -eq 1 ]; then
     echo "Generating coverage report in covhtml/"
-    ${wrapper} cverage combine
+    ${wrapper} coverage combine
     ${wrapper} coverage html --include='novaclient/*' --omit='novaclient/openstack/common/*' -d covhtml -i
 fi
