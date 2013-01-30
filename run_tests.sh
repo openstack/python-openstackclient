@@ -77,7 +77,7 @@ function run_tests {
     if [ "x$testrargs" = "x" ]; then
       testrargs="^(?!.*test_coverage_ext).*$"
     fi
-    export PYTHON="${wrapper} coverage run --source novaclient --parallel-mode"
+    export PYTHON="${wrapper} coverage run --source openstackclient --parallel-mode"
   fi
   # Just run the test suites in current environment
   set +e
@@ -176,5 +176,5 @@ fi
 if [ $coverage -eq 1 ]; then
     echo "Generating coverage report in covhtml/"
     ${wrapper} coverage combine
-    ${wrapper} coverage html --include='novaclient/*' --omit='novaclient/openstack/common/*' -d covhtml -i
+    ${wrapper} coverage html --include='openstackclient/*' --omit='openstackclient/openstack/common/*' -d covhtml -i
 fi

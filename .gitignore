@@ -6,6 +6,7 @@
 *.swo
 *.swp
 *~
+.coverage
 .openstackclient-venv
 .testrepository
 .tox
