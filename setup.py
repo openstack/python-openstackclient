@@ -117,6 +117,21 @@ setuptools.setup(
             'list_user=openstackclient.identity.v3.user:ListUser',
             'set_user=openstackclient.identity.v3.user:SetUser',
             'show_user=openstackclient.identity.v3.user:ShowUser',
+            'create_credential=' +
+            'openstackclient.identity.v3.credential:CreateCredential',
+            'delete_credential=' +
+            'openstackclient.identity.v3.credential:DeleteCredential',
+            'set_credential=' +
+            'openstackclient.identity.v3.credential:SetCredential',
+            'show_credential=' +
+            'openstackclient.identity.v3.credential:ShowCredential',
+            'list_credential=' +
+            'openstackclient.identity.v3.credential:ListCredential',
+            'create_domain=openstackclient.identity.v3.domain:CreateDomain',
+            'delete_domain=openstackclient.identity.v3.domain:DeleteDomain',
+            'set_domain=openstackclient.identity.v3.domain:SetDomain',
+            'show_domain=openstackclient.identity.v3.domain:ShowDomain',
+            'list_domain=openstackclient.identity.v3.domain:ListDomain',
         ],
         'openstack.image.v2': [
             'list_image=openstackclient.image.v2.image:ListImage',
