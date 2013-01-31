@@ -13,9 +13,7 @@
 #   under the License.
 #
 
-"""
-Exception definitions.
-"""
+"""Exception definitions."""
 
 
 class CommandError(Exception):
@@ -27,8 +25,7 @@ class AuthorizationFailure(Exception):
 
 
 class NoTokenLookupException(Exception):
-    """This form of authentication does not support looking up
-       endpoints from an existing token."""
+    """This does not support looking up endpoints from an existing token."""
     pass
 
 
@@ -38,15 +35,12 @@ class EndpointNotFound(Exception):
 
 
 class UnsupportedVersion(Exception):
-    """Indicates that the user is trying to use an unsupported
-       version of the API"""
+    """The user is trying to use an unsupported version of the API"""
     pass
 
 
 class ClientException(Exception):
-    """
-    The base exception class for all exceptions this library raises.
-    """
+    """The base exception class for all exceptions this library raises."""
     def __init__(self, code, message=None, details=None):
         self.code = code
         self.message = message or self.__class__.message
@@ -57,59 +51,44 @@ class ClientException(Exception):
 
 
 class BadRequest(ClientException):
-    """
-    HTTP 400 - Bad request: you sent some malformed data.
-    """
+    """HTTP 400 - Bad request: you sent some malformed data."""
     http_status = 400
     message = "Bad request"
 
 
 class Unauthorized(ClientException):
-    """
-    HTTP 401 - Unauthorized: bad credentials.
-    """
+    """HTTP 401 - Unauthorized: bad credentials."""
     http_status = 401
     message = "Unauthorized"
 
 
 class Forbidden(ClientException):
-    """
-    HTTP 403 - Forbidden: your credentials don't give you access to this
-    resource.
-    """
+    """HTTP 403 - Forbidden: not authorized to access to this resource."""
     http_status = 403
     message = "Forbidden"
 
 
 class NotFound(ClientException):
-    """
-    HTTP 404 - Not found
-    """
+    """HTTP 404 - Not found"""
     http_status = 404
     message = "Not found"
 
 
 class Conflict(ClientException):
-    """
-    HTTP 409 - Conflict
-    """
+    """HTTP 409 - Conflict"""
     http_status = 409
     message = "Conflict"
 
 
 class OverLimit(ClientException):
-    """
-    HTTP 413 - Over limit: you're over the API limits for this time period.
-    """
+    """HTTP 413 - Over limit: reached the API limits for this time period."""
     http_status = 413
     message = "Over limit"
 
 
 # NotImplemented is a python keyword.
 class HTTPNotImplemented(ClientException):
-    """
-    HTTP 501 - Not Implemented: the server does not support this operation.
-    """
+    """HTTP 501 - Not Implemented: server does not support this operation."""
     http_status = 501
     message = "Not Implemented"
 
@@ -120,14 +99,18 @@ class HTTPNotImplemented(ClientException):
 #                      for c in ClientException.__subclasses__())
 #
 # Instead, we have to hardcode it:
-_code_map = dict((c.http_status, c) for c in [BadRequest, Unauthorized,
-                   Forbidden, NotFound, OverLimit, HTTPNotImplemented])
+_code_map = dict((c.http_status, c) for c in [
+    BadRequest,
+    Unauthorized,
+    Forbidden,
+    NotFound,
+    OverLimit,
+    HTTPNotImplemented
+])
 
 
 def from_response(response, body):
-    """
-    Return an instance of a ClientException or subclass
-    based on an httplib2 response.
+    """Return an instance of a ClientException based on an httplib2 response.
 
     Usage::
 

@@ -32,8 +32,7 @@ def make_client(instance):
     image_client = utils.get_client_class(
         API_NAME,
         instance._api_version[API_NAME],
-        API_VERSIONS
-    )
+        API_VERSIONS)
 
     if not instance._url:
         instance._url = instance.get_endpoint_for_service_type(API_NAME)

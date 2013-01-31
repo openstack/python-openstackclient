@@ -13,9 +13,7 @@
 #   under the License.
 #
 
-"""
-Project action implementations
-"""
+"""Project action implementations"""
 
 import logging
 
@@ -37,18 +35,15 @@ class CreateProject(show.ShowOne):
         parser.add_argument(
             'project_name',
             metavar='<project-name>',
-            help='New project name',
-        )
+            help='New project name')
         parser.add_argument(
             '--domain',
             metavar='<project-domain>',
-            help='References the domain name or ID which owns the project',
-        )
+            help='References the domain name or ID which owns the project')
         parser.add_argument(
             '--description',
             metavar='<project-description>',
-            help='New project description',
-        )
+            help='New project description')
         # FIXME (stevemar): need to update enabled/disabled as per Dolph's
         # comments in 19999/4
         enable_group = parser.add_mutually_exclusive_group()
@@ -57,30 +52,29 @@ class CreateProject(show.ShowOne):
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable project',
-        )
+            help='Enable project')
         enable_group.add_argument(
             '--disable',
             dest='enabled',
             action='store_false',
-            help='Disable project',
-        )
+            help='Disable project')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
+
         if parsed_args.domain:
-            domain = utils.find_resource(
-                identity_client.domains, parsed_args.domain).id
+            domain = utils.find_resource(identity_client.domains,
+                                         parsed_args.domain).id
         else:
             domain = None
+
         project = identity_client.projects.create(
             parsed_args.project_name,
             domain=domain,
             description=parsed_args.description,
-            enabled=parsed_args.enabled,
-        )
+            enabled=parsed_args.enabled)
 
         info = {}
         info.update(project._info)
@@ -98,15 +92,14 @@ class DeleteProject(command.Command):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help='Name or ID of project to delete',
-        )
+            help='Name or ID of project to delete')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        project = utils.find_resource(
-            identity_client.projects, parsed_args.project)
+        project = utils.find_resource(identity_client.projects,
+                                      parsed_args.project)
         identity_client.projects.delete(project.id)
         return
 
@@ -123,8 +116,7 @@ class ListProject(lister.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='Additional fields are listed in output',
-        )
+            help='Additional fields are listed in output')
         return parser
 
     def take_action(self, parsed_args):
@@ -138,8 +130,7 @@ class ListProject(lister.Lister):
                 (utils.get_item_properties(
                     s, columns,
                     formatters={},
-                ) for s in data),
-               )
+                ) for s in data))
 
 
 class SetProject(command.Command):
@@ -153,44 +144,38 @@ class SetProject(command.Command):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help='Name or ID of project to change',
-        )
+            help='Name or ID of project to change')
         parser.add_argument(
             '--name',
             metavar='<new-project-name>',
-            help='New project name',
-        )
+            help='New project name')
         parser.add_argument(
             '--domain',
             metavar='<project-domain>',
-            help='New domain name or ID that will now own the project',
-        )
+            help='New domain name or ID that will now own the project')
         parser.add_argument(
             '--description',
             metavar='<project-description>',
-            help='New project description',
-        )
+            help='New project description')
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable project (default)',
-        )
+            help='Enable project (default)')
         enable_group.add_argument(
             '--disable',
             dest='enabled',
             action='store_false',
-            help='Disable project',
-        )
+            help='Disable project')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        project = utils.find_resource(
-            identity_client.projects, parsed_args.project)
+        project = utils.find_resource(identity_client.projects,
+                                      parsed_args.project)
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
@@ -221,15 +206,14 @@ class ShowProject(show.ShowOne):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help='Name or ID of project to display',
-        )
+            help='Name or ID of project to display')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        project = utils.find_resource(
-            identity_client.projects, parsed_args.project)
+        project = utils.find_resource(identity_client.projects,
+                                      parsed_args.project)
 
         info = {}
         info.update(project._info)

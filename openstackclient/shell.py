@@ -13,9 +13,7 @@
 #   under the License.
 #
 
-"""
-Command-line interface to the OpenStack APIs
-"""
+"""Command-line interface to the OpenStack APIs"""
 
 import getpass
 import logging
@@ -59,8 +57,7 @@ class OpenStackShell(App):
         super(OpenStackShell, self).__init__(
             description=__doc__.strip(),
             version=VERSION,
-            command_manager=CommandManager('openstack.cli'),
-            )
+            command_manager=CommandManager('openstack.cli'))
 
         # This is instantiated in initialize_app() only when using
         # password flow auth
@@ -69,57 +66,64 @@ class OpenStackShell(App):
     def build_option_parser(self, description, version):
         parser = super(OpenStackShell, self).build_option_parser(
             description,
-            version,
-            )
+            version)
 
         # Global arguments
-        parser.add_argument('--os-auth-url', metavar='<auth-url>',
+        parser.add_argument(
+            '--os-auth-url',
+            metavar='<auth-url>',
             default=env('OS_AUTH_URL'),
             help='Authentication URL (Env: OS_AUTH_URL)')
-
-        parser.add_argument('--os-tenant-name', metavar='<auth-tenant-name>',
+        parser.add_argument(
+            '--os-tenant-name',
+            metavar='<auth-tenant-name>',
             default=env('OS_TENANT_NAME'),
             help='Authentication tenant name (Env: OS_TENANT_NAME)')
-
-        parser.add_argument('--os-tenant-id', metavar='<auth-tenant-id>',
+        parser.add_argument(
+            '--os-tenant-id',
+            metavar='<auth-tenant-id>',
             default=env('OS_TENANT_ID'),
             help='Authentication tenant ID (Env: OS_TENANT_ID)')
-
-        parser.add_argument('--os-username', metavar='<auth-username>',
+        parser.add_argument(
+            '--os-username',
+            metavar='<auth-username>',
             default=utils.env('OS_USERNAME'),
             help='Authentication username (Env: OS_USERNAME)')
-
-        parser.add_argument('--os-password', metavar='<auth-password>',
+        parser.add_argument(
+            '--os-password',
+            metavar='<auth-password>',
             default=utils.env('OS_PASSWORD'),
             help='Authentication password (Env: OS_PASSWORD)')
-
-        parser.add_argument('--os-region-name', metavar='<auth-region-name>',
+        parser.add_argument(
+            '--os-region-name',
+            metavar='<auth-region-name>',
             default=env('OS_REGION_NAME'),
             help='Authentication region name (Env: OS_REGION_NAME)')
-
-        parser.add_argument('--os-identity-api-version',
+        parser.add_argument(
+            '--os-identity-api-version',
             metavar='<identity-api-version>',
             default=env('OS_IDENTITY_API_VERSION', default='2.0'),
             help='Identity API version, default=2.0 '
-                                '(Env: OS_IDENTITY_API_VERSION)')
-
-        parser.add_argument('--os-compute-api-version',
+                 '(Env: OS_IDENTITY_API_VERSION)')
+        parser.add_argument(
+            '--os-compute-api-version',
             metavar='<compute-api-version>',
             default=env('OS_COMPUTE_API_VERSION', default='2'),
             help='Compute API version, default=2 '
-                                '(Env: OS_COMPUTE_API_VERSION)')
-
-        parser.add_argument('--os-image-api-version',
+                 '(Env: OS_COMPUTE_API_VERSION)')
+        parser.add_argument(
+            '--os-image-api-version',
             metavar='<image-api-version>',
             default=env('OS_IMAGE_API_VERSION', default='1.0'),
-            help='Image API version, default=1.0 '
-                                '(Env: OS_IMAGE_API_VERSION)')
-
-        parser.add_argument('--os-token', metavar='<token>',
+            help='Image API version, default=1.0 (Env: OS_IMAGE_API_VERSION)')
+        parser.add_argument(
+            '--os-token',
+            metavar='<token>',
             default=env('OS_TOKEN'),
             help='Defaults to env[OS_TOKEN]')
-
-        parser.add_argument('--os-url', metavar='<url>',
+        parser.add_argument(
+            '--os-url',
+            metavar='<url>',
             default=env('OS_URL'),
             help='Defaults to env[OS_URL]')
 
@@ -198,8 +202,7 @@ class OpenStackShell(App):
             username=self.options.os_username,
             password=self.options.os_password,
             region_name=self.options.os_region_name,
-            api_version=self.api_version,
-            )
+            api_version=self.api_version)
         return
 
     def init_keyring_backend(self):
@@ -260,7 +263,6 @@ class OpenStackShell(App):
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""
         self.log.debug('prepare_to_run_command %s', cmd.__class__.__name__)
-
         self.log.debug("api: %s" % cmd.api if hasattr(cmd, 'api') else None)
         return
 

@@ -13,9 +13,7 @@
 #   under the License.
 #
 
-"""
-Common client utilities
-"""
+"""Common client utilities"""
 
 import os
 import sys

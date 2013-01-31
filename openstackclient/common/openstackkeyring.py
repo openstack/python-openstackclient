@@ -13,50 +13,48 @@
 #   under the License.
 #
 
-"""
-Keyring backend for Openstack, to store encrypted password in a file.
-"""
+"""Keyring backend for Openstack, to store encrypted password in a file."""
 
 from Crypto.Cipher import AES
 
 import keyring
 import os
 
+
 KEYRING_FILE = os.path.join(os.path.expanduser('~'), '.openstack-keyring.cfg')
 
 
 class OpenstackKeyring(keyring.backend.BasicFileKeyring):
-    """ Openstack Keyring to store encrypted password """
-
+    """Openstack Keyring to store encrypted password."""
     filename = KEYRING_FILE
 
     def supported(self):
-        """ applicable for all platforms, but not recommend """
+        """Applicable for all platforms, but not recommend."""
         pass
 
     def _init_crypter(self):
-        """ initialize the crypter using the class name """
+        """Initialize the crypter using the class name."""
         block_size = 32
         padding = '0'
 
         # init the cipher with the class name, upto block_size
         password = __name__[block_size:]
-        password = password + (block_size - len(password) % \
-                              block_size) * padding
+        password = password + (block_size - len(password) %
+                               block_size) * padding
         return AES.new(password, AES.MODE_CFB)
 
     def encrypt(self, password):
-        """ encrypt the given password """
+        """Encrypt the given password."""
         crypter = self._init_crypter()
         return crypter.encrypt(password)
 
     def decrypt(self, password_encrypted):
-        """ decrypt the given password """
+        """Decrypt the given password."""
         crypter = self._init_crypter()
         return crypter.decrypt(password_encrypted)
 
 
 def os_keyring():
-    """ initialize the openstack keyring """
-    return keyring.core.load_keyring(None,
-             'openstackclient.common.openstackkeyring.OpenstackKeyring')
+    """Initialize the openstack keyring."""
+    keyring = 'openstackclient.common.openstackkeyring.OpenstackKeyring'
+    return keyring.core.load_keyring(None, keyring)

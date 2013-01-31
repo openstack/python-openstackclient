@@ -40,14 +40,14 @@ setuptools.setup(
     author_email='openstack@lists.launchpad.net',
     packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
     classifiers=[
-       'Development Status :: 2 - Pre-Alpha',
-       'Environment :: Console',
-       'Environment :: OpenStack',
-       'Intended Audience :: Developers',
-       'Intended Audience :: Information Technology',
-       'License :: OSI Approved :: Apache Software License',
-       'Operating System :: OS Independent',
-       'Programming Language :: Python',
+        'Development Status :: 2 - Pre-Alpha',
+        'Environment :: Console',
+        'Environment :: OpenStack',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Information Technology',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
     ],
     install_requires=requires,
     dependency_links=dependency_links,
@@ -56,25 +56,23 @@ setuptools.setup(
         'console_scripts': ['openstack=openstackclient.shell:main'],
         'openstack.cli': [
             'create_endpoint=' +
-                'openstackclient.identity.v2_0.endpoint:CreateEndpoint',
+            'openstackclient.identity.v2_0.endpoint:CreateEndpoint',
             'delete_endpoint=' +
-                'openstackclient.identity.v2_0.endpoint:DeleteEndpoint',
+            'openstackclient.identity.v2_0.endpoint:DeleteEndpoint',
             'list_endpoint=' +
-                'openstackclient.identity.v2_0.endpoint:ListEndpoint',
+            'openstackclient.identity.v2_0.endpoint:ListEndpoint',
             'show_endpoint=' +
-                'openstackclient.identity.v2_0.endpoint:ShowEndpoint',
-
+            'openstackclient.identity.v2_0.endpoint:ShowEndpoint',
             'add_role=' +
-                'openstackclient.identity.v2_0.role:AddRole',
+            'openstackclient.identity.v2_0.role:AddRole',
             'create_role=' +
-                'openstackclient.identity.v2_0.role:CreateRole',
+            'openstackclient.identity.v2_0.role:CreateRole',
             'delete_role=' +
-                'openstackclient.identity.v2_0.role:DeleteRole',
+            'openstackclient.identity.v2_0.role:DeleteRole',
             'list_role=openstackclient.identity.v2_0.role:ListRole',
             'remove_role=' +
-                'openstackclient.identity.v2_0.role:RemoveRole',
+            'openstackclient.identity.v2_0.role:RemoveRole',
             'show_role=openstackclient.identity.v2_0.role:ShowRole',
-
             'create_server=openstackclient.compute.v2.server:CreateServer',
             'delete_server=openstackclient.compute.v2.server:DeleteServer',
             'list_server=openstackclient.compute.v2.server:ListServer',
@@ -85,26 +83,23 @@ setuptools.setup(
             'show_server=openstackclient.compute.v2.server:ShowServer',
             'suspend_server=openstackclient.compute.v2.server:SuspendServer',
             'unpause_server=openstackclient.compute.v2.server:UnpauseServer',
-
             'create_service=' +
-                'openstackclient.identity.v2_0.service:CreateService',
+            'openstackclient.identity.v2_0.service:CreateService',
             'delete_service=' +
-                'openstackclient.identity.v2_0.service:DeleteService',
+            'openstackclient.identity.v2_0.service:DeleteService',
             'list_service=openstackclient.identity.v2_0.service:ListService',
             'show_service=openstackclient.identity.v2_0.service:ShowService',
-
             'create_tenant=' +
-                'openstackclient.identity.v2_0.tenant:CreateTenant',
+            'openstackclient.identity.v2_0.tenant:CreateTenant',
             'delete_tenant=' +
-                'openstackclient.identity.v2_0.tenant:DeleteTenant',
+            'openstackclient.identity.v2_0.tenant:DeleteTenant',
             'list_tenant=openstackclient.identity.v2_0.tenant:ListTenant',
             'set_tenant=openstackclient.identity.v2_0.tenant:SetTenant',
             'show_tenant=openstackclient.identity.v2_0.tenant:ShowTenant',
-
             'create_user=' +
-                'openstackclient.identity.v2_0.user:CreateUser',
+            'openstackclient.identity.v2_0.user:CreateUser',
             'delete_user=' +
-                'openstackclient.identity.v2_0.user:DeleteUser',
+            'openstackclient.identity.v2_0.user:DeleteUser',
             'list_user=openstackclient.identity.v2_0.user:ListUser',
             'set_user=openstackclient.identity.v2_0.user:SetUser',
             'show_user=openstackclient.identity.v2_0.user:ShowUser',
@@ -118,9 +113,9 @@ setuptools.setup(
             'show_group=openstackclient.identity.v3.group:ShowGroup',
             'list_group=openstackclient.identity.v3.group:ListGroup',
             'create_project=' +
-                'openstackclient.identity.v3.project:CreateProject',
+            'openstackclient.identity.v3.project:CreateProject',
             'delete_project=' +
-                'openstackclient.identity.v3.project:DeleteProject',
+            'openstackclient.identity.v3.project:DeleteProject',
             'set_project=openstackclient.identity.v3.project:SetProject',
             'show_project=openstackclient.identity.v3.project:ShowProject',
             'list_project=openstackclient.identity.v3.project:ListProject',

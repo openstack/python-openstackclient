@@ -13,9 +13,7 @@
 #   under the License.
 #
 
-"""
-Group action implementations
-"""
+"""Group action implementations"""
 
 import logging
 
@@ -37,18 +35,15 @@ class CreateGroup(show.ShowOne):
         parser.add_argument(
             'name',
             metavar='<group-name>',
-            help='New group name',
-        )
+            help='New group name')
         parser.add_argument(
             '--description',
             metavar='<group-description>',
-            help='New group description',
-        )
+            help='New group description')
         parser.add_argument(
             '--domain',
             metavar='<group-domain>',
-            help='References the domain ID or name which owns the group',
-        )
+            help='References the domain ID or name which owns the group')
 
         return parser
 
@@ -56,15 +51,14 @@ class CreateGroup(show.ShowOne):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         if parsed_args.domain:
-            domain = utils.find_resource(
-                identity_client.domains, parsed_args.domain).id
+            domain = utils.find_resource(identity_client.domains,
+                                         parsed_args.domain).id
         else:
             domain = None
         group = identity_client.groups.create(
             parsed_args.name,
             domain=domain,
-            description=parsed_args.description,
-        )
+            description=parsed_args.description)
 
         info = {}
         info.update(group._info)
@@ -82,15 +76,13 @@ class DeleteGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Name or ID of group to delete',
-        )
+            help='Name or ID of group to delete')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        group = utils.find_resource(
-            identity_client.groups, parsed_args.group)
+        group = utils.find_resource(identity_client.groups, parsed_args.group)
         identity_client.groups.delete(group.id)
         return
 
@@ -107,8 +99,7 @@ class ListGroup(lister.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='Additional fields are listed in output',
-        )
+            help='Additional fields are listed in output')
         return parser
 
     def take_action(self, parsed_args):
@@ -122,8 +113,7 @@ class ListGroup(lister.Lister):
                 (utils.get_item_properties(
                     s, columns,
                     formatters={},
-                ) for s in data),
-               )
+                ) for s in data))
 
 
 class SetGroup(command.Command):
@@ -137,30 +127,25 @@ class SetGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Name or ID of group to change',
-        )
+            help='Name or ID of group to change')
         parser.add_argument(
             '--name',
             metavar='<new-group-name>',
-            help='New group name',
-        )
+            help='New group name')
         parser.add_argument(
             '--domain',
             metavar='<group-domain>',
-            help='New domain name or ID that will now own the group',
-        )
+            help='New domain name or ID that will now own the group')
         parser.add_argument(
             '--description',
             metavar='<group-description>',
-            help='New group description',
-        )
+            help='New group description')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        group = utils.find_resource(
-            identity_client.groups, parsed_args.group)
+        group = utils.find_resource(identity_client.groups, parsed_args.group)
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
@@ -189,15 +174,13 @@ class ShowGroup(show.ShowOne):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Name or ID of group to display',
-        )
+            help='Name or ID of group to display')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        group = utils.find_resource(
-            identity_client.groups, parsed_args.group)
+        group = utils.find_resource(identity_client.groups, parsed_args.group)
 
         info = {}
         info.update(group._info)

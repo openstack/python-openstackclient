@@ -27,13 +27,11 @@ API_VERSIONS = {
 
 
 def make_client(instance):
-    """Returns a compute service client.
-    """
+    """Returns a compute service client."""
     compute_client = utils.get_client_class(
         API_NAME,
         instance._api_version[API_NAME],
-        API_VERSIONS,
-    )
+        API_VERSIONS)
     LOG.debug('instantiating compute client: %s' % compute_client)
     client = compute_client(
         username=instance._username,
@@ -49,8 +47,7 @@ def make_client(instance):
         extensions=[],
         service_type=API_NAME,
         # FIXME(dhellmann): what is service_name?
-        service_name='',
-        )
+        service_name='')
 
     # Populate the Nova client to skip another auth query to Identity
     if instance._url:

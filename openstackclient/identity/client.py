@@ -17,6 +17,7 @@ import logging
 
 from openstackclient.common import utils
 
+
 LOG = logging.getLogger(__name__)
 
 API_NAME = 'identity'
@@ -27,19 +28,16 @@ API_VERSIONS = {
 
 
 def make_client(instance):
-    """Returns an identity service client.
-    """
+    """Returns an identity service client."""
     identity_client = utils.get_client_class(
         API_NAME,
         instance._api_version[API_NAME],
-        API_VERSIONS,
-    )
+        API_VERSIONS)
     if instance._url:
         LOG.debug('instantiating identity client: token flow')
         client = identity_client(
             endpoint=instance._url,
-            token=instance._token,
-        )
+            token=instance._token)
     else:
         LOG.debug('instantiating identity client: password flow')
         client = identity_client(
@@ -48,6 +46,5 @@ def make_client(instance):
             tenant_name=instance._tenant_name,
             tenant_id=instance._tenant_id,
             auth_url=instance._auth_url,
-            region_name=instance._region_name,
-        )
+            region_name=instance._region_name)
     return client

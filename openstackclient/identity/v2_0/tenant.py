@@ -13,9 +13,7 @@
 #   under the License.
 #
 
-"""
-Tenant action implementations
-"""
+"""Tenant action implementations"""
 
 import logging
 
@@ -37,27 +35,23 @@ class CreateTenant(show.ShowOne):
         parser.add_argument(
             'tenant_name',
             metavar='<tenant-name>',
-            help='New tenant name',
-        )
+            help='New tenant name')
         parser.add_argument(
             '--description',
             metavar='<tenant-description>',
-            help='New tenant description',
-        )
+            help='New tenant description')
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable tenant',
-        )
+            help='Enable tenant')
         enable_group.add_argument(
             '--disable',
             dest='enabled',
             action='store_false',
-            help='Disable tenant',
-        )
+            help='Disable tenant')
         return parser
 
     def take_action(self, parsed_args):
@@ -66,8 +60,7 @@ class CreateTenant(show.ShowOne):
         tenant = identity_client.tenants.create(
             parsed_args.tenant_name,
             description=parsed_args.description,
-            enabled=parsed_args.enabled,
-        )
+            enabled=parsed_args.enabled)
 
         info = {}
         info.update(tenant._info)
@@ -85,15 +78,14 @@ class DeleteTenant(command.Command):
         parser.add_argument(
             'tenant',
             metavar='<tenant>',
-            help='Name or ID of tenant to delete',
-        )
+            help='Name or ID of tenant to delete')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        tenant = utils.find_resource(
-            identity_client.tenants, parsed_args.tenant)
+        tenant = utils.find_resource(identity_client.tenants,
+                                     parsed_args.tenant)
         identity_client.tenants.delete(tenant.id)
         return
 
@@ -110,8 +102,7 @@ class ListTenant(lister.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='Additional fields are listed in output',
-        )
+            help='Additional fields are listed in output')
         return parser
 
     def take_action(self, parsed_args):
@@ -125,8 +116,7 @@ class ListTenant(lister.Lister):
                 (utils.get_item_properties(
                     s, columns,
                     formatters={},
-                ) for s in data),
-               )
+                ) for s in data))
 
 
 class SetTenant(command.Command):
@@ -140,39 +130,34 @@ class SetTenant(command.Command):
         parser.add_argument(
             'tenant',
             metavar='<tenant>',
-            help='Name or ID of tenant to change',
-        )
+            help='Name or ID of tenant to change')
         parser.add_argument(
             '--name',
             metavar='<new-tenant-name>',
-            help='New tenant name',
-        )
+            help='New tenant name')
         parser.add_argument(
             '--description',
             metavar='<tenant-description>',
-            help='New tenant description',
-        )
+            help='New tenant description')
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable tenant (default)',
-        )
+            help='Enable tenant (default)')
         enable_group.add_argument(
             '--disable',
             dest='enabled',
             action='store_false',
-            help='Disable tenant',
-        )
+            help='Disable tenant')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        tenant = utils.find_resource(
-            identity_client.tenants, parsed_args.tenant)
+        tenant = utils.find_resource(identity_client.tenants,
+                                     parsed_args.tenant)
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
@@ -199,15 +184,14 @@ class ShowTenant(show.ShowOne):
         parser.add_argument(
             'tenant',
             metavar='<tenant>',
-            help='Name or ID of tenant to display',
-        )
+            help='Name or ID of tenant to display')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        tenant = utils.find_resource(
-            identity_client.tenants, parsed_args.tenant)
+        tenant = utils.find_resource(identity_client.tenants,
+                                     parsed_args.tenant)
 
         info = {}
         info.update(tenant._info)

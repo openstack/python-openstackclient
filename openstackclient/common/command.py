@@ -13,17 +13,13 @@
 #   under the License.
 #
 
-"""
-OpenStack base command
-"""
+"""OpenStack base command"""
 
 from cliff.command import Command
 
 
 class OpenStackCommand(Command):
-    """Base class for OpenStack commands
-    """
-
+    """Base class for OpenStack commands."""
     api = None
 
     def run(self, parsed_args):

@@ -13,9 +13,7 @@
 #   under the License.
 #
 
-"""
-Endpoint action implementations
-"""
+"""Endpoint action implementations"""
 
 import logging
 
@@ -61,15 +59,14 @@ class CreateEndpoint(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        service = utils.find_resource(
-            identity_client.services, parsed_args.service)
+        service = utils.find_resource(identity_client.services,
+                                      parsed_args.service)
         endpoint = identity_client.endpoints.create(
             parsed_args.region,
             service.id,
             parsed_args.publicurl,
             parsed_args.adminurl,
-            parsed_args.internalurl,
-        )
+            parsed_args.internalurl,)
 
         info = {}
         info.update(endpoint._info)
@@ -119,7 +116,7 @@ class ListEndpoint(lister.Lister):
         identity_client = self.app.client_manager.identity
         if parsed_args.long:
             columns = ('ID', 'Region', 'Service Name', 'Service Type',
-                'PublicURL', 'AdminURL', 'InternalURL')
+                       'PublicURL', 'AdminURL', 'InternalURL')
         else:
             columns = ('ID', 'Region', 'Service Name', 'Service Type')
         data = identity_client.endpoints.list()
@@ -133,8 +130,7 @@ class ListEndpoint(lister.Lister):
                 (utils.get_item_properties(
                     s, columns,
                     formatters={},
-                ) for s in data),
-               )
+                ) for s in data))
 
 
 class ShowEndpoint(show.ShowOne):
@@ -154,7 +150,7 @@ class ShowEndpoint(show.ShowOne):
             metavar='<endpoint-type>',
             default='publicURL',
             help='Endpoint type: publicURL, internalURL, adminURL ' +
-                '(default publicURL)')
+                 '(default publicURL)')
         parser.add_argument(
             '--attr',
             metavar='<endpoint-attribute>',
@@ -196,8 +192,8 @@ class ShowEndpoint(show.ShowOne):
             # The Identity 2.0 API doesn't support retrieving a single
             # endpoint so we have to do this ourselves
             try:
-                service = utils.find_resource(
-                    identity_client.services, parsed_args.service)
+                service = utils.find_resource(identity_client.services,
+                                              parsed_args.service)
             except exceptions.CommandError:
                 try:
                     # search for service type
@@ -215,8 +211,8 @@ class ShowEndpoint(show.ShowOne):
                 if ep.service_id == service.id:
                     info = {}
                     info.update(ep._info)
-                    service = utils.find_resource(
-                        identity_client.services, ep.service_id)
+                    service = utils.find_resource(identity_client.services,
+                                                  ep.service_id)
                     info['service_name'] = service.name
                     info['service_type'] = service.type
                     return zip(*sorted(info.iteritems()))

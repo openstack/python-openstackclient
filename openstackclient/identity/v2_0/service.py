@@ -13,9 +13,7 @@
 #   under the License.
 #
 
-"""
-Service action implementations
-"""
+"""Service action implementations"""
 
 import logging
 
@@ -44,13 +42,11 @@ class CreateService(show.ShowOne):
             '--type',
             metavar='<service-type>',
             required=True,
-            help='New service type',
-        )
+            help='New service type')
         parser.add_argument(
             '--description',
             metavar='<service-description>',
-            help='New service description',
-        )
+            help='New service description')
         return parser
 
     def take_action(self, parsed_args):
@@ -59,8 +55,7 @@ class CreateService(show.ShowOne):
         service = identity_client.services.create(
             parsed_args.name,
             parsed_args.type,
-            parsed_args.description,
-        )
+            parsed_args.description)
 
         info = {}
         info.update(service._info)
@@ -78,8 +73,7 @@ class DeleteService(command.Command):
         parser.add_argument(
             'service',
             metavar='<service-id>',
-            help='ID of service to delete',
-        )
+            help='ID of service to delete')
         return parser
 
     def take_action(self, parsed_args):
@@ -115,8 +109,7 @@ class ListService(lister.Lister):
                 (utils.get_item_properties(
                     s, columns,
                     formatters={},
-                ) for s in data),
-               )
+                ) for s in data))
 
 
 class ShowService(show.ShowOne):
@@ -138,8 +131,8 @@ class ShowService(show.ShowOne):
         identity_client = self.app.client_manager.identity
         try:
             # search for the usual ID or name
-            service = utils.find_resource(
-                identity_client.services, parsed_args.service)
+            service = utils.find_resource(identity_client.services,
+                                          parsed_args.service)
         except exceptions.CommandError:
             try:
                 # search for service type
@@ -149,7 +142,7 @@ class ShowService(show.ShowOne):
             #                 common client exceptions
             except identity_exc.NotFound:
                 msg = "No service with a type, name or ID of '%s' exists." % \
-                    name_or_id
+                      name_or_id
                 raise exceptions.CommandError(msg)
 
         info = {}

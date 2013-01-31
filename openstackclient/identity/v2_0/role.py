@@ -13,9 +13,7 @@
 #   under the License.
 #
 
-"""
-Role action implementations
-"""
+"""Role action implementations"""
 
 import logging
 
@@ -37,36 +35,30 @@ class AddRole(show.ShowOne):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Role name or ID to add to user',
-        )
+            help='Role name or ID to add to user')
         parser.add_argument(
             '--tenant',
             metavar='<tenant>',
             required=True,
-            help='Name or ID of tenant to include',
-        )
+            help='Name or ID of tenant to include')
         parser.add_argument(
             '--user',
             metavar='<user>',
             required=True,
-            help='Name or ID of user to include',
-        )
+            help='Name or ID of user to include')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        role = utils.find_resource(
-            identity_client.roles, parsed_args.role)
-        tenant = utils.find_resource(
-            identity_client.tenants, parsed_args.tenant)
-        user = utils.find_resource(
-            identity_client.users, parsed_args.user)
+        role = utils.find_resource(identity_client.roles, parsed_args.role)
+        tenant = utils.find_resource(identity_client.tenants,
+                                     parsed_args.tenant)
+        user = utils.find_resource(identity_client.users, parsed_args.user)
         role = identity_client.roles.add_user_role(
             user,
             role,
-            tenant,
-        )
+            tenant)
 
         info = {}
         info.update(role._info)
@@ -84,16 +76,13 @@ class CreateRole(show.ShowOne):
         parser.add_argument(
             'role_name',
             metavar='<role-name>',
-            help='New role name',
-        )
+            help='New role name')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        role = identity_client.roles.create(
-            parsed_args.role_name,
-        )
+        role = identity_client.roles.create(parsed_args.role_name)
 
         info = {}
         info.update(role._info)
@@ -111,15 +100,13 @@ class DeleteRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Name or ID of role to delete',
-        )
+            help='Name or ID of role to delete')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        role = utils.find_resource(
-            identity_client.roles, parsed_args.role)
+        role = utils.find_resource(identity_client.roles, parsed_args.role)
         identity_client.roles.delete(role.id)
         return
 
@@ -138,8 +125,7 @@ class ListRole(lister.Lister):
                 (utils.get_item_properties(
                     s, columns,
                     formatters={},
-                ) for s in data),
-               )
+                ) for s in data))
 
 
 class ListUserRole(lister.Lister):
@@ -154,13 +140,11 @@ class ListUserRole(lister.Lister):
             'user',
             metavar='<user>',
             nargs='?',
-            help='Name or ID of user to include',
-        )
+            help='Name or ID of user to include')
         parser.add_argument(
             '--tenant',
             metavar='<tenant>',
-            help='Name or ID of tenant to include',
-        )
+            help='Name or ID of tenant to include')
         return parser
 
     def take_action(self, parsed_args):
@@ -176,10 +160,9 @@ class ListUserRole(lister.Lister):
         if not parsed_args.user:
             parsed_args.user = identity_client.auth_user_id
 
-        tenant = utils.find_resource(
-            identity_client.tenants, parsed_args.tenant)
-        user = utils.find_resource(
-            identity_client.users, parsed_args.user)
+        tenant = utils.find_resource(identity_client.tenants,
+                                     parsed_args.tenant)
+        user = utils.find_resource(identity_client.users, parsed_args.user)
 
         data = identity_client.roles.roles_for_user(user.id, tenant.id)
 
@@ -192,8 +175,7 @@ class ListUserRole(lister.Lister):
                 (utils.get_item_properties(
                     s, columns,
                     formatters={},
-                ) for s in data),
-               )
+                ) for s in data))
 
 
 class RemoveRole(command.Command):
@@ -207,36 +189,30 @@ class RemoveRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Role name or ID to remove from user',
-        )
+            help='Role name or ID to remove from user')
         parser.add_argument(
             '--tenant',
             metavar='<tenant>',
             required=True,
-            help='Name or ID of tenant',
-        )
+            help='Name or ID of tenant')
         parser.add_argument(
             '--user',
             metavar='<user>',
             required=True,
-            help='Name or ID of user',
-        )
+            help='Name or ID of user')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        role = utils.find_resource(
-            identity_client.roles, parsed_args.role)
-        tenant = utils.find_resource(
-            identity_client.tenants, parsed_args.tenant)
-        user = utils.find_resource(
-            identity_client.users, parsed_args.user)
+        role = utils.find_resource(identity_client.roles, parsed_args.role)
+        tenant = utils.find_resource(identity_client.tenants,
+                                     parsed_args.tenant)
+        user = utils.find_resource(identity_client.users, parsed_args.user)
         identity_client.roles.remove_user_role(
             user.id,
             role.id,
-            tenant.id,
-        )
+            tenant.id)
 
 
 class ShowRole(show.ShowOne):
@@ -250,15 +226,13 @@ class ShowRole(show.ShowOne):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Name or ID of role to display',
-        )
+            help='Name or ID of role to display')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        role = utils.find_resource(
-            identity_client.roles, parsed_args.role)
+        role = utils.find_resource(identity_client.roles, parsed_args.role)
 
         info = {}
         info.update(role._info)
