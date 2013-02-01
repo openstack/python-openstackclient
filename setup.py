@@ -135,5 +135,10 @@ setuptools.setup(
             'suspend_server=openstackclient.compute.v2.server:SuspendServer',
             'unpause_server=openstackclient.compute.v2.server:UnpauseServer',
         ],
+        'openstack.volume.v1': [
+            'create_type=openstackclient.volume.v1.type:CreateType',
+            'delete_type=openstackclient.volume.v1.type:DeleteType',
+            'list_type=openstackclient.volume.v1.type:ListType',
+        ]
     }
 )

@@ -36,6 +36,7 @@ KEYRING_SERVICE = 'openstack'
 DEFAULT_COMPUTE_API_VERSION = '2'
 DEFAULT_IDENTITY_API_VERSION = '2.0'
 DEFAULT_IMAGE_API_VERSION = '1.0'
+DEFAULT_VOLUME_API_VERSION = '1'
 
 
 def env(*vars, **kwargs):
@@ -160,6 +161,15 @@ class OpenStackShell(App):
             help='Image API version, default=' +
                  DEFAULT_IMAGE_API_VERSION +
                  ' (Env: OS_IMAGE_API_VERSION)')
+        parser.add_argument(
+            '--os-volume-api-version',
+            metavar='<volume-api-version>',
+            default=env(
+                'OS_VOLUME_API_VERSION',
+                default=DEFAULT_VOLUME_API_VERSION),
+            help='Volume API version, default=' +
+                 DEFAULT_VOLUME_API_VERSION +
+                 ' (Env: OS_VOLUME_API_VERSION)')
         parser.add_argument(
             '--os-token',
             metavar='<token>',
@@ -293,6 +303,7 @@ class OpenStackShell(App):
             'compute': self.options.os_compute_api_version,
             'identity': self.options.os_identity_api_version,
             'image': self.options.os_image_api_version,
+            'volume': self.options.os_volume_api_version,
         }
 
         # Add the API version-specific commands
