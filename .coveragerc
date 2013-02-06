@@ -1,0 +1,7 @@
+[run]
+branch = True
+source = openstackclient
+omit = openstackclient/openstack/*
+
+[report]
+ignore-errors = True
