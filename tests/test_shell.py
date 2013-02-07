@@ -108,6 +108,30 @@ class TestShell(utils.TestCase):
                              default_args["image_api_version"])
 
 
+class TestShellHelp(TestShell):
+    """Test the deferred help flag"""
+    def setUp(self):
+        super(TestShellHelp, self).setUp()
+        self.orig_env, os.environ = os.environ, {}
+
+    def tearDown(self):
+        super(TestShellHelp, self).tearDown()
+        os.environ = self.orig_env
+
+    def test_help_options(self):
+        flag = "-h list server"
+        kwargs = {
+            "deferred_help": True,
+        }
+        with mock.patch("openstackclient.shell.OpenStackShell.initialize_app",
+                        self.app):
+            _shell, _cmd = make_shell(), flag
+            fake_execute(_shell, _cmd)
+
+            self.assertEqual(_shell.options.deferred_help,
+                             kwargs["deferred_help"])
+
+
 class TestShellPasswordAuth(TestShell):
     def setUp(self):
         super(TestShellPasswordAuth, self).setUp()

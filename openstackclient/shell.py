@@ -21,16 +21,21 @@ import os
 import sys
 
 from cliff.app import App
-from cliff.commandmanager import CommandManager
+from cliff.help import HelpAction
 
 from openstackclient.common import clientmanager
 from openstackclient.common import exceptions as exc
 from openstackclient.common import openstackkeyring
 from openstackclient.common import utils
+from openstackclient.common.commandmanager import CommandManager
 
 
 VERSION = '0.1'
 KEYRING_SERVICE = 'openstack'
+
+DEFAULT_COMPUTE_API_VERSION = '2'
+DEFAULT_IDENTITY_API_VERSION = '2.0'
+DEFAULT_IMAGE_API_VERSION = '1.0'
 
 
 def env(*vars, **kwargs):
@@ -62,6 +67,35 @@ class OpenStackShell(App):
         # This is instantiated in initialize_app() only when using
         # password flow auth
         self.auth_client = None
+
+        # NOTE(dtroyer): This hack changes the help action that Cliff
+        #                automatically adds to the parser so we can defer
+        #                its execution until after the api-versioned commands
+        #                have been loaded.  There doesn't seem to be a
+        #                way to edit/remove anything from an existing parser.
+
+        # Replace the cliff-added HelpAction to defer its execution
+        self.DeferredHelpAction = None
+        for a in self.parser._actions:
+            if type(a) == HelpAction:
+                # Found it, save and replace it
+                self.DeferredHelpAction = a
+
+                # These steps are argparse-implementation-dependent
+                self.parser._actions.remove(a)
+                if self.parser._option_string_actions['-h']:
+                    del self.parser._option_string_actions['-h']
+                if self.parser._option_string_actions['--help']:
+                    del self.parser._option_string_actions['--help']
+
+                # Make a new help option to just set a flag
+                self.parser.add_argument(
+                    '-h', '--help',
+                    action='store_true',
+                    dest='deferred_help',
+                    default=False,
+                    help="show this help message and exit",
+                )
 
     def build_option_parser(self, description, version):
         parser = super(OpenStackShell, self).build_option_parser(
@@ -102,20 +136,30 @@ class OpenStackShell(App):
         parser.add_argument(
             '--os-identity-api-version',
             metavar='<identity-api-version>',
-            default=env('OS_IDENTITY_API_VERSION', default='2.0'),
-            help='Identity API version, default=2.0 '
-                 '(Env: OS_IDENTITY_API_VERSION)')
+            default=env(
+                'OS_IDENTITY_API_VERSION',
+                default=DEFAULT_IDENTITY_API_VERSION),
+            help='Identity API version, default=' +
+                 DEFAULT_IDENTITY_API_VERSION +
+                 ' (Env: OS_IDENTITY_API_VERSION)')
         parser.add_argument(
             '--os-compute-api-version',
             metavar='<compute-api-version>',
-            default=env('OS_COMPUTE_API_VERSION', default='2'),
-            help='Compute API version, default=2 '
-                 '(Env: OS_COMPUTE_API_VERSION)')
+            default=env(
+                'OS_COMPUTE_API_VERSION',
+                default=DEFAULT_COMPUTE_API_VERSION),
+            help='Compute API version, default=' +
+                 DEFAULT_COMPUTE_API_VERSION +
+                 ' (Env: OS_COMPUTE_API_VERSION)')
         parser.add_argument(
             '--os-image-api-version',
             metavar='<image-api-version>',
-            default=env('OS_IMAGE_API_VERSION', default='1.0'),
-            help='Image API version, default=1.0 (Env: OS_IMAGE_API_VERSION)')
+            default=env(
+                'OS_IMAGE_API_VERSION',
+                default=DEFAULT_IMAGE_API_VERSION),
+            help='Image API version, default=' +
+                 DEFAULT_IMAGE_API_VERSION +
+                 ' (Env: OS_IMAGE_API_VERSION)')
         parser.add_argument(
             '--os-token',
             metavar='<token>',
@@ -250,6 +294,16 @@ class OpenStackShell(App):
             'identity': self.options.os_identity_api_version,
             'image': self.options.os_image_api_version,
         }
+
+        # Add the API version-specific commands
+        for api in self.api_version.keys():
+            version = '.v' + self.api_version[api].replace('.', '_')
+            self.command_manager.add_command_group(
+                'openstack.' + api + version)
+
+        # Handle deferred help and exit
+        if self.options.deferred_help:
+            self.DeferredHelpAction(self.parser, self.parser, None, None)
 
         # If the user is not asking for help, make sure they
         # have given us auth.

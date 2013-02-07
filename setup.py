@@ -55,6 +55,8 @@ setuptools.setup(
     entry_points={
         'console_scripts': ['openstack=openstackclient.shell:main'],
         'openstack.cli': [
+        ],
+        'openstack.identity.v2_0': [
             'create_endpoint=' +
             'openstackclient.identity.v2_0.endpoint:CreateEndpoint',
             'delete_endpoint=' +
@@ -73,16 +75,6 @@ setuptools.setup(
             'remove_role=' +
             'openstackclient.identity.v2_0.role:RemoveRole',
             'show_role=openstackclient.identity.v2_0.role:ShowRole',
-            'create_server=openstackclient.compute.v2.server:CreateServer',
-            'delete_server=openstackclient.compute.v2.server:DeleteServer',
-            'list_server=openstackclient.compute.v2.server:ListServer',
-            'pause_server=openstackclient.compute.v2.server:PauseServer',
-            'reboot_server=openstackclient.compute.v2.server:RebootServer',
-            'rebuild_server=openstackclient.compute.v2.server:RebuildServer',
-            'resume_server=openstackclient.compute.v2.server:ResumeServer',
-            'show_server=openstackclient.compute.v2.server:ShowServer',
-            'suspend_server=openstackclient.compute.v2.server:SuspendServer',
-            'unpause_server=openstackclient.compute.v2.server:UnpauseServer',
             'create_service=' +
             'openstackclient.identity.v2_0.service:CreateService',
             'delete_service=' +
@@ -96,6 +88,7 @@ setuptools.setup(
             'list_tenant=openstackclient.identity.v2_0.tenant:ListTenant',
             'set_tenant=openstackclient.identity.v2_0.tenant:SetTenant',
             'show_tenant=openstackclient.identity.v2_0.tenant:ShowTenant',
+            'list_user-role=openstackclient.identity.v2_0.role:ListUserRole',
             'create_user=' +
             'openstackclient.identity.v2_0.user:CreateUser',
             'delete_user=' +
@@ -103,10 +96,8 @@ setuptools.setup(
             'list_user=openstackclient.identity.v2_0.user:ListUser',
             'set_user=openstackclient.identity.v2_0.user:SetUser',
             'show_user=openstackclient.identity.v2_0.user:ShowUser',
-            'list_user-role=openstackclient.identity.v2_0.role:ListUserRole',
-            'list_image=openstackclient.image.v2.image:ListImage',
-            'show_image=openstackclient.image.v2.image:ShowImage',
-            'save_image=openstackclient.image.v2.image:SaveImage',
+        ],
+        'openstack.identity.v3': [
             'create_group=openstackclient.identity.v3.group:CreateGroup',
             'delete_group=openstackclient.identity.v3.group:DeleteGroup',
             'set_group=openstackclient.identity.v3.group:SetGroup',
@@ -119,6 +110,30 @@ setuptools.setup(
             'set_project=openstackclient.identity.v3.project:SetProject',
             'show_project=openstackclient.identity.v3.project:ShowProject',
             'list_project=openstackclient.identity.v3.project:ListProject',
-        ]
+            'create_user=' +
+            'openstackclient.identity.v3.user:CreateUser',
+            'delete_user=' +
+            'openstackclient.identity.v3.user:DeleteUser',
+            'list_user=openstackclient.identity.v3.user:ListUser',
+            'set_user=openstackclient.identity.v3.user:SetUser',
+            'show_user=openstackclient.identity.v3.user:ShowUser',
+        ],
+        'openstack.image.v2': [
+            'list_image=openstackclient.image.v2.image:ListImage',
+            'show_image=openstackclient.image.v2.image:ShowImage',
+            'save_image=openstackclient.image.v2.image:SaveImage',
+        ],
+        'openstack.compute.v2': [
+            'create_server=openstackclient.compute.v2.server:CreateServer',
+            'delete_server=openstackclient.compute.v2.server:DeleteServer',
+            'list_server=openstackclient.compute.v2.server:ListServer',
+            'pause_server=openstackclient.compute.v2.server:PauseServer',
+            'reboot_server=openstackclient.compute.v2.server:RebootServer',
+            'rebuild_server=openstackclient.compute.v2.server:RebuildServer',
+            'resume_server=openstackclient.compute.v2.server:ResumeServer',
+            'show_server=openstackclient.compute.v2.server:ShowServer',
+            'suspend_server=openstackclient.compute.v2.server:SuspendServer',
+            'unpause_server=openstackclient.compute.v2.server:UnpauseServer',
+        ],
     }
 )

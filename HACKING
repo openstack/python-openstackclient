@@ -39,8 +39,8 @@ Human Alphabetical Order Examples
   import logging
   import random
   import StringIO
+  import testtools
   import time
-  import unittest
 
   from nova import flags
   from nova import test
