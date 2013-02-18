@@ -22,8 +22,8 @@ LOG = logging.getLogger(__name__)
 
 API_NAME = "image"
 API_VERSIONS = {
-    # FIXME(jk0): Temporary 1.0 -> 2 mapping.
-    "1.0": "glanceclient.v2.client.Client"
+    "1.0": "glanceclient.v2.client.Client",
+    "2": "glanceclient.v2.client.Client"
 }
 
 
