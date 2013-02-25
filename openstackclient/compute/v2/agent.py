@@ -114,7 +114,7 @@ class ListAgent(lister.Lister):
         self.log.debug("take_action(%s)" % parsed_args)
         compute_client = self.app.client_manager.compute
         columns = (
-            "Agent_ID",
+            "Agent ID",
             "Hypervisor",
             "OS",
             "Architecture",
