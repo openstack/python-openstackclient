@@ -156,6 +156,11 @@ setuptools.setup(
             'show_quota=openstackclient.volume.v1.quota:ShowQuota',
             'list_quota=openstackclient.volume.v1.quota:ListQuota',
             'set_quota=openstackclient.volume.v1.quota:SetQuota',
+            'create_volume=openstackclient.volume.v1.volume:CreateVolume',
+            'delete_volume=openstackclient.volume.v1.volume:DeleteVolume',
+            'list_volume=openstackclient.volume.v1.volume:ListVolume',
+            'set_volume=openstackclient.volume.v1.volume:SetVolume',
+            'show_volume=openstackclient.volume.v1.volume:ShowVolume',
         ]
     }
 )
