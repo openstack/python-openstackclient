@@ -147,6 +147,9 @@ setuptools.setup(
             'create_type=openstackclient.volume.v1.type:CreateType',
             'delete_type=openstackclient.volume.v1.type:DeleteType',
             'list_type=openstackclient.volume.v1.type:ListType',
+            'show_quota=openstackclient.volume.v1.quota:ShowQuota',
+            'list_quota=openstackclient.volume.v1.quota:ListQuota',
+            'set_quota=openstackclient.volume.v1.quota:SetQuota',
         ]
     }
 )
