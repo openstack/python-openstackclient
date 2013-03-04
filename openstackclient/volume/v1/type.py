@@ -90,3 +90,70 @@ class ListType(lister.Lister):
                     s, columns,
                     formatters={},
                 ) for s in data))
+
+
+class SetType(command.Command):
+    """Set type command"""
+
+    api = 'volume'
+    log = logging.getLogger(__name__ + '.SetType')
+
+    def get_parser(self, prog_name):
+        parser = super(SetType, self).get_parser(prog_name)
+        parser.add_argument(
+            'type',
+            metavar='<type>',
+            help='Type ID to update',
+        )
+        parser.add_argument(
+            'meta_data',
+            metavar='<key=value>',
+            help='meta-data to add to volume type',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
+        meta = dict(v.split('=') for v in parsed_args.meta_data.split(' '))
+        volume_client = self.app.client_manager.volume
+        volume_type = volume_client.volume_types.get(
+            parsed_args.type
+        )
+
+        volume_type.set_keys(meta)
+
+        return
+
+
+class UnsetType(command.Command):
+    """Unset type command"""
+
+    api = 'volume'
+    log = logging.getLogger(__name__ + '.UnsetType')
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetType, self).get_parser(prog_name)
+        parser.add_argument(
+            'type',
+            metavar='<type>',
+            help='Type ID to update',
+        )
+        parser.add_argument(
+            'meta_data',
+            metavar='<key>',
+            help='meta-data to remove from volume type (key only)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+        volume_client = self.app.client_manager.volume
+        volume_type = volume_client.volume_types.get(
+            parsed_args.type
+        )
+        key_list = []
+        key_list.append(parsed_args.meta_data)
+        volume_type.unset_keys(key_list)
+
+        return
