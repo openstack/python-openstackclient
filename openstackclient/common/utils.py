@@ -46,6 +46,11 @@ def find_resource(manager, name_or_id):
     #                 Eventually this should be pulled from a common set
     #                 of client exceptions.
     except Exception as ex:
+        try:
+            return manager.find(display_name=name_or_id)
+        except:
+            pass
+
         if type(ex).__name__ == 'NotFound':
             msg = "No %s with a name or ID of '%s' exists." % \
                 (manager.resource_class.__name__.lower(), name_or_id)
