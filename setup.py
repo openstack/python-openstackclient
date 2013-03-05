@@ -133,12 +133,16 @@ setuptools.setup(
             'list_agent=openstackclient.compute.v2.agent:ListAgent',
             'list_flavor=openstackclient.compute.v2.flavor:ListFlavor',
             'list_server=openstackclient.compute.v2.server:ListServer',
+            'list_compute-service=' +
+            'openstackclient.compute.v2.service:ListService',
             'pause_server=openstackclient.compute.v2.server:PauseServer',
             'reboot_server=openstackclient.compute.v2.server:RebootServer',
             'rebuild_server=openstackclient.compute.v2.server:RebuildServer',
             'resume_server=openstackclient.compute.v2.server:ResumeServer',
             'set_agent=openstackclient.compute.v2.agent:SetAgent',
             'show_flavor=openstackclient.compute.v2.flavor:ShowFlavor',
+            'set_compute-service=' +
+            'openstackclient.compute.v2.service:SetService',
             'show_server=openstackclient.compute.v2.server:ShowServer',
             'suspend_server=openstackclient.compute.v2.server:SuspendServer',
             'unpause_server=openstackclient.compute.v2.server:UnpauseServer',
