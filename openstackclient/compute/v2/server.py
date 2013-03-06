@@ -165,11 +165,11 @@ class CreateServer(show.ShowOne):
         parser.add_argument(
             '--user-data',
             metavar='<user-data>',
-            help='User data file to be serverd by the metadata server')
+            help='User data file to serve from the metadata server')
         parser.add_argument(
             '--availability-zone',
             metavar='<zone-name>',
-            help='Keypair to inject into this server')
+            help='Select an availability zone for the server')
         parser.add_argument(
             '--block-device-mapping',
             metavar='<dev-name=mapping>',
@@ -212,7 +212,7 @@ class CreateServer(show.ShowOne):
             '--wait',
             dest='wait',
             action='store_true',
-            help='Wait for server to become active to return')
+            help='Wait for servers to become active')
         return parser
 
     def take_action(self, parsed_args):
@@ -363,10 +363,6 @@ class ListServer(lister.Lister):
             metavar='<name>',
             help='regular expression to match name')
         parser.add_argument(
-            '--instance-name',
-            metavar='<server-name>',
-            help='regular expression to match instance name')
-        parser.add_argument(
             '--status',
             metavar='<status>',
             # FIXME(dhellmann): Add choices?
@@ -383,6 +379,10 @@ class ListServer(lister.Lister):
             '--host',
             metavar='<hostname>',
             help='search by hostname')
+        parser.add_argument(
+            '--instance-name',
+            metavar='<server-name>',
+            help='regular expression to match instance name (admin only)')
         parser.add_argument(
             '--all-tenants',
             action='store_true',
@@ -505,8 +505,8 @@ class RebuildServer(show.ShowOne):
             required=True,
             help='Recreate server from this image')
         parser.add_argument(
-            '--rebuild-password',
-            metavar='<rebuild_password>',
+            '--password',
+            metavar='<password>',
             default=False,
             help="Set the provided password on the rebuild instance")
         parser.add_argument(
