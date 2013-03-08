@@ -38,37 +38,41 @@ class CreateFlavor(show.ShowOne):
             metavar="<name>",
             help="Name of the new flavor")
         parser.add_argument(
-            "id",
+            "--id",
             metavar="<id>",
-            help="Unique ID (integer or UUID) for the new flavor."
-                 " If specifying 'auto', a UUID will be generated as id")
+            default='auto',
+            help="Unique flavor ID; 'auto' will create a UUID "
+                 "(default: auto)")
         parser.add_argument(
-            "ram",
+            "--ram",
             type=int,
-            metavar="<ram>",
-            help="Memory size in MB")
+            metavar="<size-mb>",
+            default=256,
+            help="Memory size in MB (default 256M)")
         parser.add_argument(
-            "disk",
+            "--disk",
             type=int,
-            metavar="<disk>",
-            help="Disk size in GB")
+            metavar="<size-gb>",
+            default=0,
+            help="Disk size in GB (default 0G)")
         parser.add_argument(
             "--ephemeral",
             type=int,
-            metavar="<ephemeral>",
-            help="Ephemeral space size in GB (default 0)",
+            metavar="<size-gb>",
+            help="Ephemeral disk size in GB (default 0G)",
             default=0)
-        parser.add_argument(
-            "vcpus",
-            type=int,
-            metavar="<vcpus>",
-            help="Number of vcpus")
         parser.add_argument(
             "--swap",
             type=int,
-            metavar="<swap>",
-            help="Swap space size in MB (default 0)",
+            metavar="<size-gb>",
+            help="Swap space size in GB (default 0G)",
             default=0)
+        parser.add_argument(
+            "--vcpus",
+            type=int,
+            metavar="<vcpus>",
+            default=1,
+            help="Number of vcpus (default 1)")
         parser.add_argument(
             "--rxtx-factor",
             type=int,
@@ -79,14 +83,14 @@ class CreateFlavor(show.ShowOne):
         public_group.add_argument(
             "--public",
             dest="public",
+            action="store_true",
             default=True,
-            help="Make flavor inaccessible to the public (default)",
-            action="store_true")
+            help="Flavor is accessible to the public (default)")
         public_group.add_argument(
             "--private",
             dest="public",
-            help="Make flavor inaccessible to the public",
-            action="store_false")
+            action="store_false",
+            help="Flavor is inaccessible to the public")
         return parser
 
     def take_action(self, parsed_args):
