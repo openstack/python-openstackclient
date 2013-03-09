@@ -125,7 +125,14 @@ class DeleteVolume(command.Command):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='ID of volume to delete',
+            help='Name or ID of volume to delete',
+        )
+        parser.add_argument(
+            '--force',
+            dest='force',
+            action='store_true',
+            default=False,
+            help='Attempt forced removal of a volume, regardless of state',
         )
         return parser
 
@@ -134,7 +141,10 @@ class DeleteVolume(command.Command):
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(
             volume_client.volumes, parsed_args.volume)
-        volume_client.volumes.delete(volume.id)
+        if parsed_args.force:
+            volume_client.volumes.force_delete(volume.id)
+        else:
+            volume_client.volumes.delete(volume.id)
         return
 
 
