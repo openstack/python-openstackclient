@@ -24,18 +24,18 @@ from cliff import show
 from openstackclient.common import utils
 
 
-class CreateType(show.ShowOne):
-    """Create type command"""
+class CreateVolumeType(show.ShowOne):
+    """Create volume type command"""
 
     api = 'volume'
-    log = logging.getLogger(__name__ + '.CreateType')
+    log = logging.getLogger(__name__ + '.CreateVolumeType')
 
     def get_parser(self, prog_name):
-        parser = super(CreateType, self).get_parser(prog_name)
+        parser = super(CreateVolumeType, self).get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<name>',
-            help='New type name',
+            help='New volume type name',
         )
         return parser
 
@@ -51,59 +51,71 @@ class CreateType(show.ShowOne):
         return zip(*sorted(info.iteritems()))
 
 
-class DeleteType(command.Command):
-    """Delete type command"""
+class DeleteVolumeType(command.Command):
+    """Delete volume type command"""
 
     api = 'volume'
-    log = logging.getLogger(__name__ + '.DeleteType')
+    log = logging.getLogger(__name__ + '.DeleteVolumeType')
 
     def get_parser(self, prog_name):
-        parser = super(DeleteType, self).get_parser(prog_name)
+        parser = super(DeleteVolumeType, self).get_parser(prog_name)
         parser.add_argument(
-            'type',
-            metavar='<type>',
-            help='Name or ID of type to delete',
+            'volume_type',
+            metavar='<volume-type>',
+            help='Name or ID of volume type to delete',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         volume_client = self.app.client_manager.volume
-        volume_type = utils.find_resource(
-            volume_client.volume_types, parsed_args.type)
-        volume_client.volume_types.delete(volume_type.id)
+        volume_type_id = utils.find_resource(
+            volume_client.volume_types, parsed_args.volume_type).id
+        volume_client.volume_types.delete(volume_type_id)
         return
 
 
-class ListType(lister.Lister):
-    """List type command"""
+class ListVolumeType(lister.Lister):
+    """List volume type command"""
 
     api = 'volume'
-    log = logging.getLogger(__name__ + '.ListType')
+    log = logging.getLogger(__name__ + '.ListVolumeType')
+
+    def get_parser(self, prog_name):
+        parser = super(ListVolumeType, self).get_parser(prog_name)
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help='Additional fields are listed in output')
+        return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        columns = ('ID', 'Name')
+        if parsed_args.long:
+            columns = ('ID', 'Name', 'Extra Specs')
+        else:
+            columns = ('ID', 'Name')
         data = self.app.client_manager.volume.volume_types.list()
         return (columns,
                 (utils.get_item_properties(
                     s, columns,
-                    formatters={},
+                    formatters={'Extra Specs': _format_type_list_extra_specs},
                 ) for s in data))
 
 
-class SetType(command.Command):
-    """Set type command"""
+class SetVolumeType(command.Command):
+    """Set volume type command"""
 
     api = 'volume'
-    log = logging.getLogger(__name__ + '.SetType')
+    log = logging.getLogger(__name__ + '.SetVolumeType')
 
     def get_parser(self, prog_name):
-        parser = super(SetType, self).get_parser(prog_name)
+        parser = super(SetVolumeType, self).get_parser(prog_name)
         parser.add_argument(
-            'type',
-            metavar='<type>',
-            help='Type ID to update',
+            'volume_type',
+            metavar='<volume-type>',
+            help='Volume type name or ID to update',
         )
         parser.add_argument(
             'meta_data',
@@ -117,27 +129,26 @@ class SetType(command.Command):
 
         meta = dict(v.split('=') for v in parsed_args.meta_data.split(' '))
         volume_client = self.app.client_manager.volume
-        volume_type = volume_client.volume_types.get(
-            parsed_args.type
-        )
+        volume_type = utils.find_resource(
+            volume_client.volume_types, parsed_args.volume_type)
 
         volume_type.set_keys(meta)
 
         return
 
 
-class UnsetType(command.Command):
-    """Unset type command"""
+class UnsetVolumeType(command.Command):
+    """Unset volume type command"""
 
     api = 'volume'
-    log = logging.getLogger(__name__ + '.UnsetType')
+    log = logging.getLogger(__name__ + '.UnsetVolumeType')
 
     def get_parser(self, prog_name):
-        parser = super(UnsetType, self).get_parser(prog_name)
+        parser = super(UnsetVolumeType, self).get_parser(prog_name)
         parser.add_argument(
-            'type',
-            metavar='<type>',
-            help='Type ID to update',
+            'volume_type',
+            metavar='<volume-type>',
+            help='Type ID or name to update',
         )
         parser.add_argument(
             'meta_data',
@@ -149,11 +160,25 @@ class UnsetType(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         volume_client = self.app.client_manager.volume
-        volume_type = volume_client.volume_types.get(
-            parsed_args.type
-        )
+        volume_type = utils.find_resource(
+            volume_client.volume_types, parsed_args.volume_type)
+
         key_list = []
         key_list.append(parsed_args.meta_data)
         volume_type.unset_keys(key_list)
 
         return
+
+
+def _format_type_list_extra_specs(vol_type):
+    """Return a string containing the key value pairs
+
+    :param server: a single VolumeType resource
+    :rtype: a string formatted to key=value
+    """
+
+    keys = vol_type.get_keys()
+    output = ""
+    for s in keys:
+        output = output + s + "=" + keys[s] + "; "
+    return output

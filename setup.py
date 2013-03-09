@@ -191,11 +191,13 @@ setuptools.setup(
             'unpause_server=openstackclient.compute.v2.server:UnpauseServer',
         ],
         'openstack.volume.v1': [
-            'create_type=openstackclient.volume.v1.type:CreateType',
-            'delete_type=openstackclient.volume.v1.type:DeleteType',
-            'list_type=openstackclient.volume.v1.type:ListType',
-            'set_type=openstackclient.volume.v1.type:SetType',
-            'unset_type=openstackclient.volume.v1.type:UnsetType',
+            'create_volume-type=' +
+            'openstackclient.volume.v1.type:CreateVolumeType',
+            'delete_volume-type=' +
+            'openstackclient.volume.v1.type:DeleteVolumeType',
+            'list_volume-type=openstackclient.volume.v1.type:ListVolumeType',
+            'set_volume-type=openstackclient.volume.v1.type:SetVolumeType',
+            'unset_volume-type=openstackclient.volume.v1.type:UnsetVolumeType',
             'show_quota=openstackclient.volume.v1.quota:ShowQuota',
             'list_quota=openstackclient.volume.v1.quota:ListQuota',
             'set_quota=openstackclient.volume.v1.quota:SetQuota',
