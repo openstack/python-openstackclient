@@ -297,6 +297,13 @@ class OpenStackShell(App):
 
         super(OpenStackShell, self).initialize_app(argv)
 
+        # Set requests logging to a useful level
+        requests_log = logging.getLogger("requests")
+        if self.options.debug:
+            requests_log.setLevel(logging.DEBUG)
+        else:
+            requests_log.setLevel(logging.WARNING)
+
         # stash selected API versions for later
         # TODO(dtroyer): how do extenstions add their version requirements?
         self.api_version = {
