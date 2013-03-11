@@ -148,6 +148,8 @@ setuptools.setup(
             'list_agent=openstackclient.compute.v2.agent:ListAgent',
             'list_flavor=openstackclient.compute.v2.flavor:ListFlavor',
             'list_host=openstackclient.compute.v2.host:ListHost',
+            'list_hypervisor=' +
+            'openstackclient.compute.v2.hypervisor:ListHypervisor',
             'list_server=openstackclient.compute.v2.server:ListServer',
             'list_compute-service=' +
             'openstackclient.compute.v2.service:ListService',
@@ -160,6 +162,8 @@ setuptools.setup(
             'openstackclient.compute.v2.service:SetService',
             'show_flavor=openstackclient.compute.v2.flavor:ShowFlavor',
             'show_host=openstackclient.compute.v2.host:ShowHost',
+            'show_hypervisor=' +
+            'openstackclient.compute.v2.hypervisor:ShowHypervisor',
             'show_server=openstackclient.compute.v2.server:ShowServer',
             'suspend_server=openstackclient.compute.v2.server:SuspendServer',
             'unpause_server=openstackclient.compute.v2.server:UnpauseServer',
