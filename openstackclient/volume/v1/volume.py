@@ -154,10 +154,40 @@ class ListVolume(lister.Lister):
     api = 'volume'
     log = logging.getLogger(__name__ + '.ListVolume')
 
+    def get_parser(self, prog_name):
+        parser = super(ListVolume, self).get_parser(prog_name)
+        parser.add_argument(
+            '--status',
+            metavar='<status>',
+            help='Filter results by status',
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help='Filter results by name',
+        )
+        parser.add_argument(
+            '--all-tenants',
+            action='store_true',
+            default=False,
+            help='Display information from all tenants (Admin-only)',
+        )
+        return parser
+
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        columns = ('ID', 'Status', 'Display Name', 'Size', 'Volume Type')
-        data = self.app.client_manager.volume.volumes.list()
+        columns = ('ID', 'Status', 'Display Name', 'Size',
+                   'Volume Type', 'Bootable', 'Attached to')
+
+        search_opts = {
+            'all_tenants': parsed_args.all_tenants,
+            'display_name': parsed_args.name,
+            'status': parsed_args.status,
+        }
+
+        volume_client = self.app.client_manager.volume
+        data = volume_client.volumes.list(search_opts=search_opts)
+
         return (columns,
                 (utils.get_item_properties(
                     s, columns,
