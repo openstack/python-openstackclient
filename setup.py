@@ -132,6 +132,13 @@ setuptools.setup(
             'set_domain=openstackclient.identity.v3.domain:SetDomain',
             'show_domain=openstackclient.identity.v3.domain:ShowDomain',
             'list_domain=openstackclient.identity.v3.domain:ListDomain',
+            'create_role=' +
+            'openstackclient.identity.v3.role:CreateRole',
+            'delete_role=' +
+            'openstackclient.identity.v3.role:DeleteRole',
+            'list_role=openstackclient.identity.v3.role:ListRole',
+            'show_role=openstackclient.identity.v3.role:ShowRole',
+            'set_role=openstackclient.identity.v3.role:SetRole',
         ],
         'openstack.image.v2': [
             'list_image=openstackclient.image.v2.image:ListImage',
