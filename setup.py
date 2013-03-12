@@ -147,6 +147,13 @@ setuptools.setup(
             'list_service=openstackclient.identity.v3.service:ListService',
             'show_service=openstackclient.identity.v3.service:ShowService',
             'set_service=openstackclient.identity.v3.service:SetService',
+            'create_endpoint=' +
+            'openstackclient.identity.v3.endpoint:CreateEndpoint',
+            'delete_endpoint=' +
+            'openstackclient.identity.v3.endpoint:DeleteEndpoint',
+            'set_endpoint=openstackclient.identity.v3.endpoint:SetEndpoint',
+            'show_endpoint=openstackclient.identity.v3.endpoint:ShowEndpoint',
+            'list_endpoint=openstackclient.identity.v3.endpoint:ListEndpoint',
         ],
         'openstack.image.v2': [
             'list_image=openstackclient.image.v2.image:ListImage',
