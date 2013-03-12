@@ -140,6 +140,13 @@ setuptools.setup(
             'show_role=openstackclient.identity.v3.role:ShowRole',
             'set_role=openstackclient.identity.v3.role:SetRole',
             'add_role=openstackclient.identity.v3.role:AddRole',
+            'create_service=' +
+            'openstackclient.identity.v3.service:CreateService',
+            'delete_service=' +
+            'openstackclient.identity.v3.service:DeleteService',
+            'list_service=openstackclient.identity.v3.service:ListService',
+            'show_service=openstackclient.identity.v3.service:ShowService',
+            'set_service=openstackclient.identity.v3.service:SetService',
         ],
         'openstack.image.v2': [
             'list_image=openstackclient.image.v2.image:ListImage',
