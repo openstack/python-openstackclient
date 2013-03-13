@@ -139,6 +139,7 @@ setuptools.setup(
             'list_role=openstackclient.identity.v3.role:ListRole',
             'show_role=openstackclient.identity.v3.role:ShowRole',
             'set_role=openstackclient.identity.v3.role:SetRole',
+            'add_role=openstackclient.identity.v3.role:AddRole',
         ],
         'openstack.image.v2': [
             'list_image=openstackclient.image.v2.image:ListImage',
