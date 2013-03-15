@@ -21,7 +21,6 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
-from novaclient.v1_1 import agents
 from openstackclient.common import utils
 
 

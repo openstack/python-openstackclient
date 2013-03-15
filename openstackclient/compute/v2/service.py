@@ -19,7 +19,6 @@ import logging
 
 from cliff import lister
 
-from novaclient.v1_1 import services
 from openstackclient.common import utils
 
 
