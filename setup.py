@@ -182,6 +182,13 @@ setuptools.setup(
             'list_volume=openstackclient.volume.v1.volume:ListVolume',
             'set_volume=openstackclient.volume.v1.volume:SetVolume',
             'show_volume=openstackclient.volume.v1.volume:ShowVolume',
+            'create_snapshot=' +
+            'openstackclient.volume.v1.snapshot:CreateSnapshot',
+            'delete_snapshot=' +
+            'openstackclient.volume.v1.snapshot:DeleteSnapshot',
+            'list_snapshot=openstackclient.volume.v1.snapshot:ListSnapshot',
+            'set_snapshot=openstackclient.volume.v1.snapshot:SetSnapshot',
+            'show_snapshot=openstackclient.volume.v1.snapshot:ShowSnapshot',
         ]
     }
 )
