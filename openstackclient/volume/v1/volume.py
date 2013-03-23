@@ -76,8 +76,8 @@ class CreateVolume(show.ShowOne):
             help='Availability Zone to use',
         )
         parser.add_argument(
-            '--metadata',
-            metavar='<metadata>',
+            '--meta-data',
+            metavar='<key=value>',
             help='Optional metadata to set on volume creation',
         )
         parser.add_argument(
@@ -97,6 +97,11 @@ class CreateVolume(show.ShowOne):
         self.log.debug('take_action(%s)' % parsed_args)
 
         volume_client = self.app.client_manager.volume
+
+        meta = None
+        if parsed_args.meta_data:
+            meta = dict(v.split('=') for v in parsed_args.meta_data.split(' '))
+
         volume = volume_client.volumes.create(
             parsed_args.size,
             parsed_args.snapshot_id,
@@ -107,7 +112,7 @@ class CreateVolume(show.ShowOne):
             parsed_args.user_id,
             parsed_args.project_id,
             parsed_args.availability_zone,
-            parsed_args.metadata,
+            meta,
             parsed_args.image_ref
         )
 
@@ -172,12 +177,22 @@ class ListVolume(lister.Lister):
             default=False,
             help='Display information from all tenants (Admin-only)',
         )
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help='Display meta-data',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+
         columns = ('ID', 'Status', 'Display Name', 'Size',
                    'Volume Type', 'Bootable', 'Attached to')
+        if parsed_args.long:
+            columns = ('ID', 'Status', 'Display Name', 'Size',
+                       'Volume Type', 'Bootable', 'Attached to', 'Meta-data')
 
         search_opts = {
             'all_tenants': parsed_args.all_tenants,
@@ -191,7 +206,7 @@ class ListVolume(lister.Lister):
         return (columns,
                 (utils.get_item_properties(
                     s, columns,
-                    formatters={},
+                    formatters={'Meta-data': _format_meta_data},
                 ) for s in data))
 
 
@@ -206,7 +221,7 @@ class SetVolume(command.Command):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='ID of volume to change')
+            help='Name or ID of volume to change')
         parser.add_argument(
             '--name',
             metavar='<new-volume-name>',
@@ -215,19 +230,29 @@ class SetVolume(command.Command):
             '--description',
             metavar='<volume-description>',
             help='New volume description')
+        parser.add_argument(
+            '--meta-data',
+            metavar='<key=value>',
+            help='meta-data to add to volume')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
+
+        meta = None
+        if parsed_args.meta_data:
+            meta = dict(v.split('=') for v in parsed_args.meta_data.split(' '))
+            volume_client.volumes.set_metadata(volume.id, meta)
+
         kwargs = {}
         if parsed_args.name:
             kwargs['display_name'] = parsed_args.name
         if parsed_args.description:
             kwargs['display_description'] = parsed_args.description
 
-        if not kwargs:
+        if not kwargs and not meta:
             sys.stdout.write("Volume not updated, no arguments present \n")
             return
         volume_client.volumes.update(volume.id, **kwargs)
@@ -245,7 +270,7 @@ class ShowVolume(show.ShowOne):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='ID of volume to display')
+            help='Name or ID of volume to display')
         return parser
 
     def take_action(self, parsed_args):
@@ -254,3 +279,52 @@ class ShowVolume(show.ShowOne):
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 
         return zip(*sorted(volume._info.iteritems()))
+
+
+class UnsetVolume(command.Command):
+    """Unset volume command"""
+
+    api = 'volume'
+    log = logging.getLogger(__name__ + '.UnsetVolume')
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetVolume, self).get_parser(prog_name)
+        parser.add_argument(
+            'volume',
+            metavar='<volume>',
+            help='Name or ID of volume to change')
+        parser.add_argument(
+            '--meta-data',
+            metavar='<key>',
+            help='meta-data to remove from volume (key only)')
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+        volume_client = self.app.client_manager.volume
+        volume = utils.find_resource(
+            volume_client.volumes, parsed_args.volume)
+
+        if not parsed_args.meta_data:
+            sys.stdout.write("Volume not updated, no arguments present \n")
+            return
+
+        key_list = []
+        key_list.append(parsed_args.meta_data)
+        volume_client.volumes.delete_metadata(volume.id, key_list)
+
+        return
+
+
+def _format_meta_data(volume):
+    """Return a string containing the key value pairs
+
+    :param server: a single volume resource
+    :rtype: a string formatted to key=value
+    """
+
+    keys = volume.metadata
+    output = ""
+    for s in keys:
+        output = output + s + "=" + keys[s] + "; "
+    return output

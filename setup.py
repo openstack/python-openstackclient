@@ -225,6 +225,7 @@ setuptools.setup(
             'list_volume=openstackclient.volume.v1.volume:ListVolume',
             'set_volume=openstackclient.volume.v1.volume:SetVolume',
             'show_volume=openstackclient.volume.v1.volume:ShowVolume',
+            'unset_volume=openstackclient.volume.v1.volume:UnsetVolume',
 
             'create_volume-type='
                 'openstackclient.volume.v1.type:CreateVolumeType',
