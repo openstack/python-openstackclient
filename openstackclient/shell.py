@@ -305,7 +305,6 @@ class OpenStackShell(App):
             requests_log.setLevel(logging.WARNING)
 
         # stash selected API versions for later
-        # TODO(dtroyer): how do extenstions add their version requirements?
         self.api_version = {
             'compute': self.options.os_compute_api_version,
             'identity': self.options.os_identity_api_version,
@@ -318,6 +317,19 @@ class OpenStackShell(App):
             version = '.v' + self.api_version[api].replace('.', '_')
             self.command_manager.add_command_group(
                 'openstack.' + api + version)
+
+        # This is the naive extension implementation referred to in
+        # blueprint 'client-extensions'
+        # Extension modules can register their commands in an
+        # 'openstack.extension' entry point group:
+        # entry_points={
+        #     'openstack.extension': [
+        #         'list_repo=qaz.github.repo:ListRepo',
+        #         'show_repo=qaz.github.repo:ShowRepo',
+        #     ],
+        # }
+        self.command_manager.add_command_group(
+            'openstack.extension')
 
         # Handle deferred help and exit
         if self.options.deferred_help:
