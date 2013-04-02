@@ -134,6 +134,12 @@ setuptools.setup(
             'set_group=openstackclient.identity.v3.group:SetGroup',
             'show_group=openstackclient.identity.v3.group:ShowGroup',
 
+            'create_policy=openstackclient.identity.v3.policy:CreatePolicy',
+            'delete_policy=openstackclient.identity.v3.policy:DeletePolicy',
+            'list_policy=openstackclient.identity.v3.policy:ListPolicy',
+            'set_policy=openstackclient.identity.v3.policy:SetPolicy',
+            'show_policy=openstackclient.identity.v3.policy:ShowPolicy',
+
             'create_project='
                 'openstackclient.identity.v3.project:CreateProject',
             'delete_project='
