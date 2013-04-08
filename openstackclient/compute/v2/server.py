@@ -149,7 +149,7 @@ class CreateServer(show.ShowOne):
             metavar='<key-name>',
             help='Keypair to inject into this server (optional extension)')
         parser.add_argument(
-            '--meta-data',
+            '--metadata',
             metavar='<key=value>',
             action='append',
             default=[],
@@ -229,7 +229,7 @@ class CreateServer(show.ShowOne):
 
         boot_args = [parsed_args.server_name, image, flavor]
 
-        meta = dict(v.split('=', 1) for v in parsed_args.meta_data)
+        meta = dict(v.split('=', 1) for v in parsed_args.metadata)
 
         files = {}
         for f in parsed_args.file:
