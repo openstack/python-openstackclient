@@ -13,7 +13,7 @@
 #   under the License.
 #
 
-"""Image Action Implementations"""
+"""Image V2 Action Implementations"""
 
 import logging
 
@@ -23,6 +23,27 @@ from cliff import show
 
 from glanceclient.common import utils as gc_utils
 from openstackclient.common import utils
+
+
+class DeleteImage(command.Command):
+    """Delete image command"""
+
+    api = "image"
+    log = logging.getLogger(__name__ + ".DeleteImage")
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteImage, self).get_parser(prog_name)
+        parser.add_argument(
+            "id",
+            metavar="<image_id>",
+            help="ID of image to delete.")
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)" % parsed_args)
+
+        image_client = self.app.client_manager.image
+        image_client.images.delete(parsed_args.id)
 
 
 class ListImage(lister.Lister):

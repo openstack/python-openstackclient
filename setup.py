@@ -173,7 +173,11 @@ setuptools.setup(
             'set_user=openstackclient.identity.v3.user:SetUser',
             'show_user=openstackclient.identity.v3.user:ShowUser',
         ],
+        'openstack.image.v1': [
+            'create_image=openstackclient.image.v1.image:CreateImage',
+        ],
         'openstack.image.v2': [
+            'delete_image=openstackclient.image.v2.image:DeleteImage',
             'list_image=openstackclient.image.v2.image:ListImage',
             'save_image=openstackclient.image.v2.image:SaveImage',
             'show_image=openstackclient.image.v2.image:ShowImage',
