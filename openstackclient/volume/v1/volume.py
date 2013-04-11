@@ -61,14 +61,14 @@ class CreateVolume(show.ShowOne):
             help='Type of volume',
         )
         parser.add_argument(
-            '--user-id',
-            metavar='<user-id>',
-            help='Override user id derived from context (admin only)',
+            '--user',
+            metavar='<user>',
+            help='Specify a different user (admin only)',
         )
         parser.add_argument(
-            '--project-id',
-            metavar='<project-id>',
-            help='Override project id derived from context (admin only)',
+            '--project',
+            metavar='<project>',
+            help='Specify a diffeent project (admin only)',
         )
         parser.add_argument(
             '--availability-zone',
@@ -98,6 +98,7 @@ class CreateVolume(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
 
+        identity_client = self.app.client_manager.identity
         volume_client = self.app.client_manager.volume
 
         source_volume = None
@@ -107,6 +108,16 @@ class CreateVolume(show.ShowOne):
                 parsed_args.source,
             ).id
 
+        project = None
+        if parsed_args.project:
+            project = utils.find_resource(
+                identity_client.tenants, parsed_args.project).id
+
+        user = None
+        if parsed_args.user:
+            user = utils.find_resource(
+                identity_client.users, parsed_args.user).id
+
         volume = volume_client.volumes.create(
             parsed_args.size,
             parsed_args.snapshot_id,
@@ -114,8 +125,8 @@ class CreateVolume(show.ShowOne):
             parsed_args.name,
             parsed_args.description,
             parsed_args.volume_type,
-            parsed_args.user_id,
-            parsed_args.project_id,
+            user,
+            project,
             parsed_args.availability_zone,
             parsed_args.property,
             parsed_args.image
