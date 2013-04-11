@@ -16,12 +16,12 @@
 """Volume v1 Volume action implementations"""
 
 import logging
-import sys
 
 from cliff import command
 from cliff import lister
 from cliff import show
 
+from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
@@ -63,32 +63,34 @@ class CreateVolume(show.ShowOne):
         parser.add_argument(
             '--user-id',
             metavar='<user-id>',
-            help='User id derived from context',
+            help='Override user id derived from context (admin only)',
         )
         parser.add_argument(
             '--project-id',
             metavar='<project-id>',
-            help='Project id derived from context',
+            help='Override project id derived from context (admin only)',
         )
         parser.add_argument(
             '--availability-zone',
             metavar='<availability-zone>',
-            help='Availability Zone to use',
+            help='Availability zone to use',
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
-            help='Optional property to set on volume creation',
+            action=parseractions.KeyValueAction,
+            help='Property to store for this volume '
+                 '(repeat option to set multiple properties)',
         )
         parser.add_argument(
-            '--image-ref',
-            metavar='<image-ref>',
-            help='reference to an image stored in glance',
+            '--image',
+            metavar='<image>',
+            help='Reference to a stored image',
         )
         parser.add_argument(
-            '--source-volid',
-            metavar='<source-volid>',
-            help='ID of source volume to clone from',
+            '--source',
+            metavar='<volume>',
+            help='Source for volume clone',
         )
 
         return parser
@@ -98,22 +100,25 @@ class CreateVolume(show.ShowOne):
 
         volume_client = self.app.client_manager.volume
 
-        meta = None
-        if parsed_args.meta_data:
-            meta = dict(v.split('=') for v in parsed_args.meta_data.split(' '))
+        source_volume = None
+        if parsed_args.source:
+            source_volume = utils.find_resource(
+                volume_client.volumes,
+                parsed_args.source,
+            ).id
 
         volume = volume_client.volumes.create(
             parsed_args.size,
             parsed_args.snapshot_id,
-            parsed_args.source_volid,
+            source_volume,
             parsed_args.name,
             parsed_args.description,
             parsed_args.volume_type,
             parsed_args.user_id,
             parsed_args.project_id,
             parsed_args.availability_zone,
-            meta,
-            parsed_args.image_ref
+            parsed_args.property,
+            parsed_args.image
         )
 
         return zip(*sorted(volume._info.iteritems()))
@@ -175,13 +180,13 @@ class ListVolume(lister.Lister):
             '--all-tenants',
             action='store_true',
             default=False,
-            help='Display information from all tenants (Admin-only)',
+            help='Display information from all tenants (admin only)',
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help='Display meta-data',
+            help='Display properties',
         )
         return parser
 
@@ -221,19 +226,25 @@ class SetVolume(command.Command):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='Name or ID of volume to change')
+            help='Name or ID of volume to change',
+        )
         parser.add_argument(
             '--name',
-            metavar='<new-volume-name>',
-            help='New volume name')
+            metavar='<new-name>',
+            help='New volume name',
+        )
         parser.add_argument(
             '--description',
-            metavar='<volume-description>',
-            help='New volume description')
+            metavar='<new-description>',
+            help='New volume description',
+        )
         parser.add_argument(
-            '--meta-data',
+            '--property',
             metavar='<key=value>',
-            help='meta-data to add to volume')
+            action=parseractions.KeyValueAction,
+            help='Property to add/change for this volume '
+                 '(repeat option to set multiple properties)',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -241,21 +252,22 @@ class SetVolume(command.Command):
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 
-        meta = None
         if parsed_args.property:
-            meta = dict(v.split('=') for v in parsed_args.property.split(' '))
-            volume_client.volumes.set_metadata(volume.id, meta)
+            print "property: %s" % parsed_args.property
+            volume_client.volumes.set_metadata(volume.id, parsed_args.property)
 
         kwargs = {}
         if parsed_args.name:
             kwargs['display_name'] = parsed_args.name
         if parsed_args.description:
             kwargs['display_description'] = parsed_args.description
+        if kwargs:
+            print "kwargs: %s" % kwargs
+            volume_client.volumes.update(volume.id, **kwargs)
 
-        if not kwargs and not meta:
-            sys.stdout.write("Volume not updated, no arguments present \n")
-            return
-        volume_client.volumes.update(volume.id, **kwargs)
+        if not kwargs and not parsed_args.property:
+            self.app.log.error("No changes requested\n")
+
         return
 
 
@@ -270,7 +282,8 @@ class ShowVolume(show.ShowOne):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='Name or ID of volume to display')
+            help='Name or ID of volume to display',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -292,11 +305,16 @@ class UnsetVolume(command.Command):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='Name or ID of volume to change')
+            help='Name or ID of volume to change',
+        )
         parser.add_argument(
-            '--meta-data',
+            '--property',
             metavar='<key>',
-            help='meta-data to remove from volume (key only)')
+            action='append',
+            default=[],
+            help='Property key to remove from volume '
+                 '(repeat to set multiple values)',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -305,14 +323,13 @@ class UnsetVolume(command.Command):
         volume = utils.find_resource(
             volume_client.volumes, parsed_args.volume)
 
-        if not parsed_args.meta_data:
-            sys.stdout.write("Volume not updated, no arguments present \n")
-            return
-
-        key_list = []
-        key_list.append(parsed_args.meta_data)
-        volume_client.volumes.delete_metadata(volume.id, key_list)
-
+        if parsed_args.property:
+            volume_client.volumes.delete_metadata(
+                volume.id,
+                parsed_args.property,
+            )
+        else:
+            self.app.log.error("No changes requested\n")
         return
 
 
