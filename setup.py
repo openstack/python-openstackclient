@@ -202,6 +202,15 @@ setuptools.setup(
             'show_hypervisor='
                 'openstackclient.compute.v2.hypervisor:ShowHypervisor',
 
+            'create_keypair='
+                'openstackclient.compute.v2.keypair:CreateKeypair',
+            'delete_keypair='
+                'openstackclient.compute.v2.keypair:DeleteKeypair',
+            'list_keypair='
+                'openstackclient.compute.v2.keypair:ListKeypair',
+            'show_keypair='
+                'openstackclient.compute.v2.keypair:ShowKeypair',
+
             'create_server=openstackclient.compute.v2.server:CreateServer',
             'delete_server=openstackclient.compute.v2.server:DeleteServer',
             'list_server=openstackclient.compute.v2.server:ListServer',
