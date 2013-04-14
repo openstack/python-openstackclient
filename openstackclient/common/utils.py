@@ -38,9 +38,16 @@ def find_resource(manager, name_or_id):
     except (ValueError, exceptions.NotFound):
         pass
 
+    kwargs = {}
+    if 'NAME_ATTR' in manager.resource_class.__dict__:
+        # novaclient does this for oddball resources
+        kwargs[manager.resource_class.NAME_ATTR] = name_or_id
+    else:
+        kwargs['name'] = name_or_id
+
     # finally try to find entity by name
     try:
-        return manager.find(name=name_or_id)
+        return manager.find(**kwargs)
     # FIXME(dtroyer): The exception to catch here is dependent on which
     #                 client library the manager passed in belongs to.
     #                 Eventually this should be pulled from a common set
