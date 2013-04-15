@@ -193,6 +193,11 @@ setuptools.setup(
             'set_compute-service='
                 'openstackclient.compute.v2.service:SetService',
 
+            'show_console-log='
+                'openstackclient.compute.v2.console:ShowConsoleLog',
+            'show_console-url='
+                'openstackclient.compute.v2.console:ShowConsoleURL',
+
             'add_fixed-ip=openstackclient.compute.v2.fixedip:AddFixedIP',
             'remove_fixed-ip=openstackclient.compute.v2.fixedip:RemoveFixedIP',
 
