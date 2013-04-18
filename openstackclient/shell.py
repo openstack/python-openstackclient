@@ -37,6 +37,7 @@ DEFAULT_COMPUTE_API_VERSION = '2'
 DEFAULT_IDENTITY_API_VERSION = '2.0'
 DEFAULT_IMAGE_API_VERSION = '2'
 DEFAULT_VOLUME_API_VERSION = '1'
+DEFAULT_DOMAIN = 'default'
 
 
 def env(*vars, **kwargs):
@@ -134,6 +135,15 @@ class OpenStackShell(app.App):
             metavar='<auth-region-name>',
             default=env('OS_REGION_NAME'),
             help='Authentication region name (Env: OS_REGION_NAME)')
+        parser.add_argument(
+            '--os-default-domain',
+            metavar='<auth-domain>',
+            default=env(
+                'OS_DEFAULT_DOMAIN',
+                default=DEFAULT_DOMAIN),
+            help='Default domain ID, default=' +
+                 DEFAULT_DOMAIN +
+                 ' (Env: OS_DEFAULT_DOMAIN)')
         parser.add_argument(
             '--os-identity-api-version',
             metavar='<identity-api-version>',
@@ -304,7 +314,10 @@ class OpenStackShell(app.App):
         else:
             requests_log.setLevel(logging.WARNING)
 
-        # stash selected API versions for later
+        # Save default domain
+        self.default_domain = self.options.os_default_domain
+
+        # Stash selected API versions for later
         self.api_version = {
             'compute': self.options.os_compute_api_version,
             'identity': self.options.os_identity_api_version,
