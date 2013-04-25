@@ -193,10 +193,27 @@ setuptools.setup(
             'set_compute-service='
                 'openstackclient.compute.v2.service:SetService',
 
+            'add_fixed-ip=openstackclient.compute.v2.fixedip:AddFixedIP',
+            'remove_fixed-ip=openstackclient.compute.v2.fixedip:RemoveFixedIP',
+
             'create_flavor=openstackclient.compute.v2.flavor:CreateFlavor',
             'delete_flavor=openstackclient.compute.v2.flavor:DeleteFlavor',
             'list_flavor=openstackclient.compute.v2.flavor:ListFlavor',
             'show_flavor=openstackclient.compute.v2.flavor:ShowFlavor',
+
+            'add_floating-ip='
+                'openstackclient.compute.v2.floatingip:AddFloatingIP',
+            'create_floating-ip='
+                'openstackclient.compute.v2.floatingip:CreateFloatingIP',
+            'delete_floating-ip='
+                'openstackclient.compute.v2.floatingip:DeleteFloatingIP',
+            'list_floating-ip='
+                'openstackclient.compute.v2.floatingip:ListFloatingIP',
+            'remove_floating-ip='
+                'openstackclient.compute.v2.floatingip:RemoveFloatingIP',
+
+            'list_floating-ip-pool='
+                'openstackclient.compute.v2.floatingippool:ListFloatingIPPool',
 
             'list_host=openstackclient.compute.v2.host:ListHost',
             'show_host=openstackclient.compute.v2.host:ShowHost',
