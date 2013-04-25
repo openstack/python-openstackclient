@@ -22,7 +22,7 @@ LOG = logging.getLogger(__name__)
 
 API_NAME = "image"
 API_VERSIONS = {
-    "1.0": "glanceclient.v2.client.Client",
+    "1": "glanceclient.v1.client.Client",
     "2": "glanceclient.v2.client.Client"
 }
 
