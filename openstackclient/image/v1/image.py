@@ -92,11 +92,11 @@ class CreateImage(show.ShowOne):
             help="Similar to --location, but this indicates that the image"
                  " should immediately be copied from the data store.")
         parser.add_argument(
-            "--metadata",
+            "--property",
             metavar="<key=value>",
             default=[],
             action="append",
-            help="Arbitrary metadata to associate with image.")
+            help="Arbitrary property to associate with image.")
         protected_group = parser.add_mutually_exclusive_group()
         protected_group.add_argument(
             "--protected",
@@ -136,8 +136,8 @@ class CreateImage(show.ShowOne):
         args.pop("variables")
 
         args["properties"] = {}
-        for _metadata in args.pop("metadata"):
-            key, value = _metadata.split("=", 1)
+        for _property in args.pop("property"):
+            key, value = _property.split("=", 1)
             args["properties"][key] = value
 
         if "location" not in args and "copy_from" not in args:

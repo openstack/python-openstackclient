@@ -76,9 +76,9 @@ class CreateVolume(show.ShowOne):
             help='Availability Zone to use',
         )
         parser.add_argument(
-            '--meta-data',
+            '--property',
             metavar='<key=value>',
-            help='Optional metadata to set on volume creation',
+            help='Optional property to set on volume creation',
         )
         parser.add_argument(
             '--image-ref',
@@ -242,8 +242,8 @@ class SetVolume(command.Command):
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 
         meta = None
-        if parsed_args.meta_data:
-            meta = dict(v.split('=') for v in parsed_args.meta_data.split(' '))
+        if parsed_args.property:
+            meta = dict(v.split('=') for v in parsed_args.property.split(' '))
             volume_client.volumes.set_metadata(volume.id, meta)
 
         kwargs = {}
