@@ -24,7 +24,7 @@ from cliff import app
 from cliff import help
 
 from openstackclient.common import clientmanager
-from openstackclient.common.commandmanager import CommandManager
+from openstackclient.common import commandmanager
 from openstackclient.common import exceptions as exc
 from openstackclient.common import openstackkeyring
 from openstackclient.common import utils
@@ -63,7 +63,7 @@ class OpenStackShell(app.App):
         super(OpenStackShell, self).__init__(
             description=__doc__.strip(),
             version=VERSION,
-            command_manager=CommandManager('openstack.cli'))
+            command_manager=commandmanager.CommandManager('openstack.cli'))
 
         # This is instantiated in initialize_app() only when using
         # password flow auth
