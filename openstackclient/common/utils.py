@@ -55,7 +55,7 @@ def find_resource(manager, name_or_id):
     except Exception as ex:
         try:
             return manager.find(display_name=name_or_id)
-        except:
+        except Exception:
             pass
 
         if type(ex).__name__ == 'NotFound':

@@ -16,6 +16,7 @@
 """Project action implementations"""
 
 import logging
+import sys
 
 from cliff import command
 from cliff import lister
@@ -189,7 +190,7 @@ class SetProject(command.Command):
             kwargs['enabled'] = parsed_args.enabled
 
         if kwargs == {}:
-            stdout.write("Project not updated, no arguments present")
+            sys.stdout.write("Project not updated, no arguments present")
             return
         project.update(**kwargs)
         return

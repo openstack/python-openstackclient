@@ -13,8 +13,6 @@
 #   under the License.
 #
 
-import mock
-
 from openstackclient.common import clientmanager
 from openstackclient.identity import client as identity_client
 from tests import utils

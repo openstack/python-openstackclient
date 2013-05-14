@@ -15,10 +15,10 @@
 
 """OpenStack base command"""
 
-from cliff.command import Command
+from cliff import command
 
 
-class OpenStackCommand(Command):
+class OpenStackCommand(command.Command):
     """Base class for OpenStack commands."""
     api = None
 

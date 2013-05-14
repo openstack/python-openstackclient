@@ -16,6 +16,7 @@
 """Volume v1 Quota action implementations"""
 
 import logging
+import sys
 
 from cliff import command
 from cliff import show
@@ -79,7 +80,7 @@ class SetQuota(command.Command):
             kwargs['gigabytes'] = parsed_args.gigabytes
 
         if kwargs == {}:
-            stdout.write("Quota not updated, no arguments present")
+            sys.stdout.write("Quota not updated, no arguments present")
             return
 
         volume_client = self.app.client_manager.volume

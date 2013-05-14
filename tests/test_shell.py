@@ -13,8 +13,8 @@
 #   under the License.
 #
 
-import os
 import mock
+import os
 
 from openstackclient import shell
 from tests import utils

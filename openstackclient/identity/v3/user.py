@@ -16,6 +16,7 @@
 """Identity v3 User action implementations"""
 
 import logging
+import sys
 
 from cliff import command
 from cliff import lister
@@ -215,7 +216,7 @@ class SetUser(command.Command):
             kwargs['enabled'] = parsed_args.enabled
 
         if not len(kwargs):
-            stdout.write("User not updated, no arguments present")
+            sys.stdout.write("User not updated, no arguments present")
             return
         identity_client.users.update(user.id, **kwargs)
         return

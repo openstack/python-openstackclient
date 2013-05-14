@@ -20,14 +20,14 @@ import logging
 import os
 import sys
 
-from cliff.app import App
-from cliff.help import HelpAction
+from cliff import app
+from cliff import help
 
 from openstackclient.common import clientmanager
+from openstackclient.common.commandmanager import CommandManager
 from openstackclient.common import exceptions as exc
 from openstackclient.common import openstackkeyring
 from openstackclient.common import utils
-from openstackclient.common.commandmanager import CommandManager
 
 
 VERSION = '0.1'
@@ -53,7 +53,7 @@ def env(*vars, **kwargs):
     return kwargs.get('default', '')
 
 
-class OpenStackShell(App):
+class OpenStackShell(app.App):
 
     CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(name)s %(message)s'
 
@@ -75,10 +75,10 @@ class OpenStackShell(App):
         #                have been loaded.  There doesn't seem to be a
         #                way to edit/remove anything from an existing parser.
 
-        # Replace the cliff-added HelpAction to defer its execution
+        # Replace the cliff-added help.HelpAction to defer its execution
         self.DeferredHelpAction = None
         for a in self.parser._actions:
-            if type(a) == HelpAction:
+            if type(a) == help.HelpAction:
                 # Found it, save and replace it
                 self.DeferredHelpAction = a
 
@@ -359,7 +359,7 @@ class OpenStackShell(App):
 def main(argv=sys.argv[1:]):
     try:
         return OpenStackShell().run(argv)
-    except:
+    except Exception:
         return 1
 
 

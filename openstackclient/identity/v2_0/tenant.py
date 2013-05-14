@@ -16,6 +16,7 @@
 """Tenant action implementations"""
 
 import logging
+import sys
 
 from cliff import command
 from cliff import lister
@@ -167,7 +168,7 @@ class SetTenant(command.Command):
             kwargs['enabled'] = parsed_args.enabled
 
         if kwargs == {}:
-            stdout.write("Tenant not updated, no arguments present")
+            sys.stdout.write("Tenant not updated, no arguments present")
             return 0
         tenant.update(**kwargs)
         return

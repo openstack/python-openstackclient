@@ -16,6 +16,7 @@
 """Group action implementations"""
 
 import logging
+import sys
 
 from cliff import command
 from cliff import lister
@@ -157,7 +158,7 @@ class SetGroup(command.Command):
             kwargs['domain'] = domain
 
         if not len(kwargs):
-            stdout.write("Group not updated, no arguments present")
+            sys.stdout.write("Group not updated, no arguments present")
             return
         identity_client.groups.update(group.id, **kwargs)
         return

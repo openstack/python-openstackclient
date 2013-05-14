@@ -141,8 +141,10 @@ class ShowService(show.ShowOne):
             # FIXME(dtroyer): This exception should eventually come from
             #                 common client exceptions
             except identity_exc.NotFound:
-                msg = "No service with a type, name or ID of '%s' exists." % \
-                      name_or_id
+                msg = "No service with exists."
+                # TODO(mordred): Where does name_or_id come from?
+                # msg = ("No service with a type, name or ID of '%s' exists." %
+                #        name_or_id)
                 raise exceptions.CommandError(msg)
 
         info = {}

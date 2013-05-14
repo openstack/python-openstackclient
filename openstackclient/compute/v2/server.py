@@ -528,7 +528,7 @@ class RebuildServer(show.ShowOne):
 
         _password = None
         if parsed_args.rebuild_password is not False:
-            _password = args.rebuild_password
+            _password = parsed_args.rebuild_password
 
         kwargs = {}
         server = server.rebuild(image, _password, **kwargs)
