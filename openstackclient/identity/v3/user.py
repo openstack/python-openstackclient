@@ -53,6 +53,16 @@ class CreateUser(show.ShowOne):
             metavar='<project>',
             help='New default project name or ID',
         )
+        parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='New default domain name or ID',
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help='Description for new user',
+        )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
@@ -72,17 +82,27 @@ class CreateUser(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
+
         if parsed_args.project:
             project_id = utils.find_resource(
                 identity_client.projects, parsed_args.project).id
         else:
             project_id = None
+
+        if parsed_args.domain:
+            domain_id = utils.find_resource(
+                identity_client.domains, parsed_args.domain).id
+        else:
+            domain_id = None
+
         user = identity_client.users.create(
             parsed_args.name,
+            domain_id,
+            project_id,
             parsed_args.password,
             parsed_args.email,
-            project_id=project_id,
-            enabled=parsed_args.enabled,
+            parsed_args.description,
+            parsed_args.enabled
         )
 
         info = {}
@@ -138,7 +158,8 @@ class ListUser(lister.Lister):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         if parsed_args.long:
-            columns = ('ID', 'Name', 'Project Id', 'Email', 'Enabled')
+            columns = ('ID', 'Name', 'Project Id', 'Domain Id',
+                       'Description', 'Email', 'Enabled')
         else:
             columns = ('ID', 'Name')
         data = self.app.client_manager.identity.users.list()
@@ -178,9 +199,19 @@ class SetUser(command.Command):
             help='New user email address',
         )
         parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='New domain name or ID',
+        )
+        parser.add_argument(
             '--project',
             metavar='<project>',
-            help='New default project name or ID',
+            help='New project name or ID',
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help='New description',
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
@@ -208,10 +239,16 @@ class SetUser(command.Command):
             kwargs['name'] = parsed_args.name
         if parsed_args.email:
             kwargs['email'] = parsed_args.email
+        if parsed_args.description:
+            kwargs['description'] = parsed_args.description
         if parsed_args.project:
             project_id = utils.find_resource(
                 identity_client.projects, parsed_args.project).id
             kwargs['projectId'] = project_id
+        if parsed_args.domain:
+            domain_id = utils.find_resource(
+                identity_client.domains, parsed_args.domain).id
+            kwargs['domainId'] = domain_id
         if 'enabled' in parsed_args:
             kwargs['enabled'] = parsed_args.enabled
 
