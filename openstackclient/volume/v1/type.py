@@ -21,6 +21,7 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
+from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
@@ -118,21 +119,22 @@ class SetVolumeType(command.Command):
             help='Volume type name or ID to update',
         )
         parser.add_argument(
-            'meta_data',
+            '--property',
             metavar='<key=value>',
-            help='meta-data to add to volume type',
+            action=parseractions.KeyValueAction,
+            help='Property to add/change for this volume type '
+                 '(repeat option to set multiple properties)',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-
-        meta = dict(v.split('=') for v in parsed_args.meta_data.split(' '))
         volume_client = self.app.client_manager.volume
         volume_type = utils.find_resource(
             volume_client.volume_types, parsed_args.volume_type)
 
-        volume_type.set_keys(meta)
+        if parsed_args.property:
+            volume_type.set_keys(parsed_args.property)
 
         return
 
@@ -148,12 +150,15 @@ class UnsetVolumeType(command.Command):
         parser.add_argument(
             'volume_type',
             metavar='<volume-type>',
-            help='Type ID or name to update',
+            help='Type ID or name to remove',
         )
         parser.add_argument(
-            'meta_data',
+            '--property',
             metavar='<key>',
-            help='meta-data to remove from volume type (key only)',
+            action='append',
+            default=[],
+            help='Property key to remove from volume '
+                 '(repeat option to remove multiple properties)',
         )
         return parser
 
@@ -161,12 +166,17 @@ class UnsetVolumeType(command.Command):
         self.log.debug('take_action(%s)' % parsed_args)
         volume_client = self.app.client_manager.volume
         volume_type = utils.find_resource(
-            volume_client.volume_types, parsed_args.volume_type)
+            volume_client.volume_types,
+            parsed_args.volume_type,
+        )
 
-        key_list = []
-        key_list.append(parsed_args.meta_data)
-        volume_type.unset_keys(key_list)
-
+        if parsed_args.property:
+            volume_client.volumes.delete_metadata(
+                volume_type.id,
+                parsed_args.property,
+            )
+        else:
+            self.app.log.error("No changes requested\n")
         return
 
 
