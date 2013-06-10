@@ -25,6 +25,84 @@ from cliff import show
 from openstackclient.common import utils
 
 
+class AddUserToGroup(command.Command):
+    """Add user to group"""
+
+    api = 'identity'
+    log = logging.getLogger(__name__ + '.AddUserToGroup')
+
+    def get_parser(self, prog_name):
+        parser = super(AddUserToGroup, self).get_parser(prog_name)
+        parser.add_argument(
+            'group',
+            metavar='<group>',
+            help='Group name or ID that user will be added to',
+        )
+        parser.add_argument(
+            'user',
+            metavar='<user>',
+            help='User name or ID to add to group',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
+
+        user_id = utils.find_resource(identity_client.users,
+                                      parsed_args.user).id
+        group_id = utils.find_resource(identity_client.groups,
+                                       parsed_args.group).id
+
+        try:
+            identity_client.users.add_to_group(user_id, group_id)
+        except Exception:
+            sys.stderr.write("%s not added to group %s\n" %
+                             (parsed_args.user, parsed_args.group))
+        else:
+            sys.stdout.write("%s added to group %s\n" %
+                             (parsed_args.user, parsed_args.group))
+
+
+class CheckUserInGroup(command.Command):
+    """Checks that user is in a specific group"""
+
+    api = 'identity'
+    log = logging.getLogger(__name__ + '.CheckUserInGroup')
+
+    def get_parser(self, prog_name):
+        parser = super(CheckUserInGroup, self).get_parser(prog_name)
+        parser.add_argument(
+            'group',
+            metavar='<group>',
+            help='Group name or ID that user will be added to',
+        )
+        parser.add_argument(
+            'user',
+            metavar='<user>',
+            help='User name or ID to add to group',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
+
+        user_id = utils.find_resource(identity_client.users,
+                                      parsed_args.user).id
+        group_id = utils.find_resource(identity_client.groups,
+                                       parsed_args.group).id
+
+        try:
+            identity_client.users.check_in_group(user_id, group_id)
+        except Exception:
+            sys.stderr.write("%s not in group %s\n" %
+                             (parsed_args.user, parsed_args.group))
+        else:
+            sys.stdout.write("%s in group %s\n" %
+                             (parsed_args.user, parsed_args.group))
+
+
 class CreateGroup(show.ShowOne):
     """Create group command"""
 
@@ -115,6 +193,45 @@ class ListGroup(lister.Lister):
                     s, columns,
                     formatters={},
                 ) for s in data))
+
+
+class RemoveUserFromGroup(command.Command):
+    """Remove user to group"""
+
+    api = 'identity'
+    log = logging.getLogger(__name__ + '.RemoveUserFromGroup')
+
+    def get_parser(self, prog_name):
+        parser = super(RemoveUserFromGroup, self).get_parser(prog_name)
+        parser.add_argument(
+            'group',
+            metavar='<group>',
+            help='Group name or ID that user will be removed from',
+        )
+        parser.add_argument(
+            'user',
+            metavar='<user>',
+            help='User name or ID to remove from group',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
+
+        user_id = utils.find_resource(identity_client.users,
+                                      parsed_args.user).id
+        group_id = utils.find_resource(identity_client.groups,
+                                       parsed_args.group).id
+
+        try:
+            identity_client.users.remove_from_group(user_id, group_id)
+        except Exception:
+            sys.stderr.write("%s not removed from group %s\n" %
+                             (parsed_args.user, parsed_args.group))
+        else:
+            sys.stdout.write("%s removed from group %s\n" %
+                             (parsed_args.user, parsed_args.group))
 
 
 class SetGroup(command.Command):
