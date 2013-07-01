@@ -236,7 +236,7 @@ class CreateServer(show.ShowOne):
             dst, src = f.split('=', 1)
             try:
                 files[dst] = open(src)
-            except IOError, e:
+            except IOError as e:
                 raise exceptions.CommandError("Can't open '%s': %s" % (src, e))
 
         if parsed_args.min > parsed_args.max:
@@ -251,7 +251,7 @@ class CreateServer(show.ShowOne):
         if parsed_args.user_data:
             try:
                 userdata = open(parsed_args.user_data)
-            except IOError, e:
+            except IOError as e:
                 raise exceptions.CommandError("Can't open '%s': %s" %
                                               (parsed_args.user_data, e))
 
