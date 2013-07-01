@@ -13,9 +13,11 @@
 #   under the License.
 #
 
+import mock
+
 from openstackclient.common import clientmanager
-from openstackclient.identity import client as identity_client
-from tests import utils
+from openstackclient.tests import utils
+from openstackclient.volume import client as volume_client
 
 
 AUTH_TOKEN = "foobar"
@@ -24,18 +26,19 @@ AUTH_URL = "http://0.0.0.0"
 
 class FakeClient(object):
     def __init__(self, endpoint=None, **kwargs):
-        self.auth_token = AUTH_TOKEN
-        self.auth_url = AUTH_URL
+        self.client = mock.MagicMock()
+        self.client.auth_token = AUTH_TOKEN
+        self.client.auth_url = AUTH_URL
 
 
-class TestIdentity(utils.TestCase):
+class TestVolume(utils.TestCase):
     def setUp(self):
-        super(TestIdentity, self).setUp()
+        super(TestVolume, self).setUp()
 
-        api_version = {"identity": "2.0"}
+        api_version = {"volume": "1"}
 
-        identity_client.API_VERSIONS = {
-            "2.0": "tests.identity.test_identity.FakeClient"
+        volume_client.API_VERSIONS = {
+            "1": "openstackclient.tests.volume.test_volume.FakeClient"
         }
 
         self.cm = clientmanager.ClientManager(token=AUTH_TOKEN,
@@ -44,5 +47,5 @@ class TestIdentity(utils.TestCase):
                                               api_version=api_version)
 
     def test_make_client(self):
-        self.assertEqual(self.cm.identity.auth_token, AUTH_TOKEN)
-        self.assertEqual(self.cm.identity.auth_url, AUTH_URL)
+        self.assertEqual(self.cm.volume.client.auth_token, AUTH_TOKEN)
+        self.assertEqual(self.cm.volume.client.auth_url, AUTH_URL)

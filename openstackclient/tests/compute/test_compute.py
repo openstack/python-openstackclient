@@ -16,8 +16,8 @@
 import mock
 
 from openstackclient.common import clientmanager
-from openstackclient.image import client as image_client
-from tests import utils
+from openstackclient.compute import client as compute_client
+from openstackclient.tests import utils
 
 
 AUTH_TOKEN = "foobar"
@@ -27,18 +27,17 @@ AUTH_URL = "http://0.0.0.0"
 class FakeClient(object):
     def __init__(self, endpoint=None, **kwargs):
         self.client = mock.MagicMock()
-        self.client.auth_token = AUTH_TOKEN
         self.client.auth_url = AUTH_URL
 
 
-class TestImage(utils.TestCase):
+class TestCompute(utils.TestCase):
     def setUp(self):
-        super(TestImage, self).setUp()
+        super(TestCompute, self).setUp()
 
-        api_version = {"image": "2"}
+        api_version = {"compute": "2"}
 
-        image_client.API_VERSIONS = {
-            "2": "tests.image.test_image.FakeClient"
+        compute_client.API_VERSIONS = {
+            "2": "openstackclient.tests.compute.test_compute.FakeClient"
         }
 
         self.cm = clientmanager.ClientManager(token=AUTH_TOKEN,
@@ -47,5 +46,5 @@ class TestImage(utils.TestCase):
                                               api_version=api_version)
 
     def test_make_client(self):
-        self.assertEqual(self.cm.image.client.auth_token, AUTH_TOKEN)
-        self.assertEqual(self.cm.image.client.auth_url, AUTH_URL)
+        self.assertEqual(self.cm.compute.client.auth_token, AUTH_TOKEN)
+        self.assertEqual(self.cm.compute.client.auth_url, AUTH_URL)

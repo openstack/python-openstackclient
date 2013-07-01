@@ -16,7 +16,7 @@
 import argparse
 
 from openstackclient.common import parseractions
-from tests import utils
+from openstackclient.tests import utils
 
 
 class TestKeyValueAction(utils.TestCase):

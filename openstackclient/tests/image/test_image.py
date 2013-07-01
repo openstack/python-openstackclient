@@ -16,8 +16,8 @@
 import mock
 
 from openstackclient.common import clientmanager
-from openstackclient.volume import client as volume_client
-from tests import utils
+from openstackclient.image import client as image_client
+from openstackclient.tests import utils
 
 
 AUTH_TOKEN = "foobar"
@@ -31,14 +31,14 @@ class FakeClient(object):
         self.client.auth_url = AUTH_URL
 
 
-class TestVolume(utils.TestCase):
+class TestImage(utils.TestCase):
     def setUp(self):
-        super(TestVolume, self).setUp()
+        super(TestImage, self).setUp()
 
-        api_version = {"volume": "1"}
+        api_version = {"image": "2"}
 
-        volume_client.API_VERSIONS = {
-            "1": "tests.volume.test_volume.FakeClient"
+        image_client.API_VERSIONS = {
+            "2": "openstackclient.tests.image.test_image.FakeClient"
         }
 
         self.cm = clientmanager.ClientManager(token=AUTH_TOKEN,
@@ -47,5 +47,5 @@ class TestVolume(utils.TestCase):
                                               api_version=api_version)
 
     def test_make_client(self):
-        self.assertEqual(self.cm.volume.client.auth_token, AUTH_TOKEN)
-        self.assertEqual(self.cm.volume.client.auth_url, AUTH_URL)
+        self.assertEqual(self.cm.image.client.auth_token, AUTH_TOKEN)
+        self.assertEqual(self.cm.image.client.auth_url, AUTH_URL)
