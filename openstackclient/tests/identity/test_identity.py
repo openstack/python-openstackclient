@@ -13,11 +13,9 @@
 #   under the License.
 #
 
-import mock
-
 from openstackclient.common import clientmanager
-from openstackclient.compute import client as compute_client
-from tests import utils
+from openstackclient.identity import client as identity_client
+from openstackclient.tests import utils
 
 
 AUTH_TOKEN = "foobar"
@@ -26,18 +24,18 @@ AUTH_URL = "http://0.0.0.0"
 
 class FakeClient(object):
     def __init__(self, endpoint=None, **kwargs):
-        self.client = mock.MagicMock()
-        self.client.auth_url = AUTH_URL
+        self.auth_token = AUTH_TOKEN
+        self.auth_url = AUTH_URL
 
 
-class TestCompute(utils.TestCase):
+class TestIdentity(utils.TestCase):
     def setUp(self):
-        super(TestCompute, self).setUp()
+        super(TestIdentity, self).setUp()
 
-        api_version = {"compute": "2"}
+        api_version = {"identity": "2.0"}
 
-        compute_client.API_VERSIONS = {
-            "2": "tests.compute.test_compute.FakeClient"
+        identity_client.API_VERSIONS = {
+            "2.0": "openstackclient.tests.identity.test_identity.FakeClient"
         }
 
         self.cm = clientmanager.ClientManager(token=AUTH_TOKEN,
@@ -46,5 +44,5 @@ class TestCompute(utils.TestCase):
                                               api_version=api_version)
 
     def test_make_client(self):
-        self.assertEqual(self.cm.compute.client.auth_token, AUTH_TOKEN)
-        self.assertEqual(self.cm.compute.client.auth_url, AUTH_URL)
+        self.assertEqual(self.cm.identity.auth_token, AUTH_TOKEN)
+        self.assertEqual(self.cm.identity.auth_url, AUTH_URL)

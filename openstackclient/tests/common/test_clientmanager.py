@@ -14,7 +14,7 @@
 #
 
 from openstackclient.common import clientmanager
-from tests import utils
+from openstackclient.tests import utils
 
 
 class Container(object):

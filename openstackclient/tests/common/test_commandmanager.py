@@ -16,7 +16,7 @@
 import mock
 
 from openstackclient.common import commandmanager
-from tests import utils
+from openstackclient.tests import utils
 
 
 class FakeCommand(object):

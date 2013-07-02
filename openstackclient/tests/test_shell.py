@@ -17,7 +17,7 @@ import mock
 import os
 
 from openstackclient import shell
-from tests import utils
+from openstackclient.tests import utils
 
 
 DEFAULT_USERNAME = "username"
