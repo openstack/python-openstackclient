@@ -17,6 +17,7 @@
 
 import logging
 import os
+import six
 import sys
 
 from cliff import command
@@ -71,7 +72,7 @@ class CreateKeypair(show.ShowOne):
         if public_key:
             info.update(keypair._info)
             del info['public_key']
-            return zip(*sorted(info.iteritems()))
+            return zip(*sorted(six.iteritems(info)))
         else:
             sys.stdout.write(keypair.private_key)
             return ({}, {})
@@ -148,7 +149,7 @@ class ShowKeypair(show.ShowOne):
         info.update(keypair._info['keypair'])
         if not parsed_args.public_key:
             del info['public_key']
-            return zip(*sorted(info.iteritems()))
+            return zip(*sorted(six.iteritems(info)))
         else:
             # NOTE(dtroyer): a way to get the public key in a similar form
             #                as the private key in the create command

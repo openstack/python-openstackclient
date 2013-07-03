@@ -1,3 +1,4 @@
+#   Copyright 2012 OpenStack Foundation
 #   Copyright 2013 Nebula Inc.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,9 +14,10 @@
 #   under the License.
 #
 
-"""EC2 Credentials action implementations"""
+"""Identity v2 EC2 Credentials action implementations"""
 
 import logging
+import six
 
 from cliff import command
 from cliff import lister
@@ -68,7 +70,7 @@ class CreateEC2Creds(show.ShowOne):
 
         info = {}
         info.update(creds._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))
 
 
 class DeleteEC2Creds(command.Command):
@@ -178,4 +180,4 @@ class ShowEC2Creds(show.ShowOne):
 
         info = {}
         info.update(creds._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))

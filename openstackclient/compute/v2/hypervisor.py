@@ -16,6 +16,7 @@
 """Hypervisor action implementations"""
 
 import logging
+import six
 
 from cliff import lister
 from cliff import show
@@ -79,4 +80,4 @@ class ShowHypervisor(show.ShowOne):
         hypervisor["service_host"] = hypervisor["service"]["host"]
         del hypervisor["service"]
 
-        return zip(*sorted(hypervisor.iteritems()))
+        return zip(*sorted(six.iteritems(hypervisor)))

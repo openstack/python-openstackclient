@@ -16,6 +16,7 @@
 """Volume v1 Volume action implementations"""
 
 import logging
+import six
 
 from cliff import command
 from cliff import lister
@@ -124,7 +125,7 @@ class CreateVolume(show.ShowOne):
             {'properties': utils.format_dict(volume._info.pop('metadata'))}
         )
 
-        return zip(*sorted(volume._info.iteritems()))
+        return zip(*sorted(six.iteritems(volume._info)))
 
 
 class DeleteVolume(command.Command):
@@ -322,7 +323,7 @@ class ShowVolume(show.ShowOne):
             {'properties': utils.format_dict(volume._info.pop('metadata'))}
         )
 
-        return zip(*sorted(volume._info.iteritems()))
+        return zip(*sorted(six.iteritems(volume._info)))
 
 
 class UnsetVolume(command.Command):

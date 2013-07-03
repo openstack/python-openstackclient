@@ -16,6 +16,7 @@
 """Volume v1 Snapshot action implementations"""
 
 import logging
+import six
 import sys
 
 from cliff import command
@@ -69,7 +70,7 @@ class CreateSnapshot(show.ShowOne):
             parsed_args.description
         )
 
-        return zip(*sorted(snapshot._info.iteritems()))
+        return zip(*sorted(six.iteritems(snapshot._info)))
 
 
 class DeleteSnapshot(command.Command):
@@ -175,4 +176,4 @@ class ShowSnapshot(show.ShowOne):
         snapshot = utils.find_resource(volume_client.volume_snapshots,
                                        parsed_args.snapshot)
 
-        return zip(*sorted(snapshot._info.iteritems()))
+        return zip(*sorted(six.iteritems(snapshot._info)))

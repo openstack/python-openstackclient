@@ -13,9 +13,10 @@
 #   under the License.
 #
 
-"""Console action implementations"""
+"""Compute v2 Console action implementations"""
 
 import logging
+import six
 import sys
 
 from cliff import command
@@ -106,7 +107,6 @@ class ShowConsoleURL(show.ShowOne):
             parsed_args.server,
         )
 
-        print "type: %s" % parsed_args.url_type
         if parsed_args.url_type in ['novnc', 'xvpvnc']:
             data = server.get_vnc_console(parsed_args.url_type)
         if parsed_args.url_type in ['spice']:
@@ -114,8 +114,7 @@ class ShowConsoleURL(show.ShowOne):
 
         if not data:
             return ({}, {})
-        print "data: %s" % data['console']
 
         info = {}
         info.update(data['console'])
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))

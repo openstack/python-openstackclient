@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -16,6 +16,7 @@
 """Identity v3 Policy action implementations"""
 
 import logging
+import six
 import sys
 
 from cliff import command
@@ -54,7 +55,7 @@ class CreatePolicy(show.ShowOne):
             blob, type=parsed_args.type
         )
 
-        return zip(*sorted(policy._info.iteritems()))
+        return zip(*sorted(six.iteritems(policy._info)))
 
 
 class DeletePolicy(command.Command):
@@ -172,7 +173,7 @@ class ShowPolicy(show.ShowOne):
         policy = utils.find_resource(identity_client.policies,
                                      parsed_args.policy)
 
-        return zip(*sorted(policy._info.iteritems()))
+        return zip(*sorted(six.iteritems(policy._info)))
 
 
 def _read_blob_file_contents(blob_file):

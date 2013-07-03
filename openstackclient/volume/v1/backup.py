@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -16,6 +16,7 @@
 """Volume v1 Backup action implementations"""
 
 import logging
+import six
 
 from cliff import command
 from cliff import lister
@@ -68,7 +69,7 @@ class CreateBackup(show.ShowOne):
         )
 
         backup._info.pop('links')
-        return zip(*sorted(backup._info.iteritems()))
+        return zip(*sorted(six.iteritems(backup._info)))
 
 
 class DeleteBackup(command.Command):
@@ -163,4 +164,4 @@ class ShowBackup(show.ShowOne):
         backup = utils.find_resource(volume_client.backups,
                                      parsed_args.backup)
         backup._info.pop('links')
-        return zip(*sorted(backup._info.iteritems()))
+        return zip(*sorted(six.iteritems(backup._info)))

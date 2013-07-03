@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -16,6 +16,7 @@
 """Identity v3 Endpoint action implementations"""
 
 import logging
+import six
 import sys
 
 from cliff import command
@@ -83,7 +84,7 @@ class CreateEndpoint(show.ShowOne):
         info.update(endpoint._info)
         info['service_name'] = service.name
         info['service_type'] = service.type
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))
 
 
 class DeleteEndpoint(command.Command):
@@ -239,4 +240,4 @@ class ShowEndpoint(show.ShowOne):
         info.update(endpoint._info)
         info['service_name'] = service.name
         info['service_type'] = service.type
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))
