@@ -45,26 +45,28 @@ class CreateProject(show.ShowOne):
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
-            dest='enabled',
             action='store_true',
-            default=True,
-            help='Enable project',
+            help='Enable project (default)',
         )
         enable_group.add_argument(
             '--disable',
-            dest='enabled',
-            action='store_false',
+            action='store_true',
             help='Disable project',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+
         identity_client = self.app.client_manager.identity
+        enabled = True
+        if parsed_args.disable:
+            enabled = False
         project = identity_client.tenants.create(
             parsed_args.project_name,
             description=parsed_args.description,
-            enabled=parsed_args.enabled)
+            enabled=enabled,
+        )
 
         info = {}
         info.update(project._info)
@@ -150,36 +152,44 @@ class SetProject(command.Command):
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
-            dest='enabled',
             action='store_true',
-            default=True,
-            help='Enable project (default)',
+            help='Enable project',
         )
         enable_group.add_argument(
             '--disable',
-            dest='enabled',
-            action='store_false',
+            action='store_true',
             help='Disable project',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+
         identity_client = self.app.client_manager.identity
         project = utils.find_resource(
             identity_client.tenants,
             parsed_args.project,
         )
-        kwargs = {}
+
+        kwargs = project._info
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
-        if 'enabled' in parsed_args:
-            kwargs['enabled'] = parsed_args.enabled
+        if parsed_args.enable:
+            kwargs['enabled'] = True
+        if parsed_args.disable:
+            kwargs['enabled'] = False
 
-        project.update(**kwargs)
-        return
+        if 'id' in kwargs:
+            del kwargs['id']
+        if 'name' in kwargs:
+            # Hack around borken Identity API arg names
+            kwargs['tenant_name'] = kwargs['name']
+            del kwargs['name']
+
+        if len(kwargs):
+            identity_client.tenants.update(project.id, **kwargs)
 
 
 class ShowProject(show.ShowOne):
