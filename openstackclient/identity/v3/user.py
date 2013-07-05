@@ -135,7 +135,7 @@ class DeleteUser(command.Command):
 
 
 class ListUser(lister.Lister):
-    """List user command"""
+    """List users and optionally roles assigned to users"""
 
     api = 'identity'
     log = logging.getLogger(__name__ + '.ListUser')
@@ -143,9 +143,27 @@ class ListUser(lister.Lister):
     def get_parser(self, prog_name):
         parser = super(ListUser, self).get_parser(prog_name)
         parser.add_argument(
+            'user',
+            metavar='<user>',
+            nargs='?',
+            help='Name or ID of user to list [required with --role]',
+        )
+        parser.add_argument(
+            '--role',
+            action='store_true',
+            default=False,
+            help='List the roles assigned to <user>',
+        )
+        domain_or_project = parser.add_mutually_exclusive_group()
+        domain_or_project.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='Filter list by <domain> [Only valid with --role]',
+        )
+        domain_or_project.add_argument(
             '--project',
             metavar='<project>',
-            help='Name or ID of project to filter users',
+            help='Filter list by <project> [Only valid with --role]',
         )
         parser.add_argument(
             '--long',
@@ -157,12 +175,70 @@ class ListUser(lister.Lister):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        if parsed_args.long:
-            columns = ('ID', 'Name', 'Project Id', 'Domain Id',
-                       'Description', 'Email', 'Enabled')
+        identity_client = self.app.client_manager.identity
+
+        if parsed_args.role:
+            # List roles belonging to user
+
+            # User is required here, bail if it is not supplied
+            if not parsed_args.user:
+                sys.stderr.write('Error: User must be specified')
+                return ([], [])
+
+            user = utils.find_resource(
+                identity_client.users,
+                parsed_args.user,
+            )
+
+            # List a user's roles
+            if not parsed_args.domain and not parsed_args.project:
+                columns = ('ID', 'Name')
+                data = identity_client.roles.list(
+                    user=user,
+                    domain='default',
+                )
+            # List a user's roles on a domain
+            elif parsed_args.user and parsed_args.domain:
+                columns = ('ID', 'Name', 'Domain', 'User')
+                domain = utils.find_resource(
+                    identity_client.domains,
+                    parsed_args.domain,
+                )
+                data = identity_client.roles.list(
+                    user=user,
+                    domain=domain,
+                )
+                for user_role in data:
+                    user_role.user = user.name
+                    user_role.domain = domain.name
+            # List a user's roles on a project
+            elif parsed_args.user and parsed_args.project:
+                columns = ('ID', 'Name', 'Project', 'User')
+                project = utils.find_resource(
+                    identity_client.projects,
+                    parsed_args.project,
+                )
+                data = identity_client.roles.list(
+                    user=user,
+                    project=project,
+                )
+                for user_role in data:
+                    user_role.user = user.name
+                    user_role.project = project.name
+            else:
+                # TODO(dtroyer): raise exception here, this really is an error
+                sys.stderr.write("Error: Must specify --domain or --project "
+                                 "with --role\n")
+                return ([], [])
         else:
-            columns = ('ID', 'Name')
-        data = self.app.client_manager.identity.users.list()
+            # List users
+            if parsed_args.long:
+                columns = ('ID', 'Name', 'Project Id', 'Domain Id',
+                           'Description', 'Email', 'Enabled')
+            else:
+                columns = ('ID', 'Name')
+            data = self.app.client_manager.identity.users.list()
+
         return (columns,
                 (utils.get_item_properties(
                     s, columns,
@@ -253,7 +329,7 @@ class SetUser(command.Command):
             kwargs['enabled'] = parsed_args.enabled
 
         if not len(kwargs):
-            sys.stdout.write("User not updated, no arguments present")
+            sys.stderr.write("User not updated, no arguments present")
             return
         identity_client.users.update(user.id, **kwargs)
         return
