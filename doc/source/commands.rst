@@ -41,20 +41,19 @@ of Cliff's command.Command object.
 Command Entry Points
 --------------------
 
-Commands are added to the client using distribute's entry points in ``setup.py``.
+Commands are added to the client using setuptools's entry points in ``setup.cfg``.
 There is a single common group ``openstack.cli`` for commands that are not versioned,
 and a group for each combination of OpenStack API and version that is
 supported.  For example, to support Identity API v3 there is a group called
 ``openstack.identity.v3`` that contains the individual commands.  The command
 entry points have the form::
 
-    "verb_object=fully.qualified.module.vXX.object:VerbObject"
+    verb_object = fully.qualified.module.vXX.object:VerbObject
 
 For example, the 'list user' command fir the Identity API is identified in
-``setup.py`` with::
+``setup.cfg`` with::
 
-    'openstack.identity.v3': [
+    openstack.identity.v3 =
         # ...
-        'list_user=openstackclient.identity.v3.user:ListUser',
+        list_user = openstackclient.identity.v3.user:ListUser
         # ...
-    ],
