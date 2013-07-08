@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -16,6 +16,7 @@
 """Image V2 Action Implementations"""
 
 import logging
+import six
 
 from cliff import command
 from cliff import lister
@@ -26,27 +27,32 @@ from openstackclient.common import utils
 
 
 class DeleteImage(command.Command):
-    """Delete image command"""
+    """Delete an image"""
 
     log = logging.getLogger(__name__ + ".DeleteImage")
 
     def get_parser(self, prog_name):
         parser = super(DeleteImage, self).get_parser(prog_name)
         parser.add_argument(
-            "id",
-            metavar="<image_id>",
-            help="ID of image to delete.")
+            "image",
+            metavar="<image>",
+            help="Name or ID of image to delete",
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)" % parsed_args)
 
         image_client = self.app.client_manager.image
-        image_client.images.delete(parsed_args.id)
+        image = utils.find_resource(
+            image_client.images,
+            parsed_args.image,
+        )
+        image_client.images.delete(image)
 
 
 class ListImage(lister.Lister):
-    """List image command"""
+    """List available images"""
 
     log = logging.getLogger(__name__ + ".ListImage")
 
@@ -55,7 +61,8 @@ class ListImage(lister.Lister):
         parser.add_argument(
             "--page-size",
             metavar="<size>",
-            help="Number of images to request in each paginated request.")
+            help="Number of images to request in each paginated request",
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -74,7 +81,7 @@ class ListImage(lister.Lister):
 
 
 class SaveImage(command.Command):
-    """Save image command"""
+    """Save an image locally"""
 
     log = logging.getLogger(__name__ + ".SaveImage")
 
@@ -82,42 +89,52 @@ class SaveImage(command.Command):
         parser = super(SaveImage, self).get_parser(prog_name)
         parser.add_argument(
             "--file",
-            metavar="<file>",
-            help="Local file to save downloaded image data "
-                 "to. If this is not specified the image "
-                 "data will be written to stdout.")
+            metavar="<filename>",
+            help="Downloaded image save filename [default: stdout]",
+        )
         parser.add_argument(
-            "id",
-            metavar="<image_id>",
-            help="ID of image to describe.")
+            "image",
+            metavar="<image>",
+            help="Name or ID of image to delete",
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)" % parsed_args)
 
         image_client = self.app.client_manager.image
-        data = image_client.images.data(parsed_args.id)
+        image = utils.find_resource(
+            image_client.images,
+            parsed_args.image,
+        )
+        data = image_client.images.data(image)
 
         gc_utils.save_image(data, parsed_args.file)
 
 
 class ShowImage(show.ShowOne):
-    """Show image command"""
+    """Show image details"""
 
     log = logging.getLogger(__name__ + ".ShowImage")
 
     def get_parser(self, prog_name):
         parser = super(ShowImage, self).get_parser(prog_name)
         parser.add_argument(
-            "id",
-            metavar="<image_id>",
-            help="ID of image to describe.")
+            "image",
+            metavar="<image>",
+            help="Name or ID of image to display",
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)" % parsed_args)
 
         image_client = self.app.client_manager.image
-        data = image_client.images.get(parsed_args.id)
+        image = utils.find_resource(
+            image_client.images,
+            parsed_args.image,
+        )
 
-        return zip(*sorted(data.iteritems()))
+        info = {}
+        info.update(image._info)
+        return zip(*sorted(six.iteritems(info)))
