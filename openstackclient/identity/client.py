@@ -15,6 +15,7 @@
 
 import logging
 
+from keystoneclient.v2_0 import client as identity_client_v2_0
 from openstackclient.common import utils
 
 
@@ -22,7 +23,7 @@ LOG = logging.getLogger(__name__)
 
 API_NAME = 'identity'
 API_VERSIONS = {
-    '2.0': 'keystoneclient.v2_0.client.Client',
+    '2.0': 'openstackclient.identity.client.IdentityClientv2_0',
     '3': 'keystoneclient.v3.client.Client',
 }
 
@@ -48,3 +49,13 @@ def make_client(instance):
             auth_url=instance._auth_url,
             region_name=instance._region_name)
     return client
+
+
+class IdentityClientv2_0(identity_client_v2_0.Client):
+    """Tweak the earlier client class to deal with some changes"""
+    def __getattr__(self, name):
+        # Map v3 'projects' back to v2 'tenants'
+        if name == "projects":
+            return self.tenants
+        else:
+            raise AttributeError, name
