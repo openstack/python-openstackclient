@@ -28,7 +28,6 @@ from openstackclient.common import utils
 class CreateDomain(show.ShowOne):
     """Create domain command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreateDomain')
 
     def get_parser(self, prog_name):
@@ -72,7 +71,6 @@ class CreateDomain(show.ShowOne):
 class DeleteDomain(command.Command):
     """Delete domain command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.DeleteDomain')
 
     def get_parser(self, prog_name):
@@ -96,7 +94,6 @@ class DeleteDomain(command.Command):
 class ListDomain(lister.Lister):
     """List domain command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListDomain')
 
     def take_action(self, parsed_args):
@@ -113,7 +110,6 @@ class ListDomain(lister.Lister):
 class SetDomain(command.Command):
     """Set domain command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.SetDomain')
 
     def get_parser(self, prog_name):
@@ -172,7 +168,6 @@ class SetDomain(command.Command):
 class ShowDomain(show.ShowOne):
     """Show domain command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ShowDomain')
 
     def get_parser(self, prog_name):

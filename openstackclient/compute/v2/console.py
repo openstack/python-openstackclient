@@ -27,7 +27,6 @@ from openstackclient.common import utils
 class ShowConsoleLog(command.Command):
     """Show console-log command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.ShowConsoleLog')
 
     def get_parser(self, prog_name):
@@ -65,7 +64,6 @@ class ShowConsoleLog(command.Command):
 class ShowConsoleURL(show.ShowOne):
     """Show console-url command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.ShowConsoleURL')
 
     def get_parser(self, prog_name):

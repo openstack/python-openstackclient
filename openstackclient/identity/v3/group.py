@@ -28,7 +28,6 @@ from openstackclient.common import utils
 class AddUserToGroup(command.Command):
     """Add user to group"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.AddUserToGroup')
 
     def get_parser(self, prog_name):
@@ -67,7 +66,6 @@ class AddUserToGroup(command.Command):
 class CheckUserInGroup(command.Command):
     """Checks that user is in a specific group"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CheckUserInGroup')
 
     def get_parser(self, prog_name):
@@ -106,7 +104,6 @@ class CheckUserInGroup(command.Command):
 class CreateGroup(show.ShowOne):
     """Create group command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreateGroup')
 
     def get_parser(self, prog_name):
@@ -147,7 +144,6 @@ class CreateGroup(show.ShowOne):
 class DeleteGroup(command.Command):
     """Delete group command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.DeleteGroup')
 
     def get_parser(self, prog_name):
@@ -169,7 +165,6 @@ class DeleteGroup(command.Command):
 class ListGroup(lister.Lister):
     """List groups and optionally roles assigned to groups"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListGroup')
 
     def get_parser(self, prog_name):
@@ -279,7 +274,6 @@ class ListGroup(lister.Lister):
 class RemoveUserFromGroup(command.Command):
     """Remove user to group"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.RemoveUserFromGroup')
 
     def get_parser(self, prog_name):
@@ -318,7 +312,6 @@ class RemoveUserFromGroup(command.Command):
 class SetGroup(command.Command):
     """Set group command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.SetGroup')
 
     def get_parser(self, prog_name):
@@ -365,7 +358,6 @@ class SetGroup(command.Command):
 class ShowGroup(show.ShowOne):
     """Show group command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ShowGroup')
 
     def get_parser(self, prog_name):

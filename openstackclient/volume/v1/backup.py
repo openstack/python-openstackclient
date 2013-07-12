@@ -27,7 +27,6 @@ from openstackclient.common import utils
 class CreateBackup(show.ShowOne):
     """Create backup command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.CreateBackup')
 
     def get_parser(self, prog_name):
@@ -75,7 +74,6 @@ class CreateBackup(show.ShowOne):
 class DeleteBackup(command.Command):
     """Delete backup command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.DeleteBackup')
 
     def get_parser(self, prog_name):
@@ -99,7 +97,6 @@ class DeleteBackup(command.Command):
 class ListBackup(lister.Lister):
     """List backup command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.ListBackup')
 
     def take_action(self, parsed_args):
@@ -122,7 +119,6 @@ class ListBackup(lister.Lister):
 class RestoreBackup(command.Command):
     """Restore backup command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.RestoreBackup')
 
     def get_parser(self, prog_name):
@@ -151,7 +147,6 @@ class RestoreBackup(command.Command):
 class ShowBackup(show.ShowOne):
     """Show backup command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.ShowBackup')
 
     def get_parser(self, prog_name):

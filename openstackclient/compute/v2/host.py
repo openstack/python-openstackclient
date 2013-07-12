@@ -25,7 +25,6 @@ from openstackclient.common import utils
 class ListHost(lister.Lister):
     """List host command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".ListHost")
 
     def get_parser(self, prog_name):
@@ -54,7 +53,6 @@ class ListHost(lister.Lister):
 class ShowHost(lister.Lister):
     """Show host command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".ShowHost")
 
     def get_parser(self, prog_name):

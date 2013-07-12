@@ -27,7 +27,6 @@ from openstackclient.common import utils
 class CreateEC2Creds(show.ShowOne):
     """Create EC2 credentials"""
 
-    api = "identity"
     log = logging.getLogger(__name__ + ".CreateEC2Creds")
 
     def get_parser(self, prog_name):
@@ -75,7 +74,6 @@ class CreateEC2Creds(show.ShowOne):
 class DeleteEC2Creds(command.Command):
     """Delete EC2 credentials"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.DeleteEC2Creds')
 
     def get_parser(self, prog_name):
@@ -111,7 +109,6 @@ class DeleteEC2Creds(command.Command):
 class ListEC2Creds(lister.Lister):
     """List EC2 credentials"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListEC2Creds')
 
     def get_parser(self, prog_name):
@@ -148,7 +145,6 @@ class ListEC2Creds(lister.Lister):
 class ShowEC2Creds(show.ShowOne):
     """Show EC2 credentials"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ShowEC2Creds')
 
     def get_parser(self, prog_name):

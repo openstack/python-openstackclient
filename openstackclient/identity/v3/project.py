@@ -28,7 +28,6 @@ from openstackclient.common import utils
 class CreateProject(show.ShowOne):
     """Create project command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreateProject')
 
     def get_parser(self, prog_name):
@@ -85,7 +84,6 @@ class CreateProject(show.ShowOne):
 class DeleteProject(command.Command):
     """Delete project command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.DeleteProject')
 
     def get_parser(self, prog_name):
@@ -108,7 +106,6 @@ class DeleteProject(command.Command):
 class ListProject(lister.Lister):
     """List project command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListProject')
 
     def get_parser(self, prog_name):
@@ -137,7 +134,6 @@ class ListProject(lister.Lister):
 class SetProject(command.Command):
     """Set project command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.SetProject')
 
     def get_parser(self, prog_name):
@@ -199,7 +195,6 @@ class SetProject(command.Command):
 class ShowProject(show.ShowOne):
     """Show project command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ShowProject')
 
     def get_parser(self, prog_name):

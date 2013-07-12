@@ -28,7 +28,6 @@ from openstackclient.common import utils
 class DeleteImage(command.Command):
     """Delete image command"""
 
-    api = "image"
     log = logging.getLogger(__name__ + ".DeleteImage")
 
     def get_parser(self, prog_name):
@@ -49,7 +48,6 @@ class DeleteImage(command.Command):
 class ListImage(lister.Lister):
     """List image command"""
 
-    api = "image"
     log = logging.getLogger(__name__ + ".ListImage")
 
     def get_parser(self, prog_name):
@@ -78,7 +76,6 @@ class ListImage(lister.Lister):
 class SaveImage(command.Command):
     """Save image command"""
 
-    api = "image"
     log = logging.getLogger(__name__ + ".SaveImage")
 
     def get_parser(self, prog_name):
@@ -107,7 +104,6 @@ class SaveImage(command.Command):
 class ShowImage(show.ShowOne):
     """Show image command"""
 
-    api = "image"
     log = logging.getLogger(__name__ + ".ShowImage")
 
     def get_parser(self, prog_name):

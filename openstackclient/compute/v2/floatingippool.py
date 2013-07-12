@@ -25,7 +25,6 @@ from openstackclient.common import utils
 class ListFloatingIPPool(lister.Lister):
     """List floating-ip-pool command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.ListFloatingIPPool')
 
     def take_action(self, parsed_args):

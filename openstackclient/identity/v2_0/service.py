@@ -29,7 +29,6 @@ from openstackclient.common import utils
 class CreateService(show.ShowOne):
     """Create service command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreateService')
 
     def get_parser(self, prog_name):
@@ -65,7 +64,6 @@ class CreateService(show.ShowOne):
 class DeleteService(command.Command):
     """Delete service command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.DeleteService')
 
     def get_parser(self, prog_name):
@@ -86,7 +84,6 @@ class DeleteService(command.Command):
 class ListService(lister.Lister):
     """List service command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListService')
 
     def get_parser(self, prog_name):
@@ -115,7 +112,6 @@ class ListService(lister.Lister):
 class ShowService(show.ShowOne):
     """Show service command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ShowService')
 
     def get_parser(self, prog_name):

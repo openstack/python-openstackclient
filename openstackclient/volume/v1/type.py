@@ -28,7 +28,6 @@ from openstackclient.common import utils
 class CreateVolumeType(show.ShowOne):
     """Create volume type command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.CreateVolumeType')
 
     def get_parser(self, prog_name):
@@ -55,7 +54,6 @@ class CreateVolumeType(show.ShowOne):
 class DeleteVolumeType(command.Command):
     """Delete volume type command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.DeleteVolumeType')
 
     def get_parser(self, prog_name):
@@ -79,7 +77,6 @@ class DeleteVolumeType(command.Command):
 class ListVolumeType(lister.Lister):
     """List volume type command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.ListVolumeType')
 
     def get_parser(self, prog_name):
@@ -108,7 +105,6 @@ class ListVolumeType(lister.Lister):
 class SetVolumeType(command.Command):
     """Set volume type command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.SetVolumeType')
 
     def get_parser(self, prog_name):
@@ -142,7 +138,6 @@ class SetVolumeType(command.Command):
 class UnsetVolumeType(command.Command):
     """Unset volume type command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.UnsetVolumeType')
 
     def get_parser(self, prog_name):

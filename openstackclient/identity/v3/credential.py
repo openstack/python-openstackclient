@@ -28,7 +28,6 @@ from openstackclient.common import utils
 class CreateCredential(show.ShowOne):
     """Create credential command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreateCredential')
 
     def get_parser(self, prog_name):
@@ -79,7 +78,6 @@ class CreateCredential(show.ShowOne):
 class DeleteCredential(command.Command):
     """Delete credential command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.DeleteCredential')
 
     def get_parser(self, prog_name):
@@ -101,7 +99,6 @@ class DeleteCredential(command.Command):
 class ListCredential(lister.Lister):
     """List credential command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListCredential')
 
     def take_action(self, parsed_args):
@@ -118,7 +115,6 @@ class ListCredential(lister.Lister):
 class SetCredential(command.Command):
     """Set credential command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.SetCredential')
 
     def get_parser(self, prog_name):
@@ -178,7 +174,6 @@ class SetCredential(command.Command):
 class ShowCredential(show.ShowOne):
     """Show credential command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ShowCredential')
 
     def get_parser(self, prog_name):

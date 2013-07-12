@@ -29,7 +29,6 @@ from openstackclient.common import utils
 class CreateEndpoint(show.ShowOne):
     """Create endpoint command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreateEndpoint')
 
     def get_parser(self, prog_name):
@@ -78,7 +77,6 @@ class CreateEndpoint(show.ShowOne):
 class DeleteEndpoint(command.Command):
     """Delete endpoint command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.DeleteEndpoint')
 
     def get_parser(self, prog_name):
@@ -99,7 +97,6 @@ class DeleteEndpoint(command.Command):
 class ListEndpoint(lister.Lister):
     """List endpoint command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListEndpoint')
 
     def get_parser(self, prog_name):
@@ -136,7 +133,6 @@ class ListEndpoint(lister.Lister):
 class ShowEndpoint(show.ShowOne):
     """Show endpoint command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ShowEndpoint')
 
     def get_parser(self, prog_name):

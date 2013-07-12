@@ -27,7 +27,6 @@ from openstackclient.common import utils
 class AddFloatingIP(command.Command):
     """Add floating-ip command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".AddFloatingIP")
 
     def get_parser(self, prog_name):
@@ -58,7 +57,6 @@ class AddFloatingIP(command.Command):
 class CreateFloatingIP(show.ShowOne):
     """Create floating-ip command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.CreateFloatingIP')
 
     def get_parser(self, prog_name):
@@ -83,7 +81,6 @@ class CreateFloatingIP(show.ShowOne):
 class DeleteFloatingIP(command.Command):
     """Delete floating-ip command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.DeleteFloatingIP')
 
     def get_parser(self, prog_name):
@@ -111,7 +108,6 @@ class DeleteFloatingIP(command.Command):
 class ListFloatingIP(lister.Lister):
     """List floating-ip command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.ListFloatingIP')
 
     def take_action(self, parsed_args):
@@ -132,7 +128,6 @@ class ListFloatingIP(lister.Lister):
 class RemoveFloatingIP(command.Command):
     """Remove floating-ip command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".RemoveFloatingIP")
 
     def get_parser(self, prog_name):

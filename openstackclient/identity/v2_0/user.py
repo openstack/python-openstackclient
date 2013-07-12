@@ -28,7 +28,6 @@ from openstackclient.common import utils
 class CreateUser(show.ShowOne):
     """Create user command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreateUser')
 
     def get_parser(self, prog_name):
@@ -86,7 +85,6 @@ class CreateUser(show.ShowOne):
 class DeleteUser(command.Command):
     """Delete user command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.DeleteUser')
 
     def get_parser(self, prog_name):
@@ -108,7 +106,6 @@ class DeleteUser(command.Command):
 class ListUser(lister.Lister):
     """List user command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListUser')
 
     def get_parser(self, prog_name):
@@ -141,7 +138,6 @@ class ListUser(lister.Lister):
 class SetUser(command.Command):
     """Set user command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.SetUser')
 
     def get_parser(self, prog_name):
@@ -206,7 +202,6 @@ class SetUser(command.Command):
 class ShowUser(show.ShowOne):
     """Show user command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ShowUser')
 
     def get_parser(self, prog_name):

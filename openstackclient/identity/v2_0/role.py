@@ -27,7 +27,6 @@ from openstackclient.common import utils
 class AddRole(show.ShowOne):
     """Add role to tenant:user"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.AddRole')
 
     def get_parser(self, prog_name):
@@ -68,7 +67,6 @@ class AddRole(show.ShowOne):
 class CreateRole(show.ShowOne):
     """Create new role"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreateRole')
 
     def get_parser(self, prog_name):
@@ -92,7 +90,6 @@ class CreateRole(show.ShowOne):
 class DeleteRole(command.Command):
     """Delete existing role"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.DeleteRole')
 
     def get_parser(self, prog_name):
@@ -114,7 +111,6 @@ class DeleteRole(command.Command):
 class ListRole(lister.Lister):
     """List roles"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListRole')
 
     def take_action(self, parsed_args):
@@ -131,7 +127,6 @@ class ListRole(lister.Lister):
 class ListUserRole(lister.Lister):
     """List user-role assignments"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListUserRole')
 
     def get_parser(self, prog_name):
@@ -181,7 +176,6 @@ class ListUserRole(lister.Lister):
 class RemoveRole(command.Command):
     """Remove role from tenant:user"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.RemoveRole')
 
     def get_parser(self, prog_name):
@@ -218,7 +212,6 @@ class RemoveRole(command.Command):
 class ShowRole(show.ShowOne):
     """Show single role"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ShowRole')
 
     def get_parser(self, prog_name):

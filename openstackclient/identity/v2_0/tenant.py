@@ -28,7 +28,6 @@ from openstackclient.common import utils
 class CreateTenant(show.ShowOne):
     """Create tenant command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreateTenant')
 
     def get_parser(self, prog_name):
@@ -71,7 +70,6 @@ class CreateTenant(show.ShowOne):
 class DeleteTenant(command.Command):
     """Delete tenant command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.DeleteTenant')
 
     def get_parser(self, prog_name):
@@ -94,7 +92,6 @@ class DeleteTenant(command.Command):
 class ListTenant(lister.Lister):
     """List tenant command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListTenant')
 
     def get_parser(self, prog_name):
@@ -123,7 +120,6 @@ class ListTenant(lister.Lister):
 class SetTenant(command.Command):
     """Set tenant command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.SetTenant')
 
     def get_parser(self, prog_name):
@@ -177,7 +173,6 @@ class SetTenant(command.Command):
 class ShowTenant(show.ShowOne):
     """Show tenant command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ShowTenant')
 
     def get_parser(self, prog_name):

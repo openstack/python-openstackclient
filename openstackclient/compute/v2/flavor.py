@@ -27,7 +27,6 @@ from openstackclient.common import utils
 class CreateFlavor(show.ShowOne):
     """Create flavor command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".CreateFlavor")
 
     def get_parser(self, prog_name):
@@ -117,7 +116,6 @@ class CreateFlavor(show.ShowOne):
 class DeleteFlavor(command.Command):
     """Delete flavor command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".DeleteFlavor")
 
     def get_parser(self, prog_name):
@@ -140,7 +138,6 @@ class DeleteFlavor(command.Command):
 class ListFlavor(lister.Lister):
     """List flavor command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".ListFlavor")
 
     def take_action(self, parsed_args):
@@ -168,7 +165,6 @@ class ListFlavor(lister.Lister):
 class ShowFlavor(show.ShowOne):
     """Show flavor command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".ShowFlavor")
 
     def get_parser(self, prog_name):

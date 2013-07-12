@@ -28,7 +28,6 @@ from openstackclient.common import utils
 class AuthorizeRequestToken(show.ShowOne):
     """Authorize request token command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.AuthorizeRequestToken')
 
     def get_parser(self, prog_name):
@@ -68,7 +67,6 @@ class AuthorizeRequestToken(show.ShowOne):
 class CreateAccessToken(show.ShowOne):
     """Create access token command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreateAccessToken')
 
     def get_parser(self, prog_name):
@@ -107,7 +105,6 @@ class CreateAccessToken(show.ShowOne):
 class CreateConsumer(show.ShowOne):
     """Create consumer command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreateConsumer')
 
     def get_parser(self, prog_name):
@@ -133,7 +130,6 @@ class CreateConsumer(show.ShowOne):
 class CreateRequestToken(show.ShowOne):
     """Create request token command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreateRequestToken')
 
     def get_parser(self, prog_name):
@@ -164,7 +160,6 @@ class CreateRequestToken(show.ShowOne):
 class DeleteConsumer(command.Command):
     """Delete consumer command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.DeleteConsumer')
 
     def get_parser(self, prog_name):
@@ -188,7 +183,6 @@ class DeleteConsumer(command.Command):
 class ListConsumer(lister.Lister):
     """List consumer command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListConsumer')
 
     def take_action(self, parsed_args):
@@ -205,7 +199,6 @@ class ListConsumer(lister.Lister):
 class SetConsumer(command.Command):
     """Set consumer command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.SetConsumer')
 
     def get_parser(self, prog_name):
@@ -241,7 +234,6 @@ class SetConsumer(command.Command):
 class ShowConsumer(show.ShowOne):
     """Show consumer command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ShowConsumer')
 
     def get_parser(self, prog_name):

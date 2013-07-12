@@ -28,7 +28,6 @@ from openstackclient.common import utils
 class AddRole(command.Command):
     """Adds a role to a user or group on a domain or project"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.AddRole')
 
     def get_parser(self, prog_name):
@@ -108,7 +107,6 @@ class AddRole(command.Command):
 class CreateRole(show.ShowOne):
     """Create new role"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreateRole')
 
     def get_parser(self, prog_name):
@@ -131,7 +129,6 @@ class CreateRole(show.ShowOne):
 class DeleteRole(command.Command):
     """Delete existing role"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.DeleteRole')
 
     def get_parser(self, prog_name):
@@ -155,7 +152,6 @@ class DeleteRole(command.Command):
 class ListRole(lister.Lister):
     """List roles"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListRole')
 
     def take_action(self, parsed_args):
@@ -172,7 +168,6 @@ class ListRole(lister.Lister):
 class RemoveRole(command.Command):
     """Remove role command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.RemoveRole')
 
     def get_parser(self, prog_name):
@@ -251,7 +246,6 @@ class RemoveRole(command.Command):
 class SetRole(command.Command):
     """Set role command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.SetRole')
 
     def get_parser(self, prog_name):
@@ -285,7 +279,6 @@ class SetRole(command.Command):
 class ShowRole(show.ShowOne):
     """Show single role"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ShowRole')
 
     def get_parser(self, prog_name):

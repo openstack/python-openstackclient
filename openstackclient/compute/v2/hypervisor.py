@@ -26,7 +26,6 @@ from openstackclient.common import utils
 class ListHypervisor(lister.Lister):
     """List hypervisor command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".ListHypervisor")
 
     def get_parser(self, prog_name):
@@ -60,7 +59,6 @@ class ListHypervisor(lister.Lister):
 class ShowHypervisor(show.ShowOne):
     """Show hypervisor command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".ShowHypervisor")
 
     def get_parser(self, prog_name):

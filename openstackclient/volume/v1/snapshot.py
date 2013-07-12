@@ -28,7 +28,6 @@ from openstackclient.common import utils
 class CreateSnapshot(show.ShowOne):
     """Create snapshot command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.CreateSnapshot')
 
     def get_parser(self, prog_name):
@@ -76,7 +75,6 @@ class CreateSnapshot(show.ShowOne):
 class DeleteSnapshot(command.Command):
     """Delete snapshot command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.DeleteSnapshot')
 
     def get_parser(self, prog_name):
@@ -100,7 +98,6 @@ class DeleteSnapshot(command.Command):
 class ListSnapshot(lister.Lister):
     """List snapshot command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.ListSnapshot')
 
     def take_action(self, parsed_args):
@@ -123,7 +120,6 @@ class ListSnapshot(lister.Lister):
 class SetSnapshot(command.Command):
     """Set snapshot command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.SetSnapshot')
 
     def get_parser(self, prog_name):
@@ -163,7 +159,6 @@ class SetSnapshot(command.Command):
 class ShowSnapshot(show.ShowOne):
     """Show snapshot command"""
 
-    api = 'volume'
     log = logging.getLogger(__name__ + '.ShowSnapshot')
 
     def get_parser(self, prog_name):

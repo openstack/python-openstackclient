@@ -30,7 +30,6 @@ from openstackclient.common import utils
 class CreateKeypair(show.ShowOne):
     """Create keypair command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + '.CreateKeypair')
 
     def get_parser(self, prog_name):
@@ -81,7 +80,6 @@ class CreateKeypair(show.ShowOne):
 class DeleteKeypair(command.Command):
     """Delete keypair command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + '.DeleteKeypair')
 
     def get_parser(self, prog_name):
@@ -103,7 +101,6 @@ class DeleteKeypair(command.Command):
 class ListKeypair(lister.Lister):
     """List keypair command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".ListKeypair")
 
     def take_action(self, parsed_args):
@@ -124,7 +121,6 @@ class ListKeypair(lister.Lister):
 class ShowKeypair(show.ShowOne):
     """Show keypair command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.ShowKeypair')
 
     def get_parser(self, prog_name):

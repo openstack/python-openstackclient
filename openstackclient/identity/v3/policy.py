@@ -28,7 +28,6 @@ from openstackclient.common import utils
 class CreatePolicy(show.ShowOne):
     """Create policy command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.CreatePolicy')
 
     def get_parser(self, prog_name):
@@ -61,7 +60,6 @@ class CreatePolicy(show.ShowOne):
 class DeletePolicy(command.Command):
     """Delete policy command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.DeletePolicy')
 
     def get_parser(self, prog_name):
@@ -83,7 +81,6 @@ class DeletePolicy(command.Command):
 class ListPolicy(lister.Lister):
     """List policy command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ListPolicy')
 
     def get_parser(self, prog_name):
@@ -113,7 +110,6 @@ class ListPolicy(lister.Lister):
 class SetPolicy(command.Command):
     """Set policy command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.SetPolicy')
 
     def get_parser(self, prog_name):
@@ -159,7 +155,6 @@ class SetPolicy(command.Command):
 class ShowPolicy(show.ShowOne):
     """Show policy command"""
 
-    api = 'identity'
     log = logging.getLogger(__name__ + '.ShowPolicy')
 
     def get_parser(self, prog_name):

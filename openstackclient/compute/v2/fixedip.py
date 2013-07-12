@@ -25,7 +25,6 @@ from openstackclient.common import utils
 class AddFixedIP(command.Command):
     """Add fixed-ip command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".AddFixedIP")
 
     def get_parser(self, prog_name):
@@ -59,7 +58,6 @@ class AddFixedIP(command.Command):
 class RemoveFixedIP(command.Command):
     """Remove fixed-ip command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".RemoveFixedIP")
 
     def get_parser(self, prog_name):

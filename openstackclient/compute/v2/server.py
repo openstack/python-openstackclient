@@ -118,7 +118,6 @@ def _wait_for_status(poll_fn, obj_id, final_ok_states, poll_period=5,
 class CreateServer(show.ShowOne):
     """Create server command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + '.CreateServer')
 
     def get_parser(self, prog_name):
@@ -318,7 +317,6 @@ class CreateServer(show.ShowOne):
 class DeleteServer(command.Command):
     """Delete server command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.DeleteServer')
 
     def get_parser(self, prog_name):
@@ -341,7 +339,6 @@ class DeleteServer(command.Command):
 class ListServer(lister.Lister):
     """List server command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.ListServer')
 
     def get_parser(self, prog_name):
@@ -419,7 +416,6 @@ class ListServer(lister.Lister):
 class PauseServer(command.Command):
     """Pause server command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.PauseServer')
 
     def get_parser(self, prog_name):
@@ -442,7 +438,6 @@ class PauseServer(command.Command):
 class RebootServer(command.Command):
     """Reboot server command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.RebootServer')
 
     def get_parser(self, prog_name):
@@ -490,7 +485,6 @@ class RebootServer(command.Command):
 class RebuildServer(show.ShowOne):
     """Rebuild server command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + '.RebuildServer')
 
     def get_parser(self, prog_name):
@@ -545,7 +539,6 @@ class RebuildServer(show.ShowOne):
 class ResumeServer(command.Command):
     """Resume server command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.ResumeServer')
 
     def get_parser(self, prog_name):
@@ -592,7 +585,6 @@ class ShowServer(show.ShowOne):
 class SuspendServer(command.Command):
     """Suspend server command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.SuspendServer')
 
     def get_parser(self, prog_name):
@@ -615,7 +607,6 @@ class SuspendServer(command.Command):
 class UnpauseServer(command.Command):
     """Unpause server command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.UnpauseServer')
 
     def get_parser(self, prog_name):

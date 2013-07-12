@@ -30,7 +30,6 @@ from cliff import show
 class CreateImage(show.ShowOne):
     """Create image command"""
 
-    api = "image"
     log = logging.getLogger(__name__ + ".CreateImage")
 
     def get_parser(self, prog_name):

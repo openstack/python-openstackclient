@@ -25,7 +25,6 @@ from openstackclient.common import utils
 class ListService(lister.Lister):
     """List service command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".ListService")
 
     def get_parser(self, prog_name):
@@ -62,7 +61,6 @@ class ListService(lister.Lister):
 class SetService(lister.Lister):
     """Set service command"""
 
-    api = "compute"
     log = logging.getLogger(__name__ + ".SetService")
 
     def get_parser(self, prog_name):
