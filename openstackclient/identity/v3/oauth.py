@@ -25,6 +25,49 @@ from cliff import show
 from openstackclient.common import utils
 
 
+class AuthenticateAccessToken(show.ShowOne):
+    """Authenticate access token - receive keystone token"""
+
+    api = 'identity'
+    log = logging.getLogger(__name__ + '.AuthenticateAccessToken')
+
+    def get_parser(self, prog_name):
+        parser = super(AuthenticateAccessToken, self).get_parser(prog_name)
+        parser.add_argument(
+            '--consumer-key',
+            metavar='<consumer-key>',
+            help='Consumer key',
+            required=True
+        )
+        parser.add_argument(
+            '--consumer-secret',
+            metavar='<consumer-secret>',
+            help='Consumer secret',
+            required=True
+        )
+        parser.add_argument(
+            '--access-key',
+            metavar='<access-key>',
+            help='Access token key',
+            required=True
+        )
+        parser.add_argument(
+            '--access-secret',
+            metavar='<access-secret>',
+            help='Access token secret',
+            required=True
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+        oauth_client = self.app.client_manager.identity.oauth
+        keystone_token = oauth_client.authenticate(
+            parsed_args.consumer_key, parsed_args.consumer_secret,
+            parsed_args.access_key, parsed_args.access_secret)
+        return zip(*sorted(keystone_token.iteritems()))
+
+
 class AuthorizeRequestToken(show.ShowOne):
     """Authorize request token command"""
 
@@ -39,12 +82,6 @@ class AuthorizeRequestToken(show.ShowOne):
             required=True
         )
         parser.add_argument(
-            '--user-token',
-            metavar='<user-token>',
-            help='Token of authorizing user',
-            required=True
-        )
-        parser.add_argument(
             '--roles',
             metavar='<roles>',
             help='Role to authorize',
@@ -54,11 +91,10 @@ class AuthorizeRequestToken(show.ShowOne):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        oauth_client = self.app.client_manager.identity.oauths
+        oauth_client = self.app.client_manager.identity.oauth
 
         verifier_pin = oauth_client.authorize_request_token(
-            parsed_args.request_key, parsed_args.user_token,
-            parsed_args.roles)
+            parsed_args.request_key, parsed_args.roles)
         info = {}
         info.update(verifier_pin._info)
         return zip(*sorted(info.iteritems()))
@@ -78,9 +114,21 @@ class CreateAccessToken(show.ShowOne):
             required=True
         )
         parser.add_argument(
+            '--consumer-secret',
+            metavar='<consumer-secret>',
+            help='Consumer secret',
+            required=True
+        )
+        parser.add_argument(
             '--request-key',
             metavar='<request-key>',
-            help='Consumer key',
+            help='Request token key',
+            required=True
+        )
+        parser.add_argument(
+            '--request-secret',
+            metavar='<request-secret>',
+            help='Request token secret',
             required=True
         )
         parser.add_argument(
@@ -93,13 +141,12 @@ class CreateAccessToken(show.ShowOne):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        oauth_client = self.app.client_manager.identity.oauths
+        oauth_client = self.app.client_manager.identity.oauth
         access_token = oauth_client.create_access_token(
-            parsed_args.consumer_key, parsed_args.request_key,
+            parsed_args.consumer_key, parsed_args.consumer_secret,
+            parsed_args.request_key, parsed_args.request_secret,
             parsed_args.verifier)
-        info = {}
-        info.update(access_token._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(access_token.iteritems()))
 
 
 class CreateConsumer(show.ShowOne):
@@ -119,7 +166,7 @@ class CreateConsumer(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        consumer = identity_client.oauths.create_consumer(
+        consumer = identity_client.oauth.create_consumer(
             parsed_args.name
         )
         info = {}
@@ -141,6 +188,12 @@ class CreateRequestToken(show.ShowOne):
             required=True
         )
         parser.add_argument(
+            '--consumer-secret',
+            metavar='<consumer-secret>',
+            help='Consumer secret',
+            required=True
+        )
+        parser.add_argument(
             '--roles',
             metavar='<roles>',
             help='Role requested',
@@ -149,12 +202,12 @@ class CreateRequestToken(show.ShowOne):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        oauth_client = self.app.client_manager.identity.oauths
+        oauth_client = self.app.client_manager.identity.oauth
         request_token = oauth_client.create_request_token(
-            parsed_args.consumer_key, parsed_args.roles)
-        info = {}
-        info.update(request_token._info)
-        return zip(*sorted(info.iteritems()))
+            parsed_args.consumer_key,
+            parsed_args.consumer_secret,
+            parsed_args.roles)
+        return zip(*sorted(request_token.iteritems()))
 
 
 class DeleteConsumer(command.Command):
@@ -175,8 +228,8 @@ class DeleteConsumer(command.Command):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
-            identity_client.oauths, parsed_args.consumer)
-        identity_client.oauths.delete_consumer(consumer.id)
+            identity_client.oauth, parsed_args.consumer)
+        identity_client.oauth.delete_consumer(consumer.id)
         return
 
 
@@ -188,7 +241,7 @@ class ListConsumer(lister.Lister):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         columns = ('ID', 'Name', 'Consumer Key', 'Consumer Secret')
-        data = self.app.client_manager.identity.oauths.list_consumers()
+        data = self.app.client_manager.identity.oauth.list_consumers()
         return (columns,
                 (utils.get_item_properties(
                     s, columns,
@@ -219,7 +272,7 @@ class SetConsumer(command.Command):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
-            identity_client.oauths, parsed_args.consumer)
+            identity_client.oauth, parsed_args.consumer)
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
@@ -227,7 +280,7 @@ class SetConsumer(command.Command):
         if not len(kwargs):
             sys.stdout.write("Consumer not updated, no arguments present")
             return
-        identity_client.oauths.update_consumer(consumer.id, **kwargs)
+        identity_client.oauth.update_consumer(consumer.id, **kwargs)
         return
 
 
@@ -249,7 +302,7 @@ class ShowConsumer(show.ShowOne):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
-            identity_client.oauths, parsed_args.consumer)
+            identity_client.oauth, parsed_args.consumer)
 
         info = {}
         info.update(consumer._info)
