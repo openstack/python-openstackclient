@@ -26,7 +26,7 @@ from openstackclient.common import utils
 
 
 class AuthenticateAccessToken(show.ShowOne):
-    """Authenticate access token - receive keystone token"""
+    """Authenticate access token to receive keystone token"""
 
     api = 'identity'
     log = logging.getLogger(__name__ + '.AuthenticateAccessToken')
@@ -233,6 +233,36 @@ class DeleteConsumer(command.Command):
         return
 
 
+class DeleteUserAuthorization(command.Command):
+    """Delete user authorization command"""
+
+    log = logging.getLogger(__name__ + '.DeleteUserAuthorization')
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteUserAuthorization, self).get_parser(prog_name)
+        parser.add_argument(
+            'user',
+            metavar='<user>',
+            help='Name or Id of user',
+        )
+        parser.add_argument(
+            'access_id',
+            metavar='<access-id>',
+            help='Access Id to be deleted',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
+        identity_client = self.app.client_manager.identity
+        user = utils.find_resource(
+            identity_client.users, parsed_args.user).id
+        identity_client.oauth.delete_authorization(user,
+                                                   parsed_args.access_id)
+        return
+
+
 class ListConsumer(lister.Lister):
     """List consumer command"""
 
@@ -242,6 +272,37 @@ class ListConsumer(lister.Lister):
         self.log.debug('take_action(%s)' % parsed_args)
         columns = ('ID', 'Name', 'Consumer Key', 'Consumer Secret')
         data = self.app.client_manager.identity.oauth.list_consumers()
+        return (columns,
+                (utils.get_item_properties(
+                    s, columns,
+                    formatters={},
+                ) for s in data))
+
+
+class ListUserAuthorizations(lister.Lister):
+    """List user authorizations command"""
+
+    log = logging.getLogger(__name__ + '.ListUserAuthorizations')
+
+    def get_parser(self, prog_name):
+        parser = super(ListUserAuthorizations, self).get_parser(prog_name)
+        parser.add_argument(
+            'user',
+            metavar='<user>',
+            help='Name or Id of user',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
+        identity_client = self.app.client_manager.identity
+        user = utils.find_resource(
+            identity_client.users, parsed_args.user).id
+
+        columns = ('Access Key', 'Consumer Key', 'Issued At',
+                   'Project Id', 'User Id', 'Requested Roles')
+        data = identity_client.oauth.list_authorizations(user)
         return (columns,
                 (utils.get_item_properties(
                     s, columns,
@@ -282,6 +343,30 @@ class SetConsumer(command.Command):
             return
         identity_client.oauth.update_consumer(consumer.id, **kwargs)
         return
+
+
+class ShowAuthorizationPin(show.ShowOne):
+    """Show Authorization pin command"""
+
+    log = logging.getLogger(__name__ + '.ShowAuthorizationPin')
+
+    def get_parser(self, prog_name):
+        parser = super(ShowAuthorizationPin, self).get_parser(prog_name)
+        parser.add_argument(
+            'request_id',
+            metavar='<request-id>',
+            help='Show pin for request token',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
+        data = identity_client.oauth.get_authorization_pin(
+            parsed_args.request_id)
+        info = {}
+        info.update(data._info)
+        return zip(*sorted(info.iteritems()))
 
 
 class ShowConsumer(show.ShowOne):
