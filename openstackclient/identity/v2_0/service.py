@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -110,7 +110,7 @@ class ListService(lister.Lister):
 
 
 class ShowService(show.ShowOne):
-    """Show service command"""
+    """Show cloud service information"""
 
     log = logging.getLogger(__name__ + '.ShowService')
 
@@ -119,30 +119,51 @@ class ShowService(show.ShowOne):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Type, name or ID of service to display')
+            help='Type, name or ID of service to display',
+        )
+        parser.add_argument(
+            '--catalog',
+            action='store_true',
+            default=False,
+            help='Show service catalog information',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        try:
-            # search for the usual ID or name
-            service = utils.find_resource(identity_client.services,
-                                          parsed_args.service)
-        except exceptions.CommandError:
-            try:
-                # search for service type
-                service = identity_client.services.find(
-                    type=parsed_args.service)
-            # FIXME(dtroyer): This exception should eventually come from
-            #                 common client exceptions
-            except identity_exc.NotFound:
-                msg = "No service with exists."
-                # TODO(mordred): Where does name_or_id come from?
-                # msg = ("No service with a type, name or ID of '%s' exists." %
-                #        name_or_id)
-                raise exceptions.CommandError(msg)
 
-        info = {}
-        info.update(service._info)
-        return zip(*sorted(info.iteritems()))
+        if parsed_args.catalog:
+            endpoints = identity_client.service_catalog.get_endpoints(
+                service_type=parsed_args.service)
+            for (service, service_endpoints) in endpoints.iteritems():
+                if service_endpoints:
+                    info = {"type": service}
+                    info.update(service_endpoints[0])
+                    return zip(*sorted(info.iteritems()))
+
+            msg = ("No service catalog with a type, name or ID of '%s' "
+                   "exists." % (parsed_args.service))
+            raise exceptions.CommandError(msg)
+        else:
+            try:
+                # search for the usual ID or name
+                service = utils.find_resource(
+                    identity_client.services,
+                    parsed_args.service,
+                )
+            except exceptions.CommandError:
+                try:
+                    # search for service type
+                    service = identity_client.services.find(
+                        type=parsed_args.service)
+                # FIXME(dtroyer): This exception should eventually come from
+                #                 common client exceptions
+                except identity_exc.NotFound:
+                    msg = ("No service with a type, name or ID of '%s' exists."
+                           % parsed_args.service)
+                    raise exceptions.CommandError(msg)
+
+            info = {}
+            info.update(service._info)
+            return zip(*sorted(info.iteritems()))
