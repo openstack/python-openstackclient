@@ -331,6 +331,10 @@ class OpenStackShell(app.App):
             self.command_manager.add_command_group(
                 'openstack.' + api + version)
 
+        # Commands that span multiple APIs
+        self.command_manager.add_command_group(
+            'openstack.common')
+
         # This is the naive extension implementation referred to in
         # blueprint 'client-extensions'
         # Extension modules can register their commands in an
