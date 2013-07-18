@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -13,7 +13,7 @@
 #   under the License.
 #
 
-"""Server action implementations"""
+"""Compute v2 Server action implementations"""
 
 import logging
 import os
@@ -25,17 +25,18 @@ from cliff import show
 
 from novaclient.v1_1 import servers
 from openstackclient.common import exceptions
+from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
-def _format_servers_list_networks(server):
-    """Return a string containing the networks a server is attached to.
+def _format_servers_list_networks(networks):
+    """Return a formatted string of a server's networks
 
-    :param server: a single Server resource
+    :param server: a Server.networks field
     :rtype: a string of formatted network addresses
     """
     output = []
-    for (network, addresses) in server.networks.items():
+    for (network, addresses) in networks.items():
         if not addresses:
             continue
         addresses_csv = ', '.join(addresses)
@@ -73,7 +74,12 @@ def _prep_server_detail(compute_client, server):
 
     # NOTE(dtroyer): novaclient splits these into separate entries...
     # Format addresses in a useful way
-    info['addresses'] = _format_servers_list_networks(server)
+    info['addresses'] = _format_servers_list_networks(server.networks)
+
+    # Map 'metadata' field to 'properties'
+    info.update(
+        {'properties': utils.format_dict(info.pop('metadata'))}
+    )
 
     # Remove values that are long and not too useful
     info.pop('links', None)
@@ -116,7 +122,7 @@ def _wait_for_status(poll_fn, obj_id, final_ok_states, poll_period=5,
 
 
 class CreateServer(show.ShowOne):
-    """Create server command"""
+    """Create a new server"""
 
     log = logging.getLogger(__name__ + '.CreateServer')
 
@@ -150,9 +156,8 @@ class CreateServer(show.ShowOne):
         parser.add_argument(
             '--property',
             metavar='<key=value>',
-            action='append',
-            default=[],
-            help='Property to store for this server '
+            action=parseractions.KeyValueAction,
+            help='Set a property on this server '
                  '(repeat for multiple values)')
         parser.add_argument(
             '--file',
@@ -228,8 +233,6 @@ class CreateServer(show.ShowOne):
 
         boot_args = [parsed_args.server_name, image, flavor]
 
-        meta = dict(v.split('=', 1) for v in parsed_args.property)
-
         files = {}
         for f in parsed_args.file:
             dst, src = f.split('=', 1)
@@ -288,7 +291,7 @@ class CreateServer(show.ShowOne):
             config_drive = parsed_args.config_drive
 
         boot_kwargs = dict(
-            meta=meta,
+            meta=parsed_args.property,
             files=files,
             reservation_id=None,
             min_count=parsed_args.min,
@@ -337,7 +340,7 @@ class DeleteServer(command.Command):
 
 
 class ListServer(lister.Lister):
-    """List server command"""
+    """List servers"""
 
     log = logging.getLogger(__name__ + '.ListServer')
 
@@ -385,6 +388,11 @@ class ListServer(lister.Lister):
             action='store_true',
             default=bool(int(os.environ.get("ALL_TENANTS", 0))),
             help='display information from all tenants (admin only)')
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help='Additional fields are listed in output')
         return parser
 
     def take_action(self, parsed_args):
@@ -403,13 +411,43 @@ class ListServer(lister.Lister):
             'all_tenants': parsed_args.all_tenants,
         }
         self.log.debug('search options: %s', search_opts)
-        # FIXME(dhellmann): Consider adding other columns
-        columns = ('ID', 'Name', 'Status', 'Networks')
+
+        if parsed_args.long:
+            columns = (
+                'ID',
+                'Name',
+                'Status',
+                'Networks',
+                'OS-EXT-AZ:availability_zone',
+                'OS-EXT-SRV-ATTR:host',
+                'Metadata',
+            )
+            column_headers = (
+                'ID',
+                'Name',
+                'Status',
+                'Networks',
+                'Availability Zone',
+                'Host',
+                'Properties',
+            )
+            mixed_case_fields = [
+                'OS-EXT-AZ:availability_zone',
+                'OS-EXT-SRV-ATTR:host',
+            ]
+        else:
+            columns = ('ID', 'Name', 'Status', 'Networks')
+            column_headers = columns
+            mixed_case_fields = []
         data = compute_client.servers.list(search_opts=search_opts)
-        return (columns,
+        return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
-                    formatters={'Networks': _format_servers_list_networks},
+                    mixed_case_fields=mixed_case_fields,
+                    formatters={
+                        'Networks': _format_servers_list_networks,
+                        'Metadata': utils.format_dict,
+                    },
                 ) for s in data))
 
 
