@@ -17,6 +17,7 @@
 
 import logging
 import os
+import sys
 import time
 
 from cliff import command
@@ -599,7 +600,6 @@ class ResumeServer(command.Command):
 class ShowServer(show.ShowOne):
     """Show server command"""
 
-    api = 'compute'
     log = logging.getLogger(__name__ + '.ShowServer')
 
     def get_parser(self, prog_name):
@@ -608,6 +608,11 @@ class ShowServer(show.ShowOne):
             'server',
             metavar='<server>',
             help='Name or ID of server to display')
+        parser.add_argument(
+            '--diagnostics',
+            action='store_true',
+            default=False,
+            help='Display diagnostics information for a given server')
         return parser
 
     def take_action(self, parsed_args):
@@ -616,8 +621,15 @@ class ShowServer(show.ShowOne):
         server = utils.find_resource(compute_client.servers,
                                      parsed_args.server)
 
-        details = _prep_server_detail(compute_client, server)
-        return zip(*sorted(details.iteritems()))
+        if parsed_args.diagnostics:
+            (resp, data) = server.diagnostics()
+            if not resp.status_code == 200:
+                sys.stderr.write("Error retrieving diagnostics data")
+                return ({}, {})
+        else:
+            data = _prep_server_detail(compute_client, server)
+
+        return zip(*sorted(data.iteritems()))
 
 
 class SuspendServer(command.Command):
