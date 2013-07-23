@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -73,6 +73,20 @@ def find_resource(manager, name_or_id):
             raise
 
 
+def format_dict(data):
+    """Return a formatted string of key value pairs
+
+    :param data: a dict
+    :param format: optional formatting hints
+    :rtype: a string formatted to key='value'
+    """
+
+    output = ""
+    for s in data:
+        output = output + s + "='" + data[s] + "', "
+    return output[:-2]
+
+
 def get_item_properties(item, fields, mixed_case_fields=[], formatters={}):
     """Return a tuple containing the item properties.
 
@@ -85,14 +99,14 @@ def get_item_properties(item, fields, mixed_case_fields=[], formatters={}):
     row = []
 
     for field in fields:
-        if field in formatters:
-            row.append(formatters[field](item))
+        if field in mixed_case_fields:
+            field_name = field.replace(' ', '_')
         else:
-            if field in mixed_case_fields:
-                field_name = field.replace(' ', '_')
-            else:
-                field_name = field.lower().replace(' ', '_')
-            data = getattr(item, field_name, '')
+            field_name = field.lower().replace(' ', '_')
+        data = getattr(item, field_name, '')
+        if field in formatters:
+            row.append(formatters[field](data))
+        else:
             row.append(data)
     return tuple(row)
 

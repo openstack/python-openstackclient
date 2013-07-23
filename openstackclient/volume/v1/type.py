@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -26,7 +26,7 @@ from openstackclient.common import utils
 
 
 class CreateVolumeType(show.ShowOne):
-    """Create volume type command"""
+    """Create new volume type"""
 
     log = logging.getLogger(__name__ + '.CreateVolumeType')
 
@@ -37,6 +37,13 @@ class CreateVolumeType(show.ShowOne):
             metavar='<name>',
             help='New volume type name',
         )
+        parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            help='Property to add for this volume type '
+                 '(repeat option to set multiple properties)',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -45,6 +52,13 @@ class CreateVolumeType(show.ShowOne):
         volume_type = volume_client.volume_types.create(
             parsed_args.name
         )
+        if parsed_args.property:
+            volume_type.set_keys(parsed_args.property)
+        # Map 'extra_specs' column to 'properties'
+        volume_type._info.update(
+            {'properties': utils.format_dict(
+                volume_type._info.pop('extra_specs'))}
+        )
 
         info = {}
         info.update(volume_type._info)
@@ -52,7 +66,7 @@ class CreateVolumeType(show.ShowOne):
 
 
 class DeleteVolumeType(command.Command):
-    """Delete volume type command"""
+    """Delete volume type"""
 
     log = logging.getLogger(__name__ + '.DeleteVolumeType')
 
@@ -75,7 +89,7 @@ class DeleteVolumeType(command.Command):
 
 
 class ListVolumeType(lister.Lister):
-    """List volume type command"""
+    """List volume types"""
 
     log = logging.getLogger(__name__ + '.ListVolumeType')
 
@@ -92,18 +106,20 @@ class ListVolumeType(lister.Lister):
         self.log.debug('take_action(%s)' % parsed_args)
         if parsed_args.long:
             columns = ('ID', 'Name', 'Extra Specs')
+            column_headers = ('ID', 'Name', 'Properties')
         else:
             columns = ('ID', 'Name')
+            column_headers = columns
         data = self.app.client_manager.volume.volume_types.list()
-        return (columns,
+        return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
-                    formatters={'Extra Specs': _format_type_list_extra_specs},
+                    formatters={'Extra Specs': utils.format_dict},
                 ) for s in data))
 
 
 class SetVolumeType(command.Command):
-    """Set volume type command"""
+    """Set volume type property"""
 
     log = logging.getLogger(__name__ + '.SetVolumeType')
 
@@ -136,7 +152,7 @@ class SetVolumeType(command.Command):
 
 
 class UnsetVolumeType(command.Command):
-    """Unset volume type command"""
+    """Unset volume type property"""
 
     log = logging.getLogger(__name__ + '.UnsetVolumeType')
 
@@ -173,17 +189,3 @@ class UnsetVolumeType(command.Command):
         else:
             self.app.log.error("No changes requested\n")
         return
-
-
-def _format_type_list_extra_specs(vol_type):
-    """Return a string containing the key value pairs
-
-    :param server: a single VolumeType resource
-    :rtype: a string formatted to key=value
-    """
-
-    keys = vol_type.get_keys()
-    output = ""
-    for s in keys:
-        output = output + s + "=" + keys[s] + "; "
-    return output

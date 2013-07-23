@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -26,7 +26,7 @@ from openstackclient.common import utils
 
 
 class CreateVolume(show.ShowOne):
-    """Create volume command"""
+    """Create new volume"""
 
     log = logging.getLogger(__name__ + '.CreateVolume')
 
@@ -119,12 +119,16 @@ class CreateVolume(show.ShowOne):
             parsed_args.property,
             parsed_args.image
         )
+        # Map 'metadata' column to 'properties'
+        volume._info.update(
+            {'properties': utils.format_dict(volume._info.pop('metadata'))}
+        )
 
         return zip(*sorted(volume._info.iteritems()))
 
 
 class DeleteVolume(command.Command):
-    """Delete volume command"""
+    """Delete volume"""
 
     log = logging.getLogger(__name__ + '.DeleteVolume')
 
@@ -157,7 +161,7 @@ class DeleteVolume(command.Command):
 
 
 class ListVolume(lister.Lister):
-    """List volume command"""
+    """List volumes"""
 
     log = logging.getLogger(__name__ + '.ListVolume')
 
@@ -190,12 +194,42 @@ class ListVolume(lister.Lister):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
 
-        columns = ('ID', 'Status', 'Display Name', 'Size',
-                   'Volume Type', 'Bootable', 'Attached to')
         if parsed_args.long:
-            columns = ('ID', 'Status', 'Display Name', 'Size',
-                       'Volume Type', 'Bootable', 'Attached to', 'Meta-data')
-
+            columns = (
+                'ID',
+                'Display Name',
+                'Status',
+                'Size',
+                'Volume Type',
+                'Bootable',
+                'Attached to',
+                'Metadata',
+            )
+            column_headers = (
+                'ID',
+                'Display Name',
+                'Status',
+                'Size',
+                'Type',
+                'Bootable',
+                'Attached',
+                'Properties',
+            )
+        else:
+            columns = (
+                'ID',
+                'Display Name',
+                'Status',
+                'Size',
+                'Attached to',
+            )
+            column_headers = (
+                'ID',
+                'Display Name',
+                'Status',
+                'Size',
+                'Attached',
+            )
         search_opts = {
             'all_tenants': parsed_args.all_tenants,
             'display_name': parsed_args.name,
@@ -205,15 +239,15 @@ class ListVolume(lister.Lister):
         volume_client = self.app.client_manager.volume
         data = volume_client.volumes.list(search_opts=search_opts)
 
-        return (columns,
+        return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
-                    formatters={'Meta-data': _format_meta_data},
+                    formatters={'Metadata': utils.format_dict},
                 ) for s in data))
 
 
 class SetVolume(command.Command):
-    """Set volume command"""
+    """Set volume properties"""
 
     log = logging.getLogger(__name__ + '.SetVolume')
 
@@ -249,7 +283,6 @@ class SetVolume(command.Command):
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 
         if parsed_args.property:
-            print "property: %s" % parsed_args.property
             volume_client.volumes.set_metadata(volume.id, parsed_args.property)
 
         kwargs = {}
@@ -258,7 +291,6 @@ class SetVolume(command.Command):
         if parsed_args.description:
             kwargs['display_description'] = parsed_args.description
         if kwargs:
-            print "kwargs: %s" % kwargs
             volume_client.volumes.update(volume.id, **kwargs)
 
         if not kwargs and not parsed_args.property:
@@ -268,7 +300,7 @@ class SetVolume(command.Command):
 
 
 class ShowVolume(show.ShowOne):
-    """Show volume command"""
+    """Show specific volume"""
 
     log = logging.getLogger(__name__ + '.ShowVolume')
 
@@ -285,12 +317,16 @@ class ShowVolume(show.ShowOne):
         self.log.debug('take_action(%s)' % parsed_args)
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
+        # Map 'metadata' column to 'properties'
+        volume._info.update(
+            {'properties': utils.format_dict(volume._info.pop('metadata'))}
+        )
 
         return zip(*sorted(volume._info.iteritems()))
 
 
 class UnsetVolume(command.Command):
-    """Unset volume command"""
+    """Unset volume properties"""
 
     log = logging.getLogger(__name__ + '.UnsetVolume')
 
@@ -325,17 +361,3 @@ class UnsetVolume(command.Command):
         else:
             self.app.log.error("No changes requested\n")
         return
-
-
-def _format_meta_data(volume):
-    """Return a string containing the key value pairs
-
-    :param server: a single volume resource
-    :rtype: a string formatted to key=value
-    """
-
-    keys = volume.metadata
-    output = ""
-    for s in keys:
-        output = output + s + "=" + keys[s] + "; "
-    return output
