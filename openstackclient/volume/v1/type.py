@@ -182,10 +182,7 @@ class UnsetVolumeType(command.Command):
         )
 
         if parsed_args.property:
-            volume_client.volumes.delete_metadata(
-                volume_type.id,
-                parsed_args.property,
-            )
+            volume_type.unset_keys(parsed_args.property)
         else:
             self.app.log.error("No changes requested\n")
         return
