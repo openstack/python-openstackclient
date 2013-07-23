@@ -311,6 +311,8 @@ class SetUser(command.Command):
             kwargs['name'] = parsed_args.name
         if parsed_args.email:
             kwargs['email'] = parsed_args.email
+        if parsed_args.password:
+            kwargs['password'] = parsed_args.password
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
         if parsed_args.project:
