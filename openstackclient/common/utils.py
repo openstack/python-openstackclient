@@ -17,6 +17,7 @@
 
 import os
 import sys
+import time
 import uuid
 
 from openstackclient.common import exceptions
@@ -155,3 +156,35 @@ def get_client_class(api_name, version, version_map):
         raise exceptions.UnsupportedVersion(msg)
 
     return import_class(client_path)
+
+
+def wait_for_status(status_f,
+                    res_id,
+                    status_field='status',
+                    success_status=['active'],
+                    sleep_time=5,
+                    callback=None):
+    """Wait for status change on a resource during a long-running operation
+
+    :param status_f: a status function that takes a single id argument
+    :param res_id: the resource id to watch
+    :param success_status: a list of status strings for successful completion
+    :param status_field: the status attribute in the returned resource object
+    :param sleep_time: wait this long (seconds)
+    :param callback: called per sleep cycle, useful to display progress
+    :rtype: True on success
+    """
+    while True:
+        res = status_f(res_id)
+        status = getattr(res, status_field, '').lower()
+        if status in success_status:
+            retval = True
+            break
+        elif status == 'error':
+            retval = False
+            break
+        if callback:
+            progress = getattr(res, 'progress', None) or 0
+            callback(progress)
+        time.sleep(sleep_time)
+    return retval

@@ -20,7 +20,6 @@ import logging
 import os
 import six
 import sys
-import time
 
 from cliff import command
 from cliff import lister
@@ -90,38 +89,10 @@ def _prep_server_detail(compute_client, server):
     return info
 
 
-def _wait_for_status(poll_fn, obj_id, final_ok_states, poll_period=5,
-                     status_field="status"):
-    """Block while an action is being performed
-
-    :param poll_fn: a function to retrieve the state of the object
-    :param obj_id: the id of the object
-    :param final_ok_states: a tuple of the states of the object that end the
-        wait as success, ex ['active']
-    :param poll_period: the wait time between checks of object status
-    :param status_field: field name containing the status to be checked
-    """
-    log = logging.getLogger(__name__ + '._wait_for_status')
-    while True:
-        obj = poll_fn(obj_id)
-
-        status = getattr(obj, status_field)
-
-        if status:
-            status = status.lower()
-
-        if status in final_ok_states:
-            log.debug('Wait terminated with success')
-            retval = True
-            break
-        elif status == "error":
-            log.error('Wait terminated with an error')
-            retval = False
-            break
-
-        time.sleep(poll_period)
-
-    return retval
+def _show_progress(progress):
+    if progress:
+        sys.stdout.write('\rProgress: %s' % progress)
+        sys.stdout.flush()
 
 
 class AddServerVolume(command.Command):
@@ -263,9 +234,9 @@ class CreateServer(show.ShowOne):
             help='Maximum number of servers to launch (default=1)')
         parser.add_argument(
             '--wait',
-            dest='wait',
             action='store_true',
-            help='Wait for servers to become active')
+            help='Wait for build to complete',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -359,8 +330,17 @@ class CreateServer(show.ShowOne):
         server = compute_client.servers.create(*boot_args, **boot_kwargs)
 
         if parsed_args.wait:
-            _wait_for_status(compute_client.servers.get, server._info['id'],
-                             ['active'])
+            if utils.wait_for_status(
+                compute_client.servers.get,
+                server.id,
+                callback=_show_progress,
+            ):
+                sys.stdout.write('\n')
+            else:
+                self.log.error('Error creating server: %s' %
+                               parsed_args.server_name)
+                sys.stdout.write('\nError creating server')
+                raise SystemExit
 
         details = _prep_server_detail(compute_client, server)
         return zip(*sorted(details.iteritems()))
@@ -641,7 +621,7 @@ class PauseServer(command.Command):
 
 
 class RebootServer(command.Command):
-    """Reboot server command"""
+    """Perform a hard or soft server reboot"""
 
     log = logging.getLogger(__name__ + '.RebootServer')
 
@@ -650,7 +630,8 @@ class RebootServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Name or ID of server to reboot')
+            help='Server (name or ID)',
+        )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             '--hard',
@@ -658,19 +639,21 @@ class RebootServer(command.Command):
             action='store_const',
             const=servers.REBOOT_HARD,
             default=servers.REBOOT_SOFT,
-            help='Perform a hard reboot')
+            help='Perform a hard reboot',
+        )
         group.add_argument(
             '--soft',
             dest='reboot_type',
             action='store_const',
             const=servers.REBOOT_SOFT,
             default=servers.REBOOT_SOFT,
-            help='Perform a soft reboot')
+            help='Perform a soft reboot',
+        )
         parser.add_argument(
             '--wait',
-            dest='wait',
             action='store_true',
-            help='Wait for server to become active to return')
+            help='Wait for reboot to complete',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -681,14 +664,19 @@ class RebootServer(command.Command):
         server.reboot(parsed_args.reboot_type)
 
         if parsed_args.wait:
-            _wait_for_status(compute_client.servers.get, server.id,
-                             ['active'])
-
-        return
+            if utils.wait_for_status(
+                compute_client.servers.get,
+                server.id,
+                callback=_show_progress,
+            ):
+                sys.stdout.write('\nReboot complete\n')
+            else:
+                sys.stdout.write('\nError rebooting server\n')
+                raise SystemExit
 
 
 class RebuildServer(show.ShowOne):
-    """Rebuild server command"""
+    """Rebuild server"""
 
     log = logging.getLogger(__name__ + '.RebuildServer')
 
@@ -697,22 +685,24 @@ class RebuildServer(show.ShowOne):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server name or ID')
+            help='Server (name or ID)',
+        )
         parser.add_argument(
             '--image',
             metavar='<image>',
             required=True,
-            help='Recreate server from this image')
+            help='Recreate server from this image',
+        )
         parser.add_argument(
             '--password',
             metavar='<password>',
-            default=False,
-            help="Set the provided password on the rebuild instance")
+            help="Set the password on the rebuilt instance",
+        )
         parser.add_argument(
             '--wait',
-            dest='wait',
             action='store_true',
-            help='Wait for server to become active to return')
+            help='Wait for rebuild to complete',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -725,17 +715,17 @@ class RebuildServer(show.ShowOne):
         server = utils.find_resource(
             compute_client.servers, parsed_args.server)
 
-        _password = None
-        if parsed_args.password is not False:
-            _password = parsed_args.password
-
-        kwargs = {}
-        server = server.rebuild(image, _password, **kwargs)
-
-        # TODO(dtroyer): force silent=True if output filter != table
+        server = server.rebuild(image, parsed_args.password)
         if parsed_args.wait:
-            _wait_for_status(compute_client.servers.get, server._info['id'],
-                             ['active'])
+            if utils.wait_for_status(
+                compute_client.servers.get,
+                server.id,
+                callback=_show_progress,
+            ):
+                sys.stdout.write('\nComplete\n')
+            else:
+                sys.stdout.write('\nError rebuilding server')
+                raise SystemExit
 
         details = _prep_server_detail(compute_client, server)
         return zip(*sorted(details.iteritems()))
@@ -804,6 +794,67 @@ class RescueServer(show.ShowOne):
             parsed_args.server,
         ).rescue()
         return zip(*sorted(six.iteritems(server._info)))
+
+
+class ResizeServer(command.Command):
+    """Convert server to a new flavor"""
+
+    log = logging.getLogger(__name__ + '.ResizeServer')
+
+    def get_parser(self, prog_name):
+        parser = super(ResizeServer, self).get_parser(prog_name)
+        phase_group = parser.add_mutually_exclusive_group()
+        phase_group.add_argument(
+            '--flavor',
+            metavar='<flavor>',
+            help='Resize server to this flavor',
+        )
+        phase_group.add_argument(
+            '--verify',
+            action="store_true",
+            help='Verify previous server resize',
+        )
+        phase_group.add_argument(
+            '--revert',
+            action="store_true",
+            help='Restore server before resize',
+        )
+        parser.add_argument(
+            '--wait',
+            action='store_true',
+            help='Wait for resize to complete',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
+        compute_client = self.app.client_manager.compute
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+        if parsed_args.flavor:
+            flavor = utils.find_resource(
+                compute_client.flavors,
+                parsed_args.flavor,
+            )
+            server.resize(flavor)
+            if parsed_args.wait:
+                if utils.wait_for_status(
+                    compute_client.servers.get,
+                    server.id,
+                    success_status=['active', 'verify_resize'],
+                    callback=_show_progress,
+                ):
+                    sys.stdout.write('Complete\n')
+                else:
+                    sys.stdout.write('\nError resizing server')
+                    raise SystemExit
+        elif parsed_args.verify:
+            server.confirm_resize()
+        elif parsed_args.revert:
+            server.revert_resize()
 
 
 class ResumeServer(command.Command):
