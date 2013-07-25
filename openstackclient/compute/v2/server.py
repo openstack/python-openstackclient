@@ -15,8 +15,10 @@
 
 """Compute v2 Server action implementations"""
 
+import getpass
 import logging
 import os
+import six
 import sys
 import time
 
@@ -120,6 +122,52 @@ def _wait_for_status(poll_fn, obj_id, final_ok_states, poll_period=5,
         time.sleep(poll_period)
 
     return retval
+
+
+class AddServerVolume(command.Command):
+    """Add volume to server"""
+
+    log = logging.getLogger(__name__ + '.AddServerVolume')
+
+    def get_parser(self, prog_name):
+        parser = super(AddServerVolume, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Server (name or ID)',
+        )
+        parser.add_argument(
+            'volume',
+            metavar='<volume>',
+            help='Volume to add (name or ID)',
+        )
+        parser.add_argument(
+            '--device',
+            metavar='<device>',
+            help='Server internal device name for volume',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)" % parsed_args)
+
+        compute_client = self.app.client_manager.compute
+        volume_client = self.app.client_manager.volume
+
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+        volume = utils.find_resource(
+            volume_client.volumes,
+            parsed_args.volume,
+        )
+
+        compute_client.volumes.create_server_volume(
+            server.id,
+            volume.id,
+            parsed_args.device,
+        )
 
 
 class CreateServer(show.ShowOne):
@@ -452,8 +500,32 @@ class ListServer(lister.Lister):
                 ) for s in data))
 
 
+class LockServer(command.Command):
+    """Lock server"""
+
+    log = logging.getLogger(__name__ + '.LockServer')
+
+    def get_parser(self, prog_name):
+        parser = super(LockServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Server (name or ID)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
+        compute_client = self.app.client_manager.compute
+        utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        ).lock()
+
+
 class PauseServer(command.Command):
-    """Pause server command"""
+    """Pause server"""
 
     log = logging.getLogger(__name__ + '.PauseServer')
 
@@ -462,16 +534,18 @@ class PauseServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Name or ID of server to pause')
+            help='Server (name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+
         compute_client = self.app.client_manager.compute
-        server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
-        server.pause()
-        return
+        utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        ).pause()
 
 
 class RebootServer(command.Command):
@@ -575,8 +649,73 @@ class RebuildServer(show.ShowOne):
         return zip(*sorted(details.iteritems()))
 
 
+class RemoveServerVolume(command.Command):
+    """Remove volume from server"""
+
+    log = logging.getLogger(__name__ + '.RemoveServerVolume')
+
+    def get_parser(self, prog_name):
+        parser = super(RemoveServerVolume, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Server (name or ID)',
+        )
+        parser.add_argument(
+            'volume',
+            metavar='<volume>',
+            help='Volume to remove (name or ID)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)" % parsed_args)
+
+        compute_client = self.app.client_manager.compute
+        volume_client = self.app.client_manager.volume
+
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+        volume = utils.find_resource(
+            volume_client.volumes,
+            parsed_args.volume,
+        )
+
+        compute_client.volumes.delete_server_volume(
+            server.id,
+            volume.id,
+        )
+
+
+class RescueServer(show.ShowOne):
+    """Put server in rescue mode"""
+
+    log = logging.getLogger(__name__ + '.RescueServer')
+
+    def get_parser(self, prog_name):
+        parser = super(RescueServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Server (name or ID)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
+        compute_client = self.app.client_manager.compute
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        ).rescue()
+        return zip(*sorted(six.iteritems(server._info)))
+
+
 class ResumeServer(command.Command):
-    """Resume server command"""
+    """Resume server"""
 
     log = logging.getLogger(__name__ + '.ResumeServer')
 
@@ -585,20 +724,81 @@ class ResumeServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Name or ID of server to resume')
+            help='Server (name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+
+        compute_client = self.app.client_manager.compute
+        utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        ) .resume()
+
+
+class SetServer(command.Command):
+    """Set server properties"""
+
+    log = logging.getLogger(__name__ + '.SetServer')
+
+    def get_parser(self, prog_name):
+        parser = super(SetServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Server (name or ID)',
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<new-name>',
+            help='New server name',
+        )
+        parser.add_argument(
+            '--root-password',
+            action="store_true",
+            help='Set new root password (interactive only)',
+        )
+        parser.add_argument(
+            "--property",
+            metavar="<key=value>",
+            action=parseractions.KeyValueAction,
+            help='Property to add/change for this server '
+                 '(repeat option to set multiple properties)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
-        server.resume()
-        return
+            compute_client.servers,
+            parsed_args.server,
+        )
+
+        if parsed_args.name:
+            server.update(name=parsed_args.name)
+
+        if parsed_args.property:
+            compute_client.servers.set_meta(
+                server,
+                parsed_args.property,
+            )
+
+        if parsed_args.root_password:
+            p1 = getpass.getpass('New password: ')
+            p2 = getpass.getpass('Retype new password: ')
+            if p1 == p2:
+                server.change_password(p1)
+            else:
+                raise exceptions.CommandError(
+                    "Passwords do not match, password unchanged")
 
 
 class ShowServer(show.ShowOne):
-    """Show server command"""
+    """Show server details"""
 
     log = logging.getLogger(__name__ + '.ShowServer')
 
@@ -607,12 +807,14 @@ class ShowServer(show.ShowOne):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Name or ID of server to display')
+            help='Server to show (name or ID)',
+        )
         parser.add_argument(
             '--diagnostics',
             action='store_true',
             default=False,
-            help='Display diagnostics information for a given server')
+            help='Display diagnostics information for a given server',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -633,7 +835,7 @@ class ShowServer(show.ShowOne):
 
 
 class SuspendServer(command.Command):
-    """Suspend server command"""
+    """Suspend server"""
 
     log = logging.getLogger(__name__ + '.SuspendServer')
 
@@ -642,20 +844,46 @@ class SuspendServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Name or ID of server to suspend')
+            help='Server (name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+
         compute_client = self.app.client_manager.compute
-        server = utils.find_resource(compute_client.servers,
-                                     parsed_args.server)
-        server.suspend()
-        return
+        utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        ).suspend()
+
+
+class UnlockServer(command.Command):
+    """Unlock server"""
+
+    log = logging.getLogger(__name__ + '.UnlockServer')
+
+    def get_parser(self, prog_name):
+        parser = super(UnlockServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Server (name or ID)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
+        compute_client = self.app.client_manager.compute
+        utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        ).unlock()
 
 
 class UnpauseServer(command.Command):
-    """Unpause server command"""
+    """Unpause server"""
 
     log = logging.getLogger(__name__ + '.UnpauseServer')
 
@@ -664,13 +892,76 @@ class UnpauseServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Name or ID of server to unpause')
+            help='Server (name or ID)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
+        compute_client = self.app.client_manager.compute
+        utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        ).unpause()
+
+
+class UnrescueServer(command.Command):
+    """Restore server from rescue mode"""
+
+    log = logging.getLogger(__name__ + '.UnrescueServer')
+
+    def get_parser(self, prog_name):
+        parser = super(UnrescueServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Server (name or ID)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
+        compute_client = self.app.client_manager.compute
+        utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        ).unrescue()
+
+
+class UnsetServer(command.Command):
+    """Unset server properties"""
+
+    log = logging.getLogger(__name__ + '.UnsetServer')
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Server (name or ID)',
+        )
+        parser.add_argument(
+            '--property',
+            metavar='<key>',
+            action='append',
+            default=[],
+            help='Property key to remove from server '
+                 '(repeat to set multiple values)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         compute_client = self.app.client_manager.compute
-        server = utils.find_resource(compute_client.servers,
-                                     parsed_args.server)
-        server.unpause()
-        return
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+
+        if parsed_args.property:
+            compute_client.servers.delete_meta(
+                server,
+                parsed_args.property,
+            )
