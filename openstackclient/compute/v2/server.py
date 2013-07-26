@@ -524,6 +524,98 @@ class LockServer(command.Command):
         ).lock()
 
 
+# FIXME(dtroyer): Here is what I want, how with argparse/cliff?
+# server migrate [--wait] \
+#   [--live <hostname>
+#     [--shared-migration | --block-migration]
+#     [--disk-overcommit | --no-disk-overcommit]]
+#   <server>
+#
+# live_parser = parser.add_argument_group(title='Live migration options')
+# then adding the groups doesn't seem to work
+
+class MigrateServer(command.Command):
+    """Migrate server to different host"""
+
+    log = logging.getLogger(__name__ + '.MigrateServer')
+
+    def get_parser(self, prog_name):
+        parser = super(MigrateServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Server to migrate (name or ID)',
+        )
+        parser.add_argument(
+            '--wait',
+            action='store_true',
+            help='Wait for resize to complete',
+        )
+        parser.add_argument(
+            '--live',
+            metavar='<hostname>',
+            help='Target hostname',
+        )
+        migration_group = parser.add_mutually_exclusive_group()
+        migration_group.add_argument(
+            '--shared-migration',
+            dest='shared_migration',
+            action='store_true',
+            default=True,
+            help='Perform a shared live migration (default)',
+        )
+        migration_group.add_argument(
+            '--block-migration',
+            dest='shared_migration',
+            action='store_false',
+            help='Perform a block live migration',
+        )
+        disk_group = parser.add_mutually_exclusive_group()
+        disk_group.add_argument(
+            '--no-disk-overcommit',
+            dest='disk_overcommit',
+            action='store_false',
+            default=False,
+            help='Do not over-commit disk on the destination host (default)',
+        )
+        disk_group.add_argument(
+            '--disk-overcommit',
+            action='store_true',
+            default=False,
+            help='Allow disk over-commit on the destination host',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
+        compute_client = self.app.client_manager.compute
+
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+        if parsed_args.live:
+            server.live_migrate(
+                parsed_args.live,
+                parsed_args.shared_migration,
+                parsed_args.disk_overcommit,
+            )
+        else:
+            server.migrate()
+
+        if parsed_args.wait:
+            if utils.wait_for_status(
+                compute_client.servers.get,
+                server.id,
+                #callback=_show_progress,
+            ):
+                sys.stdout.write('Complete\n')
+            else:
+                sys.stdout.write('\nError migrating server')
+                raise SystemExit
+
+
 class PauseServer(command.Command):
     """Pause server"""
 
