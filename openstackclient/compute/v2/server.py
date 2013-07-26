@@ -560,8 +560,8 @@ class RebuildServer(show.ShowOne):
             compute_client.servers, parsed_args.server)
 
         _password = None
-        if parsed_args.rebuild_password is not False:
-            _password = parsed_args.rebuild_password
+        if parsed_args.password is not False:
+            _password = parsed_args.password
 
         kwargs = {}
         server = server.rebuild(image, _password, **kwargs)
