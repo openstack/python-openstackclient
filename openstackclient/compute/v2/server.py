@@ -15,6 +15,7 @@
 
 """Compute v2 Server action implementations"""
 
+import argparse
 import getpass
 import logging
 import os
@@ -975,6 +976,164 @@ class ShowServer(show.ShowOne):
             data = _prep_server_detail(compute_client, server)
 
         return zip(*sorted(data.iteritems()))
+
+
+class SshServer(command.Command):
+    """Ssh to server"""
+
+    log = logging.getLogger(__name__ + '.SshServer')
+
+    def get_parser(self, prog_name):
+        parser = super(SshServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Server (name or ID)',
+        )
+        parser.add_argument(
+            '--login',
+            metavar='<login-name>',
+            help='Login name (ssh -l option)',
+        )
+        parser.add_argument(
+            '-l',
+            metavar='<login-name>',
+            help=argparse.SUPPRESS,
+        )
+        parser.add_argument(
+            '--port',
+            metavar='<port>',
+            type=int,
+            help='Destination port (ssh -p option)',
+        )
+        parser.add_argument(
+            '-p',
+            metavar='<port>',
+            dest='port',
+            type=int,
+            help=argparse.SUPPRESS,
+        )
+        parser.add_argument(
+            '--identity',
+            metavar='<keyfile>',
+            help='Private key file (ssh -i option)',
+        )
+        parser.add_argument(
+            '-i',
+            metavar='<filename>',
+            dest='identity',
+            help=argparse.SUPPRESS,
+        )
+        parser.add_argument(
+            '--option',
+            metavar='<config-options>',
+            help='Options in ssh_config(5) format (ssh -o option)',
+        )
+        parser.add_argument(
+            '-o',
+            metavar='<option>',
+            dest='option',
+            help=argparse.SUPPRESS,
+        )
+        ip_group = parser.add_mutually_exclusive_group()
+        ip_group.add_argument(
+            '-4',
+            dest='ipv4',
+            action='store_true',
+            default=False,
+            help='Use only IPv4 addresses only',
+        )
+        ip_group.add_argument(
+            '-6',
+            dest='ipv6',
+            action='store_true',
+            default=False,
+            help='Use only IPv6 addresses only',
+        )
+        type_group = parser.add_mutually_exclusive_group()
+        type_group.add_argument(
+            '--public',
+            dest='address_type',
+            action='store_const',
+            const='public',
+            default='public',
+            help='Use public IP address',
+        )
+        type_group.add_argument(
+            '--private',
+            dest='address_type',
+            action='store_const',
+            const='private',
+            default='public',
+            help='Use private IP address',
+        )
+        type_group.add_argument(
+            '--address-type',
+            metavar='<address-type>',
+            dest='address_type',
+            default='public',
+            help='Use other IP address (public, private, etc)',
+        )
+        parser.add_argument(
+            '-v',
+            dest='verbose',
+            action='store_true',
+            default=False,
+            help=argparse.SUPPRESS,
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
+        compute_client = self.app.client_manager.compute
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+
+        # Build the command
+        cmd = "ssh"
+
+        # Look for address type
+        if parsed_args.address_type:
+            address_type = parsed_args.address_type
+        if address_type not in server.addresses:
+            raise SystemExit("ERROR: No %s IP address found" % address_type)
+
+        # Set up desired address family
+        ip_address_family = [4, 6]
+        if parsed_args.ipv4:
+            ip_address_family = [4]
+            cmd += " -4"
+        if parsed_args.ipv6:
+            ip_address_family = [6]
+            cmd += " -6"
+
+        # Grab the first matching IP address
+        ip_address = None
+        for addr in server.addresses[address_type]:
+            if int(addr['version']) in ip_address_family:
+                ip_address = addr['addr']
+        if not ip_address:
+            raise SystemExit("ERROR: No IP address found")
+
+        if parsed_args.port:
+            cmd += " -p %d" % parsed_args.port
+        if parsed_args.identity:
+            cmd += " -i %s" % parsed_args.identity
+        if parsed_args.option:
+            cmd += " -o %s" % parsed_args.option
+        if parsed_args.login:
+            login = parsed_args.login
+        else:
+            login = self.app.client_manager._username
+        if parsed_args.verbose:
+            cmd += " -v"
+
+        cmd += " %s@%s"
+        self.log.debug("ssh command: %s" % (cmd % (login, ip_address)))
+        os.system(cmd % (login, ip_address))
 
 
 class SuspendServer(command.Command):
