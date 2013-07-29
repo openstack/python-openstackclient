@@ -2,30 +2,46 @@ OpenStack Client
 ================
 
 This is a command-line client for OpenStack that unifies the operation
-of python-keystoneclient, python-novaclient and python-glanceclient
-(formerly glance client) in a single shell with a uniform command
-structure.
+of python-keystoneclient, python-novaclient, python-glanceclient and
+python-cinderclient in a single shell with a uniform command structure.
 
 Contents:
 
 .. toctree::
    :maxdepth: 1
 
+   commands
+   man/openstack
+
 Getting Started
 ---------------
 
-* Read the source
+* Check out `the wiki`_
+* Try `some commands`_
+* Read the source `on GitHub`_
+
+.. _the wiki: https://wiki.openstack.org/OpenStackClient
+.. _some commands: https://wiki.openstack.org/OpenStackClient/Commands
 
 Contributing
 ============
 
-Code is hosted `on GitHub`_. Submit bugs to the Python-OpenStackClient project
+Code is hosted `on GitHub`_. Submit bugs to the python-openstackclient project
 on  `Launchpad`_. Submit code to the openstack/python-openstackclient project
 using `Gerrit`_.
 
 .. _on GitHub: https://github.com/openstack/python-openstackclient
 .. _Launchpad: https://launchpad.net/python-openstackclient
 .. _Gerrit: http://wiki.openstack.org/GerritWorkflow
+
+Release Notes
+=============
+
+0.2
+---
+
+* First alpha release to PyPI
+* Implemented Compute, Identity, Image and Volume API commands
 
 Index
 =====

@@ -26,6 +26,13 @@ For issue tracking::
 
    * https://bugs.launchpad.net/python-openstackclient
 
+Note
+====
+
+OpenStackClient is considered to be alpha release quality as of the 0.2 release;
+no assurances are made at this point for ongoing compatibility in command forms
+or output.  We do not, however, expect any major changes at this point.
+
 Getting Started
 ===============
 
