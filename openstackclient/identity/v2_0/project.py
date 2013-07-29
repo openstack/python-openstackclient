@@ -13,11 +13,10 @@
 #   under the License.
 #
 
-"""Tenant action implementations"""
+"""Identity v2 Project action implementations"""
 
 import logging
 import six
-import sys
 
 from cliff import command
 from cliff import lister
@@ -26,82 +25,90 @@ from cliff import show
 from openstackclient.common import utils
 
 
-class CreateTenant(show.ShowOne):
-    """Create tenant command"""
+class CreateProject(show.ShowOne):
+    """Create new project"""
 
-    log = logging.getLogger(__name__ + '.CreateTenant')
+    log = logging.getLogger(__name__ + '.CreateProject')
 
     def get_parser(self, prog_name):
-        parser = super(CreateTenant, self).get_parser(prog_name)
+        parser = super(CreateProject, self).get_parser(prog_name)
         parser.add_argument(
-            'tenant_name',
-            metavar='<tenant-name>',
-            help='New tenant name')
+            'project_name',
+            metavar='<project-name>',
+            help='New project name',
+        )
         parser.add_argument(
             '--description',
-            metavar='<tenant-description>',
-            help='New tenant description')
+            metavar='<project-description>',
+            help='New project description',
+        )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable tenant')
+            help='Enable project',
+        )
         enable_group.add_argument(
             '--disable',
             dest='enabled',
             action='store_false',
-            help='Disable tenant')
+            help='Disable project',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        tenant = identity_client.tenants.create(
-            parsed_args.tenant_name,
+        project = identity_client.tenants.create(
+            parsed_args.project_name,
             description=parsed_args.description,
             enabled=parsed_args.enabled)
 
         info = {}
-        info.update(tenant._info)
+        info.update(project._info)
         return zip(*sorted(six.iteritems(info)))
 
 
-class DeleteTenant(command.Command):
-    """Delete tenant command"""
+class DeleteProject(command.Command):
+    """Delete project"""
 
-    log = logging.getLogger(__name__ + '.DeleteTenant')
+    log = logging.getLogger(__name__ + '.DeleteProject')
 
     def get_parser(self, prog_name):
-        parser = super(DeleteTenant, self).get_parser(prog_name)
+        parser = super(DeleteProject, self).get_parser(prog_name)
         parser.add_argument(
-            'tenant',
-            metavar='<tenant>',
-            help='Name or ID of tenant to delete')
+            'project',
+            metavar='<project>',
+            help='Project to delete (name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        tenant = utils.find_resource(identity_client.tenants,
-                                     parsed_args.tenant)
-        identity_client.tenants.delete(tenant.id)
+        project = utils.find_resource(
+            identity_client.tenants,
+            parsed_args.project,
+        )
+        identity_client.tenants.delete(project.id)
         return
 
 
-class ListTenant(lister.Lister):
-    """List tenant command"""
+class ListProject(lister.Lister):
+    """List projects"""
 
-    log = logging.getLogger(__name__ + '.ListTenant')
+    log = logging.getLogger(__name__ + '.ListProject')
 
     def get_parser(self, prog_name):
-        parser = super(ListTenant, self).get_parser(prog_name)
+        parser = super(ListProject, self).get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help='Additional fields are listed in output')
+            help='List additional fields in output',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -118,44 +125,51 @@ class ListTenant(lister.Lister):
                 ) for s in data))
 
 
-class SetTenant(command.Command):
-    """Set tenant command"""
+class SetProject(command.Command):
+    """Set project properties"""
 
-    log = logging.getLogger(__name__ + '.SetTenant')
+    log = logging.getLogger(__name__ + '.SetProject')
 
     def get_parser(self, prog_name):
-        parser = super(SetTenant, self).get_parser(prog_name)
+        parser = super(SetProject, self).get_parser(prog_name)
         parser.add_argument(
-            'tenant',
-            metavar='<tenant>',
-            help='Name or ID of tenant to change')
+            'project',
+            metavar='<project>',
+            help='Project to change (name or ID)',
+        )
         parser.add_argument(
             '--name',
-            metavar='<new-tenant-name>',
-            help='New tenant name')
+            metavar='<new-project-name>',
+            help='New project name',
+        )
         parser.add_argument(
             '--description',
-            metavar='<tenant-description>',
-            help='New tenant description')
+            metavar='<project-description>',
+            help='New project description',
+        )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable tenant (default)')
+            help='Enable project (default)',
+        )
         enable_group.add_argument(
             '--disable',
             dest='enabled',
             action='store_false',
-            help='Disable tenant')
+            help='Disable project',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        tenant = utils.find_resource(identity_client.tenants,
-                                     parsed_args.tenant)
+        project = utils.find_resource(
+            identity_client.tenants,
+            parsed_args.project,
+        )
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
@@ -164,32 +178,31 @@ class SetTenant(command.Command):
         if 'enabled' in parsed_args:
             kwargs['enabled'] = parsed_args.enabled
 
-        if kwargs == {}:
-            sys.stdout.write("Tenant not updated, no arguments present")
-            return 0
-        tenant.update(**kwargs)
+        project.update(**kwargs)
         return
 
 
-class ShowTenant(show.ShowOne):
-    """Show tenant command"""
+class ShowProject(show.ShowOne):
+    """Show project details"""
 
-    log = logging.getLogger(__name__ + '.ShowTenant')
+    log = logging.getLogger(__name__ + '.ShowProject')
 
     def get_parser(self, prog_name):
-        parser = super(ShowTenant, self).get_parser(prog_name)
+        parser = super(ShowProject, self).get_parser(prog_name)
         parser.add_argument(
-            'tenant',
-            metavar='<tenant>',
-            help='Name or ID of tenant to display')
+            'project',
+            metavar='<project>',
+            help='Project to display (name or ID)')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        tenant = utils.find_resource(identity_client.tenants,
-                                     parsed_args.tenant)
+        project = utils.find_resource(
+            identity_client.tenants,
+            parsed_args.project,
+        )
 
         info = {}
-        info.update(tenant._info)
+        info.update(project._info)
         return zip(*sorted(six.iteritems(info)))

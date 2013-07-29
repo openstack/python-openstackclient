@@ -13,7 +13,7 @@
 #   under the License.
 #
 
-"""Role action implementations"""
+"""Identity v2 Role action implementations"""
 
 import logging
 import six
@@ -26,7 +26,7 @@ from openstackclient.common import utils
 
 
 class AddRole(show.ShowOne):
-    """Add role to tenant:user"""
+    """Add role to project:user"""
 
     log = logging.getLogger(__name__ + '.AddRole')
 
@@ -37,10 +37,11 @@ class AddRole(show.ShowOne):
             metavar='<role>',
             help='Role name or ID to add to user')
         parser.add_argument(
-            '--tenant',
-            metavar='<tenant>',
+            '--project',
+            metavar='<project>',
             required=True,
-            help='Name or ID of tenant to include')
+            help='Include project (name or ID)',
+        )
         parser.add_argument(
             '--user',
             metavar='<user>',
@@ -52,13 +53,15 @@ class AddRole(show.ShowOne):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         role = utils.find_resource(identity_client.roles, parsed_args.role)
-        tenant = utils.find_resource(identity_client.tenants,
-                                     parsed_args.tenant)
+        project = utils.find_resource(
+            identity_client.tenants,
+            parsed_args.project,
+        )
         user = utils.find_resource(identity_client.users, parsed_args.user)
         role = identity_client.roles.add_user_role(
             user,
             role,
-            tenant)
+            project)
 
         info = {}
         info.update(role._info)
@@ -138,34 +141,43 @@ class ListUserRole(lister.Lister):
             nargs='?',
             help='Name or ID of user to include')
         parser.add_argument(
-            '--tenant',
-            metavar='<tenant>',
-            help='Name or ID of tenant to include')
+            '--project',
+            metavar='<project>',
+            help='Include project (name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        columns = ('ID', 'Name', 'Tenant ID', 'User ID')
         identity_client = self.app.client_manager.identity
 
         # user-only roles are not supported in KSL so we are
-        # required to have a user and tenant; default to the
+        # required to have a user and project; default to the
         # values used for authentication if not specified
-        if not parsed_args.tenant:
-            parsed_args.tenant = identity_client.auth_tenant_id
+        if not parsed_args.project:
+            parsed_args.project = identity_client.auth_tenant_id
         if not parsed_args.user:
             parsed_args.user = identity_client.auth_user_id
 
-        tenant = utils.find_resource(identity_client.tenants,
-                                     parsed_args.tenant)
+        project = utils.find_resource(
+            identity_client.tenants,
+            parsed_args.project,
+        )
         user = utils.find_resource(identity_client.users, parsed_args.user)
 
-        data = identity_client.roles.roles_for_user(user.id, tenant.id)
+        data = identity_client.roles.roles_for_user(user.id, project.id)
+
+        columns = (
+            'ID',
+            'Name',
+            'Project',
+            'User',
+        )
 
         # Add the names to the output even though they will be constant
         for role in data:
-            role.user_id = user.name
-            role.tenant_id = tenant.name
+            role.user = user.name
+            role.project = project.name
 
         return (columns,
                 (utils.get_item_properties(
@@ -175,7 +187,7 @@ class ListUserRole(lister.Lister):
 
 
 class RemoveRole(command.Command):
-    """Remove role from tenant:user"""
+    """Remove role from project:user"""
 
     log = logging.getLogger(__name__ + '.RemoveRole')
 
@@ -186,10 +198,11 @@ class RemoveRole(command.Command):
             metavar='<role>',
             help='Role name or ID to remove from user')
         parser.add_argument(
-            '--tenant',
-            metavar='<tenant>',
+            '--project',
+            metavar='<project>',
             required=True,
-            help='Name or ID of tenant')
+            help='Project to include (name or ID)',
+        )
         parser.add_argument(
             '--user',
             metavar='<user>',
@@ -201,13 +214,15 @@ class RemoveRole(command.Command):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         role = utils.find_resource(identity_client.roles, parsed_args.role)
-        tenant = utils.find_resource(identity_client.tenants,
-                                     parsed_args.tenant)
+        project = utils.find_resource(
+            identity_client.tenants,
+            parsed_args.project,
+        )
         user = utils.find_resource(identity_client.users, parsed_args.user)
         identity_client.roles.remove_user_role(
             user.id,
             role.id,
-            tenant.id)
+            project.id)
 
 
 class ShowRole(show.ShowOne):
