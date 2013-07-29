@@ -47,6 +47,15 @@ class ListUsage(lister.Lister):
 
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)" % parsed_args)
+
+        def _format_project(project):
+            if not project:
+                return ""
+            if project in project_cache.keys():
+                return project_cache[project].name
+            else:
+                return project
+
         compute_client = self.app.client_manager.compute
         columns = (
             "tenant_id",
@@ -55,7 +64,7 @@ class ListUsage(lister.Lister):
             "total_local_gb_usage"
         )
         column_headers = (
-            "Project ID",
+            "Project",
             "RAM MB-Hours",
             "CPU Hours",
             "Disk GB-Hours"
@@ -76,6 +85,15 @@ class ListUsage(lister.Lister):
 
         usage_list = compute_client.usage.list(start, end)
 
+        # Cache the project list
+        project_cache = {}
+        try:
+            for p in self.app.client_manager.identity.tenants.list():
+                project_cache[p.id] = p
+        except Exception:
+            # Just forget it if there's any trouble
+            pass
+
         if len(usage_list) > 0:
             print("Usage from %s to %s:" % (start.strftime(dateformat),
                                             end.strftime(dateformat)))
@@ -84,6 +102,7 @@ class ListUsage(lister.Lister):
                 (utils.get_item_properties(
                     s, columns,
                     formatters={
+                        'tenant_id': _format_project,
                         'total_memory_mb_usage': lambda x: float("%.2f" % x),
                         'total_vcpus_usage': lambda x: float("%.2f" % x),
                         'total_local_gb_usage': lambda x: float("%.2f" % x),

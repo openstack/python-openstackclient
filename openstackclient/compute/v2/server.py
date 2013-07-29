@@ -414,10 +414,10 @@ class ListServer(lister.Lister):
             metavar='<server-name>',
             help='regular expression to match instance name (admin only)')
         parser.add_argument(
-            '--all-tenants',
+            '--all-projects',
             action='store_true',
-            default=bool(int(os.environ.get("ALL_TENANTS", 0))),
-            help='display information from all tenants (admin only)')
+            default=bool(int(os.environ.get("ALL_PROJECTS", 0))),
+            help='Include all projects (admin only)')
         parser.add_argument(
             '--long',
             action='store_true',
@@ -438,7 +438,7 @@ class ListServer(lister.Lister):
             'flavor': parsed_args.flavor,
             'image': parsed_args.image,
             'host': parsed_args.host,
-            'all_tenants': parsed_args.all_tenants,
+            'all_tenants': parsed_args.all_projects,
         }
         self.log.debug('search options: %s', search_opts)
 

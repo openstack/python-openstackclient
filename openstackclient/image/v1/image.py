@@ -71,8 +71,8 @@ class CreateImage(show.ShowOne):
         )
         parser.add_argument(
             "--owner",
-            metavar="<tenant>",
-            help="Owner of the image",
+            metavar="<project>",
+            help="Image owner (project name or ID)",
         )
         parser.add_argument(
             "--size",
@@ -296,8 +296,8 @@ class SetImage(show.ShowOne):
         )
         parser.add_argument(
             "--owner",
-            metavar="<tenant>",
-            help="Owner of the image",
+            metavar="<project>",
+            help="Image owner (project name or ID)",
         )
         parser.add_argument(
             "--min-disk",

@@ -91,7 +91,7 @@ def format_dict(data):
 def get_item_properties(item, fields, mixed_case_fields=[], formatters={}):
     """Return a tuple containing the item properties.
 
-    :param item: a single item resource (e.g. Server, Tenant, etc)
+    :param item: a single item resource (e.g. Server, Project, etc)
     :param fields: tuple of strings with the desired field names
     :param mixed_case_fields: tuple of field names to preserve case
     :param formatters: dictionary mapping field names to callables
