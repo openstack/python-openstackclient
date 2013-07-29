@@ -15,6 +15,7 @@
 
 """Command-line interface to the OpenStack APIs"""
 
+import argparse
 import getpass
 import logging
 import os
@@ -111,15 +112,29 @@ class OpenStackShell(app.App):
             default=env('OS_AUTH_URL'),
             help='Authentication URL (Env: OS_AUTH_URL)')
         parser.add_argument(
+            '--os-project-name',
+            metavar='<auth-project-name>',
+            default=env('OS_PROJECT_NAME', default=env('OS_TENANT_NAME')),
+            help='Authentication project name (Env: OS_PROJECT_NAME)',
+        )
+        parser.add_argument(
             '--os-tenant-name',
             metavar='<auth-tenant-name>',
-            default=env('OS_TENANT_NAME'),
-            help='Authentication tenant name (Env: OS_TENANT_NAME)')
+            dest='os_project_name',
+            help=argparse.SUPPRESS,
+        )
+        parser.add_argument(
+            '--os-project-id',
+            metavar='<auth-project-id>',
+            default=env('OS_PROJECT_ID', default=env('OS_TENANT_ID')),
+            help='Authentication project ID (Env: OS_PROJECT_ID)',
+        )
         parser.add_argument(
             '--os-tenant-id',
             metavar='<auth-tenant-id>',
-            default=env('OS_TENANT_ID'),
-            help='Authentication tenant ID (Env: OS_TENANT_ID)')
+            dest='os_project_id',
+            help=argparse.SUPPRESS,
+        )
         parser.add_argument(
             '--os-username',
             metavar='<auth-username>',
@@ -247,10 +262,11 @@ class OpenStackShell(app.App):
                         " either --os-password, or env[OS_PASSWORD], "
                         " or prompted response")
 
-            if not (self.options.os_tenant_id or self.options.os_tenant_name):
+            if not (self.options.os_project_id
+                    or self.options.os_project_name):
                 raise exc.CommandError(
-                    "You must provide a tenant_id via"
-                    " either --os-tenant-id or via env[OS_TENANT_ID]")
+                    "You must provide a project id via"
+                    " either --os-project-id or via env[OS_PROJECT_ID]")
 
             if not self.options.os_auth_url:
                 raise exc.CommandError(
@@ -261,8 +277,8 @@ class OpenStackShell(app.App):
             token=self.options.os_token,
             url=self.options.os_url,
             auth_url=self.options.os_auth_url,
-            tenant_name=self.options.os_tenant_name,
-            tenant_id=self.options.os_tenant_id,
+            project_name=self.options.os_project_name,
+            project_id=self.options.os_project_id,
             username=self.options.os_username,
             password=self.options.os_password,
             region_name=self.options.os_region_name,

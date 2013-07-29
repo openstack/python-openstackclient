@@ -36,7 +36,7 @@ def make_client(instance):
     client = compute_client(
         username=instance._username,
         api_key=instance._password,
-        project_id=instance._tenant_name,
+        project_id=instance._project_name,
         auth_url=instance._auth_url,
         # FIXME(dhellmann): add constructor argument for this
         insecure=False,

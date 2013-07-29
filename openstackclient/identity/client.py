@@ -43,8 +43,8 @@ def make_client(instance):
         client = identity_client(
             username=instance._username,
             password=instance._password,
-            tenant_name=instance._tenant_name,
-            tenant_id=instance._tenant_id,
+            tenant_name=instance._project_name,
+            tenant_id=instance._project_id,
             auth_url=instance._auth_url,
             region_name=instance._region_name)
     return client
