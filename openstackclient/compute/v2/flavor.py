@@ -1,4 +1,4 @@
-#   Copyright 2013 OpenStack, LLC.
+#   Copyright 2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -16,6 +16,7 @@
 """Flavor action implementations"""
 
 import logging
+import six
 
 from cliff import command
 from cliff import lister
@@ -110,7 +111,7 @@ class CreateFlavor(show.ShowOne):
         flavor = compute_client.flavors.create(*args)._info.copy()
         flavor.pop("links")
 
-        return zip(*sorted(flavor.iteritems()))
+        return zip(*sorted(six.iteritems(flavor)))
 
 
 class DeleteFlavor(command.Command):
@@ -182,4 +183,4 @@ class ShowFlavor(show.ShowOne):
                                      parsed_args.flavor)._info.copy()
         flavor.pop("links")
 
-        return zip(*sorted(flavor.iteritems()))
+        return zip(*sorted(six.iteritems(flavor)))

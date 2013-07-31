@@ -294,7 +294,7 @@ class CreateServer(show.ShowOne):
             # NOTE(vish): multiple copies of the same hint will
             #             result in a list of values
             if key in hints:
-                if isinstance(hints[key], basestring):
+                if isinstance(hints[key], six.string_types):
                     hints[key] = [hints[key]]
                 hints[key] += [value]
             else:
@@ -344,7 +344,7 @@ class CreateServer(show.ShowOne):
                 raise SystemExit
 
         details = _prep_server_detail(compute_client, server)
-        return zip(*sorted(details.iteritems()))
+        return zip(*sorted(six.iteritems(details)))
 
 
 class DeleteServer(command.Command):
@@ -729,7 +729,7 @@ class RebuildServer(show.ShowOne):
                 raise SystemExit
 
         details = _prep_server_detail(compute_client, server)
-        return zip(*sorted(details.iteritems()))
+        return zip(*sorted(six.iteritems(details)))
 
 
 class RemoveServerVolume(command.Command):
@@ -975,7 +975,7 @@ class ShowServer(show.ShowOne):
         else:
             data = _prep_server_detail(compute_client, server)
 
-        return zip(*sorted(data.iteritems()))
+        return zip(*sorted(six.iteritems(data)))
 
 
 class SshServer(command.Command):

@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -16,6 +16,7 @@
 """Tenant action implementations"""
 
 import logging
+import six
 import sys
 
 from cliff import command
@@ -64,7 +65,7 @@ class CreateTenant(show.ShowOne):
 
         info = {}
         info.update(tenant._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))
 
 
 class DeleteTenant(command.Command):
@@ -191,4 +192,4 @@ class ShowTenant(show.ShowOne):
 
         info = {}
         info.update(tenant._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))

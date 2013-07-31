@@ -16,6 +16,7 @@
 """Floating IP action implementations"""
 
 import logging
+import six
 
 from cliff import command
 from cliff import lister
@@ -75,7 +76,7 @@ class CreateFloatingIP(show.ShowOne):
 
         info = {}
         info.update(floating_ip._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))
 
 
 class DeleteFloatingIP(command.Command):

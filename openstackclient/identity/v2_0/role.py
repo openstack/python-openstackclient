@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -16,6 +16,7 @@
 """Role action implementations"""
 
 import logging
+import six
 
 from cliff import command
 from cliff import lister
@@ -61,7 +62,7 @@ class AddRole(show.ShowOne):
 
         info = {}
         info.update(role._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))
 
 
 class CreateRole(show.ShowOne):
@@ -84,7 +85,7 @@ class CreateRole(show.ShowOne):
 
         info = {}
         info.update(role._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))
 
 
 class DeleteRole(command.Command):
@@ -229,4 +230,4 @@ class ShowRole(show.ShowOne):
 
         info = {}
         info.update(role._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))

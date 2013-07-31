@@ -16,6 +16,7 @@
 """Service action implementations"""
 
 import logging
+import six
 
 from cliff import command
 from cliff import lister
@@ -58,7 +59,7 @@ class CreateService(show.ShowOne):
 
         info = {}
         info.update(service._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))
 
 
 class DeleteService(command.Command):
@@ -136,11 +137,11 @@ class ShowService(show.ShowOne):
         if parsed_args.catalog:
             endpoints = identity_client.service_catalog.get_endpoints(
                 service_type=parsed_args.service)
-            for (service, service_endpoints) in endpoints.iteritems():
+            for (service, service_endpoints) in six.iteritems(endpoints):
                 if service_endpoints:
                     info = {"type": service}
                     info.update(service_endpoints[0])
-                    return zip(*sorted(info.iteritems()))
+                    return zip(*sorted(six.iteritems(info)))
 
             msg = ("No service catalog with a type, name or ID of '%s' "
                    "exists." % (parsed_args.service))
@@ -166,4 +167,4 @@ class ShowService(show.ShowOne):
 
             info = {}
             info.update(service._info)
-            return zip(*sorted(info.iteritems()))
+            return zip(*sorted(six.iteritems(info)))

@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -16,6 +16,7 @@
 """Identity v3 Credential action implementations"""
 
 import logging
+import six
 import sys
 
 from cliff import command
@@ -72,7 +73,7 @@ class CreateCredential(show.ShowOne):
             parsed_args.data,
             project=project)
 
-        return zip(*sorted(credential._info.iteritems()))
+        return zip(*sorted(six.iteritems(credential._info)))
 
 
 class DeleteCredential(command.Command):
@@ -191,4 +192,4 @@ class ShowCredential(show.ShowOne):
         credential = utils.find_resource(identity_client.credentials,
                                          parsed_args.credential)
 
-        return zip(*sorted(credential._info.iteritems()))
+        return zip(*sorted(six.iteritems(credential._info)))

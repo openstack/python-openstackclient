@@ -16,6 +16,7 @@
 """Volume v1 Type action implementations"""
 
 import logging
+import six
 
 from cliff import command
 from cliff import lister
@@ -62,7 +63,7 @@ class CreateVolumeType(show.ShowOne):
 
         info = {}
         info.update(volume_type._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))
 
 
 class DeleteVolumeType(command.Command):

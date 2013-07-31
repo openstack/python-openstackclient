@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -16,6 +16,7 @@
 """Endpoint action implementations"""
 
 import logging
+import six
 
 from cliff import command
 from cliff import lister
@@ -71,7 +72,7 @@ class CreateEndpoint(show.ShowOne):
         info.update(endpoint._info)
         info['service_name'] = service.name
         info['service_type'] = service.type
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))
 
 
 class DeleteEndpoint(command.Command):
@@ -183,7 +184,7 @@ class ShowEndpoint(show.ShowOne):
 
             url = identity_client.service_catalog.url_for(**kwargs)
             info = {'%s.%s' % (parsed_args.service, parsed_args.type): url}
-            return zip(*sorted(info.iteritems()))
+            return zip(*sorted(six.iteritems(info)))
         else:
             # The Identity 2.0 API doesn't support retrieving a single
             # endpoint so we have to do this ourselves
@@ -211,4 +212,4 @@ class ShowEndpoint(show.ShowOne):
                                                   ep.service_id)
                     info['service_name'] = service.name
                     info['service_type'] = service.type
-                    return zip(*sorted(info.iteritems()))
+                    return zip(*sorted(six.iteritems(info)))

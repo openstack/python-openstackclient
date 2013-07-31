@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -16,6 +16,7 @@
 """Identity v3 OAuth action implementations"""
 
 import logging
+import six
 import sys
 
 from cliff import command
@@ -65,7 +66,7 @@ class AuthenticateAccessToken(show.ShowOne):
         keystone_token = oauth_client.authenticate(
             parsed_args.consumer_key, parsed_args.consumer_secret,
             parsed_args.access_key, parsed_args.access_secret)
-        return zip(*sorted(keystone_token.iteritems()))
+        return zip(*sorted(six.iteritems(keystone_token)))
 
 
 class AuthorizeRequestToken(show.ShowOne):
@@ -97,7 +98,7 @@ class AuthorizeRequestToken(show.ShowOne):
             parsed_args.request_key, parsed_args.roles)
         info = {}
         info.update(verifier_pin._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))
 
 
 class CreateAccessToken(show.ShowOne):
@@ -146,7 +147,7 @@ class CreateAccessToken(show.ShowOne):
             parsed_args.consumer_key, parsed_args.consumer_secret,
             parsed_args.request_key, parsed_args.request_secret,
             parsed_args.verifier)
-        return zip(*sorted(access_token.iteritems()))
+        return zip(*sorted(six.iteritems(access_token)))
 
 
 class CreateConsumer(show.ShowOne):
@@ -171,7 +172,7 @@ class CreateConsumer(show.ShowOne):
         )
         info = {}
         info.update(consumer._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))
 
 
 class CreateRequestToken(show.ShowOne):
@@ -207,7 +208,7 @@ class CreateRequestToken(show.ShowOne):
             parsed_args.consumer_key,
             parsed_args.consumer_secret,
             parsed_args.roles)
-        return zip(*sorted(request_token.iteritems()))
+        return zip(*sorted(six.iteritems(request_token)))
 
 
 class DeleteConsumer(command.Command):
@@ -366,7 +367,7 @@ class ShowAuthorizationPin(show.ShowOne):
             parsed_args.request_id)
         info = {}
         info.update(data._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))
 
 
 class ShowConsumer(show.ShowOne):
@@ -391,4 +392,4 @@ class ShowConsumer(show.ShowOne):
 
         info = {}
         info.update(consumer._info)
-        return zip(*sorted(info.iteritems()))
+        return zip(*sorted(six.iteritems(info)))

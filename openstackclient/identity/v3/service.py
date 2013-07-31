@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -16,6 +16,7 @@
 """Identity v3 Service action implementations"""
 
 import logging
+import six
 import sys
 
 from cliff import command
@@ -62,7 +63,7 @@ class CreateService(show.ShowOne):
             parsed_args.type,
             parsed_args.enabled)
 
-        return zip(*sorted(service._info.iteritems()))
+        return zip(*sorted(six.iteritems(service._info)))
 
 
 class DeleteService(command.Command):
@@ -178,4 +179,4 @@ class ShowService(show.ShowOne):
         service = utils.find_resource(identity_client.services,
                                       parsed_args.service)
 
-        return zip(*sorted(service._info.iteritems()))
+        return zip(*sorted(six.iteritems(service._info)))

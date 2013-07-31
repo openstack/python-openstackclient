@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -16,6 +16,7 @@
 """Identity v3 Domain action implementations"""
 
 import logging
+import six
 import sys
 
 from cliff import command
@@ -65,7 +66,7 @@ class CreateDomain(show.ShowOne):
             enabled=parsed_args.enabled,
         )
 
-        return zip(*sorted(domain._info.iteritems()))
+        return zip(*sorted(six.iteritems(domain._info)))
 
 
 class DeleteDomain(command.Command):
@@ -185,4 +186,4 @@ class ShowDomain(show.ShowOne):
         domain = utils.find_resource(identity_client.domains,
                                      parsed_args.domain)
 
-        return zip(*sorted(domain._info.iteritems()))
+        return zip(*sorted(six.iteritems(domain._info)))
