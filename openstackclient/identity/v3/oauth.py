@@ -346,30 +346,6 @@ class SetConsumer(command.Command):
         return
 
 
-class ShowAuthorizationPin(show.ShowOne):
-    """Show Authorization pin command"""
-
-    log = logging.getLogger(__name__ + '.ShowAuthorizationPin')
-
-    def get_parser(self, prog_name):
-        parser = super(ShowAuthorizationPin, self).get_parser(prog_name)
-        parser.add_argument(
-            'request_id',
-            metavar='<request-id>',
-            help='Show pin for request token',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
-        identity_client = self.app.client_manager.identity
-        data = identity_client.oauth.get_authorization_pin(
-            parsed_args.request_id)
-        info = {}
-        info.update(data._info)
-        return zip(*sorted(six.iteritems(info)))
-
-
 class ShowConsumer(show.ShowOne):
     """Show consumer command"""
 
