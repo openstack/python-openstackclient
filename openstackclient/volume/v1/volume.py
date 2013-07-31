@@ -179,10 +179,10 @@ class ListVolume(lister.Lister):
             help='Filter results by name',
         )
         parser.add_argument(
-            '--all-tenants',
+            '--all-projects',
             action='store_true',
             default=False,
-            help='Display information from all tenants (admin only)',
+            help='Include all projects (admin only)',
         )
         parser.add_argument(
             '--long',
@@ -232,7 +232,7 @@ class ListVolume(lister.Lister):
                 'Attached',
             )
         search_opts = {
-            'all_tenants': parsed_args.all_tenants,
+            'all_tenants': parsed_args.all_projects,
             'display_name': parsed_args.name,
             'status': parsed_args.status,
         }
@@ -322,7 +322,11 @@ class ShowVolume(show.ShowOne):
         volume._info.update(
             {'properties': utils.format_dict(volume._info.pop('metadata'))}
         )
-
+        if 'os-vol-tenant-attr:tenant_id' in volume._info:
+            volume._info.update(
+                {'project_id': volume._info.pop(
+                    'os-vol-tenant-attr:tenant_id')}
+            )
         return zip(*sorted(six.iteritems(volume._info)))
 
 
