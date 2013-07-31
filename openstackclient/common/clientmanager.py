@@ -46,14 +46,14 @@ class ClientManager(object):
     image = ClientCache(image_client.make_client)
     volume = ClientCache(volume_client.make_client)
 
-    def __init__(self, token=None, url=None, auth_url=None, tenant_name=None,
-                 tenant_id=None, username=None, password=None,
+    def __init__(self, token=None, url=None, auth_url=None, project_name=None,
+                 project_id=None, username=None, password=None,
                  region_name=None, api_version=None):
         self._token = token
         self._url = url
         self._auth_url = auth_url
-        self._tenant_name = tenant_name
-        self._tenant_id = tenant_id
+        self._project_name = project_name
+        self._project_id = project_id
         self._username = username
         self._password = password
         self._region_name = region_name

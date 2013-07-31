@@ -52,12 +52,12 @@ Configuration
 =============
 
 The CLI is configured via environment variables and command-line
-options as listed in http://wiki.openstack.org/UnifiedCLI/Authentication.
+options as listed in https://wiki.openstack.org/wiki/OpenStackClient/Authentication.
 
 The 'password flow' variation is most commonly used::
 
    export OS_AUTH_URL=<url-to-openstack-identity>
-   export OS_TENANT_NAME=<tenant-name>
+   export OS_PROJECT_NAME=<project-name>
    export OS_USERNAME=<user-name>
    export OS_PASSWORD=<password>  # (optional)
    export OS_USE_KEYRING=true  # (optional)
@@ -65,7 +65,7 @@ The 'password flow' variation is most commonly used::
 The corresponding command-line options look very similar::
 
    --os-auth-url <url>
-   --os-tenant-name <tenant-name>
+   --os-project-name <project-name>
    --os-username <user-name>
    [--os-password <password>]
    [--os-use-keyring]

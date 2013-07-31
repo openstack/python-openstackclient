@@ -22,8 +22,8 @@ from openstackclient.tests import utils
 
 DEFAULT_USERNAME = "username"
 DEFAULT_PASSWORD = "password"
-DEFAULT_TENANT_ID = "xxxx-yyyy-zzzz"
-DEFAULT_TENANT_NAME = "tenant"
+DEFAULT_PROJECT_ID = "xxxx-yyyy-zzzz"
+DEFAULT_PROJECT_NAME = "project"
 DEFAULT_TOKEN = "token"
 DEFAULT_REGION_NAME = "ZZ9_Plural_Z_Alpha"
 DEFAULT_AUTH_URL = "http://127.0.0.1:5000/v2.0/"
@@ -68,16 +68,16 @@ class TestShell(utils.TestCase):
     def _assert_password_auth(self, cmd_options, default_args):
         with mock.patch("openstackclient.shell.OpenStackShell.initialize_app",
                         self.app):
-            _shell, _cmd = make_shell(), cmd_options + " list tenant"
+            _shell, _cmd = make_shell(), cmd_options + " list project"
             fake_execute(_shell, _cmd)
 
-            self.app.assert_called_with(["list", "tenant"])
+            self.app.assert_called_with(["list", "project"])
             self.assertEqual(_shell.options.os_auth_url,
                              default_args["auth_url"])
-            self.assertEqual(_shell.options.os_tenant_id,
-                             default_args["tenant_id"])
-            self.assertEqual(_shell.options.os_tenant_name,
-                             default_args["tenant_name"])
+            self.assertEqual(_shell.options.os_project_id,
+                             default_args["project_id"])
+            self.assertEqual(_shell.options.os_project_name,
+                             default_args["project_name"])
             self.assertEqual(_shell.options.os_username,
                              default_args["username"])
             self.assertEqual(_shell.options.os_password,
@@ -149,8 +149,32 @@ class TestShellPasswordAuth(TestShell):
         flag = "--os-auth-url " + DEFAULT_AUTH_URL
         kwargs = {
             "auth_url": DEFAULT_AUTH_URL,
-            "tenant_id": "",
-            "tenant_name": "",
+            "project_id": "",
+            "project_name": "",
+            "username": "",
+            "password": "",
+            "region_name": ""
+        }
+        self._assert_password_auth(flag, kwargs)
+
+    def test_only_project_id_flow(self):
+        flag = "--os-project-id " + DEFAULT_PROJECT_ID
+        kwargs = {
+            "auth_url": "",
+            "project_id": DEFAULT_PROJECT_ID,
+            "project_name": "",
+            "username": "",
+            "password": "",
+            "region_name": ""
+        }
+        self._assert_password_auth(flag, kwargs)
+
+    def test_only_project_name_flow(self):
+        flag = "--os-project-name " + DEFAULT_PROJECT_NAME
+        kwargs = {
+            "auth_url": "",
+            "project_id": "",
+            "project_name": DEFAULT_PROJECT_NAME,
             "username": "",
             "password": "",
             "region_name": ""
@@ -158,11 +182,11 @@ class TestShellPasswordAuth(TestShell):
         self._assert_password_auth(flag, kwargs)
 
     def test_only_tenant_id_flow(self):
-        flag = "--os-tenant-id " + DEFAULT_TENANT_ID
+        flag = "--os-tenant-id " + DEFAULT_PROJECT_ID
         kwargs = {
             "auth_url": "",
-            "tenant_id": DEFAULT_TENANT_ID,
-            "tenant_name": "",
+            "project_id": DEFAULT_PROJECT_ID,
+            "project_name": "",
             "username": "",
             "password": "",
             "region_name": ""
@@ -170,11 +194,11 @@ class TestShellPasswordAuth(TestShell):
         self._assert_password_auth(flag, kwargs)
 
     def test_only_tenant_name_flow(self):
-        flag = "--os-tenant-name " + DEFAULT_TENANT_NAME
+        flag = "--os-tenant-name " + DEFAULT_PROJECT_NAME
         kwargs = {
             "auth_url": "",
-            "tenant_id": "",
-            "tenant_name": DEFAULT_TENANT_NAME,
+            "project_id": "",
+            "project_name": DEFAULT_PROJECT_NAME,
             "username": "",
             "password": "",
             "region_name": ""
@@ -185,8 +209,8 @@ class TestShellPasswordAuth(TestShell):
         flag = "--os-username " + DEFAULT_USERNAME
         kwargs = {
             "auth_url": "",
-            "tenant_id": "",
-            "tenant_name": "",
+            "project_id": "",
+            "project_name": "",
             "username": DEFAULT_USERNAME,
             "password": "",
             "region_name": ""
@@ -197,8 +221,8 @@ class TestShellPasswordAuth(TestShell):
         flag = "--os-password " + DEFAULT_PASSWORD
         kwargs = {
             "auth_url": "",
-            "tenant_id": "",
-            "tenant_name": "",
+            "project_id": "",
+            "project_name": "",
             "username": "",
             "password": DEFAULT_PASSWORD,
             "region_name": ""
@@ -209,8 +233,8 @@ class TestShellPasswordAuth(TestShell):
         flag = "--os-region-name " + DEFAULT_REGION_NAME
         kwargs = {
             "auth_url": "",
-            "tenant_id": "",
-            "tenant_name": "",
+            "project_id": "",
+            "project_name": "",
             "username": "",
             "password": "",
             "region_name": DEFAULT_REGION_NAME
