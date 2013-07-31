@@ -32,3 +32,27 @@ class KeyValueAction(argparse.Action):
             getattr(namespace, self.dest, {}).update([values.split('=', 1)])
         else:
             getattr(namespace, self.dest, {}).pop(values, None)
+
+
+class RangeAction(argparse.Action):
+    """A custom action to parse a single value or a range of values."""
+    def __call__(self, parser, namespace, values, option_string=None):
+        range = values.split(':')
+        if len(range) == 0:
+            # Nothing passed, return a zero default
+            setattr(namespace, self.dest, (0, 0))
+        elif len(range) == 1:
+            # Only a single value is present
+            setattr(namespace, self.dest, (int(range[0]), int(range[0])))
+        elif len(range) == 2:
+            # Range of two values
+            if int(range[0]) <= int(range[1]):
+                setattr(namespace, self.dest, (int(range[0]), int(range[1])))
+            else:
+                msg = "Invalid range, %s is not less than %s" % \
+                    (range[0], range[1])
+                raise argparse.ArgumentError(self, msg)
+        else:
+            # Too many values
+            msg = "Invalid range, too many values"
+            raise argparse.ArgumentError(self, msg)

@@ -142,6 +142,43 @@ class AddServerVolume(command.Command):
         )
 
 
+class AddServerSecurityGroup(command.Command):
+    """Add security group to server"""
+
+    log = logging.getLogger(__name__ + '.AddServerSecurityGroup')
+
+    def get_parser(self, prog_name):
+        parser = super(AddServerSecurityGroup, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Name or ID of server to use',
+        )
+        parser.add_argument(
+            'group',
+            metavar='<group>',
+            help='Name or ID of security group to add to server',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)" % parsed_args)
+
+        compute_client = self.app.client_manager.compute
+
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+        security_group = utils.find_resource(
+            compute_client.security_groups,
+            parsed_args.group,
+        )
+
+        server.add_security_group(security_group)
+        return
+
+
 class CreateServer(show.ShowOne):
     """Create a new server"""
 
@@ -730,6 +767,42 @@ class RebuildServer(show.ShowOne):
 
         details = _prep_server_detail(compute_client, server)
         return zip(*sorted(six.iteritems(details)))
+
+
+class RemoveServerSecurityGroup(command.Command):
+    """Remove security group from server"""
+
+    log = logging.getLogger(__name__ + '.RemoveServerSecurityGroup')
+
+    def get_parser(self, prog_name):
+        parser = super(RemoveServerSecurityGroup, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Name or ID of server to use',
+        )
+        parser.add_argument(
+            'group',
+            metavar='<group>',
+            help='Name or ID of security group to remove from server',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)" % parsed_args)
+
+        compute_client = self.app.client_manager.compute
+
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+        security_group = utils.find_resource(
+            compute_client.security_groups,
+            parsed_args.group,
+        )
+
+        server.remove_security_group(security_group)
 
 
 class RemoveServerVolume(command.Command):
