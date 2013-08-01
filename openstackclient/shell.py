@@ -31,7 +31,7 @@ from openstackclient.common import openstackkeyring
 from openstackclient.common import utils
 
 
-VERSION = '0.1'
+VERSION = '0.2.rc1'
 KEYRING_SERVICE = 'openstack'
 
 DEFAULT_COMPUTE_API_VERSION = '2'
