@@ -1,5 +1,3 @@
-#   Copyright 2012-2013 OpenStack, LLC.
-#
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
 #   a copy of the License at
@@ -12,3 +10,13 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
+
+__all__ = ['__version__']
+
+import pbr.version
+
+version_info = pbr.version.VersionInfo('python-openstackclient')
+try:
+    __version__ = version_info.version_string()
+except AttributeError:
+    __version__ = None

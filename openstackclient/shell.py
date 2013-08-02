@@ -24,6 +24,7 @@ import sys
 from cliff import app
 from cliff import help
 
+import openstackclient
 from openstackclient.common import clientmanager
 from openstackclient.common import commandmanager
 from openstackclient.common import exceptions as exc
@@ -31,7 +32,6 @@ from openstackclient.common import openstackkeyring
 from openstackclient.common import utils
 
 
-VERSION = '0.2.rc1'
 KEYRING_SERVICE = 'openstack'
 
 DEFAULT_COMPUTE_API_VERSION = '2'
@@ -64,7 +64,7 @@ class OpenStackShell(app.App):
     def __init__(self):
         super(OpenStackShell, self).__init__(
             description=__doc__.strip(),
-            version=VERSION,
+            version=openstackclient.__version__,
             command_manager=commandmanager.CommandManager('openstack.cli'))
 
         # This is instantiated in initialize_app() only when using
