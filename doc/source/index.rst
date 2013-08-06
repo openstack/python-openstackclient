@@ -10,6 +10,7 @@ Contents:
 .. toctree::
    :maxdepth: 1
 
+   releases
    commands
    man/openstack
 
@@ -33,15 +34,6 @@ using `Gerrit`_.
 .. _on GitHub: https://github.com/openstack/python-openstackclient
 .. _Launchpad: https://launchpad.net/python-openstackclient
 .. _Gerrit: http://wiki.openstack.org/GerritWorkflow
-
-Release Notes
-=============
-
-0.2
----
-
-* First alpha release to PyPI
-* Implemented Compute, Identity, Image and Volume API commands
 
 Index
 =====
