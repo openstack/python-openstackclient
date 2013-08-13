@@ -29,6 +29,7 @@ from openstackclient.common import clientmanager
 from openstackclient.common import commandmanager
 from openstackclient.common import exceptions as exc
 from openstackclient.common import openstackkeyring
+from openstackclient.common import restapi
 from openstackclient.common import utils
 
 
@@ -368,6 +369,9 @@ class OpenStackShell(app.App):
         if self.options.deferred_help:
             self.DeferredHelpAction(self.parser, self.parser, None, None)
 
+        # Set up common client session
+        self.restapi = restapi.RESTApi()
+
         # If the user is not asking for help, make sure they
         # have given us auth.
         cmd_name = None
@@ -376,6 +380,7 @@ class OpenStackShell(app.App):
             cmd_factory, cmd_name, sub_argv = cmd_info
         if self.interactive_mode or cmd_name != 'help':
             self.authenticate_user()
+            self.restapi.set_auth(self.client_manager.identity.auth_token)
 
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""
