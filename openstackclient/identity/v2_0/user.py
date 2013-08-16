@@ -17,7 +17,6 @@
 
 import logging
 import six
-import sys
 
 from cliff import command
 from cliff import lister
@@ -53,15 +52,14 @@ class CreateUser(show.ShowOne):
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
-            dest='enabled',
             action='store_true',
-            default=True,
-            help='Enable user')
+            help='Enable user (default)',
+        )
         enable_group.add_argument(
             '--disable',
-            dest='enabled',
-            action='store_false',
-            help='Disable user')
+            action='store_true',
+            help='Disable user',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -74,13 +72,19 @@ class CreateUser(show.ShowOne):
             ).id
         else:
             project_id = None
+        enabled = True
+        if parsed_args.disable:
+            enabled = False
         user = identity_client.users.create(
             parsed_args.name,
             parsed_args.password,
             parsed_args.email,
             tenant_id=project_id,
-            enabled=parsed_args.enabled,
+            enabled=enabled,
         )
+        # NOTE(dtroyer): The users.create() method wants 'tenant_id' but
+        #                the returned resource has 'tenantId'.  Sigh.
+        #                We're using project_id now inside OSC so there.
         user._info.update(
             {'project_id': user._info.pop('tenantId')}
         )
@@ -217,40 +221,50 @@ class SetUser(command.Command):
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
-            dest='enabled',
             action='store_true',
-            default=True,
-            help='Enable user (default)')
+            help='Enable user (default)',
+        )
         enable_group.add_argument(
             '--disable',
-            dest='enabled',
-            action='store_false',
-            help='Disable user')
+            action='store_true',
+            help='Disable user',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+
         identity_client = self.app.client_manager.identity
         user = utils.find_resource(identity_client.users, parsed_args.user)
-        kwargs = {}
-        if parsed_args.name:
-            kwargs['name'] = parsed_args.name
-        if parsed_args.email:
-            kwargs['email'] = parsed_args.email
+
+        if parsed_args.password:
+            identity_client.users.update_password(
+                user.id,
+                parsed_args.password,
+            )
+
         if parsed_args.project:
             project = utils.find_resource(
                 identity_client.tenants,
                 parsed_args.project,
             )
-            kwargs['tenantId'] = project.id
-        if 'enabled' in parsed_args:
-            kwargs['enabled'] = parsed_args.enabled
+            identity_client.users.update_tenant(
+                user.id,
+                project.id,
+            )
 
-        if not len(kwargs):
-            sys.stdout.write("User not updated, no arguments present")
-            return
-        identity_client.users.update(user.id, **kwargs)
-        return
+        kwargs = {}
+        if parsed_args.name:
+            kwargs['name'] = parsed_args.name
+        if parsed_args.email:
+            kwargs['email'] = parsed_args.email
+        if parsed_args.enable:
+            kwargs['enabled'] = True
+        if parsed_args.disable:
+            kwargs['enabled'] = False
+
+        if len(kwargs):
+            identity_client.users.update(user.id, **kwargs)
 
 
 class ShowUser(show.ShowOne):
