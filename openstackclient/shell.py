@@ -38,6 +38,7 @@ KEYRING_SERVICE = 'openstack'
 DEFAULT_COMPUTE_API_VERSION = '2'
 DEFAULT_IDENTITY_API_VERSION = '2.0'
 DEFAULT_IMAGE_API_VERSION = '1'
+DEFAULT_OBJECT_API_VERSION = '1'
 DEFAULT_VOLUME_API_VERSION = '1'
 DEFAULT_DOMAIN = 'default'
 
@@ -187,6 +188,15 @@ class OpenStackShell(app.App):
             help='Image API version, default=' +
                  DEFAULT_IMAGE_API_VERSION +
                  ' (Env: OS_IMAGE_API_VERSION)')
+        parser.add_argument(
+            '--os-object-api-version',
+            metavar='<object-api-version>',
+            default=env(
+                'OS_OBJECT_API_VERSION',
+                default=DEFAULT_OBJECT_API_VERSION),
+            help='Object API version, default=' +
+                 DEFAULT_OBJECT_API_VERSION +
+                 ' (Env: OS_OBJECT_API_VERSION)')
         parser.add_argument(
             '--os-volume-api-version',
             metavar='<volume-api-version>',
@@ -339,14 +349,15 @@ class OpenStackShell(app.App):
             'compute': self.options.os_compute_api_version,
             'identity': self.options.os_identity_api_version,
             'image': self.options.os_image_api_version,
+            'object-store': self.options.os_object_api_version,
             'volume': self.options.os_volume_api_version,
         }
 
         # Add the API version-specific commands
         for api in self.api_version.keys():
             version = '.v' + self.api_version[api].replace('.', '_')
-            self.command_manager.add_command_group(
-                'openstack.' + api + version)
+            cmd_group = 'openstack.' + api.replace('-', '_') + version
+            self.command_manager.add_command_group(cmd_group)
 
         # Commands that span multiple APIs
         self.command_manager.add_command_group(

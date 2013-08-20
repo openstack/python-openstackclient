@@ -44,6 +44,11 @@ class FakeClientManager(object):
         pass
 
 
+class FakeRESTApi(object):
+    def __init__(self):
+        pass
+
+
 class FakeResource(object):
     def __init__(self, manager, info, loaded=False):
         self.manager = manager
