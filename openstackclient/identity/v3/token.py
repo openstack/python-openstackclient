@@ -13,11 +13,10 @@
 #   under the License.
 #
 
-"""Identity v3 OAuth action implementations"""
+"""Identity v3 Token action implementations"""
 
 import logging
 import six
-import sys
 
 from cliff import command
 from cliff import lister
@@ -62,8 +61,8 @@ class AuthenticateAccessToken(show.ShowOne):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        oauth_client = self.app.client_manager.identity.oauth
-        keystone_token = oauth_client.authenticate(
+        token_client = self.app.client_manager.identity.tokens
+        keystone_token = token_client.authenticate_access_token(
             parsed_args.consumer_key, parsed_args.consumer_secret,
             parsed_args.access_key, parsed_args.access_secret)
         return zip(*sorted(six.iteritems(keystone_token)))
@@ -82,20 +81,14 @@ class AuthorizeRequestToken(show.ShowOne):
             help='Consumer key',
             required=True
         )
-        parser.add_argument(
-            '--roles',
-            metavar='<roles>',
-            help='Role to authorize',
-            required=True
-        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        oauth_client = self.app.client_manager.identity.oauth
+        token_client = self.app.client_manager.identity.tokens
 
-        verifier_pin = oauth_client.authorize_request_token(
-            parsed_args.request_key, parsed_args.roles)
+        verifier_pin = token_client.authorize_request_token(
+            parsed_args.request_key)
         info = {}
         info.update(verifier_pin._info)
         return zip(*sorted(six.iteritems(info)))
@@ -142,37 +135,12 @@ class CreateAccessToken(show.ShowOne):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        oauth_client = self.app.client_manager.identity.oauth
-        access_token = oauth_client.create_access_token(
+        token_client = self.app.client_manager.identity.tokens
+        access_token = token_client.create_access_token(
             parsed_args.consumer_key, parsed_args.consumer_secret,
             parsed_args.request_key, parsed_args.request_secret,
             parsed_args.verifier)
         return zip(*sorted(six.iteritems(access_token)))
-
-
-class CreateConsumer(show.ShowOne):
-    """Create consumer command"""
-
-    log = logging.getLogger(__name__ + '.CreateConsumer')
-
-    def get_parser(self, prog_name):
-        parser = super(CreateConsumer, self).get_parser(prog_name)
-        parser.add_argument(
-            'name',
-            metavar='<consumer-name>',
-            help='New consumer name',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
-        identity_client = self.app.client_manager.identity
-        consumer = identity_client.oauth.create_consumer(
-            parsed_args.name
-        )
-        info = {}
-        info.update(consumer._info)
-        return zip(*sorted(six.iteritems(info)))
 
 
 class CreateRequestToken(show.ShowOne):
@@ -195,61 +163,44 @@ class CreateRequestToken(show.ShowOne):
             required=True
         )
         parser.add_argument(
-            '--roles',
-            metavar='<roles>',
-            help='Role requested',
+            '--role-ids',
+            metavar='<role-ids>',
+            help='Requested role IDs',
+        )
+        parser.add_argument(
+            '--project-id',
+            metavar='<project-id>',
+            help='Requested project ID',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        oauth_client = self.app.client_manager.identity.oauth
-        request_token = oauth_client.create_request_token(
+        token_client = self.app.client_manager.identity.tokens
+        request_token = token_client.create_request_token(
             parsed_args.consumer_key,
             parsed_args.consumer_secret,
-            parsed_args.roles)
+            parsed_args.role_ids,
+            parsed_args.project_id)
         return zip(*sorted(six.iteritems(request_token)))
 
 
-class DeleteConsumer(command.Command):
-    """Delete consumer command"""
+class DeleteAccessToken(command.Command):
+    """Delete access token command"""
 
-    log = logging.getLogger(__name__ + '.DeleteConsumer')
-
-    def get_parser(self, prog_name):
-        parser = super(DeleteConsumer, self).get_parser(prog_name)
-        parser.add_argument(
-            'consumer',
-            metavar='<consumer>',
-            help='Name or ID of consumer to delete',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
-        identity_client = self.app.client_manager.identity
-        consumer = utils.find_resource(
-            identity_client.oauth, parsed_args.consumer)
-        identity_client.oauth.delete_consumer(consumer.id)
-        return
-
-
-class DeleteUserAuthorization(command.Command):
-    """Delete user authorization command"""
-
-    log = logging.getLogger(__name__ + '.DeleteUserAuthorization')
+    log = logging.getLogger(__name__ + '.DeleteAccessToken')
 
     def get_parser(self, prog_name):
-        parser = super(DeleteUserAuthorization, self).get_parser(prog_name)
+        parser = super(DeleteAccessToken, self).get_parser(prog_name)
         parser.add_argument(
             'user',
             metavar='<user>',
             help='Name or Id of user',
         )
         parser.add_argument(
-            'access_id',
-            metavar='<access-id>',
-            help='Access Id to be deleted',
+            'access_key',
+            metavar='<access-key>',
+            help='Access Token to be deleted',
         )
         return parser
 
@@ -259,34 +210,18 @@ class DeleteUserAuthorization(command.Command):
         identity_client = self.app.client_manager.identity
         user = utils.find_resource(
             identity_client.users, parsed_args.user).id
-        identity_client.oauth.delete_authorization(user,
-                                                   parsed_args.access_id)
+        identity_client.tokens.delete_access_token(user,
+                                                   parsed_args.access_key)
         return
 
 
-class ListConsumer(lister.Lister):
-    """List consumer command"""
+class ListAccessToken(lister.Lister):
+    """List access tokens command"""
 
-    log = logging.getLogger(__name__ + '.ListConsumer')
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
-        columns = ('ID', 'Name', 'Consumer Key', 'Consumer Secret')
-        data = self.app.client_manager.identity.oauth.list_consumers()
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                    formatters={},
-                ) for s in data))
-
-
-class ListUserAuthorizations(lister.Lister):
-    """List user authorizations command"""
-
-    log = logging.getLogger(__name__ + '.ListUserAuthorizations')
+    log = logging.getLogger(__name__ + '.ListAccessToken')
 
     def get_parser(self, prog_name):
-        parser = super(ListUserAuthorizations, self).get_parser(prog_name)
+        parser = super(ListAccessToken, self).get_parser(prog_name)
         parser.add_argument(
             'user',
             metavar='<user>',
@@ -301,71 +236,11 @@ class ListUserAuthorizations(lister.Lister):
         user = utils.find_resource(
             identity_client.users, parsed_args.user).id
 
-        columns = ('Access Key', 'Consumer Key', 'Issued At',
-                   'Project Id', 'User Id', 'Requested Roles')
-        data = identity_client.oauth.list_authorizations(user)
+        columns = ('ID', 'Consumer ID', 'Expires At',
+                   'Project Id', 'Authorizing User Id')
+        data = identity_client.tokens.list_access_tokens(user)
         return (columns,
                 (utils.get_item_properties(
                     s, columns,
                     formatters={},
                 ) for s in data))
-
-
-class SetConsumer(command.Command):
-    """Set consumer command"""
-
-    log = logging.getLogger(__name__ + '.SetConsumer')
-
-    def get_parser(self, prog_name):
-        parser = super(SetConsumer, self).get_parser(prog_name)
-        parser.add_argument(
-            'consumer',
-            metavar='<consumer>',
-            help='Name or ID of consumer to change',
-        )
-        parser.add_argument(
-            '--name',
-            metavar='<new-consumer-name>',
-            help='New consumer name',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
-        identity_client = self.app.client_manager.identity
-        consumer = utils.find_resource(
-            identity_client.oauth, parsed_args.consumer)
-        kwargs = {}
-        if parsed_args.name:
-            kwargs['name'] = parsed_args.name
-
-        if not len(kwargs):
-            sys.stdout.write("Consumer not updated, no arguments present")
-            return
-        identity_client.oauth.update_consumer(consumer.id, **kwargs)
-        return
-
-
-class ShowConsumer(show.ShowOne):
-    """Show consumer command"""
-
-    log = logging.getLogger(__name__ + '.ShowConsumer')
-
-    def get_parser(self, prog_name):
-        parser = super(ShowConsumer, self).get_parser(prog_name)
-        parser.add_argument(
-            'consumer',
-            metavar='<consumer>',
-            help='Name or ID of consumer to display',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
-        identity_client = self.app.client_manager.identity
-        consumer = utils.find_resource(
-            identity_client.oauth, parsed_args.consumer)
-
-        info = {}
-        info.update(consumer._info)
-        return zip(*sorted(six.iteritems(info)))
