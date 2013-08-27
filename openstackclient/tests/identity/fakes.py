@@ -17,23 +17,9 @@ import mock
 
 from openstackclient.tests import fakes
 
-
-user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-user_name = 'paul'
-user_description = 'Sir Paul'
-user_email = 'paul@applecorps.com'
-
 project_id = '8-9-64'
 project_name = 'beatles'
 project_description = 'Fab Four'
-
-USER = {
-    'id': user_id,
-    'name': user_name,
-    'tenantId': project_id,
-    'email': user_email,
-    'enabled': True,
-}
 
 PROJECT = {
     'id': project_id,
@@ -49,9 +35,46 @@ PROJECT_2 = {
     'enabled': True,
 }
 
+role_id = '1'
+role_name = 'boss'
+
+ROLE = {
+    'id': role_id,
+    'name': role_name,
+}
+
+service_id = '1925-10-11'
+service_name = 'elmore'
+service_description = 'Leonard, Elmore, rip'
+service_type = 'author'
+
+SERVICE = {
+    'id': service_id,
+    'name': service_name,
+    'description': service_description,
+    'type': service_type,
+}
+
+user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+user_name = 'paul'
+user_description = 'Sir Paul'
+user_email = 'paul@applecorps.com'
+
+USER = {
+    'id': user_id,
+    'name': user_name,
+    'tenantId': project_id,
+    'email': user_email,
+    'enabled': True,
+}
+
 
 class FakeIdentityv2Client(object):
     def __init__(self, **kwargs):
+        self.roles = mock.Mock()
+        self.roles.resource_class = fakes.FakeResource(None, {})
+        self.services = mock.Mock()
+        self.services.resource_class = fakes.FakeResource(None, {})
         self.tenants = mock.Mock()
         self.tenants.resource_class = fakes.FakeResource(None, {})
         self.users = mock.Mock()

@@ -22,6 +22,7 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
+from openstackclient.common import exceptions
 from openstackclient.common import utils
 
 
@@ -59,9 +60,10 @@ class AddRole(show.ShowOne):
         )
         user = utils.find_resource(identity_client.users, parsed_args.user)
         role = identity_client.roles.add_user_role(
-            user,
-            role,
-            project)
+            user.id,
+            role.id,
+            project.id,
+        )
 
         info = {}
         info.update(role._info)
@@ -150,14 +152,23 @@ class ListUserRole(lister.Lister):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
+        auth_ref = self.app.client_manager.auth_ref
 
-        # user-only roles are not supported in KSL so we are
-        # required to have a user and project; default to the
-        # values used for authentication if not specified
+        # Project and user are required, if not included in command args
+        # default to the values used for authentication.  For token-flow
+        # authentication they must be included on the command line.
         if not parsed_args.project:
-            parsed_args.project = identity_client.auth_tenant_id
+            if self.app.client_manager.auth_ref:
+                parsed_args.project = auth_ref.project_id
+            else:
+                msg = "Project must be specified"
+                raise exceptions.CommandError(msg)
         if not parsed_args.user:
-            parsed_args.user = identity_client.auth_user_id
+            if self.app.client_manager.auth_ref:
+                parsed_args.user = auth_ref.user_id
+            else:
+                msg = "User must be specified"
+                raise exceptions.CommandError(msg)
 
         project = utils.find_resource(
             identity_client.tenants,

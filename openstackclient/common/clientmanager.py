@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -62,8 +62,11 @@ class ClientManager(object):
         self._api_version = api_version
         self._service_catalog = None
 
+        self.auth_ref = None
+
         if not self._url:
             # Populate other password flow attributes
+            self.auth_ref = self.identity.auth_ref
             self._token = self.identity.auth_token
             self._service_catalog = self.identity.service_catalog
 

@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -48,6 +48,7 @@ def make_client(instance):
             tenant_id=instance._project_id,
             auth_url=instance._auth_url,
             region_name=instance._region_name)
+        instance.auth_ref = client.auth_ref
     return client
 
 
