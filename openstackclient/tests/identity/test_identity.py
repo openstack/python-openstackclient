@@ -22,27 +22,29 @@ AUTH_TOKEN = "foobar"
 AUTH_URL = "http://0.0.0.0"
 
 
-class FakeClient(object):
-    def __init__(self, endpoint=None, **kwargs):
-        self.auth_token = AUTH_TOKEN
-        self.auth_url = AUTH_URL
-
-
-class TestIdentity(utils.TestCase):
+class TestIdentity(utils.TestCommand):
     def setUp(self):
         super(TestIdentity, self).setUp()
 
         api_version = {"identity": "2.0"}
 
         identity_client.API_VERSIONS = {
-            "2.0": "openstackclient.tests.identity.test_identity.FakeClient"
+            "2.0": "openstackclient.tests.identity.fakes.FakeIdentityv2Client"
         }
 
-        self.cm = clientmanager.ClientManager(token=AUTH_TOKEN,
-                                              url=AUTH_URL,
-                                              auth_url=AUTH_URL,
-                                              api_version=api_version)
+        self.app.client_manager = clientmanager.ClientManager(
+            token=AUTH_TOKEN,
+            url=AUTH_URL,
+            auth_url=AUTH_URL,
+            api_version=api_version,
+        )
 
     def test_make_client(self):
-        self.assertEqual(self.cm.identity.auth_token, AUTH_TOKEN)
-        self.assertEqual(self.cm.identity.auth_url, AUTH_URL)
+        self.assertEqual(
+            self.app.client_manager.identity.auth_token,
+            AUTH_TOKEN,
+        )
+        self.assertEqual(
+            self.app.client_manager.identity.management_url,
+            AUTH_URL,
+        )

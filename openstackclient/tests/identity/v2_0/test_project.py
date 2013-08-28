@@ -18,42 +18,17 @@ import copy
 from openstackclient.identity.v2_0 import project
 from openstackclient.tests import fakes
 from openstackclient.tests.identity import fakes as identity_fakes
-from openstackclient.tests import utils
+from openstackclient.tests.identity import test_identity
 
 
-IDENTITY_API_VERSION = "2.0"
-
-user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-user_name = 'paul'
-user_description = 'Sir Paul'
-
-project_id = '8-9-64'
-project_name = 'beatles'
-project_description = 'Fab Four'
-
-USER = {
-    'id': user_id,
-    'name': user_name,
-    'tenantId': project_id,
-}
-
-PROJECT = {
-    'id': project_id,
-    'name': project_name,
-    'description': project_description,
-    'enabled': True,
-}
-
-
-class TestProject(utils.TestCommand):
+class TestProject(test_identity.TestIdentity):
 
     def setUp(self):
         super(TestProject, self).setUp()
-        self.app.client_manager.identity = \
-            identity_fakes.FakeIdentityv2Client()
 
         # Get a shortcut to the TenantManager Mock
         self.projects_mock = self.app.client_manager.identity.tenants
+        self.projects_mock.reset_mock()
 
 
 class TestProjectCreate(TestProject):
@@ -63,7 +38,7 @@ class TestProjectCreate(TestProject):
 
         self.projects_mock.create.return_value = fakes.FakeResource(
             None,
-            copy.deepcopy(PROJECT),
+            copy.deepcopy(identity_fakes.PROJECT),
             loaded=True,
         )
 
@@ -71,9 +46,11 @@ class TestProjectCreate(TestProject):
         self.cmd = project.CreateProject(self.app, None)
 
     def test_project_create_no_options(self):
-        arglist = [project_name]
+        arglist = [
+            identity_fakes.project_name,
+        ]
         verifylist = [
-            ('project_name', project_name),
+            ('project_name', identity_fakes.project_name),
             ('enable', False),
             ('disable', False),
         ]
@@ -87,16 +64,30 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': True,
         }
-        self.projects_mock.create.assert_called_with(project_name, **kwargs)
+        self.projects_mock.create.assert_called_with(
+            identity_fakes.project_name,
+            **kwargs
+        )
 
         collist = ('description', 'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
-        datalist = (project_description, True, project_id, project_name)
+        datalist = (
+            identity_fakes.project_description,
+            True,
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+        )
         self.assertEqual(data, datalist)
 
     def test_project_create_description(self):
-        arglist = ['--description', 'new desc', project_name]
-        verifylist = [('description', 'new desc')]
+        arglist = [
+            '--description', 'new desc',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('project_name', identity_fakes.project_name),
+            ('description', 'new desc'),
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # DisplayCommandBase.take_action() returns two tuples
@@ -107,16 +98,31 @@ class TestProjectCreate(TestProject):
             'description': 'new desc',
             'enabled': True,
         }
-        self.projects_mock.create.assert_called_with(project_name, **kwargs)
+        self.projects_mock.create.assert_called_with(
+            identity_fakes.project_name,
+            **kwargs
+        )
 
         collist = ('description', 'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
-        datalist = (project_description, True, project_id, project_name)
+        datalist = (
+            identity_fakes.project_description,
+            True,
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+        )
         self.assertEqual(data, datalist)
 
     def test_project_create_enable(self):
-        arglist = ['--enable', project_name]
-        verifylist = [('enable', True), ('disable', False)]
+        arglist = [
+            '--enable',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('project_name', identity_fakes.project_name),
+            ('enable', True),
+            ('disable', False),
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # DisplayCommandBase.take_action() returns two tuples
@@ -127,16 +133,31 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': True,
         }
-        self.projects_mock.create.assert_called_with(project_name, **kwargs)
+        self.projects_mock.create.assert_called_with(
+            identity_fakes.project_name,
+            **kwargs
+        )
 
         collist = ('description', 'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
-        datalist = (project_description, True, project_id, project_name)
+        datalist = (
+            identity_fakes.project_description,
+            True,
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+        )
         self.assertEqual(data, datalist)
 
     def test_project_create_disable(self):
-        arglist = ['--disable', project_name]
-        verifylist = [('enable', False), ('disable', True)]
+        arglist = [
+            '--disable',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('project_name', identity_fakes.project_name),
+            ('enable', False),
+            ('disable', True),
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # DisplayCommandBase.take_action() returns two tuples
@@ -147,11 +168,19 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': False,
         }
-        self.projects_mock.create.assert_called_with(project_name, **kwargs)
+        self.projects_mock.create.assert_called_with(
+            identity_fakes.project_name,
+            **kwargs
+        )
 
         collist = ('description', 'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
-        datalist = (project_description, True, project_id, project_name)
+        datalist = (
+            identity_fakes.project_description,
+            True,
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+        )
         self.assertEqual(data, datalist)
 
 
@@ -163,7 +192,7 @@ class TestProjectDelete(TestProject):
         # This is the return value for utils.find_resource()
         self.projects_mock.get.return_value = fakes.FakeResource(
             None,
-            copy.deepcopy(PROJECT),
+            copy.deepcopy(identity_fakes.PROJECT),
             loaded=True,
         )
         self.projects_mock.delete.return_value = None
@@ -172,14 +201,20 @@ class TestProjectDelete(TestProject):
         self.cmd = project.DeleteProject(self.app, None)
 
     def test_project_delete_no_options(self):
-        arglist = [user_id]
-        verifylist = [('project', user_id)]
+        arglist = [
+            identity_fakes.project_id,
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_id),
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
         self.assertEqual(result, 0)
 
-        self.projects_mock.delete.assert_called_with(project_id)
+        self.projects_mock.delete.assert_called_with(
+            identity_fakes.project_id,
+        )
 
 
 class TestProjectList(TestProject):
@@ -190,7 +225,7 @@ class TestProjectList(TestProject):
         self.projects_mock.list.return_value = [
             fakes.FakeResource(
                 None,
-                copy.deepcopy(PROJECT),
+                copy.deepcopy(identity_fakes.PROJECT),
                 loaded=True,
             ),
         ]
@@ -209,12 +244,19 @@ class TestProjectList(TestProject):
 
         collist = ('ID', 'Name')
         self.assertEqual(columns, collist)
-        datalist = ((project_id, project_name), )
+        datalist = ((
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+        ), )
         self.assertEqual(tuple(data), datalist)
 
     def test_project_list_long(self):
-        arglist = ['--long']
-        verifylist = [('long', True)]
+        arglist = [
+            '--long',
+        ]
+        verifylist = [
+            ('long', True),
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # DisplayCommandBase.take_action() returns two tuples
@@ -223,7 +265,12 @@ class TestProjectList(TestProject):
 
         collist = ('ID', 'Name', 'Description', 'Enabled')
         self.assertEqual(columns, collist)
-        datalist = ((project_id, project_name, project_description, True), )
+        datalist = ((
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+            identity_fakes.project_description,
+            True,
+        ), )
         self.assertEqual(tuple(data), datalist)
 
 
@@ -234,7 +281,7 @@ class TestProjectSet(TestProject):
 
         self.projects_mock.get.return_value = fakes.FakeResource(
             None,
-            copy.deepcopy(PROJECT),
+            copy.deepcopy(identity_fakes.PROJECT),
             loaded=True,
         )
 
@@ -242,9 +289,11 @@ class TestProjectSet(TestProject):
         self.cmd = project.SetProject(self.app, None)
 
     def test_project_set_no_options(self):
-        arglist = [project_name]
+        arglist = [
+            identity_fakes.project_name,
+        ]
         verifylist = [
-            ('project', project_name),
+            ('project', identity_fakes.project_name),
             ('enable', False),
             ('disable', False),
         ]
@@ -255,15 +304,23 @@ class TestProjectSet(TestProject):
 
         # Set expected values
         kwargs = {
-            'description': project_description,
+            'description': identity_fakes.project_description,
             'enabled': True,
-            'tenant_name': project_name,
+            'tenant_name': identity_fakes.project_name,
         }
-        self.projects_mock.update.assert_called_with(project_id, **kwargs)
+        self.projects_mock.update.assert_called_with(
+            identity_fakes.project_id,
+            **kwargs
+        )
 
     def test_project_set_name(self):
-        arglist = ['--name', 'qwerty', project_name]
-        verifylist = [('name', 'qwerty')]
+        arglist = [
+            '--name', 'qwerty',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('name', 'qwerty'),
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
@@ -271,15 +328,23 @@ class TestProjectSet(TestProject):
 
         # Set expected values
         kwargs = {
-            'description': project_description,
+            'description': identity_fakes.project_description,
             'enabled': True,
             'tenant_name': 'qwerty',
         }
-        self.projects_mock.update.assert_called_with(project_id, **kwargs)
+        self.projects_mock.update.assert_called_with(
+            identity_fakes.project_id,
+            **kwargs
+        )
 
     def test_project_set_description(self):
-        arglist = ['--description', 'new desc', project_name]
-        verifylist = [('description', 'new desc')]
+        arglist = [
+            '--description', 'new desc',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('description', 'new desc'),
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
@@ -289,13 +354,22 @@ class TestProjectSet(TestProject):
         kwargs = {
             'description': 'new desc',
             'enabled': True,
-            'tenant_name': project_name,
+            'tenant_name': identity_fakes.project_name,
         }
-        self.projects_mock.update.assert_called_with(project_id, **kwargs)
+        self.projects_mock.update.assert_called_with(
+            identity_fakes.project_id,
+            **kwargs
+        )
 
     def test_project_set_enable(self):
-        arglist = ['--enable', project_name]
-        verifylist = [('enable', True), ('disable', False)]
+        arglist = [
+            '--enable',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('enable', True),
+            ('disable', False),
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
@@ -303,15 +377,24 @@ class TestProjectSet(TestProject):
 
         # Set expected values
         kwargs = {
-            'description': project_description,
+            'description': identity_fakes.project_description,
             'enabled': True,
-            'tenant_name': project_name,
+            'tenant_name': identity_fakes.project_name,
         }
-        self.projects_mock.update.assert_called_with(project_id, **kwargs)
+        self.projects_mock.update.assert_called_with(
+            identity_fakes.project_id,
+            **kwargs
+        )
 
     def test_project_set_disable(self):
-        arglist = ['--disable', project_name]
-        verifylist = [('enable', False), ('disable', True)]
+        arglist = [
+            '--disable',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('enable', False),
+            ('disable', True),
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
@@ -319,11 +402,14 @@ class TestProjectSet(TestProject):
 
         # Set expected values
         kwargs = {
-            'description': project_description,
+            'description': identity_fakes.project_description,
             'enabled': False,
-            'tenant_name': project_name,
+            'tenant_name': identity_fakes.project_name,
         }
-        self.projects_mock.update.assert_called_with(project_id, **kwargs)
+        self.projects_mock.update.assert_called_with(
+            identity_fakes.project_id,
+            **kwargs
+        )
 
 
 class TestProjectShow(TestProject):
@@ -333,7 +419,7 @@ class TestProjectShow(TestProject):
 
         self.projects_mock.get.return_value = fakes.FakeResource(
             None,
-            copy.deepcopy(PROJECT),
+            copy.deepcopy(identity_fakes.PROJECT),
             loaded=True,
         )
 
@@ -341,15 +427,26 @@ class TestProjectShow(TestProject):
         self.cmd = project.ShowProject(self.app, None)
 
     def test_project_show(self):
-        arglist = [user_id]
-        verifylist = [('project', user_id)]
+        arglist = [
+            identity_fakes.project_id,
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_id),
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
-        self.projects_mock.get.assert_called_with(user_id)
+        self.projects_mock.get.assert_called_with(
+            identity_fakes.project_id,
+        )
 
         collist = ('description', 'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
-        datalist = (project_description, True, project_id, project_name)
+        datalist = (
+            identity_fakes.project_description,
+            True,
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+        )
         self.assertEqual(data, datalist)

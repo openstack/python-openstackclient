@@ -21,6 +21,7 @@ import mock
 
 from openstackclient.object.v1.lib import object as lib_object
 from openstackclient.tests.common import test_restapi as restapi
+from openstackclient.tests import fakes
 from openstackclient.tests import utils
 
 
@@ -40,6 +41,7 @@ class TestObject(utils.TestCommand):
 
     def setUp(self):
         super(TestObject, self).setUp()
+        self.app.client_manager = fakes.FakeClientManager()
         self.app.client_manager.object = FakeClient()
         self.app.restapi = mock.MagicMock()
 

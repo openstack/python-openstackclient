@@ -37,14 +37,10 @@ class FakeApp(object):
         self.stdin = sys.stdin
         self.stdout = _stdout or sys.stdout
         self.stderr = sys.stderr
+        self.restapi = None
 
 
 class FakeClientManager(object):
-    def __init__(self):
-        pass
-
-
-class FakeRESTApi(object):
     def __init__(self):
         pass
 

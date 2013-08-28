@@ -18,6 +18,38 @@ import mock
 from openstackclient.tests import fakes
 
 
+user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+user_name = 'paul'
+user_description = 'Sir Paul'
+user_email = 'paul@applecorps.com'
+
+project_id = '8-9-64'
+project_name = 'beatles'
+project_description = 'Fab Four'
+
+USER = {
+    'id': user_id,
+    'name': user_name,
+    'tenantId': project_id,
+    'email': user_email,
+    'enabled': True,
+}
+
+PROJECT = {
+    'id': project_id,
+    'name': project_name,
+    'description': project_description,
+    'enabled': True,
+}
+
+PROJECT_2 = {
+    'id': project_id + '-2222',
+    'name': project_name + ' reprise',
+    'description': project_description + 'plus four more',
+    'enabled': True,
+}
+
+
 class FakeIdentityv2Client(object):
     def __init__(self, **kwargs):
         self.tenants = mock.Mock()
@@ -26,8 +58,8 @@ class FakeIdentityv2Client(object):
         self.users.resource_class = fakes.FakeResource(None, {})
         self.ec2 = mock.Mock()
         self.ec2.resource_class = fakes.FakeResource(None, {})
-        self.auth_tenant_id = 'fake-tenant'
-        self.auth_user_id = 'fake-user'
+        self.auth_token = kwargs['token']
+        self.management_url = kwargs['endpoint']
 
 
 class FakeIdentityv3Client(object):
