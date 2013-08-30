@@ -15,8 +15,6 @@
 
 """Test Object API library module"""
 
-from __future__ import unicode_literals
-
 import mock
 
 from openstackclient.object.v1.lib import object as lib_object
@@ -25,10 +23,12 @@ from openstackclient.tests import fakes
 from openstackclient.tests import utils
 
 
+fake_account = 'q12we34r'
 fake_auth = '11223344556677889900'
-fake_url = 'http://gopher.com'
+fake_url = 'http://gopher.com/v1/' + fake_account
 
 fake_container = 'rainbarrel'
+fake_object = 'raindrop'
 
 
 class FakeClient(object):
@@ -203,3 +203,74 @@ class TestObjectListObjects(TestObject):
             fake_url + '/' + fake_container + '?format=json&marker=is-name',
         )
         self.assertEqual(data, resp)
+
+
+class TestObjectShowObjects(TestObject):
+
+    def test_object_show_no_options(self):
+        resp = {
+            'content-type': 'text/alpha',
+        }
+        self.app.restapi.request.return_value = \
+            restapi.FakeResponse(headers=resp)
+
+        data = lib_object.show_object(
+            self.app.restapi,
+            self.app.client_manager.object.endpoint,
+            fake_container,
+            fake_object,
+        )
+
+        # Check expected values
+        self.app.restapi.request.assert_called_with(
+            'HEAD',
+            fake_url + '/%s/%s' % (fake_container, fake_object),
+        )
+
+        data_expected = {
+            'account': fake_account,
+            'container': fake_container,
+            'object': fake_object,
+            'content-type': 'text/alpha',
+        }
+        self.assertEqual(data, data_expected)
+
+    def test_object_show_all_options(self):
+        resp = {
+            'content-type': 'text/alpha',
+            'content-length': 577,
+            'last-modified': '20130101',
+            'etag': 'qaz',
+            'x-object-manifest': None,
+            'x-object-meta-wife': 'Wilma',
+            'x-tra-header': 'yabba-dabba-do',
+        }
+        self.app.restapi.request.return_value = \
+            restapi.FakeResponse(headers=resp)
+
+        data = lib_object.show_object(
+            self.app.restapi,
+            self.app.client_manager.object.endpoint,
+            fake_container,
+            fake_object,
+        )
+
+        # Check expected values
+        self.app.restapi.request.assert_called_with(
+            'HEAD',
+            fake_url + '/%s/%s' % (fake_container, fake_object),
+        )
+
+        data_expected = {
+            'account': fake_account,
+            'container': fake_container,
+            'object': fake_object,
+            'content-type': 'text/alpha',
+            'content-length': 577,
+            'last-modified': '20130101',
+            'etag': 'qaz',
+            'x-object-manifest': None,
+            'Wife': 'Wilma',
+            'X-Tra-Header': 'yabba-dabba-do',
+        }
+        self.assertEqual(data, data_expected)

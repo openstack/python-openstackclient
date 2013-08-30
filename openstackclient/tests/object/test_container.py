@@ -313,3 +313,49 @@ class TestContainerList(TestObject):
             (object_fakes.container_name_3, ),
         )
         self.assertEqual(tuple(data), datalist)
+
+
+@mock.patch(
+    'openstackclient.object.v1.container.lib_container.show_container'
+)
+class TestContainerShow(TestObject):
+
+    def setUp(self):
+        super(TestContainerShow, self).setUp()
+
+        # Get the command object to test
+        self.cmd = container.ShowContainer(self.app, None)
+
+    def test_container_show(self, c_mock):
+        c_mock.return_value = copy.deepcopy(object_fakes.CONTAINER)
+
+        arglist = [
+            object_fakes.container_name,
+        ]
+        verifylist = [
+            ('container', object_fakes.container_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+        }
+        # lib.container.show_container(api, url, container)
+        c_mock.assert_called_with(
+            self.app.restapi,
+            AUTH_URL,
+            object_fakes.container_name,
+            **kwargs
+        )
+
+        collist = ('bytes', 'count', 'name')
+        self.assertEqual(columns, collist)
+        datalist = (
+            object_fakes.container_bytes,
+            object_fakes.container_count,
+            object_fakes.container_name,
+        )
+        self.assertEqual(data, datalist)

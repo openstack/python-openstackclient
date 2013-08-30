@@ -15,10 +15,7 @@
 
 """Test Object API library module"""
 
-from __future__ import unicode_literals
-
 import mock
-
 
 from openstackclient.object.v1.lib import container as lib_container
 from openstackclient.tests.common import test_restapi as restapi
@@ -26,8 +23,9 @@ from openstackclient.tests import fakes
 from openstackclient.tests import utils
 
 
+fake_account = 'q12we34r'
 fake_auth = '11223344556677889900'
-fake_url = 'http://gopher.com'
+fake_url = 'http://gopher.com/v1/' + fake_account
 
 fake_container = 'rainbarrel'
 
@@ -38,18 +36,18 @@ class FakeClient(object):
         self.token = fake_auth
 
 
-class TestObject(utils.TestCommand):
+class TestContainer(utils.TestCommand):
 
     def setUp(self):
-        super(TestObject, self).setUp()
+        super(TestContainer, self).setUp()
         self.app.client_manager = fakes.FakeClientManager()
         self.app.client_manager.object = FakeClient()
         self.app.restapi = mock.MagicMock()
 
 
-class TestObjectListContainers(TestObject):
+class TestContainerList(TestContainer):
 
-    def test_list_containers_no_options(self):
+    def test_container_list_no_options(self):
         resp = [{'name': 'is-name'}]
         self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
 
@@ -65,7 +63,7 @@ class TestObjectListContainers(TestObject):
         )
         self.assertEqual(data, resp)
 
-    def test_list_containers_marker(self):
+    def test_container_list_marker(self):
         resp = [{'name': 'is-name'}]
         self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
 
@@ -82,7 +80,7 @@ class TestObjectListContainers(TestObject):
         )
         self.assertEqual(data, resp)
 
-    def test_list_containers_limit(self):
+    def test_container_list_limit(self):
         resp = [{'name': 'is-name'}]
         self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
 
@@ -99,7 +97,7 @@ class TestObjectListContainers(TestObject):
         )
         self.assertEqual(data, resp)
 
-    def test_list_containers_end_marker(self):
+    def test_container_list_end_marker(self):
         resp = [{'name': 'is-name'}]
         self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
 
@@ -116,7 +114,7 @@ class TestObjectListContainers(TestObject):
         )
         self.assertEqual(data, resp)
 
-    def test_list_containers_prefix(self):
+    def test_container_list_prefix(self):
         resp = [{'name': 'is-name'}]
         self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
 
@@ -133,7 +131,7 @@ class TestObjectListContainers(TestObject):
         )
         self.assertEqual(data, resp)
 
-    def test_list_containers_full_listing(self):
+    def test_container_list_full_listing(self):
 
         def side_effect(*args, **kwargs):
             rv = self.app.restapi.request.return_value
@@ -159,3 +157,38 @@ class TestObjectListContainers(TestObject):
             fake_url + '?format=json&marker=is-name',
         )
         self.assertEqual(data, resp)
+
+
+class TestContainerShow(TestContainer):
+
+    def test_container_show_no_options(self):
+        resp = {
+            'x-container-object-count': 1,
+            'x-container-bytes-used': 577,
+        }
+        self.app.restapi.request.return_value = \
+            restapi.FakeResponse(headers=resp)
+
+        data = lib_container.show_container(
+            self.app.restapi,
+            self.app.client_manager.object.endpoint,
+            'is-name',
+        )
+
+        # Check expected values
+        self.app.restapi.request.assert_called_with(
+            'HEAD',
+            fake_url + '/is-name',
+        )
+
+        data_expected = {
+            'account': fake_account,
+            'container': 'is-name',
+            'object_count': 1,
+            'bytes_used': 577,
+            'read_acl': None,
+            'write_acl': None,
+            'sync_to': None,
+            'sync_key': None,
+        }
+        self.assertEqual(data, data_expected)

@@ -16,6 +16,13 @@
 
 """Object v1 API library"""
 
+import six
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+
 
 def list_objects(
     api,
@@ -95,3 +102,47 @@ def list_objects(
     url = "%s/%s?%s" % (object_url, container, query)
     response = api.request('GET', url)
     return response.json()
+
+
+def show_object(
+    api,
+    url,
+    container,
+    obj,
+):
+    """Get object details
+
+    :param api: a restapi object
+    :param url: endpoint
+    :param container: container name to get a listing for
+    :returns: dict of object properties
+    """
+
+    object_url = "%s/%s/%s" % (url, container, obj)
+    url_parts = urlparse(url)
+    response = api.request('HEAD', object_url)
+    data = {
+        'account': url_parts.path.split('/')[-1],
+        'container': container,
+        'object': obj,
+    }
+    #print "data: %s" % data
+    data['content-type'] = response.headers.get('content-type', None)
+    if 'content-length' in response.headers:
+        data['content-length'] = response.headers.get('content-length', None)
+    if 'last-modified' in response.headers:
+        data['last-modified'] = response.headers.get('last-modified', None)
+    if 'etag' in response.headers:
+        data['etag'] = response.headers.get('etag', None)
+    if 'x-object-manifest' in response.headers:
+        data['x-object-manifest'] = response.headers.get(
+            'x-object-manifest', None)
+    for key, value in six.iteritems(response.headers):
+        if key.startswith('x-object-meta-'):
+            data[key[len('x-object-meta-'):].title()] = value
+        elif key not in (
+                'content-type', 'content-length', 'last-modified',
+                'etag', 'date', 'x-object-manifest'):
+            data[key.title()] = value
+
+    return data

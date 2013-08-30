@@ -17,8 +17,10 @@
 
 
 import logging
+import six
 
 from cliff import lister
+from cliff import show
 
 from openstackclient.common import utils
 from openstackclient.object.v1.lib import container as lib_container
@@ -91,10 +93,35 @@ class ListContainer(lister.Lister):
             self.app.client_manager.object.endpoint,
             **kwargs
         )
-        #print "data: %s" % data
 
         return (columns,
                 (utils.get_dict_properties(
                     s, columns,
                     formatters={},
                 ) for s in data))
+
+
+class ShowContainer(show.ShowOne):
+    """Show container information"""
+
+    log = logging.getLogger(__name__ + '.ShowContainer')
+
+    def get_parser(self, prog_name):
+        parser = super(ShowContainer, self).get_parser(prog_name)
+        parser.add_argument(
+            'container',
+            metavar='<container>',
+            help='Container name to display',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
+        data = lib_container.show_container(
+            self.app.restapi,
+            self.app.client_manager.object.endpoint,
+            parsed_args.container,
+        )
+
+        return zip(*sorted(six.iteritems(data)))

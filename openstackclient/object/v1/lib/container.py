@@ -16,6 +16,11 @@
 
 """Object v1 API library"""
 
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+
 
 def list_containers(
     api,
@@ -75,3 +80,34 @@ def list_containers(
     url = "%s?%s" % (object_url, query)
     response = api.request('GET', url)
     return response.json()
+
+
+def show_container(
+    api,
+    url,
+    container,
+):
+    """Get container details
+
+    :param api: a restapi object
+    :param url: endpoint
+    :param container: name of container to show
+    :returns: dict of returned headers
+    """
+
+    object_url = "%s/%s" % (url, container)
+    url_parts = urlparse(url)
+    response = api.request('HEAD', object_url)
+    data = {
+        'account': url_parts.path.split('/')[-1],
+        'container': container,
+    }
+    data['object_count'] = response.headers.get(
+        'x-container-object-count', None)
+    data['bytes_used'] = response.headers.get('x-container-bytes-used', None)
+    data['read_acl'] = response.headers.get('x-container-read', None)
+    data['write_acl'] = response.headers.get('x-container-write', None)
+    data['sync_to'] = response.headers.get('x-container-sync-to', None)
+    data['sync_key'] = response.headers.get('x-container-sync-key', None)
+
+    return data

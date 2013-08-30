@@ -17,8 +17,10 @@
 
 
 import logging
+import six
 
 from cliff import lister
+from cliff import show
 
 from openstackclient.common import utils
 from openstackclient.object.v1.lib import object as lib_object
@@ -116,3 +118,35 @@ class ListObject(lister.Lister):
                     s, columns,
                     formatters={},
                 ) for s in data))
+
+
+class ShowObject(show.ShowOne):
+    """Show object information"""
+
+    log = logging.getLogger(__name__ + '.ShowObject')
+
+    def get_parser(self, prog_name):
+        parser = super(ShowObject, self).get_parser(prog_name)
+        parser.add_argument(
+            'container',
+            metavar='<container>',
+            help='Container name for object to display',
+        )
+        parser.add_argument(
+            'object',
+            metavar='<object>',
+            help='Object name to display',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+
+        data = lib_object.show_object(
+            self.app.restapi,
+            self.app.client_manager.object.endpoint,
+            parsed_args.container,
+            parsed_args.object,
+        )
+
+        return zip(*sorted(six.iteritems(data)))
