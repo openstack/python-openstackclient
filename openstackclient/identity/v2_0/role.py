@@ -103,13 +103,19 @@ class DeleteRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Name or ID of role to delete')
+            help='Name or ID of role to delete',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        role = utils.find_resource(identity_client.roles, parsed_args.role)
+
+        role = utils.find_resource(
+            identity_client.roles,
+            parsed_args.role,
+        )
+
         identity_client.roles.delete(role.id)
         return
 

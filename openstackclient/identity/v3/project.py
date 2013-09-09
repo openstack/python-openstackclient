@@ -17,7 +17,6 @@
 
 import logging
 import six
-import sys
 
 from cliff import command
 from cliff import lister
@@ -27,38 +26,38 @@ from openstackclient.common import utils
 
 
 class CreateProject(show.ShowOne):
-    """Create project command"""
+    """Create new project"""
 
     log = logging.getLogger(__name__ + '.CreateProject')
 
     def get_parser(self, prog_name):
         parser = super(CreateProject, self).get_parser(prog_name)
         parser.add_argument(
-            'project_name',
+            'name',
             metavar='<project-name>',
-            help='New project name')
+            help='New project name',
+        )
         parser.add_argument(
             '--domain',
             metavar='<project-domain>',
-            help='References the domain name or ID which owns the project')
+            help='Domain owning the project (name or ID)',
+        )
         parser.add_argument(
             '--description',
             metavar='<project-description>',
-            help='New project description')
-        # FIXME (stevemar): need to update enabled/disabled as per Dolph's
-        # comments in 19999/4
+            help='New project description',
+        )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
-            dest='enabled',
             action='store_true',
-            default=True,
-            help='Enable project')
+            help='Enable project',
+        )
         enable_group.add_argument(
             '--disable',
-            dest='enabled',
-            action='store_false',
-            help='Disable project')
+            action='store_true',
+            help='Disable project',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -66,16 +65,23 @@ class CreateProject(show.ShowOne):
         identity_client = self.app.client_manager.identity
 
         if parsed_args.domain:
-            domain = utils.find_resource(identity_client.domains,
-                                         parsed_args.domain).id
+            domain = utils.find_resource(
+                identity_client.domains,
+                parsed_args.domain,
+            ).id
         else:
             domain = None
 
+        enabled = True
+        if parsed_args.disable:
+            enabled = False
+
         project = identity_client.projects.create(
-            parsed_args.project_name,
-            domain=domain,
+            parsed_args.name,
+            domain,
             description=parsed_args.description,
-            enabled=parsed_args.enabled)
+            enabled=enabled,
+        )
 
         info = {}
         info.update(project._info)
@@ -83,7 +89,7 @@ class CreateProject(show.ShowOne):
 
 
 class DeleteProject(command.Command):
-    """Delete project command"""
+    """Delete project"""
 
     log = logging.getLogger(__name__ + '.DeleteProject')
 
@@ -92,20 +98,25 @@ class DeleteProject(command.Command):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help='Name or ID of project to delete')
+            help='Project to delete (name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        project = utils.find_resource(identity_client.projects,
-                                      parsed_args.project)
+
+        project = utils.find_resource(
+            identity_client.projects,
+            parsed_args.project,
+        )
+
         identity_client.projects.delete(project.id)
         return
 
 
 class ListProject(lister.Lister):
-    """List project command"""
+    """List projects"""
 
     log = logging.getLogger(__name__ + '.ListProject')
 
@@ -115,7 +126,8 @@ class ListProject(lister.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='Additional fields are listed in output')
+            help='List additional fields in output',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -133,7 +145,7 @@ class ListProject(lister.Lister):
 
 
 class SetProject(command.Command):
-    """Set project command"""
+    """Set project properties"""
 
     log = logging.getLogger(__name__ + '.SetProject')
 
@@ -142,54 +154,75 @@ class SetProject(command.Command):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help='Name or ID of project to change')
+            help='Project to change (name or ID)',
+        )
         parser.add_argument(
             '--name',
             metavar='<new-project-name>',
-            help='New project name')
+            help='New project name',
+        )
         parser.add_argument(
             '--domain',
             metavar='<project-domain>',
-            help='New domain name or ID that will now own the project')
+            help='New domain owning the project (name or ID)',
+        )
         parser.add_argument(
             '--description',
             metavar='<project-description>',
-            help='New project description')
+            help='New project description',
+        )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
-            dest='enabled',
             action='store_true',
-            default=True,
-            help='Enable project (default)')
+            help='Enable project',
+        )
         enable_group.add_argument(
             '--disable',
-            dest='enabled',
-            action='store_false',
-            help='Disable project')
+            action='store_true',
+            help='Disable project',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        project = utils.find_resource(identity_client.projects,
-                                      parsed_args.project)
-        kwargs = {}
+
+        if (not parsed_args.name
+                and not parsed_args.description
+                and not parsed_args.domain
+                and not parsed_args.enable
+                and not parsed_args.disable):
+            return
+
+        project = utils.find_resource(
+            identity_client.projects,
+            parsed_args.project,
+        )
+
+        kwargs = project._info
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
         if parsed_args.domain:
-            domain = utils.find_resource(
-                identity_client.domains, parsed_args.domain).id
-            kwargs['domain'] = domain
+            kwargs['domain'] = utils.find_resource(
+                identity_client.domains,
+                parsed_args.domain,
+            ).id
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
-        if 'enabled' in parsed_args:
-            kwargs['enabled'] = parsed_args.enabled
+        if parsed_args.enable:
+            kwargs['enabled'] = True
+        if parsed_args.disable:
+            kwargs['enabled'] = False
+        if 'id' in kwargs:
+            del kwargs['id']
+        if 'domain_id' in kwargs:
+            # Hack around borken Identity API arg names
+            kwargs.update(
+                {'domain': kwargs.pop('domain_id')}
+            )
 
-        if kwargs == {}:
-            sys.stdout.write("Project not updated, no arguments present")
-            return
-        project.update(**kwargs)
+        identity_client.projects.update(project.id, **kwargs)
         return
 
 

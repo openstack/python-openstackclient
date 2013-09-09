@@ -31,9 +31,11 @@ class TestRole(test_identity.TestIdentityv2):
         # Get a shortcut to the TenantManager Mock
         self.projects_mock = self.app.client_manager.identity.tenants
         self.projects_mock.reset_mock()
+
         # Get a shortcut to the UserManager Mock
         self.users_mock = self.app.client_manager.identity.users
         self.users_mock.reset_mock()
+
         # Get a shortcut to the RoleManager Mock
         self.roles_mock = self.app.client_manager.identity.roles
         self.roles_mock.reset_mock()
@@ -49,11 +51,13 @@ class TestRoleAdd(TestRole):
             copy.deepcopy(identity_fakes.PROJECT),
             loaded=True,
         )
+
         self.users_mock.get.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.USER),
             loaded=True,
         )
+
         self.roles_mock.get.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.ROLE),
@@ -75,9 +79,9 @@ class TestRoleAdd(TestRole):
             identity_fakes.role_name,
         ]
         verifylist = [
-            ('role', identity_fakes.role_name),
             ('project', identity_fakes.project_name),
             ('user', identity_fakes.user_name),
+            ('role', identity_fakes.role_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -217,11 +221,13 @@ class TestUserRoleList(TestRole):
             copy.deepcopy(identity_fakes.PROJECT),
             loaded=True,
         )
+
         self.users_mock.get.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.USER),
             loaded=True,
         )
+
         self.roles_mock.roles_for_user.return_value = [
             fakes.FakeResource(
                 None,
@@ -340,11 +346,13 @@ class TestRoleRemove(TestRole):
             copy.deepcopy(identity_fakes.PROJECT),
             loaded=True,
         )
+
         self.users_mock.get.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.USER),
             loaded=True,
         )
+
         self.roles_mock.get.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.ROLE),

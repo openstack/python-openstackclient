@@ -27,7 +27,7 @@ from openstackclient.common import utils
 
 
 class CreateUser(show.ShowOne):
-    """Create user command"""
+    """Create new user"""
 
     log = logging.getLogger(__name__ + '.CreateUser')
 
@@ -51,7 +51,7 @@ class CreateUser(show.ShowOne):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='New default project name or ID',
+            help='Set default project (name or ID)',
         )
         parser.add_argument(
             '--domain',
@@ -66,15 +66,12 @@ class CreateUser(show.ShowOne):
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
-            dest='enabled',
             action='store_true',
-            default=True,
-            help='Enable user',
+            help='Enable user (default)',
         )
         enable_group.add_argument(
             '--disable',
-            dest='enabled',
-            action='store_false',
+            action='store_true',
             help='Disable user',
         )
         return parser
@@ -85,7 +82,9 @@ class CreateUser(show.ShowOne):
 
         if parsed_args.project:
             project_id = utils.find_resource(
-                identity_client.projects, parsed_args.project).id
+                identity_client.projects,
+                parsed_args.project,
+            ).id
         else:
             project_id = None
 
@@ -95,14 +94,18 @@ class CreateUser(show.ShowOne):
         else:
             domain_id = None
 
+        enabled = True
+        if parsed_args.disable:
+            enabled = False
+
         user = identity_client.users.create(
             parsed_args.name,
-            domain_id,
-            project_id,
-            parsed_args.password,
-            parsed_args.email,
-            parsed_args.description,
-            parsed_args.enabled
+            domain=domain_id,
+            default_project=project_id,
+            password=parsed_args.password,
+            email=parsed_args.email,
+            description=parsed_args.description,
+            enabled=enabled
         )
 
         info = {}
@@ -111,7 +114,7 @@ class CreateUser(show.ShowOne):
 
 
 class DeleteUser(command.Command):
-    """Delete user command"""
+    """Delete user"""
 
     log = logging.getLogger(__name__ + '.DeleteUser')
 
@@ -120,15 +123,19 @@ class DeleteUser(command.Command):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='Name or ID of user to delete',
+            help='User to delete (name or ID)',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
+
         user = utils.find_resource(
-            identity_client.users, parsed_args.user)
+            identity_client.users,
+            parsed_args.user,
+        )
+
         identity_client.users.delete(user.id)
         return
 
@@ -245,7 +252,7 @@ class ListUser(lister.Lister):
 
 
 class SetUser(command.Command):
-    """Set user command"""
+    """Set user properties"""
 
     log = logging.getLogger(__name__ + '.SetUser')
 
@@ -254,7 +261,7 @@ class SetUser(command.Command):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='Name or ID of user to change',
+            help='User to change (name or ID)',
         )
         parser.add_argument(
             '--name',
@@ -289,15 +296,12 @@ class SetUser(command.Command):
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
-            dest='enabled',
             action='store_true',
-            default=True,
             help='Enable user (default)',
         )
         enable_group.add_argument(
             '--disable',
-            dest='enabled',
-            action='store_false',
+            action='store_true',
             help='Disable user',
         )
         return parser
@@ -305,8 +309,23 @@ class SetUser(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
+
+        if (not parsed_args.name
+                and not parsed_args.name
+                and not parsed_args.password
+                and not parsed_args.email
+                and not parsed_args.domain
+                and not parsed_args.project
+                and not parsed_args.description
+                and not parsed_args.enable
+                and not parsed_args.disable):
+            return
+
         user = utils.find_resource(
-            identity_client.users, parsed_args.user)
+            identity_client.users,
+            parsed_args.user,
+        )
+
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
@@ -324,18 +343,18 @@ class SetUser(command.Command):
             domain_id = utils.find_resource(
                 identity_client.domains, parsed_args.domain).id
             kwargs['domainId'] = domain_id
-        if 'enabled' in parsed_args:
-            kwargs['enabled'] = parsed_args.enabled
+        kwargs['enabled'] = user.enabled
+        if parsed_args.enable:
+            kwargs['enabled'] = True
+        if parsed_args.disable:
+            kwargs['enabled'] = False
 
-        if not len(kwargs):
-            sys.stderr.write("User not updated, no arguments present")
-            return
         identity_client.users.update(user.id, **kwargs)
         return
 
 
 class ShowUser(show.ShowOne):
-    """Show user command"""
+    """Show user details"""
 
     log = logging.getLogger(__name__ + '.ShowUser')
 
@@ -344,15 +363,18 @@ class ShowUser(show.ShowOne):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='Name or ID of user to display',
+            help='User to display (name or ID)',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
+
         user = utils.find_resource(
-            identity_client.users, parsed_args.user)
+            identity_client.users,
+            parsed_args.user,
+        )
 
         info = {}
         info.update(user._info)

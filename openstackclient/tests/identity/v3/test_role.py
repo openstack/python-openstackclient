@@ -1,0 +1,550 @@
+#   Copyright 2013 Nebula Inc.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+#
+
+import copy
+
+from openstackclient.identity.v3 import role
+from openstackclient.tests import fakes
+from openstackclient.tests.identity.v3 import fakes as identity_fakes
+from openstackclient.tests.identity.v3 import test_identity
+
+
+class TestRole(test_identity.TestIdentityv3):
+
+    def setUp(self):
+        super(TestRole, self).setUp()
+
+        # Get a shortcut to the UserManager Mock
+        self.users_mock = self.app.client_manager.identity.users
+        self.users_mock.reset_mock()
+
+        # Get a shortcut to the UserManager Mock
+        self.groups_mock = self.app.client_manager.identity.groups
+        self.groups_mock.reset_mock()
+
+        # Get a shortcut to the DomainManager Mock
+        self.domains_mock = self.app.client_manager.identity.domains
+        self.domains_mock.reset_mock()
+
+        # Get a shortcut to the ProjectManager Mock
+        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock.reset_mock()
+
+        # Get a shortcut to the RoleManager Mock
+        self.roles_mock = self.app.client_manager.identity.roles
+        self.roles_mock.reset_mock()
+
+
+class TestRoleAdd(TestRole):
+
+    def setUp(self):
+        super(TestRoleAdd, self).setUp()
+
+        self.users_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.USER),
+            loaded=True,
+        )
+
+        self.groups_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.GROUP),
+            loaded=True,
+        )
+
+        self.domains_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.DOMAIN),
+            loaded=True,
+        )
+
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
+        self.roles_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE),
+            loaded=True,
+        )
+        self.roles_mock.grant.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE),
+            loaded=True,
+        )
+
+        # Get the command object to test
+        self.cmd = role.AddRole(self.app, None)
+
+    def test_role_add_user_domain(self):
+        arglist = [
+            '--user', identity_fakes.user_name,
+            '--domain', identity_fakes.domain_name,
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('group', None),
+            ('domain', identity_fakes.domain_name),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.run(parsed_args)
+        self.assertEqual(result, 0)
+
+        # Set expected values
+        kwargs = {
+            'user': identity_fakes.user_id,
+            'domain': identity_fakes.domain_id,
+        }
+        # RoleManager.grant(role, user=, group=, domain=, project=)
+        self.roles_mock.grant.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+
+    def test_role_add_user_project(self):
+        arglist = [
+            '--user', identity_fakes.user_name,
+            '--project', identity_fakes.project_name,
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('group', None),
+            ('domain', None),
+            ('project', identity_fakes.project_name),
+            ('role', identity_fakes.role_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.run(parsed_args)
+        self.assertEqual(result, 0)
+
+        # Set expected values
+        kwargs = {
+            'user': identity_fakes.user_id,
+            'project': identity_fakes.project_id,
+        }
+        # RoleManager.grant(role, user=, group=, domain=, project=)
+        self.roles_mock.grant.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+
+    def test_role_add_group_domain(self):
+        arglist = [
+            '--group', identity_fakes.group_name,
+            '--domain', identity_fakes.domain_name,
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('user', None),
+            ('group', identity_fakes.group_name),
+            ('domain', identity_fakes.domain_name),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.run(parsed_args)
+        self.assertEqual(result, 0)
+
+        # Set expected values
+        kwargs = {
+            'group': identity_fakes.group_id,
+            'domain': identity_fakes.domain_id,
+        }
+        # RoleManager.grant(role, user=, group=, domain=, project=)
+        self.roles_mock.grant.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+
+    def test_role_add_group_project(self):
+        arglist = [
+            '--group', identity_fakes.group_name,
+            '--project', identity_fakes.project_name,
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('user', None),
+            ('group', identity_fakes.group_name),
+            ('domain', None),
+            ('project', identity_fakes.project_name),
+            ('role', identity_fakes.role_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.run(parsed_args)
+        self.assertEqual(result, 0)
+
+        # Set expected values
+        kwargs = {
+            'group': identity_fakes.group_id,
+            'project': identity_fakes.project_id,
+        }
+        # RoleManager.grant(role, user=, group=, domain=, project=)
+        self.roles_mock.grant.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+
+
+class TestRoleCreate(TestRole):
+
+    def setUp(self):
+        super(TestRoleCreate, self).setUp()
+
+        self.roles_mock.create.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE),
+            loaded=True,
+        )
+
+        # Get the command object to test
+        self.cmd = role.CreateRole(self.app, None)
+
+    def test_role_create_no_options(self):
+        arglist = [
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('name', identity_fakes.role_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # RoleManager.create(name)
+        self.roles_mock.create.assert_called_with(
+            identity_fakes.role_name,
+        )
+
+        collist = ('id', 'name')
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.role_id,
+            identity_fakes.role_name,
+        )
+        self.assertEqual(data, datalist)
+
+
+class TestRoleDelete(TestRole):
+
+    def setUp(self):
+        super(TestRoleDelete, self).setUp()
+
+        self.roles_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE),
+            loaded=True,
+        )
+        self.roles_mock.delete.return_value = None
+
+        # Get the command object to test
+        self.cmd = role.DeleteRole(self.app, None)
+
+    def test_role_delete_no_options(self):
+        arglist = [
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('role', identity_fakes.role_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        self.roles_mock.delete.assert_called_with(
+            identity_fakes.role_id,
+        )
+
+
+class TestRoleList(TestRole):
+
+    def setUp(self):
+        super(TestRoleList, self).setUp()
+
+        self.roles_mock.list.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(identity_fakes.ROLE),
+                loaded=True,
+            ),
+        ]
+
+        # Get the command object to test
+        self.cmd = role.ListRole(self.app, None)
+
+    def test_role_list_no_options(self):
+        arglist = []
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.roles_mock.list.assert_called_with()
+
+        collist = ('ID', 'Name')
+        self.assertEqual(columns, collist)
+        datalist = ((
+            identity_fakes.role_id,
+            identity_fakes.role_name,
+        ), )
+        self.assertEqual(tuple(data), datalist)
+
+
+class TestRoleRemove(TestRole):
+
+    def setUp(self):
+        super(TestRoleRemove, self).setUp()
+
+        self.users_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.USER),
+            loaded=True,
+        )
+
+        self.groups_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.GROUP),
+            loaded=True,
+        )
+
+        self.domains_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.DOMAIN),
+            loaded=True,
+        )
+
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
+        self.roles_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE),
+            loaded=True,
+        )
+        self.roles_mock.revoke.return_value = None
+
+        # Get the command object to test
+        self.cmd = role.RemoveRole(self.app, None)
+
+    def test_role_remove_user_domain(self):
+        arglist = [
+            '--user', identity_fakes.user_name,
+            '--domain', identity_fakes.domain_name,
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('group', None),
+            ('domain', identity_fakes.domain_name),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'user': identity_fakes.user_id,
+            'domain': identity_fakes.domain_id,
+        }
+        # RoleManager.revoke(role, user=, group=, domain=, project=)
+        self.roles_mock.revoke.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+
+    def test_role_remove_user_project(self):
+        arglist = [
+            '--user', identity_fakes.user_name,
+            '--project', identity_fakes.project_name,
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('group', None),
+            ('domain', None),
+            ('project', identity_fakes.project_name),
+            ('role', identity_fakes.role_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'user': identity_fakes.user_id,
+            'project': identity_fakes.project_id,
+        }
+        # RoleManager.revoke(role, user=, group=, domain=, project=)
+        self.roles_mock.revoke.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+
+    def test_role_remove_group_domain(self):
+        arglist = [
+            '--group', identity_fakes.group_name,
+            '--domain', identity_fakes.domain_name,
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('user', None),
+            ('group', identity_fakes.group_name),
+            ('domain', identity_fakes.domain_name),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'group': identity_fakes.group_id,
+            'domain': identity_fakes.domain_id,
+        }
+        # RoleManager.revoke(role, user=, group=, domain=, project=)
+        self.roles_mock.revoke.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+
+    def test_role_remove_group_project(self):
+        arglist = [
+            '--group', identity_fakes.group_name,
+            '--project', identity_fakes.project_name,
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('user', None),
+            ('group', identity_fakes.group_name),
+            ('domain', None),
+            ('project', identity_fakes.project_name),
+            ('role', identity_fakes.role_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'group': identity_fakes.group_id,
+            'project': identity_fakes.project_id,
+        }
+        # RoleManager.revoke(role, user=, group=, domain=, project=)
+        self.roles_mock.revoke.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+
+
+class TestRoleSet(TestRole):
+
+    def setUp(self):
+        super(TestRoleSet, self).setUp()
+
+        self.roles_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE),
+            loaded=True,
+        )
+        self.roles_mock.update.return_value = None
+
+        # Get the command object to test
+        self.cmd = role.SetRole(self.app, None)
+
+    def test_role_set_no_options(self):
+        arglist = [
+            '--name', 'over',
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('name', 'over'),
+            ('role', identity_fakes.role_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': 'over',
+        }
+        # RoleManager.update(role, name=)
+        self.roles_mock.update.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+
+
+class TestRoleShow(TestRole):
+
+    def setUp(self):
+        super(TestRoleShow, self).setUp()
+
+        self.roles_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE),
+            loaded=True,
+        )
+
+        # Get the command object to test
+        self.cmd = role.ShowRole(self.app, None)
+
+    def test_service_show(self):
+        arglist = [
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('role', identity_fakes.role_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # RoleManager.get(role)
+        self.roles_mock.get.assert_called_with(
+            identity_fakes.role_name,
+        )
+
+        collist = ('id', 'name')
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.role_id,
+            identity_fakes.role_name,
+        )
+        self.assertEqual(data, datalist)

@@ -53,7 +53,6 @@ class AddRole(command.Command):
         domain_or_project.add_argument(
             '--domain',
             metavar='<domain>',
-            default='default',
             help='Name or ID of domain associated with user or group',
         )
         domain_or_project.add_argument(
@@ -69,36 +68,69 @@ class AddRole(command.Command):
 
         if (not parsed_args.user and not parsed_args.domain
                 and not parsed_args.group and not parsed_args.project):
-            sys.stderr.write("Role not added, no arguments present\n")
             return
 
-        role_id = utils.find_resource(identity_client.roles,
-                                      parsed_args.role).id
+        role = utils.find_resource(
+            identity_client.roles,
+            parsed_args.role,
+        )
 
         if parsed_args.user and parsed_args.domain:
-            user = utils.find_resource(identity_client.users,
-                                       parsed_args.user)
-            domain = utils.find_resource(identity_client.domains,
-                                         parsed_args.domain)
-            identity_client.roles.grant(role_id, user=user, domain=domain)
+            user = utils.find_resource(
+                identity_client.users,
+                parsed_args.user,
+            )
+            domain = utils.find_resource(
+                identity_client.domains,
+                parsed_args.domain,
+            )
+            identity_client.roles.grant(
+                role.id,
+                user=user.id,
+                domain=domain.id,
+            )
         elif parsed_args.user and parsed_args.project:
-            user = utils.find_resource(identity_client.users,
-                                       parsed_args.user)
-            project = utils.find_resource(identity_client.projects,
-                                          parsed_args.project)
-            identity_client.roles.grant(role_id, user=user, project=project)
+            user = utils.find_resource(
+                identity_client.users,
+                parsed_args.user,
+            )
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+            )
+            identity_client.roles.grant(
+                role.id,
+                user=user.id,
+                project=project.id,
+            )
         elif parsed_args.group and parsed_args.domain:
-            group = utils.find_resource(identity_client.groups,
-                                        parsed_args.group)
-            domain = utils.find_resource(identity_client.domains,
-                                         parsed_args.domain)
-            identity_client.roles.grant(role_id, group=group, domain=domain)
+            group = utils.find_resource(
+                identity_client.groups,
+                parsed_args.group,
+            )
+            domain = utils.find_resource(
+                identity_client.domains,
+                parsed_args.domain,
+            )
+            identity_client.roles.grant(
+                role.id,
+                group=group.id,
+                domain=domain.id,
+            )
         elif parsed_args.group and parsed_args.project:
-            group = utils.find_resource(identity_client.group,
-                                        parsed_args.group)
-            project = utils.find_resource(identity_client.projects,
-                                          parsed_args.project)
-            identity_client.roles.grant(role_id, group=group, project=project)
+            group = utils.find_resource(
+                identity_client.groups,
+                parsed_args.group,
+            )
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+            )
+            identity_client.roles.grant(
+                role.id,
+                group=group.id,
+                project=project.id,
+            )
         else:
             sys.stderr.write("Role not added, incorrect set of arguments \
             provided. See openstack --help for more details\n")
@@ -122,6 +154,7 @@ class CreateRole(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
+
         role = identity_client.roles.create(parsed_args.name)
 
         return zip(*sorted(six.iteritems(role._info)))
@@ -144,9 +177,13 @@ class DeleteRole(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        role_id = utils.find_resource(identity_client.roles,
-                                      parsed_args.role)
-        identity_client.roles.delete(role_id)
+
+        role = utils.find_resource(
+            identity_client.roles,
+            parsed_args.role,
+        )
+
+        identity_client.roles.delete(role.id)
         return
 
 
@@ -208,36 +245,69 @@ class RemoveRole(command.Command):
 
         if (not parsed_args.user and not parsed_args.domain
                 and not parsed_args.group and not parsed_args.project):
-            sys.stdout.write("Role not updated, no arguments present\n")
             return
 
-        role_id = utils.find_resource(identity_client.roles,
-                                      parsed_args.role).id
+        role = utils.find_resource(
+            identity_client.roles,
+            parsed_args.role,
+        )
 
         if parsed_args.user and parsed_args.domain:
-            user = utils.find_resource(identity_client.users,
-                                       parsed_args.user)
-            domain = utils.find_resource(identity_client.domains,
-                                         parsed_args.domain)
-            identity_client.roles.revoke(role_id, user=user, domain=domain)
+            user = utils.find_resource(
+                identity_client.users,
+                parsed_args.user,
+            )
+            domain = utils.find_resource(
+                identity_client.domains,
+                parsed_args.domain,
+            )
+            identity_client.roles.revoke(
+                role.id,
+                user=user.id,
+                domain=domain.id,
+            )
         elif parsed_args.user and parsed_args.project:
-            user = utils.find_resource(identity_client.users,
-                                       parsed_args.user)
-            project = utils.find_resource(identity_client.projects,
-                                          parsed_args.project)
-            identity_client.roles.revoke(role_id, user=user, project=project)
-        elif parsed_args.group and parsed_args.project:
-            group = utils.find_resource(identity_client.group,
-                                        parsed_args.group)
-            project = utils.find_resource(identity_client.projects,
-                                          parsed_args.project)
-            identity_client.roles.revoke(role_id, group=group, project=project)
+            user = utils.find_resource(
+                identity_client.users,
+                parsed_args.user,
+            )
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+            )
+            identity_client.roles.revoke(
+                role.id,
+                user=user.id,
+                project=project.id,
+            )
         elif parsed_args.group and parsed_args.domain:
-            group = utils.find_resource(identity_client.group,
-                                        parsed_args.group)
-            domain = utils.find_resource(identity_client.domains,
-                                         parsed_args.domain)
-            identity_client.roles.revoke(role_id, group=group, domain=domain)
+            group = utils.find_resource(
+                identity_client.groups,
+                parsed_args.group,
+            )
+            domain = utils.find_resource(
+                identity_client.domains,
+                parsed_args.domain,
+            )
+            identity_client.roles.revoke(
+                role.id,
+                group=group.id,
+                domain=domain.id,
+            )
+        elif parsed_args.group and parsed_args.project:
+            group = utils.find_resource(
+                identity_client.groups,
+                parsed_args.group,
+            )
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+            )
+            identity_client.roles.revoke(
+                role.id,
+                group=group.id,
+                project=project.id,
+            )
         else:
             sys.stderr.write("Role not removed, incorrect set of arguments \
             provided. See openstack --help for more details\n")
@@ -266,14 +336,16 @@ class SetRole(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        role_id = utils.find_resource(identity_client.roles,
-                                      parsed_args.role)
 
         if not parsed_args.name:
-            sys.stderr.write("Role not updated, no arguments present")
             return
 
-        identity_client.roles.update(role_id, parsed_args.name)
+        role = utils.find_resource(
+            identity_client.roles,
+            parsed_args.role,
+        )
+
+        identity_client.roles.update(role.id, name=parsed_args.name)
         return
 
 
@@ -294,7 +366,10 @@ class ShowRole(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        role = utils.find_resource(identity_client.roles,
-                                   parsed_args.role)
+
+        role = utils.find_resource(
+            identity_client.roles,
+            parsed_args.role,
+        )
 
         return zip(*sorted(six.iteritems(role._info)))

@@ -17,7 +17,6 @@
 
 import logging
 import six
-import sys
 
 from cliff import command
 from cliff import lister
@@ -27,7 +26,7 @@ from openstackclient.common import utils
 
 
 class CreateService(show.ShowOne):
-    """Create service command"""
+    """Create new service"""
 
     log = logging.getLogger(__name__ + '.CreateService')
 
@@ -36,38 +35,45 @@ class CreateService(show.ShowOne):
         parser.add_argument(
             'type',
             metavar='<service-type>',
-            help='New service type (compute, image, identity, volume, etc)')
+            help='New service type (compute, image, identity, volume, etc)',
+        )
         parser.add_argument(
             '--name',
             metavar='<service-name>',
-            help='New service name')
+            help='New service name',
+        )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
-            dest='enabled',
             action='store_true',
-            default=True,
-            help='Enable user')
+            help='Enable project',
+        )
         enable_group.add_argument(
             '--disable',
-            dest='enabled',
-            action='store_false',
-            help='Disable user')
+            action='store_true',
+            help='Disable project',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
+
+        enabled = True
+        if parsed_args.disable:
+            enabled = False
+
         service = identity_client.services.create(
             parsed_args.name,
             parsed_args.type,
-            parsed_args.enabled)
+            enabled,
+        )
 
         return zip(*sorted(six.iteritems(service._info)))
 
 
 class DeleteService(command.Command):
-    """Delete service command"""
+    """Delete service"""
 
     log = logging.getLogger(__name__ + '.DeleteService')
 
@@ -76,27 +82,31 @@ class DeleteService(command.Command):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Name or ID of service to delete')
+            help='Service to delete (name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
-        service_id = utils.find_resource(
-            identity_client.services, parsed_args.service).id
+        service = utils.find_resource(
+            identity_client.services,
+            parsed_args.service,
+        )
 
-        identity_client.services.delete(service_id)
+        identity_client.services.delete(service.id)
         return
 
 
 class ListService(lister.Lister):
-    """List service command"""
+    """List services"""
 
     log = logging.getLogger(__name__ + '.ListService')
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+
         columns = ('ID', 'Name', 'Type', 'Enabled')
         data = self.app.client_manager.identity.services.list()
         return (columns,
@@ -106,8 +116,8 @@ class ListService(lister.Lister):
                 ) for s in data))
 
 
-class SetService(show.ShowOne):
-    """Set service command"""
+class SetService(command.Command):
+    """Set service properties"""
 
     log = logging.getLogger(__name__ + '.SetService')
 
@@ -116,51 +126,67 @@ class SetService(show.ShowOne):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Service name or ID to update')
+            help='Service to update (name or ID)',
+        )
         parser.add_argument(
             '--type',
             metavar='<service-type>',
-            help='New service type (compute, image, identity, volume, etc)')
+            help='New service type (compute, image, identity, volume, etc)',
+        )
         parser.add_argument(
             '--name',
             metavar='<service-name>',
-            help='New service name')
+            help='New service name',
+        )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
-            dest='enabled',
             action='store_true',
-            default=True,
-            help='Enable user')
+            help='Enable project',
+        )
         enable_group.add_argument(
             '--disable',
-            dest='enabled',
-            action='store_false',
-            help='Disable user')
+            action='store_true',
+            help='Disable project',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
-        service = utils.find_resource(identity_client.services,
-                                      parsed_args.service)
-
-        if not parsed_args.name and not parsed_args.type:
-            sys.stdout.write("Service not updated, no arguments present")
+        if (not parsed_args.name
+                and not parsed_args.type
+                and not parsed_args.enable
+                and not parsed_args.disable):
             return
 
-        identity_client.services.update(
-            service,
-            parsed_args.name,
-            parsed_args.type,
-            parsed_args.enabled)
+        service = utils.find_resource(
+            identity_client.services,
+            parsed_args.service,
+        )
 
+        kwargs = service._info
+        if parsed_args.type:
+            kwargs['type'] = parsed_args.type
+        if parsed_args.name:
+            kwargs['name'] = parsed_args.name
+        if parsed_args.enable:
+            kwargs['enabled'] = True
+        if parsed_args.disable:
+            kwargs['enabled'] = False
+        if 'id' in kwargs:
+            del kwargs['id']
+
+        identity_client.services.update(
+            service.id,
+            **kwargs
+        )
         return
 
 
 class ShowService(show.ShowOne):
-    """Show service command"""
+    """Show service details"""
 
     log = logging.getLogger(__name__ + '.ShowService')
 
@@ -169,14 +195,17 @@ class ShowService(show.ShowOne):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Type, name or ID of service to display')
+            help='Service to display (type, name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
-        service = utils.find_resource(identity_client.services,
-                                      parsed_args.service)
+        service = utils.find_resource(
+            identity_client.services,
+            parsed_args.service,
+        )
 
         return zip(*sorted(six.iteritems(service._info)))
