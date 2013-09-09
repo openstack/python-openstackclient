@@ -17,11 +17,11 @@ import copy
 
 from openstackclient.identity.v2_0 import service
 from openstackclient.tests import fakes
-from openstackclient.tests.identity import fakes as identity_fakes
-from openstackclient.tests.identity import test_identity
+from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests.identity.v2_0 import test_identity
 
 
-class TestService(test_identity.TestIdentity):
+class TestService(test_identity.TestIdentityv2):
 
     def setUp(self):
         super(TestService, self).setUp()
@@ -45,13 +45,14 @@ class TestServiceCreate(TestService):
         # Get the command object to test
         self.cmd = service.CreateService(self.app, None)
 
-    def test_service_create_minimum_options(self):
+    def test_service_create_name_type(self):
         arglist = [
             '--type', identity_fakes.service_type,
             identity_fakes.service_name,
         ]
         verifylist = [
             ('type', identity_fakes.service_type),
+            ('description', None),
             ('name', identity_fakes.service_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -138,7 +139,7 @@ class TestServiceDelete(TestService):
         self.cmd.take_action(parsed_args)
 
         self.services_mock.delete.assert_called_with(
-            identity_fakes.service_name,
+            identity_fakes.service_id,
         )
 
 

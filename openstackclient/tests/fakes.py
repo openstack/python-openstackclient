@@ -42,7 +42,11 @@ class FakeApp(object):
 
 class FakeClientManager(object):
     def __init__(self):
-        pass
+        self.compute = None
+        self.identity = None
+        self.image = None
+        self.volume = None
+        self.auth_ref = None
 
 
 class FakeResource(object):

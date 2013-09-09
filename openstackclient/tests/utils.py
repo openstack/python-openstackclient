@@ -70,6 +70,7 @@ class TestCommand(TestCase):
         # Build up a fake app
         self.fake_stdout = fakes.FakeStdout()
         self.app = fakes.FakeApp(self.fake_stdout)
+        self.app.client_manager = fakes.FakeClientManager()
 
     def check_parser(self, cmd, args, verify_args):
         cmd_parser = cmd.get_parser('check_parser')

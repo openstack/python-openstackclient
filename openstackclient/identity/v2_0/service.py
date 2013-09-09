@@ -28,7 +28,7 @@ from openstackclient.common import utils
 
 
 class CreateService(show.ShowOne):
-    """Create service command"""
+    """Create new service"""
 
     log = logging.getLogger(__name__ + '.CreateService')
 
@@ -37,21 +37,25 @@ class CreateService(show.ShowOne):
         parser.add_argument(
             'name',
             metavar='<service-name>',
-            help='New service name')
+            help='New service name',
+        )
         parser.add_argument(
             '--type',
             metavar='<service-type>',
             required=True,
-            help='New service type')
+            help='New service type (compute, image, identity, volume, etc)',
+        )
         parser.add_argument(
             '--description',
             metavar='<service-description>',
-            help='New service description')
+            help='New service description',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
+
         service = identity_client.services.create(
             parsed_args.name,
             parsed_args.type,
@@ -63,7 +67,7 @@ class CreateService(show.ShowOne):
 
 
 class DeleteService(command.Command):
-    """Delete service command"""
+    """Delete service"""
 
     log = logging.getLogger(__name__ + '.DeleteService')
 
@@ -71,19 +75,26 @@ class DeleteService(command.Command):
         parser = super(DeleteService, self).get_parser(prog_name)
         parser.add_argument(
             'service',
-            metavar='<service-id>',
-            help='ID of service to delete')
+            metavar='<service>',
+            help='Service to delete (name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        identity_client.services.delete(parsed_args.service)
+
+        service = utils.find_resource(
+            identity_client.services,
+            parsed_args.service,
+        )
+
+        identity_client.services.delete(service.id)
         return
 
 
 class ListService(lister.Lister):
-    """List service command"""
+    """List services"""
 
     log = logging.getLogger(__name__ + '.ListService')
 
@@ -98,6 +109,7 @@ class ListService(lister.Lister):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+
         if parsed_args.long:
             columns = ('ID', 'Name', 'Type', 'Description')
         else:
@@ -111,7 +123,7 @@ class ListService(lister.Lister):
 
 
 class ShowService(show.ShowOne):
-    """Show cloud service information"""
+    """Show service details"""
 
     log = logging.getLogger(__name__ + '.ShowService')
 
@@ -120,7 +132,7 @@ class ShowService(show.ShowOne):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Type, name or ID of service to display',
+            help='Service to display (type, name or ID)',
         )
         parser.add_argument(
             '--catalog',

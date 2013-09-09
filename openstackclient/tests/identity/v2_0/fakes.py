@@ -83,13 +83,3 @@ class FakeIdentityv2Client(object):
         self.ec2.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
-
-
-class FakeIdentityv3Client(object):
-    def __init__(self, **kwargs):
-        self.domains = mock.Mock()
-        self.domains.resource_class = fakes.FakeResource(None, {})
-        self.projects = mock.Mock()
-        self.projects.resource_class = fakes.FakeResource(None, {})
-        self.users = mock.Mock()
-        self.users.resource_class = fakes.FakeResource(None, {})

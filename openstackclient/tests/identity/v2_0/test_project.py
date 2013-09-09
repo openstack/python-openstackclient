@@ -17,11 +17,11 @@ import copy
 
 from openstackclient.identity.v2_0 import project
 from openstackclient.tests import fakes
-from openstackclient.tests.identity import fakes as identity_fakes
-from openstackclient.tests.identity import test_identity
+from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests.identity.v2_0 import test_identity
 
 
-class TestProject(test_identity.TestIdentity):
+class TestProject(test_identity.TestIdentityv2):
 
     def setUp(self):
         super(TestProject, self).setUp()
@@ -50,9 +50,9 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_name,
         ]
         verifylist = [
-            ('project_name', identity_fakes.project_name),
             ('enable', False),
             ('disable', False),
+            ('name', identity_fakes.project_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -85,8 +85,8 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_name,
         ]
         verifylist = [
-            ('project_name', identity_fakes.project_name),
             ('description', 'new desc'),
+            ('name', identity_fakes.project_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -119,9 +119,9 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_name,
         ]
         verifylist = [
-            ('project_name', identity_fakes.project_name),
             ('enable', True),
             ('disable', False),
+            ('name', identity_fakes.project_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -154,9 +154,9 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_name,
         ]
         verifylist = [
-            ('project_name', identity_fakes.project_name),
             ('enable', False),
             ('disable', True),
+            ('name', identity_fakes.project_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -284,6 +284,11 @@ class TestProjectSet(TestProject):
             copy.deepcopy(identity_fakes.PROJECT),
             loaded=True,
         )
+        self.projects_mock.update.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
 
         # Get the command object to test
         self.cmd = project.SetProject(self.app, None)
@@ -302,17 +307,6 @@ class TestProjectSet(TestProject):
         result = self.cmd.run(parsed_args)
         self.assertEqual(result, 0)
 
-        # Set expected values
-        kwargs = {
-            'description': identity_fakes.project_description,
-            'enabled': True,
-            'tenant_name': identity_fakes.project_name,
-        }
-        self.projects_mock.update.assert_called_with(
-            identity_fakes.project_id,
-            **kwargs
-        )
-
     def test_project_set_name(self):
         arglist = [
             '--name', 'qwerty',
@@ -320,6 +314,9 @@ class TestProjectSet(TestProject):
         ]
         verifylist = [
             ('name', 'qwerty'),
+            ('enable', False),
+            ('disable', False),
+            ('project', identity_fakes.project_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -344,6 +341,9 @@ class TestProjectSet(TestProject):
         ]
         verifylist = [
             ('description', 'new desc'),
+            ('enable', False),
+            ('disable', False),
+            ('project', identity_fakes.project_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -369,6 +369,7 @@ class TestProjectSet(TestProject):
         verifylist = [
             ('enable', True),
             ('disable', False),
+            ('project', identity_fakes.project_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -394,6 +395,7 @@ class TestProjectSet(TestProject):
         verifylist = [
             ('enable', False),
             ('disable', True),
+            ('project', identity_fakes.project_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

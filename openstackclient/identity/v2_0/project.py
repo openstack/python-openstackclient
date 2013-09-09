@@ -33,7 +33,7 @@ class CreateProject(show.ShowOne):
     def get_parser(self, prog_name):
         parser = super(CreateProject, self).get_parser(prog_name)
         parser.add_argument(
-            'project_name',
+            'name',
             metavar='<project-name>',
             help='New project name',
         )
@@ -57,13 +57,14 @@ class CreateProject(show.ShowOne):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-
         identity_client = self.app.client_manager.identity
+
         enabled = True
         if parsed_args.disable:
             enabled = False
+
         project = identity_client.tenants.create(
-            parsed_args.project_name,
+            parsed_args.name,
             description=parsed_args.description,
             enabled=enabled,
         )
@@ -90,10 +91,12 @@ class DeleteProject(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
+
         project = utils.find_resource(
             identity_client.tenants,
             parsed_args.project,
         )
+
         identity_client.tenants.delete(project.id)
         return
 
@@ -164,8 +167,14 @@ class SetProject(command.Command):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-
         identity_client = self.app.client_manager.identity
+
+        if (not parsed_args.name
+                and not parsed_args.description
+                and not parsed_args.enable
+                and not parsed_args.disable):
+            return
+
         project = utils.find_resource(
             identity_client.tenants,
             parsed_args.project,
@@ -180,7 +189,6 @@ class SetProject(command.Command):
             kwargs['enabled'] = True
         if parsed_args.disable:
             kwargs['enabled'] = False
-
         if 'id' in kwargs:
             del kwargs['id']
         if 'name' in kwargs:
@@ -188,8 +196,8 @@ class SetProject(command.Command):
             kwargs['tenant_name'] = kwargs['name']
             del kwargs['name']
 
-        if len(kwargs):
-            identity_client.tenants.update(project.id, **kwargs)
+        identity_client.tenants.update(project.id, **kwargs)
+        return
 
 
 class ShowProject(show.ShowOne):

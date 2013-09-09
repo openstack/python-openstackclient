@@ -26,7 +26,7 @@ from openstackclient.common import utils
 
 
 class CreateUser(show.ShowOne):
-    """Create user command"""
+    """Create new user"""
 
     log = logging.getLogger(__name__ + '.CreateUser')
 
@@ -35,15 +35,18 @@ class CreateUser(show.ShowOne):
         parser.add_argument(
             'name',
             metavar='<user-name>',
-            help='New user name')
+            help='New user name',
+        )
         parser.add_argument(
             '--password',
             metavar='<user-password>',
-            help='New user password')
+            help='New user password',
+        )
         parser.add_argument(
             '--email',
             metavar='<user-email>',
-            help='New user email address')
+            help='New user email address',
+        )
         parser.add_argument(
             '--project',
             metavar='<project>',
@@ -65,6 +68,7 @@ class CreateUser(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
+
         if parsed_args.project:
             project_id = utils.find_resource(
                 identity_client.tenants,
@@ -72,9 +76,11 @@ class CreateUser(show.ShowOne):
             ).id
         else:
             project_id = None
+
         enabled = True
         if parsed_args.disable:
             enabled = False
+
         user = identity_client.users.create(
             parsed_args.name,
             parsed_args.password,
@@ -95,7 +101,7 @@ class CreateUser(show.ShowOne):
 
 
 class DeleteUser(command.Command):
-    """Delete user command"""
+    """Delete user"""
 
     log = logging.getLogger(__name__ + '.DeleteUser')
 
@@ -104,19 +110,25 @@ class DeleteUser(command.Command):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='Name or ID of user to delete')
+            help='User to delete (name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        user = utils.find_resource(identity_client.users, parsed_args.user)
+
+        user = utils.find_resource(
+            identity_client.users,
+            parsed_args.user,
+        )
+
         identity_client.users.delete(user.id)
         return
 
 
 class ListUser(lister.Lister):
-    """List user command"""
+    """List users"""
 
     log = logging.getLogger(__name__ + '.ListUser')
 
@@ -191,7 +203,7 @@ class ListUser(lister.Lister):
 
 
 class SetUser(command.Command):
-    """Set user command"""
+    """Set user properties"""
 
     log = logging.getLogger(__name__ + '.SetUser')
 
@@ -200,19 +212,23 @@ class SetUser(command.Command):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='Name or ID of user to change')
+            help='User to change (name or ID)',
+        )
         parser.add_argument(
             '--name',
             metavar='<new-user-name>',
-            help='New user name')
+            help='New user name',
+        )
         parser.add_argument(
             '--password',
             metavar='<user-password>',
-            help='New user password')
+            help='New user password',
+        )
         parser.add_argument(
             '--email',
             metavar='<user-email>',
-            help='New user email address')
+            help='New user email address',
+        )
         parser.add_argument(
             '--project',
             metavar='<project>',
@@ -233,9 +249,21 @@ class SetUser(command.Command):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-
         identity_client = self.app.client_manager.identity
-        user = utils.find_resource(identity_client.users, parsed_args.user)
+
+        if (not parsed_args.name
+                and not parsed_args.name
+                and not parsed_args.password
+                and not parsed_args.email
+                and not parsed_args.project
+                and not parsed_args.enable
+                and not parsed_args.disable):
+            return
+
+        user = utils.find_resource(
+            identity_client.users,
+            parsed_args.user,
+        )
 
         if parsed_args.password:
             identity_client.users.update_password(
@@ -258,17 +286,18 @@ class SetUser(command.Command):
             kwargs['name'] = parsed_args.name
         if parsed_args.email:
             kwargs['email'] = parsed_args.email
+        kwargs['enabled'] = user.enabled
         if parsed_args.enable:
             kwargs['enabled'] = True
         if parsed_args.disable:
             kwargs['enabled'] = False
 
-        if len(kwargs):
-            identity_client.users.update(user.id, **kwargs)
+        identity_client.users.update(user.id, **kwargs)
+        return
 
 
 class ShowUser(show.ShowOne):
-    """Show user command"""
+    """Show user details"""
 
     log = logging.getLogger(__name__ + '.ShowUser')
 
@@ -277,13 +306,19 @@ class ShowUser(show.ShowOne):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='Name or ID of user to display')
+            help='User to display (name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        user = utils.find_resource(identity_client.users, parsed_args.user)
+
+        user = utils.find_resource(
+            identity_client.users,
+            parsed_args.user,
+        )
+
         if 'tenantId' in user._info:
             user._info.update(
                 {'project_id': user._info.pop('tenantId')}

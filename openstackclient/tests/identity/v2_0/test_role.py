@@ -19,11 +19,11 @@ import mock
 from openstackclient.common import exceptions
 from openstackclient.identity.v2_0 import role
 from openstackclient.tests import fakes
-from openstackclient.tests.identity import fakes as identity_fakes
-from openstackclient.tests.identity import test_identity
+from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests.identity.v2_0 import test_identity
 
 
-class TestRole(test_identity.TestIdentity):
+class TestRole(test_identity.TestIdentityv2):
 
     def setUp(self):
         super(TestRole, self).setUp()

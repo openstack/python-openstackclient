@@ -17,11 +17,11 @@ import copy
 
 from openstackclient.identity.v2_0 import user
 from openstackclient.tests import fakes
-from openstackclient.tests.identity import fakes as identity_fakes
-from openstackclient.tests.identity import test_identity
+from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests.identity.v2_0 import test_identity
 
 
-class TestUser(test_identity.TestIdentity):
+class TestUser(test_identity.TestIdentityv2):
 
     def setUp(self):
         super(TestUser, self).setUp()
@@ -29,6 +29,7 @@ class TestUser(test_identity.TestIdentity):
         # Get a shortcut to the TenantManager Mock
         self.projects_mock = self.app.client_manager.identity.tenants
         self.projects_mock.reset_mock()
+
         # Get a shortcut to the UserManager Mock
         self.users_mock = self.app.client_manager.identity.users
         self.users_mock.reset_mock()
@@ -44,6 +45,7 @@ class TestUserCreate(TestUser):
             copy.deepcopy(identity_fakes.PROJECT),
             loaded=True,
         )
+
         self.users_mock.create.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.USER),
@@ -58,6 +60,8 @@ class TestUserCreate(TestUser):
             identity_fakes.user_name,
         ]
         verifylist = [
+            ('enable', False),
+            ('disable', False),
             ('name', identity_fakes.user_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -70,7 +74,7 @@ class TestUserCreate(TestUser):
             'enabled': True,
             'tenant_id': None,
         }
-        # users.create(name, password, email, tenant_id=None, enabled=True)
+        # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
             identity_fakes.user_name,
             None,
@@ -108,7 +112,7 @@ class TestUserCreate(TestUser):
             'enabled': True,
             'tenant_id': None,
         }
-        # users.create(name, password, email, tenant_id=None, enabled=True)
+        # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
             identity_fakes.user_name,
             'secret',
@@ -146,7 +150,7 @@ class TestUserCreate(TestUser):
             'enabled': True,
             'tenant_id': None,
         }
-        # users.create(name, password, email, tenant_id=None, enabled=True)
+        # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
             identity_fakes.user_name,
             None,
@@ -199,7 +203,7 @@ class TestUserCreate(TestUser):
             'enabled': True,
             'tenant_id': identity_fakes.PROJECT_2['id'],
         }
-        # users.create(name, password, email, tenant_id=None, enabled=True)
+        # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
             identity_fakes.user_name,
             None,
@@ -238,7 +242,7 @@ class TestUserCreate(TestUser):
             'enabled': True,
             'tenant_id': None,
         }
-        # users.create(name, password, email, tenant_id=None, enabled=True)
+        # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
             identity_fakes.user_name,
             None,
@@ -277,7 +281,7 @@ class TestUserCreate(TestUser):
             'enabled': False,
             'tenant_id': None,
         }
-        # users.create(name, password, email, tenant_id=None, enabled=True)
+        # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
             identity_fakes.user_name,
             None,
@@ -342,6 +346,7 @@ class TestUserList(TestUser):
                 loaded=True,
             ),
         ]
+
         self.users_mock.list.return_value = [
             fakes.FakeResource(
                 None,
@@ -443,18 +448,18 @@ class TestUserSet(TestUser):
             identity_fakes.user_name,
         ]
         verifylist = [
-            ('user', identity_fakes.user_name),
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('project', None),
             ('enable', False),
             ('disable', False),
-            ('project', None),
+            ('user', identity_fakes.user_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
-        self.cmd.take_action(parsed_args)
-
-        # SetUser doesn't call anything if no args are passed
-        self.assertFalse(self.users_mock.update.called)
+        result = self.cmd.run(parsed_args)
+        self.assertEqual(result, 0)
 
     def test_user_set_name(self):
         arglist = [
@@ -463,6 +468,12 @@ class TestUserSet(TestUser):
         ]
         verifylist = [
             ('name', 'qwerty'),
+            ('password', None),
+            ('email', None),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', identity_fakes.user_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -471,8 +482,10 @@ class TestUserSet(TestUser):
 
         # Set expected values
         kwargs = {
+            'enabled': True,
             'name': 'qwerty',
         }
+        # UserManager.update(user, **kwargs)
         self.users_mock.update.assert_called_with(
             identity_fakes.user_id,
             **kwargs
@@ -484,13 +497,20 @@ class TestUserSet(TestUser):
             identity_fakes.user_name,
         ]
         verifylist = [
+            ('name', None),
             ('password', 'secret'),
+            ('email', None),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', identity_fakes.user_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
+        # UserManager.update_password(user, password)
         self.users_mock.update_password.assert_called_with(
             identity_fakes.user_id,
             'secret',
@@ -502,7 +522,13 @@ class TestUserSet(TestUser):
             identity_fakes.user_name,
         ]
         verifylist = [
+            ('name', None),
+            ('password', None),
             ('email', 'barney@example.com'),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', identity_fakes.user_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -512,7 +538,9 @@ class TestUserSet(TestUser):
         # Set expected values
         kwargs = {
             'email': 'barney@example.com',
+            'enabled': True,
         }
+        # UserManager.update(user, **kwargs)
         self.users_mock.update.assert_called_with(
             identity_fakes.user_id,
             **kwargs
@@ -524,13 +552,20 @@ class TestUserSet(TestUser):
             identity_fakes.user_name,
         ]
         verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
             ('project', identity_fakes.project_id),
+            ('enable', False),
+            ('disable', False),
+            ('user', identity_fakes.user_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
+        # UserManager.update_tenant(user, tenant)
         self.users_mock.update_tenant.assert_called_with(
             identity_fakes.user_id,
             identity_fakes.project_id,
@@ -542,8 +577,13 @@ class TestUserSet(TestUser):
             identity_fakes.user_name,
         ]
         verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('project', None),
             ('enable', True),
             ('disable', False),
+            ('user', identity_fakes.user_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -554,6 +594,7 @@ class TestUserSet(TestUser):
         kwargs = {
             'enabled': True,
         }
+        # UserManager.update(user, **kwargs)
         self.users_mock.update.assert_called_with(
             identity_fakes.user_id,
             **kwargs
@@ -565,8 +606,13 @@ class TestUserSet(TestUser):
             identity_fakes.user_name,
         ]
         verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('project', None),
             ('enable', False),
             ('disable', True),
+            ('user', identity_fakes.user_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -577,6 +623,7 @@ class TestUserSet(TestUser):
         kwargs = {
             'enabled': False,
         }
+        # UserManager.update(user, **kwargs)
         self.users_mock.update.assert_called_with(
             identity_fakes.user_id,
             **kwargs
