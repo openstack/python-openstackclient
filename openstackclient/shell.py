@@ -22,6 +22,7 @@ import os
 import sys
 
 from cliff import app
+from cliff import command
 from cliff import help
 
 import openstackclient
@@ -64,6 +65,11 @@ class OpenStackShell(app.App):
     log = logging.getLogger(__name__)
 
     def __init__(self):
+        # Patch command.Command to add a default auth_required = True
+        command.Command.auth_required = True
+        # But not help
+        help.HelpCommand.auth_required = False
+
         super(OpenStackShell, self).__init__(
             description=__doc__.strip(),
             version=openstackclient.__version__,
@@ -383,26 +389,26 @@ class OpenStackShell(app.App):
         # Set up common client session
         self.restapi = restapi.RESTApi()
 
-        # If the user is not asking for help, make sure they
-        # have given us auth.
-        cmd_name = None
-        if argv:
-            cmd_info = self.command_manager.find_command(argv)
-            cmd_factory, cmd_name, sub_argv = cmd_info
-        if self.interactive_mode or cmd_name != 'help':
-            self.authenticate_user()
-            self.restapi.set_auth(self.client_manager.identity.auth_token)
-
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""
         self.log.debug('prepare_to_run_command %s', cmd.__class__.__name__)
-        self.log.debug("api: %s" % cmd.api if hasattr(cmd, 'api') else None)
+
+        if cmd.auth_required:
+            self.authenticate_user()
+            self.restapi.set_auth(self.client_manager.identity.auth_token)
         return
 
     def clean_up(self, cmd, result, err):
         self.log.debug('clean_up %s', cmd.__class__.__name__)
         if err:
             self.log.debug('got an error: %s', err)
+
+    def interact(self):
+        # NOTE(dtroyer): Maintain the old behaviour for interactive use as
+        #                this path does not call prepare_to_run_command()
+        self.authenticate_user()
+        self.restapi.set_auth(self.client_manager.identity.auth_token)
+        super(OpenStackShell, self).interact()
 
 
 def main(argv=sys.argv[1:]):
