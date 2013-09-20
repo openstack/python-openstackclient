@@ -2,6 +2,12 @@
 Release Notes
 =============
 
+0.2.2 (20 Sep 2013)
+===================
+
+* add object-store list commands and API library
+* add test structure
+
 0.2.1 (06 Aug 2013)
 ===================
 
