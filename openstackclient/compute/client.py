@@ -38,8 +38,8 @@ def make_client(instance):
         api_key=instance._password,
         project_id=instance._project_name,
         auth_url=instance._auth_url,
-        # FIXME(dhellmann): add constructor argument for this
-        insecure=False,
+        cacert=instance._cacert,
+        insecure=instance._insecure,
         region_name=instance._region_name,
         # FIXME(dhellmann): get endpoint_type from option?
         endpoint_type='publicURL',

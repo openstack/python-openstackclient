@@ -50,7 +50,7 @@ class ClientManager(object):
 
     def __init__(self, token=None, url=None, auth_url=None, project_name=None,
                  project_id=None, username=None, password=None,
-                 region_name=None, api_version=None):
+                 region_name=None, verify=True, api_version=None):
         self._token = token
         self._url = url
         self._auth_url = auth_url
@@ -61,6 +61,16 @@ class ClientManager(object):
         self._region_name = region_name
         self._api_version = api_version
         self._service_catalog = None
+
+        # verify is the Requests-compatible form
+        self._verify = verify
+        # also store in the form used by the legacy client libs
+        self._cacert = None
+        if verify is True or verify is False:
+            self._insecure = not verify
+        else:
+            self._cacert = verify
+            self._insecure = True
 
         self.auth_ref = None
 

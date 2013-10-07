@@ -79,6 +79,9 @@ class OpenStackShell(app.App):
         # password flow auth
         self.auth_client = None
 
+        # Assume TLS host certificate verification is enabled
+        self.verify = True
+
         # NOTE(dtroyer): This hack changes the help action that Cliff
         #                automatically adds to the parser so we can defer
         #                its execution until after the api-versioned commands
@@ -158,6 +161,22 @@ class OpenStackShell(app.App):
             metavar='<auth-region-name>',
             default=env('OS_REGION_NAME'),
             help='Authentication region name (Env: OS_REGION_NAME)')
+        parser.add_argument(
+            '--os-cacert',
+            metavar='<ca-bundle-file>',
+            default=env('OS_CACERT'),
+            help='CA certificate bundle file (Env: OS_CACERT)')
+        verify_group = parser.add_mutually_exclusive_group()
+        verify_group.add_argument(
+            '--verify',
+            action='store_true',
+            help='Verify server certificate (default)',
+        )
+        verify_group.add_argument(
+            '--insecure',
+            action='store_true',
+            help='Disable server certificate verification',
+        )
         parser.add_argument(
             '--os-default-domain',
             metavar='<auth-domain>',
@@ -299,7 +318,9 @@ class OpenStackShell(app.App):
             username=self.options.os_username,
             password=self.options.os_password,
             region_name=self.options.os_region_name,
-            api_version=self.api_version)
+            verify=self.verify,
+            api_version=self.api_version,
+        )
         return
 
     def init_keyring_backend(self):
@@ -387,7 +408,11 @@ class OpenStackShell(app.App):
             self.DeferredHelpAction(self.parser, self.parser, None, None)
 
         # Set up common client session
-        self.restapi = restapi.RESTApi()
+        if self.options.os_cacert:
+            self.verify = self.options.os_cacert
+        else:
+            self.verify = not self.options.insecure
+        self.restapi = restapi.RESTApi(verify=self.verify)
 
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""

@@ -40,6 +40,8 @@ def make_client(instance):
         api_key=instance._password,
         project_id=instance._project_name,
         auth_url=instance._auth_url,
+        cacert=instance._cacert,
+        insecure=instance._insecure,
     )
 
     return client

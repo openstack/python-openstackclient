@@ -53,6 +53,7 @@ class RESTApi(object):
         os_auth=None,
         user_agent=USER_AGENT,
         debug=None,
+        verify=True,
         **kwargs
     ):
         self.set_auth(os_auth)

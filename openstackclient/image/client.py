@@ -40,7 +40,12 @@ def make_client(instance):
     if not instance._url:
         instance._url = instance.get_endpoint_for_service_type(API_NAME)
 
-    return image_client(instance._url, token=instance._token)
+    return image_client(
+        instance._url,
+        token=instance._token,
+        cacert=instance._cacert,
+        insecure=instance._insecure,
+    )
 
 
 # NOTE(dtroyer): glanceclient.v1.image.ImageManager() doesn't have a find()

@@ -47,7 +47,10 @@ def make_client(instance):
             tenant_name=instance._project_name,
             tenant_id=instance._project_id,
             auth_url=instance._auth_url,
-            region_name=instance._region_name)
+            region_name=instance._region_name,
+            cacert=instance._cacert,
+            insecure=instance._insecure,
+        )
         instance.auth_ref = client.auth_ref
     return client
 
