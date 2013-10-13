@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -17,6 +17,10 @@ from openstackclient.common import clientmanager
 from openstackclient.tests import utils
 
 
+AUTH_TOKEN = "foobar"
+AUTH_URL = "http://0.0.0.0"
+
+
 class Container(object):
     attr = clientmanager.ClientCache(lambda x: object())
 
@@ -28,8 +32,27 @@ class TestClientManager(utils.TestCase):
     def setUp(self):
         super(TestClientManager, self).setUp()
 
+        api_version = {"identity": "2.0"}
+
+        self.client_manager = clientmanager.ClientManager(
+            token=AUTH_TOKEN,
+            url=AUTH_URL,
+            auth_url=AUTH_URL,
+            api_version=api_version,
+        )
+
     def test_singleton(self):
         # NOTE(dtroyer): Verify that the ClientCache descriptor only invokes
         # the factory one time and always returns the same value after that.
         c = Container()
         self.assertEqual(c.attr, c.attr)
+
+    def test_make_client_identity_default(self):
+        self.assertEqual(
+            self.client_manager.identity.auth_token,
+            AUTH_TOKEN,
+        )
+        self.assertEqual(
+            self.client_manager.identity.management_url,
+            AUTH_URL,
+        )
