@@ -24,7 +24,7 @@ import os
 KEYRING_FILE = os.path.join(os.path.expanduser('~'), '.openstack-keyring.cfg')
 
 
-class OpenstackKeyring(keyring.backend.BasicFileKeyring):
+class OpenstackKeyring(keyring.backends.file.BaseKeyring):
     """Openstack Keyring to store encrypted password."""
     filename = KEYRING_FILE
 
