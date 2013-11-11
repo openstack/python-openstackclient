@@ -1,9 +1,9 @@
 OpenStack Style Commandments
 ============================
 
-Step 0: Read https://github.com/openstack-dev/hacking/blob/master/HACKING.rst
-Step 1: Read http://www.python.org/dev/peps/pep-0008/ one more time
-Step 2: Read on
+- Step 1: Read the OpenStack Style Commandments
+  http://docs.openstack.org/developer/hacking/
+- Step 2: Read on
 
 General
 -------
@@ -27,7 +27,7 @@ Calling Methods
 ---------------
 
 Deviation! When breaking up method calls due to the 79 char line length limit,
-use the alternate 4 space indent.  With the frist argument on the succeeding
+use the alternate 4 space indent.  With the first argument on the succeeding
 line all arguments will then be vertically aligned.  Use the same convention
 used with other data structure literals and terminate the method call with
 the last argument line ending with a comma and the closing paren on its own
@@ -87,7 +87,7 @@ commandline arguments, etc.) should be presumed to be encoded as utf-8.
 Python 3.x Compatibility
 ------------------------
 
-OpenStackClient strives to be Python 3.3 compatibile.  Common guidelines:
+OpenStackClient strives to be Python 3.3 compatible.  Common guidelines:
 
 * Convert print statements to functions: print statements should be converted
   to an appropriate log or other output mechanism.
@@ -97,7 +97,7 @@ OpenStackClient strives to be Python 3.3 compatibile.  Common guidelines:
 Running Tests
 -------------
 
-Note: Oh boy, are we behing on writing tests.  But they are coming!
+Note: Oh boy, are we behind on writing tests.  But they are coming!
 
 The testing system is based on a combination of tox and testr. If you just
 want to run the whole suite, run `tox` and all will be fine. However, if
