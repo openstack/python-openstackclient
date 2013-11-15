@@ -16,6 +16,7 @@
 import mock
 
 from openstackclient.tests import fakes
+from openstackclient.tests import utils
 
 
 domain_id = 'd1'
@@ -104,3 +105,13 @@ class FakeIdentityv3Client(object):
         self.users.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
+
+
+class TestIdentityv3(utils.TestCommand):
+    def setUp(self):
+        super(TestIdentityv3, self).setUp()
+
+        self.app.client_manager.identity = FakeIdentityv3Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )

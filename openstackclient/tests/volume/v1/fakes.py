@@ -16,6 +16,9 @@
 import mock
 
 from openstackclient.tests import fakes
+from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests import utils
+
 
 volume_id = 'vvvvvvvv-vvvv-vvvv-vvvvvvvv'
 volume_name = 'nigel'
@@ -42,3 +45,18 @@ class FakeVolumev1Client(object):
         self.services.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
+
+
+class TestVolumev1(utils.TestCommand):
+    def setUp(self):
+        super(TestVolumev1, self).setUp()
+
+        self.app.client_manager.volume = FakeVolumev1Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
+        self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
