@@ -16,14 +16,8 @@
 import mock
 
 from openstackclient.tests import fakes
+from openstackclient.tests.image.v2 import fakes as image_fakes
 from openstackclient.tests import utils
-
-
-image_id = 'im1'
-
-IMAGE = {
-    'id': image_id,
-}
 
 
 server_id = 'serv1'
@@ -50,6 +44,11 @@ class TestComputev2(utils.TestCommand):
         super(TestComputev2, self).setUp()
 
         self.app.client_manager.compute = FakeComputev2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
+        self.app.client_manager.image = image_fakes.FakeImagev2Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
