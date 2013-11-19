@@ -20,6 +20,7 @@ import getpass
 import logging
 import os
 import sys
+import traceback
 
 from cliff import app
 from cliff import command
@@ -75,6 +76,9 @@ class OpenStackShell(app.App):
             version=openstackclient.__version__,
             command_manager=commandmanager.CommandManager('openstack.cli'))
 
+        # Until we have command line arguments parsed, dump any stack traces
+        self.dump_stack_trace = True
+
         # This is instantiated in initialize_app() only when using
         # password flow auth
         self.auth_client = None
@@ -110,6 +114,18 @@ class OpenStackShell(app.App):
                     default=False,
                     help="show this help message and exit",
                 )
+
+    def run(self, argv):
+        try:
+            super(OpenStackShell, self).run(argv)
+        except Exception as e:
+            if not logging.getLogger('').handlers:
+                logging.basicConfig()
+            if self.dump_stack_trace:
+                self.log.error(traceback.format_exc(e))
+            else:
+                self.log.error('Exception raised: ' + str(e))
+            return 1
 
     def build_option_parser(self, description, version):
         parser = super(OpenStackShell, self).build_option_parser(
@@ -365,8 +381,10 @@ class OpenStackShell(app.App):
         requests_log = logging.getLogger("requests")
         if self.options.debug:
             requests_log.setLevel(logging.DEBUG)
+            self.dump_stack_trace = True
         else:
             requests_log.setLevel(logging.WARNING)
+            self.dump_stack_trace = False
 
         # Save default domain
         self.default_domain = self.options.os_default_domain
@@ -437,11 +455,7 @@ class OpenStackShell(app.App):
 
 
 def main(argv=sys.argv[1:]):
-    try:
-        return OpenStackShell().run(argv)
-    except Exception:
-        return 1
-
+    return OpenStackShell().run(argv)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
