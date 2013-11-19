@@ -25,7 +25,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CommandManager(cliff.commandmanager.CommandManager):
-    """Alters Cliff's default CommandManager behaviour to load additiona
+    """Alters Cliff's default CommandManager behaviour to load additional
        command groups after initialization.
     """
     def _load_commands(self, group=None):
