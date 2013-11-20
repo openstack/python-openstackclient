@@ -213,7 +213,7 @@ class DeleteImage(command.Command):
             image_client.images,
             parsed_args.image,
         )
-        image_client.images.delete(image)
+        image_client.images.delete(image.id)
 
 
 class ListImage(lister.Lister):

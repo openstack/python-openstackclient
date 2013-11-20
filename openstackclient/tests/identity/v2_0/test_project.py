@@ -18,10 +18,9 @@ import copy
 from openstackclient.identity.v2_0 import project
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
-from openstackclient.tests.identity.v2_0 import test_identity
 
 
-class TestProject(test_identity.TestIdentityv2):
+class TestProject(identity_fakes.TestIdentityv2):
 
     def setUp(self):
         super(TestProject, self).setUp()

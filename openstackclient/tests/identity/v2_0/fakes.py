@@ -16,6 +16,8 @@
 import mock
 
 from openstackclient.tests import fakes
+from openstackclient.tests import utils
+
 
 project_id = '8-9-64'
 project_name = 'beatles'
@@ -83,3 +85,13 @@ class FakeIdentityv2Client(object):
         self.ec2.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
+
+
+class TestIdentityv2(utils.TestCommand):
+    def setUp(self):
+        super(TestIdentityv2, self).setUp()
+
+        self.app.client_manager.identity = FakeIdentityv2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )

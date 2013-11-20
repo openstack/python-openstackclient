@@ -17,8 +17,8 @@ import copy
 import mock
 
 from openstackclient.common import clientmanager
-from openstackclient.object.v1 import container
-from openstackclient.tests.object import fakes as object_fakes
+from openstackclient.object.v1 import object as obj
+from openstackclient.tests.object.v1 import fakes as object_fakes
 from openstackclient.tests import utils
 
 
@@ -53,94 +53,59 @@ class TestObjectClient(TestObject):
 
 
 @mock.patch(
-    'openstackclient.object.v1.container.lib_container.list_containers'
+    'openstackclient.object.v1.object.lib_object.list_objects'
 )
-class TestContainerList(TestObject):
+class TestObjectList(TestObject):
 
     def setUp(self):
-        super(TestContainerList, self).setUp()
+        super(TestObjectList, self).setUp()
 
         # Get the command object to test
-        self.cmd = container.ListContainer(self.app, None)
+        self.cmd = obj.ListObject(self.app, None)
 
-    def test_object_list_containers_no_options(self, c_mock):
-        c_mock.return_value = [
-            copy.deepcopy(object_fakes.CONTAINER),
-            copy.deepcopy(object_fakes.CONTAINER_3),
-            copy.deepcopy(object_fakes.CONTAINER_2),
-        ]
-
-        arglist = []
-        verifylist = []
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # DisplayCommandBase.take_action() returns two tuples
-        columns, data = self.cmd.take_action(parsed_args)
-
-        # Set expected values
-        kwargs = {
-        }
-        c_mock.assert_called_with(
-            self.app.restapi,
-            AUTH_URL,
-            **kwargs
-        )
-
-        collist = ('Name',)
-        self.assertEqual(columns, collist)
-        datalist = (
-            (object_fakes.container_name, ),
-            (object_fakes.container_name_3, ),
-            (object_fakes.container_name_2, ),
-        )
-        self.assertEqual(tuple(data), datalist)
-
-    def test_object_list_containers_prefix(self, c_mock):
-        c_mock.return_value = [
-            copy.deepcopy(object_fakes.CONTAINER),
-            copy.deepcopy(object_fakes.CONTAINER_3),
+    def test_object_list_objects_no_options(self, o_mock):
+        o_mock.return_value = [
+            copy.deepcopy(object_fakes.OBJECT),
+            copy.deepcopy(object_fakes.OBJECT_2),
         ]
 
         arglist = [
-            '--prefix', 'bit',
+            object_fakes.container_name,
         ]
         verifylist = [
-            ('prefix', 'bit'),
+            ('container', object_fakes.container_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'prefix': 'bit',
-        }
-        c_mock.assert_called_with(
+        o_mock.assert_called_with(
             self.app.restapi,
             AUTH_URL,
-            **kwargs
+            object_fakes.container_name,
         )
 
         collist = ('Name',)
         self.assertEqual(columns, collist)
         datalist = (
-            (object_fakes.container_name, ),
-            (object_fakes.container_name_3, ),
+            (object_fakes.object_name_1, ),
+            (object_fakes.object_name_2, ),
         )
         self.assertEqual(tuple(data), datalist)
 
-    def test_object_list_containers_marker(self, c_mock):
-        c_mock.return_value = [
-            copy.deepcopy(object_fakes.CONTAINER),
-            copy.deepcopy(object_fakes.CONTAINER_3),
+    def test_object_list_objects_prefix(self, o_mock):
+        o_mock.return_value = [
+            copy.deepcopy(object_fakes.OBJECT_2),
         ]
 
         arglist = [
-            '--marker', object_fakes.container_name,
+            '--prefix', 'floppy',
+            object_fakes.container_name_2,
         ]
         verifylist = [
-            ('marker', object_fakes.container_name),
+            ('prefix', 'floppy'),
+            ('container', object_fakes.container_name_2),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -149,33 +114,34 @@ class TestContainerList(TestObject):
 
         # Set expected values
         kwargs = {
-            'marker': object_fakes.container_name,
+            'prefix': 'floppy',
         }
-        c_mock.assert_called_with(
+        o_mock.assert_called_with(
             self.app.restapi,
             AUTH_URL,
+            object_fakes.container_name_2,
             **kwargs
         )
 
         collist = ('Name',)
         self.assertEqual(columns, collist)
         datalist = (
-            (object_fakes.container_name, ),
-            (object_fakes.container_name_3, ),
+            (object_fakes.object_name_2, ),
         )
         self.assertEqual(tuple(data), datalist)
 
-    def test_object_list_containers_end_marker(self, c_mock):
-        c_mock.return_value = [
-            copy.deepcopy(object_fakes.CONTAINER),
-            copy.deepcopy(object_fakes.CONTAINER_3),
+    def test_object_list_objects_delimiter(self, o_mock):
+        o_mock.return_value = [
+            copy.deepcopy(object_fakes.OBJECT_2),
         ]
 
         arglist = [
-            '--end-marker', object_fakes.container_name_3,
+            '--delimiter', '=',
+            object_fakes.container_name_2,
         ]
         verifylist = [
-            ('end_marker', object_fakes.container_name_3),
+            ('delimiter', '='),
+            ('container', object_fakes.container_name_2),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -184,33 +150,106 @@ class TestContainerList(TestObject):
 
         # Set expected values
         kwargs = {
-            'end_marker': object_fakes.container_name_3,
+            'delimiter': '=',
         }
-        c_mock.assert_called_with(
+        o_mock.assert_called_with(
             self.app.restapi,
             AUTH_URL,
+            object_fakes.container_name_2,
             **kwargs
         )
 
         collist = ('Name',)
         self.assertEqual(columns, collist)
         datalist = (
-            (object_fakes.container_name, ),
-            (object_fakes.container_name_3, ),
+            (object_fakes.object_name_2, ),
         )
         self.assertEqual(tuple(data), datalist)
 
-    def test_object_list_containers_limit(self, c_mock):
-        c_mock.return_value = [
-            copy.deepcopy(object_fakes.CONTAINER),
-            copy.deepcopy(object_fakes.CONTAINER_3),
+    def test_object_list_objects_marker(self, o_mock):
+        o_mock.return_value = [
+            copy.deepcopy(object_fakes.OBJECT_2),
+        ]
+
+        arglist = [
+            '--marker', object_fakes.object_name_2,
+            object_fakes.container_name_2,
+        ]
+        verifylist = [
+            ('marker', object_fakes.object_name_2),
+            ('container', object_fakes.container_name_2),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'marker': object_fakes.object_name_2,
+        }
+        o_mock.assert_called_with(
+            self.app.restapi,
+            AUTH_URL,
+            object_fakes.container_name_2,
+            **kwargs
+        )
+
+        collist = ('Name',)
+        self.assertEqual(columns, collist)
+        datalist = (
+            (object_fakes.object_name_2, ),
+        )
+        self.assertEqual(tuple(data), datalist)
+
+    def test_object_list_objects_end_marker(self, o_mock):
+        o_mock.return_value = [
+            copy.deepcopy(object_fakes.OBJECT_2),
+        ]
+
+        arglist = [
+            '--end-marker', object_fakes.object_name_2,
+            object_fakes.container_name_2,
+        ]
+        verifylist = [
+            ('end_marker', object_fakes.object_name_2),
+            ('container', object_fakes.container_name_2),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'end_marker': object_fakes.object_name_2,
+        }
+        o_mock.assert_called_with(
+            self.app.restapi,
+            AUTH_URL,
+            object_fakes.container_name_2,
+            **kwargs
+        )
+
+        collist = ('Name',)
+        self.assertEqual(columns, collist)
+        datalist = (
+            (object_fakes.object_name_2, ),
+        )
+        self.assertEqual(tuple(data), datalist)
+
+    def test_object_list_objects_limit(self, o_mock):
+        o_mock.return_value = [
+            copy.deepcopy(object_fakes.OBJECT_2),
         ]
 
         arglist = [
             '--limit', '2',
+            object_fakes.container_name_2,
         ]
         verifylist = [
             ('limit', 2),
+            ('container', object_fakes.container_name_2),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -221,31 +260,33 @@ class TestContainerList(TestObject):
         kwargs = {
             'limit': 2,
         }
-        c_mock.assert_called_with(
+        o_mock.assert_called_with(
             self.app.restapi,
             AUTH_URL,
+            object_fakes.container_name_2,
             **kwargs
         )
 
         collist = ('Name',)
         self.assertEqual(columns, collist)
         datalist = (
-            (object_fakes.container_name, ),
-            (object_fakes.container_name_3, ),
+            (object_fakes.object_name_2, ),
         )
         self.assertEqual(tuple(data), datalist)
 
-    def test_object_list_containers_long(self, c_mock):
-        c_mock.return_value = [
-            copy.deepcopy(object_fakes.CONTAINER),
-            copy.deepcopy(object_fakes.CONTAINER_3),
+    def test_object_list_objects_long(self, o_mock):
+        o_mock.return_value = [
+            copy.deepcopy(object_fakes.OBJECT),
+            copy.deepcopy(object_fakes.OBJECT_2),
         ]
 
         arglist = [
             '--long',
+            object_fakes.container_name,
         ]
         verifylist = [
             ('long', True),
+            ('container', object_fakes.container_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -255,40 +296,46 @@ class TestContainerList(TestObject):
         # Set expected values
         kwargs = {
         }
-        c_mock.assert_called_with(
+        o_mock.assert_called_with(
             self.app.restapi,
             AUTH_URL,
+            object_fakes.container_name,
             **kwargs
         )
 
-        collist = ('Name', 'Bytes', 'Count')
+        collist = ('Name', 'Bytes', 'Hash', 'Content Type', 'Last Modified')
         self.assertEqual(columns, collist)
         datalist = (
             (
-                object_fakes.container_name,
-                object_fakes.container_bytes,
-                object_fakes.container_count,
+                object_fakes.object_name_1,
+                object_fakes.object_bytes_1,
+                object_fakes.object_hash_1,
+                object_fakes.object_content_type_1,
+                object_fakes.object_modified_1,
             ),
             (
-                object_fakes.container_name_3,
-                object_fakes.container_bytes * 3,
-                object_fakes.container_count * 3,
+                object_fakes.object_name_2,
+                object_fakes.object_bytes_2,
+                object_fakes.object_hash_2,
+                object_fakes.object_content_type_2,
+                object_fakes.object_modified_2,
             ),
         )
         self.assertEqual(tuple(data), datalist)
 
-    def test_object_list_containers_all(self, c_mock):
-        c_mock.return_value = [
-            copy.deepcopy(object_fakes.CONTAINER),
-            copy.deepcopy(object_fakes.CONTAINER_2),
-            copy.deepcopy(object_fakes.CONTAINER_3),
+    def test_object_list_objects_all(self, o_mock):
+        o_mock.return_value = [
+            copy.deepcopy(object_fakes.OBJECT),
+            copy.deepcopy(object_fakes.OBJECT_2),
         ]
 
         arglist = [
             '--all',
+            object_fakes.container_name,
         ]
         verifylist = [
             ('all', True),
+            ('container', object_fakes.container_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -299,41 +346,43 @@ class TestContainerList(TestObject):
         kwargs = {
             'full_listing': True,
         }
-        c_mock.assert_called_with(
+        o_mock.assert_called_with(
             self.app.restapi,
             AUTH_URL,
+            object_fakes.container_name,
             **kwargs
         )
 
         collist = ('Name',)
         self.assertEqual(columns, collist)
         datalist = (
-            (object_fakes.container_name, ),
-            (object_fakes.container_name_2, ),
-            (object_fakes.container_name_3, ),
+            (object_fakes.object_name_1, ),
+            (object_fakes.object_name_2, ),
         )
         self.assertEqual(tuple(data), datalist)
 
 
 @mock.patch(
-    'openstackclient.object.v1.container.lib_container.show_container'
+    'openstackclient.object.v1.object.lib_object.show_object'
 )
-class TestContainerShow(TestObject):
+class TestObjectShow(TestObject):
 
     def setUp(self):
-        super(TestContainerShow, self).setUp()
+        super(TestObjectShow, self).setUp()
 
         # Get the command object to test
-        self.cmd = container.ShowContainer(self.app, None)
+        self.cmd = obj.ShowObject(self.app, None)
 
-    def test_container_show(self, c_mock):
-        c_mock.return_value = copy.deepcopy(object_fakes.CONTAINER)
+    def test_object_show(self, c_mock):
+        c_mock.return_value = copy.deepcopy(object_fakes.OBJECT)
 
         arglist = [
             object_fakes.container_name,
+            object_fakes.object_name_1,
         ]
         verifylist = [
             ('container', object_fakes.container_name),
+            ('object', object_fakes.object_name_1),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -348,14 +397,17 @@ class TestContainerShow(TestObject):
             self.app.restapi,
             AUTH_URL,
             object_fakes.container_name,
+            object_fakes.object_name_1,
             **kwargs
         )
 
-        collist = ('bytes', 'count', 'name')
+        collist = ('bytes', 'content_type', 'hash', 'last_modified', 'name')
         self.assertEqual(columns, collist)
         datalist = (
-            object_fakes.container_bytes,
-            object_fakes.container_count,
-            object_fakes.container_name,
+            object_fakes.object_bytes_1,
+            object_fakes.object_content_type_1,
+            object_fakes.object_hash_1,
+            object_fakes.object_modified_1,
+            object_fakes.object_name_1,
         )
         self.assertEqual(data, datalist)

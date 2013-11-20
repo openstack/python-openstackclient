@@ -13,19 +13,34 @@
 #   under the License.
 #
 
-from openstackclient.tests.identity.v2_0 import fakes
+import mock
+
+from openstackclient.tests import fakes
 from openstackclient.tests import utils
 
 
-AUTH_TOKEN = "foobar"
-AUTH_URL = "http://0.0.0.0"
+image_id = 'im1'
+image_name = 'graven'
+
+IMAGE = {
+    'id': image_id,
+    'name': image_name
+}
 
 
-class TestIdentityv2(utils.TestCommand):
+class FakeImagev2Client(object):
+    def __init__(self, **kwargs):
+        self.images = mock.Mock()
+        self.images.resource_class = fakes.FakeResource(None, {})
+        self.auth_token = kwargs['token']
+        self.management_url = kwargs['endpoint']
+
+
+class TestImagev2(utils.TestCommand):
     def setUp(self):
-        super(TestIdentityv2, self).setUp()
+        super(TestImagev2, self).setUp()
 
-        self.app.client_manager.identity = fakes.FakeIdentityv2Client(
-            endpoint=AUTH_URL,
-            token=AUTH_TOKEN,
+        self.app.client_manager.image = FakeImagev2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
         )

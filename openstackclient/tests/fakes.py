@@ -16,6 +16,10 @@
 import sys
 
 
+AUTH_TOKEN = "foobar"
+AUTH_URL = "http://0.0.0.0"
+
+
 class FakeStdout:
     def __init__(self):
         self.content = []
