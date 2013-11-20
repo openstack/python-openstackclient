@@ -21,10 +21,13 @@ from openstackclient.tests import utils
 
 image_id = 'im1'
 image_name = 'graven'
+image_owner = 'baal'
 
 IMAGE = {
     'id': image_id,
-    'name': image_name
+    'name': image_name,
+    'is_public': False,
+    'owner': image_owner,
 }
 
 

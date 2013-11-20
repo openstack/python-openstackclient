@@ -384,6 +384,73 @@ class CreateServer(show.ShowOne):
         return zip(*sorted(six.iteritems(details)))
 
 
+class CreateServerImage(show.ShowOne):
+    """Create a new disk image from a running server"""
+
+    log = logging.getLogger(__name__ + '.CreateServerImage')
+
+    def get_parser(self, prog_name):
+        parser = super(CreateServerImage, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server',
+            help='Server (name or ID)',
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<image-name>',
+            help='Name of new image (default is server name)',
+        )
+        parser.add_argument(
+            '--wait',
+            action='store_true',
+            help='Wait for image create to complete',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+        compute_client = self.app.client_manager.compute
+        image_client = self.app.client_manager.image
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+        if parsed_args.name:
+            name = parsed_args.name
+        else:
+            name = server.name
+
+        image = compute_client.servers.create_image(
+            server,
+            name,
+        )
+
+        if parsed_args.wait:
+            if utils.wait_for_status(
+                image_client.images.get,
+                image,
+                callback=_show_progress,
+            ):
+                sys.stdout.write('\n')
+            else:
+                self.log.error(
+                    'Error creating server snapshot: %s' %
+                    parsed_args.image_name,
+                )
+                sys.stdout.write('\nError creating server snapshot')
+                raise SystemExit
+
+        image = utils.find_resource(
+            image_client.images,
+            image.id,
+        )
+
+        info = {}
+        info.update(image._info)
+        return zip(*sorted(six.iteritems(info)))
+
+
 class DeleteServer(command.Command):
     """Delete server command"""
 
