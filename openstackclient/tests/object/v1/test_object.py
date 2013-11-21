@@ -16,33 +16,17 @@
 import copy
 import mock
 
-from openstackclient.common import clientmanager
 from openstackclient.object.v1 import object as obj
 from openstackclient.tests.object.v1 import fakes as object_fakes
-from openstackclient.tests import utils
 
 
 AUTH_TOKEN = "foobar"
 AUTH_URL = "http://0.0.0.0"
 
 
-class FakeClient(object):
-    def __init__(self, endpoint=None, **kwargs):
-        self.endpoint = AUTH_URL
-        self.token = AUTH_TOKEN
-
-
-class TestObject(utils.TestCommand):
+class TestObject(object_fakes.TestObjectv1):
     def setUp(self):
         super(TestObject, self).setUp()
-
-        api_version = {"object-store": "1"}
-        self.app.client_manager = clientmanager.ClientManager(
-            token=AUTH_TOKEN,
-            url=AUTH_URL,
-            auth_url=AUTH_URL,
-            api_version=api_version,
-        )
 
 
 class TestObjectClient(TestObject):

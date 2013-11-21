@@ -16,12 +16,10 @@
 """Manage access to the clients, including authenticating when needed."""
 
 import logging
+import pkg_resources
+import sys
 
-from openstackclient.compute import client as compute_client
 from openstackclient.identity import client as identity_client
-from openstackclient.image import client as image_client
-from openstackclient.object import client as object_client
-from openstackclient.volume import client as volume_client
 
 
 LOG = logging.getLogger(__name__)
@@ -42,11 +40,7 @@ class ClientCache(object):
 
 class ClientManager(object):
     """Manages access to API clients, including authentication."""
-    compute = ClientCache(compute_client.make_client)
     identity = ClientCache(identity_client.make_client)
-    image = ClientCache(image_client.make_client)
-    object = ClientCache(object_client.make_client)
-    volume = ClientCache(volume_client.make_client)
 
     def __init__(self, token=None, url=None, auth_url=None, project_name=None,
                  project_id=None, username=None, password=None,
@@ -93,3 +87,26 @@ class ClientManager(object):
             # Hope we were given the correct URL.
             endpoint = self._url
         return endpoint
+
+
+def get_extension_modules(group):
+    """Add extension clients"""
+    mod_list = []
+    for ep in pkg_resources.iter_entry_points(group):
+        LOG.debug('found extension %r' % ep.name)
+
+        __import__(ep.module_name)
+        module = sys.modules[ep.module_name]
+        mod_list.append(module)
+        init_func = getattr(module, 'Initialize', None)
+        if init_func:
+            init_func('x')
+
+        setattr(
+            ClientManager,
+            ep.name,
+            ClientCache(
+                getattr(sys.modules[ep.module_name], 'make_client', None)
+            ),
+        )
+    return mod_list

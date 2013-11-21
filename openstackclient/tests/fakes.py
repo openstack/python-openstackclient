@@ -49,6 +49,7 @@ class FakeClientManager(object):
         self.compute = None
         self.identity = None
         self.image = None
+        self.object = None
         self.volume = None
         self.auth_ref = None
 

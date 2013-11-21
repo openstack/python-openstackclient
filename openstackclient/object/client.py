@@ -21,7 +21,9 @@ from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
 
-API_NAME = 'object-store'
+DEFAULT_OBJECT_API_VERSION = '1'
+API_VERSION_OPTION = 'os_object_api_version'
+API_NAME = 'object'
 API_VERSIONS = {
     '1': 'openstackclient.object.client.ObjectClientv1',
 }
@@ -43,6 +45,20 @@ def make_client(instance):
         token=instance._token,
     )
     return client
+
+
+def build_option_parser(parser):
+    """Hook to add global options"""
+    parser.add_argument(
+        '--os-object-api-version',
+        metavar='<object-api-version>',
+        default=utils.env(
+            'OS_OBJECT_API_VERSION',
+            default=DEFAULT_OBJECT_API_VERSION),
+        help='Object API version, default=' +
+             DEFAULT_OBJECT_API_VERSION +
+             ' (Env: OS_OBJECT_API_VERSION)')
+    return parser
 
 
 class ObjectClientv1(object):

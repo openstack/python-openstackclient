@@ -33,15 +33,11 @@ from openstackclient.common import exceptions as exc
 from openstackclient.common import openstackkeyring
 from openstackclient.common import restapi
 from openstackclient.common import utils
+from openstackclient.identity import client as identity_client
 
 
 KEYRING_SERVICE = 'openstack'
 
-DEFAULT_COMPUTE_API_VERSION = '2'
-DEFAULT_IDENTITY_API_VERSION = '2.0'
-DEFAULT_IMAGE_API_VERSION = '1'
-DEFAULT_OBJECT_API_VERSION = '1'
-DEFAULT_VOLUME_API_VERSION = '1'
 DEFAULT_DOMAIN = 'default'
 
 
@@ -85,6 +81,15 @@ class OpenStackShell(app.App):
 
         # Assume TLS host certificate verification is enabled
         self.verify = True
+
+        # Get list of extension modules
+        self.ext_modules = clientmanager.get_extension_modules(
+            'openstack.cli.extension',
+        )
+
+        # Loop through extensions to get parser additions
+        for mod in self.ext_modules:
+            self.parser = mod.build_option_parser(self.parser)
 
         # NOTE(dtroyer): This hack changes the help action that Cliff
         #                automatically adds to the parser so we can defer
@@ -203,51 +208,6 @@ class OpenStackShell(app.App):
                  DEFAULT_DOMAIN +
                  ' (Env: OS_DEFAULT_DOMAIN)')
         parser.add_argument(
-            '--os-identity-api-version',
-            metavar='<identity-api-version>',
-            default=env(
-                'OS_IDENTITY_API_VERSION',
-                default=DEFAULT_IDENTITY_API_VERSION),
-            help='Identity API version, default=' +
-                 DEFAULT_IDENTITY_API_VERSION +
-                 ' (Env: OS_IDENTITY_API_VERSION)')
-        parser.add_argument(
-            '--os-compute-api-version',
-            metavar='<compute-api-version>',
-            default=env(
-                'OS_COMPUTE_API_VERSION',
-                default=DEFAULT_COMPUTE_API_VERSION),
-            help='Compute API version, default=' +
-                 DEFAULT_COMPUTE_API_VERSION +
-                 ' (Env: OS_COMPUTE_API_VERSION)')
-        parser.add_argument(
-            '--os-image-api-version',
-            metavar='<image-api-version>',
-            default=env(
-                'OS_IMAGE_API_VERSION',
-                default=DEFAULT_IMAGE_API_VERSION),
-            help='Image API version, default=' +
-                 DEFAULT_IMAGE_API_VERSION +
-                 ' (Env: OS_IMAGE_API_VERSION)')
-        parser.add_argument(
-            '--os-object-api-version',
-            metavar='<object-api-version>',
-            default=env(
-                'OS_OBJECT_API_VERSION',
-                default=DEFAULT_OBJECT_API_VERSION),
-            help='Object API version, default=' +
-                 DEFAULT_OBJECT_API_VERSION +
-                 ' (Env: OS_OBJECT_API_VERSION)')
-        parser.add_argument(
-            '--os-volume-api-version',
-            metavar='<volume-api-version>',
-            default=env(
-                'OS_VOLUME_API_VERSION',
-                default=DEFAULT_VOLUME_API_VERSION),
-            help='Volume API version, default=' +
-                 DEFAULT_VOLUME_API_VERSION +
-                 ' (Env: OS_VOLUME_API_VERSION)')
-        parser.add_argument(
             '--os-token',
             metavar='<token>',
             default=env('OS_TOKEN'),
@@ -269,6 +229,16 @@ class OpenStackShell(app.App):
                             action='store_true',
                             help='Use keyring to store password, '
                                  'default=False (Env: OS_USE_KEYRING)')
+
+        parser.add_argument(
+            '--os-identity-api-version',
+            metavar='<identity-api-version>',
+            default=env(
+                'OS_IDENTITY_API_VERSION',
+                default=identity_client.DEFAULT_IDENTITY_API_VERSION),
+            help='Identity API version, default=' +
+                 identity_client.DEFAULT_IDENTITY_API_VERSION +
+                 ' (Env: OS_IDENTITY_API_VERSION)')
 
         return parser
 
@@ -391,17 +361,20 @@ class OpenStackShell(app.App):
 
         # Stash selected API versions for later
         self.api_version = {
-            'compute': self.options.os_compute_api_version,
             'identity': self.options.os_identity_api_version,
-            'image': self.options.os_image_api_version,
-            'object-store': self.options.os_object_api_version,
-            'volume': self.options.os_volume_api_version,
         }
+        # Loop through extensions to get API versions
+        for mod in self.ext_modules:
+            ver = getattr(self.options, mod.API_VERSION_OPTION, None)
+            if ver:
+                self.api_version[mod.API_NAME] = ver
+                self.log.debug('%s API version %s' % (mod.API_NAME, ver))
 
         # Add the API version-specific commands
         for api in self.api_version.keys():
             version = '.v' + self.api_version[api].replace('.', '_')
             cmd_group = 'openstack.' + api.replace('-', '_') + version
+            self.log.debug('command group %s' % cmd_group)
             self.command_manager.add_command_group(cmd_group)
 
         # Commands that span multiple APIs
@@ -420,6 +393,8 @@ class OpenStackShell(app.App):
         # }
         self.command_manager.add_command_group(
             'openstack.extension')
+        # call InitializeXxx() here
+        # set up additional clients to stuff in to client_manager??
 
         # Handle deferred help and exit
         if self.options.deferred_help:

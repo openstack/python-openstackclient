@@ -13,6 +13,10 @@
 #   under the License.
 #
 
+from openstackclient.tests import fakes
+from openstackclient.tests import utils
+
+
 container_name = 'bit-bucket'
 container_bytes = 1024
 container_count = 1
@@ -65,3 +69,19 @@ OBJECT_2 = {
     'content_type': object_content_type_2,
     'last_modified': object_modified_2,
 }
+
+
+class FakeObjectv1Client(object):
+    def __init__(self, **kwargs):
+        self.endpoint = kwargs['endpoint']
+        self.token = kwargs['token']
+
+
+class TestObjectv1(utils.TestCommand):
+    def setUp(self):
+        super(TestObjectv1, self).setUp()
+
+        self.app.client_manager.object = FakeObjectv1Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )

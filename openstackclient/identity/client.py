@@ -21,6 +21,8 @@ from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
 
+DEFAULT_IDENTITY_API_VERSION = '2.0'
+API_VERSION_OPTION = 'os_identity_api_version'
 API_NAME = 'identity'
 API_VERSIONS = {
     '2.0': 'openstackclient.identity.client.IdentityClientv2_0',

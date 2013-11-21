@@ -19,8 +19,7 @@ import mock
 
 from openstackclient.object.v1.lib import object as lib_object
 from openstackclient.tests.common import test_restapi as restapi
-from openstackclient.tests import fakes
-from openstackclient.tests import utils
+from openstackclient.tests.object.v1 import fakes as object_fakes
 
 
 fake_account = 'q12we34r'
@@ -37,12 +36,10 @@ class FakeClient(object):
         self.token = fake_auth
 
 
-class TestObject(utils.TestCommand):
+class TestObject(object_fakes.TestObjectv1):
 
     def setUp(self):
         super(TestObject, self).setUp()
-        self.app.client_manager = fakes.FakeClientManager()
-        self.app.client_manager.object = FakeClient()
         self.app.restapi = mock.MagicMock()
 
 
@@ -54,7 +51,7 @@ class TestObjectListObjects(TestObject):
 
         data = lib_object.list_objects(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             fake_container,
         )
 
@@ -71,7 +68,7 @@ class TestObjectListObjects(TestObject):
 
         data = lib_object.list_objects(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             fake_container,
             marker='next',
         )
@@ -89,7 +86,7 @@ class TestObjectListObjects(TestObject):
 
         data = lib_object.list_objects(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             fake_container,
             limit=5,
         )
@@ -107,7 +104,7 @@ class TestObjectListObjects(TestObject):
 
         data = lib_object.list_objects(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             fake_container,
             end_marker='last',
         )
@@ -125,7 +122,7 @@ class TestObjectListObjects(TestObject):
 
         data = lib_object.list_objects(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             fake_container,
             delimiter='|',
         )
@@ -146,7 +143,7 @@ class TestObjectListObjects(TestObject):
 
         data = lib_object.list_objects(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             fake_container,
             prefix='foo/',
         )
@@ -164,7 +161,7 @@ class TestObjectListObjects(TestObject):
 
         data = lib_object.list_objects(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             fake_container,
             path='next',
         )
@@ -192,7 +189,7 @@ class TestObjectListObjects(TestObject):
 
         data = lib_object.list_objects(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             fake_container,
             full_listing=True,
         )
@@ -216,7 +213,7 @@ class TestObjectShowObjects(TestObject):
 
         data = lib_object.show_object(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             fake_container,
             fake_object,
         )
@@ -250,7 +247,7 @@ class TestObjectShowObjects(TestObject):
 
         data = lib_object.show_object(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             fake_container,
             fake_object,
         )

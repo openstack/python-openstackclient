@@ -19,8 +19,7 @@ import mock
 
 from openstackclient.object.v1.lib import container as lib_container
 from openstackclient.tests.common import test_restapi as restapi
-from openstackclient.tests import fakes
-from openstackclient.tests import utils
+from openstackclient.tests.object.v1 import fakes as object_fakes
 
 
 fake_account = 'q12we34r'
@@ -36,12 +35,10 @@ class FakeClient(object):
         self.token = fake_auth
 
 
-class TestContainer(utils.TestCommand):
+class TestContainer(object_fakes.TestObjectv1):
 
     def setUp(self):
         super(TestContainer, self).setUp()
-        self.app.client_manager = fakes.FakeClientManager()
-        self.app.client_manager.object = FakeClient()
         self.app.restapi = mock.MagicMock()
 
 
@@ -53,7 +50,7 @@ class TestContainerList(TestContainer):
 
         data = lib_container.list_containers(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
         )
 
         # Check expected values
@@ -69,7 +66,7 @@ class TestContainerList(TestContainer):
 
         data = lib_container.list_containers(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             marker='next',
         )
 
@@ -86,7 +83,7 @@ class TestContainerList(TestContainer):
 
         data = lib_container.list_containers(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             limit=5,
         )
 
@@ -103,7 +100,7 @@ class TestContainerList(TestContainer):
 
         data = lib_container.list_containers(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             end_marker='last',
         )
 
@@ -120,7 +117,7 @@ class TestContainerList(TestContainer):
 
         data = lib_container.list_containers(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             prefix='foo/',
         )
 
@@ -147,7 +144,7 @@ class TestContainerList(TestContainer):
 
         data = lib_container.list_containers(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             full_listing=True,
         )
 
@@ -171,7 +168,7 @@ class TestContainerShow(TestContainer):
 
         data = lib_container.show_container(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            fake_url,
             'is-name',
         )
 
