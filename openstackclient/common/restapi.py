@@ -25,14 +25,15 @@ except ImportError:
     from urllib import urlencode
 
 
+USER_AGENT = 'RAPI'
+
 _logger = logging.getLogger(__name__)
 
 
 class RESTApi(object):
-    """A REST api client that handles the interface from us to the server
+    """A REST API client that handles the interface from us to the server
 
-    RESTApi is an extension of a requests.Session that knows
-    how to do:
+    RESTApi is requests.Session wrapper that knows how to do:
     * JSON serialization/deserialization
     * log requests in 'curl' format
     * basic API boilerplate for create/delete/list/set/show verbs
@@ -46,26 +47,49 @@ class RESTApi(object):
     it communicates with, such as the available endpoints, API versions, etc.
     """
 
-    USER_AGENT = 'RAPI'
-
     def __init__(
         self,
-        os_auth=None,
+        session=None,
+        auth_header=None,
         user_agent=USER_AGENT,
-        debug=None,
         verify=True,
-        **kwargs
+        logger=None,
+        debug=None,
     ):
-        self.set_auth(os_auth)
+        """Construct a new REST client
+
+        :param object session: A Session object to be used for
+                               communicating with the identity service.
+        :param string auth_header: A token from an initialized auth_reference
+                                   to be used in the X-Auth-Token header
+        :param string user_agent: Set the User-Agent header in the requests
+        :param boolean/string verify: If ``True``, the SSL cert will be
+                                      verified. A CA_BUNDLE path can also be
+                                      provided.
+        :param logging.Logger logger: A logger to output to. (optional)
+        :param boolean debug: Enables debug logging of all request and
+                              responses to identity service.
+                              default False (optional)
+        """
+
+        self.set_auth(auth_header)
         self.debug = debug
-        self.session = requests.Session(**kwargs)
 
-        self.set_header('User-Agent', user_agent)
-        self.set_header('Content-Type', 'application/json')
+        if not session:
+            # We create a default session object
+            session = requests.Session()
+        self.session = session
+        self.session.verify = verify
+        self.session.user_agent = user_agent
 
-    def set_auth(self, os_auth):
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = _logger
+
+    def set_auth(self, auth_header):
         """Sets the current auth blob"""
-        self.os_auth = os_auth
+        self.auth_header = auth_header
 
     def set_header(self, header, content):
         """Sets passed in headers into the session headers
@@ -78,37 +102,154 @@ class RESTApi(object):
             self.session.headers[header] = content
 
     def request(self, method, url, **kwargs):
-        if self.os_auth:
-            self.session.headers.setdefault('X-Auth-Token', self.os_auth)
-        if 'data' in kwargs and isinstance(kwargs['data'], type({})):
-            kwargs['data'] = json.dumps(kwargs['data'])
-        log_request(method, url, headers=self.session.headers, **kwargs)
+        """Make an authenticated (if token available) request
+
+        :param method: Request HTTP method
+        :param url: Request URL
+        :param data: Request body
+        :param json: Request body to be encoded as JSON
+                     Overwrites ``data`` argument if present
+        """
+
+        kwargs.setdefault('headers', {})
+        if self.auth_header:
+            kwargs['headers']['X-Auth-Token'] = self.auth_header
+
+        if 'json' in kwargs and isinstance(kwargs['json'], type({})):
+            kwargs['data'] = json.dumps(kwargs.pop('json'))
+            kwargs['headers']['Content-Type'] = 'application/json'
+
+        kwargs.setdefault('allow_redirects', True)
+
+        if self.debug:
+            self._log_request(method, url, **kwargs)
+
         response = self.session.request(method, url, **kwargs)
-        log_response(response)
+
+        if self.debug:
+            self._log_response(response)
+
         return self._error_handler(response)
 
+    def _error_handler(self, response):
+        if response.status_code < 200 or response.status_code >= 300:
+            self.logger.debug(
+                "ERROR: %s",
+                response.text,
+            )
+            response.raise_for_status()
+        return response
+
+    # Convenience methods to mimic the ones provided by requests.Session
+
+    def delete(self, url, **kwargs):
+        """Send a DELETE request. Returns :class:`requests.Response` object.
+
+        :param url: Request URL
+        :param \*\*kwargs: Optional arguments passed to ``request``
+        """
+
+        return self.request('DELETE', url, **kwargs)
+
+    def get(self, url, **kwargs):
+        """Send a GET request. Returns :class:`requests.Response` object.
+
+        :param url: Request URL
+        :param \*\*kwargs: Optional arguments passed to ``request``
+        """
+
+        return self.request('GET', url, **kwargs)
+
+    def head(self, url, **kwargs):
+        """Send a HEAD request. Returns :class:`requests.Response` object.
+
+        :param url: Request URL
+        :param \*\*kwargs: Optional arguments passed to ``request``
+        """
+
+        kwargs.setdefault('allow_redirects', False)
+        return self.request('HEAD', url, **kwargs)
+
+    def options(self, url, **kwargs):
+        """Send an OPTIONS request. Returns :class:`requests.Response` object.
+
+        :param url: Request URL
+        :param \*\*kwargs: Optional arguments passed to ``request``
+        """
+
+        return self.request('OPTIONS', url, **kwargs)
+
+    def patch(self, url, data=None, json=None, **kwargs):
+        """Send a PUT request. Returns :class:`requests.Response` object.
+
+        :param url: Request URL
+        :param data: Request body
+        :param json: Request body to be encoded as JSON
+                     Overwrites ``data`` argument if present
+        :param \*\*kwargs: Optional arguments passed to ``request``
+        """
+
+        return self.request('PATCH', url, data=data, json=json, **kwargs)
+
+    def post(self, url, data=None, json=None, **kwargs):
+        """Send a POST request. Returns :class:`requests.Response` object.
+
+        :param url: Request URL
+        :param data: Request body
+        :param json: Request body to be encoded as JSON
+                     Overwrites ``data`` argument if present
+        :param \*\*kwargs: Optional arguments passed to ``request``
+        """
+
+        return self.request('POST', url, data=data, json=json, **kwargs)
+
+    def put(self, url, data=None, json=None, **kwargs):
+        """Send a PUT request. Returns :class:`requests.Response` object.
+
+        :param url: Request URL
+        :param data: Request body
+        :param json: Request body to be encoded as JSON
+                     Overwrites ``data`` argument if present
+        :param \*\*kwargs: Optional arguments passed to ``request``
+        """
+
+        return self.request('PUT', url, data=data, json=json, **kwargs)
+
+    # Command verb methods
+
     def create(self, url, data=None, response_key=None, **kwargs):
-        response = self.request('POST', url, data=data, **kwargs)
+        """Create a new object via a POST request
+
+        :param url: Request URL
+        :param data: Request body, wil be JSON encoded
+        :param response_key: Dict key in response body to extract
+        :param \*\*kwargs: Optional arguments passed to ``request``
+        """
+
+        response = self.request('POST', url, json=data, **kwargs)
         if response_key:
             return response.json()[response_key]
         else:
             return response.json()
 
-        #with self.completion_cache('human_id', self.resource_class, mode="a"):
-        #    with self.completion_cache('uuid', self.resource_class, mode="a"):
-        #        return self.resource_class(self, body[response_key])
-
-    def delete(self, url):
-        self.request('DELETE', url)
-
     def list(self, url, data=None, response_key=None, **kwargs):
+        """Retrieve a list of objects via a GET or POST request
+
+        :param url: Request URL
+        :param data: Request body, will be JSON encoded
+        :param response_key: Dict key in response body to extract
+        :param \*\*kwargs: Optional arguments passed to ``request``
+        """
+
         if data:
-            response = self.request('POST', url, data=data, **kwargs)
+            response = self.request('POST', url, json=data, **kwargs)
         else:
-            kwargs.setdefault('allow_redirects', True)
             response = self.request('GET', url, **kwargs)
 
-        return response.json()[response_key]
+        if response_key:
+            return response.json()[response_key]
+        else:
+            return response.json()
 
         ###hack this for keystone!!!
         #data = body[response_key]
@@ -120,70 +261,70 @@ class RESTApi(object):
         #    except KeyError:
         #        pass
 
-        #with self.completion_cache('human_id', obj_class, mode="w"):
-        #    with self.completion_cache('uuid', obj_class, mode="w"):
-        #        return [obj_class(self, res, loaded=True)
-        #                for res in data if res]
-
     def set(self, url, data=None, response_key=None, **kwargs):
-        response = self.request('PUT', url, data=data)
+        """Update an object via a PUT request
+
+        :param url: Request URL
+        :param data: Request body
+        :param json: Request body to be encoded as JSON
+                     Overwrites ``data`` argument if present
+        :param \*\*kwargs: Optional arguments passed to ``request``
+        """
+
+        response = self.request('PUT', url, json=data)
         if data:
             if response_key:
                 return response.json()[response_key]
             else:
                 return response.json()
         else:
+            # Nothing to do here
             return None
 
     def show(self, url, response_key=None, **kwargs):
+        """Retrieve a single object via a GET request
+
+        :param url: Request URL
+        :param response_key: Dict key in response body to extract
+        :param \*\*kwargs: Optional arguments passed to ``request``
+        """
+
         response = self.request('GET', url, **kwargs)
         if response_key:
             return response.json()[response_key]
         else:
             return response.json()
 
-    def _error_handler(self, response):
-        if response.status_code < 200 or response.status_code >= 300:
-            _logger.debug(
-                "ERROR: %s",
+    def _log_request(self, method, url, **kwargs):
+        if 'params' in kwargs and kwargs['params'] != {}:
+            url += '?' + urlencode(kwargs['params'])
+
+        string_parts = [
+            "curl -i",
+            "-X '%s'" % method,
+            "'%s'" % url,
+        ]
+
+        for element in kwargs['headers']:
+            header = " -H '%s: %s'" % (element, kwargs['headers'][element])
+            string_parts.append(header)
+
+        self.logger.debug("REQ: %s" % " ".join(string_parts))
+        if 'data' in kwargs:
+            self.logger.debug("  REQ BODY: %r\n" % (kwargs['data']))
+
+    def _log_response(self, response):
+        self.logger.debug(
+            "RESP: [%s] %r\n",
+            response.status_code,
+            response.headers,
+        )
+        if response._content_consumed:
+            self.logger.debug(
+                "  RESP BODY: %s\n",
                 response.text,
             )
-            response.raise_for_status()
-        return response
-
-
-def log_request(method, url, **kwargs):
-    # put in an early exit if debugging is not enabled?
-    if 'params' in kwargs and kwargs['params'] != {}:
-        url += '?' + urlencode(kwargs['params'])
-
-    string_parts = [
-        "curl -i",
-        "-X '%s'" % method,
-        "'%s'" % url,
-    ]
-
-    for element in kwargs['headers']:
-        header = " -H '%s: %s'" % (element, kwargs['headers'][element])
-        string_parts.append(header)
-
-    _logger.debug("REQ: %s" % " ".join(string_parts))
-    if 'data' in kwargs:
-        _logger.debug("REQ BODY: %s\n" % (kwargs['data']))
-
-
-def log_response(response):
-    _logger.debug(
-        "RESP: [%s] %s\n",
-        response.status_code,
-        response.headers,
-    )
-    if response._content_consumed:
-        _logger.debug(
-            "RESP BODY: %s\n",
-            response.text,
+        self.logger.debug(
+            "  encoding: %s",
+            response.encoding,
         )
-    _logger.debug(
-        "encoding: %s",
-        response.encoding,
-    )

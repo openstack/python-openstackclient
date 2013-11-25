@@ -23,6 +23,8 @@ import requests
 from openstackclient.common import restapi
 from openstackclient.tests import utils
 
+fake_user_agent = 'test_rapi'
+
 fake_auth = '11223344556677889900'
 fake_url = 'http://gopher.com'
 fake_key = 'gopher'
@@ -47,6 +49,9 @@ fake_gopher_list = {
             fake_gopher_tosh,
         ]
 }
+fake_headers = {
+    'User-Agent': fake_user_agent,
+}
 
 
 class FakeResponse(requests.Response):
@@ -68,11 +73,15 @@ class TestRESTApi(utils.TestCase):
             request=mock.MagicMock(return_value=resp),
         )
 
-        api = restapi.RESTApi()
+        api = restapi.RESTApi(
+            user_agent=fake_user_agent,
+        )
         gopher = api.request('GET', fake_url)
         session_mock.return_value.request.assert_called_with(
             'GET',
             fake_url,
+            headers={},
+            allow_redirects=True,
         )
         self.assertEqual(gopher.status_code, 200)
         self.assertEqual(gopher.json(), fake_gopher_single)
@@ -83,11 +92,15 @@ class TestRESTApi(utils.TestCase):
             request=mock.MagicMock(return_value=resp),
         )
 
-        api = restapi.RESTApi()
+        api = restapi.RESTApi(
+            user_agent=fake_user_agent,
+        )
         gopher = api.request('GET', fake_url)
         session_mock.return_value.request.assert_called_with(
             'GET',
             fake_url,
+            headers={},
+            allow_redirects=True,
         )
         self.assertEqual(gopher.status_code, 300)
         self.assertEqual(gopher.json(), fake_gopher_single)
@@ -98,11 +111,15 @@ class TestRESTApi(utils.TestCase):
             request=mock.MagicMock(return_value=resp),
         )
 
-        api = restapi.RESTApi()
+        api = restapi.RESTApi(
+            user_agent=fake_user_agent,
+        )
         self.assertRaises(requests.HTTPError, api.request, 'GET', fake_url)
         session_mock.return_value.request.assert_called_with(
             'GET',
             fake_url,
+            headers={},
+            allow_redirects=True,
         )
 
     def test_request_get_auth(self, session_mock):
@@ -112,50 +129,24 @@ class TestRESTApi(utils.TestCase):
             headers=mock.MagicMock(return_value={}),
         )
 
-        api = restapi.RESTApi(os_auth=fake_auth)
-        gopher = api.request('GET', fake_url)
-        session_mock.return_value.headers.setdefault.assert_called_with(
-            'X-Auth-Token',
-            fake_auth,
+        api = restapi.RESTApi(
+            auth_header=fake_auth,
+            user_agent=fake_user_agent,
         )
+        gopher = api.request('GET', fake_url)
+        #session_mock.return_value.headers.setdefault.assert_called_with(
+        #    'X-Auth-Token',
+        #    fake_auth,
+        #)
         session_mock.return_value.request.assert_called_with(
             'GET',
             fake_url,
+            headers={
+                'X-Auth-Token': fake_auth,
+            },
+            allow_redirects=True,
         )
         self.assertEqual(gopher.json(), fake_gopher_single)
-
-    def test_request_get_header(self, session_mock):
-        resp = FakeResponse(data=fake_gopher_single)
-        session_mock.return_value = mock.MagicMock(
-            request=mock.MagicMock(return_value=resp),
-            headers=mock.MagicMock(return_value={}),
-        )
-
-        api = restapi.RESTApi(user_agent='fake_agent')
-        api.set_header('X-Fake-Header', 'wb')
-        gopher = api.request('GET', fake_url)
-        session_mock.return_value.headers.__setitem__.assert_any_call(
-            'Content-Type',
-            'application/json',
-        )
-        session_mock.return_value.headers.__setitem__.assert_any_call(
-            'User-Agent',
-            'fake_agent',
-        )
-        session_mock.return_value.headers.__setitem__.assert_any_call(
-            'X-Fake-Header',
-            'wb',
-        )
-        session_mock.return_value.request.assert_called_with(
-            'GET',
-            fake_url,
-        )
-        self.assertEqual(gopher.json(), fake_gopher_single)
-
-        api.set_header('X-Fake-Header', None)
-        session_mock.return_value.headers.__delitem__.assert_any_call(
-            'X-Fake-Header',
-        )
 
     def test_request_post(self, session_mock):
         resp = FakeResponse(data=fake_gopher_single)
@@ -163,15 +154,42 @@ class TestRESTApi(utils.TestCase):
             request=mock.MagicMock(return_value=resp),
         )
 
-        api = restapi.RESTApi()
+        api = restapi.RESTApi(
+            user_agent=fake_user_agent,
+        )
         data = fake_gopher_tosh
-        gopher = api.request('POST', fake_url, data=data)
+        gopher = api.request('POST', fake_url, json=data)
         session_mock.return_value.request.assert_called_with(
             'POST',
             fake_url,
+            headers={
+                'Content-Type': 'application/json',
+            },
+            allow_redirects=True,
             data=json.dumps(data),
         )
         self.assertEqual(gopher.json(), fake_gopher_single)
+
+    # Methods
+    # TODO(dtroyer): add the other method methods
+
+    def test_delete(self, session_mock):
+        resp = FakeResponse(status_code=200, data=None)
+        session_mock.return_value = mock.MagicMock(
+            request=mock.MagicMock(return_value=resp),
+        )
+
+        api = restapi.RESTApi()
+        gopher = api.delete(fake_url)
+        session_mock.return_value.request.assert_called_with(
+            'DELETE',
+            fake_url,
+            headers=mock.ANY,
+            allow_redirects=True,
+        )
+        self.assertEqual(gopher.status_code, 200)
+
+    # Commands
 
     def test_create(self, session_mock):
         resp = FakeResponse(data=fake_gopher_single)
@@ -187,6 +205,8 @@ class TestRESTApi(utils.TestCase):
         session_mock.return_value.request.assert_called_with(
             'POST',
             fake_url,
+            headers=mock.ANY,
+            allow_redirects=True,
             data=json.dumps(data),
         )
         self.assertEqual(gopher, fake_gopher_single)
@@ -196,23 +216,11 @@ class TestRESTApi(utils.TestCase):
         session_mock.return_value.request.assert_called_with(
             'POST',
             fake_url,
+            headers=mock.ANY,
+            allow_redirects=True,
             data=json.dumps(data),
         )
         self.assertEqual(gopher, fake_gopher_mac)
-
-    def test_delete(self, session_mock):
-        resp = FakeResponse(data=None)
-        session_mock.return_value = mock.MagicMock(
-            request=mock.MagicMock(return_value=resp),
-        )
-
-        api = restapi.RESTApi()
-        gopher = api.delete(fake_url)
-        session_mock.return_value.request.assert_called_with(
-            'DELETE',
-            fake_url,
-        )
-        self.assertEqual(gopher, None)
 
     def test_list(self, session_mock):
         resp = FakeResponse(data=fake_gopher_list)
@@ -226,6 +234,7 @@ class TestRESTApi(utils.TestCase):
         session_mock.return_value.request.assert_called_with(
             'GET',
             fake_url,
+            headers=mock.ANY,
             allow_redirects=True,
         )
         self.assertEqual(gopher, [fake_gopher_mac, fake_gopher_tosh])
@@ -237,6 +246,8 @@ class TestRESTApi(utils.TestCase):
         session_mock.return_value.request.assert_called_with(
             'POST',
             fake_url,
+            headers=mock.ANY,
+            allow_redirects=True,
             data=json.dumps(data),
         )
         self.assertEqual(gopher, [fake_gopher_mac, fake_gopher_tosh])
@@ -248,6 +259,7 @@ class TestRESTApi(utils.TestCase):
         session_mock.return_value.request.assert_called_with(
             'GET',
             fake_url,
+            headers=mock.ANY,
             allow_redirects=True,
             params=params,
         )
@@ -270,7 +282,9 @@ class TestRESTApi(utils.TestCase):
         session_mock.return_value.request.assert_called_with(
             'PUT',
             fake_url,
-            data=None,
+            headers=mock.ANY,
+            allow_redirects=True,
+            json=None,
         )
         self.assertEqual(gopher, None)
 
@@ -279,6 +293,8 @@ class TestRESTApi(utils.TestCase):
         session_mock.return_value.request.assert_called_with(
             'PUT',
             fake_url,
+            headers=mock.ANY,
+            allow_redirects=True,
             data=json.dumps(data),
         )
         self.assertEqual(gopher, fake_gopher_single)
@@ -291,6 +307,8 @@ class TestRESTApi(utils.TestCase):
         session_mock.return_value.request.assert_called_with(
             'PUT',
             fake_url,
+            headers=mock.ANY,
+            allow_redirects=True,
             data=json.dumps(data),
         )
         self.assertEqual(gopher, fake_gopher_mac)
@@ -308,6 +326,8 @@ class TestRESTApi(utils.TestCase):
         session_mock.return_value.request.assert_called_with(
             'GET',
             fake_url,
+            headers=mock.ANY,
+            allow_redirects=True,
         )
         self.assertEqual(gopher, fake_gopher_single)
 
@@ -316,5 +336,7 @@ class TestRESTApi(utils.TestCase):
         session_mock.return_value.request.assert_called_with(
             'GET',
             fake_url,
+            headers=mock.ANY,
+            allow_redirects=True,
         )
         self.assertEqual(gopher, fake_gopher_mac)

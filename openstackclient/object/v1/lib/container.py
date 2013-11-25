@@ -67,19 +67,18 @@ def list_containers(
                 data.extend(listing)
         return data
 
-    object_url = url
-    query = "format=json"
+    params = {
+        'format': 'json',
+    }
     if marker:
-        query += '&marker=%s' % marker
+        params['marker'] = marker
     if limit:
-        query += '&limit=%d' % limit
+        params['limit'] = limit
     if end_marker:
-        query += '&end_marker=%s' % end_marker
+        params['end_marker'] = end_marker
     if prefix:
-        query += '&prefix=%s' % prefix
-    url = "%s?%s" % (object_url, query)
-    response = api.request('GET', url)
-    return response.json()
+        params['prefix'] = prefix
+    return api.list(url, params=params)
 
 
 def show_container(
@@ -95,9 +94,8 @@ def show_container(
     :returns: dict of returned headers
     """
 
-    object_url = "%s/%s" % (url, container)
+    response = api.head("%s/%s" % (url, container))
     url_parts = urlparse(url)
-    response = api.request('HEAD', object_url)
     data = {
         'account': url_parts.path.split('/')[-1],
         'container': container,
