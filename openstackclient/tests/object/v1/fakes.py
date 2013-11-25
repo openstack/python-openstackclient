@@ -81,7 +81,7 @@ class TestObjectv1(utils.TestCommand):
     def setUp(self):
         super(TestObjectv1, self).setUp()
 
-        self.app.client_manager.object = FakeObjectv1Client(
+        self.app.client_manager.object_store = FakeObjectv1Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )

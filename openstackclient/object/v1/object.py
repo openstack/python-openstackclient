@@ -108,7 +108,7 @@ class ListObject(lister.Lister):
 
         data = lib_object.list_objects(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            self.app.client_manager.object_store.endpoint,
             parsed_args.container,
             **kwargs
         )
@@ -144,7 +144,7 @@ class ShowObject(show.ShowOne):
 
         data = lib_object.show_object(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            self.app.client_manager.object_store.endpoint,
             parsed_args.container,
             parsed_args.object,
         )

@@ -32,8 +32,14 @@ class TestObject(object_fakes.TestObjectv1):
 class TestObjectClient(TestObject):
 
     def test_make_client(self):
-        self.assertEqual(self.app.client_manager.object.endpoint, AUTH_URL)
-        self.assertEqual(self.app.client_manager.object.token, AUTH_TOKEN)
+        self.assertEqual(
+            self.app.client_manager.object_store.endpoint,
+            AUTH_URL,
+        )
+        self.assertEqual(
+            self.app.client_manager.object_store.token,
+            AUTH_TOKEN,
+        )
 
 
 @mock.patch(

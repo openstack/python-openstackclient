@@ -90,7 +90,7 @@ class ListContainer(lister.Lister):
 
         data = lib_container.list_containers(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            self.app.client_manager.object_store.endpoint,
             **kwargs
         )
 
@@ -120,7 +120,7 @@ class ShowContainer(show.ShowOne):
 
         data = lib_container.show_container(
             self.app.restapi,
-            self.app.client_manager.object.endpoint,
+            self.app.client_manager.object_store.endpoint,
             parsed_args.container,
         )
 

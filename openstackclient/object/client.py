@@ -23,7 +23,7 @@ LOG = logging.getLogger(__name__)
 
 DEFAULT_OBJECT_API_VERSION = '1'
 API_VERSION_OPTION = 'os_object_api_version'
-API_NAME = 'object'
+API_NAME = 'object-store'
 API_VERSIONS = {
     '1': 'openstackclient.object.client.ObjectClientv1',
 }
