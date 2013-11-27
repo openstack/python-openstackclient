@@ -122,7 +122,7 @@ class OpenStackShell(app.App):
 
     def run(self, argv):
         try:
-            super(OpenStackShell, self).run(argv)
+            return super(OpenStackShell, self).run(argv)
         except Exception as e:
             if not logging.getLogger('').handlers:
                 logging.basicConfig()
