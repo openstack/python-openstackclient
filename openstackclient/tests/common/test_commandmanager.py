@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack, LLC.
+#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -40,9 +40,11 @@ class FakeCommandManager(commandmanager.CommandManager):
         if not group:
             self.commands['one'] = FAKE_CMD_ONE
             self.commands['two'] = FAKE_CMD_TWO
+            self.group_list.append(self.namespace)
         else:
             self.commands['alpha'] = FAKE_CMD_ALPHA
             self.commands['beta'] = FAKE_CMD_BETA
+            self.group_list.append(group)
 
 
 class TestCommandManager(utils.TestCase):
@@ -69,3 +71,18 @@ class TestCommandManager(utils.TestCase):
         # Ensure that the original commands were not overwritten
         cmd_two, name, args = mgr.find_command(['two'])
         self.assertEqual(cmd_two, FAKE_CMD_TWO)
+
+    def test_get_command_groups(self):
+        mgr = FakeCommandManager('test')
+
+        # Make sure add_command() still functions
+        mock_cmd_one = mock.Mock()
+        mgr.add_command('mock', mock_cmd_one)
+        cmd_mock, name, args = mgr.find_command(['mock'])
+        self.assertEqual(cmd_mock, mock_cmd_one)
+
+        # Load another command group
+        mgr.add_command_group('latin')
+
+        gl = mgr.get_command_groups()
+        self.assertEqual(['test', 'latin'], gl)
