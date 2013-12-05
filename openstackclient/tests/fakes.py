@@ -54,6 +54,12 @@ class FakeClientManager(object):
         self.auth_ref = None
 
 
+class FakeModule(object):
+    def __init__(self, name, version):
+        self.name = name
+        self.__version__ = version
+
+
 class FakeResource(object):
     def __init__(self, manager, info, loaded=False):
         self.manager = manager
