@@ -1,7 +1,8 @@
-=========
+====================
 :program:`openstack`
-=========
+====================
 
+OpenStack Command Line
 
 SYNOPSIS
 ========
@@ -10,6 +11,7 @@ SYNOPSIS
 
 :program:`openstack help` <command>
 
+:program:`openstack` --help
 
 
 DESCRIPTION
@@ -21,9 +23,8 @@ a distinct and consistent command structure.
 
 :program:`openstack` uses a similar authentication scheme as the OpenStack project CLIs, with
 the credential information supplied either as environment variables or as options on the
-command line.  The primary difference is a preference for using
-``OS_PROJECT_NAME``/``OS_PROJECT_ID`` over the old tenant-based names.  The old names work
-for now though.
+command line.  The primary difference is the use of 'project' in the name of the options
+``OS_PROJECT_NAME``/``OS_PROJECT_ID`` over the old tenant-based names.
 
 ::
 
@@ -57,7 +58,22 @@ OPTIONS
     Authentication region name
 
 :option:`--os-default-domain <auth-domain>`
-    Default domain ID (defaults to 'default')
+    Default domain ID (Default: 'default')
+
+:options:`--os-use-keyring`
+    Use keyring to store password (default: False)
+
+:option:`--os-cacert <ca-bundle-file>`
+    CA certificate bundle file
+
+:option:`--verify|--insecure`
+    Verify or ignore server certificate (default: verify)
+
+:option:`--os-identity-api-version <identity-api-version>`
+    Identity API version (Default: 2.0)
+
+:option:`--os-XXXX-api-version <XXXX-api-version>`
+    Additional API version options will be presend depending on the installed API libraries.
 
 
 NOTES
@@ -78,6 +94,35 @@ To get a description of a specific command::
     openstack help <command>
 
 
+:option:`complete`
+    Print the bash completion functions for the current command set.
+
+:option:`help <command>`
+    Print help for an individual command
+
+
+EXAMPLES
+========
+
+Show the detailed information for server ``appweb01``::
+
+    openstack --os-tenant-name ExampleCo --os-username demo --os-password secrete --os-auth-url http://localhost:5000:/v2.0 server show appweb01
+
+The same command if the auth environment variables (:envvar:`OS_AUTH_URL`, :envvar:`OS_PROJECT_NAME`,
+:envvar:`OS_USERNAME`, :envvar:`OS_PASSWORD`) are set::
+
+    openstack server show appweb01
+
+Create a new image::
+
+    openstack image create \
+        --disk-format=qcow2 \
+        --container-format=bare \
+        --public \
+        --copy-from http://somewhere.net/foo.img \
+        foo
+
+
 FILES
 =====
 
@@ -94,6 +139,12 @@ The following environment variables can be set to alter the behaviour of :progra
 
 :envvar:`OS_PASSWORD`
     Set the password
+
+:envvar:`OS_PROJECT_NAME`
+    Set the project name
+
+:envvar:`OS_AUTH_URL`
+    Set the authentication URL
 
 
 BUGS
@@ -124,4 +175,8 @@ http://www.apache.org/licenses/LICENSE-2.0
 SEE ALSO
 ========
 
-The OpenStack project CLIs, the OpenStack API references. <links TBD>
+The `OpenStackClient page <https://wiki.openstack.org/wiki/OpenStackClient>`_
+in the `OpenStack Wiki <https://wiki.openstack.org/>`_ contains further
+documentation.
+
+The individual OpenStack project CLIs, the OpenStack API references.

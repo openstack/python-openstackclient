@@ -12,6 +12,7 @@ Contents:
 
    releases
    commands
+   plugins
    man/openstack
 
 Getting Started

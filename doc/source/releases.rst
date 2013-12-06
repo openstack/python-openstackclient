@@ -2,6 +2,18 @@
 Release Notes
 =============
 
+0.3.0 (xx Dec 2013)
+===================
+
+* add new command plugin structure
+* complete converting base test classes
+* add options to support TLS cetificate verification
+* add object-store show commands for container and object
+
+.. commented to save format of bug fix
+.. * 1254168_: OS_REGION_NAME is not used
+.. _1254168: https://bugs.launchpad.net/python-openstackclient/+bug/1254168
+
 0.2.2 (20 Sep 2013)
 ===================
 
