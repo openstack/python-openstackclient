@@ -405,7 +405,10 @@ class OpenStackShell(app.App):
             self.verify = self.options.os_cacert
         else:
             self.verify = not self.options.insecure
-        self.restapi = restapi.RESTApi(verify=self.verify)
+        self.restapi = restapi.RESTApi(
+            verify=self.verify,
+            debug=self.options.debug,
+        )
 
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""

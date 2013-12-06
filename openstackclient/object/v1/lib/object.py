@@ -86,22 +86,23 @@ def list_objects(
         return data
 
     object_url = url
-    query = "format=json"
+    params = {
+        'format': 'json',
+    }
     if marker:
-        query += '&marker=%s' % marker
+        params['marker'] = marker
     if limit:
-        query += '&limit=%d' % limit
+        params['limit'] = limit
     if end_marker:
-        query += '&end_marker=%s' % end_marker
+        params['end_marker'] = end_marker
     if delimiter:
-        query += '&delimiter=%s' % delimiter
+        params['delimiter'] = delimiter
     if prefix:
-        query += '&prefix=%s' % prefix
+        params['prefix'] = prefix
     if path:
-        query += '&path=%s' % path
-    url = "%s/%s?%s" % (object_url, container, query)
-    response = api.request('GET', url)
-    return response.json()
+        params['path'] = path
+    url = "%s/%s" % (object_url, container)
+    return api.list(url, params=params)
 
 
 def show_object(
@@ -118,9 +119,8 @@ def show_object(
     :returns: dict of object properties
     """
 
-    object_url = "%s/%s/%s" % (url, container, obj)
+    response = api.head("%s/%s/%s" % (url, container, obj))
     url_parts = urlparse(url)
-    response = api.request('HEAD', object_url)
     data = {
         'account': url_parts.path.split('/')[-1],
         'container': container,

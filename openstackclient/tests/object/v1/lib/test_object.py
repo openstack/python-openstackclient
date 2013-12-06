@@ -47,7 +47,7 @@ class TestObjectListObjects(TestObject):
 
     def test_list_objects_no_options(self):
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
+        self.app.restapi.list.return_value = resp
 
         data = lib_object.list_objects(
             self.app.restapi,
@@ -56,15 +56,17 @@ class TestObjectListObjects(TestObject):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '/' + fake_container + '?format=json',
+        self.app.restapi.list.assert_called_with(
+            fake_url + '/' + fake_container,
+            params={
+                'format': 'json',
+            }
         )
         self.assertEqual(data, resp)
 
     def test_list_objects_marker(self):
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
+        self.app.restapi.list.return_value = resp
 
         data = lib_object.list_objects(
             self.app.restapi,
@@ -74,15 +76,18 @@ class TestObjectListObjects(TestObject):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '/' + fake_container + '?format=json&marker=next',
+        self.app.restapi.list.assert_called_with(
+            fake_url + '/' + fake_container,
+            params={
+                'format': 'json',
+                'marker': 'next',
+            }
         )
         self.assertEqual(data, resp)
 
     def test_list_objects_limit(self):
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
+        self.app.restapi.list.return_value = resp
 
         data = lib_object.list_objects(
             self.app.restapi,
@@ -92,15 +97,18 @@ class TestObjectListObjects(TestObject):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '/' + fake_container + '?format=json&limit=5',
+        self.app.restapi.list.assert_called_with(
+            fake_url + '/' + fake_container,
+            params={
+                'format': 'json',
+                'limit': 5,
+            }
         )
         self.assertEqual(data, resp)
 
     def test_list_objects_end_marker(self):
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
+        self.app.restapi.list.return_value = resp
 
         data = lib_object.list_objects(
             self.app.restapi,
@@ -110,15 +118,18 @@ class TestObjectListObjects(TestObject):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '/' + fake_container + '?format=json&end_marker=last',
+        self.app.restapi.list.assert_called_with(
+            fake_url + '/' + fake_container,
+            params={
+                'format': 'json',
+                'end_marker': 'last',
+            }
         )
         self.assertEqual(data, resp)
 
     def test_list_objects_delimiter(self):
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
+        self.app.restapi.list.return_value = resp
 
         data = lib_object.list_objects(
             self.app.restapi,
@@ -131,15 +142,18 @@ class TestObjectListObjects(TestObject):
         # NOTE(dtroyer): requests handles the URL encoding and we're
         #                mocking that so use the otherwise-not-legal
         #                pipe '|' char in the response.
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '/' + fake_container + '?format=json&delimiter=|',
+        self.app.restapi.list.assert_called_with(
+            fake_url + '/' + fake_container,
+            params={
+                'format': 'json',
+                'delimiter': '|',
+            }
         )
         self.assertEqual(data, resp)
 
     def test_list_objects_prefix(self):
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
+        self.app.restapi.list.return_value = resp
 
         data = lib_object.list_objects(
             self.app.restapi,
@@ -149,15 +163,18 @@ class TestObjectListObjects(TestObject):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '/' + fake_container + '?format=json&prefix=foo/',
+        self.app.restapi.list.assert_called_with(
+            fake_url + '/' + fake_container,
+            params={
+                'format': 'json',
+                'prefix': 'foo/',
+            }
         )
         self.assertEqual(data, resp)
 
     def test_list_objects_path(self):
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
+        self.app.restapi.list.return_value = resp
 
         data = lib_object.list_objects(
             self.app.restapi,
@@ -167,25 +184,26 @@ class TestObjectListObjects(TestObject):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '/' + fake_container + '?format=json&path=next',
+        self.app.restapi.list.assert_called_with(
+            fake_url + '/' + fake_container,
+            params={
+                'format': 'json',
+                'path': 'next',
+            }
         )
         self.assertEqual(data, resp)
 
     def test_list_objects_full_listing(self):
 
         def side_effect(*args, **kwargs):
-            rv = self.app.restapi.request.return_value
-            self.app.restapi.request.return_value = restapi.FakeResponse(
-                data=[],
-            )
-            self.app.restapi.request.side_effect = None
+            rv = self.app.restapi.list.return_value
+            self.app.restapi.list.return_value = []
+            self.app.restapi.list.side_effect = None
             return rv
 
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
-        self.app.restapi.request.side_effect = side_effect
+        self.app.restapi.list.return_value = resp
+        self.app.restapi.list.side_effect = side_effect
 
         data = lib_object.list_objects(
             self.app.restapi,
@@ -195,9 +213,12 @@ class TestObjectListObjects(TestObject):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '/' + fake_container + '?format=json&marker=is-name',
+        self.app.restapi.list.assert_called_with(
+            fake_url + '/' + fake_container,
+            params={
+                'format': 'json',
+                'marker': 'is-name',
+            }
         )
         self.assertEqual(data, resp)
 
@@ -208,7 +229,7 @@ class TestObjectShowObjects(TestObject):
         resp = {
             'content-type': 'text/alpha',
         }
-        self.app.restapi.request.return_value = \
+        self.app.restapi.head.return_value = \
             restapi.FakeResponse(headers=resp)
 
         data = lib_object.show_object(
@@ -219,8 +240,7 @@ class TestObjectShowObjects(TestObject):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'HEAD',
+        self.app.restapi.head.assert_called_with(
             fake_url + '/%s/%s' % (fake_container, fake_object),
         )
 
@@ -242,7 +262,7 @@ class TestObjectShowObjects(TestObject):
             'x-object-meta-wife': 'Wilma',
             'x-tra-header': 'yabba-dabba-do',
         }
-        self.app.restapi.request.return_value = \
+        self.app.restapi.head.return_value = \
             restapi.FakeResponse(headers=resp)
 
         data = lib_object.show_object(
@@ -253,8 +273,7 @@ class TestObjectShowObjects(TestObject):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'HEAD',
+        self.app.restapi.head.assert_called_with(
             fake_url + '/%s/%s' % (fake_container, fake_object),
         )
 

@@ -46,7 +46,7 @@ class TestContainerList(TestContainer):
 
     def test_container_list_no_options(self):
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
+        self.app.restapi.list.return_value = resp
 
         data = lib_container.list_containers(
             self.app.restapi,
@@ -54,15 +54,17 @@ class TestContainerList(TestContainer):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '?format=json',
+        self.app.restapi.list.assert_called_with(
+            fake_url,
+            params={
+                'format': 'json',
+            }
         )
         self.assertEqual(data, resp)
 
     def test_container_list_marker(self):
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
+        self.app.restapi.list.return_value = resp
 
         data = lib_container.list_containers(
             self.app.restapi,
@@ -71,15 +73,18 @@ class TestContainerList(TestContainer):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '?format=json&marker=next',
+        self.app.restapi.list.assert_called_with(
+            fake_url,
+            params={
+                'format': 'json',
+                'marker': 'next',
+            }
         )
         self.assertEqual(data, resp)
 
     def test_container_list_limit(self):
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
+        self.app.restapi.list.return_value = resp
 
         data = lib_container.list_containers(
             self.app.restapi,
@@ -88,15 +93,18 @@ class TestContainerList(TestContainer):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '?format=json&limit=5',
+        self.app.restapi.list.assert_called_with(
+            fake_url,
+            params={
+                'format': 'json',
+                'limit': 5,
+            }
         )
         self.assertEqual(data, resp)
 
     def test_container_list_end_marker(self):
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
+        self.app.restapi.list.return_value = resp
 
         data = lib_container.list_containers(
             self.app.restapi,
@@ -105,15 +113,18 @@ class TestContainerList(TestContainer):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '?format=json&end_marker=last',
+        self.app.restapi.list.assert_called_with(
+            fake_url,
+            params={
+                'format': 'json',
+                'end_marker': 'last',
+            }
         )
         self.assertEqual(data, resp)
 
     def test_container_list_prefix(self):
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
+        self.app.restapi.list.return_value = resp
 
         data = lib_container.list_containers(
             self.app.restapi,
@@ -122,25 +133,26 @@ class TestContainerList(TestContainer):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '?format=json&prefix=foo/',
+        self.app.restapi.list.assert_called_with(
+            fake_url,
+            params={
+                'format': 'json',
+                'prefix': 'foo/',
+            }
         )
         self.assertEqual(data, resp)
 
     def test_container_list_full_listing(self):
 
         def side_effect(*args, **kwargs):
-            rv = self.app.restapi.request.return_value
-            self.app.restapi.request.return_value = restapi.FakeResponse(
-                data=[],
-            )
-            self.app.restapi.request.side_effect = None
+            rv = self.app.restapi.list.return_value
+            self.app.restapi.list.return_value = []
+            self.app.restapi.list.side_effect = None
             return rv
 
         resp = [{'name': 'is-name'}]
-        self.app.restapi.request.return_value = restapi.FakeResponse(data=resp)
-        self.app.restapi.request.side_effect = side_effect
+        self.app.restapi.list.return_value = resp
+        self.app.restapi.list.side_effect = side_effect
 
         data = lib_container.list_containers(
             self.app.restapi,
@@ -149,9 +161,12 @@ class TestContainerList(TestContainer):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'GET',
-            fake_url + '?format=json&marker=is-name',
+        self.app.restapi.list.assert_called_with(
+            fake_url,
+            params={
+                'format': 'json',
+                'marker': 'is-name',
+            }
         )
         self.assertEqual(data, resp)
 
@@ -163,7 +178,7 @@ class TestContainerShow(TestContainer):
             'x-container-object-count': 1,
             'x-container-bytes-used': 577,
         }
-        self.app.restapi.request.return_value = \
+        self.app.restapi.head.return_value = \
             restapi.FakeResponse(headers=resp)
 
         data = lib_container.show_container(
@@ -173,8 +188,7 @@ class TestContainerShow(TestContainer):
         )
 
         # Check expected values
-        self.app.restapi.request.assert_called_with(
-            'HEAD',
+        self.app.restapi.head.assert_called_with(
             fake_url + '/is-name',
         )
 
