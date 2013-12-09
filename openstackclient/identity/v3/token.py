@@ -18,54 +18,7 @@
 import logging
 import six
 
-from cliff import command
-from cliff import lister
 from cliff import show
-
-from openstackclient.common import utils
-
-
-class AuthenticateAccessToken(show.ShowOne):
-    """Authenticate access token to receive keystone token"""
-
-    api = 'identity'
-    log = logging.getLogger(__name__ + '.AuthenticateAccessToken')
-
-    def get_parser(self, prog_name):
-        parser = super(AuthenticateAccessToken, self).get_parser(prog_name)
-        parser.add_argument(
-            '--consumer-key',
-            metavar='<consumer-key>',
-            help='Consumer key',
-            required=True
-        )
-        parser.add_argument(
-            '--consumer-secret',
-            metavar='<consumer-secret>',
-            help='Consumer secret',
-            required=True
-        )
-        parser.add_argument(
-            '--access-key',
-            metavar='<access-key>',
-            help='Access token key',
-            required=True
-        )
-        parser.add_argument(
-            '--access-secret',
-            metavar='<access-secret>',
-            help='Access token secret',
-            required=True
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
-        token_client = self.app.client_manager.identity.tokens
-        keystone_token = token_client.authenticate_access_token(
-            parsed_args.consumer_key, parsed_args.consumer_secret,
-            parsed_args.access_key, parsed_args.access_secret)
-        return zip(*sorted(six.iteritems(keystone_token)))
 
 
 class AuthorizeRequestToken(show.ShowOne):
@@ -78,17 +31,28 @@ class AuthorizeRequestToken(show.ShowOne):
         parser.add_argument(
             '--request-key',
             metavar='<request-key>',
-            help='Consumer key',
+            help='Request token key',
+            required=True
+        )
+        parser.add_argument(
+            '--role-ids',
+            metavar='<role-ids>',
+            help='Requested role IDs',
             required=True
         )
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
-        token_client = self.app.client_manager.identity.tokens
+        self.log.debug('take_action(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
 
-        verifier_pin = token_client.authorize_request_token(
-            parsed_args.request_key)
+        roles = []
+        for r_id in parsed_args.role_ids.split():
+            roles.append(r_id)
+
+        verifier_pin = identity_client.oauth1.request_tokens.authorize(
+            parsed_args.request_key,
+            roles)
         info = {}
         info.update(verifier_pin._info)
         return zip(*sorted(six.iteritems(info)))
@@ -134,13 +98,15 @@ class CreateAccessToken(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
-        token_client = self.app.client_manager.identity.tokens
-        access_token = token_client.create_access_token(
+        self.log.debug('take_action(%s)' % parsed_args)
+        token_client = self.app.client_manager.identity.oauth1.access_tokens
+        access_token = token_client.create(
             parsed_args.consumer_key, parsed_args.consumer_secret,
             parsed_args.request_key, parsed_args.request_secret,
             parsed_args.verifier)
-        return zip(*sorted(six.iteritems(access_token)))
+        info = {}
+        info.update(access_token._info)
+        return zip(*sorted(six.iteritems(info)))
 
 
 class CreateRequestToken(show.ShowOne):
@@ -163,26 +129,23 @@ class CreateRequestToken(show.ShowOne):
             required=True
         )
         parser.add_argument(
-            '--role-ids',
-            metavar='<role-ids>',
-            help='Requested role IDs',
-        )
-        parser.add_argument(
             '--project-id',
             metavar='<project-id>',
             help='Requested project ID',
+            required=True
         )
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
-        token_client = self.app.client_manager.identity.tokens
-        request_token = token_client.create_request_token(
+        self.log.debug('take_action(%s)' % parsed_args)
+        token_client = self.app.client_manager.identity.oauth1.request_tokens
+        request_token = token_client.create(
             parsed_args.consumer_key,
             parsed_args.consumer_secret,
-            parsed_args.role_ids,
             parsed_args.project_id)
-        return zip(*sorted(six.iteritems(request_token)))
+        info = {}
+        info.update(request_token._info)
+        return zip(*sorted(six.iteritems(info)))
 
 
 class CreateToken(show.ShowOne):
@@ -201,64 +164,3 @@ class CreateToken(show.ShowOne):
         if 'tenant_id' in token:
             token['project_id'] = token.pop('tenant_id')
         return zip(*sorted(six.iteritems(token)))
-
-
-class DeleteAccessToken(command.Command):
-    """Delete access token command"""
-
-    log = logging.getLogger(__name__ + '.DeleteAccessToken')
-
-    def get_parser(self, prog_name):
-        parser = super(DeleteAccessToken, self).get_parser(prog_name)
-        parser.add_argument(
-            'user',
-            metavar='<user>',
-            help='Name or ID of user',
-        )
-        parser.add_argument(
-            'access_key',
-            metavar='<access-key>',
-            help='Access token to be deleted',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
-
-        identity_client = self.app.client_manager.identity
-        user = utils.find_resource(
-            identity_client.users, parsed_args.user).id
-        identity_client.tokens.delete_access_token(user,
-                                                   parsed_args.access_key)
-        return
-
-
-class ListAccessToken(lister.Lister):
-    """List access tokens command"""
-
-    log = logging.getLogger(__name__ + '.ListAccessToken')
-
-    def get_parser(self, prog_name):
-        parser = super(ListAccessToken, self).get_parser(prog_name)
-        parser.add_argument(
-            'user',
-            metavar='<user>',
-            help='Name or ID of user',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
-
-        identity_client = self.app.client_manager.identity
-        user = utils.find_resource(
-            identity_client.users, parsed_args.user).id
-
-        columns = ('ID', 'Consumer ID', 'Expires At',
-                   'Project Id', 'Authorizing User Id')
-        data = identity_client.tokens.list_access_tokens(user)
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                    formatters={},
-                ) for s in data))
