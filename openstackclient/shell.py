@@ -144,10 +144,25 @@ class OpenStackShell(app.App):
             default=env('OS_AUTH_URL'),
             help='Authentication URL (Env: OS_AUTH_URL)')
         parser.add_argument(
+            '--os-domain-name',
+            metavar='<auth-domain-name>',
+            default=env('OS_DOMAIN_NAME'),
+            help='Domain name of the requested domain-level'
+                 'authorization scope (Env: OS_DOMAIN_NAME)',
+        )
+        parser.add_argument(
+            '--os-domain-id',
+            metavar='<auth-domain-id>',
+            default=env('OS_DOMAIN_ID'),
+            help='Domain ID of the requested domain-level'
+                 'authorization scope (Env: OS_DOMAIN_ID)',
+        )
+        parser.add_argument(
             '--os-project-name',
             metavar='<auth-project-name>',
             default=env('OS_PROJECT_NAME', default=env('OS_TENANT_NAME')),
-            help='Authentication project name (Env: OS_PROJECT_NAME)',
+            help='Project name of the requested project-level'
+                 'authorization scope (Env: OS_PROJECT_NAME)',
         )
         parser.add_argument(
             '--os-tenant-name',
@@ -159,7 +174,8 @@ class OpenStackShell(app.App):
             '--os-project-id',
             metavar='<auth-project-id>',
             default=env('OS_PROJECT_ID', default=env('OS_TENANT_ID')),
-            help='Authentication project ID (Env: OS_PROJECT_ID)',
+            help='Project ID of the requested project-level'
+                 'authorization scope (Env: OS_PROJECT_ID)',
         )
         parser.add_argument(
             '--os-tenant-id',
@@ -177,6 +193,30 @@ class OpenStackShell(app.App):
             metavar='<auth-password>',
             default=utils.env('OS_PASSWORD'),
             help='Authentication password (Env: OS_PASSWORD)')
+        parser.add_argument(
+            '--os-user-domain-name',
+            metavar='<auth-user-domain-name>',
+            default=utils.env('OS_USER_DOMAIN_NAME'),
+            help='Domain name of the user (Env: OS_USER_DOMAIN_NAME)')
+        parser.add_argument(
+            '--os-user-domain-id',
+            metavar='<auth-user-domain-id>',
+            default=utils.env('OS_USER_DOMAIN_ID'),
+            help='Domain ID of the user (Env: OS_USER_DOMAIN_ID)')
+        parser.add_argument(
+            '--os-project-domain-name',
+            metavar='<auth-project-domain-name>',
+            default=utils.env('OS_PROJECT_DOMAIN_NAME'),
+            help='Domain name of the project which is the requested '
+                 'project-level authorization scope '
+                 '(Env: OS_PROJECT_DOMAIN_NAME)')
+        parser.add_argument(
+            '--os-project-domain-id',
+            metavar='<auth-project-domain-id>',
+            default=utils.env('OS_PROJECT_DOMAIN_ID'),
+            help='Domain ID of the project which is the requested '
+                 'project-level authorization scope '
+                 '(Env: OS_PROJECT_DOMAIN_ID)')
         parser.add_argument(
             '--os-region-name',
             metavar='<auth-region-name>',
@@ -284,11 +324,16 @@ class OpenStackShell(app.App):
                         " either --os-password, or env[OS_PASSWORD], "
                         " or prompted response")
 
-            if not (self.options.os_project_id
-                    or self.options.os_project_name):
+            if not ((self.options.os_project_id
+                    or self.options.os_project_name) or
+                    (self.options.os_domain_id
+                    or self.options.os_domain_name)):
                 raise exc.CommandError(
-                    "You must provide a project id via"
-                    " either --os-project-id or via env[OS_PROJECT_ID]")
+                    "You must provide authentication scope as a project "
+                    "or a domain via --os-project-id or env[OS_PROJECT_ID], "
+                    "--os-project-name or env[OS_PROJECT_NAME], "
+                    "--os-domain-id or env[OS_DOMAIN_ID], or"
+                    "--os-domain-name or env[OS_DOMAIN_NAME].")
 
             if not self.options.os_auth_url:
                 raise exc.CommandError(
@@ -299,8 +344,14 @@ class OpenStackShell(app.App):
             token=self.options.os_token,
             url=self.options.os_url,
             auth_url=self.options.os_auth_url,
+            domain_id=self.options.os_domain_id,
+            domain_name=self.options.os_domain_name,
             project_name=self.options.os_project_name,
             project_id=self.options.os_project_id,
+            user_domain_id=self.options.os_user_domain_id,
+            user_domain_name=self.options.os_user_domain_name,
+            project_domain_id=self.options.os_project_domain_id,
+            project_domain_name=self.options.os_project_domain_name,
             username=self.options.os_username,
             password=self.options.os_password,
             region_name=self.options.os_region_name,

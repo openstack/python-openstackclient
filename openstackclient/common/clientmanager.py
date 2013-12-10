@@ -42,16 +42,26 @@ class ClientManager(object):
     """Manages access to API clients, including authentication."""
     identity = ClientCache(identity_client.make_client)
 
-    def __init__(self, token=None, url=None, auth_url=None, project_name=None,
-                 project_id=None, username=None, password=None,
-                 region_name=None, verify=True, api_version=None):
+    def __init__(self, token=None, url=None, auth_url=None,
+                 domain_id=None, domain_name=None,
+                 project_name=None, project_id=None,
+                 username=None, password=None,
+                 user_domain_id=None, user_domain_name=None,
+                 project_domain_id=None, project_domain_name=None,
+                 region_name=None, api_version=None, verify=True):
         self._token = token
         self._url = url
         self._auth_url = auth_url
+        self._domain_id = domain_id
+        self._domain_name = domain_name
         self._project_name = project_name
         self._project_id = project_id
         self._username = username
         self._password = password
+        self._user_domain_id = user_domain_id
+        self._user_domain_name = user_domain_name
+        self._project_domain_id = project_domain_id
+        self._project_domain_name = project_domain_name
         self._region_name = region_name
         self._api_version = api_version
         self._service_catalog = None
