@@ -2,7 +2,7 @@
 Release Notes
 =============
 
-0.3.0 (xx Dec 2013)
+0.3.0 (17 Dec 2013)
 ===================
 
 * add new command plugin structure
