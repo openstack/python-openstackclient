@@ -15,6 +15,7 @@
 
 """Common client utilities"""
 
+import logging
 import os
 import six
 import sys
@@ -215,3 +216,16 @@ def wait_for_status(status_f,
             callback(progress)
         time.sleep(sleep_time)
     return retval
+
+
+def get_effective_log_level():
+    """Returns the lowest logging level considered by logging handlers
+
+    Retrieve an return the smallest log level set among the root
+    logger's handlers (in case of multiple handlers).
+    """
+    root_log = logging.getLogger()
+    min_log_lvl = logging.CRITICAL
+    for handler in root_log.handlers:
+        min_log_lvl = min(min_log_lvl, handler.level)
+    return min_log_lvl

@@ -37,6 +37,10 @@ def make_client(instance):
     )
 
     LOG.debug('instantiating volume client')
+
+    # Set client http_log_debug to True if verbosity level is high enough
+    http_log_debug = utils.get_effective_log_level() <= logging.DEBUG
+
     client = volume_client(
         username=instance._username,
         api_key=instance._password,
@@ -44,6 +48,7 @@ def make_client(instance):
         auth_url=instance._auth_url,
         cacert=instance._cacert,
         insecure=instance._insecure,
+        http_log_debug=http_log_debug
     )
 
     return client
