@@ -7,24 +7,27 @@ It is a thin wrapper to the stock python-*client modules that implement the
 actual REST API client actions.
 
 This is an implementation of the design goals shown in
-http://wiki.openstack.org/UnifiedCLI.  The primary goal is to provide
+`OpenStack Client Wiki`_.  The primary goal is to provide
 a unified shell command structure and a common language to describe
-operations in OpenStack.
+operations in OpenStack.  The master repository is on GitHub_.
+
+.. _OpenStack Client Wiki: https://wiki.openstack.org/wiki/OpenStackClient
+.. _GitHub: https://github.com/openstack/python-openstackclient
 
 python-openstackclient is designed to add support for API extensions via a
 plugin mechanism.
 
-For release management::
-
-   * https://launchpad.net/python-openstackclient
-
-For blueprints and feature specifications::
-
-   * https://blueprints.launchpad.net/python-openstackclient
-
-For issue tracking::
-
-   * https://bugs.launchpad.net/python-openstackclient
+* `Release management`_
+* `Blueprints and feature specifications`_
+* `Issue tracking`_
+* `PyPi`_
+* `Developer Docs`_
+.. _release management: https://launchpad.net/python-openstackclient
+.. _Blueprints and feature specifications: https://blueprints.launchpad.net/python-openstackclient
+.. _Issue tracking: https://bugs.launchpad.net/python-openstackclient
+.. _PyPi: https://pypi.python.org/pypi/python-openstackclient
+.. _Developer Docs: http://docs.openstack.org/developer/python-openstackclient/
+.. _install virtualenv: tools/install_venv.py
 
 Note
 ====
@@ -37,7 +40,7 @@ Getting Started
 ===============
 
 We recommend using a virtualenv to install the client. This description
-uses the `install_venv.py`_ script to create the virtualenv::
+uses the `install virtualenv`_ script to create the virtualenv::
 
    python tools/install_venv.py
    source .venv/bin/activate
