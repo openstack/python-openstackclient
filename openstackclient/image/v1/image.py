@@ -313,6 +313,7 @@ class SetImage(show.ShowOne):
             "--property",
             dest="properties",
             metavar="<key=value>",
+            default={},
             action=parseractions.KeyValueAction,
             help="Set property on this image "
                  '(repeat option to set multiple properties)',
