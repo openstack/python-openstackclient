@@ -20,13 +20,19 @@ from openstackclient import shell
 from openstackclient.tests import utils
 
 
-DEFAULT_USERNAME = "username"
-DEFAULT_PASSWORD = "password"
+DEFAULT_AUTH_URL = "http://127.0.0.1:5000/v2.0/"
 DEFAULT_PROJECT_ID = "xxxx-yyyy-zzzz"
 DEFAULT_PROJECT_NAME = "project"
-DEFAULT_TOKEN = "token"
+DEFAULT_DOMAIN_ID = "aaaa-bbbb-cccc"
+DEFAULT_DOMAIN_NAME = "domain"
+DEFAULT_USER_DOMAIN_ID = "aaaa-bbbb-cccc"
+DEFAULT_USER_DOMAIN_NAME = "domain"
+DEFAULT_PROJECT_DOMAIN_ID = "aaaa-bbbb-cccc"
+DEFAULT_PROJECT_DOMAIN_NAME = "domain"
+DEFAULT_USERNAME = "username"
+DEFAULT_PASSWORD = "password"
 DEFAULT_REGION_NAME = "ZZ9_Plural_Z_Alpha"
-DEFAULT_AUTH_URL = "http://127.0.0.1:5000/v2.0/"
+DEFAULT_TOKEN = "token"
 DEFAULT_SERVICE_URL = "http://127.0.0.1:8771/v3.0/"
 
 DEFAULT_COMPUTE_API_VERSION = "2"
@@ -78,6 +84,18 @@ class TestShell(utils.TestCase):
                              default_args["project_id"])
             self.assertEqual(_shell.options.os_project_name,
                              default_args["project_name"])
+            self.assertEqual(_shell.options.os_domain_id,
+                             default_args["domain_id"])
+            self.assertEqual(_shell.options.os_domain_name,
+                             default_args["domain_name"])
+            self.assertEqual(_shell.options.os_user_domain_id,
+                             default_args["user_domain_id"])
+            self.assertEqual(_shell.options.os_user_domain_name,
+                             default_args["user_domain_name"])
+            self.assertEqual(_shell.options.os_project_domain_id,
+                             default_args["project_domain_id"])
+            self.assertEqual(_shell.options.os_project_domain_name,
+                             default_args["project_domain_name"])
             self.assertEqual(_shell.options.os_username,
                              default_args["username"])
             self.assertEqual(_shell.options.os_password,
@@ -151,6 +169,12 @@ class TestShellPasswordAuth(TestShell):
             "auth_url": DEFAULT_AUTH_URL,
             "project_id": "",
             "project_name": "",
+            "domain_id": "",
+            "domain_name": "",
+            "user_domain_id": "",
+            "user_domain_name": "",
+            "project_domain_id": "",
+            "project_domain_name": "",
             "username": "",
             "password": "",
             "region_name": ""
@@ -163,6 +187,12 @@ class TestShellPasswordAuth(TestShell):
             "auth_url": "",
             "project_id": DEFAULT_PROJECT_ID,
             "project_name": "",
+            "domain_id": "",
+            "domain_name": "",
+            "user_domain_id": "",
+            "user_domain_name": "",
+            "project_domain_id": "",
+            "project_domain_name": "",
             "username": "",
             "password": "",
             "region_name": ""
@@ -175,6 +205,12 @@ class TestShellPasswordAuth(TestShell):
             "auth_url": "",
             "project_id": "",
             "project_name": DEFAULT_PROJECT_NAME,
+            "domain_id": "",
+            "domain_name": "",
+            "user_domain_id": "",
+            "user_domain_name": "",
+            "project_domain_id": "",
+            "project_domain_name": "",
             "username": "",
             "password": "",
             "region_name": ""
@@ -187,6 +223,12 @@ class TestShellPasswordAuth(TestShell):
             "auth_url": "",
             "project_id": DEFAULT_PROJECT_ID,
             "project_name": "",
+            "domain_id": "",
+            "domain_name": "",
+            "user_domain_id": "",
+            "user_domain_name": "",
+            "project_domain_id": "",
+            "project_domain_name": "",
             "username": "",
             "password": "",
             "region_name": ""
@@ -199,6 +241,120 @@ class TestShellPasswordAuth(TestShell):
             "auth_url": "",
             "project_id": "",
             "project_name": DEFAULT_PROJECT_NAME,
+            "domain_id": "",
+            "domain_name": "",
+            "user_domain_id": "",
+            "user_domain_name": "",
+            "project_domain_id": "",
+            "project_domain_name": "",
+            "username": "",
+            "password": "",
+            "region_name": ""
+        }
+        self._assert_password_auth(flag, kwargs)
+
+    def test_only_domain_id_flow(self):
+        flag = "--os-domain-id " + DEFAULT_DOMAIN_ID
+        kwargs = {
+            "auth_url": "",
+            "project_id": "",
+            "project_name": "",
+            "domain_id": DEFAULT_DOMAIN_ID,
+            "domain_name": "",
+            "user_domain_id": "",
+            "user_domain_name": "",
+            "project_domain_id": "",
+            "project_domain_name": "",
+            "username": "",
+            "password": "",
+            "region_name": ""
+        }
+        self._assert_password_auth(flag, kwargs)
+
+    def test_only_domain_name_flow(self):
+        flag = "--os-domain-name " + DEFAULT_DOMAIN_NAME
+        kwargs = {
+            "auth_url": "",
+            "project_id": "",
+            "project_name": "",
+            "domain_id": "",
+            "domain_name": DEFAULT_DOMAIN_NAME,
+            "user_domain_id": "",
+            "user_domain_name": "",
+            "project_domain_id": "",
+            "project_domain_name": "",
+            "username": "",
+            "password": "",
+            "region_name": ""
+        }
+        self._assert_password_auth(flag, kwargs)
+
+    def test_only_user_domain_id_flow(self):
+        flag = "--os-user-domain-id " + DEFAULT_USER_DOMAIN_ID
+        kwargs = {
+            "auth_url": "",
+            "project_id": "",
+            "project_name": "",
+            "domain_id": "",
+            "domain_name": "",
+            "user_domain_id": DEFAULT_USER_DOMAIN_ID,
+            "user_domain_name": "",
+            "project_domain_id": "",
+            "project_domain_name": "",
+            "username": "",
+            "password": "",
+            "region_name": ""
+        }
+        self._assert_password_auth(flag, kwargs)
+
+    def test_only_user_domain_name_flow(self):
+        flag = "--os-user-domain-name " + DEFAULT_USER_DOMAIN_NAME
+        kwargs = {
+            "auth_url": "",
+            "project_id": "",
+            "project_name": "",
+            "domain_id": "",
+            "domain_name": "",
+            "user_domain_id": "",
+            "user_domain_name": DEFAULT_USER_DOMAIN_NAME,
+            "project_domain_id": "",
+            "project_domain_name": "",
+            "username": "",
+            "password": "",
+            "region_name": ""
+        }
+        self._assert_password_auth(flag, kwargs)
+
+    def test_only_project_domain_id_flow(self):
+        flag = "--os-project-domain-id " + DEFAULT_PROJECT_DOMAIN_ID
+        kwargs = {
+            "auth_url": "",
+            "project_id": "",
+            "project_name": "",
+            "domain_id": "",
+            "domain_name": "",
+            "user_domain_id": "",
+            "user_domain_name": "",
+            "project_domain_id": DEFAULT_PROJECT_DOMAIN_ID,
+            "project_domain_name": "",
+            "username": "",
+            "password": "",
+            "region_name": ""
+        }
+        self._assert_password_auth(flag, kwargs)
+
+    def test_only_project_domain_name_flow(self):
+        flag = "--os-project-domain-name " + DEFAULT_PROJECT_DOMAIN_NAME
+        kwargs = {
+            "auth_url": "",
+            "project_id": "",
+            "project_name": "",
+            "domain_id": "",
+            "domain_name": "",
+            "user_domain_id": "",
+            "user_domain_name": "",
+            "project_domain_id": "",
+            "project_domain_name": DEFAULT_PROJECT_DOMAIN_NAME,
             "username": "",
             "password": "",
             "region_name": ""
@@ -211,6 +367,12 @@ class TestShellPasswordAuth(TestShell):
             "auth_url": "",
             "project_id": "",
             "project_name": "",
+            "domain_id": "",
+            "domain_name": "",
+            "user_domain_id": "",
+            "user_domain_name": "",
+            "project_domain_id": "",
+            "project_domain_name": "",
             "username": DEFAULT_USERNAME,
             "password": "",
             "region_name": ""
@@ -223,6 +385,12 @@ class TestShellPasswordAuth(TestShell):
             "auth_url": "",
             "project_id": "",
             "project_name": "",
+            "domain_id": "",
+            "domain_name": "",
+            "user_domain_id": "",
+            "user_domain_name": "",
+            "project_domain_id": "",
+            "project_domain_name": "",
             "username": "",
             "password": DEFAULT_PASSWORD,
             "region_name": ""
@@ -235,6 +403,12 @@ class TestShellPasswordAuth(TestShell):
             "auth_url": "",
             "project_id": "",
             "project_name": "",
+            "domain_id": "",
+            "domain_name": "",
+            "user_domain_id": "",
+            "user_domain_name": "",
+            "project_domain_id": "",
+            "project_domain_name": "",
             "username": "",
             "password": "",
             "region_name": DEFAULT_REGION_NAME
