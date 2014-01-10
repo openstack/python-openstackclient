@@ -48,9 +48,9 @@ class CreateImage(show.ShowOne):
             help="Name of image",
         )
         parser.add_argument(
-            "--disk_format",
+            "--disk-format",
             default="raw",
-            metavar="<disk_format>",
+            metavar="<disk-format>",
             help="Disk format of image",
         )
         parser.add_argument(
@@ -66,7 +66,7 @@ class CreateImage(show.ShowOne):
         parser.add_argument(
             "--container-format",
             default="bare",
-            metavar="<container_format>",
+            metavar="<container-format>",
             help="Container format of image",
         )
         parser.add_argument(
@@ -82,17 +82,17 @@ class CreateImage(show.ShowOne):
         )
         parser.add_argument(
             "--min-disk",
-            metavar="<disk_gb>",
+            metavar="<disk-gb>",
             help="Minimum size of disk needed to boot image in gigabytes",
         )
         parser.add_argument(
             "--min-ram",
-            metavar="<disk_ram>",
+            metavar="<disk-ram>",
             help="Minimum amount of ram needed to boot image in megabytes",
         )
         parser.add_argument(
             "--location",
-            metavar="<image_url>",
+            metavar="<image-url>",
             help="URL where the data for this image already resides",
         )
         parser.add_argument(
@@ -107,7 +107,7 @@ class CreateImage(show.ShowOne):
         )
         parser.add_argument(
             "--copy-from",
-            metavar="<image_url>",
+            metavar="<image-url>",
             help="Similar to --location, but this indicates that the image"
                  " should immediately be copied from the data store",
         )
@@ -301,12 +301,12 @@ class SetImage(show.ShowOne):
         )
         parser.add_argument(
             "--min-disk",
-            metavar="<disk_gb>",
+            metavar="<disk-gb>",
             help="Minimum size of disk needed to boot image in gigabytes",
         )
         parser.add_argument(
             "--min-ram",
-            metavar="<disk_ram>",
+            metavar="<disk-ram>",
             help="Minimum amount of ram needed to boot image in megabytes",
         )
         parser.add_argument(
