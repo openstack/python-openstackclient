@@ -35,6 +35,10 @@ def make_client(instance):
         instance._api_version[API_NAME],
         API_VERSIONS)
     LOG.debug('instantiating compute client: %s' % compute_client)
+
+    # Set client http_log_debug to True if verbosity level is high enough
+    http_log_debug = utils.get_effective_log_level() <= logging.DEBUG
+
     client = compute_client(
         username=instance._username,
         api_key=instance._password,
@@ -49,7 +53,8 @@ def make_client(instance):
         extensions=[],
         service_type=API_NAME,
         # FIXME(dhellmann): what is service_name?
-        service_name='')
+        service_name='',
+        http_log_debug=http_log_debug)
 
     # Populate the Nova client to skip another auth query to Identity
     if instance._url:
