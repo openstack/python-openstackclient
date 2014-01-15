@@ -70,11 +70,22 @@ USER = {
     'enabled': True,
 }
 
+token_expires = '2014-01-01T00:00:00Z'
+token_id = 'tttttttt-tttt-tttt-tttt-tttttttttttt'
+
+TOKEN = {
+    'expires': token_expires,
+    'id': token_id,
+    'tenant_id': project_id,
+    'user_id': user_id,
+}
+
 
 class FakeIdentityv2Client(object):
     def __init__(self, **kwargs):
         self.roles = mock.Mock()
         self.roles.resource_class = fakes.FakeResource(None, {})
+        self.service_catalog = mock.Mock()
         self.services = mock.Mock()
         self.services.resource_class = fakes.FakeResource(None, {})
         self.tenants = mock.Mock()
