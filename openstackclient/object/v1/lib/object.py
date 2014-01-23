@@ -126,7 +126,6 @@ def show_object(
         'container': container,
         'object': obj,
     }
-    #print "data: %s" % data
     data['content-type'] = response.headers.get('content-type', None)
     if 'content-length' in response.headers:
         data['content-length'] = response.headers.get('content-length', None)
