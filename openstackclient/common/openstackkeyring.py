@@ -56,5 +56,5 @@ class OpenstackKeyring(keyring.backends.file.BaseKeyring):
 
 def os_keyring():
     """Initialize the openstack keyring."""
-    keyring = 'openstackclient.common.openstackkeyring.OpenstackKeyring'
-    return keyring.core.load_keyring(None, keyring)
+    ring = 'openstackclient.common.openstackkeyring.OpenstackKeyring'
+    return keyring.core.load_keyring(None, ring)
