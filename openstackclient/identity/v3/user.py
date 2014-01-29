@@ -17,7 +17,6 @@
 
 import logging
 import six
-import sys
 
 from cliff import command
 from cliff import lister
@@ -162,23 +161,6 @@ class ListUser(lister.Lister):
             help='Name or ID of user to list [required with --role]',
         )
         parser.add_argument(
-            '--role',
-            action='store_true',
-            default=False,
-            help='List the roles assigned to <user>',
-        )
-        domain_or_project = parser.add_mutually_exclusive_group()
-        domain_or_project.add_argument(
-            '--domain',
-            metavar='<domain>',
-            help='Filter list by <domain> [Only valid with --role]',
-        )
-        domain_or_project.add_argument(
-            '--project',
-            metavar='<project>',
-            help='Filter list by <project> [Only valid with --role]',
-        )
-        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -187,70 +169,15 @@ class ListUser(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
-        identity_client = self.app.client_manager.identity
+        self.log.debug('take_action(%s)' % parsed_args)
 
-        if parsed_args.role:
-            # List roles belonging to user
-
-            # User is required here, bail if it is not supplied
-            if not parsed_args.user:
-                sys.stderr.write('Error: User must be specified')
-                return ([], [])
-
-            user = utils.find_resource(
-                identity_client.users,
-                parsed_args.user,
-            )
-
-            # List a user's roles
-            if not parsed_args.domain and not parsed_args.project:
-                columns = ('ID', 'Name')
-                data = identity_client.roles.list(
-                    user=user,
-                    domain='default',
-                )
-            # List a user's roles on a domain
-            elif parsed_args.user and parsed_args.domain:
-                columns = ('ID', 'Name', 'Domain', 'User')
-                domain = utils.find_resource(
-                    identity_client.domains,
-                    parsed_args.domain,
-                )
-                data = identity_client.roles.list(
-                    user=user,
-                    domain=domain,
-                )
-                for user_role in data:
-                    user_role.user = user.name
-                    user_role.domain = domain.name
-            # List a user's roles on a project
-            elif parsed_args.user and parsed_args.project:
-                columns = ('ID', 'Name', 'Project', 'User')
-                project = utils.find_resource(
-                    identity_client.projects,
-                    parsed_args.project,
-                )
-                data = identity_client.roles.list(
-                    user=user,
-                    project=project,
-                )
-                for user_role in data:
-                    user_role.user = user.name
-                    user_role.project = project.name
-            else:
-                # TODO(dtroyer): raise exception here, this really is an error
-                sys.stderr.write("Error: Must specify --domain or --project "
-                                 "with --role\n")
-                return ([], [])
+        # List users
+        if parsed_args.long:
+            columns = ('ID', 'Name', 'Project Id', 'Domain Id',
+                       'Description', 'Email', 'Enabled')
         else:
-            # List users
-            if parsed_args.long:
-                columns = ('ID', 'Name', 'Project Id', 'Domain Id',
-                           'Description', 'Email', 'Enabled')
-            else:
-                columns = ('ID', 'Name')
-            data = self.app.client_manager.identity.users.list()
+            columns = ('ID', 'Name')
+        data = self.app.client_manager.identity.users.list()
 
         return (columns,
                 (utils.get_item_properties(

@@ -192,10 +192,110 @@ class ListRole(lister.Lister):
 
     log = logging.getLogger(__name__ + '.ListRole')
 
+    def get_parser(self, prog_name):
+        parser = super(ListRole, self).get_parser(prog_name)
+        domain_or_project = parser.add_mutually_exclusive_group()
+        domain_or_project.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='Filter role list by <domain>',
+        )
+        domain_or_project.add_argument(
+            '--project',
+            metavar='<project>',
+            help='Filter role list by <project>',
+        )
+        user_or_group = parser.add_mutually_exclusive_group()
+        user_or_group.add_argument(
+            '--user',
+            metavar='<user>',
+            help='Name or ID of user to list roles asssigned to',
+        )
+        user_or_group.add_argument(
+            '--group',
+            metavar='<group>',
+            help='Name or ID of group to list roles asssigned to',
+        )
+        return parser
+
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
-        columns = ('ID', 'Name')
-        data = self.app.client_manager.identity.roles.list()
+        self.log.debug('take_action(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
+
+        if parsed_args.user:
+            user = utils.find_resource(
+                identity_client.users,
+                parsed_args.user,
+            )
+        elif parsed_args.group:
+            group = utils.find_resource(
+                identity_client.groups,
+                parsed_args.group,
+            )
+
+        if parsed_args.domain:
+            domain = utils.find_resource(
+                identity_client.domains,
+                parsed_args.domain,
+            )
+        elif parsed_args.project:
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+            )
+
+        # no user or group specified, list all roles in the system
+        if not parsed_args.user and not parsed_args.group:
+            columns = ('ID', 'Name')
+            data = identity_client.roles.list()
+        elif parsed_args.user and parsed_args.domain:
+            columns = ('ID', 'Name', 'Domain', 'User')
+            data = identity_client.roles.list(
+                user=user,
+                domain=domain,
+            )
+            for user_role in data:
+                user_role.user = user.name
+                user_role.domain = domain.name
+        elif parsed_args.user and parsed_args.project:
+            columns = ('ID', 'Name', 'Project', 'User')
+            data = identity_client.roles.list(
+                user=user,
+                project=project,
+            )
+            for user_role in data:
+                user_role.user = user.name
+                user_role.project = project.name
+        elif parsed_args.user:
+            columns = ('ID', 'Name')
+            data = identity_client.roles.list(
+                user=user,
+                domain='default',
+            )
+        elif parsed_args.group and parsed_args.domain:
+            columns = ('ID', 'Name', 'Domain', 'Group')
+            data = identity_client.roles.list(
+                group=group,
+                domain=domain,
+            )
+            for group_role in data:
+                group_role.group = group.name
+                group_role.domain = domain.name
+        elif parsed_args.group and parsed_args.project:
+            columns = ('ID', 'Name', 'Project', 'Group')
+            data = identity_client.roles.list(
+                group=group,
+                project=project,
+            )
+            for group_role in data:
+                group_role.group = group.name
+                group_role.project = project.name
+        else:
+            sys.stderr.write("Error: If a user or group is specified, either "
+                             "--domain or --project must also be specified to "
+                             "list role grants.\n")
+            return ([], [])
+
         return (columns,
                 (utils.get_item_properties(
                     s, columns,
