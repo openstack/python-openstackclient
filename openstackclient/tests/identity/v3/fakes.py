@@ -88,6 +88,23 @@ USER = {
     'domain_id': domain_id,
 }
 
+token_expires = '2014-01-01T00:00:00Z'
+token_id = 'tttttttt-tttt-tttt-tttt-tttttttttttt'
+
+TOKEN_WITH_TENANT_ID = {
+    'expires': token_expires,
+    'id': token_id,
+    'tenant_id': project_id,
+    'user_id': user_id,
+}
+
+TOKEN_WITH_DOMAIN_ID = {
+    'expires': token_expires,
+    'id': token_id,
+    'domain_id': domain_id,
+    'user_id': user_id,
+}
+
 
 class FakeIdentityv3Client(object):
     def __init__(self, **kwargs):
@@ -101,6 +118,7 @@ class FakeIdentityv3Client(object):
         self.roles.resource_class = fakes.FakeResource(None, {})
         self.services = mock.Mock()
         self.services.resource_class = fakes.FakeResource(None, {})
+        self.service_catalog = mock.Mock()
         self.users = mock.Mock()
         self.users.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
