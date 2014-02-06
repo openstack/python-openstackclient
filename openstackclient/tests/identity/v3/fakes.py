@@ -181,7 +181,7 @@ ENDPOINT = {
     'links': base_url + 'endpoints/' + endpoint_id,
 }
 
-user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+user_id = 'bbbbbbb-aaaa-aaaa-aaaa-bbbbbbbaaaa'
 user_name = 'paul'
 user_description = 'Sir Paul'
 user_email = 'paul@applecorps.com'
@@ -194,6 +194,22 @@ USER = {
     'enabled': True,
     'domain_id': domain_id,
     'links': base_url + 'users/' + user_id,
+}
+
+trust_id = 't-456'
+trust_expires = None
+trust_impersonation = False
+trust_roles = {"id": role_id, "name": role_name},
+
+TRUST = {
+    'expires_at': trust_expires,
+    'id': trust_id,
+    'impersonation': trust_impersonation,
+    'links': base_url + 'trusts/' + trust_id,
+    'project_id': project_id,
+    'roles': trust_roles,
+    'trustee_user_id': user_id,
+    'trustor_user_id': user_id,
 }
 
 token_expires = '2014-01-01T00:00:00Z'
@@ -342,6 +358,8 @@ class FakeIdentityv3Client(object):
         self.session = mock.Mock()
         self.session.auth.auth_ref.service_catalog.resource_class = \
             fakes.FakeResource(None, {})
+        self.trusts = mock.Mock()
+        self.trusts.resource_class = fakes.FakeResource(None, {})
         self.users = mock.Mock()
         self.users.resource_class = fakes.FakeResource(None, {})
         self.role_assignments = mock.Mock()
