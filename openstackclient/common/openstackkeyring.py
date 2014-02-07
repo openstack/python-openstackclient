@@ -37,7 +37,7 @@ class OpenstackKeyring(keyring.backends.file.BaseKeyring):
         block_size = 32
         padding = '0'
 
-        # init the cipher with the class name, upto block_size
+        # init the cipher with the class name, up to block_size
         password = __name__[block_size:]
         password = password + (block_size - len(password) %
                                block_size) * padding

@@ -105,7 +105,7 @@ class TestVolumeCreate(TestVolume):
         )
         self.assertEqual(columns, collist)
         datalist = (
-            'detatched',
+            'detached',
             volume_fakes.volume_description,
             volume_fakes.volume_name,
             volume_fakes.volume_id,
@@ -181,7 +181,7 @@ class TestVolumeCreate(TestVolume):
         )
         self.assertEqual(columns, collist)
         datalist = (
-            'detatched',
+            'detached',
             volume_fakes.volume_description,
             volume_fakes.volume_name,
             volume_fakes.volume_id,
@@ -257,7 +257,7 @@ class TestVolumeCreate(TestVolume):
         )
         self.assertEqual(columns, collist)
         datalist = (
-            'detatched',
+            'detached',
             volume_fakes.volume_description,
             volume_fakes.volume_name,
             volume_fakes.volume_id,
