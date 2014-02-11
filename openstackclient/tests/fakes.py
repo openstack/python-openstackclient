@@ -13,6 +13,7 @@
 #   under the License.
 #
 
+import six
 import sys
 
 
@@ -68,7 +69,7 @@ class FakeResource(object):
         self._loaded = loaded
 
     def _add_details(self, info):
-        for (k, v) in info.iteritems():
+        for (k, v) in six.iteritems(info):
             setattr(self, k, v)
 
     def __repr__(self):
