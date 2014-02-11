@@ -70,4 +70,4 @@ class IdentityClientv2_0(identity_client_v2_0.Client):
         if name == "projects":
             return self.tenants
         else:
-            raise AttributeError, name
+            raise AttributeError(name)
