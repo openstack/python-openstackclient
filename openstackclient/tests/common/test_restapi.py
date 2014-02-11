@@ -55,7 +55,7 @@ fake_headers = {
 
 
 class FakeResponse(requests.Response):
-    def __init__(self, headers={}, status_code=None, data=None, encoding=None):
+    def __init__(self, headers={}, status_code=200, data=None, encoding=None):
         super(FakeResponse, self).__init__()
 
         self.status_code = status_code
