@@ -32,7 +32,7 @@ VOLUME = {
     'display_description': volume_description,
     'size': volume_size,
     'status': '',
-    'attach_status': 'detatched',
+    'attach_status': 'detached',
     'metadata': volume_metadata,
 }
 
