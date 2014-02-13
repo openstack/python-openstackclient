@@ -6,5 +6,6 @@ python-glanceclient>=0.9.0
 python-keystoneclient>=0.9.0
 python-novaclient>=2.17.0
 python-cinderclient>=1.0.6
+python-neutronclient>=2.3.4,<3
 requests>=1.1
 six>=1.7.0

@@ -84,6 +84,16 @@ def format_dict(data):
     return output[:-2]
 
 
+def format_list(data):
+    """Return a formatted strings
+
+    :param data: a list of strings
+    :rtype: a string formatted to a,b,c
+    """
+
+    return ', '.join(data)
+
+
 def get_item_properties(item, fields, mixed_case_fields=[], formatters={}):
     """Return a tuple containing the item properties.
 
