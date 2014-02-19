@@ -114,23 +114,11 @@ class ListEndpoint(lister.Lister):
 
     log = logging.getLogger(__name__ + '.ListEndpoint')
 
-    def get_parser(self, prog_name):
-        parser = super(ListEndpoint, self).get_parser(prog_name)
-        parser.add_argument(
-            '--long',
-            action='store_true',
-            default=False,
-            help='List additional fields in output')
-        return parser
-
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        if parsed_args.long:
-            columns = ('ID', 'Region', 'Service Name', 'Service Type',
-                       'Enabled', 'Interface', 'URL')
-        else:
-            columns = ('ID', 'Region', 'Service Name', 'Enabled')
+        columns = ('ID', 'Region', 'Service Name', 'Service Type',
+                   'Enabled', 'Interface', 'URL')
         data = identity_client.endpoints.list()
 
         for ep in data:
