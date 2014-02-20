@@ -73,7 +73,7 @@ class Client_v1(gc_v1_client.Client):
 
     def __init__(self, *args, **kwargs):
         super(Client_v1, self).__init__(*args, **kwargs)
-        self.images = ImageManager_v1(self)
+        self.images = ImageManager_v1(getattr(self, 'http_client', self))
 
 
 class ImageManager_v1(gc_v1_images.ImageManager):
