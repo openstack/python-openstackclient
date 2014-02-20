@@ -14,6 +14,7 @@
 #
 
 import copy
+import mock
 
 from openstackclient.identity.v2_0 import user
 from openstackclient.tests import fakes
@@ -99,6 +100,7 @@ class TestUserCreate(TestUser):
         ]
         verifylist = [
             ('name', identity_fakes.user_name),
+            ('password_prompt', False),
             ('password', 'secret')
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -115,6 +117,47 @@ class TestUserCreate(TestUser):
         self.users_mock.create.assert_called_with(
             identity_fakes.user_name,
             'secret',
+            None,
+            **kwargs
+        )
+
+        collist = ('email', 'enabled', 'id', 'name', 'project_id')
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.user_email,
+            True,
+            identity_fakes.user_id,
+            identity_fakes.user_name,
+            identity_fakes.project_id,
+        )
+        self.assertEqual(data, datalist)
+
+    def test_user_create_password_prompt(self):
+        arglist = [
+            '--password-prompt',
+            identity_fakes.user_name,
+        ]
+        verifylist = [
+            ('name', identity_fakes.user_name),
+            ('password_prompt', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        mocker = mock.Mock()
+        mocker.return_value = 'abc123'
+        with mock.patch("openstackclient.common.utils.get_password", mocker):
+            columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'tenant_id': None,
+        }
+        # UserManager.create(name, password, email, tenant_id=, enabled=)
+        self.users_mock.create.assert_called_with(
+            identity_fakes.user_name,
+            'abc123',
             None,
             **kwargs
         )
@@ -498,6 +541,7 @@ class TestUserSet(TestUser):
         verifylist = [
             ('name', None),
             ('password', 'secret'),
+            ('password_prompt', False),
             ('email', None),
             ('project', None),
             ('enable', False),
@@ -513,6 +557,35 @@ class TestUserSet(TestUser):
         self.users_mock.update_password.assert_called_with(
             identity_fakes.user_id,
             'secret',
+        )
+
+    def test_user_set_password_prompt(self):
+        arglist = [
+            '--password-prompt',
+            identity_fakes.user_name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('password_prompt', True),
+            ('email', None),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', identity_fakes.user_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        mocker = mock.Mock()
+        mocker.return_value = 'abc123'
+        with mock.patch("openstackclient.common.utils.get_password", mocker):
+            self.cmd.take_action(parsed_args)
+
+        # UserManager.update_password(user, password)
+        self.users_mock.update_password.assert_called_with(
+            identity_fakes.user_id,
+            'abc123',
         )
 
     def test_user_set_email(self):

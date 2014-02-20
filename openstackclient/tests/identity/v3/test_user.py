@@ -14,6 +14,7 @@
 #
 
 import copy
+import mock
 
 from openstackclient.identity.v3 import user
 from openstackclient.tests import fakes
@@ -118,6 +119,7 @@ class TestUserCreate(TestUser):
         ]
         verifylist = [
             ('password', 'secret'),
+            ('password_prompt', False),
             ('enable', False),
             ('disable', False),
             ('name', identity_fakes.user_name),
@@ -135,6 +137,54 @@ class TestUserCreate(TestUser):
             'email': None,
             'enabled': True,
             'password': 'secret',
+        }
+        # UserManager.create(name, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            identity_fakes.user_name,
+            **kwargs
+        )
+
+        collist = ('domain_id', 'email', 'enabled', 'id', 'name', 'project_id')
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.domain_id,
+            identity_fakes.user_email,
+            True,
+            identity_fakes.user_id,
+            identity_fakes.user_name,
+            identity_fakes.project_id,
+        )
+        self.assertEqual(data, datalist)
+
+    def test_user_create_password_prompt(self):
+        arglist = [
+            '--password-prompt',
+            identity_fakes.user_name,
+        ]
+        verifylist = [
+            ('password', None),
+            ('password_prompt', True),
+            ('enable', False),
+            ('disable', False),
+            ('name', identity_fakes.user_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        mocker = mock.Mock()
+        mocker.return_value = 'abc123'
+        with mock.patch("openstackclient.common.utils.get_password", mocker):
+            columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'default_project': None,
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'password': 'abc123',
         }
         # UserManager.create(name, domain=, project=, password=, email=,
         #   description=, enabled=, default_project=)
@@ -761,6 +811,7 @@ class TestUserSet(TestUser):
         verifylist = [
             ('name', None),
             ('password', 'secret'),
+            ('password_prompt', False),
             ('email', None),
             ('domain', None),
             ('project', None),
@@ -777,6 +828,42 @@ class TestUserSet(TestUser):
         kwargs = {
             'enabled': True,
             'password': 'secret',
+        }
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            identity_fakes.user_id,
+            **kwargs
+        )
+
+    def test_user_set_password_prompt(self):
+        arglist = [
+            '--password-prompt',
+            identity_fakes.user_name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('password_prompt', True),
+            ('email', None),
+            ('domain', None),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', identity_fakes.user_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        mocker = mock.Mock()
+        mocker.return_value = 'abc123'
+        with mock.patch("openstackclient.common.utils.get_password", mocker):
+            self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'password': 'abc123',
         }
         # UserManager.update(user, name=, domain=, project=, password=,
         #     email=, description=, enabled=, default_project=)
