@@ -31,15 +31,23 @@ from openstackclient.common import utils
 def _xform_security_group_rule(sgroup):
     info = {}
     info.update(sgroup)
-    info.update(
-        {'port_range': "%u:%u" % (
-            info.pop('from_port'),
-            info.pop('to_port'),
-        )}
-    )
-    info['ip_range'] = info['ip_range']['cidr']
+    from_port = info.pop('from_port')
+    to_port = info.pop('to_port')
+    if isinstance(from_port, int) and isinstance(to_port, int):
+        port_range = {'port_range': "%u:%u" % (from_port, to_port)}
+    elif from_port is None and to_port is None:
+        port_range = {'port_range': ""}
+    else:
+        port_range = {'port_range': "%s:%s" % (from_port, to_port)}
+    info.update(port_range)
+    if 'cidr' in info['ip_range']:
+        info['ip_range'] = info['ip_range']['cidr']
+    else:
+        info['ip_range'] = ''
     if info['ip_protocol'] == 'icmp':
         info['port_range'] = ''
+    elif info['ip_protocol'] is None:
+        info['ip_protocol'] = ''
     return info
 
 
