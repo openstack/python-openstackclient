@@ -41,7 +41,7 @@ class CreateBackup(show.ShowOne):
             '--container',
             metavar='<container>',
             required=False,
-            help='Optional Backup container name.',
+            help='Optional backup container name.',
         )
         parser.add_argument(
             '--name',

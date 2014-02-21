@@ -68,7 +68,7 @@ class CreateVolume(show.ShowOne):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='Specify a diffeent project (admin only)',
+            help='Specify a different project (admin only)',
         )
         parser.add_argument(
             '--availability-zone',

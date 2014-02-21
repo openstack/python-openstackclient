@@ -483,40 +483,40 @@ class ListServer(lister.Lister):
         parser.add_argument(
             '--reservation-id',
             metavar='<reservation-id>',
-            help='only return instances that match the reservation')
+            help='Only return instances that match the reservation')
         parser.add_argument(
             '--ip',
             metavar='<ip-address-regex>',
-            help='regular expression to match IP address')
+            help='Regular expression to match IP addresses')
         parser.add_argument(
             '--ip6',
             metavar='<ip-address-regex>',
-            help='regular expression to match IPv6 address')
+            help='Regular expression to match IPv6 addresses')
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='regular expression to match name')
+            help='Regular expression to match names')
         parser.add_argument(
             '--status',
             metavar='<status>',
             # FIXME(dhellmann): Add choices?
-            help='search by server status')
+            help='Search by server status')
         parser.add_argument(
             '--flavor',
             metavar='<flavor>',
-            help='search by flavor ID')
+            help='Search by flavor ID')
         parser.add_argument(
             '--image',
             metavar='<image>',
-            help='search by image ID')
+            help='Search by image ID')
         parser.add_argument(
             '--host',
             metavar='<hostname>',
-            help='search by hostname')
+            help='Search by hostname')
         parser.add_argument(
             '--instance-name',
             metavar='<server-name>',
-            help='regular expression to match instance name (admin only)')
+            help='Regular expression to match instance name (admin only)')
         parser.add_argument(
             '--all-projects',
             action='store_true',
@@ -526,7 +526,7 @@ class ListServer(lister.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='Additional fields are listed in output')
+            help='List additional fields in output')
         return parser
 
     def take_action(self, parsed_args):
@@ -1181,14 +1181,14 @@ class SshServer(command.Command):
             dest='ipv4',
             action='store_true',
             default=False,
-            help='Use only IPv4 addresses only',
+            help='Use only IPv4 addresses',
         )
         ip_group.add_argument(
             '-6',
             dest='ipv6',
             action='store_true',
             default=False,
-            help='Use only IPv6 addresses only',
+            help='Use only IPv6 addresses',
         )
         type_group = parser.add_mutually_exclusive_group()
         type_group.add_argument(

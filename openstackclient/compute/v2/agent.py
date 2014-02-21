@@ -136,7 +136,7 @@ class SetAgent(show.ShowOne):
         parser.add_argument(
             "id",
             metavar="<id>",
-            help="ID of the agent build")
+            help="ID of the agent")
         parser.add_argument(
             "version",
             metavar="<version>",

@@ -106,7 +106,7 @@ class ListEndpoint(lister.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='Additional fields are listed in output')
+            help='List additional fields in output')
         return parser
 
     def take_action(self, parsed_args):

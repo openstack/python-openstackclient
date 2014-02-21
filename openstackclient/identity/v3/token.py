@@ -213,12 +213,12 @@ class DeleteAccessToken(command.Command):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='Name or Id of user',
+            help='Name or ID of user',
         )
         parser.add_argument(
             'access_key',
             metavar='<access-key>',
-            help='Access Token to be deleted',
+            help='Access token to be deleted',
         )
         return parser
 
@@ -243,7 +243,7 @@ class ListAccessToken(lister.Lister):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='Name or Id of user',
+            help='Name or ID of user',
         )
         return parser
 
