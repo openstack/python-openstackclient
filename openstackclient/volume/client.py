@@ -48,6 +48,7 @@ def make_client(instance):
         auth_url=instance._auth_url,
         cacert=instance._cacert,
         insecure=instance._insecure,
+        region_name=instance._region_name,
         http_log_debug=http_log_debug
     )
 
