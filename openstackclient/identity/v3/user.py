@@ -44,6 +44,12 @@ class CreateUser(show.ShowOne):
             help='New user password',
         )
         parser.add_argument(
+            '--password-prompt',
+            dest="password_prompt",
+            action="store_true",
+            help='Prompt interactively for password',
+        )
+        parser.add_argument(
             '--email',
             metavar='<user-email>',
             help='New user email address',
@@ -97,6 +103,8 @@ class CreateUser(show.ShowOne):
         enabled = True
         if parsed_args.disable:
             enabled = False
+        if parsed_args.password_prompt:
+            parsed_args.password = utils.get_password(self.app.stdin)
 
         user = identity_client.users.create(
             parsed_args.name,
@@ -274,6 +282,12 @@ class SetUser(command.Command):
             help='New user password',
         )
         parser.add_argument(
+            '--password-prompt',
+            dest="password_prompt",
+            action="store_true",
+            help='Prompt interactively for password',
+        )
+        parser.add_argument(
             '--email',
             metavar='<user-email>',
             help='New user email address',
@@ -309,6 +323,9 @@ class SetUser(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
+
+        if parsed_args.password_prompt:
+            parsed_args.password = utils.get_password(self.app.stdin)
 
         if (not parsed_args.name
                 and not parsed_args.name
