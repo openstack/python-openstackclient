@@ -117,7 +117,7 @@ class OpenStackShell(app.App):
                     action='store_true',
                     dest='deferred_help',
                     default=False,
-                    help="show this help message and exit",
+                    help="Show this help message and exit",
                 )
 
     def run(self, argv):
@@ -147,21 +147,21 @@ class OpenStackShell(app.App):
             '--os-domain-name',
             metavar='<auth-domain-name>',
             default=env('OS_DOMAIN_NAME'),
-            help='Domain name of the requested domain-level'
+            help='Domain name of the requested domain-level '
                  'authorization scope (Env: OS_DOMAIN_NAME)',
         )
         parser.add_argument(
             '--os-domain-id',
             metavar='<auth-domain-id>',
             default=env('OS_DOMAIN_ID'),
-            help='Domain ID of the requested domain-level'
+            help='Domain ID of the requested domain-level '
                  'authorization scope (Env: OS_DOMAIN_ID)',
         )
         parser.add_argument(
             '--os-project-name',
             metavar='<auth-project-name>',
             default=env('OS_PROJECT_NAME', default=env('OS_TENANT_NAME')),
-            help='Project name of the requested project-level'
+            help='Project name of the requested project-level '
                  'authorization scope (Env: OS_PROJECT_NAME)',
         )
         parser.add_argument(
@@ -174,7 +174,7 @@ class OpenStackShell(app.App):
             '--os-project-id',
             metavar='<auth-project-id>',
             default=env('OS_PROJECT_ID', default=env('OS_TENANT_ID')),
-            help='Project ID of the requested project-level'
+            help='Project ID of the requested project-level '
                  'authorization scope (Env: OS_PROJECT_ID)',
         )
         parser.add_argument(

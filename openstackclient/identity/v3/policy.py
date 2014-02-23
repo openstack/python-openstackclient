@@ -37,7 +37,7 @@ class CreatePolicy(show.ShowOne):
             '--type',
             metavar='<policy-type>',
             default="application/json",
-            help='New MIME Type of the policy blob - i.e.: application/json',
+            help='New MIME type of the policy blob - i.e.: application/json',
         )
         parser.add_argument(
             'blob_file',
