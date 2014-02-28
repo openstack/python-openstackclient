@@ -2,8 +2,9 @@
 OpenStack Client
 ================
 
-python-openstackclient is a unified command-line client for the OpenStack APIs.
-It is a thin wrapper to the stock python-*client modules that implement the
+OpenStackclient (aka ``python-openstackclient``) is a command-line client for
+the OpenStack APIs.
+It is primarily a wrapper to the stock python-*client modules that implement the
 actual REST API client actions.
 
 This is an implementation of the design goals shown in
@@ -14,8 +15,7 @@ operations in OpenStack.  The master repository is on GitHub_.
 .. _OpenStack Client Wiki: https://wiki.openstack.org/wiki/OpenStackClient
 .. _GitHub: https://github.com/openstack/python-openstackclient
 
-python-openstackclient is designed to add support for API extensions via a
-plugin mechanism.
+OpenStackclient has a plugin mechanism to add support for API extensions.
 
 * `Release management`_
 * `Blueprints and feature specifications`_
@@ -32,31 +32,40 @@ plugin mechanism.
 Note
 ====
 
-OpenStackClient is considered to be alpha release quality as of the 0.2 release;
+OpenStackClient is considered to be beta release quality as of the 0.3 release;
 no assurances are made at this point for ongoing compatibility in command forms
 or output.  We do not, however, expect any major changes at this point.
 
 Getting Started
 ===============
 
-We recommend using a virtualenv to install the client. This description
-uses the `install virtualenv`_ script to create the virtualenv::
+OpenStackclient can be installed from PyPI using pip::
+
+    pip install python-openstackclient
+
+Developers can use the `install virtualenv`_ script to create the virtualenv::
 
    python tools/install_venv.py
    source .venv/bin/activate
    python setup.py develop
 
-Unit tests can be ran simply by running::
-
-   run_tests.sh
+Unit tests are now run using tox.  The ``run_test.sh`` script provides compatability
+but is generally considered deprecated.
 
 The client can be called interactively by simply typing::
 
    openstack
 
-Alternatively command line parameters can be called non-interactively::
+There are a few variants on getting help.  A list of global options and supported
+commands is shown with ``--help``::
 
    openstack --help
+
+There is also a ``help`` command that can be used to get help text for a specific
+command::
+
+    openstack help
+    openstack help server create
 
 Configuration
 =============
@@ -116,10 +125,9 @@ The source is maintained in the ``doc/source`` folder using
 .. _reStructuredText: http://docutils.sourceforge.net/rst.html
 .. _Sphinx: http://sphinx.pocoo.org/
 
-* Building Manually::
+Building Manually::
 
-    $ export DJANGO_SETTINGS_MODULE=local.local_settings
-    $ python doc/generate_autodoc_index.py
-    $ sphinx-build -b html doc/source build/sphinx/html
+    cd doc
+    make html
 
-Results are in the `build/sphinx/html` directory.
+Results are in the ``build/html`` directory.

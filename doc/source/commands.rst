@@ -61,6 +61,36 @@ They follow the same style as the global options and always appear between
 the command and any positional arguments the command requires.
 
 
+Actions
+-------
+
+The actions used by OpenStackClient are defined below to provide a consistent meaning to each action. Many of them have logical opposite actions. Those actions with an opposite action are noted in parens if applicable.
+
+* authorize - authorize a token (used in OAuth)
+* add (remove) - add some object to a container object; the command is built in the order of "container add object" (<container> <object>), the positional arguments appear in the same order
+* attach (detach) - deprecated; use add/remove
+* create (delete) - create a new occurrance of the specified object
+* delete (create) - delete a specific occurrance of the specified object
+* detach (attach) - deprecated; use add/remove
+* list - display summary information about multiple objects
+* lock (unlock)
+* migrate - move a server to a different host; --live performs a live migration if possible
+* pause (unpause) - stop a server and leave it in memory
+* reboot - forcibly reboot a server
+* rebuild - rebuild a server using (most of) the same arguments as in the original create
+* remove (add) - remove an object from a group of objects
+* rescue (unrescue) - reboot a server in a special rescue mode allowing access to the original disks
+* resize - change a server's flavor
+* resume (suspend) - return a suspended server to running state
+* save - download an object locally
+* set (unset) - set a property on the object, formerly called metadata
+* show - display detailed information about the specific object
+* suspend (resume) - stop a server and save to disk freeing memory
+* unlock (lock)
+* unpause (pause) - return a paused server to running state
+* unrescue (rescue) - return a server to normal boot mode
+* unset (set) - remove an attribute of the object
+
 Implementation
 ==============
 
