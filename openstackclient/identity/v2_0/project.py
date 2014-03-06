@@ -22,6 +22,7 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
+from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
@@ -53,6 +54,13 @@ class CreateProject(show.ShowOne):
             action='store_true',
             help='Disable project',
         )
+        parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            help='Property to add for this project '
+                 '(repeat option to set multiple properties)',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -62,11 +70,15 @@ class CreateProject(show.ShowOne):
         enabled = True
         if parsed_args.disable:
             enabled = False
+        kwargs = {}
+        if parsed_args.property:
+            kwargs = parsed_args.property.copy()
 
         project = identity_client.tenants.create(
             parsed_args.name,
             description=parsed_args.description,
             enabled=enabled,
+            **kwargs
         )
 
         info = {}
@@ -163,6 +175,13 @@ class SetProject(command.Command):
             action='store_true',
             help='Disable project',
         )
+        parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            help='Property to add for this project '
+                 '(repeat option to set multiple properties)',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -172,6 +191,7 @@ class SetProject(command.Command):
         if (not parsed_args.name
                 and not parsed_args.description
                 and not parsed_args.enable
+                and not parsed_args.property
                 and not parsed_args.disable):
             return
 
@@ -189,6 +209,8 @@ class SetProject(command.Command):
             kwargs['enabled'] = True
         if parsed_args.disable:
             kwargs['enabled'] = False
+        if parsed_args.property:
+            kwargs.update(parsed_args.property)
         if 'id' in kwargs:
             del kwargs['id']
         if 'name' in kwargs:
