@@ -6,7 +6,7 @@ Release Notes
 ===================
 
 * add ``token create`` command
-* internal changes for Python 3.3 compatability
+* internal changes for Python 3.3 compatibility
 * Bug 1100116_: Prompt interactive user for passwords in ``user create`` and ``user set``
 * Bug 1198171_: add domain support options for Identity v3
 * Bug 1241177_: Fix region handling in volume commands
