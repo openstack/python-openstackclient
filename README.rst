@@ -49,7 +49,7 @@ Developers can use the `install virtualenv`_ script to create the virtualenv::
    source .venv/bin/activate
    python setup.py develop
 
-Unit tests are now run using tox.  The ``run_test.sh`` script provides compatability
+Unit tests are now run using tox.  The ``run_test.sh`` script provides compatibility
 but is generally considered deprecated.
 
 The client can be called interactively by simply typing::
