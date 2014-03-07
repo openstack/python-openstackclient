@@ -376,6 +376,35 @@ class TestProjectList(TestProject):
         ), )
         self.assertEqual(tuple(data), datalist)
 
+    def test_project_list_domain(self):
+        arglist = [
+            '--domain', identity_fakes.domain_name,
+        ]
+        verifylist = [
+            ('domain', identity_fakes.domain_name),
+        ]
+
+        self.domains_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.DOMAIN),
+            loaded=True,
+        )
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+        self.projects_mock.list.assert_called_with(
+            domain=identity_fakes.domain_id)
+
+        collist = ('ID', 'Name')
+        self.assertEqual(columns, collist)
+        datalist = ((
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+        ), )
+        self.assertEqual(tuple(data), datalist)
+
 
 class TestProjectSet(TestProject):
 

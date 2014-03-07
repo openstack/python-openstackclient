@@ -140,15 +140,27 @@ class ListProject(lister.Lister):
             default=False,
             help='List additional fields in output',
         )
+        parser.add_argument(
+            '--domain',
+            metavar='<project-domain>',
+            help='Filter by a specific domain',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
         if parsed_args.long:
             columns = ('ID', 'Name', 'Domain ID', 'Description', 'Enabled')
         else:
             columns = ('ID', 'Name')
-        data = self.app.client_manager.identity.projects.list()
+        kwargs = {}
+        if parsed_args.domain:
+            kwargs['domain'] = utils.find_resource(
+                identity_client.domains,
+                parsed_args.domain,
+            ).id
+        data = identity_client.projects.list(**kwargs)
         return (columns,
                 (utils.get_item_properties(
                     s, columns,
