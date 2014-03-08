@@ -112,6 +112,19 @@ class CreateImage(show.ShowOne):
                  " should immediately be copied from the data store",
         )
         parser.add_argument(
+            "--volume",
+            metavar="<volume>",
+            help="Create the image from the specified volume",
+        )
+        parser.add_argument(
+            "--force",
+            dest='force',
+            action='store_true',
+            default=False,
+            help="If the image is created from a volume, force creation of the"
+                 " image even if volume is in use.",
+        )
+        parser.add_argument(
             "--property",
             dest="properties",
             metavar="<key=value>",
@@ -162,7 +175,9 @@ class CreateImage(show.ShowOne):
         args.pop("variables")
 
         if "location" not in args and "copy_from" not in args:
-            if "file" in args:
+            if "volume" in args:
+                pass
+            elif "file" in args:
                 args["data"] = open(args.pop("file"), "rb")
             else:
                 args["data"] = None
@@ -171,23 +186,35 @@ class CreateImage(show.ShowOne):
                         msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
                     args["data"] = sys.stdin
 
-        image_client = self.app.client_manager.image
-        try:
-            image = utils.find_resource(
-                image_client.images,
-                parsed_args.name,
-            )
-        except exceptions.CommandError:
-            # This is normal for a create or reserve (create w/o an image)
-            image = image_client.images.create(**args)
+        if "volume" in args:
+            volume_client = self.app.client_manager.volume
+            source_volume = utils.find_resource(volume_client.volumes,
+                                                parsed_args.volume)
+            response, body = volume_client.volumes.upload_to_image(
+                                source_volume,
+                                parsed_args.force,
+                                parsed_args.name,
+                                parsed_args.container_format,
+                                parsed_args.disk_format)
+            info = body['os-volume_upload_image']
         else:
-            # It must be an update
-            # If an image is specified via --file, --location or --copy-from
-            # let the API handle it
-            image = image_client.images.update(image, **args)
+            image_client = self.app.client_manager.image
+            try:
+                image = utils.find_resource(
+                    image_client.images,
+                    parsed_args.name,
+                )
+            except exceptions.CommandError:
+                # This is normal for a create or reserve (create w/o an image)
+                image = image_client.images.create(**args)
+            else:
+                # It must be an update
+                # If an image is specified via --file, --location or
+                # --copy-from let the API handle it
+                image = image_client.images.update(image, **args)
 
-        info = {}
-        info.update(image._info)
+            info = {}
+            info.update(image._info)
         return zip(*sorted(six.iteritems(info)))
 
 
