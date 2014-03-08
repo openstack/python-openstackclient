@@ -69,8 +69,8 @@ The actions used by OpenStackClient are defined below to provide a consistent me
 * authorize - authorize a token (used in OAuth)
 * add (remove) - add some object to a container object; the command is built in the order of "container add object" (<container> <object>), the positional arguments appear in the same order
 * attach (detach) - deprecated; use add/remove
-* create (delete) - create a new occurrance of the specified object
-* delete (create) - delete a specific occurrance of the specified object
+* create (delete) - create a new occurrence of the specified object
+* delete (create) - delete a specific occurrence of the specified object
 * detach (attach) - deprecated; use add/remove
 * list - display summary information about multiple objects
 * lock (unlock)
