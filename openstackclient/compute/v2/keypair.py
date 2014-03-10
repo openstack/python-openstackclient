@@ -146,7 +146,7 @@ class ShowKeypair(show.ShowOne):
                                       parsed_args.name)
 
         info = {}
-        info.update(keypair._info['keypair'])
+        info.update(keypair._info)
         if not parsed_args.public_key:
             del info['public_key']
             return zip(*sorted(six.iteritems(info)))
