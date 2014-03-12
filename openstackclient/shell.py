@@ -480,6 +480,7 @@ class OpenStackShell(app.App):
         #                this path does not call prepare_to_run_command()
         self.authenticate_user()
         self.restapi.set_auth(self.client_manager.identity.auth_token)
+        sys.argv =[] #fix for https://bugs.launchpad.net/python-openstackclient/+bug/1103218
         super(OpenStackShell, self).interact()
 
 
