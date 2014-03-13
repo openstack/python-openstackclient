@@ -182,6 +182,43 @@ class TestProjectCreate(TestProject):
         )
         self.assertEqual(data, datalist)
 
+    def test_project_create_property(self):
+        arglist = [
+            '--property', 'fee=fi',
+            '--property', 'fo=fum',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('property', {'fee': 'fi', 'fo': 'fum'}),
+            ('name', identity_fakes.project_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'description': None,
+            'enabled': True,
+            'fee': 'fi',
+            'fo': 'fum',
+        }
+        self.projects_mock.create.assert_called_with(
+            identity_fakes.project_name,
+            **kwargs
+        )
+
+        collist = ('description', 'enabled', 'id', 'name')
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.project_description,
+            True,
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+        )
+        self.assertEqual(data, datalist)
+
 
 class TestProjectDelete(TestProject):
 
@@ -406,6 +443,34 @@ class TestProjectSet(TestProject):
             'description': identity_fakes.project_description,
             'enabled': False,
             'tenant_name': identity_fakes.project_name,
+        }
+        self.projects_mock.update.assert_called_with(
+            identity_fakes.project_id,
+            **kwargs
+        )
+
+    def test_project_set_property(self):
+        arglist = [
+            '--property', 'fee=fi',
+            '--property', 'fo=fum',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('property', {'fee': 'fi', 'fo': 'fum'}),
+            ('project', identity_fakes.project_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.run(parsed_args)
+        self.assertEqual(result, 0)
+
+        # Set expected values
+        kwargs = {
+            'description': identity_fakes.project_description,
+            'enabled': True,
+            'tenant_name': identity_fakes.project_name,
+            'fee': 'fi',
+            'fo': 'fum',
         }
         self.projects_mock.update.assert_called_with(
             identity_fakes.project_id,
