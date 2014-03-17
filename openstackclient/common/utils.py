@@ -74,6 +74,10 @@ def find_resource(manager, name_or_id):
             msg = "No %s with a name or ID of '%s' exists." % \
                 (manager.resource_class.__name__.lower(), name_or_id)
             raise exceptions.CommandError(msg)
+        if type(ex).__name__ == 'NoUniqueMatch':
+            msg = "More than one %s exists with the name '%s'." % \
+                (manager.resource_class.__name__.lower(), name_or_id)
+            raise exceptions.CommandError(msg)
         else:
             raise
 
