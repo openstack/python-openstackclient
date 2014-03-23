@@ -135,9 +135,11 @@ class ListEC2Creds(lister.Lister):
             # Get the user from the current auth
             user = identity_client.auth_user_id
 
-        columns = ('Access', 'Secret', 'Project ID', 'User ID')
+        columns = ('access', 'secret', 'tenant_id', 'user_id')
+        column_headers = ('Access', 'Secret', 'Project ID', 'User ID')
         data = identity_client.ec2.list(user)
-        return (columns,
+
+        return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
                     formatters={},
