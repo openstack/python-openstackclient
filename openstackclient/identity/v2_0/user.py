@@ -156,6 +156,7 @@ class ListUser(lister.Lister):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+        identity_client = self.app.client_manager.identity
 
         def _format_project(project):
             if not project:
@@ -164,6 +165,14 @@ class ListUser(lister.Lister):
                 return project_cache[project].name
             else:
                 return project
+
+        project = None
+        if parsed_args.project:
+            project = utils.find_resource(
+                identity_client.tenants,
+                parsed_args.project,
+            )
+            project = project.id
 
         if parsed_args.long:
             columns = (
@@ -183,14 +192,20 @@ class ListUser(lister.Lister):
             # Cache the project list
             project_cache = {}
             try:
-                for p in self.app.client_manager.identity.tenants.list():
+                for p in identity_client.tenants.list():
                     project_cache[p.id] = p
             except Exception:
                 # Just forget it if there's any trouble
                 pass
         else:
             columns = column_headers = ('ID', 'Name')
-        data = self.app.client_manager.identity.users.list()
+        data = identity_client.users.list(tenant_id=project)
+
+        if parsed_args.project:
+            d = {}
+            for s in data:
+                d[s.id] = s
+            data = d.values()
 
         if parsed_args.long:
             # FIXME(dtroyer): Sometimes user objects have 'tenant_id' instead
