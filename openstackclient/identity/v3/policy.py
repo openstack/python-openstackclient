@@ -48,7 +48,7 @@ class CreatePolicy(show.ShowOne):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        blob = _read_blob_file_contents(parsed_args.blob_file)
+        blob = utils.read_blob_file_contents(parsed_args.blob_file)
 
         identity_client = self.app.client_manager.identity
         policy = identity_client.policies.create(
@@ -138,7 +138,7 @@ class SetPolicy(command.Command):
         blob = None
 
         if parsed_args.blob_file:
-            blob = _read_blob_file_contents(parsed_args.blob_file)
+            blob = utils.read_blob_file_contents(parsed_args.blob_file)
 
         kwargs = {}
         if blob:
@@ -174,9 +174,3 @@ class ShowPolicy(show.ShowOne):
                                      parsed_args.policy)
 
         return zip(*sorted(six.iteritems(policy._info)))
-
-
-def _read_blob_file_contents(blob_file):
-    with open(blob_file) as file:
-        blob = file.read().strip()
-    return blob

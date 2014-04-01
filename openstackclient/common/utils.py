@@ -249,3 +249,13 @@ def get_password(stdin):
             raise exceptions.CommandError("Error reading password.")
     raise exceptions.CommandError("There was a request to be prompted for a"
                                   " password and a terminal was not detected.")
+
+
+def read_blob_file_contents(blob_file):
+    try:
+        with open(blob_file) as file:
+            blob = file.read().strip()
+        return blob
+    except IOError:
+        msg = "Error occurred trying to read from file %s"
+        raise exceptions.CommandError(msg % blob_file)
