@@ -73,11 +73,11 @@ class CreateEndpoint(show.ShowOne):
                                       parsed_args.service)
 
         endpoint = identity_client.endpoints.create(
-            service.id,
-            parsed_args.url,
-            parsed_args.interface,
-            parsed_args.region,
-            parsed_args.enabled
+            service=service.id,
+            url=parsed_args.url,
+            interface=parsed_args.interface,
+            region=parsed_args.region,
+            enabled=parsed_args.enabled
         )
 
         info = {}
@@ -192,11 +192,11 @@ class SetEndpoint(command.Command):
 
         identity_client.endpoints.update(
             endpoint.id,
-            service.id,
-            parsed_args.url,
-            parsed_args.interface,
-            parsed_args.region,
-            parsed_args.enabled
+            service=service.id,
+            url=parsed_args.url,
+            interface=parsed_args.interface,
+            region=parsed_args.region,
+            enabled=parsed_args.enabled
         )
 
         return

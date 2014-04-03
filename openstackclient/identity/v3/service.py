@@ -64,9 +64,9 @@ class CreateService(show.ShowOne):
             enabled = False
 
         service = identity_client.services.create(
-            parsed_args.name,
-            parsed_args.type,
-            enabled,
+            name=parsed_args.name,
+            type=parsed_args.type,
+            enabled=enabled,
         )
 
         return zip(*sorted(six.iteritems(service._info)))

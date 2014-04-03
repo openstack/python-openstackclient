@@ -155,7 +155,7 @@ class CreateRole(show.ShowOne):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
-        role = identity_client.roles.create(parsed_args.name)
+        role = identity_client.roles.create(name=parsed_args.name)
 
         return zip(*sorted(six.iteritems(role._info)))
 

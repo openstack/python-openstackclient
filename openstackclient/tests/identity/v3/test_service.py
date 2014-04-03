@@ -60,11 +60,11 @@ class TestServiceCreate(TestService):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        # ServiceManager.create(name, type, enabled=, **kwargs)
+        # ServiceManager.create(name=, type=, enabled=, **kwargs)
         self.services_mock.create.assert_called_with(
-            identity_fakes.service_name,
-            identity_fakes.service_type,
-            True,
+            name=identity_fakes.service_name,
+            type=identity_fakes.service_type,
+            enabled=True,
         )
 
         collist = ('enabled', 'id', 'name', 'type')
@@ -93,11 +93,11 @@ class TestServiceCreate(TestService):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        # ServiceManager.create(name, type, enabled=, **kwargs)
+        # ServiceManager.create(name=, type=, enabled=, **kwargs)
         self.services_mock.create.assert_called_with(
-            None,
-            identity_fakes.service_type,
-            True,
+            name=None,
+            type=identity_fakes.service_type,
+            enabled=True,
         )
 
         collist = ('enabled', 'id', 'name', 'type')
@@ -126,11 +126,11 @@ class TestServiceCreate(TestService):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        # ServiceManager.create(name, type, enabled=, **kwargs)
+        # ServiceManager.create(name=, type=, enabled=, **kwargs)
         self.services_mock.create.assert_called_with(
-            None,
-            identity_fakes.service_type,
-            False,
+            name=None,
+            type=identity_fakes.service_type,
+            enabled=False,
         )
 
         collist = ('enabled', 'id', 'name', 'type')

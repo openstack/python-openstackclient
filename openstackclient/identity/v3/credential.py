@@ -68,9 +68,9 @@ class CreateCredential(show.ShowOne):
         else:
             project = None
         credential = identity_client.credentials.create(
-            user_id,
-            parsed_args.type,
-            parsed_args.data,
+            user=user_id,
+            type=parsed_args.type,
+            blob=parsed_args.data,
             project=project)
 
         return zip(*sorted(six.iteritems(credential._info)))

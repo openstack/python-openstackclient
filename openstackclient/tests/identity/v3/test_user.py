@@ -85,6 +85,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.user_name,
             'default_project': None,
             'description': None,
             'domain': None,
@@ -93,10 +94,9 @@ class TestUserCreate(TestUser):
             'password': None,
         }
 
-        # UserManager.create(name, domain=, project=, password=, email=,
+        # UserManager.create(name=, domain=, project=, password=, email=,
         #   description=, enabled=, default_project=)
         self.users_mock.create.assert_called_with(
-            identity_fakes.user_name,
             **kwargs
         )
 
@@ -131,6 +131,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.user_name,
             'default_project': None,
             'description': None,
             'domain': None,
@@ -138,10 +139,9 @@ class TestUserCreate(TestUser):
             'enabled': True,
             'password': 'secret',
         }
-        # UserManager.create(name, domain=, project=, password=, email=,
+        # UserManager.create(name=, domain=, project=, password=, email=,
         #   description=, enabled=, default_project=)
         self.users_mock.create.assert_called_with(
-            identity_fakes.user_name,
             **kwargs
         )
 
@@ -179,6 +179,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.user_name,
             'default_project': None,
             'description': None,
             'domain': None,
@@ -186,10 +187,9 @@ class TestUserCreate(TestUser):
             'enabled': True,
             'password': 'abc123',
         }
-        # UserManager.create(name, domain=, project=, password=, email=,
+        # UserManager.create(name=, domain=, project=, password=, email=,
         #   description=, enabled=, default_project=)
         self.users_mock.create.assert_called_with(
-            identity_fakes.user_name,
             **kwargs
         )
 
@@ -223,6 +223,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.user_name,
             'default_project': None,
             'description': None,
             'domain': None,
@@ -230,10 +231,9 @@ class TestUserCreate(TestUser):
             'enabled': True,
             'password': None,
         }
-        # UserManager.create(name, domain=, project=, password=, email=,
+        # UserManager.create(name=, domain=, project=, password=, email=,
         #   description=, enabled=, default_project=)
         self.users_mock.create.assert_called_with(
-            identity_fakes.user_name,
             **kwargs
         )
 
@@ -282,6 +282,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.user_name,
             'default_project': identity_fakes.PROJECT_2['id'],
             'description': None,
             'domain': None,
@@ -289,10 +290,9 @@ class TestUserCreate(TestUser):
             'enabled': True,
             'password': None,
         }
-        # UserManager.create(name, domain=, project=, password=, email=,
+        # UserManager.create(name=, domain=, project=, password=, email=,
         #   description=, enabled=, default_project=)
         self.users_mock.create.assert_called_with(
-            identity_fakes.user_name,
             **kwargs
         )
 
@@ -326,6 +326,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.user_name,
             'default_project': None,
             'description': None,
             'domain': identity_fakes.domain_id,
@@ -333,10 +334,9 @@ class TestUserCreate(TestUser):
             'enabled': True,
             'password': None,
         }
-        # UserManager.create(name, domain=, project=, password=, email=,
+        # UserManager.create(name=, domain=, project=, password=, email=,
         #   description=, enabled=, default_project=)
         self.users_mock.create.assert_called_with(
-            identity_fakes.user_name,
             **kwargs
         )
 
@@ -369,6 +369,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.user_name,
             'default_project': None,
             'description': None,
             'domain': None,
@@ -376,10 +377,9 @@ class TestUserCreate(TestUser):
             'enabled': True,
             'password': None,
         }
-        # UserManager.create(name, domain=, project=, password=, email=,
+        # UserManager.create(name=, domain=, project=, password=, email=,
         #   description=, enabled=, default_project=)
         self.users_mock.create.assert_called_with(
-            identity_fakes.user_name,
             **kwargs
         )
 
@@ -412,6 +412,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.user_name,
             'default_project': None,
             'description': None,
             'domain': None,
@@ -419,9 +420,8 @@ class TestUserCreate(TestUser):
             'enabled': False,
             'password': None,
         }
-        # users.create(name, password, email, tenant_id=None, enabled=True)
+        # users.create(name=, password, email, tenant_id=None, enabled=True)
         self.users_mock.create.assert_called_with(
-            identity_fakes.user_name,
             **kwargs
         )
 
