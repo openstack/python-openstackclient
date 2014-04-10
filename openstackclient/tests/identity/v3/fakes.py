@@ -38,6 +38,65 @@ GROUP = {
     'name': group_name,
 }
 
+mapping_id = 'test_mapping'
+mapping_rules_file_path = '/tmp/path/to/file'
+# Copied from
+# (https://github.com/openstack/keystone/blob\
+# master/keystone/tests/mapping_fixtures.py
+EMPLOYEE_GROUP_ID = "0cd5e9"
+DEVELOPER_GROUP_ID = "xyz"
+MAPPING_RULES = [
+    {
+        "local": [
+            {
+                "group": {
+                    "id": EMPLOYEE_GROUP_ID
+                }
+            }
+        ],
+        "remote": [
+            {
+                "type": "orgPersonType",
+                "not_any_of": [
+                    "Contractor",
+                    "Guest"
+                ]
+            }
+        ]
+    }
+]
+
+MAPPING_RULES_2 = [
+    {
+        "local": [
+            {
+                "group": {
+                    "id": DEVELOPER_GROUP_ID
+                }
+            }
+        ],
+        "remote": [
+            {
+                "type": "orgPersonType",
+                "any_one_of": [
+                    "Contractor"
+                ]
+            }
+        ]
+    }
+]
+
+
+MAPPING_RESPONSE = {
+    "id": mapping_id,
+    "rules": MAPPING_RULES
+}
+
+MAPPING_RESPONSE_2 = {
+    "id": mapping_id,
+    "rules": MAPPING_RULES_2
+}
+
 project_id = '8-9-64'
 project_name = 'beatles'
 project_description = 'Fab Four'
@@ -224,6 +283,8 @@ class FakeFederationManager(object):
     def __init__(self, **kwargs):
         self.identity_providers = mock.Mock()
         self.identity_providers.resource_class = fakes.FakeResource(None, {})
+        self.mappings = mock.Mock()
+        self.mappings.resource_class = fakes.FakeResource(None, {})
 
 
 class FakeFederatedClient(FakeIdentityv3Client):
