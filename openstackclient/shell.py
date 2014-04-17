@@ -24,6 +24,7 @@ import traceback
 
 from cliff import app
 from cliff import command
+from cliff import complete
 from cliff import help
 
 import openstackclient
@@ -64,8 +65,10 @@ class OpenStackShell(app.App):
     def __init__(self):
         # Patch command.Command to add a default auth_required = True
         command.Command.auth_required = True
+        command.Command.best_effort = False
         # But not help
         help.HelpCommand.auth_required = False
+        complete.CompleteCommand.best_effort = True
 
         super(OpenStackShell, self).__init__(
             description=__doc__.strip(),
@@ -465,7 +468,15 @@ class OpenStackShell(app.App):
         """Set up auth and API versions"""
         self.log.debug('prepare_to_run_command %s', cmd.__class__.__name__)
 
-        if cmd.auth_required:
+        if not cmd.auth_required:
+            return
+        if cmd.best_effort:
+            try:
+                self.authenticate_user()
+                self.restapi.set_auth(self.client_manager.identity.auth_token)
+            except Exception:
+                pass
+        else:
             self.authenticate_user()
             self.restapi.set_auth(self.client_manager.identity.auth_token)
         return
