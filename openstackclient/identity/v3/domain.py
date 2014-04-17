@@ -61,8 +61,8 @@ class CreateDomain(show.ShowOne):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         domain = identity_client.domains.create(
-            parsed_args.name,
-            parsed_args.description,
+            name=parsed_args.name,
+            description=parsed_args.description,
             enabled=parsed_args.enabled,
         )
 

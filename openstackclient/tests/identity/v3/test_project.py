@@ -70,13 +70,14 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.project_name,
+            'domain': None,
             'description': None,
             'enabled': True,
         }
-        # ProjectManager.create(name, domain, description=, enabled=, **kwargs)
+        # ProjectManager.create(name=, domain=, description=,
+        #                       enabled=, **kwargs)
         self.projects_mock.create.assert_called_with(
-            identity_fakes.project_name,
-            None,
             **kwargs
         )
 
@@ -109,13 +110,14 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.project_name,
+            'domain': None,
             'description': 'new desc',
             'enabled': True,
         }
-        # ProjectManager.create(name, domain, description=, enabled=, **kwargs)
+        # ProjectManager.create(name=, domain=, description=,
+        #                       enabled=, **kwargs)
         self.projects_mock.create.assert_called_with(
-            identity_fakes.project_name,
-            None,
             **kwargs
         )
 
@@ -148,13 +150,14 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.project_name,
+            'domain': identity_fakes.domain_id,
             'description': None,
             'enabled': True,
         }
-        # ProjectManager.create(name, domain, description=, enabled=, **kwargs)
+        # ProjectManager.create(name=, domain=, description=,
+        #                       enabled=, **kwargs)
         self.projects_mock.create.assert_called_with(
-            identity_fakes.project_name,
-            identity_fakes.domain_id,
             **kwargs
         )
 
@@ -186,13 +189,14 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.project_name,
+            'domain': None,
             'description': None,
             'enabled': True,
         }
-        # ProjectManager.create(name, domain, description=, enabled=, **kwargs)
+        # ProjectManager.create(name=, domain=, description=,
+        #                       enabled=, **kwargs)
         self.projects_mock.create.assert_called_with(
-            identity_fakes.project_name,
-            None,
             **kwargs
         )
 
@@ -224,13 +228,14 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.project_name,
+            'domain': None,
             'description': None,
             'enabled': False,
         }
-        # ProjectManager.create(name, domain, description=, enabled=, **kwargs)
+        # ProjectManager.create(name=, domain=,
+        #                       description=, enabled=, **kwargs)
         self.projects_mock.create.assert_called_with(
-            identity_fakes.project_name,
-            None,
             **kwargs
         )
 
@@ -262,15 +267,16 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
+            'name': identity_fakes.project_name,
+            'domain': None,
             'description': None,
             'enabled': True,
             'fee': 'fi',
             'fo': 'fum',
         }
-        # ProjectManager.create(name, domain, description=, enabled=, **kwargs)
+        # ProjectManager.create(name=, domain=, description=,
+        #                       enabled=, **kwargs)
         self.projects_mock.create.assert_called_with(
-            identity_fakes.project_name,
-            None,
             **kwargs
         )
 

@@ -88,8 +88,8 @@ class CreateProject(show.ShowOne):
             kwargs = parsed_args.property.copy()
 
         project = identity_client.projects.create(
-            parsed_args.name,
-            domain,
+            name=parsed_args.name,
+            domain=domain,
             description=parsed_args.description,
             enabled=enabled,
             **kwargs

@@ -133,7 +133,7 @@ class CreateGroup(show.ShowOne):
         else:
             domain = None
         group = identity_client.groups.create(
-            parsed_args.name,
+            name=parsed_args.name,
             domain=domain,
             description=parsed_args.description)
 

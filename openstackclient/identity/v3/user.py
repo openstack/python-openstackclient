@@ -107,7 +107,7 @@ class CreateUser(show.ShowOne):
             parsed_args.password = utils.get_password(self.app.stdin)
 
         user = identity_client.users.create(
-            parsed_args.name,
+            name=parsed_args.name,
             domain=domain_id,
             default_project=project_id,
             password=parsed_args.password,

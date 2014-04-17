@@ -232,9 +232,14 @@ class TestRoleCreate(TestRole):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        # RoleManager.create(name)
+        # Set expected values
+        kwargs = {
+            'name': identity_fakes.role_name,
+        }
+
+        # RoleManager.create(name=)
         self.roles_mock.create.assert_called_with(
-            identity_fakes.role_name,
+            **kwargs
         )
 
         collist = ('id', 'name')

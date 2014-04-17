@@ -52,7 +52,7 @@ class CreatePolicy(show.ShowOne):
 
         identity_client = self.app.client_manager.identity
         policy = identity_client.policies.create(
-            blob, type=parsed_args.type
+            blob=blob, type=parsed_args.type
         )
 
         return zip(*sorted(six.iteritems(policy._info)))
