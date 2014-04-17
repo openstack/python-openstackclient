@@ -26,7 +26,7 @@ from openstackclient.common import utils
 
 
 class CreateAgent(show.ShowOne):
-    """Create agent command"""
+    """Create compute agent command"""
 
     log = logging.getLogger(__name__ + ".CreateAgent")
 
@@ -75,7 +75,7 @@ class CreateAgent(show.ShowOne):
 
 
 class DeleteAgent(command.Command):
-    """Delete agent command"""
+    """Delete compute agent command"""
 
     log = logging.getLogger(__name__ + ".DeleteAgent")
 
@@ -95,7 +95,7 @@ class DeleteAgent(command.Command):
 
 
 class ListAgent(lister.Lister):
-    """List agent command"""
+    """List compute agent command"""
 
     log = logging.getLogger(__name__ + ".ListAgent")
 
@@ -127,7 +127,7 @@ class ListAgent(lister.Lister):
 
 
 class SetAgent(show.ShowOne):
-    """Set agent command"""
+    """Set compute agent command"""
 
     log = logging.getLogger(__name__ + ".SetAgent")
 
