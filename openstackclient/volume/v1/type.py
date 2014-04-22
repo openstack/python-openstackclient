@@ -50,16 +50,11 @@ class CreateVolumeType(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         volume_client = self.app.client_manager.volume
-        volume_type = volume_client.volume_types.create(
-            parsed_args.name
-        )
+        volume_type = volume_client.volume_types.create(parsed_args.name)
+        volume_type._info.pop('extra_specs')
         if parsed_args.property:
-            volume_type.set_keys(parsed_args.property)
-        # Map 'extra_specs' column to 'properties'
-        volume_type._info.update(
-            {'properties': utils.format_dict(
-                volume_type._info.pop('extra_specs'))}
-        )
+            result = volume_type.set_keys(parsed_args.property)
+            volume_type._info.update({'properties': utils.format_dict(result)})
 
         info = {}
         info.update(volume_type._info)
