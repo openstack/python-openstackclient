@@ -22,9 +22,8 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
-from keystoneclient import exceptions as identity_exc
-from openstackclient.common import exceptions
 from openstackclient.common import utils
+from openstackclient.identity import common
 
 
 class CreateEndpoint(show.ShowOne):
@@ -45,6 +44,7 @@ class CreateEndpoint(show.ShowOne):
         parser.add_argument(
             '--publicurl',
             metavar='<public-url>',
+            required=True,
             help='New endpoint public URL')
         parser.add_argument(
             '--adminurl',
@@ -59,8 +59,7 @@ class CreateEndpoint(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        service = utils.find_resource(identity_client.services,
-                                      parsed_args.service)
+        service = common.find_service(identity_client, parsed_args.service)
         endpoint = identity_client.endpoints.create(
             parsed_args.region,
             service.id,
@@ -120,8 +119,7 @@ class ListEndpoint(lister.Lister):
         data = identity_client.endpoints.list()
 
         for ep in data:
-            service = utils.find_resource(
-                identity_client.services, ep.service_id)
+            service = common.find_service(identity_client, ep.service_id)
             ep.service_name = service.name
             ep.service_type = service.type
         return (columns,
@@ -139,77 +137,30 @@ class ShowEndpoint(show.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ShowEndpoint, self).get_parser(prog_name)
         parser.add_argument(
-            'service',
-            metavar='<service>',
-            help='Name or ID of service endpoint to display')
-        parser.add_argument(
-            '--type',
-            metavar='<endpoint-type>',
-            default='publicURL',
-            help='Endpoint type: publicURL, internalURL, adminURL ' +
-                 '(default publicURL)')
-        parser.add_argument(
-            '--attr',
-            metavar='<endpoint-attribute>',
-            help='Endpoint attribute to use for selection')
-        parser.add_argument(
-            '--value',
-            metavar='<endpoint-value>',
-            help='Value of endpoint attribute to use for selection')
-        parser.add_argument(
-            '--all',
-            action='store_true',
-            default=False,
-            help='Show all endpoints for this service')
+            'endpoint_or_service',
+            metavar='<endpoint_or_service>',
+            help='Endpoint ID or name, type or ID of service to display')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-
-        if not parsed_args.all:
-            # Find endpoint filtered by a specific attribute or service type
-            kwargs = {
-                'service_type': parsed_args.service,
-                'endpoint_type': parsed_args.type,
-            }
-            if parsed_args.attr and parsed_args.value:
-                kwargs.update({
-                    'attr': parsed_args.attr,
-                    'filter_value': parsed_args.value,
-                })
-            elif parsed_args.attr or parsed_args.value:
-                msg = 'Both --attr and --value required'
-                raise exceptions.CommandError(msg)
-
-            url = identity_client.service_catalog.url_for(**kwargs)
-            info = {'%s.%s' % (parsed_args.service, parsed_args.type): url}
-            return zip(*sorted(six.iteritems(info)))
-        else:
-            # The Identity 2.0 API doesn't support retrieving a single
-            # endpoint so we have to do this ourselves
-            try:
-                service = utils.find_resource(identity_client.services,
-                                              parsed_args.service)
-            except exceptions.CommandError:
-                try:
-                    # search for service type
-                    service = identity_client.services.find(
-                        type=parsed_args.service)
-                # FIXME(dtroyer): This exception should eventually come from
-                #                 common client exceptions
-                except identity_exc.NotFound:
-                    msg = "No service with a type, name or ID of '%s' exists" \
-                        % parsed_args.service
-                    raise exceptions.CommandError(msg)
-
-            data = identity_client.endpoints.list()
+        data = identity_client.endpoints.list()
+        match = None
+        for ep in data:
+            if ep.id == parsed_args.endpoint_or_service:
+                match = ep
+                service = common.find_service(identity_client, ep.service_id)
+        if match is None:
+            service = common.find_service(identity_client,
+                                          parsed_args.endpoint_or_service)
             for ep in data:
                 if ep.service_id == service.id:
-                    info = {}
-                    info.update(ep._info)
-                    service = utils.find_resource(identity_client.services,
-                                                  ep.service_id)
-                    info['service_name'] = service.name
-                    info['service_type'] = service.type
-                    return zip(*sorted(six.iteritems(info)))
+                    match = ep
+        if match is None:
+            return None
+        info = {}
+        info.update(match._info)
+        info['service_name'] = service.name
+        info['service_type'] = service.type
+        return zip(*sorted(six.iteritems(info)))

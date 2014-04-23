@@ -22,9 +22,9 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
-from keystoneclient import exceptions as identity_exc
 from openstackclient.common import exceptions
 from openstackclient.common import utils
+from openstackclient.identity import common
 
 
 class CreateService(show.ShowOne):
@@ -83,12 +83,7 @@ class DeleteService(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-
-        service = utils.find_resource(
-            identity_client.services,
-            parsed_args.service,
-        )
-
+        service = common.find_service(identity_client, parsed_args.service)
         identity_client.services.delete(service.id)
         return
 
@@ -159,24 +154,7 @@ class ShowService(show.ShowOne):
                    "exists." % (parsed_args.service))
             raise exceptions.CommandError(msg)
         else:
-            try:
-                # search for the usual ID or name
-                service = utils.find_resource(
-                    identity_client.services,
-                    parsed_args.service,
-                )
-            except exceptions.CommandError:
-                try:
-                    # search for service type
-                    service = identity_client.services.find(
-                        type=parsed_args.service)
-                # FIXME(dtroyer): This exception should eventually come from
-                #                 common client exceptions
-                except identity_exc.NotFound:
-                    msg = ("No service with a type, name or ID of '%s' exists."
-                           % parsed_args.service)
-                    raise exceptions.CommandError(msg)
-
+            service = common.find_service(identity_client, parsed_args.service)
             info = {}
             info.update(service._info)
             return zip(*sorted(six.iteritems(info)))

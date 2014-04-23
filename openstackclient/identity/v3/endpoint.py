@@ -24,6 +24,7 @@ from cliff import lister
 from cliff import show
 
 from openstackclient.common import utils
+from openstackclient.identity import common
 
 
 class CreateEndpoint(show.ShowOne):
@@ -69,8 +70,7 @@ class CreateEndpoint(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
-        service = utils.find_resource(identity_client.services,
-                                      parsed_args.service)
+        service = common.find_service(identity_client, parsed_args.service)
 
         endpoint = identity_client.endpoints.create(
             service=service.id,
@@ -122,8 +122,7 @@ class ListEndpoint(lister.Lister):
         data = identity_client.endpoints.list()
 
         for ep in data:
-            service = utils.find_resource(
-                identity_client.services, ep.service_id)
+            service = common.find_service(identity_client, ep.service_id)
             ep.service_name = service.name
             ep.service_type = service.type
         return (columns,
@@ -182,8 +181,7 @@ class SetEndpoint(command.Command):
         identity_client = self.app.client_manager.identity
         endpoint = utils.find_resource(identity_client.endpoints,
                                        parsed_args.endpoint)
-        service = utils.find_resource(identity_client.services,
-                                      parsed_args.service)
+        service = common.find_service(identity_client, parsed_args.service)
 
         if (not parsed_args.interface and not parsed_args.url
                 and not parsed_args.service and not parsed_args.region):
@@ -221,8 +219,7 @@ class ShowEndpoint(show.ShowOne):
         endpoint = utils.find_resource(identity_client.endpoints,
                                        parsed_args.endpoint)
 
-        service = utils.find_resource(identity_client.services,
-                                      endpoint.service_id)
+        service = common.find_service(identity_client, endpoint.service_id)
 
         info = {}
         info.update(endpoint._info)
