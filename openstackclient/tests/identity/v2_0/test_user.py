@@ -381,6 +381,11 @@ class TestUserList(TestUser):
     def setUp(self):
         super(TestUserList, self).setUp()
 
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT_2),
+            loaded=True,
+        )
         self.projects_mock.list.return_value = [
             fakes.FakeResource(
                 None,
@@ -408,7 +413,7 @@ class TestUserList(TestUser):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.users_mock.list.assert_called_with()
+        self.users_mock.list.assert_called_with(tenant_id=None)
 
         collist = ('ID', 'Name')
         self.assertEqual(columns, collist)
@@ -426,11 +431,12 @@ class TestUserList(TestUser):
             ('project', identity_fakes.project_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        project_id = identity_fakes.PROJECT_2['id']
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.users_mock.list.assert_called_with()
+        self.users_mock.list.assert_called_with(tenant_id=project_id)
 
         collist = ('ID', 'Name')
         self.assertEqual(columns, collist)
@@ -452,7 +458,7 @@ class TestUserList(TestUser):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.users_mock.list.assert_called_with()
+        self.users_mock.list.assert_called_with(tenant_id=None)
 
         collist = ('ID', 'Name', 'Project', 'Email', 'Enabled')
         self.assertEqual(columns, collist)
