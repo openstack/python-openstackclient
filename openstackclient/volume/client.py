@@ -52,6 +52,17 @@ def make_client(instance):
         http_log_debug=http_log_debug
     )
 
+    # Populate the Cinder client to skip another auth query to Identity
+    if instance._url:
+        # token flow
+        client.client.management_url = instance._url
+    else:
+        # password flow
+        client.client.management_url = instance.get_endpoint_for_service_type(
+            API_NAME)
+        client.client.service_catalog = instance._service_catalog
+    client.client.auth_token = instance._token
+
     return client
 
 
