@@ -89,7 +89,7 @@ class DeleteFloatingIP(command.Command):
         parser.add_argument(
             "ip_address",
             metavar="<ip-address>",
-            help="IP address to add to server",
+            help="IP address to delete",
         )
         return parser
 
