@@ -55,9 +55,13 @@ class ShowConsoleLog(command.Command):
             compute_client.servers,
             parsed_args.server,
         )
-        # NOTE(dtroyer): get_console_output() appears to shortchange the
-        #                output by one line
-        data = server.get_console_output(length=parsed_args.lines + 1)
+        length = parsed_args.lines
+        if length:
+            # NOTE(dtroyer): get_console_output() appears to shortchange the
+            #                output by one line
+            length += 1
+
+        data = server.get_console_output(length=length)
         sys.stdout.write(data)
         return
 
