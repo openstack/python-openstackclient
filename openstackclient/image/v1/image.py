@@ -35,6 +35,10 @@ from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
+DEFAULT_CONTAINER_FORMAT = 'bare'
+DEFAULT_DISK_FORMAT = 'raw'
+
+
 class CreateImage(show.ShowOne):
     """Create/upload an image"""
 
@@ -45,176 +49,208 @@ class CreateImage(show.ShowOne):
         parser.add_argument(
             "name",
             metavar="<name>",
-            help="Name of image",
-        )
-        parser.add_argument(
-            "--disk-format",
-            default="raw",
-            metavar="<disk-format>",
-            help="Disk format of image",
+            help="New image name",
         )
         parser.add_argument(
             "--id",
             metavar="<id>",
-            help="ID of image to reserve",
+            help="Image ID to reserve",
         )
         parser.add_argument(
             "--store",
             metavar="<store>",
-            help="Store to upload image to",
+            help="Upload image to this store",
         )
         parser.add_argument(
             "--container-format",
-            default="bare",
+            default=DEFAULT_CONTAINER_FORMAT,
             metavar="<container-format>",
-            help="Container format of image",
+            help="Image container format "
+                 "(default: %s)" % DEFAULT_CONTAINER_FORMAT,
+        )
+        parser.add_argument(
+            "--disk-format",
+            default=DEFAULT_DISK_FORMAT,
+            metavar="<disk-format>",
+            help="Image disk format "
+                 "(default: %s)" % DEFAULT_DISK_FORMAT,
         )
         parser.add_argument(
             "--owner",
             metavar="<project>",
-            help="Image owner (project name or ID)",
+            help="Image owner project name or ID",
         )
         parser.add_argument(
             "--size",
             metavar="<size>",
-            help="Size of image in bytes. Only used with --location and"
-                 " --copy-from",
+            help="Image size, in bytes (only used with --location and"
+                 " --copy-from)",
         )
         parser.add_argument(
             "--min-disk",
             metavar="<disk-gb>",
-            help="Minimum size of disk needed to boot image in gigabytes",
+            type=int,
+            help="Minimum disk size needed to boot image, in gigabytes",
         )
         parser.add_argument(
             "--min-ram",
-            metavar="<disk-ram>",
-            help="Minimum amount of ram needed to boot image in megabytes",
+            metavar="<ram-mb>",
+            type=int,
+            help="Minimum RAM size needed to boot image, in megabytes",
         )
         parser.add_argument(
             "--location",
             metavar="<image-url>",
-            help="URL where the data for this image already resides",
-        )
-        parser.add_argument(
-            "--file",
-            metavar="<file>",
-            help="Local file that contains disk image",
-        )
-        parser.add_argument(
-            "--checksum",
-            metavar="<checksum>",
-            help="Hash of image data used for verification",
+            help="Download image from an existing URL",
         )
         parser.add_argument(
             "--copy-from",
             metavar="<image-url>",
-            help="Similar to --location, but this indicates that the image"
-                 " should immediately be copied from the data store",
+            help="Copy image from the data store (similar to --location)",
+        )
+        parser.add_argument(
+            "--file",
+            metavar="<file>",
+            help="Upload image from local file",
         )
         parser.add_argument(
             "--volume",
             metavar="<volume>",
-            help="Create the image from the specified volume",
+            help="Create image from a volume",
         )
         parser.add_argument(
             "--force",
             dest='force',
             action='store_true',
             default=False,
-            help="If the image is created from a volume, force creation of the"
-                 " image even if volume is in use.",
+            help="Force image creation if volume is in use "
+                 "(only meaningful with --volume)",
+        )
+        parser.add_argument(
+            "--checksum",
+            metavar="<checksum>",
+            help="Image hash used for verification",
+        )
+        protected_group = parser.add_mutually_exclusive_group()
+        protected_group.add_argument(
+            "--protected",
+            action="store_true",
+            help="Prevent image from being deleted",
+        )
+        protected_group.add_argument(
+            "--unprotected",
+            action="store_true",
+            help="Allow image to be deleted (default)",
+        )
+        public_group = parser.add_mutually_exclusive_group()
+        public_group.add_argument(
+            "--public",
+            action="store_true",
+            help="Image is accessible to the public",
+        )
+        public_group.add_argument(
+            "--private",
+            action="store_true",
+            help="Image is inaccessible to the public (default)",
         )
         parser.add_argument(
             "--property",
             dest="properties",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
-            help="Set property on this image "
-                 '(repeat option to set multiple properties)',
-        )
-        protected_group = parser.add_mutually_exclusive_group()
-        protected_group.add_argument(
-            "--protected",
-            dest="protected",
-            action="store_true",
-            help="Prevent image from being deleted (default: False)",
-        )
-        protected_group.add_argument(
-            "--unprotected",
-            dest="protected",
-            action="store_false",
-            default=False,
-            help="Allow images to be deleted (default: True)",
-        )
-        public_group = parser.add_mutually_exclusive_group()
-        public_group.add_argument(
-            "--public",
-            dest="is_public",
-            action="store_true",
-            default=True,
-            help="Image is accessible to the public (default)",
-        )
-        public_group.add_argument(
-            "--private",
-            dest="is_public",
-            action="store_false",
-            help="Image is inaccessible to the public",
+            help="Set an image property "
+                 "(repeat option to set multiple properties)",
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)", parsed_args)
+        image_client = self.app.client_manager.image
 
-        # NOTE(jk0): Since create() takes kwargs, it's easiest to just make a
-        # copy of parsed_args and remove what we don't need.
-        args = vars(parsed_args)
-        args = dict(filter(lambda x: x[1] is not None, args.items()))
-        args.pop("columns")
-        args.pop("formatter")
-        args.pop("prefix")
-        args.pop("variables")
+        # Build an attribute dict from the parsed args, only include
+        # attributes that were actually set on the command line
+        kwargs = {}
+        copy_attrs = ('name', 'id', 'store', 'container_format',
+                      'disk_format', 'owner', 'size', 'min_disk', 'min_ram',
+                      'localtion', 'copy_from', 'volume', 'force',
+                      'checksum', 'properties')
+        for attr in copy_attrs:
+            if attr in parsed_args:
+                val = getattr(parsed_args, attr, None)
+                if val:
+                    # Only include a value in kwargs for attributes that are
+                    # actually present on the command line
+                    kwargs[attr] = val
+        # Handle exclusive booleans with care
+        # Avoid including attributes in kwargs if an option is not
+        # present on the command line.  These exclusive booleans are not
+        # a single value for the pair of options because the default must be
+        # to do nothing when no options are present as opposed to always
+        # setting a default.
+        if parsed_args.protected:
+            kwargs['protected'] = True
+        if parsed_args.unprotected:
+            kwargs['protected'] = False
+        if parsed_args.public:
+            kwargs['is_public'] = True
+        if parsed_args.private:
+            kwargs['is_public'] = False
 
-        if "location" not in args and "copy_from" not in args:
-            if "volume" in args:
-                pass
-            elif "file" in args:
-                args["data"] = open(args.pop("file"), "rb")
+        if not parsed_args.location and not parsed_args.copy_from:
+            if parsed_args.volume:
+                volume_client = self.app.client_manager.volume
+                source_volume = utils.find_resource(
+                    volume_client.volumes,
+                    parsed_args.volume,
+                )
+                response, body = volume_client.volumes.upload_to_image(
+                    source_volume.id,
+                    parsed_args.force,
+                    parsed_args.name,
+                    parsed_args.container_format,
+                    parsed_args.disk_format,
+                )
+                info = body['os-volume_upload_image']
+            elif parsed_args.file:
+                # Send an open file handle to glanceclient so it will
+                # do a chunked transfer
+                kwargs["data"] = open(parsed_args.file, "rb")
             else:
-                args["data"] = None
+                # Read file from stdin
+                kwargs["data"] = None
                 if sys.stdin.isatty() is not True:
                     if msvcrt:
                         msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
-                    args["data"] = sys.stdin
+                    # Send an open file handle to glanceclient so it will
+                    # do a chunked transfer
+                    kwargs["data"] = sys.stdin
 
-        if "volume" in args:
-            volume_client = self.app.client_manager.volume
-            source_volume = utils.find_resource(volume_client.volumes,
-                                                parsed_args.volume)
-            response, body = volume_client.volumes.upload_to_image(
-                                source_volume,
-                                parsed_args.force,
-                                parsed_args.name,
-                                parsed_args.container_format,
-                                parsed_args.disk_format)
-            info = body['os-volume_upload_image']
-        else:
-            image_client = self.app.client_manager.image
-            try:
-                image = utils.find_resource(
-                    image_client.images,
-                    parsed_args.name,
-                )
-            except exceptions.CommandError:
+        try:
+            image = utils.find_resource(
+                image_client.images,
+                parsed_args.name,
+            )
+
+            # Preserve previous properties if any are being set now
+            if image.properties:
+                if parsed_args.properties:
+                    image.properties.update(kwargs['properties'])
+                kwargs['properties'] = image.properties
+
+        except exceptions.CommandError:
+            if not parsed_args.volume:
                 # This is normal for a create or reserve (create w/o an image)
-                image = image_client.images.create(**args)
-            else:
-                # It must be an update
-                # If an image is specified via --file, --location or
-                # --copy-from let the API handle it
-                image = image_client.images.update(image, **args)
+                # But skip for create from volume
+                image = image_client.images.create(**kwargs)
+        else:
+            # Update an existing reservation
 
-            info = {}
-            info.update(image._info)
+            # If an image is specified via --file, --location or
+            # --copy-from let the API handle it
+            image = image_client.images.update(image.id, **kwargs)
+
+        info = {}
+        info.update(image._info)
         return zip(*sorted(six.iteritems(info)))
 
 
@@ -314,88 +350,104 @@ class SetImage(show.ShowOne):
         parser.add_argument(
             "image",
             metavar="<image>",
-            help="Name or ID of image to change",
+            help="Image name or ID to change",
         )
         parser.add_argument(
             "--name",
             metavar="<name>",
-            help="Name of image",
+            help="New image name",
         )
         parser.add_argument(
             "--owner",
             metavar="<project>",
-            help="Image owner (project name or ID)",
+            help="New image owner project name or ID",
         )
         parser.add_argument(
             "--min-disk",
             metavar="<disk-gb>",
-            help="Minimum size of disk needed to boot image in gigabytes",
+            type=int,
+            help="Minimum disk size needed to boot image, in gigabytes",
         )
         parser.add_argument(
             "--min-ram",
             metavar="<disk-ram>",
-            help="Minimum amount of ram needed to boot image in megabytes",
+            type=int,
+            help="Minimum RAM size needed to boot image, in megabytes",
+        )
+        protected_group = parser.add_mutually_exclusive_group()
+        protected_group.add_argument(
+            "--protected",
+            action="store_true",
+            help="Prevent image from being deleted",
+        )
+        protected_group.add_argument(
+            "--unprotected",
+            action="store_true",
+            help="Allow image to be deleted (default)",
+        )
+        public_group = parser.add_mutually_exclusive_group()
+        public_group.add_argument(
+            "--public",
+            action="store_true",
+            help="Image is accessible to the public",
+        )
+        public_group.add_argument(
+            "--private",
+            action="store_true",
+            help="Image is inaccessible to the public (default)",
         )
         parser.add_argument(
             "--property",
             dest="properties",
             metavar="<key=value>",
-            default={},
             action=parseractions.KeyValueAction,
-            help="Set property on this image "
-                 '(repeat option to set multiple properties)',
-        )
-        protected_group = parser.add_mutually_exclusive_group()
-        protected_group.add_argument(
-            "--protected",
-            dest="protected",
-            action="store_true",
-            help="Prevent image from being deleted (default: False)",
-        )
-        protected_group.add_argument(
-            "--unprotected",
-            dest="protected",
-            action="store_false",
-            default=False,
-            help="Allow images to be deleted (default: True)",
-        )
-        public_group = parser.add_mutually_exclusive_group()
-        public_group.add_argument(
-            "--public",
-            dest="is_public",
-            action="store_true",
-            default=True,
-            help="Image is accessible to the public (default)",
-        )
-        public_group.add_argument(
-            "--private",
-            dest="is_public",
-            action="store_false",
-            help="Image is inaccessible to the public",
+            help="Set an image property "
+                 "(repeat option to set multiple properties)",
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)", parsed_args)
-
-        # NOTE(jk0): Since create() takes kwargs, it's easiest to just make a
-        # copy of parsed_args and remove what we don't need.
-        args = vars(parsed_args)
-        args = dict(filter(lambda x: x[1] is not None, args.items()))
-        args.pop("columns")
-        args.pop("formatter")
-        args.pop("prefix")
-        args.pop("variables")
-        image_arg = args.pop("image")
-
         image_client = self.app.client_manager.image
+
+        kwargs = {}
+        copy_attrs = ('name', 'owner', 'min_disk', 'min_ram', 'properties')
+        for attr in copy_attrs:
+            if attr in parsed_args:
+                val = getattr(parsed_args, attr, None)
+                if val:
+                    # Only include a value in kwargs for attributes that are
+                    # actually present on the command line
+                    kwargs[attr] = val
+        # Handle exclusive booleans with care
+        # Avoid including attributes in kwargs if an option is not
+        # present on the command line.  These exclusive booleans are not
+        # a single value for the pair of options because the default must be
+        # to do nothing when no options are present as opposed to always
+        # setting a default.
+        if parsed_args.protected:
+            kwargs['protected'] = True
+        if parsed_args.unprotected:
+            kwargs['protected'] = False
+        if parsed_args.public:
+            kwargs['is_public'] = True
+        if parsed_args.private:
+            kwargs['is_public'] = False
+
+        if not kwargs:
+            self.log.warning('no arguments specified')
+            return {}, {}
+
         image = utils.find_resource(
             image_client.images,
-            image_arg,
+            parsed_args.image,
         )
-        # Merge properties
-        args["properties"].update(image.properties)
-        image = image_client.images.update(image, **args)
+
+        if image.properties and parsed_args.properties:
+            image.properties.update(kwargs['properties'])
+            kwargs['properties'] = image.properties
+
+        image = image_client.images.update(image.id, **kwargs)
 
         info = {}
         info.update(image._info)

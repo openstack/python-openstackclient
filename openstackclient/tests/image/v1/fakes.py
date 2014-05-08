@@ -17,15 +17,37 @@ import mock
 
 from openstackclient.tests import fakes
 from openstackclient.tests import utils
+from openstackclient.tests.volume.v1 import fakes as volume_fakes
 
 
 image_id = 'im1'
 image_name = 'graven'
+image_owner = 'baal'
+image_protected = False
+image_public = True
+image_properties = {
+    'Alpha': 'a',
+    'Beta': 'b',
+    'Gamma': 'g',
+}
+image_properties_str = "{'Alpha': 'a', 'Beta': 'b', 'Gamma': 'g'}"
+image_data = 'line 1\nline 2\n'
 
 IMAGE = {
     'id': image_id,
-    'name': image_name
+    'name': image_name,
+    'container_format': '',
+    'disk_format': '',
+    'owner': image_owner,
+    'min_disk': 0,
+    'min_ram': 0,
+    'is_public': image_public,
+    'protected': image_protected,
+    'properties': image_properties,
 }
+
+IMAGE_columns = tuple(sorted(IMAGE))
+IMAGE_data = tuple((IMAGE[x] for x in sorted(IMAGE)))
 
 
 class FakeImagev1Client(object):
@@ -41,6 +63,10 @@ class TestImagev1(utils.TestCommand):
         super(TestImagev1, self).setUp()
 
         self.app.client_manager.image = FakeImagev1Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+        self.app.client_manager.volume = volume_fakes.FakeVolumev1Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
