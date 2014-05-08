@@ -393,7 +393,7 @@ class CreateServerImage(show.ShowOne):
         parser = super(CreateServerImage, self).get_parser(prog_name)
         parser.add_argument(
             'server',
-            metavar='<server',
+            metavar='<server>',
             help='Server (name or ID)',
         )
         parser.add_argument(
@@ -421,7 +421,7 @@ class CreateServerImage(show.ShowOne):
         else:
             name = server.name
 
-        image = compute_client.servers.create_image(
+        image_id = compute_client.servers.create_image(
             server,
             name,
         )
@@ -429,7 +429,7 @@ class CreateServerImage(show.ShowOne):
         if parsed_args.wait:
             if utils.wait_for_status(
                 image_client.images.get,
-                image,
+                image_id,
                 callback=_show_progress,
             ):
                 sys.stdout.write('\n')
@@ -443,7 +443,7 @@ class CreateServerImage(show.ShowOne):
 
         image = utils.find_resource(
             image_client.images,
-            image.id,
+            image_id,
         )
 
         info = {}
