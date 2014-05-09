@@ -49,7 +49,7 @@ class ClientManager(object):
                  user_domain_id=None, user_domain_name=None,
                  project_domain_id=None, project_domain_name=None,
                  region_name=None, api_version=None, verify=True,
-                 trust_id=None):
+                 trust_id=None, timing=None):
         self._token = token
         self._url = url
         self._auth_url = auth_url
@@ -67,6 +67,7 @@ class ClientManager(object):
         self._api_version = api_version
         self._trust_id = trust_id
         self._service_catalog = None
+        self.timing = timing
 
         # verify is the Requests-compatible form
         self._verify = verify
@@ -116,7 +117,7 @@ def get_extension_modules(group):
 
         setattr(
             ClientManager,
-            ep.name,
+            module.API_NAME,
             ClientCache(
                 getattr(sys.modules[ep.module_name], 'make_client', None)
             ),

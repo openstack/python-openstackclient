@@ -32,6 +32,7 @@ from openstackclient.common import clientmanager
 from openstackclient.common import commandmanager
 from openstackclient.common import exceptions as exc
 from openstackclient.common import restapi
+from openstackclient.common import timing
 from openstackclient.common import utils
 from openstackclient.identity import client as identity_client
 
@@ -60,6 +61,7 @@ class OpenStackShell(app.App):
     CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(name)s %(message)s'
 
     log = logging.getLogger(__name__)
+    timing_data = []
 
     def __init__(self):
         # Patch command.Command to add a default auth_required = True
@@ -303,6 +305,12 @@ class OpenStackShell(app.App):
             metavar='<url>',
             default=env('OS_URL'),
             help='Defaults to env[OS_URL]')
+        parser.add_argument(
+            '--timing',
+            default=False,
+            action='store_true',
+            help="Print API call timing info",
+        )
 
         parser.add_argument(
             '--os-identity-api-version',
@@ -410,6 +418,7 @@ class OpenStackShell(app.App):
             password=self.options.os_password,
             region_name=self.options.os_region_name,
             verify=self.verify,
+            timing=self.options.timing,
             api_version=self.api_version,
             trust_id=self.options.os_trust_id,
         )
@@ -499,8 +508,32 @@ class OpenStackShell(app.App):
 
     def clean_up(self, cmd, result, err):
         self.log.debug('clean_up %s', cmd.__class__.__name__)
+
         if err:
             self.log.debug('got an error: %s', err)
+
+        # Process collected timing data
+        if self.options.timing:
+            # Loop through extensions
+            for mod in self.ext_modules:
+                client = getattr(self.client_manager, mod.API_NAME)
+                if hasattr(client, 'get_timings'):
+                    self.timing_data.extend(client.get_timings())
+
+            # Use the Timing pseudo-command to generate the output
+            tcmd = timing.Timing(self, self.options)
+            tparser = tcmd.get_parser('Timing')
+
+            # If anything other than prettytable is specified, force csv
+            format = 'table'
+            # Check the formatter used in the actual command
+            if hasattr(cmd, 'formatter') \
+                    and cmd.formatter != cmd._formatter_plugins['table'].obj:
+                format = 'csv'
+
+            sys.stdout.write('\n')
+            targs = tparser.parse_args(['-f', format])
+            tcmd.run(targs)
 
     def interact(self):
         # NOTE(dtroyer): Maintain the old behaviour for interactive use as
