@@ -56,7 +56,7 @@ class CreateVolume(show.ShowOne):
             help='Description of the volume',
         )
         parser.add_argument(
-            '--volume-type',
+            '--type',
             metavar='<volume-type>',
             help='Type of volume',
         )
@@ -124,7 +124,7 @@ class CreateVolume(show.ShowOne):
             source_volume,
             parsed_args.name,
             parsed_args.description,
-            parsed_args.volume_type,
+            parsed_args.type,
             user,
             project,
             parsed_args.availability_zone,
@@ -133,7 +133,10 @@ class CreateVolume(show.ShowOne):
         )
         # Map 'metadata' column to 'properties'
         volume._info.update(
-            {'properties': utils.format_dict(volume._info.pop('metadata'))}
+            {
+                'properties': utils.format_dict(volume._info.pop('metadata')),
+                'type': volume._info.pop('volume_type'),
+            },
         )
 
         return zip(*sorted(six.iteritems(volume._info)))
@@ -331,7 +334,10 @@ class ShowVolume(show.ShowOne):
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
         # Map 'metadata' column to 'properties'
         volume._info.update(
-            {'properties': utils.format_dict(volume._info.pop('metadata'))}
+            {
+                'properties': utils.format_dict(volume._info.pop('metadata')),
+                'type': volume._info.pop('volume_type'),
+            },
         )
         if 'os-vol-tenant-attr:tenant_id' in volume._info:
             volume._info.update(

@@ -71,10 +71,6 @@ class TestVolumeCreate(TestVolume):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        #kwargs = {
-        #    'metadata': volume_fakes.volume_metadata,
-        #}
         # VolumeManager.create(size, snapshot_id=, source_volid=,
         #                      display_name=, display_description=,
         #                      volume_type=, user_id=,
@@ -96,22 +92,90 @@ class TestVolumeCreate(TestVolume):
 
         collist = (
             'attach_status',
+            'availability_zone',
             'display_description',
             'display_name',
             'id',
             'properties',
             'size',
             'status',
+            'type',
         )
         self.assertEqual(columns, collist)
         datalist = (
             'detached',
+            volume_fakes.volume_zone,
             volume_fakes.volume_description,
             volume_fakes.volume_name,
             volume_fakes.volume_id,
-            '',
+            volume_fakes.volume_metadata_str,
             volume_fakes.volume_size,
             '',
+            volume_fakes.volume_type,
+        )
+        self.assertEqual(data, datalist)
+
+    def test_volume_create_options(self):
+        arglist = [
+            '--size', str(volume_fakes.volume_size),
+            '--description', volume_fakes.volume_description,
+            '--type', volume_fakes.volume_type,
+            '--availability-zone', volume_fakes.volume_zone,
+            volume_fakes.volume_name,
+        ]
+        verifylist = [
+            ('size', volume_fakes.volume_size),
+            ('description', volume_fakes.volume_description),
+            ('type', volume_fakes.volume_type),
+            ('availability_zone', volume_fakes.volume_zone),
+            ('name', volume_fakes.volume_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # VolumeManager.create(size, snapshot_id=, source_volid=,
+        #                      display_name=, display_description=,
+        #                      volume_type=, user_id=,
+        #                      project_id=, availability_zone=,
+        #                      metadata=, imageRef=)
+        self.volumes_mock.create.assert_called_with(
+            volume_fakes.volume_size,
+            None,
+            None,
+            volume_fakes.volume_name,
+            volume_fakes.volume_description,
+            volume_fakes.volume_type,
+            None,
+            None,
+            volume_fakes.volume_zone,
+            None,
+            None,
+        )
+
+        collist = (
+            'attach_status',
+            'availability_zone',
+            'display_description',
+            'display_name',
+            'id',
+            'properties',
+            'size',
+            'status',
+            'type',
+        )
+        self.assertEqual(columns, collist)
+        datalist = (
+            'detached',
+            volume_fakes.volume_zone,
+            volume_fakes.volume_description,
+            volume_fakes.volume_name,
+            volume_fakes.volume_id,
+            volume_fakes.volume_metadata_str,
+            volume_fakes.volume_size,
+            '',
+            volume_fakes.volume_type,
         )
         self.assertEqual(data, datalist)
 
@@ -146,10 +210,6 @@ class TestVolumeCreate(TestVolume):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        #kwargs = {
-        #    'metadata': volume_fakes.volume_metadata,
-        #}
         # VolumeManager.create(size, snapshot_id=, source_volid=,
         #                      display_name=, display_description=,
         #                      volume_type=, user_id=,
@@ -172,22 +232,26 @@ class TestVolumeCreate(TestVolume):
 
         collist = (
             'attach_status',
+            'availability_zone',
             'display_description',
             'display_name',
             'id',
             'properties',
             'size',
             'status',
+            'type',
         )
         self.assertEqual(columns, collist)
         datalist = (
             'detached',
+            volume_fakes.volume_zone,
             volume_fakes.volume_description,
             volume_fakes.volume_name,
             volume_fakes.volume_id,
-            '',
+            volume_fakes.volume_metadata_str,
             volume_fakes.volume_size,
             '',
+            volume_fakes.volume_type,
         )
         self.assertEqual(data, datalist)
 
@@ -222,10 +286,6 @@ class TestVolumeCreate(TestVolume):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        #kwargs = {
-        #    'metadata': volume_fakes.volume_metadata,
-        #}
         # VolumeManager.create(size, snapshot_id=, source_volid=,
         #                      display_name=, display_description=,
         #                      volume_type=, user_id=,
@@ -248,21 +308,86 @@ class TestVolumeCreate(TestVolume):
 
         collist = (
             'attach_status',
+            'availability_zone',
             'display_description',
             'display_name',
             'id',
             'properties',
             'size',
             'status',
+            'type',
         )
         self.assertEqual(columns, collist)
         datalist = (
             'detached',
+            volume_fakes.volume_zone,
             volume_fakes.volume_description,
             volume_fakes.volume_name,
             volume_fakes.volume_id,
-            '',
+            volume_fakes.volume_metadata_str,
             volume_fakes.volume_size,
             '',
+            volume_fakes.volume_type,
+        )
+        self.assertEqual(data, datalist)
+
+    def test_volume_create_properties(self):
+        arglist = [
+            '--property', 'Alpha=a',
+            '--property', 'Beta=b',
+            '--size', str(volume_fakes.volume_size),
+            volume_fakes.volume_name,
+        ]
+        verifylist = [
+            ('property', {'Alpha': 'a', 'Beta': 'b'}),
+            ('size', volume_fakes.volume_size),
+            ('name', volume_fakes.volume_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # VolumeManager.create(size, snapshot_id=, source_volid=,
+        #                      display_name=, display_description=,
+        #                      volume_type=, user_id=,
+        #                      project_id=, availability_zone=,
+        #                      metadata=, imageRef=)
+        self.volumes_mock.create.assert_called_with(
+            volume_fakes.volume_size,
+            None,
+            None,
+            volume_fakes.volume_name,
+            None,
+            None,
+            None,
+            None,
+            None,
+            {'Alpha': 'a', 'Beta': 'b'},
+            None,
+        )
+
+        collist = (
+            'attach_status',
+            'availability_zone',
+            'display_description',
+            'display_name',
+            'id',
+            'properties',
+            'size',
+            'status',
+            'type',
+        )
+        self.assertEqual(columns, collist)
+        datalist = (
+            'detached',
+            volume_fakes.volume_zone,
+            volume_fakes.volume_description,
+            volume_fakes.volume_name,
+            volume_fakes.volume_id,
+            volume_fakes.volume_metadata_str,
+            volume_fakes.volume_size,
+            '',
+            volume_fakes.volume_type,
         )
         self.assertEqual(data, datalist)

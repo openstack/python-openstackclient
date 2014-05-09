@@ -24,7 +24,14 @@ volume_id = 'vvvvvvvv-vvvv-vvvv-vvvvvvvv'
 volume_name = 'nigel'
 volume_description = 'Nigel Tufnel'
 volume_size = 120
-volume_metadata = {}
+volume_type = 'to-eleven'
+volume_zone = 'stonehenge'
+volume_metadata = {
+    'Alpha': 'a',
+    'Beta': 'b',
+    'Gamma': 'g',
+}
+volume_metadata_str = "Alpha='a', Beta='b', Gamma='g'"
 
 VOLUME = {
     'id': volume_id,
@@ -33,6 +40,8 @@ VOLUME = {
     'size': volume_size,
     'status': '',
     'attach_status': 'detached',
+    'availability_zone': volume_zone,
+    'volume_type': volume_type,
     'metadata': volume_metadata,
 }
 
