@@ -105,6 +105,15 @@ TOKEN_WITH_DOMAIN_ID = {
     'user_id': user_id,
 }
 
+idp_id = 'test_idp'
+idp_description = 'super exciting IdP description'
+
+IDENTITY_PROVIDER = {
+    'id': idp_id,
+    'enabled': True,
+    'description': idp_description
+}
+
 
 class FakeIdentityv3Client(object):
     def __init__(self, **kwargs):
@@ -125,6 +134,14 @@ class FakeIdentityv3Client(object):
         self.management_url = kwargs['endpoint']
 
 
+class FakeFederatedClient(FakeIdentityv3Client):
+    def __init__(self, **kwargs):
+        super(FakeFederatedClient, self).__init__(**kwargs)
+
+        self.identity_providers = mock.Mock()
+        self.identity_providers.resource_class = fakes.FakeResource(None, {})
+
+
 class TestIdentityv3(utils.TestCommand):
     def setUp(self):
         super(TestIdentityv3, self).setUp()
@@ -132,4 +149,14 @@ class TestIdentityv3(utils.TestCommand):
         self.app.client_manager.identity = FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
+        )
+
+
+class TestFederatedIdentity(utils.TestCommand):
+    def setUp(self):
+        super(TestFederatedIdentity, self).setUp()
+
+        self.app.client_manager.identity = FakeFederatedClient(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN
         )
