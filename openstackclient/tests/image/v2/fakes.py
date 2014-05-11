@@ -22,12 +22,15 @@ from openstackclient.tests import utils
 image_id = 'im1'
 image_name = 'graven'
 image_owner = 'baal'
+image_public = False
+image_protected = False
 
 IMAGE = {
     'id': image_id,
     'name': image_name,
-    'is_public': False,
+    'is_public': image_public,
     'owner': image_owner,
+    'protected': image_protected,
 }
 
 
