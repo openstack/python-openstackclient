@@ -28,6 +28,25 @@ SERVER = {
     'name': server_name,
 }
 
+extension_name = 'Multinic'
+extension_namespace = 'http://docs.openstack.org/compute/ext/'\
+    'multinic/api/v1.1'
+extension_description = 'Multiple network support'
+extension_updated = '2014-01-07T12:00:0-00:00'
+extension_alias = 'NMN'
+extension_links = '[{"href":'\
+    '"https://github.com/openstack/compute-api", "type":'\
+    ' "text/html", "rel": "describedby"}]'
+
+EXTENSION = {
+    'name': extension_name,
+    'namespace': extension_namespace,
+    'description': extension_description,
+    'updated': extension_updated,
+    'alias': extension_alias,
+    'links': extension_links,
+}
+
 
 class FakeComputev2Client(object):
     def __init__(self, **kwargs):
@@ -35,6 +54,8 @@ class FakeComputev2Client(object):
         self.images.resource_class = fakes.FakeResource(None, {})
         self.servers = mock.Mock()
         self.servers.resource_class = fakes.FakeResource(None, {})
+        self.extensions = mock.Mock()
+        self.extensions.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
