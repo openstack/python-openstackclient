@@ -121,7 +121,7 @@ class AddServerVolume(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
@@ -162,7 +162,7 @@ class AddServerSecurityGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
 
@@ -278,7 +278,7 @@ class CreateServer(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
 
         # Lookup parsed_args.image
@@ -363,8 +363,8 @@ class CreateServer(show.ShowOne):
             scheduler_hints=hints,
             config_drive=config_drive)
 
-        self.log.debug('boot_args: %s' % boot_args)
-        self.log.debug('boot_kwargs: %s' % boot_kwargs)
+        self.log.debug('boot_args: %s', boot_args)
+        self.log.debug('boot_kwargs: %s', boot_kwargs)
         server = compute_client.servers.create(*boot_args, **boot_kwargs)
 
         if parsed_args.wait:
@@ -375,7 +375,7 @@ class CreateServer(show.ShowOne):
             ):
                 sys.stdout.write('\n')
             else:
-                self.log.error('Error creating server: %s' %
+                self.log.error('Error creating server: %s',
                                parsed_args.server_name)
                 sys.stdout.write('\nError creating server')
                 raise SystemExit
@@ -409,7 +409,7 @@ class CreateServerImage(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
         image_client = self.app.client_manager.image
         server = utils.find_resource(
@@ -435,7 +435,7 @@ class CreateServerImage(show.ShowOne):
                 sys.stdout.write('\n')
             else:
                 self.log.error(
-                    'Error creating server snapshot: %s' %
+                    'Error creating server snapshot: %s',
                     parsed_args.image_name,
                 )
                 sys.stdout.write('\nError creating server snapshot')
@@ -465,7 +465,7 @@ class DeleteServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(
             compute_client.servers, parsed_args.server)
@@ -530,7 +530,7 @@ class ListServer(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
         search_opts = {
             'reservation_id': parsed_args.reservation_id,
@@ -600,7 +600,7 @@ class LockServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         utils.find_resource(
@@ -672,7 +672,7 @@ class MigrateServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
 
@@ -716,7 +716,7 @@ class PauseServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         utils.find_resource(
@@ -762,7 +762,7 @@ class RebootServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(
             compute_client.servers, parsed_args.server)
@@ -811,7 +811,7 @@ class RebuildServer(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
 
         # Lookup parsed_args.image
@@ -856,7 +856,7 @@ class RemoveServerSecurityGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
 
@@ -892,7 +892,7 @@ class RemoveServerVolume(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
@@ -927,7 +927,7 @@ class RescueServer(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(
@@ -968,7 +968,7 @@ class ResizeServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(
@@ -1013,7 +1013,7 @@ class ResumeServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         utils.find_resource(
@@ -1054,7 +1054,7 @@ class SetServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(
@@ -1102,7 +1102,7 @@ class ShowServer(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(compute_client.servers,
                                      parsed_args.server)
@@ -1224,7 +1224,7 @@ class SshServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(
@@ -1272,7 +1272,7 @@ class SshServer(command.Command):
             cmd += " -v"
 
         cmd += " %s@%s"
-        self.log.debug("ssh command: %s" % (cmd % (login, ip_address)))
+        self.log.debug("ssh command: %s", (cmd % (login, ip_address)))
         os.system(cmd % (login, ip_address))
 
 
@@ -1291,7 +1291,7 @@ class SuspendServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         utils.find_resource(
@@ -1315,7 +1315,7 @@ class UnlockServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         utils.find_resource(
@@ -1339,7 +1339,7 @@ class UnpauseServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         utils.find_resource(
@@ -1363,7 +1363,7 @@ class UnrescueServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         utils.find_resource(
@@ -1395,7 +1395,7 @@ class UnsetServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(
             compute_client.servers,

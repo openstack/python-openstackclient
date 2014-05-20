@@ -69,7 +69,7 @@ class ListContainer(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         if parsed_args.long:
             columns = ('Name', 'Bytes', 'Count')
@@ -116,7 +116,7 @@ class ShowContainer(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         data = lib_container.show_container(
             self.app.restapi,

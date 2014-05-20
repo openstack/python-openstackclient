@@ -79,7 +79,7 @@ class ListObject(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         if parsed_args.long:
             columns = (
@@ -140,7 +140,7 @@ class ShowObject(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         data = lib_object.show_object(
             self.app.restapi,

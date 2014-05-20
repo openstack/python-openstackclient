@@ -59,7 +59,7 @@ class CreateSnapshot(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         volume_id = utils.find_resource(volume_client.volumes,
                                         parsed_args.volume).id
@@ -88,7 +88,7 @@ class DeleteSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         snapshot_id = utils.find_resource(volume_client.volume_snapshots,
                                           parsed_args.snapshot).id
@@ -102,7 +102,7 @@ class ListSnapshot(lister.Lister):
     log = logging.getLogger(__name__ + '.ListSnapshot')
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         columns = (
             'ID',
             'Display Name',
@@ -140,7 +140,7 @@ class SetSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         snapshot = utils.find_resource(volume_client.volume_snapshots,
                                        parsed_args.snapshot)
@@ -171,7 +171,7 @@ class ShowSnapshot(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         snapshot = utils.find_resource(volume_client.volume_snapshots,
                                        parsed_args.snapshot)

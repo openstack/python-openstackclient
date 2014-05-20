@@ -59,7 +59,7 @@ class CreateIdentityProvider(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         idp = identity_client.identity_providers.create(
             parsed_args.identity_provider_id,
@@ -85,7 +85,7 @@ class DeleteIdentityProvider(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         identity_client.identity_providers.delete(
             parsed_args.identity_provider)
@@ -98,7 +98,7 @@ class ListIdentityProvider(lister.Lister):
     log = logging.getLogger(__name__ + '.ListIdentityProvider')
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         columns = ('ID', 'Enabled', 'Description')
         data = self.app.client_manager.identity.identity_providers.list()
         return (columns,
@@ -135,7 +135,7 @@ class SetIdentityProvider(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         if parsed_args.enable is True:
@@ -169,7 +169,7 @@ class ShowIdentityProvider(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         identity_provider = utils.find_resource(
             identity_client.identity_providers,

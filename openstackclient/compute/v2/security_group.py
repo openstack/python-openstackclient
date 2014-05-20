@@ -71,7 +71,7 @@ class CreateSecurityGroup(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
 
@@ -100,7 +100,7 @@ class DeleteSecurityGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         data = utils.find_resource(
@@ -134,7 +134,7 @@ class ListSecurityGroup(lister.Lister):
             except KeyError:
                 return project_id
 
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
         columns = (
@@ -187,7 +187,7 @@ class SetSecurityGroup(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         data = utils.find_resource(
@@ -228,7 +228,7 @@ class ShowSecurityGroup(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         info = {}
@@ -286,7 +286,7 @@ class CreateSecurityGroupRule(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
         group = utils.find_resource(
@@ -340,7 +340,7 @@ class DeleteSecurityGroupRule(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         group = utils.find_resource(
@@ -374,7 +374,7 @@ class ListSecurityGroupRule(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
         group = utils.find_resource(

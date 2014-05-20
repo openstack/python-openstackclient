@@ -79,7 +79,7 @@ class SetQuota(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
@@ -148,7 +148,7 @@ class ShowQuota(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume

@@ -60,7 +60,7 @@ class AuthenticateAccessToken(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         token_client = self.app.client_manager.identity.tokens
         keystone_token = token_client.authenticate_access_token(
             parsed_args.consumer_key, parsed_args.consumer_secret,
@@ -84,7 +84,7 @@ class AuthorizeRequestToken(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         token_client = self.app.client_manager.identity.tokens
 
         verifier_pin = token_client.authorize_request_token(
@@ -134,7 +134,7 @@ class CreateAccessToken(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         token_client = self.app.client_manager.identity.tokens
         access_token = token_client.create_access_token(
             parsed_args.consumer_key, parsed_args.consumer_secret,
@@ -175,7 +175,7 @@ class CreateRequestToken(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         token_client = self.app.client_manager.identity.tokens
         request_token = token_client.create_request_token(
             parsed_args.consumer_key,
@@ -195,7 +195,7 @@ class CreateToken(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         token = identity_client.service_catalog.get_token()
         if 'tenant_id' in token:
@@ -223,7 +223,7 @@ class DeleteAccessToken(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         identity_client = self.app.client_manager.identity
         user = utils.find_resource(
@@ -248,7 +248,7 @@ class ListAccessToken(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         identity_client = self.app.client_manager.identity
         user = utils.find_resource(

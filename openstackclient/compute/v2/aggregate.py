@@ -47,7 +47,7 @@ class AddAggregateHost(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
 
@@ -89,7 +89,7 @@ class CreateAggregate(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
 
@@ -124,7 +124,7 @@ class DeleteAggregate(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         data = utils.find_resource(
@@ -150,7 +150,7 @@ class ListAggregate(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
 
@@ -207,7 +207,7 @@ class RemoveAggregateHost(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
 
@@ -257,7 +257,7 @@ class SetAggregate(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         aggregate = utils.find_resource(
@@ -304,7 +304,7 @@ class ShowAggregate(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         data = utils.find_resource(

@@ -163,7 +163,7 @@ class CreateImage(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         # NOTE(jk0): Since create() takes kwargs, it's easiest to just make a
         # copy of parsed_args and remove what we don't need.
@@ -233,7 +233,7 @@ class DeleteImage(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         image_client = self.app.client_manager.image
         image = utils.find_resource(
@@ -258,7 +258,7 @@ class ListImage(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         image_client = self.app.client_manager.image
 
@@ -292,7 +292,7 @@ class SaveImage(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         image_client = self.app.client_manager.image
         image = utils.find_resource(
@@ -376,7 +376,7 @@ class SetImage(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         # NOTE(jk0): Since create() takes kwargs, it's easiest to just make a
         # copy of parsed_args and remove what we don't need.
@@ -417,7 +417,7 @@ class ShowImage(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         image_client = self.app.client_manager.image
         image = utils.find_resource(

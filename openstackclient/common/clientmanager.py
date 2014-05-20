@@ -103,7 +103,7 @@ def get_extension_modules(group):
     """Add extension clients"""
     mod_list = []
     for ep in pkg_resources.iter_entry_points(group):
-        LOG.debug('found extension %r' % ep.name)
+        LOG.debug('found extension %r', ep.name)
 
         __import__(ep.module_name)
         module = sys.modules[ep.module_name]
