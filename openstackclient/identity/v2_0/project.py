@@ -214,7 +214,7 @@ class SetProject(command.Command):
         if 'id' in kwargs:
             del kwargs['id']
         if 'name' in kwargs:
-            # Hack around borken Identity API arg names
+            # Hack around broken Identity API arg names
             kwargs['tenant_name'] = kwargs['name']
             del kwargs['name']
 
