@@ -117,7 +117,7 @@ class TestFindResource(test_utils.TestCase):
         self.assertEqual("No lego with a name or ID of 'legos' exists.",
                          str(result))
         self.manager.get.assert_called_with(self.name)
-        self.manager.find.assert_called_with(display_name=self.name)
+        self.manager.find.assert_called_with(name=self.name)
 
     def test_find_resource_find_no_unique(self):
         self.manager.get = mock.Mock(side_effect=Exception('Boom!'))
@@ -129,4 +129,4 @@ class TestFindResource(test_utils.TestCase):
         self.assertEqual("More than one lego exists with the name 'legos'.",
                          str(result))
         self.manager.get.assert_called_with(self.name)
-        self.manager.find.assert_called_with(display_name=self.name)
+        self.manager.find.assert_called_with(name=self.name)

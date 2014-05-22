@@ -15,8 +15,13 @@
 
 import logging
 
+from cinderclient.v1 import volume_snapshots
+from cinderclient.v1 import volumes
 from openstackclient.common import utils
 
+# Monkey patch for v1 cinderclient
+volumes.Volume.NAME_ATTR = 'display_name'
+volume_snapshots.Snapshot.NAME_ATTR = 'display_name'
 
 LOG = logging.getLogger(__name__)
 

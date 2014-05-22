@@ -21,7 +21,6 @@ import os
 import six
 import sys
 import time
-import uuid
 
 from openstackclient.common import exceptions
 from openstackclient.openstack.common import strutils
@@ -35,13 +34,6 @@ def find_resource(manager, name_or_id):
         if isinstance(name_or_id, int) or name_or_id.isdigit():
             return manager.get(int(name_or_id))
     except exceptions.NotFound:
-        pass
-
-    # Try to get entity as uuid
-    try:
-        uuid.UUID(str(name_or_id))
-        return manager.get(name_or_id)
-    except (ValueError, exceptions.NotFound):
         pass
 
     # Try directly using the passed value
@@ -65,11 +57,6 @@ def find_resource(manager, name_or_id):
     #                 Eventually this should be pulled from a common set
     #                 of client exceptions.
     except Exception as ex:
-        try:
-            return manager.find(display_name=name_or_id)
-        except Exception:
-            pass
-
         if type(ex).__name__ == 'NotFound':
             msg = "No %s with a name or ID of '%s' exists." % \
                 (manager.resource_class.__name__.lower(), name_or_id)
