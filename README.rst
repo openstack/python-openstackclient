@@ -94,7 +94,7 @@ prompted to provide one securely. If keyring is enabled, the password entered
 in the prompt is stored in keyring. From next time, the password is read from
 keyring, if it is not provided above (in plaintext).
 
-The token flow variation for authentication uses an already-aquired token
+The token flow variation for authentication uses an already-acquired token
 and a URL pointing directly to the service API that presumably was acquired
 from the Service Catalog::
 

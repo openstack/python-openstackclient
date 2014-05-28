@@ -88,7 +88,7 @@ class TestKeyValueAction(utils.TestCase):
 
         failhere = None
         actual = getattr(results, 'property', {})
-        # Verify non-existant red key
+        # Verify non-existent red key
         try:
             failhere = actual['red']
         except Exception as e:
