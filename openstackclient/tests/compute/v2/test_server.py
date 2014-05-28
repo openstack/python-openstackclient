@@ -80,11 +80,7 @@ class TestServerImageCreate(TestServer):
             loaded=True,
         )
 
-        self.servers_mock.create_image.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(image_fakes.IMAGE),
-            loaded=True,
-        )
+        self.servers_mock.create_image.return_value = image_fakes.image_id
 
         self.images_mock.get.return_value = fakes.FakeResource(
             None,
