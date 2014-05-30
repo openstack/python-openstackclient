@@ -24,6 +24,7 @@ from cliff import show
 
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.identity import common
 
 
 class CreateProject(show.ShowOne):
@@ -73,10 +74,7 @@ class CreateProject(show.ShowOne):
         identity_client = self.app.client_manager.identity
 
         if parsed_args.domain:
-            domain = utils.find_resource(
-                identity_client.domains,
-                parsed_args.domain,
-            ).id
+            domain = common.find_domain(identity_client, parsed_args.domain).id
         else:
             domain = None
 
@@ -156,10 +154,8 @@ class ListProject(lister.Lister):
             columns = ('ID', 'Name')
         kwargs = {}
         if parsed_args.domain:
-            kwargs['domain'] = utils.find_resource(
-                identity_client.domains,
-                parsed_args.domain,
-            ).id
+            domain = common.find_domain(identity_client, parsed_args.domain)
+            kwargs['domain'] = domain.id
         data = identity_client.projects.list(**kwargs)
         return (columns,
                 (utils.get_item_properties(
@@ -236,10 +232,8 @@ class SetProject(command.Command):
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
         if parsed_args.domain:
-            kwargs['domain'] = utils.find_resource(
-                identity_client.domains,
-                parsed_args.domain,
-            ).id
+            domain = common.find_domain(identity_client, parsed_args.domain)
+            kwargs['domain'] = domain.id
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
         if parsed_args.enable:

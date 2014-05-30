@@ -14,6 +14,7 @@
 #
 
 import copy
+import mock
 
 from openstackclient.identity.v3 import project
 from openstackclient.tests import fakes
@@ -161,6 +162,45 @@ class TestProjectCreate(TestProject):
             **kwargs
         )
 
+        collist = ('description', 'domain_id', 'enabled', 'id', 'name')
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.project_description,
+            identity_fakes.domain_id,
+            True,
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+        )
+        self.assertEqual(data, datalist)
+
+    def test_project_create_domain_no_perms(self):
+        arglist = [
+            '--domain', identity_fakes.domain_id,
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('domain', identity_fakes.domain_id),
+            ('enable', False),
+            ('disable', False),
+            ('name', identity_fakes.project_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        mocker = mock.Mock()
+        mocker.return_value = None
+
+        with mock.patch("openstackclient.common.utils.find_resource", mocker):
+            columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': identity_fakes.project_name,
+            'domain': identity_fakes.domain_id,
+            'description': None,
+            'enabled': True,
+        }
+        self.projects_mock.create.assert_called_with(
+            **kwargs
+        )
         collist = ('description', 'domain_id', 'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
         datalist = (
@@ -403,6 +443,30 @@ class TestProjectList(TestProject):
         self.projects_mock.list.assert_called_with(
             domain=identity_fakes.domain_id)
 
+        collist = ('ID', 'Name')
+        self.assertEqual(columns, collist)
+        datalist = ((
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+        ), )
+        self.assertEqual(tuple(data), datalist)
+
+    def test_project_list_domain_no_perms(self):
+        arglist = [
+            '--domain', identity_fakes.domain_id,
+        ]
+        verifylist = [
+            ('domain', identity_fakes.domain_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        mocker = mock.Mock()
+        mocker.return_value = None
+
+        with mock.patch("openstackclient.common.utils.find_resource", mocker):
+            columns, data = self.cmd.take_action(parsed_args)
+
+        self.projects_mock.list.assert_called_with(
+            domain=identity_fakes.domain_id)
         collist = ('ID', 'Name')
         self.assertEqual(columns, collist)
         datalist = ((
