@@ -80,6 +80,26 @@ TOKEN = {
     'user_id': user_id,
 }
 
+endpoint_name = service_name
+endpoint_adminurl = 'https://admin.example.com/v2/UUID'
+endpoint_region = 'RegionOne'
+endpoint_internalurl = 'https://internal.example.com/v2/UUID'
+endpoint_type = service_type
+endpoint_id = '11b41ee1b00841128b7333d4bf1a6140'
+endpoint_publicurl = 'https://public.example.com/v2/UUID'
+endpoint_service_id = service_id
+
+ENDPOINT = {
+    'service_name': endpoint_name,
+    'adminurl': endpoint_adminurl,
+    'region': endpoint_region,
+    'internalurl': endpoint_internalurl,
+    'service_type': endpoint_type,
+    'id': endpoint_id,
+    'publicurl': endpoint_publicurl,
+    'service_id': endpoint_service_id,
+}
+
 
 class FakeIdentityv2Client(object):
     def __init__(self, **kwargs):
@@ -94,6 +114,8 @@ class FakeIdentityv2Client(object):
         self.users.resource_class = fakes.FakeResource(None, {})
         self.ec2 = mock.Mock()
         self.ec2.resource_class = fakes.FakeResource(None, {})
+        self.endpoints = mock.Mock()
+        self.endpoints.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
