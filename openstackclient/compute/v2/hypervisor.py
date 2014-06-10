@@ -39,7 +39,7 @@ class ListHypervisor(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         columns = (
             "ID",
@@ -71,7 +71,7 @@ class ShowHypervisor(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         hypervisor = utils.find_resource(compute_client.hypervisors,
                                          parsed_args.id)._info.copy()

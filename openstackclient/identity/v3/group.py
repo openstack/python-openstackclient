@@ -46,7 +46,7 @@ class AddUserToGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         user_id = utils.find_resource(identity_client.users,
@@ -84,7 +84,7 @@ class CheckUserInGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         user_id = utils.find_resource(identity_client.users,
@@ -125,7 +125,7 @@ class CreateGroup(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         if parsed_args.domain:
             domain = utils.find_resource(identity_client.domains,
@@ -156,7 +156,7 @@ class DeleteGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         group = utils.find_resource(identity_client.groups, parsed_args.group)
         identity_client.groups.delete(group.id)
@@ -202,7 +202,7 @@ class ListGroup(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         if parsed_args.role:
@@ -292,7 +292,7 @@ class RemoveUserFromGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         user_id = utils.find_resource(identity_client.users,
@@ -336,7 +336,7 @@ class SetGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         group = utils.find_resource(identity_client.groups, parsed_args.group)
         kwargs = {}
@@ -370,7 +370,7 @@ class ShowGroup(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         group = utils.find_resource(identity_client.groups, parsed_args.group)
 

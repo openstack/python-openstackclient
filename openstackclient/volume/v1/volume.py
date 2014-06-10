@@ -96,7 +96,7 @@ class CreateVolume(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         identity_client = self.app.client_manager.identity
         volume_client = self.app.client_manager.volume
@@ -164,7 +164,7 @@ class DeleteVolume(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(
             volume_client.volumes, parsed_args.volume)
@@ -207,7 +207,7 @@ class ListVolume(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         if parsed_args.long:
             columns = (
@@ -293,7 +293,7 @@ class SetVolume(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 
@@ -329,7 +329,7 @@ class ShowVolume(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
         # Map 'metadata' column to 'properties'
@@ -370,7 +370,7 @@ class UnsetVolume(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(
             volume_client.volumes, parsed_args.volume)

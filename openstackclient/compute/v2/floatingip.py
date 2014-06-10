@@ -45,7 +45,7 @@ class AddFloatingIP(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
 
         server = utils.find_resource(
@@ -70,7 +70,7 @@ class CreateFloatingIP(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
         floating_ip = compute_client.floating_ips.create(parsed_args.pool)
 
@@ -94,7 +94,7 @@ class DeleteFloatingIP(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
 
         floating_ip = utils.find_resource(
@@ -112,7 +112,7 @@ class ListFloatingIP(lister.Lister):
     log = logging.getLogger(__name__ + '.ListFloatingIP')
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
 
         columns = ('ID', 'Pool', 'IP', 'Fixed IP', 'Instance ID')
@@ -146,7 +146,7 @@ class RemoveFloatingIP(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
 
         server = utils.find_resource(

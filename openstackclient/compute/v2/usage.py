@@ -47,7 +47,7 @@ class ListUsage(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         def _format_project(project):
             if not project:

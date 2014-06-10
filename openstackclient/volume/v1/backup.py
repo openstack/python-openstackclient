@@ -57,7 +57,7 @@ class CreateBackup(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         volume_id = utils.find_resource(volume_client.volumes,
                                         parsed_args.volume).id
@@ -87,7 +87,7 @@ class DeleteBackup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         backup_id = utils.find_resource(volume_client.backups,
                                         parsed_args.backup).id
@@ -101,7 +101,7 @@ class ListBackup(lister.Lister):
     log = logging.getLogger(__name__ + '.ListBackup')
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         columns = (
             'ID',
             'Display Name',
@@ -135,7 +135,7 @@ class RestoreBackup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         backup = utils.find_resource(volume_client.backups,
                                      parsed_args.backup)
@@ -159,7 +159,7 @@ class ShowBackup(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         backup = utils.find_resource(volume_client.backups,
                                      parsed_args.backup)

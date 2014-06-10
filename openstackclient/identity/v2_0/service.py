@@ -53,7 +53,7 @@ class CreateService(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         service = identity_client.services.create(
@@ -81,7 +81,7 @@ class DeleteService(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         service = common.find_service(identity_client, parsed_args.service)
         identity_client.services.delete(service.id)
@@ -103,7 +103,7 @@ class ListService(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         if parsed_args.long:
             columns = ('ID', 'Name', 'Type', 'Description')
@@ -138,7 +138,7 @@ class ShowService(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         if parsed_args.catalog:

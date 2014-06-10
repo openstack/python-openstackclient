@@ -39,7 +39,7 @@ class ListModule(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
 
         data = {}
         # Get module versions

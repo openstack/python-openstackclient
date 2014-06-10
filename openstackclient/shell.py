@@ -422,13 +422,14 @@ class OpenStackShell(app.App):
             ver = getattr(self.options, mod.API_VERSION_OPTION, None)
             if ver:
                 self.api_version[mod.API_NAME] = ver
-                self.log.debug('%s API version %s' % (mod.API_NAME, ver))
+                self.log.debug('%(name)s API version %(version)s',
+                               {'name': mod.API_NAME, 'version': ver})
 
         # Add the API version-specific commands
         for api in self.api_version.keys():
             version = '.v' + self.api_version[api].replace('.', '_')
             cmd_group = 'openstack.' + api.replace('-', '_') + version
-            self.log.debug('command group %s' % cmd_group)
+            self.log.debug('command group %s', cmd_group)
             self.command_manager.add_command_group(cmd_group)
 
         # Commands that span multiple APIs

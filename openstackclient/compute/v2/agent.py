@@ -60,7 +60,7 @@ class CreateAgent(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         args = (
             parsed_args.os,
@@ -88,7 +88,7 @@ class DeleteAgent(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         compute_client.agents.delete(parsed_args.id)
         return
@@ -108,7 +108,7 @@ class ListAgent(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         columns = (
             "Agent ID",
@@ -152,7 +152,7 @@ class SetAgent(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         args = (
             parsed_args.id,

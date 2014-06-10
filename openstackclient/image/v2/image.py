@@ -41,7 +41,7 @@ class DeleteImage(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         image_client = self.app.client_manager.image
         image = utils.find_resource(
@@ -66,7 +66,7 @@ class ListImage(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         image_client = self.app.client_manager.image
 
@@ -100,7 +100,7 @@ class SaveImage(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         image_client = self.app.client_manager.image
         image = utils.find_resource(
@@ -127,7 +127,7 @@ class ShowImage(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
 
         image_client = self.app.client_manager.image
         image = utils.find_resource(

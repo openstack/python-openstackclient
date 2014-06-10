@@ -34,7 +34,7 @@ def make_client(instance):
         API_NAME,
         instance._api_version[API_NAME],
         API_VERSIONS)
-    LOG.debug('instantiating compute client: %s' % compute_client)
+    LOG.debug('instantiating compute client: %s', compute_client)
 
     # Set client http_log_debug to True if verbosity level is high enough
     http_log_debug = utils.get_effective_log_level() <= logging.DEBUG

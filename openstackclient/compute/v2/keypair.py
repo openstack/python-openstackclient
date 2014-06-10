@@ -48,7 +48,7 @@ class CreateKeypair(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
 
         public_key = parsed_args.public_key
@@ -93,7 +93,7 @@ class DeleteKeypair(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
         compute_client.keypairs.delete(parsed_args.name)
         return
@@ -105,7 +105,7 @@ class ListKeypair(lister.Lister):
     log = logging.getLogger(__name__ + ".ListKeypair")
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)" % parsed_args)
+        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         columns = (
             "Name",
@@ -140,7 +140,7 @@ class ShowKeypair(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
         keypair = utils.find_resource(compute_client.keypairs,
                                       parsed_args.name)

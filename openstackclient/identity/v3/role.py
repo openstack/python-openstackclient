@@ -63,7 +63,7 @@ class AddRole(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         if (not parsed_args.user and not parsed_args.domain
@@ -152,7 +152,7 @@ class CreateRole(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         role = identity_client.roles.create(name=parsed_args.name)
@@ -175,7 +175,7 @@ class DeleteRole(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         role = utils.find_resource(
@@ -193,7 +193,7 @@ class ListRole(lister.Lister):
     log = logging.getLogger(__name__ + '.ListRole')
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         columns = ('ID', 'Name')
         data = self.app.client_manager.identity.roles.list()
         return (columns,
@@ -240,7 +240,7 @@ class RemoveRole(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         if (not parsed_args.user and not parsed_args.domain
@@ -334,7 +334,7 @@ class SetRole(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         if not parsed_args.name:
@@ -364,7 +364,7 @@ class ShowRole(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         role = utils.find_resource(
