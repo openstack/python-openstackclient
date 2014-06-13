@@ -36,7 +36,7 @@ class ListUsage(lister.Lister):
             metavar="<start>",
             default=None,
             help="Usage range start date, ex 2012-01-20"
-                " (default: 4 weeks ago)."
+                 " (default: 4 weeks ago)."
         )
         parser.add_argument(
             "--end",

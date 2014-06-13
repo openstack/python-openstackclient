@@ -107,8 +107,9 @@ class TestFindResource(test_utils.TestCase):
 
     def test_find_resource_find_not_found(self):
         self.manager.get = mock.Mock(side_effect=Exception('Boom!'))
-        self.manager.find = mock.Mock(side_effect=
-                                      exceptions.NotFound(404, "2"))
+        self.manager.find = mock.Mock(
+            side_effect=exceptions.NotFound(404, "2")
+        )
         result = self.assertRaises(exceptions.CommandError,
                                    utils.find_resource,
                                    self.manager,
