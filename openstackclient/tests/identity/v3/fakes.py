@@ -114,6 +114,31 @@ IDENTITY_PROVIDER = {
     'description': idp_description
 }
 
+#Assignments
+ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID = {
+    'scope': {'project': {'id': project_id}},
+    'user': {'id': user_id},
+    'role': {'id': role_id},
+}
+
+ASSIGNMENT_WITH_PROJECT_ID_AND_GROUP_ID = {
+    'scope': {'project': {'id': project_id}},
+    'group': {'id': group_id},
+    'role': {'id': role_id},
+}
+
+ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID = {
+    'scope': {'domain': {'id': domain_id}},
+    'user': {'id': user_id},
+    'role': {'id': role_id},
+}
+
+ASSIGNMENT_WITH_DOMAIN_ID_AND_GROUP_ID = {
+    'scope': {'domain': {'id': domain_id}},
+    'group': {'id': group_id},
+    'role': {'id': role_id},
+}
+
 
 class FakeIdentityv3Client(object):
     def __init__(self, **kwargs):
@@ -130,6 +155,8 @@ class FakeIdentityv3Client(object):
         self.service_catalog = mock.Mock()
         self.users = mock.Mock()
         self.users.resource_class = fakes.FakeResource(None, {})
+        self.role_assignments = mock.Mock()
+        self.role_assignments.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
