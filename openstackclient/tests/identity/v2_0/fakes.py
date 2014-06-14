@@ -100,6 +100,26 @@ ENDPOINT = {
     'service_id': endpoint_service_id,
 }
 
+extension_name = 'OpenStack Keystone User CRUD'
+extension_namespace = 'http://docs.openstack.org/identity/'\
+    'api/ext/OS-KSCRUD/v1.0'
+extension_description = 'OpenStack extensions to Keystone v2.0 API'\
+    ' enabling User Operations.'
+extension_updated = '2013-07-07T12:00:0-00:00'
+extension_alias = 'OS-KSCRUD'
+extension_links = '[{"href":'\
+    '"https://github.com/openstack/identity-api", "type":'\
+    ' "text/html", "rel": "describedby"}]'
+
+EXTENSION = {
+    'name': extension_name,
+    'namespace': extension_namespace,
+    'description': extension_description,
+    'updated': extension_updated,
+    'alias': extension_alias,
+    'links': extension_links,
+}
+
 
 class FakeIdentityv2Client(object):
     def __init__(self, **kwargs):
@@ -116,6 +136,8 @@ class FakeIdentityv2Client(object):
         self.ec2.resource_class = fakes.FakeResource(None, {})
         self.endpoints = mock.Mock()
         self.endpoints.resource_class = fakes.FakeResource(None, {})
+        self.extensions = mock.Mock()
+        self.extensions.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
