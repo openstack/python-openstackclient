@@ -37,7 +37,6 @@ class CommandManager(cliff.commandmanager.CommandManager):
             group = self.namespace
         self.group_list.append(group)
         for ep in pkg_resources.iter_entry_points(group):
-            LOG.debug('found command %r', ep.name)
             cmd_name = (
                 ep.name.replace('_', ' ')
                 if self.convert_underscores
