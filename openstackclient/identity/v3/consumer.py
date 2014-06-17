@@ -43,7 +43,7 @@ class CreateConsumer(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
-        consumer = identity_client.consumers.create_consumer(
+        consumer = identity_client.oauth1.consumers.create(
             parsed_args.description
         )
         info = {}
@@ -69,8 +69,8 @@ class DeleteConsumer(command.Command):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
-            identity_client.consumers, parsed_args.consumer)
-        identity_client.consumers.delete_consumer(consumer.id)
+            identity_client.oauth1.consumers, parsed_args.consumer)
+        identity_client.oauth1.consumers.delete(consumer.id)
         return
 
 
@@ -82,7 +82,7 @@ class ListConsumer(lister.Lister):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         columns = ('ID', 'Description')
-        data = self.app.client_manager.identity.consumers.list_consumers()
+        data = self.app.client_manager.identity.oauth1.consumers.list()
         return (columns,
                 (utils.get_item_properties(
                     s, columns,
@@ -113,7 +113,7 @@ class SetConsumer(command.Command):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
-            identity_client.consumers, parsed_args.consumer)
+            identity_client.oauth1.consumers, parsed_args.consumer)
         kwargs = {}
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
@@ -122,14 +122,9 @@ class SetConsumer(command.Command):
             sys.stdout.write("Consumer not updated, no arguments present")
             return
 
-        consumer = identity_client.consumers.update_consumer(
-            consumer.id,
-            **kwargs
-        )
-
-        info = {}
-        info.update(consumer._info)
-        return zip(*sorted(six.iteritems(info)))
+        consumer = identity_client.oauth1.consumers.update(
+            consumer.id, **kwargs)
+        return
 
 
 class ShowConsumer(show.ShowOne):
@@ -150,7 +145,7 @@ class ShowConsumer(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
-            identity_client.consumers, parsed_args.consumer)
+            identity_client.oauth1.consumers, parsed_args.consumer)
 
         info = {}
         info.update(consumer._info)

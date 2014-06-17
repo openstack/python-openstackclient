@@ -139,6 +139,43 @@ ASSIGNMENT_WITH_DOMAIN_ID_AND_GROUP_ID = {
     'role': {'id': role_id},
 }
 
+consumer_id = 'test consumer id'
+consumer_description = 'someone we trust'
+consumer_secret = 'test consumer secret'
+
+OAUTH_CONSUMER = {
+    'id': consumer_id,
+    'secret': consumer_secret,
+    'description': consumer_description
+}
+
+access_token_id = 'test access token id'
+access_token_secret = 'test access token secret'
+access_token_expires = '2014-05-18T03:13:18.152071Z'
+
+OAUTH_ACCESS_TOKEN = {
+    'id': access_token_id,
+    'expires': access_token_expires,
+    'key': access_token_id,
+    'secret': access_token_secret
+}
+
+request_token_id = 'test request token id'
+request_token_secret = 'test request token secret'
+request_token_expires = '2014-05-17T11:10:51.511336Z'
+
+OAUTH_REQUEST_TOKEN = {
+    'id': request_token_id,
+    'expires': request_token_expires,
+    'key': request_token_id,
+    'secret': request_token_secret
+}
+
+oauth_verifier_pin = '6d74XaDS'
+OAUTH_VERIFIER = {
+    'oauth_verifier': oauth_verifier_pin
+}
+
 
 class FakeIdentityv3Client(object):
     def __init__(self, **kwargs):
@@ -146,6 +183,8 @@ class FakeIdentityv3Client(object):
         self.domains.resource_class = fakes.FakeResource(None, {})
         self.groups = mock.Mock()
         self.groups.resource_class = fakes.FakeResource(None, {})
+        self.oauth1 = mock.Mock()
+        self.oauth1.resource_class = fakes.FakeResource(None, {})
         self.projects = mock.Mock()
         self.projects.resource_class = fakes.FakeResource(None, {})
         self.roles = mock.Mock()
@@ -169,6 +208,18 @@ class FakeFederatedClient(FakeIdentityv3Client):
         self.identity_providers.resource_class = fakes.FakeResource(None, {})
 
 
+class FakeOAuth1Client(FakeIdentityv3Client):
+    def __init__(self, **kwargs):
+        super(FakeOAuth1Client, self).__init__(**kwargs)
+
+        self.access_tokens = mock.Mock()
+        self.access_tokens.resource_class = fakes.FakeResource(None, {})
+        self.consumers = mock.Mock()
+        self.consumers.resource_class = fakes.FakeResource(None, {})
+        self.request_tokens = mock.Mock()
+        self.request_tokens.resource_class = fakes.FakeResource(None, {})
+
+
 class TestIdentityv3(utils.TestCommand):
     def setUp(self):
         super(TestIdentityv3, self).setUp()
@@ -184,6 +235,16 @@ class TestFederatedIdentity(utils.TestCommand):
         super(TestFederatedIdentity, self).setUp()
 
         self.app.client_manager.identity = FakeFederatedClient(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN
+        )
+
+
+class TestOAuth1(utils.TestCommand):
+    def setUp(self):
+        super(TestOAuth1, self).setUp()
+
+        self.app.client_manager.identity = FakeOAuth1Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN
         )
