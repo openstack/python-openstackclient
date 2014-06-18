@@ -54,3 +54,24 @@ class TestTokenCreate(TestToken):
             identity_fakes.user_id,
         )
         self.assertEqual(data, datalist)
+
+
+class TestTokenDelete(TestToken):
+
+    TOKEN = 'fob'
+
+    def setUp(self):
+        super(TestTokenDelete, self).setUp()
+        self.tokens_mock = self.app.client_manager.identity.tokens
+        self.tokens_mock.reset_mock()
+        self.tokens_mock.delete.return_value = True
+        self.cmd = token.DeleteToken(self.app, None)
+
+    def test_token_create(self):
+        arglist = [self.TOKEN]
+        verifylist = [('token', self.TOKEN)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.tokens_mock.delete.assert_called_with(self.TOKEN)

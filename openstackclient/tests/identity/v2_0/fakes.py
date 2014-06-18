@@ -130,6 +130,8 @@ class FakeIdentityv2Client(object):
         self.services.resource_class = fakes.FakeResource(None, {})
         self.tenants = mock.Mock()
         self.tenants.resource_class = fakes.FakeResource(None, {})
+        self.tokens = mock.Mock()
+        self.tokens.resource_class = fakes.FakeResource(None, {})
         self.users = mock.Mock()
         self.users.resource_class = fakes.FakeResource(None, {})
         self.ec2 = mock.Mock()
