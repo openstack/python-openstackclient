@@ -23,7 +23,7 @@ from cliff import show
 
 
 class CreateToken(show.ShowOne):
-    """Create token command"""
+    """Issue token command"""
 
     log = logging.getLogger(__name__ + '.CreateToken')
 
@@ -40,7 +40,7 @@ class CreateToken(show.ShowOne):
 
 
 class DeleteToken(command.Command):
-    """Delete token command"""
+    """Revoke token command"""
 
     log = logging.getLogger(__name__ + '.DeleteToken')
 

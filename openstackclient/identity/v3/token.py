@@ -149,7 +149,7 @@ class CreateRequestToken(show.ShowOne):
 
 
 class CreateToken(show.ShowOne):
-    """Create token command"""
+    """Issue token command"""
 
     log = logging.getLogger(__name__ + '.CreateToken')
 
