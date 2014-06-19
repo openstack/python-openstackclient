@@ -148,17 +148,21 @@ class DeleteUser(command.Command):
 
 
 class ListUser(lister.Lister):
-    """List users and optionally roles assigned to users"""
+    """List users"""
 
     log = logging.getLogger(__name__ + '.ListUser')
 
     def get_parser(self, prog_name):
         parser = super(ListUser, self).get_parser(prog_name)
         parser.add_argument(
-            'user',
-            metavar='<user>',
-            nargs='?',
-            help='Name or ID of user to list [required with --role]',
+            '--domain',
+            metavar='<domain>',
+            help='Filter group list by <domain>',
+        )
+        parser.add_argument(
+            '--group',
+            metavar='<group>',
+            help='List memberships of <group> (name or ID)',
         )
         parser.add_argument(
             '--long',
@@ -169,7 +173,24 @@ class ListUser(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
+        self.log.debug('take_action(%s)', parsed_args)
+        identity_client = self.app.client_manager.identity
+
+        if parsed_args.domain:
+            domain = utils.find_resource(
+                identity_client.domains,
+                parsed_args.domain,
+            ).id
+        else:
+            domain = None
+
+        if parsed_args.group:
+            group = utils.find_resource(
+                identity_client.groups,
+                parsed_args.group,
+            ).id
+        else:
+            group = None
 
         # List users
         if parsed_args.long:
@@ -177,13 +198,18 @@ class ListUser(lister.Lister):
                        'Description', 'Email', 'Enabled')
         else:
             columns = ('ID', 'Name')
-        data = self.app.client_manager.identity.users.list()
+        data = identity_client.users.list(
+            domain=domain,
+            group=group,
+        )
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                    formatters={},
-                ) for s in data))
+        return (
+            columns,
+            (utils.get_item_properties(
+                s, columns,
+                formatters={},
+            ) for s in data)
+        )
 
 
 class SetUser(command.Command):
