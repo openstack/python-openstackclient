@@ -296,6 +296,27 @@ class TestRoleList(TestRole):
             ),
         ]
 
+        self.domains_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.DOMAIN),
+            loaded=True,
+        )
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+        self.users_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.USER),
+            loaded=True,
+        )
+        self.groups_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.GROUP),
+            loaded=True,
+        )
+
         # Get the command object to test
         self.cmd = role.ListRole(self.app, None)
 
@@ -314,6 +335,172 @@ class TestRoleList(TestRole):
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.role_name,
+        ), )
+        self.assertEqual(tuple(data), datalist)
+
+    def test_user_list_user(self):
+        arglist = [
+            '--user', identity_fakes.user_id,
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'domain': 'default',
+            'user': self.users_mock.get(),
+        }
+        # RoleManager.list(user=, group=, domain=, project=, **kwargs)
+        self.roles_mock.list.assert_called_with(
+            **kwargs
+        )
+
+        collist = ('ID', 'Name')
+        self.assertEqual(columns, collist)
+        datalist = ((
+            identity_fakes.role_id,
+            identity_fakes.role_name,
+        ), )
+        self.assertEqual(tuple(data), datalist)
+
+    def test_role_list_domain_user(self):
+        arglist = [
+            '--domain', identity_fakes.domain_name,
+            '--user', identity_fakes.user_id,
+        ]
+        verifylist = [
+            ('domain', identity_fakes.domain_name),
+            ('user', identity_fakes.user_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'domain': self.domains_mock.get(),
+            'user': self.users_mock.get(),
+        }
+        # RoleManager.list(user=, group=, domain=, project=, **kwargs)
+        self.roles_mock.list.assert_called_with(
+            **kwargs
+        )
+
+        collist = ('ID', 'Name', 'Domain', 'User')
+        self.assertEqual(columns, collist)
+        datalist = ((
+            identity_fakes.role_id,
+            identity_fakes.role_name,
+            identity_fakes.domain_name,
+            identity_fakes.user_name,
+        ), )
+        self.assertEqual(tuple(data), datalist)
+
+    def test_role_list_domain_group(self):
+        arglist = [
+            '--domain', identity_fakes.domain_name,
+            '--group', identity_fakes.group_id,
+        ]
+        verifylist = [
+            ('domain', identity_fakes.domain_name),
+            ('group', identity_fakes.group_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'domain': self.domains_mock.get(),
+            'group': self.groups_mock.get(),
+        }
+        # RoleManager.list(user=, group=, domain=, project=, **kwargs)
+        self.roles_mock.list.assert_called_with(
+            **kwargs
+        )
+
+        collist = ('ID', 'Name', 'Domain', 'Group')
+        self.assertEqual(columns, collist)
+        datalist = ((
+            identity_fakes.role_id,
+            identity_fakes.role_name,
+            identity_fakes.domain_name,
+            identity_fakes.group_name,
+        ), )
+        self.assertEqual(tuple(data), datalist)
+
+    def test_role_list_project_user(self):
+        arglist = [
+            '--project', identity_fakes.project_name,
+            '--user', identity_fakes.user_id,
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_name),
+            ('user', identity_fakes.user_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'project': self.projects_mock.get(),
+            'user': self.users_mock.get(),
+        }
+        # RoleManager.list(user=, group=, domain=, project=, **kwargs)
+        self.roles_mock.list.assert_called_with(
+            **kwargs
+        )
+
+        collist = ('ID', 'Name', 'Project', 'User')
+        self.assertEqual(columns, collist)
+        datalist = ((
+            identity_fakes.role_id,
+            identity_fakes.role_name,
+            identity_fakes.project_name,
+            identity_fakes.user_name,
+        ), )
+        self.assertEqual(tuple(data), datalist)
+
+    def test_role_list_project_group(self):
+        arglist = [
+            '--project', identity_fakes.project_name,
+            '--group', identity_fakes.group_id,
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_name),
+            ('group', identity_fakes.group_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'project': self.projects_mock.get(),
+            'group': self.groups_mock.get(),
+        }
+        # RoleManager.list(user=, group=, domain=, project=, **kwargs)
+        self.roles_mock.list.assert_called_with(
+            **kwargs
+        )
+
+        collist = ('ID', 'Name', 'Project', 'Group')
+        self.assertEqual(columns, collist)
+        datalist = ((
+            identity_fakes.role_id,
+            identity_fakes.role_name,
+            identity_fakes.project_name,
+            identity_fakes.group_name,
         ), )
         self.assertEqual(tuple(data), datalist)
 
