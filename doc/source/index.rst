@@ -1,7 +1,9 @@
-OpenStack Client
-================
+===============
+OpenStackClient
+===============
 
-This is a command-line client for OpenStack that unifies the operation
+OpenStackClient (aka OSC) is a command-line client for OpenStack that
+unifies the operation
 of python-keystoneclient, python-novaclient, python-glanceclient and
 python-cinderclient in a single shell with a uniform command structure.
 

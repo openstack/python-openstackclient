@@ -2,6 +2,43 @@
 Release Notes
 =============
 
+0.4.0 (20 Jun 2014)
+===================
+
+* Bug 1184012_: fix Identity v2 endpoint command name/id handling
+* Bug 1207615_: add ``--volume`` and ``--force`` to ``image create`` command
+* Bug 1220280_: add ``--property`` to project create and set commands
+* Bug 1246310_: add ``role assignments list`` command
+* Bug 1285800_: rename ``agent`` to ``compute agent``
+* Bug 1289513_: add ``--domain`` to project list
+* Bug 1289594_: fix keypair show output
+* Bug 1292337_: fix ec2 credentials project ID output
+* Bug 1303978_: fix output of ``volume type create`` command
+* Bug 1316870_: display all output when ``--lines`` omitted from ``console log show`` command
+* add 'interface' and 'url' columns to endpoint list command
+* add identity provider create/delete/list/set/show commands
+* change ``volume create --volume-type`` option to ``--type``
+* fix ``server image create`` command output
+* configure appropriate logging levels for ``--verbose``, ``--quiet`` and ``--debug``
+* properly handle properties in Image v1 ``create`` and ``set`` commands
+* rename Identity v2 ``token create`` to ``token issue``
+* add Identity v2 ``token revoke`` command
+* refactor the ``group|user|role list`` command filters so that each command
+  only lists rows of that type of object, ie ``user list`` always lists users, etc.
+* add ``role assignment list`` command
+* add ``extension list`` command
+
+.. _1184012: https://launchpad.net/bugs/1184012
+.. _1207615: https://launchpad.net/bugs/1207615
+.. _1220280: https://launchpad.net/bugs/1220280
+.. _1246310: https://launchpad.net/bugs/1246310
+.. _1285800: https://launchpad.net/bugs/1285800
+.. _1289513: https://launchpad.net/bugs/1289513
+.. _1289594: https://launchpad.net/bugs/1289594
+.. _1292337: https://launchpad.net/bugs/1292337
+.. _1303978: https://launchpad.net/bugs/1303978
+.. _1316870: https://launchpad.net/bugs/1316870
+
 0.3.1 (28 Feb 2014)
 ===================
 

@@ -11,7 +11,7 @@ Implementation
 --------------
 
 Plugins are discovered by enumerating the entry points
-found under ``openstack.cli.extension`` and initializing the specified
+found under :py:mod:`openstack.cli.extension` and initializing the specified
 client module.
 
 ::
@@ -42,5 +42,5 @@ defined for the API version:
         plugin_list = oscplugin.v1.plugin:ListPlugin
         plugin_show = oscplugin.v1.plugin:ShowPlugin
 
-Note that OSC defines the group name as ``openstack.<api-name>.v<version>``
+Note that OSC defines the group name as :py:mod:`openstack.<api-name>.v<version>`
 so the version should not contain the leading 'v' character.

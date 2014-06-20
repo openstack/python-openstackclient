@@ -181,8 +181,17 @@ The following environment variables can be set to alter the behaviour of :progra
 :envvar:`OS_CACERT`
     CA certificate bundle file
 
+:envvar:`OS_COMPUTE_API_VERISON`
+    Compute API version (Default: 2)
+
 :envvar:`OS_IDENTITY_API_VERISON`
     Identity API version (Default: 2.0)
+
+:envvar:`OS_IMAGE_API_VERISON`
+    Image API version (Default: 1)
+
+:envvar:`OS_VOLUME_API_VERISON`
+    Volume API version (Default: 1)
 
 :envvar:`OS_XXXX_API_VERISON`
     Additional API version options will be available depending on the installed API libraries.
