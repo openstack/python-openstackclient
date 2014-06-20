@@ -7,4 +7,4 @@ python-keystoneclient>=0.9.0
 python-novaclient>=2.17.0
 python-cinderclient>=1.0.6
 requests>=1.1
-six>=1.6.0
+six>=1.7.0
