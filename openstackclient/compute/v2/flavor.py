@@ -26,7 +26,7 @@ from openstackclient.common import utils
 
 
 class CreateFlavor(show.ShowOne):
-    """Create flavor command"""
+    """Create new flavor"""
 
     log = logging.getLogger(__name__ + ".CreateFlavor")
 
@@ -35,7 +35,8 @@ class CreateFlavor(show.ShowOne):
         parser.add_argument(
             "name",
             metavar="<name>",
-            help="Name of the new flavor")
+            help="New flavor name",
+        )
         parser.add_argument(
             "--id",
             metavar="<id>",
@@ -84,12 +85,14 @@ class CreateFlavor(show.ShowOne):
             dest="public",
             action="store_true",
             default=True,
-            help="Flavor is accessible to the public (default)")
+            help="Flavor is accessible to other projects (default)",
+        )
         public_group.add_argument(
             "--private",
             dest="public",
             action="store_false",
-            help="Flavor is inaccessible to the public")
+            help="Flavor is inaccessible to other projects",
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -115,7 +118,7 @@ class CreateFlavor(show.ShowOne):
 
 
 class DeleteFlavor(command.Command):
-    """Delete flavor command"""
+    """Delete a flavor"""
 
     log = logging.getLogger(__name__ + ".DeleteFlavor")
 
@@ -124,7 +127,8 @@ class DeleteFlavor(command.Command):
         parser.add_argument(
             "flavor",
             metavar="<flavor>",
-            help="Name or ID of flavor to delete")
+            help="Flavor to delete (name or ID)",
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -137,7 +141,7 @@ class DeleteFlavor(command.Command):
 
 
 class ListFlavor(lister.Lister):
-    """List flavor command"""
+    """List flavors"""
 
     log = logging.getLogger(__name__ + ".ListFlavor")
 
@@ -164,7 +168,7 @@ class ListFlavor(lister.Lister):
 
 
 class ShowFlavor(show.ShowOne):
-    """Show flavor command"""
+    """Show flavor details"""
 
     log = logging.getLogger(__name__ + ".ShowFlavor")
 
@@ -173,7 +177,8 @@ class ShowFlavor(show.ShowOne):
         parser.add_argument(
             "flavor",
             metavar="<flavor>",
-            help="Name or ID of flavor to display")
+            help="Flavor to display (name or ID)",
+        )
         return parser
 
     def take_action(self, parsed_args):

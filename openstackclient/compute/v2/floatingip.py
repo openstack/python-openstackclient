@@ -26,7 +26,7 @@ from openstackclient.common import utils
 
 
 class AddFloatingIP(command.Command):
-    """Add floating-ip command"""
+    """Add floating-ip to server"""
 
     log = logging.getLogger(__name__ + ".AddFloatingIP")
 
@@ -40,7 +40,7 @@ class AddFloatingIP(command.Command):
         parser.add_argument(
             "server",
             metavar="<server>",
-            help="Name of the server to receive the IP address",
+            help="Server to receive the IP address (name or ID)",
         )
         return parser
 
@@ -56,7 +56,7 @@ class AddFloatingIP(command.Command):
 
 
 class CreateFloatingIP(show.ShowOne):
-    """Create floating-ip command"""
+    """Create new floating-ip"""
 
     log = logging.getLogger(__name__ + '.CreateFloatingIP')
 
@@ -80,7 +80,7 @@ class CreateFloatingIP(show.ShowOne):
 
 
 class DeleteFloatingIP(command.Command):
-    """Delete floating-ip command"""
+    """Delete a floating-ip"""
 
     log = logging.getLogger(__name__ + '.DeleteFloatingIP')
 
@@ -107,7 +107,7 @@ class DeleteFloatingIP(command.Command):
 
 
 class ListFloatingIP(lister.Lister):
-    """List floating-ip command"""
+    """List floating-ips"""
 
     log = logging.getLogger(__name__ + '.ListFloatingIP')
 
@@ -127,7 +127,7 @@ class ListFloatingIP(lister.Lister):
 
 
 class RemoveFloatingIP(command.Command):
-    """Remove floating-ip command"""
+    """Remove floating-ip from server"""
 
     log = logging.getLogger(__name__ + ".RemoveFloatingIP")
 
@@ -141,7 +141,7 @@ class RemoveFloatingIP(command.Command):
         parser.add_argument(
             "server",
             metavar="<server>",
-            help="Name of the server to remove the IP address from",
+            help="Server to remove the IP address from (name or ID)",
         )
         return parser
 

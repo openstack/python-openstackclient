@@ -29,7 +29,7 @@ from openstackclient.common import utils
 
 
 class CreateKeypair(show.ShowOne):
-    """Create keypair command"""
+    """Create new keypair"""
 
     log = logging.getLogger(__name__ + '.CreateKeypair')
 
@@ -79,7 +79,7 @@ class CreateKeypair(show.ShowOne):
 
 
 class DeleteKeypair(command.Command):
-    """Delete keypair command"""
+    """Delete a keypair"""
 
     log = logging.getLogger(__name__ + '.DeleteKeypair')
 
@@ -100,7 +100,7 @@ class DeleteKeypair(command.Command):
 
 
 class ListKeypair(lister.Lister):
-    """List keypair command"""
+    """List keypairs"""
 
     log = logging.getLogger(__name__ + ".ListKeypair")
 
@@ -120,7 +120,7 @@ class ListKeypair(lister.Lister):
 
 
 class ShowKeypair(show.ShowOne):
-    """Show keypair command"""
+    """Show keypair details"""
 
     log = logging.getLogger(__name__ + '.ShowKeypair')
 

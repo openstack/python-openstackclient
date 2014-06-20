@@ -25,7 +25,7 @@ from openstackclient.common import utils
 
 
 class CreateIdentityProvider(show.ShowOne):
-    """Create identity_provider command"""
+    """Create new identity provider"""
 
     log = logging.getLogger(__name__ + '.CreateIdentityProvider')
 
@@ -33,7 +33,7 @@ class CreateIdentityProvider(show.ShowOne):
         parser = super(CreateIdentityProvider, self).get_parser(prog_name)
         parser.add_argument(
             'identity_provider_id',
-            metavar='<identity_provider_id>',
+            metavar='<identity-provider-id>',
             help='New identity provider ID (must be unique)'
         )
         parser.add_argument(
@@ -71,7 +71,7 @@ class CreateIdentityProvider(show.ShowOne):
 
 
 class DeleteIdentityProvider(command.Command):
-    """Delete identity provider"""
+    """Delete an identity provider"""
 
     log = logging.getLogger(__name__ + '.DeleteIdentityProvider')
 
@@ -79,8 +79,8 @@ class DeleteIdentityProvider(command.Command):
         parser = super(DeleteIdentityProvider, self).get_parser(prog_name)
         parser.add_argument(
             'identity_provider',
-            metavar='<identity_provider>',
-            help='ID of the identity provider to be deleted',
+            metavar='<identity-provider-id>',
+            help='Identity provider ID to delete',
         )
         return parser
 
@@ -109,7 +109,7 @@ class ListIdentityProvider(lister.Lister):
 
 
 class SetIdentityProvider(command.Command):
-    """Set identity provider"""
+    """Set identity provider properties"""
 
     log = logging.getLogger(__name__ + '.SetIdentityProvider')
 
@@ -117,8 +117,8 @@ class SetIdentityProvider(command.Command):
         parser = super(SetIdentityProvider, self).get_parser(prog_name)
         parser.add_argument(
             'identity_provider',
-            metavar='<identity_provider>',
-            help='ID of the identity provider to be changed',
+            metavar='<identity-provider-id>',
+            help='Identity provider ID to change',
         )
 
         enable_identity_provider = parser.add_mutually_exclusive_group()
@@ -155,7 +155,7 @@ class SetIdentityProvider(command.Command):
 
 
 class ShowIdentityProvider(show.ShowOne):
-    """Show identity provider"""
+    """Show identity provider details"""
 
     log = logging.getLogger(__name__ + '.ShowIdentityProvider')
 
@@ -163,8 +163,8 @@ class ShowIdentityProvider(show.ShowOne):
         parser = super(ShowIdentityProvider, self).get_parser(prog_name)
         parser.add_argument(
             'identity_provider',
-            metavar='<identity_provider>',
-            help='ID of the identity provider to be displayed',
+            metavar='<identity-provider-id>',
+            help='Identity provider ID to show',
         )
         return parser
 
