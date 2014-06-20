@@ -34,9 +34,9 @@ class TestUser(identity_fakes.TestIdentityv3):
         self.projects_mock = self.app.client_manager.identity.projects
         self.projects_mock.reset_mock()
 
-        # Get a shortcut to the RoleManager Mock
-        self.roles_mock = self.app.client_manager.identity.roles
-        self.roles_mock.reset_mock()
+        # Get a shortcut to the GroupManager Mock
+        self.groups_mock = self.app.client_manager.identity.groups
+        self.groups_mock.reset_mock()
 
         # Get a shortcut to the UserManager Mock
         self.users_mock = self.app.client_manager.identity.users
@@ -489,6 +489,18 @@ class TestUserList(TestUser):
             ),
         ]
 
+        self.domains_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.DOMAIN),
+            loaded=True,
+        )
+
+        self.groups_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.GROUP),
+            loaded=True,
+        )
+
         # Get the command object to test
         self.cmd = user.ListUser(self.app, None)
 
@@ -500,7 +512,15 @@ class TestUserList(TestUser):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.users_mock.list.assert_called_with()
+        # Set expected values
+        kwargs = {
+            'domain': None,
+            'group': None,
+        }
+
+        self.users_mock.list.assert_called_with(
+            **kwargs
+        )
 
         collist = ('ID', 'Name')
         self.assertEqual(columns, collist)
@@ -508,7 +528,67 @@ class TestUserList(TestUser):
             identity_fakes.user_id,
             identity_fakes.user_name,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
+
+    def test_user_list_domain(self):
+        arglist = [
+            '--domain', identity_fakes.domain_id,
+        ]
+        verifylist = [
+            ('domain', identity_fakes.domain_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'domain': identity_fakes.domain_id,
+            'group': None,
+        }
+
+        self.users_mock.list.assert_called_with(
+            **kwargs
+        )
+
+        collist = ('ID', 'Name')
+        self.assertEqual(columns, collist)
+        datalist = ((
+            identity_fakes.user_id,
+            identity_fakes.user_name,
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_user_list_group(self):
+        arglist = [
+            '--group', identity_fakes.group_name,
+        ]
+        verifylist = [
+            ('group', identity_fakes.group_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'domain': None,
+            'group': identity_fakes.group_id,
+        }
+
+        self.users_mock.list.assert_called_with(
+            **kwargs
+        )
+
+        collist = ('ID', 'Name')
+        self.assertEqual(columns, collist)
+        datalist = ((
+            identity_fakes.user_id,
+            identity_fakes.user_name,
+        ), )
+        self.assertEqual(datalist, tuple(data))
 
     def test_user_list_long(self):
         arglist = [
@@ -522,7 +602,15 @@ class TestUserList(TestUser):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.users_mock.list.assert_called_with()
+        # Set expected values
+        kwargs = {
+            'domain': None,
+            'group': None,
+        }
+
+        self.users_mock.list.assert_called_with(
+            **kwargs
+        )
 
         collist = (
             'ID',
@@ -543,7 +631,7 @@ class TestUserList(TestUser):
             identity_fakes.user_email,
             True,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
 
 class TestUserSet(TestUser):

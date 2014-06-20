@@ -164,17 +164,21 @@ class DeleteGroup(command.Command):
 
 
 class ListGroup(lister.Lister):
-    """List groups and optionally roles assigned to groups"""
+    """List groups"""
 
     log = logging.getLogger(__name__ + '.ListGroup')
 
     def get_parser(self, prog_name):
         parser = super(ListGroup, self).get_parser(prog_name)
         parser.add_argument(
-            'group',
-            metavar='<group>',
-            nargs='?',
-            help='Name or ID of group to list [required with --role]',
+            '--domain',
+            metavar='<domain>',
+            help='Filter group list by <domain>',
+        )
+        parser.add_argument(
+            '--user',
+            metavar='<user>',
+            help='List group memberships for <user> (name or ID)',
         )
         parser.add_argument(
             '--long',
@@ -188,18 +192,39 @@ class ListGroup(lister.Lister):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
+        if parsed_args.domain:
+            domain = utils.find_resource(
+                identity_client.domains,
+                parsed_args.domain,
+            ).id
+        else:
+            domain = None
+
+        if parsed_args.user:
+            user = utils.find_resource(
+                identity_client.users,
+                parsed_args.user,
+            ).id
+        else:
+            user = None
+
         # List groups
         if parsed_args.long:
             columns = ('ID', 'Name', 'Domain ID', 'Description')
         else:
             columns = ('ID', 'Name')
-        data = identity_client.groups.list()
+        data = identity_client.groups.list(
+            domain=domain,
+            user=user,
+        )
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                    formatters={},
-                ) for s in data))
+        return (
+            columns,
+            (utils.get_item_properties(
+                s, columns,
+                formatters={},
+            ) for s in data)
+        )
 
 
 class RemoveUserFromGroup(command.Command):
