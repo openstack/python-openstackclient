@@ -36,15 +36,15 @@ FAKE_CMD_BETA = FakeCommand
 class FakeCommandManager(commandmanager.CommandManager):
     commands = {}
 
-    def _load_commands(self, group=None):
-        if not group:
+    def load_commands(self, namespace):
+        if namespace == 'test':
             self.commands['one'] = FAKE_CMD_ONE
             self.commands['two'] = FAKE_CMD_TWO
-            self.group_list.append(self.namespace)
-        else:
+            self.group_list.append(namespace)
+        elif namespace == 'greek':
             self.commands['alpha'] = FAKE_CMD_ALPHA
             self.commands['beta'] = FAKE_CMD_BETA
-            self.group_list.append(group)
+            self.group_list.append(namespace)
 
 
 class TestCommandManager(utils.TestCase):
@@ -62,7 +62,7 @@ class TestCommandManager(utils.TestCase):
         self.assertEqual(cmd_one, FAKE_CMD_ONE)
 
         # Load another command group
-        mgr.add_command_group('latin')
+        mgr.add_command_group('greek')
 
         # Find a new command
         cmd_alpha, name, args = mgr.find_command(['alpha'])
@@ -82,7 +82,7 @@ class TestCommandManager(utils.TestCase):
         self.assertEqual(cmd_mock, mock_cmd_one)
 
         # Load another command group
-        mgr.add_command_group('latin')
+        mgr.add_command_group('greek')
 
         gl = mgr.get_command_groups()
-        self.assertEqual(['test', 'latin'], gl)
+        self.assertEqual(['test', 'greek'], gl)
