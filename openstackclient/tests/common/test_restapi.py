@@ -137,10 +137,6 @@ class TestRESTApi(utils.TestCase):
             user_agent=fake_user_agent,
         )
         gopher = api.request('GET', fake_url)
-        #session_mock.return_value.headers.setdefault.assert_called_with(
-        #    'X-Auth-Token',
-        #    fake_auth,
-        #)
         session_mock.return_value.request.assert_called_with(
             'GET',
             fake_url,
