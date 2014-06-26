@@ -22,7 +22,7 @@ from cliff import show
 
 
 class AuthorizeRequestToken(show.ShowOne):
-    """Authorize request token command"""
+    """Authorize request token"""
 
     log = logging.getLogger(__name__ + '.AuthorizeRequestToken')
 
@@ -59,7 +59,7 @@ class AuthorizeRequestToken(show.ShowOne):
 
 
 class CreateAccessToken(show.ShowOne):
-    """Create access token command"""
+    """Create access token"""
 
     log = logging.getLogger(__name__ + '.CreateAccessToken')
 
@@ -110,7 +110,7 @@ class CreateAccessToken(show.ShowOne):
 
 
 class CreateRequestToken(show.ShowOne):
-    """Create request token command"""
+    """Create request token"""
 
     log = logging.getLogger(__name__ + '.CreateRequestToken')
 
@@ -148,18 +148,19 @@ class CreateRequestToken(show.ShowOne):
         return zip(*sorted(six.iteritems(info)))
 
 
-class CreateToken(show.ShowOne):
-    """Issue token command"""
+class IssueToken(show.ShowOne):
+    """Issue new token"""
 
-    log = logging.getLogger(__name__ + '.CreateToken')
+    log = logging.getLogger(__name__ + '.IssueToken')
 
     def get_parser(self, prog_name):
-        parser = super(CreateToken, self).get_parser(prog_name)
+        parser = super(IssueToken, self).get_parser(prog_name)
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
+
         token = identity_client.service_catalog.get_token()
         if 'tenant_id' in token:
             token['project_id'] = token.pop('tenant_id')

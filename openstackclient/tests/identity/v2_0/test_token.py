@@ -27,15 +27,15 @@ class TestToken(identity_fakes.TestIdentityv2):
         self.sc_mock.reset_mock()
 
 
-class TestTokenCreate(TestToken):
+class TestTokenIssue(TestToken):
 
     def setUp(self):
-        super(TestTokenCreate, self).setUp()
+        super(TestTokenIssue, self).setUp()
 
         self.sc_mock.get_token.return_value = identity_fakes.TOKEN
-        self.cmd = token.CreateToken(self.app, None)
+        self.cmd = token.IssueToken(self.app, None)
 
-    def test_token_create(self):
+    def test_token_issue(self):
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -56,18 +56,18 @@ class TestTokenCreate(TestToken):
         self.assertEqual(data, datalist)
 
 
-class TestTokenDelete(TestToken):
+class TestTokenRevoke(TestToken):
 
     TOKEN = 'fob'
 
     def setUp(self):
-        super(TestTokenDelete, self).setUp()
+        super(TestTokenRevoke, self).setUp()
         self.tokens_mock = self.app.client_manager.identity.tokens
         self.tokens_mock.reset_mock()
         self.tokens_mock.delete.return_value = True
-        self.cmd = token.DeleteToken(self.app, None)
+        self.cmd = token.RevokeToken(self.app, None)
 
-    def test_token_create(self):
+    def test_token_revoke(self):
         arglist = [self.TOKEN]
         verifylist = [('token', self.TOKEN)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
