@@ -19,9 +19,11 @@ import argparse
 
 
 class KeyValueAction(argparse.Action):
-    """A custom action to parse arguments as key=value pairs.
-    Ensures that dest is a dict
+    """A custom action to parse arguments as key=value pairs
+
+    Ensures that ``dest`` is a dict
     """
+
     def __call__(self, parser, namespace, values, option_string=None):
         # Make sure we have an empty dict rather than None
         if getattr(namespace, self.dest, None) is None:
@@ -35,7 +37,14 @@ class KeyValueAction(argparse.Action):
 
 
 class RangeAction(argparse.Action):
-    """A custom action to parse a single value or a range of values."""
+    """A custom action to parse a single value or a range of values
+
+    Parses single integer values or a range of integer values delimited
+    by a colon and returns a tuple of integers:
+    '4' sets ``dest`` to (4, 4)
+    '6:9' sets ``dest`` to (6, 9)
+    """
+
     def __call__(self, parser, namespace, values, option_string=None):
         range = values.split(':')
         if len(range) == 0:
