@@ -19,76 +19,80 @@ from openstackclient.tests.identity.v3 import fakes as identity_fakes
 
 class TestOAuth1(identity_fakes.TestOAuth1):
 
-        def setUp(self):
-            super(TestOAuth1, self).setUp()
-            identity_client = self.app.client_manager.identity
-            self.consumers_mock = identity_client.oauth1.consumers
-            self.consumers_mock.reset_mock()
+    def setUp(self):
+        super(TestOAuth1, self).setUp()
+        identity_client = self.app.client_manager.identity
+        self.consumers_mock = identity_client.oauth1.consumers
+        self.consumers_mock.reset_mock()
 
 
 class TestConsumerCreate(TestOAuth1):
 
-        def setUp(self):
-            super(TestConsumerCreate, self).setUp()
+    def setUp(self):
+        super(TestConsumerCreate, self).setUp()
 
-            self.consumers_mock.create.return_value = fakes.FakeResource(
-                    None, copy.deepcopy(identity_fakes.OAUTH_CONSUMER),
-                    loaded=True)
+        self.consumers_mock.create.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.OAUTH_CONSUMER),
+            loaded=True,
+        )
 
-            self.cmd = consumer.CreateConsumer(self.app, None)
+        self.cmd = consumer.CreateConsumer(self.app, None)
 
-        def test_create_consumer(self):
-            arglist = [
-                    '--description', identity_fakes.consumer_description
-            ]
-            verifylist = [
-                    ('description', identity_fakes.consumer_description)
-            ]
-            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-            columns, data = self.cmd.take_action(parsed_args)
+    def test_create_consumer(self):
+        arglist = [
+            '--description', identity_fakes.consumer_description,
+        ]
+        verifylist = [
+            ('description', identity_fakes.consumer_description),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
 
-            self.consumers_mock.create.assert_called_with(
-                identity_fakes.consumer_description)
+        self.consumers_mock.create.assert_called_with(
+            identity_fakes.consumer_description,
+        )
 
-            collist = ('description', 'id', 'secret')
-            self.assertEqual(columns, collist)
-            datalist = (
-                identity_fakes.consumer_description,
-                identity_fakes.consumer_id,
-                identity_fakes.consumer_secret
-            )
-            self.assertEqual(data, datalist)
+        collist = ('description', 'id', 'secret')
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.consumer_description,
+            identity_fakes.consumer_id,
+            identity_fakes.consumer_secret,
+        )
+        self.assertEqual(data, datalist)
 
 
 class TestConsumerDelete(TestOAuth1):
 
-        def setUp(self):
-            super(TestConsumerDelete, self).setUp()
+    def setUp(self):
+        super(TestConsumerDelete, self).setUp()
 
-            # This is the return value for utils.find_resource()
-            self.consumers_mock.get.return_value = fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.OAUTH_CONSUMER),
-                loaded=True)
+        # This is the return value for utils.find_resource()
+        self.consumers_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.OAUTH_CONSUMER),
+            loaded=True,
+        )
 
-            self.consumers_mock.delete.return_value = None
-            self.cmd = consumer.DeleteConsumer(self.app, None)
+        self.consumers_mock.delete.return_value = None
+        self.cmd = consumer.DeleteConsumer(self.app, None)
 
-        def test_delete_consumer(self):
-            arglist = [
-                identity_fakes.consumer_id
-            ]
-            verifylist = [
-                ('consumer', identity_fakes.consumer_id)
-            ]
-            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+    def test_delete_consumer(self):
+        arglist = [
+            identity_fakes.consumer_id,
+        ]
+        verifylist = [
+            ('consumer', identity_fakes.consumer_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-            result = self.cmd.run(parsed_args)
-            self.assertEqual(result, 0)
+        result = self.cmd.run(parsed_args)
+        self.assertEqual(result, 0)
 
-            self.consumers_mock.delete.assert_called_with(
-                    identity_fakes.consumer_id,
-            )
+        self.consumers_mock.delete.assert_called_with(
+            identity_fakes.consumer_id,
+        )
 
 
 class TestConsumerList(TestOAuth1):
@@ -125,7 +129,7 @@ class TestConsumerList(TestOAuth1):
         self.assertEqual(columns, collist)
         datalist = ((
             identity_fakes.consumer_id,
-            identity_fakes.consumer_description
+            identity_fakes.consumer_description,
         ), )
         self.assertEqual(tuple(data), datalist)
 
@@ -138,29 +142,33 @@ class TestConsumerShow(TestOAuth1):
         consumer_no_secret = copy.deepcopy(identity_fakes.OAUTH_CONSUMER)
         del consumer_no_secret['secret']
         self.consumers_mock.get.return_value = fakes.FakeResource(
-            None, consumer_no_secret, loaded=True)
+            None,
+            consumer_no_secret,
+            loaded=True,
+        )
 
         # Get the command object to test
         self.cmd = consumer.ShowConsumer(self.app, None)
 
     def test_consumer_show(self):
         arglist = [
-            identity_fakes.consumer_id
+            identity_fakes.consumer_id,
         ]
         verifylist = [
-            ('consumer', identity_fakes.consumer_id)
+            ('consumer', identity_fakes.consumer_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
         self.consumers_mock.get.assert_called_with(
-            identity_fakes.consumer_id)
+            identity_fakes.consumer_id,
+        )
 
-        collist = ('description', 'id' )
+        collist = ('description', 'id')
         self.assertEqual(columns, collist)
         datalist = (
             identity_fakes.consumer_description,
-            identity_fakes.consumer_id
+            identity_fakes.consumer_id,
         )
         self.assertEqual(data, datalist)
 
@@ -171,12 +179,18 @@ class TestConsumerSet(TestOAuth1):
         super(TestConsumerSet, self).setUp()
 
         self.consumers_mock.get.return_value = fakes.FakeResource(
-            None, copy.deepcopy(identity_fakes.OAUTH_CONSUMER), loaded=True)
+            None,
+            copy.deepcopy(identity_fakes.OAUTH_CONSUMER),
+            loaded=True,
+        )
 
         consumer_updated = copy.deepcopy(identity_fakes.OAUTH_CONSUMER)
         consumer_updated['description'] = "consumer new description"
         self.consumers_mock.update.return_value = fakes.FakeResource(
-            None, consumer_updated, loaded=True)
+            None,
+            consumer_updated,
+            loaded=True,
+        )
 
         self.cmd = consumer.SetConsumer(self.app, None)
 
@@ -185,11 +199,11 @@ class TestConsumerSet(TestOAuth1):
 
         arglist = [
             '--description', new_description,
-            identity_fakes.consumer_id
+            identity_fakes.consumer_id,
         ]
         verifylist = [
             ('description', new_description),
-            ('consumer', identity_fakes.consumer_id)
+            ('consumer', identity_fakes.consumer_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.run(parsed_args)
@@ -197,4 +211,6 @@ class TestConsumerSet(TestOAuth1):
 
         kwargs = {'description': new_description}
         self.consumers_mock.update.assert_called_with(
-            identity_fakes.consumer_id, **kwargs)
+            identity_fakes.consumer_id,
+            **kwargs
+        )
