@@ -209,12 +209,12 @@ class ListRole(lister.Lister):
         user_or_group.add_argument(
             '--user',
             metavar='<user>',
-            help='Name or ID of user to list roles asssigned to',
+            help='Name or ID of user to list roles assigned to',
         )
         user_or_group.add_argument(
             '--group',
             metavar='<group>',
-            help='Name or ID of group to list roles asssigned to',
+            help='Name or ID of group to list roles assigned to',
         )
         return parser
 
