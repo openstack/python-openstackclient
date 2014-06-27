@@ -5,6 +5,17 @@ OpenStack Style Commandments
   http://docs.openstack.org/developer/hacking/
 - Step 2: Read on
 
+Deviations from Global Hacking
+------------------------------
+
+The following checks are specifically skipped in OpenStackClient::
+
+* H305 - py2/py3 compatibility problems
+* H307 - py2/py3 compatibility problems
+* H402 - one line docstring ends in period
+* H904 - backslash continuation line
+
+
 General
 -------
 - thou shalt not violate causality in our time cone, or else

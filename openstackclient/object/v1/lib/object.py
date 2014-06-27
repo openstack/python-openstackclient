@@ -19,9 +19,9 @@
 import six
 
 try:
-    from urllib.parse import urlparse
+    from urllib.parse import urlparse  # noqa
 except ImportError:
-    from urlparse import urlparse
+    from urlparse import urlparse  # noqa
 
 
 def list_objects(

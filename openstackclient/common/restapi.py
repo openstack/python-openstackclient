@@ -20,9 +20,9 @@ import logging
 import requests
 
 try:
-    from urllib.parse import urlencode
+    from urllib.parse import urlencode  # noqa
 except ImportError:
-    from urllib import urlencode
+    from urllib import urlencode  # noqa
 
 
 USER_AGENT = 'RAPI'
