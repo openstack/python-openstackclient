@@ -22,30 +22,31 @@ from cliff import command
 from cliff import show
 
 
-class CreateToken(show.ShowOne):
-    """Issue token command"""
+class IssueToken(show.ShowOne):
+    """Issue new token"""
 
-    log = logging.getLogger(__name__ + '.CreateToken')
+    log = logging.getLogger(__name__ + '.IssueToken')
 
     def get_parser(self, prog_name):
-        parser = super(CreateToken, self).get_parser(prog_name)
+        parser = super(IssueToken, self).get_parser(prog_name)
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
+
         token = identity_client.service_catalog.get_token()
         token['project_id'] = token.pop('tenant_id')
         return zip(*sorted(six.iteritems(token)))
 
 
-class DeleteToken(command.Command):
+class RevokeToken(command.Command):
     """Revoke token command"""
 
-    log = logging.getLogger(__name__ + '.DeleteToken')
+    log = logging.getLogger(__name__ + '.RevokeToken')
 
     def get_parser(self, prog_name):
-        parser = super(DeleteToken, self).get_parser(prog_name)
+        parser = super(RevokeToken, self).get_parser(prog_name)
         parser.add_argument(
             'token',
             metavar='<token>',
@@ -56,5 +57,6 @@ class DeleteToken(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
+
         identity_client.tokens.delete(parsed_args.token)
         return

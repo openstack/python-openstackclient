@@ -27,14 +27,14 @@ class TestToken(identity_fakes.TestIdentityv3):
         self.sc_mock.reset_mock()
 
 
-class TestTokenCreate(TestToken):
+class TestTokenIssue(TestToken):
 
     def setUp(self):
-        super(TestTokenCreate, self).setUp()
+        super(TestTokenIssue, self).setUp()
 
-        self.cmd = token.CreateToken(self.app, None)
+        self.cmd = token.IssueToken(self.app, None)
 
-    def test_token_create_with_project_id(self):
+    def test_token_issue_with_project_id(self):
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -56,7 +56,7 @@ class TestTokenCreate(TestToken):
         )
         self.assertEqual(data, datalist)
 
-    def test_token_create_with_domain_id(self):
+    def test_token_issue_with_domain_id(self):
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
