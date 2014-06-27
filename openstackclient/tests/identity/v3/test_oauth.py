@@ -19,90 +19,96 @@ from openstackclient.tests.identity.v3 import fakes as identity_fakes
 
 class TestOAuth1(identity_fakes.TestOAuth1):
 
-        def setUp(self):
-            super(TestOAuth1, self).setUp()
-            identity_client = self.app.client_manager.identity
-            self.access_tokens_mock = identity_client.oauth1.access_tokens
-            self.access_tokens_mock.reset_mock()
-            self.request_tokens_mock = identity_client.oauth1.request_tokens
-            self.request_tokens_mock.reset_mock()
+    def setUp(self):
+        super(TestOAuth1, self).setUp()
+        identity_client = self.app.client_manager.identity
+        self.access_tokens_mock = identity_client.oauth1.access_tokens
+        self.access_tokens_mock.reset_mock()
+        self.request_tokens_mock = identity_client.oauth1.request_tokens
+        self.request_tokens_mock.reset_mock()
 
 
 class TestRequestTokenCreate(TestOAuth1):
 
-        def setUp(self):
-            super(TestRequestTokenCreate, self).setUp()
+    def setUp(self):
+        super(TestRequestTokenCreate, self).setUp()
 
-            self.request_tokens_mock.create.return_value = fakes.FakeResource(
-                    None, copy.deepcopy(identity_fakes.OAUTH_REQUEST_TOKEN),
-                    loaded=True)
+        self.request_tokens_mock.create.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.OAUTH_REQUEST_TOKEN),
+            loaded=True,
+        )
 
-            self.cmd = token.CreateRequestToken(self.app, None)
+        self.cmd = token.CreateRequestToken(self.app, None)
 
-        def test_create_request_tokens(self):
-            arglist = [
-                    '--consumer-key', identity_fakes.consumer_id,
-                    '--consumer-secret', identity_fakes.consumer_secret,
-                    '--project-id', identity_fakes.project_id
-            ]
-            verifylist = [
-                    ('consumer_key', identity_fakes.consumer_id),
-                    ('consumer_secret', identity_fakes.consumer_secret),
-                    ('project_id', identity_fakes.project_id)
-            ]
-            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-            columns, data = self.cmd.take_action(parsed_args)
+    def test_create_request_tokens(self):
+        arglist = [
+            '--consumer-key', identity_fakes.consumer_id,
+            '--consumer-secret', identity_fakes.consumer_secret,
+            '--project-id', identity_fakes.project_id,
+        ]
+        verifylist = [
+            ('consumer_key', identity_fakes.consumer_id),
+            ('consumer_secret', identity_fakes.consumer_secret),
+            ('project_id', identity_fakes.project_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
 
-            self.request_tokens_mock.create.assert_called_with(
-                identity_fakes.consumer_id,
-                identity_fakes.consumer_secret,
-                identity_fakes.project_id)
+        self.request_tokens_mock.create.assert_called_with(
+            identity_fakes.consumer_id,
+            identity_fakes.consumer_secret,
+            identity_fakes.project_id,
+        )
 
-            collist = ('expires', 'id', 'key', 'secret')
-            self.assertEqual(columns, collist)
-            datalist = (
-                identity_fakes.request_token_expires,
-                identity_fakes.request_token_id,
-                identity_fakes.request_token_id,
-                identity_fakes.request_token_secret
-            )
-            self.assertEqual(data, datalist)
+        collist = ('expires', 'id', 'key', 'secret')
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.request_token_expires,
+            identity_fakes.request_token_id,
+            identity_fakes.request_token_id,
+            identity_fakes.request_token_secret,
+        )
+        self.assertEqual(data, datalist)
 
 
 class TestRequestTokenAuthorize(TestOAuth1):
 
-        def setUp(self):
-            super(TestRequestTokenAuthorize, self).setUp()
+    def setUp(self):
+        super(TestRequestTokenAuthorize, self).setUp()
 
-            self.request_tokens_mock.authorize.return_value = \
-                fakes.FakeResource(
-                    None, copy.deepcopy(identity_fakes.OAUTH_VERIFIER),
-                    loaded=True)
-
-            self.cmd = token.AuthorizeRequestToken(self.app, None)
-
-        def test_authorize_request_tokens(self):
-            arglist = [
-                    '--request-key', identity_fakes.request_token_id,
-                    '--role-ids', identity_fakes.role_id
-            ]
-            verifylist = [
-                    ('request_key', identity_fakes.request_token_id),
-                    ('role_ids', identity_fakes.role_id)
-            ]
-            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-            columns, data = self.cmd.take_action(parsed_args)
-
-            self.request_tokens_mock.authorize.assert_called_with(
-                identity_fakes.request_token_id,
-                [identity_fakes.role_id])
-
-            collist = ('oauth_verifier',)
-            self.assertEqual(columns, collist)
-            datalist = (
-                identity_fakes.oauth_verifier_pin,
+        self.request_tokens_mock.authorize.return_value = \
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(identity_fakes.OAUTH_VERIFIER),
+                loaded=True,
             )
-            self.assertEqual(data, datalist)
+
+        self.cmd = token.AuthorizeRequestToken(self.app, None)
+
+    def test_authorize_request_tokens(self):
+        arglist = [
+            '--request-key', identity_fakes.request_token_id,
+            '--role-ids', identity_fakes.role_id,
+        ]
+        verifylist = [
+            ('request_key', identity_fakes.request_token_id),
+            ('role_ids', identity_fakes.role_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.request_tokens_mock.authorize.assert_called_with(
+            identity_fakes.request_token_id,
+            [identity_fakes.role_id],
+        )
+
+        collist = ('oauth_verifier',)
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.oauth_verifier_pin,
+        )
+        self.assertEqual(data, datalist)
 
 
 class TestAccessTokenCreate(TestOAuth1):
@@ -111,42 +117,45 @@ class TestAccessTokenCreate(TestOAuth1):
         super(TestAccessTokenCreate, self).setUp()
 
         self.access_tokens_mock.create.return_value = fakes.FakeResource(
-                None, copy.deepcopy(identity_fakes.OAUTH_ACCESS_TOKEN),
-                loaded=True)
+            None,
+            copy.deepcopy(identity_fakes.OAUTH_ACCESS_TOKEN),
+            loaded=True,
+        )
 
         self.cmd = token.CreateAccessToken(self.app, None)
 
     def test_create_access_tokens(self):
-            arglist = [
-                    '--consumer-key', identity_fakes.consumer_id,
-                    '--consumer-secret', identity_fakes.consumer_secret,
-                    '--request-key', identity_fakes.request_token_id,
-                    '--request-secret', identity_fakes.request_token_secret,
-                    '--verifier', identity_fakes.oauth_verifier_pin
-            ]
-            verifylist = [
-                    ('consumer_key', identity_fakes.consumer_id),
-                    ('consumer_secret', identity_fakes.consumer_secret),
-                    ('request_key', identity_fakes.request_token_id),
-                    ('request_secret', identity_fakes.request_token_secret),
-                    ('verifier', identity_fakes.oauth_verifier_pin)
-            ]
-            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-            columns, data = self.cmd.take_action(parsed_args)
+        arglist = [
+            '--consumer-key', identity_fakes.consumer_id,
+            '--consumer-secret', identity_fakes.consumer_secret,
+            '--request-key', identity_fakes.request_token_id,
+            '--request-secret', identity_fakes.request_token_secret,
+            '--verifier', identity_fakes.oauth_verifier_pin,
+        ]
+        verifylist = [
+            ('consumer_key', identity_fakes.consumer_id),
+            ('consumer_secret', identity_fakes.consumer_secret),
+            ('request_key', identity_fakes.request_token_id),
+            ('request_secret', identity_fakes.request_token_secret),
+            ('verifier', identity_fakes.oauth_verifier_pin),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
 
-            self.access_tokens_mock.create.assert_called_with(
-                identity_fakes.consumer_id,
-                identity_fakes.consumer_secret,
-                identity_fakes.request_token_id,
-                identity_fakes.request_token_secret,
-                identity_fakes.oauth_verifier_pin)
+        self.access_tokens_mock.create.assert_called_with(
+            identity_fakes.consumer_id,
+            identity_fakes.consumer_secret,
+            identity_fakes.request_token_id,
+            identity_fakes.request_token_secret,
+            identity_fakes.oauth_verifier_pin,
+        )
 
-            collist = ('expires', 'id', 'key', 'secret')
-            self.assertEqual(columns, collist)
-            datalist = (
-                identity_fakes.access_token_expires,
-                identity_fakes.access_token_id,
-                identity_fakes.access_token_id,
-                identity_fakes.access_token_secret
-            )
-            self.assertEqual(data, datalist)
+        collist = ('expires', 'id', 'key', 'secret')
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.access_token_expires,
+            identity_fakes.access_token_id,
+            identity_fakes.access_token_id,
+            identity_fakes.access_token_secret,
+        )
+        self.assertEqual(data, datalist)
