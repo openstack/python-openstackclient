@@ -114,7 +114,8 @@ IDENTITY_PROVIDER = {
     'description': idp_description
 }
 
-#Assignments
+# Assignments
+
 ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID = {
     'scope': {'project': {'id': project_id}},
     'user': {'id': user_id},

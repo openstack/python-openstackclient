@@ -693,7 +693,7 @@ class MigrateServer(command.Command):
             if utils.wait_for_status(
                 compute_client.servers.get,
                 server.id,
-                #callback=_show_progress,
+                callback=_show_progress,
             ):
                 sys.stdout.write('Complete\n')
             else:

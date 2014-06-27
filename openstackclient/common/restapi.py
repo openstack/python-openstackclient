@@ -251,16 +251,6 @@ class RESTApi(object):
         else:
             return response.json()
 
-        ###hack this for keystone!!!
-        #data = body[response_key]
-        # NOTE(ja): keystone returns values as list as {'values': [ ... ]}
-        #           unlike other services which just return the list...
-        #if isinstance(data, dict):
-        #    try:
-        #        data = data['values']
-        #    except KeyError:
-        #        pass
-
     def set(self, url, data=None, response_key=None, **kwargs):
         """Update an object via a PUT request
 
