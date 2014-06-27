@@ -13,7 +13,7 @@
 #   under the License.
 #
 
-"""Modify Cliff's CommandManager"""
+"""Modify cliff.CommandManager"""
 
 import logging
 import pkg_resources
@@ -25,9 +25,12 @@ LOG = logging.getLogger(__name__)
 
 
 class CommandManager(cliff.commandmanager.CommandManager):
-    """Alters Cliff's default CommandManager behaviour to load additional
-       command groups after initialization.
+    """Add additional functionality to cliff.CommandManager
+
+    Load additional command groups after initialization
+    Add *_command_group() methods
     """
+
     def __init__(self, namespace, convert_underscores=True):
         self.group_list = []
         super(CommandManager, self).__init__(namespace, convert_underscores)

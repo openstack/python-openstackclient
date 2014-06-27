@@ -330,9 +330,8 @@ class OpenStackShell(app.App):
         return parser
 
     def authenticate_user(self):
-        """Make sure the user has provided all of the authentication
-        info we need.
-        """
+        """Verify the required authentication credentials are present"""
+
         self.log.debug('validating authentication options')
         if self.options.os_token or self.options.os_url:
             # Token flow auth takes priority
