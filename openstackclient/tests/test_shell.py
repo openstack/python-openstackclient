@@ -104,6 +104,8 @@ class TestShell(utils.TestCase):
                              default_args["password"])
             self.assertEqual(_shell.options.os_region_name,
                              default_args["region_name"])
+            self.assertEqual(_shell.options.os_trust_id,
+                             default_args["trust_id"])
 
     def _assert_token_auth(self, cmd_options, default_args):
         with mock.patch("openstackclient.shell.OpenStackShell.initialize_app",
@@ -181,7 +183,8 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": "",
             "username": "",
             "password": "",
-            "region_name": ""
+            "region_name": "",
+            "trust_id": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -199,7 +202,8 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": "",
             "username": "",
             "password": "",
-            "region_name": ""
+            "region_name": "",
+            "trust_id": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -217,7 +221,8 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": "",
             "username": "",
             "password": "",
-            "region_name": ""
+            "region_name": "",
+            "trust_id": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -235,7 +240,8 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": "",
             "username": "",
             "password": "",
-            "region_name": ""
+            "region_name": "",
+            "trust_id": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -253,7 +259,8 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": "",
             "username": "",
             "password": "",
-            "region_name": ""
+            "region_name": "",
+            "trust_id": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -271,7 +278,8 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": "",
             "username": "",
             "password": "",
-            "region_name": ""
+            "region_name": "",
+            "trust_id": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -289,7 +297,8 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": "",
             "username": "",
             "password": "",
-            "region_name": ""
+            "region_name": "",
+            "trust_id": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -307,7 +316,8 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": "",
             "username": "",
             "password": "",
-            "region_name": ""
+            "region_name": "",
+            "trust_id": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -325,7 +335,8 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": "",
             "username": "",
             "password": "",
-            "region_name": ""
+            "region_name": "",
+            "trust_id": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -343,7 +354,8 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": "",
             "username": "",
             "password": "",
-            "region_name": ""
+            "region_name": "",
+            "trust_id": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -361,7 +373,8 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": DEFAULT_PROJECT_DOMAIN_NAME,
             "username": "",
             "password": "",
-            "region_name": ""
+            "region_name": "",
+            "trust_id": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -379,7 +392,8 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": "",
             "username": DEFAULT_USERNAME,
             "password": "",
-            "region_name": ""
+            "region_name": "",
+            "trust_id": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -397,7 +411,8 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": "",
             "username": "",
             "password": DEFAULT_PASSWORD,
-            "region_name": ""
+            "region_name": "",
+            "trust_id": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -415,7 +430,27 @@ class TestShellPasswordAuth(TestShell):
             "project_domain_name": "",
             "username": "",
             "password": "",
-            "region_name": DEFAULT_REGION_NAME
+            "region_name": DEFAULT_REGION_NAME,
+            "trust_id": "",
+        }
+        self._assert_password_auth(flag, kwargs)
+
+    def test_only_trust_id_flow(self):
+        flag = "--os-trust-id " + "1234"
+        kwargs = {
+            "auth_url": "",
+            "project_id": "",
+            "project_name": "",
+            "domain_id": "",
+            "domain_name": "",
+            "user_domain_id": "",
+            "user_domain_name": "",
+            "project_domain_id": "",
+            "project_domain_name": "",
+            "username": "",
+            "password": "",
+            "region_name": "",
+            "trust_id": "1234",
         }
         self._assert_password_auth(flag, kwargs)
 

@@ -48,7 +48,8 @@ class ClientManager(object):
                  username=None, password=None,
                  user_domain_id=None, user_domain_name=None,
                  project_domain_id=None, project_domain_name=None,
-                 region_name=None, api_version=None, verify=True):
+                 region_name=None, api_version=None, verify=True,
+                 trust_id=None):
         self._token = token
         self._url = url
         self._auth_url = auth_url
@@ -64,6 +65,7 @@ class ClientManager(object):
         self._project_domain_name = project_domain_name
         self._region_name = region_name
         self._api_version = api_version
+        self._trust_id = trust_id
         self._service_catalog = None
 
         # verify is the Requests-compatible form
