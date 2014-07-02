@@ -68,9 +68,6 @@ OPTIONS
 :option:`--os-default-domain` <auth-domain>
     Default domain ID (Default: 'default')
 
-:option:`--os-use-keyring`
-    Use keyring to store password (default: False)
-
 :option:`--os-cacert` <ca-bundle-file>
     CA certificate bundle file
 
@@ -174,9 +171,6 @@ The following environment variables can be set to alter the behaviour of :progra
 
 :envvar:`OS_DEFAULT_DOMAIN`
     Default domain ID (Default: ‘default’)
-
-:envvar:`OS_USE_KEYRING`
-    Use keyring to store password (default: False)
 
 :envvar:`OS_CACERT`
     CA certificate bundle file

@@ -79,7 +79,6 @@ The 'password flow' variation is most commonly used::
    export OS_PROJECT_NAME=<project-name>
    export OS_USERNAME=<user-name>
    export OS_PASSWORD=<password>  # (optional)
-   export OS_USE_KEYRING=true  # (optional)
 
 The corresponding command-line options look very similar::
 
@@ -87,12 +86,9 @@ The corresponding command-line options look very similar::
    --os-project-name <project-name>
    --os-username <user-name>
    [--os-password <password>]
-   [--os-use-keyring]
 
 If a password is not provided above (in plaintext), you will be interactively
-prompted to provide one securely. If keyring is enabled, the password entered
-in the prompt is stored in keyring. From next time, the password is read from
-keyring, if it is not provided above (in plaintext).
+prompted to provide one securely.
 
 The token flow variation for authentication uses an already-acquired token
 and a URL pointing directly to the service API that presumably was acquired
