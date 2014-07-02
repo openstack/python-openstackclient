@@ -139,7 +139,7 @@ class TestImageCreate(TestImage):
         self.assertEqual(image_fakes.IMAGE_columns, columns)
         self.assertEqual(image_fakes.IMAGE_data, data)
 
-    @mock.patch('__builtin__.open')
+    @mock.patch('six.moves.builtins.open')
     def test_image_create_file(self, open_mock):
         mock_exception = {
             'find.side_effect': exceptions.CommandError('x'),
