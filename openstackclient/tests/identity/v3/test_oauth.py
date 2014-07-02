@@ -77,13 +77,9 @@ class TestRequestTokenAuthorize(TestOAuth1):
     def setUp(self):
         super(TestRequestTokenAuthorize, self).setUp()
 
-        self.request_tokens_mock.authorize.return_value = \
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.OAUTH_VERIFIER),
-                loaded=True,
-            )
-
+        copied_verifier = copy.deepcopy(identity_fakes.OAUTH_VERIFIER)
+        resource = fakes.FakeResource(None, copied_verifier, loaded=True)
+        self.request_tokens_mock.authorize.return_value = resource
         self.cmd = token.AuthorizeRequestToken(self.app, None)
 
     def test_authorize_request_tokens(self):

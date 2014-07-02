@@ -24,9 +24,8 @@ class TestIdentityProvider(identity_fakes.TestFederatedIdentity):
     def setUp(self):
         super(TestIdentityProvider, self).setUp()
 
-        self.identity_providers_mock = self.app.client_manager.\
-            identity.identity_providers
-
+        identity_lib = self.app.client_manager.identity
+        self.identity_providers_mock = identity_lib.identity_providers
         self.identity_providers_mock.reset_mock()
 
 
@@ -35,17 +34,10 @@ class TestIdentityProviderCreate(TestIdentityProvider):
     def setUp(self):
         super(TestIdentityProviderCreate, self).setUp()
 
-        self.identity_providers_mock.create.return_value = \
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.IDENTITY_PROVIDER),
-                loaded=True,
-            )
-
-        self.cmd = identity_provider.CreateIdentityProvider(
-            self.app,
-            None,
-        )
+        copied_idp = copy.deepcopy(identity_fakes.IDENTITY_PROVIDER)
+        resource = fakes.FakeResource(None, copied_idp, loaded=True)
+        self.identity_providers_mock.create.return_value = resource
+        self.cmd = identity_provider.CreateIdentityProvider(self.app, None)
 
     def test_create_identity_provider_no_options(self):
         arglist = [
@@ -116,12 +108,9 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         IDENTITY_PROVIDER['enabled'] = False
         IDENTITY_PROVIDER['description'] = None
 
-        self.identity_providers_mock.create.return_value = \
-            fakes.FakeResource(
-                None,
-                IDENTITY_PROVIDER,
-                loaded=True,
-            )
+        resource = fakes.FakeResource(None, IDENTITY_PROVIDER, loaded=True)
+        self.identity_providers_mock.create.return_value = resource
+
         arglist = [
             '--disable',
             identity_fakes.idp_id,
