@@ -19,16 +19,14 @@ import logging
 
 from cliff import lister
 
-from openstackclient.common import exceptions as exc
 from openstackclient.common import utils
 
 
 class ListExtension(lister.Lister):
     """List extension command"""
 
-    # TODO(mfisch): add support for volume and compute
-    # when the underlying APIs support it. Add support
-    # for network when it's added to openstackclient.
+    # TODO(mfisch): add support for volume and network
+    # when the underlying APIs support it.
 
     log = logging.getLogger(__name__ + '.ListExtension')
 
@@ -44,6 +42,11 @@ class ListExtension(lister.Lister):
             action='store_true',
             default=False,
             help='List extensions for the Identity API')
+        parser.add_argument(
+            '--compute',
+            action='store_true',
+            default=False,
+            help='List extensions for the Compute API')
         return parser
 
     def take_action(self, parsed_args):
@@ -59,17 +62,24 @@ class ListExtension(lister.Lister):
 
         # by default we want to show everything, unless the
         # user specifies one or more of the APIs to show
-        # for now, only identity is supported
-        show_all = (not parsed_args.identity)
+        # for now, only identity and compute are supported.
+        show_all = (not parsed_args.identity and not parsed_args.compute)
 
         if parsed_args.identity or show_all:
             identity_client = self.app.client_manager.identity
             try:
                 data += identity_client.extensions.list()
             except Exception:
-                raise exc.CommandError(
-                    "Extensions list not supported by"
-                    " identity API")
+                message = "Extensions list not supported by Identity API"
+                self.log.warning(message)
+
+        if parsed_args.compute or show_all:
+            compute_client = self.app.client_manager.compute
+            try:
+                data += compute_client.list_extensions.show_all()
+            except Exception:
+                message = "Extensions list not supported by Compute API"
+                self.log.warning(message)
 
         return (columns,
                 (utils.get_item_properties(
