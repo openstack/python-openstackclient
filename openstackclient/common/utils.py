@@ -23,7 +23,6 @@ import sys
 import time
 
 from openstackclient.common import exceptions
-from openstackclient.openstack.common import strutils
 
 
 def find_resource(manager, name_or_id):
@@ -79,8 +78,7 @@ def format_dict(data):
 
     output = ""
     for s in data:
-        output = output + s + "='" + \
-            strutils.safe_encode(six.text_type(data[s])) + "', "
+        output = output + s + "='" + six.text_type(data[s]) + "', "
     return output[:-2]
 
 
