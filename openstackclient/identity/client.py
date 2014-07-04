@@ -43,6 +43,7 @@ def make_client(instance):
             token=instance._token,
             cacert=instance._cacert,
             insecure=instance._insecure,
+            trust_id=instance._trust_id,
         )
     else:
         LOG.debug('instantiating identity client: password flow')
@@ -61,6 +62,7 @@ def make_client(instance):
             region_name=instance._region_name,
             cacert=instance._cacert,
             insecure=instance._insecure,
+            trust_id=instance._trust_id,
         )
         instance.auth_ref = client.auth_ref
     return client

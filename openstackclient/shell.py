@@ -326,6 +326,13 @@ class OpenStackShell(app.App):
             help='Identity API version, default=' +
                  identity_client.DEFAULT_IDENTITY_API_VERSION +
                  ' (Env: OS_IDENTITY_API_VERSION)')
+        parser.add_argument(
+            '--os-trust-id',
+            metavar='<trust-id>',
+            default=utils.env('OS_TRUST_ID'),
+            help='Trust ID to use when authenticating. '
+                 'This can only be used with Keystone v3 API '
+                 '(Env: OS_TRUST_ID)')
 
         return parser
 
@@ -373,18 +380,34 @@ class OpenStackShell(app.App):
             if not ((self.options.os_project_id
                     or self.options.os_project_name) or
                     (self.options.os_domain_id
-                    or self.options.os_domain_name)):
+                    or self.options.os_domain_name) or
+                    self.options.os_trust_id):
                 raise exc.CommandError(
                     "You must provide authentication scope as a project "
                     "or a domain via --os-project-id or env[OS_PROJECT_ID], "
                     "--os-project-name or env[OS_PROJECT_NAME], "
                     "--os-domain-id or env[OS_DOMAIN_ID], or"
-                    "--os-domain-name or env[OS_DOMAIN_NAME].")
+                    "--os-domain-name or env[OS_DOMAIN_NAME], or "
+                    "--os-trust-id or env[OS_TRUST_ID].")
 
             if not self.options.os_auth_url:
                 raise exc.CommandError(
                     "You must provide an auth url via"
                     " either --os-auth-url or via env[OS_AUTH_URL]")
+
+            if (self.options.os_trust_id and
+               self.options.os_identity_api_version != '3'):
+                raise exc.CommandError(
+                    "Trusts can only be used with Identity API v3")
+
+            if (self.options.os_trust_id and
+               ((self.options.os_project_id
+                 or self.options.os_project_name) or
+                (self.options.os_domain_id
+                 or self.options.os_domain_name))):
+                raise exc.CommandError(
+                    "Authentication cannot be scoped to multiple targets. "
+                    "Pick one of project, domain or trust.")
 
         self.client_manager = clientmanager.ClientManager(
             token=self.options.os_token,
@@ -403,6 +426,7 @@ class OpenStackShell(app.App):
             region_name=self.options.os_region_name,
             verify=self.verify,
             api_version=self.api_version,
+            trust_id=self.options.os_trust_id,
         )
         return
 
