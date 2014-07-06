@@ -73,7 +73,10 @@ class TestCommand(TestCase):
 
     def check_parser(self, cmd, args, verify_args):
         cmd_parser = cmd.get_parser('check_parser')
-        parsed_args = cmd_parser.parse_args(args)
+        try:
+            parsed_args = cmd_parser.parse_args(args)
+        except SystemExit:
+            raise Exception("Argument parse failed")
         for av in verify_args:
             attr, value = av
             if attr:
