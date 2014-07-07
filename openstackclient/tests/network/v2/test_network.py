@@ -49,7 +49,7 @@ class TestCreateNetwork(common.TestNetworkBase):
         cmd = network.CreateNetwork(self.app, self.namespace)
 
         parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = cmd.take_action(parsed_args)
+        result = list(cmd.take_action(parsed_args))
 
         mocker.assert_called_with({
             RESOURCE: {
@@ -75,7 +75,7 @@ class TestCreateNetwork(common.TestNetworkBase):
         cmd = network.CreateNetwork(self.app, self.namespace)
 
         parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = cmd.take_action(parsed_args)
+        result = list(cmd.take_action(parsed_args))
 
         mocker.assert_called_with({
             RESOURCE: {
@@ -102,7 +102,7 @@ class TestCreateNetwork(common.TestNetworkBase):
         cmd = network.CreateNetwork(self.app, self.namespace)
 
         parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = cmd.take_action(parsed_args)
+        result = list(cmd.take_action(parsed_args))
 
         mocker.assert_called_with({
             RESOURCE: {
@@ -298,7 +298,7 @@ class TestShowNetwork(common.TestNetworkBase):
         cmd = network.ShowNetwork(self.app, self.namespace)
 
         parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = cmd.take_action(parsed_args)
+        result = list(cmd.take_action(parsed_args))
 
         mocker.assert_called_with(FAKE_ID)
         self.assertEqual(FILTERED, result)
@@ -313,7 +313,7 @@ class TestShowNetwork(common.TestNetworkBase):
         cmd = network.ShowNetwork(self.app, self.namespace)
 
         parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = cmd.take_action(parsed_args)
+        result = list(cmd.take_action(parsed_args))
 
         mocker.assert_called_with(FAKE_ID)
         self.assertEqual(FILTERED, result)
