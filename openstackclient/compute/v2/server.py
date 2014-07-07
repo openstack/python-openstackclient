@@ -938,27 +938,32 @@ class RescueServer(show.ShowOne):
 
 
 class ResizeServer(command.Command):
-    """Convert server to a new flavor"""
+    """Scale server to a new flavor"""
 
     log = logging.getLogger(__name__ + '.ResizeServer')
 
     def get_parser(self, prog_name):
         parser = super(ResizeServer, self).get_parser(prog_name)
         phase_group = parser.add_mutually_exclusive_group()
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help='Server (name or ID)',
+        )
         phase_group.add_argument(
             '--flavor',
             metavar='<flavor>',
-            help='Resize server to this flavor',
+            help='Resize server to specified flavor',
         )
         phase_group.add_argument(
             '--verify',
             action="store_true",
-            help='Verify previous server resize',
+            help='Verify server resize is complete',
         )
         phase_group.add_argument(
             '--revert',
             action="store_true",
-            help='Restore server before resize',
+            help='Restore server state before resize',
         )
         parser.add_argument(
             '--wait',
@@ -980,7 +985,7 @@ class ResizeServer(command.Command):
                 compute_client.flavors,
                 parsed_args.flavor,
             )
-            server.resize(flavor)
+            compute_client.servers.resize(server, flavor)
             if parsed_args.wait:
                 if utils.wait_for_status(
                     compute_client.servers.get,
@@ -993,9 +998,9 @@ class ResizeServer(command.Command):
                     sys.stdout.write('\nError resizing server')
                     raise SystemExit
         elif parsed_args.verify:
-            server.confirm_resize()
+            compute_client.servers.confirm_resize(server)
         elif parsed_args.revert:
-            server.revert_resize()
+            compute_client.servers.revert_resize(server)
 
 
 class ResumeServer(command.Command):

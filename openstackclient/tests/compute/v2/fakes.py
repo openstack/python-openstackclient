@@ -47,6 +47,18 @@ EXTENSION = {
     'links': extension_links,
 }
 
+flavor_id = 'm1.large'
+flavor_name = 'Large'
+flavor_ram = 8192
+flavor_vcpus = 4
+
+FLAVOR = {
+    'id': flavor_id,
+    'name': flavor_name,
+    'ram': flavor_ram,
+    'vcpus': flavor_vcpus,
+}
+
 
 class FakeComputev2Client(object):
     def __init__(self, **kwargs):
@@ -56,6 +68,8 @@ class FakeComputev2Client(object):
         self.servers.resource_class = fakes.FakeResource(None, {})
         self.extensions = mock.Mock()
         self.extensions.resource_class = fakes.FakeResource(None, {})
+        self.flavors = mock.Mock()
+        self.flavors.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
