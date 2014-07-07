@@ -14,20 +14,22 @@
 from openstackclient.common import exceptions
 
 
-def find(client, resource, resources, name_or_id):
+def find(client, resource, resources, name_or_id, name_attr='name'):
     """Find a network resource
 
     :param client: network client
     :param resource: name of the resource
     :param resources: plural name of resource
     :param name_or_id: name or id of resource user is looking for
+    :param name_attr: key to the name attribute for the resource
 
     For example:
         n = find(netclient, 'network', 'networks', 'matrix')
     """
     list_method = getattr(client, "list_%s" % resources)
     # Search for by name
-    data = list_method(name=name_or_id, fields='id')
+    kwargs = {name_attr: name_or_id, 'fields': 'id'}
+    data = list_method(**kwargs)
     info = data[resources]
     if len(info) == 1:
         return info[0]['id']
