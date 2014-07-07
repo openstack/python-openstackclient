@@ -172,7 +172,7 @@ The following environment variables can be set to alter the behaviour of :progra
     Authentication region name
 
 :envvar:`OS_DEFAULT_DOMAIN`
-    Default domain ID (Default: ‘default’)
+    Default domain ID (Default: 'default')
 
 :envvar:`OS_CACERT`
     CA certificate bundle file
