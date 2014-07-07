@@ -18,11 +18,11 @@ from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
 
-DEFAULT_NETWORK_API_VERSION = '2.0'
+DEFAULT_NETWORK_API_VERSION = '2'
 API_VERSION_OPTION = 'os_network_api_version'
 API_NAME = "network"
 API_VERSIONS = {
-    "2.0": "neutronclient.v2_0.client.Client",
+    "2": "neutronclient.v2_0.client.Client",
 }
 
 

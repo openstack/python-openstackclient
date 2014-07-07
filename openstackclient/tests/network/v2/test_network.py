@@ -15,7 +15,7 @@ import copy
 import mock
 
 from openstackclient.common import exceptions
-from openstackclient.network.v2_0 import network
+from openstackclient.network.v2 import network
 from openstackclient.tests.network import common
 
 RESOURCE = 'network'
