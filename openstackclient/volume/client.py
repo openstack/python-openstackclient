@@ -40,8 +40,7 @@ def make_client(instance):
         instance._api_version[API_NAME],
         API_VERSIONS
     )
-
-    LOG.debug('instantiating volume client')
+    LOG.debug('Instantiating volume client: %s', volume_client)
 
     # Set client http_log_debug to True if verbosity level is high enough
     http_log_debug = utils.get_effective_log_level() <= logging.DEBUG

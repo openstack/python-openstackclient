@@ -35,11 +35,12 @@ def make_client(instance):
         API_NAME,
         instance._api_version[API_NAME],
         API_VERSIONS)
+    LOG.debug('Instantiating object client: %s' % object_client)
+
     if instance._url:
         endpoint = instance._url
     else:
         endpoint = instance.get_endpoint_for_service_type(API_NAME)
-    LOG.debug('instantiating object client')
     client = object_client(
         endpoint=endpoint,
         token=instance._token,
