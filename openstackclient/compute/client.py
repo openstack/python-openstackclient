@@ -15,6 +15,9 @@
 
 import logging
 
+from novaclient import extension
+from novaclient.v1_1.contrib import list_extensions
+
 from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
@@ -39,6 +42,7 @@ def make_client(instance):
     # Set client http_log_debug to True if verbosity level is high enough
     http_log_debug = utils.get_effective_log_level() <= logging.DEBUG
 
+    extensions = [extension.Extension('list_extensions', list_extensions)]
     client = compute_client(
         username=instance._username,
         api_key=instance._password,
@@ -49,8 +53,7 @@ def make_client(instance):
         region_name=instance._region_name,
         # FIXME(dhellmann): get endpoint_type from option?
         endpoint_type='publicURL',
-        # FIXME(dhellmann): add extension discovery
-        extensions=[],
+        extensions=extensions,
         service_type=API_NAME,
         # FIXME(dhellmann): what is service_name?
         service_name='',
