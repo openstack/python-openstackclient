@@ -36,8 +36,10 @@ def make_client(instance):
         API_NAME,
         instance._api_version[API_NAME],
         API_VERSIONS)
+    LOG.debug('Instantiating identity client: %s' % identity_client)
+
     if instance._url:
-        LOG.debug('instantiating identity client: token flow')
+        LOG.debug('Using token auth')
         client = identity_client(
             endpoint=instance._url,
             token=instance._token,
@@ -46,7 +48,7 @@ def make_client(instance):
             trust_id=instance._trust_id,
         )
     else:
-        LOG.debug('instantiating identity client: password flow')
+        LOG.debug('Using password auth')
         client = identity_client(
             username=instance._username,
             password=instance._password,

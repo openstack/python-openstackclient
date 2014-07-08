@@ -38,6 +38,7 @@ def make_client(instance):
         API_NAME,
         instance._api_version[API_NAME],
         API_VERSIONS)
+    LOG.debug('Instantiating image client: %s', image_client)
 
     if not instance._url:
         instance._url = instance.get_endpoint_for_service_type(API_NAME)
