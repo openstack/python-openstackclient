@@ -36,7 +36,7 @@ def make_client(instance):
         API_NAME,
         instance._api_version[API_NAME],
         API_VERSIONS)
-    LOG.debug('Instantiating identity client: %s' % identity_client)
+    LOG.debug('Instantiating identity client: %s', identity_client)
 
     if instance._url:
         LOG.debug('Using token auth')
