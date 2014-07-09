@@ -25,11 +25,12 @@ import sys
 from cliff import command
 from cliff import lister
 from cliff import show
-
 from novaclient.v1_1 import servers
+
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 
 
 def _format_servers_list_networks(networks):
@@ -106,17 +107,17 @@ class AddServerVolume(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='Volume to add (name or ID)',
+            help=_('Volume to add (name or ID)'),
         )
         parser.add_argument(
             '--device',
             metavar='<device>',
-            help='Server internal device name for volume',
+            help=_('Server internal device name for volume'),
         )
         return parser
 
@@ -152,12 +153,12 @@ class AddServerSecurityGroup(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Name or ID of server to use',
+            help=_('Name or ID of server to use'),
         )
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Name or ID of security group to add to server',
+            help=_('Name or ID of security group to add to server'),
         )
         return parser
 
@@ -189,91 +190,91 @@ class CreateServer(show.ShowOne):
         parser.add_argument(
             'server_name',
             metavar='<server-name>',
-            help='New server name')
+            help=_('New server name'))
         parser.add_argument(
             '--image',
             metavar='<image>',
             required=True,
-            help='Create server from this image')
+            help=_('Create server from this image'))
         parser.add_argument(
             '--flavor',
             metavar='<flavor>',
             required=True,
-            help='Create server with this flavor')
+            help=_('Create server with this flavor'))
         parser.add_argument(
             '--security-group',
             metavar='<security-group-name>',
             action='append',
             default=[],
-            help='Security group to assign to this server '
-                 '(repeat for multiple groups)')
+            help=_('Security group to assign to this server '
+                   '(repeat for multiple groups)'))
         parser.add_argument(
             '--key-name',
             metavar='<key-name>',
-            help='Keypair to inject into this server (optional extension)')
+            help=_('Keypair to inject into this server (optional extension)'))
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Set a property on this server '
-                 '(repeat for multiple values)')
+            help=_('Set a property on this server '
+                   '(repeat for multiple values)'))
         parser.add_argument(
             '--file',
             metavar='<dest-filename=source-filename>',
             action='append',
             default=[],
-            help='File to inject into image before boot '
-                 '(repeat for multiple files)')
+            help=_('File to inject into image before boot '
+                   '(repeat for multiple files)'))
         parser.add_argument(
             '--user-data',
             metavar='<user-data>',
-            help='User data file to serve from the metadata server')
+            help=_('User data file to serve from the metadata server'))
         parser.add_argument(
             '--availability-zone',
             metavar='<zone-name>',
-            help='Select an availability zone for the server')
+            help=_('Select an availability zone for the server'))
         parser.add_argument(
             '--block-device-mapping',
             metavar='<dev-name=mapping>',
             action='append',
             default=[],
-            help='Map block devices; map is '
-                 '<id>:<type>:<size(GB)>:<delete_on_terminate> '
-                 '(optional extension)')
+            help=_('Map block devices; map is '
+                   '<id>:<type>:<size(GB)>:<delete_on_terminate> '
+                   '(optional extension)'))
         parser.add_argument(
             '--nic',
             metavar='<nic-config-string>',
             action='append',
             default=[],
-            help='Specify NIC configuration (optional extension)')
+            help=_('Specify NIC configuration (optional extension)'))
         parser.add_argument(
             '--hint',
             metavar='<key=value>',
             action='append',
             default=[],
-            help='Hints for the scheduler (optional extension)')
+            help=_('Hints for the scheduler (optional extension)'))
         parser.add_argument(
             '--config-drive',
             metavar='<config-drive-volume>|True',
             default=False,
-            help='Use specified volume as the config drive, '
-                 'or \'True\' to use an ephemeral drive')
+            help=_('Use specified volume as the config drive, '
+                   'or \'True\' to use an ephemeral drive'))
         parser.add_argument(
             '--min',
             metavar='<count>',
             type=int,
             default=1,
-            help='Minimum number of servers to launch (default=1)')
+            help=_('Minimum number of servers to launch (default=1)'))
         parser.add_argument(
             '--max',
             metavar='<count>',
             type=int,
             default=1,
-            help='Maximum number of servers to launch (default=1)')
+            help=_('Maximum number of servers to launch (default=1)'))
         parser.add_argument(
             '--wait',
             action='store_true',
-            help='Wait for build to complete',
+            help=_('Wait for build to complete'),
         )
         return parser
 
@@ -300,13 +301,13 @@ class CreateServer(show.ShowOne):
                 raise exceptions.CommandError("Can't open '%s': %s" % (src, e))
 
         if parsed_args.min > parsed_args.max:
-            msg = "min instances should be <= max instances"
+            msg = _("min instances should be <= max instances")
             raise exceptions.CommandError(msg)
         if parsed_args.min < 1:
-            msg = "min instances should be > 0"
+            msg = _("min instances should be > 0")
             raise exceptions.CommandError(msg)
         if parsed_args.max < 1:
-            msg = "max instances should be > 0"
+            msg = _("max instances should be > 0")
             raise exceptions.CommandError(msg)
 
         userdata = None
@@ -315,8 +316,7 @@ class CreateServer(show.ShowOne):
                 userdata = open(parsed_args.user_data)
             except IOError as e:
                 msg = "Can't open '%s': %s"
-                raise exceptions.CommandError(msg %
-                                              (parsed_args.user_data, e))
+                raise exceptions.CommandError(msg % (parsed_args.user_data, e))
 
         block_device_mapping = dict(v.split('=', 1)
                                     for v in parsed_args.block_device_mapping)
@@ -378,9 +378,9 @@ class CreateServer(show.ShowOne):
             ):
                 sys.stdout.write('\n')
             else:
-                self.log.error('Error creating server: %s',
+                self.log.error(_('Error creating server: %s'),
                                parsed_args.server_name)
-                sys.stdout.write('\nError creating server')
+                sys.stdout.write(_('\nError creating server'))
                 raise SystemExit
 
         details = _prep_server_detail(compute_client, server)
@@ -397,17 +397,17 @@ class CreateServerImage(show.ShowOne):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         parser.add_argument(
             '--name',
             metavar='<image-name>',
-            help='Name of new image (default is server name)',
+            help=_('Name of new image (default is server name)'),
         )
         parser.add_argument(
             '--wait',
             action='store_true',
-            help='Wait for image create to complete',
+            help=_('Wait for image create to complete'),
         )
         return parser
 
@@ -437,11 +437,9 @@ class CreateServerImage(show.ShowOne):
             ):
                 sys.stdout.write('\n')
             else:
-                self.log.error(
-                    'Error creating server snapshot: %s',
-                    parsed_args.image_name,
-                )
-                sys.stdout.write('\nError creating server snapshot')
+                self.log.error(_('Error creating server snapshot: %s'),
+                               parsed_args.image_name)
+                sys.stdout.write(_('\nError creating server snapshot'))
                 raise SystemExit
 
         image = utils.find_resource(
@@ -449,9 +447,7 @@ class CreateServerImage(show.ShowOne):
             image_id,
         )
 
-        info = {}
-        info.update(image._info)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(six.iteritems(image._info)))
 
 
 class DeleteServer(command.Command):
@@ -464,7 +460,7 @@ class DeleteServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Name or ID of server to delete')
+            help=_('Name or ID of server to delete'))
         return parser
 
     def take_action(self, parsed_args):
@@ -486,50 +482,50 @@ class ListServer(lister.Lister):
         parser.add_argument(
             '--reservation-id',
             metavar='<reservation-id>',
-            help='Only return instances that match the reservation')
+            help=_('Only return instances that match the reservation'))
         parser.add_argument(
             '--ip',
             metavar='<ip-address-regex>',
-            help='Regular expression to match IP addresses')
+            help=_('Regular expression to match IP addresses'))
         parser.add_argument(
             '--ip6',
             metavar='<ip-address-regex>',
-            help='Regular expression to match IPv6 addresses')
+            help=_('Regular expression to match IPv6 addresses'))
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='Regular expression to match names')
+            help=_('Regular expression to match names'))
         parser.add_argument(
             '--status',
             metavar='<status>',
             # FIXME(dhellmann): Add choices?
-            help='Search by server status')
+            help=_('Search by server status'))
         parser.add_argument(
             '--flavor',
             metavar='<flavor>',
-            help='Search by flavor ID')
+            help=_('Search by flavor ID'))
         parser.add_argument(
             '--image',
             metavar='<image>',
-            help='Search by image ID')
+            help=_('Search by image ID'))
         parser.add_argument(
             '--host',
             metavar='<hostname>',
-            help='Search by hostname')
+            help=_('Search by hostname'))
         parser.add_argument(
             '--instance-name',
             metavar='<server-name>',
-            help='Regular expression to match instance name (admin only)')
+            help=_('Regular expression to match instance name (admin only)'))
         parser.add_argument(
             '--all-projects',
             action='store_true',
             default=bool(int(os.environ.get("ALL_PROJECTS", 0))),
-            help='Include all projects (admin only)')
+            help=_('Include all projects (admin only)'))
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output')
+            help=_('List additional fields in output'))
         return parser
 
     def take_action(self, parsed_args):
@@ -598,7 +594,7 @@ class LockServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         return parser
 
@@ -632,17 +628,17 @@ class MigrateServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server to migrate (name or ID)',
+            help=_('Server to migrate (name or ID)'),
         )
         parser.add_argument(
             '--wait',
             action='store_true',
-            help='Wait for resize to complete',
+            help=_('Wait for resize to complete'),
         )
         parser.add_argument(
             '--live',
             metavar='<hostname>',
-            help='Target hostname',
+            help=_('Target hostname'),
         )
         migration_group = parser.add_mutually_exclusive_group()
         migration_group.add_argument(
@@ -650,13 +646,13 @@ class MigrateServer(command.Command):
             dest='shared_migration',
             action='store_true',
             default=True,
-            help='Perform a shared live migration (default)',
+            help=_('Perform a shared live migration (default)'),
         )
         migration_group.add_argument(
             '--block-migration',
             dest='shared_migration',
             action='store_false',
-            help='Perform a block live migration',
+            help=_('Perform a block live migration'),
         )
         disk_group = parser.add_mutually_exclusive_group()
         disk_group.add_argument(
@@ -664,13 +660,14 @@ class MigrateServer(command.Command):
             dest='disk_overcommit',
             action='store_false',
             default=False,
-            help='Do not over-commit disk on the destination host (default)',
+            help=_('Do not over-commit disk on the'
+                   ' destination host (default)'),
         )
         disk_group.add_argument(
             '--disk-overcommit',
             action='store_true',
             default=False,
-            help='Allow disk over-commit on the destination host',
+            help=_('Allow disk over-commit on the destination host'),
         )
         return parser
 
@@ -698,9 +695,9 @@ class MigrateServer(command.Command):
                 server.id,
                 callback=_show_progress,
             ):
-                sys.stdout.write('Complete\n')
+                sys.stdout.write(_('Complete\n'))
             else:
-                sys.stdout.write('\nError migrating server')
+                sys.stdout.write(_('\nError migrating server'))
                 raise SystemExit
 
 
@@ -714,7 +711,7 @@ class PauseServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         return parser
 
@@ -738,7 +735,7 @@ class RebootServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
@@ -747,7 +744,7 @@ class RebootServer(command.Command):
             action='store_const',
             const=servers.REBOOT_HARD,
             default=servers.REBOOT_SOFT,
-            help='Perform a hard reboot',
+            help=_('Perform a hard reboot'),
         )
         group.add_argument(
             '--soft',
@@ -755,12 +752,12 @@ class RebootServer(command.Command):
             action='store_const',
             const=servers.REBOOT_SOFT,
             default=servers.REBOOT_SOFT,
-            help='Perform a soft reboot',
+            help=_('Perform a soft reboot'),
         )
         parser.add_argument(
             '--wait',
             action='store_true',
-            help='Wait for reboot to complete',
+            help=_('Wait for reboot to complete'),
         )
         return parser
 
@@ -777,9 +774,9 @@ class RebootServer(command.Command):
                 server.id,
                 callback=_show_progress,
             ):
-                sys.stdout.write('\nReboot complete\n')
+                sys.stdout.write(_('\nReboot complete\n'))
             else:
-                sys.stdout.write('\nError rebooting server\n')
+                sys.stdout.write(_('\nError rebooting server\n'))
                 raise SystemExit
 
 
@@ -793,13 +790,13 @@ class RebuildServer(show.ShowOne):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         parser.add_argument(
             '--image',
             metavar='<image>',
             required=True,
-            help='Recreate server from this image',
+            help=_('Recreate server from this image'),
         )
         parser.add_argument(
             '--password',
@@ -809,7 +806,7 @@ class RebuildServer(show.ShowOne):
         parser.add_argument(
             '--wait',
             action='store_true',
-            help='Wait for rebuild to complete',
+            help=_('Wait for rebuild to complete'),
         )
         return parser
 
@@ -830,9 +827,9 @@ class RebuildServer(show.ShowOne):
                 server.id,
                 callback=_show_progress,
             ):
-                sys.stdout.write('\nComplete\n')
+                sys.stdout.write(_('\nComplete\n'))
             else:
-                sys.stdout.write('\nError rebuilding server')
+                sys.stdout.write(_('\nError rebuilding server'))
                 raise SystemExit
 
         details = _prep_server_detail(compute_client, server)
@@ -849,12 +846,12 @@ class RemoveServerSecurityGroup(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Name or ID of server to use',
+            help=_('Name or ID of server to use'),
         )
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Name or ID of security group to remove from server',
+            help=_('Name or ID of security group to remove from server'),
         )
         return parser
 
@@ -885,12 +882,12 @@ class RemoveServerVolume(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='Volume to remove (name or ID)',
+            help=_('Volume to remove (name or ID)'),
         )
         return parser
 
@@ -925,7 +922,7 @@ class RescueServer(show.ShowOne):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         return parser
 
@@ -951,27 +948,27 @@ class ResizeServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         phase_group.add_argument(
             '--flavor',
             metavar='<flavor>',
-            help='Resize server to specified flavor',
+            help=_('Resize server to specified flavor'),
         )
         phase_group.add_argument(
             '--verify',
             action="store_true",
-            help='Verify server resize is complete',
+            help=_('Verify server resize is complete'),
         )
         phase_group.add_argument(
             '--revert',
             action="store_true",
-            help='Restore server state before resize',
+            help=_('Restore server state before resize'),
         )
         parser.add_argument(
             '--wait',
             action='store_true',
-            help='Wait for resize to complete',
+            help=_('Wait for resize to complete'),
         )
         return parser
 
@@ -996,9 +993,9 @@ class ResizeServer(command.Command):
                     success_status=['active', 'verify_resize'],
                     callback=_show_progress,
                 ):
-                    sys.stdout.write('Complete\n')
+                    sys.stdout.write(_('Complete\n'))
                 else:
-                    sys.stdout.write('\nError resizing server')
+                    sys.stdout.write(_('\nError resizing server'))
                     raise SystemExit
         elif parsed_args.verify:
             compute_client.servers.confirm_resize(server)
@@ -1016,7 +1013,7 @@ class ResumeServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         return parser
 
@@ -1040,24 +1037,24 @@ class SetServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         parser.add_argument(
             '--name',
             metavar='<new-name>',
-            help='New server name',
+            help=_('New server name'),
         )
         parser.add_argument(
             '--root-password',
             action="store_true",
-            help='Set new root password (interactive only)',
+            help=_('Set new root password (interactive only)'),
         )
         parser.add_argument(
             "--property",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
-            help='Property to add/change for this server '
-                 '(repeat option to set multiple properties)',
+            help=_('Property to add/change for this server '
+                   '(repeat option to set multiple properties)'),
         )
         return parser
 
@@ -1080,12 +1077,12 @@ class SetServer(command.Command):
             )
 
         if parsed_args.root_password:
-            p1 = getpass.getpass('New password: ')
-            p2 = getpass.getpass('Retype new password: ')
+            p1 = getpass.getpass(_('New password: '))
+            p2 = getpass.getpass(_('Retype new password: '))
             if p1 == p2:
                 server.change_password(p1)
             else:
-                msg = "Passwords do not match, password unchanged"
+                msg = _("Passwords do not match, password unchanged")
                 raise exceptions.CommandError(msg)
 
 
@@ -1099,13 +1096,13 @@ class ShowServer(show.ShowOne):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server to show (name or ID)',
+            help=_('Server to show (name or ID)'),
         )
         parser.add_argument(
             '--diagnostics',
             action='store_true',
             default=False,
-            help='Display diagnostics information for a given server',
+            help=_('Display diagnostics information for a given server'),
         )
         return parser
 
@@ -1118,7 +1115,7 @@ class ShowServer(show.ShowOne):
         if parsed_args.diagnostics:
             (resp, data) = server.diagnostics()
             if not resp.status_code == 200:
-                sys.stderr.write("Error retrieving diagnostics data")
+                sys.stderr.write(_("Error retrieving diagnostics data"))
                 return ({}, {})
         else:
             data = _prep_server_detail(compute_client, server)
@@ -1136,12 +1133,12 @@ class SshServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         parser.add_argument(
             '--login',
             metavar='<login-name>',
-            help='Login name (ssh -l option)',
+            help=_('Login name (ssh -l option)'),
         )
         parser.add_argument(
             '-l',
@@ -1152,7 +1149,7 @@ class SshServer(command.Command):
             '--port',
             metavar='<port>',
             type=int,
-            help='Destination port (ssh -p option)',
+            help=_('Destination port (ssh -p option)'),
         )
         parser.add_argument(
             '-p',
@@ -1164,7 +1161,7 @@ class SshServer(command.Command):
         parser.add_argument(
             '--identity',
             metavar='<keyfile>',
-            help='Private key file (ssh -i option)',
+            help=_('Private key file (ssh -i option)'),
         )
         parser.add_argument(
             '-i',
@@ -1175,7 +1172,7 @@ class SshServer(command.Command):
         parser.add_argument(
             '--option',
             metavar='<config-options>',
-            help='Options in ssh_config(5) format (ssh -o option)',
+            help=_('Options in ssh_config(5) format (ssh -o option)'),
         )
         parser.add_argument(
             '-o',
@@ -1189,14 +1186,14 @@ class SshServer(command.Command):
             dest='ipv4',
             action='store_true',
             default=False,
-            help='Use only IPv4 addresses',
+            help=_('Use only IPv4 addresses'),
         )
         ip_group.add_argument(
             '-6',
             dest='ipv6',
             action='store_true',
             default=False,
-            help='Use only IPv6 addresses',
+            help=_('Use only IPv6 addresses'),
         )
         type_group = parser.add_mutually_exclusive_group()
         type_group.add_argument(
@@ -1205,7 +1202,7 @@ class SshServer(command.Command):
             action='store_const',
             const='public',
             default='public',
-            help='Use public IP address',
+            help=_('Use public IP address'),
         )
         type_group.add_argument(
             '--private',
@@ -1213,14 +1210,14 @@ class SshServer(command.Command):
             action='store_const',
             const='private',
             default='public',
-            help='Use private IP address',
+            help=_('Use private IP address'),
         )
         type_group.add_argument(
             '--address-type',
             metavar='<address-type>',
             dest='address_type',
             default='public',
-            help='Use other IP address (public, private, etc)',
+            help=_('Use other IP address (public, private, etc)'),
         )
         parser.add_argument(
             '-v',
@@ -1294,7 +1291,7 @@ class SuspendServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         return parser
 
@@ -1318,7 +1315,7 @@ class UnlockServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         return parser
 
@@ -1342,7 +1339,7 @@ class UnpauseServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         return parser
 
@@ -1366,7 +1363,7 @@ class UnrescueServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         return parser
 
@@ -1390,15 +1387,15 @@ class UnsetServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help=_('Server (name or ID)'),
         )
         parser.add_argument(
             '--property',
             metavar='<key>',
             action='append',
             default=[],
-            help='Property key to remove from server '
-                 '(repeat to set multiple values)',
+            help=_('Property key to remove from server '
+                   '(repeat to set multiple values)'),
         )
         return parser
 
