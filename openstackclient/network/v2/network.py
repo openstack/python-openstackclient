@@ -206,7 +206,8 @@ class SetNetwork(command.Command):
         if parsed_args.shared is not None:
             body['shared'] = parsed_args.shared
         if body == {}:
-            raise exceptions.CommandError("Nothing specified to be set")
+            msg = "Nothing specified to be set"
+            raise exceptions.CommandError(msg)
         update_method = getattr(client, "update_network")
         update_method(_id, {'network': body})
         return
