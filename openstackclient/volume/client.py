@@ -15,8 +15,11 @@
 
 import logging
 
+from cinderclient import extension
+from cinderclient.v1.contrib import list_extensions
 from cinderclient.v1 import volume_snapshots
 from cinderclient.v1 import volumes
+
 from openstackclient.common import utils
 
 # Monkey patch for v1 cinderclient
@@ -45,6 +48,7 @@ def make_client(instance):
     # Set client http_log_debug to True if verbosity level is high enough
     http_log_debug = utils.get_effective_log_level() <= logging.DEBUG
 
+    extensions = [extension.Extension('list_extensions', list_extensions)]
     client = volume_client(
         username=instance._username,
         api_key=instance._password,
@@ -53,7 +57,8 @@ def make_client(instance):
         cacert=instance._cacert,
         insecure=instance._insecure,
         region_name=instance._region_name,
-        http_log_debug=http_log_debug
+        extensions=extensions,
+        http_log_debug=http_log_debug,
     )
 
     # Populate the Cinder client to skip another auth query to Identity

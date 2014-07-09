@@ -47,6 +47,11 @@ class ListExtension(lister.Lister):
             action='store_true',
             default=False,
             help='List extensions for the Compute API')
+        parser.add_argument(
+            '--volume',
+            action='store_true',
+            default=False,
+            help='List extensions for the Volume API')
         return parser
 
     def take_action(self, parsed_args):
@@ -63,7 +68,8 @@ class ListExtension(lister.Lister):
         # by default we want to show everything, unless the
         # user specifies one or more of the APIs to show
         # for now, only identity and compute are supported.
-        show_all = (not parsed_args.identity and not parsed_args.compute)
+        show_all = (not parsed_args.identity and not parsed_args.compute
+                    and not parsed_args.volume)
 
         if parsed_args.identity or show_all:
             identity_client = self.app.client_manager.identity
@@ -79,6 +85,14 @@ class ListExtension(lister.Lister):
                 data += compute_client.list_extensions.show_all()
             except Exception:
                 message = "Extensions list not supported by Compute API"
+                self.log.warning(message)
+
+        if parsed_args.volume or show_all:
+            volume_client = self.app.client_manager.volume
+            try:
+                data += volume_client.list_extensions.show_all()
+            except Exception:
+                message = "Extensions list not supported by Volume API"
                 self.log.warning(message)
 
         return (columns,
