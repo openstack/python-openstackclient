@@ -13,7 +13,9 @@
 #   under the License.
 #
 
+import contextlib
 import copy
+
 import mock
 
 from openstackclient.identity.v3 import user
@@ -941,6 +943,52 @@ class TestUserSet(TestUser):
         self.users_mock.update.assert_called_with(
             identity_fakes.user_id,
             **kwargs
+        )
+
+
+class TestUserSetPassword(TestUser):
+
+    def setUp(self):
+        super(TestUserSetPassword, self).setUp()
+        self.cmd = user.SetPasswordUser(self.app, None)
+
+    @staticmethod
+    @contextlib.contextmanager
+    def _mock_get_password(*passwords):
+        mocker = mock.Mock(side_effect=passwords)
+        with mock.patch("openstackclient.common.utils.get_password", mocker):
+            yield
+
+    def test_user_password_change(self):
+        current_pass = 'old_pass'
+        new_pass = 'new_pass'
+        arglist = [
+            '--password', new_pass,
+        ]
+        verifylist = [
+            ('password', new_pass),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Mock getting user current password.
+        with self._mock_get_password(current_pass):
+            self.cmd.take_action(parsed_args)
+
+        self.users_mock.update_password.assert_called_with(
+            current_pass, new_pass
+        )
+
+    def test_user_create_password_prompt(self):
+        current_pass = 'old_pass'
+        new_pass = 'new_pass'
+        parsed_args = self.check_parser(self.cmd, [], [])
+
+        # Mock getting user current and new password.
+        with self._mock_get_password(current_pass, new_pass):
+            self.cmd.take_action(parsed_args)
+
+        self.users_mock.update_password.assert_called_with(
+            current_pass, new_pass
         )
 
 
