@@ -57,7 +57,9 @@ def make_client(instance):
         service_type=API_NAME,
         # FIXME(dhellmann): what is service_name?
         service_name='',
-        http_log_debug=http_log_debug)
+        http_log_debug=http_log_debug,
+        timings=instance.timing,
+    )
 
     # Populate the Nova client to skip another auth query to Identity
     if instance._url:
