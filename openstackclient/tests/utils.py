@@ -37,6 +37,14 @@ class TestCase(testtools.TestCase):
             stderr = self.useFixture(fixtures.StringStream("stderr")).stream
             self.useFixture(fixtures.MonkeyPatch("sys.stderr", stderr))
 
+    def assertNotCalled(self, m, msg=None):
+        """Assert a function was not called"""
+
+        if m.called:
+            if not msg:
+                msg = 'method %s should not have been called' % m
+            self.fail(msg)
+
     # 2.6 doesn't have the assert dict equals so make sure that it exists
     if tuple(sys.version_info)[0:2] < (2, 7):
 
