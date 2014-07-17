@@ -83,6 +83,7 @@ class CreateNetwork(show.ShowOne):
 
 
 class DeleteNetwork(command.Command):
+    """Delete a network"""
 
     log = logging.getLogger(__name__ + '.DeleteNetwork')
 
@@ -157,6 +158,7 @@ class ListNetwork(lister.Lister):
 
 
 class SetNetwork(command.Command):
+    """Set network properties"""
 
     log = logging.getLogger(__name__ + '.SetNetwork')
 
@@ -213,6 +215,7 @@ class SetNetwork(command.Command):
 
 
 class ShowNetwork(show.ShowOne):
+    """Show network details"""
 
     log = logging.getLogger(__name__ + '.ShowNetwork')
 
