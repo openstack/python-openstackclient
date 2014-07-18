@@ -15,7 +15,6 @@
 
 """Command-line interface to the OpenStack APIs"""
 
-import argparse
 import getpass
 import logging
 import sys
@@ -171,89 +170,13 @@ class OpenStackShell(app.App):
         parser = super(OpenStackShell, self).build_option_parser(
             description,
             version)
-
+        # service token auth argument
+        parser.add_argument(
+            '--os-url',
+            metavar='<url>',
+            default=utils.env('OS_URL'),
+            help='Defaults to env[OS_URL]')
         # Global arguments
-        parser.add_argument(
-            '--os-auth-url',
-            metavar='<auth-url>',
-            default=utils.env('OS_AUTH_URL'),
-            help='Authentication URL (Env: OS_AUTH_URL)')
-        parser.add_argument(
-            '--os-domain-name',
-            metavar='<auth-domain-name>',
-            default=utils.env('OS_DOMAIN_NAME'),
-            help='Domain name of the requested domain-level '
-                 'authorization scope (Env: OS_DOMAIN_NAME)',
-        )
-        parser.add_argument(
-            '--os-domain-id',
-            metavar='<auth-domain-id>',
-            default=utils.env('OS_DOMAIN_ID'),
-            help='Domain ID of the requested domain-level '
-                 'authorization scope (Env: OS_DOMAIN_ID)',
-        )
-        parser.add_argument(
-            '--os-project-name',
-            metavar='<auth-project-name>',
-            default=utils.env('OS_PROJECT_NAME',
-                              default=utils.env('OS_TENANT_NAME')),
-            help='Project name of the requested project-level '
-                 'authorization scope (Env: OS_PROJECT_NAME)',
-        )
-        parser.add_argument(
-            '--os-tenant-name',
-            metavar='<auth-tenant-name>',
-            dest='os_project_name',
-            help=argparse.SUPPRESS,
-        )
-        parser.add_argument(
-            '--os-project-id',
-            metavar='<auth-project-id>',
-            default=utils.env('OS_PROJECT_ID',
-                              default=utils.env('OS_TENANT_ID')),
-            help='Project ID of the requested project-level '
-                 'authorization scope (Env: OS_PROJECT_ID)',
-        )
-        parser.add_argument(
-            '--os-tenant-id',
-            metavar='<auth-tenant-id>',
-            dest='os_project_id',
-            help=argparse.SUPPRESS,
-        )
-        parser.add_argument(
-            '--os-username',
-            metavar='<auth-username>',
-            default=utils.env('OS_USERNAME'),
-            help='Authentication username (Env: OS_USERNAME)')
-        parser.add_argument(
-            '--os-password',
-            metavar='<auth-password>',
-            default=utils.env('OS_PASSWORD'),
-            help='Authentication password (Env: OS_PASSWORD)')
-        parser.add_argument(
-            '--os-user-domain-name',
-            metavar='<auth-user-domain-name>',
-            default=utils.env('OS_USER_DOMAIN_NAME'),
-            help='Domain name of the user (Env: OS_USER_DOMAIN_NAME)')
-        parser.add_argument(
-            '--os-user-domain-id',
-            metavar='<auth-user-domain-id>',
-            default=utils.env('OS_USER_DOMAIN_ID'),
-            help='Domain ID of the user (Env: OS_USER_DOMAIN_ID)')
-        parser.add_argument(
-            '--os-project-domain-name',
-            metavar='<auth-project-domain-name>',
-            default=utils.env('OS_PROJECT_DOMAIN_NAME'),
-            help='Domain name of the project which is the requested '
-                 'project-level authorization scope '
-                 '(Env: OS_PROJECT_DOMAIN_NAME)')
-        parser.add_argument(
-            '--os-project-domain-id',
-            metavar='<auth-project-domain-id>',
-            default=utils.env('OS_PROJECT_DOMAIN_ID'),
-            help='Domain ID of the project which is the requested '
-                 'project-level authorization scope '
-                 '(Env: OS_PROJECT_DOMAIN_ID)')
         parser.add_argument(
             '--os-region-name',
             metavar='<auth-region-name>',
@@ -285,16 +208,6 @@ class OpenStackShell(app.App):
                  DEFAULT_DOMAIN +
                  ' (Env: OS_DEFAULT_DOMAIN)')
         parser.add_argument(
-            '--os-token',
-            metavar='<token>',
-            default=utils.env('OS_TOKEN'),
-            help='Defaults to env[OS_TOKEN]')
-        parser.add_argument(
-            '--os-url',
-            metavar='<url>',
-            default=utils.env('OS_URL'),
-            help='Defaults to env[OS_URL]')
-        parser.add_argument(
             '--timing',
             default=False,
             action='store_true',
@@ -306,20 +219,42 @@ class OpenStackShell(app.App):
     def authenticate_user(self):
         """Verify the required authentication credentials are present"""
 
-        self.log.debug('validating authentication options')
-        if self.options.os_token or self.options.os_url:
+        self.log.debug("validating authentication options")
+
+        # Assuming all auth plugins will be named in the same fashion,
+        # ie vXpluginName
+        if (not self.options.os_url and
+           self.options.os_auth_plugin.startswith('v') and
+           self.options.os_auth_plugin[1] !=
+           self.options.os_identity_api_version[0]):
+            raise exc.CommandError(
+                "Auth plugin %s not compatible"
+                " with requested API version" % self.options.os_auth_plugin
+            )
+        # TODO(mhu) All these checks should be exposed at the plugin level
+        # or just dropped altogether, as the client instantiation will fail
+        # anyway
+        if self.options.os_url and not self.options.os_token:
+            # service token needed
+            raise exc.CommandError(
+                "You must provide a service token via"
+                " either --os-token or env[OS_TOKEN]")
+
+        if (self.options.os_auth_plugin.endswith('token') and
+           (self.options.os_token or self.options.os_auth_url)):
             # Token flow auth takes priority
             if not self.options.os_token:
                 raise exc.CommandError(
                     "You must provide a token via"
                     " either --os-token or env[OS_TOKEN]")
 
-            if not self.options.os_url:
+            if not self.options.os_auth_url:
                 raise exc.CommandError(
                     "You must provide a service URL via"
-                    " either --os-url or env[OS_URL]")
+                    " either --os-auth-url or env[OS_AUTH_URL]")
 
-        else:
+        if (not self.options.os_url and
+           not self.options.os_auth_plugin.endswith('token')):
             # Validate password flow auth
             if not self.options.os_username:
                 raise exc.CommandError(
@@ -347,13 +282,15 @@ class OpenStackShell(app.App):
                     (self.options.os_domain_id
                     or self.options.os_domain_name) or
                     self.options.os_trust_id):
-                raise exc.CommandError(
-                    "You must provide authentication scope as a project "
-                    "or a domain via --os-project-id or env[OS_PROJECT_ID], "
-                    "--os-project-name or env[OS_PROJECT_NAME], "
-                    "--os-domain-id or env[OS_DOMAIN_ID], or"
-                    "--os-domain-name or env[OS_DOMAIN_NAME], or "
-                    "--os-trust-id or env[OS_TRUST_ID].")
+                if self.options.os_auth_plugin.endswith('password'):
+                    raise exc.CommandError(
+                        "You must provide authentication scope as a project "
+                        "or a domain via --os-project-id "
+                        "or env[OS_PROJECT_ID], "
+                        "--os-project-name or env[OS_PROJECT_NAME], "
+                        "--os-domain-id or env[OS_DOMAIN_ID], or"
+                        "--os-domain-name or env[OS_DOMAIN_NAME], or "
+                        "--os-trust-id or env[OS_TRUST_ID].")
 
             if not self.options.os_auth_url:
                 raise exc.CommandError(
@@ -375,24 +312,9 @@ class OpenStackShell(app.App):
                     "Pick one of project, domain or trust.")
 
         self.client_manager = clientmanager.ClientManager(
-            token=self.options.os_token,
-            url=self.options.os_url,
-            auth_url=self.options.os_auth_url,
-            domain_id=self.options.os_domain_id,
-            domain_name=self.options.os_domain_name,
-            project_name=self.options.os_project_name,
-            project_id=self.options.os_project_id,
-            user_domain_id=self.options.os_user_domain_id,
-            user_domain_name=self.options.os_user_domain_name,
-            project_domain_id=self.options.os_project_domain_id,
-            project_domain_name=self.options.os_project_domain_name,
-            username=self.options.os_username,
-            password=self.options.os_password,
-            region_name=self.options.os_region_name,
+            auth_options=self.options,
             verify=self.verify,
-            timing=self.options.timing,
             api_version=self.api_version,
-            trust_id=self.options.os_trust_id,
         )
         return
 

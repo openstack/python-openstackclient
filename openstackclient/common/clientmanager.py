@@ -19,9 +19,11 @@ import logging
 import pkg_resources
 import sys
 
-from keystoneclient.auth.identity import v2 as v2_auth
-from keystoneclient.auth.identity import v3 as v3_auth
+from keystoneclient.auth import base
 from keystoneclient import session
+import requests
+
+from openstackclient.api import auth
 from openstackclient.identity import client as identity_client
 
 
@@ -45,105 +47,66 @@ class ClientManager(object):
     """Manages access to API clients, including authentication."""
     identity = ClientCache(identity_client.make_client)
 
-    def __init__(self, token=None, url=None, auth_url=None,
-                 domain_id=None, domain_name=None,
-                 project_name=None, project_id=None,
-                 username=None, password=None,
-                 user_domain_id=None, user_domain_name=None,
-                 project_domain_id=None, project_domain_name=None,
-                 region_name=None, api_version=None, verify=True,
-                 trust_id=None, timing=None):
-        self._token = token
-        self._url = url
-        self._auth_url = auth_url
-        self._domain_id = domain_id
-        self._domain_name = domain_name
-        self._project_name = project_name
-        self._project_id = project_id
-        self._username = username
-        self._password = password
-        self._user_domain_id = user_domain_id
-        self._user_domain_name = user_domain_name
-        self._project_domain_id = project_domain_id
-        self._project_domain_name = project_domain_name
-        self._region_name = region_name
+    def __getattr__(self, name):
+        # this is for the auth-related parameters.
+        if name in ['_' + o.replace('-', '_')
+                    for o in auth.OPTIONS_LIST]:
+            return self._auth_params[name[1:]]
+
+    def __init__(self, auth_options, api_version=None, verify=True):
+
+        if not auth_options.os_auth_plugin:
+            auth._guess_authentication_method(auth_options)
+
+        self._auth_plugin = auth_options.os_auth_plugin
+        self._url = auth_options.os_url
+        self._auth_params = auth.build_auth_params(auth_options)
+        self._region_name = auth_options.os_region_name
         self._api_version = api_version
-        self._trust_id = trust_id
         self._service_catalog = None
-        self.timing = timing
+        self.timing = auth_options.timing
+
+        # For compatability until all clients can be updated
+        if 'project_name' in self._auth_params:
+            self._project_name = self._auth_params['project_name']
+        elif 'tenant_name' in self._auth_params:
+            self._project_name = self._auth_params['tenant_name']
 
         # verify is the Requests-compatible form
         self._verify = verify
         # also store in the form used by the legacy client libs
         self._cacert = None
-        if verify is True or verify is False:
+        if isinstance(verify, bool):
             self._insecure = not verify
         else:
             self._cacert = verify
             self._insecure = False
 
-        ver_prefix = identity_client.AUTH_VERSIONS[
-            self._api_version[identity_client.API_NAME]
-        ]
-
         # Get logging from root logger
         root_logger = logging.getLogger('')
         LOG.setLevel(root_logger.getEffectiveLevel())
 
-        # NOTE(dtroyer): These plugins are hard-coded for the first step
-        #                in using the new Keystone auth plugins.
-
-        if self._url:
-            LOG.debug('Using token auth %s', ver_prefix)
-            if ver_prefix == 'v2':
-                self.auth = v2_auth.Token(
-                    auth_url=url,
-                    token=token,
-                )
-            else:
-                self.auth = v3_auth.Token(
-                    auth_url=url,
-                    token=token,
-                )
-        else:
-            LOG.debug('Using password auth %s', ver_prefix)
-            if ver_prefix == 'v2':
-                self.auth = v2_auth.Password(
-                    auth_url=auth_url,
-                    username=username,
-                    password=password,
-                    trust_id=trust_id,
-                    tenant_id=project_id,
-                    tenant_name=project_name,
-                )
-            else:
-                self.auth = v3_auth.Password(
-                    auth_url=auth_url,
-                    username=username,
-                    password=password,
-                    trust_id=trust_id,
-                    user_domain_id=user_domain_id,
-                    user_domain_name=user_domain_name,
-                    domain_id=domain_id,
-                    domain_name=domain_name,
-                    project_id=project_id,
-                    project_name=project_name,
-                    project_domain_id=project_domain_id,
-                    project_domain_name=project_domain_name,
-                )
-
-        self.session = session.Session(
-            auth=self.auth,
-            verify=verify,
-        )
+        self.session = None
+        if not self._url:
+            LOG.debug('Using auth plugin: %s' % self._auth_plugin)
+            auth_plugin = base.get_plugin_class(self._auth_plugin)
+            self.auth = auth_plugin.load_from_options(**self._auth_params)
+            # needed by SAML authentication
+            request_session = requests.session()
+            self.session = session.Session(
+                auth=self.auth,
+                session=request_session,
+                verify=verify,
+            )
 
         self.auth_ref = None
-        if not self._url:
-            # Trigger the auth call
+        if not self._auth_plugin.endswith("token") and not self._url:
+            LOG.debug("Populate other password flow attributes")
             self.auth_ref = self.session.auth.get_auth_ref(self.session)
-            # Populate other password flow attributes
             self._token = self.session.auth.get_token(self.session)
             self._service_catalog = self.auth_ref.service_catalog
+        else:
+            self._token = self._auth_params.get('token')
 
         return
 
@@ -156,7 +119,7 @@ class ClientManager(object):
                 service_type=service_type)
         else:
             # Hope we were given the correct URL.
-            endpoint = self._url
+            endpoint = self._auth_url or self._url
         return endpoint
 
 

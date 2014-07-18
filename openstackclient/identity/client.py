@@ -16,8 +16,8 @@
 import logging
 
 from keystoneclient.v2_0 import client as identity_client_v2_0
+from openstackclient.api import auth
 from openstackclient.common import utils
-
 
 LOG = logging.getLogger(__name__)
 
@@ -47,16 +47,15 @@ def make_client(instance):
     # TODO(dtroyer): Something doesn't like the session.auth when using
     #                token auth, chase that down.
     if instance._url:
-        LOG.debug('Using token auth')
+        LOG.debug('Using service token auth')
         client = identity_client(
             endpoint=instance._url,
-            token=instance._token,
+            token=instance._auth_params['token'],
             cacert=instance._cacert,
-            insecure=instance._insecure,
-            trust_id=instance._trust_id,
+            insecure=instance._insecure
         )
     else:
-        LOG.debug('Using password auth')
+        LOG.debug('Using auth plugin: %s' % instance._auth_plugin)
         client = identity_client(
             session=instance.session,
             cacert=instance._cacert,
@@ -66,7 +65,6 @@ def make_client(instance):
     #                so we can remove it
     if not instance._url:
         instance.auth_ref = instance.auth.get_auth_ref(instance.session)
-
     return client
 
 
@@ -81,14 +79,7 @@ def build_option_parser(parser):
         help='Identity API version, default=' +
              DEFAULT_IDENTITY_API_VERSION +
              ' (Env: OS_IDENTITY_API_VERSION)')
-    parser.add_argument(
-        '--os-trust-id',
-        metavar='<trust-id>',
-        default=utils.env('OS_TRUST_ID'),
-        help='Trust ID to use when authenticating. '
-             'This can only be used with Keystone v3 API '
-             '(Env: OS_TRUST_ID)')
-    return parser
+    return auth.build_auth_plugins_option_parser(parser)
 
 
 class IdentityClientv2_0(identity_client_v2_0.Client):

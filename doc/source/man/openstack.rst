@@ -21,6 +21,10 @@ DESCRIPTION
 equivalent to the CLIs provided by the OpenStack project client libraries, but with
 a distinct and consistent command structure.
 
+
+AUTHENTICATION METHODS
+======================
+
 :program:`openstack` uses a similar authentication scheme as the OpenStack project CLIs, with
 the credential information supplied either as environment variables or as options on the
 command line.  The primary difference is the use of 'project' in the name of the options
@@ -33,6 +37,15 @@ command line.  The primary difference is the use of 'project' in the name of the
     export OS_USERNAME=<user-name>
     export OS_PASSWORD=<password>  # (optional)
 
+:program:`openstack` can use different types of authentication plugins provided by the keystoneclient library. The following default plugins are available:
+
+* ``token``: Authentication with a token
+* ``password``: Authentication with a username and a password
+
+Refer to the keystoneclient library documentation for more details about these plugins and their options, and for a complete list of available plugins.
+Please bear in mind that some plugins might not support all of the functionalities of :program:`openstack`; for example the v3unscopedsaml plugin can deliver only unscoped tokens, some commands might not be available through this authentication method.
+
+Additionally, it is possible to use Keystone's service token to authenticate, by setting the options :option:`--os-token` and :option:`--os-url` (or the environment variables :envvar:`OS_TOKEN` and :envvar:`OS_URL` respectively). This method takes precedence over authentication plugins.
 
 OPTIONS
 =======
@@ -41,8 +54,15 @@ OPTIONS
 
 :program:`openstack` recognizes the following global topions:
 
+:option:`--os-auth-plugin` <auth-plugin>
+    The authentication plugin to use when connecting to the Identity service. If this option is not set, :program:`openstack` will attempt to guess the authentication method to use based on the other options.
+    If this option is set, its version must match :option:`--os-identity-api-version` 
+
 :option:`--os-auth-url` <auth-url>
     Authentication URL
+
+:option:`--os-url` <service-url>
+    Service URL, when using a service token for authentication
 
 :option:`--os-domain-name` <auth-domain-name> | :option:`--os-domain-id` <auth-domain-id>
     Domain-level authorization scope (name or ID)
@@ -58,6 +78,9 @@ OPTIONS
 
 :option:`--os-password` <auth-password>
     Authentication password
+
+:option:`--os-token` <token>
+    Authenticated token or service token
 
 :option:`--os-user-domain-name` <auth-user-domain-name> | :option:`--os-user-domain-id` <auth-user-domain-id>
     Domain name or id containing user
@@ -85,6 +108,7 @@ OPTIONS
 
 :option:`--os-XXXX-api-version` <XXXX-api-version>
     Additional API version options will be available depending on the installed API libraries.
+
 
 COMMANDS
 ========
@@ -174,8 +198,14 @@ ENVIRONMENT VARIABLES
 
 The following environment variables can be set to alter the behaviour of :program:`openstack`.  Most of them have corresponding command-line options that take precedence if set.
 
+:envvar:`OS_AUTH_PLUGIN`
+    The authentication plugin to use when connecting to the Identity service, its version must match the Identity API version 
+
 :envvar:`OS_AUTH_URL`
     Authentication URL
+
+:envvar:`OS_URL`
+    Service URL (when using the service token)
 
 :envvar:`OS_DOMAIN_NAME`
     Domain-level authorization scope (name or ID)
@@ -188,6 +218,9 @@ The following environment variables can be set to alter the behaviour of :progra
 
 :envvar:`OS_USERNAME`
     Authentication username
+
+:envvar:`OS_TOKEN`
+    Authenticated or service token
 
 :envvar:`OS_PASSWORD`
     Authentication password
@@ -212,6 +245,7 @@ The following environment variables can be set to alter the behaviour of :progra
 
 :envvar:`OS_XXXX_API_VERSION`
     Additional API version options will be available depending on the installed API libraries.
+
 
 BUGS
 ====
