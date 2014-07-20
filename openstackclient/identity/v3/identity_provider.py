@@ -61,8 +61,8 @@ class CreateIdentityProvider(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
-        idp = identity_client.identity_providers.create(
-            parsed_args.identity_provider_id,
+        idp = identity_client.federation.identity_providers.create(
+            id=parsed_args.identity_provider_id,
             description=parsed_args.description,
             enabled=parsed_args.enabled)
         info = {}
@@ -87,7 +87,7 @@ class DeleteIdentityProvider(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
-        identity_client.identity_providers.delete(
+        identity_client.federation.identity_providers.delete(
             parsed_args.identity_provider)
         return
 
@@ -100,7 +100,8 @@ class ListIdentityProvider(lister.Lister):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         columns = ('ID', 'Enabled', 'Description')
-        data = self.app.client_manager.identity.identity_providers.list()
+        identity_client = self.app.client_manager.identity
+        data = identity_client.federation.identity_providers.list()
         return (columns,
                 (utils.get_item_properties(
                     s, columns,
@@ -136,7 +137,7 @@ class SetIdentityProvider(command.Command):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
-        identity_client = self.app.client_manager.identity
+        federation_client = self.app.client_manager.identity.federation
 
         if parsed_args.enable is True:
             enabled = True
@@ -147,7 +148,7 @@ class SetIdentityProvider(command.Command):
                              "no arguments present")
             return (None, None)
 
-        identity_provider = identity_client.identity_providers.update(
+        identity_provider = federation_client.identity_providers.update(
             parsed_args.identity_provider, enabled=enabled)
         info = {}
         info.update(identity_provider._info)
@@ -172,7 +173,7 @@ class ShowIdentityProvider(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         identity_provider = utils.find_resource(
-            identity_client.identity_providers,
+            identity_client.federation.identity_providers,
             parsed_args.identity_provider)
 
         info = {}

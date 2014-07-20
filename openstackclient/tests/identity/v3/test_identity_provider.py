@@ -24,8 +24,8 @@ class TestIdentityProvider(identity_fakes.TestFederatedIdentity):
     def setUp(self):
         super(TestIdentityProvider, self).setUp()
 
-        identity_lib = self.app.client_manager.identity
-        self.identity_providers_mock = identity_lib.identity_providers
+        federation_lib = self.app.client_manager.identity.federation
+        self.identity_providers_mock = federation_lib.identity_providers
         self.identity_providers_mock.reset_mock()
 
 
@@ -56,7 +56,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         }
 
         self.identity_providers_mock.create.assert_called_with(
-            identity_fakes.idp_id,
+            id=identity_fakes.idp_id,
             **kwargs
         )
 
@@ -88,7 +88,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         }
 
         self.identity_providers_mock.create.assert_called_with(
-            identity_fakes.idp_id,
+            id=identity_fakes.idp_id,
             **kwargs
         )
 
@@ -128,7 +128,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         }
 
         self.identity_providers_mock.create.assert_called_with(
-            identity_fakes.idp_id,
+            id=identity_fakes.idp_id,
             **kwargs
         )
 
@@ -217,12 +217,12 @@ class TestIdentityProviderShow(TestIdentityProvider):
     def setUp(self):
         super(TestIdentityProviderShow, self).setUp()
 
-        self.identity_providers_mock.get.return_value = fakes.FakeResource(
+        ret = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.IDENTITY_PROVIDER),
             loaded=True,
         )
-
+        self.identity_providers_mock.get.return_value = ret
         # Get the command object to test
         self.cmd = identity_provider.ShowIdentityProvider(self.app, None)
 
