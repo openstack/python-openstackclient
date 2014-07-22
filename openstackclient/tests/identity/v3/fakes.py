@@ -201,12 +201,16 @@ class FakeIdentityv3Client(object):
         self.management_url = kwargs['endpoint']
 
 
+class FakeFederationManager(object):
+    def __init__(self, **kwargs):
+        self.identity_providers = mock.Mock()
+        self.identity_providers.resource_class = fakes.FakeResource(None, {})
+
+
 class FakeFederatedClient(FakeIdentityv3Client):
     def __init__(self, **kwargs):
         super(FakeFederatedClient, self).__init__(**kwargs)
-
-        self.identity_providers = mock.Mock()
-        self.identity_providers.resource_class = fakes.FakeResource(None, {})
+        self.federation = FakeFederationManager()
 
 
 class FakeOAuth1Client(FakeIdentityv3Client):
