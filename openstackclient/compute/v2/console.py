@@ -26,7 +26,7 @@ from openstackclient.common import utils
 
 
 class ShowConsoleLog(command.Command):
-    """Show console-log command"""
+    """Show server's console output"""
 
     log = logging.getLogger(__name__ + '.ShowConsoleLog')
 
@@ -35,7 +35,7 @@ class ShowConsoleLog(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Name or ID of server to display console log',
+            help='Server (name or ID)',
         )
         parser.add_argument(
             '--lines',
@@ -67,7 +67,7 @@ class ShowConsoleLog(command.Command):
 
 
 class ShowConsoleURL(show.ShowOne):
-    """Show console-url command"""
+    """Show server's remote console URL"""
 
     log = logging.getLogger(__name__ + '.ShowConsoleURL')
 
@@ -76,7 +76,7 @@ class ShowConsoleURL(show.ShowOne):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Name or ID of server to display console log',
+            help='Server (name or ID)',
         )
         type_group = parser.add_mutually_exclusive_group()
         type_group.add_argument(

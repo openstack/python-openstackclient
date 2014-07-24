@@ -25,7 +25,7 @@ from openstackclient.common import utils
 
 
 class ListHypervisor(lister.Lister):
-    """List hypervisor command"""
+    """List hypervisors"""
 
     log = logging.getLogger(__name__ + ".ListHypervisor")
 
@@ -33,9 +33,9 @@ class ListHypervisor(lister.Lister):
         parser = super(ListHypervisor, self).get_parser(prog_name)
         parser.add_argument(
             "--matching",
-            metavar="<hostname>",
-            help="List hypervisors with hostnames matching the given"
-                 " substring")
+            metavar="<hostname-str>",
+            help="Filter hypervisors using <hostname-str> substring",
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -58,7 +58,7 @@ class ListHypervisor(lister.Lister):
 
 
 class ShowHypervisor(show.ShowOne):
-    """Show hypervisor command"""
+    """Show hypervisor details"""
 
     log = logging.getLogger(__name__ + ".ShowHypervisor")
 

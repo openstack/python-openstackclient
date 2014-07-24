@@ -36,7 +36,7 @@ class CreateVolume(show.ShowOne):
         parser.add_argument(
             'name',
             metavar='<name>',
-            help='Name of the volume',
+            help='Name of the new volume',
         )
         parser.add_argument(
             '--size',
@@ -48,7 +48,7 @@ class CreateVolume(show.ShowOne):
         parser.add_argument(
             '--snapshot-id',
             metavar='<snapshot-id>',
-            help='ID of the snapshot',
+            help='Use <snapshot-id> as source of new volume',
         )
         parser.add_argument(
             '--description',
@@ -73,7 +73,7 @@ class CreateVolume(show.ShowOne):
         parser.add_argument(
             '--availability-zone',
             metavar='<availability-zone>',
-            help='Availability zone to use',
+            help='Create new volume in <availability-zone>',
         )
         parser.add_argument(
             '--property',
@@ -85,12 +85,12 @@ class CreateVolume(show.ShowOne):
         parser.add_argument(
             '--image',
             metavar='<image>',
-            help='Reference to a stored image',
+            help='Use <image> as source of new volume',
         )
         parser.add_argument(
             '--source',
             metavar='<volume>',
-            help='Source for volume clone',
+            help='Volume to clone (name or ID)',
         )
 
         return parser
@@ -143,7 +143,7 @@ class CreateVolume(show.ShowOne):
 
 
 class DeleteVolume(command.Command):
-    """Delete volume"""
+    """Delete a volume"""
 
     log = logging.getLogger(__name__ + '.DeleteVolume')
 
@@ -152,7 +152,7 @@ class DeleteVolume(command.Command):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='Name or ID of volume to delete',
+            help='Volume to delete (name or ID)',
         )
         parser.add_argument(
             '--force',
@@ -271,7 +271,7 @@ class SetVolume(command.Command):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='Name or ID of volume to change',
+            help='Volume to change (name or ID)',
         )
         parser.add_argument(
             '--name',
@@ -315,7 +315,7 @@ class SetVolume(command.Command):
 
 
 class ShowVolume(show.ShowOne):
-    """Show specific volume"""
+    """Show volume details"""
 
     log = logging.getLogger(__name__ + '.ShowVolume')
 
@@ -324,7 +324,7 @@ class ShowVolume(show.ShowOne):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='Name or ID of volume to display',
+            help='Volume to display (name or ID)',
         )
         return parser
 
@@ -357,7 +357,7 @@ class UnsetVolume(command.Command):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='Name or ID of volume to change',
+            help='Volume to change (name or ID)',
         )
         parser.add_argument(
             '--property',

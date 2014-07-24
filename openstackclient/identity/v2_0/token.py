@@ -41,7 +41,7 @@ class IssueToken(show.ShowOne):
 
 
 class RevokeToken(command.Command):
-    """Revoke token command"""
+    """Revoke existing token"""
 
     log = logging.getLogger(__name__ + '.RevokeToken')
 
