@@ -23,7 +23,7 @@ LOG = logging.getLogger(__name__)
 
 DEFAULT_OBJECT_API_VERSION = '1'
 API_VERSION_OPTION = 'os_object_api_version'
-API_NAME = 'object-store'
+API_NAME = 'object_store'
 API_VERSIONS = {
     '1': 'openstackclient.object.client.ObjectClientv1',
 }
@@ -31,6 +31,7 @@ API_VERSIONS = {
 
 def make_client(instance):
     """Returns an object service client."""
+
     object_client = utils.get_client_class(
         API_NAME,
         instance._api_version[API_NAME],
@@ -40,7 +41,7 @@ def make_client(instance):
     if instance._url:
         endpoint = instance._url
     else:
-        endpoint = instance.get_endpoint_for_service_type(API_NAME)
+        endpoint = instance.get_endpoint_for_service_type("object-store")
     client = object_client(
         endpoint=endpoint,
         token=instance._token,
