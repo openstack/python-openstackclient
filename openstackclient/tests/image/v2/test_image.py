@@ -15,7 +15,7 @@
 
 import copy
 
-from openstackclient.image.v1 import image
+from openstackclient.image.v2 import image
 from openstackclient.tests import fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
 
