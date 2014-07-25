@@ -291,6 +291,12 @@ class ListImage(lister.Lister):
             metavar="<size>",
             help="Number of images to request in each paginated request",
         )
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help='List additional fields in output',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -303,7 +309,11 @@ class ListImage(lister.Lister):
             kwargs["page_size"] = parsed_args.page_size
 
         data = image_client.images.list(**kwargs)
-        columns = ["ID", "Name"]
+        if parsed_args.long:
+            columns = ('ID', 'Name', 'Disk Format', 'Container Format',
+                       'Size', 'Status')
+        else:
+            columns = ("ID", "Name")
 
         return (columns, (utils.get_item_properties(s, columns) for s in data))
 
