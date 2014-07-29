@@ -57,13 +57,13 @@ class CreateEndpoint(show.ShowOne):
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable user',
+            help='Enable endpoint',
         )
         enable_group.add_argument(
             '--disable',
             dest='enabled',
             action='store_false',
-            help='Disable user',
+            help='Disable endpoint',
         )
         return parser
 
@@ -166,13 +166,13 @@ class SetEndpoint(command.Command):
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable user',
+            help='Enable endpoint',
         )
         enable_group.add_argument(
             '--disable',
             dest='enabled',
             action='store_false',
-            help='Disable user',
+            help='Disable endpoint',
         )
         return parser
 
