@@ -181,16 +181,20 @@ class SetEndpoint(command.Command):
         identity_client = self.app.client_manager.identity
         endpoint = utils.find_resource(identity_client.endpoints,
                                        parsed_args.endpoint)
-        service = common.find_service(identity_client, parsed_args.service)
 
         if (not parsed_args.interface and not parsed_args.url
                 and not parsed_args.service and not parsed_args.region):
             sys.stdout.write("Endpoint not updated, no arguments present")
             return
 
+        service_id = None
+        if parsed_args.service:
+            service = common.find_service(identity_client, parsed_args.service)
+            service_id = service.id
+
         identity_client.endpoints.update(
             endpoint.id,
-            service=service.id,
+            service=service_id,
             url=parsed_args.url,
             interface=parsed_args.interface,
             region=parsed_args.region,
