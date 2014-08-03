@@ -189,7 +189,11 @@ class RESTApi(object):
         :param \*\*kwargs: Optional arguments passed to ``request``
         """
 
-        return self.request('PATCH', url, data=data, json=json, **kwargs)
+        if json:
+            kwargs['json'] = json
+        if data:
+            kwargs['data'] = data
+        return self.request('PATCH', url, **kwargs)
 
     def post(self, url, data=None, json=None, **kwargs):
         """Send a POST request. Returns :class:`requests.Response` object.
@@ -201,7 +205,11 @@ class RESTApi(object):
         :param \*\*kwargs: Optional arguments passed to ``request``
         """
 
-        return self.request('POST', url, data=data, json=json, **kwargs)
+        if json:
+            kwargs['json'] = json
+        if data:
+            kwargs['data'] = data
+        return self.request('POST', url, **kwargs)
 
     def put(self, url, data=None, json=None, **kwargs):
         """Send a PUT request. Returns :class:`requests.Response` object.
@@ -213,7 +221,11 @@ class RESTApi(object):
         :param \*\*kwargs: Optional arguments passed to ``request``
         """
 
-        return self.request('PUT', url, data=data, json=json, **kwargs)
+        if json:
+            kwargs['json'] = json
+        if data:
+            kwargs['data'] = data
+        return self.request('PUT', url, **kwargs)
 
     # Command verb methods
 
