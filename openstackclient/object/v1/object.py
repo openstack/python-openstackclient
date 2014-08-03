@@ -19,11 +19,74 @@
 import logging
 import six
 
+from cliff import command
 from cliff import lister
 from cliff import show
 
 from openstackclient.common import utils
 from openstackclient.object.v1.lib import object as lib_object
+
+
+class CreateObject(show.ShowOne):
+    """Upload an object to a container"""
+
+    log = logging.getLogger(__name__ + '.CreateObject')
+
+    def get_parser(self, prog_name):
+        parser = super(CreateObject, self).get_parser(prog_name)
+        parser.add_argument(
+            'container',
+            metavar='<container>',
+            help='Container to store new object',
+        )
+        parser.add_argument(
+            'object',
+            metavar='<object-name>',
+            help='Local path of object to upload',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)', parsed_args)
+
+        data = lib_object.create_object(
+            self.app.restapi,
+            self.app.client_manager.object_store.endpoint,
+            parsed_args.container,
+            parsed_args.object,
+        )
+
+        return zip(*sorted(six.iteritems(data)))
+
+
+class DeleteObject(command.Command):
+    """Delete an object within a container"""
+
+    log = logging.getLogger(__name__ + '.DeleteObject')
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteObject, self).get_parser(prog_name)
+        parser.add_argument(
+            'container',
+            metavar='<container>',
+            help='Container that stores the object to delete',
+        )
+        parser.add_argument(
+            'object',
+            metavar='<object-name>',
+            help='Object to delete',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)', parsed_args)
+
+        lib_object.delete_object(
+            self.app.restapi,
+            self.app.client_manager.object_store.endpoint,
+            parsed_args.container,
+            parsed_args.object,
+        )
 
 
 class ListObject(lister.Lister):
