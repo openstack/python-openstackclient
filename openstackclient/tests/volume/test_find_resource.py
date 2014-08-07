@@ -21,6 +21,7 @@ from cinderclient.v1 import volumes
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.tests import utils as test_utils
+from openstackclient.volume import client  # noqa
 
 
 ID = '1after909'
