@@ -99,9 +99,10 @@ class CreateUser(show.ShowOne):
         # NOTE(dtroyer): The users.create() method wants 'tenant_id' but
         #                the returned resource has 'tenantId'.  Sigh.
         #                We're using project_id now inside OSC so there.
-        user._info.update(
-            {'project_id': user._info.pop('tenantId')}
-        )
+        if 'tenantId' in user._info:
+            user._info.update(
+                {'project_id': user._info.pop('tenantId')}
+            )
 
         info = {}
         info.update(user._info)
