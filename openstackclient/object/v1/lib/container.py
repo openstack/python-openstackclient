@@ -22,6 +22,45 @@ except ImportError:
     from urlparse import urlparse  # noqa
 
 
+def create_container(
+    api,
+    url,
+    container,
+):
+    """Create a container
+
+    :param api: a restapi object
+    :param url: endpoint
+    :param container: name of container to create
+    :returns: dict of returned headers
+    """
+
+    response = api.put("%s/%s" % (url, container))
+    url_parts = urlparse(url)
+    data = {
+        'account': url_parts.path.split('/')[-1],
+        'container': container,
+    }
+    data['x-trans-id'] = response.headers.get('x-trans-id', None)
+
+    return data
+
+
+def delete_container(
+    api,
+    url,
+    container,
+):
+    """Delete a container
+
+    :param api: a restapi object
+    :param url: endpoint
+    :param container: name of container to delete
+    """
+
+    api.delete("%s/%s" % (url, container))
+
+
 def list_containers(
     api,
     url,

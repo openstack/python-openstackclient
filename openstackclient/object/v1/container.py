@@ -19,11 +19,62 @@
 import logging
 import six
 
+from cliff import command
 from cliff import lister
 from cliff import show
 
 from openstackclient.common import utils
 from openstackclient.object.v1.lib import container as lib_container
+
+
+class CreateContainer(show.ShowOne):
+    """Create a container"""
+
+    log = logging.getLogger(__name__ + '.CreateContainer')
+
+    def get_parser(self, prog_name):
+        parser = super(CreateContainer, self).get_parser(prog_name)
+        parser.add_argument(
+            'container',
+            metavar='<container>',
+            help='New container name',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)', parsed_args)
+
+        data = lib_container.create_container(
+            self.app.restapi,
+            self.app.client_manager.object_store.endpoint,
+            parsed_args.container,
+        )
+
+        return zip(*sorted(six.iteritems(data)))
+
+
+class DeleteContainer(command.Command):
+    """Delete a container"""
+
+    log = logging.getLogger(__name__ + '.DeleteContainer')
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteContainer, self).get_parser(prog_name)
+        parser.add_argument(
+            'container',
+            metavar='<container>',
+            help='Container name to delete',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)', parsed_args)
+
+        lib_container.delete_container(
+            self.app.restapi,
+            self.app.client_manager.object_store.endpoint,
+            parsed_args.container,
+        )
 
 
 class ListContainer(lister.Lister):
