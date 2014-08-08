@@ -14,11 +14,26 @@
 #
 
 from openstackclient.common import clientmanager
+from openstackclient.common import restapi
 from openstackclient.tests import utils
 
 
+AUTH_REF = {'a': 1}
 AUTH_TOKEN = "foobar"
 AUTH_URL = "http://0.0.0.0"
+USERNAME = "itchy"
+PASSWORD = "scratchy"
+SERVICE_CATALOG = {'sc': '123'}
+
+
+def FakeMakeClient(instance):
+    return FakeClient()
+
+
+class FakeClient(object):
+    auth_ref = AUTH_REF
+    auth_token = AUTH_TOKEN
+    service_catalog = SERVICE_CATALOG
 
 
 class Container(object):
@@ -28,18 +43,7 @@ class Container(object):
         pass
 
 
-class TestClientManager(utils.TestCase):
-    def setUp(self):
-        super(TestClientManager, self).setUp()
-
-        api_version = {"identity": "2.0"}
-
-        self.client_manager = clientmanager.ClientManager(
-            token=AUTH_TOKEN,
-            url=AUTH_URL,
-            auth_url=AUTH_URL,
-            api_version=api_version,
-        )
+class TestClientCache(utils.TestCase):
 
     def test_singleton(self):
         # NOTE(dtroyer): Verify that the ClientCache descriptor only invokes
@@ -47,12 +51,88 @@ class TestClientManager(utils.TestCase):
         c = Container()
         self.assertEqual(c.attr, c.attr)
 
-    def test_make_client_identity_default(self):
+
+class TestClientManager(utils.TestCase):
+    def setUp(self):
+        super(TestClientManager, self).setUp()
+
+        clientmanager.ClientManager.identity = \
+            clientmanager.ClientCache(FakeMakeClient)
+
+    def test_client_manager_token(self):
+
+        client_manager = clientmanager.ClientManager(
+            token=AUTH_TOKEN,
+            url=AUTH_URL,
+            verify=True,
+        )
+
         self.assertEqual(
-            self.client_manager.identity.auth_token,
             AUTH_TOKEN,
+            client_manager._token,
         )
         self.assertEqual(
-            self.client_manager.identity.management_url,
             AUTH_URL,
+            client_manager._url,
         )
+        self.assertIsInstance(
+            client_manager.session,
+            restapi.RESTApi,
+        )
+        self.assertFalse(client_manager._insecure)
+        self.assertTrue(client_manager._verify)
+
+    def test_client_manager_password(self):
+
+        client_manager = clientmanager.ClientManager(
+            auth_url=AUTH_URL,
+            username=USERNAME,
+            password=PASSWORD,
+            verify=False,
+        )
+
+        self.assertEqual(
+            AUTH_URL,
+            client_manager._auth_url,
+        )
+        self.assertEqual(
+            USERNAME,
+            client_manager._username,
+        )
+        self.assertEqual(
+            PASSWORD,
+            client_manager._password,
+        )
+        self.assertIsInstance(
+            client_manager.session,
+            restapi.RESTApi,
+        )
+        self.assertTrue(client_manager._insecure)
+        self.assertFalse(client_manager._verify)
+
+        # These need to stick around until the old-style clients are gone
+        self.assertEqual(
+            AUTH_REF,
+            client_manager.auth_ref,
+        )
+        self.assertEqual(
+            AUTH_TOKEN,
+            client_manager._token,
+        )
+        self.assertEqual(
+            SERVICE_CATALOG,
+            client_manager._service_catalog,
+        )
+
+    def test_client_manager_password_verify_ca(self):
+
+        client_manager = clientmanager.ClientManager(
+            auth_url=AUTH_URL,
+            username=USERNAME,
+            password=PASSWORD,
+            verify='cafile',
+        )
+
+        self.assertFalse(client_manager._insecure)
+        self.assertTrue(client_manager._verify)
+        self.assertEqual('cafile', client_manager._cacert)

@@ -45,7 +45,7 @@ class CreateContainer(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
 
         data = lib_container.create_container(
-            self.app.restapi,
+            self.app.client_manager.session,
             self.app.client_manager.object_store.endpoint,
             parsed_args.container,
         )
@@ -71,7 +71,7 @@ class DeleteContainer(command.Command):
         self.log.debug('take_action(%s)', parsed_args)
 
         lib_container.delete_container(
-            self.app.restapi,
+            self.app.client_manager.session,
             self.app.client_manager.object_store.endpoint,
             parsed_args.container,
         )
@@ -140,7 +140,7 @@ class ListContainer(lister.Lister):
             kwargs['full_listing'] = True
 
         data = lib_container.list_containers(
-            self.app.restapi,
+            self.app.client_manager.session,
             self.app.client_manager.object_store.endpoint,
             **kwargs
         )
@@ -170,7 +170,7 @@ class ShowContainer(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
 
         data = lib_container.show_container(
-            self.app.restapi,
+            self.app.client_manager.session,
             self.app.client_manager.object_store.endpoint,
             parsed_args.container,
         )

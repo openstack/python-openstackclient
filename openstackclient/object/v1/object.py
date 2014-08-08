@@ -50,7 +50,7 @@ class CreateObject(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
 
         data = lib_object.create_object(
-            self.app.restapi,
+            self.app.client_manager.session,
             self.app.client_manager.object_store.endpoint,
             parsed_args.container,
             parsed_args.object,
@@ -82,7 +82,7 @@ class DeleteObject(command.Command):
         self.log.debug('take_action(%s)', parsed_args)
 
         lib_object.delete_object(
-            self.app.restapi,
+            self.app.client_manager.session,
             self.app.client_manager.object_store.endpoint,
             parsed_args.container,
             parsed_args.object,
@@ -170,7 +170,7 @@ class ListObject(lister.Lister):
             kwargs['full_listing'] = True
 
         data = lib_object.list_objects(
-            self.app.restapi,
+            self.app.client_manager.session,
             self.app.client_manager.object_store.endpoint,
             parsed_args.container,
             **kwargs
@@ -206,7 +206,7 @@ class ShowObject(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
 
         data = lib_object.show_object(
-            self.app.restapi,
+            self.app.client_manager.session,
             self.app.client_manager.object_store.endpoint,
             parsed_args.container,
             parsed_args.object,
