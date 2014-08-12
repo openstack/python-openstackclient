@@ -715,7 +715,7 @@ class TestRoleShow(TestRole):
         # Get the command object to test
         self.cmd = role.ShowRole(self.app, None)
 
-    def test_service_show(self):
+    def test_role_show(self):
         arglist = [
             identity_fakes.role_name,
         ]
