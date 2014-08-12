@@ -24,6 +24,52 @@ except ImportError:
     from urlparse import urlparse  # noqa
 
 
+def create_object(
+    api,
+    url,
+    container,
+    object,
+):
+    """Create an object, upload it to a container
+
+    :param api: a restapi object
+    :param url: endpoint
+    :param container: name of container to store object
+    :param object: local path to object
+    :returns: dict of returned headers
+    """
+
+    full_url = "%s/%s/%s" % (url, container, object)
+    response = api.put(full_url, data=open(object))
+    url_parts = urlparse(url)
+    data = {
+        'account': url_parts.path.split('/')[-1],
+        'container': container,
+        'object': object,
+    }
+    data['x-trans-id'] = response.headers.get('X-Trans-Id', None)
+    data['etag'] = response.headers.get('Etag', None)
+
+    return data
+
+
+def delete_object(
+    api,
+    url,
+    container,
+    object,
+):
+    """Delete an object stored in a container
+
+    :param api: a restapi object
+    :param url: endpoint
+    :param container: name of container that stores object
+    :param container: name of object to delete
+    """
+
+    api.delete("%s/%s/%s" % (url, container, object))
+
+
 def list_objects(
     api,
     url,
