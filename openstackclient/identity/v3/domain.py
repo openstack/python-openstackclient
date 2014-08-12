@@ -135,13 +135,12 @@ class SetDomain(command.Command):
             '--enable',
             dest='enabled',
             action='store_true',
-            default=True,
             help='Enable domain (default)',
         )
         enable_group.add_argument(
             '--disable',
-            dest='enabled',
-            action='store_false',
+            dest='disabled',
+            action='store_true',
             help='Disable domain',
         )
         return parser
@@ -156,8 +155,10 @@ class SetDomain(command.Command):
             kwargs['name'] = parsed_args.name
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
-        if 'enabled' in parsed_args:
-            kwargs['enabled'] = parsed_args.enabled
+        if parsed_args.enabled:
+            kwargs['enabled'] = True
+        if parsed_args.disabled:
+            kwargs['enabled'] = False
 
         if not kwargs:
             sys.stdout.write("Domain not updated, no arguments present")
