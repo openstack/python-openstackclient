@@ -116,6 +116,7 @@ referring to both Compute and Volume quotas.
 * ``service``: (**Identity**) a cloud service
 * ``service provider``: (**Identity**) a resource that consumes assertions from an ``identity provider``
 * ``snapshot``: (**Volume**) a point-in-time copy of a volume
+* ``subnet``: (**Network**) - a pool of private IP addresses that can be assigned to instances or other resources
 * ``token``: (**Identity**) a bearer token managed by Identity service
 * ``usage``: (**Compute**) display host resources being consumed
 * ``user``: (**Identity**) individual cloud resources users
