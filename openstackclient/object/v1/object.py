@@ -27,7 +27,7 @@ from openstackclient.common import utils
 from openstackclient.object.v1.lib import object as lib_object
 
 
-class CreateObject(show.ShowOne):
+class CreateObject(lister.Lister):
     """Upload an object to a container"""
 
     log = logging.getLogger(__name__ + '.CreateObject')
@@ -40,23 +40,32 @@ class CreateObject(show.ShowOne):
             help='Container to store new object',
         )
         parser.add_argument(
-            'object',
+            'objects',
             metavar='<object-name>',
-            help='Local path of object to upload',
+            nargs="+",
+            help='Local path of object(s) to upload',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
 
-        data = lib_object.create_object(
-            self.app.client_manager.session,
-            self.app.client_manager.object_store.endpoint,
-            parsed_args.container,
-            parsed_args.object,
-        )
+        results = []
+        for obj in parsed_args.objects:
+            data = lib_object.create_object(
+                self.app.client_manager.session,
+                self.app.client_manager.object_store.endpoint,
+                parsed_args.container,
+                obj,
+            )
+            results.append(data)
 
-        return zip(*sorted(six.iteritems(data)))
+        columns = ("object", "container", "etag")
+        return (columns,
+                (utils.get_dict_properties(
+                    s, columns,
+                    formatters={},
+                ) for s in results))
 
 
 class DeleteObject(command.Command):
@@ -72,21 +81,24 @@ class DeleteObject(command.Command):
             help='Container that stores the object to delete',
         )
         parser.add_argument(
-            'object',
+            'objects',
             metavar='<object-name>',
-            help='Object to delete',
+            nargs="+",
+            help='Object(s) to delete',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
 
-        lib_object.delete_object(
-            self.app.client_manager.session,
-            self.app.client_manager.object_store.endpoint,
-            parsed_args.container,
-            parsed_args.object,
-        )
+        for obj in parsed_args.objects:
+            lib_object.delete_object(
+                self.app.restapi,
+                self.app.client_manager.session,
+                self.app.client_manager.object_store.endpoint,
+                parsed_args.container,
+                obj,
+            )
 
 
 class ListObject(lister.Lister):
