@@ -114,12 +114,38 @@ class ListEndpoint(lister.Lister):
 
     log = logging.getLogger(__name__ + '.ListEndpoint')
 
+    def get_parser(self, prog_name):
+        parser = super(ListEndpoint, self).get_parser(prog_name)
+        parser.add_argument(
+            '--service',
+            metavar='<service>',
+            help='Filter by a specific service')
+        parser.add_argument(
+            '--interface',
+            metavar='<interface>',
+            choices=['admin', 'public', 'internal'],
+            help='Filter by a specific interface, must be admin, public or'
+                 ' internal')
+        parser.add_argument(
+            '--region',
+            metavar='<region>',
+            help='Filter by a specific region')
+        return parser
+
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         columns = ('ID', 'Region', 'Service Name', 'Service Type',
                    'Enabled', 'Interface', 'URL')
-        data = identity_client.endpoints.list()
+        kwargs = {}
+        if parsed_args.service:
+            service = common.find_service(identity_client, parsed_args.service)
+            kwargs['service'] = service.id
+        if parsed_args.interface:
+            kwargs['interface'] = parsed_args.interface
+        if parsed_args.region:
+            kwargs['region'] = parsed_args.region
+        data = identity_client.endpoints.list(**kwargs)
 
         for ep in data:
             service = common.find_service(identity_client, ep.service_id)

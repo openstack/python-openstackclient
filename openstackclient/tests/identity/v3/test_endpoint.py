@@ -317,6 +317,102 @@ class TestEndpointList(TestEndpoint):
         ),)
         self.assertEqual(datalist, tuple(data))
 
+    def test_endpoint_list_service(self):
+        arglist = [
+            '--service', identity_fakes.service_name,
+        ]
+        verifylist = [
+            ('service', identity_fakes.service_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'service': identity_fakes.service_id,
+        }
+        self.endpoints_mock.list.assert_called_with(**kwargs)
+
+        collist = ('ID', 'Region', 'Service Name', 'Service Type',
+                   'Enabled', 'Interface', 'URL')
+        self.assertEqual(collist, columns)
+        datalist = ((
+            identity_fakes.endpoint_id,
+            identity_fakes.endpoint_region,
+            identity_fakes.service_name,
+            identity_fakes.service_type,
+            True,
+            identity_fakes.endpoint_interface,
+            identity_fakes.endpoint_url,
+        ),)
+        self.assertEqual(datalist, tuple(data))
+
+    def test_endpoint_list_interface(self):
+        arglist = [
+            '--interface', identity_fakes.endpoint_interface,
+        ]
+        verifylist = [
+            ('interface', identity_fakes.endpoint_interface),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'interface': identity_fakes.endpoint_interface,
+        }
+        self.endpoints_mock.list.assert_called_with(**kwargs)
+
+        collist = ('ID', 'Region', 'Service Name', 'Service Type',
+                   'Enabled', 'Interface', 'URL')
+        self.assertEqual(collist, columns)
+        datalist = ((
+            identity_fakes.endpoint_id,
+            identity_fakes.endpoint_region,
+            identity_fakes.service_name,
+            identity_fakes.service_type,
+            True,
+            identity_fakes.endpoint_interface,
+            identity_fakes.endpoint_url,
+        ),)
+        self.assertEqual(datalist, tuple(data))
+
+    def test_endpoint_list_region(self):
+        arglist = [
+            '--region', identity_fakes.endpoint_region,
+        ]
+        verifylist = [
+            ('region', identity_fakes.endpoint_region),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'region': identity_fakes.endpoint_region,
+        }
+        self.endpoints_mock.list.assert_called_with(**kwargs)
+
+        collist = ('ID', 'Region', 'Service Name', 'Service Type',
+                   'Enabled', 'Interface', 'URL')
+        self.assertEqual(collist, columns)
+        datalist = ((
+            identity_fakes.endpoint_id,
+            identity_fakes.endpoint_region,
+            identity_fakes.service_name,
+            identity_fakes.service_type,
+            True,
+            identity_fakes.endpoint_interface,
+            identity_fakes.endpoint_url,
+        ),)
+        self.assertEqual(datalist, tuple(data))
+
 
 class TestEndpointSet(TestEndpoint):
 
