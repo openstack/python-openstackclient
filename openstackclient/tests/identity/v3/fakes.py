@@ -21,10 +21,13 @@ from openstackclient.tests import utils
 
 domain_id = 'd1'
 domain_name = 'oftheking'
+domain_description = 'domain description'
 
 DOMAIN = {
     'id': domain_id,
     'name': domain_name,
+    'description': domain_description,
+    'enabled': True,
 }
 
 group_id = 'gr-010'
