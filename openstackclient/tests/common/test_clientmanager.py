@@ -13,8 +13,10 @@
 #   under the License.
 #
 
+import mock
+
+from keystoneclient.auth.identity import v2 as auth_v2
 from openstackclient.common import clientmanager
-from openstackclient.common import restapi
 from openstackclient.tests import utils
 
 
@@ -24,6 +26,10 @@ AUTH_URL = "http://0.0.0.0"
 USERNAME = "itchy"
 PASSWORD = "scratchy"
 SERVICE_CATALOG = {'sc': '123'}
+
+API_VERSION = {
+    'identity': '2.0',
+}
 
 
 def FakeMakeClient(instance):
@@ -52,6 +58,7 @@ class TestClientCache(utils.TestCase):
         self.assertEqual(c.attr, c.attr)
 
 
+@mock.patch('keystoneclient.session.Session')
 class TestClientManager(utils.TestCase):
     def setUp(self):
         super(TestClientManager, self).setUp()
@@ -59,12 +66,13 @@ class TestClientManager(utils.TestCase):
         clientmanager.ClientManager.identity = \
             clientmanager.ClientCache(FakeMakeClient)
 
-    def test_client_manager_token(self):
+    def test_client_manager_token(self, mock):
 
         client_manager = clientmanager.ClientManager(
             token=AUTH_TOKEN,
             url=AUTH_URL,
             verify=True,
+            api_version=API_VERSION,
         )
 
         self.assertEqual(
@@ -76,19 +84,20 @@ class TestClientManager(utils.TestCase):
             client_manager._url,
         )
         self.assertIsInstance(
-            client_manager.session,
-            restapi.RESTApi,
+            client_manager.auth,
+            auth_v2.Token,
         )
         self.assertFalse(client_manager._insecure)
         self.assertTrue(client_manager._verify)
 
-    def test_client_manager_password(self):
+    def test_client_manager_password(self, mock):
 
         client_manager = clientmanager.ClientManager(
             auth_url=AUTH_URL,
             username=USERNAME,
             password=PASSWORD,
             verify=False,
+            api_version=API_VERSION,
         )
 
         self.assertEqual(
@@ -104,33 +113,20 @@ class TestClientManager(utils.TestCase):
             client_manager._password,
         )
         self.assertIsInstance(
-            client_manager.session,
-            restapi.RESTApi,
+            client_manager.auth,
+            auth_v2.Password,
         )
         self.assertTrue(client_manager._insecure)
         self.assertFalse(client_manager._verify)
 
-        # These need to stick around until the old-style clients are gone
-        self.assertEqual(
-            AUTH_REF,
-            client_manager.auth_ref,
-        )
-        self.assertEqual(
-            AUTH_TOKEN,
-            client_manager._token,
-        )
-        self.assertEqual(
-            SERVICE_CATALOG,
-            client_manager._service_catalog,
-        )
-
-    def test_client_manager_password_verify_ca(self):
+    def test_client_manager_password_verify_ca(self, mock):
 
         client_manager = clientmanager.ClientManager(
             auth_url=AUTH_URL,
             username=USERNAME,
             password=PASSWORD,
             verify='cafile',
+            api_version=API_VERSION,
         )
 
         self.assertFalse(client_manager._insecure)

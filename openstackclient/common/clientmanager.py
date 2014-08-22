@@ -19,7 +19,9 @@ import logging
 import pkg_resources
 import sys
 
-from openstackclient.common import restapi
+from keystoneclient.auth.identity import v2 as v2_auth
+from keystoneclient.auth.identity import v3 as v3_auth
+from keystoneclient import session
 from openstackclient.identity import client as identity_client
 
 
@@ -80,24 +82,68 @@ class ClientManager(object):
             self._cacert = verify
             self._insecure = False
 
-        self.session = restapi.RESTApi(
-            verify=verify,
-            debug=True,
-        )
+        ver_prefix = identity_client.AUTH_VERSIONS[
+            self._api_version[identity_client.API_NAME]
+        ]
 
         # Get logging from root logger
         root_logger = logging.getLogger('')
         LOG.setLevel(root_logger.getEffectiveLevel())
-        restapi_logger = logging.getLogger('restapi')
-        restapi_logger.setLevel(root_logger.getEffectiveLevel())
+
+        # NOTE(dtroyer): These plugins are hard-coded for the first step
+        #                in using the new Keystone auth plugins.
+
+        if self._url:
+            LOG.debug('Using token auth %s', ver_prefix)
+            if ver_prefix == 'v2':
+                self.auth = v2_auth.Token(
+                    auth_url=url,
+                    token=token,
+                )
+            else:
+                self.auth = v3_auth.Token(
+                    auth_url=url,
+                    token=token,
+                )
+        else:
+            LOG.debug('Using password auth %s', ver_prefix)
+            if ver_prefix == 'v2':
+                self.auth = v2_auth.Password(
+                    auth_url=auth_url,
+                    username=username,
+                    password=password,
+                    trust_id=trust_id,
+                    tenant_id=project_id,
+                    tenant_name=project_name,
+                )
+            else:
+                self.auth = v3_auth.Password(
+                    auth_url=auth_url,
+                    username=username,
+                    password=password,
+                    trust_id=trust_id,
+                    user_domain_id=user_domain_id,
+                    user_domain_name=user_domain_name,
+                    domain_id=domain_id,
+                    domain_name=domain_name,
+                    project_id=project_id,
+                    project_name=project_name,
+                    project_domain_id=project_domain_id,
+                    project_domain_name=project_domain_name,
+                )
+
+        self.session = session.Session(
+            auth=self.auth,
+            verify=verify,
+        )
 
         self.auth_ref = None
-
         if not self._url:
+            # Trigger the auth call
+            self.auth_ref = self.session.auth.get_auth_ref(self.session)
             # Populate other password flow attributes
-            self.auth_ref = self.identity.auth_ref
-            self._token = self.identity.auth_token
-            self._service_catalog = self.identity.service_catalog
+            self._token = self.session.auth.get_token(self.session)
+            self._service_catalog = self.auth_ref.service_catalog
 
         return
 

@@ -32,7 +32,7 @@ def create_object(
 ):
     """Create an object, upload it to a container
 
-    :param session: a restapi object
+    :param session: an authenticated keystoneclient.session.Session object
     :param url: endpoint
     :param container: name of container to store object
     :param object: local path to object
@@ -61,7 +61,7 @@ def delete_object(
 ):
     """Delete an object stored in a container
 
-    :param session: a restapi object
+    :param session: an authenticated keystoneclient.session.Session object
     :param url: endpoint
     :param container: name of container that stores object
     :param container: name of object to delete
@@ -84,7 +84,7 @@ def list_objects(
 ):
     """Get objects in a container
 
-    :param session: a restapi object
+    :param session: an authenticated keystoneclient.session.Session object
     :param url: endpoint
     :param container: container name to get a listing for
     :param marker: marker query
@@ -158,7 +158,7 @@ def show_object(
 ):
     """Get object details
 
-    :param session: a restapi object
+    :param session: an authenticated keystoneclient.session.Session object
     :param url: endpoint
     :param container: container name to get a listing for
     :returns: dict of object properties

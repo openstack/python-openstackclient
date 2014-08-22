@@ -13,6 +13,8 @@
 #   under the License.
 #
 
+import mock
+
 from openstackclient.identity.v2_0 import token
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
 
@@ -23,8 +25,9 @@ class TestToken(identity_fakes.TestIdentityv2):
         super(TestToken, self).setUp()
 
         # Get a shortcut to the Service Catalog Mock
-        self.sc_mock = self.app.client_manager.identity.service_catalog
-        self.sc_mock.reset_mock()
+        self.sc_mock = mock.Mock()
+        self.app.client_manager.auth_ref = mock.Mock()
+        self.app.client_manager.auth_ref.service_catalog = self.sc_mock
 
 
 class TestTokenIssue(TestToken):
