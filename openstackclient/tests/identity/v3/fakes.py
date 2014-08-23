@@ -77,6 +77,20 @@ SERVICE = {
     'enabled': True,
 }
 
+endpoint_id = 'e-123'
+endpoint_url = 'http://127.0.0.1:35357'
+endpoint_region = 'RegionOne'
+endpoint_interface = 'admin'
+
+ENDPOINT = {
+    'id': endpoint_id,
+    'url': endpoint_url,
+    'region': endpoint_region,
+    'interface': endpoint_interface,
+    'service_id': service_id,
+    'enabled': True,
+}
+
 user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
 user_name = 'paul'
 user_description = 'Sir Paul'
@@ -185,6 +199,8 @@ class FakeIdentityv3Client(object):
     def __init__(self, **kwargs):
         self.domains = mock.Mock()
         self.domains.resource_class = fakes.FakeResource(None, {})
+        self.endpoints = mock.Mock()
+        self.endpoints.resource_class = fakes.FakeResource(None, {})
         self.groups = mock.Mock()
         self.groups.resource_class = fakes.FakeResource(None, {})
         self.oauth1 = mock.Mock()

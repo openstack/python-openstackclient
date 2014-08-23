@@ -165,13 +165,12 @@ class SetEndpoint(command.Command):
             '--enable',
             dest='enabled',
             action='store_true',
-            default=True,
             help='Enable endpoint',
         )
         enable_group.add_argument(
             '--disable',
-            dest='enabled',
-            action='store_false',
+            dest='disabled',
+            action='store_true',
             help='Disable endpoint',
         )
         return parser
@@ -183,7 +182,8 @@ class SetEndpoint(command.Command):
                                        parsed_args.endpoint)
 
         if (not parsed_args.interface and not parsed_args.url
-                and not parsed_args.service and not parsed_args.region):
+                and not parsed_args.service and not parsed_args.region
+                and not parsed_args.enabled and not parsed_args.disabled):
             sys.stdout.write("Endpoint not updated, no arguments present")
             return
 
@@ -192,13 +192,19 @@ class SetEndpoint(command.Command):
             service = common.find_service(identity_client, parsed_args.service)
             service_id = service.id
 
+        enabled = None
+        if parsed_args.enabled:
+            enabled = True
+        if parsed_args.disabled:
+            enabled = False
+
         identity_client.endpoints.update(
             endpoint.id,
             service=service_id,
             url=parsed_args.url,
             interface=parsed_args.interface,
             region=parsed_args.region,
-            enabled=parsed_args.enabled
+            enabled=enabled
         )
 
         return
