@@ -300,19 +300,22 @@ class CreateServer(show.ShowOne):
                 raise exceptions.CommandError("Can't open '%s': %s" % (src, e))
 
         if parsed_args.min > parsed_args.max:
-            raise exceptions.CommandError("min instances should be <= "
-                                          "max instances")
+            msg = "min instances should be <= max instances"
+            raise exceptions.CommandError(msg)
         if parsed_args.min < 1:
-            raise exceptions.CommandError("min instances should be > 0")
+            msg = "min instances should be > 0"
+            raise exceptions.CommandError(msg)
         if parsed_args.max < 1:
-            raise exceptions.CommandError("max instances should be > 0")
+            msg = "max instances should be > 0"
+            raise exceptions.CommandError(msg)
 
         userdata = None
         if parsed_args.user_data:
             try:
                 userdata = open(parsed_args.user_data)
             except IOError as e:
-                raise exceptions.CommandError("Can't open '%s': %s" %
+                msg = "Can't open '%s': %s"
+                raise exceptions.CommandError(msg %
                                               (parsed_args.user_data, e))
 
         block_device_mapping = dict(v.split('=', 1)
@@ -1082,8 +1085,8 @@ class SetServer(command.Command):
             if p1 == p2:
                 server.change_password(p1)
             else:
-                raise exceptions.CommandError(
-                    "Passwords do not match, password unchanged")
+                msg = "Passwords do not match, password unchanged"
+                raise exceptions.CommandError(msg)
 
 
 class ShowServer(show.ShowOne):

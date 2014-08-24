@@ -57,8 +57,9 @@ class CreateKeypair(show.ShowOne):
                 with open(os.path.expanduser(parsed_args.public_key)) as p:
                     public_key = p.read()
             except IOError as e:
-                raise exceptions.CommandError(
-                    "Key file %s not found: %s" % (parsed_args.public_key, e))
+                msg = "Key file %s not found: %s"
+                raise exceptions.CommandError(msg
+                                              % (parsed_args.public_key, e))
 
         keypair = compute_client.keypairs.create(
             parsed_args.name,
