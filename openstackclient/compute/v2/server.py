@@ -175,7 +175,7 @@ class AddServerSecurityGroup(command.Command):
             parsed_args.group,
         )
 
-        server.add_security_group(security_group)
+        server.add_security_group(security_group.name)
         return
 
 
