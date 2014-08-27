@@ -23,6 +23,7 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
+from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
 from novaclient.v1_1 import security_group_rules
 from openstackclient.common import parseractions
 from openstackclient.common import utils
@@ -150,10 +151,15 @@ class ListSecurityGroup(lister.Lister):
         search = {'all_tenants': parsed_args.all_projects}
         data = compute_client.security_groups.list(search_opts=search)
 
-        projects = self.app.client_manager.identity.projects.list()
         project_hash = {}
-        for project in projects:
-            project_hash[project.id] = project
+        try:
+            projects = self.app.client_manager.identity.projects.list()
+        except ksc_exc.Forbidden:
+            # This fails when the user is not an admin, just move along
+            pass
+        else:
+            for project in projects:
+                project_hash[project.id] = project
 
         return (column_headers,
                 (utils.get_item_properties(
