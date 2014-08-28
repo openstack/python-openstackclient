@@ -86,3 +86,20 @@ class TestCommandManager(utils.TestCase):
 
         gl = mgr.get_command_groups()
         self.assertEqual(['test', 'greek'], gl)
+
+    def test_get_command_names(self):
+        mock_cmd_one = mock.Mock()
+        mock_cmd_one.name = 'one'
+        mock_cmd_two = mock.Mock()
+        mock_cmd_two.name = 'cmd two'
+        mock_pkg_resources = mock.Mock(
+            return_value=[mock_cmd_one, mock_cmd_two],
+        )
+        with mock.patch(
+            'pkg_resources.iter_entry_points',
+            mock_pkg_resources,
+        ) as iter_entry_points:
+            mgr = commandmanager.CommandManager('test')
+            assert iter_entry_points.called_once_with('test')
+            cmds = mgr.get_command_names('test')
+            self.assertEqual(['one', 'cmd two'], cmds)

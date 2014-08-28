@@ -19,7 +19,23 @@ import logging
 import six
 import sys
 
+from cliff import lister
 from cliff import show
+
+
+class ListCommand(lister.Lister):
+    """List recognized commands by group"""
+
+    auth_required = False
+    log = logging.getLogger(__name__ + '.ListCommand')
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)', parsed_args)
+        cm = self.app.command_manager
+        groups = cm.get_command_groups()
+
+        columns = ('Command Group', 'Commands')
+        return (columns, ((c, cm.get_command_names(group=c)) for c in groups))
 
 
 class ListModule(show.ShowOne):
