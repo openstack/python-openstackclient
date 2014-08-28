@@ -70,6 +70,27 @@ def make_client(instance):
     return client
 
 
+def build_option_parser(parser):
+    """Hook to add global options"""
+    parser.add_argument(
+        '--os-identity-api-version',
+        metavar='<identity-api-version>',
+        default=utils.env(
+            'OS_IDENTITY_API_VERSION',
+            default=DEFAULT_IDENTITY_API_VERSION),
+        help='Identity API version, default=' +
+             DEFAULT_IDENTITY_API_VERSION +
+             ' (Env: OS_IDENTITY_API_VERSION)')
+    parser.add_argument(
+        '--os-trust-id',
+        metavar='<trust-id>',
+        default=utils.env('OS_TRUST_ID'),
+        help='Trust ID to use when authenticating. '
+             'This can only be used with Keystone v3 API '
+             '(Env: OS_TRUST_ID)')
+    return parser
+
+
 class IdentityClientv2_0(identity_client_v2_0.Client):
     """Tweak the earlier client class to deal with some changes"""
     def __getattr__(self, name):
