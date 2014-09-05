@@ -13,14 +13,15 @@
 
 """Test Timing pseudo-command"""
 
+import datetime
+
 from openstackclient.common import timing
 from openstackclient.tests import fakes
 from openstackclient.tests import utils
 
 
 timing_url = 'GET http://localhost:5000'
-timing_start = 1404802774.872809
-timing_end = 1404802775.724802
+timing_elapsed = 0.872809
 
 
 class FakeGenericClient(object):
@@ -66,9 +67,10 @@ class TestTiming(utils.TestCommand):
         self.assertEqual(datalist, data)
 
     def test_timing_list(self):
-        self.app.timing_data = [
-            (timing_url, timing_start, timing_end),
-        ]
+        self.app.timing_data = [(
+            timing_url,
+            datetime.timedelta(microseconds=timing_elapsed*1000000),
+        )]
 
         arglist = []
         verifylist = []
@@ -79,9 +81,8 @@ class TestTiming(utils.TestCommand):
 
         collist = ('URL', 'Seconds')
         self.assertEqual(collist, columns)
-        timing_sec = timing_end - timing_start
         datalist = [
-            (timing_url, timing_sec),
-            ('Total', timing_sec)
+            (timing_url, timing_elapsed),
+            ('Total', timing_elapsed),
         ]
         self.assertEqual(datalist, data)
