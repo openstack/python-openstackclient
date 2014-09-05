@@ -21,6 +21,8 @@ try:
 except ImportError:
     from urlparse import urlparse  # noqa
 
+from openstackclient.object.v1.lib import object as object_lib
+
 
 def create_container(
     session,
@@ -118,6 +120,23 @@ def list_containers(
     if prefix:
         params['prefix'] = prefix
     return session.get(url, params=params).json()
+
+
+def save_container(
+    session,
+    url,
+    container
+):
+    """Save all the content from a container
+
+    :param session: an authenticated keystoneclient.session.Session object
+    :param url: endpoint
+    :param container: name of container to save
+    """
+
+    objects = object_lib.list_objects(session, url, container)
+    for object in objects:
+        object_lib.save_object(session, url, container, object['name'])
 
 
 def show_container(
