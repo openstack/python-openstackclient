@@ -150,6 +150,32 @@ def list_objects(
     return session.get(requrl, params=params).json()
 
 
+def save_object(
+    session,
+    url,
+    container,
+    obj,
+    file=None
+):
+    """Save an object stored in a container
+
+    :param session: an authenticated keystoneclient.session.Session object
+    :param url: endpoint
+    :param container: name of container that stores object
+    :param object: name of object to save
+    :param file: local name of object
+    """
+
+    if not file:
+        file = obj
+
+    response = session.get("%s/%s/%s" % (url, container, obj), stream=True)
+    if response.status_code == 200:
+        with open(file, 'wb') as f:
+            for chunk in response.iter_content():
+                f.write(chunk)
+
+
 def show_object(
     session,
     url,

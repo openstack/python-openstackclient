@@ -183,6 +183,42 @@ class ListObject(lister.Lister):
                 ) for s in data))
 
 
+class SaveObject(command.Command):
+    """Save an object locally"""
+
+    log = logging.getLogger(__name__ + ".SaveObject")
+
+    def get_parser(self, prog_name):
+        parser = super(SaveObject, self).get_parser(prog_name)
+        parser.add_argument(
+            "--file",
+            metavar="<filename>",
+            help="Downloaded object filename [defaults to object name]",
+        )
+        parser.add_argument(
+            'container',
+            metavar='<container>',
+            help='Container name that has the object',
+        )
+        parser.add_argument(
+            "object",
+            metavar="<object>",
+            help="Name of the object to save",
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)", parsed_args)
+
+        lib_object.save_object(
+            self.app.client_manager.session,
+            self.app.client_manager.object_store.endpoint,
+            parsed_args.container,
+            parsed_args.object,
+            parsed_args.file,
+        )
+
+
 class ShowObject(show.ShowOne):
     """Show object information"""
 
