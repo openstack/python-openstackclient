@@ -34,7 +34,6 @@ from openstackclient.common import exceptions as exc
 from openstackclient.common import restapi
 from openstackclient.common import timing
 from openstackclient.common import utils
-from openstackclient.identity import client as identity_client
 
 
 KEYRING_SERVICE = 'openstack'
@@ -76,6 +75,8 @@ class OpenStackShell(app.App):
             version=openstackclient.__version__,
             command_manager=commandmanager.CommandManager('openstack.cli'))
 
+        self.api_version = {}
+
         # Until we have command line arguments parsed, dump any stack traces
         self.dump_stack_trace = True
 
@@ -86,10 +87,14 @@ class OpenStackShell(app.App):
         # Assume TLS host certificate verification is enabled
         self.verify = True
 
-        # Get list of extension modules
+        # Get list of base modules
         self.ext_modules = clientmanager.get_extension_modules(
-            'openstack.cli.extension',
+            'openstack.cli.base',
         )
+        # Append list of extension modules
+        self.ext_modules.extend(clientmanager.get_extension_modules(
+            'openstack.cli.extension',
+        ))
 
         # Loop through extensions to get parser additions
         for mod in self.ext_modules:
@@ -312,23 +317,6 @@ class OpenStackShell(app.App):
             help="Print API call timing info",
         )
 
-        parser.add_argument(
-            '--os-identity-api-version',
-            metavar='<identity-api-version>',
-            default=env(
-                'OS_IDENTITY_API_VERSION',
-                default=identity_client.DEFAULT_IDENTITY_API_VERSION),
-            help='Identity API version, default=' +
-                 identity_client.DEFAULT_IDENTITY_API_VERSION +
-                 ' (Env: OS_IDENTITY_API_VERSION)')
-        parser.add_argument(
-            '--os-trust-id',
-            metavar='<trust-id>',
-            default=utils.env('OS_TRUST_ID'),
-            help='Trust ID to use when authenticating. '
-                 'This can only be used with Keystone v3 API '
-                 '(Env: OS_TRUST_ID)')
-
         return parser
 
     def authenticate_user(self):
@@ -437,24 +425,19 @@ class OpenStackShell(app.App):
         # Save default domain
         self.default_domain = self.options.os_default_domain
 
-        # Stash selected API versions for later
-        self.api_version = {
-            'identity': self.options.os_identity_api_version,
-        }
         # Loop through extensions to get API versions
         for mod in self.ext_modules:
-            ver = getattr(self.options, mod.API_VERSION_OPTION, None)
-            if ver:
-                self.api_version[mod.API_NAME] = ver
-                self.log.debug('%(name)s API version %(version)s',
-                               {'name': mod.API_NAME, 'version': ver})
-
-        # Add the API version-specific commands
-        for api in self.api_version.keys():
-            version = '.v' + self.api_version[api].replace('.', '_')
-            cmd_group = 'openstack.' + api.replace('-', '_') + version
-            self.log.debug('command group %s', cmd_group)
-            self.command_manager.add_command_group(cmd_group)
+            version_opt = getattr(self.options, mod.API_VERSION_OPTION, None)
+            if version_opt:
+                api = mod.API_NAME
+                self.api_version[api] = version_opt
+                version = '.v' + version_opt.replace('.', '_')
+                cmd_group = 'openstack.' + api.replace('-', '_') + version
+                self.command_manager.add_command_group(cmd_group)
+                self.log.debug(
+                    '%(name)s API version %(version)s, cmd group %(group)s',
+                    {'name': api, 'version': version_opt, 'group': cmd_group}
+                )
 
         # Commands that span multiple APIs
         self.command_manager.add_command_group(
