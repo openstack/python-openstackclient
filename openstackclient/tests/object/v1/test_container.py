@@ -77,7 +77,7 @@ class TestContainerList(TestObject):
         kwargs = {
         }
         c_mock.assert_called_with(
-            self.app.restapi,
+            self.app.client_manager.session,
             AUTH_URL,
             **kwargs
         )
@@ -113,7 +113,7 @@ class TestContainerList(TestObject):
             'prefix': 'bit',
         }
         c_mock.assert_called_with(
-            self.app.restapi,
+            self.app.client_manager.session,
             AUTH_URL,
             **kwargs
         )
@@ -148,7 +148,7 @@ class TestContainerList(TestObject):
             'marker': object_fakes.container_name,
         }
         c_mock.assert_called_with(
-            self.app.restapi,
+            self.app.client_manager.session,
             AUTH_URL,
             **kwargs
         )
@@ -183,7 +183,7 @@ class TestContainerList(TestObject):
             'end_marker': object_fakes.container_name_3,
         }
         c_mock.assert_called_with(
-            self.app.restapi,
+            self.app.client_manager.session,
             AUTH_URL,
             **kwargs
         )
@@ -218,7 +218,7 @@ class TestContainerList(TestObject):
             'limit': 2,
         }
         c_mock.assert_called_with(
-            self.app.restapi,
+            self.app.client_manager.session,
             AUTH_URL,
             **kwargs
         )
@@ -252,7 +252,7 @@ class TestContainerList(TestObject):
         kwargs = {
         }
         c_mock.assert_called_with(
-            self.app.restapi,
+            self.app.client_manager.session,
             AUTH_URL,
             **kwargs
         )
@@ -296,7 +296,7 @@ class TestContainerList(TestObject):
             'full_listing': True,
         }
         c_mock.assert_called_with(
-            self.app.restapi,
+            self.app.client_manager.session,
             AUTH_URL,
             **kwargs
         )
@@ -341,7 +341,7 @@ class TestContainerShow(TestObject):
         }
         # lib.container.show_container(api, url, container)
         c_mock.assert_called_with(
-            self.app.restapi,
+            self.app.client_manager.session,
             AUTH_URL,
             object_fakes.container_name,
             **kwargs

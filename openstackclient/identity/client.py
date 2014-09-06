@@ -66,7 +66,17 @@ def make_client(instance):
             insecure=instance._insecure,
             trust_id=instance._trust_id,
         )
+
+        # TODO(dtroyer): the identity v2 role commands use this yet, fix that
+        #                so we can remove it
         instance.auth_ref = client.auth_ref
+
+        # NOTE(dtroyer): this is hanging around until restapi is replace by
+        #                ksc session
+        instance.session.set_auth(
+            client.auth_ref.auth_token,
+        )
+
     return client
 
 

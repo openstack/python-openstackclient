@@ -25,14 +25,14 @@ except ImportError:
 
 
 def create_object(
-    api,
+    session,
     url,
     container,
     object,
 ):
     """Create an object, upload it to a container
 
-    :param api: a restapi object
+    :param session: a restapi object
     :param url: endpoint
     :param container: name of container to store object
     :param object: local path to object
@@ -40,38 +40,38 @@ def create_object(
     """
 
     full_url = "%s/%s/%s" % (url, container, object)
-    response = api.put(full_url, data=open(object))
+    response = session.put(full_url, data=open(object))
     url_parts = urlparse(url)
     data = {
         'account': url_parts.path.split('/')[-1],
         'container': container,
         'object': object,
+        'x-trans-id': response.headers.get('X-Trans-Id', None),
+        'etag': response.headers.get('Etag', None),
     }
-    data['x-trans-id'] = response.headers.get('X-Trans-Id', None)
-    data['etag'] = response.headers.get('Etag', None)
 
     return data
 
 
 def delete_object(
-    api,
+    session,
     url,
     container,
     object,
 ):
     """Delete an object stored in a container
 
-    :param api: a restapi object
+    :param session: a restapi object
     :param url: endpoint
     :param container: name of container that stores object
     :param container: name of object to delete
     """
 
-    api.delete("%s/%s/%s" % (url, container, object))
+    session.delete("%s/%s/%s" % (url, container, object))
 
 
 def list_objects(
-    api,
+    session,
     url,
     container,
     marker=None,
@@ -84,7 +84,7 @@ def list_objects(
 ):
     """Get objects in a container
 
-    :param api: a restapi object
+    :param session: a restapi object
     :param url: endpoint
     :param container: container name to get a listing for
     :param marker: marker query
@@ -101,7 +101,7 @@ def list_objects(
 
     if full_listing:
         data = listing = list_objects(
-            api,
+            session,
             url,
             container,
             marker,
@@ -117,7 +117,7 @@ def list_objects(
             else:
                 marker = listing[-1]['name']
             listing = list_objects(
-                api,
+                session,
                 url,
                 container,
                 marker,
@@ -131,7 +131,6 @@ def list_objects(
                 data.extend(listing)
         return data
 
-    object_url = url
     params = {
         'format': 'json',
     }
@@ -147,32 +146,31 @@ def list_objects(
         params['prefix'] = prefix
     if path:
         params['path'] = path
-    url = "%s/%s" % (object_url, container)
-    return api.list(url, params=params)
+    requrl = "%s/%s" % (url, container)
+    return session.get(requrl, params=params).json()
 
 
 def show_object(
-    api,
+    session,
     url,
     container,
     obj,
 ):
     """Get object details
 
-    :param api: a restapi object
+    :param session: a restapi object
     :param url: endpoint
     :param container: container name to get a listing for
     :returns: dict of object properties
     """
 
-    response = api.head("%s/%s/%s" % (url, container, obj))
-    url_parts = urlparse(url)
+    response = session.head("%s/%s/%s" % (url, container, obj))
     data = {
-        'account': url_parts.path.split('/')[-1],
+        'account': response.headers.get('x-container-meta-owner', None),
         'container': container,
         'object': obj,
+        'content-type': response.headers.get('content-type', None),
     }
-    data['content-type'] = response.headers.get('content-type', None)
     if 'content-length' in response.headers:
         data['content-length'] = response.headers.get('content-length', None)
     if 'last-modified' in response.headers:
@@ -184,10 +182,10 @@ def show_object(
             'x-object-manifest', None)
     for key, value in six.iteritems(response.headers):
         if key.startswith('x-object-meta-'):
-            data[key[len('x-object-meta-'):].title()] = value
+            data[key[len('x-object-meta-'):].lower()] = value
         elif key not in (
                 'content-type', 'content-length', 'last-modified',
-                'etag', 'date', 'x-object-manifest'):
-            data[key.title()] = value
+                'etag', 'date', 'x-object-manifest', 'x-container-meta-owner'):
+            data[key.lower()] = value
 
     return data

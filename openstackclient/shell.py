@@ -31,7 +31,6 @@ import openstackclient
 from openstackclient.common import clientmanager
 from openstackclient.common import commandmanager
 from openstackclient.common import exceptions as exc
-from openstackclient.common import restapi
 from openstackclient.common import timing
 from openstackclient.common import utils
 
@@ -467,10 +466,6 @@ class OpenStackShell(app.App):
             self.verify = self.options.os_cacert
         else:
             self.verify = not self.options.insecure
-        self.restapi = restapi.RESTApi(
-            verify=self.verify,
-            debug=self.options.debug,
-        )
 
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""
@@ -481,12 +476,10 @@ class OpenStackShell(app.App):
         if cmd.best_effort:
             try:
                 self.authenticate_user()
-                self.restapi.set_auth(self.client_manager.identity.auth_token)
             except Exception:
                 pass
         else:
             self.authenticate_user()
-            self.restapi.set_auth(self.client_manager.identity.auth_token)
         return
 
     def clean_up(self, cmd, result, err):
@@ -522,7 +515,6 @@ class OpenStackShell(app.App):
         # NOTE(dtroyer): Maintain the old behaviour for interactive use as
         #                this path does not call prepare_to_run_command()
         self.authenticate_user()
-        self.restapi.set_auth(self.client_manager.identity.auth_token)
         super(OpenStackShell, self).interact()
 
 

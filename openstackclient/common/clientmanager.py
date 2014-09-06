@@ -19,6 +19,7 @@ import logging
 import pkg_resources
 import sys
 
+from openstackclient.common import restapi
 from openstackclient.identity import client as identity_client
 
 
@@ -77,7 +78,18 @@ class ClientManager(object):
             self._insecure = not verify
         else:
             self._cacert = verify
-            self._insecure = True
+            self._insecure = False
+
+        self.session = restapi.RESTApi(
+            verify=verify,
+            debug=True,
+        )
+
+        # Get logging from root logger
+        root_logger = logging.getLogger('')
+        LOG.setLevel(root_logger.getEffectiveLevel())
+        restapi_logger = logging.getLogger('restapi')
+        restapi_logger.setLevel(root_logger.getEffectiveLevel())
 
         self.auth_ref = None
 
