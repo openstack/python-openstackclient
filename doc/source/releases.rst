@@ -2,6 +2,51 @@
 Release Notes
 =============
 
+0.4.1 (08 Sep 2014)
+===================
+
+* Bug 1319381_: remove insecure keyring support
+* Bug 1317478_: fix ``project create`` for domain admin
+* Bug 1317485_: fix ``project list`` for domain admins
+* Bug 1281888_: add region filter to ``endpoint list`` command
+* Bug 1337245_: add ``user password set`` command
+* Bug 1337684_: add ``extension list --compute``
+* Bug 1337687_: add ``extension list --volume``
+* Bug 1343658_: fix ``container list`` command
+* Bug 1343659_: add network command help text
+* Bug 1348475_: add fields to ``image list`` output
+* Bug 1351121_: v3 ``endpoint set`` should not require service option
+* Bug 1352119_: v2 ``user create`` response error
+* Bug 1353788_: test_file_resource() failure
+* Bug 1364540_: load_keyring() exception fixed in bug 1319381_
+* Bug 1365505_: domain information not in help output
+* fix ``security group list`` for non-admin
+* fix ``server add security group``
+* add ``container create`` and ``container delete`` commands
+* add ``object create`` and ``object delete`` commands
+* add initial support for global ``--timing`` options (similar to nova CLI)
+* complete Python 3 compatibility
+* fix ``server resize` command
+* add authentication via ``--os-trust-id`` for Identity v3
+* Add initial support for Network API, ``network create|delete|list|show``
+
+.. _1319381: https://bugs.launchpad.net/bugs/1319381
+.. _1317478: https://bugs.launchpad.net/bugs/1317478
+.. _1317485: https://bugs.launchpad.net/bugs/1317485
+.. _1281888: https://bugs.launchpad.net/bugs/1281888
+.. _1337245: https://bugs.launchpad.net/bugs/1337245
+.. _1337684: https://bugs.launchpad.net/bugs/1337684
+.. _1337687: https://bugs.launchpad.net/bugs/1337687
+.. _1343658: https://bugs.launchpad.net/bugs/1343658
+.. _1343659: https://bugs.launchpad.net/bugs/1343659
+.. _1348475: https://bugs.launchpad.net/bugs/1348475
+.. _1351121: https://bugs.launchpad.net/bugs/1351121
+.. _1352119: https://bugs.launchpad.net/bugs/1352119
+.. _1353788: https://bugs.launchpad.net/bugs/1353788
+.. _1364540: https://bugs.launchpad.net/bugs/1364540
+.. _1365505: https://bugs.launchpad.net/bugs/1365505
+
+
 0.4.0 (20 Jun 2014)
 ===================
 

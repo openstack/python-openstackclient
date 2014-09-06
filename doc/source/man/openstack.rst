@@ -56,17 +56,23 @@ OPTIONS
 :option:`--os-username` <auth-username>
     Authentication username
 
-:option:`--os-user-domain-name` <auth-user-domain-name> | :option:`--os-user-domain-id` <auth-user-domain-id>
-    Domain name or id containing user
-
 :option:`--os-password` <auth-password>
     Authentication password
 
-:option:`--os-region-name` <auth-region-name>
-    Authentication region name
+:option:`--os-user-domain-name` <auth-user-domain-name> | :option:`--os-user-domain-id` <auth-user-domain-id>
+    Domain name or id containing user
+
+:option:`--os-user-domain-name` <auth-user-domain-name> | :option:`--os-user-domain-id` <auth-user-domain-id>
+    Domain name or ID containing user
+
+:option:`--os-trust-id` <trust-id>
+    id of the trust to use as a trustee user
 
 :option:`--os-default-domain` <auth-domain>
     Default domain ID (Default: 'default')
+
+:option:`--os-region-name` <auth-region-name>
+    Authentication region name
 
 :option:`--os-cacert` <ca-bundle-file>
     CA certificate bundle file
@@ -80,9 +86,6 @@ OPTIONS
 :option:`--os-XXXX-api-version` <XXXX-api-version>
     Additional API version options will be available depending on the installed API libraries.
 
-:option:`--os-trust-id` <trust-id>
-    id of the trust to use as a trustee user
-
 COMMANDS
 ========
 
@@ -94,6 +97,11 @@ To get a description of a specific command::
 
     openstack help <command>
 
+Note that the set of commands shown will vary depending on the API versions
+that are in effect at that time.  For example, to force the display of the
+Identity v3 commands:
+
+    openstack --os-identity-api-version 3 --help
 
 :option:`complete`
     Print the bash completion functions for the current command set.
@@ -101,6 +109,25 @@ To get a description of a specific command::
 :option:`help <command>`
     Print help for an individual command
 
+Additional information on the OpenStackClient command structure and arguments
+is available in the `OpenStackClient Commands`_ wiki page.
+
+.. _`OpenStackClient Commands`: https://wiki.openstack.org/wiki/OpenStackClient/Commands
+
+Command Objects
+---------------
+
+The list of command objects is growing longer with the addition of OpenStack
+project support.  The object names may consist of multiple words to compose a
+unique name.  Occasionally when multiple APIs have a common name with common
+overlapping purposes there will be options to select which object to use, or
+the API resources will be merged, as in the ``quota`` object that has options
+referring to both Compute and Volume quotas.
+
+Command Actions
+---------------
+
+The actions used by OpenStackClient are defined with specific meaning to provide a consistent behavior for each object.  Some actions have logical opposite actions, and those pairs will always match for any object that uses them.
 
 NOTES
 =====
@@ -162,38 +189,29 @@ The following environment variables can be set to alter the behaviour of :progra
 :envvar:`OS_USERNAME`
     Authentication username
 
-:envvar:`OS_USER_DOMAIN_NAME`
-    Domain name or id containing user
-
 :envvar:`OS_PASSWORD`
     Authentication password
 
-:envvar:`OS_REGION_NAME`
-    Authentication region name
+:envvar:`OS_USER_DOMAIN_NAME`
+    Domain name or id containing user
+
+:envvar:`OS_TRUST_ID`
+    id of the trust to use as a trustee user
 
 :envvar:`OS_DEFAULT_DOMAIN`
     Default domain ID (Default: 'default')
 
+:envvar:`OS_REGION_NAME`
+    Authentication region name
+
 :envvar:`OS_CACERT`
     CA certificate bundle file
-
-:envvar:`OS_COMPUTE_API_VERSION`
-    Compute API version (Default: 2)
 
 :envvar:`OS_IDENTITY_API_VERSION`
     Identity API version (Default: 2.0)
 
-:envvar:`OS_IMAGE_API_VERSION`
-    Image API version (Default: 1)
-
-:envvar:`OS_VOLUME_API_VERSION`
-    Volume API version (Default: 1)
-
 :envvar:`OS_XXXX_API_VERSION`
     Additional API version options will be available depending on the installed API libraries.
-
-:envvar:`OS_TRUST_ID`
-    id of the trust to use as a trustee user
 
 BUGS
 ====
