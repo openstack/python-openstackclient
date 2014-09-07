@@ -101,7 +101,7 @@ class TestVolumeCreate(TestVolume):
             'status',
             'type',
         )
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             'detached',
             volume_fakes.volume_zone,
@@ -113,7 +113,7 @@ class TestVolumeCreate(TestVolume):
             '',
             volume_fakes.volume_type,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_volume_create_options(self):
         arglist = [
@@ -165,7 +165,7 @@ class TestVolumeCreate(TestVolume):
             'status',
             'type',
         )
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             'detached',
             volume_fakes.volume_zone,
@@ -177,7 +177,7 @@ class TestVolumeCreate(TestVolume):
             '',
             volume_fakes.volume_type,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_volume_create_user_project_id(self):
         # Return a project
@@ -240,7 +240,7 @@ class TestVolumeCreate(TestVolume):
             'status',
             'type',
         )
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             'detached',
             volume_fakes.volume_zone,
@@ -252,7 +252,7 @@ class TestVolumeCreate(TestVolume):
             '',
             volume_fakes.volume_type,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_volume_create_user_project_name(self):
         # Return a project
@@ -315,7 +315,7 @@ class TestVolumeCreate(TestVolume):
             'status',
             'type',
         )
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             'detached',
             volume_fakes.volume_zone,
@@ -327,7 +327,7 @@ class TestVolumeCreate(TestVolume):
             '',
             volume_fakes.volume_type,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_volume_create_properties(self):
         arglist = [
@@ -376,7 +376,7 @@ class TestVolumeCreate(TestVolume):
             'status',
             'type',
         )
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             'detached',
             volume_fakes.volume_zone,
@@ -388,4 +388,4 @@ class TestVolumeCreate(TestVolume):
             '',
             volume_fakes.volume_type,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
