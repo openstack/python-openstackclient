@@ -130,3 +130,15 @@ class TestFindResource(test_utils.TestCase):
                          str(result))
         self.manager.get.assert_called_with(self.name)
         self.manager.find.assert_called_with(name=self.name)
+
+    def test_format_dict(self):
+        expected = "a='b', c='d', e='f'"
+        self.assertEqual(expected,
+                         utils.format_dict({'a': 'b', 'c': 'd', 'e': 'f'}))
+        self.assertEqual(expected,
+                         utils.format_dict({'e': 'f', 'c': 'd', 'a': 'b'}))
+
+    def test_format_list(self):
+        expected = 'a, b, c'
+        self.assertEqual(expected, utils.format_list(['a', 'b', 'c']))
+        self.assertEqual(expected, utils.format_list(['c', 'b', 'a']))

@@ -77,7 +77,7 @@ def format_dict(data):
     """
 
     output = ""
-    for s in data:
+    for s in sorted(data):
         output = output + s + "='" + six.text_type(data[s]) + "', "
     return output[:-2]
 
@@ -89,7 +89,7 @@ def format_list(data):
     :rtype: a string formatted to a,b,c
     """
 
-    return ', '.join(data)
+    return ', '.join(sorted(data))
 
 
 def get_item_properties(item, fields, mixed_case_fields=[], formatters={}):
