@@ -19,10 +19,10 @@ import getpass
 import logging
 import os
 import six
-import sys
 import time
 
 from openstackclient.common import exceptions
+from openstackclient.openstack.common import importutils
 
 
 def find_resource(manager, name_or_id):
@@ -157,17 +157,6 @@ def env(*vars, **kwargs):
     return kwargs.get('default', '')
 
 
-def import_class(import_str):
-    """Returns a class from a string including module and class
-
-    :param import_str: a string representation of the class name
-    :rtype: the requested class
-    """
-    mod_str, _sep, class_str = import_str.rpartition('.')
-    __import__(mod_str)
-    return getattr(sys.modules[mod_str], class_str)
-
-
 def get_client_class(api_name, version, version_map):
     """Returns the client class for the requested API version
 
@@ -183,7 +172,7 @@ def get_client_class(api_name, version, version_map):
               (api_name, version, ', '.join(version_map.keys())))
         raise exceptions.UnsupportedVersion(msg)
 
-    return import_class(client_path)
+    return importutils.import_class(client_path)
 
 
 def wait_for_status(status_f,
