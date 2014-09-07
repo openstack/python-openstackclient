@@ -220,12 +220,15 @@ def get_effective_log_level():
     return min_log_lvl
 
 
-def get_password(stdin):
+def get_password(stdin, prompt=None, confirm=True):
+    message = prompt or "User Password:"
     if hasattr(stdin, 'isatty') and stdin.isatty():
         try:
             while True:
-                first_pass = getpass.getpass("User password: ")
-                second_pass = getpass.getpass("Repeat user password: ")
+                first_pass = getpass.getpass(message)
+                if not confirm:
+                    return first_pass
+                second_pass = getpass.getpass("Repeat " + message)
                 if first_pass == second_pass:
                     return first_pass
                 print("The passwords entered were not the same")

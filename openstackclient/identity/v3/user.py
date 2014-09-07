@@ -323,6 +323,35 @@ class SetUser(command.Command):
         return
 
 
+class SetPasswordUser(command.Command):
+    """Change current user password"""
+
+    log = logging.getLogger(__name__ + '.SetPasswordUser')
+
+    def get_parser(self, prog_name):
+        parser = super(SetPasswordUser, self).get_parser(prog_name)
+        parser.add_argument(
+            '--password',
+            metavar='<new-password>',
+            help='New user password'
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)', parsed_args)
+        identity_client = self.app.client_manager.identity
+
+        current_password = utils.get_password(
+            self.app.stdin, prompt="Current Password:", confirm=False)
+
+        password = parsed_args.password
+        if password is None:
+            password = utils.get_password(
+                self.app.stdin, prompt="New Password:")
+
+        identity_client.users.update_password(current_password, password)
+
+
 class ShowUser(show.ShowOne):
     """Show user details"""
 
