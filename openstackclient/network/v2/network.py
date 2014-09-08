@@ -43,13 +43,16 @@ class CreateNetwork(show.ShowOne):
             help='Name of network to create')
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
-            '--admin-state-up',
-            dest='admin_state', action='store_true',
-            default=True, help='Set Admin State Up')
+            '--enable',
+            dest='admin_state',
+            default=True,
+            action='store_true',
+            help='Set administrative state up')
         admin_group.add_argument(
-            '--admin-state-down',
-            dest='admin_state', action='store_false',
-            help='Set Admin State Down')
+            '--disable',
+            dest='admin_state',
+            action='store_false',
+            help='Set administrative state down')
         share_group = parser.add_mutually_exclusive_group()
         share_group.add_argument(
             '--share',
@@ -171,14 +174,16 @@ class SetNetwork(command.Command):
         )
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
-            '--admin-state-up',
-            dest='admin_state', action='store_true',
+            '--enable',
+            dest='admin_state',
             default=None,
-            help='Set Admin State Up')
+            action='store_true',
+            help='Set administrative state up')
         admin_group.add_argument(
-            '--admin-state-down',
-            dest='admin_state', action='store_false',
-            help='Set Admin State Down')
+            '--disable',
+            dest='admin_state',
+            action='store_false',
+            help='Set administrative state down')
         parser.add_argument(
             '--name',
             metavar='<network_name>',

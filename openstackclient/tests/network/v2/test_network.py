@@ -61,7 +61,7 @@ class TestCreateNetwork(common.TestNetworkBase):
 
     def test_create_all_options(self):
         arglist = [
-            "--admin-state-down",
+            "--disable",
             "--share",
             FAKE_NAME,
         ] + self.given_show_options
@@ -88,7 +88,7 @@ class TestCreateNetwork(common.TestNetworkBase):
 
     def test_create_other_options(self):
         arglist = [
-            "--admin-state-up",
+            "--enable",
             "--no-share",
             FAKE_NAME,
         ]
@@ -220,7 +220,7 @@ class TestSetNetwork(common.TestNetworkBase):
     def test_set_this(self):
         arglist = [
             FAKE_NAME,
-            '--admin-state-up',
+            '--enable',
             '--name', 'noob',
             '--share',
         ]
@@ -247,7 +247,7 @@ class TestSetNetwork(common.TestNetworkBase):
     def test_set_that(self):
         arglist = [
             FAKE_NAME,
-            '--admin-state-down',
+            '--disable',
             '--no-share',
         ]
         verifylist = [
