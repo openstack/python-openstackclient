@@ -62,6 +62,54 @@ They follow the same style as the global options and always appear between
 the command and any positional arguments the command requires.
 
 
+Objects
+-------
+
+The objects consist of one or more words to compose a unique name.
+Occasionally when multiple APIs have a common name with common
+overlapping purposes there will be options to select which object to use, or
+the API resources will be merged, as in the ``quota`` object that has options
+referring to both Compute and Volume quotas.
+
+* ``access token``: Identity - long-lived OAuth-based token
+* ``aggregate``: Compute - a grouping of servers
+* ``backup``: Volume - a volume copy
+* ``console log``: Compute - a text dump of a server's console
+* ``console url``: Compute - a URL to a server's remote console
+* ``consumer``: Identity - OAuth-based delegatee
+* ``container``: Object Store - a grouping of objects
+* ``credential``: Identity - specific to identity providers
+* ``domain``: Identity - a grouping of projects
+* ``endpoint``: Identity - the base URL used to contact a specific service
+* ``extension``: Compute, Identity, Volume - additional APIs available
+* ``flavor``: Compute - pre-defined configurations of servers: ram, root disk, etc
+* ``group``: Identity - a grouping of users
+* ``host``: Compute - the physical computer running a hypervisor
+* ``hypervisor``: Compute - the virtual machine manager
+* ``identity provider``: Identity - a source of users and authentication
+* ``image``: Image - a disk image
+* ``ip fixed``: Compute, Network - an internal IP address assigned to a server
+* ``ip floating``: Compute, Network - a public IP address that can be mapped to a server
+* ``keypair``: Compute - an SSH public key
+* ``limits``: Compute, Volume - resource usage limits
+* ``module``: internal - installed Python modules in the OSC process
+* ``network``: Network - a virtual network for connecting servers and other resources
+* ``object``: Object Store - a single file in the Object Store
+* ``policy``: Identity - determines authorization
+* ``project``: Identity - the owner of a group of resources
+* ``quota``: Compute, Volume - limit on resource usage
+* ``request token``: Identity - temporary OAuth-based token
+* ``role``: Identity - a policy object used to determine authorization
+* ``security group``: Compute, Network - groups of network access rules
+* ``security group rule``: Compute, Network - the individual rules that define protocol/IP/port access
+* ``server``: Compute - a virtual machine instance
+* ``service``: Identity - a cloud service
+* ``snapshot``: Volume - a point-in-time copy of a volume
+* ``token``: Identity - the magic text used to determine access
+* ``user``: Identity - individuals using cloud resources
+* ``volume``: Volume - block volumes
+* ``volume type``: Volume - deployment-specific types of volumes available
+
 Actions
 -------
 
@@ -103,7 +151,7 @@ Implementation
 
 The command structure is designed to support seamless addition of plugin
 command modules via ``setuptools`` entry points.  The plugin commands must
-be subclasses of Cliff's command.Command object.  See :doc:`plugins` for
+be subclasses of Cliff's ``command.Command`` object.  See :doc:`plugins` for
 more information.
 
 
@@ -117,7 +165,7 @@ supported.  For example, to support Identity API v3 there is a group called
 ``openstack.identity.v3`` that contains the individual commands.  The command
 entry points have the form::
 
-    verb_object = fully.qualified.module.vXX.object:VerbObject
+    action_object = fully.qualified.module.vXX.object:ActionObject
 
 For example, the ``list user`` command for the Identity API is identified in
 ``setup.cfg`` with::
