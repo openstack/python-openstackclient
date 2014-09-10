@@ -16,6 +16,8 @@
 
 """Object v1 API library"""
 
+import os
+
 import six
 
 try:
@@ -171,6 +173,8 @@ def save_object(
 
     response = session.get("%s/%s/%s" % (url, container, obj), stream=True)
     if response.status_code == 200:
+        if not os.path.exists(os.path.dirname(file)):
+            os.makedirs(os.path.dirname(file))
         with open(file, 'wb') as f:
             for chunk in response.iter_content():
                 f.write(chunk)
