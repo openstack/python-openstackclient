@@ -1,10 +1,13 @@
+# The order of packages is significant, because pip processes them in the order
+# of appearance. Changing the order has an impact on the overall integration
+# process, which may cause wedges in the gate later.
 cliff>=1.6.0
-oslo.i18n>=0.2.0  # Apache-2.0
+oslo.i18n>=0.3.0  # Apache-2.0
 pbr>=0.6,!=0.7,<1.0
-python-glanceclient>=0.13.1
+python-glanceclient>=0.14.0
 python-keystoneclient>=0.10.0
-python-novaclient>=2.17.0
+python-novaclient>=2.18.0
 python-cinderclient>=1.0.7
 python-neutronclient>=2.3.6,<3
-requests>=1.2.1
+requests>=1.2.1,!=2.4.0
 six>=1.7.0
