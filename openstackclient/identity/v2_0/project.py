@@ -22,6 +22,7 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
+from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 
@@ -238,11 +239,28 @@ class ShowProject(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
-        project = utils.find_resource(
-            identity_client.tenants,
-            parsed_args.project,
-        )
 
         info = {}
-        info.update(project._info)
+        try:
+            project = utils.find_resource(
+                identity_client.tenants,
+                parsed_args.project,
+            )
+            info.update(project._info)
+        except ksc_exc.Forbidden as e:
+            auth_ref = self.app.client_manager.auth_ref
+            if (
+                parsed_args.project == auth_ref.project_id or
+                parsed_args.project == auth_ref.project_name
+            ):
+                # Ask for currently auth'ed project so return it
+                info = {
+                    'id': auth_ref.project_id,
+                    'name': auth_ref.project_name,
+                    # True because we don't get this far if it is disabled
+                    'enabled': True,
+                }
+            else:
+                raise e
+
         return zip(*sorted(six.iteritems(info)))
