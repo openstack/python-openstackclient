@@ -29,6 +29,12 @@ API_VERSIONS = {
     '3': 'keystoneclient.v3.client.Client',
 }
 
+# Translate our API version to auth plugin version prefix
+AUTH_VERSIONS = {
+    '2.0': 'v2',
+    '3': 'v3',
+}
+
 
 def make_client(instance):
     """Returns an identity service client."""
@@ -38,6 +44,8 @@ def make_client(instance):
         API_VERSIONS)
     LOG.debug('Instantiating identity client: %s', identity_client)
 
+    # TODO(dtroyer): Something doesn't like the session.auth when using
+    #                token auth, chase that down.
     if instance._url:
         LOG.debug('Using token auth')
         client = identity_client(
@@ -50,32 +58,14 @@ def make_client(instance):
     else:
         LOG.debug('Using password auth')
         client = identity_client(
-            username=instance._username,
-            password=instance._password,
-            user_domain_id=instance._user_domain_id,
-            user_domain_name=instance._user_domain_name,
-            project_domain_id=instance._project_domain_id,
-            project_domain_name=instance._project_domain_name,
-            domain_id=instance._domain_id,
-            domain_name=instance._domain_name,
-            tenant_name=instance._project_name,
-            tenant_id=instance._project_id,
-            auth_url=instance._auth_url,
-            region_name=instance._region_name,
+            session=instance.session,
             cacert=instance._cacert,
-            insecure=instance._insecure,
-            trust_id=instance._trust_id,
         )
 
-        # TODO(dtroyer): the identity v2 role commands use this yet, fix that
-        #                so we can remove it
-        instance.auth_ref = client.auth_ref
-
-        # NOTE(dtroyer): this is hanging around until restapi is replace by
-        #                ksc session
-        instance.session.set_auth(
-            client.auth_ref.auth_token,
-        )
+    # TODO(dtroyer): the identity v2 role commands use this yet, fix that
+    #                so we can remove it
+    if not instance._url:
+        instance.auth_ref = instance.auth.get_auth_ref(instance.session)
 
     return client
 

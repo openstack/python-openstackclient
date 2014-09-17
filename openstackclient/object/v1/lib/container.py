@@ -29,7 +29,7 @@ def create_container(
 ):
     """Create a container
 
-    :param session: a restapi object
+    :param session: an authenticated keystoneclient.session.Session object
     :param url: endpoint
     :param container: name of container to create
     :returns: dict of returned headers
@@ -53,7 +53,7 @@ def delete_container(
 ):
     """Delete a container
 
-    :param session: a restapi object
+    :param session: an authenticated keystoneclient.session.Session object
     :param url: endpoint
     :param container: name of container to delete
     """
@@ -72,7 +72,7 @@ def list_containers(
 ):
     """Get containers in an account
 
-    :param session: a restapi object
+    :param session: an authenticated keystoneclient.session.Session object
     :param url: endpoint
     :param marker: marker query
     :param limit: limit query
@@ -127,7 +127,7 @@ def show_container(
 ):
     """Get container details
 
-    :param session: a restapi object
+    :param session: an authenticated keystoneclient.session.Session object
     :param url: endpoint
     :param container: name of container to show
     :returns: dict of returned headers
