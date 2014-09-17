@@ -64,12 +64,12 @@ class ListRoleAssignment(lister.Lister):
             help='Project to filter (name or ID)',
         )
         common.add_project_domain_option_to_parser(parser)
-
+        common.add_inherited_option_to_parser(parser)
         return parser
 
     def _as_tuple(self, assignment):
         return (assignment.role, assignment.user, assignment.group,
-                assignment.project, assignment.domain)
+                assignment.project, assignment.domain, assignment.inherited)
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
@@ -115,14 +115,17 @@ class ListRoleAssignment(lister.Lister):
 
         effective = True if parsed_args.effective else False
         self.log.debug('take_action(%s)' % parsed_args)
-        columns = ('Role', 'User', 'Group', 'Project', 'Domain')
+        columns = ('Role', 'User', 'Group', 'Project', 'Domain', 'Inherited')
+
+        inherited_to = 'projects' if parsed_args.inherited else None
         data = identity_client.role_assignments.list(
             domain=domain,
             user=user,
             group=group,
             project=project,
             role=role,
-            effective=effective)
+            effective=effective,
+            os_inherit_extension_inherited_to=inherited_to)
 
         data_parsed = []
         for assignment in data:
@@ -138,6 +141,9 @@ class ListRoleAssignment(lister.Lister):
             else:
                 assignment.domain = ''
                 assignment.project = ''
+
+            inherited = scope.get('OS-INHERIT:inherited_to') == 'projects'
+            assignment.inherited = inherited
 
             del assignment.scope
 
