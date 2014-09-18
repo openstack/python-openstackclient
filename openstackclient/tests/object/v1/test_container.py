@@ -16,6 +16,7 @@
 import copy
 import mock
 
+from openstackclient.api import object_store_v1 as object_store
 from openstackclient.object.v1 import container
 from openstackclient.tests.object.v1 import fakes as object_fakes
 
@@ -30,28 +31,20 @@ class FakeClient(object):
         self.token = AUTH_TOKEN
 
 
-class TestObject(object_fakes.TestObjectv1):
+class TestContainer(object_fakes.TestObjectv1):
     def setUp(self):
-        super(TestObject, self).setUp()
-
-
-class TestObjectClient(TestObject):
-
-    def test_make_client(self):
-        self.assertEqual(
-            self.app.client_manager.object_store.endpoint,
-            AUTH_URL,
+        super(TestContainer, self).setUp()
+        self.app.client_manager.object_store = object_store.APIv1(
+            session=mock.Mock(),
+            service_type="object-store",
         )
-        self.assertEqual(
-            self.app.client_manager.object_store.token,
-            AUTH_TOKEN,
-        )
+        self.api = self.app.client_manager.object_store
 
 
 @mock.patch(
-    'openstackclient.object.v1.container.lib_container.list_containers'
+    'openstackclient.api.object_store_v1.APIv1.container_list'
 )
-class TestContainerList(TestObject):
+class TestContainerList(TestContainer):
 
     def setUp(self):
         super(TestContainerList, self).setUp()
@@ -77,8 +70,6 @@ class TestContainerList(TestObject):
         kwargs = {
         }
         c_mock.assert_called_with(
-            self.app.client_manager.session,
-            AUTH_URL,
             **kwargs
         )
 
@@ -113,8 +104,6 @@ class TestContainerList(TestObject):
             'prefix': 'bit',
         }
         c_mock.assert_called_with(
-            self.app.client_manager.session,
-            AUTH_URL,
             **kwargs
         )
 
@@ -134,43 +123,10 @@ class TestContainerList(TestObject):
 
         arglist = [
             '--marker', object_fakes.container_name,
-        ]
-        verifylist = [
-            ('marker', object_fakes.container_name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # DisplayCommandBase.take_action() returns two tuples
-        columns, data = self.cmd.take_action(parsed_args)
-
-        # Set expected values
-        kwargs = {
-            'marker': object_fakes.container_name,
-        }
-        c_mock.assert_called_with(
-            self.app.client_manager.session,
-            AUTH_URL,
-            **kwargs
-        )
-
-        collist = ('Name',)
-        self.assertEqual(columns, collist)
-        datalist = (
-            (object_fakes.container_name, ),
-            (object_fakes.container_name_3, ),
-        )
-        self.assertEqual(tuple(data), datalist)
-
-    def test_object_list_containers_end_marker(self, c_mock):
-        c_mock.return_value = [
-            copy.deepcopy(object_fakes.CONTAINER),
-            copy.deepcopy(object_fakes.CONTAINER_3),
-        ]
-
-        arglist = [
             '--end-marker', object_fakes.container_name_3,
         ]
         verifylist = [
+            ('marker', object_fakes.container_name),
             ('end_marker', object_fakes.container_name_3),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -180,11 +136,10 @@ class TestContainerList(TestObject):
 
         # Set expected values
         kwargs = {
+            'marker': object_fakes.container_name,
             'end_marker': object_fakes.container_name_3,
         }
         c_mock.assert_called_with(
-            self.app.client_manager.session,
-            AUTH_URL,
             **kwargs
         )
 
@@ -218,8 +173,6 @@ class TestContainerList(TestObject):
             'limit': 2,
         }
         c_mock.assert_called_with(
-            self.app.client_manager.session,
-            AUTH_URL,
             **kwargs
         )
 
@@ -252,8 +205,6 @@ class TestContainerList(TestObject):
         kwargs = {
         }
         c_mock.assert_called_with(
-            self.app.client_manager.session,
-            AUTH_URL,
             **kwargs
         )
 
@@ -296,8 +247,6 @@ class TestContainerList(TestObject):
             'full_listing': True,
         }
         c_mock.assert_called_with(
-            self.app.client_manager.session,
-            AUTH_URL,
             **kwargs
         )
 
@@ -312,9 +261,9 @@ class TestContainerList(TestObject):
 
 
 @mock.patch(
-    'openstackclient.object.v1.container.lib_container.show_container'
+    'openstackclient.api.object_store_v1.APIv1.container_show'
 )
-class TestContainerShow(TestObject):
+class TestContainerShow(TestContainer):
 
     def setUp(self):
         super(TestContainerShow, self).setUp()
@@ -341,9 +290,7 @@ class TestContainerShow(TestObject):
         }
         # lib.container.show_container(api, url, container)
         c_mock.assert_called_with(
-            self.app.client_manager.session,
-            AUTH_URL,
-            object_fakes.container_name,
+            container=object_fakes.container_name,
             **kwargs
         )
 

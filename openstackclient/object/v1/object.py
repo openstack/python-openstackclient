@@ -24,7 +24,6 @@ from cliff import lister
 from cliff import show
 
 from openstackclient.common import utils
-from openstackclient.object.v1.lib import object as lib_object
 
 
 class CreateObject(lister.Lister):
@@ -52,11 +51,9 @@ class CreateObject(lister.Lister):
 
         results = []
         for obj in parsed_args.objects:
-            data = lib_object.create_object(
-                self.app.client_manager.session,
-                self.app.client_manager.object_store.endpoint,
-                parsed_args.container,
-                obj,
+            data = self.app.client_manager.object_store.object_create(
+                container=parsed_args.container,
+                object=obj,
             )
             results.append(data)
 
@@ -92,12 +89,9 @@ class DeleteObject(command.Command):
         self.log.debug('take_action(%s)', parsed_args)
 
         for obj in parsed_args.objects:
-            lib_object.delete_object(
-                self.app.restapi,
-                self.app.client_manager.session,
-                self.app.client_manager.object_store.endpoint,
-                parsed_args.container,
-                obj,
+            self.app.client_manager.object_store.object_delete(
+                container=parsed_args.container,
+                object=obj,
             )
 
 
@@ -181,10 +175,8 @@ class ListObject(lister.Lister):
         if parsed_args.all:
             kwargs['full_listing'] = True
 
-        data = lib_object.list_objects(
-            self.app.client_manager.session,
-            self.app.client_manager.object_store.endpoint,
-            parsed_args.container,
+        data = self.app.client_manager.object_store.object_list(
+            container=parsed_args.container,
             **kwargs
         )
 
@@ -222,12 +214,10 @@ class SaveObject(command.Command):
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)", parsed_args)
 
-        lib_object.save_object(
-            self.app.client_manager.session,
-            self.app.client_manager.object_store.endpoint,
-            parsed_args.container,
-            parsed_args.object,
-            parsed_args.file,
+        self.app.client_manager.object_store.object_save(
+            container=parsed_args.container,
+            object=parsed_args.object,
+            file=parsed_args.file,
         )
 
 
@@ -253,11 +243,9 @@ class ShowObject(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
 
-        data = lib_object.show_object(
-            self.app.client_manager.session,
-            self.app.client_manager.object_store.endpoint,
-            parsed_args.container,
-            parsed_args.object,
+        data = self.app.client_manager.object_store.object_show(
+            container=parsed_args.container,
+            object=parsed_args.object,
         )
 
         return zip(*sorted(six.iteritems(data)))

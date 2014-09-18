@@ -17,6 +17,7 @@
 
 import logging
 
+from openstackclient.api import object_store_v1
 from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ API_VERSIONS = {
 
 
 def make_client(instance):
-    """Returns an object service client."""
+    """Returns an object-store API client."""
 
     object_client = utils.get_client_class(
         API_NAME,
@@ -42,9 +43,11 @@ def make_client(instance):
         endpoint = instance._url
     else:
         endpoint = instance.get_endpoint_for_service_type("object-store")
-    client = object_client(
+
+    client = object_store_v1.APIv1(
+        session=instance.session,
+        service_type='object-store',
         endpoint=endpoint,
-        token=instance._token,
     )
     return client
 
@@ -61,16 +64,3 @@ def build_option_parser(parser):
              DEFAULT_OBJECT_API_VERSION +
              ' (Env: OS_OBJECT_API_VERSION)')
     return parser
-
-
-class ObjectClientv1(object):
-
-    def __init__(
-        self,
-        endpoint_type='publicURL',
-        endpoint=None,
-        token=None,
-    ):
-        self.endpoint_type = endpoint_type
-        self.endpoint = endpoint
-        self.token = token

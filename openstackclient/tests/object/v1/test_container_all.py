@@ -16,6 +16,7 @@ import copy
 from requests_mock.contrib import fixture
 
 from keystoneclient import session
+from openstackclient.api import object_store_v1 as object_store
 from openstackclient.object.v1 import container
 from openstackclient.tests.object.v1 import fakes as object_fakes
 
@@ -29,7 +30,10 @@ class TestObjectAll(object_fakes.TestObjectv1):
         self.requests_mock = self.useFixture(fixture.Fixture())
 
         # TODO(dtroyer): move this to object_fakes.TestObjectv1
-        self.app.client_manager.object_store.endpoint = object_fakes.ENDPOINT
+        self.app.client_manager.object_store = object_store.APIv1(
+            session=self.app.client_manager.session,
+            endpoint=object_fakes.ENDPOINT,
+        )
 
 
 class TestContainerCreate(TestObjectAll):

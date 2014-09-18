@@ -24,7 +24,6 @@ from cliff import lister
 from cliff import show
 
 from openstackclient.common import utils
-from openstackclient.object.v1.lib import container as lib_container
 
 
 class CreateContainer(lister.Lister):
@@ -47,10 +46,8 @@ class CreateContainer(lister.Lister):
 
         results = []
         for container in parsed_args.containers:
-            data = lib_container.create_container(
-                self.app.client_manager.session,
-                self.app.client_manager.object_store.endpoint,
-                container,
+            data = self.app.client_manager.object_store.container_create(
+                container=container,
             )
             results.append(data)
 
@@ -81,10 +78,8 @@ class DeleteContainer(command.Command):
         self.log.debug('take_action(%s)', parsed_args)
 
         for container in parsed_args.containers:
-            lib_container.delete_container(
-                self.app.client_manager.session,
-                self.app.client_manager.object_store.endpoint,
-                container,
+            self.app.client_manager.object_store.container_delete(
+                container=container,
             )
 
 
@@ -150,9 +145,7 @@ class ListContainer(lister.Lister):
         if parsed_args.all:
             kwargs['full_listing'] = True
 
-        data = lib_container.list_containers(
-            self.app.client_manager.session,
-            self.app.client_manager.object_store.endpoint,
+        data = self.app.client_manager.object_store.container_list(
             **kwargs
         )
 
@@ -180,10 +173,8 @@ class SaveContainer(command.Command):
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)", parsed_args)
 
-        lib_container.save_container(
-            self.app.client_manager.session,
-            self.app.client_manager.object_store.endpoint,
-            parsed_args.container
+        self.app.client_manager.object_store.container_save(
+            container=parsed_args.container,
         )
 
 
@@ -204,10 +195,8 @@ class ShowContainer(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
 
-        data = lib_container.show_container(
-            self.app.client_manager.session,
-            self.app.client_manager.object_store.endpoint,
-            parsed_args.container,
+        data = self.app.client_manager.object_store.container_show(
+            container=parsed_args.container,
         )
 
         return zip(*sorted(six.iteritems(data)))
