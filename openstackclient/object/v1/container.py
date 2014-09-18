@@ -27,7 +27,7 @@ from openstackclient.common import utils
 from openstackclient.object.v1.lib import container as lib_container
 
 
-class CreateContainer(show.ShowOne):
+class CreateContainer(lister.Lister):
     """Create a container"""
 
     log = logging.getLogger(__name__ + '.CreateContainer')
@@ -35,22 +35,31 @@ class CreateContainer(show.ShowOne):
     def get_parser(self, prog_name):
         parser = super(CreateContainer, self).get_parser(prog_name)
         parser.add_argument(
-            'container',
+            'containers',
             metavar='<container>',
-            help='New container name',
+            nargs="+",
+            help='Container name(s) to create',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
 
-        data = lib_container.create_container(
-            self.app.client_manager.session,
-            self.app.client_manager.object_store.endpoint,
-            parsed_args.container,
-        )
+        results = []
+        for container in parsed_args.containers:
+            data = lib_container.create_container(
+                self.app.client_manager.session,
+                self.app.client_manager.object_store.endpoint,
+                container,
+            )
+            results.append(data)
 
-        return zip(*sorted(six.iteritems(data)))
+        columns = ("account", "container", "x-trans-id")
+        return (columns,
+                (utils.get_dict_properties(
+                    s, columns,
+                    formatters={},
+                ) for s in results))
 
 
 class DeleteContainer(command.Command):
@@ -61,20 +70,22 @@ class DeleteContainer(command.Command):
     def get_parser(self, prog_name):
         parser = super(DeleteContainer, self).get_parser(prog_name)
         parser.add_argument(
-            'container',
+            'containers',
             metavar='<container>',
-            help='Container name to delete',
+            nargs="+",
+            help='Container name(s) to delete',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
 
-        lib_container.delete_container(
-            self.app.client_manager.session,
-            self.app.client_manager.object_store.endpoint,
-            parsed_args.container,
-        )
+        for container in parsed_args.containers:
+            lib_container.delete_container(
+                self.app.client_manager.session,
+                self.app.client_manager.object_store.endpoint,
+                container,
+            )
 
 
 class ListContainer(lister.Lister):
