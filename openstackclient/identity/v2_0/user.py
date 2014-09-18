@@ -22,6 +22,7 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
+from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
 from openstackclient.common import utils
 
 
@@ -347,20 +348,37 @@ class ShowUser(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
-        user = utils.find_resource(
-            identity_client.users,
-            parsed_args.user,
-        )
-
-        if 'tenantId' in user._info:
-            user._info.update(
-                {'project_id': user._info.pop('tenantId')}
-            )
-        if 'tenant_id' in user._info:
-            user._info.update(
-                {'project_id': user._info.pop('tenant_id')}
-            )
-
         info = {}
-        info.update(user._info)
+        try:
+            user = utils.find_resource(
+                identity_client.users,
+                parsed_args.user,
+            )
+            info.update(user._info)
+        except ksc_exc.Forbidden as e:
+            auth_ref = self.app.client_manager.auth_ref
+            if (
+                parsed_args.user == auth_ref.user_id or
+                parsed_args.user == auth_ref.username
+            ):
+                # Ask for currently auth'ed project so return it
+                info = {
+                    'id': auth_ref.user_id,
+                    'name': auth_ref.username,
+                    'project_id': auth_ref.project_id,
+                    # True because we don't get this far if it is disabled
+                    'enabled': True,
+                }
+            else:
+                raise e
+
+        if 'tenantId' in info:
+            info.update(
+                {'project_id': info.pop('tenantId')}
+            )
+        if 'tenant_id' in info:
+            info.update(
+                {'project_id': info.pop('tenant_id')}
+            )
+
         return zip(*sorted(six.iteritems(info)))
