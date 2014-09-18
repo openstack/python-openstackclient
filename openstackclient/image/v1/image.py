@@ -300,6 +300,21 @@ class ListImage(lister.Lister):
             metavar="<size>",
             help="Number of images to request in each paginated request",
         )
+        public_group = parser.add_mutually_exclusive_group()
+        public_group.add_argument(
+            "--public",
+            dest="public",
+            action="store_true",
+            default=False,
+            help="List only public images",
+        )
+        public_group.add_argument(
+            "--private",
+            dest="private",
+            action="store_true",
+            default=False,
+            help="List only private images",
+        )
         parser.add_argument(
             '--long',
             action='store_true',
@@ -316,15 +331,21 @@ class ListImage(lister.Lister):
         kwargs = {}
         if parsed_args.page_size is not None:
             kwargs["page_size"] = parsed_args.page_size
+        if parsed_args.public:
+            kwargs['public'] = True
+        if parsed_args.private:
+            kwargs['private'] = True
+        kwargs['detailed'] = parsed_args.long
 
-        data = image_client.images.list(**kwargs)
         if parsed_args.long:
             columns = ('ID', 'Name', 'Disk Format', 'Container Format',
                        'Size', 'Status')
         else:
             columns = ("ID", "Name")
 
-        return (columns, (utils.get_item_properties(s, columns) for s in data))
+        data = image_client.api.image_list(**kwargs)
+
+        return (columns, (utils.get_dict_properties(s, columns) for s in data))
 
 
 class SaveImage(command.Command):

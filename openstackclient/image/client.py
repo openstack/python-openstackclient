@@ -31,9 +31,15 @@ API_VERSIONS = {
     "2": "glanceclient.v2.client.Client",
 }
 
+IMAGE_API_TYPE = 'image'
+IMAGE_API_VERSIONS = {
+    '1': 'openstackclient.api.image_v1.APIv1',
+    '2': 'openstackclient.api.image_v2.APIv2',
+}
+
 
 def make_client(instance):
-    """Returns an image service client."""
+    """Returns an image service client"""
     image_client = utils.get_client_class(
         API_NAME,
         instance._api_version[API_NAME],
@@ -45,12 +51,30 @@ def make_client(instance):
         region_name=instance._region_name,
     )
 
-    return image_client(
+    client = image_client(
         endpoint,
         token=instance.auth.get_token(instance.session),
         cacert=instance._cacert,
         insecure=instance._insecure,
     )
+
+    # Create the low-level API
+
+    image_api = utils.get_client_class(
+        API_NAME,
+        instance._api_version[API_NAME],
+        IMAGE_API_VERSIONS)
+    LOG.debug('Instantiating image api: %s', image_api)
+
+    client.api = image_api(
+        session=instance.session,
+        endpoint=instance.get_endpoint_for_service_type(
+            IMAGE_API_TYPE,
+            region_name=instance._region_name,
+        )
+    )
+
+    return client
 
 
 def build_option_parser(parser):

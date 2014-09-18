@@ -139,11 +139,20 @@ List available images
 
     os image list
         [--page-size <size>]
+        [--public|--private]
         [--long]
 
 .. option:: --page-size <size>
 
     Number of images to request in each paginated request
+
+.. option:: --public
+
+    List only public images
+
+.. option:: --private
+
+    List only private images
 
 .. option:: --long
 

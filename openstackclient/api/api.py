@@ -161,7 +161,7 @@ class BaseAPI(KeystoneSession):
     ):
         """Return a list of resources
 
-        GET ${ENDPOINT}/${PATH}
+        GET ${ENDPOINT}/${PATH}?${PARAMS}
 
         path is often the object's plural resource type
 
