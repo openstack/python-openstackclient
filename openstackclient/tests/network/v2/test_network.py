@@ -22,16 +22,38 @@ RESOURCE = 'network'
 RESOURCES = 'networks'
 FAKE_ID = 'iditty'
 FAKE_NAME = 'noo'
+FAKE_PROJECT = 'yaa'
 RECORD = {
     'id': FAKE_ID,
     'name': FAKE_NAME,
+    'admin_state_up': True,
     'router:external': True,
+    'status': 'ACTIVE',
     'subnets': ['a', 'b'],
+    'tenant_id': FAKE_PROJECT,
 }
-COLUMNS = ['id', 'name', 'subnets']
-RESPONSE = {RESOURCE: RECORD}
-FILTERED = [('id', 'name', 'router:external', 'subnets'),
-            (FAKE_ID, FAKE_NAME, True, 'a, b')]
+COLUMNS = ['ID', 'Name', 'Subnets']
+RESPONSE = {RESOURCE: copy.deepcopy(RECORD)}
+FILTERED = [
+    (
+        'id',
+        'name',
+        'project_id',
+        'router_type',
+        'state',
+        'status',
+        'subnets',
+    ),
+    (
+        FAKE_ID,
+        FAKE_NAME,
+        FAKE_PROJECT,
+        'External',
+        'UP',
+        'ACTIVE',
+        'a, b',
+    ),
+]
 
 
 class TestCreateNetwork(common.TestNetworkBase):
@@ -122,7 +144,7 @@ class TestDeleteNetwork(common.TestNetworkBase):
         verifylist = [
             ('networks', [FAKE_NAME]),
         ]
-        lister = mock.Mock(return_value={RESOURCES: [RECORD]})
+        lister = mock.Mock(return_value={RESOURCES: [copy.deepcopy(RECORD)]})
         self.app.client_manager.network.list_networks = lister
         mocker = mock.Mock(return_value=None)
         self.app.client_manager.network.delete_network = mocker
@@ -135,85 +157,170 @@ class TestDeleteNetwork(common.TestNetworkBase):
         self.assertEqual(None, result)
 
 
+@mock.patch(
+    'openstackclient.api.network_v2.APIv2.network_list'
+)
 class TestListNetwork(common.TestNetworkBase):
-    def test_list_no_options(self):
+
+    def setUp(self):
+        super(TestListNetwork, self).setUp()
+
+        # Get the command object to test
+        self.cmd = network.ListNetwork(self.app, self.namespace)
+
+        self.NETWORK_LIST = [
+            copy.deepcopy(RECORD),
+            copy.deepcopy(RECORD),
+        ]
+
+    def test_network_list_no_options(self, n_mock):
+        n_mock.return_value = self.NETWORK_LIST
+
         arglist = []
         verifylist = [
-            ('long', False),
-            ('dhcp', None),
             ('external', False),
+            ('dhcp', None),
+            ('long', False),
         ]
-        lister = mock.Mock(return_value={RESOURCES: [RECORD]})
-        self.app.client_manager.network.list_networks = lister
-        cmd = network.ListNetwork(self.app, self.namespace)
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = cmd.take_action(parsed_args)
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
 
-        lister.assert_called_with()
-        self.assertEqual(COLUMNS, result[0])
-        self.assertEqual((FAKE_ID, FAKE_NAME, 'a, b'), next(result[1]))
-        self.assertRaises(StopIteration, next, result[1])
+        # Set expected values
+        n_mock.assert_called_with(
+            external=False,
+        )
 
-    def test_list_long(self):
-        arglist = ['--long']
+        self.assertEqual(tuple(COLUMNS), columns)
+        datalist = [
+            (FAKE_ID, FAKE_NAME, 'a, b'),
+            (FAKE_ID, FAKE_NAME, 'a, b'),
+        ]
+        self.assertEqual(datalist, list(data))
+
+    def test_list_external(self, n_mock):
+        n_mock.return_value = self.NETWORK_LIST
+
+        arglist = [
+            '--external',
+        ]
+        verifylist = [
+            ('external', True),
+            ('dhcp', None),
+            ('long', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        n_mock.assert_called_with(
+            external=True,
+        )
+
+        self.assertEqual(tuple(COLUMNS), columns)
+        datalist = [
+            (FAKE_ID, FAKE_NAME, 'a, b'),
+            (FAKE_ID, FAKE_NAME, 'a, b'),
+        ]
+        self.assertEqual(datalist, list(data))
+
+    def test_network_list_long(self, n_mock):
+        n_mock.return_value = self.NETWORK_LIST
+
+        arglist = [
+            '--long',
+        ]
         verifylist = [
             ('long', True),
             ('dhcp', None),
             ('external', False),
         ]
-        lister = mock.Mock(return_value={RESOURCES: [RECORD]})
-        self.app.client_manager.network.list_networks = lister
-        cmd = network.ListNetwork(self.app, self.namespace)
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = cmd.take_action(parsed_args)
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
 
-        lister.assert_called_with()
-        headings = ['id', 'name', 'router:external', 'subnets']
-        self.assertEqual(headings, result[0])
-        data = (FAKE_ID, FAKE_NAME, True, 'a, b')
-        self.assertEqual(data, next(result[1]))
-        self.assertRaises(StopIteration, next, result[1])
+        # Set expected values
+        n_mock.assert_called_with(
+            external=False,
+        )
 
-    def test_list_dhcp(self):
+        collist = (
+            'ID',
+            'Name',
+            'Status',
+            'Project',
+            'State',
+            'Shared',
+            'Subnets',
+            'Network Type',
+            'Router Type',
+        )
+        self.assertEqual(columns, collist)
+        dataitem = (
+            FAKE_ID,
+            FAKE_NAME,
+            'ACTIVE',
+            FAKE_PROJECT,
+            'UP',
+            '',
+            'a, b',
+            '',
+            'External',
+        )
+        datalist = [
+            dataitem,
+            dataitem,
+        ]
+        self.assertEqual(list(data), datalist)
+
+
+@mock.patch(
+    'openstackclient.api.network_v2.APIv2.dhcp_agent_list'
+)
+class TestListDhcpAgent(common.TestNetworkBase):
+
+    def setUp(self):
+        super(TestListDhcpAgent, self).setUp()
+
+        # Get the command object to test
+        self.cmd = network.ListNetwork(self.app, self.namespace)
+
+        self.DHCP_LIST = [
+            {'id': '1'},
+            {'id': '2'},
+        ]
+
+    def test_list_dhcp(self, n_mock):
+        n_mock.return_value = self.DHCP_LIST
+
         arglist = [
-            '--dhcp',
-            'dhcpid',
-        ] + self.given_list_options
+            '--dhcp', 'dhcpid',
+        ]
         verifylist = [
+            ('external', False),
             ('dhcp', 'dhcpid'),
-        ] + self.then_list_options
-        fake_dhcp_data = [{'id': '1'}, {'id': '2'}]
-        fake_dhcp_response = {'networks_on_dhcp_agent': fake_dhcp_data}
-        lister = mock.Mock(return_value=fake_dhcp_response)
-        netty = self.app.client_manager.network
-        netty.list_networks_on_dhcp_agent = lister
-        cmd = network.ListNetwork(self.app, self.namespace)
+            ('long', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = cmd.take_action(parsed_args)
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
 
-        lister.assert_called_with(dhcp_agent='dhcpid')
-        self.assertEqual(['id'], result[0])
-        self.assertEqual(('1',), next(result[1]))
-        self.assertEqual(('2',), next(result[1]))
-        self.assertRaises(StopIteration, next, result[1])
+        # Set expected values
+        n_mock.assert_called_with(
+            dhcp_id='dhcpid',
+        )
 
-    def test_list_external(self):
-        arglist = ['--external', '-c', 'id']
-        verifylist = [('external', True)]
-        lister = mock.Mock(return_value={RESOURCES: [RECORD]})
-        self.app.client_manager.network.list_networks = lister
-        cmd = network.ListNetwork(self.app, self.namespace)
-
-        parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = cmd.take_action(parsed_args)
-
-        lister.assert_called_with(**{'router:external': True})
-        self.assertEqual(['id'], result[0])
-        self.assertEqual((FAKE_ID,), next(result[1]))
-        self.assertRaises(StopIteration, next, result[1])
+        self.assertEqual(('ID',), columns)
+        datalist = [
+            ('1',),
+            ('2',),
+        ]
+        self.assertEqual(datalist, list(data))
 
 
 class TestSetNetwork(common.TestNetworkBase):
@@ -230,7 +337,7 @@ class TestSetNetwork(common.TestNetworkBase):
             ('name', 'noob'),
             ('shared', True),
         ]
-        lister = mock.Mock(return_value={RESOURCES: [RECORD]})
+        lister = mock.Mock(return_value={RESOURCES: [copy.deepcopy(RECORD)]})
         self.app.client_manager.network.list_networks = lister
         mocker = mock.Mock(return_value=None)
         self.app.client_manager.network.update_network = mocker
@@ -255,7 +362,7 @@ class TestSetNetwork(common.TestNetworkBase):
             ('admin_state', False),
             ('shared', False),
         ]
-        lister = mock.Mock(return_value={RESOURCES: [RECORD]})
+        lister = mock.Mock(return_value={RESOURCES: [copy.deepcopy(RECORD)]})
         self.app.client_manager.network.list_networks = lister
         mocker = mock.Mock(return_value=None)
         self.app.client_manager.network.update_network = mocker
@@ -272,7 +379,7 @@ class TestSetNetwork(common.TestNetworkBase):
     def test_set_nothing(self):
         arglist = [FAKE_NAME, ]
         verifylist = [('identifier', FAKE_NAME), ]
-        lister = mock.Mock(return_value={RESOURCES: [RECORD]})
+        lister = mock.Mock(return_value={RESOURCES: [copy.deepcopy(RECORD)]})
         self.app.client_manager.network.list_networks = lister
         mocker = mock.Mock(return_value=None)
         self.app.client_manager.network.update_network = mocker
@@ -283,37 +390,43 @@ class TestSetNetwork(common.TestNetworkBase):
                           parsed_args)
 
 
+@mock.patch(
+    'openstackclient.api.network_v2.APIv2.find_attr'
+)
 class TestShowNetwork(common.TestNetworkBase):
-    def test_show_no_options(self):
+
+    def setUp(self):
+        super(TestShowNetwork, self).setUp()
+
+        # Get the command object to test
+        self.cmd = network.ShowNetwork(self.app, self.namespace)
+
+        self.NETWORK_ITEM = copy.deepcopy(RECORD)
+
+    def test_show_no_options(self, n_mock):
         arglist = [
             FAKE_NAME,
         ]
         verifylist = [
             ('identifier', FAKE_NAME),
         ]
-        lister = mock.Mock(return_value={RESOURCES: [RECORD]})
-        self.app.client_manager.network.list_networks = lister
-        mocker = mock.Mock(return_value=copy.deepcopy(RESPONSE))
-        self.app.client_manager.network.show_network = mocker
-        cmd = network.ShowNetwork(self.app, self.namespace)
+        n_mock.return_value = copy.deepcopy(RECORD)
+        self.cmd = network.ShowNetwork(self.app, self.namespace)
 
-        parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = list(cmd.take_action(parsed_args))
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = list(self.cmd.take_action(parsed_args))
 
-        mocker.assert_called_with(FAKE_ID)
+        n_mock.assert_called_with('networks', FAKE_NAME)
         self.assertEqual(FILTERED, result)
 
-    def test_show_all_options(self):
+    def test_show_all_options(self, n_mock):
         arglist = [FAKE_NAME] + self.given_show_options
         verifylist = [('identifier', FAKE_NAME)] + self.then_show_options
-        lister = mock.Mock(return_value={RESOURCES: [RECORD]})
-        self.app.client_manager.network.list_networks = lister
-        mocker = mock.Mock(return_value=copy.deepcopy(RESPONSE))
-        self.app.client_manager.network.show_network = mocker
-        cmd = network.ShowNetwork(self.app, self.namespace)
+        n_mock.return_value = copy.deepcopy(RECORD)
+        self.cmd = network.ShowNetwork(self.app, self.namespace)
 
-        parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = list(cmd.take_action(parsed_args))
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = list(self.cmd.take_action(parsed_args))
 
-        mocker.assert_called_with(FAKE_ID)
+        n_mock.assert_called_with('networks', FAKE_NAME)
         self.assertEqual(FILTERED, result)

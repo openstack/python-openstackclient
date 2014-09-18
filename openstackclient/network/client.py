@@ -24,20 +24,53 @@ API_NAME = "network"
 API_VERSIONS = {
     "2": "neutronclient.v2_0.client.Client",
 }
+# Translate our API version to auth plugin version prefix
+API_VERSION_MAP = {
+    '2.0': 'v2.0',
+    '2': 'v2.0',
+}
+
+NETWORK_API_TYPE = 'network'
+NETWORK_API_VERSIONS = {
+    '2': 'openstackclient.api.network_v2.APIv2',
+}
 
 
 def make_client(instance):
-    """Returns an network service client."""
+    """Returns an network service client"""
     network_client = utils.get_client_class(
         API_NAME,
         instance._api_version[API_NAME],
         API_VERSIONS)
     LOG.debug('Instantiating network client: %s', network_client)
 
-    return network_client(
+    endpoint = instance.get_endpoint_for_service_type(
+        API_NAME,
+        region_name=instance._region_name,
+    )
+
+    client = network_client(
         session=instance.session,
         region_name=instance._region_name,
     )
+
+    network_api = utils.get_client_class(
+        API_NAME,
+        instance._api_version[API_NAME],
+        NETWORK_API_VERSIONS)
+    LOG.debug('Instantiating network api: %s', network_client)
+
+    # v2 is hard-coded until discovery is completed, neutron only has one atm
+    client.api = network_api(
+        session=instance.session,
+        service_type=NETWORK_API_TYPE,
+        endpoint='/'.join([
+            endpoint,
+            API_VERSION_MAP[instance._api_version[API_NAME]],
+        ])
+    )
+
+    return client
 
 
 def build_option_parser(parser):

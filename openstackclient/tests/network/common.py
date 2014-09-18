@@ -14,15 +14,25 @@
 import argparse
 import mock
 
+from openstackclient.api import network_v2
 from openstackclient.tests import utils
+
+
+class FakeNetworkClient(object):
+    pass
 
 
 class TestNetworkBase(utils.TestCommand):
     def setUp(self):
         super(TestNetworkBase, self).setUp()
-        self.app = mock.Mock(name='app')
-        self.app.client_manager = mock.Mock(name='client_manager')
         self.namespace = argparse.Namespace()
+
+        self.app.client_manager.network = FakeNetworkClient()
+        self.app.client_manager.network.api = network_v2.APIv2(
+            session=mock.Mock(),
+            service_type="network",
+        )
+        self.api = self.app.client_manager.network.api
 
     given_show_options = [
         '-f',

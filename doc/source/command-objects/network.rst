@@ -64,16 +64,16 @@ List networks
 
     os network list
         [--external]
-        [--dhcp]
+        [--dhcp <dhcp-id>]
         [--long]
 
 .. option:: --external
 
     List external networks
 
-.. option:: --dhcp
+.. option:: --dhcp <dhcp-id>
 
-    ID of the DHCP agent
+    DHCP agent ID
 
 .. option:: --long
 
