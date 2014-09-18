@@ -140,13 +140,13 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
 
     def take_action_compute(self, client, parsed_args):
         description = self._get_description(parsed_args)
-        obj = client.security_groups.create(
+        obj = client.api.security_group_create(
             parsed_args.name,
             description,
         )
         display_columns, property_columns = _get_columns(obj)
         data = utils.get_dict_properties(
-            obj._info,
+            obj,
             property_columns,
             formatters=_formatters_compute
         )
@@ -174,8 +174,7 @@ class DeleteSecurityGroup(common.NetworkAndComputeDelete):
         client.delete_security_group(obj)
 
     def take_action_compute(self, client, parsed_args):
-        data = utils.find_resource(client.security_groups, self.r)
-        client.security_groups.delete(data.id)
+        client.api.security_group_delete(self.r)
 
 
 # TODO(rauta): Use the SDK resource mapped attribute names once
@@ -242,7 +241,10 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
 
     def take_action_compute(self, client, parsed_args):
         search = {'all_tenants': parsed_args.all_projects}
-        data = client.security_groups.list(search_opts=search)
+        data = client.api.security_group_list(
+            # TODO(dtroyer): add limit, marker
+            search_opts=search,
+        )
 
         columns = (
             "ID",
@@ -254,7 +256,7 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             columns = columns + ('Tenant ID',)
             column_headers = column_headers + ('Project',)
         return (column_headers,
-                (utils.get_item_properties(
+                (utils.get_dict_properties(
                     s, columns,
                 ) for s in data))
 
@@ -294,23 +296,20 @@ class SetSecurityGroup(common.NetworkAndComputeCommand):
         client.update_security_group(obj, **attrs)
 
     def take_action_compute(self, client, parsed_args):
-        data = utils.find_resource(
-            client.security_groups,
-            parsed_args.group,
-        )
+        data = client.api.security_group_find(parsed_args.group)
 
         if parsed_args.name is not None:
-            data.name = parsed_args.name
+            data['name'] = parsed_args.name
         if parsed_args.description is not None:
-            data.description = parsed_args.description
+            data['description'] = parsed_args.description
 
         # NOTE(rtheis): Previous behavior did not raise a CommandError
         # if there were no updates. Maintain this behavior and issue
         # the update.
-        client.security_groups.update(
+        client.api.security_group_set(
             data,
-            data.name,
-            data.description,
+            data['name'],
+            data['description'],
         )
 
 
@@ -337,13 +336,10 @@ class ShowSecurityGroup(common.NetworkAndComputeShowOne):
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
-        obj = utils.find_resource(
-            client.security_groups,
-            parsed_args.group,
-        )
+        obj = client.api.security_group_find(parsed_args.group)
         display_columns, property_columns = _get_columns(obj)
         data = utils.get_dict_properties(
-            obj._info,
+            obj,
             property_columns,
             formatters=_formatters_compute
         )

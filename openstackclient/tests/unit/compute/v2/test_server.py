@@ -41,11 +41,6 @@ class TestServer(compute_fakes.TestComputev2):
         self.flavors_mock = self.app.client_manager.compute.flavors
         self.flavors_mock.reset_mock()
 
-        # Get a shortcut to the compute client SecurityGroupManager Mock
-        self.security_groups_mock = \
-            self.app.client_manager.compute.security_groups
-        self.security_groups_mock.reset_mock()
-
         # Get a shortcut to the image client ImageManager Mock
         self.images_mock = self.app.client_manager.image.images
         self.images_mock.reset_mock()
@@ -232,6 +227,9 @@ class TestServerAddPort(TestServer):
         self.find_port.assert_not_called()
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.security_group_find'
+)
 class TestServerAddSecurityGroup(TestServer):
 
     def setUp(self):
@@ -239,11 +237,9 @@ class TestServerAddSecurityGroup(TestServer):
 
         self.security_group = \
             compute_fakes.FakeSecurityGroup.create_one_security_group()
-        # This is the return value for utils.find_resource() for security group
-        self.security_groups_mock.get.return_value = self.security_group
 
         attrs = {
-            'security_groups': [{'name': self.security_group.id}]
+            'security_groups': [{'name': self.security_group['id']}]
         }
         methods = {
             'add_security_group': None,
@@ -259,23 +255,24 @@ class TestServerAddSecurityGroup(TestServer):
         # Get the command object to test
         self.cmd = server.AddServerSecurityGroup(self.app, None)
 
-    def test_server_add_security_group(self):
+    def test_server_add_security_group(self, sg_find_mock):
+        sg_find_mock.return_value = self.security_group
         arglist = [
             self.server.id,
-            self.security_group.id
+            self.security_group['id']
         ]
         verifylist = [
             ('server', self.server.id),
-            ('group', self.security_group.id),
+            ('group', self.security_group['id']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.security_groups_mock.get.assert_called_with(
-            self.security_group.id,
+        sg_find_mock.assert_called_with(
+            self.security_group['id'],
         )
         self.servers_mock.get.assert_called_with(self.server.id)
         self.server.add_security_group.assert_called_with(
-            self.security_group.id,
+            self.security_group['id'],
         )
         self.assertIsNone(result)
 
@@ -1716,6 +1713,9 @@ class TestServerRemovePort(TestServer):
         self.find_port.assert_not_called()
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.security_group_find'
+)
 class TestServerRemoveSecurityGroup(TestServer):
 
     def setUp(self):
@@ -1723,11 +1723,9 @@ class TestServerRemoveSecurityGroup(TestServer):
 
         self.security_group = \
             compute_fakes.FakeSecurityGroup.create_one_security_group()
-        # This is the return value for utils.find_resource() for security group
-        self.security_groups_mock.get.return_value = self.security_group
 
         attrs = {
-            'security_groups': [{'name': self.security_group.id}]
+            'security_groups': [{'name': self.security_group['id']}]
         }
         methods = {
             'remove_security_group': None,
@@ -1743,23 +1741,24 @@ class TestServerRemoveSecurityGroup(TestServer):
         # Get the command object to test
         self.cmd = server.RemoveServerSecurityGroup(self.app, None)
 
-    def test_server_remove_security_group(self):
+    def test_server_remove_security_group(self, sg_find_mock):
+        sg_find_mock.return_value = self.security_group
         arglist = [
             self.server.id,
-            self.security_group.id
+            self.security_group['id']
         ]
         verifylist = [
             ('server', self.server.id),
-            ('group', self.security_group.id),
+            ('group', self.security_group['id']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.security_groups_mock.get.assert_called_with(
-            self.security_group.id,
+        sg_find_mock.assert_called_with(
+            self.security_group['id'],
         )
         self.servers_mock.get.assert_called_with(self.server.id)
         self.server.remove_security_group.assert_called_with(
-            self.security_group.id,
+            self.security_group['id'],
         )
         self.assertIsNone(result)
 
