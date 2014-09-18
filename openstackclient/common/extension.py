@@ -15,6 +15,7 @@
 
 """Extension action implementations"""
 
+import itertools
 import logging
 
 from cliff import lister
@@ -25,28 +26,30 @@ from openstackclient.common import utils
 class ListExtension(lister.Lister):
     """List extension command"""
 
-    # TODO(mfisch): add support for volume and network
-    # when the underlying APIs support it.
-
     log = logging.getLogger(__name__ + '.ListExtension')
 
     def get_parser(self, prog_name):
         parser = super(ListExtension, self).get_parser(prog_name)
         parser.add_argument(
-            '--long',
+            '--compute',
             action='store_true',
             default=False,
-            help='List additional fields in output')
+            help='List extensions for the Compute API')
         parser.add_argument(
             '--identity',
             action='store_true',
             default=False,
             help='List extensions for the Identity API')
         parser.add_argument(
-            '--compute',
+            '--long',
             action='store_true',
             default=False,
-            help='List extensions for the Compute API')
+            help='List additional fields in output')
+        parser.add_argument(
+            '--network',
+            action='store_true',
+            default=False,
+            help='List extensions for the Network API')
         parser.add_argument(
             '--volume',
             action='store_true',
@@ -69,7 +72,7 @@ class ListExtension(lister.Lister):
         # user specifies one or more of the APIs to show
         # for now, only identity and compute are supported.
         show_all = (not parsed_args.identity and not parsed_args.compute
-                    and not parsed_args.volume)
+                    and not parsed_args.volume and not parsed_args.network)
 
         if parsed_args.identity or show_all:
             identity_client = self.app.client_manager.identity
@@ -95,8 +98,33 @@ class ListExtension(lister.Lister):
                 message = "Extensions list not supported by Volume API"
                 self.log.warning(message)
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                    formatters={},
-                ) for s in data))
+        # Resource classes for the above
+        extension_tuples = (
+            utils.get_item_properties(
+                s,
+                columns,
+                formatters={},
+            ) for s in data
+        )
+
+        # Dictionaries for the below
+        if parsed_args.network or show_all:
+            network_client = self.app.client_manager.network
+            try:
+                data = network_client.list_extensions()['extensions']
+                dict_tuples = (
+                    utils.get_dict_properties(
+                        s,
+                        columns,
+                        formatters={},
+                    ) for s in data
+                )
+                extension_tuples = itertools.chain(
+                    extension_tuples,
+                    dict_tuples
+                )
+            except Exception:
+                message = "Extensions list not supported by Network API"
+                self.log.warning(message)
+
+        return (columns, extension_tuples)

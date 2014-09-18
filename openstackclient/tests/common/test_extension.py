@@ -18,6 +18,7 @@ from openstackclient.tests import fakes
 from openstackclient.tests import utils
 
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests.network.v2 import fakes as network_fakes
 
 
 class TestExtension(utils.TestCommand):
@@ -29,11 +30,14 @@ class TestExtension(utils.TestCommand):
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
-
-        # Get shortcuts to the ExtensionManager Mocks
         self.identity_extensions_mock = (
             self.app.client_manager.identity.extensions)
         self.identity_extensions_mock.reset_mock()
+
+        network = network_fakes.FakeNetworkV2Client()
+        self.app.client_manager.network = network
+        self.network_extensions_mock = network.list_extensions
+        self.network_extensions_mock.reset_mock()
 
 
 class TestExtensionList(TestExtension):
@@ -42,6 +46,13 @@ class TestExtensionList(TestExtension):
         super(TestExtensionList, self).setUp()
 
         self.identity_extensions_mock.list.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(identity_fakes.EXTENSION),
+                loaded=True,
+            ),
+        ]
+        self.network_extensions_mock.list.return_value = [
             fakes.FakeResource(
                 None,
                 copy.deepcopy(identity_fakes.EXTENSION),
@@ -70,6 +81,11 @@ class TestExtensionList(TestExtension):
                 identity_fakes.extension_name,
                 identity_fakes.extension_alias,
                 identity_fakes.extension_description,
+            ),
+            (
+                network_fakes.extension_name,
+                network_fakes.extension_alias,
+                network_fakes.extension_description,
             ),
         )
         self.assertEqual(tuple(data), datalist)
@@ -101,6 +117,14 @@ class TestExtensionList(TestExtension):
                 identity_fakes.extension_updated,
                 identity_fakes.extension_links,
             ),
+            (
+                network_fakes.extension_name,
+                network_fakes.extension_namespace,
+                network_fakes.extension_description,
+                network_fakes.extension_alias,
+                network_fakes.extension_updated,
+                network_fakes.extension_links,
+            ),
         )
         self.assertEqual(tuple(data), datalist)
 
@@ -125,4 +149,28 @@ class TestExtensionList(TestExtension):
             identity_fakes.extension_alias,
             identity_fakes.extension_description,
         ), )
+        self.assertEqual(tuple(data), datalist)
+
+    def test_extension_list_network(self):
+        arglist = [
+            '--network',
+        ]
+        verifylist = [
+            ('network', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_extensions_mock.assert_called_with()
+
+        collist = ('Name', 'Alias', 'Description')
+        self.assertEqual(columns, collist)
+        datalist = (
+            (
+                network_fakes.extension_name,
+                network_fakes.extension_alias,
+                network_fakes.extension_description,
+            ),
+        )
         self.assertEqual(tuple(data), datalist)
