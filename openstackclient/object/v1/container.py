@@ -152,6 +152,30 @@ class ListContainer(lister.Lister):
                 ) for s in data))
 
 
+class SaveContainer(command.Command):
+    """Save the contents of a container locally"""
+
+    log = logging.getLogger(__name__ + ".SaveContainer")
+
+    def get_parser(self, prog_name):
+        parser = super(SaveContainer, self).get_parser(prog_name)
+        parser.add_argument(
+            'container',
+            metavar='<container>',
+            help='Container name to save',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)", parsed_args)
+
+        lib_container.save_container(
+            self.app.client_manager.session,
+            self.app.client_manager.object_store.endpoint,
+            parsed_args.container
+        )
+
+
 class ShowContainer(show.ShowOne):
     """Show container information"""
 
