@@ -47,12 +47,18 @@ class FakeApp(object):
         self.stderr = sys.stderr
 
 
+class FakeClient(object):
+    def __init__(self, **kwargs):
+        self.endpoint = kwargs['endpoint']
+        self.token = kwargs['token']
+
+
 class FakeClientManager(object):
     def __init__(self):
         self.compute = None
         self.identity = None
         self.image = None
-        self.object = None
+        self.object_store = None
         self.volume = None
         self.network = None
         self.session = None
