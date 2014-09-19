@@ -21,8 +21,9 @@ import os
 import six
 import time
 
+from oslo.utils import importutils
+
 from openstackclient.common import exceptions
-from openstackclient.openstack.common import importutils
 
 
 def find_resource(manager, name_or_id):

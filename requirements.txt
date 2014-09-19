@@ -3,6 +3,7 @@
 # process, which may cause wedges in the gate later.
 cliff>=1.7.0  # Apache-2.0
 oslo.i18n>=1.0.0  # Apache-2.0
+oslo.utils>=1.0.0                       # Apache-2.0
 pbr>=0.6,!=0.7,<1.0
 python-glanceclient>=0.14.0
 python-keystoneclient>=0.10.0
