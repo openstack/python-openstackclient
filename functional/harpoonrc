@@ -1,0 +1,14 @@
+# Global options
+#RECLONE=yes
+
+# Devstack options
+#ADMIN_PASSWORD=openstack
+#MYSQL_PASSWORD=openstack
+#RABBIT_PASSWORD=openstack
+#SERVICE_TOKEN=openstack
+#SERVICE_PASSWORD=openstack
+
+# Harpoon options
+HARPOON_USER=admin
+HARPOON_TENANT=admin
+#DEVSTACK_DIR=/opt/stack/devstack
