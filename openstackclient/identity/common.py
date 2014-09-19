@@ -139,3 +139,12 @@ def add_project_domain_option_to_parser(parser):
               'This can be used in case collisions between project names '
               'exist.')
     )
+
+
+def add_inherited_option_to_parser(parser):
+    parser.add_argument(
+        '--inherited',
+        action='store_true',
+        default=False,
+        help=('Specifies if the role grant is inheritable to the sub projects')
+    )
