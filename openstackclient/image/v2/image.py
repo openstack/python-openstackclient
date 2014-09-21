@@ -105,7 +105,7 @@ class SaveImage(command.Command):
         parser.add_argument(
             "image",
             metavar="<image>",
-            help="Name or ID of image to delete",
+            help="Name or ID of image to save",
         )
         return parser
 
