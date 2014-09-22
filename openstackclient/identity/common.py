@@ -42,11 +42,11 @@ def find_service(identity_client, name_type_or_id):
 def find_domain(identity_client, name_or_id):
     """Find a domain.
 
-       If the user does not have permssions to access the v3 domain API,
-       assume that domain given is the id rather than the name.  This
-       method is used by the project list command, so errors access the
-       domain will be ignored and if the user has access to the project
-       API, everything will work fine.
+       If the user does not have permissions to access the v3 domain API, e.g.,
+       if the user is a project admin, assume that the domain given is the id
+       rather than the name. This method is used by the project list command,
+       so errors accessing the domain will be ignored and if the user has
+       access to the project API, everything will work fine.
 
        Closes bugs #1317478 and #1317485.
     """
