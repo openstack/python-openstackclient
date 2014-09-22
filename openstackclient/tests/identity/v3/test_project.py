@@ -16,6 +16,7 @@
 import copy
 import mock
 
+from openstackclient.common import exceptions
 from openstackclient.identity.v3 import project
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
@@ -60,6 +61,7 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_name,
         ]
         verifylist = [
+            ('parent', None),
             ('enable', False),
             ('disable', False),
             ('name', identity_fakes.project_name),
@@ -75,6 +77,7 @@ class TestProjectCreate(TestProject):
             'domain': None,
             'description': None,
             'enabled': True,
+            'parent': None,
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -103,6 +106,7 @@ class TestProjectCreate(TestProject):
             ('enable', False),
             ('disable', False),
             ('name', identity_fakes.project_name),
+            ('parent', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -115,6 +119,7 @@ class TestProjectCreate(TestProject):
             'domain': None,
             'description': 'new desc',
             'enabled': True,
+            'parent': None,
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -143,6 +148,7 @@ class TestProjectCreate(TestProject):
             ('enable', False),
             ('disable', False),
             ('name', identity_fakes.project_name),
+            ('parent', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -155,6 +161,7 @@ class TestProjectCreate(TestProject):
             'domain': identity_fakes.domain_id,
             'description': None,
             'enabled': True,
+            'parent': None,
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -183,6 +190,7 @@ class TestProjectCreate(TestProject):
             ('enable', False),
             ('disable', False),
             ('name', identity_fakes.project_name),
+            ('parent', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         mocker = mock.Mock()
@@ -197,6 +205,7 @@ class TestProjectCreate(TestProject):
             'domain': identity_fakes.domain_id,
             'description': None,
             'enabled': True,
+            'parent': None,
         }
         self.projects_mock.create.assert_called_with(
             **kwargs
@@ -221,6 +230,7 @@ class TestProjectCreate(TestProject):
             ('enable', True),
             ('disable', False),
             ('name', identity_fakes.project_name),
+            ('parent', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -233,6 +243,7 @@ class TestProjectCreate(TestProject):
             'domain': None,
             'description': None,
             'enabled': True,
+            'parent': None,
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -260,6 +271,7 @@ class TestProjectCreate(TestProject):
             ('enable', False),
             ('disable', True),
             ('name', identity_fakes.project_name),
+            ('parent', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -272,6 +284,7 @@ class TestProjectCreate(TestProject):
             'domain': None,
             'description': None,
             'enabled': False,
+            'parent': None,
         }
         # ProjectManager.create(name=, domain=,
         #                       description=, enabled=, **kwargs)
@@ -311,6 +324,7 @@ class TestProjectCreate(TestProject):
             'domain': None,
             'description': None,
             'enabled': True,
+            'parent': None,
             'fee': 'fi',
             'fo': 'fum',
         }
@@ -330,6 +344,92 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_name,
         )
         self.assertEqual(datalist, data)
+
+    def test_project_create_parent(self):
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+        self.projects_mock.create.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT_WITH_PARENT),
+            loaded=True,
+        )
+
+        arglist = [
+            '--domain', identity_fakes.PROJECT_WITH_PARENT['domain_id'],
+            '--parent', identity_fakes.PROJECT['name'],
+            identity_fakes.PROJECT_WITH_PARENT['name'],
+        ]
+        verifylist = [
+            ('domain', identity_fakes.PROJECT_WITH_PARENT['domain_id']),
+            ('parent', identity_fakes.PROJECT['name']),
+            ('enable', False),
+            ('disable', False),
+            ('name', identity_fakes.PROJECT_WITH_PARENT['name']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'name': identity_fakes.PROJECT_WITH_PARENT['name'],
+            'domain': identity_fakes.PROJECT_WITH_PARENT['domain_id'],
+            'parent': identity_fakes.PROJECT['id'],
+            'description': None,
+            'enabled': True,
+        }
+
+        self.projects_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        collist = (
+            'description',
+            'domain_id',
+            'enabled',
+            'id',
+            'name',
+            'parent_id',
+        )
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.PROJECT_WITH_PARENT['description'],
+            identity_fakes.PROJECT_WITH_PARENT['domain_id'],
+            identity_fakes.PROJECT_WITH_PARENT['enabled'],
+            identity_fakes.PROJECT_WITH_PARENT['id'],
+            identity_fakes.PROJECT_WITH_PARENT['name'],
+            identity_fakes.PROJECT['id'],
+        )
+        self.assertEqual(data, datalist)
+
+    def test_project_create_invalid_parent(self):
+        self.projects_mock.resource_class.__name__ = 'Project'
+        self.projects_mock.get.side_effect = exceptions.NotFound(
+            'Invalid parent')
+        self.projects_mock.find.side_effect = exceptions.NotFound(
+            'Invalid parent')
+
+        arglist = [
+            '--domain', identity_fakes.domain_name,
+            '--parent', 'invalid',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('domain', identity_fakes.domain_name),
+            ('parent', 'invalid'),
+            ('enable', False),
+            ('disable', False),
+            ('name', identity_fakes.project_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
 
 
 class TestProjectDelete(TestProject):

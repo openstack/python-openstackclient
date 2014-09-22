@@ -135,6 +135,16 @@ REGION = {
     'links': base_url + 'regions/' + region_id,
 }
 
+PROJECT_WITH_PARENT = {
+    'id': project_id + '-with-parent',
+    'name': project_name + ' and their parents',
+    'description': project_description + ' plus another four',
+    'enabled': True,
+    'domain_id': domain_id,
+    'parent_id': project_id,
+    'links': base_url + 'projects/' + (project_id + '-with-parent'),
+}
+
 role_id = 'r1'
 role_name = 'roller'
 
