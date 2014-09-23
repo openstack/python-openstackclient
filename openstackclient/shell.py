@@ -35,8 +35,6 @@ from openstackclient.common import timing
 from openstackclient.common import utils
 
 
-KEYRING_SERVICE = 'openstack'
-
 DEFAULT_DOMAIN = 'default'
 
 
