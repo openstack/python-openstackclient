@@ -151,11 +151,12 @@ class SetCredential(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
-        user_id = utils.find_resource(identity_client.users,
-                                      parsed_args.user).id
         kwargs = {}
-        if user_id:
-            kwargs['user'] = user_id
+        if parsed_args.user:
+            user_id = utils.find_resource(identity_client.users,
+                                          parsed_args.user).id
+            if user_id:
+                kwargs['user'] = user_id
         if parsed_args.type:
             kwargs['type'] = parsed_args.type
         if parsed_args.data:
