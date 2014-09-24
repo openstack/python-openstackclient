@@ -33,8 +33,15 @@ def find_resource(manager, name_or_id):
     try:
         if isinstance(name_or_id, int) or name_or_id.isdigit():
             return manager.get(int(name_or_id))
-    except exceptions.NotFound:
-        pass
+    # FIXME(dtroyer): The exception to catch here is dependent on which
+    #                 client library the manager passed in belongs to.
+    #                 Eventually this should be pulled from a common set
+    #                 of client exceptions.
+    except Exception as ex:
+        if type(ex).__name__ == 'NotFound':
+            pass
+        else:
+            raise
 
     # Try directly using the passed value
     try:
