@@ -8,7 +8,7 @@ pbr>=0.6,!=0.7,<1.0
 python-glanceclient>=0.14.0
 python-keystoneclient>=0.10.0
 python-novaclient>=2.18.0
-python-cinderclient>=1.0.7
+python-cinderclient>=1.1.0
 python-neutronclient>=2.3.6,<3
 requests>=1.2.1,!=2.4.0
 six>=1.7.0
