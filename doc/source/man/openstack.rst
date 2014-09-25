@@ -47,6 +47,9 @@ Please bear in mind that some plugins might not support all of the functionaliti
 
 Additionally, it is possible to use Keystone's service token to authenticate, by setting the options :option:`--os-token` and :option:`--os-url` (or the environment variables :envvar:`OS_TOKEN` and :envvar:`OS_URL` respectively). This method takes precedence over authentication plugins.
 
+.. NOTE::
+    To use the ``v3unscopedsaml`` method, the lxml package will need to be installed.
+
 OPTIONS
 =======
 

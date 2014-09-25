@@ -199,6 +199,7 @@ class FakeClientManager(object):
         self.network = None
         self.session = None
         self.auth_ref = None
+        self.auth_plugin_name = None
 
 
 class FakeModule(object):

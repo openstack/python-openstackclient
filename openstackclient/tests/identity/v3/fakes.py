@@ -285,6 +285,19 @@ OAUTH_VERIFIER = {
 }
 
 
+class FakeAuth(object):
+    def __init__(self, auth_method_class=None):
+        self._auth_method_class = auth_method_class
+
+    def get_token(self, *args, **kwargs):
+        return token_id
+
+
+class FakeSession(object):
+    def __init__(self, **kwargs):
+        self.auth = FakeAuth()
+
+
 class FakeIdentityv3Client(object):
     def __init__(self, **kwargs):
         self.domains = mock.Mock()
@@ -320,6 +333,10 @@ class FakeFederationManager(object):
         self.mappings.resource_class = fakes.FakeResource(None, {})
         self.protocols = mock.Mock()
         self.protocols.resource_class = fakes.FakeResource(None, {})
+        self.projects = mock.Mock()
+        self.projects.resource_class = fakes.FakeResource(None, {})
+        self.domains = mock.Mock()
+        self.domains.resource_class = fakes.FakeResource(None, {})
 
 
 class FakeFederatedClient(FakeIdentityv3Client):
