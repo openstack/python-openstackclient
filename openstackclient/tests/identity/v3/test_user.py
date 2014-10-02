@@ -842,7 +842,7 @@ class TestUserSet(TestUser):
         # Set expected values
         kwargs = {
             'enabled': True,
-            'domainId': identity_fakes.domain_id,
+            'domain': identity_fakes.domain_id,
         }
         # UserManager.update(user, name=, domain=, project=, password=,
         #     email=, description=, enabled=, default_project=)
@@ -874,7 +874,7 @@ class TestUserSet(TestUser):
         # Set expected values
         kwargs = {
             'enabled': True,
-            'projectId': identity_fakes.project_id,
+            'project': identity_fakes.project_id,
         }
         # UserManager.update(user, name=, domain=, project=, password=,
         #     email=, description=, enabled=, default_project=)

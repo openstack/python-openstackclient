@@ -308,11 +308,11 @@ class SetUser(command.Command):
         if parsed_args.project:
             project_id = utils.find_resource(
                 identity_client.projects, parsed_args.project).id
-            kwargs['projectId'] = project_id
+            kwargs['project'] = project_id
         if parsed_args.domain:
             domain_id = utils.find_resource(
                 identity_client.domains, parsed_args.domain).id
-            kwargs['domainId'] = domain_id
+            kwargs['domain'] = domain_id
         kwargs['enabled'] = user.enabled
         if parsed_args.enable:
             kwargs['enabled'] = True
