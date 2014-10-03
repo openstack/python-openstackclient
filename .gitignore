@@ -16,3 +16,6 @@ build
 ChangeLog
 dist
 doc/build
+# Development environment files
+.project
+.pydevproject
