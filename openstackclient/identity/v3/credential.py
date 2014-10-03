@@ -73,6 +73,7 @@ class CreateCredential(show.ShowOne):
             blob=parsed_args.data,
             project=project)
 
+        credential._info.pop('links')
         return zip(*sorted(six.iteritems(credential._info)))
 
 
@@ -193,4 +194,5 @@ class ShowCredential(show.ShowOne):
         credential = utils.find_resource(identity_client.credentials,
                                          parsed_args.credential)
 
+        credential._info.pop('links')
         return zip(*sorted(six.iteritems(credential._info)))

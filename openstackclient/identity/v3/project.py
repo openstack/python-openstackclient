@@ -94,9 +94,8 @@ class CreateProject(show.ShowOne):
             **kwargs
         )
 
-        info = {}
-        info.update(project._info)
-        return zip(*sorted(six.iteritems(info)))
+        project._info.pop('links')
+        return zip(*sorted(six.iteritems(project._info)))
 
 
 class DeleteProject(command.Command):
@@ -229,7 +228,7 @@ class SetProject(command.Command):
             parsed_args.project,
         )
 
-        kwargs = project._info
+        kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
         if parsed_args.domain:
@@ -243,13 +242,6 @@ class SetProject(command.Command):
             kwargs['enabled'] = False
         if parsed_args.property:
             kwargs.update(parsed_args.property)
-        if 'id' in kwargs:
-            del kwargs['id']
-        if 'domain_id' in kwargs:
-            # Hack around broken Identity API arg names
-            kwargs.update(
-                {'domain': kwargs.pop('domain_id')}
-            )
 
         identity_client.projects.update(project.id, **kwargs)
         return
@@ -287,4 +279,5 @@ class ShowProject(show.ShowOne):
             project = utils.find_resource(identity_client.projects,
                                           parsed_args.project)
 
+        project._info.pop('links')
         return zip(*sorted(six.iteritems(project._info)))

@@ -18,6 +18,7 @@ import mock
 from openstackclient.tests import fakes
 from openstackclient.tests import utils
 
+base_url = 'http://identity:5000/v3/'
 
 domain_id = 'd1'
 domain_name = 'oftheking'
@@ -28,6 +29,7 @@ DOMAIN = {
     'name': domain_name,
     'description': domain_description,
     'enabled': True,
+    'links': base_url + 'domains/' + domain_id,
 }
 
 group_id = 'gr-010'
@@ -36,6 +38,7 @@ group_name = 'spencer davis'
 GROUP = {
     'id': group_id,
     'name': group_name,
+    'links': base_url + 'groups/' + group_id,
 }
 
 mapping_id = 'test_mapping'
@@ -107,6 +110,7 @@ PROJECT = {
     'description': project_description,
     'enabled': True,
     'domain_id': domain_id,
+    'links': base_url + 'projects/' + project_id,
 }
 
 PROJECT_2 = {
@@ -115,6 +119,7 @@ PROJECT_2 = {
     'description': project_description + 'plus four more',
     'enabled': True,
     'domain_id': domain_id,
+    'links': base_url + 'projects/' + project_id,
 }
 
 role_id = 'r1'
@@ -123,6 +128,7 @@ role_name = 'roller'
 ROLE = {
     'id': role_id,
     'name': role_name,
+    'links': base_url + 'roles/' + role_id,
 }
 
 service_id = 's-123'
@@ -134,6 +140,7 @@ SERVICE = {
     'name': service_name,
     'type': service_type,
     'enabled': True,
+    'links': base_url + 'services/' + service_id,
 }
 
 endpoint_id = 'e-123'
@@ -148,6 +155,7 @@ ENDPOINT = {
     'interface': endpoint_interface,
     'service_id': service_id,
     'enabled': True,
+    'links': base_url + 'endpoints/' + endpoint_id,
 }
 
 user_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
@@ -162,6 +170,7 @@ USER = {
     'email': user_email,
     'enabled': True,
     'domain_id': domain_id,
+    'links': base_url + 'users/' + user_id,
 }
 
 token_expires = '2014-01-01T00:00:00Z'

@@ -533,9 +533,6 @@ class TestProjectSet(TestProject):
 
         # Set expected values
         kwargs = {
-            'description': identity_fakes.project_description,
-            'domain': identity_fakes.domain_id,
-            'enabled': True,
             'name': 'qwerty',
         }
         # ProjectManager.update(project, name=, domain=, description=,
@@ -564,9 +561,6 @@ class TestProjectSet(TestProject):
         # Set expected values
         kwargs = {
             'description': 'new desc',
-            'domain': identity_fakes.domain_id,
-            'enabled': True,
-            'name': identity_fakes.project_name,
         }
         self.projects_mock.update.assert_called_with(
             identity_fakes.project_id,
@@ -590,10 +584,7 @@ class TestProjectSet(TestProject):
 
         # Set expected values
         kwargs = {
-            'description': identity_fakes.project_description,
-            'domain': identity_fakes.domain_id,
             'enabled': True,
-            'name': identity_fakes.project_name,
         }
         self.projects_mock.update.assert_called_with(
             identity_fakes.project_id,
@@ -617,10 +608,7 @@ class TestProjectSet(TestProject):
 
         # Set expected values
         kwargs = {
-            'description': identity_fakes.project_description,
-            'domain': identity_fakes.domain_id,
             'enabled': False,
-            'name': identity_fakes.project_name,
         }
         self.projects_mock.update.assert_called_with(
             identity_fakes.project_id,
@@ -644,10 +632,6 @@ class TestProjectSet(TestProject):
 
         # Set expected values
         kwargs = {
-            'description': identity_fakes.project_description,
-            'domain': identity_fakes.domain_id,
-            'enabled': True,
-            'name': identity_fakes.project_name,
             'fee': 'fi',
             'fo': 'fum',
         }
