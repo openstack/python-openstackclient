@@ -18,7 +18,6 @@
 import argparse
 import getpass
 import logging
-import os
 import sys
 import traceback
 
@@ -36,20 +35,6 @@ from openstackclient.common import utils
 
 
 DEFAULT_DOMAIN = 'default'
-
-
-def env(*vars, **kwargs):
-    """Search for the first defined of possibly many env vars
-
-    Returns the first environment variable defined in vars, or
-    returns the default defined in kwargs.
-
-    """
-    for v in vars:
-        value = os.environ.get(v, None)
-        if value:
-            return value
-    return kwargs.get('default', '')
 
 
 class OpenStackShell(app.App):
@@ -191,26 +176,27 @@ class OpenStackShell(app.App):
         parser.add_argument(
             '--os-auth-url',
             metavar='<auth-url>',
-            default=env('OS_AUTH_URL'),
+            default=utils.env('OS_AUTH_URL'),
             help='Authentication URL (Env: OS_AUTH_URL)')
         parser.add_argument(
             '--os-domain-name',
             metavar='<auth-domain-name>',
-            default=env('OS_DOMAIN_NAME'),
+            default=utils.env('OS_DOMAIN_NAME'),
             help='Domain name of the requested domain-level '
                  'authorization scope (Env: OS_DOMAIN_NAME)',
         )
         parser.add_argument(
             '--os-domain-id',
             metavar='<auth-domain-id>',
-            default=env('OS_DOMAIN_ID'),
+            default=utils.env('OS_DOMAIN_ID'),
             help='Domain ID of the requested domain-level '
                  'authorization scope (Env: OS_DOMAIN_ID)',
         )
         parser.add_argument(
             '--os-project-name',
             metavar='<auth-project-name>',
-            default=env('OS_PROJECT_NAME', default=env('OS_TENANT_NAME')),
+            default=utils.env('OS_PROJECT_NAME',
+                              default=utils.env('OS_TENANT_NAME')),
             help='Project name of the requested project-level '
                  'authorization scope (Env: OS_PROJECT_NAME)',
         )
@@ -223,7 +209,8 @@ class OpenStackShell(app.App):
         parser.add_argument(
             '--os-project-id',
             metavar='<auth-project-id>',
-            default=env('OS_PROJECT_ID', default=env('OS_TENANT_ID')),
+            default=utils.env('OS_PROJECT_ID',
+                              default=utils.env('OS_TENANT_ID')),
             help='Project ID of the requested project-level '
                  'authorization scope (Env: OS_PROJECT_ID)',
         )
@@ -270,12 +257,12 @@ class OpenStackShell(app.App):
         parser.add_argument(
             '--os-region-name',
             metavar='<auth-region-name>',
-            default=env('OS_REGION_NAME'),
+            default=utils.env('OS_REGION_NAME'),
             help='Authentication region name (Env: OS_REGION_NAME)')
         parser.add_argument(
             '--os-cacert',
             metavar='<ca-bundle-file>',
-            default=env('OS_CACERT'),
+            default=utils.env('OS_CACERT'),
             help='CA certificate bundle file (Env: OS_CACERT)')
         verify_group = parser.add_mutually_exclusive_group()
         verify_group.add_argument(
@@ -291,7 +278,7 @@ class OpenStackShell(app.App):
         parser.add_argument(
             '--os-default-domain',
             metavar='<auth-domain>',
-            default=env(
+            default=utils.env(
                 'OS_DEFAULT_DOMAIN',
                 default=DEFAULT_DOMAIN),
             help='Default domain ID, default=' +
@@ -300,12 +287,12 @@ class OpenStackShell(app.App):
         parser.add_argument(
             '--os-token',
             metavar='<token>',
-            default=env('OS_TOKEN'),
+            default=utils.env('OS_TOKEN'),
             help='Defaults to env[OS_TOKEN]')
         parser.add_argument(
             '--os-url',
             metavar='<url>',
-            default=env('OS_URL'),
+            default=utils.env('OS_URL'),
             help='Defaults to env[OS_URL]')
         parser.add_argument(
             '--timing',
