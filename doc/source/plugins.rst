@@ -14,7 +14,7 @@ Plugins are discovered by enumerating the entry points
 found under :py:mod:`openstack.cli.extension` and initializing the specified
 client module.
 
-::
+.. code-block:: ini
 
     [entry_points]
     openstack.cli.extension =
@@ -39,7 +39,7 @@ The client module must implement the following interface functions:
 OSC enumerates the plugin commands from the entry points in the usual manner
 defined for the API version:
 
-::
+.. code-block:: ini
 
     openstack.oscplugin.v1 =
         plugin_list = oscplugin.v1.plugin:ListPlugin
@@ -48,7 +48,7 @@ defined for the API version:
 Note that OSC defines the group name as :py:mod:`openstack.<api-name>.v<version>`
 so the version should not contain the leading 'v' character.
 
-::
+.. code-block:: python
 
     DEFAULT_OSCPLUGIN_API_VERSION = '1'
 

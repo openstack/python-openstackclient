@@ -47,11 +47,13 @@ objects.  In badly formed English it is expressed as "(Take) object1
 
     <object-1> <action> <object-2>
 
-Examples::
+Examples:
 
-    group add user <group> <user>
+.. code-block:: bash
 
-    volume type list   # 'volume type' is a two-word single object
+    $ group add user <group> <user>
+
+    $ volume type list   # 'volume type' is a two-word single object
 
 
 Command Arguments and Options
