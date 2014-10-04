@@ -1,0 +1,78 @@
+# Translations template for python-openstackclient.
+# Copyright (C) 2014 ORGANIZATION
+# This file is distributed under the same license as the
+# python-openstackclient project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: python-openstackclient 0.4.2.dev43.gaf67658\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2014-10-09 13:11-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 1.3\n"
+
+#: openstackclient/identity/v2_0/user.py:40
+#: openstackclient/identity/v2_0/user.py:246
+msgid "New user name"
+msgstr ""
+
+#: openstackclient/identity/v2_0/user.py:45
+#: openstackclient/identity/v2_0/user.py:251
+msgid "New user password"
+msgstr ""
+
+#: openstackclient/identity/v2_0/user.py:51
+#: openstackclient/identity/v2_0/user.py:257
+msgid "Prompt interactively for password"
+msgstr ""
+
+#: openstackclient/identity/v2_0/user.py:56
+#: openstackclient/identity/v2_0/user.py:262
+msgid "New user email address"
+msgstr ""
+
+#: openstackclient/identity/v2_0/user.py:61
+msgid "Set default project (name or ID)"
+msgstr ""
+
+#: openstackclient/identity/v2_0/user.py:67
+#: openstackclient/identity/v2_0/user.py:273
+msgid "Enable user (default)"
+msgstr ""
+
+#: openstackclient/identity/v2_0/user.py:72
+#: openstackclient/identity/v2_0/user.py:278
+msgid "Disable user"
+msgstr ""
+
+#: openstackclient/identity/v2_0/user.py:124
+msgid "User to delete (name or ID)"
+msgstr ""
+
+#: openstackclient/identity/v2_0/user.py:151
+msgid "Filter users by project (name or ID)"
+msgstr ""
+
+#: openstackclient/identity/v2_0/user.py:157
+msgid "List additional fields in output"
+msgstr ""
+
+#: openstackclient/identity/v2_0/user.py:241
+msgid "User to change (name or ID)"
+msgstr ""
+
+#: openstackclient/identity/v2_0/user.py:267
+msgid "New default project (name or ID)"
+msgstr ""
+
+#: openstackclient/identity/v2_0/user.py:344
+msgid "User to display (name or ID)"
+msgstr ""
+

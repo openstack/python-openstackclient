@@ -21,9 +21,10 @@ import six
 from cliff import command
 from cliff import lister
 from cliff import show
-
 from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
+
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 
 
 class CreateUser(show.ShowOne):
@@ -36,39 +37,39 @@ class CreateUser(show.ShowOne):
         parser.add_argument(
             'name',
             metavar='<user-name>',
-            help='New user name',
+            help=_('New user name'),
         )
         parser.add_argument(
             '--password',
             metavar='<user-password>',
-            help='New user password',
+            help=_('New user password'),
         )
         parser.add_argument(
             '--password-prompt',
             dest="password_prompt",
             action="store_true",
-            help='Prompt interactively for password',
+            help=_('Prompt interactively for password'),
         )
         parser.add_argument(
             '--email',
             metavar='<user-email>',
-            help='New user email address',
+            help=_('New user email address'),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='Set default project (name or ID)',
+            help=_('Set default project (name or ID)'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable user (default)',
+            help=_('Enable user (default)'),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable user',
+            help=_('Disable user'),
         )
         return parser
 
@@ -120,7 +121,7 @@ class DeleteUser(command.Command):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='User to delete (name or ID)',
+            help=_('User to delete (name or ID)'),
         )
         return parser
 
@@ -147,13 +148,13 @@ class ListUser(lister.Lister):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='Filter users by project (name or ID)',
+            help=_('Filter users by project (name or ID)'),
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output')
+            help=_('List additional fields in output'))
         return parser
 
     def take_action(self, parsed_args):
@@ -237,44 +238,44 @@ class SetUser(command.Command):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='User to change (name or ID)',
+            help=_('User to change (name or ID)'),
         )
         parser.add_argument(
             '--name',
             metavar='<new-user-name>',
-            help='New user name',
+            help=_('New user name'),
         )
         parser.add_argument(
             '--password',
             metavar='<user-password>',
-            help='New user password',
+            help=_('New user password'),
         )
         parser.add_argument(
             '--password-prompt',
             dest="password_prompt",
             action="store_true",
-            help='Prompt interactively for password',
+            help=_('Prompt interactively for password'),
         )
         parser.add_argument(
             '--email',
             metavar='<user-email>',
-            help='New user email address',
+            help=_('New user email address'),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='New default project (name or ID)',
+            help=_('New default project (name or ID)'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable user (default)',
+            help=_('Enable user (default)'),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable user',
+            help=_('Disable user'),
         )
         return parser
 
@@ -340,7 +341,7 @@ class ShowUser(show.ShowOne):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='User to display (name or ID)',
+            help=_('User to display (name or ID)'),
         )
         return parser
 
