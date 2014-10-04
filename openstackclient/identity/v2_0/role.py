@@ -24,6 +24,7 @@ from cliff import show
 
 from openstackclient.common import exceptions
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 
 
 class AddRole(show.ShowOne):
@@ -36,18 +37,17 @@ class AddRole(show.ShowOne):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Role name or ID to add to user')
+            help=_('Role name or ID to add to user'))
         parser.add_argument(
             '--project',
             metavar='<project>',
             required=True,
-            help='Include project (name or ID)',
-        )
+            help=_('Include project (name or ID)'))
         parser.add_argument(
             '--user',
             metavar='<user>',
             required=True,
-            help='Name or ID of user to include')
+            help=_('Name or ID of user to include'))
         return parser
 
     def take_action(self, parsed_args):
@@ -80,7 +80,7 @@ class CreateRole(show.ShowOne):
         parser.add_argument(
             'role_name',
             metavar='<role-name>',
-            help='New role name')
+            help=_('New role name'))
         return parser
 
     def take_action(self, parsed_args):
@@ -103,8 +103,7 @@ class DeleteRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Name or ID of role to delete',
-        )
+            help=_('Name or ID of role to delete'))
         return parser
 
     def take_action(self, parsed_args):
@@ -147,12 +146,11 @@ class ListUserRole(lister.Lister):
             'user',
             metavar='<user>',
             nargs='?',
-            help='Name or ID of user to include')
+            help=_('Name or ID of user to include'))
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='Include project (name or ID)',
-        )
+            help=_('Include project (name or ID)'))
         return parser
 
     def take_action(self, parsed_args):
@@ -167,13 +165,13 @@ class ListUserRole(lister.Lister):
             if self.app.client_manager.auth_ref:
                 parsed_args.project = auth_ref.project_id
             else:
-                msg = "Project must be specified"
+                msg = _("Project must be specified")
                 raise exceptions.CommandError(msg)
         if not parsed_args.user:
             if self.app.client_manager.auth_ref:
                 parsed_args.user = auth_ref.user_id
             else:
-                msg = "User must be specified"
+                msg = _("User must be specified")
                 raise exceptions.CommandError(msg)
 
         project = utils.find_resource(
@@ -213,18 +211,17 @@ class RemoveRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Role name or ID to remove from user')
+            help=_('Role name or ID to remove from user'))
         parser.add_argument(
             '--project',
             metavar='<project>',
             required=True,
-            help='Project to include (name or ID)',
-        )
+            help=_('Project to include (name or ID)'))
         parser.add_argument(
             '--user',
             metavar='<user>',
             required=True,
-            help='Name or ID of user')
+            help=_('Name or ID of user'))
         return parser
 
     def take_action(self, parsed_args):
@@ -252,7 +249,7 @@ class ShowRole(show.ShowOne):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Name or ID of role to display')
+            help=_('Name or ID of role to display'))
         return parser
 
     def take_action(self, parsed_args):

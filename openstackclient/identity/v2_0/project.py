@@ -21,10 +21,11 @@ import six
 from cliff import command
 from cliff import lister
 from cliff import show
-
 from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
+
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 
 
 class CreateProject(show.ShowOne):
@@ -37,30 +38,30 @@ class CreateProject(show.ShowOne):
         parser.add_argument(
             'name',
             metavar='<project-name>',
-            help='New project name',
+            help=_('New project name'),
         )
         parser.add_argument(
             '--description',
             metavar='<project-description>',
-            help='New project description',
+            help=_('New project description'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable project (default)',
+            help=_('Enable project (default)'),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable project',
+            help=_('Disable project'),
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Property to add for this project '
-                 '(repeat option to set multiple properties)',
+            help=_('Property to add for this project '
+                   '(repeat option to set multiple properties)'),
         )
         return parser
 
@@ -97,7 +98,7 @@ class DeleteProject(command.Command):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help='Project to delete (name or ID)',
+            help=_('Project to delete (name or ID)'),
         )
         return parser
 
@@ -125,7 +126,7 @@ class ListProject(lister.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_('List additional fields in output'),
         )
         return parser
 
@@ -153,35 +154,35 @@ class SetProject(command.Command):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help='Project to change (name or ID)',
+            help=_('Project to change (name or ID)'),
         )
         parser.add_argument(
             '--name',
             metavar='<new-project-name>',
-            help='New project name',
+            help=_('New project name'),
         )
         parser.add_argument(
             '--description',
             metavar='<project-description>',
-            help='New project description',
+            help=_('New project description'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable project',
+            help=_('Enable project'),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable project',
+            help=_('Disable project'),
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Property to add for this project '
-                 '(repeat option to set multiple properties)',
+            help=_('Property to add for this project '
+                   '(repeat option to set multiple properties)'),
         )
         return parser
 
@@ -233,7 +234,7 @@ class ShowProject(show.ShowOne):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help='Project to display (name or ID)')
+            help=_('Project to display (name or ID)'))
         return parser
 
     def take_action(self, parsed_args):

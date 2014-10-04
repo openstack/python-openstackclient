@@ -24,6 +24,7 @@ from cliff import show
 
 from openstackclient.common import exceptions
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 from openstackclient.identity import common
 
 
@@ -37,18 +38,18 @@ class CreateService(show.ShowOne):
         parser.add_argument(
             'name',
             metavar='<service-name>',
-            help='New service name',
+            help=_('New service name'),
         )
         parser.add_argument(
             '--type',
             metavar='<service-type>',
             required=True,
-            help='New service type (compute, image, identity, volume, etc)',
+            help=_('New service type (compute, image, identity, volume, etc)'),
         )
         parser.add_argument(
             '--description',
             metavar='<service-description>',
-            help='New service description',
+            help=_('New service description'),
         )
         return parser
 
@@ -76,7 +77,7 @@ class DeleteService(command.Command):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Service to delete (name or ID)',
+            help=_('Service to delete (name or ID)'),
         )
         return parser
 
@@ -99,7 +100,7 @@ class ListService(lister.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output')
+            help=_('List additional fields in output'))
         return parser
 
     def take_action(self, parsed_args):
@@ -127,13 +128,13 @@ class ShowService(show.ShowOne):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Service to display (type, name or ID)',
+            help=_('Service to display (type, name or ID)'),
         )
         parser.add_argument(
             '--catalog',
             action='store_true',
             default=False,
-            help='Show service catalog information',
+            help=_('Show service catalog information'),
         )
         return parser
 
@@ -150,8 +151,8 @@ class ShowService(show.ShowOne):
                     info.update(service_endpoints[0])
                     return zip(*sorted(six.iteritems(info)))
 
-            msg = ("No service catalog with a type, name or ID of '%s' "
-                   "exists." % (parsed_args.service))
+            msg = _("No service catalog with a type, name or ID of '%s' "
+                    "exists.") % (parsed_args.service)
             raise exceptions.CommandError(msg)
         else:
             service = common.find_service(identity_client, parsed_args.service)

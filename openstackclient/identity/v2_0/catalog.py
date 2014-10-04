@@ -20,6 +20,7 @@ from cliff import lister
 from cliff import show
 
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 
 
 def _format_endpoints(eps=None):
@@ -67,7 +68,7 @@ class ShowCatalog(show.ShowOne):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Service to display (type, name or ID)',
+            help=_('Service to display (type, name or ID)'),
         )
         return parser
 
