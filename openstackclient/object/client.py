@@ -33,12 +33,6 @@ API_VERSIONS = {
 def make_client(instance):
     """Returns an object-store API client."""
 
-    object_client = utils.get_client_class(
-        API_NAME,
-        instance._api_version[API_NAME],
-        API_VERSIONS)
-    LOG.debug('Instantiating object client: %s', object_client)
-
     if instance._url:
         endpoint = instance._url
     else:
