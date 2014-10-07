@@ -26,8 +26,27 @@ from oslo.utils import importutils
 from openstackclient.common import exceptions
 
 
-def find_resource(manager, name_or_id):
-    """Helper for the _find_* methods."""
+def find_resource(manager, name_or_id, **kwargs):
+    """Helper for the _find_* methods.
+
+    :param manager: A client manager class
+    :param name_or_id: The resource we are trying to find
+    :param kwargs: To be used in calling .find()
+    :rtype: The found resource
+
+    This method will attempt to find a resource in a variety of ways.
+    Primarily .get() methods will be called with `name_or_id` as an integer
+    value, and tried again as a string value.
+
+    If both fail, then a .find() is attempted, which is essentially calling
+    a .list() function with a 'name' query parameter that is set to
+    `name_or_id`.
+
+    Lastly, if any kwargs are passed in, they will be treated as additional
+    query parameters. This is particularly handy in the case of finding
+    resources in a domain.
+
+    """
 
     # Try to get entity as integer id
     try:
@@ -49,7 +68,10 @@ def find_resource(manager, name_or_id):
     except Exception:
         pass
 
-    kwargs = {}
+    if len(kwargs) == 0:
+        kwargs = {}
+
+    # Prepare the kwargs for calling find
     if 'NAME_ATTR' in manager.resource_class.__dict__:
         # novaclient does this for oddball resources
         kwargs[manager.resource_class.NAME_ATTR] = name_or_id

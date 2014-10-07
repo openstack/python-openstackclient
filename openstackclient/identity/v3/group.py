@@ -24,6 +24,7 @@ from cliff import lister
 from cliff import show
 
 from openstackclient.common import utils
+from openstackclient.identity import common
 
 
 class AddUserToGroup(command.Command):
@@ -321,14 +322,26 @@ class ShowGroup(show.ShowOne):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Name or ID of group to display')
+            help='Name or ID of group to display',
+        )
+        parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='Domain where group resides (name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
-        group = utils.find_resource(identity_client.groups, parsed_args.group)
 
-        info = {}
-        info.update(group._info)
-        return zip(*sorted(six.iteritems(info)))
+        if parsed_args.domain:
+            domain = common.find_domain(identity_client, parsed_args.domain)
+            group = utils.find_resource(identity_client.groups,
+                                        parsed_args.group,
+                                        domain_id=domain.id)
+        else:
+            group = utils.find_resource(identity_client.groups,
+                                        parsed_args.group)
+
+        return zip(*sorted(six.iteritems(group._info)))

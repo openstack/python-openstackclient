@@ -23,6 +23,7 @@ from cliff import lister
 from cliff import show
 
 from openstackclient.common import utils
+from openstackclient.identity import common
 
 
 class CreateUser(show.ShowOne):
@@ -364,17 +365,24 @@ class ShowUser(show.ShowOne):
             metavar='<user>',
             help='User to display (name or ID)',
         )
+        parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='Domain where user resides (name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
-        user = utils.find_resource(
-            identity_client.users,
-            parsed_args.user,
-        )
+        if parsed_args.domain:
+            domain = common.find_domain(identity_client, parsed_args.domain)
+            user = utils.find_resource(identity_client.users,
+                                       parsed_args.user,
+                                       domain_id=domain.id)
+        else:
+            user = utils.find_resource(identity_client.users,
+                                       parsed_args.user)
 
-        info = {}
-        info.update(user._info)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(six.iteritems(user._info)))

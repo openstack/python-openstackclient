@@ -264,15 +264,26 @@ class ShowProject(show.ShowOne):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help='Name or ID of project to display')
+            help='Name or ID of project to display',
+        )
+        parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='Domain where project resides (name or ID)',
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
-        project = utils.find_resource(identity_client.projects,
-                                      parsed_args.project)
 
-        info = {}
-        info.update(project._info)
-        return zip(*sorted(six.iteritems(info)))
+        if parsed_args.domain:
+            domain = common.find_domain(identity_client, parsed_args.domain)
+            project = utils.find_resource(identity_client.projects,
+                                          parsed_args.project,
+                                          domain_id=domain.id)
+        else:
+            project = utils.find_resource(identity_client.projects,
+                                          parsed_args.project)
+
+        return zip(*sorted(six.iteritems(project._info)))
