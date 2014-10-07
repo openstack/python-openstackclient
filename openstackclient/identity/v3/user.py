@@ -95,8 +95,8 @@ class CreateUser(show.ShowOne):
             project_id = None
 
         if parsed_args.domain:
-            domain_id = utils.find_resource(
-                identity_client.domains, parsed_args.domain).id
+            domain_id = common.find_domain(identity_client,
+                                           parsed_args.domain).id
         else:
             domain_id = None
 
@@ -158,7 +158,7 @@ class ListUser(lister.Lister):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Filter group list by <domain>',
+            help='Filter user list by <domain> (name or ID)',
         )
         parser.add_argument(
             '--group',
@@ -178,10 +178,8 @@ class ListUser(lister.Lister):
         identity_client = self.app.client_manager.identity
 
         if parsed_args.domain:
-            domain = utils.find_resource(
-                identity_client.domains,
-                parsed_args.domain,
-            ).id
+            domain = common.find_domain(identity_client,
+                                        parsed_args.domain).id
         else:
             domain = None
 
@@ -311,9 +309,8 @@ class SetUser(command.Command):
                 identity_client.projects, parsed_args.project).id
             kwargs['project'] = project_id
         if parsed_args.domain:
-            domain_id = utils.find_resource(
-                identity_client.domains, parsed_args.domain).id
-            kwargs['domain'] = domain_id
+            kwargs['domain'] = common.find_domain(identity_client,
+                                                  parsed_args.domain).id
         kwargs['enabled'] = user.enabled
         if parsed_args.enable:
             kwargs['enabled'] = True

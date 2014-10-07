@@ -129,8 +129,8 @@ class CreateGroup(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         if parsed_args.domain:
-            domain = utils.find_resource(identity_client.domains,
-                                         parsed_args.domain).id
+            domain = common.find_domain(identity_client,
+                                        parsed_args.domain).id
         else:
             domain = None
         group = identity_client.groups.create(
@@ -174,7 +174,7 @@ class ListGroup(lister.Lister):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Filter group list by <domain>',
+            help='Filter group list by <domain> (name or ID)',
         )
         parser.add_argument(
             '--user',
@@ -194,10 +194,8 @@ class ListGroup(lister.Lister):
         identity_client = self.app.client_manager.identity
 
         if parsed_args.domain:
-            domain = utils.find_resource(
-                identity_client.domains,
-                parsed_args.domain,
-            ).id
+            domain = common.find_domain(identity_client,
+                                        parsed_args.domain).id
         else:
             domain = None
 
@@ -301,10 +299,8 @@ class SetGroup(command.Command):
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
         if parsed_args.domain:
-            domain = utils.find_resource(
-                identity_client.domains, parsed_args.domain).id
-            kwargs['domain'] = domain
-
+            kwargs['domain'] = common.find_domain(identity_client,
+                                                  parsed_args.domain).id
         if not len(kwargs):
             sys.stderr.write("Group not updated, no arguments present")
             return

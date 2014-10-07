@@ -74,7 +74,8 @@ class CreateProject(show.ShowOne):
         identity_client = self.app.client_manager.identity
 
         if parsed_args.domain:
-            domain = common.find_domain(identity_client, parsed_args.domain).id
+            domain = common.find_domain(identity_client,
+                                        parsed_args.domain).id
         else:
             domain = None
 
@@ -141,7 +142,7 @@ class ListProject(lister.Lister):
         parser.add_argument(
             '--domain',
             metavar='<project-domain>',
-            help='Filter by a specific domain',
+            help='Filter by a specific domain (name or ID)',
         )
         return parser
 
@@ -154,8 +155,8 @@ class ListProject(lister.Lister):
             columns = ('ID', 'Name')
         kwargs = {}
         if parsed_args.domain:
-            domain = common.find_domain(identity_client, parsed_args.domain)
-            kwargs['domain'] = domain.id
+            kwargs['domain'] = common.find_domain(identity_client,
+                                                  parsed_args.domain).id
         data = identity_client.projects.list(**kwargs)
         return (columns,
                 (utils.get_item_properties(
@@ -232,8 +233,8 @@ class SetProject(command.Command):
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
         if parsed_args.domain:
-            domain = common.find_domain(identity_client, parsed_args.domain)
-            kwargs['domain'] = domain.id
+            kwargs['domain'] = common.find_domain(identity_client,
+                                                  parsed_args.domain).id
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
         if parsed_args.enable:
