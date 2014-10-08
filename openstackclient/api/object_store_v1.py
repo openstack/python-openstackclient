@@ -252,6 +252,7 @@ class APIv1(api.BaseAPI):
         if container is None or object is None:
             return None
 
+        params['format'] = 'json'
         if all_data:
             data = listing = self.object_list(
                 container=container,
@@ -280,7 +281,6 @@ class APIv1(api.BaseAPI):
                     data.extend(listing)
             return data
 
-        params = {}
         if limit:
             params['limit'] = limit
         if marker:
@@ -320,7 +320,8 @@ class APIv1(api.BaseAPI):
         )
         if response.status_code == 200:
             if not os.path.exists(os.path.dirname(file)):
-                os.makedirs(os.path.dirname(file))
+                if len(os.path.dirname(file)) > 0:
+                    os.makedirs(os.path.dirname(file))
             with open(file, 'wb') as f:
                 for chunk in response.iter_content():
                     f.write(chunk)
