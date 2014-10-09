@@ -190,6 +190,28 @@ IDENTITY_PROVIDER = {
     'description': idp_description
 }
 
+protocol_id = 'protocol'
+
+mapping_id = 'test_mapping'
+mapping_id_updated = 'prod_mapping'
+
+PROTOCOL_ID_MAPPING = {
+    'id': protocol_id,
+    'mapping': mapping_id
+}
+
+PROTOCOL_OUTPUT = {
+    'id': protocol_id,
+    'mapping_id': mapping_id,
+    'identity_provider': idp_id
+}
+
+PROTOCOL_OUTPUT_UPDATED = {
+    'id': protocol_id,
+    'mapping_id': mapping_id_updated,
+    'identity_provider': idp_id
+}
+
 # Assignments
 
 ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID = {
@@ -285,6 +307,8 @@ class FakeFederationManager(object):
         self.identity_providers.resource_class = fakes.FakeResource(None, {})
         self.mappings = mock.Mock()
         self.mappings.resource_class = fakes.FakeResource(None, {})
+        self.protocols = mock.Mock()
+        self.protocols.resource_class = fakes.FakeResource(None, {})
 
 
 class FakeFederatedClient(FakeIdentityv3Client):
