@@ -16,7 +16,6 @@
 """Modify cliff.CommandManager"""
 
 import logging
-import pkg_resources
 
 import cliff.commandmanager
 
@@ -35,23 +34,14 @@ class CommandManager(cliff.commandmanager.CommandManager):
         self.group_list = []
         super(CommandManager, self).__init__(namespace, convert_underscores)
 
-    def _load_commands(self, group=None):
-        if not group:
-            group = self.namespace
-        self.group_list.append(group)
-        for ep in pkg_resources.iter_entry_points(group):
-            cmd_name = (
-                ep.name.replace('_', ' ')
-                if self.convert_underscores
-                else ep.name
-            )
-            self.commands[cmd_name] = ep
-        return
+    def load_commands(self, namespace):
+        self.group_list.append(namespace)
+        return super(CommandManager, self).load_commands(namespace)
 
     def add_command_group(self, group=None):
         """Adds another group of command entrypoints"""
         if group:
-            self._load_commands(group)
+            self.load_commands(group)
 
     def get_command_groups(self):
         """Returns a list of the loaded command groups"""
