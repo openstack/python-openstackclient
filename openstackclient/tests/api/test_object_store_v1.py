@@ -13,6 +13,8 @@
 
 """Object Store v1 API Library Tests"""
 
+import mock
+
 from requests_mock.contrib import fixture
 
 from keystoneclient import session
@@ -175,29 +177,40 @@ class TestObject(TestObjectAPIv1):
     def setUp(self):
         super(TestObject, self).setUp()
 
-    def test_object_create(self):
+    @mock.patch('openstackclient.api.object_store_v1.io.open')
+    def base_object_create(self, file_contents, mock_open):
+        mock_open.read.return_value = file_contents
+
         headers = {
             'etag': 'youreit',
             'x-trans-id': '1qaz2wsx',
         }
+        # TODO(dtroyer): When requests_mock gains the ability to
+        #                match against request.body add this check
+        #                https://review.openstack.org/127316
         self.requests_mock.register_uri(
             'PUT',
-            FAKE_URL + '/qaz/requirements.txt',
+            FAKE_URL + '/qaz/counter.txt',
             headers=headers,
+            # body=file_contents,
             status_code=201,
         )
         ret = self.api.object_create(
             container='qaz',
-            object='requirements.txt',
+            object='counter.txt',
         )
         data = {
             'account': FAKE_ACCOUNT,
             'container': 'qaz',
-            'object': 'requirements.txt',
+            'object': 'counter.txt',
             'etag': 'youreit',
             'x-trans-id': '1qaz2wsx',
         }
         self.assertEqual(data, ret)
+
+    def test_object_create(self):
+        self.base_object_create('111\n222\n333\n')
+        self.base_object_create(bytes([0x31, 0x00, 0x0d, 0x0a, 0x7f, 0xff]))
 
     def test_object_delete(self):
         self.requests_mock.register_uri(
