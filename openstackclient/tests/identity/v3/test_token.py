@@ -23,7 +23,8 @@ class TestToken(identity_fakes.TestIdentityv3):
         super(TestToken, self).setUp()
 
         # Get a shortcut to the Service Catalog Mock
-        self.sc_mock = self.app.client_manager.identity.service_catalog
+        session = self.app.client_manager.identity.session
+        self.sc_mock = session.auth.auth_ref.service_catalog
         self.sc_mock.reset_mock()
 
 

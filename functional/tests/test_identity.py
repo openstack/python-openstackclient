@@ -76,6 +76,7 @@ class IdentityV3Tests(test.TestCase):
 
     DOMAIN_FIELDS = ['description', 'enabled', 'id', 'name', 'links']
     GROUP_FIELDS = ['description', 'domain_id', 'id', 'name', 'links']
+    TOKEN_FIELDS = ['expires', 'id', 'project_id', 'user_id']
 
     def _create_dummy_group(self):
         name = uuid.uuid4().hex
@@ -139,3 +140,8 @@ class IdentityV3Tests(test.TestCase):
         raw_output = self.openstack('domain show ' + name)
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.DOMAIN_FIELDS)
+
+    def test_token_issue(self):
+        raw_output = self.openstack('token issue')
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.TOKEN_FIELDS)
