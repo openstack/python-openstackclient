@@ -1,10 +1,12 @@
 include AUTHORS
+include babel.cfg
 include ChangeLog
 include LICENSE
 include README.rst
 
 recursive-include doc *
 recursive-include tests *
+recursive-include python-openstackclient *.po *.pot
 
 exclude .gitignore
 exclude .gitreview
