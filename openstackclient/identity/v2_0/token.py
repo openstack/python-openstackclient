@@ -21,6 +21,8 @@ import six
 from cliff import command
 from cliff import show
 
+from openstackclient.i18n import _  # noqa
+
 
 class IssueToken(show.ShowOne):
     """Issue new token"""
@@ -49,7 +51,7 @@ class RevokeToken(command.Command):
         parser.add_argument(
             'token',
             metavar='<token>',
-            help='Token to be deleted',
+            help=_('Token to be deleted'),
         )
         return parser
 

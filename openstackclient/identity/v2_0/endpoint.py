@@ -23,6 +23,7 @@ from cliff import lister
 from cliff import show
 
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 from openstackclient.identity import common
 
 
@@ -36,24 +37,24 @@ class CreateEndpoint(show.ShowOne):
         parser.add_argument(
             'service',
             metavar='<endpoint-service>',
-            help='New endpoint service')
+            help=_('New endpoint service'))
         parser.add_argument(
             '--region',
             metavar='<region>',
-            help='New endpoint region')
+            help=_('New endpoint region'))
         parser.add_argument(
             '--publicurl',
             metavar='<public-url>',
             required=True,
-            help='New endpoint public URL')
+            help=_('New endpoint public URL'))
         parser.add_argument(
             '--adminurl',
             metavar='<admin-url>',
-            help='New endpoint admin URL')
+            help=_('New endpoint admin URL'))
         parser.add_argument(
             '--internalurl',
             metavar='<internal-url>',
-            help='New endpoint internal URL')
+            help=_('New endpoint internal URL'))
         return parser
 
     def take_action(self, parsed_args):
@@ -84,7 +85,7 @@ class DeleteEndpoint(command.Command):
         parser.add_argument(
             'endpoint',
             metavar='<endpoint-id>',
-            help='ID of endpoint to delete')
+            help=_('ID of endpoint to delete'))
         return parser
 
     def take_action(self, parsed_args):
@@ -105,7 +106,7 @@ class ListEndpoint(lister.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output')
+            help=_('List additional fields in output'))
         return parser
 
     def take_action(self, parsed_args):
@@ -139,7 +140,7 @@ class ShowEndpoint(show.ShowOne):
         parser.add_argument(
             'endpoint_or_service',
             metavar='<endpoint_or_service>',
-            help='Endpoint ID or name, type or ID of service to display')
+            help=_('Endpoint ID or name, type or ID of service to display'))
         return parser
 
     def take_action(self, parsed_args):

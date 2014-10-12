@@ -24,6 +24,7 @@ from cliff import lister
 from cliff import show
 
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 
 
 class CreateEC2Creds(show.ShowOne):
@@ -36,12 +37,12 @@ class CreateEC2Creds(show.ShowOne):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='Specify a project [admin only]',
+            help=_('Specify a project [admin only]'),
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help='Specify a user [admin only]',
+            help=_('Specify a user [admin only]'),
         )
         return parser
 
@@ -83,12 +84,12 @@ class DeleteEC2Creds(command.Command):
         parser.add_argument(
             'access_key',
             metavar='<access-key>',
-            help='Credentials access key',
+            help=_('Credentials access key'),
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help='Specify a user [admin only]',
+            help=_('Specify a user [admin only]'),
         )
         return parser
 
@@ -118,7 +119,7 @@ class ListEC2Creds(lister.Lister):
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help='Specify a user [admin only]',
+            help=_('Specify a user [admin only]'),
         )
         return parser
 
@@ -156,12 +157,12 @@ class ShowEC2Creds(show.ShowOne):
         parser.add_argument(
             'access_key',
             metavar='<access-key>',
-            help='Credentials access key',
+            help=_('Credentials access key'),
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help='Specify a user [admin only]',
+            help=_('Specify a user [admin only]'),
         )
         return parser
 
