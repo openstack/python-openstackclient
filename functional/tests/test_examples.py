@@ -20,3 +20,9 @@ class ExampleTests(test.TestCase):
         # NOTE(stevemar): If an examples has a non-zero return
         # code, then execute will raise an error by default.
         test.execute('python', test.EXAMPLE_DIR + '/common.py --debug')
+
+    def test_object_api(self):
+        test.execute('python', test.EXAMPLE_DIR + '/object_api.py --debug')
+
+    def test_osc_lib(self):
+        test.execute('python', test.EXAMPLE_DIR + '/osc-lib.py --debug')
