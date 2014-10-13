@@ -29,6 +29,8 @@ from openstackclient.identity import client as identity_client
 
 LOG = logging.getLogger(__name__)
 
+PLUGIN_MODULES = []
+
 
 class ClientCache(object):
     """Descriptor class for caching created client handles."""
@@ -123,11 +125,13 @@ class ClientManager(object):
         return endpoint
 
 
-def get_extension_modules(group):
-    """Add extension clients"""
+# Plugin Support
+
+def get_plugin_modules(group):
+    """Find plugin entry points"""
     mod_list = []
     for ep in pkg_resources.iter_entry_points(group):
-        LOG.debug('found extension %r', ep.name)
+        LOG.debug('Found plugin %r', ep.name)
 
         __import__(ep.module_name)
         module = sys.modules[ep.module_name]
@@ -136,6 +140,7 @@ def get_extension_modules(group):
         if init_func:
             init_func('x')
 
+        # Add the plugin to the ClientManager
         setattr(
             ClientManager,
             module.API_NAME,
@@ -144,3 +149,22 @@ def get_extension_modules(group):
             ),
         )
     return mod_list
+
+
+def build_plugin_option_parser(parser):
+    """Add plugin options to the parser"""
+
+    # Loop through extensions to get parser additions
+    for mod in PLUGIN_MODULES:
+        parser = mod.build_option_parser(parser)
+    return parser
+
+
+# Get list of base plugin modules
+PLUGIN_MODULES = get_plugin_modules(
+    'openstack.cli.base',
+)
+# Append list of external plugin modules
+PLUGIN_MODULES.extend(get_plugin_modules(
+    'openstack.cli.extension',
+))
