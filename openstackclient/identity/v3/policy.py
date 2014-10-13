@@ -55,6 +55,7 @@ class CreatePolicy(show.ShowOne):
             blob=blob, type=parsed_args.type
         )
 
+        policy._info.pop('links')
         return zip(*sorted(six.iteritems(policy._info)))
 
 
@@ -173,4 +174,5 @@ class ShowPolicy(show.ShowOne):
         policy = utils.find_resource(identity_client.policies,
                                      parsed_args.policy)
 
+        policy._info.pop('links')
         return zip(*sorted(six.iteritems(policy._info)))

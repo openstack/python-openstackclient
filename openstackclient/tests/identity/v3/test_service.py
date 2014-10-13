@@ -267,9 +267,7 @@ class TestServiceSet(TestService):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.service_name,
             'type': identity_fakes.service_type,
-            'enabled': True,
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
         self.services_mock.update.assert_called_with(
@@ -297,8 +295,6 @@ class TestServiceSet(TestService):
         # Set expected values
         kwargs = {
             'name': identity_fakes.service_name,
-            'type': identity_fakes.service_type,
-            'enabled': True,
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
         self.services_mock.update.assert_called_with(
@@ -325,8 +321,6 @@ class TestServiceSet(TestService):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.service_name,
-            'type': identity_fakes.service_type,
             'enabled': True,
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
@@ -354,8 +348,6 @@ class TestServiceSet(TestService):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.service_name,
-            'type': identity_fakes.service_type,
             'enabled': False,
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)

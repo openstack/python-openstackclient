@@ -70,6 +70,7 @@ class CreateService(show.ShowOne):
             enabled=enabled,
         )
 
+        service._info.pop('links')
         return zip(*sorted(six.iteritems(service._info)))
 
 
@@ -161,7 +162,7 @@ class SetService(command.Command):
 
         service = common.find_service(identity_client, parsed_args.service)
 
-        kwargs = service._info
+        kwargs = {}
         if parsed_args.type:
             kwargs['type'] = parsed_args.type
         if parsed_args.name:
@@ -170,8 +171,6 @@ class SetService(command.Command):
             kwargs['enabled'] = True
         if parsed_args.disable:
             kwargs['enabled'] = False
-        if 'id' in kwargs:
-            del kwargs['id']
 
         identity_client.services.update(
             service.id,
@@ -200,4 +199,5 @@ class ShowService(show.ShowOne):
 
         service = common.find_service(identity_client, parsed_args.service)
 
+        service._info.pop('links')
         return zip(*sorted(six.iteritems(service._info)))

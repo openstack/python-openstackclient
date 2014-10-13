@@ -116,9 +116,8 @@ class CreateUser(show.ShowOne):
             enabled=enabled
         )
 
-        info = {}
-        info.update(user._info)
-        return zip(*sorted(six.iteritems(info)))
+        user._info.pop('links')
+        return zip(*sorted(six.iteritems(user._info)))
 
 
 class DeleteUser(command.Command):
@@ -382,4 +381,5 @@ class ShowUser(show.ShowOne):
             user = utils.find_resource(identity_client.users,
                                        parsed_args.user)
 
+        user._info.pop('links')
         return zip(*sorted(six.iteritems(user._info)))

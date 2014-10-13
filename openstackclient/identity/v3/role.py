@@ -157,6 +157,7 @@ class CreateRole(show.ShowOne):
 
         role = identity_client.roles.create(name=parsed_args.name)
 
+        role._info.pop('links')
         return zip(*sorted(six.iteritems(role._info)))
 
 
@@ -472,4 +473,5 @@ class ShowRole(show.ShowOne):
             parsed_args.role,
         )
 
+        role._info.pop('links')
         return zip(*sorted(six.iteritems(role._info)))

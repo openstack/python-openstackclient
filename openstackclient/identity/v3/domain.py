@@ -66,6 +66,7 @@ class CreateDomain(show.ShowOne):
             enabled=parsed_args.enabled,
         )
 
+        domain._info.pop('links')
         return zip(*sorted(six.iteritems(domain._info)))
 
 
@@ -187,4 +188,5 @@ class ShowDomain(show.ShowOne):
         domain = utils.find_resource(identity_client.domains,
                                      parsed_args.domain)
 
+        domain._info.pop('links')
         return zip(*sorted(six.iteritems(domain._info)))

@@ -138,9 +138,8 @@ class CreateGroup(show.ShowOne):
             domain=domain,
             description=parsed_args.description)
 
-        info = {}
-        info.update(group._info)
-        return zip(*sorted(six.iteritems(info)))
+        group._info.pop('links')
+        return zip(*sorted(six.iteritems(group._info)))
 
 
 class DeleteGroup(command.Command):
@@ -340,4 +339,5 @@ class ShowGroup(show.ShowOne):
             group = utils.find_resource(identity_client.groups,
                                         parsed_args.group)
 
+        group._info.pop('links')
         return zip(*sorted(six.iteritems(group._info)))

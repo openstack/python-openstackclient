@@ -81,6 +81,7 @@ class CreateEndpoint(show.ShowOne):
         )
 
         info = {}
+        endpoint._info.pop('links')
         info.update(endpoint._info)
         info['service_name'] = service.name
         info['service_type'] = service.type
@@ -258,6 +259,7 @@ class ShowEndpoint(show.ShowOne):
         service = common.find_service(identity_client, endpoint.service_id)
 
         info = {}
+        endpoint._info.pop('links')
         info.update(endpoint._info)
         info['service_name'] = service.name
         info['service_type'] = service.type
