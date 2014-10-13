@@ -26,6 +26,7 @@ server_name = 'waiter'
 SERVER = {
     'id': server_id,
     'name': server_name,
+    'metadata': {},
 }
 
 extension_name = 'Multinic'

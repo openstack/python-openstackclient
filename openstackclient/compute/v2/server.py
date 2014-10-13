@@ -17,6 +17,7 @@
 
 import argparse
 import getpass
+import io
 import logging
 import os
 import six
@@ -296,7 +297,7 @@ class CreateServer(show.ShowOne):
         for f in parsed_args.file:
             dst, src = f.split('=', 1)
             try:
-                files[dst] = open(src)
+                files[dst] = io.open(src, 'rb')
             except IOError as e:
                 raise exceptions.CommandError("Can't open '%s': %s" % (src, e))
 
@@ -313,7 +314,7 @@ class CreateServer(show.ShowOne):
         userdata = None
         if parsed_args.user_data:
             try:
-                userdata = open(parsed_args.user_data)
+                userdata = io.open(parsed_args.user_data)
             except IOError as e:
                 msg = "Can't open '%s': %s"
                 raise exceptions.CommandError(msg % (parsed_args.user_data, e))
@@ -368,7 +369,17 @@ class CreateServer(show.ShowOne):
 
         self.log.debug('boot_args: %s', boot_args)
         self.log.debug('boot_kwargs: %s', boot_kwargs)
-        server = compute_client.servers.create(*boot_args, **boot_kwargs)
+
+        # Wrap the call to catch exceptions in order to close files
+        try:
+            server = compute_client.servers.create(*boot_args, **boot_kwargs)
+        finally:
+            # Clean up open files - make sure they are not strings
+            for f in files:
+                if hasattr(f, 'close'):
+                    f.close()
+            if hasattr(userdata, 'close'):
+                userdata.close()
 
         if parsed_args.wait:
             if utils.wait_for_status(
