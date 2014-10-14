@@ -139,14 +139,17 @@ class TestImageCreate(TestImage):
         self.assertEqual(image_fakes.IMAGE_columns, columns)
         self.assertEqual(image_fakes.IMAGE_data, data)
 
-    @mock.patch('six.moves.builtins.open')
-    def test_image_create_file(self, open_mock):
+    @mock.patch('openstackclient.image.v1.image.io.open', name='Open')
+    def test_image_create_file(self, mock_open):
+        mock_file = mock.MagicMock(name='File')
+        mock_open.return_value = mock_file
+        mock_open.read.return_value = image_fakes.image_data
         mock_exception = {
             'find.side_effect': exceptions.CommandError('x'),
             'get.side_effect': exceptions.CommandError('x'),
         }
         self.images_mock.configure_mock(**mock_exception)
-        open_mock.return_value = image_fakes.image_data
+
         arglist = [
             '--file', 'filer',
             '--unprotected',
@@ -169,7 +172,11 @@ class TestImageCreate(TestImage):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        open_mock.assert_called_with('filer', 'rb')
+        # Ensure input file is opened
+        mock_open.assert_called_with('filer', 'rb')
+
+        # Ensure the input file is closed
+        mock_file.close.assert_called_with()
 
         # ImageManager.get(name)
         self.images_mock.get.assert_called_with(image_fakes.image_name)
@@ -185,7 +192,7 @@ class TestImageCreate(TestImage):
                 'Alpha': '1',
                 'Beta': '2',
             },
-            data=image_fakes.image_data,
+            data=mock_file,
         )
 
         # Verify update() was not called, if it was show the args

@@ -15,6 +15,7 @@
 
 """Image V1 Action Implementations"""
 
+import io
 import logging
 import os
 import six
@@ -214,10 +215,9 @@ class CreateImage(show.ShowOne):
             elif parsed_args.file:
                 # Send an open file handle to glanceclient so it will
                 # do a chunked transfer
-                kwargs["data"] = open(parsed_args.file, "rb")
+                kwargs["data"] = io.open(parsed_args.file, "rb")
             else:
                 # Read file from stdin
-                kwargs["data"] = None
                 if sys.stdin.isatty() is not True:
                     if msvcrt:
                         msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
@@ -225,29 +225,36 @@ class CreateImage(show.ShowOne):
                     # do a chunked transfer
                     kwargs["data"] = sys.stdin
 
+        # Wrap the call to catch exceptions in order to close files
         try:
-            image = utils.find_resource(
-                image_client.images,
-                parsed_args.name,
-            )
+            try:
+                image = utils.find_resource(
+                    image_client.images,
+                    parsed_args.name,
+                )
 
-            # Preserve previous properties if any are being set now
-            if image.properties:
-                if parsed_args.properties:
-                    image.properties.update(kwargs['properties'])
-                kwargs['properties'] = image.properties
+                # Preserve previous properties if any are being set now
+                if image.properties:
+                    if parsed_args.properties:
+                        image.properties.update(kwargs['properties'])
+                    kwargs['properties'] = image.properties
 
-        except exceptions.CommandError:
-            if not parsed_args.volume:
-                # This is normal for a create or reserve (create w/o an image)
-                # But skip for create from volume
-                image = image_client.images.create(**kwargs)
-        else:
-            # Update an existing reservation
+            except exceptions.CommandError:
+                if not parsed_args.volume:
+                    # This is normal for a create or reserve (create w/o
+                    # an image), but skip for create from volume
+                    image = image_client.images.create(**kwargs)
+            else:
+                # Update an existing reservation
 
-            # If an image is specified via --file, --location or
-            # --copy-from let the API handle it
-            image = image_client.images.update(image.id, **kwargs)
+                # If an image is specified via --file, --location or
+                # --copy-from let the API handle it
+                image = image_client.images.update(image.id, **kwargs)
+        finally:
+            # Clean up open files - make sure data isn't a string
+            if ('data' in kwargs and hasattr(kwargs['data'], 'close') and
+               kwargs['data'] != sys.stdin):
+                    kwargs['data'].close()
 
         info = {}
         info.update(image._info)
