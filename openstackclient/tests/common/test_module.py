@@ -42,6 +42,38 @@ MODULES = {
 }
 
 
+class TestCommandList(utils.TestCommand):
+
+    def setUp(self):
+        super(TestCommandList, self).setUp()
+
+        self.app.command_manager = mock.Mock()
+        self.app.command_manager.get_command_groups.return_value = ['test']
+        self.app.command_manager.get_command_names.return_value = [
+            'one',
+            'cmd two',
+        ]
+
+        # Get the command object to test
+        self.cmd = osc_module.ListCommand(self.app, None)
+
+    def test_command_list_no_options(self):
+        arglist = []
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        collist = ('Command Group', 'Commands')
+        self.assertEqual(collist, columns)
+        datalist = ((
+            'test',
+            ['one', 'cmd two'],
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+
 @mock.patch.dict(
     'openstackclient.common.module.sys.modules',
     values=MODULES,
