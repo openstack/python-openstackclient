@@ -68,7 +68,7 @@ def make_client(instance):
     else:
         # password flow
         client.client.management_url = instance.get_endpoint_for_service_type(
-            API_NAME)
+            API_NAME, region_name=instance._region_name)
         client.client.service_catalog = instance._service_catalog
     client.client.auth_token = instance._token
 

@@ -35,7 +35,8 @@ def make_client(instance):
     LOG.debug('Instantiating network client: %s', network_client)
 
     if not instance._url:
-        instance._url = instance.get_endpoint_for_service_type("network")
+        instance._url = instance.get_endpoint_for_service_type(
+            "network", region_name=instance._region_name)
     return network_client(
         username=instance._username,
         tenant_name=instance._project_name,
