@@ -68,19 +68,6 @@ class OpenStackShell(app.App):
         # Assume TLS host certificate verification is enabled
         self.verify = True
 
-        # Get list of base modules
-        self.ext_modules = clientmanager.get_extension_modules(
-            'openstack.cli.base',
-        )
-        # Append list of extension modules
-        self.ext_modules.extend(clientmanager.get_extension_modules(
-            'openstack.cli.extension',
-        ))
-
-        # Loop through extensions to get parser additions
-        for mod in self.ext_modules:
-            self.parser = mod.build_option_parser(self.parser)
-
         # NOTE(dtroyer): This hack changes the help action that Cliff
         #                automatically adds to the parser so we can defer
         #                its execution until after the api-versioned commands
@@ -170,6 +157,7 @@ class OpenStackShell(app.App):
         parser = super(OpenStackShell, self).build_option_parser(
             description,
             version)
+
         # service token auth argument
         parser.add_argument(
             '--os-url',
@@ -214,7 +202,7 @@ class OpenStackShell(app.App):
             help="Print API call timing info",
         )
 
-        return parser
+        return clientmanager.build_plugin_option_parser(parser)
 
     def authenticate_user(self):
         """Verify the required authentication credentials are present"""
@@ -332,7 +320,7 @@ class OpenStackShell(app.App):
         self.default_domain = self.options.os_default_domain
 
         # Loop through extensions to get API versions
-        for mod in self.ext_modules:
+        for mod in clientmanager.PLUGIN_MODULES:
             version_opt = getattr(self.options, mod.API_VERSION_OPTION, None)
             if version_opt:
                 api = mod.API_NAME
