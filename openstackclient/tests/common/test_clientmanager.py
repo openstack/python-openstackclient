@@ -76,6 +76,31 @@ class TestClientManager(utils.TestCase):
                        url=fakes.AUTH_URL,
                        verb='GET')
 
+    def test_client_manager_token_endpoint(self):
+
+        client_manager = clientmanager.ClientManager(
+            auth_options=FakeOptions(os_token=fakes.AUTH_TOKEN,
+                                     os_url=fakes.AUTH_URL,
+                                     os_auth_plugin='token_endpoint'),
+            api_version=API_VERSION,
+            verify=True
+        )
+        self.assertEqual(
+            fakes.AUTH_URL,
+            client_manager._url,
+        )
+
+        self.assertEqual(
+            fakes.AUTH_TOKEN,
+            client_manager._token,
+        )
+        self.assertIsInstance(
+            client_manager.auth,
+            auth.TokenEndpoint,
+        )
+        self.assertFalse(client_manager._insecure)
+        self.assertTrue(client_manager._verify)
+
     def test_client_manager_token(self):
 
         client_manager = clientmanager.ClientManager(
@@ -176,8 +201,7 @@ class TestClientManager(utils.TestCase):
         self.assertTrue(client_manager._verify)
         self.assertEqual('cafile', client_manager._cacert)
 
-    def _client_manager_guess_auth_plugin(self, auth_params,
-                                          api_version, auth_plugin):
+    def _select_auth_plugin(self, auth_params, api_version, auth_plugin):
         auth_params['os_auth_plugin'] = auth_plugin
         auth_params['os_identity_api_version'] = api_version
         client_manager = clientmanager.ClientManager(
@@ -190,25 +214,25 @@ class TestClientManager(utils.TestCase):
             client_manager._auth_plugin,
         )
 
-    def test_client_manager_guess_auth_plugin(self):
+    def test_client_manager_select_auth_plugin(self):
         # test token auth
         params = dict(os_token=fakes.AUTH_TOKEN,
                       os_auth_url=fakes.AUTH_URL)
-        self._client_manager_guess_auth_plugin(params, '2.0', 'v2token')
-        self._client_manager_guess_auth_plugin(params, '3', 'v3token')
-        self._client_manager_guess_auth_plugin(params, 'XXX', 'token')
-        # test service auth
+        self._select_auth_plugin(params, '2.0', 'v2token')
+        self._select_auth_plugin(params, '3', 'v3token')
+        self._select_auth_plugin(params, 'XXX', 'token')
+        # test token/endpoint auth
         params = dict(os_token=fakes.AUTH_TOKEN, os_url='test')
-        self._client_manager_guess_auth_plugin(params, 'XXX', '')
+        self._select_auth_plugin(params, 'XXX', 'token_endpoint')
         # test password auth
         params = dict(os_auth_url=fakes.AUTH_URL,
                       os_username=fakes.USERNAME,
                       os_password=fakes.PASSWORD)
-        self._client_manager_guess_auth_plugin(params, '2.0', 'v2password')
-        self._client_manager_guess_auth_plugin(params, '3', 'v3password')
-        self._client_manager_guess_auth_plugin(params, 'XXX', 'password')
+        self._select_auth_plugin(params, '2.0', 'v2password')
+        self._select_auth_plugin(params, '3', 'v3password')
+        self._select_auth_plugin(params, 'XXX', 'password')
 
-    def test_client_manager_guess_auth_plugin_failure(self):
+    def test_client_manager_select_auth_plugin_failure(self):
         self.assertRaises(exc.CommandError,
                           clientmanager.ClientManager,
                           auth_options=FakeOptions(os_auth_plugin=''),

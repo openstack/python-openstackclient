@@ -18,6 +18,8 @@ import logging
 
 import stevedore
 
+from oslo.config import cfg
+
 from keystoneclient.auth import base
 
 from openstackclient.common import exceptions as exc
@@ -53,14 +55,14 @@ for plugin in PLUGIN_LIST:
         )
 
 
-def _guess_authentication_method(options):
+def select_auth_plugin(options):
     """If no auth plugin was specified, pick one based on other options"""
 
-    if options.os_url:
-        # service token authentication, do nothing
-        return
     auth_plugin = None
-    if options.os_password:
+    if options.os_url and options.os_token:
+        # service token authentication
+        auth_plugin = 'token_endpoint'
+    elif options.os_password:
         if options.os_identity_api_version == '3':
             auth_plugin = 'v3password'
         elif options.os_identity_api_version == '2.0':
@@ -83,14 +85,13 @@ def _guess_authentication_method(options):
         )
     LOG.debug("No auth plugin selected, picking %s from other "
               "options" % auth_plugin)
-    options.os_auth_plugin = auth_plugin
+    return auth_plugin
 
 
 def build_auth_params(cmd_options):
     auth_params = {}
-    if cmd_options.os_url:
-        return {'token': cmd_options.os_token}
     if cmd_options.os_auth_plugin:
+        LOG.debug('auth_plugin: %s', cmd_options.os_auth_plugin)
         auth_plugin = base.get_plugin_class(cmd_options.os_auth_plugin)
         plugin_options = auth_plugin.get_options()
         for option in plugin_options:
@@ -110,6 +111,7 @@ def build_auth_params(cmd_options):
                 None,
             )
     else:
+        LOG.debug('no auth_plugin')
         # delay the plugin choice, grab every option
         plugin_options = set([o.replace('-', '_') for o in OPTIONS_LIST])
         for option in plugin_options:
@@ -178,3 +180,54 @@ def build_auth_plugins_option_parser(parser):
         help=argparse.SUPPRESS,
     )
     return parser
+
+
+class TokenEndpoint(base.BaseAuthPlugin):
+    """Auth plugin to handle traditional token/endpoint usage
+
+    Implements the methods required to handle token authentication
+    with a user-specified token and service endpoint; no Identity calls
+    are made for re-scoping, service catalog lookups or the like.
+
+    The purpose of this plugin is to get rid of the special-case paths
+    in the code to handle this authentication format. Its primary use
+    is for bootstrapping the Keystone database.
+    """
+
+    def __init__(self, url, token, **kwargs):
+        """A plugin for static authentication with an existing token
+
+        :param string url: Service endpoint
+        :param string token: Existing token
+        """
+        super(TokenEndpoint, self).__init__()
+        self.endpoint = url
+        self.token = token
+
+    def get_endpoint(self, session, **kwargs):
+        """Return the supplied endpoint"""
+        return self.endpoint
+
+    def get_token(self, session):
+        """Return the supplied token"""
+        return self.token
+
+    def get_auth_ref(self, session, **kwargs):
+        """Stub this method for compatibility"""
+        return None
+
+    # Override this because it needs to be a class method...
+    @classmethod
+    def get_options(self):
+        options = super(TokenEndpoint, self).get_options()
+
+        options.extend([
+            # Maintain name 'url' for compatibility
+            cfg.StrOpt('url',
+                       help='Specific service endpoint to use'),
+            cfg.StrOpt('token',
+                       secret=True,
+                       help='Authentication token to use'),
+        ])
+
+        return options

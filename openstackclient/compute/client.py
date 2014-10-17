@@ -44,33 +44,20 @@ def make_client(instance):
 
     extensions = [extension.Extension('list_extensions', list_extensions)]
     client = compute_client(
-        username=instance._username,
-        api_key=instance._password,
-        project_id=instance._project_name,
-        auth_url=instance._auth_url,
-        cacert=instance._cacert,
-        insecure=instance._insecure,
-        region_name=instance._region_name,
-        # FIXME(dhellmann): get endpoint_type from option?
-        endpoint_type='publicURL',
+        session=instance.session,
         extensions=extensions,
-        service_type=API_NAME,
-        # FIXME(dhellmann): what is service_name?
-        service_name='',
         http_log_debug=http_log_debug,
         timings=instance.timing,
     )
 
     # Populate the Nova client to skip another auth query to Identity
-    if instance._url:
-        # token flow
-        client.client.management_url = instance._url
-    else:
+    if 'token' not in instance._auth_params:
         # password flow
         client.client.management_url = instance.get_endpoint_for_service_type(
             API_NAME, region_name=instance._region_name)
         client.client.service_catalog = instance._service_catalog
-    client.client.auth_token = instance._token
+    client.client.auth_token = instance.auth.get_token(instance.session)
+
     return client
 
 

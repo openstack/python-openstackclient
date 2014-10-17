@@ -56,9 +56,10 @@ class ClientManager(object):
             return self._auth_params[name[1:]]
 
     def __init__(self, auth_options, api_version=None, verify=True):
-
+        # If no plugin is named by the user, select one based on
+        # the supplied options
         if not auth_options.os_auth_plugin:
-            auth._guess_authentication_method(auth_options)
+            auth_options.os_auth_plugin = auth.select_auth_plugin(auth_options)
 
         self._auth_plugin = auth_options.os_auth_plugin
         self._url = auth_options.os_url
@@ -68,7 +69,7 @@ class ClientManager(object):
         self._service_catalog = None
         self.timing = auth_options.timing
 
-        # For compatability until all clients can be updated
+        # For compatibility until all clients can be updated
         if 'project_name' in self._auth_params:
             self._project_name = self._auth_params['project_name']
         elif 'tenant_name' in self._auth_params:
@@ -88,27 +89,25 @@ class ClientManager(object):
         root_logger = logging.getLogger('')
         LOG.setLevel(root_logger.getEffectiveLevel())
 
-        self.session = None
-        if not self._url:
-            LOG.debug('Using auth plugin: %s' % self._auth_plugin)
-            auth_plugin = base.get_plugin_class(self._auth_plugin)
-            self.auth = auth_plugin.load_from_options(**self._auth_params)
-            # needed by SAML authentication
-            request_session = requests.session()
-            self.session = session.Session(
-                auth=self.auth,
-                session=request_session,
-                verify=verify,
-            )
+        LOG.debug('Using auth plugin: %s' % self._auth_plugin)
+        auth_plugin = base.get_plugin_class(self._auth_plugin)
+        self.auth = auth_plugin.load_from_options(**self._auth_params)
+        # needed by SAML authentication
+        request_session = requests.session()
+        self.session = session.Session(
+            auth=self.auth,
+            session=request_session,
+            verify=verify,
+        )
 
         self.auth_ref = None
-        if not self._auth_plugin.endswith("token") and not self._url:
-            LOG.debug("Populate other password flow attributes")
-            self.auth_ref = self.session.auth.get_auth_ref(self.session)
-            self._token = self.session.auth.get_token(self.session)
+        if 'token' not in self._auth_params:
+            LOG.debug("Get service catalog")
+            self.auth_ref = self.auth.get_auth_ref(self.session)
             self._service_catalog = self.auth_ref.service_catalog
-        else:
-            self._token = self._auth_params.get('token')
+
+        # This begone when clients no longer need it...
+        self._token = self.auth.get_token(self.session)
 
         return
 
