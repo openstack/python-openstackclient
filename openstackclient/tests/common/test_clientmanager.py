@@ -16,8 +16,8 @@ import mock
 from requests_mock.contrib import fixture
 
 from keystoneclient.auth.identity import v2 as auth_v2
-from keystoneclient.openstack.common import jsonutils
 from keystoneclient import service_catalog
+from oslo.serialization import jsonutils
 
 from openstackclient.api import auth
 from openstackclient.common import clientmanager
