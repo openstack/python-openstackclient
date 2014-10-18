@@ -34,16 +34,18 @@ def make_client(instance):
         API_VERSIONS)
     LOG.debug('Instantiating network client: %s', network_client)
 
-    if not instance._url:
-        instance._url = instance.get_endpoint_for_service_type(
-            "network", region_name=instance._region_name)
+    endpoint = instance.get_endpoint_for_service_type(
+        API_NAME,
+        region_name=instance._region_name,
+    )
+
     return network_client(
         username=instance._username,
         tenant_name=instance._project_name,
         password=instance._password,
         region_name=instance._region_name,
         auth_url=instance._auth_url,
-        endpoint_url=instance._url,
+        endpoint_url=endpoint,
         token=instance.auth.get_token(instance.session),
         insecure=instance._insecure,
         ca_cert=instance._cacert,

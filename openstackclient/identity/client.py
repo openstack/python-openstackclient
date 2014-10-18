@@ -44,27 +44,11 @@ def make_client(instance):
         API_VERSIONS)
     LOG.debug('Instantiating identity client: %s', identity_client)
 
-    # TODO(dtroyer): Something doesn't like the session.auth when using
-    #                token auth, chase that down.
-    if instance._url:
-        LOG.debug('Using service token auth')
-        client = identity_client(
-            endpoint=instance._url,
-            token=instance._auth_params['token'],
-            cacert=instance._cacert,
-            insecure=instance._insecure
-        )
-    else:
-        LOG.debug('Using auth plugin: %s' % instance._auth_plugin)
-        client = identity_client(
-            session=instance.session,
-            cacert=instance._cacert,
-        )
+    LOG.debug('Using auth plugin: %s' % instance._auth_plugin)
+    client = identity_client(
+        session=instance.session,
+    )
 
-    # TODO(dtroyer): the identity v2 role commands use this yet, fix that
-    #                so we can remove it
-    if not instance._url:
-        instance.auth_ref = instance.auth.get_auth_ref(instance.session)
     return client
 
 

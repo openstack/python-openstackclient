@@ -157,7 +157,7 @@ class TestClientManager(utils.TestCase):
         )
         self.assertEqual(
             dir(SERVICE_CATALOG),
-            dir(client_manager._service_catalog),
+            dir(client_manager.auth_ref.service_catalog),
         )
 
     def stub_auth(self, json=None, url=None, verb=None, **kwargs):

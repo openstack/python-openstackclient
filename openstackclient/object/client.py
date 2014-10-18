@@ -33,10 +33,10 @@ API_VERSIONS = {
 def make_client(instance):
     """Returns an object-store API client."""
 
-    if instance._url:
-        endpoint = instance._url
-    else:
-        endpoint = instance.get_endpoint_for_service_type("object-store")
+    endpoint = instance.get_endpoint_for_service_type(
+        'object-store',
+        region_name=instance._region_name,
+    )
 
     client = object_store_v1.APIv1(
         session=instance.session,

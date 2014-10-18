@@ -40,11 +40,13 @@ def make_client(instance):
         API_VERSIONS)
     LOG.debug('Instantiating image client: %s', image_client)
 
-    if not instance._url:
-        instance._url = instance.get_endpoint_for_service_type(API_NAME)
+    endpoint = instance.get_endpoint_for_service_type(
+        API_NAME,
+        region_name=instance._region_name,
+    )
 
     return image_client(
-        instance._url,
+        endpoint,
         token=instance.auth.get_token(instance.session),
         cacert=instance._cacert,
         insecure=instance._insecure,

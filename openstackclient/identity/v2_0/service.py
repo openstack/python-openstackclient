@@ -141,9 +141,10 @@ class ShowService(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
+        auth_ref = self.app.client_manager.auth_ref
 
         if parsed_args.catalog:
-            endpoints = identity_client.service_catalog.get_endpoints(
+            endpoints = auth_ref.service_catalog.get_endpoints(
                 service_type=parsed_args.service)
             for (service, service_endpoints) in six.iteritems(endpoints):
                 if service_endpoints:

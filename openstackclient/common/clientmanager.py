@@ -66,7 +66,6 @@ class ClientManager(object):
         self._auth_params = auth.build_auth_params(auth_options)
         self._region_name = auth_options.os_region_name
         self._api_version = api_version
-        self._service_catalog = None
         self.timing = auth_options.timing
 
         # For compatibility until all clients can be updated
@@ -104,7 +103,6 @@ class ClientManager(object):
         if 'token' not in self._auth_params:
             LOG.debug("Get service catalog")
             self.auth_ref = self.auth.get_auth_ref(self.session)
-            self._service_catalog = self.auth_ref.service_catalog
 
         return
 
@@ -112,12 +110,14 @@ class ClientManager(object):
         """Return the endpoint URL for the service type."""
         # See if we are using password flow auth, i.e. we have a
         # service catalog to select endpoints from
-        if self._service_catalog:
-            endpoint = self._service_catalog.url_for(
-                service_type=service_type, region_name=region_name)
+        if self.auth_ref:
+            endpoint = self.auth_ref.service_catalog.url_for(
+                service_type=service_type,
+                region_name=region_name,
+            )
         else:
-            # Hope we were given the correct URL.
-            endpoint = self._auth_url or self._url
+            # Get the passed endpoint directly from the auth plugin
+            endpoint = self.auth.get_endpoint(self.session)
         return endpoint
 
 
