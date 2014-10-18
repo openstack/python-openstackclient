@@ -45,7 +45,7 @@ def make_client(instance):
 
     return image_client(
         instance._url,
-        token=instance._token,
+        token=instance.auth.get_token(instance.session),
         cacert=instance._cacert,
         insecure=instance._insecure,
     )

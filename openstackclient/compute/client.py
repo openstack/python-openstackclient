@@ -43,20 +43,13 @@ def make_client(instance):
     http_log_debug = utils.get_effective_log_level() <= logging.DEBUG
 
     extensions = [extension.Extension('list_extensions', list_extensions)]
+
     client = compute_client(
         session=instance.session,
         extensions=extensions,
         http_log_debug=http_log_debug,
         timings=instance.timing,
     )
-
-    # Populate the Nova client to skip another auth query to Identity
-    if 'token' not in instance._auth_params:
-        # password flow
-        client.client.management_url = instance.get_endpoint_for_service_type(
-            API_NAME, region_name=instance._region_name)
-        client.client.service_catalog = instance._service_catalog
-    client.client.auth_token = instance.auth.get_token(instance.session)
 
     return client
 

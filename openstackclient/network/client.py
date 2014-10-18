@@ -44,7 +44,7 @@ def make_client(instance):
         region_name=instance._region_name,
         auth_url=instance._auth_url,
         endpoint_url=instance._url,
-        token=instance._token,
+        token=instance.auth.get_token(instance.session),
         insecure=instance._insecure,
         ca_cert=instance._cacert,
     )

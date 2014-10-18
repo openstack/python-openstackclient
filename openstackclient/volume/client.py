@@ -49,28 +49,12 @@ def make_client(instance):
     http_log_debug = utils.get_effective_log_level() <= logging.DEBUG
 
     extensions = [extension.Extension('list_extensions', list_extensions)]
+
     client = volume_client(
-        username=instance._username,
-        api_key=instance._password,
-        project_id=instance._project_name,
-        auth_url=instance._auth_url,
-        cacert=instance._cacert,
-        insecure=instance._insecure,
-        region_name=instance._region_name,
+        session=instance.session,
         extensions=extensions,
         http_log_debug=http_log_debug,
     )
-
-    # Populate the Cinder client to skip another auth query to Identity
-    if instance._url:
-        # token flow
-        client.client.management_url = instance._url
-    else:
-        # password flow
-        client.client.management_url = instance.get_endpoint_for_service_type(
-            API_NAME, region_name=instance._region_name)
-        client.client.service_catalog = instance._service_catalog
-    client.client.auth_token = instance._token
 
     return client
 

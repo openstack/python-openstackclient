@@ -89,10 +89,9 @@ class TestClientManager(utils.TestCase):
             fakes.AUTH_URL,
             client_manager._url,
         )
-
         self.assertEqual(
             fakes.AUTH_TOKEN,
-            client_manager._token,
+            client_manager.auth.get_token(None),
         )
         self.assertIsInstance(
             client_manager.auth,
@@ -111,10 +110,6 @@ class TestClientManager(utils.TestCase):
             verify=True
         )
 
-        self.assertEqual(
-            fakes.AUTH_TOKEN,
-            client_manager._token,
-        )
         self.assertEqual(
             fakes.AUTH_URL,
             client_manager._auth_url,
@@ -159,10 +154,6 @@ class TestClientManager(utils.TestCase):
         self.assertEqual(
             AUTH_REF,
             client_manager.auth_ref,
-        )
-        self.assertEqual(
-            fakes.AUTH_TOKEN,
-            client_manager._token,
         )
         self.assertEqual(
             dir(SERVICE_CATALOG),

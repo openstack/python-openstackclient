@@ -106,9 +106,6 @@ class ClientManager(object):
             self.auth_ref = self.auth.get_auth_ref(self.session)
             self._service_catalog = self.auth_ref.service_catalog
 
-        # This begone when clients no longer need it...
-        self._token = self.auth.get_token(self.session)
-
         return
 
     def get_endpoint_for_service_type(self, service_type, region_name=None):
