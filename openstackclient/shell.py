@@ -68,6 +68,8 @@ class OpenStackShell(app.App):
         # Assume TLS host certificate verification is enabled
         self.verify = True
 
+        self.client_manager = None
+
         # NOTE(dtroyer): This hack changes the help action that Cliff
         #                automatically adds to the parser so we can defer
         #                its execution until after the api-versioned commands
@@ -204,8 +206,12 @@ class OpenStackShell(app.App):
 
         return clientmanager.build_plugin_option_parser(parser)
 
-    def authenticate_user(self):
-        """Verify the required authentication credentials are present"""
+    def initialize_clientmanager(self):
+        """Validating authentication options and generate a clientmanager"""
+
+        if self.client_manager:
+            self.log.debug('The clientmanager has been initialized already')
+            return
 
         self.log.debug("validating authentication options")
 
@@ -370,11 +376,11 @@ class OpenStackShell(app.App):
             return
         if cmd.best_effort:
             try:
-                self.authenticate_user()
+                self.initialize_clientmanager()
             except Exception:
                 pass
         else:
-            self.authenticate_user()
+            self.initialize_clientmanager()
         return
 
     def clean_up(self, cmd, result, err):
@@ -409,7 +415,7 @@ class OpenStackShell(app.App):
     def interact(self):
         # NOTE(dtroyer): Maintain the old behaviour for interactive use as
         #                this path does not call prepare_to_run_command()
-        self.authenticate_user()
+        self.initialize_clientmanager()
         super(OpenStackShell, self).interact()
 
 
