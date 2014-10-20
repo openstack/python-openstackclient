@@ -176,10 +176,10 @@ USER = {
 token_expires = '2014-01-01T00:00:00Z'
 token_id = 'tttttttt-tttt-tttt-tttt-tttttttttttt'
 
-TOKEN_WITH_TENANT_ID = {
+TOKEN_WITH_PROJECT_ID = {
     'expires': token_expires,
     'id': token_id,
-    'tenant_id': project_id,
+    'project_id': project_id,
     'user_id': user_id,
 }
 
