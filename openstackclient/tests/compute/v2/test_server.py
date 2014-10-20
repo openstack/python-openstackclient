@@ -134,17 +134,16 @@ class TestServerCreate(TestServer):
             **kwargs
         )
 
-        collist = ('addresses', 'flavor', 'id', 'image', 'name', 'properties')
-        self.assertEqual(columns, collist)
+        collist = ('addresses', 'flavor', 'id', 'name', 'properties')
+        self.assertEqual(collist, columns)
         datalist = (
             '',
             'Large ()',
             compute_fakes.server_id,
-            'graven ()',
             compute_fakes.server_name,
             '',
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     @mock.patch('openstackclient.compute.v2.server.io.open')
     def test_server_create_userdata(self, mock_open):
@@ -200,17 +199,16 @@ class TestServerCreate(TestServer):
             **kwargs
         )
 
-        collist = ('addresses', 'flavor', 'id', 'image', 'name', 'properties')
-        self.assertEqual(columns, collist)
+        collist = ('addresses', 'flavor', 'id', 'name', 'properties')
+        self.assertEqual(collist, columns)
         datalist = (
             '',
             'Large ()',
             compute_fakes.server_id,
-            'graven ()',
             compute_fakes.server_name,
             '',
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
 
 class TestServerDelete(TestServer):
@@ -288,14 +286,14 @@ class TestServerImageCreate(TestServer):
         )
 
         collist = ('id', 'is_public', 'name', 'owner')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             image_fakes.image_id,
             False,
             image_fakes.image_name,
             image_fakes.image_owner,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_server_image_create_name(self):
         arglist = [
@@ -318,14 +316,14 @@ class TestServerImageCreate(TestServer):
         )
 
         collist = ('id', 'is_public', 'name', 'owner')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             image_fakes.image_id,
             False,
             image_fakes.image_name,
             image_fakes.image_owner,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
 
 class TestServerResize(TestServer):

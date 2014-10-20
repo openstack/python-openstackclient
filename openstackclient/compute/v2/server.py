@@ -67,9 +67,10 @@ def _prep_server_detail(compute_client, server):
 
     # Convert the image blob to a name
     image_info = info.get('image', {})
-    image_id = image_info.get('id', '')
-    image = utils.find_resource(compute_client.images, image_id)
-    info['image'] = "%s (%s)" % (image.name, image_id)
+    if image_info:
+        image_id = image_info.get('id', '')
+        image = utils.find_resource(compute_client.images, image_id)
+        info['image'] = "%s (%s)" % (image.name, image_id)
 
     # Convert the flavor blob to a name
     flavor_info = info.get('flavor', {})
@@ -192,11 +193,17 @@ class CreateServer(show.ShowOne):
             'server_name',
             metavar='<server-name>',
             help=_('New server name'))
-        parser.add_argument(
+        disk_group = parser.add_mutually_exclusive_group(
+            required=True,
+        )
+        disk_group.add_argument(
             '--image',
             metavar='<image>',
-            required=True,
             help=_('Create server from this image'))
+        disk_group.add_argument(
+            '--volume',
+            metavar='<volume>',
+            help=_('Create server from this volume'))
         parser.add_argument(
             '--flavor',
             metavar='<flavor>',
@@ -282,10 +289,23 @@ class CreateServer(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
+        volume_client = self.app.client_manager.volume
 
         # Lookup parsed_args.image
-        image = utils.find_resource(compute_client.images,
-                                    parsed_args.image)
+        image = None
+        if parsed_args.image:
+            image = utils.find_resource(
+                compute_client.images,
+                parsed_args.image,
+            )
+
+        # Lookup parsed_args.volume
+        volume = None
+        if parsed_args.volume:
+            volume = utils.find_resource(
+                volume_client.volumes,
+                parsed_args.volume,
+            ).id
 
         # Lookup parsed_args.flavor
         flavor = utils.find_resource(compute_client.flavors,
@@ -319,8 +339,21 @@ class CreateServer(show.ShowOne):
                 msg = "Can't open '%s': %s"
                 raise exceptions.CommandError(msg % (parsed_args.user_data, e))
 
-        block_device_mapping = dict(v.split('=', 1)
-                                    for v in parsed_args.block_device_mapping)
+        block_device_mapping = {}
+        if volume:
+            # When booting from volume, for now assume no other mappings
+            # This device value is likely KVM-specific
+            block_device_mapping = {'vda': volume}
+        else:
+            for dev_map in parsed_args.block_device_mapping:
+                dev_key, dev_vol = dev_map.split('=', 1)
+                block_volume = None
+                if dev_vol:
+                    block_volume = utils.find_resource(
+                        volume_client.volumes,
+                        dev_vol,
+                    ).id
+                block_device_mapping.update({dev_key: block_volume})
 
         nics = []
         for nic_str in parsed_args.nic:
