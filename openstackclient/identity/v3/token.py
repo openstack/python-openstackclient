@@ -159,9 +159,7 @@ class IssueToken(show.ShowOne):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
-        session = self.app.client_manager.identity.session
-
-        token = session.auth.auth_ref.service_catalog.get_token()
+        token = self.app.client_manager.auth_ref.service_catalog.get_token()
         if 'tenant_id' in token:
             token['project_id'] = token.pop('tenant_id')
         return zip(*sorted(six.iteritems(token)))

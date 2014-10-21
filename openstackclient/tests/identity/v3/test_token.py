@@ -13,6 +13,8 @@
 #   under the License.
 #
 
+import mock
+
 from openstackclient.identity.v3 import token
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 
@@ -23,9 +25,9 @@ class TestToken(identity_fakes.TestIdentityv3):
         super(TestToken, self).setUp()
 
         # Get a shortcut to the Service Catalog Mock
-        session = self.app.client_manager.identity.session
-        self.sc_mock = session.auth.auth_ref.service_catalog
-        self.sc_mock.reset_mock()
+        self.sc_mock = mock.Mock()
+        self.app.client_manager.auth_ref = mock.Mock()
+        self.app.client_manager.auth_ref.service_catalog = self.sc_mock
 
 
 class TestTokenIssue(TestToken):
@@ -40,7 +42,7 @@ class TestTokenIssue(TestToken):
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.sc_mock.get_token.return_value = \
-            identity_fakes.TOKEN_WITH_TENANT_ID
+            identity_fakes.TOKEN_WITH_PROJECT_ID
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
