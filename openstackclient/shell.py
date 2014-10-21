@@ -137,18 +137,7 @@ class OpenStackShell(app.App):
         super(OpenStackShell, self).configure_logging()
         root_logger = logging.getLogger('')
 
-        # Requests logs some stuff at INFO that we don't want
-        # unless we have DEBUG
-        requests_log = logging.getLogger("requests")
-        requests_log.setLevel(logging.ERROR)
-
-        # Other modules we don't want DEBUG output for so
-        # don't reset them below
-        iso8601_log = logging.getLogger("iso8601")
-        iso8601_log.setLevel(logging.ERROR)
-
         # Set logging to the requested level
-        self.dump_stack_trace = False
         if self.options.verbose_level == 0:
             # --quiet
             root_logger.setLevel(logging.ERROR)
@@ -161,11 +150,28 @@ class OpenStackShell(app.App):
         elif self.options.verbose_level >= 3:
             # Two or more --verbose
             root_logger.setLevel(logging.DEBUG)
-            requests_log.setLevel(logging.DEBUG)
+
+        # Requests logs some stuff at INFO that we don't want
+        # unless we have DEBUG
+        requests_log = logging.getLogger("requests")
+
+        # Other modules we don't want DEBUG output for
+        cliff_log = logging.getLogger('cliff')
+        stevedore_log = logging.getLogger('stevedore')
+        iso8601_log = logging.getLogger("iso8601")
 
         if self.options.debug:
             # --debug forces traceback
             self.dump_stack_trace = True
+            requests_log.setLevel(logging.DEBUG)
+            cliff_log.setLevel(logging.DEBUG)
+        else:
+            self.dump_stack_trace = False
+            requests_log.setLevel(logging.ERROR)
+            cliff_log.setLevel(logging.ERROR)
+
+        stevedore_log.setLevel(logging.ERROR)
+        iso8601_log.setLevel(logging.ERROR)
 
     def run(self, argv):
         try:
@@ -295,8 +301,11 @@ class OpenStackShell(app.App):
 
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""
-        self.log.debug('prepare_to_run_command %s', cmd.__class__.__name__)
-
+        self.log.info(
+            'command: %s.%s',
+            cmd.__class__.__module__,
+            cmd.__class__.__name__,
+        )
         if cmd.auth_required and cmd.best_effort:
             try:
                 # Trigger the Identity client to initialize

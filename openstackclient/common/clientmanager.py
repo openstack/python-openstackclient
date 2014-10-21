@@ -118,7 +118,7 @@ class ClientManager(object):
         root_logger = logging.getLogger('')
         LOG.setLevel(root_logger.getEffectiveLevel())
 
-        LOG.debug('Using auth plugin: %s' % self.auth_plugin_name)
+        LOG.info('Using auth plugin: %s' % self.auth_plugin_name)
         self.auth = auth_plugin.load_from_options(**self._auth_params)
         # needed by SAML authentication
         request_session = requests.session()
