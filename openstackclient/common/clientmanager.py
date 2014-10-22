@@ -55,17 +55,46 @@ class ClientManager(object):
                     for o in auth.OPTIONS_LIST]:
             return self._auth_params[name[1:]]
 
-    def __init__(self, auth_options, api_version=None, verify=True):
+    def __init__(
+        self,
+        auth_options,
+        api_version=None,
+        verify=True,
+        pw_func=None,
+    ):
+        """Set up a ClientManager
+
+        :param auth_options:
+            Options collected from the command-line, environment, or wherever
+        :param api_version:
+            Dict of API versions: key is API name, value is the version
+        :param verify:
+            TLS certificate verification; may be a boolean to enable or disable
+            server certificate verification, or a filename of a CA certificate
+            bundle to be used in verification (implies True)
+        :param pw_func:
+            Callback function for asking the user for a password.  The function
+            takes an optional string for the prompt ('Password: ' on None) and
+            returns a string containig the password
+        """
+
         # If no plugin is named by the user, select one based on
         # the supplied options
         if not auth_options.os_auth_plugin:
             auth_options.os_auth_plugin = auth.select_auth_plugin(auth_options)
-
         self._auth_plugin = auth_options.os_auth_plugin
+
+        # Horrible hack alert...must handle prompt for null password if
+        # password auth is requested.
+        if (self._auth_plugin.endswith('password') and
+                not auth_options.os_password):
+            auth_options.os_password = pw_func()
+
         self._url = auth_options.os_url
         self._auth_params = auth.build_auth_params(auth_options)
         self._region_name = auth_options.os_region_name
         self._api_version = api_version
+        self._auth_ref = None
         self.timing = auth_options.timing
 
         # For compatibility until all clients can be updated
@@ -99,12 +128,15 @@ class ClientManager(object):
             verify=verify,
         )
 
-        self.auth_ref = None
-        if 'token' not in self._auth_params:
-            LOG.debug("Get service catalog")
-            self.auth_ref = self.auth.get_auth_ref(self.session)
-
         return
+
+    @property
+    def auth_ref(self):
+        """Dereference will trigger an auth if it hasn't already"""
+        if not self._auth_ref:
+            LOG.debug("Get auth_ref")
+            self._auth_ref = self.auth.get_auth_ref(self.session)
+        return self._auth_ref
 
     def get_endpoint_for_service_type(self, service_type, region_name=None):
         """Return the endpoint URL for the service type."""

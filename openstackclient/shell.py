@@ -36,6 +36,30 @@ from openstackclient.common import utils
 DEFAULT_DOMAIN = 'default'
 
 
+def prompt_for_password(prompt=None):
+    """Prompt user for a password
+
+    Propmpt for a password if stdin is a tty.
+    """
+
+    if not prompt:
+        prompt = 'Password: '
+    pw = None
+    # If stdin is a tty, try prompting for the password
+    if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
+        # Check for Ctl-D
+        try:
+            pw = getpass.getpass(prompt)
+        except EOFError:
+            pass
+    # No password because we did't have a tty or nothing was entered
+    if not pw:
+        raise exc.CommandError(
+            "No password entered, or found via --os-password or OS_PASSWORD",
+        )
+    return pw
+
+
 class OpenStackShell(app.App):
 
     CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(name)s %(message)s'
@@ -206,112 +230,6 @@ class OpenStackShell(app.App):
 
         return clientmanager.build_plugin_option_parser(parser)
 
-    def initialize_clientmanager(self):
-        """Validating authentication options and generate a clientmanager"""
-
-        if self.client_manager:
-            self.log.debug('The clientmanager has been initialized already')
-            return
-
-        self.log.debug("validating authentication options")
-
-        # Assuming all auth plugins will be named in the same fashion,
-        # ie vXpluginName
-        if (not self.options.os_url and
-           self.options.os_auth_plugin.startswith('v') and
-           self.options.os_auth_plugin[1] !=
-           self.options.os_identity_api_version[0]):
-            raise exc.CommandError(
-                "Auth plugin %s not compatible"
-                " with requested API version" % self.options.os_auth_plugin
-            )
-        # TODO(mhu) All these checks should be exposed at the plugin level
-        # or just dropped altogether, as the client instantiation will fail
-        # anyway
-        if self.options.os_url and not self.options.os_token:
-            # service token needed
-            raise exc.CommandError(
-                "You must provide a service token via"
-                " either --os-token or env[OS_TOKEN]")
-
-        if (self.options.os_auth_plugin.endswith('token') and
-           (self.options.os_token or self.options.os_auth_url)):
-            # Token flow auth takes priority
-            if not self.options.os_token:
-                raise exc.CommandError(
-                    "You must provide a token via"
-                    " either --os-token or env[OS_TOKEN]")
-
-            if not self.options.os_auth_url:
-                raise exc.CommandError(
-                    "You must provide a service URL via"
-                    " either --os-auth-url or env[OS_AUTH_URL]")
-
-        if (not self.options.os_url and
-           not self.options.os_auth_plugin.endswith('token')):
-            # Validate password flow auth
-            if not self.options.os_username:
-                raise exc.CommandError(
-                    "You must provide a username via"
-                    " either --os-username or env[OS_USERNAME]")
-
-            if not self.options.os_password:
-                # No password, if we've got a tty, try prompting for it
-                if hasattr(sys.stdin, 'isatty') and sys.stdin.isatty():
-                    # Check for Ctl-D
-                    try:
-                        self.options.os_password = getpass.getpass()
-                    except EOFError:
-                        pass
-                # No password because we did't have a tty or the
-                # user Ctl-D when prompted?
-                if not self.options.os_password:
-                    raise exc.CommandError(
-                        "You must provide a password via"
-                        " either --os-password, or env[OS_PASSWORD], "
-                        " or prompted response")
-
-            if not ((self.options.os_project_id
-                    or self.options.os_project_name) or
-                    (self.options.os_domain_id
-                    or self.options.os_domain_name) or
-                    self.options.os_trust_id):
-                if self.options.os_auth_plugin.endswith('password'):
-                    raise exc.CommandError(
-                        "You must provide authentication scope as a project "
-                        "or a domain via --os-project-id "
-                        "or env[OS_PROJECT_ID], "
-                        "--os-project-name or env[OS_PROJECT_NAME], "
-                        "--os-domain-id or env[OS_DOMAIN_ID], or"
-                        "--os-domain-name or env[OS_DOMAIN_NAME], or "
-                        "--os-trust-id or env[OS_TRUST_ID].")
-
-            if not self.options.os_auth_url:
-                raise exc.CommandError(
-                    "You must provide an auth url via"
-                    " either --os-auth-url or via env[OS_AUTH_URL]")
-
-            if (self.options.os_trust_id and
-               self.options.os_identity_api_version != '3'):
-                raise exc.CommandError(
-                    "Trusts can only be used with Identity API v3")
-
-            if (self.options.os_trust_id and
-               ((self.options.os_project_id
-                 or self.options.os_project_name) or
-                (self.options.os_domain_id
-                 or self.options.os_domain_name))):
-                raise exc.CommandError(
-                    "Authentication cannot be scoped to multiple targets. "
-                    "Pick one of project, domain or trust.")
-
-        self.client_manager = clientmanager.ClientManager(
-            auth_options=self.options,
-            verify=self.verify,
-            api_version=self.api_version,
-        )
-        return
-
     def initialize_app(self, argv):
         """Global app init bits:
 
@@ -368,19 +286,23 @@ class OpenStackShell(app.App):
         else:
             self.verify = not self.options.insecure
 
+        self.client_manager = clientmanager.ClientManager(
+            auth_options=self.options,
+            verify=self.verify,
+            api_version=self.api_version,
+            pw_func=prompt_for_password,
+        )
+
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""
         self.log.debug('prepare_to_run_command %s', cmd.__class__.__name__)
 
-        if not cmd.auth_required:
-            return
-        if cmd.best_effort:
+        if cmd.auth_required and cmd.best_effort:
             try:
-                self.initialize_clientmanager()
+                # Trigger the Identity client to initialize
+                self.client_manager.auth_ref
             except Exception:
                 pass
-        else:
-            self.initialize_clientmanager()
         return
 
     def clean_up(self, cmd, result, err):
@@ -411,12 +333,6 @@ class OpenStackShell(app.App):
             sys.stdout.write('\n')
             targs = tparser.parse_args(['-f', format])
             tcmd.run(targs)
-
-    def interact(self):
-        # NOTE(dtroyer): Maintain the old behaviour for interactive use as
-        #                this path does not call prepare_to_run_command()
-        self.initialize_clientmanager()
-        super(OpenStackShell, self).interact()
 
 
 def main(argv=sys.argv[1:]):

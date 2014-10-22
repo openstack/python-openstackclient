@@ -62,7 +62,7 @@ def select_auth_plugin(options):
     if options.os_url and options.os_token:
         # service token authentication
         auth_plugin = 'token_endpoint'
-    elif options.os_password:
+    elif options.os_username:
         if options.os_identity_api_version == '3':
             auth_plugin = 'v3password'
         elif options.os_identity_api_version == '2.0':
