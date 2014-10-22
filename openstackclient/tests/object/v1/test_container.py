@@ -74,13 +74,13 @@ class TestContainerList(TestContainer):
         )
 
         collist = ('Name',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (object_fakes.container_name, ),
             (object_fakes.container_name_3, ),
             (object_fakes.container_name_2, ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_object_list_containers_prefix(self, c_mock):
         c_mock.return_value = [
@@ -108,12 +108,12 @@ class TestContainerList(TestContainer):
         )
 
         collist = ('Name',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (object_fakes.container_name, ),
             (object_fakes.container_name_3, ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_object_list_containers_marker(self, c_mock):
         c_mock.return_value = [
@@ -144,12 +144,12 @@ class TestContainerList(TestContainer):
         )
 
         collist = ('Name',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (object_fakes.container_name, ),
             (object_fakes.container_name_3, ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_object_list_containers_limit(self, c_mock):
         c_mock.return_value = [
@@ -177,12 +177,12 @@ class TestContainerList(TestContainer):
         )
 
         collist = ('Name',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (object_fakes.container_name, ),
             (object_fakes.container_name_3, ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_object_list_containers_long(self, c_mock):
         c_mock.return_value = [
@@ -209,7 +209,7 @@ class TestContainerList(TestContainer):
         )
 
         collist = ('Name', 'Bytes', 'Count')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (
                 object_fakes.container_name,
@@ -222,7 +222,7 @@ class TestContainerList(TestContainer):
                 object_fakes.container_count * 3,
             ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_object_list_containers_all(self, c_mock):
         c_mock.return_value = [
@@ -251,13 +251,13 @@ class TestContainerList(TestContainer):
         )
 
         collist = ('Name',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (object_fakes.container_name, ),
             (object_fakes.container_name_2, ),
             (object_fakes.container_name_3, ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
 
 @mock.patch(
@@ -295,10 +295,10 @@ class TestContainerShow(TestContainer):
         )
 
         collist = ('bytes', 'count', 'name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             object_fakes.container_bytes,
             object_fakes.container_count,
             object_fakes.container_name,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
