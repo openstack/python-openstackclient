@@ -36,8 +36,6 @@ PLUGIN_LIST = stevedore.ExtensionManager(
     invoke_on_load=False,
     propagate_map_exceptions=True,
 )
-# TODO(dtroyer): add some method to list the plugins for the
-#                --os_auth_plugin option
 
 # Get the command line options so the help action has them available
 OPTIONS_LIST = {}
@@ -56,50 +54,53 @@ for plugin in PLUGIN_LIST:
 
 
 def select_auth_plugin(options):
-    """If no auth plugin was specified, pick one based on other options"""
+    """Pick an auth plugin based on --os-auth-type or other options"""
 
-    auth_plugin = None
+    auth_plugin_name = None
+
+    if options.os_auth_type in [plugin.name for plugin in PLUGIN_LIST]:
+        # A direct plugin name was given, use it
+        return options.os_auth_type
+
     if options.os_url and options.os_token:
         # service token authentication
-        auth_plugin = 'token_endpoint'
+        auth_plugin_name = 'token_endpoint'
     elif options.os_username:
         if options.os_identity_api_version == '3':
-            auth_plugin = 'v3password'
+            auth_plugin_name = 'v3password'
         elif options.os_identity_api_version == '2.0':
-            auth_plugin = 'v2password'
+            auth_plugin_name = 'v2password'
         else:
             # let keystoneclient figure it out itself
-            auth_plugin = 'password'
+            auth_plugin_name = 'password'
     elif options.os_token:
         if options.os_identity_api_version == '3':
-            auth_plugin = 'v3token'
+            auth_plugin_name = 'v3token'
         elif options.os_identity_api_version == '2.0':
-            auth_plugin = 'v2token'
+            auth_plugin_name = 'v2token'
         else:
             # let keystoneclient figure it out itself
-            auth_plugin = 'token'
+            auth_plugin_name = 'token'
     else:
         raise exc.CommandError(
-            "Could not figure out which authentication method "
-            "to use, please set --os-auth-plugin"
+            "Authentication type must be selected with --os-auth-type"
         )
-    LOG.debug("No auth plugin selected, picking %s from other "
-              "options" % auth_plugin)
-    return auth_plugin
+    LOG.debug("Auth plugin %s selected" % auth_plugin_name)
+    return auth_plugin_name
 
 
-def build_auth_params(cmd_options):
+def build_auth_params(auth_plugin_name, cmd_options):
     auth_params = {}
-    if cmd_options.os_auth_plugin:
-        LOG.debug('auth_plugin: %s', cmd_options.os_auth_plugin)
-        auth_plugin = base.get_plugin_class(cmd_options.os_auth_plugin)
-        plugin_options = auth_plugin.get_options()
+    if auth_plugin_name:
+        LOG.debug('auth_type: %s', auth_plugin_name)
+        auth_plugin_class = base.get_plugin_class(auth_plugin_name)
+        plugin_options = auth_plugin_class.get_options()
         for option in plugin_options:
             option_name = 'os_' + option.dest
             LOG.debug('fetching option %s' % option_name)
             auth_params[option.dest] = getattr(cmd_options, option_name, None)
         # grab tenant from project for v2.0 API compatibility
-        if cmd_options.os_auth_plugin.startswith("v2"):
+        if auth_plugin_name.startswith("v2"):
             auth_params['tenant_id'] = getattr(
                 cmd_options,
                 'os_project_id',
@@ -111,14 +112,14 @@ def build_auth_params(cmd_options):
                 None,
             )
     else:
-        LOG.debug('no auth_plugin')
+        LOG.debug('no auth_type')
         # delay the plugin choice, grab every option
         plugin_options = set([o.replace('-', '_') for o in OPTIONS_LIST])
         for option in plugin_options:
             option_name = 'os_' + option
             LOG.debug('fetching option %s' % option_name)
             auth_params[option] = getattr(cmd_options, option_name, None)
-    return auth_params
+    return (auth_plugin_class, auth_params)
 
 
 def build_auth_plugins_option_parser(parser):
@@ -130,15 +131,12 @@ def build_auth_plugins_option_parser(parser):
     """
     available_plugins = [plugin.name for plugin in PLUGIN_LIST]
     parser.add_argument(
-        '--os-auth-plugin',
-        metavar='<OS_AUTH_PLUGIN>',
-        default=utils.env('OS_AUTH_PLUGIN'),
-        help='The authentication method to use. If this option is not set, '
-             'openstackclient will attempt to guess the authentication method '
-             'to use based on the other options. If this option is set, '
-             'the --os-identity-api-version argument must be consistent '
-             'with the version of the method.\nAvailable methods are ' +
-             ', '.join(available_plugins),
+        '--os-auth-type',
+        metavar='<auth-type>',
+        default=utils.env('OS_AUTH_TYPE'),
+        help='Select an auhentication type. Available types: ' +
+             ', '.join(available_plugins) +
+             '. Default: selected based on --os-username/--os-token',
         choices=available_plugins
     )
     # make sur we catch old v2.0 env values

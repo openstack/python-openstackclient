@@ -44,7 +44,7 @@ class FakeOptions(object):
     def __init__(self, **kwargs):
         for option in auth.OPTIONS_LIST:
             setattr(self, 'os_' + option.replace('-', '_'), None)
-        self.os_auth_plugin = None
+        self.os_auth_type = None
         self.os_identity_api_version = '2.0'
         self.timing = None
         self.os_region_name = None
@@ -81,7 +81,7 @@ class TestClientManager(utils.TestCase):
         client_manager = clientmanager.ClientManager(
             auth_options=FakeOptions(os_token=fakes.AUTH_TOKEN,
                                      os_url=fakes.AUTH_URL,
-                                     os_auth_plugin='token_endpoint'),
+                                     os_auth_type='token_endpoint'),
             api_version=API_VERSION,
             verify=True
         )
@@ -105,7 +105,7 @@ class TestClientManager(utils.TestCase):
         client_manager = clientmanager.ClientManager(
             auth_options=FakeOptions(os_token=fakes.AUTH_TOKEN,
                                      os_auth_url=fakes.AUTH_URL,
-                                     os_auth_plugin='v2token'),
+                                     os_auth_type='v2token'),
             api_version=API_VERSION,
             verify=True
         )
@@ -183,7 +183,7 @@ class TestClientManager(utils.TestCase):
             auth_options=FakeOptions(os_auth_url=fakes.AUTH_URL,
                                      os_username=fakes.USERNAME,
                                      os_password=fakes.PASSWORD,
-                                     os_auth_plugin='v2password'),
+                                     os_auth_type='v2password'),
             api_version=API_VERSION,
             verify='cafile',
         )
@@ -192,8 +192,8 @@ class TestClientManager(utils.TestCase):
         self.assertTrue(client_manager._verify)
         self.assertEqual('cafile', client_manager._cacert)
 
-    def _select_auth_plugin(self, auth_params, api_version, auth_plugin):
-        auth_params['os_auth_plugin'] = auth_plugin
+    def _select_auth_plugin(self, auth_params, api_version, auth_plugin_name):
+        auth_params['os_auth_type'] = auth_plugin_name
         auth_params['os_identity_api_version'] = api_version
         client_manager = clientmanager.ClientManager(
             auth_options=FakeOptions(**auth_params),
@@ -201,8 +201,8 @@ class TestClientManager(utils.TestCase):
             verify=True
         )
         self.assertEqual(
-            auth_plugin,
-            client_manager._auth_plugin,
+            auth_plugin_name,
+            client_manager.auth_plugin_name,
         )
 
     def test_client_manager_select_auth_plugin(self):

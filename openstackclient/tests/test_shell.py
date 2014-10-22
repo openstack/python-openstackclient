@@ -108,8 +108,8 @@ class TestShell(utils.TestCase):
                              default_args["region_name"])
             self.assertEqual(_shell.options.os_trust_id,
                              default_args["trust_id"])
-            self.assertEqual(_shell.options.os_auth_plugin,
-                             default_args['auth_plugin'])
+            self.assertEqual(_shell.options.os_auth_type,
+                             default_args['auth_type'])
 
     def _assert_token_auth(self, cmd_options, default_args):
         with mock.patch("openstackclient.shell.OpenStackShell.initialize_app",
@@ -190,7 +190,7 @@ class TestShellPasswordAuth(TestShell):
             "password": "",
             "region_name": "",
             "trust_id": "",
-            "auth_plugin": "",
+            "auth_type": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -210,7 +210,7 @@ class TestShellPasswordAuth(TestShell):
             "password": "",
             "region_name": "",
             "trust_id": "",
-            "auth_plugin": "",
+            "auth_type": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -230,7 +230,7 @@ class TestShellPasswordAuth(TestShell):
             "password": "",
             "region_name": "",
             "trust_id": "",
-            "auth_plugin": "",
+            "auth_type": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -250,7 +250,7 @@ class TestShellPasswordAuth(TestShell):
             "password": "",
             "region_name": "",
             "trust_id": "",
-            "auth_plugin": "",
+            "auth_type": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -270,7 +270,7 @@ class TestShellPasswordAuth(TestShell):
             "password": "",
             "region_name": "",
             "trust_id": "",
-            "auth_plugin": "",
+            "auth_type": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -290,7 +290,7 @@ class TestShellPasswordAuth(TestShell):
             "password": "",
             "region_name": "",
             "trust_id": "",
-            "auth_plugin": "",
+            "auth_type": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -310,7 +310,7 @@ class TestShellPasswordAuth(TestShell):
             "password": "",
             "region_name": "",
             "trust_id": "",
-            "auth_plugin": "",
+            "auth_type": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -330,7 +330,7 @@ class TestShellPasswordAuth(TestShell):
             "password": "",
             "region_name": "",
             "trust_id": "",
-            "auth_plugin": "",
+            "auth_type": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -350,7 +350,7 @@ class TestShellPasswordAuth(TestShell):
             "password": "",
             "region_name": "",
             "trust_id": "",
-            "auth_plugin": "",
+            "auth_type": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -370,7 +370,7 @@ class TestShellPasswordAuth(TestShell):
             "password": "",
             "region_name": "",
             "trust_id": "",
-            "auth_plugin": "",
+            "auth_type": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -390,7 +390,7 @@ class TestShellPasswordAuth(TestShell):
             "password": DEFAULT_PASSWORD,
             "region_name": "",
             "trust_id": "",
-            "auth_plugin": "",
+            "auth_type": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -410,7 +410,7 @@ class TestShellPasswordAuth(TestShell):
             "password": "",
             "region_name": DEFAULT_REGION_NAME,
             "trust_id": "",
-            "auth_plugin": "",
+            "auth_type": "",
         }
         self._assert_password_auth(flag, kwargs)
 
@@ -430,12 +430,12 @@ class TestShellPasswordAuth(TestShell):
             "password": "",
             "region_name": "",
             "trust_id": "1234",
-            "auth_plugin": "",
+            "auth_type": "",
         }
         self._assert_password_auth(flag, kwargs)
 
-    def test_only_auth_plugin_flow(self):
-        flag = "--os-auth-plugin " + "v2password"
+    def test_only_auth_type_flow(self):
+        flag = "--os-auth-type " + "v2password"
         kwargs = {
             "auth_url": "",
             "project_id": "",
@@ -450,7 +450,7 @@ class TestShellPasswordAuth(TestShell):
             "password": "",
             "region_name": "",
             "trust_id": "",
-            "auth_plugin": DEFAULT_AUTH_PLUGIN
+            "auth_type": DEFAULT_AUTH_PLUGIN
         }
         self._assert_password_auth(flag, kwargs)
 
