@@ -14,6 +14,7 @@ Contents:
    releases
    commands
    plugins
+   authentication
    man/openstack
 
 Getting Started
