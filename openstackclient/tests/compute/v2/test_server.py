@@ -14,11 +14,13 @@
 #
 
 import copy
+import mock
 
 from openstackclient.compute.v2 import server
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests import fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
+from openstackclient.tests import utils
 
 
 class TestServer(compute_fakes.TestComputev2):
@@ -30,6 +32,10 @@ class TestServer(compute_fakes.TestComputev2):
         self.servers_mock = self.app.client_manager.compute.servers
         self.servers_mock.reset_mock()
 
+        # Get a shortcut to the ImageManager Mock
+        self.cimages_mock = self.app.client_manager.compute.images
+        self.cimages_mock.reset_mock()
+
         # Get a shortcut to the FlavorManager Mock
         self.flavors_mock = self.app.client_manager.compute.flavors
         self.flavors_mock.reset_mock()
@@ -37,6 +43,174 @@ class TestServer(compute_fakes.TestComputev2):
         # Get a shortcut to the ImageManager Mock
         self.images_mock = self.app.client_manager.image.images
         self.images_mock.reset_mock()
+
+
+class TestServerCreate(TestServer):
+
+    def setUp(self):
+        super(TestServerCreate, self).setUp()
+
+        self.servers_mock.create.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(compute_fakes.SERVER),
+            loaded=True,
+        )
+        new_server = fakes.FakeResource(
+            None,
+            copy.deepcopy(compute_fakes.SERVER),
+            loaded=True,
+        )
+        new_server.__dict__['networks'] = {}
+        self.servers_mock.get.return_value = new_server
+
+        self.image = fakes.FakeResource(
+            None,
+            copy.deepcopy(image_fakes.IMAGE),
+            loaded=True,
+        )
+        self.cimages_mock.get.return_value = self.image
+
+        self.flavor = fakes.FakeResource(
+            None,
+            copy.deepcopy(compute_fakes.FLAVOR),
+            loaded=True,
+        )
+        self.flavors_mock.get.return_value = self.flavor
+
+        # Get the command object to test
+        self.cmd = server.CreateServer(self.app, None)
+
+    def test_server_create_no_options(self):
+        arglist = [
+            compute_fakes.server_id,
+        ]
+        verifylist = [
+            ('server_name', compute_fakes.server_id),
+        ]
+        try:
+            # Missing required args should bail here
+            self.check_parser(self.cmd, arglist, verifylist)
+        except utils.ParserException:
+            pass
+
+    def test_server_create_minimal(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            compute_fakes.server_id,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('config_drive', False),
+            ('server_name', compute_fakes.server_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping={},
+            nics=[],
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            compute_fakes.server_id,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        collist = ('addresses', 'flavor', 'id', 'image', 'name', 'properties')
+        self.assertEqual(columns, collist)
+        datalist = (
+            '',
+            'Large ()',
+            compute_fakes.server_id,
+            'graven ()',
+            compute_fakes.server_name,
+            '',
+        )
+        self.assertEqual(data, datalist)
+
+    @mock.patch('openstackclient.compute.v2.server.io.open')
+    def test_server_create_userdata(self, mock_open):
+        mock_file = mock.MagicMock(name='File')
+        mock_open.return_value = mock_file
+        mock_open.read.return_value = '#!/bin/sh'
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--user-data', 'userdata.sh',
+            compute_fakes.server_id,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('user_data', 'userdata.sh'),
+            ('config_drive', False),
+            ('server_name', compute_fakes.server_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Ensure the userdata file is opened
+        mock_open.assert_called_with('userdata.sh')
+
+        # Ensure the userdata file is closed
+        mock_file.close.assert_called()
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=mock_file,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping={},
+            nics=[],
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            compute_fakes.server_id,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        collist = ('addresses', 'flavor', 'id', 'image', 'name', 'properties')
+        self.assertEqual(columns, collist)
+        datalist = (
+            '',
+            'Large ()',
+            compute_fakes.server_id,
+            'graven ()',
+            compute_fakes.server_name,
+            '',
+        )
+        self.assertEqual(data, datalist)
 
 
 class TestServerDelete(TestServer):

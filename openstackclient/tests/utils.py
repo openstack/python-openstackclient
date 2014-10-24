@@ -23,6 +23,10 @@ import testtools
 from openstackclient.tests import fakes
 
 
+class ParserException(Exception):
+    pass
+
+
 class TestCase(testtools.TestCase):
     def setUp(self):
         testtools.TestCase.setUp(self)
@@ -84,7 +88,7 @@ class TestCommand(TestCase):
         try:
             parsed_args = cmd_parser.parse_args(args)
         except SystemExit:
-            raise Exception("Argument parse failed")
+            raise ParserException("Argument parse failed")
         for av in verify_args:
             attr, value = av
             if attr:
