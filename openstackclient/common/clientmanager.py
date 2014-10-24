@@ -19,7 +19,6 @@ import logging
 import pkg_resources
 import sys
 
-from keystoneclient.auth import base
 from keystoneclient import session
 import requests
 
@@ -78,20 +77,22 @@ class ClientManager(object):
             returns a string containig the password
         """
 
-        # If no plugin is named by the user, select one based on
+        # If no auth type is named by the user, select one based on
         # the supplied options
-        if not auth_options.os_auth_plugin:
-            auth_options.os_auth_plugin = auth.select_auth_plugin(auth_options)
-        self._auth_plugin = auth_options.os_auth_plugin
+        self.auth_plugin_name = auth.select_auth_plugin(auth_options)
 
         # Horrible hack alert...must handle prompt for null password if
         # password auth is requested.
-        if (self._auth_plugin.endswith('password') and
+        if (self.auth_plugin_name.endswith('password') and
                 not auth_options.os_password):
             auth_options.os_password = pw_func()
 
+        (auth_plugin, self._auth_params) = auth.build_auth_params(
+            self.auth_plugin_name,
+            auth_options,
+        )
+
         self._url = auth_options.os_url
-        self._auth_params = auth.build_auth_params(auth_options)
         self._region_name = auth_options.os_region_name
         self._api_version = api_version
         self._auth_ref = None
@@ -117,8 +118,7 @@ class ClientManager(object):
         root_logger = logging.getLogger('')
         LOG.setLevel(root_logger.getEffectiveLevel())
 
-        LOG.debug('Using auth plugin: %s' % self._auth_plugin)
-        auth_plugin = base.get_plugin_class(self._auth_plugin)
+        LOG.debug('Using auth plugin: %s' % self.auth_plugin_name)
         self.auth = auth_plugin.load_from_options(**self._auth_params)
         # needed by SAML authentication
         request_session = requests.session()
