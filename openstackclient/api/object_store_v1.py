@@ -13,6 +13,7 @@
 
 """Object Store v1 API Library"""
 
+import io
 import os
 import six
 
@@ -187,7 +188,12 @@ class APIv1(api.BaseAPI):
             return {}
 
         full_url = "%s/%s" % (container, object)
-        response = self.create(full_url, method='PUT', data=open(object))
+        with io.open(object, 'rb') as f:
+            response = self.create(
+                full_url,
+                method='PUT',
+                data=f,
+            )
         url_parts = urlparse(self.endpoint)
         data = {
             'account': url_parts.path.split('/')[-1],
