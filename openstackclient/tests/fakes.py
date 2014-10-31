@@ -17,6 +17,7 @@ import json
 import six
 import sys
 
+from keystoneclient import fixture
 import requests
 
 
@@ -24,140 +25,16 @@ AUTH_TOKEN = "foobar"
 AUTH_URL = "http://0.0.0.0"
 USERNAME = "itchy"
 PASSWORD = "scratchy"
-TEST_RESPONSE_DICT = {
-    "access": {
-        "metadata": {
-            "is_admin": 0,
-            "roles": [
-                "1234",
-            ]
-        },
-        "serviceCatalog": [
-            {
-                "endpoints": [
-                    {
-                        "adminURL": AUTH_URL + "/v2.0",
-                        "id": "1234",
-                        "internalURL": AUTH_URL + "/v2.0",
-                        "publicURL": AUTH_URL + "/v2.0",
-                        "region": "RegionOne"
-                    }
-                ],
-                "endpoints_links": [],
-                "name": "keystone",
-                "type": "identity"
-            }
-        ],
-        "token": {
-            "expires": "2035-01-01T00:00:01Z",
-            "id": AUTH_TOKEN,
-            "issued_at": "2013-01-01T00:00:01.692048",
-            "tenant": {
-                "description": None,
-                "enabled": True,
-                "id": "1234",
-                "name": "testtenant"
-            }
-        },
-        "user": {
-            "id": "5678",
-            "name": USERNAME,
-            "roles": [
-                {
-                    "name": "testrole"
-                },
-            ],
-            "roles_links": [],
-            "username": USERNAME
-        }
-    }
-}
-TEST_RESPONSE_DICT_V3 = {
-    "token": {
-        "audit_ids": [
-            "a"
-        ],
-        "catalog": [
-        ],
-        "expires_at": "2034-09-29T18:27:15.978064Z",
-        "extras": {},
-        "issued_at": "2014-09-29T17:27:15.978097Z",
-        "methods": [
-            "password"
-        ],
-        "project": {
-            "domain": {
-                "id": "default",
-                "name": "Default"
-            },
-            "id": "bbb",
-            "name": "project"
-        },
-        "roles": [
-        ],
-        "user": {
-            "domain": {
-                "id": "default",
-                "name": "Default"
-            },
-            "id": "aaa",
-            "name": USERNAME
-        }
-    }
-}
-TEST_VERSIONS = {
-    "versions": {
-        "values": [
-            {
-                "id": "v3.0",
-                "links": [
-                    {
-                        "href": AUTH_URL,
-                        "rel": "self"
-                    }
-                ],
-                "media-types": [
-                    {
-                        "base": "application/json",
-                        "type": "application/vnd.openstack.identity-v3+json"
-                    },
-                    {
-                        "base": "application/xml",
-                        "type": "application/vnd.openstack.identity-v3+xml"
-                    }
-                ],
-                "status": "stable",
-                "updated": "2013-03-06T00:00:00Z"
-            },
-            {
-                "id": "v2.0",
-                "links": [
-                    {
-                        "href": AUTH_URL,
-                        "rel": "self"
-                    },
-                    {
-                        "href": "http://docs.openstack.org/",
-                        "rel": "describedby",
-                        "type": "text/html"
-                    }
-                ],
-                "media-types": [
-                    {
-                        "base": "application/json",
-                        "type": "application/vnd.openstack.identity-v2.0+json"
-                    },
-                    {
-                        "base": "application/xml",
-                        "type": "application/vnd.openstack.identity-v2.0+xml"
-                    }
-                ],
-                "status": "stable",
-                "updated": "2014-04-17T00:00:00Z"
-            }
-        ]
-    }
-}
+
+TEST_RESPONSE_DICT = fixture.V2Token(token_id=AUTH_TOKEN,
+                                     user_name=USERNAME)
+_s = TEST_RESPONSE_DICT.add_service('identity', name='keystone')
+_s.add_endpoint(AUTH_URL + '/v2.0')
+
+TEST_RESPONSE_DICT_V3 = fixture.V3Token(user_name=USERNAME)
+TEST_RESPONSE_DICT_V3.set_project_scope()
+
+TEST_VERSIONS = fixture.DiscoveryList(href=AUTH_URL)
 
 
 class FakeStdout:
