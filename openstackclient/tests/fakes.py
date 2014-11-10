@@ -210,6 +210,7 @@ class FakeModule(object):
 
 class FakeResource(object):
     def __init__(self, manager, info, loaded=False):
+        self.__name__ = type(self).__name__
         self.manager = manager
         self._info = info
         self._add_details(info)

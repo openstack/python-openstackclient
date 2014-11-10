@@ -16,6 +16,7 @@
 import copy
 import mock
 
+from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
 from openstackclient.identity.v2_0 import user
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
@@ -341,6 +342,84 @@ class TestUserCreate(TestUser):
             identity_fakes.project_id,
         )
         self.assertEqual(data, datalist)
+
+    def test_user_create_or_show_exists(self):
+        def _raise_conflict(*args, **kwargs):
+            raise ksc_exc.Conflict(None)
+
+        # need to make this throw an exception...
+        self.users_mock.create.side_effect = _raise_conflict
+
+        self.users_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.USER),
+            loaded=True,
+        )
+
+        arglist = [
+            '--or-show',
+            identity_fakes.user_name,
+        ]
+        verifylist = [
+            ('name', identity_fakes.user_name),
+            ('or_show', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # UserManager.create(name, password, email, tenant_id=, enabled=)
+        self.users_mock.get.assert_called_with(identity_fakes.user_name)
+
+        collist = ('email', 'enabled', 'id', 'name', 'project_id')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.user_email,
+            True,
+            identity_fakes.user_id,
+            identity_fakes.user_name,
+            identity_fakes.project_id,
+        )
+        self.assertEqual(datalist, data)
+
+    def test_user_create_or_show_not_exists(self):
+        arglist = [
+            '--or-show',
+            identity_fakes.user_name,
+        ]
+        verifylist = [
+            ('name', identity_fakes.user_name),
+            ('or_show', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'tenant_id': None,
+        }
+        # UserManager.create(name, password, email, tenant_id=, enabled=)
+        self.users_mock.create.assert_called_with(
+            identity_fakes.user_name,
+            None,
+            None,
+            **kwargs
+        )
+
+        collist = ('email', 'enabled', 'id', 'name', 'project_id')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.user_email,
+            True,
+            identity_fakes.user_id,
+            identity_fakes.user_name,
+            identity_fakes.project_id,
+        )
+        self.assertEqual(datalist, data)
 
 
 class TestUserDelete(TestUser):
