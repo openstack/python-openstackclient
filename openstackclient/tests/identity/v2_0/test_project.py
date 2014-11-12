@@ -15,6 +15,8 @@
 
 import copy
 
+from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
+
 from openstackclient.identity.v2_0 import project
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
@@ -218,6 +220,89 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_name,
         )
         self.assertEqual(data, datalist)
+
+    def test_project_create_or_show_exists(self):
+        def _raise_conflict(*args, **kwargs):
+            raise ksc_exc.Conflict(None)
+
+        # need to make this throw an exception...
+        self.projects_mock.create.side_effect = _raise_conflict
+
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
+        arglist = [
+            '--or-show',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('name', identity_fakes.project_name),
+            ('or_show', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # ProjectManager.create(name, description, enabled)
+        self.projects_mock.get.assert_called_with(identity_fakes.project_name)
+
+        # Set expected values
+        kwargs = {
+            'description': None,
+            'enabled': True,
+        }
+        self.projects_mock.create.assert_called_with(
+            identity_fakes.project_name,
+            **kwargs
+        )
+
+        collist = ('description', 'enabled', 'id', 'name')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.project_description,
+            True,
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+        )
+        self.assertEqual(datalist, data)
+
+    def test_project_create_or_show_not_exists(self):
+        arglist = [
+            '--or-show',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('name', identity_fakes.project_name),
+            ('or_show', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'description': None,
+            'enabled': True,
+        }
+        self.projects_mock.create.assert_called_with(
+            identity_fakes.project_name,
+            **kwargs
+        )
+
+        collist = ('description', 'enabled', 'id', 'name')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.project_description,
+            True,
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+        )
+        self.assertEqual(datalist, data)
 
 
 class TestProjectDelete(TestProject):

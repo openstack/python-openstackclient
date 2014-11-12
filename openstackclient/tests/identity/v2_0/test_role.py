@@ -16,6 +16,8 @@
 import copy
 import mock
 
+from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
+
 from openstackclient.common import exceptions
 from openstackclient.identity.v2_0 import role
 from openstackclient.tests import fakes
@@ -141,6 +143,75 @@ class TestRoleCreate(TestRole):
             identity_fakes.role_name,
         )
         self.assertEqual(data, datalist)
+
+    def test_role_create_or_show_exists(self):
+        def _raise_conflict(*args, **kwargs):
+            raise ksc_exc.Conflict(None)
+
+        # need to make this throw an exception...
+        self.roles_mock.create.side_effect = _raise_conflict
+
+        self.roles_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE),
+            loaded=True,
+        )
+
+        arglist = [
+            '--or-show',
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('role_name', identity_fakes.role_name),
+            ('or_show', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # RoleManager.get(name, description, enabled)
+        self.roles_mock.get.assert_called_with(identity_fakes.role_name)
+
+        # RoleManager.create(name)
+        self.roles_mock.create.assert_called_with(
+            identity_fakes.role_name,
+        )
+
+        collist = ('id', 'name')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.role_id,
+            identity_fakes.role_name,
+        )
+        self.assertEqual(datalist, data)
+
+    def test_role_create_or_show_not_exists(self):
+        arglist = [
+            '--or-show',
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('role_name', identity_fakes.role_name),
+            ('or_show', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # RoleManager.create(name)
+        self.roles_mock.create.assert_called_with(
+            identity_fakes.role_name,
+        )
+
+        collist = ('id', 'name')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.role_id,
+            identity_fakes.role_name,
+        )
+        self.assertEqual(datalist, data)
 
 
 class TestRoleDelete(TestRole):
