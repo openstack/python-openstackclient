@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import os
 import uuid
 
 from functional.common import test
@@ -25,9 +26,11 @@ class ObjectV1Tests(test.TestCase):
     CONTAINER_NAME = uuid.uuid4().hex
     OBJECT_NAME = uuid.uuid4().hex
 
-    # NOTE(stevemar): Not using setUp since we only want this to run once
-    with open(OBJECT_NAME, 'w') as f:
-        f.write('test content')
+    def setUp(self):
+        super(ObjectV1Tests, self).setUp()
+        self.addCleanup(os.remove, self.OBJECT_NAME)
+        with open(self.OBJECT_NAME, 'w') as f:
+            f.write('test content')
 
     def test_container_create(self):
         raw_output = self.openstack('container create ' + self.CONTAINER_NAME)
