@@ -68,12 +68,12 @@ class TestObjectList(TestObject):
         )
 
         collist = ('Name',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (object_fakes.object_name_1, ),
             (object_fakes.object_name_2, ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_object_list_objects_prefix(self, o_mock):
         o_mock.return_value = [
@@ -103,11 +103,11 @@ class TestObjectList(TestObject):
         )
 
         collist = ('Name',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (object_fakes.object_name_2, ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_object_list_objects_delimiter(self, o_mock):
         o_mock.return_value = [
@@ -137,11 +137,11 @@ class TestObjectList(TestObject):
         )
 
         collist = ('Name',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (object_fakes.object_name_2, ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_object_list_objects_marker(self, o_mock):
         o_mock.return_value = [
@@ -171,11 +171,11 @@ class TestObjectList(TestObject):
         )
 
         collist = ('Name',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (object_fakes.object_name_2, ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_object_list_objects_end_marker(self, o_mock):
         o_mock.return_value = [
@@ -205,11 +205,11 @@ class TestObjectList(TestObject):
         )
 
         collist = ('Name',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (object_fakes.object_name_2, ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_object_list_objects_limit(self, o_mock):
         o_mock.return_value = [
@@ -239,11 +239,11 @@ class TestObjectList(TestObject):
         )
 
         collist = ('Name',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (object_fakes.object_name_2, ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_object_list_objects_long(self, o_mock):
         o_mock.return_value = [
@@ -273,7 +273,7 @@ class TestObjectList(TestObject):
         )
 
         collist = ('Name', 'Bytes', 'Hash', 'Content Type', 'Last Modified')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (
                 object_fakes.object_name_1,
@@ -290,7 +290,7 @@ class TestObjectList(TestObject):
                 object_fakes.object_modified_2,
             ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_object_list_objects_all(self, o_mock):
         o_mock.return_value = [
@@ -321,12 +321,12 @@ class TestObjectList(TestObject):
         )
 
         collist = ('Name',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (object_fakes.object_name_1, ),
             (object_fakes.object_name_2, ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
 
 @mock.patch(
@@ -367,7 +367,7 @@ class TestObjectShow(TestObject):
         )
 
         collist = ('bytes', 'content_type', 'hash', 'last_modified', 'name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             object_fakes.object_bytes_1,
             object_fakes.object_content_type_1,
@@ -375,4 +375,4 @@ class TestObjectShow(TestObject):
             object_fakes.object_modified_1,
             object_fakes.object_name_1,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)

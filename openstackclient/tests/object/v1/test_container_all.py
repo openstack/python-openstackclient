@@ -15,34 +15,25 @@ import copy
 
 from requests_mock.contrib import fixture
 
-from keystoneclient import session
-from openstackclient.api import object_store_v1 as object_store
-from openstackclient.object.v1 import container
+from openstackclient.object.v1 import container as container_cmds
 from openstackclient.tests.object.v1 import fakes as object_fakes
 
 
-class TestObjectAll(object_fakes.TestObjectv1):
+class TestContainerAll(object_fakes.TestObjectv1):
 
     def setUp(self):
-        super(TestObjectAll, self).setUp()
+        super(TestContainerAll, self).setUp()
 
-        self.app.client_manager.session = session.Session()
         self.requests_mock = self.useFixture(fixture.Fixture())
 
-        # TODO(dtroyer): move this to object_fakes.TestObjectv1
-        self.app.client_manager.object_store = object_store.APIv1(
-            session=self.app.client_manager.session,
-            endpoint=object_fakes.ENDPOINT,
-        )
 
-
-class TestContainerCreate(TestObjectAll):
+class TestContainerCreate(TestContainerAll):
 
     def setUp(self):
         super(TestContainerCreate, self).setUp()
 
         # Get the command object to test
-        self.cmd = container.CreateContainer(self.app, None)
+        self.cmd = container_cmds.CreateContainer(self.app, None)
 
     def test_object_create_container_single(self):
         self.requests_mock.register_uri(
@@ -115,13 +106,13 @@ class TestContainerCreate(TestObjectAll):
         self.assertEqual(datalist, list(data))
 
 
-class TestContainerDelete(TestObjectAll):
+class TestContainerDelete(TestContainerAll):
 
     def setUp(self):
         super(TestContainerDelete, self).setUp()
 
         # Get the command object to test
-        self.cmd = container.DeleteContainer(self.app, None)
+        self.cmd = container_cmds.DeleteContainer(self.app, None)
 
     def test_object_delete_container_single(self):
         self.requests_mock.register_uri(
@@ -168,13 +159,13 @@ class TestContainerDelete(TestObjectAll):
         self.assertIsNone(ret)
 
 
-class TestContainerList(TestObjectAll):
+class TestContainerList(TestContainerAll):
 
     def setUp(self):
         super(TestContainerList, self).setUp()
 
         # Get the command object to test
-        self.cmd = container.ListContainer(self.app, None)
+        self.cmd = container_cmds.ListContainer(self.app, None)
 
     def test_object_list_containers_no_options(self):
         return_body = [
@@ -237,13 +228,13 @@ class TestContainerList(TestObjectAll):
         self.assertEqual(datalist, list(data))
 
 
-class TestContainerSave(TestObjectAll):
+class TestContainerSave(TestContainerAll):
 
     def setUp(self):
         super(TestContainerSave, self).setUp()
 
         # Get the command object to test
-        self.cmd = container.SaveContainer(self.app, None)
+        self.cmd = container_cmds.SaveContainer(self.app, None)
 
 # TODO(dtroyer): need to mock out object_lib.save_object() to test this
 #     def test_object_save_container(self):
@@ -285,13 +276,13 @@ class TestContainerSave(TestObjectAll):
 #         self.assertIsNone(ret)
 
 
-class TestContainerShow(TestObjectAll):
+class TestContainerShow(TestContainerAll):
 
     def setUp(self):
         super(TestContainerShow, self).setUp()
 
         # Get the command object to test
-        self.cmd = container.ShowContainer(self.app, None)
+        self.cmd = container_cmds.ShowContainer(self.app, None)
 
     def test_object_show_container(self):
         headers = {
