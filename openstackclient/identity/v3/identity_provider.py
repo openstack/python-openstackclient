@@ -65,9 +65,9 @@ class CreateIdentityProvider(show.ShowOne):
             id=parsed_args.identity_provider_id,
             description=parsed_args.description,
             enabled=parsed_args.enabled)
-        info = {}
-        info.update(idp._info)
-        return zip(*sorted(six.iteritems(info)))
+
+        idp._info.pop('links', None)
+        return zip(*sorted(six.iteritems(idp._info)))
 
 
 class DeleteIdentityProvider(command.Command):
@@ -176,6 +176,5 @@ class ShowIdentityProvider(show.ShowOne):
             identity_client.federation.identity_providers,
             parsed_args.identity_provider)
 
-        info = {}
-        info.update(identity_provider._info)
-        return zip(*sorted(six.iteritems(info)))
+        identity_provider._info.pop('links', None)
+        return zip(*sorted(six.iteritems(identity_provider._info)))
