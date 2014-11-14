@@ -107,9 +107,8 @@ class CreateMapping(show.ShowOne, _RulesReader):
             mapping_id=parsed_args.mapping,
             rules=rules)
 
-        info = {}
-        info.update(mapping._info)
-        return zip(*sorted(six.iteritems(info)))
+        mapping._info.pop('links', None)
+        return zip(*sorted(six.iteritems(mapping._info)))
 
 
 class DeleteMapping(command.Command):
@@ -204,6 +203,5 @@ class ShowMapping(show.ShowOne):
 
         mapping = identity_client.federation.mappings.get(parsed_args.mapping)
 
-        info = {}
-        info.update(mapping._info)
-        return zip(*sorted(six.iteritems(info)))
+        mapping._info.pop('links', None)
+        return zip(*sorted(six.iteritems(mapping._info)))

@@ -61,6 +61,7 @@ class CreateProtocol(show.ShowOne):
         # user.
         info['identity_provider'] = parsed_args.identity_provider
         info['mapping'] = info.pop('mapping_id')
+        info.pop('links', None)
         return zip(*sorted(six.iteritems(info)))
 
 
@@ -179,4 +180,5 @@ class ShowProtocol(show.ShowOne):
             parsed_args.identity_provider, parsed_args.federation_protocol)
         info = dict(protocol._info)
         info['mapping'] = info.pop('mapping_id')
+        info.pop('links', None)
         return zip(*sorted(six.iteritems(info)))
