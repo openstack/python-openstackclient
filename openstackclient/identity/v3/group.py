@@ -22,8 +22,10 @@ import sys
 from cliff import command
 from cliff import lister
 from cliff import show
+from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
 
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 from openstackclient.identity import common
 
 
@@ -122,7 +124,11 @@ class CreateGroup(show.ShowOne):
             '--domain',
             metavar='<group-domain>',
             help='References the domain ID or name which owns the group')
-
+        parser.add_argument(
+            '--or-show',
+            action='store_true',
+            help=_('Return existing group'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -133,10 +139,20 @@ class CreateGroup(show.ShowOne):
                                         parsed_args.domain).id
         else:
             domain = None
-        group = identity_client.groups.create(
-            name=parsed_args.name,
-            domain=domain,
-            description=parsed_args.description)
+
+        try:
+            group = identity_client.groups.create(
+                name=parsed_args.name,
+                domain=domain,
+                description=parsed_args.description)
+        except ksc_exc.Conflict as e:
+            if parsed_args.or_show:
+                group = utils.find_resource(identity_client.groups,
+                                            parsed_args.name,
+                                            domain_id=domain)
+                self.log.info('Returning existing group %s', group.name)
+            else:
+                raise e
 
         group._info.pop('links')
         return zip(*sorted(six.iteritems(group._info)))

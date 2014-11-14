@@ -21,8 +21,10 @@ import six
 from cliff import command
 from cliff import lister
 from cliff import show
+from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
 
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 from openstackclient.identity import common
 
 
@@ -80,6 +82,11 @@ class CreateUser(show.ShowOne):
             action='store_true',
             help='Disable user',
         )
+        parser.add_argument(
+            '--or-show',
+            action='store_true',
+            help=_('Return existing user'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -106,15 +113,24 @@ class CreateUser(show.ShowOne):
         if parsed_args.password_prompt:
             parsed_args.password = utils.get_password(self.app.stdin)
 
-        user = identity_client.users.create(
-            name=parsed_args.name,
-            domain=domain_id,
-            default_project=project_id,
-            password=parsed_args.password,
-            email=parsed_args.email,
-            description=parsed_args.description,
-            enabled=enabled
-        )
+        try:
+            user = identity_client.users.create(
+                name=parsed_args.name,
+                domain=domain_id,
+                default_project=project_id,
+                password=parsed_args.password,
+                email=parsed_args.email,
+                description=parsed_args.description,
+                enabled=enabled
+            )
+        except ksc_exc.Conflict as e:
+            if parsed_args.or_show:
+                user = utils.find_resource(identity_client.users,
+                                           parsed_args.name,
+                                           domain_id=domain_id)
+                self.log.info('Returning existing user %s', user.name)
+            else:
+                raise e
 
         user._info.pop('links')
         return zip(*sorted(six.iteritems(user._info)))
