@@ -46,9 +46,8 @@ class CreateConsumer(show.ShowOne):
         consumer = identity_client.oauth1.consumers.create(
             parsed_args.description
         )
-        info = {}
-        info.update(consumer._info)
-        return zip(*sorted(six.iteritems(info)))
+        consumer._info.pop('links', None)
+        return zip(*sorted(six.iteritems(consumer._info)))
 
 
 class DeleteConsumer(command.Command):
@@ -147,6 +146,5 @@ class ShowConsumer(show.ShowOne):
         consumer = utils.find_resource(
             identity_client.oauth1.consumers, parsed_args.consumer)
 
-        info = {}
-        info.update(consumer._info)
-        return zip(*sorted(six.iteritems(info)))
+        consumer._info.pop('links', None)
+        return zip(*sorted(six.iteritems(consumer._info)))
