@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import os
 import re
 import shlex
 import subprocess
@@ -18,6 +19,11 @@ import testtools
 import six
 
 from functional.common import exceptions
+
+COMMON_DIR = os.path.dirname(os.path.abspath(__file__))
+FUNCTIONAL_DIR = os.path.normpath(os.path.join(COMMON_DIR, '..'))
+ROOT_DIR = os.path.normpath(os.path.join(FUNCTIONAL_DIR, '..'))
+EXAMPLE_DIR = os.path.join(ROOT_DIR, 'examples')
 
 
 def execute(cmd, action, flags='', params='', fail_ok=False,
