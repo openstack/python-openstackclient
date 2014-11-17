@@ -26,7 +26,7 @@ Release Notes
 * add ``object create`` and ``object delete`` commands
 * add initial support for global ``--timing`` options (similar to nova CLI)
 * complete Python 3 compatibility
-* fix ``server resize` command
+* fix ``server resize`` command
 * add authentication via ``--os-trust-id`` for Identity v3
 * Add initial support for Network API, ``network create|delete|list|show``
 

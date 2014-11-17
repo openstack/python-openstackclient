@@ -28,7 +28,7 @@ from openstackclient.identity import common
 
 
 class CreateEndpoint(show.ShowOne):
-    """Create endpoint command"""
+    """Create endpoint"""
 
     log = logging.getLogger(__name__ + '.CreateEndpoint')
 

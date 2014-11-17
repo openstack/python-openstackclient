@@ -1,8 +1,4 @@
-========
-Commands
-========
-
-
+=================
 Command Structure
 =================
 
@@ -83,7 +79,7 @@ referring to both Compute and Volume quotas.
 * ``credential``: Identity - specific to identity providers
 * ``domain``: Identity - a grouping of projects
 * ``endpoint``: Identity - the base URL used to contact a specific service
-* ``extension``: Compute, Identity, Volume - additional APIs available
+* ``extension``: (**Compute**, **Identity**, **Volume**) OpenStack server API extensions
 * ``flavor``: Compute - pre-defined configurations of servers: ram, root disk, etc
 * ``group``: Identity - a grouping of users
 * ``host``: Compute - the physical computer running a hypervisor
@@ -93,13 +89,13 @@ referring to both Compute and Volume quotas.
 * ``ip fixed``: Compute, Network - an internal IP address assigned to a server
 * ``ip floating``: Compute, Network - a public IP address that can be mapped to a server
 * ``keypair``: Compute - an SSH public key
-* ``limits``: Compute, Volume - resource usage limits
+* ``limits``: (**Compute**, **Volume**) resource usage limits
 * ``module``: internal - installed Python modules in the OSC process
 * ``network``: Network - a virtual network for connecting servers and other resources
 * ``object``: Object Store - a single file in the Object Store
 * ``policy``: Identity - determines authorization
 * ``project``: Identity - the owner of a group of resources
-* ``quota``: Compute, Volume - limit on resource usage
+* ``quota``: (**Compute**, **Volume**) resource usage restrictions
 * ``request token``: Identity - temporary OAuth-based token
 * ``role``: Identity - a policy object used to determine authorization
 * ``security group``: Compute, Network - groups of network access rules
@@ -149,7 +145,7 @@ Those actions with an opposite action are noted in parens if applicable.
 
 
 Implementation
-==============
+--------------
 
 The command structure is designed to support seamless addition of plugin
 command modules via ``setuptools`` entry points.  The plugin commands must
