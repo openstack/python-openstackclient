@@ -1,0 +1,71 @@
+=======
+keypair
+=======
+
+The badly named keypair is really the public key of an OpenSSH key pair to be
+used for access to created servers.
+
+keypair create
+--------------
+
+Create new public key
+
+.. program keypair create
+.. code:: bash
+
+    os keypair create
+        [--public-key <file>]
+        <name>
+
+.. option:: --public-key <file>
+
+    Filename for public key to add
+
+.. describe:: <name>
+
+    New public key name
+
+keypair delete
+--------------
+
+Delete a public key
+
+.. program keypair delete
+.. code:: bash
+
+    os keypair delete
+        <key>
+
+.. describe:: <key>
+
+    Public key to delete
+
+keypair list
+------------
+
+List public key fingerprints
+
+.. program keypair list
+.. code:: bash
+
+    os keypair list
+
+keypair show
+------------
+
+Show public key details
+
+.. program keypair show
+.. code:: bash
+
+    os keypair show
+        [--public-key]
+        <key>
+
+.. option:: --public-key
+
+    Show only bare public key
+
+.. describe:: <key>
+
+    Public key to show
