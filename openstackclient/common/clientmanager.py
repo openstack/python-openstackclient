@@ -98,6 +98,23 @@ class ClientManager(object):
         self._auth_ref = None
         self.timing = auth_options.timing
 
+        default_domain = auth_options.os_default_domain
+        # NOTE(stevemar): If PROJECT_DOMAIN_ID or PROJECT_DOMAIN_NAME is
+        # present, then do not change the behaviour. Otherwise, set the
+        # PROJECT_DOMAIN_ID to 'OS_DEFAULT_DOMAIN' for better usability.
+        if (self._api_version.get('identity') == '3' and
+            not self._auth_params.get('project_domain_id') and
+                not self._auth_params.get('project_domain_name')):
+            self._auth_params['project_domain_id'] = default_domain
+
+        # NOTE(stevemar): If USER_DOMAIN_ID or USER_DOMAIN_NAME is present,
+        # then do not change the behaviour. Otherwise, set the USER_DOMAIN_ID
+        # to 'OS_DEFAULT_DOMAIN' for better usability.
+        if (self._api_version.get('identity') == '3' and
+            not self._auth_params.get('user_domain_id') and
+                not self._auth_params.get('user_domain_name')):
+            self._auth_params['user_domain_id'] = default_domain
+
         # For compatibility until all clients can be updated
         if 'project_name' in self._auth_params:
             self._project_name = self._auth_params['project_name']
