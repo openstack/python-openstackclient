@@ -72,13 +72,14 @@ referring to both Compute and Volume quotas.
 * ``access token``: Identity - long-lived OAuth-based token
 * ``aggregate``: (**Compute**) a grouping of servers
 * ``backup``: Volume - a volume copy
+* ``catalog``: (**Identity**) service catalog
 * ``console log``: (**Compute**) server console text dump
 * ``console url``: (**Compute**) server remote console URL
 * ``consumer``: Identity - OAuth-based delegatee
 * ``container``: Object Store - a grouping of objects
-* ``credential``: Identity - specific to identity providers
+* ``credentials``: (**Identity**) specific to identity providers
 * ``domain``: Identity - a grouping of projects
-* ``endpoint``: Identity - the base URL used to contact a specific service
+* ``endpoint``: (**Identity**) the base URL used to contact a specific service
 * ``extension``: (**Compute**, **Identity**, **Volume**) OpenStack server API extensions
 * ``flavor``: Compute - pre-defined configurations of servers: ram, root disk, etc
 * ``group``: Identity - a grouping of users
@@ -96,6 +97,7 @@ referring to both Compute and Volume quotas.
 * ``policy``: Identity - determines authorization
 * ``project``: (**Identity**) owns a group of resources
 * ``quota``: (**Compute**, **Volume**) resource usage restrictions
+* ``region``: (**Identity**)
 * ``request token``: Identity - temporary OAuth-based token
 * ``role``: Identity - a policy object used to determine authorization
 * ``security group``: Compute, Network - groups of network access rules
