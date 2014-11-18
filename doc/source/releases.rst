@@ -2,6 +2,57 @@
 Release Notes
 =============
 
+1.0.0 (04 Dec 2014)
+===================
+
+* Bug 1337422_: document different ways to authenticate
+* Bug 1383333_: Creating volume from image required image ID
+* Bug 1292638_: Perhaps API Versions should Match Easier
+* Bug 1390389_: create with a soft fail (create or show) for keystone operations
+* Bug 1387932_: add keystone v3 region object
+* Bug 1378842_: OSC fails to show server details if booted from volume
+* Bug 1383338_: server create problems in boot-from-volume
+* Bug 1337685_: Add the ability to list networks extensions
+* Bug 1355838_: Don't make calls to Keystone for authN if insufficient args are present
+* Bug 1371924_: strings are being treated as numbers
+* Bug 1372070_: help text in error on openstack image save
+* Bug 1372744_: v3 credential set always needs --user option
+* Bug 1376833_: odd behavior when editing the domain of a user through Keystone v3 API
+* Bug 1378165_: Domains should be supported for 'user show' command
+* Bug 1378565_: The '--domain' arg for identity commands should not require domain lookup
+* Bug 1379871_: token issue for identity v3 is broken
+* Bug 1383083_: repeated to generate clientmanager in interactive mode
+* Added functional tests framework and identity/object tests
+* Authentication Plugin Support
+* Use keystoneclient.session as the base HTTP transport
+* implement swift client commands
+* clean up 'links' section in keystone v3 resources
+* Add cliff-tablib to requirements
+* Include support for using oslo debugger in tests
+* Close file handlers that were left open
+* Added framework for i18n support, and marked Identity v2.0 files for translation
+* Add 'command list' command
+* CRUD Support for ``OS-FEDERATION`` resources (protocol, mappings, identity providers)
+
+.. _1337422: https://bugs.launchpad.net/bugs/1337422
+.. _1383333: https://bugs.launchpad.net/bugs/1383333
+.. _1292638: https://bugs.launchpad.net/bugs/1292638
+.. _1390389: https://bugs.launchpad.net/bugs/1390389
+.. _1387932: https://bugs.launchpad.net/bugs/1387932
+.. _1378842: https://bugs.launchpad.net/bugs/1378842
+.. _1383338: https://bugs.launchpad.net/bugs/1383338
+.. _1337685: https://bugs.launchpad.net/bugs/1337685
+.. _1355838: https://bugs.launchpad.net/bugs/1355838
+.. _1371924: https://bugs.launchpad.net/bugs/1371924
+.. _1372070: https://bugs.launchpad.net/bugs/1372070
+.. _1372744: https://bugs.launchpad.net/bugs/1372744
+.. _1376833: https://bugs.launchpad.net/bugs/1376833
+.. _1378165: https://bugs.launchpad.net/bugs/1378165
+.. _1378565: https://bugs.launchpad.net/bugs/1378565
+.. _1379871: https://bugs.launchpad.net/bugs/1379871
+.. _1383083: https://bugs.launchpad.net/bugs/1383083
+
+
 0.4.1 (08 Sep 2014)
 ===================
 
