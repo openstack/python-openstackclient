@@ -227,6 +227,7 @@ class BaseAPI(KeystoneSession):
             attribute to use for resource search
         :param string resource:
             plural of the object resource name; defaults to path
+
         For example:
             n = find(netclient, 'network', 'networks', 'matrix')
         """

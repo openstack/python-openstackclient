@@ -28,7 +28,7 @@ class CommandManager(cliff.commandmanager.CommandManager):
     """Add additional functionality to cliff.CommandManager
 
     Load additional command groups after initialization
-    Add *_command_group() methods
+    Add _command_group() methods
     """
 
     def __init__(self, namespace, convert_underscores=True):
