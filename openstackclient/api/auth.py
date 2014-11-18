@@ -136,7 +136,8 @@ def build_auth_plugins_option_parser(parser):
         default=utils.env('OS_AUTH_TYPE'),
         help='Select an auhentication type. Available types: ' +
              ', '.join(available_plugins) +
-             '. Default: selected based on --os-username/--os-token',
+             '. Default: selected based on --os-username/--os-token' +
+             ' (Env: OS_AUTH_TYPE)',
         choices=available_plugins
     )
     # make sur we catch old v2.0 env values
