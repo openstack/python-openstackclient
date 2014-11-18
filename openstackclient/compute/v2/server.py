@@ -99,6 +99,43 @@ def _show_progress(progress):
         sys.stdout.flush()
 
 
+class AddServerSecurityGroup(command.Command):
+    """Add security group to server"""
+
+    log = logging.getLogger(__name__ + '.AddServerSecurityGroup')
+
+    def get_parser(self, prog_name):
+        parser = super(AddServerSecurityGroup, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help=_('Server (name or ID)'),
+        )
+        parser.add_argument(
+            'group',
+            metavar='<group>',
+            help=_('Security group to add (name or ID)'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)", parsed_args)
+
+        compute_client = self.app.client_manager.compute
+
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+        security_group = utils.find_resource(
+            compute_client.security_groups,
+            parsed_args.group,
+        )
+
+        server.add_security_group(security_group.name)
+        return
+
+
 class AddServerVolume(command.Command):
     """Add volume to server"""
 
@@ -145,43 +182,6 @@ class AddServerVolume(command.Command):
         )
 
 
-class AddServerSecurityGroup(command.Command):
-    """Add security group to server"""
-
-    log = logging.getLogger(__name__ + '.AddServerSecurityGroup')
-
-    def get_parser(self, prog_name):
-        parser = super(AddServerSecurityGroup, self).get_parser(prog_name)
-        parser.add_argument(
-            'server',
-            metavar='<server>',
-            help=_('Name or ID of server to use'),
-        )
-        parser.add_argument(
-            'group',
-            metavar='<group>',
-            help=_('Name or ID of security group to add to server'),
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
-        compute_client = self.app.client_manager.compute
-
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
-        )
-        security_group = utils.find_resource(
-            compute_client.security_groups,
-            parsed_args.group,
-        )
-
-        server.add_security_group(security_group.name)
-        return
-
-
 class CreateServer(show.ShowOne):
     """Create a new server"""
 
@@ -192,55 +192,65 @@ class CreateServer(show.ShowOne):
         parser.add_argument(
             'server_name',
             metavar='<server-name>',
-            help=_('New server name'))
+            help=_('New server name'),
+        )
         disk_group = parser.add_mutually_exclusive_group(
             required=True,
         )
         disk_group.add_argument(
             '--image',
             metavar='<image>',
-            help=_('Create server from this image'))
+            help=_('Create server from this image'),
+        )
         disk_group.add_argument(
             '--volume',
             metavar='<volume>',
-            help=_('Create server from this volume'))
+            help=_('Create server from this volume'),
+        )
         parser.add_argument(
             '--flavor',
             metavar='<flavor>',
             required=True,
-            help=_('Create server with this flavor'))
+            help=_('Create server with this flavor'),
+        )
         parser.add_argument(
             '--security-group',
             metavar='<security-group-name>',
             action='append',
             default=[],
             help=_('Security group to assign to this server '
-                   '(repeat for multiple groups)'))
+                   '(repeat for multiple groups)'),
+        )
         parser.add_argument(
             '--key-name',
             metavar='<key-name>',
-            help=_('Keypair to inject into this server (optional extension)'))
+            help=_('Keypair to inject into this server (optional extension)'),
+        )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
             help=_('Set a property on this server '
-                   '(repeat for multiple values)'))
+                   '(repeat for multiple values)'),
+        )
         parser.add_argument(
             '--file',
             metavar='<dest-filename=source-filename>',
             action='append',
             default=[],
             help=_('File to inject into image before boot '
-                   '(repeat for multiple files)'))
+                   '(repeat for multiple files)'),
+        )
         parser.add_argument(
             '--user-data',
             metavar='<user-data>',
-            help=_('User data file to serve from the metadata server'))
+            help=_('User data file to serve from the metadata server'),
+        )
         parser.add_argument(
             '--availability-zone',
             metavar='<zone-name>',
-            help=_('Select an availability zone for the server'))
+            help=_('Select an availability zone for the server'),
+        )
         parser.add_argument(
             '--block-device-mapping',
             metavar='<dev-name=mapping>',
@@ -248,37 +258,43 @@ class CreateServer(show.ShowOne):
             default=[],
             help=_('Map block devices; map is '
                    '<id>:<type>:<size(GB)>:<delete_on_terminate> '
-                   '(optional extension)'))
+                   '(optional extension)'),
+        )
         parser.add_argument(
             '--nic',
             metavar='<nic-config-string>',
             action='append',
             default=[],
-            help=_('Specify NIC configuration (optional extension)'))
+            help=_('Specify NIC configuration (optional extension)'),
+        )
         parser.add_argument(
             '--hint',
             metavar='<key=value>',
             action='append',
             default=[],
-            help=_('Hints for the scheduler (optional extension)'))
+            help=_('Hints for the scheduler (optional extension)'),
+        )
         parser.add_argument(
             '--config-drive',
             metavar='<config-drive-volume>|True',
             default=False,
             help=_('Use specified volume as the config drive, '
-                   'or \'True\' to use an ephemeral drive'))
+                   'or \'True\' to use an ephemeral drive'),
+        )
         parser.add_argument(
             '--min',
             metavar='<count>',
             type=int,
             default=1,
-            help=_('Minimum number of servers to launch (default=1)'))
+            help=_('Minimum number of servers to launch (default=1)'),
+        )
         parser.add_argument(
             '--max',
             metavar='<count>',
             type=int,
             default=1,
-            help=_('Maximum number of servers to launch (default=1)'))
+            help=_('Maximum number of servers to launch (default=1)'),
+        )
         parser.add_argument(
             '--wait',
             action='store_true',
@@ -504,7 +520,8 @@ class DeleteServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help=_('Name or ID of server to delete'))
+            help=_('Server (name or ID)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -526,50 +543,61 @@ class ListServer(lister.Lister):
         parser.add_argument(
             '--reservation-id',
             metavar='<reservation-id>',
-            help=_('Only return instances that match the reservation'))
+            help=_('Only return instances that match the reservation'),
+        )
         parser.add_argument(
             '--ip',
             metavar='<ip-address-regex>',
-            help=_('Regular expression to match IP addresses'))
+            help=_('Regular expression to match IP addresses'),
+        )
         parser.add_argument(
             '--ip6',
             metavar='<ip-address-regex>',
-            help=_('Regular expression to match IPv6 addresses'))
+            help=_('Regular expression to match IPv6 addresses'),
+        )
         parser.add_argument(
             '--name',
-            metavar='<name>',
-            help=_('Regular expression to match names'))
+            metavar='<name-regex>',
+            help=_('Regular expression to match names'),
+        )
+        parser.add_argument(
+            '--instance-name',
+            metavar='<server-name>',
+            help=_('Regular expression to match instance name (admin only)'),
+        )
         parser.add_argument(
             '--status',
             metavar='<status>',
             # FIXME(dhellmann): Add choices?
-            help=_('Search by server status'))
+            help=_('Search by server status'),
+        )
         parser.add_argument(
             '--flavor',
             metavar='<flavor>',
-            help=_('Search by flavor ID'))
+            help=_('Search by flavor'),
+        )
         parser.add_argument(
             '--image',
             metavar='<image>',
-            help=_('Search by image ID'))
+            help=_('Search by image'),
+        )
         parser.add_argument(
             '--host',
             metavar='<hostname>',
-            help=_('Search by hostname'))
-        parser.add_argument(
-            '--instance-name',
-            metavar='<server-name>',
-            help=_('Regular expression to match instance name (admin only)'))
+            help=_('Search by hostname'),
+        )
         parser.add_argument(
             '--all-projects',
             action='store_true',
             default=bool(int(os.environ.get("ALL_PROJECTS", 0))),
-            help=_('Include all projects (admin only)'))
+            help=_('Include all projects (admin only)'),
+        )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help=_('List additional fields in output'))
+            help=_('List additional fields in output'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -672,12 +700,7 @@ class MigrateServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help=_('Server to migrate (name or ID)'),
-        )
-        parser.add_argument(
-            '--wait',
-            action='store_true',
-            help=_('Wait for resize to complete'),
+            help=_('Server (name or ID)'),
         )
         parser.add_argument(
             '--live',
@@ -700,6 +723,12 @@ class MigrateServer(command.Command):
         )
         disk_group = parser.add_mutually_exclusive_group()
         disk_group.add_argument(
+            '--disk-overcommit',
+            action='store_true',
+            default=False,
+            help=_('Allow disk over-commit on the destination host'),
+        )
+        disk_group.add_argument(
             '--no-disk-overcommit',
             dest='disk_overcommit',
             action='store_false',
@@ -707,11 +736,10 @@ class MigrateServer(command.Command):
             help=_('Do not over-commit disk on the'
                    ' destination host (default)'),
         )
-        disk_group.add_argument(
-            '--disk-overcommit',
+        parser.add_argument(
+            '--wait',
             action='store_true',
-            default=False,
-            help=_('Allow disk over-commit on the destination host'),
+            help=_('Wait for resize to complete'),
         )
         return parser
 
@@ -1140,13 +1168,13 @@ class ShowServer(show.ShowOne):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help=_('Server to show (name or ID)'),
+            help=_('Server (name or ID)'),
         )
         parser.add_argument(
             '--diagnostics',
             action='store_true',
             default=False,
-            help=_('Display diagnostics information for a given server'),
+            help=_('Display server diagnostics information'),
         )
         return parser
 
@@ -1439,7 +1467,7 @@ class UnsetServer(command.Command):
             action='append',
             default=[],
             help=_('Property key to remove from server '
-                   '(repeat to set multiple values)'),
+                   '(repeat to unset multiple values)'),
         )
         return parser
 

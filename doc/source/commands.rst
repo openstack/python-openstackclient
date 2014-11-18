@@ -100,7 +100,8 @@ referring to both Compute and Volume quotas.
 * ``role``: Identity - a policy object used to determine authorization
 * ``security group``: Compute, Network - groups of network access rules
 * ``security group rule``: Compute, Network - the individual rules that define protocol/IP/port access
-* ``server``: Compute - a virtual machine instance
+* ``server``: (**Compute**) virtual machine instance
+* ``server image``: (**Compute**) saved server disk image
 * ``service``: Identity - a cloud service
 * ``snapshot``: Volume - a point-in-time copy of a volume
 * ``token``: (**Identity**) a bearer token managed by Identity service
