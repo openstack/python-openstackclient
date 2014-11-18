@@ -94,7 +94,7 @@ referring to both Compute and Volume quotas.
 * ``network``: Network - a virtual network for connecting servers and other resources
 * ``object``: Object Store - a single file in the Object Store
 * ``policy``: Identity - determines authorization
-* ``project``: Identity - the owner of a group of resources
+* ``project``: (**Identity**) owns a group of resources
 * ``quota``: (**Compute**, **Volume**) resource usage restrictions
 * ``request token``: Identity - temporary OAuth-based token
 * ``role``: Identity - a policy object used to determine authorization
@@ -103,8 +103,9 @@ referring to both Compute and Volume quotas.
 * ``server``: Compute - a virtual machine instance
 * ``service``: Identity - a cloud service
 * ``snapshot``: Volume - a point-in-time copy of a volume
-* ``token``: Identity - the magic text used to determine access
-* ``user``: Identity - individuals using cloud resources
+* ``token``: (**Identity**) a bearer token managed by Identity service
+* ``user``: (**Identity**) individual cloud resources users
+* ``user role``: (**Identity**) roles assigned to a user
 * ``volume``: Volume - block volumes
 * ``volume type``: Volume - deployment-specific types of volumes available
 

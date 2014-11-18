@@ -38,17 +38,20 @@ class AddRole(show.ShowOne):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help=_('Role name or ID to add to user'))
+            help=_('Role to add to <project>:<user> (name or ID)'),
+        )
         parser.add_argument(
             '--project',
             metavar='<project>',
             required=True,
-            help=_('Include project (name or ID)'))
+            help=_('Include <project> (name or ID)'),
+        )
         parser.add_argument(
             '--user',
             metavar='<user>',
             required=True,
-            help=_('Name or ID of user to include'))
+            help=_('Include <user> (name or ID)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -80,8 +83,9 @@ class CreateRole(show.ShowOne):
         parser = super(CreateRole, self).get_parser(prog_name)
         parser.add_argument(
             'role_name',
-            metavar='<role-name>',
-            help=_('New role name'))
+            metavar='<name>',
+            help=_('New role name'),
+        )
         parser.add_argument(
             '--or-show',
             action='store_true',
@@ -110,7 +114,7 @@ class CreateRole(show.ShowOne):
 
 
 class DeleteRole(command.Command):
-    """Delete existing role"""
+    """Delete an existing role"""
 
     log = logging.getLogger(__name__ + '.DeleteRole')
 
@@ -119,7 +123,8 @@ class DeleteRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help=_('Name or ID of role to delete'))
+            help=_('Role to delete (name or ID)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -162,11 +167,13 @@ class ListUserRole(lister.Lister):
             'user',
             metavar='<user>',
             nargs='?',
-            help=_('Name or ID of user to include'))
+            help=_('User to list (name or ID)'),
+        )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Include project (name or ID)'))
+            help=_('Filter users by <project> (name or ID)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -227,17 +234,20 @@ class RemoveRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help=_('Role name or ID to remove from user'))
+            help=_('Role to remove from <project>:<user> (name or ID)'),
+        )
         parser.add_argument(
             '--project',
             metavar='<project>',
             required=True,
-            help=_('Project to include (name or ID)'))
+            help=_('Include <project> (name or ID)'),
+        )
         parser.add_argument(
             '--user',
             metavar='<user>',
             required=True,
-            help=_('Name or ID of user'))
+            help=_('Include <user> (name or ID)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -265,7 +275,8 @@ class ShowRole(show.ShowOne):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help=_('Name or ID of role to display'))
+            help=_('Role to show (name or ID)'),
+        )
         return parser
 
     def take_action(self, parsed_args):

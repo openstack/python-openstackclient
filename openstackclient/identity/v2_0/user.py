@@ -36,13 +36,18 @@ class CreateUser(show.ShowOne):
         parser = super(CreateUser, self).get_parser(prog_name)
         parser.add_argument(
             'name',
-            metavar='<user-name>',
+            metavar='<name>',
             help=_('New user name'),
         )
         parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_('Default project (name or ID)'),
+        )
+        parser.add_argument(
             '--password',
-            metavar='<user-password>',
-            help=_('New user password'),
+            metavar='<password>',
+            help=_('Set user password'),
         )
         parser.add_argument(
             '--password-prompt',
@@ -52,13 +57,8 @@ class CreateUser(show.ShowOne):
         )
         parser.add_argument(
             '--email',
-            metavar='<user-email>',
-            help=_('New user email address'),
-        )
-        parser.add_argument(
-            '--project',
-            metavar='<project>',
-            help=_('Set default project (name or ID)'),
+            metavar='<email-address>',
+            help=_('Set user email address'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
@@ -258,13 +258,18 @@ class SetUser(command.Command):
         )
         parser.add_argument(
             '--name',
-            metavar='<new-user-name>',
-            help=_('New user name'),
+            metavar='<name>',
+            help=_('Set user name'),
+        )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_('Set default project (name or ID)'),
         )
         parser.add_argument(
             '--password',
             metavar='<user-password>',
-            help=_('New user password'),
+            help=_('Set user password'),
         )
         parser.add_argument(
             '--password-prompt',
@@ -274,13 +279,8 @@ class SetUser(command.Command):
         )
         parser.add_argument(
             '--email',
-            metavar='<user-email>',
-            help=_('New user email address'),
-        )
-        parser.add_argument(
-            '--project',
-            metavar='<project>',
-            help=_('New default project (name or ID)'),
+            metavar='<email-address>',
+            help=_('Set user email address'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
