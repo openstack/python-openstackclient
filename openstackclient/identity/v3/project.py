@@ -21,9 +21,11 @@ import six
 from cliff import command
 from cliff import lister
 from cliff import show
+from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
 
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 from openstackclient.identity import common
 
 
@@ -67,6 +69,11 @@ class CreateProject(show.ShowOne):
             help='Property to add for this project '
                  '(repeat option to set multiple properties)',
         )
+        parser.add_argument(
+            '--or-show',
+            action='store_true',
+            help=_('Return existing project'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -86,13 +93,22 @@ class CreateProject(show.ShowOne):
         if parsed_args.property:
             kwargs = parsed_args.property.copy()
 
-        project = identity_client.projects.create(
-            name=parsed_args.name,
-            domain=domain,
-            description=parsed_args.description,
-            enabled=enabled,
-            **kwargs
-        )
+        try:
+            project = identity_client.projects.create(
+                name=parsed_args.name,
+                domain=domain,
+                description=parsed_args.description,
+                enabled=enabled,
+                **kwargs
+            )
+        except ksc_exc.Conflict as e:
+            if parsed_args.or_show:
+                project = utils.find_resource(identity_client.projects,
+                                              parsed_args.name,
+                                              domain_id=domain)
+                self.log.info('Returning existing project %s', project.name)
+            else:
+                raise e
 
         project._info.pop('links')
         return zip(*sorted(six.iteritems(project._info)))

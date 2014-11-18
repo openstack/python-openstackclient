@@ -22,8 +22,10 @@ import sys
 from cliff import command
 from cliff import lister
 from cliff import show
+from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
 
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 
 
 class CreateDomain(show.ShowOne):
@@ -55,16 +57,30 @@ class CreateDomain(show.ShowOne):
             dest='enabled',
             action='store_false',
             help='Disable domain')
+        parser.add_argument(
+            '--or-show',
+            action='store_true',
+            help=_('Return existing domain'),
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
-        domain = identity_client.domains.create(
-            name=parsed_args.name,
-            description=parsed_args.description,
-            enabled=parsed_args.enabled,
-        )
+
+        try:
+            domain = identity_client.domains.create(
+                name=parsed_args.name,
+                description=parsed_args.description,
+                enabled=parsed_args.enabled,
+            )
+        except ksc_exc.Conflict as e:
+            if parsed_args.or_show:
+                domain = utils.find_resource(identity_client.domains,
+                                             parsed_args.name)
+                self.log.info('Returning existing domain %s', domain.name)
+            else:
+                raise e
 
         domain._info.pop('links')
         return zip(*sorted(six.iteritems(domain._info)))

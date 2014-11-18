@@ -22,8 +22,10 @@ import sys
 from cliff import command
 from cliff import lister
 from cliff import show
+from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
 
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 
 
 class AddRole(command.Command):
@@ -149,13 +151,26 @@ class CreateRole(show.ShowOne):
             metavar='<role-name>',
             help='New role name',
         )
+        parser.add_argument(
+            '--or-show',
+            action='store_true',
+            help=_('Return existing role'),
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
-        role = identity_client.roles.create(name=parsed_args.name)
+        try:
+            role = identity_client.roles.create(name=parsed_args.name)
+        except ksc_exc.Conflict as e:
+            if parsed_args.or_show:
+                role = utils.find_resource(identity_client.roles,
+                                           parsed_args.name)
+                self.log.info('Returning existing role %s', role.name)
+            else:
+                raise e
 
         role._info.pop('links')
         return zip(*sorted(six.iteritems(role._info)))
