@@ -63,6 +63,11 @@ class CreateProject(show.ShowOne):
             help=_('Property to add for this project '
                    '(repeat option to set multiple properties)'),
         )
+        parser.add_argument(
+            '--or-show',
+            action='store_true',
+            help=_('Return existing project'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -76,12 +81,22 @@ class CreateProject(show.ShowOne):
         if parsed_args.property:
             kwargs = parsed_args.property.copy()
 
-        project = identity_client.tenants.create(
-            parsed_args.name,
-            description=parsed_args.description,
-            enabled=enabled,
-            **kwargs
-        )
+        try:
+            project = identity_client.tenants.create(
+                parsed_args.name,
+                description=parsed_args.description,
+                enabled=enabled,
+                **kwargs
+            )
+        except ksc_exc.Conflict as e:
+            if parsed_args.or_show:
+                project = utils.find_resource(
+                    identity_client.tenants,
+                    parsed_args.name,
+                )
+                self.log.info('Returning existing project %s', project.name)
+            else:
+                raise e
 
         info = {}
         info.update(project._info)

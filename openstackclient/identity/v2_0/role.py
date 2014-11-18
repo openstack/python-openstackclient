@@ -21,6 +21,7 @@ import six
 from cliff import command
 from cliff import lister
 from cliff import show
+from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
 
 from openstackclient.common import exceptions
 from openstackclient.common import utils
@@ -81,12 +82,27 @@ class CreateRole(show.ShowOne):
             'role_name',
             metavar='<role-name>',
             help=_('New role name'))
+        parser.add_argument(
+            '--or-show',
+            action='store_true',
+            help=_('Return existing role'),
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
-        role = identity_client.roles.create(parsed_args.role_name)
+        try:
+            role = identity_client.roles.create(parsed_args.role_name)
+        except ksc_exc.Conflict as e:
+            if parsed_args.or_show:
+                role = utils.find_resource(
+                    identity_client.roles,
+                    parsed_args.role_name,
+                )
+                self.log.info('Returning existing role %s', role.name)
+            else:
+                raise e
 
         info = {}
         info.update(role._info)
