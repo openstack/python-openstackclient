@@ -65,6 +65,24 @@ EXTENSION = {
     'links': extension_links,
 }
 
+# NOTE(dtroyer): duplicating here the minimum image info needed to test
+#                volume create --image until circular references can be
+#                avoided by refactoring the test fakes.
+
+image_id = 'im1'
+image_name = 'graven'
+
+
+IMAGE = {
+    'id': image_id,
+    'name': image_name,
+}
+
+
+class FakeImagev1Client(object):
+    def __init__(self, **kwargs):
+        self.images = mock.Mock()
+
 
 class FakeVolumev1Client(object):
     def __init__(self, **kwargs):
@@ -88,6 +106,11 @@ class TestVolumev1(utils.TestCommand):
         )
 
         self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
+        self.app.client_manager.image = FakeImagev1Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
