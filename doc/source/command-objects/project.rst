@@ -58,6 +58,12 @@ Delete an existing project
     os project delete
         <project>
 
+.. option:: --domain <domain>
+
+    Domain owning :ref:`\<project\> <_project_delete-project>` (name or ID)
+
+    .. versionadded:: 3
+
 .. _project_delete-project:
 .. describe:: <project>
 

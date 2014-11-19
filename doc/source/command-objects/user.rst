@@ -80,6 +80,14 @@ Delete user
     os user delete
         <user>
 
+.. option:: --domain <domain>
+
+    Domain owning :ref:`\<user\> <_user_delete-user>` (name or ID)
+
+    .. versionadded:: 3
+
+.. _user_delete-user:
+
 .. describe:: <user>
 
     User to delete (name or ID)
