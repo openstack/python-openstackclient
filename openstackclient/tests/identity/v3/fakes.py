@@ -122,6 +122,19 @@ PROJECT_2 = {
     'links': base_url + 'projects/' + project_id,
 }
 
+region_id = 'region_one'
+region_url = 'http://localhost:1111'
+region_parent_region_id = 'region_two'
+region_description = 'region one'
+
+REGION = {
+    'id': region_id,
+    'url': region_url,
+    'description': region_description,
+    'parent_region_id': region_parent_region_id,
+    'links': base_url + 'regions/' + region_id,
+}
+
 role_id = 'r1'
 role_name = 'roller'
 
@@ -310,6 +323,8 @@ class FakeIdentityv3Client(object):
         self.oauth1.resource_class = fakes.FakeResource(None, {})
         self.projects = mock.Mock()
         self.projects.resource_class = fakes.FakeResource(None, {})
+        self.regions = mock.Mock()
+        self.regions.resource_class = fakes.FakeResource(None, {})
         self.roles = mock.Mock()
         self.roles.resource_class = fakes.FakeResource(None, {})
         self.services = mock.Mock()
