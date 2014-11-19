@@ -38,6 +38,10 @@ class TestVolume(volume_fakes.TestVolumev1):
         self.users_mock = self.app.client_manager.identity.users
         self.users_mock.reset_mock()
 
+        # Get a shortcut to the ImageManager Mock
+        self.images_mock = self.app.client_manager.image.images
+        self.images_mock.reset_mock()
+
 
 # TODO(dtroyer): The volume create tests are incomplete, only the minimal
 #                options and the options that require additional processing
@@ -363,6 +367,138 @@ class TestVolumeCreate(TestVolume):
             None,
             {'Alpha': 'a', 'Beta': 'b'},
             None,
+        )
+
+        collist = (
+            'attach_status',
+            'availability_zone',
+            'display_description',
+            'display_name',
+            'id',
+            'properties',
+            'size',
+            'status',
+            'type',
+        )
+        self.assertEqual(collist, columns)
+        datalist = (
+            'detached',
+            volume_fakes.volume_zone,
+            volume_fakes.volume_description,
+            volume_fakes.volume_name,
+            volume_fakes.volume_id,
+            volume_fakes.volume_metadata_str,
+            volume_fakes.volume_size,
+            '',
+            volume_fakes.volume_type,
+        )
+        self.assertEqual(datalist, data)
+
+    def test_volume_create_image_id(self):
+        self.images_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.IMAGE),
+            loaded=True,
+        )
+
+        arglist = [
+            '--image', volume_fakes.image_id,
+            '--size', str(volume_fakes.volume_size),
+            volume_fakes.volume_name,
+        ]
+        verifylist = [
+            ('image', volume_fakes.image_id),
+            ('size', volume_fakes.volume_size),
+            ('name', volume_fakes.volume_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # VolumeManager.create(size, snapshot_id=, source_volid=,
+        #                      display_name=, display_description=,
+        #                      volume_type=, user_id=,
+        #                      project_id=, availability_zone=,
+        #                      metadata=, imageRef=)
+        self.volumes_mock.create.assert_called_with(
+            volume_fakes.volume_size,
+            None,
+            None,
+            volume_fakes.volume_name,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            volume_fakes.image_id,
+        )
+
+        collist = (
+            'attach_status',
+            'availability_zone',
+            'display_description',
+            'display_name',
+            'id',
+            'properties',
+            'size',
+            'status',
+            'type',
+        )
+        self.assertEqual(collist, columns)
+        datalist = (
+            'detached',
+            volume_fakes.volume_zone,
+            volume_fakes.volume_description,
+            volume_fakes.volume_name,
+            volume_fakes.volume_id,
+            volume_fakes.volume_metadata_str,
+            volume_fakes.volume_size,
+            '',
+            volume_fakes.volume_type,
+        )
+        self.assertEqual(datalist, data)
+
+    def test_volume_create_image_name(self):
+        self.images_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.IMAGE),
+            loaded=True,
+        )
+
+        arglist = [
+            '--image', volume_fakes.image_name,
+            '--size', str(volume_fakes.volume_size),
+            volume_fakes.volume_name,
+        ]
+        verifylist = [
+            ('image', volume_fakes.image_name),
+            ('size', volume_fakes.volume_size),
+            ('name', volume_fakes.volume_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # VolumeManager.create(size, snapshot_id=, source_volid=,
+        #                      display_name=, display_description=,
+        #                      volume_type=, user_id=,
+        #                      project_id=, availability_zone=,
+        #                      metadata=, imageRef=)
+        self.volumes_mock.create.assert_called_with(
+            volume_fakes.volume_size,
+            None,
+            None,
+            volume_fakes.volume_name,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            volume_fakes.image_id,
         )
 
         collist = (

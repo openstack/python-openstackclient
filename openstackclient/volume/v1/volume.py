@@ -99,6 +99,7 @@ class CreateVolume(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
 
         identity_client = self.app.client_manager.identity
+        image_client = self.app.client_manager.image
         volume_client = self.app.client_manager.volume
 
         source_volume = None
@@ -111,12 +112,23 @@ class CreateVolume(show.ShowOne):
         project = None
         if parsed_args.project:
             project = utils.find_resource(
-                identity_client.tenants, parsed_args.project).id
+                identity_client.tenants,
+                parsed_args.project,
+            ).id
 
         user = None
         if parsed_args.user:
             user = utils.find_resource(
-                identity_client.users, parsed_args.user).id
+                identity_client.users,
+                parsed_args.user,
+            ).id
+
+        image = None
+        if parsed_args.image:
+            image = utils.find_resource(
+                image_client.images,
+                parsed_args.image,
+            ).id
 
         volume = volume_client.volumes.create(
             parsed_args.size,
@@ -129,7 +141,7 @@ class CreateVolume(show.ShowOne):
             project,
             parsed_args.availability_zone,
             parsed_args.property,
-            parsed_args.image
+            image,
         )
         # Map 'metadata' column to 'properties'
         volume._info.update(
