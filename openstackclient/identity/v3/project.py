@@ -163,6 +163,11 @@ class ListProject(lister.Lister):
             help='Filter projects by <domain> (name or ID)',
         )
         parser.add_argument(
+            '--user',
+            metavar='<user>',
+            help='Filter projects by <user> (name or ID)',
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -178,9 +183,24 @@ class ListProject(lister.Lister):
         else:
             columns = ('ID', 'Name')
         kwargs = {}
+
+        domain_id = None
         if parsed_args.domain:
-            kwargs['domain'] = common.find_domain(identity_client,
-                                                  parsed_args.domain).id
+            domain_id = common.find_domain(identity_client,
+                                           parsed_args.domain).id
+            kwargs['domain'] = domain_id
+
+        if parsed_args.user:
+            if parsed_args.domain:
+                user_id = utils.find_resource(identity_client.users,
+                                              parsed_args.user,
+                                              domain_id=domain_id).id
+            else:
+                user_id = utils.find_resource(identity_client.users,
+                                              parsed_args.user).id
+
+            kwargs['user'] = user_id
+
         data = identity_client.projects.list(**kwargs)
         return (columns,
                 (utils.get_item_properties(

@@ -79,11 +79,18 @@ List projects
 
     os project list
         [--domain <domain>]
+        [--user <user>]
         [--long]
 
 .. option:: --domain <domain>
 
     Filter projects by :option:`\<domain\> <--domain>` (name or ID)
+
+    .. versionadded:: 3
+
+.. option:: --user <user>
+
+    Filter projects by :option:`\<user\> <--user>` (name or ID)
 
     .. versionadded:: 3
 
