@@ -15,23 +15,25 @@
 
 import logging
 
-from keystoneclient.v2_0 import client as identity_client_v2_0
+from keystoneclient.v2_0 import client as identity_client_v2
 from openstackclient.api import auth
 from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
 
-DEFAULT_IDENTITY_API_VERSION = '2.0'
+DEFAULT_IDENTITY_API_VERSION = '2'
 API_VERSION_OPTION = 'os_identity_api_version'
 API_NAME = 'identity'
 API_VERSIONS = {
-    '2.0': 'openstackclient.identity.client.IdentityClientv2_0',
+    '2.0': 'openstackclient.identity.client.IdentityClientv2',
+    '2': 'openstackclient.identity.client.IdentityClientv2',
     '3': 'keystoneclient.v3.client.Client',
 }
 
 # Translate our API version to auth plugin version prefix
 AUTH_VERSIONS = {
     '2.0': 'v2',
+    '2': 'v2',
     '3': 'v3',
 }
 
@@ -66,7 +68,7 @@ def build_option_parser(parser):
     return auth.build_auth_plugins_option_parser(parser)
 
 
-class IdentityClientv2_0(identity_client_v2_0.Client):
+class IdentityClientv2(identity_client_v2.Client):
     """Tweak the earlier client class to deal with some changes"""
     def __getattr__(self, name):
         # Map v3 'projects' back to v2 'tenants'

@@ -27,6 +27,7 @@ API_VERSION_OPTION = 'os_compute_api_version'
 API_NAME = 'compute'
 API_VERSIONS = {
     '1.1': 'novaclient.v1_1.client.Client',
+    '1': 'novaclient.v1_1.client.Client',
     '2': 'novaclient.v1_1.client.Client',
 }
 

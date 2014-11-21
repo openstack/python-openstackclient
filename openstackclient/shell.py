@@ -255,7 +255,8 @@ class OpenStackShell(app.App):
             if version_opt:
                 api = mod.API_NAME
                 self.api_version[api] = version_opt
-                version = '.v' + version_opt.replace('.', '_')
+                # Command groups deal only with major versions
+                version = '.v' + version_opt.replace('.', '_').split('_')[0]
                 cmd_group = 'openstack.' + api.replace('-', '_') + version
                 self.command_manager.add_command_group(cmd_group)
                 self.log.debug(
