@@ -39,8 +39,8 @@ the openstack/python-openstackclient project using `Gerrit`_.
 .. _Launchpad: https://launchpad.net/python-openstackclient
 .. _Gerrit: http://wiki.openstack.org/GerritWorkflow
 
-Index
-=====
+Indices and Tables
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`
