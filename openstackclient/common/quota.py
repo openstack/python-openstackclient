@@ -72,7 +72,7 @@ class SetQuota(command.Command):
                 COMPUTE_QUOTAS.items(), VOLUME_QUOTAS.items()):
             parser.add_argument(
                 '--%s' % v,
-                metavar='<new-%s>' % v,
+                metavar='<%s>' % v,
                 type=int,
                 help='New value for the %s quota' % v,
             )

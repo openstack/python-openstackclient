@@ -24,7 +24,7 @@ from openstackclient.common import utils
 
 
 class ListExtension(lister.Lister):
-    """List extension command"""
+    """List API extensions"""
 
     log = logging.getLogger(__name__ + '.ListExtension')
 
@@ -41,11 +41,6 @@ class ListExtension(lister.Lister):
             default=False,
             help='List extensions for the Identity API')
         parser.add_argument(
-            '--long',
-            action='store_true',
-            default=False,
-            help='List additional fields in output')
-        parser.add_argument(
             '--network',
             action='store_true',
             default=False,
@@ -55,6 +50,11 @@ class ListExtension(lister.Lister):
             action='store_true',
             default=False,
             help='List extensions for the Volume API')
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help='List additional fields in output')
         return parser
 
     def take_action(self, parsed_args):
