@@ -43,13 +43,13 @@ class CreateProject(show.ShowOne):
         )
         parser.add_argument(
             '--domain',
-            metavar='<project-domain>',
+            metavar='<domain>',
             help='Domain owning the project (name or ID)',
         )
         parser.add_argument(
             '--description',
-            metavar='<project-description>',
-            help='New project description',
+            metavar='<description>',
+            help='Project description',
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
@@ -66,7 +66,7 @@ class CreateProject(show.ShowOne):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Property to add for this project '
+            help='Add a property to <name> '
                  '(repeat option to set multiple properties)',
         )
         parser.add_argument(
@@ -115,7 +115,7 @@ class CreateProject(show.ShowOne):
 
 
 class DeleteProject(command.Command):
-    """Delete project"""
+    """Delete an existing project"""
 
     log = logging.getLogger(__name__ + '.DeleteProject')
 
@@ -149,15 +149,15 @@ class ListProject(lister.Lister):
     def get_parser(self, prog_name):
         parser = super(ListProject, self).get_parser(prog_name)
         parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='Filter projects by <domain> (name or ID)',
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
             help='List additional fields in output',
-        )
-        parser.add_argument(
-            '--domain',
-            metavar='<project-domain>',
-            help='Filter by a specific domain (name or ID)',
         )
         return parser
 
@@ -190,22 +190,22 @@ class SetProject(command.Command):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help='Project to change (name or ID)',
+            help='Project to modify (name or ID)',
         )
         parser.add_argument(
             '--name',
-            metavar='<new-project-name>',
-            help='New project name',
+            metavar='<name>',
+            help='Set project name',
         )
         parser.add_argument(
             '--domain',
-            metavar='<project-domain>',
-            help='New domain owning the project (name or ID)',
+            metavar='<domain>',
+            help='Set domain owning <project> (name or ID)',
         )
         parser.add_argument(
             '--description',
-            metavar='<project-description>',
-            help='New project description',
+            metavar='<description>',
+            help='Set project description',
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
@@ -222,7 +222,7 @@ class SetProject(command.Command):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Property to add for this project '
+            help='Set a property on <project> '
                  '(repeat option to set multiple properties)',
         )
         return parser
@@ -278,7 +278,7 @@ class ShowProject(show.ShowOne):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain where project resides (name or ID)',
+            help='Domain owning <project> (name or ID)',
         )
         return parser
 

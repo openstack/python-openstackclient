@@ -38,29 +38,29 @@ class AddRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Name or ID of role to add',
-        )
-        user_or_group = parser.add_mutually_exclusive_group()
-        user_or_group.add_argument(
-            '--user',
-            metavar='<user>',
-            help='Name or ID of user to add a role',
-        )
-        user_or_group.add_argument(
-            '--group',
-            metavar='<group>',
-            help='Name or ID of group to add a role',
+            help='Role to add to <user> (name or ID)',
         )
         domain_or_project = parser.add_mutually_exclusive_group()
         domain_or_project.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Name or ID of domain associated with user or group',
+            help='Include <domain> (name or ID)',
         )
         domain_or_project.add_argument(
             '--project',
             metavar='<project>',
-            help='Name or ID of project associated with user or group',
+            help='Include `<project>` (name or ID)',
+        )
+        user_or_group = parser.add_mutually_exclusive_group()
+        user_or_group.add_argument(
+            '--user',
+            metavar='<user>',
+            help='Include <user> (name or ID)',
+        )
+        user_or_group.add_argument(
+            '--group',
+            metavar='<group>',
+            help='Include <group> (name or ID)',
         )
         return parser
 
@@ -177,7 +177,7 @@ class CreateRole(show.ShowOne):
 
 
 class DeleteRole(command.Command):
-    """Delete existing role"""
+    """Delete an existing role"""
 
     log = logging.getLogger(__name__ + '.DeleteRole')
 
@@ -186,7 +186,7 @@ class DeleteRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Name or ID of role to delete',
+            help='Role to delete (name or ID)',
         )
         return parser
 
@@ -214,23 +214,23 @@ class ListRole(lister.Lister):
         domain_or_project.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Filter role list by <domain>',
+            help='Filter roles by <domain> (name or ID)',
         )
         domain_or_project.add_argument(
             '--project',
             metavar='<project>',
-            help='Filter role list by <project>',
+            help='Filter roles by <project> (name or ID)',
         )
         user_or_group = parser.add_mutually_exclusive_group()
         user_or_group.add_argument(
             '--user',
             metavar='<user>',
-            help='Name or ID of user to list roles assigned to',
+            help='Filter roles by <user> (name or ID)',
         )
         user_or_group.add_argument(
             '--group',
             metavar='<group>',
-            help='Name or ID of group to list roles assigned to',
+            help='Filter roles by <group> (name or ID)',
         )
         return parser
 
@@ -320,7 +320,7 @@ class ListRole(lister.Lister):
 
 
 class RemoveRole(command.Command):
-    """Remove role command"""
+    """Remove role from domain/project : user/group"""
 
     log = logging.getLogger(__name__ + '.RemoveRole')
 
@@ -329,29 +329,29 @@ class RemoveRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Name or ID of role to remove',
-        )
-        user_or_group = parser.add_mutually_exclusive_group()
-        user_or_group.add_argument(
-            '--user',
-            metavar='<user>',
-            help='Name or ID of user to remove a role',
-        )
-        user_or_group.add_argument(
-            '--group',
-            metavar='<group>',
-            help='Name or ID of group to remove a role',
+            help='Role to remove (name or ID)',
         )
         domain_or_project = parser.add_mutually_exclusive_group()
         domain_or_project.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Name or ID of domain associated with user or group',
+            help='Include <domain> (name or ID)',
         )
         domain_or_project.add_argument(
             '--project',
             metavar='<project>',
-            help='Name or ID of project associated with user or group',
+            help='Include <project> (name or ID)',
+        )
+        user_or_group = parser.add_mutually_exclusive_group()
+        user_or_group.add_argument(
+            '--user',
+            metavar='<user>',
+            help='Include <user> (name or ID)',
+        )
+        user_or_group.add_argument(
+            '--group',
+            metavar='<group>',
+            help='Include <group> (name or ID)',
         )
         return parser
 
@@ -431,7 +431,7 @@ class RemoveRole(command.Command):
 
 
 class SetRole(command.Command):
-    """Set role command"""
+    """Set role properties"""
 
     log = logging.getLogger(__name__ + '.SetRole')
 
@@ -440,12 +440,12 @@ class SetRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Name or ID of role to update',
+            help='Role to modify (name or ID)',
         )
         parser.add_argument(
             '--name',
-            metavar='<new-role-name>',
-            help='New role name',
+            metavar='<name>',
+            help='Set role name',
         )
         return parser
 
@@ -475,7 +475,7 @@ class ShowRole(show.ShowOne):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Name or ID of role to display',
+            help='Role to show (name or ID)',
         )
         return parser
 

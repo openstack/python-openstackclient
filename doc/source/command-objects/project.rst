@@ -1,0 +1,155 @@
+=======
+project
+=======
+
+Identity v2, v3
+
+project create
+--------------
+
+Create new project
+
+.. program:: project create
+.. code:: bash
+
+    os project create
+        [--domain <domain>]
+        [--description <description>]
+        [--enable | --disable]
+        [--property <key=value>]
+        <name>
+
+.. option:: --domain <domain>
+
+    Domain owning the project (name or ID)
+
+    .. versionadded:: 3
+
+.. option:: --description <description>
+
+    Project description
+
+.. option:: --enable
+
+    Enable project (default)
+
+.. option:: --disable
+
+    Disable project
+
+.. option:: --property <key=value>
+
+    Add a property to :ref:`\<name\> <project_create-name>`
+    (repeat option to set multiple properties)
+
+.. _project_create-name:
+.. describe:: <name>
+
+    New project name
+
+project delete
+--------------
+
+Delete an existing project
+
+.. program:: project delete
+.. code:: bash
+
+    os project delete
+        <project>
+
+.. _project_delete-project:
+.. describe:: <project>
+
+    Project to delete (name or ID)
+
+project list
+------------
+
+List projects
+
+.. program:: project list
+.. code:: bash
+
+    os project list
+        [--domain <domain>]
+        [--long]
+
+.. option:: --domain <domain>
+
+    Filter projects by :option:`\<domain\> <--domain>` (name or ID)
+
+    .. versionadded:: 3
+
+.. option:: --long
+
+    List additional fields in output
+
+project set
+-----------
+
+Set project properties
+
+.. program:: project set
+.. code:: bash
+
+    os project set
+        [--name <name>]
+        [--domain <domain>]
+        [--description <description>]
+        [--enable | --disable]
+        [--property <key=value>]
+        <project>
+
+.. option:: --name <name>
+
+    Set project name
+
+.. option:: --domain <domain>
+
+    Set domain owning :ref:`\<project\> <project_set-project>` (name or ID)
+
+    .. versionadded:: 3
+
+.. option:: --description <description>
+
+    Set project description
+
+.. option:: --enable
+
+    Enable project (default)
+
+.. option:: --disable
+
+    Disable project
+
+.. option:: --property <key=value>
+
+    Set a property on :ref:`\<project\> <project_set-project>`
+    (repeat option to set multiple properties)
+
+.. _project_set-project:
+.. describe:: <project>
+
+    Project to modify (name or ID)
+
+project show
+------------
+
+.. program:: project show
+.. code:: bash
+
+    os project show
+        [--domain <domain>]
+        <project>
+
+.. option:: --domain <domain>
+
+    Domain owning :ref:`\<project\> <project_show-project>` (name or ID)
+
+    .. versionadded:: 3
+
+.. _project_show-project:
+.. describe:: <project>
+
+    Project to show (name or ID)

@@ -37,13 +37,23 @@ class CreateUser(show.ShowOne):
         parser = super(CreateUser, self).get_parser(prog_name)
         parser.add_argument(
             'name',
-            metavar='<user-name>',
+            metavar='<name>',
             help='New user name',
         )
         parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='Default domain (name or ID)',
+        )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help='Default project (name or ID)',
+        )
+        parser.add_argument(
             '--password',
-            metavar='<user-password>',
-            help='New user password',
+            metavar='<password>',
+            help='Set user password',
         )
         parser.add_argument(
             '--password-prompt',
@@ -53,23 +63,13 @@ class CreateUser(show.ShowOne):
         )
         parser.add_argument(
             '--email',
-            metavar='<user-email>',
-            help='New user email address',
-        )
-        parser.add_argument(
-            '--project',
-            metavar='<project>',
-            help='Set default project (name or ID)',
-        )
-        parser.add_argument(
-            '--domain',
-            metavar='<domain>',
-            help='New default domain name or ID',
+            metavar='<email-address>',
+            help='Set user email address',
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='Description for new user',
+            help='User description',
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
@@ -173,12 +173,12 @@ class ListUser(lister.Lister):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Filter user list by <domain> (name or ID)',
+            help='Filter users by <domain> (name or ID)',
         )
         parser.add_argument(
             '--group',
             metavar='<group>',
-            help='List memberships of <group> (name or ID)',
+            help='Filter users by <group> membership (name or ID)',
         )
         parser.add_argument(
             '--long',
@@ -240,13 +240,23 @@ class SetUser(command.Command):
         )
         parser.add_argument(
             '--name',
-            metavar='<new-user-name>',
-            help='New user name',
+            metavar='<name>',
+            help='Set user name',
+        )
+        parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='Set default domain (name or ID)',
+        )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help='Set default project (name or ID)',
         )
         parser.add_argument(
             '--password',
-            metavar='<user-password>',
-            help='New user password',
+            metavar='<password>',
+            help='Set user password',
         )
         parser.add_argument(
             '--password-prompt',
@@ -256,23 +266,13 @@ class SetUser(command.Command):
         )
         parser.add_argument(
             '--email',
-            metavar='<user-email>',
-            help='New user email address',
-        )
-        parser.add_argument(
-            '--domain',
-            metavar='<domain>',
-            help='New domain name or ID',
-        )
-        parser.add_argument(
-            '--project',
-            metavar='<project>',
-            help='New project name or ID',
+            metavar='<email-address>',
+            help='Set user email address',
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='New description',
+            help='Set user description',
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
@@ -380,7 +380,7 @@ class ShowUser(show.ShowOne):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain where user resides (name or ID)',
+            help='Domain owning <user> (name or ID)',
         )
         return parser
 

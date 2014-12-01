@@ -42,8 +42,8 @@ class CreateProject(show.ShowOne):
         )
         parser.add_argument(
             '--description',
-            metavar='<project-description>',
-            help=_('New project description'),
+            metavar='<description>',
+            help=_('Project description'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
@@ -60,7 +60,7 @@ class CreateProject(show.ShowOne):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Property to add for this project '
+            help=_('Add a property to <name> '
                    '(repeat option to set multiple properties)'),
         )
         parser.add_argument(
@@ -104,7 +104,7 @@ class CreateProject(show.ShowOne):
 
 
 class DeleteProject(command.Command):
-    """Delete project"""
+    """Delete an existing project"""
 
     log = logging.getLogger(__name__ + '.DeleteProject')
 
@@ -169,17 +169,17 @@ class SetProject(command.Command):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help=_('Project to change (name or ID)'),
+            help=_('Project to modify (name or ID)'),
         )
         parser.add_argument(
             '--name',
-            metavar='<new-project-name>',
-            help=_('New project name'),
+            metavar='<name>',
+            help=_('Set project name'),
         )
         parser.add_argument(
             '--description',
-            metavar='<project-description>',
-            help=_('New project description'),
+            metavar='<description>',
+            help=_('Set project description'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
@@ -196,7 +196,7 @@ class SetProject(command.Command):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Property to add for this project '
+            help=_('Set a project property '
                    '(repeat option to set multiple properties)'),
         )
         return parser
@@ -249,7 +249,7 @@ class ShowProject(show.ShowOne):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help=_('Project to display (name or ID)'))
+            help=_('Project to show (name or ID)'))
         return parser
 
     def take_action(self, parsed_args):
