@@ -29,7 +29,7 @@ from openstackclient.common import utils
 
 
 class CreateKeypair(show.ShowOne):
-    """Create new keypair"""
+    """Create new public key"""
 
     log = logging.getLogger(__name__ + '.CreateKeypair')
 
@@ -38,7 +38,7 @@ class CreateKeypair(show.ShowOne):
         parser.add_argument(
             'name',
             metavar='<name>',
-            help='New keypair name',
+            help='New public key name',
         )
         parser.add_argument(
             '--public-key',
@@ -80,7 +80,7 @@ class CreateKeypair(show.ShowOne):
 
 
 class DeleteKeypair(command.Command):
-    """Delete a keypair"""
+    """Delete a public key"""
 
     log = logging.getLogger(__name__ + '.DeleteKeypair')
 
@@ -88,8 +88,8 @@ class DeleteKeypair(command.Command):
         parser = super(DeleteKeypair, self).get_parser(prog_name)
         parser.add_argument(
             'name',
-            metavar='<name>',
-            help='Name of keypair to delete',
+            metavar='<key>',
+            help='Public key to delete',
         )
         return parser
 
@@ -101,7 +101,7 @@ class DeleteKeypair(command.Command):
 
 
 class ListKeypair(lister.Lister):
-    """List keypairs"""
+    """List public key fingerprints"""
 
     log = logging.getLogger(__name__ + ".ListKeypair")
 
@@ -121,7 +121,7 @@ class ListKeypair(lister.Lister):
 
 
 class ShowKeypair(show.ShowOne):
-    """Show keypair details"""
+    """Show public key details"""
 
     log = logging.getLogger(__name__ + '.ShowKeypair')
 
@@ -129,14 +129,14 @@ class ShowKeypair(show.ShowOne):
         parser = super(ShowKeypair, self).get_parser(prog_name)
         parser.add_argument(
             'name',
-            metavar='<name>',
-            help='Name of keypair to display',
+            metavar='<key>',
+            help='Public key to show',
         )
         parser.add_argument(
             '--public-key',
             action='store_true',
             default=False,
-            help='Include public key in output',
+            help='Show only bare public key',
         )
         return parser
 

@@ -37,12 +37,12 @@ class AddAggregateHost(show.ShowOne):
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
-            help='Name or ID of aggregate',
+            help='Aggregate (name or ID)',
         )
         parser.add_argument(
             'host',
             metavar='<host>',
-            help='Host to add to aggregate',
+            help='Host to add to <aggregate>',
         )
         return parser
 
@@ -119,7 +119,7 @@ class DeleteAggregate(command.Command):
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
-            help='Name or ID of aggregate to delete',
+            help='Aggregate to delete (name or ID)',
         )
         return parser
 
@@ -197,12 +197,12 @@ class RemoveAggregateHost(show.ShowOne):
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
-            help='Name or ID of aggregate',
+            help='Aggregate (name or ID)',
         )
         parser.add_argument(
             'host',
             metavar='<host>',
-            help='Host to remove from aggregate',
+            help='Host to remove from <aggregate>',
         )
         return parser
 
@@ -235,23 +235,23 @@ class SetAggregate(show.ShowOne):
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
-            help='Name or ID of aggregate to display',
+            help='Aggregate to modify (name or ID)',
         )
         parser.add_argument(
             '--name',
-            metavar='<new-name>',
-            help='New aggregate name',
+            metavar='<name>',
+            help='Set aggregate name',
         )
         parser.add_argument(
             "--zone",
             metavar="<availability-zone>",
-            help="Availability zone name",
+            help="Set availability zone name",
         )
         parser.add_argument(
             "--property",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
-            help='Property to add/change for this aggregate '
+            help='Property to set on <aggregate> '
                  '(repeat option to set multiple properties)',
         )
         return parser
@@ -299,7 +299,7 @@ class ShowAggregate(show.ShowOne):
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
-            help='Name or ID of aggregate to display',
+            help='Aggregate to show (name or ID)',
         )
         return parser
 

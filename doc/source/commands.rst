@@ -70,10 +70,10 @@ the API resources will be merged, as in the ``quota`` object that has options
 referring to both Compute and Volume quotas.
 
 * ``access token``: Identity - long-lived OAuth-based token
-* ``aggregate``: Compute - a grouping of servers
+* ``aggregate``: (**Compute**) a grouping of servers
 * ``backup``: Volume - a volume copy
-* ``console log``: Compute - a text dump of a server's console
-* ``console url``: Compute - a URL to a server's remote console
+* ``console log``: (**Compute**) server console text dump
+* ``console url``: (**Compute**) server remote console URL
 * ``consumer``: Identity - OAuth-based delegatee
 * ``container``: Object Store - a grouping of objects
 * ``credential``: Identity - specific to identity providers
@@ -88,7 +88,7 @@ referring to both Compute and Volume quotas.
 * ``image``: Image - a disk image
 * ``ip fixed``: Compute, Network - an internal IP address assigned to a server
 * ``ip floating``: Compute, Network - a public IP address that can be mapped to a server
-* ``keypair``: Compute - an SSH public key
+* ``keypair``: (**Compute**) an SSH public key
 * ``limits``: (**Compute**, **Volume**) resource usage limits
 * ``module``: internal - installed Python modules in the OSC process
 * ``network``: Network - a virtual network for connecting servers and other resources

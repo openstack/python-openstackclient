@@ -35,7 +35,7 @@ class ShowConsoleLog(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help='Server to show console log (name or ID)',
         )
         parser.add_argument(
             '--lines',
@@ -76,7 +76,7 @@ class ShowConsoleURL(show.ShowOne):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server (name or ID)',
+            help='Server to show URL (name or ID)',
         )
         type_group = parser.add_mutually_exclusive_group()
         type_group.add_argument(
