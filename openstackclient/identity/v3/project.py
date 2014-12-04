@@ -111,6 +111,8 @@ class CreateProject(show.ShowOne):
                 raise e
 
         project._info.pop('links')
+        # TODO(stevemar): Remove the line below when we support multitenancy
+        project._info.pop('parent_id', None)
         return zip(*sorted(six.iteritems(project._info)))
 
 
@@ -325,4 +327,6 @@ class ShowProject(show.ShowOne):
                                           parsed_args.project)
 
         project._info.pop('links')
+        # TODO(stevemar): Remove the line below when we support multitenancy
+        project._info.pop('parent_id', None)
         return zip(*sorted(six.iteritems(project._info)))
