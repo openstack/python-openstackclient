@@ -98,9 +98,9 @@ class CreateProject(show.ShowOne):
             else:
                 raise e
 
-        info = {}
-        info.update(project._info)
-        return zip(*sorted(six.iteritems(info)))
+        # TODO(stevemar): Remove the line below when we support multitenancy
+        project._info.pop('parent_id', None)
+        return zip(*sorted(six.iteritems(project._info)))
 
 
 class DeleteProject(command.Command):
@@ -279,4 +279,6 @@ class ShowProject(show.ShowOne):
             else:
                 raise e
 
+        # TODO(stevemar): Remove the line below when we support multitenancy
+        info.pop('parent_id', None)
         return zip(*sorted(six.iteritems(info)))
