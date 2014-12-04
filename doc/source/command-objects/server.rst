@@ -139,8 +139,8 @@ List servers
 
     os server list
         [--reservation-id <reservation-id>]
-        [--ip <ip-regex>]
-        [--ip6 <ip6-regex>]
+        [--ip <ip-address-regex>]
+        [--ip6 <ip6-address-regex>]
         [--name <name-regex>]
         [--instance-name <instance-name-regex>]
         [--status <status>]
@@ -210,9 +210,6 @@ Migrate server to different host
         [--wait]
         <server>
 
-:option:`--wait`
-    Wait for resize to complete
-
 :option:`--live` <hostname>
     Target hostname
 
@@ -227,6 +224,9 @@ Migrate server to different host
 
 :option:`--no-disk-overcommit`
     Do not over-commit disk on the destination host (default)
+
+:option:`--wait`
+    Wait for resize to complete
 
 :option:`<server>`
     Server to migrate (name or ID)
