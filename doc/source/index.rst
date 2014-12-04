@@ -16,6 +16,7 @@ Contents:
    commands
    plugins
    authentication
+   interactive
    man/openstack
 
 Getting Started
