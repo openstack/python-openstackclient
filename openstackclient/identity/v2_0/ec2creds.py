@@ -57,7 +57,7 @@ class CreateEC2Creds(show.ShowOne):
             ).id
         else:
             # Get the project from the current auth
-            project = identity_client.auth_tenant_id
+            project = self.app.client_manager.auth_ref.project_id
         if parsed_args.user:
             user = utils.find_resource(
                 identity_client.users,
@@ -65,7 +65,7 @@ class CreateEC2Creds(show.ShowOne):
             ).id
         else:
             # Get the user from the current auth
-            user = identity_client.auth_user_id
+            user = self.app.client_manager.auth_ref.user_id
 
         creds = identity_client.ec2.create(user, project)
 
@@ -104,7 +104,7 @@ class DeleteEC2Creds(command.Command):
             ).id
         else:
             # Get the user from the current auth
-            user = identity_client.auth_user_id
+            user = self.app.client_manager.auth_ref.user_id
 
         identity_client.ec2.delete(user, parsed_args.access_key)
 
@@ -134,7 +134,7 @@ class ListEC2Creds(lister.Lister):
             ).id
         else:
             # Get the user from the current auth
-            user = identity_client.auth_user_id
+            user = self.app.client_manager.auth_ref.user_id
 
         columns = ('access', 'secret', 'tenant_id', 'user_id')
         column_headers = ('Access', 'Secret', 'Project ID', 'User ID')
@@ -177,7 +177,7 @@ class ShowEC2Creds(show.ShowOne):
             ).id
         else:
             # Get the user from the current auth
-            user = identity_client.auth_user_id
+            user = self.app.client_manager.auth_ref.user_id
 
         creds = identity_client.ec2.get(user, parsed_args.access_key)
 
