@@ -38,7 +38,7 @@ the openstack/python-openstackclient project using `Gerrit`_.
 
 .. _on OpenStack's Git server: https://git.openstack.org/cgit/openstack/python-openstackclient/tree
 .. _Launchpad: https://launchpad.net/python-openstackclient
-.. _Gerrit: http://wiki.openstack.org/GerritWorkflow
+.. _Gerrit: http://docs.openstack.org/infra/manual/developers.html#development-workflow
 
 Indices and Tables
 ==================
