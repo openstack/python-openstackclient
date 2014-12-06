@@ -24,6 +24,19 @@ class IdentityV2Tests(test.TestCase):
 
     USER_FIELDS = ['email', 'enabled', 'id', 'name', 'project_id', 'username']
     PROJECT_FIELDS = ['enabled', 'id', 'name', 'description']
+    EC2_CREDENTIALS_FIELDS = [
+        'access',
+        'project_id',
+        'secret',
+        'trust_id',
+        'user_id',
+    ]
+    EC2_CREDENTIALS_LIST_HEADERS = [
+        'Access',
+        'Secret',
+        'Project ID',
+        'User ID',
+    ]
 
     def test_user_list(self):
         raw_output = self.openstack('user list')
@@ -69,6 +82,39 @@ class IdentityV2Tests(test.TestCase):
         self.openstack('project create dummy-project')
         raw_output = self.openstack('project delete dummy-project')
         self.assertEqual(0, len(raw_output))
+
+    def test_ec2_credentials_create(self):
+        create_output = self.openstack('ec2 credentials create')
+        create_items = self.parse_show(create_output)
+        self.openstack(
+            'ec2 credentials delete %s' % create_items[0]['access'],
+        )
+        self.assert_show_fields(create_items, self.EC2_CREDENTIALS_FIELDS)
+
+    def test_ec2_credentials_delete(self):
+        create_output = self.openstack('ec2 credentials create')
+        create_items = self.parse_show(create_output)
+        raw_output = self.openstack(
+            'ec2 credentials delete %s' % create_items[0]['access'],
+        )
+        self.assertEqual(0, len(raw_output))
+
+    def test_ec2_credentials_list(self):
+        raw_output = self.openstack('ec2 credentials list')
+        items = self.parse_listing(raw_output)
+        self.assert_table_structure(items, self.EC2_CREDENTIALS_LIST_HEADERS)
+
+    def test_ec2_credentials_show(self):
+        create_output = self.openstack('ec2 credentials create')
+        create_items = self.parse_show(create_output)
+        show_output = self.openstack(
+            'ec2 credentials show %s' % create_items[0]['access'],
+        )
+        items = self.parse_show(show_output)
+        self.openstack(
+            'ec2 credentials delete %s' % create_items[0]['access'],
+        )
+        self.assert_show_fields(items, self.EC2_CREDENTIALS_FIELDS)
 
 
 class IdentityV3Tests(test.TestCase):

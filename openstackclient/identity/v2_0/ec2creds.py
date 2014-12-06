@@ -71,6 +71,12 @@ class CreateEC2Creds(show.ShowOne):
 
         info = {}
         info.update(creds._info)
+
+        if 'tenant_id' in info:
+            info.update(
+                {'project_id': info.pop('tenant_id')}
+            )
+
         return zip(*sorted(six.iteritems(info)))
 
 
@@ -183,4 +189,10 @@ class ShowEC2Creds(show.ShowOne):
 
         info = {}
         info.update(creds._info)
+
+        if 'tenant_id' in info:
+            info.update(
+                {'project_id': info.pop('tenant_id')}
+            )
+
         return zip(*sorted(six.iteritems(info)))
