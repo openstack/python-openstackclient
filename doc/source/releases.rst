@@ -2,6 +2,14 @@
 Release Notes
 =============
 
+1.0.1 (08 Dec 2014)
+===================
+
+* Bug 1399757_: EC2 credentials create fails
+
+.. _1399757: https://bugs.launchpad.net/bugs/1399757
+
+
 1.0.0 (04 Dec 2014)
 ===================
 
