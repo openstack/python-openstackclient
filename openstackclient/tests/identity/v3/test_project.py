@@ -353,7 +353,7 @@ class TestProjectDelete(TestProject):
             identity_fakes.project_id,
         ]
         verifylist = [
-            ('project', identity_fakes.project_id),
+            ('projects', [identity_fakes.project_id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

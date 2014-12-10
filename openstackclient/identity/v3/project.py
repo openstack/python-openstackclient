@@ -117,16 +117,17 @@ class CreateProject(show.ShowOne):
 
 
 class DeleteProject(command.Command):
-    """Delete an existing project"""
+    """Delete project(s)"""
 
     log = logging.getLogger(__name__ + '.DeleteProject')
 
     def get_parser(self, prog_name):
         parser = super(DeleteProject, self).get_parser(prog_name)
         parser.add_argument(
-            'project',
+            'projects',
             metavar='<project>',
-            help='Project to delete (name or ID)',
+            nargs="+",
+            help='Project(s) to delete (name or ID)',
         )
         parser.add_argument(
             '--domain',
@@ -139,16 +140,18 @@ class DeleteProject(command.Command):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
+        domain = None
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
-            project = utils.find_resource(identity_client.projects,
-                                          parsed_args.project,
-                                          domain_id=domain.id)
-        else:
-            project = utils.find_resource(identity_client.projects,
-                                          parsed_args.project)
-
-        identity_client.projects.delete(project.id)
+        for project in parsed_args.projects:
+            if domain is not None:
+                project_obj = utils.find_resource(identity_client.projects,
+                                                  project,
+                                                  domain_id=domain.id)
+            else:
+                project_obj = utils.find_resource(identity_client.projects,
+                                                  project)
+            identity_client.projects.delete(project_obj.id)
         return
 
 

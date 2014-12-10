@@ -69,16 +69,16 @@ Create new user
 
     New user name
 
-user delete
------------
+user(s) delete
+--------------
 
-Delete user
+Delete user(s)
 
-.. program:: user delete
+.. program:: user(s) delete
 .. code:: bash
 
     os user delete
-        <user>
+        <user> [<user> ...]
 
 .. option:: --domain <domain>
 

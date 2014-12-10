@@ -461,7 +461,7 @@ class TestUserDelete(TestUser):
             identity_fakes.user_id,
         ]
         verifylist = [
-            ('user', identity_fakes.user_id),
+            ('users', [identity_fakes.user_id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

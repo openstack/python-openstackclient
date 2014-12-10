@@ -56,16 +56,16 @@ Create new role
 
     New role name
 
-role delete
------------
+role(s) delete
+--------------
 
-Delete an existing role
+Delete role(s)
 
-.. program:: role delete
+.. program:: role(s) delete
 .. code:: bash
 
     os role delete
-        <role>
+        <role> [<role> ...]
 
 .. option:: <role>
 

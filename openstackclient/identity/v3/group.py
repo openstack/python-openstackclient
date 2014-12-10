@@ -159,16 +159,17 @@ class CreateGroup(show.ShowOne):
 
 
 class DeleteGroup(command.Command):
-    """Delete group command"""
+    """Delete group(s)"""
 
     log = logging.getLogger(__name__ + '.DeleteGroup')
 
     def get_parser(self, prog_name):
         parser = super(DeleteGroup, self).get_parser(prog_name)
         parser.add_argument(
-            'group',
+            'groups',
             metavar='<group>',
-            help='Name or ID of group to delete')
+            nargs="+",
+            help='Group(s) to delete (name or ID)')
         parser.add_argument(
             '--domain',
             metavar='<domain>',
@@ -180,16 +181,18 @@ class DeleteGroup(command.Command):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
+        domain = None
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
-            group = utils.find_resource(identity_client.groups,
-                                        parsed_args.group,
-                                        domain_id=domain.id)
-        else:
-            group = utils.find_resource(identity_client.groups,
-                                        parsed_args.group)
-
-        identity_client.groups.delete(group.id)
+        for group in parsed_args.groups:
+            if domain is not None:
+                group_obj = utils.find_resource(identity_client.groups,
+                                                group,
+                                                domain_id=domain.id)
+            else:
+                group_obj = utils.find_resource(identity_client.groups,
+                                                group)
+            identity_client.groups.delete(group_obj.id)
         return
 
 

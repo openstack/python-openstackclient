@@ -114,16 +114,17 @@ class CreateRole(show.ShowOne):
 
 
 class DeleteRole(command.Command):
-    """Delete an existing role"""
+    """Delete role(s)"""
 
     log = logging.getLogger(__name__ + '.DeleteRole')
 
     def get_parser(self, prog_name):
         parser = super(DeleteRole, self).get_parser(prog_name)
         parser.add_argument(
-            'role',
+            'roles',
             metavar='<role>',
-            help=_('Role to delete (name or ID)'),
+            nargs="+",
+            help=_('Role(s) to delete (name or ID)'),
         )
         return parser
 
@@ -131,12 +132,12 @@ class DeleteRole(command.Command):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
-        role = utils.find_resource(
-            identity_client.roles,
-            parsed_args.role,
-        )
-
-        identity_client.roles.delete(role.id)
+        for role in parsed_args.roles:
+            role_obj = utils.find_resource(
+                identity_client.roles,
+                role,
+            )
+            identity_client.roles.delete(role_obj.id)
         return
 
 

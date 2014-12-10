@@ -271,7 +271,7 @@ class TestRoleDelete(TestRole):
             identity_fakes.role_name,
         ]
         verifylist = [
-            ('role', identity_fakes.role_name),
+            ('roles', [identity_fakes.role_name]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

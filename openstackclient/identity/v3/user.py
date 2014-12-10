@@ -137,16 +137,17 @@ class CreateUser(show.ShowOne):
 
 
 class DeleteUser(command.Command):
-    """Delete user"""
+    """Delete user(s)"""
 
     log = logging.getLogger(__name__ + '.DeleteUser')
 
     def get_parser(self, prog_name):
         parser = super(DeleteUser, self).get_parser(prog_name)
         parser.add_argument(
-            'user',
+            'users',
             metavar='<user>',
-            help='User to delete (name or ID)',
+            nargs="+",
+            help='User(s) to delete (name or ID)',
         )
         parser.add_argument(
             '--domain',
@@ -159,16 +160,18 @@ class DeleteUser(command.Command):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
+        domain = None
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
-            user = utils.find_resource(identity_client.users,
-                                       parsed_args.user,
-                                       domain_id=domain.id)
-        else:
-            user = utils.find_resource(identity_client.users,
-                                       parsed_args.user)
-
-        identity_client.users.delete(user.id)
+        for user in parsed_args.users:
+            if domain is not None:
+                user_obj = utils.find_resource(identity_client.users,
+                                               user,
+                                               domain_id=domain.id)
+            else:
+                user_obj = utils.find_resource(identity_client.users,
+                                               user)
+            identity_client.users.delete(user_obj.id)
         return
 
 
