@@ -74,25 +74,27 @@ class CreateSnapshot(show.ShowOne):
 
 
 class DeleteSnapshot(command.Command):
-    """Delete snapshot command"""
+    """Delete snapshot(s)"""
 
     log = logging.getLogger(__name__ + '.DeleteSnapshot')
 
     def get_parser(self, prog_name):
         parser = super(DeleteSnapshot, self).get_parser(prog_name)
         parser.add_argument(
-            'snapshot',
+            'snapshots',
             metavar='<snapshot>',
-            help='Name or ID of snapshot to delete',
+            nargs="+",
+            help='Snapshot(s) to delete (name or ID)',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
-        snapshot_id = utils.find_resource(volume_client.volume_snapshots,
-                                          parsed_args.snapshot).id
-        volume_client.volume_snapshots.delete(snapshot_id)
+        for snapshot in parsed_args.snapshots:
+            snapshot_id = utils.find_resource(volume_client.volume_snapshots,
+                                              snapshot).id
+            volume_client.volume_snapshots.delete(snapshot_id)
         return
 
 

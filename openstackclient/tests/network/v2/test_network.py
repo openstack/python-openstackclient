@@ -120,7 +120,7 @@ class TestDeleteNetwork(common.TestNetworkBase):
             FAKE_NAME,
         ]
         verifylist = [
-            ('identifier', FAKE_NAME),
+            ('networks', [FAKE_NAME]),
         ]
         lister = mock.Mock(return_value={RESOURCES: [RECORD]})
         self.app.client_manager.network.list_networks = lister

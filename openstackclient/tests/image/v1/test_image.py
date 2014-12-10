@@ -288,7 +288,7 @@ class TestImageDelete(TestImage):
             image_fakes.image_id,
         ]
         verifylist = [
-            ('image', image_fakes.image_id),
+            ('images', [image_fakes.image_id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

@@ -86,26 +86,27 @@ class CreateNetwork(show.ShowOne):
 
 
 class DeleteNetwork(command.Command):
-    """Delete a network"""
+    """Delete network(s)"""
 
     log = logging.getLogger(__name__ + '.DeleteNetwork')
 
     def get_parser(self, prog_name):
         parser = super(DeleteNetwork, self).get_parser(prog_name)
         parser.add_argument(
-            'identifier',
+            'networks',
             metavar="<network>",
-            help=("Name or identifier of network to delete")
+            nargs="+",
+            help=("Network(s) to delete (name or ID)")
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
-        _id = common.find(client, 'network', 'networks',
-                          parsed_args.identifier)
         delete_method = getattr(client, "delete_network")
-        delete_method(_id)
+        for network in parsed_args.networks:
+            _id = common.find(client, 'network', 'networks', network)
+            delete_method(_id)
         return
 
 
