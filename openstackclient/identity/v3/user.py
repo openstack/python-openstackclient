@@ -188,10 +188,16 @@ class ListUser(lister.Lister):
             metavar='<domain>',
             help='Filter users by <domain> (name or ID)',
         )
-        parser.add_argument(
+        project_or_group = parser.add_mutually_exclusive_group()
+        project_or_group.add_argument(
             '--group',
             metavar='<group>',
             help='Filter users by <group> membership (name or ID)',
+        )
+        project_or_group.add_argument(
+            '--project',
+            metavar='<project>',
+            help='Filter users by <project> (name or ID)',
         )
         parser.add_argument(
             '--long',
@@ -219,7 +225,44 @@ class ListUser(lister.Lister):
         else:
             group = None
 
-        # List users
+        if parsed_args.project:
+            if domain is not None:
+                project = utils.find_resource(
+                    identity_client.projects,
+                    parsed_args.project,
+                    domain_id=domain
+                ).id
+            else:
+                project = utils.find_resource(
+                    identity_client.projects,
+                    parsed_args.project,
+                ).id
+
+            assignments = identity_client.role_assignments.list(
+                project=project)
+
+            # NOTE(stevemar): If a user has more than one role on a project
+            # then they will have two entries in the returned data. Since we
+            # are looking for any role, let's just track unique user IDs.
+            user_ids = set()
+            for assignment in assignments:
+                if hasattr(assignment, 'user'):
+                    user_ids.add(assignment.user['id'])
+
+            # NOTE(stevemar): Call find_resource once we have unique IDs, so
+            # it's fewer trips to the Identity API, then collect the data.
+            data = []
+            for user_id in user_ids:
+                user = utils.find_resource(identity_client.users, user_id)
+                data.append(user)
+
+        else:
+            data = identity_client.users.list(
+                domain=domain,
+                group=group,
+            )
+
+        # Column handling
         if parsed_args.long:
             columns = ['ID', 'Name', 'Default Project Id', 'Domain Id',
                        'Description', 'Email', 'Enabled']
@@ -228,11 +271,7 @@ class ListUser(lister.Lister):
             column_headers[3] = 'Domain'
         else:
             columns = ['ID', 'Name']
-            column_headers = copy.deepcopy(columns)
-        data = identity_client.users.list(
-            domain=domain,
-            group=group,
-        )
+            column_headers = columns
 
         return (
             column_headers,

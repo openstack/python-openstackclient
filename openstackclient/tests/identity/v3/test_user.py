@@ -44,6 +44,11 @@ class TestUser(identity_fakes.TestIdentityv3):
         self.users_mock = self.app.client_manager.identity.users
         self.users_mock.reset_mock()
 
+        # Shortcut for RoleAssignmentManager Mock
+        self.role_assignments_mock = self.app.client_manager.identity.\
+            role_assignments
+        self.role_assignments_mock.reset_mock()
+
 
 class TestUserCreate(TestUser):
 
@@ -511,6 +516,21 @@ class TestUserList(TestUser):
             loaded=True,
         )
 
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
+        self.role_assignments_mock.list.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(
+                    identity_fakes.ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID),
+                loaded=True,
+            )
+        ]
+
         # Get the command object to test
         self.cmd = user.ListUser(self.app, None)
 
@@ -640,6 +660,33 @@ class TestUserList(TestUser):
             '',
             identity_fakes.user_email,
             True,
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_user_list_project(self):
+        arglist = [
+            '--project', identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'project': identity_fakes.project_id,
+        }
+
+        self.role_assignments_mock.list.assert_called_with(**kwargs)
+        self.users_mock.get.assert_called_with(identity_fakes.user_id)
+
+        collist = ['ID', 'Name']
+        self.assertEqual(columns, collist)
+        datalist = ((
+            identity_fakes.user_id,
+            identity_fakes.user_name,
         ), )
         self.assertEqual(datalist, tuple(data))
 
