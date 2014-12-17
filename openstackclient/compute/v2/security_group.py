@@ -23,7 +23,7 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
-from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
+from keystoneclient import exceptions as ksc_exc
 from novaclient.v1_1 import security_group_rules
 from openstackclient.common import parseractions
 from openstackclient.common import utils

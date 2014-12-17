@@ -15,8 +15,7 @@
 
 import simplejson as json
 
-from keystoneclient.openstack.common.apiclient \
-    import exceptions as ksc_exceptions
+from keystoneclient import exceptions as ksc_exceptions
 from keystoneclient import session as ksc_session
 from openstackclient.common import exceptions
 

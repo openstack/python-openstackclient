@@ -15,7 +15,7 @@
 
 import copy
 
-from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
+from keystoneclient import exceptions as ksc_exc
 
 from openstackclient.identity.v2_0 import project
 from openstackclient.tests import fakes

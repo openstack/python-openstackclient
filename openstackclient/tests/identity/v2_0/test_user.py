@@ -16,7 +16,7 @@
 import copy
 import mock
 
-from keystoneclient.openstack.common.apiclient import exceptions as ksc_exc
+from keystoneclient import exceptions as ksc_exc
 from openstackclient.identity.v2_0 import user
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
