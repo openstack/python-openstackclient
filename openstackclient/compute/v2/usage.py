@@ -60,12 +60,14 @@ class ListUsage(lister.Lister):
         compute_client = self.app.client_manager.compute
         columns = (
             "tenant_id",
+            "server_usages",
             "total_memory_mb_usage",
             "total_vcpus_usage",
             "total_local_gb_usage"
         )
         column_headers = (
             "Project",
+            "Servers",
             "RAM MB-Hours",
             "CPU Hours",
             "Disk GB-Hours"
@@ -84,7 +86,7 @@ class ListUsage(lister.Lister):
         else:
             end = now + datetime.timedelta(days=1)
 
-        usage_list = compute_client.usage.list(start, end)
+        usage_list = compute_client.usage.list(start, end, detailed=True)
 
         # Cache the project list
         project_cache = {}
@@ -95,8 +97,8 @@ class ListUsage(lister.Lister):
             # Just forget it if there's any trouble
             pass
 
-        if len(usage_list) > 0:
-            sys.stdout.write("Usage from %s to %s:" % (
+        if parsed_args.formatter == 'table' and len(usage_list) > 0:
+            sys.stdout.write("Usage from %s to %s: \n" % (
                 start.strftime(dateformat),
                 end.strftime(dateformat),
             ))
@@ -106,6 +108,7 @@ class ListUsage(lister.Lister):
                     s, columns,
                     formatters={
                         'tenant_id': _format_project,
+                        'server_usages': lambda x: len(x),
                         'total_memory_mb_usage': lambda x: float("%.2f" % x),
                         'total_vcpus_usage': lambda x: float("%.2f" % x),
                         'total_local_gb_usage': lambda x: float("%.2f" % x),
