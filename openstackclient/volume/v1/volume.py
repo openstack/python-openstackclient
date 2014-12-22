@@ -221,6 +221,25 @@ class ListVolume(lister.Lister):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
 
+        volume_client = self.app.client_manager.volume
+        compute_client = self.app.client_manager.compute
+
+        def _format_attach(attachments):
+            """Return a formatted string of a volume's attached instances
+
+            :param volume: a volume.attachments field
+            :rtype: a string of formatted instances
+            """
+
+            msg = ''
+            for attachment in attachments:
+                server = attachment['server_id']
+                if server in server_cache.keys():
+                    server = server_cache[server].name
+                device = attachment['device']
+                msg += 'Attached to %s on %s ' % (server, device)
+            return msg
+
         if parsed_args.long:
             columns = (
                 'ID',
@@ -229,7 +248,7 @@ class ListVolume(lister.Lister):
                 'Size',
                 'Volume Type',
                 'Bootable',
-                'Attached to',
+                'Attachments',
                 'Metadata',
             )
             column_headers = (
@@ -239,7 +258,7 @@ class ListVolume(lister.Lister):
                 'Size',
                 'Type',
                 'Bootable',
-                'Attached',
+                'Attached to',
                 'Properties',
             )
         else:
@@ -248,28 +267,38 @@ class ListVolume(lister.Lister):
                 'Display Name',
                 'Status',
                 'Size',
-                'Attached to',
+                'Attachments',
             )
             column_headers = (
                 'ID',
                 'Display Name',
                 'Status',
                 'Size',
-                'Attached',
+                'Attached to',
             )
+
+        # Cache the server list
+        server_cache = {}
+        try:
+            for s in compute_client.servers.list():
+                server_cache[s.id] = s
+        except Exception:
+            # Just forget it if there's any trouble
+            pass
+
         search_opts = {
             'all_tenants': parsed_args.all_projects,
             'display_name': parsed_args.name,
             'status': parsed_args.status,
         }
 
-        volume_client = self.app.client_manager.volume
         data = volume_client.volumes.list(search_opts=search_opts)
 
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
-                    formatters={'Metadata': utils.format_dict},
+                    formatters={'Metadata': utils.format_dict,
+                                'Attachments': _format_attach},
                 ) for s in data))
 
 
