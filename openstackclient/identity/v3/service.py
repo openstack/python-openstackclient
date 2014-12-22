@@ -43,6 +43,11 @@ class CreateService(show.ShowOne):
             metavar='<service-name>',
             help='New service name',
         )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help='New service description',
+        )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
@@ -67,6 +72,7 @@ class CreateService(show.ShowOne):
         service = identity_client.services.create(
             name=parsed_args.name,
             type=parsed_args.type,
+            description=parsed_args.description,
             enabled=enabled,
         )
 
@@ -137,6 +143,11 @@ class SetService(command.Command):
             metavar='<service-name>',
             help='New service name',
         )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help='New service description',
+        )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
@@ -156,6 +167,7 @@ class SetService(command.Command):
 
         if (not parsed_args.name
                 and not parsed_args.type
+                and not parsed_args.description
                 and not parsed_args.enable
                 and not parsed_args.disable):
             return
@@ -167,6 +179,8 @@ class SetService(command.Command):
             kwargs['type'] = parsed_args.type
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
+        if parsed_args.description:
+            kwargs['description'] = parsed_args.description
         if parsed_args.enable:
             kwargs['enabled'] = True
         if parsed_args.disable:

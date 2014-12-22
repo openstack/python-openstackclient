@@ -51,6 +51,7 @@ class TestServiceCreate(TestService):
         ]
         verifylist = [
             ('name', identity_fakes.service_name),
+            ('description', None),
             ('enable', False),
             ('disable', False),
             ('type', identity_fakes.service_type),
@@ -64,12 +65,50 @@ class TestServiceCreate(TestService):
         self.services_mock.create.assert_called_with(
             name=identity_fakes.service_name,
             type=identity_fakes.service_type,
+            description=None,
             enabled=True,
         )
 
-        collist = ('enabled', 'id', 'name', 'type')
+        collist = ('description', 'enabled', 'id', 'name', 'type')
         self.assertEqual(columns, collist)
         datalist = (
+            identity_fakes.service_description,
+            True,
+            identity_fakes.service_id,
+            identity_fakes.service_name,
+            identity_fakes.service_type,
+        )
+        self.assertEqual(data, datalist)
+
+    def test_service_create_description(self):
+        arglist = [
+            '--description', identity_fakes.service_description,
+            identity_fakes.service_type,
+        ]
+        verifylist = [
+            ('name', None),
+            ('description', identity_fakes.service_description),
+            ('enable', False),
+            ('disable', False),
+            ('type', identity_fakes.service_type),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # ServiceManager.create(name=, type=, enabled=, **kwargs)
+        self.services_mock.create.assert_called_with(
+            name=None,
+            type=identity_fakes.service_type,
+            description=identity_fakes.service_description,
+            enabled=True,
+        )
+
+        collist = ('description', 'enabled', 'id', 'name', 'type')
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.service_description,
             True,
             identity_fakes.service_id,
             identity_fakes.service_name,
@@ -84,6 +123,7 @@ class TestServiceCreate(TestService):
         ]
         verifylist = [
             ('name', None),
+            ('description', None),
             ('enable', True),
             ('disable', False),
             ('type', identity_fakes.service_type),
@@ -97,12 +137,14 @@ class TestServiceCreate(TestService):
         self.services_mock.create.assert_called_with(
             name=None,
             type=identity_fakes.service_type,
+            description=None,
             enabled=True,
         )
 
-        collist = ('enabled', 'id', 'name', 'type')
+        collist = ('description', 'enabled', 'id', 'name', 'type')
         self.assertEqual(columns, collist)
         datalist = (
+            identity_fakes.service_description,
             True,
             identity_fakes.service_id,
             identity_fakes.service_name,
@@ -117,6 +159,7 @@ class TestServiceCreate(TestService):
         ]
         verifylist = [
             ('name', None),
+            ('description', None),
             ('enable', False),
             ('disable', True),
             ('type', identity_fakes.service_type),
@@ -130,12 +173,14 @@ class TestServiceCreate(TestService):
         self.services_mock.create.assert_called_with(
             name=None,
             type=identity_fakes.service_type,
+            description=None,
             enabled=False,
         )
 
-        collist = ('enabled', 'id', 'name', 'type')
+        collist = ('description', 'enabled', 'id', 'name', 'type')
         self.assertEqual(columns, collist)
         datalist = (
+            identity_fakes.service_description,
             True,
             identity_fakes.service_id,
             identity_fakes.service_name,
@@ -239,6 +284,7 @@ class TestServiceSet(TestService):
         verifylist = [
             ('type', None),
             ('name', None),
+            ('description', None),
             ('enable', False),
             ('disable', False),
             ('service', identity_fakes.service_name),
@@ -256,6 +302,7 @@ class TestServiceSet(TestService):
         verifylist = [
             ('type', identity_fakes.service_type),
             ('name', None),
+            ('description', None),
             ('enable', False),
             ('disable', False),
             ('service', identity_fakes.service_name),
@@ -283,6 +330,7 @@ class TestServiceSet(TestService):
         verifylist = [
             ('type', None),
             ('name', identity_fakes.service_name),
+            ('description', None),
             ('enable', False),
             ('disable', False),
             ('service', identity_fakes.service_name),
@@ -302,6 +350,34 @@ class TestServiceSet(TestService):
             **kwargs
         )
 
+    def test_service_set_description(self):
+        arglist = [
+            '--description', identity_fakes.service_description,
+            identity_fakes.service_name,
+        ]
+        verifylist = [
+            ('type', None),
+            ('name', None),
+            ('description', identity_fakes.service_description),
+            ('enable', False),
+            ('disable', False),
+            ('service', identity_fakes.service_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.run(parsed_args)
+        self.assertEqual(result, 0)
+
+        # Set expected values
+        kwargs = {
+            'description': identity_fakes.service_description,
+        }
+        # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
+        self.services_mock.update.assert_called_with(
+            identity_fakes.service_id,
+            **kwargs
+        )
+
     def test_service_set_enable(self):
         arglist = [
             '--enable',
@@ -310,6 +386,7 @@ class TestServiceSet(TestService):
         verifylist = [
             ('type', None),
             ('name', None),
+            ('description', None),
             ('enable', True),
             ('disable', False),
             ('service', identity_fakes.service_name),
@@ -337,6 +414,7 @@ class TestServiceSet(TestService):
         verifylist = [
             ('type', None),
             ('name', None),
+            ('description', None),
             ('enable', False),
             ('disable', True),
             ('service', identity_fakes.service_name),
@@ -388,9 +466,10 @@ class TestServiceShow(TestService):
             identity_fakes.service_name,
         )
 
-        collist = ('enabled', 'id', 'name', 'type')
+        collist = ('description', 'enabled', 'id', 'name', 'type')
         self.assertEqual(columns, collist)
         datalist = (
+            identity_fakes.service_description,
             True,
             identity_fakes.service_id,
             identity_fakes.service_name,
