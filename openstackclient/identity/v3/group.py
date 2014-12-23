@@ -39,12 +39,12 @@ class AddUserToGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Group name or ID that user will be added to',
+            help='Group that user will be added to (name or ID)',
         )
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='User name or ID to add to group',
+            help='User to add to group (name or ID)',
         )
         return parser
 
@@ -68,7 +68,7 @@ class AddUserToGroup(command.Command):
 
 
 class CheckUserInGroup(command.Command):
-    """Checks that user is in a specific group"""
+    """Check user in group"""
 
     log = logging.getLogger(__name__ + '.CheckUserInGroup')
 
@@ -77,12 +77,12 @@ class CheckUserInGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Group name or ID that user will be added to',
+            help='Group to check if user belongs to (name or ID)',
         )
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='User name or ID to add to group',
+            help='User to check (name or ID)',
         )
         return parser
 
@@ -106,7 +106,7 @@ class CheckUserInGroup(command.Command):
 
 
 class CreateGroup(show.ShowOne):
-    """Create group command"""
+    """Create new group"""
 
     log = logging.getLogger(__name__ + '.CreateGroup')
 
@@ -118,11 +118,11 @@ class CreateGroup(show.ShowOne):
             help='New group name')
         parser.add_argument(
             '--description',
-            metavar='<group-description>',
+            metavar='<description>',
             help='New group description')
         parser.add_argument(
             '--domain',
-            metavar='<group-domain>',
+            metavar='<domain>',
             help='References the domain ID or name which owns the group')
         parser.add_argument(
             '--or-show',
@@ -268,12 +268,12 @@ class RemoveUserFromGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Group name or ID that user will be removed from',
+            help='Group that user will be removed from (name or ID)',
         )
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='User name or ID to remove from group',
+            help='User to remove from group (name or ID)',
         )
         return parser
 
@@ -297,7 +297,7 @@ class RemoveUserFromGroup(command.Command):
 
 
 class SetGroup(command.Command):
-    """Set group command"""
+    """Set group properties"""
 
     log = logging.getLogger(__name__ + '.SetGroup')
 
@@ -306,18 +306,18 @@ class SetGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Name or ID of group to change')
+            help='Group to modify (name or ID)')
         parser.add_argument(
             '--name',
-            metavar='<new-group-name>',
+            metavar='<name>',
             help='New group name')
         parser.add_argument(
             '--domain',
-            metavar='<group-domain>',
-            help='New domain name or ID that will now own the group')
+            metavar='<domain>',
+            help='New domain that will now own the group (name or ID)')
         parser.add_argument(
             '--description',
-            metavar='<group-description>',
+            metavar='<description>',
             help='New group description')
         return parser
 
@@ -341,7 +341,7 @@ class SetGroup(command.Command):
 
 
 class ShowGroup(show.ShowOne):
-    """Show group command"""
+    """Show group details"""
 
     log = logging.getLogger(__name__ + '.ShowGroup')
 
@@ -350,7 +350,7 @@ class ShowGroup(show.ShowOne):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Name or ID of group to display',
+            help='Group to display (name or ID)',
         )
         parser.add_argument(
             '--domain',
