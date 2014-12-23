@@ -56,12 +56,12 @@ Create new role
 
     New role name
 
-role(s) delete
---------------
+role delete
+-----------
 
 Delete role(s)
 
-.. program:: role(s) delete
+.. program:: role delete
 .. code:: bash
 
     os role delete
