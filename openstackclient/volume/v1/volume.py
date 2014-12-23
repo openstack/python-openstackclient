@@ -155,35 +155,37 @@ class CreateVolume(show.ShowOne):
 
 
 class DeleteVolume(command.Command):
-    """Delete a volume"""
+    """Delete volume(s)"""
 
     log = logging.getLogger(__name__ + '.DeleteVolume')
 
     def get_parser(self, prog_name):
         parser = super(DeleteVolume, self).get_parser(prog_name)
         parser.add_argument(
-            'volume',
+            'volumes',
             metavar='<volume>',
-            help='Volume to delete (name or ID)',
+            nargs="+",
+            help='Volume(s) to delete (name or ID)',
         )
         parser.add_argument(
             '--force',
             dest='force',
             action='store_true',
             default=False,
-            help='Attempt forced removal of a volume, regardless of state',
+            help='Attempt forced removal of volume(s), regardless of state',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
-        volume = utils.find_resource(
-            volume_client.volumes, parsed_args.volume)
-        if parsed_args.force:
-            volume_client.volumes.force_delete(volume.id)
-        else:
-            volume_client.volumes.delete(volume.id)
+        for volume in parsed_args.volumes:
+            volume_obj = utils.find_resource(
+                volume_client.volumes, volume)
+            if parsed_args.force:
+                volume_client.volumes.force_delete(volume_obj.id)
+            else:
+                volume_client.volumes.delete(volume_obj.id)
         return
 
 

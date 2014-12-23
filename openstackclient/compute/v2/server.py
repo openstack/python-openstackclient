@@ -511,25 +511,27 @@ class CreateServerImage(show.ShowOne):
 
 
 class DeleteServer(command.Command):
-    """Delete server command"""
+    """Delete server(s)"""
 
     log = logging.getLogger(__name__ + '.DeleteServer')
 
     def get_parser(self, prog_name):
         parser = super(DeleteServer, self).get_parser(prog_name)
         parser.add_argument(
-            'server',
+            'servers',
             metavar='<server>',
-            help=_('Server (name or ID)'),
+            nargs="+",
+            help=_('Server(s) to delete (name or ID)'),
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
-        server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
-        compute_client.servers.delete(server.id)
+        for server in parsed_args.servers:
+            server_obj = utils.find_resource(
+                compute_client.servers, server)
+            compute_client.servers.delete(server_obj.id)
         return
 
 

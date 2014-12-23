@@ -73,25 +73,27 @@ class CreateBackup(show.ShowOne):
 
 
 class DeleteBackup(command.Command):
-    """Delete backup command"""
+    """Delete backup(s)"""
 
     log = logging.getLogger(__name__ + '.DeleteBackup')
 
     def get_parser(self, prog_name):
         parser = super(DeleteBackup, self).get_parser(prog_name)
         parser.add_argument(
-            'backup',
+            'backups',
             metavar='<backup>',
-            help='Name or ID of backup to delete',
+            nargs="+",
+            help='Backup(s) to delete (name or ID)',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
-        backup_id = utils.find_resource(volume_client.backups,
-                                        parsed_args.backup).id
-        volume_client.backups.delete(backup_id)
+        for backup in parsed_args.backups:
+            backup_id = utils.find_resource(volume_client.backups,
+                                            backup).id
+            volume_client.backups.delete(backup_id)
         return
 
 

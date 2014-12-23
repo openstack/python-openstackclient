@@ -117,15 +117,15 @@ Create a new server
 :option:`<server-name>`
     New server name
 
-server delete
--------------
+server(s) delete
+----------------
 
-Delete server command
+Delete server(s) command
 
 .. code:: bash
 
     os server delete
-        <server>
+        <server> [<server> ...]
 
 :option:`<server>`
     Server (name or ID)

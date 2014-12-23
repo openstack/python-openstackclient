@@ -232,7 +232,7 @@ class TestServerDelete(TestServer):
             compute_fakes.server_id,
         ]
         verifylist = [
-            ('server', compute_fakes.server_id),
+            ('servers', [compute_fakes.server_id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
