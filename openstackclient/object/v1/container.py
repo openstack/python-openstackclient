@@ -27,7 +27,7 @@ from openstackclient.common import utils
 
 
 class CreateContainer(lister.Lister):
-    """Create a container"""
+    """Create new container"""
 
     log = logging.getLogger(__name__ + '.CreateContainer')
 
@@ -35,9 +35,9 @@ class CreateContainer(lister.Lister):
         parser = super(CreateContainer, self).get_parser(prog_name)
         parser.add_argument(
             'containers',
-            metavar='<container>',
+            metavar='<container-name>',
             nargs="+",
-            help='Container name(s) to create',
+            help='New container name(s)',
         )
         return parser
 
@@ -60,7 +60,7 @@ class CreateContainer(lister.Lister):
 
 
 class DeleteContainer(command.Command):
-    """Delete a container"""
+    """Delete container"""
 
     log = logging.getLogger(__name__ + '.DeleteContainer')
 
@@ -70,7 +70,7 @@ class DeleteContainer(command.Command):
             'containers',
             metavar='<container>',
             nargs="+",
-            help='Container name(s) to delete',
+            help='Container(s) to delete',
         )
         return parser
 
@@ -157,7 +157,7 @@ class ListContainer(lister.Lister):
 
 
 class SaveContainer(command.Command):
-    """Save the contents of a container locally"""
+    """Save container contents locally"""
 
     log = logging.getLogger(__name__ + ".SaveContainer")
 
@@ -166,7 +166,7 @@ class SaveContainer(command.Command):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Container name to save',
+            help='Container to save',
         )
         return parser
 
@@ -179,7 +179,7 @@ class SaveContainer(command.Command):
 
 
 class ShowContainer(show.ShowOne):
-    """Show container information"""
+    """Show container details"""
 
     log = logging.getLogger(__name__ + '.ShowContainer')
 
@@ -188,7 +188,7 @@ class ShowContainer(show.ShowOne):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Container name to display',
+            help='Container to display',
         )
         return parser
 
