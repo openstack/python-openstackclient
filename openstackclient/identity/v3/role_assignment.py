@@ -21,7 +21,7 @@ from openstackclient.common import utils
 
 
 class ListRoleAssignment(lister.Lister):
-    """Lists role assignments according to the given filters"""
+    """List role assignments"""
 
     log = logging.getLogger(__name__ + '.ListRoleAssignment')
 
@@ -36,29 +36,29 @@ class ListRoleAssignment(lister.Lister):
         parser.add_argument(
             '--role',
             metavar='<role>',
-            help='Name or ID of role to filter',
+            help='Role to filter (name or ID)',
         )
         user_or_group = parser.add_mutually_exclusive_group()
         user_or_group.add_argument(
             '--user',
             metavar='<user>',
-            help='Name or ID of user to filter',
+            help='User to filter (name or ID)',
         )
         user_or_group.add_argument(
             '--group',
             metavar='<group>',
-            help='Name or ID of group to filter',
+            help='Group to filter (name or ID)',
         )
         domain_or_project = parser.add_mutually_exclusive_group()
         domain_or_project.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Name or ID of domain to filter',
+            help='Domain to filter (name or ID)',
         )
         domain_or_project.add_argument(
             '--project',
             metavar='<project>',
-            help='Name or ID of project to filter',
+            help='Project to filter (name or ID)',
         )
 
         return parser
