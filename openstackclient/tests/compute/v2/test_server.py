@@ -145,6 +145,82 @@ class TestServerCreate(TestServer):
         )
         self.assertEqual(datalist, data)
 
+    def test_server_create_with_network(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'net-id=net1',
+            '--nic', 'port-id=port1',
+            compute_fakes.server_id,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('nic', ['net-id=net1', 'port-id=port1']),
+            ('config_drive', False),
+            ('server_name', compute_fakes.server_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        get_endpoints = mock.Mock()
+        get_endpoints.return_value = {'network': []}
+        self.app.client_manager.auth_ref = mock.Mock()
+        self.app.client_manager.auth_ref.service_catalog = mock.Mock()
+        self.app.client_manager.auth_ref.service_catalog.get_endpoints = (
+            get_endpoints)
+
+        list_networks = mock.Mock()
+        list_ports = mock.Mock()
+        self.app.client_manager.network.list_networks = list_networks
+        self.app.client_manager.network.list_ports = list_ports
+        list_networks.return_value = {'networks': [{'id': 'net1_uuid'}]}
+        list_ports.return_value = {'ports': [{'id': 'port1_uuid'}]}
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping={},
+            nics=[{'net-id': 'net1_uuid',
+                   'v4-fixed-ip': '',
+                   'v6-fixed-ip': '',
+                   'port-id': ''},
+                  {'net-id': '',
+                   'v4-fixed-ip': '',
+                   'v6-fixed-ip': '',
+                   'port-id': 'port1_uuid'}],
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            compute_fakes.server_id,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        collist = ('addresses', 'flavor', 'id', 'name', 'properties')
+        self.assertEqual(collist, columns)
+        datalist = (
+            '',
+            'Large ()',
+            compute_fakes.server_id,
+            compute_fakes.server_name,
+            '',
+        )
+        self.assertEqual(datalist, data)
+
     @mock.patch('openstackclient.compute.v2.server.io.open')
     def test_server_create_userdata(self, mock_open):
         mock_file = mock.MagicMock(name='File')
