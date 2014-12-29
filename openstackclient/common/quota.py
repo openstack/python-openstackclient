@@ -147,6 +147,21 @@ class ShowQuota(show.ShowOne):
         )
         return parser
 
+    def get_quota(self, client, parsed_args):
+        try:
+            if parsed_args.quota_class:
+                quota = client.quota_classes.get(parsed_args.project)
+            elif parsed_args.default:
+                quota = client.quotas.defaults(parsed_args.project)
+            else:
+                quota = client.quotas.get(parsed_args.project)
+        except Exception as e:
+            if type(e).__name__ == 'EndpointNotFound':
+                return {}
+            else:
+                raise e
+        return quota._info
+
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
 
@@ -159,23 +174,12 @@ class ShowQuota(show.ShowOne):
         #                does not exist. If this is determined to be the
         #                intended behaviour of the API we will validate
         #                the argument with Identity ourselves later.
-        if parsed_args.quota_class:
-            compute_quota = compute_client.quota_classes.get(
-                parsed_args.project)
-            volume_quota = volume_client.quota_classes.get(
-                parsed_args.project)
-        elif parsed_args.default:
-            compute_quota = compute_client.quotas.defaults(
-                parsed_args.project)
-            volume_quota = volume_client.quotas.defaults(
-                parsed_args.project)
-        else:
-            compute_quota = compute_client.quotas.get(parsed_args.project)
-            volume_quota = volume_client.quotas.get(parsed_args.project)
+        compute_quota_info = self.get_quota(compute_client, parsed_args)
+        volume_quota_info = self.get_quota(volume_client, parsed_args)
 
         info = {}
-        info.update(compute_quota._info)
-        info.update(volume_quota._info)
+        info.update(compute_quota_info)
+        info.update(volume_quota_info)
 
         # Map the internal quota names to the external ones
         for k, v in itertools.chain(
