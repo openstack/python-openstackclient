@@ -147,11 +147,13 @@ ROLE = {
 service_id = 's-123'
 service_name = 'Texaco'
 service_type = 'gas'
+service_description = 'oil brand'
 
 SERVICE = {
     'id': service_id,
     'name': service_name,
     'type': service_type,
+    'description': service_description,
     'enabled': True,
     'links': base_url + 'services/' + service_id,
 }
