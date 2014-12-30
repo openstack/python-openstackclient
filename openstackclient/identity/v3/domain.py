@@ -29,7 +29,7 @@ from openstackclient.i18n import _  # noqa
 
 
 class CreateDomain(show.ShowOne):
-    """Create domain command"""
+    """Create new domain"""
 
     log = logging.getLogger(__name__ + '.CreateDomain')
 
@@ -42,7 +42,7 @@ class CreateDomain(show.ShowOne):
         )
         parser.add_argument(
             '--description',
-            metavar='<domain-description>',
+            metavar='<description>',
             help='New domain description',
         )
         enable_group = parser.add_mutually_exclusive_group()
@@ -87,7 +87,7 @@ class CreateDomain(show.ShowOne):
 
 
 class DeleteDomain(command.Command):
-    """Delete domain command"""
+    """Delete domain"""
 
     log = logging.getLogger(__name__ + '.DeleteDomain')
 
@@ -96,7 +96,7 @@ class DeleteDomain(command.Command):
         parser.add_argument(
             'domain',
             metavar='<domain>',
-            help='Name or ID of domain to delete',
+            help='Domain to delete (name or ID)',
         )
         return parser
 
@@ -110,7 +110,7 @@ class DeleteDomain(command.Command):
 
 
 class ListDomain(lister.Lister):
-    """List domain command"""
+    """List domains"""
 
     log = logging.getLogger(__name__ + '.ListDomain')
 
@@ -126,7 +126,7 @@ class ListDomain(lister.Lister):
 
 
 class SetDomain(command.Command):
-    """Set domain command"""
+    """Set domain properties"""
 
     log = logging.getLogger(__name__ + '.SetDomain')
 
@@ -135,16 +135,16 @@ class SetDomain(command.Command):
         parser.add_argument(
             'domain',
             metavar='<domain>',
-            help='Name or ID of domain to change',
+            help='Domain to modify (name or ID)',
         )
         parser.add_argument(
             '--name',
-            metavar='<new-domain-name>',
+            metavar='<name>',
             help='New domain name',
         )
         parser.add_argument(
             '--description',
-            metavar='<domain-description>',
+            metavar='<description>',
             help='New domain description',
         )
         enable_group = parser.add_mutually_exclusive_group()
@@ -152,7 +152,7 @@ class SetDomain(command.Command):
             '--enable',
             dest='enabled',
             action='store_true',
-            help='Enable domain (default)',
+            help='Enable domain',
         )
         enable_group.add_argument(
             '--disable',
@@ -185,7 +185,7 @@ class SetDomain(command.Command):
 
 
 class ShowDomain(show.ShowOne):
-    """Show domain command"""
+    """Show domain details"""
 
     log = logging.getLogger(__name__ + '.ShowDomain')
 
@@ -194,7 +194,7 @@ class ShowDomain(show.ShowOne):
         parser.add_argument(
             'domain',
             metavar='<domain>',
-            help='Name or ID of domain to display',
+            help='Domain to display (name or ID)',
         )
         return parser
 
