@@ -69,12 +69,12 @@ Create new user
 
     New user name
 
-user(s) delete
---------------
+user delete
+-----------
 
 Delete user(s)
 
-.. program:: user(s) delete
+.. program:: user delete
 .. code:: bash
 
     os user delete

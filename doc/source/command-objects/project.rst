@@ -47,12 +47,12 @@ Create new project
 
     New project name
 
-project(s) delete
------------------
+project delete
+--------------
 
 Delete project(s)
 
-.. program:: project(s) delete
+.. program:: project delete
 .. code:: bash
 
     os project delete
