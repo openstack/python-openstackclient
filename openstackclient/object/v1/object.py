@@ -27,7 +27,7 @@ from openstackclient.common import utils
 
 
 class CreateObject(lister.Lister):
-    """Upload an object to a container"""
+    """Upload object to container"""
 
     log = logging.getLogger(__name__ + '.CreateObject')
 
@@ -36,13 +36,13 @@ class CreateObject(lister.Lister):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Container to store new object',
+            help='Container for new object',
         )
         parser.add_argument(
             'objects',
-            metavar='<object-name>',
+            metavar='<filename>',
             nargs="+",
-            help='Local path of object(s) to upload',
+            help='Local filename(s) to upload',
         )
         return parser
 
@@ -66,7 +66,7 @@ class CreateObject(lister.Lister):
 
 
 class DeleteObject(command.Command):
-    """Delete an object within a container"""
+    """Delete object from container"""
 
     log = logging.getLogger(__name__ + '.DeleteObject')
 
@@ -75,11 +75,11 @@ class DeleteObject(command.Command):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Container that stores the object to delete',
+            help='Delete object(s) from <container>',
         )
         parser.add_argument(
             'objects',
-            metavar='<object-name>',
+            metavar='<object>',
             nargs="+",
             help='Object(s) to delete',
         )
@@ -104,8 +104,8 @@ class ListObject(lister.Lister):
         parser = super(ListObject, self).get_parser(prog_name)
         parser.add_argument(
             "container",
-            metavar="<container-name>",
-            help="List contents of container-name",
+            metavar="<container>",
+            help="Container to list",
         )
         parser.add_argument(
             "--prefix",
@@ -188,7 +188,7 @@ class ListObject(lister.Lister):
 
 
 class SaveObject(command.Command):
-    """Save an object locally"""
+    """Save object locally"""
 
     log = logging.getLogger(__name__ + ".SaveObject")
 
@@ -197,17 +197,17 @@ class SaveObject(command.Command):
         parser.add_argument(
             "--file",
             metavar="<filename>",
-            help="Downloaded object filename [defaults to object name]",
+            help="Destination filename (defaults to object name)",
         )
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Container name that has the object',
+            help='Download <object> from <container>',
         )
         parser.add_argument(
             "object",
             metavar="<object>",
-            help="Name of the object to save",
+            help="Object to save",
         )
         return parser
 
@@ -222,7 +222,7 @@ class SaveObject(command.Command):
 
 
 class ShowObject(show.ShowOne):
-    """Show object information"""
+    """Show object details"""
 
     log = logging.getLogger(__name__ + '.ShowObject')
 
@@ -231,12 +231,12 @@ class ShowObject(show.ShowOne):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Container name for object to display',
+            help='Display <object> from <container>',
         )
         parser.add_argument(
             'object',
             metavar='<object>',
-            help='Object name to display',
+            help='Object to display',
         )
         return parser
 
