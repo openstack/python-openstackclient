@@ -126,6 +126,12 @@ class ShowUsage(show.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ShowUsage, self).get_parser(prog_name)
         parser.add_argument(
+            "--project",
+            metavar="<project>",
+            default=None,
+            help="Name or ID of project to show usage for."
+        )
+        parser.add_argument(
             "--start",
             metavar="<start>",
             default=None,
@@ -137,12 +143,6 @@ class ShowUsage(show.ShowOne):
             metavar="<end>",
             default=None,
             help="Usage range end date, ex 2012-01-20 (default: tomorrow)."
-        )
-        parser.add_argument(
-            "--project",
-            metavar="<project>",
-            default=None,
-            help="Name or ID of project to show usage for."
         )
         return parser
 
