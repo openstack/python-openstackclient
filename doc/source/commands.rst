@@ -80,6 +80,7 @@ referring to both Compute and Volume quotas.
 * ``container``: Object Store - a grouping of objects
 * ``credentials``: (**Identity**) specific to identity providers
 * ``domain``: (**Identity**) a grouping of projects
+* ``ec2 cedentials``: (**Identity**) AWS EC2-compatibile credentials
 * ``endpoint``: (**Identity**) the base URL used to contact a specific service
 * ``extension``: (**Compute**, **Identity**, **Volume**) OpenStack server API extensions
 * ``flavor``: (**Compute**) pre-defined server configurations: ram, root disk, etc

@@ -37,12 +37,14 @@ class CreateEC2Creds(show.ShowOne):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Specify a project [admin only]'),
+            help=_('Specify an alternate project'
+                   ' (default: current authenticated project)'),
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help=_('Specify a user [admin only]'),
+            help=_('Specify an alternate user'
+                   ' (default: current authenticated user)'),
         )
         return parser
 
@@ -95,7 +97,7 @@ class DeleteEC2Creds(command.Command):
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help=_('Specify a user [admin only]'),
+            help=_('Specify a user'),
         )
         return parser
 
@@ -125,7 +127,7 @@ class ListEC2Creds(lister.Lister):
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help=_('Specify a user [admin only]'),
+            help=_('Specify a user'),
         )
         return parser
 
@@ -154,7 +156,7 @@ class ListEC2Creds(lister.Lister):
 
 
 class ShowEC2Creds(show.ShowOne):
-    """Show EC2 credentials"""
+    """Display EC2 credentials details"""
 
     log = logging.getLogger(__name__ + '.ShowEC2Creds')
 
@@ -168,7 +170,7 @@ class ShowEC2Creds(show.ShowOne):
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help=_('Specify a user [admin only]'),
+            help=_('Specify a user'),
         )
         return parser
 
