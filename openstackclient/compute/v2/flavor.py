@@ -34,64 +34,71 @@ class CreateFlavor(show.ShowOne):
         parser = super(CreateFlavor, self).get_parser(prog_name)
         parser.add_argument(
             "name",
-            metavar="<name>",
+            metavar="<flavor-name>",
             help="New flavor name",
         )
         parser.add_argument(
             "--id",
             metavar="<id>",
             default='auto',
-            help="Unique flavor ID; 'auto' will create a UUID "
-                 "(default: auto)")
+            help="Unique flavor ID; 'auto' creates a UUID "
+                 "(default: auto)",
+        )
         parser.add_argument(
             "--ram",
             type=int,
             metavar="<size-mb>",
             default=256,
-            help="Memory size in MB (default 256M)")
+            help="Memory size in MB (default 256M)",
+        )
         parser.add_argument(
             "--disk",
             type=int,
             metavar="<size-gb>",
             default=0,
-            help="Disk size in GB (default 0G)")
+            help="Disk size in GB (default 0G)",
+        )
         parser.add_argument(
             "--ephemeral",
             type=int,
             metavar="<size-gb>",
+            default=0,
             help="Ephemeral disk size in GB (default 0G)",
-            default=0)
+        )
         parser.add_argument(
             "--swap",
             type=int,
             metavar="<size-gb>",
+            default=0,
             help="Swap space size in GB (default 0G)",
-            default=0)
+        )
         parser.add_argument(
             "--vcpus",
             type=int,
             metavar="<vcpus>",
             default=1,
-            help="Number of vcpus (default 1)")
+            help="Number of vcpus (default 1)",
+        )
         parser.add_argument(
             "--rxtx-factor",
             type=int,
             metavar="<factor>",
+            default=1,
             help="RX/TX factor (default 1)",
-            default=1)
+        )
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
             "--public",
             dest="public",
             action="store_true",
             default=True,
-            help="Flavor is accessible to other projects (default)",
+            help="Flavor is available to other projects (default)",
         )
         public_group.add_argument(
             "--private",
             dest="public",
             action="store_false",
-            help="Flavor is inaccessible to other projects",
+            help="Flavor is not available to other projects",
         )
         return parser
 
@@ -168,7 +175,7 @@ class ListFlavor(lister.Lister):
 
 
 class ShowFlavor(show.ShowOne):
-    """Show flavor details"""
+    """Display flavor details"""
 
     log = logging.getLogger(__name__ + ".ShowFlavor")
 

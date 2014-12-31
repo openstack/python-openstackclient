@@ -82,7 +82,7 @@ referring to both Compute and Volume quotas.
 * ``domain``: Identity - a grouping of projects
 * ``endpoint``: (**Identity**) the base URL used to contact a specific service
 * ``extension``: (**Compute**, **Identity**, **Volume**) OpenStack server API extensions
-* ``flavor``: Compute - pre-defined configurations of servers: ram, root disk, etc
+* ``flavor``: (**Compute**) pre-defined server configurations: ram, root disk, etc
 * ``group``: Identity - a grouping of users
 * ``host``: Compute - the physical computer running a hypervisor
 * ``hypervisor``: Compute - the virtual machine manager
