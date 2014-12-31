@@ -46,7 +46,6 @@ class TestDomainCreate(TestDomain):
             identity_fakes.domain_name,
         ]
         verifylist = [
-            ('enabled', True),
             ('name', identity_fakes.domain_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -81,7 +80,6 @@ class TestDomainCreate(TestDomain):
         ]
         verifylist = [
             ('description', 'new desc'),
-            ('enabled', True),
             ('name', identity_fakes.domain_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -115,7 +113,7 @@ class TestDomainCreate(TestDomain):
             identity_fakes.domain_name,
         ]
         verifylist = [
-            ('enabled', True),
+            ('enable', True),
             ('name', identity_fakes.domain_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -149,7 +147,7 @@ class TestDomainCreate(TestDomain):
             identity_fakes.domain_name,
         ]
         verifylist = [
-            ('enabled', False),
+            ('disable', True),
             ('name', identity_fakes.domain_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -333,7 +331,7 @@ class TestDomainSet(TestDomain):
             identity_fakes.domain_id,
         ]
         verifylist = [
-            ('enabled', True),
+            ('enable', True),
             ('domain', identity_fakes.domain_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -356,7 +354,7 @@ class TestDomainSet(TestDomain):
             identity_fakes.domain_id,
         ]
         verifylist = [
-            ('disabled', True),
+            ('disable', True),
             ('domain', identity_fakes.domain_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

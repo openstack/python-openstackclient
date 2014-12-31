@@ -48,15 +48,14 @@ class CreateDomain(show.ShowOne):
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
-            dest='enabled',
             action='store_true',
-            default=True,
-            help='Enable domain')
+            help='Enable domain (default)',
+        )
         enable_group.add_argument(
             '--disable',
-            dest='enabled',
-            action='store_false',
-            help='Disable domain')
+            action='store_true',
+            help='Disable domain',
+        )
         parser.add_argument(
             '--or-show',
             action='store_true',
@@ -68,11 +67,15 @@ class CreateDomain(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
+        enabled = True
+        if parsed_args.disable:
+            enabled = False
+
         try:
             domain = identity_client.domains.create(
                 name=parsed_args.name,
                 description=parsed_args.description,
-                enabled=parsed_args.enabled,
+                enabled=enabled,
             )
         except ksc_exc.Conflict as e:
             if parsed_args.or_show:
@@ -150,13 +153,11 @@ class SetDomain(command.Command):
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
-            dest='enabled',
             action='store_true',
             help='Enable domain',
         )
         enable_group.add_argument(
             '--disable',
-            dest='disabled',
             action='store_true',
             help='Disable domain',
         )
@@ -172,9 +173,10 @@ class SetDomain(command.Command):
             kwargs['name'] = parsed_args.name
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
-        if parsed_args.enabled:
+
+        if parsed_args.enable:
             kwargs['enabled'] = True
-        if parsed_args.disabled:
+        if parsed_args.disable:
             kwargs['enabled'] = False
 
         if not kwargs:

@@ -78,7 +78,7 @@ referring to both Compute and Volume quotas.
 * ``consumer``: Identity - OAuth-based delegatee
 * ``container``: Object Store - a grouping of objects
 * ``credentials``: (**Identity**) specific to identity providers
-* ``domain``: Identity - a grouping of projects
+* ``domain``: (**Identity**) a grouping of projects
 * ``endpoint``: (**Identity**) the base URL used to contact a specific service
 * ``extension``: (**Compute**, **Identity**, **Volume**) OpenStack server API extensions
 * ``flavor``: Compute - pre-defined configurations of servers: ram, root disk, etc
