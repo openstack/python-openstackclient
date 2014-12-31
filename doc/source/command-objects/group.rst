@@ -16,18 +16,18 @@ Add user to group
         <group>
         <user>
 
-.. option:: <group>
+.. describe:: <group>
 
-    Group that user will be added to (name or ID)
+    Group to contain <user> (name or ID)
 
-.. option:: <user>
+.. describe:: <user>
 
-    User to add to group (name or ID)
+    User to add to <group> (name or ID)
 
 group contains user
 -------------------
 
-Check user in group
+Check user membership in group
 
 .. program:: group contains user
 .. code:: bash
@@ -36,11 +36,11 @@ Check user in group
         <group>
         <user>
 
-.. option:: <group>
+.. describe:: <group>
 
-    Group to check if user belongs to (name or ID)
+    Group to check (name or ID)
 
-.. option:: <user>
+.. describe:: <user>
 
    User to check (name or ID)
 
@@ -60,7 +60,7 @@ Create new group
 
 .. option:: --domain <domain>
 
-    References the domain ID or name which owns the group
+    Domain to contain new group (name or ID)
 
 .. option:: --description <description>
 
@@ -72,7 +72,7 @@ Create new group
 
     If the group already exists, return the existing group data and do not fail.
 
-.. option:: <group-name>
+.. describe:: <group-name>
 
     New group name
 
@@ -90,9 +90,9 @@ Delete group
 
 .. option:: --domain <domain>
 
-    Domain where group resides (name or ID)
+    Domain containing group(s) (name or ID)
 
-.. option:: <group>
+.. describe:: <group>
 
     Group(s) to delete (name or ID)
 
@@ -115,11 +115,11 @@ List groups
 
 .. option:: --user <user>
 
-    List group memberships for <user> (name or ID)
+    Filter group list by <user> (name or ID)
 
 .. option:: --long
 
-    List additional fields in output (defaults to false)
+    List additional fields in output
 
 group remove user
 -----------------
@@ -133,13 +133,13 @@ Remove user from group
         <group>
         <user>
 
-.. option:: <group>
+.. describe:: <group>
 
-    Group that user will be removed from (name or ID)
+    Group containing <user> (name or ID)
 
-.. option:: <user>
+.. describe:: <user>
 
-    User to remove from group (name or ID)
+    User to remove from <group> (name or ID)
 
 group set
 ---------
@@ -161,20 +161,20 @@ Set group properties
 
 .. option:: --domain <domain>
 
-    New domain that will now own the group (name or ID)
+    New domain to contain <group> (name or ID)
 
 .. option:: --description <description>
 
     New group description
 
-.. option:: <group>
+.. describe:: <group>
 
     Group to modify (name or ID)
 
 group show
 ----------
 
-Show group details
+Display group details
 
 .. program:: group show
 .. code:: bash
@@ -185,8 +185,8 @@ Show group details
 
 .. option:: --domain <domain>
 
-    Domain where group resides (name or ID)
+    Domain containing <group> (name or ID)
 
-.. option:: <group>
+.. describe:: <group>
 
     Group to display (name or ID)
