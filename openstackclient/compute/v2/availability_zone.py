@@ -59,7 +59,7 @@ def _xform_availability_zone(az, include_extra):
 
 
 class ListAvailabilityZone(lister.Lister):
-    """List Availability Zones and their status"""
+    """List availability zones and their status"""
 
     log = logging.getLogger(__name__ + '.ListAvailabilityZone')
 
