@@ -9,24 +9,30 @@ region create
 
 Create new region
 
+.. program:: region create
 .. code:: bash
 
     os region create
         [--parent-region <region-id>]
-        [--description <region-description>]
-        [--url <region-url>]
+        [--description <description>]
+        [--url <url>]
         <region-id>
 
-:option:`--parent-region` <region-id>
-    Parent region
+.. option:: --parent-region <region-id>
 
-:option:`--description` <region-description>
+    Parent region ID
+
+.. option:: --description <description>
+
     New region description
 
-:option:`--url` <region-url>
+.. option:: --url <url>
+
     New region URL
 
-:option:`<region-id>`
+.. _region_create-region-id:
+.. describe:: <region-id>
+
     New region ID
 
 region delete
@@ -34,61 +40,75 @@ region delete
 
 Delete region
 
+.. program:: region delete
 .. code:: bash
 
     os region delete
-        <region>
+        <region-id>
 
-:option:`<region>`
-    Region to delete
+.. _region_delete-region-id:
+.. describe:: <region-id>
+
+    Region ID to delete
 
 region list
 -----------
 
 List regions
 
+.. program:: region list
 .. code:: bash
 
     os region list
         [--parent-region <region-id>]
 
-:option:`--parent-region` <region-id>
-    Filter by a specific parent region
+.. option:: --parent-region <region-id>
+
+    Filter by parent region ID
 
 region set
 ----------
 
 Set region properties
 
+.. program:: region set
 .. code:: bash
 
     os region set
         [--parent-region <region-id>]
-        [--description <region-description>]
-        [--url <region-url>]
-        <region>
+        [--description <description>]
+        [--url <url>]
+        <region-id>
 
-:option:`--parent-region` <region-id>
-    New parent region
+.. option:: --parent-region <region-id>
 
-:option:`--description` <region-description>
+    New parent region ID
+
+.. option:: --description <description>
+
     New region description
 
-:option:`--url` <region-url>
+.. option:: --url <url>
+
     New region URL
 
-:option:`<region>`
+.. _region_set-region-id:
+.. describe:: <region-id>
+
     Region ID to modify
 
 region show
 -----------
 
-Show region
+Display region details
 
+.. program:: region show
 .. code:: bash
 
     os region show
-    <region>
+        <region-id>
 
-:option:`<region>`
-    Region ID to modify
+.. _region_show-region-id:
+.. describe:: <region-id>
+
+    Region ID to display
