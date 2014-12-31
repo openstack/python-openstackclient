@@ -15,6 +15,7 @@
 
 """Identity v3 Service action implementations"""
 
+import argparse
 import logging
 import six
 
@@ -35,12 +36,12 @@ class CreateService(show.ShowOne):
         parser = super(CreateService, self).get_parser(prog_name)
         parser.add_argument(
             'type',
-            metavar='<service-type>',
+            metavar='<type>',
             help='New service type (compute, image, identity, volume, etc)',
         )
         parser.add_argument(
             '--name',
-            metavar='<service-name>',
+            metavar='<name>',
             help='New service name',
         )
         parser.add_argument(
@@ -52,12 +53,12 @@ class CreateService(show.ShowOne):
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable project',
+            help='Enable service (default)',
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable project',
+            help='Disable service',
         )
         return parser
 
@@ -90,7 +91,7 @@ class DeleteService(command.Command):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Service to delete (name or ID)',
+            help='Service to delete (type or ID)',
         )
         return parser
 
@@ -108,6 +109,17 @@ class ListService(lister.Lister):
     """List services"""
 
     log = logging.getLogger(__name__ + '.ListService')
+
+    def get_parser(self, prog_name):
+        """The --long option is here for compatibility only."""
+        parser = super(ListService, self).get_parser(prog_name)
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help=argparse.SUPPRESS,
+        )
+        return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
@@ -131,11 +143,11 @@ class SetService(command.Command):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Service to update (name or ID)',
+            help='Service to update (type, name or ID)',
         )
         parser.add_argument(
             '--type',
-            metavar='<service-type>',
+            metavar='<type>',
             help='New service type (compute, image, identity, volume, etc)',
         )
         parser.add_argument(
@@ -152,12 +164,12 @@ class SetService(command.Command):
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable project',
+            help='Enable service',
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable project',
+            help='Disable service',
         )
         return parser
 
@@ -194,7 +206,7 @@ class SetService(command.Command):
 
 
 class ShowService(show.ShowOne):
-    """Show service details"""
+    """Display service details"""
 
     log = logging.getLogger(__name__ + '.ShowService')
 

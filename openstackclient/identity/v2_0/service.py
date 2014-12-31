@@ -44,7 +44,7 @@ class CreateService(show.ShowOne):
         type_or_name_group = parser.add_mutually_exclusive_group()
         type_or_name_group.add_argument(
             '--type',
-            metavar='<service-type>',
+            metavar='<type>',
             help=argparse.SUPPRESS,
         )
         type_or_name_group.add_argument(
@@ -54,7 +54,7 @@ class CreateService(show.ShowOne):
         )
         parser.add_argument(
             '--description',
-            metavar='<service-description>',
+            metavar='<description>',
             help=_('New service description'),
         )
         return parser
@@ -144,7 +144,7 @@ class ListService(lister.Lister):
 
 
 class ShowService(show.ShowOne):
-    """Show service details"""
+    """Display service details"""
 
     log = logging.getLogger(__name__ + '.ShowService')
 

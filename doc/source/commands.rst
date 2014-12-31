@@ -109,7 +109,7 @@ referring to both Compute and Volume quotas.
 * ``security group rule``: Compute, Network - the individual rules that define protocol/IP/port access
 * ``server``: (**Compute**) virtual machine instance
 * ``server image``: (**Compute**) saved server disk image
-* ``service``: Identity - a cloud service
+* ``service``: (**Identity**) a cloud service
 * ``snapshot``: (**Volume**) a point-in-time copy of a volume
 * ``token``: (**Identity**) a bearer token managed by Identity service
 * ``usage``: (**Compute**) display host resources being consumed
