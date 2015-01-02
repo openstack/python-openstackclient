@@ -35,22 +35,22 @@ class CreateRegion(show.ShowOne):
         # seems like poor UX, we will only support user-defined IDs.
         parser.add_argument(
             'region',
-            metavar='<region>',
-            help=_('New region'),
+            metavar='<region-id>',
+            help=_('New region ID'),
         )
         parser.add_argument(
             '--parent-region',
-            metavar='<parent-region>',
-            help=_('The parent region of new region'),
+            metavar='<region-id>',
+            help=_('Parent region ID'),
         )
         parser.add_argument(
             '--description',
-            metavar='<region-description>',
+            metavar='<description>',
             help=_('New region description'),
         )
         parser.add_argument(
             '--url',
-            metavar='<region-url>',
+            metavar='<url>',
             help=_('New region url'),
         )
 
@@ -82,8 +82,8 @@ class DeleteRegion(command.Command):
         parser = super(DeleteRegion, self).get_parser(prog_name)
         parser.add_argument(
             'region',
-            metavar='<region>',
-            help=_('Region to delete'),
+            metavar='<region-id>',
+            help=_('Region ID to delete'),
         )
         return parser
 
@@ -104,8 +104,8 @@ class ListRegion(lister.Lister):
         parser = super(ListRegion, self).get_parser(prog_name)
         parser.add_argument(
             '--parent-region',
-            metavar='<parent-region>',
-            help=_('Filter by parent region'),
+            metavar='<region-id>',
+            help=_('Filter by parent region ID'),
         )
         return parser
 
@@ -137,22 +137,22 @@ class SetRegion(command.Command):
         parser = super(SetRegion, self).get_parser(prog_name)
         parser.add_argument(
             'region',
-            metavar='<region>',
-            help=_('Region to change'),
+            metavar='<region-id>',
+            help=_('Region ID to modify'),
         )
         parser.add_argument(
             '--parent-region',
-            metavar='<parent-region>',
-            help=_('New parent region of the region'),
+            metavar='<region-id>',
+            help=_('New parent region ID'),
         )
         parser.add_argument(
             '--description',
-            metavar='<region-description>',
+            metavar='<description>',
             help=_('New region description'),
         )
         parser.add_argument(
             '--url',
-            metavar='<region-url>',
+            metavar='<url>',
             help=_('New region url'),
         )
         return parser
@@ -179,7 +179,7 @@ class SetRegion(command.Command):
 
 
 class ShowRegion(show.ShowOne):
-    """Show region"""
+    """Display region details"""
 
     log = logging.getLogger(__name__ + '.ShowRegion')
 
@@ -187,8 +187,8 @@ class ShowRegion(show.ShowOne):
         parser = super(ShowRegion, self).get_parser(prog_name)
         parser.add_argument(
             'region',
-            metavar='<region>',
-            help=_('Region to display'),
+            metavar='<region-id>',
+            help=_('Region ID to display'),
         )
         return parser
 

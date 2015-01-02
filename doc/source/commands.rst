@@ -98,7 +98,7 @@ referring to both Compute and Volume quotas.
 * ``policy``: Identity - determines authorization
 * ``project``: (**Identity**) owns a group of resources
 * ``quota``: (**Compute**, **Volume**) resource usage restrictions
-* ``region``: (**Identity**)
+* ``region``: (**Identity**) a subset of an OpenStack deployment
 * ``request token``: Identity - temporary OAuth-based token
 * ``role``: Identity - a policy object used to determine authorization
 * ``security group``: Compute, Network - groups of network access rules
