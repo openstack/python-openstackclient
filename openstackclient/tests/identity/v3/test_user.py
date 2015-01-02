@@ -102,15 +102,16 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('domain_id', 'email', 'enabled', 'id', 'name', 'project_id')
+        collist = ('default_project_id', 'domain_id', 'email',
+                   'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
         datalist = (
+            identity_fakes.project_id,
             identity_fakes.domain_id,
             identity_fakes.user_email,
             True,
             identity_fakes.user_id,
             identity_fakes.user_name,
-            identity_fakes.project_id,
         )
         self.assertEqual(data, datalist)
 
@@ -147,15 +148,16 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('domain_id', 'email', 'enabled', 'id', 'name', 'project_id')
+        collist = ('default_project_id', 'domain_id', 'email',
+                   'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
         datalist = (
+            identity_fakes.project_id,
             identity_fakes.domain_id,
             identity_fakes.user_email,
             True,
             identity_fakes.user_id,
             identity_fakes.user_name,
-            identity_fakes.project_id,
         )
         self.assertEqual(data, datalist)
 
@@ -195,15 +197,16 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('domain_id', 'email', 'enabled', 'id', 'name', 'project_id')
+        collist = ('default_project_id', 'domain_id', 'email',
+                   'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
         datalist = (
+            identity_fakes.project_id,
             identity_fakes.domain_id,
             identity_fakes.user_email,
             True,
             identity_fakes.user_id,
             identity_fakes.user_name,
-            identity_fakes.project_id,
         )
         self.assertEqual(data, datalist)
 
@@ -239,15 +242,16 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('domain_id', 'email', 'enabled', 'id', 'name', 'project_id')
+        collist = ('default_project_id', 'domain_id', 'email',
+                   'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
         datalist = (
+            identity_fakes.project_id,
             identity_fakes.domain_id,
             identity_fakes.user_email,
             True,
             identity_fakes.user_id,
             identity_fakes.user_name,
-            identity_fakes.project_id,
         )
         self.assertEqual(data, datalist)
 
@@ -260,7 +264,7 @@ class TestUserCreate(TestUser):
         )
         # Set up to return an updated user
         USER_2 = copy.deepcopy(identity_fakes.USER)
-        USER_2['project_id'] = identity_fakes.PROJECT_2['id']
+        USER_2['default_project_id'] = identity_fakes.PROJECT_2['id']
         self.users_mock.create.return_value = fakes.FakeResource(
             None,
             USER_2,
@@ -298,15 +302,16 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('domain_id', 'email', 'enabled', 'id', 'name', 'project_id')
+        collist = ('default_project_id', 'domain_id', 'email',
+                   'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
         datalist = (
+            identity_fakes.PROJECT_2['id'],
             identity_fakes.domain_id,
             identity_fakes.user_email,
             True,
             identity_fakes.user_id,
             identity_fakes.user_name,
-            identity_fakes.PROJECT_2['id'],
         )
         self.assertEqual(data, datalist)
 
@@ -342,15 +347,16 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('domain_id', 'email', 'enabled', 'id', 'name', 'project_id')
+        collist = ('default_project_id', 'domain_id', 'email',
+                   'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
         datalist = (
+            identity_fakes.project_id,
             identity_fakes.domain_id,
             identity_fakes.user_email,
             True,
             identity_fakes.user_id,
             identity_fakes.user_name,
-            identity_fakes.project_id,
         )
         self.assertEqual(data, datalist)
 
@@ -385,15 +391,16 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('domain_id', 'email', 'enabled', 'id', 'name', 'project_id')
+        collist = ('default_project_id', 'domain_id', 'email',
+                   'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
         datalist = (
+            identity_fakes.project_id,
             identity_fakes.domain_id,
             identity_fakes.user_email,
             True,
             identity_fakes.user_id,
             identity_fakes.user_name,
-            identity_fakes.project_id,
         )
         self.assertEqual(data, datalist)
 
@@ -427,15 +434,16 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('domain_id', 'email', 'enabled', 'id', 'name', 'project_id')
+        collist = ('default_project_id', 'domain_id', 'email',
+                   'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
         datalist = (
+            identity_fakes.project_id,
             identity_fakes.domain_id,
             identity_fakes.user_email,
             True,
             identity_fakes.user_id,
             identity_fakes.user_name,
-            identity_fakes.project_id,
         )
         self.assertEqual(data, datalist)
 
@@ -524,7 +532,7 @@ class TestUserList(TestUser):
             **kwargs
         )
 
-        collist = ('ID', 'Name')
+        collist = ['ID', 'Name']
         self.assertEqual(columns, collist)
         datalist = ((
             identity_fakes.user_id,
@@ -554,7 +562,7 @@ class TestUserList(TestUser):
             **kwargs
         )
 
-        collist = ('ID', 'Name')
+        collist = ['ID', 'Name']
         self.assertEqual(columns, collist)
         datalist = ((
             identity_fakes.user_id,
@@ -584,7 +592,7 @@ class TestUserList(TestUser):
             **kwargs
         )
 
-        collist = ('ID', 'Name')
+        collist = ['ID', 'Name']
         self.assertEqual(columns, collist)
         datalist = ((
             identity_fakes.user_id,
@@ -614,15 +622,15 @@ class TestUserList(TestUser):
             **kwargs
         )
 
-        collist = (
+        collist = [
             'ID',
             'Name',
-            'Project Id',
-            'Domain Id',
+            'Project',
+            'Domain',
             'Description',
             'Email',
             'Enabled',
-        )
+        ]
         self.assertEqual(columns, collist)
         datalist = ((
             identity_fakes.user_id,
@@ -1020,14 +1028,15 @@ class TestUserShow(TestUser):
 
         self.users_mock.get.assert_called_with(identity_fakes.user_id)
 
-        collist = ('domain_id', 'email', 'enabled', 'id', 'name', 'project_id')
+        collist = ('default_project_id', 'domain_id', 'email',
+                   'enabled', 'id', 'name')
         self.assertEqual(columns, collist)
         datalist = (
+            identity_fakes.project_id,
             identity_fakes.domain_id,
             identity_fakes.user_email,
             True,
             identity_fakes.user_id,
             identity_fakes.user_name,
-            identity_fakes.project_id,
         )
         self.assertEqual(data, datalist)

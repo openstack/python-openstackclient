@@ -181,7 +181,7 @@ user_email = 'paul@applecorps.com'
 USER = {
     'id': user_id,
     'name': user_name,
-    'project_id': project_id,
+    'default_project_id': project_id,
     'email': user_email,
     'enabled': True,
     'domain_id': domain_id,

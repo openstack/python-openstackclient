@@ -15,6 +15,7 @@
 
 """Identity v3 User action implementations"""
 
+import copy
 import logging
 import six
 
@@ -220,17 +221,21 @@ class ListUser(lister.Lister):
 
         # List users
         if parsed_args.long:
-            columns = ('ID', 'Name', 'Project Id', 'Domain Id',
-                       'Description', 'Email', 'Enabled')
+            columns = ['ID', 'Name', 'Default Project Id', 'Domain Id',
+                       'Description', 'Email', 'Enabled']
+            column_headers = copy.deepcopy(columns)
+            column_headers[2] = 'Project'
+            column_headers[3] = 'Domain'
         else:
-            columns = ('ID', 'Name')
+            columns = ['ID', 'Name']
+            column_headers = copy.deepcopy(columns)
         data = identity_client.users.list(
             domain=domain,
             group=group,
         )
 
         return (
-            columns,
+            column_headers,
             (utils.get_item_properties(
                 s, columns,
                 formatters={},
