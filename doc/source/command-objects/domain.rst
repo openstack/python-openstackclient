@@ -36,7 +36,7 @@ Create new domain
 
     If the domain already exists, return the existing domain data and do not fail.
 
-.. option:: <domain-name>
+.. describe:: <domain-name>
 
     New domain name
 
@@ -51,7 +51,7 @@ Delete domain
     os domain delete
         <domain>
 
-.. option:: <domain>
+.. describe:: <domain>
 
     Domain to delete (name or ID)
 
@@ -95,7 +95,7 @@ Set domain properties
 
     Disable domain
 
-.. option:: <domain>
+.. describe:: <domain>
 
     Domain to modify (name or ID)
 
@@ -110,6 +110,6 @@ Show domain details
     os domain show
         <domain>
 
-.. option:: <domain>
+.. describe:: <domain>
 
     Domain to display (name or ID)
