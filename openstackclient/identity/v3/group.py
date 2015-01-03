@@ -39,12 +39,12 @@ class AddUserToGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Group that user will be added to (name or ID)',
+            help='Group to contain <user> (name or ID)',
         )
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='User to add to group (name or ID)',
+            help='User to add to <group> (name or ID)',
         )
         return parser
 
@@ -68,7 +68,7 @@ class AddUserToGroup(command.Command):
 
 
 class CheckUserInGroup(command.Command):
-    """Check user in group"""
+    """Check user membership in group"""
 
     log = logging.getLogger(__name__ + '.CheckUserInGroup')
 
@@ -77,7 +77,7 @@ class CheckUserInGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Group to check if user belongs to (name or ID)',
+            help='Group to check (name or ID)',
         )
         parser.add_argument(
             'user',
@@ -115,15 +115,18 @@ class CreateGroup(show.ShowOne):
         parser.add_argument(
             'name',
             metavar='<group-name>',
-            help='New group name')
-        parser.add_argument(
-            '--description',
-            metavar='<description>',
-            help='New group description')
+            help='New group name',
+        )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='References the domain ID or name which owns the group')
+            help='Domain to contain new group (name or ID)',
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help='New group description',
+        )
         parser.add_argument(
             '--or-show',
             action='store_true',
@@ -173,7 +176,7 @@ class DeleteGroup(command.Command):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain where group resides (name or ID)',
+            help='Domain containing group(s) (name or ID)',
         )
         return parser
 
@@ -211,7 +214,7 @@ class ListGroup(lister.Lister):
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help='List group memberships for <user> (name or ID)',
+            help='Filter group list by <user> (name or ID)',
         )
         parser.add_argument(
             '--long',
@@ -259,7 +262,7 @@ class ListGroup(lister.Lister):
 
 
 class RemoveUserFromGroup(command.Command):
-    """Remove user to group"""
+    """Remove user from group"""
 
     log = logging.getLogger(__name__ + '.RemoveUserFromGroup')
 
@@ -268,12 +271,12 @@ class RemoveUserFromGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Group that user will be removed from (name or ID)',
+            help='Group containing <user> (name or ID)',
         )
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='User to remove from group (name or ID)',
+            help='User to remove from <group> (name or ID)',
         )
         return parser
 
@@ -314,7 +317,7 @@ class SetGroup(command.Command):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='New domain that will now own the group (name or ID)')
+            help='New domain to contain <group> (name or ID)')
         parser.add_argument(
             '--description',
             metavar='<description>',
@@ -341,7 +344,7 @@ class SetGroup(command.Command):
 
 
 class ShowGroup(show.ShowOne):
-    """Show group details"""
+    """Display group details"""
 
     log = logging.getLogger(__name__ + '.ShowGroup')
 
@@ -355,7 +358,7 @@ class ShowGroup(show.ShowOne):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain where group resides (name or ID)',
+            help='Domain containing <group> (name or ID)',
         )
         return parser
 
