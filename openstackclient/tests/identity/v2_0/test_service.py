@@ -44,13 +44,79 @@ class TestServiceCreate(TestService):
         # Get the command object to test
         self.cmd = service.CreateService(self.app, None)
 
-    def test_service_create_name_type(self):
+    def test_service_create_with_type_positional(self):
+        arglist = [
+            identity_fakes.service_type,
+        ]
+        verifylist = [
+            ('type_or_name', identity_fakes.service_type),
+            ('type', None),
+            ('description', None),
+            ('name', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # ServiceManager.create(name, service_type, description)
+        self.services_mock.create.assert_called_with(
+            None,
+            identity_fakes.service_type,
+            None,
+        )
+
+        collist = ('description', 'id', 'name', 'type')
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.service_description,
+            identity_fakes.service_id,
+            identity_fakes.service_name,
+            identity_fakes.service_type,
+        )
+        self.assertEqual(data, datalist)
+
+    def test_service_create_with_type_option(self):
         arglist = [
             '--type', identity_fakes.service_type,
             identity_fakes.service_name,
         ]
         verifylist = [
+            ('type_or_name', identity_fakes.service_name),
             ('type', identity_fakes.service_type),
+            ('description', None),
+            ('name', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # ServiceManager.create(name, service_type, description)
+        self.services_mock.create.assert_called_with(
+            identity_fakes.service_name,
+            identity_fakes.service_type,
+            None,
+        )
+
+        collist = ('description', 'id', 'name', 'type')
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.service_description,
+            identity_fakes.service_id,
+            identity_fakes.service_name,
+            identity_fakes.service_type,
+        )
+        self.assertEqual(data, datalist)
+
+    def test_service_create_with_name_option(self):
+        arglist = [
+            '--name', identity_fakes.service_name,
+            identity_fakes.service_type,
+        ]
+        verifylist = [
+            ('type_or_name', identity_fakes.service_type),
+            ('type', None),
             ('description', None),
             ('name', identity_fakes.service_name),
         ]
@@ -78,12 +144,13 @@ class TestServiceCreate(TestService):
 
     def test_service_create_description(self):
         arglist = [
-            '--type', identity_fakes.service_type,
+            '--name', identity_fakes.service_name,
             '--description', identity_fakes.service_description,
-            identity_fakes.service_name,
+            identity_fakes.service_type,
         ]
         verifylist = [
-            ('type', identity_fakes.service_type),
+            ('type_or_name', identity_fakes.service_type),
+            ('type', None),
             ('description', identity_fakes.service_description),
             ('name', identity_fakes.service_name),
         ]
