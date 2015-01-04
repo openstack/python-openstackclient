@@ -158,6 +158,14 @@ SERVICE = {
     'links': base_url + 'services/' + service_id,
 }
 
+SERVICE_WITHOUT_NAME = {
+    'id': service_id,
+    'type': service_type,
+    'description': service_description,
+    'enabled': True,
+    'links': base_url + 'services/' + service_id,
+}
+
 endpoint_id = 'e-123'
 endpoint_url = 'http://127.0.0.1:35357'
 endpoint_region = 'RegionOne'

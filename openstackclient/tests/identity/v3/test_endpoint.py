@@ -31,6 +31,9 @@ class TestEndpoint(identity_fakes.TestIdentityv3):
         self.services_mock = self.app.client_manager.identity.services
         self.services_mock.reset_mock()
 
+    def get_fake_service_name(self):
+        return identity_fakes.service_name
+
 
 class TestEndpointCreate(TestEndpoint):
 
@@ -92,7 +95,7 @@ class TestEndpointCreate(TestEndpoint):
             identity_fakes.endpoint_interface,
             identity_fakes.endpoint_region,
             identity_fakes.service_id,
-            identity_fakes.service_name,
+            self.get_fake_service_name(),
             identity_fakes.service_type,
             identity_fakes.endpoint_url,
         )
@@ -139,7 +142,7 @@ class TestEndpointCreate(TestEndpoint):
             identity_fakes.endpoint_interface,
             identity_fakes.endpoint_region,
             identity_fakes.service_id,
-            identity_fakes.service_name,
+            self.get_fake_service_name(),
             identity_fakes.service_type,
             identity_fakes.endpoint_url,
         )
@@ -185,7 +188,7 @@ class TestEndpointCreate(TestEndpoint):
             identity_fakes.endpoint_interface,
             identity_fakes.endpoint_region,
             identity_fakes.service_id,
-            identity_fakes.service_name,
+            self.get_fake_service_name(),
             identity_fakes.service_type,
             identity_fakes.endpoint_url,
         )
@@ -231,7 +234,7 @@ class TestEndpointCreate(TestEndpoint):
             identity_fakes.endpoint_interface,
             identity_fakes.endpoint_region,
             identity_fakes.service_id,
-            identity_fakes.service_name,
+            self.get_fake_service_name(),
             identity_fakes.service_type,
             identity_fakes.endpoint_url,
         )
@@ -309,7 +312,7 @@ class TestEndpointList(TestEndpoint):
         datalist = ((
             identity_fakes.endpoint_id,
             identity_fakes.endpoint_region,
-            identity_fakes.service_name,
+            self.get_fake_service_name(),
             identity_fakes.service_type,
             True,
             identity_fakes.endpoint_interface,
@@ -319,10 +322,10 @@ class TestEndpointList(TestEndpoint):
 
     def test_endpoint_list_service(self):
         arglist = [
-            '--service', identity_fakes.service_name,
+            '--service', identity_fakes.service_id,
         ]
         verifylist = [
-            ('service', identity_fakes.service_name),
+            ('service', identity_fakes.service_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -341,7 +344,7 @@ class TestEndpointList(TestEndpoint):
         datalist = ((
             identity_fakes.endpoint_id,
             identity_fakes.endpoint_region,
-            identity_fakes.service_name,
+            self.get_fake_service_name(),
             identity_fakes.service_type,
             True,
             identity_fakes.endpoint_interface,
@@ -373,7 +376,7 @@ class TestEndpointList(TestEndpoint):
         datalist = ((
             identity_fakes.endpoint_id,
             identity_fakes.endpoint_region,
-            identity_fakes.service_name,
+            self.get_fake_service_name(),
             identity_fakes.service_type,
             True,
             identity_fakes.endpoint_interface,
@@ -405,7 +408,7 @@ class TestEndpointList(TestEndpoint):
         datalist = ((
             identity_fakes.endpoint_id,
             identity_fakes.endpoint_region,
-            identity_fakes.service_name,
+            self.get_fake_service_name(),
             identity_fakes.service_type,
             True,
             identity_fakes.endpoint_interface,
@@ -664,8 +667,85 @@ class TestEndpointShow(TestEndpoint):
             identity_fakes.endpoint_interface,
             identity_fakes.endpoint_region,
             identity_fakes.service_id,
-            identity_fakes.service_name,
+            self.get_fake_service_name(),
             identity_fakes.service_type,
             identity_fakes.endpoint_url,
         )
         self.assertEqual(datalist, data)
+
+
+class TestEndpointCreateServiceWithoutName(TestEndpointCreate):
+
+    def setUp(self):
+        super(TestEndpointCreate, self).setUp()
+
+        self.endpoints_mock.create.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ENDPOINT),
+            loaded=True,
+        )
+
+        # This is the return value for common.find_resource(service)
+        self.services_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.SERVICE_WITHOUT_NAME),
+            loaded=True,
+        )
+
+        # Get the command object to test
+        self.cmd = endpoint.CreateEndpoint(self.app, None)
+
+    def get_fake_service_name(self):
+        return ''
+
+
+class TestEndpointListServiceWithoutName(TestEndpointList):
+
+    def setUp(self):
+        super(TestEndpointList, self).setUp()
+
+        self.endpoints_mock.list.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(identity_fakes.ENDPOINT),
+                loaded=True,
+            ),
+        ]
+
+        # This is the return value for common.find_resource(service)
+        self.services_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.SERVICE_WITHOUT_NAME),
+            loaded=True,
+        )
+
+        # Get the command object to test
+        self.cmd = endpoint.ListEndpoint(self.app, None)
+
+    def get_fake_service_name(self):
+        return ''
+
+
+class TestEndpointShowServiceWithoutName(TestEndpointShow):
+
+    def setUp(self):
+        super(TestEndpointShow, self).setUp()
+
+        self.endpoints_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ENDPOINT),
+            loaded=True,
+        )
+
+        # This is the return value for common.find_resource(service)
+        self.services_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.SERVICE_WITHOUT_NAME),
+            loaded=True,
+        )
+
+        # Get the command object to test
+        self.cmd = endpoint.ShowEndpoint(self.app, None)
+
+    def get_fake_service_name(self):
+        return ''
