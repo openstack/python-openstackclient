@@ -28,7 +28,7 @@ from openstackclient.identity import common
 
 
 class CreateEndpoint(show.ShowOne):
-    """Create endpoint"""
+    """Create new endpoint"""
 
     log = logging.getLogger(__name__ + '.CreateEndpoint')
 
@@ -36,25 +36,30 @@ class CreateEndpoint(show.ShowOne):
         parser = super(CreateEndpoint, self).get_parser(prog_name)
         parser.add_argument(
             'service',
-            metavar='<endpoint-service>',
-            help=_('New endpoint service'))
-        parser.add_argument(
-            '--region',
-            metavar='<region>',
-            help=_('New endpoint region'))
+            metavar='<service>',
+            help=_('New endpoint service (name or ID)'),
+        )
         parser.add_argument(
             '--publicurl',
-            metavar='<public-url>',
+            metavar='<url>',
             required=True,
-            help=_('New endpoint public URL'))
+            help=_('New endpoint public URL (required)'),
+        )
         parser.add_argument(
             '--adminurl',
-            metavar='<admin-url>',
-            help=_('New endpoint admin URL'))
+            metavar='<url>',
+            help=_('New endpoint admin URL'),
+        )
         parser.add_argument(
             '--internalurl',
-            metavar='<internal-url>',
-            help=_('New endpoint internal URL'))
+            metavar='<url>',
+            help=_('New endpoint internal URL'),
+        )
+        parser.add_argument(
+            '--region',
+            metavar='<region-id>',
+            help=_('New endpoint region ID'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -76,7 +81,7 @@ class CreateEndpoint(show.ShowOne):
 
 
 class DeleteEndpoint(command.Command):
-    """Delete endpoint command"""
+    """Delete endpoint"""
 
     log = logging.getLogger(__name__ + '.DeleteEndpoint')
 
@@ -85,7 +90,7 @@ class DeleteEndpoint(command.Command):
         parser.add_argument(
             'endpoint',
             metavar='<endpoint-id>',
-            help=_('ID of endpoint to delete'))
+            help=_('Endpoint ID to delete'))
         return parser
 
     def take_action(self, parsed_args):
@@ -96,7 +101,7 @@ class DeleteEndpoint(command.Command):
 
 
 class ListEndpoint(lister.Lister):
-    """List endpoint command"""
+    """List endpoints"""
 
     log = logging.getLogger(__name__ + '.ListEndpoint')
 
@@ -106,7 +111,8 @@ class ListEndpoint(lister.Lister):
             '--long',
             action='store_true',
             default=False,
-            help=_('List additional fields in output'))
+            help=_('List additional fields in output'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -131,7 +137,7 @@ class ListEndpoint(lister.Lister):
 
 
 class ShowEndpoint(show.ShowOne):
-    """Show endpoint command"""
+    """Display endpoint details"""
 
     log = logging.getLogger(__name__ + '.ShowEndpoint')
 
@@ -139,8 +145,9 @@ class ShowEndpoint(show.ShowOne):
         parser = super(ShowEndpoint, self).get_parser(prog_name)
         parser.add_argument(
             'endpoint_or_service',
-            metavar='<endpoint_or_service>',
-            help=_('Endpoint ID or name, type or ID of service to display'))
+            metavar='<endpoint-id>',
+            help=_('Endpoint ID to display'),
+        )
         return parser
 
     def take_action(self, parsed_args):

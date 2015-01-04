@@ -28,7 +28,7 @@ from openstackclient.identity import common
 
 
 class CreateEndpoint(show.ShowOne):
-    """Create endpoint command"""
+    """Create new endpoint"""
 
     log = logging.getLogger(__name__ + '.CreateEndpoint')
 
@@ -37,27 +37,31 @@ class CreateEndpoint(show.ShowOne):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Name or ID of new endpoint service')
+            help='New endpoint service (name or ID)',
+        )
         parser.add_argument(
             'interface',
             metavar='<interface>',
             choices=['admin', 'public', 'internal'],
-            help='New endpoint interface, must be admin, public or internal')
+            help='New endpoint interface type (admin, public or internal)',
+        )
         parser.add_argument(
             'url',
             metavar='<url>',
-            help='New endpoint URL')
+            help='New endpoint URL',
+        )
         parser.add_argument(
             '--region',
-            metavar='<region>',
-            help='New endpoint region')
+            metavar='<region-id>',
+            help='New endpoint region ID',
+        )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable endpoint',
+            help='Enable endpoint (default)',
         )
         enable_group.add_argument(
             '--disable',
@@ -89,7 +93,7 @@ class CreateEndpoint(show.ShowOne):
 
 
 class DeleteEndpoint(command.Command):
-    """Delete endpoint command"""
+    """Delete endpoint"""
 
     log = logging.getLogger(__name__ + '.DeleteEndpoint')
 
@@ -97,8 +101,9 @@ class DeleteEndpoint(command.Command):
         parser = super(DeleteEndpoint, self).get_parser(prog_name)
         parser.add_argument(
             'endpoint',
-            metavar='<endpoint>',
-            help='ID of endpoint to delete')
+            metavar='<endpoint-id>',
+            help='Endpoint ID to delete',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -111,7 +116,7 @@ class DeleteEndpoint(command.Command):
 
 
 class ListEndpoint(lister.Lister):
-    """List endpoint command"""
+    """List endpoints"""
 
     log = logging.getLogger(__name__ + '.ListEndpoint')
 
@@ -120,17 +125,19 @@ class ListEndpoint(lister.Lister):
         parser.add_argument(
             '--service',
             metavar='<service>',
-            help='Filter by a specific service')
+            help='Filter by service',
+        )
         parser.add_argument(
             '--interface',
             metavar='<interface>',
             choices=['admin', 'public', 'internal'],
-            help='Filter by a specific interface, must be admin, public or'
-                 ' internal')
+            help='Filter by interface type (admin, public or internal)',
+        )
         parser.add_argument(
             '--region',
-            metavar='<region>',
-            help='Filter by a specific region')
+            metavar='<region-id>',
+            help='Filter by region ID',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -160,7 +167,7 @@ class ListEndpoint(lister.Lister):
 
 
 class SetEndpoint(command.Command):
-    """Set endpoint command"""
+    """Set endpoint properties"""
 
     log = logging.getLogger(__name__ + '.SetEndpoint')
 
@@ -168,25 +175,30 @@ class SetEndpoint(command.Command):
         parser = super(SetEndpoint, self).get_parser(prog_name)
         parser.add_argument(
             'endpoint',
-            metavar='<endpoint>',
-            help='ID of endpoint to update')
+            metavar='<endpoint-id>',
+            help='Endpoint ID to modify',
+        )
+        parser.add_argument(
+            '--region',
+            metavar='<region-id>',
+            help='New endpoint region ID',
+        )
         parser.add_argument(
             '--interface',
             metavar='<interface>',
             choices=['admin', 'public', 'internal'],
-            help='New endpoint interface, must be admin|public|internal')
+            help='New endpoint interface type (admin, public or internal)',
+        )
         parser.add_argument(
             '--url',
             metavar='<url>',
-            help='New endpoint URL')
+            help='New endpoint URL',
+        )
         parser.add_argument(
             '--service',
             metavar='<service>',
-            help='Name or ID of new endpoint service')
-        parser.add_argument(
-            '--region',
-            metavar='<region>',
-            help='New endpoint region')
+            help='New endpoint service (name or ID)',
+        )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
@@ -238,7 +250,7 @@ class SetEndpoint(command.Command):
 
 
 class ShowEndpoint(show.ShowOne):
-    """Show endpoint command"""
+    """Display endpoint details"""
 
     log = logging.getLogger(__name__ + '.ShowEndpoint')
 
@@ -246,8 +258,9 @@ class ShowEndpoint(show.ShowOne):
         parser = super(ShowEndpoint, self).get_parser(prog_name)
         parser.add_argument(
             'endpoint',
-            metavar='<endpoint>',
-            help='ID of endpoint to display')
+            metavar='<endpoint-id>',
+            help='Endpoint ID to display',
+        )
         return parser
 
     def take_action(self, parsed_args):
