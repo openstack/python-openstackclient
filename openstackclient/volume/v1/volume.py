@@ -36,14 +36,14 @@ class CreateVolume(show.ShowOne):
         parser.add_argument(
             'name',
             metavar='<name>',
-            help='Name of the new volume',
+            help='New volume name',
         )
         parser.add_argument(
             '--size',
             metavar='<size>',
             required=True,
             type=int,
-            help='New volume size',
+            help='New volume size in GB',
         )
         parser.add_argument(
             '--snapshot-id',
@@ -53,22 +53,22 @@ class CreateVolume(show.ShowOne):
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='Description of the volume',
+            help='New volume description',
         )
         parser.add_argument(
             '--type',
             metavar='<volume-type>',
-            help='Type of volume',
+            help='Use <volume-type> as the new volume type',
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help='Specify a different user (admin only)',
+            help='Specify an alternate user (name or ID)',
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='Specify a different project (admin only)',
+            help='Specify an alternate project (name or ID)',
         )
         parser.add_argument(
             '--availability-zone',
@@ -76,21 +76,21 @@ class CreateVolume(show.ShowOne):
             help='Create new volume in <availability-zone>',
         )
         parser.add_argument(
-            '--property',
-            metavar='<key=value>',
-            action=parseractions.KeyValueAction,
-            help='Property to store for this volume '
-                 '(repeat option to set multiple properties)',
-        )
-        parser.add_argument(
             '--image',
             metavar='<image>',
-            help='Use <image> as source of new volume',
+            help='Use <image> as source of new volume (name or ID)',
         )
         parser.add_argument(
             '--source',
             metavar='<volume>',
             help='Volume to clone (name or ID)',
+        )
+        parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            help='Set a property on this volume '
+                 '(repeat option to set multiple properties)',
         )
 
         return parser
@@ -172,7 +172,8 @@ class DeleteVolume(command.Command):
             dest='force',
             action='store_true',
             default=False,
-            help='Attempt forced removal of volume(s), regardless of state',
+            help='Attempt forced removal of volume(s), regardless of state '
+                 '(defaults to False)',
         )
         return parser
 
@@ -216,7 +217,7 @@ class ListVolume(lister.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='Display properties',
+            help='List additional fields in output',
         )
         return parser
 
@@ -318,19 +319,19 @@ class SetVolume(command.Command):
         )
         parser.add_argument(
             '--name',
-            metavar='<new-name>',
+            metavar='<name>',
             help='New volume name',
         )
         parser.add_argument(
             '--description',
-            metavar='<new-description>',
+            metavar='<description>',
             help='New volume description',
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Property to add/change for this volume '
+            help='Property to add or modify for this volume '
                  '(repeat option to set multiple properties)',
         )
         return parser
@@ -400,15 +401,15 @@ class UnsetVolume(command.Command):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='Volume to change (name or ID)',
+            help='Volume to modify (name or ID)',
         )
         parser.add_argument(
             '--property',
             metavar='<key>',
             action='append',
             default=[],
-            help='Property key to remove from volume '
-                 '(repeat to set multiple values)',
+            help='Property to remove from volume '
+                 '(repeat option to remove multiple properties)',
         )
         return parser
 
