@@ -77,13 +77,13 @@ referring to both Compute and Volume quotas.
 * ``console log``: (**Compute**) server console text dump
 * ``console url``: (**Compute**) server remote console URL
 * ``consumer``: Identity - OAuth-based delegatee
-* ``container``: Object Store - a grouping of objects
+* ``container``: (**Object Store**) a grouping of objects
 * ``credentials``: (**Identity**) specific to identity providers
 * ``domain``: (**Identity**) a grouping of projects
-* ``ec2 cedentials``: (**Identity**) AWS EC2-compatibile credentials
+* ``ec2 cedentials``: (**Identity**) AWS EC2-compatible credentials
 * ``endpoint``: (**Identity**) the base URL used to contact a specific service
 * ``extension``: (**Compute**, **Identity**, **Volume**) OpenStack server API extensions
-* ``flavor``: (**Compute**) pre-defined server configurations: ram, root disk, etc
+* ``flavor``: (**Compute**) predefined server configurations: ram, root disk, etc
 * ``group``: (**Identity**) a grouping of users
 * ``host``: Compute - the physical computer running a hypervisor
 * ``hypervisor``: Compute - the virtual machine manager
@@ -95,13 +95,14 @@ referring to both Compute and Volume quotas.
 * ``limits``: (**Compute**, **Volume**) resource usage limits
 * ``module``: internal - installed Python modules in the OSC process
 * ``network``: Network - a virtual network for connecting servers and other resources
-* ``object``: Object Store - a single file in the Object Store
+* ``object``: (**Object Store**) a single file in the Object Store
 * ``policy``: Identity - determines authorization
 * ``project``: (**Identity**) owns a group of resources
 * ``quota``: (**Compute**, **Volume**) resource usage restrictions
 * ``region``: (**Identity**) a subset of an OpenStack deployment
 * ``request token``: Identity - temporary OAuth-based token
-* ``role``: Identity - a policy object used to determine authorization
+* ``role``: (**Identity**) a policy object used to determine authorization
+* ``role assignment``: (**Identity**) a relationship between roles, users or groups, and domains or projects
 * ``security group``: Compute, Network - groups of network access rules
 * ``security group rule``: Compute, Network - the individual rules that define protocol/IP/port access
 * ``server``: (**Compute**) virtual machine instance
