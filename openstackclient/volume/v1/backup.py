@@ -27,7 +27,7 @@ from openstackclient.common import utils
 
 
 class CreateBackup(show.ShowOne):
-    """Create backup command"""
+    """Create new backup"""
 
     log = logging.getLogger(__name__ + '.CreateBackup')
 
@@ -36,13 +36,13 @@ class CreateBackup(show.ShowOne):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='The name or ID of the volume to backup',
+            help='Volume to backup (name or ID)',
         )
         parser.add_argument(
             '--container',
             metavar='<container>',
             required=False,
-            help='Optional backup container name.',
+            help='Optional backup container name',
         )
         parser.add_argument(
             '--name',
@@ -84,7 +84,7 @@ class DeleteBackup(command.Command):
             'backups',
             metavar='<backup>',
             nargs="+",
-            help='Backup(s) to delete (name or ID)',
+            help='Backup(s) to delete (ID only)',
         )
         return parser
 
@@ -99,7 +99,7 @@ class DeleteBackup(command.Command):
 
 
 class ListBackup(lister.Lister):
-    """List backup command"""
+    """List backups"""
 
     log = logging.getLogger(__name__ + '.ListBackup')
 
@@ -156,7 +156,7 @@ class ListBackup(lister.Lister):
 
 
 class RestoreBackup(command.Command):
-    """Restore backup command"""
+    """Restore backup"""
 
     log = logging.getLogger(__name__ + '.RestoreBackup')
 
@@ -165,11 +165,11 @@ class RestoreBackup(command.Command):
         parser.add_argument(
             'backup',
             metavar='<backup>',
-            help='ID of backup to restore')
+            help='Backup to restore (ID only)')
         parser.add_argument(
             'volume',
-            metavar='<dest-volume>',
-            help='ID of volume to restore to')
+            metavar='<volume>',
+            help='Volume to restore to (name or ID)')
         return parser
 
     def take_action(self, parsed_args):
@@ -184,7 +184,7 @@ class RestoreBackup(command.Command):
 
 
 class ShowBackup(show.ShowOne):
-    """Show backup command"""
+    """Display backup details"""
 
     log = logging.getLogger(__name__ + '.ShowBackup')
 
@@ -193,7 +193,7 @@ class ShowBackup(show.ShowOne):
         parser.add_argument(
             'backup',
             metavar='<backup>',
-            help='Name or ID of backup to display')
+            help='Backup to display (ID only)')
         return parser
 
     def take_action(self, parsed_args):
