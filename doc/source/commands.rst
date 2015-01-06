@@ -83,6 +83,7 @@ referring to both Compute and Volume quotas.
 * ``ec2 cedentials``: (**Identity**) AWS EC2-compatible credentials
 * ``endpoint``: (**Identity**) the base URL used to contact a specific service
 * ``extension``: (**Compute**, **Identity**, **Volume**) OpenStack server API extensions
+* ``federation protocol``: (**Identity**) the underlying protocol used while federating identities
 * ``flavor``: (**Compute**) predefined server configurations: ram, root disk, etc
 * ``group``: (**Identity**) a grouping of users
 * ``host``: Compute - the physical computer running a hypervisor
