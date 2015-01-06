@@ -15,6 +15,7 @@
 
 """Volume v1 Backup action implementations"""
 
+import copy
 import logging
 import six
 
@@ -102,20 +103,55 @@ class ListBackup(lister.Lister):
 
     log = logging.getLogger(__name__ + '.ListBackup')
 
+    def get_parser(self, prog_name):
+        parser = super(ListBackup, self).get_parser(prog_name)
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help='List additional fields in output',
+        )
+        return parser
+
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
-        columns = (
-            'ID',
-            'Display Name',
-            'Display Description',
-            'Status',
-            'Size'
-        )
+
+        def _format_volume_id(volume_id):
+            """Return a volume name if available
+
+            :param volume_id: a volume ID
+            :rtype: either the volume ID or name
+            """
+
+            volume = volume_id
+            if volume_id in volume_cache.keys():
+                volume = volume_cache[volume_id].display_name
+            return volume
+
+        if parsed_args.long:
+            columns = ['ID', 'Name', 'Description', 'Status', 'Size',
+                       'Availability Zone', 'Volume ID', 'Container']
+            column_headers = copy.deepcopy(columns)
+            column_headers[6] = 'Volume'
+        else:
+            columns = ['ID', 'Name', 'Description', 'Status', 'Size']
+            column_headers = columns
+
+        # Cache the volume list
+        volume_cache = {}
+        try:
+            for s in self.app.client_manager.volume.volumes.list():
+                volume_cache[s.id] = s
+        except Exception:
+            # Just forget it if there's any trouble
+            pass
+
         data = self.app.client_manager.volume.backups.list()
-        return (columns,
+
+        return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
-                    formatters={},
+                    formatters={'Volume ID': _format_volume_id},
                 ) for s in data))
 
 
