@@ -15,7 +15,6 @@
 
 import logging
 import six
-import sys
 
 from cliff import command
 from cliff import lister
@@ -33,22 +32,21 @@ class CreateIdentityProvider(show.ShowOne):
         parser = super(CreateIdentityProvider, self).get_parser(prog_name)
         parser.add_argument(
             'identity_provider_id',
-            metavar='<identity-provider-id>',
-            help='New identity provider ID (must be unique)'
+            metavar='<name>',
+            help='New identity provider name (must be unique)'
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
             help='New identity provider description',
         )
-
         enable_identity_provider = parser.add_mutually_exclusive_group()
         enable_identity_provider.add_argument(
             '--enable',
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable identity provider',
+            help='Enable identity provider (default)',
         )
         enable_identity_provider.add_argument(
             '--disable',
@@ -79,8 +77,8 @@ class DeleteIdentityProvider(command.Command):
         parser = super(DeleteIdentityProvider, self).get_parser(prog_name)
         parser.add_argument(
             'identity_provider',
-            metavar='<identity-provider-id>',
-            help='Identity provider ID to delete',
+            metavar='<identity-provider>',
+            help='Identity provider to delete',
         )
         return parser
 
@@ -118,10 +116,9 @@ class SetIdentityProvider(command.Command):
         parser = super(SetIdentityProvider, self).get_parser(prog_name)
         parser.add_argument(
             'identity_provider',
-            metavar='<identity-provider-id>',
-            help='Identity provider ID to change',
+            metavar='<identity-provider>',
+            help='Identity provider to modify',
         )
-
         enable_identity_provider = parser.add_mutually_exclusive_group()
         enable_identity_provider.add_argument(
             '--enable',
@@ -144,19 +141,17 @@ class SetIdentityProvider(command.Command):
         elif parsed_args.disable is True:
             enabled = False
         else:
-            sys.stdout.write("Identity Provider not updated, "
-                             "no arguments present")
+            self.log.error("No changes requested")
             return (None, None)
 
         identity_provider = federation_client.identity_providers.update(
             parsed_args.identity_provider, enabled=enabled)
-        info = {}
-        info.update(identity_provider._info)
-        return zip(*sorted(six.iteritems(info)))
+        identity_provider._info.pop('links', None)
+        return zip(*sorted(six.iteritems(identity_provider._info)))
 
 
 class ShowIdentityProvider(show.ShowOne):
-    """Show identity provider details"""
+    """Display identity provider details"""
 
     log = logging.getLogger(__name__ + '.ShowIdentityProvider')
 
@@ -164,8 +159,8 @@ class ShowIdentityProvider(show.ShowOne):
         parser = super(ShowIdentityProvider, self).get_parser(prog_name)
         parser.add_argument(
             'identity_provider',
-            metavar='<identity-provider-id>',
-            help='Identity provider ID to show',
+            metavar='<identity-provider>',
+            help='Identity provider to display',
         )
         return parser
 

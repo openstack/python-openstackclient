@@ -87,7 +87,7 @@ referring to both Compute and Volume quotas.
 * ``group``: (**Identity**) a grouping of users
 * ``host``: Compute - the physical computer running a hypervisor
 * ``hypervisor``: Compute - the virtual machine manager
-* ``identity provider``: Identity - a source of users and authentication
+* ``identity provider``: (**Identity**) a source of users and authentication
 * ``image``: Image - a disk image
 * ``ip fixed``: Compute, Network - an internal IP address assigned to a server
 * ``ip floating``: Compute, Network - a public IP address that can be mapped to a server
