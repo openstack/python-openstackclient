@@ -102,12 +102,12 @@ class SaveImage(command.Command):
         parser.add_argument(
             "--file",
             metavar="<filename>",
-            help="Downloaded image save filename [default: stdout]",
+            help="Downloaded image save filename (default: stdout)",
         )
         parser.add_argument(
             "image",
             metavar="<image>",
-            help="Name or ID of image to save",
+            help="Image to save (name or ID)",
         )
         return parser
 
@@ -125,7 +125,7 @@ class SaveImage(command.Command):
 
 
 class ShowImage(show.ShowOne):
-    """Show image details"""
+    """Display image details"""
 
     log = logging.getLogger(__name__ + ".ShowImage")
 
@@ -134,7 +134,7 @@ class ShowImage(show.ShowOne):
         parser.add_argument(
             "image",
             metavar="<image>",
-            help="Name or ID of image to display",
+            help="Image to display (name or ID)",
         )
         return parser
 

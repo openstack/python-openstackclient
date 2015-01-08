@@ -49,7 +49,7 @@ class CreateImage(show.ShowOne):
         parser = super(CreateImage, self).get_parser(prog_name)
         parser.add_argument(
             "name",
-            metavar="<name>",
+            metavar="<image-name>",
             help="New image name",
         )
         parser.add_argument(
@@ -159,7 +159,7 @@ class CreateImage(show.ShowOne):
             dest="properties",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
-            help="Set an image property "
+            help="Set a property on this image "
                  "(repeat option to set multiple properties)",
         )
         return parser
@@ -337,12 +337,12 @@ class SaveImage(command.Command):
         parser.add_argument(
             "--file",
             metavar="<filename>",
-            help="Downloaded image save filename [default: stdout]",
+            help="Downloaded image save filename (default: stdout)",
         )
         parser.add_argument(
             "image",
             metavar="<image>",
-            help="Name or ID of image to save",
+            help="Image to save (name or ID)",
         )
         return parser
 
@@ -360,7 +360,7 @@ class SaveImage(command.Command):
 
 
 class SetImage(show.ShowOne):
-    """Change image properties"""
+    """Set image properties"""
 
     log = logging.getLogger(__name__ + ".SetImage")
 
@@ -369,7 +369,7 @@ class SetImage(show.ShowOne):
         parser.add_argument(
             "image",
             metavar="<image>",
-            help="Image name or ID to change",
+            help="Image to modify (name or ID)",
         )
         parser.add_argument(
             "--name",
@@ -379,7 +379,7 @@ class SetImage(show.ShowOne):
         parser.add_argument(
             "--owner",
             metavar="<project>",
-            help="New image owner project name or ID",
+            help="New image owner project (name or ID)",
         )
         parser.add_argument(
             "--min-disk",
@@ -420,7 +420,7 @@ class SetImage(show.ShowOne):
             dest="properties",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
-            help="Set an image property "
+            help="Set a property on this image "
                  "(repeat option to set multiple properties)",
         )
         return parser
@@ -474,7 +474,7 @@ class SetImage(show.ShowOne):
 
 
 class ShowImage(show.ShowOne):
-    """Show image details"""
+    """Display image details"""
 
     log = logging.getLogger(__name__ + ".ShowImage")
 
@@ -483,7 +483,7 @@ class ShowImage(show.ShowOne):
         parser.add_argument(
             "image",
             metavar="<image>",
-            help="Name or ID of image to display",
+            help="Image to display (name or ID)",
         )
         return parser
 
