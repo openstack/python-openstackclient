@@ -69,7 +69,7 @@ overlapping purposes there will be options to select which object to use, or
 the API resources will be merged, as in the ``quota`` object that has options
 referring to both Compute and Volume quotas.
 
-* ``access token``: Identity - long-lived OAuth-based token
+* ``access token``: (**Identity**) long-lived OAuth-based token
 * ``availability zone``: (**Compute**) a logical partition of hosts or volume services
 * ``aggregate``: (**Compute**) a grouping of servers
 * ``backup``: (**Volume**) a volume copy

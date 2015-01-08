@@ -69,7 +69,7 @@ class AuthorizeRequestToken(show.ShowOne):
 
 
 class CreateAccessToken(show.ShowOne):
-    """Create access token"""
+    """Create an access token"""
 
     log = logging.getLogger(__name__ + '.CreateAccessToken')
 
@@ -78,31 +78,31 @@ class CreateAccessToken(show.ShowOne):
         parser.add_argument(
             '--consumer-key',
             metavar='<consumer-key>',
-            help='Consumer key',
+            help='Consumer key (required)',
             required=True
         )
         parser.add_argument(
             '--consumer-secret',
             metavar='<consumer-secret>',
-            help='Consumer secret',
+            help='Consumer secret (required)',
             required=True
         )
         parser.add_argument(
             '--request-key',
             metavar='<request-key>',
-            help='Request token key',
+            help='Request token to exchange for access token (required)',
             required=True
         )
         parser.add_argument(
             '--request-secret',
             metavar='<request-secret>',
-            help='Request token secret',
+            help='Secret associated with <request-key> (required)',
             required=True
         )
         parser.add_argument(
             '--verifier',
             metavar='<verifier>',
-            help='Verifier Pin',
+            help='Verifier associated with <request-key> (required)',
             required=True
         )
         return parser
@@ -114,9 +114,7 @@ class CreateAccessToken(show.ShowOne):
             parsed_args.consumer_key, parsed_args.consumer_secret,
             parsed_args.request_key, parsed_args.request_secret,
             parsed_args.verifier)
-        info = {}
-        info.update(access_token._info)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(six.iteritems(access_token._info)))
 
 
 class CreateRequestToken(show.ShowOne):
