@@ -114,7 +114,7 @@ referring to both Compute and Volume quotas.
 * ``user``: (**Identity**) individual cloud resources users
 * ``user role``: (**Identity**) roles assigned to a user
 * ``volume``: Volume - block volumes
-* ``volume type``: Volume - deployment-specific types of volumes available
+* ``volume type``: (**Volume**) deployment-specific types of volumes available
 
 Actions
 -------

@@ -71,7 +71,7 @@ class DeleteVolumeType(command.Command):
         parser.add_argument(
             'volume_type',
             metavar='<volume-type>',
-            help='Name or ID of volume type to delete',
+            help='Volume type to delete (name or ID)',
         )
         return parser
 
@@ -115,7 +115,7 @@ class ListVolumeType(lister.Lister):
 
 
 class SetVolumeType(command.Command):
-    """Set volume type property"""
+    """Set volume type properties"""
 
     log = logging.getLogger(__name__ + '.SetVolumeType')
 
@@ -124,13 +124,13 @@ class SetVolumeType(command.Command):
         parser.add_argument(
             'volume_type',
             metavar='<volume-type>',
-            help='Volume type name or ID to update',
+            help='Volume type to modify (name or ID)',
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Property to add/change for this volume type '
+            help='Property to add or modify for this volume type '
                  '(repeat option to set multiple properties)',
         )
         return parser
@@ -148,7 +148,7 @@ class SetVolumeType(command.Command):
 
 
 class UnsetVolumeType(command.Command):
-    """Unset volume type property"""
+    """Unset volume type properties"""
 
     log = logging.getLogger(__name__ + '.UnsetVolumeType')
 
@@ -157,14 +157,14 @@ class UnsetVolumeType(command.Command):
         parser.add_argument(
             'volume_type',
             metavar='<volume-type>',
-            help='Type ID or name to remove',
+            help='Volume type to modify (name or ID)',
         )
         parser.add_argument(
             '--property',
             metavar='<key>',
             action='append',
             default=[],
-            help='Property key to remove from volume '
+            help='Property to remove from volume type '
                  '(repeat option to remove multiple properties)',
         )
         return parser
