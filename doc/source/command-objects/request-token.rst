@@ -6,6 +6,26 @@ Identity v3
 
 `Requires: OS-OAUTH1 extension`
 
+request token authorize
+-----------------------
+
+Authorize a request token
+
+.. program:: request token authorize
+.. code:: bash
+
+    os request token authorize
+        --request-key <consumer-key>
+        --role <role>
+
+.. option:: --request-key <request-key>
+
+    Request token to authorize (ID only) (required)
+
+.. option:: --role <role>
+
+    Roles to authorize (name or ID) (repeat to set multiple values) (required)
+
 request token create
 --------------------
 

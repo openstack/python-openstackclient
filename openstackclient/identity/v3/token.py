@@ -25,7 +25,7 @@ from openstackclient.identity import common
 
 
 class AuthorizeRequestToken(show.ShowOne):
-    """Authorize request token"""
+    """Authorize a request token"""
 
     log = logging.getLogger(__name__ + '.AuthorizeRequestToken')
 
@@ -34,13 +34,16 @@ class AuthorizeRequestToken(show.ShowOne):
         parser.add_argument(
             '--request-key',
             metavar='<request-key>',
-            help='Request token key',
+            help='Request token to authorize (ID only) (required)',
             required=True
         )
         parser.add_argument(
-            '--role-ids',
-            metavar='<role-ids>',
-            help='Requested role IDs',
+            '--role',
+            metavar='<role>',
+            action='append',
+            default=[],
+            help='Roles to authorize (name or ID) '
+                 '(repeat to set multiple values) (required)',
             required=True
         )
         return parser
@@ -49,17 +52,20 @@ class AuthorizeRequestToken(show.ShowOne):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
+        # NOTE(stevemar): We want a list of role ids
         roles = []
-        for r_id in parsed_args.role_ids.split():
-            roles.append(r_id)
+        for role in parsed_args.role:
+            role_id = utils.find_resource(
+                identity_client.roles,
+                role,
+            ).id
+            roles.append(role_id)
 
         verifier_pin = identity_client.oauth1.request_tokens.authorize(
             parsed_args.request_key,
             roles)
 
-        info = {}
-        info.update(verifier_pin._info)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(six.iteritems(verifier_pin._info)))
 
 
 class CreateAccessToken(show.ShowOne):
