@@ -101,28 +101,26 @@ List users
 .. code:: bash
 
     os user list
-        [--domain <domain>]
         [--project <project>]
-        [--group <group>]
+        [--domain <domain>]
+        [--group <group> | --project <project>]
         [--long]
-
-.. option:: --domain <domain>
-
-    Filter users by `<domain>` (name or ID)
-
-    .. versionadded:: 3
 
 .. option:: --project <project>
 
     Filter users by `<project>` (name or ID)
 
-    *Removed in version 3.*
+.. option:: --domain <domain>
+
+    Filter users by `<domain>` (name or ID)
+
+    *Identity version 3 only*
 
 .. option:: --group <group>
 
     Filter users by `<group>` membership (name or ID)
 
-    .. versionadded:: 3
+    *Identity version 3 only*
 
 .. option:: --long
 
