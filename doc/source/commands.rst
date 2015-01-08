@@ -76,7 +76,7 @@ referring to both Compute and Volume quotas.
 * ``catalog``: (**Identity**) service catalog
 * ``console log``: (**Compute**) server console text dump
 * ``console url``: (**Compute**) server remote console URL
-* ``consumer``: Identity - OAuth-based delegatee
+* ``consumer``: (**Identity**) OAuth-based delegatee
 * ``container``: (**Object Store**) a grouping of objects
 * ``credentials``: (**Identity**) specific to identity providers
 * ``domain``: (**Identity**) a grouping of projects
