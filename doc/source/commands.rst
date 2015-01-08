@@ -93,6 +93,7 @@ referring to both Compute and Volume quotas.
 * ``ip floating``: Compute, Network - a public IP address that can be mapped to a server
 * ``keypair``: (**Compute**) an SSH public key
 * ``limits``: (**Compute**, **Volume**) resource usage limits
+* ``mapping``: (**Identity**) a definition to translate identity provider attributes to Identity concepts
 * ``module``: internal - installed Python modules in the OSC process
 * ``network``: Network - a virtual network for connecting servers and other resources
 * ``object``: (**Object Store**) a single file in the Object Store

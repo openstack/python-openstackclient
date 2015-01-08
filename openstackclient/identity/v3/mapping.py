@@ -80,7 +80,7 @@ class _RulesReader(object):
 
 
 class CreateMapping(show.ShowOne, _RulesReader):
-    """Create new federation mapping"""
+    """Create new mapping"""
 
     log = logging.getLogger(__name__ + '.CreateMapping')
 
@@ -89,12 +89,12 @@ class CreateMapping(show.ShowOne, _RulesReader):
         parser.add_argument(
             'mapping',
             metavar='<name>',
-            help='New mapping (must be unique)',
+            help='New mapping name (must be unique)',
         )
         parser.add_argument(
             '--rules',
-            metavar='<rules>', required=True,
-            help='Filename with rules',
+            metavar='<filename>', required=True,
+            help='Filename that contains a set of mapping rules (required)',
         )
         return parser
 
@@ -112,7 +112,7 @@ class CreateMapping(show.ShowOne, _RulesReader):
 
 
 class DeleteMapping(command.Command):
-    """Delete federation mapping"""
+    """Delete a mapping"""
 
     log = logging.getLogger(__name__ + '.DeleteMapping')
 
@@ -120,7 +120,7 @@ class DeleteMapping(command.Command):
         parser = super(DeleteMapping, self).get_parser(prog_name)
         parser.add_argument(
             'mapping',
-            metavar='<name>',
+            metavar='<mapping>',
             help='Mapping to delete',
         )
         return parser
@@ -134,7 +134,7 @@ class DeleteMapping(command.Command):
 
 
 class ListMapping(lister.Lister):
-    """List federation mappings"""
+    """List mappings"""
     log = logging.getLogger(__name__ + '.ListMapping')
 
     def take_action(self, parsed_args):
@@ -149,8 +149,8 @@ class ListMapping(lister.Lister):
         return (columns, items)
 
 
-class SetMapping(show.ShowOne, _RulesReader):
-    """Update federation mapping"""
+class SetMapping(command.Command, _RulesReader):
+    """Set mapping properties"""
 
     log = logging.getLogger(__name__ + '.SetMapping')
 
@@ -159,12 +159,12 @@ class SetMapping(show.ShowOne, _RulesReader):
         parser.add_argument(
             'mapping',
             metavar='<name>',
-            help='Mapping to update.',
+            help='Mapping to modify',
         )
         parser.add_argument(
             '--rules',
-            metavar='<rules>', required=True,
-            help='Filename with rules',
+            metavar='<filename>',
+            help='Filename that contains a new set of mapping rules',
         )
         return parser
 
@@ -172,19 +172,22 @@ class SetMapping(show.ShowOne, _RulesReader):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
+        if not parsed_args.rules:
+            self.app.log.error("No changes requested")
+            return
+
         rules = self._read_rules(parsed_args.rules)
 
         mapping = identity_client.federation.mappings.update(
             mapping=parsed_args.mapping,
             rules=rules)
 
-        info = {}
-        info.update(mapping._info)
-        return zip(*sorted(six.iteritems(info)))
+        mapping._info.pop('links', None)
+        return zip(*sorted(six.iteritems(mapping._info)))
 
 
 class ShowMapping(show.ShowOne):
-    """Show federation mapping details"""
+    """Display mapping details"""
 
     log = logging.getLogger(__name__ + '.ShowMapping')
 
@@ -192,8 +195,8 @@ class ShowMapping(show.ShowOne):
         parser = super(ShowMapping, self).get_parser(prog_name)
         parser.add_argument(
             'mapping',
-            metavar='<name>',
-            help='Mapping to show',
+            metavar='<mapping>',
+            help='Mapping to display',
         )
         return parser
 
