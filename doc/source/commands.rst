@@ -113,7 +113,7 @@ referring to both Compute and Volume quotas.
 * ``usage``: (**Compute**) display host resources being consumed
 * ``user``: (**Identity**) individual cloud resources users
 * ``user role``: (**Identity**) roles assigned to a user
-* ``volume``: Volume - block volumes
+* ``volume``: (**Volume**) block volumes
 * ``volume type``: (**Volume**) deployment-specific types of volumes available
 
 Actions
