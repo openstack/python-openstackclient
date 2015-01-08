@@ -25,7 +25,7 @@ from openstackclient.common import utils
 
 
 class CreateProtocol(show.ShowOne):
-    """Create new Federation Protocol tied to an Identity Provider"""
+    """Create new federation protocol"""
 
     log = logging.getLogger(__name__ + 'CreateProtocol')
 
@@ -34,16 +34,19 @@ class CreateProtocol(show.ShowOne):
         parser.add_argument(
             'federation_protocol',
             metavar='<name>',
-            help='Protocol (must be unique per Identity Provider')
+            help='New federation protocol name (must be unique per identity '
+                 ' provider)')
         parser.add_argument(
             '--identity-provider',
             metavar='<identity-provider>',
-            help=('Identity Provider you want to add the Protocol to '
-                  '(must already exist)'), required=True)
+            required=True,
+            help='Identity provider that will support the new federation '
+                 ' protocol (name or ID) (required)')
         parser.add_argument(
             '--mapping',
-            metavar='<mapping>', required=True,
-            help='Mapping you want to be used (must already exist)')
+            metavar='<mapping>',
+            required=True,
+            help='Mapping that is to be used (name or ID) (required)')
 
         return parser
 
@@ -66,7 +69,7 @@ class CreateProtocol(show.ShowOne):
 
 
 class DeleteProtocol(command.Command):
-    """Delete Federation Protocol tied to a Identity Provider"""
+    """Delete a federation protocol"""
 
     log = logging.getLogger(__name__ + '.DeleteProtocol')
 
@@ -74,12 +77,14 @@ class DeleteProtocol(command.Command):
         parser = super(DeleteProtocol, self).get_parser(prog_name)
         parser.add_argument(
             'federation_protocol',
-            metavar='<name>',
-            help='Protocol (must be unique per Identity Provider')
+            metavar='<federation-protocol>',
+            help='Federation protocol to delete (name or ID)')
         parser.add_argument(
             '--identity-provider',
-            metavar='<identity-provider>', required=True,
-            help='Identity Provider the Protocol is tied to')
+            metavar='<identity-provider>',
+            required=True,
+            help='Identity provider that supports <federation-protocol> '
+                 '(name or ID) (required)')
 
         return parser
 
@@ -92,7 +97,7 @@ class DeleteProtocol(command.Command):
 
 
 class ListProtocols(lister.Lister):
-    """List Protocols tied to an Identity Provider"""
+    """List federation protocols"""
 
     log = logging.getLogger(__name__ + '.ListProtocols')
 
@@ -100,8 +105,9 @@ class ListProtocols(lister.Lister):
         parser = super(ListProtocols, self).get_parser(prog_name)
         parser.add_argument(
             '--identity-provider',
-            metavar='<identity-provider>', required=True,
-            help='Identity Provider the Protocol is tied to')
+            metavar='<identity-provider>',
+            required=True,
+            help='Identity provider to list (name or ID) (required)')
 
         return parser
 
@@ -118,7 +124,7 @@ class ListProtocols(lister.Lister):
 
 
 class SetProtocol(command.Command):
-    """Set Protocol tied to an Identity Provider"""
+    """Set federation protocol properties"""
 
     log = logging.getLogger(__name__ + '.SetProtocol')
 
@@ -127,20 +133,25 @@ class SetProtocol(command.Command):
         parser.add_argument(
             'federation_protocol',
             metavar='<name>',
-            help='Protocol (must be unique per Identity Provider')
+            help='Federation protocol to modify (name or ID)')
         parser.add_argument(
             '--identity-provider',
-            metavar='<identity-provider>', required=True,
-            help=('Identity Provider you want to add the Protocol to '
-                  '(must already exist)'))
+            metavar='<identity-provider>',
+            required=True,
+            help='Identity provider that supports <federation-protocol> '
+                 '(name or ID) (required)')
         parser.add_argument(
             '--mapping',
-            metavar='<mapping>', required=True,
-            help='Mapping you want to be used (must already exist)')
+            metavar='<mapping>',
+            help='Mapping that is to be used (name or ID)')
         return parser
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
+
+        if not parsed_args.mapping:
+            self.app.log.error("No changes requested")
+            return
 
         protocol = identity_client.federation.protocols.update(
             parsed_args.identity_provider, parsed_args.federation_protocol,
@@ -156,7 +167,7 @@ class SetProtocol(command.Command):
 
 
 class ShowProtocol(show.ShowOne):
-    """Show Protocol tied to an Identity Provider"""
+    """Display federation protocol details"""
 
     log = logging.getLogger(__name__ + '.ShowProtocol')
 
@@ -164,13 +175,14 @@ class ShowProtocol(show.ShowOne):
         parser = super(ShowProtocol, self).get_parser(prog_name)
         parser.add_argument(
             'federation_protocol',
-            metavar='<name>',
-            help='Protocol (must be unique per Identity Provider')
+            metavar='<federation-protocol>',
+            help='Federation protocol to display (name or ID)')
         parser.add_argument(
             '--identity-provider',
-            metavar='<identity-provider>', required=True,
-            help=('Identity Provider you want to add the Protocol to '
-                  '(must already exist)'))
+            metavar='<identity-provider>',
+            required=True,
+            help=('Identity provider that supports <federation-protocol> '
+                  '(name or ID) (required)'))
         return parser
 
     def take_action(self, parsed_args):
