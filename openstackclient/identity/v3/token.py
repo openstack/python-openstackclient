@@ -20,6 +20,9 @@ import six
 
 from cliff import show
 
+from openstackclient.common import utils
+from openstackclient.identity import common
+
 
 class AuthorizeRequestToken(show.ShowOne):
     """Authorize request token"""
@@ -53,6 +56,7 @@ class AuthorizeRequestToken(show.ShowOne):
         verifier_pin = identity_client.oauth1.request_tokens.authorize(
             parsed_args.request_key,
             roles)
+
         info = {}
         info.update(verifier_pin._info)
         return zip(*sorted(six.iteritems(info)))
@@ -110,7 +114,7 @@ class CreateAccessToken(show.ShowOne):
 
 
 class CreateRequestToken(show.ShowOne):
-    """Create request token"""
+    """Create a request token"""
 
     log = logging.getLogger(__name__ + '.CreateRequestToken')
 
@@ -119,33 +123,50 @@ class CreateRequestToken(show.ShowOne):
         parser.add_argument(
             '--consumer-key',
             metavar='<consumer-key>',
-            help='Consumer key',
+            help='Consumer key (required)',
             required=True
         )
         parser.add_argument(
             '--consumer-secret',
             metavar='<consumer-secret>',
-            help='Consumer secret',
+            help='Consumer secret (required)',
             required=True
         )
         parser.add_argument(
-            '--project-id',
-            metavar='<project-id>',
-            help='Requested project ID',
+            '--project',
+            metavar='<project>',
+            help='Project that consumer wants to access (name or ID)'
+                 ' (required)',
             required=True
+        )
+        parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='Domain owning <project> (name or ID)',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        token_client = self.app.client_manager.identity.oauth1.request_tokens
+
+        identity_client = self.app.client_manager.identity
+
+        if parsed_args.domain:
+            domain = common.find_domain(identity_client, parsed_args.domain)
+            project = utils.find_resource(identity_client.projects,
+                                          parsed_args.project,
+                                          domain_id=domain.id)
+        else:
+            project = utils.find_resource(identity_client.projects,
+                                          parsed_args.project)
+
+        token_client = identity_client.oauth1.request_tokens
+
         request_token = token_client.create(
             parsed_args.consumer_key,
             parsed_args.consumer_secret,
-            parsed_args.project_id)
-        info = {}
-        info.update(request_token._info)
-        return zip(*sorted(six.iteritems(info)))
+            project.id)
+        return zip(*sorted(six.iteritems(request_token._info)))
 
 
 class IssueToken(show.ShowOne):
