@@ -28,7 +28,7 @@ from openstackclient.common import utils
 
 
 class CreateSnapshot(show.ShowOne):
-    """Create snapshot command"""
+    """Create new snapshot"""
 
     log = logging.getLogger(__name__ + '.CreateSnapshot')
 
@@ -37,7 +37,7 @@ class CreateSnapshot(show.ShowOne):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='The name or ID of the volume to snapshot',
+            help='Volume to snapshot (name or ID)',
         )
         parser.add_argument(
             '--name',
@@ -104,7 +104,7 @@ class DeleteSnapshot(command.Command):
 
 
 class ListSnapshot(lister.Lister):
-    """List snapshot command"""
+    """List snapshots"""
 
     log = logging.getLogger(__name__ + '.ListSnapshot')
 
@@ -167,7 +167,7 @@ class ListSnapshot(lister.Lister):
 
 
 class SetSnapshot(command.Command):
-    """Set snapshot command"""
+    """Set snapshot properties"""
 
     log = logging.getLogger(__name__ + '.SetSnapshot')
 
@@ -176,14 +176,14 @@ class SetSnapshot(command.Command):
         parser.add_argument(
             'snapshot',
             metavar='<snapshot>',
-            help='Name or ID of snapshot to change')
+            help='Snapshot to modify (name or ID)')
         parser.add_argument(
             '--name',
-            metavar='<snapshot-name>',
+            metavar='<name>',
             help='New snapshot name')
         parser.add_argument(
             '--description',
-            metavar='<snapshot-description>',
+            metavar='<description>',
             help='New snapshot description')
         parser.add_argument(
             '--property',
@@ -219,7 +219,7 @@ class SetSnapshot(command.Command):
 
 
 class ShowSnapshot(show.ShowOne):
-    """Show snapshot command"""
+    """Display snapshot details"""
 
     log = logging.getLogger(__name__ + '.ShowSnapshot')
 
@@ -228,7 +228,7 @@ class ShowSnapshot(show.ShowOne):
         parser.add_argument(
             'snapshot',
             metavar='<snapshot>',
-            help='Name or ID of snapshot to display')
+            help='Snapshot to display (name or ID)')
         return parser
 
     def take_action(self, parsed_args):
@@ -254,14 +254,14 @@ class UnsetSnapshot(command.Command):
         parser.add_argument(
             'snapshot',
             metavar='<snapshot>',
-            help='snapshot to change (name or ID)',
+            help='Snapshot to modify (name or ID)',
         )
         parser.add_argument(
             '--property',
             metavar='<key>',
             action='append',
             default=[],
-            help='Property key to remove from snapshot '
+            help='Property to remove from snapshot '
                  '(repeat to remove multiple values)',
         )
         return parser
