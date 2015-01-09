@@ -26,6 +26,8 @@ class TestOAuth1(identity_fakes.TestOAuth1):
         self.access_tokens_mock.reset_mock()
         self.request_tokens_mock = identity_client.oauth1.request_tokens
         self.request_tokens_mock.reset_mock()
+        self.projects_mock = identity_client.projects
+        self.projects_mock.reset_mock()
 
 
 class TestRequestTokenCreate(TestOAuth1):
@@ -39,18 +41,24 @@ class TestRequestTokenCreate(TestOAuth1):
             loaded=True,
         )
 
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
         self.cmd = token.CreateRequestToken(self.app, None)
 
     def test_create_request_tokens(self):
         arglist = [
             '--consumer-key', identity_fakes.consumer_id,
             '--consumer-secret', identity_fakes.consumer_secret,
-            '--project-id', identity_fakes.project_id,
+            '--project', identity_fakes.project_id,
         ]
         verifylist = [
             ('consumer_key', identity_fakes.consumer_id),
             ('consumer_secret', identity_fakes.consumer_secret),
-            ('project_id', identity_fakes.project_id),
+            ('project', identity_fakes.project_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)

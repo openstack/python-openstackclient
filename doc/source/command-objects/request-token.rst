@@ -1,0 +1,37 @@
+=============
+request token
+=============
+
+Identity v3
+
+`Requires: OS-OAUTH1 extension`
+
+request token create
+--------------------
+
+Create a request token
+
+.. program:: request token create
+.. code:: bash
+
+    os request token create
+        --consumer-key <consumer-key>
+        --consumer-secret <consumer-secret>
+        --project <project>
+        [--domain <domain>]
+
+.. option:: --consumer-key <consumer-key>
+
+    Consumer key (required)
+
+.. option:: --description <description>
+
+    Consumer secret (required)
+
+.. option:: --project <project>
+
+    Project that consumer wants to access (name or ID) (required)
+
+.. option:: --domain <domain>
+
+    Domain owning <project> (name or ID)
