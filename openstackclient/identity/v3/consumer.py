@@ -27,7 +27,7 @@ from openstackclient.common import utils
 
 
 class CreateConsumer(show.ShowOne):
-    """Create consumer command"""
+    """Create new consumer"""
 
     log = logging.getLogger(__name__ + '.CreateConsumer')
 
@@ -35,7 +35,7 @@ class CreateConsumer(show.ShowOne):
         parser = super(CreateConsumer, self).get_parser(prog_name)
         parser.add_argument(
             '--description',
-            metavar='<consumer-description>',
+            metavar='<description>',
             help='New consumer description',
         )
         return parser
@@ -51,7 +51,7 @@ class CreateConsumer(show.ShowOne):
 
 
 class DeleteConsumer(command.Command):
-    """Delete consumer command"""
+    """Delete a consumer"""
 
     log = logging.getLogger(__name__ + '.DeleteConsumer')
 
@@ -60,7 +60,7 @@ class DeleteConsumer(command.Command):
         parser.add_argument(
             'consumer',
             metavar='<consumer>',
-            help='ID of consumer to delete',
+            help='Consumer to delete',
         )
         return parser
 
@@ -74,7 +74,7 @@ class DeleteConsumer(command.Command):
 
 
 class ListConsumer(lister.Lister):
-    """List consumer command"""
+    """List consumers"""
 
     log = logging.getLogger(__name__ + '.ListConsumer')
 
@@ -90,7 +90,7 @@ class ListConsumer(lister.Lister):
 
 
 class SetConsumer(command.Command):
-    """Set consumer command"""
+    """Set consumer properties"""
 
     log = logging.getLogger(__name__ + '.SetConsumer')
 
@@ -99,11 +99,11 @@ class SetConsumer(command.Command):
         parser.add_argument(
             'consumer',
             metavar='<consumer>',
-            help='ID of consumer to change',
+            help='Consumer to modify',
         )
         parser.add_argument(
             '--description',
-            metavar='<new-consumer-description>',
+            metavar='<description>',
             help='New consumer description',
         )
         return parser
@@ -118,7 +118,7 @@ class SetConsumer(command.Command):
             kwargs['description'] = parsed_args.description
 
         if not len(kwargs):
-            sys.stdout.write("Consumer not updated, no arguments present")
+            sys.stdout.write('Consumer not updated, no arguments present')
             return
 
         consumer = identity_client.oauth1.consumers.update(
@@ -127,7 +127,7 @@ class SetConsumer(command.Command):
 
 
 class ShowConsumer(show.ShowOne):
-    """Show consumer command"""
+    """Display consumer details"""
 
     log = logging.getLogger(__name__ + '.ShowConsumer')
 
@@ -136,7 +136,7 @@ class ShowConsumer(show.ShowOne):
         parser.add_argument(
             'consumer',
             metavar='<consumer>',
-            help='ID of consumer to display',
+            help='Consumer to display',
         )
         return parser
 
