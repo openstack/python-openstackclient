@@ -4,6 +4,8 @@ console url
 
 Server remote console URL
 
+Compute v2
+
 console url show
 ----------------
 

@@ -5,6 +5,8 @@ keypair
 The badly named keypair is really the public key of an OpenSSH key pair to be
 used for access to created servers.
 
+Compute v2
+
 keypair create
 --------------
 
