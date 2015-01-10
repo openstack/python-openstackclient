@@ -112,7 +112,7 @@ class CreateMapping(show.ShowOne, _RulesReader):
 
 
 class DeleteMapping(command.Command):
-    """Delete a mapping"""
+    """Delete mapping"""
 
     log = logging.getLogger(__name__ + '.DeleteMapping')
 

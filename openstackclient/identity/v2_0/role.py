@@ -226,7 +226,7 @@ class ListUserRole(lister.Lister):
 
 
 class RemoveRole(command.Command):
-    """Remove role from project:user"""
+    """Remove role from project : user"""
 
     log = logging.getLogger(__name__ + '.RemoveRole')
 
@@ -235,7 +235,7 @@ class RemoveRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help=_('Role to remove from <project>:<user> (name or ID)'),
+            help=_('Role to remove (name or ID)'),
         )
         parser.add_argument(
             '--project',
@@ -267,7 +267,7 @@ class RemoveRole(command.Command):
 
 
 class ShowRole(show.ShowOne):
-    """Show single role"""
+    """Display role details"""
 
     log = logging.getLogger(__name__ + '.ShowRole')
 
@@ -276,7 +276,7 @@ class ShowRole(show.ShowOne):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help=_('Role to show (name or ID)'),
+            help=_('Role to display (name or ID)'),
         )
         return parser
 

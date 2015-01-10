@@ -138,7 +138,7 @@ class SetRegion(command.Command):
         parser.add_argument(
             'region',
             metavar='<region-id>',
-            help=_('Region ID to modify'),
+            help=_('Region to modify'),
         )
         parser.add_argument(
             '--parent-region',
@@ -188,7 +188,7 @@ class ShowRegion(show.ShowOne):
         parser.add_argument(
             'region',
             metavar='<region-id>',
-            help=_('Region ID to display'),
+            help=_('Region to display'),
         )
         return parser
 

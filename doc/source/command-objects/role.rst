@@ -142,7 +142,7 @@ Remove role from domain/project : user/group
 
 .. describe:: <role>
 
-    Role to remove from `<project>`:`<user>` (name or ID)
+    Role to remove (name or ID)
 
 role set
 --------
@@ -169,6 +169,8 @@ Set role properties
 role show
 ---------
 
+Display role details
+
 .. program:: role show
 .. code:: bash
 
@@ -177,4 +179,4 @@ role show
 
 .. describe:: <role>
 
-    Role to show (name or ID)
+    Role to display (name or ID)

@@ -298,7 +298,7 @@ class SetProject(command.Command):
 
 
 class ShowProject(show.ShowOne):
-    """Show project command"""
+    """Display project details"""
 
     log = logging.getLogger(__name__ + '.ShowProject')
 
@@ -307,7 +307,7 @@ class ShowProject(show.ShowOne):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help='Name or ID of project to display',
+            help='Project to display (name or ID)',
         )
         parser.add_argument(
             '--domain',

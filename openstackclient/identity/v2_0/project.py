@@ -241,7 +241,7 @@ class SetProject(command.Command):
 
 
 class ShowProject(show.ShowOne):
-    """Show project details"""
+    """Display project details"""
 
     log = logging.getLogger(__name__ + '.ShowProject')
 
@@ -250,7 +250,7 @@ class ShowProject(show.ShowOne):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help=_('Project to show (name or ID)'))
+            help=_('Project to display (name or ID)'))
         return parser
 
     def take_action(self, parsed_args):

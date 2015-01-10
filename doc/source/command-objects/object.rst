@@ -122,7 +122,7 @@ Save object locally
 object show
 -----------
 
-Show object details
+Display object details
 
 .. program:: object show
 .. code:: bash

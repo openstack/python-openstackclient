@@ -290,7 +290,7 @@ class SetAggregate(show.ShowOne):
 
 
 class ShowAggregate(show.ShowOne):
-    """Show a specific aggregate"""
+    """Display aggregate details"""
 
     log = logging.getLogger(__name__ + '.ShowAggregate')
 
@@ -299,7 +299,7 @@ class ShowAggregate(show.ShowOne):
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
-            help='Aggregate to show (name or ID)',
+            help='Aggregate to display (name or ID)',
         )
         return parser
 

@@ -194,7 +194,7 @@ class SetService(command.Command):
 
 
 class ShowService(show.ShowOne):
-    """Show service details"""
+    """Display service details"""
 
     log = logging.getLogger(__name__ + '.ShowService')
 

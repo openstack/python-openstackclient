@@ -80,7 +80,7 @@ class CreateKeypair(show.ShowOne):
 
 
 class DeleteKeypair(command.Command):
-    """Delete a public key"""
+    """Delete public key"""
 
     log = logging.getLogger(__name__ + '.DeleteKeypair')
 
@@ -121,7 +121,7 @@ class ListKeypair(lister.Lister):
 
 
 class ShowKeypair(show.ShowOne):
-    """Show public key details"""
+    """Display public key details"""
 
     log = logging.getLogger(__name__ + '.ShowKeypair')
 
@@ -130,7 +130,7 @@ class ShowKeypair(show.ShowOne):
         parser.add_argument(
             'name',
             metavar='<key>',
-            help='Public key to show',
+            help='Public key to display',
         )
         parser.add_argument(
             '--public-key',

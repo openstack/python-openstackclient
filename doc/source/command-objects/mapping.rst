@@ -30,7 +30,7 @@ Create new mapping
 mapping delete
 --------------
 
-Delete a mapping
+Delete mapping
 
 .. program:: mapping delete
 .. code:: bash

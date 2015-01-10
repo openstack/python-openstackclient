@@ -67,7 +67,7 @@ Create new flavor
 flavor delete
 -------------
 
-Delete a flavor
+Delete flavor
 
 .. program:: flavor delete
 .. code:: bash

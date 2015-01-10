@@ -95,7 +95,7 @@ Set region properties
 .. _region_set-region-id:
 .. describe:: <region-id>
 
-    Region ID to modify
+    Region to modify
 
 region show
 -----------
@@ -111,4 +111,4 @@ Display region details
 .. _region_show-region-id:
 .. describe:: <region-id>
 
-    Region ID to display
+    Region to display

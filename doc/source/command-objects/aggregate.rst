@@ -139,7 +139,7 @@ Set aggregate properties
 aggregate show
 --------------
 
-Show a specific aggregate
+Display aggregate details
 
 .. program aggregate show
 .. code:: bash
@@ -149,4 +149,4 @@ Show a specific aggregate
 
 .. describe:: <aggregate>
 
-    Aggregate to show (name or ID)
+    Aggregate to display (name or ID)

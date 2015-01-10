@@ -51,7 +51,7 @@ class CreateConsumer(show.ShowOne):
 
 
 class DeleteConsumer(command.Command):
-    """Delete a consumer"""
+    """Delete consumer"""
 
     log = logging.getLogger(__name__ + '.DeleteConsumer')
 

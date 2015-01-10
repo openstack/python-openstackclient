@@ -69,7 +69,7 @@ class CreateProtocol(show.ShowOne):
 
 
 class DeleteProtocol(command.Command):
-    """Delete a federation protocol"""
+    """Delete federation protocol"""
 
     log = logging.getLogger(__name__ + '.DeleteProtocol')
 

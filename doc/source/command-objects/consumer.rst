@@ -24,7 +24,7 @@ Create new consumer
 consumer delete
 ---------------
 
-Delete a consumer
+Delete consumer
 
 .. program:: consumer delete
 .. code:: bash

@@ -102,7 +102,7 @@ Set domain properties
 domain show
 -----------
 
-Show domain details
+Display domain details
 
 .. program:: domain show
 .. code:: bash

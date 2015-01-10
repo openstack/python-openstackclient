@@ -38,7 +38,7 @@ Create new identity provider
 identity provider delete
 ------------------------
 
-Delete an identity provider
+Delete identity provider
 
 .. program:: identity provider delete
 .. code:: bash
