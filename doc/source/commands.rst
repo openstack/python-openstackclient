@@ -98,7 +98,7 @@ referring to both Compute and Volume quotas.
 * ``module``: internal - installed Python modules in the OSC process
 * ``network``: Network - a virtual network for connecting servers and other resources
 * ``object``: (**Object Store**) a single file in the Object Store
-* ``policy``: Identity - determines authorization
+* ``policy``: (**Identity**) determines authorization
 * ``project``: (**Identity**) owns a group of resources
 * ``quota``: (**Compute**, **Volume**) resource usage restrictions
 * ``region``: (**Identity**) a subset of an OpenStack deployment
