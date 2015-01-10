@@ -68,7 +68,7 @@ class ShowCatalog(show.ShowOne):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help=_('Service to display (type, name or ID)'),
+            help=_('Service to display (type or name)'),
         )
         return parser
 
@@ -95,5 +95,10 @@ class ShowCatalog(show.ShowOne):
             data['endpoints'] = _format_endpoints(data['endpoints'])
             if 'endpoints_links' in data:
                 data.pop('endpoints_links')
+
+        if not data:
+            self.app.log.error('service %s not found\n' %
+                               parsed_args.service)
+            return ([], [])
 
         return zip(*sorted(six.iteritems(data)))
