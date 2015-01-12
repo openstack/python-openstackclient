@@ -2,6 +2,8 @@
 flavor
 ======
 
+Compute v2
+
 flavor create
 -------------
 

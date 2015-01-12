@@ -4,6 +4,8 @@ quota
 
 Resource quotas appear in multiple APIs, OpenStackClient presents them as a single object with multiple properties.
 
+Compute v2, Volume v1
+
 quota set
 ---------
 

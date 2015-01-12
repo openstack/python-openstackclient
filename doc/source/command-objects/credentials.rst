@@ -2,6 +2,8 @@
 credentials
 ===========
 
+Identity v3
+
 credentials create
 ------------------
 

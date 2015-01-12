@@ -4,6 +4,8 @@ console log
 
 Server console text dump
 
+Compute v2
+
 console log show
 ----------------
 

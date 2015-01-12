@@ -4,6 +4,8 @@ limits
 
 The Compute and Volume APIs have resource usage limits.
 
+Compute v2, Volume v1
+
 limits show
 -----------
 

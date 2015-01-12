@@ -5,6 +5,8 @@ aggregate
 Server aggregates provide a mechanism to group servers according to certain
 criteria.
 
+Compute v2
+
 aggregate add host
 ------------------
 

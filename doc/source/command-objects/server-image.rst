@@ -5,6 +5,8 @@ server image
 A server image is a disk image created from a running server instance.  The
 image is created in the Image store.
 
+Compute v2
+
 server image create
 -------------------
 
