@@ -37,7 +37,7 @@ TEST_RESPONSE_DICT_V3.set_project_scope()
 TEST_VERSIONS = fixture.DiscoveryList(href=AUTH_URL)
 
 
-class FakeStdout:
+class FakeStdout(object):
     def __init__(self):
         self.content = []
 
