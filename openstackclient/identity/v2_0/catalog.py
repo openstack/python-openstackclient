@@ -83,17 +83,12 @@ class ShowCatalog(show.ShowOne):
 
         data = None
         for service in sc.get_data():
-            if (
-                'name' in service and
-                service['name'] != parsed_args.service and
-                'type' in service and
-                service['type'] != parsed_args.service
-            ):
-                    continue
-
-            data = service
-            data['endpoints'] = _format_endpoints(data['endpoints'])
-            if 'endpoints_links' in data:
-                data.pop('endpoints_links')
+            if (service.get('name') == parsed_args.service or
+                    service.get('type') == parsed_args.service):
+                data = service
+                data['endpoints'] = _format_endpoints(data['endpoints'])
+                if 'endpoints_links' in data:
+                    data.pop('endpoints_links')
+                break
 
         return zip(*sorted(six.iteritems(data)))
