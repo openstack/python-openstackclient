@@ -146,10 +146,75 @@ class ListRole(lister.Lister):
 
     log = logging.getLogger(__name__ + '.ListRole')
 
+    def get_parser(self, prog_name):
+        parser = super(ListRole, self).get_parser(prog_name)
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help='Filter roles by <project> (name or ID)',
+        )
+        parser.add_argument(
+            '--user',
+            metavar='<user>',
+            help='Filter roles by <user> (name or ID)',
+        )
+        return parser
+
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
-        columns = ('ID', 'Name')
-        data = self.app.client_manager.identity.roles.list()
+        identity_client = self.app.client_manager.identity
+        auth_ref = self.app.client_manager.auth_ref
+
+        # No user or project specified, list all roles in the system
+        if not parsed_args.user and not parsed_args.project:
+            columns = ('ID', 'Name')
+            data = identity_client.roles.list()
+        elif parsed_args.user and parsed_args.project:
+            user = utils.find_resource(
+                identity_client.users,
+                parsed_args.user,
+            )
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+            )
+            data = identity_client.roles.roles_for_user(user.id, project.id)
+
+        elif parsed_args.user:
+            user = utils.find_resource(
+                identity_client.users,
+                parsed_args.user,
+            )
+            if self.app.client_manager.auth_ref:
+                project = utils.find_resource(
+                    identity_client.projects,
+                    auth_ref.project_id
+                )
+            else:
+                msg = _("Project must be specified")
+                raise exceptions.CommandError(msg)
+            data = identity_client.roles.roles_for_user(user.id, project.id)
+        elif parsed_args.project:
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+            )
+            if self.app.client_manager.auth_ref:
+                user = utils.find_resource(
+                    identity_client.users,
+                    auth_ref.user_id
+                )
+            else:
+                msg = _("User must be specified")
+                raise exceptions.CommandError(msg)
+            data = identity_client.roles.roles_for_user(user.id, project.id)
+
+        if parsed_args.user or parsed_args.project:
+            columns = ('ID', 'Name', 'Project', 'User')
+            for user_role in data:
+                user_role.user = user.name
+                user_role.project = project.name
+
         return (columns,
                 (utils.get_item_properties(
                     s, columns,
