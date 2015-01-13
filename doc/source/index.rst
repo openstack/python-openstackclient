@@ -22,23 +22,38 @@ Contents:
 Getting Started
 ---------------
 
-* Check out `the wiki`_
-* Try `some commands`_
+* Try :doc:`some commands <command-list>`
 * Read the source `on OpenStack's Git server`_
+* Install OpenStackClient from `PyPi`_ or a `tarball`_
 
-.. _the wiki: https://wiki.openstack.org/OpenStackClient
-.. _some commands: https://wiki.openstack.org/OpenStackClient/Commands
+
+Project Goals
+-------------
+
+* Use the OpenStack Python API libraries, extending or replacing them as required
+* Use a consistent naming and structure for commands and arguments
+* Provide consistent output formats with optional machine parseable formats
+* Use a single-binary approach that also contains an embedded shell that can execute
+  multiple commands on a single authentication (see libvirt's virsh for an example)
+* Independence from the OpenStack project names; only API names are referenced (to
+  the extent possible)
 
 Contributing
 ============
 
-Code is hosted `on OpenStack's Git server`_. Submit bugs to the
-python-openstackclient project on `Launchpad`_. Submit code to
-the openstack/python-openstackclient project using `Gerrit`_.
+OpenStackClient utilizes all of the usual OpenStack processes and requirements for
+contributions.  The code is hosted `on OpenStack's Git server`_. `Bug reports`_
+and `blueprints`_ may be submitted to the :code:`python-openstackclient` project
+on `Launchpad`_.  Code may be submitted to the
+:code:`openstack/python-openstackclient` project using `Gerrit`_.
 
-.. _on OpenStack's Git server: https://git.openstack.org/cgit/openstack/python-openstackclient/tree
+.. _`on OpenStack's Git server`: https://git.openstack.org/cgit/openstack/python-openstackclient/tree
 .. _Launchpad: https://launchpad.net/python-openstackclient
 .. _Gerrit: http://docs.openstack.org/infra/manual/developers.html#development-workflow
+.. _Bug reports: https://bugs.launchpad.net/python-openstackclient/+bugs
+.. _blueprints: https://blueprints.launchpad.net/python-openstackclient
+.. _PyPi: https://pypi.python.org/pypi/python-openstackclient
+.. _tarball: http://tarballs.openstack.org/python-openstackclient
 
 Indices and Tables
 ==================
