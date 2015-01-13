@@ -467,7 +467,7 @@ class SetRole(command.Command):
 
 
 class ShowRole(show.ShowOne):
-    """Show single role"""
+    """Display role details"""
 
     log = logging.getLogger(__name__ + '.ShowRole')
 
@@ -476,7 +476,7 @@ class ShowRole(show.ShowOne):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Role to show (name or ID)',
+            help='Role to display (name or ID)',
         )
         return parser
 

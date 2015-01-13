@@ -125,7 +125,7 @@ class CreateFlavor(show.ShowOne):
 
 
 class DeleteFlavor(command.Command):
-    """Delete a flavor"""
+    """Delete flavor"""
 
     log = logging.getLogger(__name__ + ".DeleteFlavor")
 

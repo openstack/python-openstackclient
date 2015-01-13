@@ -187,7 +187,7 @@ class SetDomain(command.Command):
 
 
 class ShowDomain(show.ShowOne):
-    """Show domain details"""
+    """Display domain details"""
 
     log = logging.getLogger(__name__ + '.ShowDomain')
 

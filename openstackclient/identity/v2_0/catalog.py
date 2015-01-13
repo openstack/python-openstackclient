@@ -59,7 +59,7 @@ class ListCatalog(lister.Lister):
 
 
 class ShowCatalog(show.ShowOne):
-    """Show service catalog details"""
+    """Display service catalog details"""
 
     log = logging.getLogger(__name__ + '.ShowCatalog')
 

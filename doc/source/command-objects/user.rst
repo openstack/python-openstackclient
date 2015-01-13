@@ -191,6 +191,8 @@ Set user properties
 user show
 ---------
 
+Display user details
+
 .. program:: user show
 .. code:: bash
 
@@ -207,4 +209,4 @@ user show
 .. _user_show-user:
 .. describe:: <user>
 
-    User to show (name or ID)
+    User to display (name or ID)

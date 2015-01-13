@@ -179,7 +179,7 @@ class SaveContainer(command.Command):
 
 
 class ShowContainer(show.ShowOne):
-    """Show container details"""
+    """Display container details"""
 
     log = logging.getLogger(__name__ + '.ShowContainer')
 

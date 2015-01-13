@@ -349,7 +349,7 @@ class SetUser(command.Command):
 
 
 class ShowUser(show.ShowOne):
-    """Show user details"""
+    """Display user details"""
 
     log = logging.getLogger(__name__ + '.ShowUser')
 

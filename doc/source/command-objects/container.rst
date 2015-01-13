@@ -92,7 +92,7 @@ Save container contents locally
 container show
 --------------
 
-Show container details
+Display container details
 
 .. program:: container show
 .. code:: bash

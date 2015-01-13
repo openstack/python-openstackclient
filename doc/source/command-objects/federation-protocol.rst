@@ -34,7 +34,7 @@ Create new federation protocol
 federation protocol delete
 --------------------------
 
-Delete a federation protocol
+Delete federation protocol
 
 .. program:: federation protocol delete
 .. code:: bash

@@ -69,7 +69,7 @@ class CreateIdentityProvider(show.ShowOne):
 
 
 class DeleteIdentityProvider(command.Command):
-    """Delete an identity provider"""
+    """Delete identity provider"""
 
     log = logging.getLogger(__name__ + '.DeleteIdentityProvider')
 

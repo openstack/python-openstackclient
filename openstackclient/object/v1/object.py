@@ -222,7 +222,7 @@ class SaveObject(command.Command):
 
 
 class ShowObject(show.ShowOne):
-    """Show object details"""
+    """Display object details"""
 
     log = logging.getLogger(__name__ + '.ShowObject')
 
