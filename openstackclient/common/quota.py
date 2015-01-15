@@ -48,6 +48,12 @@ VOLUME_QUOTAS = {
     'volumes': 'volumes',
 }
 
+NETWORK_QUOTAS = {
+    'floatingip': 'floating-ips',
+    'security_group_rule': 'secgroup-rules',
+    'security_group': 'secgroups',
+}
+
 
 class SetQuota(command.Command):
     """Set quotas for project or class"""
@@ -147,7 +153,7 @@ class ShowQuota(show.ShowOne):
         )
         return parser
 
-    def get_quota(self, client, parsed_args):
+    def get_compute_volume_quota(self, client, parsed_args):
         try:
             if parsed_args.quota_class:
                 quota = client.quota_classes.get(parsed_args.project)
@@ -162,29 +168,47 @@ class ShowQuota(show.ShowOne):
                 raise e
         return quota._info
 
+    def get_network_quota(self, parsed_args):
+        if parsed_args.quota_class or parsed_args.default:
+            return {}
+        service_catalog = self.app.client_manager.auth_ref.service_catalog
+        if 'network' in service_catalog.get_endpoints():
+            network_client = self.app.client_manager.network
+            return network_client.show_quota(parsed_args.project)['quota']
+        else:
+            return {}
+
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
-
         # NOTE(dtroyer): These quota API calls do not validate the project
         #                or class arguments and return what appears to be
         #                the default quota values if the project or class
         #                does not exist. If this is determined to be the
         #                intended behaviour of the API we will validate
         #                the argument with Identity ourselves later.
-        compute_quota_info = self.get_quota(compute_client, parsed_args)
-        volume_quota_info = self.get_quota(volume_client, parsed_args)
+        compute_quota_info = self.get_compute_volume_quota(compute_client,
+                                                           parsed_args)
+        volume_quota_info = self.get_compute_volume_quota(volume_client,
+                                                          parsed_args)
+        network_quota_info = self.get_network_quota(parsed_args)
 
         info = {}
         info.update(compute_quota_info)
         info.update(volume_quota_info)
+        info.update(network_quota_info)
 
         # Map the internal quota names to the external ones
+        # COMPUTE_QUOTAS and NETWORK_QUOTAS share floating-ips,
+        # secgroup-rules and secgroups as dict value, so when
+        # neutron is enabled, quotas of these three resources
+        # in nova will be replaced by neutron's.
         for k, v in itertools.chain(
-                COMPUTE_QUOTAS.items(), VOLUME_QUOTAS.items()):
-            if not k == v and info[k]:
+                COMPUTE_QUOTAS.items(), VOLUME_QUOTAS.items(),
+                NETWORK_QUOTAS.items()):
+            if not k == v and info.get(k):
                 info[v] = info[k]
                 info.pop(k)
 
