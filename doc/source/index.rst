@@ -11,13 +11,13 @@ Contents:
 .. toctree::
    :maxdepth: 1
 
-   releases
    command-list
    commands
    plugins
    authentication
    interactive
    humaninterfaceguide
+   releases
    man/openstack
 
 Getting Started
