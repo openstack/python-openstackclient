@@ -17,6 +17,7 @@ Contents:
    plugins
    authentication
    interactive
+   humaninterfaceguide
    man/openstack
 
 Getting Started
