@@ -27,6 +27,13 @@ from openstackclient.common import utils
 from openstackclient.identity import common
 
 
+def get_service_name(service):
+    if hasattr(service, 'name'):
+        return service.name
+    else:
+        return ''
+
+
 class CreateEndpoint(show.ShowOne):
     """Create new endpoint"""
 
@@ -87,7 +94,7 @@ class CreateEndpoint(show.ShowOne):
         info = {}
         endpoint._info.pop('links')
         info.update(endpoint._info)
-        info['service_name'] = service.name
+        info['service_name'] = get_service_name(service)
         info['service_type'] = service.type
         return zip(*sorted(six.iteritems(info)))
 
@@ -157,7 +164,7 @@ class ListEndpoint(lister.Lister):
 
         for ep in data:
             service = common.find_service(identity_client, ep.service_id)
-            ep.service_name = service.name
+            ep.service_name = get_service_name(service)
             ep.service_type = service.type
         return (columns,
                 (utils.get_item_properties(
@@ -274,6 +281,6 @@ class ShowEndpoint(show.ShowOne):
         info = {}
         endpoint._info.pop('links')
         info.update(endpoint._info)
-        info['service_name'] = service.name
+        info['service_name'] = get_service_name(service)
         info['service_type'] = service.type
         return zip(*sorted(six.iteritems(info)))
