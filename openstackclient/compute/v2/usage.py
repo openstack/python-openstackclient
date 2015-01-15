@@ -27,7 +27,7 @@ from openstackclient.common import utils
 
 
 class ListUsage(lister.Lister):
-    """List resource usage per project. """
+    """List resource usage per project"""
 
     log = logging.getLogger(__name__ + ".ListUsage")
 
@@ -38,7 +38,7 @@ class ListUsage(lister.Lister):
             metavar="<start>",
             default=None,
             help="Usage range start date, ex 2012-01-20"
-                 " (default: 4 weeks ago)."
+                 " (default: 4 weeks ago)"
         )
         parser.add_argument(
             "--end",
@@ -119,7 +119,7 @@ class ListUsage(lister.Lister):
 
 
 class ShowUsage(show.ShowOne):
-    """Show resource usage for a single project. """
+    """Show resource usage for a single project"""
 
     log = logging.getLogger(__name__ + ".ShowUsage")
 
@@ -129,20 +129,20 @@ class ShowUsage(show.ShowOne):
             "--project",
             metavar="<project>",
             default=None,
-            help="Name or ID of project to show usage for."
+            help="Name or ID of project to show usage for"
         )
         parser.add_argument(
             "--start",
             metavar="<start>",
             default=None,
             help="Usage range start date, ex 2012-01-20"
-                 " (default: 4 weeks ago)."
+                 " (default: 4 weeks ago)"
         )
         parser.add_argument(
             "--end",
             metavar="<end>",
             default=None,
-            help="Usage range end date, ex 2012-01-20 (default: tomorrow)."
+            help="Usage range end date, ex 2012-01-20 (default: tomorrow)"
         )
         return parser
 
@@ -188,3 +188,20 @@ class ShowUsage(show.ShowOne):
         info['CPU Hours'] = float("%.2f" % usage.total_vcpus_usage)
         info['Disk GB-Hours'] = float("%.2f" % usage.total_local_gb_usage)
         return zip(*sorted(six.iteritems(info)))
+
+
+# This is out of order due to the subclass, will eventually be removed
+
+class ListProjectUsage(ListUsage):
+    """List resource usage per project"""
+
+    deprecated = True
+
+    log = logging.getLogger('DEPRECATED:')
+
+    def take_action(self, parsed_args):
+        self.log.warning(
+            "%s is deprecated, use 'usage list'",
+            getattr(self, 'cmd_name', 'this command'),
+        )
+        return super(ListProjectUsage, self).take_action(parsed_args)

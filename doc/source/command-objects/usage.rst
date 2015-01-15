@@ -18,7 +18,7 @@ List resource usage per project
 
 .. option:: --start <start>
 
-    Usage range start date, ex 2012-01-20 (default: 4 weeks ago).
+    Usage range start date, ex 2012-01-20 (default: 4 weeks ago)
 
 .. option:: --end <end>
 
@@ -27,7 +27,7 @@ List resource usage per project
 usage show
 ----------
 
-Show resource usage for a single project.
+Show resource usage for a single project
 
 .. program:: usage show
 .. code:: bash
@@ -39,11 +39,11 @@ Show resource usage for a single project.
 
 .. option:: --project <project>
 
-    Name or ID of project to show usage for.
+    Name or ID of project to show usage for
 
 .. option:: --start <start>
 
-    Usage range start date, ex 2012-01-20 (default: 4 weeks ago).
+    Usage range start date, ex 2012-01-20 (default: 4 weeks ago)
 
 .. option:: --end <end>
 

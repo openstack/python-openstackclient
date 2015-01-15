@@ -303,7 +303,8 @@ class OpenStackShell(app.App):
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""
         self.log.info(
-            'command: %s.%s',
+            'command: %s -> %s.%s',
+            getattr(cmd, 'cmd_name', '<none>'),
             cmd.__class__.__module__,
             cmd.__class__.__name__,
         )
