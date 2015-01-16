@@ -25,6 +25,7 @@ AUTH_TOKEN = "foobar"
 AUTH_URL = "http://0.0.0.0"
 USERNAME = "itchy"
 PASSWORD = "scratchy"
+PROJECT_NAME = "poochie"
 
 TEST_RESPONSE_DICT = fixture.V2Token(token_id=AUTH_TOKEN,
                                      user_name=USERNAME)
