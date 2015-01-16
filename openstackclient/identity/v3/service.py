@@ -15,7 +15,6 @@
 
 """Identity v3 Service action implementations"""
 
-import argparse
 import logging
 import six
 
@@ -111,26 +110,27 @@ class ListService(lister.Lister):
     log = logging.getLogger(__name__ + '.ListService')
 
     def get_parser(self, prog_name):
-        """The --long option is here for compatibility only."""
         parser = super(ListService, self).get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help=argparse.SUPPRESS,
+            help='List additional fields in output',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
 
-        columns = ('ID', 'Name', 'Type', 'Enabled')
+        if parsed_args.long:
+            columns = ('ID', 'Name', 'Type', 'Description', 'Enabled')
+        else:
+            columns = ('ID', 'Name', 'Type')
         data = self.app.client_manager.identity.services.list()
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                    formatters={},
-                ) for s in data))
+        return (
+            columns,
+            (utils.get_item_properties(s, columns) for s in data),
+        )
 
 
 class SetService(command.Command):

@@ -54,7 +54,9 @@ Delete service
     os service delete
         <service>
 
-:option:`<service>`
+.. _service_delete-type:
+.. describe:: <service>
+
     Service to delete (type, name or ID)
 
 service list
@@ -72,11 +74,8 @@ List services
 
     List additional fields in output
 
-    *Identity version 2 only*
-
-Returns service fields ID and Name, `--long` adds Type and Description
-to the output.  When Identity API version 3 is selected all columns are
-always displayed, `--long` is silently accepted for backward-compatibility.
+Returns service fields ID, Name and Type. :option:`--long` adds Description
+and Enabled (*Identity version 3 only*) to the output.
 
 service set
 -----------

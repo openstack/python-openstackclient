@@ -235,11 +235,12 @@ class TestServiceList(TestService):
 
         self.services_mock.list.assert_called_with()
 
-        collist = ('ID', 'Name')
+        collist = ('ID', 'Name', 'Type')
         self.assertEqual(columns, collist)
         datalist = ((
             identity_fakes.service_id,
             identity_fakes.service_name,
+            identity_fakes.service_type,
         ), )
         self.assertEqual(tuple(data), datalist)
 
