@@ -125,7 +125,8 @@ class ListService(lister.Lister):
             '--long',
             action='store_true',
             default=False,
-            help=_('List additional fields in output'))
+            help=_('List additional fields in output'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -134,13 +135,12 @@ class ListService(lister.Lister):
         if parsed_args.long:
             columns = ('ID', 'Name', 'Type', 'Description')
         else:
-            columns = ('ID', 'Name')
+            columns = ('ID', 'Name', 'Type')
         data = self.app.client_manager.identity.services.list()
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                    formatters={},
-                ) for s in data))
+        return (
+            columns,
+            (utils.get_item_properties(s, columns) for s in data),
+        )
 
 
 class ShowService(show.ShowOne):

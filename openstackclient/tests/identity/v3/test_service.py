@@ -247,12 +247,36 @@ class TestServiceList(TestService):
 
         self.services_mock.list.assert_called_with()
 
-        collist = ('ID', 'Name', 'Type', 'Enabled')
+        collist = ('ID', 'Name', 'Type')
         self.assertEqual(columns, collist)
         datalist = ((
             identity_fakes.service_id,
             identity_fakes.service_name,
             identity_fakes.service_type,
+        ), )
+        self.assertEqual(tuple(data), datalist)
+
+    def test_service_list_long(self):
+        arglist = [
+            '--long',
+        ]
+        verifylist = [
+            ('long', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.services_mock.list.assert_called_with()
+
+        collist = ('ID', 'Name', 'Type', 'Description', 'Enabled')
+        self.assertEqual(columns, collist)
+        datalist = ((
+            identity_fakes.service_id,
+            identity_fakes.service_name,
+            identity_fakes.service_type,
+            identity_fakes.service_description,
             True,
         ), )
         self.assertEqual(tuple(data), datalist)
