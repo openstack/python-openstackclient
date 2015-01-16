@@ -126,7 +126,8 @@ class TestClientManager(utils.TestCase):
         client_manager = clientmanager.ClientManager(
             auth_options=FakeOptions(os_auth_url=fakes.AUTH_URL,
                                      os_username=fakes.USERNAME,
-                                     os_password=fakes.PASSWORD),
+                                     os_password=fakes.PASSWORD,
+                                     os_project_name=fakes.PROJECT_NAME),
             api_version=API_VERSION,
             verify=False,
         )
@@ -183,6 +184,7 @@ class TestClientManager(utils.TestCase):
             auth_options=FakeOptions(os_auth_url=fakes.AUTH_URL,
                                      os_username=fakes.USERNAME,
                                      os_password=fakes.PASSWORD,
+                                     os_project_name=fakes.PROJECT_NAME,
                                      os_auth_type='v2password'),
             api_version=API_VERSION,
             verify='cafile',
@@ -218,7 +220,8 @@ class TestClientManager(utils.TestCase):
         # test password auth
         params = dict(os_auth_url=fakes.AUTH_URL,
                       os_username=fakes.USERNAME,
-                      os_password=fakes.PASSWORD)
+                      os_password=fakes.PASSWORD,
+                      os_project_name=fakes.PROJECT_NAME)
         self._select_auth_plugin(params, '2.0', 'v2password')
         self._select_auth_plugin(params, '3', 'v3password')
         self._select_auth_plugin(params, 'XXX', 'password')

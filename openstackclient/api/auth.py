@@ -24,6 +24,7 @@ from keystoneclient.auth import base
 
 from openstackclient.common import exceptions as exc
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 LOG = logging.getLogger(__name__)
@@ -122,6 +123,25 @@ def build_auth_params(auth_plugin_name, cmd_options):
     return (auth_plugin_class, auth_params)
 
 
+def check_valid_auth_options(options, auth_plugin_name):
+    """Perform basic option checking, provide helpful error messages"""
+
+    msg = ''
+    if auth_plugin_name.endswith('password'):
+        if not options.os_username:
+            msg += _('Set a username with --os-username or OS_USERNAME\n')
+        if not options.os_auth_url:
+            msg += _('Set an authentication URL, with --os-auth-url or'
+                     ' OS_AUTH_URL\n')
+        if (not options.os_project_id and not options.os_domain_id and not
+                options.os_domain_name and not options.os_project_name):
+            msg += _('Set a scope, such as a project or domain, with '
+                     '--os-project-name or OS_PROJECT_NAME')
+
+    if msg:
+        raise exc.CommandError('Missing parameter(s): \n%s' % msg)
+
+
 def build_auth_plugins_option_parser(parser):
     """Auth plugins options builder
 
@@ -140,7 +160,7 @@ def build_auth_plugins_option_parser(parser):
              ' (Env: OS_AUTH_TYPE)',
         choices=available_plugins
     )
-    # make sur we catch old v2.0 env values
+    # make sure we catch old v2.0 env values
     envs = {
         'OS_PROJECT_NAME': utils.env(
             'OS_PROJECT_NAME',

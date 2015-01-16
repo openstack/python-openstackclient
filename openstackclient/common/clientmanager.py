@@ -74,12 +74,15 @@ class ClientManager(object):
         :param pw_func:
             Callback function for asking the user for a password.  The function
             takes an optional string for the prompt ('Password: ' on None) and
-            returns a string containig the password
+            returns a string containing the password
         """
 
         # If no auth type is named by the user, select one based on
         # the supplied options
         self.auth_plugin_name = auth.select_auth_plugin(auth_options)
+
+        # Basic option checking to avoid unhelpful error messages
+        auth.check_valid_auth_options(auth_options, self.auth_plugin_name)
 
         # Horrible hack alert...must handle prompt for null password if
         # password auth is requested.
