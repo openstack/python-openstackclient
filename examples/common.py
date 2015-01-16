@@ -102,6 +102,12 @@ def base_parser(parser):
         default=env('OS_CACERT'),
         help='CA certificate bundle file (Env: OS_CACERT)',
     )
+    parser.add_argument(
+        '--os-default-domain',
+        metavar='<auth-domain>',
+        default='default',
+        help='Default domain ID, default=default (Env: OS_DEFAULT_DOMAIN)',
+    )
     verify_group = parser.add_mutually_exclusive_group()
     verify_group.add_argument(
         '--verify',

@@ -49,6 +49,7 @@ class FakeOptions(object):
         self.timing = None
         self.os_region_name = None
         self.os_url = None
+        self.os_default_domain = 'default'
         self.__dict__.update(kwargs)
 
 
