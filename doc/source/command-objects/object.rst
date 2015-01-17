@@ -16,11 +16,11 @@ Upload object to container
         <container>
         <filename> [<filename> ...]
 
-.. option:: <container>
+.. describe:: <container>
 
     Container for new object
 
-.. option:: <filename>
+.. describe:: <filename>
 
     Local filename(s) to upload
 
@@ -36,11 +36,11 @@ Delete object from container
         <container>
         <object> [<object> ...]
 
-.. option:: <container>
+.. describe:: <container>
 
     Delete object(s) from <container>
 
-.. option:: <object>
+.. describe:: <object>
 
     Object(s) to delete
 
@@ -86,11 +86,11 @@ List objects
 
     List additional fields in output
 
-.. options:: --all
+.. option:: --all
 
     List all objects in <container> (default is 10000)
 
-.. option:: <container>
+.. describe:: <container>
 
     Container to list
 
@@ -111,11 +111,11 @@ Save object locally
 
     Destination filename (defaults to object name)
 
-.. option:: <container>
+.. describe:: <container>
 
     Download <object> from <container>
 
-.. option:: <object>
+.. describe:: <object>
 
     Object to save
 
@@ -131,10 +131,10 @@ Display object details
         <container>
         <object>
 
-.. option:: <container>
+.. describe:: <container>
 
     Display <object> from <container>
 
-.. option:: <object>
+.. describe:: <object>
 
     Object to display

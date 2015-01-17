@@ -15,7 +15,7 @@ Create new container
     os container create
         <container-name> [<container-name> ...]
 
-.. option:: <container-name>
+.. describe:: <container-name>
 
     New container name(s)
 
@@ -30,7 +30,7 @@ Delete container
     os container delete
         <container> [<container> ...]
 
-.. option:: <container>
+.. describe:: <container>
 
     Container(s) to delete
 
@@ -70,7 +70,7 @@ List containers
 
     List additional fields in output
 
-.. options:: --all
+.. option:: --all
 
     List all containers (default is 10000)
 
@@ -85,7 +85,7 @@ Save container contents locally
     os container save
         <container>
 
-.. option:: <container>
+.. describe:: <container>
 
     Container to save
 
@@ -100,6 +100,6 @@ Display container details
     os container show
         [<container>]
 
-.. option:: <container>
+.. describe:: <container>
 
     Container to display
