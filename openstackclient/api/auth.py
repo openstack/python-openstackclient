@@ -16,11 +16,13 @@
 import argparse
 import logging
 
+from six.moves.urllib import parse as urlparse
 import stevedore
 
 from oslo.config import cfg
 
 from keystoneclient.auth import base
+from keystoneclient.auth.identity.generic import password as ksc_password
 
 from openstackclient.common import exceptions as exc
 from openstackclient.common import utils
@@ -73,7 +75,7 @@ def select_auth_plugin(options):
             auth_plugin_name = 'v2password'
         else:
             # let keystoneclient figure it out itself
-            auth_plugin_name = 'password'
+            auth_plugin_name = 'osc_password'
     elif options.os_token:
         if options.os_identity_api_version == '3':
             auth_plugin_name = 'v3token'
@@ -250,3 +252,45 @@ class TokenEndpoint(base.BaseAuthPlugin):
         ])
 
         return options
+
+
+class OSCGenericPassword(ksc_password.Password):
+    """Auth plugin hack to work around broken Keystone configurations
+
+    The default Keystone configuration uses http://localhost:xxxx in
+    admin_endpoint and public_endpoint and are returned in the links.href
+    attribute by the version routes.  Deployments that do not set these
+    are unusable with newer keystoneclient version discovery.
+
+    """
+
+    def create_plugin(self, session, version, url, raw_status=None):
+        """Handle default Keystone endpoint configuration
+
+        Build the actual API endpoint from the scheme, host and port of the
+        original auth URL and the rest from the returned version URL.
+        """
+
+        ver_u = urlparse.urlparse(url)
+
+        # Only hack this if it is the default setting
+        if ver_u.netloc.startswith('localhost'):
+            auth_u = urlparse.urlparse(self.auth_url)
+            # from original auth_url: scheme, netloc
+            # from api_url: path, query (basically, the rest)
+            url = urlparse.urlunparse((
+                auth_u.scheme,
+                auth_u.netloc,
+                ver_u.path,
+                ver_u.params,
+                ver_u.query,
+                ver_u.fragment,
+            ))
+            LOG.debug('Version URL updated: %s' % url)
+
+        return super(OSCGenericPassword, self).create_plugin(
+            session=session,
+            version=version,
+            url=url,
+            raw_status=raw_status,
+        )
