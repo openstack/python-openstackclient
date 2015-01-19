@@ -659,7 +659,8 @@ class ListServer(lister.Lister):
 
 
 class LockServer(command.Command):
-    """Lock server"""
+
+    """Lock a server. A non-admin user will not be able to execute actions"""
 
     log = logging.getLogger(__name__ + '.LockServer')
 
