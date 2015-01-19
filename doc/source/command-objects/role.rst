@@ -67,7 +67,7 @@ Delete role(s)
     os role delete
         <role> [<role> ...]
 
-.. option:: <role>
+.. describe:: <role>
 
     Role to delete (name or ID)
 

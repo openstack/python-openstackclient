@@ -9,6 +9,7 @@ server add security group
 
 Add security group to server
 
+.. program:: server add security group
 .. code:: bash
 
     os server add security group
@@ -28,6 +29,7 @@ server add volume
 
 Add volume to server
 
+.. program:: server add volume
 .. code:: bash
 
     os server add volume
@@ -52,6 +54,7 @@ server create
 
 Create a new server
 
+.. program:: server create
 .. code:: bash
 
     os server create
@@ -145,6 +148,7 @@ server delete
 
 Delete server(s)
 
+.. program:: server delete
 .. code:: bash
 
     os server delete
@@ -223,6 +227,7 @@ server lock
 
 Lock server
 
+.. program:: server lock
 .. code:: bash
 
     os server lock
@@ -237,6 +242,7 @@ server migrate
 
 Migrate server to different host
 
+.. program:: server migrate
 .. code:: bash
 
     os server migrate
@@ -279,6 +285,7 @@ server pause
 
 Pause server
 
+.. program:: server pause
 .. code:: bash
 
     os server pause
@@ -293,6 +300,7 @@ server reboot
 
 Perform a hard or soft server reboot
 
+.. program:: server reboot
 .. code:: bash
 
     os server reboot
@@ -321,6 +329,7 @@ server rebuild
 
 Rebuild server
 
+.. program:: server rebuild
 .. code:: bash
 
     os server rebuild
@@ -350,6 +359,7 @@ server remove security group
 
 Remove security group from server
 
+.. program:: server remove security group
 .. code:: bash
 
     os server remove security group
@@ -369,6 +379,7 @@ server remove volume
 
 Remove volume from server
 
+.. program:: server remove volume
 .. code:: bash
 
     os server remove volume
@@ -388,6 +399,7 @@ server rescue
 
 Put server in rescue mode
 
+.. program:: server rescure
 .. code:: bash
 
     os server rescue
@@ -402,6 +414,7 @@ server resize
 
 Scale server to a new flavor
 
+.. program:: server resize
 .. code:: bash
 
     os server resize
@@ -444,6 +457,7 @@ server resume
 
 Resume server
 
+.. program:: server resume
 .. code:: bash
 
     os server resume
@@ -458,6 +472,7 @@ server set
 
 Set server properties
 
+.. program:: server set
 .. code:: bash
 
     os server set
@@ -489,6 +504,7 @@ server show
 
 Show server details
 
+.. program:: server show
 .. code:: bash
 
     os server show
@@ -508,6 +524,7 @@ server ssh
 
 Ssh to server
 
+.. program:: server ssh
 .. code:: bash
 
     os server ssh
@@ -555,6 +572,7 @@ server suspend
 
 Suspend server
 
+.. program:: server suspend
 .. code:: bash
 
     os server suspend
@@ -569,6 +587,7 @@ server unlock
 
 Unlock server
 
+.. program:: server unlock
 .. code:: bash
 
     os server unlock
@@ -583,6 +602,7 @@ server unpause
 
 Unpause server
 
+.. program:: server unpause
 .. code:: bash
 
     os server unpause
@@ -597,6 +617,7 @@ server unrescue
 
 Restore server from rescue mode
 
+.. program:: server unrescue
 .. code:: bash
 
     os server unrescue
@@ -611,6 +632,7 @@ server unset
 
 Unset server properties
 
+.. program:: server unset
 .. code:: bash
 
     os server unset

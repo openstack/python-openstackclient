@@ -12,7 +12,7 @@ aggregate add host
 
 Add host to aggregate
 
-.. program aggregate add host
+.. program:: aggregate add host
 .. code:: bash
 
     os aggregate add host
@@ -33,7 +33,7 @@ aggregate create
 
 Create a new aggregate
 
-.. program aggregate create
+.. program:: aggregate create
 .. code:: bash
 
     os aggregate create
@@ -58,7 +58,7 @@ aggregate delete
 
 Delete an existing aggregate
 
-.. program aggregate delete
+.. program:: aggregate delete
 .. code:: bash
 
     os aggregate delete
@@ -73,7 +73,7 @@ aggregate list
 
 List all aggregates
 
-.. program aggregate list
+.. program:: aggregate list
 .. code:: bash
 
     os aggregate list
@@ -88,7 +88,7 @@ aggregate remove host
 
 Remove host from aggregate
 
-.. program aggregate remove host
+.. program:: aggregate remove host
 .. code:: bash
 
     os aggregate remove host
@@ -100,7 +100,7 @@ Remove host from aggregate
 
     Aggregate (name or ID)
 
-.. option:: <host>
+.. describe:: <host>
 
     Host to remove from :ref:`\<aggregate\> <aggregate_remove_host-aggregate>`
 
@@ -109,7 +109,7 @@ aggregate set
 
 Set aggregate properties
 
-.. program aggregate set
+.. program:: aggregate set
 .. code:: bash
 
     os aggregate set
@@ -141,7 +141,7 @@ aggregate show
 
 Display aggregate details
 
-.. program aggregate show
+.. program:: aggregate show
 .. code:: bash
 
     os aggregate show

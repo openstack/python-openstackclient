@@ -53,7 +53,7 @@ focusing on common uses of the system rather than adding complexity to support
 functionality that is rarely used.
 
 Consistency
-===========
+-----------
 
 Consistency between OpenStack experiences will ensure that the command line
 interface feels like a single experience instead of a jumble of disparate
@@ -72,7 +72,7 @@ Example Review Criteria
 * Does the design use command elements (options and arguments) as defined?
   (See Core Elements.)
 * Can any newly proposed command elements (actions or subjects) be accomplished
-  with existing elemetns?
+  with existing elements?
 
 * Does the design adhere to the structural model of the core experience?
   (See Core Architecture.)
@@ -89,7 +89,7 @@ nonessential data, overabundance of possible actions, etc. Designs should
 focus on the intent of the command, requiring only the necessary components
 and either removing superfluous elements or making
 them accessible through optional arguments. An example of this principle occurs
-in OpenStack’s use of tables: only the most often used columns are shown by
+in OpenStack's use of tables: only the most often used columns are shown by
 default. Further data may be accessed through the output control options,
 allowing users to specify the types of data that they find useful in their
 day-to-day work.
@@ -107,7 +107,7 @@ User-Centered Design
 --------------------
 
 Commands should be design based on how a user will interact with the system
-and not how the system’s backend is organized. While database structures and
+and not how the system's backend is organized. While database structures and
 APIs may define what is possible, they often do not define good user
 experience; consider user goals and the way in which users will want to
 interact with their data, then design for these work flows and mold the
