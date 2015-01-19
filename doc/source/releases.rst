@@ -2,6 +2,74 @@
 Release Notes
 =============
 
+1.0.2 (19 Jan 2015)
+===================
+
+* The OpenStackClient content from the OpenStack Wiki has been migrated into
+  the OSC source repo.  This includes the :doc:`commands`, :doc:`command-list`
+  and :doc:`humaninterfaceguide` documents.
+
+* Set a default domain ID when both ``OS_USER_DOMAIN_ID`` and
+  ``OS_USER_DOMAIN_NAME`` are not set.  This is also done for
+  ``OS_PROJECT_DOMAIN_ID`` and ``OS_PROJECT_DOMAIN_NAME`.
+  (*Identity API v3 only*).
+  Bug 1385338_: Improve domain related defaults when using v3 identity
+
+* Add new ``usage show`` command to display project resource usage information.
+  Bug 1400796_: Quick usage report - nova usage
+
+* Add ``--project`` option to ``user list`` command to filter users by project
+  (*Identity API v3 only*).
+  Bug 1397251_: allow `openstack user list` to use other filters
+
+* Add ``--user`` to ``project list`` command to filter projects by user
+  (*Identity API v3 only*).
+  Bug 1394793_: support the keystone api /v3/users/$userid/projects
+
+* Add ``--project`` and ``--user`` options to ``role list`` to filter roles
+  by project and/or user.  This makes the v2 command very similar to the
+  v3 command.
+  (*Identity API v2 only*).
+  Bug 1409179_: `user role list` command should be worked into `role list`
+
+* Bug 1390507_: Quota show requires cinder in keystone catalog
+* Bug 1400531_: Authentication failure results in useless error message
+* Bug 1400597_: delete multiple objects
+* Bug 1400795_: No list availability zones option
+* Bug 1404073_: type should be required for v2.0 service create
+* Bug 1404434_: add missing docs for service command
+* Bug 1404931_: volume list does not show attached servers
+* Bug 1404997_: Allow description to be set for service create/update
+* Bug 1405416_: Compute region selection broken
+* Bug 1406654_: Remove deprecated commands from help
+* Bug 1406737_: v3 endpoint related commands access service.name without check
+* Bug 1408585_: Backup list doesn't show backup's name
+* Bug 1410364_: Version discovery fails with default Keystone config
+* Bug 1411179_: network client don't use session
+* Bug 1411337_: identity v3 service list should have "description" column
+
+.. _1385338: https://bugs.launchpad.net/bugs/1385338
+.. _1406654: https://bugs.launchpad.net/bugs/1406654
+.. _1411337: https://bugs.launchpad.net/bugs/1411337
+.. _1400531: https://bugs.launchpad.net/bugs/1400531
+.. _1406737: https://bugs.launchpad.net/bugs/1406737
+.. _1409179: https://bugs.launchpad.net/bugs/1409179
+.. _1408585: https://bugs.launchpad.net/bugs/1408585
+.. _1405416: https://bugs.launchpad.net/bugs/1405416
+.. _1404931: https://bugs.launchpad.net/bugs/1404931
+.. _1404434: https://bugs.launchpad.net/bugs/1404434
+.. _1404073: https://bugs.launchpad.net/bugs/1404073
+.. _1400796: https://bugs.launchpad.net/bugs/1400796
+.. _1400795: https://bugs.launchpad.net/bugs/1400795
+.. _1400597: https://bugs.launchpad.net/bugs/1400597
+.. _1397251: https://bugs.launchpad.net/bugs/1397251
+.. _1394793: https://bugs.launchpad.net/bugs/1394793
+.. _1390507: https://bugs.launchpad.net/bugs/1390507
+.. _1410364: https://bugs.launchpad.net/bugs/1410364
+.. _1404997: https://bugs.launchpad.net/bugs/1404997
+.. _1411179: https://bugs.launchpad.net/bugs/1411179
+
+
 1.0.1 (08 Dec 2014)
 ===================
 
