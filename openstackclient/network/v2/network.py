@@ -32,37 +32,45 @@ def filters(data):
 
 
 class CreateNetwork(show.ShowOne):
-    """Create a network"""
+    """Create new network"""
 
     log = logging.getLogger(__name__ + '.CreateNetwork')
 
     def get_parser(self, prog_name):
         parser = super(CreateNetwork, self).get_parser(prog_name)
         parser.add_argument(
-            'name', metavar='<network_name>',
-            help='Name of network to create')
+            'name',
+            metavar='<name>',
+            help='New network name',
+        )
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
             dest='admin_state',
-            default=True,
             action='store_true',
-            help='Set administrative state up')
+            default=True,
+            help='Enable network (default)',
+        )
         admin_group.add_argument(
             '--disable',
             dest='admin_state',
             action='store_false',
-            help='Set administrative state down')
+            help='Disable network',
+        )
         share_group = parser.add_mutually_exclusive_group()
         share_group.add_argument(
             '--share',
-            dest='shared', action='store_true',
+            dest='shared',
+            action='store_true',
             default=None,
-            help='Share the network across tenants')
+            help='Share the network between projects',
+        )
         share_group.add_argument(
             '--no-share',
-            dest='shared', action='store_false',
-            help='Do not share the network across tenants')
+            dest='shared',
+            action='store_false',
+            help='Do not share the network between projects',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -96,7 +104,7 @@ class DeleteNetwork(command.Command):
             'networks',
             metavar="<network>",
             nargs="+",
-            help=("Network(s) to delete (name or ID)")
+            help=("Network to delete (name or ID)")
         )
         return parser
 
@@ -171,34 +179,41 @@ class SetNetwork(command.Command):
         parser.add_argument(
             'identifier',
             metavar="<network>",
-            help=("Name or identifier of network to set")
+            help=("Network to modify (name or ID)")
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help='Set network name',
         )
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
             dest='admin_state',
-            default=None,
             action='store_true',
-            help='Set administrative state up')
+            default=None,
+            help='Enable network',
+        )
         admin_group.add_argument(
             '--disable',
             dest='admin_state',
             action='store_false',
-            help='Set administrative state down')
-        parser.add_argument(
-            '--name',
-            metavar='<network_name>',
-            help='New name for the network')
+            help='Disable network',
+        )
         share_group = parser.add_mutually_exclusive_group()
         share_group.add_argument(
             '--share',
-            dest='shared', action='store_true',
+            dest='shared',
+            action='store_true',
             default=None,
-            help='Share the network across tenants')
+            help='Share the network between projects',
+        )
         share_group.add_argument(
             '--no-share',
-            dest='shared', action='store_false',
-            help='Do not share the network across tenants')
+            dest='shared',
+            action='store_false',
+            help='Do not share the network between projects',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -231,7 +246,7 @@ class ShowNetwork(show.ShowOne):
         parser.add_argument(
             'identifier',
             metavar="<network>",
-            help=("Name or identifier of network to show")
+            help=("Network to display (name or ID)")
         )
         return parser
 
