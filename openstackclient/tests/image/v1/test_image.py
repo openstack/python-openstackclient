@@ -407,8 +407,18 @@ class TestImageList(TestImage):
             detailed=True,
         )
 
-        collist = ('ID', 'Name', 'Disk Format', 'Container Format',
-                   'Size', 'Status')
+        collist = (
+            'ID',
+            'Name',
+            'Disk Format',
+            'Container Format',
+            'Size',
+            'Status',
+            'Visibility',
+            'Protected',
+            'Owner',
+            'Properties',
+        )
 
         self.assertEqual(collist, columns)
         datalist = ((
@@ -418,6 +428,45 @@ class TestImageList(TestImage):
             '',
             '',
             '',
+            'public',
+            False,
+            image_fakes.image_owner,
+            "Alpha='a', Beta='b', Gamma='g'",
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+    @mock.patch('openstackclient.api.utils.simple_filter')
+    def test_image_list_property_option(self, sf_mock):
+        sf_mock.return_value = [
+            copy.deepcopy(image_fakes.IMAGE),
+        ]
+
+        arglist = [
+            '--property', 'a=1',
+        ]
+        verifylist = [
+            ('property', {'a': '1'}),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+        self.api_mock.image_list.assert_called_with(
+            detailed=True,
+        )
+        sf_mock.assert_called_with(
+            [image_fakes.IMAGE],
+            attr='a',
+            value='1',
+            property_field='properties',
+        )
+
+        collist = ('ID', 'Name')
+
+        self.assertEqual(columns, collist)
+        datalist = ((
+            image_fakes.image_id,
+            image_fakes.image_name,
         ), )
         self.assertEqual(datalist, tuple(data))
 

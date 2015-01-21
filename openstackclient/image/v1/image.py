@@ -15,6 +15,7 @@
 
 """Image V1 Action Implementations"""
 
+import argparse
 import io
 import logging
 import os
@@ -31,6 +32,7 @@ from cliff import lister
 from cliff import show
 
 from glanceclient.common import utils as gc_utils
+from openstackclient.api import utils as api_utils
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
@@ -38,6 +40,21 @@ from openstackclient.common import utils
 
 DEFAULT_CONTAINER_FORMAT = 'bare'
 DEFAULT_DISK_FORMAT = 'raw'
+
+
+def _format_visibility(data):
+    """Return a formatted visibility string
+
+    :param data:
+        The server's visibility (is_public) status value: True, False
+    :rtype:
+        A string formatted to public/private
+    """
+
+    if data:
+        return 'public'
+    else:
+        return 'private'
 
 
 class CreateImage(show.ShowOne):
@@ -295,11 +312,6 @@ class ListImage(lister.Lister):
 
     def get_parser(self, prog_name):
         parser = super(ListImage, self).get_parser(prog_name)
-        parser.add_argument(
-            "--page-size",
-            metavar="<size>",
-            help="Number of images to request in each paginated request",
-        )
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
             "--public",
@@ -315,11 +327,33 @@ class ListImage(lister.Lister):
             default=False,
             help="List only private images",
         )
+        # Included for silent CLI compatibility with v2
+        public_group.add_argument(
+            "--shared",
+            dest="shared",
+            action="store_true",
+            default=False,
+            help=argparse.SUPPRESS,
+        )
+        parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            help='Filter output based on property',
+        )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
             help='List additional fields in output',
+        )
+
+        # --page-size has never worked, leave here for silent compatability
+        # We'll implement limit/marker differently later
+        parser.add_argument(
+            "--page-size",
+            metavar="<size>",
+            help=argparse.SUPPRESS,
         )
         return parser
 
@@ -329,23 +363,63 @@ class ListImage(lister.Lister):
         image_client = self.app.client_manager.image
 
         kwargs = {}
-        if parsed_args.page_size is not None:
-            kwargs["page_size"] = parsed_args.page_size
         if parsed_args.public:
             kwargs['public'] = True
         if parsed_args.private:
             kwargs['private'] = True
-        kwargs['detailed'] = parsed_args.long
+        kwargs['detailed'] = bool(parsed_args.property or parsed_args.long)
 
         if parsed_args.long:
-            columns = ('ID', 'Name', 'Disk Format', 'Container Format',
-                       'Size', 'Status')
+            columns = (
+                'ID',
+                'Name',
+                'Disk Format',
+                'Container Format',
+                'Size',
+                'Status',
+                'is_public',
+                'protected',
+                'owner',
+                'properties',
+            )
+            column_headers = (
+                'ID',
+                'Name',
+                'Disk Format',
+                'Container Format',
+                'Size',
+                'Status',
+                'Visibility',
+                'Protected',
+                'Owner',
+                'Properties',
+            )
         else:
             columns = ("ID", "Name")
+            column_headers = columns
 
         data = image_client.api.image_list(**kwargs)
 
-        return (columns, (utils.get_dict_properties(s, columns) for s in data))
+        if parsed_args.property:
+            # NOTE(dtroyer): coerce to a list to subscript it in py3
+            attr, value = list(parsed_args.property.items())[0]
+            api_utils.simple_filter(
+                data,
+                attr=attr,
+                value=value,
+                property_field='properties',
+            )
+        return (
+            column_headers,
+            (utils.get_dict_properties(
+                s,
+                columns,
+                formatters={
+                    'is_public': _format_visibility,
+                    'properties': utils.format_dict,
+                },
+            ) for s in data)
+        )
 
 
 class SaveImage(command.Command):

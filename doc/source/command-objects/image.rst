@@ -138,13 +138,9 @@ List available images
 .. code:: bash
 
     os image list
-        [--page-size <size>]
-        [--public|--private]
+        [--public | --private | --shared]
+        [--property <key=value>]
         [--long]
-
-.. option:: --page-size <size>
-
-    Number of images to request in each paginated request
 
 .. option:: --public
 
@@ -153,6 +149,16 @@ List available images
 .. option:: --private
 
     List only private images
+
+.. option:: --shared
+
+    List only shared images
+
+    *Image version 2 only.*
+
+.. option:: --property <key=value>
+
+    Filter output based on property
 
 .. option:: --long
 

@@ -49,8 +49,6 @@ class APIv1(api.BaseAPI):
         http://docs.openstack.org/api/openstack-image-service/1.1/content/requesting-a-list-of-public-vm-images.html
         http://docs.openstack.org/api/openstack-image-service/1.1/content/requesting-detailed-metadata-on-public-vm-images.html
         http://docs.openstack.org/api/openstack-image-service/1.1/content/filtering-images-returned-via-get-images-and-get-imagesdetail.html
-
-        TODO(dtroyer): Implement filtering
         """
 
         url = "/images"
