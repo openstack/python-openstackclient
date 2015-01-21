@@ -54,6 +54,7 @@ def make_client(instance):
         session=instance.session,
         extensions=extensions,
         http_log_debug=http_log_debug,
+        region_name=instance._region_name,
     )
 
     return client
