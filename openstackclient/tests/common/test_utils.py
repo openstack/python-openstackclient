@@ -58,6 +58,68 @@ class TestUtils(test_utils.TestCase):
                               utils.get_password,
                               mock_stdin)
 
+    def get_test_items(self):
+        item1 = {'a': 1, 'b': 2}
+        item2 = {'a': 1, 'b': 3}
+        item3 = {'a': 2, 'b': 2}
+        item4 = {'a': 2, 'b': 1}
+        return [item1, item2, item3, item4]
+
+    def test_sort_items_with_one_key(self):
+        items = self.get_test_items()
+        sort_str = 'b'
+        expect_items = [items[3], items[0], items[2], items[1]]
+        self.assertEqual(expect_items, utils.sort_items(items, sort_str))
+
+    def test_sort_items_with_multiple_keys(self):
+        items = self.get_test_items()
+        sort_str = 'a,b'
+        expect_items = [items[0], items[1], items[3], items[2]]
+        self.assertEqual(expect_items, utils.sort_items(items, sort_str))
+
+    def test_sort_items_all_with_direction(self):
+        items = self.get_test_items()
+        sort_str = 'a:desc,b:desc'
+        expect_items = [items[2], items[3], items[1], items[0]]
+        self.assertEqual(expect_items, utils.sort_items(items, sort_str))
+
+    def test_sort_items_some_with_direction(self):
+        items = self.get_test_items()
+        sort_str = 'a,b:desc'
+        expect_items = [items[1], items[0], items[2], items[3]]
+        self.assertEqual(expect_items, utils.sort_items(items, sort_str))
+
+    def test_sort_items_with_object(self):
+        item1 = mock.Mock(a=1, b=2)
+        item2 = mock.Mock(a=1, b=3)
+        item3 = mock.Mock(a=2, b=2)
+        item4 = mock.Mock(a=2, b=1)
+        items = [item1, item2, item3, item4]
+        sort_str = 'b,a'
+        expect_items = [item4, item1, item3, item2]
+        self.assertEqual(expect_items, utils.sort_items(items, sort_str))
+
+    def test_sort_items_with_empty_key(self):
+        items = self.get_test_items()
+        sort_srt = ''
+        self.assertEqual(items, utils.sort_items(items, sort_srt))
+        sort_srt = None
+        self.assertEqual(items, utils.sort_items(items, sort_srt))
+
+    def test_sort_items_with_invalid_key(self):
+        items = self.get_test_items()
+        sort_str = 'c'
+        self.assertRaises(exceptions.CommandError,
+                          utils.sort_items,
+                          items, sort_str)
+
+    def test_sort_items_with_invalid_direction(self):
+        items = self.get_test_items()
+        sort_str = 'a:bad_dir'
+        self.assertRaises(exceptions.CommandError,
+                          utils.sort_items,
+                          items, sort_str)
+
 
 class NoUniqueMatch(Exception):
     pass

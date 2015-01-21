@@ -141,6 +141,7 @@ List available images
         [--public | --private | --shared]
         [--property <key=value>]
         [--long]
+        [--sort <key>[:<direction>]]
 
 .. option:: --public
 
@@ -163,6 +164,11 @@ List available images
 .. option:: --long
 
     List additional fields in output
+
+.. option:: --sort <key>[:<direction>]
+
+    Sort output by selected keys and directions(asc or desc) (default: asc),
+    multiple keys and directions can be specified separated by comma
 
 image save
 ----------
