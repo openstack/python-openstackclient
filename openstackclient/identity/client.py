@@ -49,6 +49,7 @@ def make_client(instance):
     LOG.debug('Using auth plugin: %s' % instance._auth_plugin)
     client = identity_client(
         session=instance.session,
+        region_name=instance._region_name,
     )
 
     return client
