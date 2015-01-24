@@ -44,7 +44,7 @@ Delete object from container
 
     Object(s) to delete
 
-list object
+object list
 -----------
 
 List objects
