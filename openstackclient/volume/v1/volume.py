@@ -328,6 +328,12 @@ class SetVolume(command.Command):
             help='New volume description',
         )
         parser.add_argument(
+            '--size',
+            metavar='<size>',
+            type=int,
+            help='Extend volume size in GB',
+        )
+        parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
@@ -341,6 +347,13 @@ class SetVolume(command.Command):
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 
+        if parsed_args.size:
+            if parsed_args.size <= volume.size:
+                self.app.log.error("New size must be greater than %s GB" %
+                                   volume.size)
+                return
+            volume_client.volumes.extend(volume.id, parsed_args.size)
+
         if parsed_args.property:
             volume_client.volumes.set_metadata(volume.id, parsed_args.property)
 
@@ -352,7 +365,7 @@ class SetVolume(command.Command):
         if kwargs:
             volume_client.volumes.update(volume.id, **kwargs)
 
-        if not kwargs and not parsed_args.property:
+        if not kwargs and not parsed_args.property and not parsed_args.size:
             self.app.log.error("No changes requested\n")
 
         return
