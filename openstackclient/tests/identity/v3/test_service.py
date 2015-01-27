@@ -70,7 +70,7 @@ class TestServiceCreate(TestService):
         )
 
         collist = ('description', 'enabled', 'id', 'name', 'type')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.service_description,
             True,
@@ -78,7 +78,7 @@ class TestServiceCreate(TestService):
             identity_fakes.service_name,
             identity_fakes.service_type,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_service_create_description(self):
         arglist = [
@@ -106,7 +106,7 @@ class TestServiceCreate(TestService):
         )
 
         collist = ('description', 'enabled', 'id', 'name', 'type')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.service_description,
             True,
@@ -114,7 +114,7 @@ class TestServiceCreate(TestService):
             identity_fakes.service_name,
             identity_fakes.service_type,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_service_create_enable(self):
         arglist = [
@@ -142,7 +142,7 @@ class TestServiceCreate(TestService):
         )
 
         collist = ('description', 'enabled', 'id', 'name', 'type')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.service_description,
             True,
@@ -150,7 +150,7 @@ class TestServiceCreate(TestService):
             identity_fakes.service_name,
             identity_fakes.service_type,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_service_create_disable(self):
         arglist = [
@@ -178,7 +178,7 @@ class TestServiceCreate(TestService):
         )
 
         collist = ('description', 'enabled', 'id', 'name', 'type')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.service_description,
             True,
@@ -186,7 +186,7 @@ class TestServiceCreate(TestService):
             identity_fakes.service_name,
             identity_fakes.service_type,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
 
 class TestServiceDelete(TestService):
@@ -214,7 +214,7 @@ class TestServiceDelete(TestService):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         self.services_mock.delete.assert_called_with(
             identity_fakes.service_id,
@@ -248,13 +248,13 @@ class TestServiceList(TestService):
         self.services_mock.list.assert_called_with()
 
         collist = ('ID', 'Name', 'Type')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.service_id,
             identity_fakes.service_name,
             identity_fakes.service_type,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_service_list_long(self):
         arglist = [
@@ -271,7 +271,7 @@ class TestServiceList(TestService):
         self.services_mock.list.assert_called_with()
 
         collist = ('ID', 'Name', 'Type', 'Description', 'Enabled')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.service_id,
             identity_fakes.service_name,
@@ -279,7 +279,7 @@ class TestServiceList(TestService):
             identity_fakes.service_description,
             True,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
 
 class TestServiceSet(TestService):
@@ -316,7 +316,7 @@ class TestServiceSet(TestService):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
     def test_service_set_type(self):
         arglist = [
@@ -334,7 +334,7 @@ class TestServiceSet(TestService):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -362,7 +362,7 @@ class TestServiceSet(TestService):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -390,7 +390,7 @@ class TestServiceSet(TestService):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -418,7 +418,7 @@ class TestServiceSet(TestService):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -446,7 +446,7 @@ class TestServiceSet(TestService):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -491,7 +491,7 @@ class TestServiceShow(TestService):
         )
 
         collist = ('description', 'enabled', 'id', 'name', 'type')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.service_description,
             True,
@@ -499,4 +499,4 @@ class TestServiceShow(TestService):
             identity_fakes.service_name,
             identity_fakes.service_type,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)

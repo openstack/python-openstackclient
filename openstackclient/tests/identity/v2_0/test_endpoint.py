@@ -84,7 +84,7 @@ class TestEndpointCreate(TestEndpoint):
 
         collist = ('adminurl', 'id', 'internalurl', 'publicurl',
                    'region', 'service_id', 'service_name', 'service_type')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.endpoint_adminurl,
             identity_fakes.endpoint_id,
@@ -96,7 +96,7 @@ class TestEndpointCreate(TestEndpoint):
             identity_fakes.service_type,
         )
 
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
 
 class TestEndpointDelete(TestEndpoint):
@@ -171,14 +171,14 @@ class TestEndpointList(TestEndpoint):
         self.endpoints_mock.list.assert_called_with()
 
         collist = ('ID', 'Region', 'Service Name', 'Service Type')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.endpoint_id,
             identity_fakes.endpoint_region,
             identity_fakes.service_name,
             identity_fakes.service_type,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_endpoint_list_long(self):
         arglist = [
@@ -196,7 +196,7 @@ class TestEndpointList(TestEndpoint):
 
         collist = ('ID', 'Region', 'Service Name', 'Service Type',
                    'PublicURL', 'AdminURL', 'InternalURL')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.endpoint_id,
             identity_fakes.endpoint_region,
@@ -206,7 +206,7 @@ class TestEndpointList(TestEndpoint):
             identity_fakes.endpoint_adminurl,
             identity_fakes.endpoint_internalurl,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
 
 class TestEndpointShow(TestEndpoint):
@@ -252,7 +252,7 @@ class TestEndpointShow(TestEndpoint):
 
         collist = ('adminurl', 'id', 'internalurl', 'publicurl',
                    'region', 'service_id', 'service_name', 'service_type')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.endpoint_adminurl,
             identity_fakes.endpoint_id,
@@ -263,4 +263,4 @@ class TestEndpointShow(TestEndpoint):
             identity_fakes.service_name,
             identity_fakes.service_type,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)

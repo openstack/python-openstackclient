@@ -88,7 +88,7 @@ class TestGroupList(TestGroup):
         )
 
         collist = ('ID', 'Name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.group_id,
             identity_fakes.group_name,
@@ -118,7 +118,7 @@ class TestGroupList(TestGroup):
         )
 
         collist = ('ID', 'Name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.group_id,
             identity_fakes.group_name,
@@ -148,7 +148,7 @@ class TestGroupList(TestGroup):
         )
 
         collist = ('ID', 'Name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.group_id,
             identity_fakes.group_name,
@@ -183,7 +183,7 @@ class TestGroupList(TestGroup):
             'Domain ID',
             'Description',
         )
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.group_id,
             identity_fakes.group_name,

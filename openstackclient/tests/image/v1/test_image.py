@@ -331,7 +331,7 @@ class TestImageList(TestImage):
 
         collist = ('ID', 'Name')
 
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,
@@ -358,7 +358,7 @@ class TestImageList(TestImage):
 
         collist = ('ID', 'Name')
 
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,
@@ -385,7 +385,7 @@ class TestImageList(TestImage):
 
         collist = ('ID', 'Name')
 
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,
@@ -410,7 +410,7 @@ class TestImageList(TestImage):
         collist = ('ID', 'Name', 'Disk Format', 'Container Format',
                    'Size', 'Status')
 
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,

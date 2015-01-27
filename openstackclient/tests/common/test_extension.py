@@ -75,7 +75,7 @@ class TestExtensionList(TestExtension):
         self.identity_extensions_mock.list.assert_called_with()
 
         collist = ('Name', 'Alias', 'Description')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (
                 identity_fakes.extension_name,
@@ -88,7 +88,7 @@ class TestExtensionList(TestExtension):
                 network_fakes.extension_description,
             ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_extension_list_long(self):
         arglist = [
@@ -107,7 +107,7 @@ class TestExtensionList(TestExtension):
 
         collist = ('Name', 'Namespace', 'Description', 'Alias', 'Updated',
                    'Links')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (
                 identity_fakes.extension_name,
@@ -126,7 +126,7 @@ class TestExtensionList(TestExtension):
                 network_fakes.extension_links,
             ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_extension_list_identity(self):
         arglist = [
@@ -143,13 +143,13 @@ class TestExtensionList(TestExtension):
         self.identity_extensions_mock.list.assert_called_with()
 
         collist = ('Name', 'Alias', 'Description')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.extension_name,
             identity_fakes.extension_alias,
             identity_fakes.extension_description,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_extension_list_network(self):
         arglist = [
@@ -165,7 +165,7 @@ class TestExtensionList(TestExtension):
         self.network_extensions_mock.assert_called_with()
 
         collist = ('Name', 'Alias', 'Description')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (
                 network_fakes.extension_name,
@@ -173,4 +173,4 @@ class TestExtensionList(TestExtension):
                 network_fakes.extension_description,
             ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))

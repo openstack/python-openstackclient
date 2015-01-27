@@ -72,14 +72,14 @@ class TestRequestTokenCreate(TestOAuth1):
         )
 
         collist = ('expires', 'id', 'key', 'secret')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.request_token_expires,
             identity_fakes.request_token_id,
             identity_fakes.request_token_id,
             identity_fakes.request_token_secret,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
 
 class TestRequestTokenAuthorize(TestOAuth1):
@@ -116,11 +116,11 @@ class TestRequestTokenAuthorize(TestOAuth1):
         )
 
         collist = ('oauth_verifier',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.oauth_verifier_pin,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
 
 class TestAccessTokenCreate(TestOAuth1):
@@ -163,11 +163,11 @@ class TestAccessTokenCreate(TestOAuth1):
         )
 
         collist = ('expires', 'id', 'key', 'secret')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.access_token_expires,
             identity_fakes.access_token_id,
             identity_fakes.access_token_id,
             identity_fakes.access_token_secret,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)

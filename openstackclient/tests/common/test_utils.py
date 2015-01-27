@@ -31,7 +31,7 @@ class TestUtils(test_utils.TestCase):
             mock_stdin = mock.Mock()
             mock_stdin.isatty = mock.Mock()
             mock_stdin.isatty.return_value = True
-            self.assertEqual(utils.get_password(mock_stdin), PASSWORD)
+            self.assertEqual(PASSWORD, utils.get_password(mock_stdin))
 
     def test_get_password_bad_once(self):
         answers = [PASSWORD, WASSPORD, DROWSSAP, DROWSSAP]
@@ -39,7 +39,7 @@ class TestUtils(test_utils.TestCase):
             mock_stdin = mock.Mock()
             mock_stdin.isatty = mock.Mock()
             mock_stdin.isatty.return_value = True
-            self.assertEqual(utils.get_password(mock_stdin), DROWSSAP)
+            self.assertEqual(DROWSSAP, utils.get_password(mock_stdin))
 
     def test_get_password_no_tty(self):
         mock_stdin = mock.Mock()

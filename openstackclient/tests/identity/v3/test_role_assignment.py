@@ -89,7 +89,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             project=None)
 
         collist = ('Role', 'User', 'Group', 'Project', 'Domain')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.user_id,
@@ -102,7 +102,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             identity_fakes.project_id,
             ''
             ),)
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_user(self):
 
@@ -146,7 +146,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             effective=False)
 
         collist = ('Role', 'User', 'Group', 'Project', 'Domain')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.user_id,
@@ -159,7 +159,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             identity_fakes.project_id,
             ''
             ),)
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_group(self):
 
@@ -203,7 +203,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             user=None)
 
         collist = ('Role', 'User', 'Group', 'Project', 'Domain')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.role_id,
             '',
@@ -216,7 +216,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             identity_fakes.project_id,
             ''
             ),)
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_domain(self):
 
@@ -260,7 +260,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             user=None)
 
         collist = ('Role', 'User', 'Group', 'Project', 'Domain')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.user_id,
@@ -273,7 +273,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             '',
             identity_fakes.domain_id
             ),)
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_project(self):
 
@@ -317,7 +317,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             user=None)
 
         collist = ('Role', 'User', 'Group', 'Project', 'Domain')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.user_id,
@@ -330,7 +330,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             identity_fakes.project_id,
             ''
             ),)
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_effective(self):
 
@@ -372,7 +372,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             user=None)
 
         collist = ('Role', 'User', 'Group', 'Project', 'Domain')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.user_id,
@@ -385,4 +385,4 @@ class TestRoleAssignmentList(TestRoleAssignment):
             '',
             identity_fakes.domain_id,
             ),)
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))

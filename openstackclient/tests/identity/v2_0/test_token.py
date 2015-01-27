@@ -49,14 +49,14 @@ class TestTokenIssue(TestToken):
         self.sc_mock.get_token.assert_called_with()
 
         collist = ('expires', 'id', 'project_id', 'user_id')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.token_expires,
             identity_fakes.token_id,
             identity_fakes.project_id,
             identity_fakes.user_id,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
 
 class TestTokenRevoke(TestToken):

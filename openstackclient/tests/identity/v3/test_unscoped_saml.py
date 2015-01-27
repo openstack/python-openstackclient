@@ -58,14 +58,14 @@ class TestProjectList(TestUnscopedSAML):
         self.projects_mock.list.assert_called_with()
 
         collist = ('ID', 'Domain ID', 'Enabled', 'Name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.project_id,
             identity_fakes.domain_id,
             True,
             identity_fakes.project_name,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_accessible_projects_list_wrong_auth(self):
         auth = identity_fakes.FakeAuth("wrong auth")
@@ -107,14 +107,14 @@ class TestDomainList(TestUnscopedSAML):
         self.domains_mock.list.assert_called_with()
 
         collist = ('ID', 'Enabled', 'Name', 'Description')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.domain_id,
             True,
             identity_fakes.domain_name,
             identity_fakes.domain_description,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_accessible_domains_list_wrong_auth(self):
         auth = identity_fakes.FakeAuth("wrong auth")
