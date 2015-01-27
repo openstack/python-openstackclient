@@ -586,7 +586,7 @@ class TestUserSet(TestUser):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
     def test_user_set_name(self):
         arglist = [

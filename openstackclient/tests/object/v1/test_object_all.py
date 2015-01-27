@@ -105,11 +105,11 @@ class TestObjectList(TestObjectAll):
         columns, data = self.cmd.take_action(parsed_args)
 
         collist = ('Name',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             (object_fakes.object_name_2, ),
         )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
 
 class TestObjectShow(TestObjectAll):

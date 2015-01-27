@@ -82,34 +82,34 @@ class TestShell(utils.TestCase):
             fake_execute(_shell, _cmd)
 
             self.app.assert_called_with(["list", "project"])
-            self.assertEqual(_shell.options.os_auth_url,
-                             default_args["auth_url"])
-            self.assertEqual(_shell.options.os_project_id,
-                             default_args["project_id"])
-            self.assertEqual(_shell.options.os_project_name,
-                             default_args["project_name"])
-            self.assertEqual(_shell.options.os_domain_id,
-                             default_args["domain_id"])
-            self.assertEqual(_shell.options.os_domain_name,
-                             default_args["domain_name"])
-            self.assertEqual(_shell.options.os_user_domain_id,
-                             default_args["user_domain_id"])
-            self.assertEqual(_shell.options.os_user_domain_name,
-                             default_args["user_domain_name"])
-            self.assertEqual(_shell.options.os_project_domain_id,
-                             default_args["project_domain_id"])
-            self.assertEqual(_shell.options.os_project_domain_name,
-                             default_args["project_domain_name"])
-            self.assertEqual(_shell.options.os_username,
-                             default_args["username"])
-            self.assertEqual(_shell.options.os_password,
-                             default_args["password"])
-            self.assertEqual(_shell.options.os_region_name,
-                             default_args["region_name"])
-            self.assertEqual(_shell.options.os_trust_id,
-                             default_args["trust_id"])
-            self.assertEqual(_shell.options.os_auth_type,
-                             default_args['auth_type'])
+            self.assertEqual(default_args["auth_url"],
+                             _shell.options.os_auth_url)
+            self.assertEqual(default_args["project_id"],
+                             _shell.options.os_project_id)
+            self.assertEqual(default_args["project_name"],
+                             _shell.options.os_project_name)
+            self.assertEqual(default_args["domain_id"],
+                             _shell.options.os_domain_id)
+            self.assertEqual(default_args["domain_name"],
+                             _shell.options.os_domain_name)
+            self.assertEqual(default_args["user_domain_id"],
+                             _shell.options.os_user_domain_id)
+            self.assertEqual(default_args["user_domain_name"],
+                             _shell.options.os_user_domain_name)
+            self.assertEqual(default_args["project_domain_id"],
+                             _shell.options.os_project_domain_id)
+            self.assertEqual(default_args["project_domain_name"],
+                             _shell.options.os_project_domain_name)
+            self.assertEqual(default_args["username"],
+                             _shell.options.os_username)
+            self.assertEqual(default_args["password"],
+                             _shell.options.os_password)
+            self.assertEqual(default_args["region_name"],
+                             _shell.options.os_region_name)
+            self.assertEqual(default_args["trust_id"],
+                             _shell.options.os_trust_id)
+            self.assertEqual(default_args['auth_type'],
+                             _shell.options.os_auth_type)
 
     def _assert_token_auth(self, cmd_options, default_args):
         with mock.patch("openstackclient.shell.OpenStackShell.initialize_app",
@@ -118,9 +118,9 @@ class TestShell(utils.TestCase):
             fake_execute(_shell, _cmd)
 
             self.app.assert_called_with(["list", "role"])
-            self.assertEqual(_shell.options.os_token, default_args["os_token"])
-            self.assertEqual(_shell.options.os_auth_url,
-                             default_args["os_auth_url"])
+            self.assertEqual(default_args["os_token"], _shell.options.os_token)
+            self.assertEqual(default_args["os_auth_url"],
+                             _shell.options.os_auth_url)
 
     def _assert_cli(self, cmd_options, default_args):
         with mock.patch("openstackclient.shell.OpenStackShell.initialize_app",
@@ -129,16 +129,16 @@ class TestShell(utils.TestCase):
             fake_execute(_shell, _cmd)
 
             self.app.assert_called_with(["list", "server"])
-            self.assertEqual(_shell.options.os_compute_api_version,
-                             default_args["compute_api_version"])
-            self.assertEqual(_shell.options.os_identity_api_version,
-                             default_args["identity_api_version"])
-            self.assertEqual(_shell.options.os_image_api_version,
-                             default_args["image_api_version"])
-            self.assertEqual(_shell.options.os_volume_api_version,
-                             default_args["volume_api_version"])
-            self.assertEqual(_shell.options.os_network_api_version,
-                             default_args["network_api_version"])
+            self.assertEqual(default_args["compute_api_version"],
+                             _shell.options.os_compute_api_version)
+            self.assertEqual(default_args["identity_api_version"],
+                             _shell.options.os_identity_api_version)
+            self.assertEqual(default_args["image_api_version"],
+                             _shell.options.os_image_api_version)
+            self.assertEqual(default_args["volume_api_version"],
+                             _shell.options.os_volume_api_version)
+            self.assertEqual(default_args["network_api_version"],
+                             _shell.options.os_network_api_version)
 
 
 class TestShellHelp(TestShell):
@@ -161,8 +161,8 @@ class TestShellHelp(TestShell):
             _shell, _cmd = make_shell(), flag
             fake_execute(_shell, _cmd)
 
-            self.assertEqual(_shell.options.deferred_help,
-                             kwargs["deferred_help"])
+            self.assertEqual(kwargs["deferred_help"],
+                             _shell.options.deferred_help)
 
 
 class TestShellPasswordAuth(TestShell):

@@ -83,7 +83,7 @@ class TestProjectCreate(TestProject):
         )
 
         collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.project_description,
             identity_fakes.domain_id,
@@ -91,7 +91,7 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_id,
             identity_fakes.project_name,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_project_create_description(self):
         arglist = [
@@ -123,7 +123,7 @@ class TestProjectCreate(TestProject):
         )
 
         collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.project_description,
             identity_fakes.domain_id,
@@ -131,7 +131,7 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_id,
             identity_fakes.project_name,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_project_create_domain(self):
         arglist = [
@@ -163,7 +163,7 @@ class TestProjectCreate(TestProject):
         )
 
         collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.project_description,
             identity_fakes.domain_id,
@@ -171,7 +171,7 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_id,
             identity_fakes.project_name,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_project_create_domain_no_perms(self):
         arglist = [
@@ -202,7 +202,7 @@ class TestProjectCreate(TestProject):
             **kwargs
         )
         collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.project_description,
             identity_fakes.domain_id,
@@ -210,7 +210,7 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_id,
             identity_fakes.project_name,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_project_create_enable(self):
         arglist = [
@@ -241,7 +241,7 @@ class TestProjectCreate(TestProject):
         )
 
         collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.project_description,
             identity_fakes.domain_id,
@@ -249,7 +249,7 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_id,
             identity_fakes.project_name,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_project_create_disable(self):
         arglist = [
@@ -280,7 +280,7 @@ class TestProjectCreate(TestProject):
         )
 
         collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.project_description,
             identity_fakes.domain_id,
@@ -288,7 +288,7 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_id,
             identity_fakes.project_name,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_project_create_property(self):
         arglist = [
@@ -321,7 +321,7 @@ class TestProjectCreate(TestProject):
         )
 
         collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.project_description,
             identity_fakes.domain_id,
@@ -329,7 +329,7 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_id,
             identity_fakes.project_name,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
 
 class TestProjectDelete(TestProject):
@@ -358,7 +358,7 @@ class TestProjectDelete(TestProject):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         self.projects_mock.delete.assert_called_with(
             identity_fakes.project_id,
@@ -391,12 +391,12 @@ class TestProjectList(TestProject):
         self.projects_mock.list.assert_called_with()
 
         collist = ('ID', 'Name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.project_id,
             identity_fakes.project_name,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_project_list_long(self):
         arglist = [
@@ -412,7 +412,7 @@ class TestProjectList(TestProject):
         self.projects_mock.list.assert_called_with()
 
         collist = ('ID', 'Name', 'Domain ID', 'Description', 'Enabled')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.project_id,
             identity_fakes.project_name,
@@ -420,7 +420,7 @@ class TestProjectList(TestProject):
             identity_fakes.project_description,
             True,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_project_list_domain(self):
         arglist = [
@@ -444,12 +444,12 @@ class TestProjectList(TestProject):
             domain=identity_fakes.domain_id)
 
         collist = ('ID', 'Name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.project_id,
             identity_fakes.project_name,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_project_list_domain_no_perms(self):
         arglist = [
@@ -468,12 +468,12 @@ class TestProjectList(TestProject):
         self.projects_mock.list.assert_called_with(
             domain=identity_fakes.domain_id)
         collist = ('ID', 'Name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.project_id,
             identity_fakes.project_name,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
 
 class TestProjectSet(TestProject):
@@ -513,7 +513,7 @@ class TestProjectSet(TestProject):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
     def test_project_set_name(self):
         arglist = [
@@ -529,7 +529,7 @@ class TestProjectSet(TestProject):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -556,7 +556,7 @@ class TestProjectSet(TestProject):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -580,7 +580,7 @@ class TestProjectSet(TestProject):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -604,7 +604,7 @@ class TestProjectSet(TestProject):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -628,7 +628,7 @@ class TestProjectSet(TestProject):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -671,7 +671,7 @@ class TestProjectShow(TestProject):
         )
 
         collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.project_description,
             identity_fakes.domain_id,
@@ -679,4 +679,4 @@ class TestProjectShow(TestProject):
             identity_fakes.project_id,
             identity_fakes.project_name,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)

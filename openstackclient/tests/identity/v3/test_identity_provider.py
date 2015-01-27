@@ -61,13 +61,13 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         )
 
         collist = ('description', 'enabled', 'id')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_create_identity_provider_description(self):
         arglist = [
@@ -93,13 +93,13 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         )
 
         collist = ('description', 'enabled', 'id')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_create_identity_provider_disabled(self):
 
@@ -133,13 +133,13 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         )
 
         collist = ('description', 'enabled', 'id')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             None,
             False,
             identity_fakes.idp_id,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
 
 class TestIdentityProviderDelete(TestIdentityProvider):
@@ -203,13 +203,13 @@ class TestIdentityProviderList(TestIdentityProvider):
         self.identity_providers_mock.list.assert_called_with()
 
         collist = ('ID', 'Enabled', 'Description')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.idp_id,
             True,
             identity_fakes.idp_description,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
 
 class TestIdentityProviderShow(TestIdentityProvider):
@@ -242,13 +242,13 @@ class TestIdentityProviderShow(TestIdentityProvider):
         )
 
         collist = ('description', 'enabled', 'id')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
 
 class TestIdentityProviderSet(TestIdentityProvider):
@@ -291,7 +291,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
         )
 
         collist = ('description', 'enabled', 'id')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.idp_description,
             False,
@@ -328,13 +328,13 @@ class TestIdentityProviderSet(TestIdentityProvider):
         self.identity_providers_mock.update.assert_called_with(
             identity_fakes.idp_id, enabled=True)
         collist = ('description', 'enabled', 'id')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_identity_provider_no_options(self):
         def prepare(self):
@@ -368,5 +368,5 @@ class TestIdentityProviderSet(TestIdentityProvider):
 
         # expect take_action() to return (None, None) as
         # neither --enable nor --disable was specified
-        self.assertEqual(columns, None)
-        self.assertEqual(data, None)
+        self.assertEqual(None, columns)
+        self.assertEqual(None, data)

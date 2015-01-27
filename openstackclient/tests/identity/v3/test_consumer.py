@@ -54,13 +54,13 @@ class TestConsumerCreate(TestOAuth1):
         )
 
         collist = ('description', 'id', 'secret')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.consumer_description,
             identity_fakes.consumer_id,
             identity_fakes.consumer_secret,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
 
 class TestConsumerDelete(TestOAuth1):
@@ -88,7 +88,7 @@ class TestConsumerDelete(TestOAuth1):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         self.consumers_mock.delete.assert_called_with(
             identity_fakes.consumer_id,
@@ -126,12 +126,12 @@ class TestConsumerList(TestOAuth1):
         self.consumers_mock.list.assert_called_with()
 
         collist = ('ID', 'Description')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.consumer_id,
             identity_fakes.consumer_description,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
 
 class TestConsumerShow(TestOAuth1):
@@ -165,12 +165,12 @@ class TestConsumerShow(TestOAuth1):
         )
 
         collist = ('description', 'id')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.consumer_description,
             identity_fakes.consumer_id,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
 
 class TestConsumerSet(TestOAuth1):
@@ -207,7 +207,7 @@ class TestConsumerSet(TestOAuth1):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         kwargs = {'description': new_description}
         self.consumers_mock.update.assert_called_with(

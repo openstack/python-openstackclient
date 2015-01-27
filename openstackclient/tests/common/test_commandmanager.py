@@ -55,22 +55,22 @@ class TestCommandManager(utils.TestCase):
         mock_cmd_one = mock.Mock()
         mgr.add_command('mock', mock_cmd_one)
         cmd_mock, name, args = mgr.find_command(['mock'])
-        self.assertEqual(cmd_mock, mock_cmd_one)
+        self.assertEqual(mock_cmd_one, cmd_mock)
 
         # Find a command added in initialization
         cmd_one, name, args = mgr.find_command(['one'])
-        self.assertEqual(cmd_one, FAKE_CMD_ONE)
+        self.assertEqual(FAKE_CMD_ONE, cmd_one)
 
         # Load another command group
         mgr.add_command_group('greek')
 
         # Find a new command
         cmd_alpha, name, args = mgr.find_command(['alpha'])
-        self.assertEqual(cmd_alpha, FAKE_CMD_ALPHA)
+        self.assertEqual(FAKE_CMD_ALPHA, cmd_alpha)
 
         # Ensure that the original commands were not overwritten
         cmd_two, name, args = mgr.find_command(['two'])
-        self.assertEqual(cmd_two, FAKE_CMD_TWO)
+        self.assertEqual(FAKE_CMD_TWO, cmd_two)
 
     def test_get_command_groups(self):
         mgr = FakeCommandManager('test')
@@ -79,7 +79,7 @@ class TestCommandManager(utils.TestCase):
         mock_cmd_one = mock.Mock()
         mgr.add_command('mock', mock_cmd_one)
         cmd_mock, name, args = mgr.find_command(['mock'])
-        self.assertEqual(cmd_mock, mock_cmd_one)
+        self.assertEqual(mock_cmd_one, cmd_mock)
 
         # Load another command group
         mgr.add_command_group('greek')

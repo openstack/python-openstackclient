@@ -65,7 +65,7 @@ class TestMappingCreate(TestMapping):
                     rules=identity_fakes.MAPPING_RULES)
 
                 collist = ('id', 'rules')
-                self.assertEqual(columns, collist)
+                self.assertEqual(collist, columns)
 
                 datalist = (identity_fakes.mapping_id,
                             identity_fakes.MAPPING_RULES)
@@ -134,7 +134,7 @@ class TestMappingList(TestMapping):
         self.mapping_mock.list.assert_called_with()
 
         collist = ('ID',)
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
 
         datalist = [(identity_fakes.mapping_id,), ('extra_mapping',)]
         self.assertEqual(datalist, data)
@@ -167,7 +167,7 @@ class TestMappingShow(TestMapping):
             identity_fakes.mapping_id)
 
         collist = ('id', 'rules')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
 
         datalist = (identity_fakes.mapping_id,
                     identity_fakes.MAPPING_RULES)
@@ -216,7 +216,7 @@ class TestMappingSet(TestMapping):
             rules=identity_fakes.MAPPING_RULES_2)
 
         collist = ('id', 'rules')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (identity_fakes.mapping_id,
                     identity_fakes.MAPPING_RULES_2)
         self.assertEqual(datalist, data)

@@ -105,7 +105,7 @@ class TestRoleAdd(TestRole):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -134,7 +134,7 @@ class TestRoleAdd(TestRole):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -163,7 +163,7 @@ class TestRoleAdd(TestRole):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -192,7 +192,7 @@ class TestRoleAdd(TestRole):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.run(parsed_args)
-        self.assertEqual(result, 0)
+        self.assertEqual(0, result)
 
         # Set expected values
         kwargs = {
@@ -243,12 +243,12 @@ class TestRoleCreate(TestRole):
         )
 
         collist = ('id', 'name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.role_id,
             identity_fakes.role_name,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
 
 class TestRoleDelete(TestRole):
@@ -331,12 +331,12 @@ class TestRoleList(TestRole):
         self.roles_mock.list.assert_called_with()
 
         collist = ('ID', 'Name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.role_name,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_user_list_user(self):
         arglist = [
@@ -361,12 +361,12 @@ class TestRoleList(TestRole):
         )
 
         collist = ('ID', 'Name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.role_name,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_role_list_domain_user(self):
         arglist = [
@@ -393,14 +393,14 @@ class TestRoleList(TestRole):
         )
 
         collist = ('ID', 'Name', 'Domain', 'User')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.role_name,
             identity_fakes.domain_name,
             identity_fakes.user_name,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_role_list_domain_group(self):
         arglist = [
@@ -427,14 +427,14 @@ class TestRoleList(TestRole):
         )
 
         collist = ('ID', 'Name', 'Domain', 'Group')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.role_name,
             identity_fakes.domain_name,
             identity_fakes.group_name,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_role_list_project_user(self):
         arglist = [
@@ -461,14 +461,14 @@ class TestRoleList(TestRole):
         )
 
         collist = ('ID', 'Name', 'Project', 'User')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.role_name,
             identity_fakes.project_name,
             identity_fakes.user_name,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
     def test_role_list_project_group(self):
         arglist = [
@@ -495,14 +495,14 @@ class TestRoleList(TestRole):
         )
 
         collist = ('ID', 'Name', 'Project', 'Group')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.role_name,
             identity_fakes.project_name,
             identity_fakes.group_name,
         ), )
-        self.assertEqual(tuple(data), datalist)
+        self.assertEqual(datalist, tuple(data))
 
 
 class TestRoleRemove(TestRole):
@@ -733,9 +733,9 @@ class TestRoleShow(TestRole):
         )
 
         collist = ('id', 'name')
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.role_id,
             identity_fakes.role_name,
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)

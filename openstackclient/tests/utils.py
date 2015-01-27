@@ -93,5 +93,5 @@ class TestCommand(TestCase):
             attr, value = av
             if attr:
                 self.assertIn(attr, parsed_args)
-                self.assertEqual(getattr(parsed_args, attr), value)
+                self.assertEqual(value, getattr(parsed_args, attr))
         return parsed_args
