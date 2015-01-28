@@ -30,6 +30,7 @@ class APIv2(image_v1.APIv1):
         detailed=False,
         public=False,
         private=False,
+        shared=False,
         **filter
     ):
         """Get available images
@@ -49,17 +50,17 @@ class APIv2(image_v1.APIv1):
         both public and private images which is the same set as all images.
 
         http://docs.openstack.org/api/openstack-image-service/2.0/content/list-images.html
-
-        TODO(dtroyer): Implement filtering
         """
 
-        if public == private:
-            # No filtering for both False and both True cases
+        if not public and not private and not shared:
+            # No filtering for all False
             filter.pop('visibility', None)
         elif public:
             filter['visibility'] = 'public'
         elif private:
             filter['visibility'] = 'private'
+        elif shared:
+            filter['visibility'] = 'shared'
 
         url = "/images"
         if detailed:

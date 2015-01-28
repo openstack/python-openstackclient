@@ -13,49 +13,12 @@
 
 """Base API Library Tests"""
 
-from requests_mock.contrib import fixture
-
-from keystoneclient import session
 from openstackclient.api import api
 from openstackclient.common import exceptions
-from openstackclient.tests import utils
+from openstackclient.tests.api import fakes as api_fakes
 
 
-RESP_ITEM_1 = {
-    'id': '1',
-    'name': 'alpha',
-    'status': 'UP',
-}
-RESP_ITEM_2 = {
-    'id': '2',
-    'name': 'beta',
-    'status': 'DOWN',
-}
-RESP_ITEM_3 = {
-    'id': '3',
-    'name': 'delta',
-    'status': 'UP',
-}
-
-LIST_RESP = [RESP_ITEM_1, RESP_ITEM_2]
-
-LIST_BODY = {
-    'p1': 'xxx',
-    'p2': 'yyy',
-}
-
-
-class TestSession(utils.TestCase):
-
-    BASE_URL = 'https://api.example.com:1234/vX'
-
-    def setUp(self):
-        super(TestSession, self).setUp()
-        self.sess = session.Session()
-        self.requests_mock = self.useFixture(fixture.Fixture())
-
-
-class TestKeystoneSession(TestSession):
+class TestKeystoneSession(api_fakes.TestSession):
 
     def setUp(self):
         super(TestKeystoneSession, self).setUp()
@@ -68,14 +31,14 @@ class TestKeystoneSession(TestSession):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz',
-            json=RESP_ITEM_1,
+            json=api_fakes.RESP_ITEM_1,
             status_code=200,
         )
         ret = self.api._request('GET', '/qaz')
-        self.assertEqual(RESP_ITEM_1, ret.json())
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret.json())
 
 
-class TestBaseAPI(TestSession):
+class TestBaseAPI(api_fakes.TestSession):
 
     def setUp(self):
         super(TestBaseAPI, self).setUp()
@@ -88,21 +51,21 @@ class TestBaseAPI(TestSession):
         self.requests_mock.register_uri(
             'POST',
             self.BASE_URL + '/qaz',
-            json=RESP_ITEM_1,
+            json=api_fakes.RESP_ITEM_1,
             status_code=202,
         )
         ret = self.api.create('qaz')
-        self.assertEqual(RESP_ITEM_1, ret)
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
     def test_create_put(self):
         self.requests_mock.register_uri(
             'PUT',
             self.BASE_URL + '/qaz',
-            json=RESP_ITEM_1,
+            json=api_fakes.RESP_ITEM_1,
             status_code=202,
         )
         ret = self.api.create('qaz', method='PUT')
-        self.assertEqual(RESP_ITEM_1, ret)
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
     def test_delete(self):
         self.requests_mock.register_uri(
@@ -127,11 +90,11 @@ class TestBaseAPI(TestSession):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz?id=1',
-            json={'qaz': [RESP_ITEM_1]},
+            json={'qaz': [api_fakes.RESP_ITEM_1]},
             status_code=200,
         )
         ret = self.api.find_attr('qaz', '1')
-        self.assertEqual(RESP_ITEM_1, ret)
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
         # value not found
         self.requests_mock.register_uri(
@@ -157,23 +120,23 @@ class TestBaseAPI(TestSession):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz?status=UP',
-            json={'qaz': [RESP_ITEM_1]},
+            json={'qaz': [api_fakes.RESP_ITEM_1]},
             status_code=200,
         )
         ret = self.api.find_attr('qaz', 'UP', attr='status')
-        self.assertEqual(RESP_ITEM_1, ret)
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret)
         ret = self.api.find_attr('qaz', value='UP', attr='status')
-        self.assertEqual(RESP_ITEM_1, ret)
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
     def test_find_attr_by_name(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz?name=alpha',
-            json={'qaz': [RESP_ITEM_1]},
+            json={'qaz': [api_fakes.RESP_ITEM_1]},
             status_code=200,
         )
         ret = self.api.find_attr('qaz', 'alpha')
-        self.assertEqual(RESP_ITEM_1, ret)
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
         # value not found
         self.requests_mock.register_uri(
@@ -199,13 +162,13 @@ class TestBaseAPI(TestSession):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz?status=UP',
-            json={'qaz': [RESP_ITEM_1]},
+            json={'qaz': [api_fakes.RESP_ITEM_1]},
             status_code=200,
         )
         ret = self.api.find_attr('qaz', 'UP', attr='status')
-        self.assertEqual(RESP_ITEM_1, ret)
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret)
         ret = self.api.find_attr('qaz', value='UP', attr='status')
-        self.assertEqual(RESP_ITEM_1, ret)
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
     def test_find_attr_path_resource(self):
 
@@ -219,37 +182,37 @@ class TestBaseAPI(TestSession):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/wsx?id=1',
-            json={'qaz': [RESP_ITEM_1]},
+            json={'qaz': [api_fakes.RESP_ITEM_1]},
             status_code=200,
         )
         ret = self.api.find_attr('wsx', '1', resource='qaz')
-        self.assertEqual(RESP_ITEM_1, ret)
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
     def test_find_bulk_none(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz',
-            json=LIST_RESP,
+            json=api_fakes.LIST_RESP,
             status_code=200,
         )
         ret = self.api.find_bulk('qaz')
-        self.assertEqual(LIST_RESP, ret)
+        self.assertEqual(api_fakes.LIST_RESP, ret)
 
     def test_find_bulk_one(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz',
-            json=LIST_RESP,
+            json=api_fakes.LIST_RESP,
             status_code=200,
         )
         ret = self.api.find_bulk('qaz', id='1')
-        self.assertEqual([LIST_RESP[0]], ret)
+        self.assertEqual([api_fakes.LIST_RESP[0]], ret)
 
         ret = self.api.find_bulk('qaz', id='0')
         self.assertEqual([], ret)
 
         ret = self.api.find_bulk('qaz', name='beta')
-        self.assertEqual([LIST_RESP[1]], ret)
+        self.assertEqual([api_fakes.LIST_RESP[1]], ret)
 
         ret = self.api.find_bulk('qaz', error='bogus')
         self.assertEqual([], ret)
@@ -258,11 +221,11 @@ class TestBaseAPI(TestSession):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz',
-            json=LIST_RESP,
+            json=api_fakes.LIST_RESP,
             status_code=200,
         )
         ret = self.api.find_bulk('qaz', id='1', name='alpha')
-        self.assertEqual([LIST_RESP[0]], ret)
+        self.assertEqual([api_fakes.LIST_RESP[0]], ret)
 
         ret = self.api.find_bulk('qaz', id='1', name='beta')
         self.assertEqual([], ret)
@@ -274,11 +237,11 @@ class TestBaseAPI(TestSession):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz',
-            json={'qaz': LIST_RESP},
+            json={'qaz': api_fakes.LIST_RESP},
             status_code=200,
         )
         ret = self.api.find_bulk('qaz', id='1')
-        self.assertEqual([LIST_RESP[0]], ret)
+        self.assertEqual([api_fakes.LIST_RESP[0]], ret)
 
     # list tests
 
@@ -286,77 +249,77 @@ class TestBaseAPI(TestSession):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL,
-            json=LIST_RESP,
+            json=api_fakes.LIST_RESP,
             status_code=200,
         )
         ret = self.api.list('')
-        self.assertEqual(LIST_RESP, ret)
+        self.assertEqual(api_fakes.LIST_RESP, ret)
 
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz',
-            json=LIST_RESP,
+            json=api_fakes.LIST_RESP,
             status_code=200,
         )
         ret = self.api.list('qaz')
-        self.assertEqual(LIST_RESP, ret)
+        self.assertEqual(api_fakes.LIST_RESP, ret)
 
     def test_list_params(self):
         params = {'format': 'json'}
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '?format=json',
-            json=LIST_RESP,
+            json=api_fakes.LIST_RESP,
             status_code=200,
         )
         ret = self.api.list('', **params)
-        self.assertEqual(LIST_RESP, ret)
+        self.assertEqual(api_fakes.LIST_RESP, ret)
 
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz?format=json',
-            json=LIST_RESP,
+            json=api_fakes.LIST_RESP,
             status_code=200,
         )
         ret = self.api.list('qaz', **params)
-        self.assertEqual(LIST_RESP, ret)
+        self.assertEqual(api_fakes.LIST_RESP, ret)
 
     def test_list_body(self):
         self.requests_mock.register_uri(
             'POST',
             self.BASE_URL + '/qaz',
-            json=LIST_RESP,
+            json=api_fakes.LIST_RESP,
             status_code=200,
         )
-        ret = self.api.list('qaz', body=LIST_BODY)
-        self.assertEqual(LIST_RESP, ret)
+        ret = self.api.list('qaz', body=api_fakes.LIST_BODY)
+        self.assertEqual(api_fakes.LIST_RESP, ret)
 
     def test_list_detailed(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz/details',
-            json=LIST_RESP,
+            json=api_fakes.LIST_RESP,
             status_code=200,
         )
         ret = self.api.list('qaz', detailed=True)
-        self.assertEqual(LIST_RESP, ret)
+        self.assertEqual(api_fakes.LIST_RESP, ret)
 
     def test_list_filtered(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz?attr=value',
-            json=LIST_RESP,
+            json=api_fakes.LIST_RESP,
             status_code=200,
         )
         ret = self.api.list('qaz', attr='value')
-        self.assertEqual(LIST_RESP, ret)
+        self.assertEqual(api_fakes.LIST_RESP, ret)
 
     def test_list_wrapped(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz?attr=value',
-            json={'responses': LIST_RESP},
+            json={'responses': api_fakes.LIST_RESP},
             status_code=200,
         )
         ret = self.api.list('qaz', attr='value')
-        self.assertEqual({'responses': LIST_RESP}, ret)
+        self.assertEqual({'responses': api_fakes.LIST_RESP}, ret)
