@@ -21,7 +21,7 @@ import os
 import six
 import time
 
-from oslo.utils import importutils
+from oslo_utils import importutils
 
 from openstackclient.common import exceptions
 
