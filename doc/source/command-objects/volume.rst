@@ -134,6 +134,7 @@ Set volume properties
     os volume set
         [--name <name>]
         [--description <description>]
+        [--size <size>]
         [--property <key=value> [...] ]
         <volume>
 
@@ -144,6 +145,10 @@ Set volume properties
 .. option:: --description <description>
 
     New volume description
+
+.. option:: --size <size>
+
+    Extend volume size in GB
 
 .. option:: --property <key=value>
 
