@@ -89,6 +89,24 @@ List flavors
 .. code:: bash
 
     os flavor list
+        [--public | --private | --all]
+        [--long]
+
+.. option:: --public
+
+    List only public flavors (default)
+
+.. option:: --private
+
+    List only private flavors
+
+.. option:: --all
+
+    List all flavors, whether public or private
+
+.. option:: --long
+
+    List additional fields in output
 
 flavor show
 -----------
