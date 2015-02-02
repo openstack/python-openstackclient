@@ -225,7 +225,7 @@ List servers
 server lock
 -----------
 
-Lock server
+Lock a server. A non-admin user will not be able to execute actions
 
 .. program:: server lock
 .. code:: bash
