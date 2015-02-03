@@ -88,6 +88,10 @@ def _prep_server_detail(compute_client, server):
         {'properties': utils.format_dict(info.pop('metadata'))}
     )
 
+    # Migrate tenant_id to project_id naming
+    if 'tenant_id' in info:
+        info['project_id'] = info.pop('tenant_id')
+
     # Remove values that are long and not too useful
     info.pop('links', None)
 
