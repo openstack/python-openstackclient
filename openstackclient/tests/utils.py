@@ -80,7 +80,8 @@ class TestCommand(TestCase):
         super(TestCommand, self).setUp()
         # Build up a fake app
         self.fake_stdout = fakes.FakeStdout()
-        self.app = fakes.FakeApp(self.fake_stdout)
+        self.fake_log = fakes.FakeLog()
+        self.app = fakes.FakeApp(self.fake_stdout, self.fake_log)
         self.app.client_manager = fakes.FakeClientManager()
 
     def check_parser(self, cmd, args, verify_args):

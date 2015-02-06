@@ -348,6 +348,11 @@ class SetVolume(command.Command):
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 
         if parsed_args.size:
+            if volume.status != 'available':
+                self.app.log.error("Volume is in %s state, it must be "
+                                   "available before size can be extended" %
+                                   volume.status)
+                return
             if parsed_args.size <= volume.size:
                 self.app.log.error("New size must be greater than %s GB" %
                                    volume.size)

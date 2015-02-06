@@ -23,6 +23,7 @@ from openstackclient.tests import utils
 volume_id = 'vvvvvvvv-vvvv-vvvv-vvvvvvvv'
 volume_name = 'nigel'
 volume_description = 'Nigel Tufnel'
+volume_status = 'available'
 volume_size = 120
 volume_type = 'to-eleven'
 volume_zone = 'stonehenge'
@@ -38,7 +39,7 @@ VOLUME = {
     'display_name': volume_name,
     'display_description': volume_description,
     'size': volume_size,
-    'status': '',
+    'status': volume_status,
     'attach_status': 'detached',
     'availability_zone': volume_zone,
     'volume_type': volume_type,
