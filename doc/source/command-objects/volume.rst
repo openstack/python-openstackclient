@@ -14,7 +14,7 @@ Create new volume
 
     os volume create
         --size <size>
-        [--snapshot-id <snapshot-id>]
+        [--snapshot <snapshot>]
         [--description <description>]
         [--type <volume-type>]
         [--user <user>]
@@ -29,9 +29,9 @@ Create new volume
 
     New volume size in GB
 
-.. option:: --snapshot-id <snapshot-id>
+.. option:: --snapshot <snapshot>
 
-    Use <snapshot-id> as source of new volume
+    Use <snapshot> as source of new volume
 
 .. option:: --description <description>
 
