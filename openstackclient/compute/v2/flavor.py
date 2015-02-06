@@ -152,6 +152,36 @@ class ListFlavor(lister.Lister):
 
     log = logging.getLogger(__name__ + ".ListFlavor")
 
+    def get_parser(self, prog_name):
+        parser = super(ListFlavor, self).get_parser(prog_name)
+        public_group = parser.add_mutually_exclusive_group()
+        public_group.add_argument(
+            "--public",
+            dest="public",
+            action="store_true",
+            default=True,
+            help="List only public flavors (default)",
+            )
+        public_group.add_argument(
+            "--private",
+            dest="public",
+            action="store_false",
+            help="List only private flavors",
+            )
+        public_group.add_argument(
+            "--all",
+            dest="all",
+            action="store_true",
+            default=False,
+            help="List all flavors, whether public or private",
+            )
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help='List additional fields in output')
+        return parser
+
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
@@ -161,16 +191,32 @@ class ListFlavor(lister.Lister):
             "RAM",
             "Disk",
             "Ephemeral",
-            "Swap",
             "VCPUs",
-            "RXTX Factor",
             "Is Public",
-            "Extra Specs"
         )
-        data = compute_client.flavors.list()
-        return (columns,
+
+        # is_public is ternary - None means give all flavors,
+        # True is public only and False is private only
+        # By default Nova assumes True and gives admins public flavors
+        # and flavors from their own projects only.
+        is_public = None if parsed_args.all else parsed_args.public
+
+        data = compute_client.flavors.list(is_public=is_public)
+
+        if parsed_args.long:
+            columns = columns + (
+                "Swap",
+                "RXTX Factor",
+                "Properties",
+            )
+            for f in data:
+                f.properties = f.get_keys()
+
+        column_headers = columns
+
+        return (column_headers,
                 (utils.get_item_properties(
-                    s, columns,
+                    s, columns, formatters={'Properties': utils.format_dict},
                 ) for s in data))
 
 
