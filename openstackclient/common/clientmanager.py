@@ -114,6 +114,7 @@ class ClientManager(object):
         # then do not change the behaviour. Otherwise, set the USER_DOMAIN_ID
         # to 'OS_DEFAULT_DOMAIN' for better usability.
         if (self._api_version.get('identity') == '3' and
+            self.auth_plugin_name.endswith('password') and
             not self._auth_params.get('user_domain_id') and
                 not self._auth_params.get('user_domain_name')):
             self._auth_params['user_domain_id'] = default_domain
