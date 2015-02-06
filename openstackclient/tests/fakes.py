@@ -52,13 +52,34 @@ class FakeStdout(object):
         return result
 
 
+class FakeLog(object):
+    def __init__(self):
+        self.messages = {}
+
+    def debug(self, msg):
+        self.messages['debug'] = msg
+
+    def info(self, msg):
+        self.messages['info'] = msg
+
+    def warning(self, msg):
+        self.messages['warning'] = msg
+
+    def error(self, msg):
+        self.messages['error'] = msg
+
+    def critical(self, msg):
+        self.messages['critical'] = msg
+
+
 class FakeApp(object):
-    def __init__(self, _stdout):
+    def __init__(self, _stdout, _log):
         self.stdout = _stdout
         self.client_manager = None
         self.stdin = sys.stdin
         self.stdout = _stdout or sys.stdout
         self.stderr = sys.stderr
+        self.log = _log
 
 
 class FakeClient(object):

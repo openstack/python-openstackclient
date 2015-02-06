@@ -114,7 +114,7 @@ class TestVolumeCreate(TestVolume):
             volume_fakes.volume_id,
             volume_fakes.volume_metadata_str,
             volume_fakes.volume_size,
-            '',
+            volume_fakes.volume_status,
             volume_fakes.volume_type,
         )
         self.assertEqual(datalist, data)
@@ -178,7 +178,7 @@ class TestVolumeCreate(TestVolume):
             volume_fakes.volume_id,
             volume_fakes.volume_metadata_str,
             volume_fakes.volume_size,
-            '',
+            volume_fakes.volume_status,
             volume_fakes.volume_type,
         )
         self.assertEqual(datalist, data)
@@ -253,7 +253,7 @@ class TestVolumeCreate(TestVolume):
             volume_fakes.volume_id,
             volume_fakes.volume_metadata_str,
             volume_fakes.volume_size,
-            '',
+            volume_fakes.volume_status,
             volume_fakes.volume_type,
         )
         self.assertEqual(datalist, data)
@@ -328,7 +328,7 @@ class TestVolumeCreate(TestVolume):
             volume_fakes.volume_id,
             volume_fakes.volume_metadata_str,
             volume_fakes.volume_size,
-            '',
+            volume_fakes.volume_status,
             volume_fakes.volume_type,
         )
         self.assertEqual(datalist, data)
@@ -389,7 +389,7 @@ class TestVolumeCreate(TestVolume):
             volume_fakes.volume_id,
             volume_fakes.volume_metadata_str,
             volume_fakes.volume_size,
-            '',
+            volume_fakes.volume_status,
             volume_fakes.volume_type,
         )
         self.assertEqual(datalist, data)
@@ -455,7 +455,7 @@ class TestVolumeCreate(TestVolume):
             volume_fakes.volume_id,
             volume_fakes.volume_metadata_str,
             volume_fakes.volume_size,
-            '',
+            volume_fakes.volume_status,
             volume_fakes.volume_type,
         )
         self.assertEqual(datalist, data)
@@ -521,7 +521,189 @@ class TestVolumeCreate(TestVolume):
             volume_fakes.volume_id,
             volume_fakes.volume_metadata_str,
             volume_fakes.volume_size,
-            '',
+            volume_fakes.volume_status,
             volume_fakes.volume_type,
         )
         self.assertEqual(datalist, data)
+
+
+class TestVolumeSet(TestVolume):
+
+    def setUp(self):
+        super(TestVolumeSet, self).setUp()
+
+        self.volumes_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.VOLUME),
+            loaded=True,
+        )
+
+        self.volumes_mock.update.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.VOLUME),
+            loaded=True,
+        )
+        # Get the command object to test
+        self.cmd = volume.SetVolume(self.app, None)
+
+    def test_volume_set_no_options(self):
+        arglist = [
+            volume_fakes.volume_name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('description', None),
+            ('size', None),
+            ('property', None),
+            ('volume', volume_fakes.volume_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.run(parsed_args)
+        self.assertEqual(0, result)
+        self.assertEqual("No changes requested\n",
+                         self.app.log.messages.get('error'))
+
+    def test_volume_set_name(self):
+        arglist = [
+            '--name', 'qwerty',
+            volume_fakes.volume_name,
+        ]
+        verifylist = [
+            ('name', 'qwerty'),
+            ('description', None),
+            ('size', None),
+            ('property', None),
+            ('volume', volume_fakes.volume_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'display_name': 'qwerty',
+        }
+        self.volumes_mock.update.assert_called_with(
+            volume_fakes.volume_id,
+            **kwargs
+        )
+
+    def test_volume_set_description(self):
+        arglist = [
+            '--description', 'new desc',
+            volume_fakes.volume_name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('description', 'new desc'),
+            ('size', None),
+            ('property', None),
+            ('volume', volume_fakes.volume_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'display_description': 'new desc',
+        }
+        self.volumes_mock.update.assert_called_with(
+            volume_fakes.volume_id,
+            **kwargs
+        )
+
+    def test_volume_set_size(self):
+        arglist = [
+            '--size', '130',
+            volume_fakes.volume_name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('description', None),
+            ('size', 130),
+            ('property', None),
+            ('volume', volume_fakes.volume_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        size = 130
+
+        self.volumes_mock.extend.assert_called_with(
+            volume_fakes.volume_id,
+            size
+        )
+
+    def test_volume_set_size_smaller(self):
+        arglist = [
+            '--size', '100',
+            volume_fakes.volume_name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('description', None),
+            ('size', 100),
+            ('property', None),
+            ('volume', volume_fakes.volume_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.run(parsed_args)
+        self.assertEqual(0, result)
+        self.assertEqual("New size must be greater than %s GB" %
+                         volume_fakes.volume_size,
+                         self.app.log.messages.get('error'))
+
+    def test_volume_set_size_not_available(self):
+        self.volumes_mock.get.return_value.status = 'error'
+        arglist = [
+            '--size', '130',
+            volume_fakes.volume_name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('description', None),
+            ('size', 130),
+            ('property', None),
+            ('volume', volume_fakes.volume_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.run(parsed_args)
+        self.assertEqual(0, result)
+        self.assertEqual("Volume is in %s state, it must be available before "
+                         "size can be extended" % 'error',
+                         self.app.log.messages.get('error'))
+
+    def test_volume_set_property(self):
+        arglist = [
+            '--property', 'myprop=myvalue',
+            volume_fakes.volume_name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('description', None),
+            ('size', None),
+            ('property', {'myprop': 'myvalue'}),
+            ('volume', volume_fakes.volume_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        metadata = {
+            'myprop': 'myvalue'
+        }
+        self.volumes_mock.set_metadata.assert_called_with(
+            volume_fakes.volume_id,
+            metadata
+        )
