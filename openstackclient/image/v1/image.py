@@ -355,6 +355,13 @@ class ListImage(lister.Lister):
             metavar="<size>",
             help=argparse.SUPPRESS,
         )
+        parser.add_argument(
+            '--sort',
+            metavar="<key>[:<direction>]",
+            help="Sort output by selected keys and directions(asc or desc) "
+                 "(default: asc), multiple keys and directions can be "
+                 "specified separated by comma",
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -409,6 +416,9 @@ class ListImage(lister.Lister):
                 value=value,
                 property_field='properties',
             )
+
+        data = utils.sort_items(data, parsed_args.sort)
+
         return (
             column_headers,
             (utils.get_dict_properties(

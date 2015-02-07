@@ -470,6 +470,35 @@ class TestImageList(TestImage):
         ), )
         self.assertEqual(datalist, tuple(data))
 
+    @mock.patch('openstackclient.common.utils.sort_items')
+    def test_image_list_sort_option(self, si_mock):
+        si_mock.return_value = [
+            copy.deepcopy(image_fakes.IMAGE)
+        ]
+
+        arglist = ['--sort', 'name:asc']
+        verifylist = [('sort', 'name:asc')]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+        self.api_mock.image_list.assert_called_with(
+            detailed=False
+        )
+        si_mock.assert_called_with(
+            [image_fakes.IMAGE],
+            'name:asc'
+        )
+
+        collist = ('ID', 'Name')
+
+        self.assertEqual(collist, columns)
+        datalist = ((
+            image_fakes.image_id,
+            image_fakes.image_name
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
 
 class TestImageSet(TestImage):
 
