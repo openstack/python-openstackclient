@@ -15,6 +15,7 @@
 
 """Volume v1 Volume action implementations"""
 
+import argparse
 import logging
 import six
 
@@ -45,10 +46,16 @@ class CreateVolume(show.ShowOne):
             type=int,
             help='New volume size in GB',
         )
-        parser.add_argument(
+        snapshot_group = parser.add_mutually_exclusive_group()
+        snapshot_group.add_argument(
+            '--snapshot',
+            metavar='<snapshot>',
+            help='Use <snapshot> as source of new volume',
+        )
+        snapshot_group.add_argument(
             '--snapshot-id',
             metavar='<snapshot-id>',
-            help='Use <snapshot-id> as source of new volume',
+            help=argparse.SUPPRESS,
         )
         parser.add_argument(
             '--description',
@@ -130,9 +137,11 @@ class CreateVolume(show.ShowOne):
                 parsed_args.image,
             ).id
 
+        snapshot = parsed_args.snapshot or parsed_args.snapshot_id
+
         volume = volume_client.volumes.create(
             parsed_args.size,
-            parsed_args.snapshot_id,
+            snapshot,
             source_volume,
             parsed_args.name,
             parsed_args.description,
