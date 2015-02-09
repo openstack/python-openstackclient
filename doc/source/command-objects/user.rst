@@ -136,7 +136,6 @@ Set user properties
 
     os user set
         [--name <name>]
-        [--domain <domain>]
         [--project <project>]
         [--password <password>]
         [--email <email-address>]
@@ -147,12 +146,6 @@ Set user properties
 .. option:: --name <name>
 
     Set user name
-
-.. option:: --domain <domain>
-
-    Set default domain (name or ID)
-
-    .. versionadded:: 3
 
 .. option:: --project <project>
 

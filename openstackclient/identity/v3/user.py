@@ -300,11 +300,6 @@ class SetUser(command.Command):
             help='Set user name',
         )
         parser.add_argument(
-            '--domain',
-            metavar='<domain>',
-            help='Set default domain (name or ID)',
-        )
-        parser.add_argument(
             '--project',
             metavar='<project>',
             help='Set default project (name or ID)',
@@ -354,7 +349,6 @@ class SetUser(command.Command):
                 and not parsed_args.name
                 and not parsed_args.password
                 and not parsed_args.email
-                and not parsed_args.domain
                 and not parsed_args.project
                 and not parsed_args.description
                 and not parsed_args.enable
@@ -379,9 +373,6 @@ class SetUser(command.Command):
             project_id = utils.find_resource(
                 identity_client.projects, parsed_args.project).id
             kwargs['project'] = project_id
-        if parsed_args.domain:
-            kwargs['domain'] = common.find_domain(identity_client,
-                                                  parsed_args.domain).id
         kwargs['enabled'] = user.enabled
         if parsed_args.enable:
             kwargs['enabled'] = True

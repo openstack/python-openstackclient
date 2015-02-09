@@ -151,17 +151,12 @@ Set group properties
 
     os group set
         [--name <name>]
-        [--domain <domain>]
         [--description <description>]
         <group>
 
 .. option:: --name <name>
 
     New group name
-
-.. option:: --domain <domain>
-
-    New domain to contain <group> (name or ID)
 
 .. option:: --description <description>
 

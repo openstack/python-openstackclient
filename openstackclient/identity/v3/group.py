@@ -315,10 +315,6 @@ class SetGroup(command.Command):
             metavar='<name>',
             help='New group name')
         parser.add_argument(
-            '--domain',
-            metavar='<domain>',
-            help='New domain to contain <group> (name or ID)')
-        parser.add_argument(
             '--description',
             metavar='<description>',
             help='New group description')
@@ -333,9 +329,7 @@ class SetGroup(command.Command):
             kwargs['name'] = parsed_args.name
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
-        if parsed_args.domain:
-            kwargs['domain'] = common.find_domain(identity_client,
-                                                  parsed_args.domain).id
+
         if not len(kwargs):
             sys.stderr.write("Group not updated, no arguments present")
             return
