@@ -118,12 +118,6 @@ Set project properties
 
     Set project name
 
-.. option:: --domain <domain>
-
-    Set domain owning :ref:`\<project\> <project_set-project>` (name or ID)
-
-    .. versionadded:: 3
-
 .. option:: --description <description>
 
     Set project description
