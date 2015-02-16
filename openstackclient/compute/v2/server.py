@@ -1069,9 +1069,9 @@ class ResizeServer(command.Command):
             help=_('Resize server to specified flavor'),
         )
         phase_group.add_argument(
-            '--verify',
+            '--confirm',
             action="store_true",
-            help=_('Verify server resize is complete'),
+            help=_('Confirm server resize is complete'),
         )
         phase_group.add_argument(
             '--revert',
@@ -1110,7 +1110,7 @@ class ResizeServer(command.Command):
                 else:
                     sys.stdout.write(_('\nError resizing server'))
                     raise SystemExit
-        elif parsed_args.verify:
+        elif parsed_args.confirm:
             compute_client.servers.confirm_resize(server)
         elif parsed_args.revert:
             compute_client.servers.revert_resize(server)

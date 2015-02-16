@@ -437,7 +437,7 @@ class TestServerResize(TestServer):
             compute_fakes.server_id,
         ]
         verifylist = [
-            ('verify', False),
+            ('confirm', False),
             ('revert', False),
             ('server', compute_fakes.server_id),
         ]
@@ -461,7 +461,7 @@ class TestServerResize(TestServer):
         ]
         verifylist = [
             ('flavor', compute_fakes.flavor_id),
-            ('verify', False),
+            ('confirm', False),
             ('revert', False),
             ('server', compute_fakes.server_id),
         ]
@@ -486,11 +486,11 @@ class TestServerResize(TestServer):
 
     def test_server_resize_confirm(self):
         arglist = [
-            '--verify',
+            '--confirm',
             compute_fakes.server_id,
         ]
         verifylist = [
-            ('verify', True),
+            ('confirm', True),
             ('revert', False),
             ('server', compute_fakes.server_id),
         ]
@@ -515,7 +515,7 @@ class TestServerResize(TestServer):
             compute_fakes.server_id,
         ]
         verifylist = [
-            ('verify', False),
+            ('confirm', False),
             ('revert', True),
             ('server', compute_fakes.server_id),
         ]
