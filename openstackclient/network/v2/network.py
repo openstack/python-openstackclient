@@ -22,6 +22,7 @@ from cliff import show
 
 from openstackclient.common import exceptions
 from openstackclient.common import utils
+from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 
 
@@ -82,6 +83,14 @@ class CreateNetwork(show.ShowOne):
             action='store_false',
             help='Do not share the network between projects',
         )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help="Owner's project (name or ID)")
+        parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help="Owner's domain (name or ID)")
         return parser
 
     def take_action(self, parsed_args):
@@ -101,6 +110,18 @@ class CreateNetwork(show.ShowOne):
                 'admin_state_up': parsed_args.admin_state}
         if parsed_args.shared is not None:
             body['shared'] = parsed_args.shared
+        if parsed_args.project is not None:
+            identity_client = self.app.client_manager.identity
+            if parsed_args.domain is not None:
+                domain = identity_common.find_domain(identity_client,
+                                                     parsed_args.domain)
+                project_id = utils.find_resource(identity_client.projects,
+                                                 parsed_args.project,
+                                                 domain_id=domain.id).id
+            else:
+                project_id = utils.find_resource(identity_client.projects,
+                                                 parsed_args.project).id
+            body['tenant_id'] = project_id
         return {'network': body}
 
 

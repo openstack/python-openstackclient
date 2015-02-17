@@ -16,6 +16,9 @@ import mock
 
 from openstackclient.common import exceptions
 from openstackclient.network.v2 import network
+from openstackclient.tests import fakes
+from openstackclient.tests.identity.v2_0 import fakes as identity_fakes_v2
+from openstackclient.tests.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.network import common
 
 RESOURCE = 'network'
@@ -65,6 +68,7 @@ class TestCreateNetwork(common.TestNetworkBase):
             ('name', FAKE_NAME),
             ('admin_state', True),
             ('shared', None),
+            ('project', None),
         ]
         mocker = mock.Mock(return_value=copy.deepcopy(RESPONSE))
         self.app.client_manager.network.create_network = mocker
@@ -85,15 +89,36 @@ class TestCreateNetwork(common.TestNetworkBase):
         arglist = [
             "--disable",
             "--share",
+            "--project", identity_fakes_v3.project_name,
+            "--domain", identity_fakes_v3.domain_name,
             FAKE_NAME,
         ] + self.given_show_options
         verifylist = [
             ('admin_state', False),
             ('shared', True),
+            ('project', identity_fakes_v3.project_name),
+            ('domain', identity_fakes_v3.domain_name),
             ('name', FAKE_NAME),
         ] + self.then_show_options
         mocker = mock.Mock(return_value=copy.deepcopy(RESPONSE))
         self.app.client_manager.network.create_network = mocker
+        identity_client = identity_fakes_v3.FakeIdentityv3Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+        self.app.client_manager.identity = identity_client
+        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes_v3.PROJECT),
+            loaded=True,
+        )
+        self.domains_mock = self.app.client_manager.identity.domains
+        self.domains_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes_v3.DOMAIN),
+            loaded=True,
+        )
         cmd = network.CreateNetwork(self.app, self.namespace)
 
         parsed_args = self.check_parser(cmd, arglist, verifylist)
@@ -104,6 +129,7 @@ class TestCreateNetwork(common.TestNetworkBase):
                 'admin_state_up': False,
                 'name': FAKE_NAME,
                 'shared': True,
+                'tenant_id': identity_fakes_v3.project_id,
             }
         })
         self.assertEqual(FILTERED, result)
@@ -134,6 +160,80 @@ class TestCreateNetwork(common.TestNetworkBase):
             }
         })
         self.assertEqual(FILTERED, result)
+
+    def test_create_with_project_identityv2(self):
+        arglist = [
+            "--project", identity_fakes_v2.project_name,
+            FAKE_NAME,
+
+        ]
+        verifylist = [
+            ('admin_state', True),
+            ('shared', None),
+            ('name', FAKE_NAME),
+            ('project', identity_fakes_v2.project_name),
+        ]
+        mocker = mock.Mock(return_value=copy.deepcopy(RESPONSE))
+        self.app.client_manager.network.create_network = mocker
+        identity_client = identity_fakes_v2.FakeIdentityv2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+        self.app.client_manager.identity = identity_client
+        self.projects_mock = self.app.client_manager.identity.tenants
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes_v2.PROJECT),
+            loaded=True,
+        )
+        cmd = network.CreateNetwork(self.app, self.namespace)
+
+        parsed_args = self.check_parser(cmd, arglist, verifylist)
+        result = list(cmd.take_action(parsed_args))
+
+        mocker.assert_called_with({
+            RESOURCE: {
+                'admin_state_up': True,
+                'name': FAKE_NAME,
+                'tenant_id': identity_fakes_v2.project_id,
+            }
+        })
+        self.assertEqual(FILTERED, result)
+
+    def test_create_with_domain_identityv2(self):
+        arglist = [
+            "--project", identity_fakes_v3.project_name,
+            "--domain", identity_fakes_v3.domain_name,
+            FAKE_NAME,
+        ]
+        verifylist = [
+            ('admin_state', True),
+            ('shared', None),
+            ('project', identity_fakes_v3.project_name),
+            ('domain', identity_fakes_v3.domain_name),
+            ('name', FAKE_NAME),
+        ]
+        mocker = mock.Mock(return_value=copy.deepcopy(RESPONSE))
+        self.app.client_manager.network.create_network = mocker
+        identity_client = identity_fakes_v2.FakeIdentityv2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+        self.app.client_manager.identity = identity_client
+        self.projects_mock = self.app.client_manager.identity.tenants
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes_v2.PROJECT),
+            loaded=True,
+        )
+        cmd = network.CreateNetwork(self.app, self.namespace)
+        parsed_args = self.check_parser(cmd, arglist, verifylist)
+
+        self.assertRaises(
+            AttributeError,
+            cmd.take_action,
+            parsed_args,
+        )
 
 
 class TestDeleteNetwork(common.TestNetworkBase):
