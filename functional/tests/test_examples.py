@@ -10,8 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import testtools
-
 from functional.common import test
 
 
@@ -23,10 +21,8 @@ class ExampleTests(test.TestCase):
         # code, then execute will raise an error by default.
         test.execute('python', test.EXAMPLE_DIR + '/common.py --debug')
 
-    @testtools.skip('skipping until bug 1420080 is resolved')
     def test_object_api(self):
         test.execute('python', test.EXAMPLE_DIR + '/object_api.py --debug')
 
-    @testtools.skip('skipping until bug 1420080 is resolved')
     def test_osc_lib(self):
         test.execute('python', test.EXAMPLE_DIR + '/osc-lib.py --debug')
