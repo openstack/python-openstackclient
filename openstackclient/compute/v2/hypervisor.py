@@ -16,6 +16,7 @@
 """Hypervisor action implementations"""
 
 import logging
+import re
 import six
 
 from cliff import lister
@@ -75,6 +76,18 @@ class ShowHypervisor(show.ShowOne):
         compute_client = self.app.client_manager.compute
         hypervisor = utils.find_resource(compute_client.hypervisors,
                                          parsed_args.hypervisor)._info.copy()
+
+        uptime = compute_client.hypervisors.uptime(hypervisor['id'])._info
+        # Extract data from uptime value
+        # format: 0 up 0,  0 users,  load average: 0, 0, 0
+        # example: 17:37:14 up  2:33,  3 users,  load average: 0.33, 0.36, 0.34
+        m = re.match("(.+)\sup\s+(.+),\s+(.+)\susers,\s+load average:\s(.+)",
+                     uptime['uptime'])
+        if m:
+            hypervisor["host_time"] = m.group(1)
+            hypervisor["uptime"] = m.group(2)
+            hypervisor["users"] = m.group(3)
+            hypervisor["load_average"] = m.group(4)
 
         hypervisor["service_id"] = hypervisor["service"]["id"]
         hypervisor["service_host"] = hypervisor["service"]["host"]
