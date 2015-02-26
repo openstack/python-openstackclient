@@ -19,7 +19,7 @@ import logging
 from six.moves.urllib import parse as urlparse
 import stevedore
 
-from oslo.config import cfg
+from oslo_config import cfg
 
 from keystoneclient.auth import base
 from keystoneclient.auth.identity.generic import password as ksc_password
