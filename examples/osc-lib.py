@@ -59,7 +59,7 @@ def run(opts):
     # Collect the auth and config options together and give them to
     # ClientManager and it will wrangle all of the goons into place.
     client_manager = clientmanager.ClientManager(
-        auth_options=opts,
+        cli_options=opts,
         verify=verify,
         api_version=api_version,
     )
