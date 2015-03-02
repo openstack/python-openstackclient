@@ -22,7 +22,6 @@ import traceback
 
 from cliff import app
 from cliff import command
-from cliff import complete
 from cliff import help
 
 import openstackclient
@@ -70,10 +69,9 @@ class OpenStackShell(app.App):
     def __init__(self):
         # Patch command.Command to add a default auth_required = True
         command.Command.auth_required = True
-        command.Command.best_effort = False
-        # But not help
+
+        # Some commands do not need authentication
         help.HelpCommand.auth_required = False
-        complete.CompleteCommand.best_effort = True
 
         super(OpenStackShell, self).__init__(
             description=__doc__.strip(),
@@ -294,7 +292,7 @@ class OpenStackShell(app.App):
             self.verify = not self.options.insecure
 
         self.client_manager = clientmanager.ClientManager(
-            auth_options=self.options,
+            cli_options=self.options,
             verify=self.verify,
             api_version=self.api_version,
             pw_func=prompt_for_password,
@@ -308,7 +306,7 @@ class OpenStackShell(app.App):
             cmd.__class__.__module__,
             cmd.__class__.__name__,
         )
-        if cmd.auth_required and cmd.best_effort:
+        if cmd.auth_required:
             try:
                 # Trigger the Identity client to initialize
                 self.client_manager.auth_ref

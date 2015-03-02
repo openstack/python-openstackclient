@@ -80,12 +80,16 @@ class TestClientManager(utils.TestCase):
     def test_client_manager_token_endpoint(self):
 
         client_manager = clientmanager.ClientManager(
-            auth_options=FakeOptions(os_token=fakes.AUTH_TOKEN,
-                                     os_url=fakes.AUTH_URL,
-                                     os_auth_type='token_endpoint'),
+            cli_options=FakeOptions(
+                os_token=fakes.AUTH_TOKEN,
+                os_url=fakes.AUTH_URL,
+                os_auth_type='token_endpoint',
+            ),
             api_version=API_VERSION,
             verify=True
         )
+        client_manager.setup_auth()
+
         self.assertEqual(
             fakes.AUTH_URL,
             client_manager._url,
@@ -104,12 +108,15 @@ class TestClientManager(utils.TestCase):
     def test_client_manager_token(self):
 
         client_manager = clientmanager.ClientManager(
-            auth_options=FakeOptions(os_token=fakes.AUTH_TOKEN,
-                                     os_auth_url=fakes.AUTH_URL,
-                                     os_auth_type='v2token'),
+            cli_options=FakeOptions(
+                os_token=fakes.AUTH_TOKEN,
+                os_auth_url=fakes.AUTH_URL,
+                os_auth_type='v2token',
+            ),
             api_version=API_VERSION,
             verify=True
         )
+        client_manager.setup_auth()
 
         self.assertEqual(
             fakes.AUTH_URL,
@@ -125,13 +132,16 @@ class TestClientManager(utils.TestCase):
     def test_client_manager_password(self):
 
         client_manager = clientmanager.ClientManager(
-            auth_options=FakeOptions(os_auth_url=fakes.AUTH_URL,
-                                     os_username=fakes.USERNAME,
-                                     os_password=fakes.PASSWORD,
-                                     os_project_name=fakes.PROJECT_NAME),
+            cli_options=FakeOptions(
+                os_auth_url=fakes.AUTH_URL,
+                os_username=fakes.USERNAME,
+                os_password=fakes.PASSWORD,
+                os_project_name=fakes.PROJECT_NAME,
+            ),
             api_version=API_VERSION,
             verify=False,
         )
+        client_manager.setup_auth()
 
         self.assertEqual(
             fakes.AUTH_URL,
@@ -182,14 +192,17 @@ class TestClientManager(utils.TestCase):
     def test_client_manager_password_verify_ca(self):
 
         client_manager = clientmanager.ClientManager(
-            auth_options=FakeOptions(os_auth_url=fakes.AUTH_URL,
-                                     os_username=fakes.USERNAME,
-                                     os_password=fakes.PASSWORD,
-                                     os_project_name=fakes.PROJECT_NAME,
-                                     os_auth_type='v2password'),
+            cli_options=FakeOptions(
+                os_auth_url=fakes.AUTH_URL,
+                os_username=fakes.USERNAME,
+                os_password=fakes.PASSWORD,
+                os_project_name=fakes.PROJECT_NAME,
+                os_auth_type='v2password',
+            ),
             api_version=API_VERSION,
             verify='cafile',
         )
+        client_manager.setup_auth()
 
         self.assertFalse(client_manager._insecure)
         self.assertTrue(client_manager._verify)
@@ -199,10 +212,12 @@ class TestClientManager(utils.TestCase):
         auth_params['os_auth_type'] = auth_plugin_name
         auth_params['os_identity_api_version'] = api_version
         client_manager = clientmanager.ClientManager(
-            auth_options=FakeOptions(**auth_params),
+            cli_options=FakeOptions(**auth_params),
             api_version=API_VERSION,
             verify=True
         )
+        client_manager.setup_auth()
+
         self.assertEqual(
             auth_plugin_name,
             client_manager.auth_plugin_name,
@@ -228,8 +243,12 @@ class TestClientManager(utils.TestCase):
         self._select_auth_plugin(params, 'XXX', 'password')
 
     def test_client_manager_select_auth_plugin_failure(self):
-        self.assertRaises(exc.CommandError,
-                          clientmanager.ClientManager,
-                          auth_options=FakeOptions(os_auth_plugin=''),
-                          api_version=API_VERSION,
-                          verify=True)
+        client_manager = clientmanager.ClientManager(
+            cli_options=FakeOptions(os_auth_plugin=''),
+            api_version=API_VERSION,
+            verify=True,
+        )
+        self.assertRaises(
+            exc.CommandError,
+            client_manager.setup_auth,
+        )

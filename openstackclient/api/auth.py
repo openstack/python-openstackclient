@@ -85,9 +85,9 @@ def select_auth_plugin(options):
             # let keystoneclient figure it out itself
             auth_plugin_name = 'token'
     else:
-        raise exc.CommandError(
-            "Authentication type must be selected with --os-auth-type"
-        )
+        # The ultimate default is similar to the original behaviour,
+        # but this time with version discovery
+        auth_plugin_name = 'osc_password'
     LOG.debug("Auth plugin %s selected" % auth_plugin_name)
     return auth_plugin_name
 
