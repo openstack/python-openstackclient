@@ -15,8 +15,13 @@
 
 import logging
 
+from novaclient import client as nova_client
 from novaclient import extension
-from novaclient.v1_1.contrib import list_extensions
+
+try:
+    from novaclient.v2.contrib import list_extensions
+except ImportError:
+    from novaclient.v1_1.contrib import list_extensions
 
 from openstackclient.common import utils
 
@@ -25,19 +30,13 @@ LOG = logging.getLogger(__name__)
 DEFAULT_COMPUTE_API_VERSION = '2'
 API_VERSION_OPTION = 'os_compute_api_version'
 API_NAME = 'compute'
-API_VERSIONS = {
-    '1.1': 'novaclient.v1_1.client.Client',
-    '1': 'novaclient.v1_1.client.Client',
-    '2': 'novaclient.v1_1.client.Client',
-}
 
 
 def make_client(instance):
     """Returns a compute service client."""
-    compute_client = utils.get_client_class(
-        API_NAME,
+    compute_client = nova_client.get_client_class(
         instance._api_version[API_NAME],
-        API_VERSIONS)
+    )
     LOG.debug('Instantiating compute client: %s', compute_client)
 
     # Set client http_log_debug to True if verbosity level is high enough

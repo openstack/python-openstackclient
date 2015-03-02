@@ -26,7 +26,11 @@ import sys
 from cliff import command
 from cliff import lister
 from cliff import show
-from novaclient.v1_1 import servers
+
+try:
+    from novaclient.v2 import servers
+except ImportError:
+    from novaclient.v1_1 import servers
 
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
