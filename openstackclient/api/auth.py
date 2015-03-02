@@ -77,25 +77,27 @@ def select_auth_plugin(options):
 
     auth_plugin_name = None
 
-    if options.os_auth_type in [plugin.name for plugin in get_plugin_list()]:
-        # A direct plugin name was given, use it
-        return options.os_auth_type
-
-    if options.os_url and options.os_token:
+    # Do the token/url check first as this must override the default
+    # 'password' set by os-client-config
+    # Also, url and token are not copied into o-c-c's auth dict (yet?)
+    if options.auth.get('url', None) and options.auth.get('token', None):
         # service token authentication
         auth_plugin_name = 'token_endpoint'
-    elif options.os_username:
-        if options.os_identity_api_version == '3':
+    elif options.auth_type in [plugin.name for plugin in PLUGIN_LIST]:
+        # A direct plugin name was given, use it
+        auth_plugin_name = options.auth_type
+    elif options.auth.get('username', None):
+        if options.identity_api_version == '3':
             auth_plugin_name = 'v3password'
-        elif options.os_identity_api_version == '2.0':
+        elif options.identity_api_version.startswith('2'):
             auth_plugin_name = 'v2password'
         else:
             # let keystoneclient figure it out itself
             auth_plugin_name = 'osc_password'
-    elif options.os_token:
-        if options.os_identity_api_version == '3':
+    elif options.auth.get('token', None):
+        if options.identity_api_version == '3':
             auth_plugin_name = 'v3token'
-        elif options.os_identity_api_version == '2.0':
+        elif options.identity_api_version.startswith('2'):
             auth_plugin_name = 'v2token'
         else:
             # let keystoneclient figure it out itself
@@ -109,35 +111,27 @@ def select_auth_plugin(options):
 
 
 def build_auth_params(auth_plugin_name, cmd_options):
-    auth_params = {}
+
+    auth_params = dict(cmd_options.auth)
     if auth_plugin_name:
         LOG.debug('auth_type: %s', auth_plugin_name)
         auth_plugin_class = base.get_plugin_class(auth_plugin_name)
-        plugin_options = auth_plugin_class.get_options()
-        for option in plugin_options:
-            option_name = 'os_' + option.dest
-            LOG.debug('fetching option %s' % option_name)
-            auth_params[option.dest] = getattr(cmd_options, option_name, None)
         # grab tenant from project for v2.0 API compatibility
         if auth_plugin_name.startswith("v2"):
-            auth_params['tenant_id'] = getattr(
-                cmd_options,
-                'os_project_id',
-                None,
-            )
-            auth_params['tenant_name'] = getattr(
-                cmd_options,
-                'os_project_name',
-                None,
-            )
+            if 'project_id' in auth_params:
+                auth_params['tenant_id'] = auth_params['project_id']
+                del auth_params['project_id']
+            if 'project_name' in auth_params:
+                auth_params['tenant_name'] = auth_params['project_name']
+                del auth_params['project_name']
     else:
         LOG.debug('no auth_type')
         # delay the plugin choice, grab every option
+        auth_plugin_class = None
         plugin_options = set([o.replace('-', '_') for o in get_options_list()])
         for option in plugin_options:
-            option_name = 'os_' + option
-            LOG.debug('fetching option %s' % option_name)
-            auth_params[option] = getattr(cmd_options, option_name, None)
+            LOG.debug('fetching option %s' % option)
+            auth_params[option] = getattr(cmd_options.auth, option, None)
     return (auth_plugin_class, auth_params)
 
 
@@ -146,15 +140,29 @@ def check_valid_auth_options(options, auth_plugin_name):
 
     msg = ''
     if auth_plugin_name.endswith('password'):
-        if not options.os_username:
-            msg += _('Set a username with --os-username or OS_USERNAME\n')
-        if not options.os_auth_url:
-            msg += _('Set an authentication URL, with --os-auth-url or'
-                     ' OS_AUTH_URL\n')
-        if (not options.os_project_id and not options.os_domain_id and not
-                options.os_domain_name and not options.os_project_name):
+        if not options.auth.get('username', None):
+            msg += _('Set a username with --os-username, OS_USERNAME,'
+                     ' or auth.username\n')
+        if not options.auth.get('auth_url', None):
+            msg += _('Set an authentication URL, with --os-auth-url,'
+                     ' OS_AUTH_URL or auth.auth_url\n')
+        if (not options.auth.get('project_id', None) and not
+                options.auth.get('domain_id', None) and not
+                options.auth.get('domain_name', None) and not
+                options.auth.get('project_name', None)):
             msg += _('Set a scope, such as a project or domain, with '
-                     '--os-project-name or OS_PROJECT_NAME')
+                     '--os-project-name, OS_PROJECT_NAME or auth.project_name')
+    elif auth_plugin_name.endswith('token'):
+        if not options.auth.get('token', None):
+            msg += _('Set a token with --os-token, OS_TOKEN or auth.token\n')
+        if not options.auth.get('auth_url', None):
+            msg += _('Set a service AUTH_URL, with --os-auth-url, '
+                     'OS_AUTH_URL or auth.auth_url\n')
+    elif auth_plugin_name == 'token_endpoint':
+        if not options.auth.get('token', None):
+            msg += _('Set a token with --os-token, OS_TOKEN or auth.token\n')
+        if not options.auth.get('url', None):
+            msg += _('Set a service URL, with --os-url, OS_URL or auth.url\n')
 
     if msg:
         raise exc.CommandError('Missing parameter(s): \n%s' % msg)
@@ -171,6 +179,7 @@ def build_auth_plugins_option_parser(parser):
     parser.add_argument(
         '--os-auth-type',
         metavar='<auth-type>',
+        dest='auth_type',
         default=utils.env('OS_AUTH_TYPE'),
         help='Select an auhentication type. Available types: ' +
              ', '.join(available_plugins) +
@@ -178,7 +187,7 @@ def build_auth_plugins_option_parser(parser):
              ' (Env: OS_AUTH_TYPE)',
         choices=available_plugins
     )
-    # make sure we catch old v2.0 env values
+    # Maintain compatibility with old tenant env vars
     envs = {
         'OS_PROJECT_NAME': utils.env(
             'OS_PROJECT_NAME',
@@ -190,15 +199,20 @@ def build_auth_plugins_option_parser(parser):
         ),
     }
     for o in get_options_list():
-        # remove allusion to tenants from v2.0 API
+        # Remove tenant options from KSC plugins and replace them below
         if 'tenant' not in o:
             parser.add_argument(
                 '--os-' + o,
                 metavar='<auth-%s>' % o,
-                default=envs.get(OPTIONS_LIST[o]['env'],
-                                 utils.env(OPTIONS_LIST[o]['env'])),
-                help='%s\n(Env: %s)' % (OPTIONS_LIST[o]['help'],
-                                        OPTIONS_LIST[o]['env']),
+                dest=o.replace('-', '_'),
+                default=envs.get(
+                    OPTIONS_LIST[o]['env'],
+                    utils.env(OPTIONS_LIST[o]['env']),
+                ),
+                help='%s\n(Env: %s)' % (
+                    OPTIONS_LIST[o]['help'],
+                    OPTIONS_LIST[o]['env'],
+                ),
             )
     # add tenant-related options for compatibility
     # this is deprecated but still used in some tempest tests...
@@ -206,14 +220,12 @@ def build_auth_plugins_option_parser(parser):
         '--os-tenant-name',
         metavar='<auth-tenant-name>',
         dest='os_project_name',
-        default=utils.env('OS_TENANT_NAME'),
         help=argparse.SUPPRESS,
     )
     parser.add_argument(
         '--os-tenant-id',
         metavar='<auth-tenant-id>',
         dest='os_project_id',
-        default=utils.env('OS_TENANT_ID'),
         help=argparse.SUPPRESS,
     )
     return parser

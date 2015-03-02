@@ -48,13 +48,14 @@ class Container(object):
 class FakeOptions(object):
     def __init__(self, **kwargs):
         for option in auth.OPTIONS_LIST:
-            setattr(self, 'os_' + option.replace('-', '_'), None)
-        self.os_auth_type = None
-        self.os_identity_api_version = '2.0'
+            setattr(self, option.replace('-', '_'), None)
+        self.auth_type = None
+        self.identity_api_version = '2.0'
         self.timing = None
-        self.os_region_name = None
-        self.os_url = None
-        self.os_default_domain = 'default'
+        self.region_name = None
+        self.url = None
+        self.auth = {}
+        self.default_domain = 'default'
         self.__dict__.update(kwargs)
 
 
@@ -86,9 +87,11 @@ class TestClientManager(utils.TestCase):
 
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(
-                os_token=fakes.AUTH_TOKEN,
-                os_url=fakes.AUTH_URL,
-                os_auth_type='token_endpoint',
+                auth_type='token_endpoint',
+                auth=dict(
+                    token=fakes.AUTH_TOKEN,
+                    url=fakes.AUTH_URL,
+                ),
             ),
             api_version=API_VERSION,
             verify=True
@@ -114,9 +117,11 @@ class TestClientManager(utils.TestCase):
 
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(
-                os_token=fakes.AUTH_TOKEN,
-                os_auth_url=fakes.AUTH_URL,
-                os_auth_type='v2token',
+                auth=dict(
+                    token=fakes.AUTH_TOKEN,
+                    auth_url=fakes.AUTH_URL,
+                ),
+                auth_type='v2token',
             ),
             api_version=API_VERSION,
             verify=True
@@ -138,10 +143,12 @@ class TestClientManager(utils.TestCase):
 
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(
-                os_auth_url=fakes.AUTH_URL,
-                os_username=fakes.USERNAME,
-                os_password=fakes.PASSWORD,
-                os_project_name=fakes.PROJECT_NAME,
+                auth=dict(
+                    auth_url=fakes.AUTH_URL,
+                    username=fakes.USERNAME,
+                    password=fakes.PASSWORD,
+                    project_name=fakes.PROJECT_NAME,
+                ),
             ),
             api_version=API_VERSION,
             verify=False,
@@ -198,11 +205,13 @@ class TestClientManager(utils.TestCase):
 
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(
-                os_auth_url=fakes.AUTH_URL,
-                os_username=fakes.USERNAME,
-                os_password=fakes.PASSWORD,
-                os_project_name=fakes.PROJECT_NAME,
-                os_auth_type='v2password',
+                auth=dict(
+                    auth_url=fakes.AUTH_URL,
+                    username=fakes.USERNAME,
+                    password=fakes.PASSWORD,
+                    project_name=fakes.PROJECT_NAME,
+                ),
+                auth_type='v2password',
             ),
             api_version=API_VERSION,
             verify='cafile',
@@ -214,8 +223,8 @@ class TestClientManager(utils.TestCase):
         self.assertEqual('cafile', client_manager._cacert)
 
     def _select_auth_plugin(self, auth_params, api_version, auth_plugin_name):
-        auth_params['os_auth_type'] = auth_plugin_name
-        auth_params['os_identity_api_version'] = api_version
+        auth_params['auth_type'] = auth_plugin_name
+        auth_params['identity_api_version'] = api_version
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(**auth_params),
             api_version=API_VERSION,
@@ -230,19 +239,33 @@ class TestClientManager(utils.TestCase):
 
     def test_client_manager_select_auth_plugin(self):
         # test token auth
-        params = dict(os_token=fakes.AUTH_TOKEN,
-                      os_auth_url=fakes.AUTH_URL)
+        params = dict(
+            auth=dict(
+                auth_url=fakes.AUTH_URL,
+                token=fakes.AUTH_TOKEN,
+            ),
+        )
         self._select_auth_plugin(params, '2.0', 'v2token')
         self._select_auth_plugin(params, '3', 'v3token')
         self._select_auth_plugin(params, 'XXX', 'token')
         # test token/endpoint auth
-        params = dict(os_token=fakes.AUTH_TOKEN, os_url='test')
+        params = dict(
+            auth_plugin='token_endpoint',
+            auth=dict(
+                url='test',
+                token=fakes.AUTH_TOKEN,
+            ),
+        )
         self._select_auth_plugin(params, 'XXX', 'token_endpoint')
         # test password auth
-        params = dict(os_auth_url=fakes.AUTH_URL,
-                      os_username=fakes.USERNAME,
-                      os_password=fakes.PASSWORD,
-                      os_project_name=fakes.PROJECT_NAME)
+        params = dict(
+            auth=dict(
+                auth_url=fakes.AUTH_URL,
+                username=fakes.USERNAME,
+                password=fakes.PASSWORD,
+                project_name=fakes.PROJECT_NAME,
+            ),
+        )
         self._select_auth_plugin(params, '2.0', 'v2password')
         self._select_auth_plugin(params, '3', 'v3password')
         self._select_auth_plugin(params, 'XXX', 'password')
