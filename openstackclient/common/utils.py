@@ -200,8 +200,14 @@ def sort_items(items, sort_str):
         reverse = False
         if ':' in sort_key:
             sort_key, direction = sort_key.split(':', 1)
+            if not sort_key:
+                msg = "empty string is not a valid sort key"
+                raise exceptions.CommandError(msg)
             if direction not in ['asc', 'desc']:
-                msg = "Specify sort direction by asc or desc"
+                if not direction:
+                    direction = "empty string"
+                msg = ("%s is not a valid sort direction for sort key %s, "
+                       "use asc or desc instead" % (direction, sort_key))
                 raise exceptions.CommandError(msg)
             if direction == 'desc':
                 reverse = True
