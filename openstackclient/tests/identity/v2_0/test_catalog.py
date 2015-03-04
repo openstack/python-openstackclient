@@ -23,11 +23,18 @@ class TestCatalog(utils.TestCommand):
         'id': 'qwertyuiop',
         'type': 'compute',
         'name': 'supernova',
-        'endpoints': [{
-            'region': 'onlyone',
-            'publicURL': 'https://public.example.com',
-            'adminURL': 'https://admin.example.com',
-        }],
+        'endpoints': [
+            {
+                'region': 'one',
+                'publicURL': 'https://public.one.example.com',
+                'adminURL': 'https://admin.one.example.com',
+            },
+            {
+                'region': 'two',
+                'publicURL': 'https://public.two.example.com',
+                'adminURL': 'https://admin.two.example.com',
+            },
+        ],
     }
 
     def setUp(self):
@@ -66,9 +73,12 @@ class TestCatalogList(TestCatalog):
         datalist = ((
             'supernova',
             'compute',
-            'onlyone\n  publicURL: https://public.example.com\n  '
-            'internalURL: https://public.example.com\n  '
-            'adminURL: https://public.example.com\n',
+            'one\n  publicURL: https://public.one.example.com\n  '
+            'internalURL: https://public.one.example.com\n  '
+            'adminURL: https://public.one.example.com\n'
+            'two\n  publicURL: https://public.two.example.com\n  '
+            'internalURL: https://public.two.example.com\n  '
+            'adminURL: https://public.two.example.com\n',
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -97,9 +107,12 @@ class TestCatalogShow(TestCatalog):
         collist = ('endpoints', 'id', 'name', 'type')
         self.assertEqual(collist, columns)
         datalist = (
-            'onlyone\n  publicURL: https://public.example.com\n  '
-            'internalURL: https://public.example.com\n  '
-            'adminURL: https://public.example.com\n',
+            'one\n  publicURL: https://public.one.example.com\n  '
+            'internalURL: https://public.one.example.com\n  '
+            'adminURL: https://public.one.example.com\n'
+            'two\n  publicURL: https://public.two.example.com\n  '
+            'internalURL: https://public.two.example.com\n  '
+            'adminURL: https://public.two.example.com\n',
             'qwertyuiop',
             'supernova',
             'compute',
