@@ -20,6 +20,7 @@ from keystoneclient import service_catalog
 from oslo_serialization import jsonutils
 
 from openstackclient.api import auth
+from openstackclient.api import auth_plugin
 from openstackclient.common import clientmanager
 from openstackclient.common import exceptions as exc
 from openstackclient.tests import fakes
@@ -100,7 +101,7 @@ class TestClientManager(utils.TestCase):
         )
         self.assertIsInstance(
             client_manager.auth,
-            auth.TokenEndpoint,
+            auth_plugin.TokenEndpoint,
         )
         self.assertFalse(client_manager._insecure)
         self.assertTrue(client_manager._verify)
