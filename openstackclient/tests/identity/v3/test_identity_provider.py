@@ -14,6 +14,8 @@
 
 import copy
 
+import mock
+
 from openstackclient.identity.v3 import identity_provider
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
@@ -51,6 +53,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
 
         # Set expected values
         kwargs = {
+            'remote_ids': None,
             'enabled': True,
             'description': None,
         }
@@ -60,12 +63,13 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id')
+        collist = ('description', 'enabled', 'id', 'remote_ids')
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
+            identity_fakes.idp_remote_ids
         )
         self.assertEqual(datalist, data)
 
@@ -83,6 +87,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
 
         # Set expected values
         kwargs = {
+            'remote_ids': None,
             'description': identity_fakes.idp_description,
             'enabled': True,
         }
@@ -92,12 +97,121 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id')
+        collist = ('description', 'enabled', 'id', 'remote_ids')
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
+            identity_fakes.idp_remote_ids
+        )
+        self.assertEqual(datalist, data)
+
+    def test_create_identity_provider_remote_id(self):
+        arglist = [
+            identity_fakes.idp_id,
+            '--remote-id', identity_fakes.idp_remote_ids[0]
+        ]
+        verifylist = [
+            ('identity_provider_id', identity_fakes.idp_id),
+            ('remote_id', identity_fakes.idp_remote_ids[:1]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'remote_ids': identity_fakes.idp_remote_ids[:1],
+            'description': None,
+            'enabled': True,
+        }
+
+        self.identity_providers_mock.create.assert_called_with(
+            id=identity_fakes.idp_id,
+            **kwargs
+        )
+
+        collist = ('description', 'enabled', 'id', 'remote_ids')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.idp_description,
+            True,
+            identity_fakes.idp_id,
+            identity_fakes.idp_remote_ids
+        )
+        self.assertEqual(datalist, data)
+
+    def test_create_identity_provider_remote_ids_multiple(self):
+        arglist = [
+            '--remote-id', identity_fakes.idp_remote_ids[0],
+            '--remote-id', identity_fakes.idp_remote_ids[1],
+            identity_fakes.idp_id
+        ]
+        verifylist = [
+            ('identity_provider_id', identity_fakes.idp_id),
+            ('remote_id', identity_fakes.idp_remote_ids),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'remote_ids': identity_fakes.idp_remote_ids,
+            'description': None,
+            'enabled': True,
+        }
+
+        self.identity_providers_mock.create.assert_called_with(
+            id=identity_fakes.idp_id,
+            **kwargs
+        )
+
+        collist = ('description', 'enabled', 'id', 'remote_ids')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.idp_description,
+            True,
+            identity_fakes.idp_id,
+            identity_fakes.idp_remote_ids
+        )
+        self.assertEqual(datalist, data)
+
+    def test_create_identity_provider_remote_ids_file(self):
+        arglist = [
+            '--remote-id-file', '/tmp/file_name',
+            identity_fakes.idp_id,
+        ]
+        verifylist = [
+            ('identity_provider_id', identity_fakes.idp_id),
+            ('remote_id_file', '/tmp/file_name'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        mocker = mock.Mock()
+        mocker.return_value = "\n".join(identity_fakes.idp_remote_ids)
+        with mock.patch("openstackclient.identity.v3.identity_provider."
+                        "utils.read_blob_file_contents", mocker):
+            columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'remote_ids': identity_fakes.idp_remote_ids,
+            'description': None,
+            'enabled': True,
+        }
+
+        self.identity_providers_mock.create.assert_called_with(
+            id=identity_fakes.idp_id,
+            **kwargs
+        )
+
+        collist = ('description', 'enabled', 'id', 'remote_ids')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.idp_description,
+            True,
+            identity_fakes.idp_id,
+            identity_fakes.idp_remote_ids
         )
         self.assertEqual(datalist, data)
 
@@ -123,6 +237,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
 
         # Set expected values
         kwargs = {
+            'remote_ids': None,
             'enabled': False,
             'description': None,
         }
@@ -132,12 +247,13 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id')
+        collist = ('description', 'enabled', 'id', 'remote_ids')
         self.assertEqual(collist, columns)
         datalist = (
             None,
             False,
             identity_fakes.idp_id,
+            identity_fakes.idp_remote_ids
         )
         self.assertEqual(datalist, data)
 
@@ -241,12 +357,13 @@ class TestIdentityProviderShow(TestIdentityProvider):
             identity_fakes.idp_id,
         )
 
-        collist = ('description', 'enabled', 'id')
+        collist = ('description', 'enabled', 'id', 'remote_ids')
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
+            identity_fakes.idp_remote_ids
         )
         self.assertEqual(datalist, data)
 
@@ -276,11 +393,14 @@ class TestIdentityProviderSet(TestIdentityProvider):
         prepare(self)
         arglist = [
             '--disable', identity_fakes.idp_id,
+            '--remote-id', identity_fakes.idp_remote_ids[0],
+            '--remote-id', identity_fakes.idp_remote_ids[1]
         ]
         verifylist = [
             ('identity_provider', identity_fakes.idp_id),
             ('enable', False),
             ('disable', True),
+            ('remote_id', identity_fakes.idp_remote_ids)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -288,14 +408,16 @@ class TestIdentityProviderSet(TestIdentityProvider):
         self.identity_providers_mock.update.assert_called_with(
             identity_fakes.idp_id,
             enabled=False,
+            remote_ids=identity_fakes.idp_remote_ids
         )
 
-        collist = ('description', 'enabled', 'id')
+        collist = ('description', 'enabled', 'id', 'remote_ids')
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.idp_description,
             False,
             identity_fakes.idp_id,
+            identity_fakes.idp_remote_ids
         )
         self.assertEqual(datalist, data)
 
@@ -316,23 +438,122 @@ class TestIdentityProviderSet(TestIdentityProvider):
         prepare(self)
         arglist = [
             '--enable', identity_fakes.idp_id,
+            '--remote-id', identity_fakes.idp_remote_ids[0],
+            '--remote-id', identity_fakes.idp_remote_ids[1]
         ]
         verifylist = [
             ('identity_provider', identity_fakes.idp_id),
             ('enable', True),
             ('disable', False),
+            ('remote_id', identity_fakes.idp_remote_ids)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
         self.identity_providers_mock.update.assert_called_with(
-            identity_fakes.idp_id, enabled=True)
-        collist = ('description', 'enabled', 'id')
+            identity_fakes.idp_id, enabled=True,
+            remote_ids=identity_fakes.idp_remote_ids)
+        collist = ('description', 'enabled', 'id', 'remote_ids')
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
+            identity_fakes.idp_remote_ids
+        )
+        self.assertEqual(datalist, data)
+
+    def test_identity_provider_replace_remote_ids(self):
+        """Enable Identity Provider.
+
+        Set Identity Provider's ``enabled`` attribute to True.
+        """
+        def prepare(self):
+            """Prepare fake return objects before the test is executed"""
+            self.new_remote_id = 'new_entity'
+
+            updated_idp = copy.deepcopy(identity_fakes.IDENTITY_PROVIDER)
+            updated_idp['remote_ids'] = [self.new_remote_id]
+            resources = fakes.FakeResource(
+                None,
+                updated_idp,
+                loaded=True
+            )
+            self.identity_providers_mock.update.return_value = resources
+
+        prepare(self)
+        arglist = [
+            '--enable', identity_fakes.idp_id,
+            '--remote-id', self.new_remote_id
+        ]
+        verifylist = [
+            ('identity_provider', identity_fakes.idp_id),
+            ('enable', True),
+            ('disable', False),
+            ('remote_id', [self.new_remote_id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.identity_providers_mock.update.assert_called_with(
+            identity_fakes.idp_id, enabled=True,
+            remote_ids=[self.new_remote_id])
+        collist = ('description', 'enabled', 'id', 'remote_ids')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.idp_description,
+            True,
+            identity_fakes.idp_id,
+            [self.new_remote_id]
+        )
+        self.assertEqual(datalist, data)
+
+    def test_identity_provider_replace_remote_ids_file(self):
+        """Enable Identity Provider.
+
+        Set Identity Provider's ``enabled`` attribute to True.
+        """
+        def prepare(self):
+            """Prepare fake return objects before the test is executed"""
+            self.new_remote_id = 'new_entity'
+
+            updated_idp = copy.deepcopy(identity_fakes.IDENTITY_PROVIDER)
+            updated_idp['remote_ids'] = [self.new_remote_id]
+            resources = fakes.FakeResource(
+                None,
+                updated_idp,
+                loaded=True
+            )
+            self.identity_providers_mock.update.return_value = resources
+
+        prepare(self)
+        arglist = [
+            '--enable', identity_fakes.idp_id,
+            '--remote-id-file', self.new_remote_id,
+        ]
+        verifylist = [
+            ('identity_provider', identity_fakes.idp_id),
+            ('enable', True),
+            ('disable', False),
+            ('remote_id_file', self.new_remote_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        mocker = mock.Mock()
+        mocker.return_value = self.new_remote_id
+        with mock.patch("openstackclient.identity.v3.identity_provider."
+                        "utils.read_blob_file_contents", mocker):
+            columns, data = self.cmd.take_action(parsed_args)
+        self.identity_providers_mock.update.assert_called_with(
+            identity_fakes.idp_id, enabled=True,
+            remote_ids=[self.new_remote_id])
+        collist = ('description', 'enabled', 'id', 'remote_ids')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.idp_description,
+            True,
+            identity_fakes.idp_id,
+            [self.new_remote_id]
         )
         self.assertEqual(datalist, data)
 
@@ -361,6 +582,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
             ('identity_provider', identity_fakes.idp_id),
             ('enable', False),
             ('disable', False),
+            ('remote_id', None)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

@@ -35,6 +35,20 @@ class CreateIdentityProvider(show.ShowOne):
             metavar='<name>',
             help='New identity provider name (must be unique)'
         )
+        identity_remote_id_provider = parser.add_mutually_exclusive_group()
+        identity_remote_id_provider.add_argument(
+            '--remote-id',
+            metavar='<remote-id>',
+            action='append',
+            help='Remote IDs to associate with the Identity Provider '
+                 '(repeat to provide multiple values)'
+        )
+        identity_remote_id_provider.add_argument(
+            '--remote-id-file',
+            metavar='<file-name>',
+            help='Name of a file that contains many remote IDs to associate '
+                 'with the identity provider, one per line'
+        )
         parser.add_argument(
             '--description',
             metavar='<description>',
@@ -59,8 +73,17 @@ class CreateIdentityProvider(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
+        if parsed_args.remote_id_file:
+            file_content = utils.read_blob_file_contents(
+                parsed_args.remote_id_file)
+            remote_ids = file_content.splitlines()
+            remote_ids = list(map(str.strip, remote_ids))
+        else:
+            remote_ids = (parsed_args.remote_id
+                          if parsed_args.remote_id else None)
         idp = identity_client.federation.identity_providers.create(
             id=parsed_args.identity_provider_id,
+            remote_ids=remote_ids,
             description=parsed_args.description,
             enabled=parsed_args.enabled)
 
@@ -119,6 +142,20 @@ class SetIdentityProvider(command.Command):
             metavar='<identity-provider>',
             help='Identity provider to modify',
         )
+        identity_remote_id_provider = parser.add_mutually_exclusive_group()
+        identity_remote_id_provider.add_argument(
+            '--remote-id',
+            metavar='<remote-id>',
+            action='append',
+            help='Remote IDs to associate with the Identity Provider '
+                 '(repeat to provide multiple values)'
+        )
+        identity_remote_id_provider.add_argument(
+            '--remote-id-file',
+            metavar='<file-name>',
+            help='Name of a file that contains many remote IDs to associate '
+                 'with the identity provider, one per line'
+        )
         enable_identity_provider = parser.add_mutually_exclusive_group()
         enable_identity_provider.add_argument(
             '--enable',
@@ -136,16 +173,33 @@ class SetIdentityProvider(command.Command):
         self.log.debug('take_action(%s)', parsed_args)
         federation_client = self.app.client_manager.identity.federation
 
-        if parsed_args.enable is True:
-            enabled = True
-        elif parsed_args.disable is True:
-            enabled = False
-        else:
-            self.log.error("No changes requested")
+        # Basic argument checking
+        if (not parsed_args.enable and not parsed_args.disable and not
+                parsed_args.remote_id and not parsed_args.remote_id_file):
+            self.log.error('No changes requested')
             return (None, None)
 
+        # Always set remote_ids if either is passed in
+        if parsed_args.remote_id_file:
+            file_content = utils.read_blob_file_contents(
+                parsed_args.remote_id_file)
+            remote_ids = file_content.splitlines()
+            remote_ids = list(map(str.strip, remote_ids))
+        elif parsed_args.remote_id:
+            remote_ids = parsed_args.remote_id
+
+        # Setup keyword args for the client
+        kwargs = {}
+        if parsed_args.enable:
+            kwargs['enabled'] = True
+        if parsed_args.disable:
+            kwargs['enabled'] = False
+        if parsed_args.remote_id_file or parsed_args.remote_id:
+            kwargs['remote_ids'] = remote_ids
+
         identity_provider = federation_client.identity_providers.update(
-            parsed_args.identity_provider, enabled=enabled)
+            parsed_args.identity_provider, **kwargs)
+
         identity_provider._info.pop('links', None)
         return zip(*sorted(six.iteritems(identity_provider._info)))
 

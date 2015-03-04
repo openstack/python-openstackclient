@@ -15,9 +15,20 @@ Create new identity provider
 .. code:: bash
 
     os identity provider create
+        [--remote-id <remote-id> [...] | --remote-id-file <file-name>]
         [--description <description>]
         [--enable | --disable]
         <name>
+
+.. option:: --remote-id <remote-id>
+
+    Remote IDs to associate with the Identity Provider (repeat to provide
+    multiple values)
+
+.. option:: --remote-id-file <file-name>
+
+    Name of a file that contains many remote IDs to associate with the identity
+    provider, one per line
 
 .. option:: --description
 
@@ -69,8 +80,19 @@ Set identity provider properties
 .. code:: bash
 
     os identity provider set
+        [--remote-id <remote-id> [...] | --remote-id-file <file-name>]
         [--enable | --disable]
         <identity-provider>
+
+.. option:: --remote-id <remote-id>
+
+    Remote IDs to associate with the Identity Provider (repeat to provide
+    multiple values)
+
+.. option:: --remote-id-file <file-name>
+
+    Name of a file that contains many remote IDs to associate with the identity
+    provider, one per line
 
 .. option:: --enable
 
