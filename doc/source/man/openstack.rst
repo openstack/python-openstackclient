@@ -4,6 +4,7 @@
 
 OpenStack Command Line
 
+
 SYNOPSIS
 ========
 
@@ -57,8 +58,15 @@ OPTIONS
 
 :program:`openstack` recognizes the following global options:
 
-:option:`--os-auth-plugin` <auth-plugin>
-    The authentication plugin to use when connecting to the Identity service. If this option is not set, :program:`openstack` will attempt to guess the authentication method to use based on the other options.
+:option:`--os-cloud` <cloud-name>
+    :program:`openstack` will look for a ``clouds.yaml`` file that contains
+    a cloud configuration to use for authentication.  See CLOUD CONFIGURATION
+    below for more information.
+
+:option:`--os-auth-type` <auth-type>
+    The authentication plugin type to use when connecting to the Identity service.
+    If this option is not set, :program:`openstack` will attempt to guess the
+    authentication method to use based on the other options.
     If this option is set, its version must match :option:`--os-identity-api-version` 
 
 :option:`--os-auth-url` <auth-url>
@@ -156,6 +164,81 @@ Command Actions
 
 The actions used by OpenStackClient are defined with specific meaning to provide a consistent behavior for each object.  Some actions have logical opposite actions, and those pairs will always match for any object that uses them.
 
+
+CLOUD CONFIGURATION
+===================
+
+Working with multiple clouds can be simplified by keeping the configuration
+information for those clouds in a local file.  :program:`openstack` supports
+using a ``clouds.yaml`` configuration file.
+
+Config Files
+------------
+
+:program:`openstack` will look for a file called clouds.yaml in the following
+locations:
+
+* Current Directory
+* ~/.config/openstack
+* /etc/openstack
+
+The first file found wins.
+
+The keys match the :program:`openstack` global options but without the
+``--os-`` prefix:
+
+::
+
+    clouds:
+      devstack:
+        auth:
+          auth_url: http://192.168.122.10:35357/
+          project_name: demo
+          username: demo
+          password: 0penstack
+        region_name: RegionOne
+      ds-admin:
+        auth:
+          auth_url: http://192.168.122.10:35357/
+          project_name: admin
+          username: admin
+          password: 0penstack
+        region_name: RegionOne
+      infra:
+        cloud: rackspace
+        auth:
+          project_id: 275610
+          username: openstack
+          password: xyzpdq!lazydog
+        region_name: DFW,ORD,IAD
+
+In the above example, the ``auth_url`` for the ``rackspace`` cloud is taken
+from :file:`clouds-public.yaml`:
+
+::
+
+    public-clouds:
+      rackspace:
+        auth:
+          auth_url: 'https://identity.api.rackspacecloud.com/v2.0/'
+
+Authentication Settings
+-----------------------
+
+OpenStackClient uses the Keystone authentication plugins so the required
+auth settings are not always known until the authentication type is
+selected.  :program:`openstack` will attempt to detect a couple of common
+auth types based on the arguments passed in or found in the configuration
+file, but if those are incomplete it may be impossible to know which
+auth type is intended.  The :option:`--os-auth-type` option can always be
+used to force a specific type.
+
+When :option:`--os-token` and :option:`--os-url` are both present the
+``token_endpoint`` auth type is selected automatically.  If
+:option:`--os-auth-url` and :option:`--os-username` are present ``password``
+auth type is selected.
+
+
 NOTES
 =====
 
@@ -192,6 +275,15 @@ Create a new image::
 FILES
 =====
 
+:file:`~/.config/openstack/clouds.yaml`
+    Configuration file used by the :option:`--os-cloud` global option.
+
+:file:`~/.config/openstack/clouds-public.yaml`
+    Configuration file containing public cloud provider information such as
+    authentication URLs and service definitions.  The contents of this file
+    should be public and sharable.  ``clouds.yaml`` may contain references
+    to clouds defined here as shortcuts.
+
 :file:`~/.openstack`
     Placeholder for future local state directory.  This directory is intended to be shared among multiple OpenStack-related applications; contents are namespaced with an identifier for the app that owns it.  Shared contents (such as :file:`~/.openstack/cache`) have no prefix and the contents must be portable.
 
@@ -200,6 +292,9 @@ ENVIRONMENT VARIABLES
 =====================
 
 The following environment variables can be set to alter the behaviour of :program:`openstack`.  Most of them have corresponding command-line options that take precedence if set.
+
+:envvar:`OS_CLOUD`
+    The name of a cloud configuration in ``clouds.yaml``.
 
 :envvar:`OS_AUTH_PLUGIN`
     The authentication plugin to use when connecting to the Identity service, its version must match the Identity API version 
