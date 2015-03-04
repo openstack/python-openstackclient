@@ -18,14 +18,13 @@ import logging
 from oslo_config import cfg
 from six.moves.urllib import parse as urlparse
 
-from keystoneclient.auth import base
 from keystoneclient.auth.identity.generic import password as ksc_password
-
+from keystoneclient.auth import token_endpoint
 
 LOG = logging.getLogger(__name__)
 
 
-class TokenEndpoint(base.BaseAuthPlugin):
+class TokenEndpoint(token_endpoint.Token):
     """Auth plugin to handle traditional token/endpoint usage
 
     Implements the methods required to handle token authentication
@@ -43,23 +42,13 @@ class TokenEndpoint(base.BaseAuthPlugin):
         :param string url: Service endpoint
         :param string token: Existing token
         """
-        super(TokenEndpoint, self).__init__()
-        self.endpoint = url
-        self.token = token
-
-    def get_endpoint(self, session, **kwargs):
-        """Return the supplied endpoint"""
-        return self.endpoint
-
-    def get_token(self, session):
-        """Return the supplied token"""
-        return self.token
+        super(TokenEndpoint, self).__init__(endpoint=url,
+                                            token=token)
 
     def get_auth_ref(self, session, **kwargs):
-        """Stub this method for compatibility"""
+        # Stub this method for compatibility
         return None
 
-    # Override this because it needs to be a class method...
     @classmethod
     def get_options(self):
         options = super(TokenEndpoint, self).get_options()
