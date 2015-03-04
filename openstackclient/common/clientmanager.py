@@ -54,6 +54,8 @@ class ClientManager(object):
                     for o in auth.OPTIONS_LIST]:
             return self._auth_params[name[1:]]
 
+        raise AttributeError(name)
+
     def __init__(
         self,
         cli_options,

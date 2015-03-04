@@ -46,7 +46,6 @@ def make_client(instance):
         API_VERSIONS)
     LOG.debug('Instantiating identity client: %s', identity_client)
 
-    LOG.debug('Using auth plugin: %s' % instance._auth_plugin)
     client = identity_client(
         session=instance.session,
         region_name=instance._region_name,
