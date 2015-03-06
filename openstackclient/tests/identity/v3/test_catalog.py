@@ -82,3 +82,37 @@ class TestCatalogList(TestCatalog):
             '<none>\n  internal: https://internal.example.com\n',
         ), )
         self.assertEqual(datalist, tuple(data))
+
+
+class TestCatalogShow(TestCatalog):
+
+    def setUp(self):
+        super(TestCatalogShow, self).setUp()
+
+        # Get the command object to test
+        self.cmd = catalog.ShowCatalog(self.app, None)
+
+    def test_catalog_show(self):
+        arglist = [
+            'compute',
+        ]
+        verifylist = [
+            ('service', 'compute'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+        self.sc_mock.service_catalog.get_data.assert_called_with()
+
+        collist = ('endpoints', 'id', 'name', 'type')
+        self.assertEqual(collist, columns)
+        datalist = (
+            'onlyone\n  public: https://public.example.com\nonlyone\n'
+            '  admin: https://admin.example.com\n'
+            '<none>\n  internal: https://internal.example.com\n',
+            'qwertyuiop',
+            'supernova',
+            'compute',
+        )
+        self.assertEqual(datalist, data)

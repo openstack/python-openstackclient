@@ -16,8 +16,11 @@
 import logging
 
 from cliff import lister
+from cliff import show
+import six
 
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 
 
 def _format_endpoints(eps=None):
@@ -54,3 +57,44 @@ class ListCatalog(lister.Lister):
                         'Endpoints': _format_endpoints,
                     },
                 ) for s in data))
+
+
+class ShowCatalog(show.ShowOne):
+    """Display service catalog details"""
+
+    log = logging.getLogger(__name__ + '.ShowCatalog')
+
+    def get_parser(self, prog_name):
+        parser = super(ShowCatalog, self).get_parser(prog_name)
+        parser.add_argument(
+            'service',
+            metavar='<service>',
+            help=_('Service to display (type or name)'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)', parsed_args)
+
+        # This is ugly because if auth hasn't happened yet we need
+        # to trigger it here.
+        sc = self.app.client_manager.session.auth.get_auth_ref(
+            self.app.client_manager.session,
+        ).service_catalog
+
+        data = None
+        for service in sc.get_data():
+            if (service.get('name') == parsed_args.service or
+                    service.get('type') == parsed_args.service):
+                data = dict(service)
+                data['endpoints'] = _format_endpoints(data['endpoints'])
+                if 'links' in data:
+                    data.pop('links')
+                break
+
+        if not data:
+            self.app.log.error('service %s not found\n' %
+                               parsed_args.service)
+            return ([], [])
+
+        return zip(*sorted(six.iteritems(data)))
