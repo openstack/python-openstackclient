@@ -87,7 +87,7 @@ referring to both Compute and Volume quotas.
 * ``flavor``: (**Compute**) predefined server configurations: ram, root disk, etc
 * ``group``: (**Identity**) a grouping of users
 * ``host``: Compute - the physical computer running a hypervisor
-* ``hypervisor``: Compute - the virtual machine manager
+* ``hypervisor``: (**Compute**) the virtual machine manager
 * ``identity provider``: (**Identity**) a source of users and authentication
 * ``image``: (**Image**) a disk image
 * ``ip fixed``: Compute, Network - an internal IP address assigned to a server
