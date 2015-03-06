@@ -33,8 +33,8 @@ class ListHypervisor(lister.Lister):
         parser = super(ListHypervisor, self).get_parser(prog_name)
         parser.add_argument(
             "--matching",
-            metavar="<hostname-str>",
-            help="Filter hypervisors using <hostname-str> substring",
+            metavar="<hostname>",
+            help="Filter hypervisors using <hostname> substring",
         )
         return parser
 
@@ -58,23 +58,23 @@ class ListHypervisor(lister.Lister):
 
 
 class ShowHypervisor(show.ShowOne):
-    """Show hypervisor details"""
+    """Display hypervisor details"""
 
     log = logging.getLogger(__name__ + ".ShowHypervisor")
 
     def get_parser(self, prog_name):
         parser = super(ShowHypervisor, self).get_parser(prog_name)
         parser.add_argument(
-            "id",
-            metavar="<id>",
-            help="ID of the hypervisor to display")
+            "hypervisor",
+            metavar="<hypervisor>",
+            help="Hypervisor to display (name or ID)")
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         hypervisor = utils.find_resource(compute_client.hypervisors,
-                                         parsed_args.id)._info.copy()
+                                         parsed_args.hypervisor)._info.copy()
 
         hypervisor["service_id"] = hypervisor["service"]["id"]
         hypervisor["service_host"] = hypervisor["service"]["host"]
