@@ -55,7 +55,7 @@ OPTIONS
 
 :program:`openstack` takes global options that control overall behaviour and command-specific options that control the command operation.  Most global options have a corresponding environment variable that may also be used to set the value. If both are present, the command-line option takes priority. The environment variable names are derived from the option name by dropping the leading dashes ('--'), converting each embedded dash ('-') to an underscore ('_'), and converting to upper case.
 
-:program:`openstack` recognizes the following global topions:
+:program:`openstack` recognizes the following global options:
 
 :option:`--os-auth-plugin` <auth-plugin>
     The authentication plugin to use when connecting to the Identity service. If this option is not set, :program:`openstack` will attempt to guess the authentication method to use based on the other options.
