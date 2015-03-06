@@ -327,7 +327,7 @@ class DeleteSecurityGroupRule(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Create rule in this security group',
+            help='Security group rule to delete (name or ID)',
         )
         parser.add_argument(
             "--proto",
@@ -380,7 +380,7 @@ class ListSecurityGroupRule(lister.Lister):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Create rule in this security group',
+            help='List all rules in this security group',
         )
         return parser
 
