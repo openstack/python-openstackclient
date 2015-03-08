@@ -26,8 +26,9 @@ from openstackclient.i18n import _  # noqa
 def _format_endpoints(eps=None):
     if not eps:
         return ""
+    ret = ''
     for index, ep in enumerate(eps):
-        ret = eps[index]['region'] + '\n'
+        ret += eps[index]['region'] + '\n'
         for url in ['publicURL', 'internalURL', 'adminURL']:
             ret += "  %s: %s\n" % (url, eps[index]['publicURL'])
     return ret
