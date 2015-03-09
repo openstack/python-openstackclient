@@ -2,6 +2,66 @@
 Release Notes
 =============
 
+1.0.3 (10 Mar 2015)
+===================
+
+* Add ``catalog list`` and ``catalog show`` commands for Identity v3.
+
+* Add 'hypervisor stats show' command .
+  Bug `1423748 <https://bugs.launchpad.net/bugs/1423748>`_
+
+* Rename ``server resize`` option ``--verify`` to ``confirm``.  It conflicted with
+  the global ``--verify`` option and never worked prior to this.
+  Bug `1416542 <https://bugs.launchpad.net/bugs/1416542>`_
+
+* Add ``trust create/delete/list/show`` commands.
+  Bug `1413718 <https://bugs.launchpad.net/bugs/1413718>`_
+
+* Add ``--sort`` to ``image list`` command.
+  Bug `1410251 <https://bugs.launchpad.net/bugs/1410251>`_
+
+* Change ``volume create`` option ``--snapshot-id`` to ``--snapshot``.  The old
+  name is still silently supported.
+  Bug `1418742 <https://bugs.launchpad.net/bugs/1418742>`_
+
+* Add Network API quotas to ``quota show`` command.
+  Bug `1411160 <https://bugs.launchpad.net/bugs/1411160>`_
+
+* Add ``--public``, ``--private``, ``--all``, ``--long`` options to
+  ``flavor list`` command.  Remove "Extra Specs", "Swap" and"RXTX Factor"
+  columns from default output.
+  Bug `1411160 <https://bugs.launchpad.net/bugs/1411160>`_:
+
+* Add ``--shared``, ``--property`` options to ``image list`` command.
+  Bug `1401902 <https://bugs.launchpad.net/bugs/1401902>`_
+
+* Add ``--size`` option to ``volume set`` command.
+  Bug `1413954 <https://bugs.launchpad.net/bugs/1413954>`_
+
+* Bug `1353040 <https://bugs.launchpad.net/bugs/1353040>`_: server create --nic option clumsy
+* Bug `1366279 <https://bugs.launchpad.net/bugs/1366279>`_: nova lock command description rather terse
+* Bug `1399588 <https://bugs.launchpad.net/bugs/1399588>`_: Authentication needed for help command
+* Bug `1401902 <https://bugs.launchpad.net/bugs/1401902>`_: image filtering not available
+* Bug `1410251 <https://bugs.launchpad.net/bugs/1410251>`_: sort and filter options on openstack image list
+* Bug `1411160 <https://bugs.launchpad.net/bugs/1411160>`_: Add network support to quota show
+* Bug `1413718 <https://bugs.launchpad.net/bugs/1413718>`_: support keystone v3 trust extension
+* Bug `1413954 <https://bugs.launchpad.net/bugs/1413954>`_: missing volume extend
+* Bug `1415182 <https://bugs.launchpad.net/bugs/1415182>`_: Add extra validation when extending volume
+* Bug `1416542 <https://bugs.launchpad.net/bugs/1416542>`_: openstack client resize verify not completing workflow
+* Bug `1416780 <https://bugs.launchpad.net/bugs/1416780>`_: flavor list missing features
+* Bug `1417614 <https://bugs.launchpad.net/bugs/1417614>`_: tenant_id in server show
+* Bug `1417854 <https://bugs.launchpad.net/bugs/1417854>`_: Fix help messages for `os security group rule create` and `os security group rule list`
+* Bug `1418024 <https://bugs.launchpad.net/bugs/1418024>`_: wrong import of contrib module from novaclient
+* Bug `1418384 <https://bugs.launchpad.net/bugs/1418384>`_: openstack client help shows domain can be changed for a project
+* Bug `1418742 <https://bugs.launchpad.net/bugs/1418742>`_: volume create --snapshot-id is wrong
+* Bug `1418810 <https://bugs.launchpad.net/bugs/1418810>`_: auth with os-token fails with unexpected keyword argument 'user_domain_id'
+* Bug `1420080 <https://bugs.launchpad.net/bugs/1420080>`_: functional tests are failing with new keystoneclient release
+* Bug `1420732 <https://bugs.launchpad.net/bugs/1420732>`_: Better error message for sort_items
+* Bug `1423748 <https://bugs.launchpad.net/bugs/1423748>`_: Add support for hypervisor-stats and hypervisor-uptime command
+* Bug `1428912 <https://bugs.launchpad.net/bugs/1428912>`_: authentication through password prompting is broken
+* Bug `1429211 <https://bugs.launchpad.net/bugs/1429211>`_: 'catalog list' fails when region is not present
+
+
 1.0.2 (19 Jan 2015)
 ===================
 
@@ -13,69 +73,52 @@ Release Notes
   ``OS_USER_DOMAIN_NAME`` are not set.  This is also done for
   ``OS_PROJECT_DOMAIN_ID`` and ``OS_PROJECT_DOMAIN_NAME`.
   (*Identity API v3 only*).
-  Bug 1385338_: Improve domain related defaults when using v3 identity
+  Bug `1385338 <https://bugs.launchpad.net/bugs/1385338>`_: Improve domain related defaults when using v3 identity
 
 * Add new ``usage show`` command to display project resource usage information.
-  Bug 1400796_: Quick usage report - nova usage
+  Bug `1400796 <https://bugs.launchpad.net/bugs/1400796>`_: Quick usage report - nova usage
 
 * Add ``--project`` option to ``user list`` command to filter users by project
   (*Identity API v3 only*).
-  Bug 1397251_: allow `openstack user list` to use other filters
+  Bug `1397251 <https://bugs.launchpad.net/bugs/1397251>`_: allow `openstack user list` to use other filters
 
 * Add ``--user`` to ``project list`` command to filter projects by user
   (*Identity API v3 only*).
-  Bug 1394793_: support the keystone api /v3/users/$userid/projects
+  Bug `1394793 <https://bugs.launchpad.net/bugs/1394793>`_: support the keystone api /v3/users/$userid/projects
 
 * Add ``--project`` and ``--user`` options to ``role list`` to filter roles
   by project and/or user.  This makes the v2 command very similar to the
   v3 command.
   (*Identity API v2 only*).
-  Bug 1409179_: `user role list` command should be worked into `role list`
+  Bug `1406737 <https://bugs.launchpad.net/bugs/1406737>`_: `user role list` command should be worked into `role list`
 
-* Bug 1390507_: Quota show requires cinder in keystone catalog
-* Bug 1400531_: Authentication failure results in useless error message
-* Bug 1400597_: delete multiple objects
-* Bug 1400795_: No list availability zones option
-* Bug 1404073_: type should be required for v2.0 service create
-* Bug 1404434_: add missing docs for service command
-* Bug 1404931_: volume list does not show attached servers
-* Bug 1404997_: Allow description to be set for service create/update
-* Bug 1405416_: Compute region selection broken
-* Bug 1406654_: Remove deprecated commands from help
-* Bug 1406737_: v3 endpoint related commands access service.name without check
-* Bug 1408585_: Backup list doesn't show backup's name
-* Bug 1410364_: Version discovery fails with default Keystone config
-* Bug 1411179_: network client don't use session
-* Bug 1411337_: identity v3 service list should have "description" column
-
-.. _1385338: https://bugs.launchpad.net/bugs/1385338
-.. _1406654: https://bugs.launchpad.net/bugs/1406654
-.. _1411337: https://bugs.launchpad.net/bugs/1411337
-.. _1400531: https://bugs.launchpad.net/bugs/1400531
-.. _1406737: https://bugs.launchpad.net/bugs/1406737
-.. _1409179: https://bugs.launchpad.net/bugs/1409179
-.. _1408585: https://bugs.launchpad.net/bugs/1408585
-.. _1405416: https://bugs.launchpad.net/bugs/1405416
-.. _1404931: https://bugs.launchpad.net/bugs/1404931
-.. _1404434: https://bugs.launchpad.net/bugs/1404434
-.. _1404073: https://bugs.launchpad.net/bugs/1404073
-.. _1400796: https://bugs.launchpad.net/bugs/1400796
-.. _1400795: https://bugs.launchpad.net/bugs/1400795
-.. _1400597: https://bugs.launchpad.net/bugs/1400597
-.. _1397251: https://bugs.launchpad.net/bugs/1397251
-.. _1394793: https://bugs.launchpad.net/bugs/1394793
-.. _1390507: https://bugs.launchpad.net/bugs/1390507
-.. _1410364: https://bugs.launchpad.net/bugs/1410364
-.. _1404997: https://bugs.launchpad.net/bugs/1404997
-.. _1411179: https://bugs.launchpad.net/bugs/1411179
+* Bug `1385338 <https://bugs.launchpad.net/bugs/1385338>`_: Improve domain related defaults when using v3 identity API
+* Bug `1390507 <https://bugs.launchpad.net/bugs/1390507>`_: Quota show requires cinder in keystone catalog
+* Bug `1394793 <https://bugs.launchpad.net/bugs/1394793>`_: support the keystone api /v3/users/$userid/projects
+* Bug `1397251 <https://bugs.launchpad.net/bugs/1397251>`_: allow `openstack user list` to use other filters
+* Bug `1399757 <https://bugs.launchpad.net/bugs/1399757>`_: ec2 credentials create fails in 1.0.0
+* Bug `1400531 <https://bugs.launchpad.net/bugs/1400531>`_: Authentication failure results in useless error message
+* Bug `1400597 <https://bugs.launchpad.net/bugs/1400597>`_: delete multiple objects
+* Bug `1400795 <https://bugs.launchpad.net/bugs/1400795>`_: No list availability zones option
+* Bug `1400796 <https://bugs.launchpad.net/bugs/1400796>`_: Quick usage report - nova usage
+* Bug `1404073 <https://bugs.launchpad.net/bugs/1404073>`_: type should be required for v2.0 service create
+* Bug `1404434 <https://bugs.launchpad.net/bugs/1404434>`_: add missing docs for service command
+* Bug `1404931 <https://bugs.launchpad.net/bugs/1404931>`_: volume list does not show attached servers
+* Bug `1404997 <https://bugs.launchpad.net/bugs/1404997>`_: Allow description to be set for service create/update
+* Bug `1405416 <https://bugs.launchpad.net/bugs/1405416>`_: Compute region selection broken
+* Bug `1406654 <https://bugs.launchpad.net/bugs/1406654>`_: Remove deprecated commands from help
+* Bug `1406737 <https://bugs.launchpad.net/bugs/1406737>`_: v3 endpoint related commands access service.name without check
+* Bug `1408585 <https://bugs.launchpad.net/bugs/1408585>`_: Backup list doesn't show backup's name
+* Bug `1409179 <https://bugs.launchpad.net/bugs/1409179>`_: `user role list` command should be worked into `role list`
+* Bug `1410364 <https://bugs.launchpad.net/bugs/1410364>`_: Version discovery fails with default Keystone config
+* Bug `1411179 <https://bugs.launchpad.net/bugs/1411179>`_: network client don't use session
+* Bug `1411337 <https://bugs.launchpad.net/bugs/1411337>`_: identity v3 service list should have "description" column
 
 
 1.0.1 (08 Dec 2014)
 ===================
 
-* Bug 1399757_: EC2 credentials create fails
-
-.. _1399757: https://bugs.launchpad.net/bugs/1399757
+* Bug `1399757 <https://bugs.launchpad.net/bugs/1399757>`_: EC2 credentials create fails
 
 
 1.0.0 (04 Dec 2014)
