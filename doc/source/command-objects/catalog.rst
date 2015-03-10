@@ -2,7 +2,7 @@
 catalog
 =======
 
-Identity v2
+Identity v2, v3
 
 catalog list
 ------------
