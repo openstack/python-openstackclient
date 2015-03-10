@@ -188,12 +188,6 @@ class OpenStackShell(app.App):
             description,
             version)
 
-        # service token auth argument
-        parser.add_argument(
-            '--os-url',
-            metavar='<url>',
-            default=utils.env('OS_URL'),
-            help='Defaults to env[OS_URL]')
         # Global arguments
         parser.add_argument(
             '--os-region-name',
