@@ -6,8 +6,15 @@ source $FUNCTIONAL_TEST_DIR/harpoonrc
 OPENSTACKCLIENT_DIR=$FUNCTIONAL_TEST_DIR/..
 
 if [[ -z $DEVSTACK_DIR ]]; then
-    echo "guessing location of devstack"
     DEVSTACK_DIR=$OPENSTACKCLIENT_DIR/../devstack
+    if [[ ! -d $DEVSTACK_DIR ]]; then
+        DEVSTACK_DIR=$HOME/devstack
+        if [[ ! -d $DEVSTACK_DIR ]]; then
+            echo "Where did you hide DevStack? Set DEVSTACK_DIR and try again"
+            exit 1
+        fi
+    fi
+    echo "Using DevStack found at $DEVSTACK_DIR"
 fi
 
 function setup_credentials {
