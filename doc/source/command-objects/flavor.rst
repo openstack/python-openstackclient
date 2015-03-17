@@ -123,3 +123,43 @@ Display flavor details
 .. describe:: <flavor>
 
     Flavor to display (name or ID)
+
+flavor set
+----------
+
+Set flavor properties
+
+.. program:: flavor set
+.. code:: bash
+
+    os flavor set
+        [--property <key=value> [...] ]
+        <flavor>
+
+.. option:: --property <key=value>
+
+    Property to add or modify for this flavor (repeat option to set multiple properties)
+
+.. describe:: <flavor>
+
+    Flavor to modify (name or ID)
+
+flavor unset
+------------
+
+Unset flavor properties
+
+.. program:: flavor unset
+.. code:: bash
+
+    os flavor unset
+        [--property <key> [...] ]
+        <flavor>
+
+.. option:: --property <key>
+
+    Property to remove from flavor (repeat option to remove multiple properties)
+
+.. describe:: <flavor>
+
+    Flavor to modify (name or ID)

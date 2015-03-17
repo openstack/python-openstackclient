@@ -22,8 +22,17 @@ from openstackclient.tests import fakes
 
 class FakeFlavorResource(fakes.FakeResource):
 
+    _keys = {'property': 'value'}
+
+    def set_keys(self, args):
+        self._keys.update(args)
+
+    def unset_keys(self, keys):
+        for key in keys:
+            self._keys.pop(key, None)
+
     def get_keys(self):
-        return {'property': 'value'}
+        return self._keys
 
 
 class TestFlavor(compute_fakes.TestComputev2):
@@ -272,3 +281,69 @@ class TestFlavorList(TestFlavor):
             'property=\'value\''
         ), )
         self.assertEqual(datalist, tuple(data))
+
+
+class TestFlavorSet(TestFlavor):
+
+    def setUp(self):
+        super(TestFlavorSet, self).setUp()
+
+        self.flavors_mock.find.return_value = FakeFlavorResource(
+            None,
+            copy.deepcopy(compute_fakes.FLAVOR),
+            loaded=True,
+        )
+
+        self.cmd = flavor.SetFlavor(self.app, None)
+
+    def test_flavor_set(self):
+        arglist = [
+            '--property', 'FOO="B A R"',
+            'baremetal'
+        ]
+        verifylist = [
+            ('property', {'FOO': '"B A R"'}),
+            ('flavor', 'baremetal')
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.flavors_mock.find.assert_called_with(name='baremetal')
+
+        self.assertEqual('properties', columns[2])
+        self.assertIn('FOO=\'"B A R"\'', data[2])
+
+
+class TestFlavorUnset(TestFlavor):
+
+    def setUp(self):
+        super(TestFlavorUnset, self).setUp()
+
+        self.flavors_mock.find.return_value = FakeFlavorResource(
+            None,
+            copy.deepcopy(compute_fakes.FLAVOR),
+            loaded=True,
+        )
+
+        self.cmd = flavor.UnsetFlavor(self.app, None)
+
+    def test_flavor_unset(self):
+        arglist = [
+            '--property', 'property',
+            'baremetal'
+        ]
+        verifylist = [
+            ('property', ['property']),
+            ('flavor', 'baremetal'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.flavors_mock.find.assert_called_with(name='baremetal')
+
+        self.assertEqual('properties', columns[2])
+        self.assertNotIn('property', data[2])

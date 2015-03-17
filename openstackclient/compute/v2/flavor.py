@@ -22,6 +22,7 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
+from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
@@ -237,8 +238,79 @@ class ShowFlavor(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
-        flavor = utils.find_resource(compute_client.flavors,
-                                     parsed_args.flavor)._info.copy()
-        flavor.pop("links")
+        resource_flavor = utils.find_resource(compute_client.flavors,
+                                              parsed_args.flavor)
+        flavor = resource_flavor._info.copy()
+        flavor.pop("links", None)
 
+        flavor['properties'] = utils.format_dict(resource_flavor.get_keys())
+
+        return zip(*sorted(six.iteritems(flavor)))
+
+
+class SetFlavor(show.ShowOne):
+    """Set flavor properties"""
+
+    log = logging.getLogger(__name__ + ".SetFlavor")
+
+    def get_parser(self, prog_name):
+        parser = super(SetFlavor, self).get_parser(prog_name)
+        parser.add_argument(
+            "--property",
+            metavar="<key=value>",
+            action=parseractions.KeyValueAction,
+            help='Property to add or modify for this flavor '
+                 '(repeat option to set multiple properties)',
+        )
+        parser.add_argument(
+            "flavor",
+            metavar="<flavor>",
+            help="Flavor to modify (name or ID)",
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)", parsed_args)
+        compute_client = self.app.client_manager.compute
+        resource_flavor = compute_client.flavors.find(name=parsed_args.flavor)
+
+        resource_flavor.set_keys(parsed_args.property)
+
+        flavor = resource_flavor._info.copy()
+        flavor['properties'] = utils.format_dict(resource_flavor.get_keys())
+        flavor.pop("links", None)
+        return zip(*sorted(six.iteritems(flavor)))
+
+
+class UnsetFlavor(show.ShowOne):
+    """Unset flavor properties"""
+
+    log = logging.getLogger(__name__ + ".UnsetFlavor")
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetFlavor, self).get_parser(prog_name)
+        parser.add_argument(
+            "--property",
+            metavar="<key>",
+            action='append',
+            help='Property to remove from flavor '
+                 '(repeat option to unset multiple properties)',
+        )
+        parser.add_argument(
+            "flavor",
+            metavar="<flavor>",
+            help="Flavor to modify (name or ID)",
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)", parsed_args)
+        compute_client = self.app.client_manager.compute
+        resource_flavor = compute_client.flavors.find(name=parsed_args.flavor)
+
+        resource_flavor.unset_keys(parsed_args.property)
+
+        flavor = resource_flavor._info.copy()
+        flavor['properties'] = utils.format_dict(resource_flavor.get_keys())
+        flavor.pop("links", None)
         return zip(*sorted(six.iteritems(flavor)))
