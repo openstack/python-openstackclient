@@ -1,4 +1,5 @@
 #   Copyright 2012-2013 OpenStack Foundation
+#   Copyright 2015 Dean Troyer
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -19,6 +20,7 @@ import getpass
 import logging
 import sys
 import traceback
+import warnings
 
 from cliff import app
 from cliff import command
@@ -139,12 +141,15 @@ class OpenStackShell(app.App):
         if self.options.verbose_level == 0:
             # --quiet
             root_logger.setLevel(logging.ERROR)
+            warnings.simplefilter("ignore")
         elif self.options.verbose_level == 1:
             # This is the default case, no --debug, --verbose or --quiet
             root_logger.setLevel(logging.WARNING)
+            warnings.simplefilter("ignore")
         elif self.options.verbose_level == 2:
             # One --verbose
             root_logger.setLevel(logging.INFO)
+            warnings.simplefilter("once")
         elif self.options.verbose_level >= 3:
             # Two or more --verbose
             root_logger.setLevel(logging.DEBUG)
