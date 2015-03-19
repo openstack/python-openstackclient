@@ -243,6 +243,20 @@ protocol_id = 'protocol'
 mapping_id = 'test_mapping'
 mapping_id_updated = 'prod_mapping'
 
+sp_id = 'BETA'
+sp_description = 'Service Provider to burst into'
+service_provider_url = 'https://beta.example.com/Shibboleth.sso/POST/SAML'
+sp_auth_url = ('https://beta.example.com/v3/OS-FEDERATION/identity_providers/'
+               'idp/protocol/saml2/auth')
+
+SERVICE_PROVIDER = {
+    'id': sp_id,
+    'enabled': True,
+    'description': sp_description,
+    'sp_url': service_provider_url,
+    'auth_url': sp_auth_url
+}
+
 PROTOCOL_ID_MAPPING = {
     'id': protocol_id,
     'mapping': mapping_id
@@ -380,6 +394,8 @@ class FakeFederationManager(object):
         self.projects.resource_class = fakes.FakeResource(None, {})
         self.domains = mock.Mock()
         self.domains.resource_class = fakes.FakeResource(None, {})
+        self.service_providers = mock.Mock()
+        self.service_providers.resource_class = fakes.FakeResource(None, {})
 
 
 class FakeFederatedClient(FakeIdentityv3Client):
