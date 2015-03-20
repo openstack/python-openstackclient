@@ -171,6 +171,18 @@ Display project details
 
     .. versionadded:: 3
 
+.. option:: --parents
+
+    Show the project\'s parents as a list
+
+    .. versionadded:: 3
+
+.. option:: --children
+
+    Show project\'s subtree (children) as a list
+
+    .. versionadded:: 3
+
 .. _project_show-project:
 .. describe:: <project>
 
