@@ -84,3 +84,58 @@ by the ``ClientManager`` object.
 
   * if ``--os-auth-url`` is not supplied for any of the types except
     Token/Endpoint, exit with an error.
+
+Authenticating using Identity Server API v3
+-------------------------------------------
+
+To authenticate against an Identity Server API v3, the
+``OS_IDENTITY_API_VERSION`` environment variable or
+``--os-identity-api-version`` option must be changed to ``3``, instead of the
+default ``2.0``. Similarly ``OS_AUTH_URL`` or ``os-auth-url`` should also be
+updated.
+
+.. code-block:: bash
+
+    $ export OS_IDENTITY_API_VERSION=3 (Defaults to 2.0)
+    $ export OS_AUTH_URL=http://localhost:5000/v3
+
+Since Identity API v3 authentication is a bit more complex, there are additional
+options that may be set, either as command line options or environment
+variables. The most common case will be a user supplying both user name and
+password, along with the project name; previously in v2.0 this would be
+sufficient, but since the Identity API v3 has a ``Domain`` component, we need
+to tell the client in which domain the user and project exists.
+
+If using a user name and password to authenticate, specify either it's owning
+domain name or ID.
+
+  * ``--os-user-domain-name`` or ``OS_USER_DOMAIN_NAME``
+
+  * ``--os-user-domain-id`` or ``OS_USER_DOMAIN_ID``
+
+If using a project name as authorization scope, specify either it's owning
+domain name or ID.
+
+  * ``--os-project-domain-name`` or ``OS_PROJECT_DOMAIN_NAME``
+
+  * ``--os-project-domain-id`` or ``OS_PROJECT_DOMAIN_ID``
+
+If using a domain as authorization scope, set either it's name or ID.
+
+  * ``--os-domain-name`` or ``OS_DOMAIN_NAME``
+
+  * ``--os-domain-id`` or ``OS_DOMAIN_ID``
+
+Note that if the user and project share the same domain, then simply setting
+``os-default-domain`` or ``OS_DEFAULT_DOMAIN`` is sufficient.
+
+Thus, a minimal set of of environment variables would be:
+
+.. code-block:: bash
+
+    $ export OS_IDENTITY_API_VERSION=3
+    $ export OS_AUTH_URL=http://localhost:5000/v3
+    $ export OS_DEFAULT_DOMAIN=default
+    $ export OS_USERNAME=admin
+    $ export OS_PASSWORD=secret
+    $ export OS_PROJECT_NAME=admin
