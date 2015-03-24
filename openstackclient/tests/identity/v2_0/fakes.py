@@ -142,6 +142,13 @@ class FakeIdentityv2Client(object):
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
+    def __getattr__(self, name):
+        # Map v3 'projects' back to v2 'tenants'
+        if name == "projects":
+            return self.tenants
+        else:
+            raise AttributeError(name)
+
 
 class TestIdentityv2(utils.TestCommand):
     def setUp(self):
