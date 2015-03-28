@@ -111,6 +111,7 @@ referring to both Compute and Volume quotas.
 * ``server``: (**Compute**) virtual machine instance
 * ``server image``: (**Compute**) saved server disk image
 * ``service``: (**Identity**) a cloud service
+* ``service provider``: (**Identity**) a resource that consumes assertions from an ``identity provider``
 * ``snapshot``: (**Volume**) a point-in-time copy of a volume
 * ``token``: (**Identity**) a bearer token managed by Identity service
 * ``usage``: (**Compute**) display host resources being consumed
