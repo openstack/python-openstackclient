@@ -15,9 +15,6 @@
 
 import logging
 
-from glanceclient import exc as gc_exceptions
-from glanceclient.v1 import client as gc_v1_client
-from glanceclient.v1 import images as gc_v1_images
 from openstackclient.common import utils
 
 
@@ -27,7 +24,7 @@ DEFAULT_IMAGE_API_VERSION = '1'
 API_VERSION_OPTION = 'os_image_api_version'
 API_NAME = "image"
 API_VERSIONS = {
-    "1": "openstackclient.image.client.Client_v1",
+    "1": "glanceclient.v1.client.Client",
     "2": "glanceclient.v2.client.Client",
 }
 
@@ -89,54 +86,3 @@ def build_option_parser(parser):
              DEFAULT_IMAGE_API_VERSION +
              ' (Env: OS_IMAGE_API_VERSION)')
     return parser
-
-
-# NOTE(dtroyer): glanceclient.v1.image.ImageManager() doesn't have a find()
-#                method so add one here until the common client libs arrive
-#                A similar subclass will be required for v2
-
-class Client_v1(gc_v1_client.Client):
-    """An image v1 client that uses ImageManager_v1"""
-
-    def __init__(self, *args, **kwargs):
-        super(Client_v1, self).__init__(*args, **kwargs)
-        self.images = ImageManager_v1(getattr(self, 'http_client', self))
-
-
-class ImageManager_v1(gc_v1_images.ImageManager):
-    """Add find() and findall() to the ImageManager class"""
-
-    def find(self, **kwargs):
-        """Find a single item with attributes matching ``**kwargs``.
-
-        This isn't very efficient: it loads the entire list then filters on
-        the Python side.
-        """
-        rl = self.findall(**kwargs)
-        num = len(rl)
-
-        if num == 0:
-            raise gc_exceptions.NotFound
-        elif num > 1:
-            raise gc_exceptions.NoUniqueMatch
-        else:
-            return rl[0]
-
-    def findall(self, **kwargs):
-        """Find all items with attributes matching ``**kwargs``.
-
-        This isn't very efficient: it loads the entire list then filters on
-        the Python side.
-        """
-        found = []
-        searches = kwargs.items()
-
-        for obj in self.list():
-            try:
-                if all(getattr(obj, attr) == value
-                       for (attr, value) in searches):
-                    found.append(obj)
-            except AttributeError:
-                continue
-
-        return found
