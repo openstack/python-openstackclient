@@ -30,6 +30,9 @@ LOG = logging.getLogger(__name__)
 DEFAULT_COMPUTE_API_VERSION = '2'
 API_VERSION_OPTION = 'os_compute_api_version'
 API_NAME = 'compute'
+API_VERSIONS = {
+    "2": "novaclient.client",
+}
 
 
 def make_client(instance):

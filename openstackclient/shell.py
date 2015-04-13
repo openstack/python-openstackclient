@@ -247,6 +247,11 @@ class OpenStackShell(app.App):
             if version_opt:
                 api = mod.API_NAME
                 self.api_version[api] = version_opt
+                if version_opt not in mod.API_VERSIONS:
+                    self.log.warning(
+                        "The %s version <%s> is not in supported versions <%s>"
+                        % (api, version_opt,
+                           ', '.join(mod.API_VERSIONS.keys())))
                 # Command groups deal only with major versions
                 version = '.v' + version_opt.replace('.', '_').split('_')[0]
                 cmd_group = 'openstack.' + api.replace('-', '_') + version
