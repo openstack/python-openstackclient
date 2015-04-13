@@ -15,16 +15,7 @@
 
 import logging
 
-from cinderclient import extension
-from cinderclient.v1.contrib import list_extensions
-from cinderclient.v1 import volume_snapshots
-from cinderclient.v1 import volumes
-
 from openstackclient.common import utils
-
-# Monkey patch for v1 cinderclient
-volumes.Volume.NAME_ATTR = 'display_name'
-volume_snapshots.Snapshot.NAME_ATTR = 'display_name'
 
 LOG = logging.getLogger(__name__)
 
@@ -38,6 +29,17 @@ API_VERSIONS = {
 
 def make_client(instance):
     """Returns a volume service client."""
+
+    # Defer client imports until we actually need them
+    from cinderclient import extension
+    from cinderclient.v1.contrib import list_extensions
+    from cinderclient.v1 import volume_snapshots
+    from cinderclient.v1 import volumes
+
+    # Monkey patch for v1 cinderclient
+    volumes.Volume.NAME_ATTR = 'display_name'
+    volume_snapshots.Snapshot.NAME_ATTR = 'display_name'
+
     volume_client = utils.get_client_class(
         API_NAME,
         instance._api_version[API_NAME],

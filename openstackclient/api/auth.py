@@ -27,29 +27,49 @@ from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
 
-
 # Initialize the list of Authentication plugins early in order
 # to get the command-line options
-PLUGIN_LIST = stevedore.ExtensionManager(
-    base.PLUGIN_NAMESPACE,
-    invoke_on_load=False,
-    propagate_map_exceptions=True,
-)
+PLUGIN_LIST = None
 
-# Get the command line options so the help action has them available
+# List of plugin command line options
 OPTIONS_LIST = {}
-for plugin in PLUGIN_LIST:
-    for o in plugin.plugin.get_options():
-        os_name = o.dest.lower().replace('_', '-')
-        os_env_name = 'OS_' + os_name.upper().replace('-', '_')
-        OPTIONS_LIST.setdefault(os_name, {'env': os_env_name, 'help': ''})
-        # TODO(mhu) simplistic approach, would be better to only add
-        # help texts if they vary from one auth plugin to another
-        # also the text rendering is ugly in the CLI ...
-        OPTIONS_LIST[os_name]['help'] += 'With %s: %s\n' % (
-            plugin.name,
-            o.help,
+
+
+def get_plugin_list():
+    """Gather plugin list and cache it"""
+
+    global PLUGIN_LIST
+
+    if PLUGIN_LIST is None:
+        PLUGIN_LIST = stevedore.ExtensionManager(
+            base.PLUGIN_NAMESPACE,
+            invoke_on_load=False,
+            propagate_map_exceptions=True,
         )
+    return PLUGIN_LIST
+
+
+def get_options_list():
+    """Gather plugin options so the help action has them available"""
+
+    global OPTIONS_LIST
+
+    if not OPTIONS_LIST:
+        for plugin in get_plugin_list():
+            for o in plugin.plugin.get_options():
+                os_name = o.dest.lower().replace('_', '-')
+                os_env_name = 'OS_' + os_name.upper().replace('-', '_')
+                OPTIONS_LIST.setdefault(
+                    os_name, {'env': os_env_name, 'help': ''},
+                )
+                # TODO(mhu) simplistic approach, would be better to only add
+                # help texts if they vary from one auth plugin to another
+                # also the text rendering is ugly in the CLI ...
+                OPTIONS_LIST[os_name]['help'] += 'With %s: %s\n' % (
+                    plugin.name,
+                    o.help,
+                )
+    return OPTIONS_LIST
 
 
 def select_auth_plugin(options):
@@ -57,7 +77,7 @@ def select_auth_plugin(options):
 
     auth_plugin_name = None
 
-    if options.os_auth_type in [plugin.name for plugin in PLUGIN_LIST]:
+    if options.os_auth_type in [plugin.name for plugin in get_plugin_list()]:
         # A direct plugin name was given, use it
         return options.os_auth_type
 
@@ -113,7 +133,7 @@ def build_auth_params(auth_plugin_name, cmd_options):
     else:
         LOG.debug('no auth_type')
         # delay the plugin choice, grab every option
-        plugin_options = set([o.replace('-', '_') for o in OPTIONS_LIST])
+        plugin_options = set([o.replace('-', '_') for o in get_options_list()])
         for option in plugin_options:
             option_name = 'os_' + option
             LOG.debug('fetching option %s' % option_name)
@@ -147,7 +167,7 @@ def build_auth_plugins_option_parser(parser):
     authentication plugin.
 
     """
-    available_plugins = [plugin.name for plugin in PLUGIN_LIST]
+    available_plugins = [plugin.name for plugin in get_plugin_list()]
     parser.add_argument(
         '--os-auth-type',
         metavar='<auth-type>',
@@ -169,7 +189,7 @@ def build_auth_plugins_option_parser(parser):
             default=utils.env('OS_TENANT_ID')
         ),
     }
-    for o in OPTIONS_LIST:
+    for o in get_options_list():
         # remove allusion to tenants from v2.0 API
         if 'tenant' not in o:
             parser.add_argument(

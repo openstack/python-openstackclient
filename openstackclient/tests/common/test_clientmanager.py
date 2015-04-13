@@ -34,6 +34,10 @@ AUTH_REF.update(fakes.TEST_RESPONSE_DICT['access'])
 SERVICE_CATALOG = service_catalog.ServiceCatalogV2(AUTH_REF)
 
 
+# This is deferred in api.auth but we need it here...
+auth.get_options_list()
+
+
 class Container(object):
     attr = clientmanager.ClientCache(lambda x: object())
 

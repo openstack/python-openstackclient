@@ -15,14 +15,6 @@
 
 import logging
 
-from novaclient import client as nova_client
-from novaclient import extension
-
-try:
-    from novaclient.v2.contrib import list_extensions
-except ImportError:
-    from novaclient.v1_1.contrib import list_extensions
-
 from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
@@ -34,6 +26,15 @@ API_NAME = 'compute'
 
 def make_client(instance):
     """Returns a compute service client."""
+
+    # Defer client imports until we actually need them
+    from novaclient import client as nova_client
+    from novaclient import extension
+    try:
+        from novaclient.v2.contrib import list_extensions
+    except ImportError:
+        from novaclient.v1_1.contrib import list_extensions
+
     compute_client = nova_client.get_client_class(
         instance._api_version[API_NAME],
     )
