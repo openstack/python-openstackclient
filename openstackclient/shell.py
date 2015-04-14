@@ -76,7 +76,8 @@ class OpenStackShell(app.App):
         super(OpenStackShell, self).__init__(
             description=__doc__.strip(),
             version=openstackclient.__version__,
-            command_manager=commandmanager.CommandManager('openstack.cli'))
+            command_manager=commandmanager.CommandManager('openstack.cli'),
+            deferred_help=True)
 
         self.api_version = {}
 
@@ -91,35 +92,6 @@ class OpenStackShell(app.App):
         self.verify = True
 
         self.client_manager = None
-
-        # NOTE(dtroyer): This hack changes the help action that Cliff
-        #                automatically adds to the parser so we can defer
-        #                its execution until after the api-versioned commands
-        #                have been loaded.  There doesn't seem to be a
-        #                way to edit/remove anything from an existing parser.
-
-        # Replace the cliff-added help.HelpAction to defer its execution
-        self.DeferredHelpAction = None
-        for a in self.parser._actions:
-            if type(a) == help.HelpAction:
-                # Found it, save and replace it
-                self.DeferredHelpAction = a
-
-                # These steps are argparse-implementation-dependent
-                self.parser._actions.remove(a)
-                if self.parser._option_string_actions['-h']:
-                    del self.parser._option_string_actions['-h']
-                if self.parser._option_string_actions['--help']:
-                    del self.parser._option_string_actions['--help']
-
-                # Make a new help option to just set a flag
-                self.parser.add_argument(
-                    '-h', '--help',
-                    action='store_true',
-                    dest='deferred_help',
-                    default=False,
-                    help="Show this help message and exit",
-                )
 
     def configure_logging(self):
         """Configure logging for the app
@@ -281,8 +253,7 @@ class OpenStackShell(app.App):
         # set up additional clients to stuff in to client_manager??
 
         # Handle deferred help and exit
-        if self.options.deferred_help:
-            self.DeferredHelpAction(self.parser, self.parser, None, None)
+        self.print_help_if_requested()
 
         # Set up common client session
         if self.options.os_cacert:
