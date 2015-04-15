@@ -275,10 +275,17 @@ class CreateServer(show.ShowOne):
         )
         parser.add_argument(
             '--nic',
-            metavar='<nic-config-string>',
+            metavar="<net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,"
+                    "port-id=port-uuid>",
             action='append',
             default=[],
-            help=_('Specify NIC configuration (optional extension)'),
+            help=_("Create a NIC on the server. "
+                   "Specify option multiple times to create multiple NICs. "
+                   "Either net-id or port-id must be provided, but not both. "
+                   "net-id: attach NIC to network with this UUID, "
+                   "port-id: attach NIC to port with this UUID, "
+                   "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
+                   "v6-fixed-ip: IPv6 fixed address for NIC (optional), "),
         )
         parser.add_argument(
             '--hint',
