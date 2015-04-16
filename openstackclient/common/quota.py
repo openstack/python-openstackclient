@@ -82,6 +82,11 @@ class SetQuota(command.Command):
                 type=int,
                 help='New value for the %s quota' % v,
             )
+        parser.add_argument(
+            '--volume-type',
+            metavar='<volume-type>',
+            help='Set quotas for a specific <volume-type>',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -97,8 +102,11 @@ class SetQuota(command.Command):
 
         volume_kwargs = {}
         for k, v in VOLUME_QUOTAS.items():
-            if v in parsed_args:
-                volume_kwargs[k] = getattr(parsed_args, v, None)
+            value = getattr(parsed_args, v, None)
+            if value is not None:
+                if parsed_args.volume_type:
+                    k = k + '_%s' % parsed_args.volume_type
+                volume_kwargs[k] = value
 
         if compute_kwargs == {} and volume_kwargs == {}:
             sys.stderr.write("No quotas updated")

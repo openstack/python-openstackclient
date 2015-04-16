@@ -30,6 +30,7 @@ Set quotas for project
         [--gigabytes <new-gigabytes>]
         [--snapshots <new-snapshots>]
         [--volumes <new-volumes>]
+        [--volume-type <volume-type>]
 
         <project>
 
@@ -120,6 +121,10 @@ Set quotas for class
 .. option:: --snapshots <new-snapshots>
 
     New value for the snapshots quota
+
+.. option:: --volume-type <volume-type>
+
+    Set quotas for a specific <volume-type>
 
 quota show
 ----------
