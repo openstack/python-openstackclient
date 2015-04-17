@@ -280,7 +280,8 @@ class OpenStackShell(app.App):
             try:
                 # Trigger the Identity client to initialize
                 self.client_manager.auth_ref
-            except Exception:
+            except Exception as e:
+                self.log.warning("Possible error authenticating: " + str(e))
                 pass
         return
 
