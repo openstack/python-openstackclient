@@ -190,7 +190,7 @@ class CreateImage(show.ShowOne):
         kwargs = {}
         copy_attrs = ('name', 'id', 'store', 'container_format',
                       'disk_format', 'owner', 'size', 'min_disk', 'min_ram',
-                      'localtion', 'copy_from', 'volume', 'force',
+                      'location', 'copy_from', 'volume', 'force',
                       'checksum', 'properties')
         for attr in copy_attrs:
             if attr in parsed_args:
