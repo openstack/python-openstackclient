@@ -17,6 +17,9 @@
 
 from keystoneclient import exceptions as identity_exc
 from keystoneclient.v3 import domains
+from keystoneclient.v3 import groups
+from keystoneclient.v3 import projects
+from keystoneclient.v3 import users
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 
@@ -56,4 +59,58 @@ def find_domain(identity_client, name_or_id):
             return dom
     except identity_exc.Forbidden:
         pass
-    return domains.Domain(None, {'id': name_or_id})
+    return domains.Domain(None, {'id': name_or_id, 'name': name_or_id})
+
+
+def find_group(identity_client, name_or_id):
+    """Find a group.
+
+       If the user does not have permissions to to perform a list groups call,
+       e.g., if the user is a project admin, assume that the group given is the
+       id rather than the name.  This method is used by the role add command to
+       allow a role to be assigned to a group by a project admin who does not
+       have permission to list groups.
+    """
+    try:
+        group = utils.find_resource(identity_client.groups, name_or_id)
+        if group is not None:
+            return group
+    except identity_exc.Forbidden:
+        pass
+    return groups.Group(None, {'id': name_or_id, 'name': name_or_id})
+
+
+def find_project(identity_client, name_or_id):
+    """Find a project.
+
+       If the user does not have permissions to to perform a list projects
+       call, e.g., if the user is a project admin, assume that the project
+       given is the id rather than the name.  This method is used by the role
+       add command to allow a role to be assigned to a user by a project admin
+       who does not have permission to list projects.
+    """
+    try:
+        project = utils.find_resource(identity_client.projects, name_or_id)
+        if project is not None:
+            return project
+    except identity_exc.Forbidden:
+        pass
+    return projects.Project(None, {'id': name_or_id, 'name': name_or_id})
+
+
+def find_user(identity_client, name_or_id):
+    """Find a user.
+
+       If the user does not have permissions to to perform a list users call,
+       e.g., if the user is a project admin, assume that the user given is the
+       id rather than the name.  This method is used by the role add command to
+       allow a role to be assigned to a user by a project admin who does not
+       have permission to list users.
+    """
+    try:
+        user = utils.find_resource(identity_client.users, name_or_id)
+        if user is not None:
+            return user
+    except identity_exc.Forbidden:
+        pass
+    return users.User(None, {'id': name_or_id, 'name': name_or_id})
