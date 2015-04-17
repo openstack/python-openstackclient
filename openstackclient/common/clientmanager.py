@@ -19,10 +19,10 @@ import logging
 import pkg_resources
 import sys
 
-from keystoneclient import session
 import requests
 
 from openstackclient.api import auth
+from openstackclient.common import session as osc_session
 from openstackclient.identity import client as identity_client
 
 
@@ -157,7 +157,7 @@ class ClientManager(object):
         self.auth = auth_plugin.load_from_options(**self._auth_params)
         # needed by SAML authentication
         request_session = requests.session()
-        self.session = session.Session(
+        self.session = osc_session.TimingSession(
             auth=self.auth,
             session=request_session,
             verify=self._verify,

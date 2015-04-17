@@ -292,11 +292,10 @@ class OpenStackShell(app.App):
 
         # Process collected timing data
         if self.options.timing:
-            # Loop through extensions
-            for mod in self.ext_modules:
-                client = getattr(self.client_manager, mod.API_NAME)
-                if hasattr(client, 'get_timings'):
-                    self.timing_data.extend(client.get_timings())
+            # Get session data
+            self.timing_data.extend(
+                self.client_manager.session.get_timings(),
+            )
 
             # Use the Timing pseudo-command to generate the output
             tcmd = timing.Timing(self, self.options)
