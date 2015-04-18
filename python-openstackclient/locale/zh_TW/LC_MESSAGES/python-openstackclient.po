@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  python-openstackclient\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-03-31 06:05+0000\n"
-"PO-Revision-Date: 2015-03-31 05:45+0000\n"
-"Last-Translator: Zhang Xiaowei <zero00072@gmail.com>\n"
+"POT-Creation-Date: 2015-04-18 06:04+0000\n"
+"PO-Revision-Date: 2015-04-17 07:05+0000\n"
+"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/projects/p"
 "/python-openstackclient/language/zh_TW/)\n"
 "Plural-Forms: nplurals=1; plural=0\n"
@@ -34,7 +34,7 @@ msgid ""
 msgstr "以 --os-project-name 或 OS_PROJECT_NAME 設定範圍，如同專案或區域"
 
 #: openstackclient/compute/v2/availability_zone.py:72
-#: openstackclient/compute/v2/server.py:643
+#: openstackclient/compute/v2/server.py:650
 #: openstackclient/identity/v2_0/endpoint.py:114
 #: openstackclient/identity/v2_0/project.py:145
 #: openstackclient/identity/v2_0/service.py:128
@@ -44,24 +44,24 @@ msgstr "列出額外的欄位"
 
 #: openstackclient/compute/v2/server.py:121
 #: openstackclient/compute/v2/server.py:158
-#: openstackclient/compute/v2/server.py:502
-#: openstackclient/compute/v2/server.py:714
-#: openstackclient/compute/v2/server.py:748
-#: openstackclient/compute/v2/server.py:831
-#: openstackclient/compute/v2/server.py:855
-#: openstackclient/compute/v2/server.py:910
-#: openstackclient/compute/v2/server.py:1002
-#: openstackclient/compute/v2/server.py:1042
-#: openstackclient/compute/v2/server.py:1068
-#: openstackclient/compute/v2/server.py:1133
-#: openstackclient/compute/v2/server.py:1157
-#: openstackclient/compute/v2/server.py:1216
-#: openstackclient/compute/v2/server.py:1253
-#: openstackclient/compute/v2/server.py:1411
-#: openstackclient/compute/v2/server.py:1435
-#: openstackclient/compute/v2/server.py:1459
-#: openstackclient/compute/v2/server.py:1483
-#: openstackclient/compute/v2/server.py:1507
+#: openstackclient/compute/v2/server.py:509
+#: openstackclient/compute/v2/server.py:721
+#: openstackclient/compute/v2/server.py:755
+#: openstackclient/compute/v2/server.py:838
+#: openstackclient/compute/v2/server.py:862
+#: openstackclient/compute/v2/server.py:917
+#: openstackclient/compute/v2/server.py:1009
+#: openstackclient/compute/v2/server.py:1049
+#: openstackclient/compute/v2/server.py:1075
+#: openstackclient/compute/v2/server.py:1140
+#: openstackclient/compute/v2/server.py:1164
+#: openstackclient/compute/v2/server.py:1223
+#: openstackclient/compute/v2/server.py:1260
+#: openstackclient/compute/v2/server.py:1418
+#: openstackclient/compute/v2/server.py:1442
+#: openstackclient/compute/v2/server.py:1466
+#: openstackclient/compute/v2/server.py:1490
+#: openstackclient/compute/v2/server.py:1514
 msgid "Server (name or ID)"
 msgstr "伺服器（名稱或識別號）"
 
@@ -78,7 +78,7 @@ msgid "Server internal device name for volume"
 msgstr "雲硬碟在雲實例內的裝置名稱"
 
 #: openstackclient/compute/v2/server.py:208
-#: openstackclient/compute/v2/server.py:1162
+#: openstackclient/compute/v2/server.py:1169
 msgid "New server name"
 msgstr "新雲實例名稱"
 
@@ -124,58 +124,63 @@ msgid ""
 "(optional extension)"
 msgstr "映射區塊裝置；映射是 <id>:<type>:<size(GB)>:<delete_on_terminate>（選用）"
 
-#: openstackclient/compute/v2/server.py:281
-msgid "Specify NIC configuration (optional extension)"
-msgstr "指定網路卡設置（選用）"
+#: openstackclient/compute/v2/server.py:282
+msgid ""
+"Create a NIC on the server. Specify option multiple times to create "
+"multiple NICs. Either net-id or port-id must be provided, but not both. "
+"net-id: attach NIC to network with this UUID, port-id: attach NIC to port"
+" with this UUID, v4-fixed-ip: IPv4 fixed address for NIC (optional), v6"
+"-fixed-ip: IPv6 fixed address for NIC (optional), "
+msgstr ""
 
-#: openstackclient/compute/v2/server.py:288
+#: openstackclient/compute/v2/server.py:295
 msgid "Hints for the scheduler (optional extension)"
 msgstr "給排程器的提示（選用）"
 
-#: openstackclient/compute/v2/server.py:294
+#: openstackclient/compute/v2/server.py:301
 msgid ""
 "Use specified volume as the config drive, or 'True' to use an ephemeral "
 "drive"
 msgstr "使用指定的雲硬碟為設定檔硬碟，或「True」來使用暫時性硬碟"
 
-#: openstackclient/compute/v2/server.py:302
+#: openstackclient/compute/v2/server.py:309
 msgid "Minimum number of servers to launch (default=1)"
 msgstr "最少要發動的雲實例（預設為 1）"
 
-#: openstackclient/compute/v2/server.py:309
+#: openstackclient/compute/v2/server.py:316
 msgid "Maximum number of servers to launch (default=1)"
 msgstr "最多要發動的雲實例（預設為 1）"
 
-#: openstackclient/compute/v2/server.py:314
+#: openstackclient/compute/v2/server.py:321
 msgid "Wait for build to complete"
 msgstr "等待完成建立"
 
-#: openstackclient/compute/v2/server.py:354
+#: openstackclient/compute/v2/server.py:361
 msgid "min instances should be <= max instances"
 msgstr "雲實例發動的最少值不應大於最大值"
 
-#: openstackclient/compute/v2/server.py:357
+#: openstackclient/compute/v2/server.py:364
 msgid "min instances should be > 0"
 msgstr "雲實例發動的最少值要大於 0"
 
-#: openstackclient/compute/v2/server.py:360
+#: openstackclient/compute/v2/server.py:367
 msgid "max instances should be > 0"
 msgstr "雲實例發動的最大值要大於 0"
 
-#: openstackclient/compute/v2/server.py:396
+#: openstackclient/compute/v2/server.py:403
 msgid "either net-id or port-id should be specified but not both"
 msgstr "任選網路識別號或接口識別號，但不能兩者都指定"
 
-#: openstackclient/compute/v2/server.py:418
+#: openstackclient/compute/v2/server.py:425
 msgid "can't create server with port specified since neutron not enabled"
 msgstr "Neutron 未啟用時，不能以指定的接口來新增雲實例"
 
-#: openstackclient/compute/v2/server.py:483
+#: openstackclient/compute/v2/server.py:490
 #, python-format
 msgid "Error creating server: %s"
 msgstr "新增雲實例時出錯：%s"
 
-#: openstackclient/compute/v2/server.py:485
+#: openstackclient/compute/v2/server.py:492
 msgid ""
 "\n"
 "Error creating server"
@@ -183,20 +188,20 @@ msgstr ""
 "\n"
 "新增雲實例時出錯"
 
-#: openstackclient/compute/v2/server.py:507
+#: openstackclient/compute/v2/server.py:514
 msgid "Name of new image (default is server name)"
 msgstr "新映像檔的名稱（預設為雲實例名稱）"
 
-#: openstackclient/compute/v2/server.py:512
+#: openstackclient/compute/v2/server.py:519
 msgid "Wait for image create to complete"
 msgstr "等待映像檔新增完成"
 
-#: openstackclient/compute/v2/server.py:542
+#: openstackclient/compute/v2/server.py:549
 #, python-format
 msgid "Error creating server snapshot: %s"
 msgstr "新增雲實例即時存檔時出錯：%s"
 
-#: openstackclient/compute/v2/server.py:544
+#: openstackclient/compute/v2/server.py:551
 msgid ""
 "\n"
 "Error creating server snapshot"
@@ -204,81 +209,81 @@ msgstr ""
 "\n"
 "新增雲實例即時存檔時出錯"
 
-#: openstackclient/compute/v2/server.py:566
+#: openstackclient/compute/v2/server.py:573
 msgid "Server(s) to delete (name or ID)"
 msgstr "要刪除的雲實例（名稱或識別號）"
 
-#: openstackclient/compute/v2/server.py:590
+#: openstackclient/compute/v2/server.py:597
 msgid "Only return instances that match the reservation"
 msgstr "只回傳要保留的雲實例"
 
-#: openstackclient/compute/v2/server.py:595
+#: openstackclient/compute/v2/server.py:602
 msgid "Regular expression to match IP addresses"
 msgstr "以正規式來匹配 IP 位址"
 
-#: openstackclient/compute/v2/server.py:600
+#: openstackclient/compute/v2/server.py:607
 msgid "Regular expression to match IPv6 addresses"
 msgstr "以正規式來匹配 IPv6 位址"
 
-#: openstackclient/compute/v2/server.py:605
+#: openstackclient/compute/v2/server.py:612
 msgid "Regular expression to match names"
 msgstr "以正規式來匹配名稱"
 
-#: openstackclient/compute/v2/server.py:610
+#: openstackclient/compute/v2/server.py:617
 msgid "Regular expression to match instance name (admin only)"
 msgstr "以正規式來匹配雲實例名稱（管理員專用）"
 
-#: openstackclient/compute/v2/server.py:616
+#: openstackclient/compute/v2/server.py:623
 msgid "Search by server status"
 msgstr "以雲實例狀態來尋找"
 
-#: openstackclient/compute/v2/server.py:621
+#: openstackclient/compute/v2/server.py:628
 msgid "Search by flavor"
 msgstr "以虛擬硬體樣板來尋找"
 
-#: openstackclient/compute/v2/server.py:626
+#: openstackclient/compute/v2/server.py:633
 msgid "Search by image"
 msgstr "以映像檔來尋找"
 
-#: openstackclient/compute/v2/server.py:631
+#: openstackclient/compute/v2/server.py:638
 msgid "Search by hostname"
 msgstr "以主機名稱來尋找"
 
-#: openstackclient/compute/v2/server.py:637
+#: openstackclient/compute/v2/server.py:644
 msgid "Include all projects (admin only)"
 msgstr "包括所有的專案（管理員專用）"
 
-#: openstackclient/compute/v2/server.py:753
+#: openstackclient/compute/v2/server.py:760
 msgid "Target hostname"
 msgstr "目標主機名稱"
 
-#: openstackclient/compute/v2/server.py:761
+#: openstackclient/compute/v2/server.py:768
 msgid "Perform a shared live migration (default)"
 msgstr "覆行已分享的即時轉移（預設）"
 
-#: openstackclient/compute/v2/server.py:767
+#: openstackclient/compute/v2/server.py:774
 msgid "Perform a block live migration"
 msgstr "覆行區塊的即時轉移"
 
-#: openstackclient/compute/v2/server.py:774
+#: openstackclient/compute/v2/server.py:781
 msgid "Allow disk over-commit on the destination host"
 msgstr "允許目標主機過量使用"
 
-#: openstackclient/compute/v2/server.py:781
+#: openstackclient/compute/v2/server.py:788
 msgid "Do not over-commit disk on the destination host (default)"
 msgstr "不準目標主機過量使用（預設）"
 
-#: openstackclient/compute/v2/server.py:787
-#: openstackclient/compute/v2/server.py:1088
+#: openstackclient/compute/v2/server.py:794
+#: openstackclient/compute/v2/server.py:1095
 msgid "Wait for resize to complete"
 msgstr "等待調整容量完成"
 
-#: openstackclient/compute/v2/server.py:815
-#: openstackclient/compute/v2/server.py:1113
+#: openstackclient/compute/v2/server.py:822
+#: openstackclient/compute/v2/server.py:1120
 msgid "Complete\n"
 msgstr "完成\n"
 
-#: openstackclient/compute/v2/server.py:817
+#: openstackclient/compute/v2/server.py:824
 msgid ""
 "\n"
 "Error migrating server"
@@ -286,19 +291,19 @@ msgstr ""
 "\n"
 "轉移雲實例出錯"
 
-#: openstackclient/compute/v2/server.py:864
+#: openstackclient/compute/v2/server.py:871
 msgid "Perform a hard reboot"
 msgstr "履行強制重開機"
 
-#: openstackclient/compute/v2/server.py:872
+#: openstackclient/compute/v2/server.py:879
 msgid "Perform a soft reboot"
 msgstr "履行重開機"
 
-#: openstackclient/compute/v2/server.py:877
+#: openstackclient/compute/v2/server.py:884
 msgid "Wait for reboot to complete"
 msgstr "等待重開機完成"
 
-#: openstackclient/compute/v2/server.py:894
+#: openstackclient/compute/v2/server.py:901
 msgid ""
 "\n"
 "Reboot complete\n"
@@ -306,7 +311,7 @@ msgstr ""
 "\n"
 "重開機完成\n"
 
-#: openstackclient/compute/v2/server.py:896
+#: openstackclient/compute/v2/server.py:903
 msgid ""
 "\n"
 "Error rebooting server\n"
@@ -314,15 +319,15 @@ msgstr ""
 "\n"
 "重開雲實例出錯\n"
 
-#: openstackclient/compute/v2/server.py:916
+#: openstackclient/compute/v2/server.py:923
 msgid "Recreate server from this image"
 msgstr "從此映像檔重建雲實例"
 
-#: openstackclient/compute/v2/server.py:926
+#: openstackclient/compute/v2/server.py:933
 msgid "Wait for rebuild to complete"
 msgstr "等待重建完成"
 
-#: openstackclient/compute/v2/server.py:947
+#: openstackclient/compute/v2/server.py:954
 msgid ""
 "\n"
 "Complete\n"
@@ -330,7 +335,7 @@ msgstr ""
 "\n"
 "完成\n"
 
-#: openstackclient/compute/v2/server.py:949
+#: openstackclient/compute/v2/server.py:956
 msgid ""
 "\n"
 "Error rebuilding server"
@@ -338,31 +343,31 @@ msgstr ""
 "\n"
 "重建雲實例出錯"
 
-#: openstackclient/compute/v2/server.py:966
+#: openstackclient/compute/v2/server.py:973
 msgid "Name or ID of server to use"
 msgstr "要用的雲實例名稱或識別號"
 
-#: openstackclient/compute/v2/server.py:971
+#: openstackclient/compute/v2/server.py:978
 msgid "Name or ID of security group to remove from server"
 msgstr "要從雲實例移除的安全性群組名稱或識別號"
 
-#: openstackclient/compute/v2/server.py:1007
+#: openstackclient/compute/v2/server.py:1014
 msgid "Volume to remove (name or ID)"
 msgstr "要移除的雲硬碟（名稱或識別號）"
 
-#: openstackclient/compute/v2/server.py:1073
+#: openstackclient/compute/v2/server.py:1080
 msgid "Resize server to specified flavor"
 msgstr "調整雲實例容量來符合指定的虛擬硬體樣板"
 
-#: openstackclient/compute/v2/server.py:1078
+#: openstackclient/compute/v2/server.py:1085
 msgid "Confirm server resize is complete"
 msgstr "確認調整雲實例容量完成"
 
-#: openstackclient/compute/v2/server.py:1083
+#: openstackclient/compute/v2/server.py:1090
 msgid "Restore server state before resize"
 msgstr "恢復雲實例狀態到未調整容量前"
 
-#: openstackclient/compute/v2/server.py:1115
+#: openstackclient/compute/v2/server.py:1122
 msgid ""
 "\n"
 "Error resizing server"
@@ -370,73 +375,73 @@ msgstr ""
 "\n"
 "調整雲實例容量時出錯"
 
-#: openstackclient/compute/v2/server.py:1167
+#: openstackclient/compute/v2/server.py:1174
 msgid "Set new root password (interactive only)"
 msgstr "設定新密碼（只限互動）"
 
-#: openstackclient/compute/v2/server.py:1173
+#: openstackclient/compute/v2/server.py:1180
 msgid ""
 "Property to add/change for this server (repeat option to set multiple "
 "properties)"
 msgstr "要加入這個雲實例的屬性（重復這選項來設定多個屬性）"
 
-#: openstackclient/compute/v2/server.py:1197
+#: openstackclient/compute/v2/server.py:1204
 msgid "New password: "
 msgstr "新密碼："
 
-#: openstackclient/compute/v2/server.py:1198
+#: openstackclient/compute/v2/server.py:1205
 msgid "Retype new password: "
 msgstr "重新輸入新密碼："
 
-#: openstackclient/compute/v2/server.py:1202
+#: openstackclient/compute/v2/server.py:1209
 msgid "Passwords do not match, password unchanged"
 msgstr "密碼不一樣，未更換密碼"
 
-#: openstackclient/compute/v2/server.py:1222
+#: openstackclient/compute/v2/server.py:1229
 msgid "Display server diagnostics information"
 msgstr "顯示雲實例診斷資訊"
 
-#: openstackclient/compute/v2/server.py:1235
+#: openstackclient/compute/v2/server.py:1242
 msgid "Error retrieving diagnostics data"
 msgstr "獲得診斷資料時出錯"
 
-#: openstackclient/compute/v2/server.py:1258
+#: openstackclient/compute/v2/server.py:1265
 msgid "Login name (ssh -l option)"
 msgstr "登入名稱（ssh -l 選項）"
 
-#: openstackclient/compute/v2/server.py:1269
+#: openstackclient/compute/v2/server.py:1276
 msgid "Destination port (ssh -p option)"
 msgstr "目標埠口（ssh -p 選項）"
 
-#: openstackclient/compute/v2/server.py:1281
+#: openstackclient/compute/v2/server.py:1288
 msgid "Private key file (ssh -i option)"
 msgstr "私鑰檔案（ssh -i 選項）"
 
-#: openstackclient/compute/v2/server.py:1292
+#: openstackclient/compute/v2/server.py:1299
 msgid "Options in ssh_config(5) format (ssh -o option)"
 msgstr "ssh_config(5) 格式的選項（ssh -o 選項）"
 
-#: openstackclient/compute/v2/server.py:1306
+#: openstackclient/compute/v2/server.py:1313
 msgid "Use only IPv4 addresses"
 msgstr "只使用 IPv4 位址"
 
-#: openstackclient/compute/v2/server.py:1313
+#: openstackclient/compute/v2/server.py:1320
 msgid "Use only IPv6 addresses"
 msgstr "只使用 IPv6 位址"
 
-#: openstackclient/compute/v2/server.py:1322
+#: openstackclient/compute/v2/server.py:1329
 msgid "Use public IP address"
 msgstr "使用公開 IP 位址"
 
-#: openstackclient/compute/v2/server.py:1330
+#: openstackclient/compute/v2/server.py:1337
 msgid "Use private IP address"
 msgstr "使用私人 IP 位址"
 
-#: openstackclient/compute/v2/server.py:1337
+#: openstackclient/compute/v2/server.py:1344
 msgid "Use other IP address (public, private, etc)"
 msgstr "使用其他 IP 位址（公開、私人等等）"
 
-#: openstackclient/compute/v2/server.py:1514
+#: openstackclient/compute/v2/server.py:1521
 msgid "Property key to remove from server (repeat to unset multiple values)"
 msgstr "要從雲實例上移除的屬性鍵（重復來取消選擇多個值）"
 
