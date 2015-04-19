@@ -24,6 +24,13 @@ from openstackclient.tests import utils as test_utils
 from openstackclient.volume import client  # noqa
 
 
+# Monkey patch for v1 cinderclient
+# NOTE(dtroyer): Do here because openstackclient.volume.client
+# doesn't do it until the client object is created now.
+volumes.Volume.NAME_ATTR = 'display_name'
+volume_snapshots.Snapshot.NAME_ATTR = 'display_name'
+
+
 ID = '1after909'
 NAME = 'PhilSpector'
 
