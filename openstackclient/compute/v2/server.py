@@ -285,7 +285,7 @@ class CreateServer(show.ShowOne):
                    "net-id: attach NIC to network with this UUID, "
                    "port-id: attach NIC to port with this UUID, "
                    "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
-                   "v6-fixed-ip: IPv6 fixed address for NIC (optional), "),
+                   "v6-fixed-ip: IPv6 fixed address for NIC (optional)."),
         )
         parser.add_argument(
             '--hint',
