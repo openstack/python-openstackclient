@@ -94,19 +94,17 @@ class CreateUser(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
+        project_id = None
         if parsed_args.project:
             project_id = utils.find_resource(
                 identity_client.projects,
                 parsed_args.project,
             ).id
-        else:
-            project_id = None
 
+        domain_id = None
         if parsed_args.domain:
             domain_id = common.find_domain(identity_client,
                                            parsed_args.domain).id
-        else:
-            domain_id = None
 
         enabled = True
         if parsed_args.disable:
@@ -211,11 +209,10 @@ class ListUser(lister.Lister):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
+        domain = None
         if parsed_args.domain:
             domain = common.find_domain(identity_client,
                                         parsed_args.domain).id
-        else:
-            domain = None
 
         if parsed_args.group:
             group = utils.find_resource(
