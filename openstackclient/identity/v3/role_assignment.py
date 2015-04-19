@@ -18,6 +18,7 @@ import logging
 from cliff import lister
 
 from openstackclient.common import utils
+from openstackclient.identity import common
 
 
 class ListRoleAssignment(lister.Lister):
@@ -80,29 +81,29 @@ class ListRoleAssignment(lister.Lister):
 
         user = None
         if parsed_args.user:
-            user = utils.find_resource(
-                identity_client.users,
+            user = common.find_user(
+                identity_client,
                 parsed_args.user,
             )
 
         domain = None
         if parsed_args.domain:
-            domain = utils.find_resource(
-                identity_client.domains,
+            domain = common.find_domain(
+                identity_client,
                 parsed_args.domain,
             )
 
         project = None
         if parsed_args.project:
-            project = utils.find_resource(
-                identity_client.projects,
+            project = common.find_project(
+                identity_client,
                 parsed_args.project,
             )
 
         group = None
         if parsed_args.group:
-            group = utils.find_resource(
-                identity_client.groups,
+            group = common.find_group(
+                identity_client,
                 parsed_args.group,
             )
 

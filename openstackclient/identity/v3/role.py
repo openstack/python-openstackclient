@@ -26,6 +26,7 @@ from keystoneclient import exceptions as ksc_exc
 
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
+from openstackclient.identity import common
 
 
 class AddRole(command.Command):
@@ -78,12 +79,12 @@ class AddRole(command.Command):
         )
 
         if parsed_args.user and parsed_args.domain:
-            user = utils.find_resource(
-                identity_client.users,
+            user = common.find_user(
+                identity_client,
                 parsed_args.user,
             )
-            domain = utils.find_resource(
-                identity_client.domains,
+            domain = common.find_domain(
+                identity_client,
                 parsed_args.domain,
             )
             identity_client.roles.grant(
@@ -92,12 +93,12 @@ class AddRole(command.Command):
                 domain=domain.id,
             )
         elif parsed_args.user and parsed_args.project:
-            user = utils.find_resource(
-                identity_client.users,
+            user = common.find_user(
+                identity_client,
                 parsed_args.user,
             )
-            project = utils.find_resource(
-                identity_client.projects,
+            project = common.find_project(
+                identity_client,
                 parsed_args.project,
             )
             identity_client.roles.grant(
@@ -106,12 +107,12 @@ class AddRole(command.Command):
                 project=project.id,
             )
         elif parsed_args.group and parsed_args.domain:
-            group = utils.find_resource(
-                identity_client.groups,
+            group = common.find_group(
+                identity_client,
                 parsed_args.group,
             )
-            domain = utils.find_resource(
-                identity_client.domains,
+            domain = common.find_domain(
+                identity_client,
                 parsed_args.domain,
             )
             identity_client.roles.grant(
@@ -120,12 +121,12 @@ class AddRole(command.Command):
                 domain=domain.id,
             )
         elif parsed_args.group and parsed_args.project:
-            group = utils.find_resource(
-                identity_client.groups,
+            group = common.find_group(
+                identity_client,
                 parsed_args.group,
             )
-            project = utils.find_resource(
-                identity_client.projects,
+            project = common.find_project(
+                identity_client,
                 parsed_args.project,
             )
             identity_client.roles.grant(
@@ -240,24 +241,24 @@ class ListRole(lister.Lister):
         identity_client = self.app.client_manager.identity
 
         if parsed_args.user:
-            user = utils.find_resource(
-                identity_client.users,
+            user = common.find_user(
+                identity_client,
                 parsed_args.user,
             )
         elif parsed_args.group:
-            group = utils.find_resource(
-                identity_client.groups,
+            group = common.find_group(
+                identity_client,
                 parsed_args.group,
             )
 
         if parsed_args.domain:
-            domain = utils.find_resource(
-                identity_client.domains,
+            domain = common.find_domain(
+                identity_client,
                 parsed_args.domain,
             )
         elif parsed_args.project:
-            project = utils.find_resource(
-                identity_client.projects,
+            project = common.find_project(
+                identity_client,
                 parsed_args.project,
             )
 
@@ -370,12 +371,12 @@ class RemoveRole(command.Command):
         )
 
         if parsed_args.user and parsed_args.domain:
-            user = utils.find_resource(
-                identity_client.users,
+            user = common.find_user(
+                identity_client,
                 parsed_args.user,
             )
-            domain = utils.find_resource(
-                identity_client.domains,
+            domain = common.find_domain(
+                identity_client,
                 parsed_args.domain,
             )
             identity_client.roles.revoke(
@@ -384,12 +385,12 @@ class RemoveRole(command.Command):
                 domain=domain.id,
             )
         elif parsed_args.user and parsed_args.project:
-            user = utils.find_resource(
-                identity_client.users,
+            user = common.find_user(
+                identity_client,
                 parsed_args.user,
             )
-            project = utils.find_resource(
-                identity_client.projects,
+            project = common.find_project(
+                identity_client,
                 parsed_args.project,
             )
             identity_client.roles.revoke(
@@ -398,12 +399,12 @@ class RemoveRole(command.Command):
                 project=project.id,
             )
         elif parsed_args.group and parsed_args.domain:
-            group = utils.find_resource(
-                identity_client.groups,
+            group = common.find_group(
+                identity_client,
                 parsed_args.group,
             )
-            domain = utils.find_resource(
-                identity_client.domains,
+            domain = common.find_domain(
+                identity_client,
                 parsed_args.domain,
             )
             identity_client.roles.revoke(
@@ -412,12 +413,12 @@ class RemoveRole(command.Command):
                 domain=domain.id,
             )
         elif parsed_args.group and parsed_args.project:
-            group = utils.find_resource(
-                identity_client.groups,
+            group = common.find_group(
+                identity_client,
                 parsed_args.group,
             )
-            project = utils.find_resource(
-                identity_client.projects,
+            project = common.find_project(
+                identity_client,
                 parsed_args.project,
             )
             identity_client.roles.revoke(
