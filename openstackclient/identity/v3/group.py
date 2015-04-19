@@ -137,11 +137,11 @@ class CreateGroup(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
+
+        domain = None
         if parsed_args.domain:
             domain = common.find_domain(identity_client,
                                         parsed_args.domain).id
-        else:
-            domain = None
 
         try:
             group = identity_client.groups.create(
@@ -228,11 +228,10 @@ class ListGroup(lister.Lister):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
+        domain = None
         if parsed_args.domain:
             domain = common.find_domain(identity_client,
                                         parsed_args.domain).id
-        else:
-            domain = None
 
         if parsed_args.user:
             user = utils.find_resource(

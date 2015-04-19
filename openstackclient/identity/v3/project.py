@@ -80,11 +80,10 @@ class CreateProject(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
+        domain = None
         if parsed_args.domain:
             domain = common.find_domain(identity_client,
                                         parsed_args.domain).id
-        else:
-            domain = None
 
         enabled = True
         if parsed_args.disable:

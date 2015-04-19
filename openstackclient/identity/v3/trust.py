@@ -92,23 +92,20 @@ class CreateTrust(show.ShowOne):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
+        project_domain = None
         if parsed_args.project_domain:
             project_domain = common.find_domain(identity_client,
                                                 parsed_args.project_domain).id
-        else:
-            project_domain = None
 
+        trustor_domain = None
         if parsed_args.trustor_domain:
             trustor_domain = common.find_domain(identity_client,
                                                 parsed_args.trustor_domain).id
-        else:
-            trustor_domain = None
 
+        trustee_domain = None
         if parsed_args.trustee_domain:
             trustee_domain = common.find_domain(identity_client,
                                                 parsed_args.trustee_domain).id
-        else:
-            trustee_domain = None
 
         # NOTE(stevemar): Find the two users, project and roles that
         # are necessary for making a trust usable, the API dictates that
