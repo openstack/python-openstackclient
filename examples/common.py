@@ -85,8 +85,16 @@ def base_parser(parser):
 
     # Global arguments
     parser.add_argument(
+        '--os-cloud',
+        metavar='<cloud-config-name>',
+        dest='cloud',
+        default=env('OS_CLOUD'),
+        help='Cloud name in clouds.yaml (Env: OS_CLOUD)',
+    )
+    parser.add_argument(
         '--os-region-name',
         metavar='<auth-region-name>',
+        dest='region_name',
         default=env('OS_REGION_NAME'),
         help='Authentication region name (Env: OS_REGION_NAME)',
     )

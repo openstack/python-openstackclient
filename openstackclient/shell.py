@@ -33,6 +33,8 @@ from openstackclient.common import exceptions as exc
 from openstackclient.common import timing
 from openstackclient.common import utils
 
+from os_client_config import config as cloud_config
+
 
 DEFAULT_DOMAIN = 'default'
 
@@ -85,10 +87,6 @@ class OpenStackShell(app.App):
 
         # Until we have command line arguments parsed, dump any stack traces
         self.dump_stack_trace = True
-
-        # This is instantiated in initialize_app() only when using
-        # password flow auth
-        self.auth_client = None
 
         # Assume TLS host certificate verification is enabled
         self.verify = True
@@ -165,10 +163,19 @@ class OpenStackShell(app.App):
             description,
             version)
 
+        # service token auth argument
+        parser.add_argument(
+            '--os-cloud',
+            metavar='<cloud-config-name>',
+            dest='cloud',
+            default=utils.env('OS_CLOUD'),
+            help='Cloud name in clouds.yaml (Env: OS_CLOUD)',
+        )
         # Global arguments
         parser.add_argument(
             '--os-region-name',
             metavar='<auth-region-name>',
+            dest='region_name',
             default=utils.env('OS_REGION_NAME'),
             help='Authentication region name (Env: OS_REGION_NAME)')
         parser.add_argument(
@@ -213,7 +220,42 @@ class OpenStackShell(app.App):
         * authenticate against Identity if requested
         """
 
+        # Parent __init__ parses argv into self.options
         super(OpenStackShell, self).initialize_app(argv)
+
+        # Resolve the verify/insecure exclusive pair here as cloud_config
+        # doesn't know about verify
+        self.options.insecure = (
+            self.options.insecure and not self.options.verify
+        )
+
+        # Set the default plugin to token_endpoint if rl and token are given
+        if (self.options.url and self.options.token):
+            # Use service token authentication
+            cloud_config.set_default('auth_type', 'token_endpoint')
+        else:
+            cloud_config.set_default('auth_type', 'osc_password')
+        self.log.debug("options: %s", self.options)
+
+        # Do configuration file handling
+        cc = cloud_config.OpenStackConfig()
+        self.log.debug("defaults: %s", cc.defaults)
+
+        self.cloud = cc.get_one_cloud(
+            cloud=self.options.cloud,
+            argparse=self.options,
+        )
+        self.log.debug("cloud cfg: %s", self.cloud.config)
+
+        # Set up client TLS
+        cacert = self.cloud.cacert
+        if cacert:
+            self.verify = cacert
+        else:
+            self.verify = not getattr(self.cloud.config, 'insecure', False)
+
+        # Neutralize verify option
+        self.options.verify = None
 
         # Save default domain
         self.default_domain = self.options.os_default_domain
@@ -260,14 +302,8 @@ class OpenStackShell(app.App):
         # Handle deferred help and exit
         self.print_help_if_requested()
 
-        # Set up common client session
-        if self.options.os_cacert:
-            self.verify = self.options.os_cacert
-        else:
-            self.verify = not self.options.insecure
-
         self.client_manager = clientmanager.ClientManager(
-            cli_options=self.options,
+            cli_options=self.cloud,
             verify=self.verify,
             api_version=self.api_version,
             pw_func=prompt_for_password,

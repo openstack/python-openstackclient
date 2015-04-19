@@ -30,12 +30,23 @@ import common
 from openstackclient.api import object_store_v1 as object_store
 from openstackclient.identity import client as identity_client
 
+from os_client_config import config as cloud_config
+
 
 LOG = logging.getLogger('')
 
 
 def run(opts):
     """Run the examples"""
+
+    # Look for configuration file
+    # To support token-flow we have no required values
+    # print "options: %s" % self.options
+    cloud = cloud_config.OpenStackConfig().get_one_cloud(
+        cloud=opts.cloud,
+        argparse=opts,
+    )
+    LOG.debug("cloud cfg: %s", cloud.config)
 
     # Set up certificate verification and CA bundle
     # NOTE(dtroyer): This converts from the usual OpenStack way to the single
@@ -52,13 +63,13 @@ def run(opts):
     # The returned session will have a configured auth object
     # based on the selected plugin's available options.
     # So to do...oh, just go to api.auth.py and look at what it does.
-    session = common.make_session(opts, verify=verify)
+    session = common.make_session(cloud, verify=verify)
 
     # Extract an endpoint
     auth_ref = session.auth.get_auth_ref(session)
 
-    if opts.os_url:
-        endpoint = opts.os_url
+    if opts.url:
+        endpoint = opts.url
     else:
         endpoint = auth_ref.service_catalog.url_for(
             service_type='object-store',
