@@ -21,6 +21,7 @@ import logging
 from cliff import lister
 
 from openstackclient.common import utils
+from openstackclient.identity import common as identity_common
 
 
 class ShowLimits(lister.Lister):
@@ -49,6 +50,18 @@ class ShowLimits(lister.Lister):
             action="store_true",
             default=False,
             help="Include reservations count [only valid with --absolute]")
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help='Show limits for a specific project (name or ID)'
+                 ' [only valid with --absolute]',
+        )
+        parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='Domain that owns --project (name or ID)'
+                 '  [only valid with --absolute]',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -57,7 +70,21 @@ class ShowLimits(lister.Lister):
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
 
-        compute_limits = compute_client.limits.get(parsed_args.is_reserved)
+        project_id = None
+        if parsed_args.project is not None:
+            identity_client = self.app.client_manager.identity
+            if parsed_args.domain is not None:
+                domain = identity_common.find_domain(identity_client,
+                                                     parsed_args.domain)
+                project_id = utils.find_resource(identity_client.projects,
+                                                 parsed_args.project,
+                                                 domain_id=domain.id).id
+            else:
+                project_id = utils.find_resource(identity_client.projects,
+                                                 parsed_args.project).id
+
+        compute_limits = compute_client.limits.get(parsed_args.is_reserved,
+                                                   tenant_id=project_id)
         volume_limits = volume_client.limits.get()
 
         if parsed_args.is_absolute:

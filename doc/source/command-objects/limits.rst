@@ -16,6 +16,8 @@ Show compute and volume limits
 
     os limits show
         --absolute [--reserved] | --rate
+        [--project <project>]
+        [--domain <domain>]
 
 .. option:: --absolute
 
@@ -28,3 +30,11 @@ Show compute and volume limits
 .. option:: --reserved
 
     Include reservations count [only valid with :option:`--absolute`]
+
+.. option:: --project <project>
+
+    Show limits for a specific project (name or ID) [only valid with --absolute]
+
+.. option:: --domain <domain>
+
+    Domain that owns --project (name or ID) [only valid with --absolute]
