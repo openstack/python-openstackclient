@@ -13,6 +13,7 @@ Contents:
 
    command-list
    commands
+   configuration
    plugins
    authentication
    interactive

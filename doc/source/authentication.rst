@@ -62,8 +62,11 @@ by the ``ClientManager`` object.
     plugins from the ``keystoneclient.auth.plugin`` entry point.
   * builds a list of authentication options from the plugins.
 
+* The command line arguments are processed and a configuration is loaded from
+  :file:`clouds.yaml` if ``--os-cloud`` is provided.
+
 * A new ``ClientManager`` is created and supplied with the set of options from the
-  command line and/or environment:
+  command line, environment and/or :file:`clouds.yaml`:
 
   * If ``--os-auth-type`` is provided and is a valid and available plugin
       it is used.
@@ -71,7 +74,7 @@ by the ``ClientManager`` object.
     is selected based on the existing options.  This is a short-circuit
     evaluation, the first match wins.
 
-    * If ``--os-endpoint`` and ``--os-token`` are both present ``token_endpoint``
+    * If ``--os-url`` and ``--os-token`` are both present ``token_endpoint``
       is selected
     * If ``--os-username`` is supplied ``password`` is selected
     * If ``--os-token`` is supplied ``token`` is selected
