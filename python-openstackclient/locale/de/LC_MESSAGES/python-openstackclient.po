@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  python-openstackclient\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-04-18 06:04+0000\n"
-"PO-Revision-Date: 2015-04-17 11:35+0000\n"
+"POT-Creation-Date: 2015-04-20 06:04+0000\n"
+"PO-Revision-Date: 2015-04-19 18:03+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/python-"
 "openstackclient/language/de/)\n"
@@ -20,23 +20,41 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: openstackclient/api/auth.py:130
-msgid "Set a username with --os-username or OS_USERNAME\n"
-msgstr "Legen Sie einen Benutzernamen mit --os-username oder OS_USERNAME fest\n"
-
-#: openstackclient/api/auth.py:132
-msgid "Set an authentication URL, with --os-auth-url or OS_AUTH_URL\n"
+#: openstackclient/api/auth.py:144
+msgid "Set a username with --os-username, OS_USERNAME, or auth.username\n"
 msgstr ""
-"Legen Sie eine Authentifizierungs-URL mit --os-auth-url oder OS_AUTH_URL "
-"fest\n"
+"Legen Sie einen Benutzernamen mit --os-username, OS_USERNAME oder "
+"auth.username fest\n"
 
-#: openstackclient/api/auth.py:136
+#: openstackclient/api/auth.py:147
 msgid ""
-"Set a scope, such as a project or domain, with --os-project-name or "
-"OS_PROJECT_NAME"
+"Set an authentication URL, with --os-auth-url, OS_AUTH_URL or "
+"auth.auth_url\n"
+msgstr ""
+"Legen Sie eine Authentifizierungs-URL mit --os-auth-url, OS_AUTH_URL oder"
+" auth.auth_url fest\n"
+
+#: openstackclient/api/auth.py:153
+msgid ""
+"Set a scope, such as a project or domain, with --os-project-name, "
+"OS_PROJECT_NAME or auth.project_name"
 msgstr ""
 "Legen Sie einen Gültigkeitsbereich, wie beispielsweise ein Projekt oder "
-"eine Domäne, mit --os-project-name oder OS_PROJECT_NAME fest"
+"eine Domäne, mit OS_PROJECT_NAME oder auth.project_name fest"
+
+#: openstackclient/api/auth.py:157 openstackclient/api/auth.py:163
+msgid "Set a token with --os-token, OS_TOKEN or auth.token\n"
+msgstr "Legen Sie einen Token mit --os-token, OS_TOKEN oder auth.token fest\n"
+
+#: openstackclient/api/auth.py:159
+msgid "Set a service AUTH_URL, with --os-auth-url, OS_AUTH_URL or auth.auth_url\n"
+msgstr ""
+"Legen Sie eine Dienst-AUTH_URL mit --os-auth-url, OS_AUTH_URL oder "
+"auth.auth_url fest\n"
+
+#: openstackclient/api/auth.py:165
+msgid "Set a service URL, with --os-url, OS_URL or auth.url\n"
+msgstr "Legen Sie eine Dienst-URL mit --os-url, OS_URL oder auth.url fest\n"
 
 #: openstackclient/compute/v2/availability_zone.py:72
 #: openstackclient/compute/v2/server.py:650
@@ -144,14 +162,14 @@ msgid ""
 "multiple NICs. Either net-id or port-id must be provided, but not both. "
 "net-id: attach NIC to network with this UUID, port-id: attach NIC to port"
 " with this UUID, v4-fixed-ip: IPv4 fixed address for NIC (optional), v6"
-"-fixed-ip: IPv6 fixed address for NIC (optional), "
+"-fixed-ip: IPv6 fixed address for NIC (optional)."
 msgstr ""
 "Erstellen Sie ein NIC auf dem Server. Geben Sie die Option mehrfach an, "
 "um mehrere NICs zu erstellen. Entweder net-id oder port-id müssen "
 "bereitgestellt werden, aber nicht beide. net-id: NIC an Netzwerk mit "
 "dieser UUID binden, port-id: NIC an Port mit dieser UUID binden, v4"
 "-fixed-ip: Feste IPv4-Adresse für NIC (optional), v6-fixed-ip: Feste "
-"IPv6-Adresse für NIC (optional), "
+"IPv6-Adresse für NIC (optional)."
 
 #: openstackclient/compute/v2/server.py:295
 msgid "Hints for the scheduler (optional extension)"
@@ -606,7 +624,7 @@ msgid "New role name"
 msgstr "Name der neuen Rolle"
 
 #: openstackclient/identity/v2_0/role.py:92
-#: openstackclient/identity/v3/role.py:157
+#: openstackclient/identity/v3/role.py:158
 msgid "Return existing role"
 msgstr "Vorhandene Rolle zurückgeben"
 
