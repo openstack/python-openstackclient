@@ -70,8 +70,8 @@ class TestImageList(TestImage):
         super(TestImageList, self).setUp()
 
         self.api_mock = mock.Mock()
-        self.api_mock.image_list.return_value = [
-            copy.deepcopy(image_fakes.IMAGE),
+        self.api_mock.image_list.side_effect = [
+            [copy.deepcopy(image_fakes.IMAGE)], [],
         ]
         self.app.client_manager.image.api = self.api_mock
 
@@ -90,7 +90,9 @@ class TestImageList(TestImage):
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with()
+        self.api_mock.image_list.assert_called_with(
+            marker=image_fakes.image_id,
+        )
 
         collist = ('ID', 'Name')
 
@@ -117,6 +119,7 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             public=True,
+            marker=image_fakes.image_id,
         )
 
         collist = ('ID', 'Name')
@@ -144,6 +147,7 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             private=True,
+            marker=image_fakes.image_id,
         )
 
         collist = ('ID', 'Name')
@@ -171,6 +175,7 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             shared=True,
+            marker=image_fakes.image_id,
         )
 
         collist = ('ID', 'Name')
@@ -193,7 +198,9 @@ class TestImageList(TestImage):
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with()
+        self.api_mock.image_list.assert_called_with(
+            marker=image_fakes.image_id,
+        )
 
         collist = (
             'ID',
@@ -239,7 +246,9 @@ class TestImageList(TestImage):
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with()
+        self.api_mock.image_list.assert_called_with(
+            marker=image_fakes.image_id,
+        )
         sf_mock.assert_called_with(
             [image_fakes.IMAGE],
             attr='a',
@@ -268,7 +277,9 @@ class TestImageList(TestImage):
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with()
+        self.api_mock.image_list.assert_called_with(
+            marker=image_fakes.image_id,
+        )
         si_mock.assert_called_with(
             [image_fakes.IMAGE],
             'name:asc'
