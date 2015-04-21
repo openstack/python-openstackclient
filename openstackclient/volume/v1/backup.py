@@ -64,7 +64,7 @@ class CreateBackup(show.ShowOne):
                                         parsed_args.volume).id
         backup = volume_client.backups.create(
             volume_id,
-            parsed_args.volume,
+            parsed_args.container,
             parsed_args.name,
             parsed_args.description
         )
