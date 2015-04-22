@@ -20,6 +20,7 @@ from keystoneclient.v3 import domains
 from keystoneclient.v3 import groups
 from keystoneclient.v3 import projects
 from keystoneclient.v3 import users
+
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 
@@ -43,74 +44,58 @@ def find_service(identity_client, name_type_or_id):
 
 
 def find_domain(identity_client, name_or_id):
-    """Find a domain.
-
-       If the user does not have permissions to access the v3 domain API, e.g.,
-       if the user is a project admin, assume that the domain given is the id
-       rather than the name. This method is used by the project list command,
-       so errors accessing the domain will be ignored and if the user has
-       access to the project API, everything will work fine.
-
-       Closes bugs #1317478 and #1317485.
-    """
-    try:
-        dom = utils.find_resource(identity_client.domains, name_or_id)
-        if dom is not None:
-            return dom
-    except identity_exc.Forbidden:
-        pass
-    return domains.Domain(None, {'id': name_or_id, 'name': name_or_id})
+    return _find_identity_resource(identity_client.domains, name_or_id,
+                                   domains.Domain)
 
 
 def find_group(identity_client, name_or_id):
-    """Find a group.
-
-       If the user does not have permissions to to perform a list groups call,
-       e.g., if the user is a project admin, assume that the group given is the
-       id rather than the name.  This method is used by the role add command to
-       allow a role to be assigned to a group by a project admin who does not
-       have permission to list groups.
-    """
-    try:
-        group = utils.find_resource(identity_client.groups, name_or_id)
-        if group is not None:
-            return group
-    except identity_exc.Forbidden:
-        pass
-    return groups.Group(None, {'id': name_or_id, 'name': name_or_id})
+    return _find_identity_resource(identity_client.groups, name_or_id,
+                                   groups.Group)
 
 
 def find_project(identity_client, name_or_id):
-    """Find a project.
-
-       If the user does not have permissions to to perform a list projects
-       call, e.g., if the user is a project admin, assume that the project
-       given is the id rather than the name.  This method is used by the role
-       add command to allow a role to be assigned to a user by a project admin
-       who does not have permission to list projects.
-    """
-    try:
-        project = utils.find_resource(identity_client.projects, name_or_id)
-        if project is not None:
-            return project
-    except identity_exc.Forbidden:
-        pass
-    return projects.Project(None, {'id': name_or_id, 'name': name_or_id})
+    return _find_identity_resource(identity_client.projects, name_or_id,
+                                   projects.Project)
 
 
 def find_user(identity_client, name_or_id):
-    """Find a user.
+    return _find_identity_resource(identity_client.users, name_or_id,
+                                   users.User)
 
-       If the user does not have permissions to to perform a list users call,
-       e.g., if the user is a project admin, assume that the user given is the
-       id rather than the name.  This method is used by the role add command to
-       allow a role to be assigned to a user by a project admin who does not
-       have permission to list users.
+
+def _find_identity_resource(identity_client_manager, name_or_id,
+                            resource_type):
+    """Find a specific identity resource.
+
+    Using keystoneclient's manager, attempt to find a specific resource by its
+    name or ID. If Forbidden to find the resource (a common case if the user
+    does not have permission), then return the resource by creating a local
+    instance of keystoneclient's Resource.
+
+    The parameter identity_client_manager is a keystoneclient manager,
+    for example: keystoneclient.v3.users or keystoneclient.v3.projects.
+
+    The parameter resource_type is a keystoneclient resource, for example:
+    keystoneclient.v3.users.User or keystoneclient.v3.projects.Project.
+
+    :param identity_client_manager: the manager that contains the resource
+    :type identity_client_manager: `keystoneclient.base.CrudManager`
+    :param name_or_id: the resources's name or ID
+    :type name_or_id: string
+    :param resource_type: class that represents the resource type
+    :type resource_type: `keystoneclient.base.Resource`
+
+    :returns: the resource in question
+    :rtype: `keystoneclient.base.Resource`
+
     """
+
     try:
-        user = utils.find_resource(identity_client.users, name_or_id)
-        if user is not None:
-            return user
+        identity_resource = utils.find_resource(identity_client_manager,
+                                                name_or_id)
+        if identity_resource is not None:
+            return identity_resource
     except identity_exc.Forbidden:
         pass
-    return users.User(None, {'id': name_or_id, 'name': name_or_id})
+
+    return resource_type(None, {'id': name_or_id, 'name': name_or_id})
