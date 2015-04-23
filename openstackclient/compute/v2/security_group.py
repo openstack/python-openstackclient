@@ -81,9 +81,11 @@ class CreateSecurityGroup(show.ShowOne):
 
         compute_client = self.app.client_manager.compute
 
+        description = parsed_args.description or parsed_args.name
+
         data = compute_client.security_groups.create(
             parsed_args.name,
-            parsed_args.description,
+            description,
         )
 
         info = {}

@@ -16,6 +16,7 @@
 import mock
 
 from openstackclient.tests import fakes
+from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
 from openstackclient.tests.network.v2 import fakes as network_fakes
 from openstackclient.tests import utils
@@ -81,6 +82,11 @@ class TestComputev2(utils.TestCommand):
         super(TestComputev2, self).setUp()
 
         self.app.client_manager.compute = FakeComputev2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
+        self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
