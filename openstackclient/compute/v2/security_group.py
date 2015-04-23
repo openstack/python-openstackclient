@@ -290,6 +290,7 @@ class CreateSecurityGroupRule(show.ShowOne):
         parser.add_argument(
             "--dst-port",
             metavar="<port-range>",
+            default=(0, 0),
             action=parseractions.RangeAction,
             help="Destination port, may be a range: 137:139 (default: 0; "
                  "only required for proto tcp and udp)",
