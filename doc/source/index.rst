@@ -18,6 +18,7 @@ Contents:
    authentication
    interactive
    humaninterfaceguide
+   backwards-incompatible
    releases
    man/openstack
 
