@@ -26,10 +26,8 @@ ROOT_DIR = os.path.normpath(os.path.join(FUNCTIONAL_DIR, '..'))
 EXAMPLE_DIR = os.path.join(ROOT_DIR, 'examples')
 
 
-def execute(cmd, action, flags='', params='', fail_ok=False,
-            merge_stderr=False):
+def execute(cmd, fail_ok=False, merge_stderr=False):
     """Executes specified command for the given action."""
-    cmd = ' '.join([cmd, flags, action, params])
     cmd = shlex.split(cmd.encode('utf-8'))
     result = ''
     result_err = ''
@@ -47,9 +45,10 @@ class TestCase(testtools.TestCase):
 
     delimiter_line = re.compile('^\+\-[\+\-]+\-\+$')
 
-    def openstack(self, action, flags='', params='', fail_ok=False):
+    @classmethod
+    def openstack(cls, cmd, fail_ok=False):
         """Executes openstackclient command for the given action."""
-        return execute('openstack', action, flags, params, fail_ok)
+        return execute('openstack ' + cmd, fail_ok=fail_ok)
 
     def assert_table_structure(self, items, field_names):
         """Verify that all items have keys listed in field_names."""
