@@ -2,6 +2,40 @@
 Release Notes
 =============
 
+1.2.0 (30 Apr 2015)
+===================
+
+* Fix error in ``security group create`` command when ``--description`` is not
+  supplied.
+  Bug `1434172 <https://bugs.launchpad.net/bugs/1434172>`_
+
+* Correct ``image list`` pagination handling, all images are now correctly returned.
+  Bug `1443089 <https://bugs.launchpad.net/bugs/1443089>`_
+
+* Do not require ``--dst-port`` option with ``security group rule create`` when
+  ``--proto ICMP`` is selected.
+  Bug `1443963 <https://bugs.launchpad.net/bugs/1443963>`_
+
+* Correctly pass ``--location`` arguemnt in ``image create`` command.
+  Bug `1445460 <https://bugs.launchpad.net/bugs/1445460>`_
+
+* Correctly handle use of ``role`` commands for project admins.  Using IDs will
+  work for project admins even when names will not due to non-admin contraints.
+  Bug `1445528 <https://bugs.launchpad.net/bugs/1445528>`_
+
+* Correctly exit with an error when authentication can not be completed.
+  Bug `1444640 <https://bugs.launchpad.net/bugs/1444640>`_
+
+* Fix ``backup create`` to correctly use the ``--container`` value if supplied.
+  Bug `1446751 <https://bugs.launchpad.net/bugs/1446751>`_
+
+* Document the backward-compatibility-breaking changes in
+  :doc:`backwards-incompatibile`.
+  Bug `1406470 <https://bugs.launchpad.net/bugs/1406470>`_
+
+* Add `--parent`` option to `projct create` command.
+
+
 1.1.0 (21 Apr 2015)
 ===================
 
