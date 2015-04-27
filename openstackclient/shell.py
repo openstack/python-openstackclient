@@ -24,6 +24,7 @@ import warnings
 
 from cliff import app
 from cliff import command
+from cliff import complete
 from cliff import help
 
 import openstackclient
@@ -76,6 +77,7 @@ class OpenStackShell(app.App):
 
         # Some commands do not need authentication
         help.HelpCommand.auth_required = False
+        complete.CompleteCommand.auth_required = False
 
         super(OpenStackShell, self).__init__(
             description=__doc__.strip(),
@@ -318,12 +320,8 @@ class OpenStackShell(app.App):
             cmd.__class__.__name__,
         )
         if cmd.auth_required:
-            try:
-                # Trigger the Identity client to initialize
-                self.client_manager.auth_ref
-            except Exception as e:
-                self.log.warning("Possible error authenticating: " + str(e))
-                pass
+            # Trigger the Identity client to initialize
+            self.client_manager.auth_ref
         return
 
     def clean_up(self, cmd, result, err):
