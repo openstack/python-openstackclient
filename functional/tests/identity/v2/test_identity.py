@@ -16,8 +16,8 @@ from functional.common import test
 BASIC_LIST_HEADERS = ['ID', 'Name']
 
 
-class IdentityV2Tests(test.TestCase):
-    """Functional tests for Identity V2 commands. """
+class IdentityTests(test.TestCase):
+    """Functional tests for Identity commands. """
 
     USER_FIELDS = ['email', 'enabled', 'id', 'name', 'project_id', 'username']
     PROJECT_FIELDS = ['enabled', 'id', 'name', 'description']

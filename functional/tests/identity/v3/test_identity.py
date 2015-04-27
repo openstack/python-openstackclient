@@ -19,8 +19,8 @@ from functional.common import test
 BASIC_LIST_HEADERS = ['ID', 'Name']
 
 
-class IdentityV3Tests(test.TestCase):
-    """Functional tests for Identity V3 commands. """
+class IdentityTests(test.TestCase):
+    """Functional tests for Identity commands. """
 
     DOMAIN_FIELDS = ['description', 'enabled', 'id', 'name', 'links']
     GROUP_FIELDS = ['description', 'domain_id', 'id', 'name', 'links']
@@ -37,7 +37,7 @@ class IdentityV3Tests(test.TestCase):
         return name
 
     def setUp(self):
-        super(IdentityV3Tests, self).setUp()
+        super(IdentityTests, self).setUp()
         auth_url = os.environ.get('OS_AUTH_URL')
         auth_url = auth_url.replace('v2.0', 'v3')
         os.environ['OS_AUTH_URL'] = auth_url
