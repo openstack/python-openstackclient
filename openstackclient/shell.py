@@ -139,12 +139,11 @@ class OpenStackShell(app.App):
             # --debug forces traceback
             self.dump_stack_trace = True
             requests_log.setLevel(logging.DEBUG)
-            cliff_log.setLevel(logging.DEBUG)
         else:
             self.dump_stack_trace = False
             requests_log.setLevel(logging.ERROR)
-            cliff_log.setLevel(logging.ERROR)
 
+        cliff_log.setLevel(logging.ERROR)
         stevedore_log.setLevel(logging.ERROR)
         iso8601_log.setLevel(logging.ERROR)
 
@@ -325,10 +324,7 @@ class OpenStackShell(app.App):
         return
 
     def clean_up(self, cmd, result, err):
-        self.log.debug('clean_up %s', cmd.__class__.__name__)
-
-        if err:
-            self.log.debug('got an error: %s', err)
+        self.log.debug('clean_up %s: %s', cmd.__class__.__name__, err or '')
 
         # Process collected timing data
         if self.options.timing:
