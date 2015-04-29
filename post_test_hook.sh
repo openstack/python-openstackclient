@@ -10,6 +10,11 @@ set -xe
 
 OPENSTACKCLIENT_DIR=$(cd $(dirname "$0") && pwd)
 
-cd $OPENSTACKCLIENT_DIR
 echo "Running openstackclient functional test suite"
-sudo -H -u stack tox -e functional
+sudo -H -u stack -i <<!
+source ~stack/devstack/accrc/admin/admin
+echo 'Running tests with:'
+env | grep OS_
+cd ${OPENSTACKCLIENT_DIR}
+tox -e functional
+!
