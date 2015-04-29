@@ -28,12 +28,12 @@ EXAMPLE_DIR = os.path.join(ROOT_DIR, 'examples')
 
 def execute(cmd, fail_ok=False, merge_stderr=False):
     """Executes specified command for the given action."""
-    cmd = shlex.split(cmd.encode('utf-8'))
+    cmdlist = shlex.split(cmd.encode('utf-8'))
     result = ''
     result_err = ''
     stdout = subprocess.PIPE
     stderr = subprocess.STDOUT if merge_stderr else subprocess.PIPE
-    proc = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+    proc = subprocess.Popen(cmdlist, stdout=stdout, stderr=stderr)
     result, result_err = proc.communicate()
     if not fail_ok and proc.returncode != 0:
         raise exceptions.CommandFailed(proc.returncode, cmd, result,
@@ -49,6 +49,33 @@ class TestCase(testtools.TestCase):
     def openstack(cls, cmd, fail_ok=False):
         """Executes openstackclient command for the given action."""
         return execute('openstack ' + cmd, fail_ok=fail_ok)
+
+    @classmethod
+    def get_show_opts(cls, fields=[]):
+        return ' -f value ' + ' '.join(['-c ' + it for it in fields])
+
+    @classmethod
+    def get_list_opts(cls, headers=[]):
+        opts = ' -f csv --quote none '
+        opts = opts + ' '.join(['-c ' + it for it in headers])
+        return opts
+
+    @classmethod
+    def assertOutput(cls, expected, actual):
+        if expected != actual:
+            raise Exception(expected + ' != ' + actual)
+
+    @classmethod
+    def assertInOutput(cls, expected, actual):
+        if expected not in actual:
+            raise Exception(expected + ' not in ' + actual)
+
+    @classmethod
+    def cleanup_tmpfile(cls, filename):
+        try:
+            os.remove(filename)
+        except OSError:
+            pass
 
     def assert_table_structure(self, items, field_names):
         """Verify that all items have keys listed in field_names."""
