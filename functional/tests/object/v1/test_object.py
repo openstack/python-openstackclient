@@ -20,15 +20,17 @@ CONTAINER_FIELDS = ['account', 'container', 'x-trans-id']
 OBJECT_FIELDS = ['object', 'container', 'etag']
 
 
-class ObjectV1Tests(test.TestCase):
-    """Functional tests for Object V1 commands. """
+class ObjectTests(test.TestCase):
+    """Functional tests for Object commands. """
 
     CONTAINER_NAME = uuid.uuid4().hex
     OBJECT_NAME = uuid.uuid4().hex
+    TMP_FILE = 'tmp.txt'
 
     def setUp(self):
-        super(ObjectV1Tests, self).setUp()
+        super(ObjectTests, self).setUp()
         self.addCleanup(os.remove, self.OBJECT_NAME)
+        self.addCleanup(os.remove, self.TMP_FILE)
         with open(self.OBJECT_NAME, 'w') as f:
             f.write('test content')
 
@@ -61,7 +63,7 @@ class ObjectV1Tests(test.TestCase):
         # TODO(stevemar): Assert returned fields
 
         self.openstack('object save ' + self.CONTAINER_NAME
-                       + ' ' + self.OBJECT_NAME + ' --file tmp.txt')
+                       + ' ' + self.OBJECT_NAME + ' --file ' + self.TMP_FILE)
         # TODO(stevemar): Assert returned fields
 
         self.openstack('object show ' + self.CONTAINER_NAME
