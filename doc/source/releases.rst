@@ -5,18 +5,29 @@ Release Notes
 1.1.0 (21 Apr 2015)
 ===================
 
-Primarily a procedural release for the OpenStack Kilo integrated release.
-More details about the bugs fixed will be added here in 1.1.1 release
-to follow shortly.
+* Add global ``--os-cloud`` option to select from a list of cloud configurations.
+  See :doc:`configuration` for more details.
 
-* Add ``--os-cloud`` suport for cloud definitions in yaml files
+* Fix global ``--timing`` option operation.
+  Bug `1402577 <https://bugs.launchpad.net/bugs/1402577>`_
 
-* Bug `1402577 <https://bugs.launchpad.net/bugs/1402577>`_: --timing option does not work.
-* Bug `1434137 <https://bugs.launchpad.net/bugs/1434137>`_: osc needs to handle flavor properties
-* Bug `1435640 <https://bugs.launchpad.net/bugs/1435640>`_: network create should allow for non-authenticated project
-* Bug `1438377 <https://bugs.launchpad.net/bugs/1438377>`_: missing support for quota change per volume type
-* Bug `1438379 <https://bugs.launchpad.net/bugs/1438379>`_: absolute limits for arbitrary tenants
-* Bug `1444685 <https://bugs.launchpad.net/bugs/1444685>`_: server create does not explain network values
+* Add ``flavor set`` and ``flavor unset`` commands.
+  Bug `1434137 <https://bugs.launchpad.net/bugs/1434137>`_
+
+* Add ``--domain`` and ``--project`` options to ``network create`` command.
+  Bug `1435640 <https://bugs.launchpad.net/bugs/1435640>`_
+
+* Add ``--volume-type`` option to ``quota set`` command.
+  Bug `1438377 <https://bugs.launchpad.net/bugs/1438377>`_
+
+* Add ``--domain`` and ``--project`` options to ``limits show`` command.
+  Bug `1438379 <https://bugs.launchpad.net/bugs/1438379>`_
+
+* Improve ``--nic`` option help for ``server create`` command.
+  Bug `1444685 <https://bugs.launchpad.net/bugs/1444685>`_
+
+* Add ``--remote-id`` and ``--remote-id-file`` options to
+  ``identity provider create`` and ``identity provider set`` commands.
 
 
 1.0.3 (10 Mar 2015)
