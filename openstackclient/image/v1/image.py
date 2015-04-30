@@ -348,7 +348,7 @@ class ListImage(lister.Lister):
             help='List additional fields in output',
         )
 
-        # --page-size has never worked, leave here for silent compatability
+        # --page-size has never worked, leave here for silent compatibility
         # We'll implement limit/marker differently later
         parser.add_argument(
             "--page-size",
