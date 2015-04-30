@@ -47,6 +47,11 @@ class CreateProject(show.ShowOne):
             help='Domain owning the project (name or ID)',
         )
         parser.add_argument(
+            '--parent',
+            metavar='<project>',
+            help='Parent of the project (name or ID)',
+        )
+        parser.add_argument(
             '--description',
             metavar='<description>',
             help='Project description',
@@ -85,6 +90,13 @@ class CreateProject(show.ShowOne):
             domain = common.find_domain(identity_client,
                                         parsed_args.domain).id
 
+        parent = None
+        if parsed_args.parent:
+            parent = utils.find_resource(
+                identity_client.projects,
+                parsed_args.parent,
+            ).id
+
         enabled = True
         if parsed_args.disable:
             enabled = False
@@ -96,6 +108,7 @@ class CreateProject(show.ShowOne):
             project = identity_client.projects.create(
                 name=parsed_args.name,
                 domain=domain,
+                parent=parent,
                 description=parsed_args.description,
                 enabled=enabled,
                 **kwargs
@@ -110,8 +123,6 @@ class CreateProject(show.ShowOne):
                 raise e
 
         project._info.pop('links')
-        # TODO(stevemar): Remove the line below when we support multitenancy
-        project._info.pop('parent_id', None)
         return zip(*sorted(six.iteritems(project._info)))
 
 

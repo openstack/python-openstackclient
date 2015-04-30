@@ -25,6 +25,12 @@ Create new project
 
     .. versionadded:: 3
 
+.. option:: --parent <project>
+
+    Parent of the project (name or ID)
+
+    .. versionadded:: 3
+
 .. option:: --description <description>
 
     Project description
