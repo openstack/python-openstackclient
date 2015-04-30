@@ -62,8 +62,8 @@ def run(opts):
     # NOTE(dtroyer): This converts from the usual OpenStack way to the single
     #                requests argument and is an app-specific thing because
     #                we want to be like OpenStackClient.
-    if opts.os_cacert:
-        verify = opts.os_cacert
+    if opts.cacert:
+        verify = opts.cacert
     else:
         verify = not opts.insecure
 
