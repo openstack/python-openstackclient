@@ -248,5 +248,5 @@ class ShowImage(show.ShowOne):
         )
 
         info = {}
-        info.update(image._info)
+        info.update(image)
         return zip(*sorted(six.iteritems(info)))
