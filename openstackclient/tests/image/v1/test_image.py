@@ -659,3 +659,36 @@ class TestImageSet(TestImage):
             image_fakes.image_id,
             **kwargs
         )
+
+
+class TestImageShow(TestImage):
+
+    def setUp(self):
+        super(TestImageShow, self).setUp()
+
+        self.images_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(image_fakes.IMAGE),
+            loaded=True,
+        )
+
+        # Get the command object to test
+        self.cmd = image.ShowImage(self.app, None)
+
+    def test_image_show(self):
+        arglist = [
+            image_fakes.image_id,
+        ]
+        verifylist = [
+            ('image', image_fakes.image_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+        self.images_mock.get.assert_called_with(
+            image_fakes.image_id,
+        )
+
+        self.assertEqual(image_fakes.IMAGE_columns, columns)
+        self.assertEqual(image_fakes.IMAGE_data, data)
