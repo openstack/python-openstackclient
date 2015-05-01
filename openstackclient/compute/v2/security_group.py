@@ -328,28 +328,9 @@ class DeleteSecurityGroupRule(command.Command):
     def get_parser(self, prog_name):
         parser = super(DeleteSecurityGroupRule, self).get_parser(prog_name)
         parser.add_argument(
-            'group',
-            metavar='<group>',
-            help='Security group rule to delete (name or ID)',
-        )
-        parser.add_argument(
-            "--proto",
-            metavar="<proto>",
-            default="tcp",
-            help="IP protocol (icmp, tcp, udp; default: tcp)",
-        )
-        parser.add_argument(
-            "--src-ip",
-            metavar="<ip-address>",
-            default="0.0.0.0/0",
-            help="Source IP (may use CIDR notation; default: 0.0.0.0/0)",
-        )
-        parser.add_argument(
-            "--dst-port",
-            metavar="<port-range>",
-            action=parseractions.RangeAction,
-            help="Destination port, may be a range: 137:139 (default: 0; "
-                 "only required for proto tcp and udp)",
+            'rule',
+            metavar='<rule>',
+            help='Security group rule ID to delete',
         )
         return parser
 
@@ -357,19 +338,7 @@ class DeleteSecurityGroupRule(command.Command):
         self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
-        group = utils.find_resource(
-            compute_client.security_groups,
-            parsed_args.group,
-        )
-        from_port, to_port = parsed_args.dst_port
-        # sigh...delete by ID?
-        compute_client.security_group_rules.delete(
-            group.id,
-            parsed_args.proto,
-            from_port,
-            to_port,
-            parsed_args.src_ip,
-        )
+        compute_client.security_group_rules.delete(parsed_args.rule)
         return
 
 

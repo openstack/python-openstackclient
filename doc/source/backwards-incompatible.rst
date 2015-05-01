@@ -35,6 +35,18 @@ List of Backwards Incompatible Changes
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1404073
   * Commit: https://review.openstack.org/#/c/143242/
 
+3. Command `openstack security group rule delete` now requires rule id
+
+  Previously, the command was `openstack security group rule delete --proto
+  <proto> [--src-ip <ip-address> --dst-port <port-range>] <group>`,
+  whereas now it is: `openstack security group rule delete <rule>`.
+
+  * In favor of: Using `openstack security group rule delete <rule>`.
+  * As of: 1.2.1
+  * Removed in: NA
+  * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1450872
+  * Commit: https://review.openstack.org/#/c/179446/
+
 For Developers
 ==============
 
