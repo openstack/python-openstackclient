@@ -16,6 +16,9 @@
 import copy
 import mock
 
+import warlock
+
+from glanceclient.v2 import schemas
 from openstackclient.image.v2 import image
 from openstackclient.tests import fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
@@ -223,7 +226,7 @@ class TestImageList(TestImage):
             '',
             '',
             '',
-            '',
+            'public',
             False,
             image_fakes.image_owner,
             '',
@@ -293,3 +296,38 @@ class TestImageList(TestImage):
             image_fakes.image_name
         ), )
         self.assertEqual(datalist, tuple(data))
+
+
+class TestImageShow(TestImage):
+
+    def setUp(self):
+        super(TestImageShow, self).setUp()
+
+        # Set up the schema
+        self.model = warlock.model_factory(
+            image_fakes.IMAGE_schema,
+            schemas.SchemaBasedModel,
+        )
+
+        self.images_mock.get.return_value = self.model(**image_fakes.IMAGE)
+
+        # Get the command object to test
+        self.cmd = image.ShowImage(self.app, None)
+
+    def test_image_show(self):
+        arglist = [
+            image_fakes.image_id,
+        ]
+        verifylist = [
+            ('image', image_fakes.image_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+        self.images_mock.get.assert_called_with(
+            image_fakes.image_id,
+        )
+
+        self.assertEqual(image_fakes.IMAGE_columns, columns)
+        self.assertEqual(image_fakes.IMAGE_data, data)
