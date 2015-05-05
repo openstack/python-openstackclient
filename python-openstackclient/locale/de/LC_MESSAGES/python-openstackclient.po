@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  python-openstackclient\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-04-20 06:04+0000\n"
+"POT-Creation-Date: 2015-05-05 06:06+0000\n"
 "PO-Revision-Date: 2015-04-19 18:03+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/python-"
@@ -20,209 +20,147 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: openstackclient/api/auth.py:144
 msgid "Set a username with --os-username, OS_USERNAME, or auth.username\n"
 msgstr ""
-"Legen Sie einen Benutzernamen mit --os-username, OS_USERNAME oder "
-"auth.username fest\n"
+"Legen Sie einen Benutzernamen mit --os-username, OS_USERNAME oder auth."
+"username fest\n"
 
-#: openstackclient/api/auth.py:147
 msgid ""
-"Set an authentication URL, with --os-auth-url, OS_AUTH_URL or "
-"auth.auth_url\n"
+"Set an authentication URL, with --os-auth-url, OS_AUTH_URL or auth.auth_url\n"
 msgstr ""
-"Legen Sie eine Authentifizierungs-URL mit --os-auth-url, OS_AUTH_URL oder"
-" auth.auth_url fest\n"
+"Legen Sie eine Authentifizierungs-URL mit --os-auth-url, OS_AUTH_URL oder "
+"auth.auth_url fest\n"
 
-#: openstackclient/api/auth.py:153
 msgid ""
 "Set a scope, such as a project or domain, with --os-project-name, "
 "OS_PROJECT_NAME or auth.project_name"
 msgstr ""
-"Legen Sie einen Gültigkeitsbereich, wie beispielsweise ein Projekt oder "
-"eine Domäne, mit OS_PROJECT_NAME oder auth.project_name fest"
+"Legen Sie einen Gültigkeitsbereich, wie beispielsweise ein Projekt oder eine "
+"Domäne, mit OS_PROJECT_NAME oder auth.project_name fest"
 
-#: openstackclient/api/auth.py:157 openstackclient/api/auth.py:163
 msgid "Set a token with --os-token, OS_TOKEN or auth.token\n"
 msgstr "Legen Sie einen Token mit --os-token, OS_TOKEN oder auth.token fest\n"
 
-#: openstackclient/api/auth.py:159
-msgid "Set a service AUTH_URL, with --os-auth-url, OS_AUTH_URL or auth.auth_url\n"
+msgid ""
+"Set a service AUTH_URL, with --os-auth-url, OS_AUTH_URL or auth.auth_url\n"
 msgstr ""
-"Legen Sie eine Dienst-AUTH_URL mit --os-auth-url, OS_AUTH_URL oder "
-"auth.auth_url fest\n"
+"Legen Sie eine Dienst-AUTH_URL mit --os-auth-url, OS_AUTH_URL oder auth."
+"auth_url fest\n"
 
-#: openstackclient/api/auth.py:165
 msgid "Set a service URL, with --os-url, OS_URL or auth.url\n"
 msgstr "Legen Sie eine Dienst-URL mit --os-url, OS_URL oder auth.url fest\n"
 
-#: openstackclient/compute/v2/availability_zone.py:72
-#: openstackclient/compute/v2/server.py:650
-#: openstackclient/identity/v2_0/endpoint.py:114
-#: openstackclient/identity/v2_0/project.py:145
-#: openstackclient/identity/v2_0/service.py:128
-#: openstackclient/identity/v2_0/user.py:174
 msgid "List additional fields in output"
 msgstr "Zusätzliche Felder in der Ausgabe auflisten"
 
-#: openstackclient/compute/v2/server.py:121
-#: openstackclient/compute/v2/server.py:158
-#: openstackclient/compute/v2/server.py:509
-#: openstackclient/compute/v2/server.py:721
-#: openstackclient/compute/v2/server.py:755
-#: openstackclient/compute/v2/server.py:838
-#: openstackclient/compute/v2/server.py:862
-#: openstackclient/compute/v2/server.py:917
-#: openstackclient/compute/v2/server.py:1009
-#: openstackclient/compute/v2/server.py:1049
-#: openstackclient/compute/v2/server.py:1075
-#: openstackclient/compute/v2/server.py:1140
-#: openstackclient/compute/v2/server.py:1164
-#: openstackclient/compute/v2/server.py:1223
-#: openstackclient/compute/v2/server.py:1260
-#: openstackclient/compute/v2/server.py:1418
-#: openstackclient/compute/v2/server.py:1442
-#: openstackclient/compute/v2/server.py:1466
-#: openstackclient/compute/v2/server.py:1490
-#: openstackclient/compute/v2/server.py:1514
 msgid "Server (name or ID)"
 msgstr "Server (Name oder Kennung)"
 
-#: openstackclient/compute/v2/server.py:126
 msgid "Security group to add (name or ID)"
 msgstr "Zu hinzufügende Sicherheitsgruppe (Name oder Kennung)"
 
-#: openstackclient/compute/v2/server.py:163
 msgid "Volume to add (name or ID)"
 msgstr "Zu hinzufügender Datenträger (Name oder Kennung)"
 
-#: openstackclient/compute/v2/server.py:168
 msgid "Server internal device name for volume"
 msgstr "Serverinterner Gerätename für Datenträger"
 
-#: openstackclient/compute/v2/server.py:208
-#: openstackclient/compute/v2/server.py:1169
 msgid "New server name"
 msgstr "Neuer Servername"
 
-#: openstackclient/compute/v2/server.py:216
 msgid "Create server from this image"
 msgstr "Server aus diesem Abbild erstellen"
 
-#: openstackclient/compute/v2/server.py:221
 msgid "Create server from this volume"
 msgstr "Server aus diesem Datenträger erstellen"
 
-#: openstackclient/compute/v2/server.py:227
 msgid "Create server with this flavor"
 msgstr "Server mit dieser Variante erstellen"
 
-#: openstackclient/compute/v2/server.py:234
 msgid "Security group to assign to this server (repeat for multiple groups)"
 msgstr ""
 "Zu diesem Server zuweisende Sicherheitsgruppe (für mehrere Gruppen "
 "wiederholen)"
 
-#: openstackclient/compute/v2/server.py:240
 msgid "Keypair to inject into this server (optional extension)"
 msgstr "In diesem Server einzufügendes Schlüsselpaar (optionale Erweiterung)"
 
-#: openstackclient/compute/v2/server.py:246
 msgid "Set a property on this server (repeat for multiple values)"
 msgstr ""
 "Legen Sie eine Eigenschaft auf diesem Server fest (für mehrere Werte "
 "wiederholen)"
 
-#: openstackclient/compute/v2/server.py:254
 msgid "File to inject into image before boot (repeat for multiple files)"
 msgstr ""
 "Vor dem Start auf diesem Abbild einzufügende Datei (für mehrere Dateien "
 "wiederholen)"
 
-#: openstackclient/compute/v2/server.py:260
 msgid "User data file to serve from the metadata server"
 msgstr "Vom Metadatenserver anzubietende Benutzerdatendatei"
 
-#: openstackclient/compute/v2/server.py:265
 msgid "Select an availability zone for the server"
 msgstr "Wählen Sie eine Verfügbarkeitszone für den Server aus"
 
-#: openstackclient/compute/v2/server.py:272
 msgid ""
 "Map block devices; map is <id>:<type>:<size(GB)>:<delete_on_terminate> "
 "(optional extension)"
 msgstr ""
-"Blockorientierte Geräte abbilden; Abbildung ist "
-"<Kennung>:<Typ>:<Größe(GB)>:<beim_Beenden_löschen> (optionale "
-"Erweiterung)"
+"Blockorientierte Geräte abbilden; Abbildung ist <Kennung>:<Typ>:<Größe(GB)>:"
+"<beim_Beenden_löschen> (optionale Erweiterung)"
 
-#: openstackclient/compute/v2/server.py:282
 msgid ""
-"Create a NIC on the server. Specify option multiple times to create "
-"multiple NICs. Either net-id or port-id must be provided, but not both. "
-"net-id: attach NIC to network with this UUID, port-id: attach NIC to port"
-" with this UUID, v4-fixed-ip: IPv4 fixed address for NIC (optional), v6"
-"-fixed-ip: IPv6 fixed address for NIC (optional)."
+"Create a NIC on the server. Specify option multiple times to create multiple "
+"NICs. Either net-id or port-id must be provided, but not both. net-id: "
+"attach NIC to network with this UUID, port-id: attach NIC to port with this "
+"UUID, v4-fixed-ip: IPv4 fixed address for NIC (optional), v6-fixed-ip: IPv6 "
+"fixed address for NIC (optional)."
 msgstr ""
-"Erstellen Sie ein NIC auf dem Server. Geben Sie die Option mehrfach an, "
-"um mehrere NICs zu erstellen. Entweder net-id oder port-id müssen "
-"bereitgestellt werden, aber nicht beide. net-id: NIC an Netzwerk mit "
-"dieser UUID binden, port-id: NIC an Port mit dieser UUID binden, v4"
-"-fixed-ip: Feste IPv4-Adresse für NIC (optional), v6-fixed-ip: Feste "
-"IPv6-Adresse für NIC (optional)."
+"Erstellen Sie ein NIC auf dem Server. Geben Sie die Option mehrfach an, um "
+"mehrere NICs zu erstellen. Entweder net-id oder port-id müssen "
+"bereitgestellt werden, aber nicht beide. net-id: NIC an Netzwerk mit dieser "
+"UUID binden, port-id: NIC an Port mit dieser UUID binden, v4-fixed-ip: Feste "
+"IPv4-Adresse für NIC (optional), v6-fixed-ip: Feste IPv6-Adresse für NIC "
+"(optional)."
 
-#: openstackclient/compute/v2/server.py:295
 msgid "Hints for the scheduler (optional extension)"
 msgstr "Hinweise für den Planer (optionale Erweiterung)"
 
-#: openstackclient/compute/v2/server.py:301
 msgid ""
-"Use specified volume as the config drive, or 'True' to use an ephemeral "
-"drive"
+"Use specified volume as the config drive, or 'True' to use an ephemeral drive"
 msgstr ""
-"Benutzerdefinierter Datenträger als Konfigurationslaufwerk oder 'True', "
-"um ein flüchtiges Laufwerk zu verwenden"
+"Benutzerdefinierter Datenträger als Konfigurationslaufwerk oder 'True', um "
+"ein flüchtiges Laufwerk zu verwenden"
 
-#: openstackclient/compute/v2/server.py:309
 msgid "Minimum number of servers to launch (default=1)"
 msgstr "Minimale Anzahl der zu startenden Server (Standard=1)"
 
-#: openstackclient/compute/v2/server.py:316
 msgid "Maximum number of servers to launch (default=1)"
 msgstr "Maximale Anzahl der zu startenden Server (Standard=1)"
 
-#: openstackclient/compute/v2/server.py:321
 msgid "Wait for build to complete"
 msgstr "Warten Sie, bis die Herstellung abgeschlossen ist"
 
-#: openstackclient/compute/v2/server.py:361
 msgid "min instances should be <= max instances"
 msgstr "min. Instanzen sollten <= max. Instanzen sein"
 
-#: openstackclient/compute/v2/server.py:364
 msgid "min instances should be > 0"
 msgstr "min. Instanzen sollten > 0 sein"
 
-#: openstackclient/compute/v2/server.py:367
 msgid "max instances should be > 0"
 msgstr "max. Instanzen sollten > 0 sein"
 
-#: openstackclient/compute/v2/server.py:403
 msgid "either net-id or port-id should be specified but not both"
 msgstr "entweder net-id oder port-id sollten angegeben sein, aber nicht beide"
 
-#: openstackclient/compute/v2/server.py:425
 msgid "can't create server with port specified since neutron not enabled"
 msgstr ""
-"Server mit dem angegebenen Port kann nicht erstellt werden, da Neutron "
-"nicht aktiviert ist"
+"Server mit dem angegebenen Port kann nicht erstellt werden, da Neutron nicht "
+"aktiviert ist"
 
-#: openstackclient/compute/v2/server.py:490
 #, python-format
 msgid "Error creating server: %s"
 msgstr "Fehler beim Erstellen des Servers: %s"
 
-#: openstackclient/compute/v2/server.py:492
 msgid ""
 "\n"
 "Error creating server"
@@ -230,20 +168,16 @@ msgstr ""
 "\n"
 "Fehler beim Erstellen des Servers"
 
-#: openstackclient/compute/v2/server.py:514
 msgid "Name of new image (default is server name)"
 msgstr "Name des neuen Abbilds (Servername ist Standard)"
 
-#: openstackclient/compute/v2/server.py:519
 msgid "Wait for image create to complete"
 msgstr "Warten Sie, bis die Abbilderstellung abgeschlossen ist"
 
-#: openstackclient/compute/v2/server.py:549
 #, python-format
 msgid "Error creating server snapshot: %s"
 msgstr "Fehler beim Erstellen der Server-Schattenkopie: %s"
 
-#: openstackclient/compute/v2/server.py:551
 msgid ""
 "\n"
 "Error creating server snapshot"
@@ -251,81 +185,61 @@ msgstr ""
 "\n"
 "Fehler beim Erstellen der Server-Schattenkopie"
 
-#: openstackclient/compute/v2/server.py:573
 msgid "Server(s) to delete (name or ID)"
 msgstr "Zu löschende(r) Server (Name oder Kennung)"
 
-#: openstackclient/compute/v2/server.py:597
 msgid "Only return instances that match the reservation"
 msgstr "Nur Instanzen zurückgeben, die der Einschränkung entsprechen"
 
-#: openstackclient/compute/v2/server.py:602
 msgid "Regular expression to match IP addresses"
 msgstr "Regulärer Ausdruck zum Abgleichen mit IP-Adressen"
 
-#: openstackclient/compute/v2/server.py:607
 msgid "Regular expression to match IPv6 addresses"
 msgstr "Regulärer Ausdruck zum Abgleichen mit IPv6-Adressen"
 
-#: openstackclient/compute/v2/server.py:612
 msgid "Regular expression to match names"
 msgstr "Regulärer Ausdruck zum Abgleichen mit Namen"
 
-#: openstackclient/compute/v2/server.py:617
 msgid "Regular expression to match instance name (admin only)"
-msgstr "Regulärer Ausdruck zum Abgleichen des Instanznamens (nur Administrator) "
+msgstr ""
+"Regulärer Ausdruck zum Abgleichen des Instanznamens (nur Administrator) "
 
-#: openstackclient/compute/v2/server.py:623
 msgid "Search by server status"
 msgstr "Nach Serverstatus suchen"
 
-#: openstackclient/compute/v2/server.py:628
 msgid "Search by flavor"
 msgstr "Nach Variante suchen"
 
-#: openstackclient/compute/v2/server.py:633
 msgid "Search by image"
 msgstr "Nach Bild suchen"
 
-#: openstackclient/compute/v2/server.py:638
 msgid "Search by hostname"
 msgstr "Nach Hostname suchen"
 
-#: openstackclient/compute/v2/server.py:644
 msgid "Include all projects (admin only)"
 msgstr "Alle Projekte miteinbeziehen (nur Administrator)"
 
-#: openstackclient/compute/v2/server.py:760
 msgid "Target hostname"
 msgstr "Zielhostname"
 
-#: openstackclient/compute/v2/server.py:768
 msgid "Perform a shared live migration (default)"
 msgstr "Gemeinsame Live-Migration ausführen (Standard)"
 
-#: openstackclient/compute/v2/server.py:774
 msgid "Perform a block live migration"
 msgstr "Blockorientierte Live-Migration ausführen"
 
-#: openstackclient/compute/v2/server.py:781
 msgid "Allow disk over-commit on the destination host"
 msgstr "Festplattenüberladung auf dem Zielhost erlauben"
 
-#: openstackclient/compute/v2/server.py:788
 msgid "Do not over-commit disk on the destination host (default)"
 msgstr "Festplatte auf dem Zielhost nicht überladen (Standard)"
 
-#: openstackclient/compute/v2/server.py:794
-#: openstackclient/compute/v2/server.py:1095
 msgid "Wait for resize to complete"
 msgstr "Warten Sie, bis die Größenänderung abgeschlossen ist"
 
-#: openstackclient/compute/v2/server.py:822
-#: openstackclient/compute/v2/server.py:1120
 msgid "Complete\n"
 msgstr "Fertig\n"
 
-#: openstackclient/compute/v2/server.py:824
 msgid ""
 "\n"
 "Error migrating server"
@@ -333,19 +247,15 @@ msgstr ""
 "\n"
 "Fehler beim Migrieren des Servers"
 
-#: openstackclient/compute/v2/server.py:871
 msgid "Perform a hard reboot"
 msgstr "Harten Neustart ausführen"
 
-#: openstackclient/compute/v2/server.py:879
 msgid "Perform a soft reboot"
 msgstr "Weichen Neustart ausführen"
 
-#: openstackclient/compute/v2/server.py:884
 msgid "Wait for reboot to complete"
 msgstr "Warten Sie, bis der Neustart abgeschlossen ist"
 
-#: openstackclient/compute/v2/server.py:901
 msgid ""
 "\n"
 "Reboot complete\n"
@@ -353,7 +263,6 @@ msgstr ""
 "\n"
 "Neustart abgeschlossen\n"
 
-#: openstackclient/compute/v2/server.py:903
 msgid ""
 "\n"
 "Error rebooting server\n"
@@ -361,15 +270,12 @@ msgstr ""
 "\n"
 "Fehler beim Neustarten des Servers\n"
 
-#: openstackclient/compute/v2/server.py:923
 msgid "Recreate server from this image"
 msgstr "Server aus diesem Abbild neu erstellen"
 
-#: openstackclient/compute/v2/server.py:933
 msgid "Wait for rebuild to complete"
 msgstr "Warten Sie, bis die Wiederherstellung abgeschlossen ist"
 
-#: openstackclient/compute/v2/server.py:954
 msgid ""
 "\n"
 "Complete\n"
@@ -377,7 +283,6 @@ msgstr ""
 "\n"
 "Fertig\n"
 
-#: openstackclient/compute/v2/server.py:956
 msgid ""
 "\n"
 "Error rebuilding server"
@@ -385,31 +290,24 @@ msgstr ""
 "\n"
 "Fehler bei der Wiederherstellung des Servers"
 
-#: openstackclient/compute/v2/server.py:973
 msgid "Name or ID of server to use"
 msgstr "Name oder Kennung des zu verwendenden Servers"
 
-#: openstackclient/compute/v2/server.py:978
 msgid "Name or ID of security group to remove from server"
 msgstr "Name oder Kennung der vom Server zu entfernenden Sicherheitsgruppe"
 
-#: openstackclient/compute/v2/server.py:1014
 msgid "Volume to remove (name or ID)"
 msgstr "Zu entfernender Datenträger (Name oder Kennung)"
 
-#: openstackclient/compute/v2/server.py:1080
 msgid "Resize server to specified flavor"
 msgstr "Servergröße auf angegebene Variante ändern"
 
-#: openstackclient/compute/v2/server.py:1085
 msgid "Confirm server resize is complete"
 msgstr "Bestätigen Sie, ob die Größenänderung des Servers abgeschlossen ist"
 
-#: openstackclient/compute/v2/server.py:1090
 msgid "Restore server state before resize"
 msgstr "Serverstatus vor der Größenänderung wiederherstellen"
 
-#: openstackclient/compute/v2/server.py:1122
 msgid ""
 "\n"
 "Error resizing server"
@@ -417,393 +315,285 @@ msgstr ""
 "\n"
 "Fehler bei der Größenänderung des Servers"
 
-#: openstackclient/compute/v2/server.py:1174
 msgid "Set new root password (interactive only)"
 msgstr "Neues root-Passwort festlegen (Nur interaktiv)"
 
-#: openstackclient/compute/v2/server.py:1180
 msgid ""
 "Property to add/change for this server (repeat option to set multiple "
 "properties)"
 msgstr ""
-"Zu hinzufügende/ändernde Eigenschaft für diesen Server (wiederholen Sie "
-"die Option, um mehrere Eigenschaften festzulegen)"
+"Zu hinzufügende/ändernde Eigenschaft für diesen Server (wiederholen Sie die "
+"Option, um mehrere Eigenschaften festzulegen)"
 
-#: openstackclient/compute/v2/server.py:1204
 msgid "New password: "
 msgstr "Neues Passwort:"
 
-#: openstackclient/compute/v2/server.py:1205
 msgid "Retype new password: "
 msgstr "Neues Passwort erneut eingeben:"
 
-#: openstackclient/compute/v2/server.py:1209
 msgid "Passwords do not match, password unchanged"
 msgstr "Passwörter stimmen nicht überein, Passwort unverändert"
 
-#: openstackclient/compute/v2/server.py:1229
 msgid "Display server diagnostics information"
 msgstr "Serverdiagnoseinformationen anzeigen"
 
-#: openstackclient/compute/v2/server.py:1242
 msgid "Error retrieving diagnostics data"
 msgstr "Fehler beim Abrufen der Diagnosedaten"
 
-#: openstackclient/compute/v2/server.py:1265
 msgid "Login name (ssh -l option)"
 msgstr "Anmeldename (ssh -l Option)"
 
-#: openstackclient/compute/v2/server.py:1276
 msgid "Destination port (ssh -p option)"
 msgstr "Zielport (ssh -p Option)"
 
-#: openstackclient/compute/v2/server.py:1288
 msgid "Private key file (ssh -i option)"
 msgstr "Private Schlüsseldatei (ssh -i Option)"
 
-#: openstackclient/compute/v2/server.py:1299
 msgid "Options in ssh_config(5) format (ssh -o option)"
 msgstr "Optionen im ssh_config(5)-Format (ssh -o Option)"
 
-#: openstackclient/compute/v2/server.py:1313
 msgid "Use only IPv4 addresses"
 msgstr "Nur IPv4-Adressen verwenden"
 
-#: openstackclient/compute/v2/server.py:1320
 msgid "Use only IPv6 addresses"
 msgstr "Nur IPv6-Adressen verwenden"
 
-#: openstackclient/compute/v2/server.py:1329
 msgid "Use public IP address"
 msgstr "Öffentliche IP-Adresse verwenden"
 
-#: openstackclient/compute/v2/server.py:1337
 msgid "Use private IP address"
 msgstr "Private IP-Adresse verwenden"
 
-#: openstackclient/compute/v2/server.py:1344
 msgid "Use other IP address (public, private, etc)"
 msgstr "Andere IP-Adresse verwenden (öffentlich, privat, usw.)"
 
-#: openstackclient/compute/v2/server.py:1521
 msgid "Property key to remove from server (repeat to unset multiple values)"
 msgstr ""
-"Vom Server zu entfernender Eigenschaftsschlüssel (zum Aufheben von "
-"mehreren Werten wiederholen)"
+"Vom Server zu entfernender Eigenschaftsschlüssel (zum Aufheben von mehreren "
+"Werten wiederholen)"
 
-#: openstackclient/identity/v2_0/catalog.py:73
-#: openstackclient/identity/v3/catalog.py:72
 msgid "Service to display (type or name)"
 msgstr "Anzuzeigender Dienst (Typ oder Name)"
 
-#: openstackclient/identity/v2_0/ec2creds.py:40
 msgid "Specify an alternate project (default: current authenticated project)"
 msgstr ""
-"Geben Sie ein alternatives Projekt an (Standard: aktuell "
-"authentifiziertes Projekt)"
+"Geben Sie ein alternatives Projekt an (Standard: aktuell authentifiziertes "
+"Projekt)"
 
-#: openstackclient/identity/v2_0/ec2creds.py:46
 msgid "Specify an alternate user (default: current authenticated user)"
 msgstr ""
 "Geben Sie einen alternativen Benutzer an (Standard: aktuell "
 "authentifizierter Benutzer)"
 
-#: openstackclient/identity/v2_0/ec2creds.py:95
-#: openstackclient/identity/v2_0/ec2creds.py:168
 msgid "Credentials access key"
 msgstr "Anmeldedaten-Zugriffsschlüssel"
 
-#: openstackclient/identity/v2_0/ec2creds.py:100
-#: openstackclient/identity/v2_0/ec2creds.py:130
-#: openstackclient/identity/v2_0/ec2creds.py:173
 msgid "Specify a user"
 msgstr "Geben Sie einen Benutzer an"
 
-#: openstackclient/identity/v2_0/endpoint.py:40
 msgid "New endpoint service (name or ID)"
 msgstr "Neuer Endpunktdienst (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/endpoint.py:46
 msgid "New endpoint public URL (required)"
 msgstr "Öffentliche URL des neuen Endpunktes (erforderlich)"
 
-#: openstackclient/identity/v2_0/endpoint.py:51
 msgid "New endpoint admin URL"
 msgstr "Administrator-URL des neuen Endpunktes"
 
-#: openstackclient/identity/v2_0/endpoint.py:56
 msgid "New endpoint internal URL"
 msgstr "Interne URL des neuen Endpunktes"
 
-#: openstackclient/identity/v2_0/endpoint.py:61
 msgid "New endpoint region ID"
 msgstr "Neue Endpunkt-Regionskennung"
 
-#: openstackclient/identity/v2_0/endpoint.py:93
 msgid "Endpoint ID to delete"
 msgstr "Zu löschende Endpunktkennung"
 
-#: openstackclient/identity/v2_0/endpoint.py:149
 msgid "Endpoint ID to display"
 msgstr "Anzuzeigende Endpunktkennung"
 
-#: openstackclient/identity/v2_0/project.py:41
 msgid "New project name"
 msgstr "Name des neuen Projekts"
 
-#: openstackclient/identity/v2_0/project.py:46
 msgid "Project description"
 msgstr "Projektbeschreibung"
 
-#: openstackclient/identity/v2_0/project.py:52
 msgid "Enable project (default)"
 msgstr "Projekt aktivieren (Standardeinstellung)"
 
-#: openstackclient/identity/v2_0/project.py:57
-#: openstackclient/identity/v2_0/project.py:194
 msgid "Disable project"
 msgstr "Projekt deaktivieren"
 
-#: openstackclient/identity/v2_0/project.py:63
 msgid "Add a property to <name> (repeat option to set multiple properties)"
 msgstr ""
-"Fügen Sie eine Eigenschaft zu <Name> hinzu (wiederholen Sie die Option, "
-"um mehrere Eigenschaften festzulegen)"
+"Fügen Sie eine Eigenschaft zu <Name> hinzu (wiederholen Sie die Option, um "
+"mehrere Eigenschaften festzulegen)"
 
-#: openstackclient/identity/v2_0/project.py:69
-#: openstackclient/identity/v3/project.py:75
 msgid "Return existing project"
 msgstr "Vorhandenes Projekt zurückgeben"
 
-#: openstackclient/identity/v2_0/project.py:117
 msgid "Project(s) to delete (name or ID)"
 msgstr "Zu löschende(s) Projekt(e) (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/project.py:173
 msgid "Project to modify (name or ID)"
 msgstr "Zu änderndes Projekt (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/project.py:178
 msgid "Set project name"
 msgstr "Projektname festlegen"
 
-#: openstackclient/identity/v2_0/project.py:183
 msgid "Set project description"
 msgstr "Projektbeschreibung festlegen"
 
-#: openstackclient/identity/v2_0/project.py:189
 msgid "Enable project"
 msgstr "Projekt aktivieren"
 
-#: openstackclient/identity/v2_0/project.py:200
 msgid "Set a project property (repeat option to set multiple properties)"
 msgstr ""
 "Legen Sie eine Projekteigenschaft fest (wiederholen Sie die Option, um "
 "mehrere Eigenschaften festzulegen)"
 
-#: openstackclient/identity/v2_0/project.py:253
 msgid "Project to display (name or ID)"
 msgstr "Anzuzeigendes Projekt (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/role.py:41
 msgid "Role to add to <project>:<user> (name or ID)"
 msgstr "Zu <project>:<user> hinzuzufügende Rolle (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/role.py:47
-#: openstackclient/identity/v2_0/role.py:309
 msgid "Include <project> (name or ID)"
 msgstr "<project> miteinbeziehen (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/role.py:53
-#: openstackclient/identity/v2_0/role.py:315
 msgid "Include <user> (name or ID)"
 msgstr "<user> miteinbeziehen (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/role.py:87
 msgid "New role name"
 msgstr "Name der neuen Rolle"
 
-#: openstackclient/identity/v2_0/role.py:92
-#: openstackclient/identity/v3/role.py:158
 msgid "Return existing role"
 msgstr "Vorhandene Rolle zurückgeben"
 
-#: openstackclient/identity/v2_0/role.py:127
 msgid "Role(s) to delete (name or ID)"
 msgstr "Zu löschende Rolle(n) (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/role.py:194
-#: openstackclient/identity/v2_0/role.py:257
 msgid "Project must be specified"
 msgstr "Projekt muss angegeben werden"
 
-#: openstackclient/identity/v2_0/role.py:208
-#: openstackclient/identity/v2_0/role.py:263
 msgid "User must be specified"
 msgstr "Benutzer muss angegeben werden"
 
-#: openstackclient/identity/v2_0/role.py:236
 msgid "User to list (name or ID)"
 msgstr "Aufzulistender Benutzer (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/role.py:241
 msgid "Filter users by <project> (name or ID)"
 msgstr "Benutzer nach <project> filtern (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/role.py:303
 msgid "Role to remove (name or ID)"
 msgstr "Zu entfernende Rolle (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/role.py:344
 msgid "Role to display (name or ID)"
 msgstr "Anzuzeigende Rolle (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/service.py:42
 msgid "New service type (compute, image, identity, volume, etc)"
 msgstr "Neuer Diensttyp (Berechnen, Abbild, Identität, Datenträger, usw.)"
 
-#: openstackclient/identity/v2_0/service.py:53
 msgid "New service name"
 msgstr "Name des neuen Dienstes"
 
-#: openstackclient/identity/v2_0/service.py:58
 msgid "New service description"
 msgstr "Beschreibung des neuen Dienstes"
 
-#: openstackclient/identity/v2_0/service.py:78
 msgid ""
-"The argument --type is deprecated, use service create --name <service-"
-"name> type instead."
+"The argument --type is deprecated, use service create --name <service-name> "
+"type instead."
 msgstr ""
-"Das Argument --type ist veraltet, verwenden Sie stattdessen service "
-"create --name <Dienstname> type."
+"Das Argument --type ist veraltet, verwenden Sie stattdessen service create --"
+"name <Dienstname> type."
 
-#: openstackclient/identity/v2_0/service.py:105
 msgid "Service to delete (name or ID)"
 msgstr "Zu löschender Dienst (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/service.py:156
 msgid "Service to display (type, name or ID)"
 msgstr "Anzuzeigender Dienst (Typ, Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/service.py:162
 msgid "Show service catalog information"
 msgstr "Dienstkataloginformation anzeigen"
 
-#: openstackclient/identity/v2_0/service.py:180
 #, python-format
 msgid "No service catalog with a type, name or ID of '%s' exists."
 msgstr "Kein Dienstkatalog mit Typ, Namen oder Kennung von '%s' ist vorhanden."
 
-#: openstackclient/identity/v2_0/token.py:54
 msgid "Token to be deleted"
 msgstr "Zu löschender Token"
 
-#: openstackclient/identity/v2_0/user.py:40
 msgid "New user name"
 msgstr "Neuer Benutzername"
 
-#: openstackclient/identity/v2_0/user.py:45
 msgid "Default project (name or ID)"
 msgstr "Standardprojekt (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/user.py:50
-#: openstackclient/identity/v2_0/user.py:273
 msgid "Set user password"
 msgstr "Benutzerpasswort festlegen"
 
-#: openstackclient/identity/v2_0/user.py:56
-#: openstackclient/identity/v2_0/user.py:279
 msgid "Prompt interactively for password"
 msgstr "Interaktiv nach dem Passwort abfragen"
 
-#: openstackclient/identity/v2_0/user.py:61
-#: openstackclient/identity/v2_0/user.py:284
 msgid "Set user email address"
 msgstr "E-Mail-Adresse des Benutzers festlegen"
 
-#: openstackclient/identity/v2_0/user.py:67
-#: openstackclient/identity/v2_0/user.py:290
 msgid "Enable user (default)"
 msgstr "Benutzer aktivieren (Standardeinstellung)"
 
-#: openstackclient/identity/v2_0/user.py:72
-#: openstackclient/identity/v2_0/user.py:295
 msgid "Disable user"
 msgstr "Benutzer deaktivieren"
 
-#: openstackclient/identity/v2_0/user.py:77
-#: openstackclient/identity/v3/user.py:89
 msgid "Return existing user"
 msgstr "Vorhandenen Benutzer zurückgeben"
 
-#: openstackclient/identity/v2_0/user.py:141
 msgid "User(s) to delete (name or ID)"
 msgstr "Zu löschende(r) Benutzer (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/user.py:168
 msgid "Filter users by project (name or ID)"
 msgstr "Benutzer nach Projekt filtern (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/user.py:258
 msgid "User to change (name or ID)"
 msgstr "Zu ändernder Benutzer (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/user.py:263
 msgid "Set user name"
 msgstr "Benutzername festlegen"
 
-#: openstackclient/identity/v2_0/user.py:268
 msgid "Set default project (name or ID)"
 msgstr "Standardprojekt festlegen (Name oder Kennung)"
 
-#: openstackclient/identity/v2_0/user.py:361
 msgid "User to display (name or ID)"
 msgstr "Anzuzeigender Benutzer (Name oder Kennung)"
 
-#: openstackclient/identity/v3/domain.py:62
 msgid "Return existing domain"
 msgstr "Vorhandene Domäne zurückgeben"
 
-#: openstackclient/identity/v3/group.py:133
 msgid "Return existing group"
 msgstr "Vorhandene Gruppe zurückgeben"
 
-#: openstackclient/identity/v3/region.py:39
 msgid "New region ID"
 msgstr "Neue Regionskennung"
 
-#: openstackclient/identity/v3/region.py:44
 msgid "Parent region ID"
 msgstr "Übergeordnete Regionskennung"
 
-#: openstackclient/identity/v3/region.py:49
-#: openstackclient/identity/v3/region.py:151
 msgid "New region description"
 msgstr "Beschreibung des neuen Bereichs"
 
-#: openstackclient/identity/v3/region.py:54
-#: openstackclient/identity/v3/region.py:156
 msgid "New region url"
 msgstr "URL des neuen Bereichs"
 
-#: openstackclient/identity/v3/region.py:86
 msgid "Region ID to delete"
 msgstr "Zu löschende Regionskennung"
 
-#: openstackclient/identity/v3/region.py:108
 msgid "Filter by parent region ID"
 msgstr "Nach übergeordneter Regionskennung filtern"
 
-#: openstackclient/identity/v3/region.py:141
 msgid "Region to modify"
 msgstr "Zu ändernde Region"
 
-#: openstackclient/identity/v3/region.py:146
 msgid "New parent region ID"
 msgstr "Neue übergeordnete Regionskennung"
 
-#: openstackclient/identity/v3/region.py:191
 msgid "Region to display"
 msgstr "Anzuzeigende Region"
-
