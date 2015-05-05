@@ -97,8 +97,9 @@ class SetQuota(command.Command):
 
         compute_kwargs = {}
         for k, v in COMPUTE_QUOTAS.items():
-            if v in parsed_args:
-                compute_kwargs[k] = getattr(parsed_args, v, None)
+            value = getattr(parsed_args, v, None)
+            if value is not None:
+                compute_kwargs[k] = value
 
         volume_kwargs = {}
         for k, v in VOLUME_QUOTAS.items():
