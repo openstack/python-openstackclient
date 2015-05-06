@@ -33,14 +33,15 @@ class CreateServiceProvider(show.ShowOne):
         parser = super(CreateServiceProvider, self).get_parser(prog_name)
         parser.add_argument(
             'service_provider_id',
-            metavar='<service-provider-id>',
-            help='New service provider ID (must be unique)'
+            metavar='<name>',
+            help='New service provider name (must be unique)'
         )
         parser.add_argument(
             '--auth-url',
             metavar='<auth-url>',
             required=True,
-            help='Authentication URL of remote federated service provider',
+            help='Authentication URL of remote federated service provider '
+                 '(required)',
         )
         parser.add_argument(
             '--description',
@@ -51,7 +52,8 @@ class CreateServiceProvider(show.ShowOne):
             '--service-provider-url',
             metavar='<sp-url>',
             required=True,
-            help='A service URL where SAML assertions are being sent',
+            help='A service URL where SAML assertions are being sent '
+                 '(required)',
         )
 
         enable_service_provider = parser.add_mutually_exclusive_group()
@@ -60,13 +62,13 @@ class CreateServiceProvider(show.ShowOne):
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable service provider (default)',
+            help='Enable the service provider (default)',
         )
         enable_service_provider.add_argument(
             '--disable',
             dest='enabled',
             action='store_false',
-            help='Disable service provider',
+            help='Disable the service provider',
         )
 
         return parser
@@ -94,8 +96,8 @@ class DeleteServiceProvider(command.Command):
         parser = super(DeleteServiceProvider, self).get_parser(prog_name)
         parser.add_argument(
             'service_provider',
-            metavar='<service-provider-id>',
-            help='Service provider ID to delete (ID)',
+            metavar='<service-provider>',
+            help='Service provider to delete',
         )
         return parser
 
@@ -134,13 +136,13 @@ class SetServiceProvider(command.Command):
         parser = super(SetServiceProvider, self).get_parser(prog_name)
         parser.add_argument(
             'service_provider',
-            metavar='<service-provider-id>',
-            help='Service provider ID to change (ID)',
+            metavar='<service-provider>',
+            help='Service provider to modify',
         )
         parser.add_argument(
             '--auth-url',
             metavar='<auth-url>',
-            help='Authentication URL of remote federated Service Provider',
+            help='New Authentication URL of remote federated service provider',
         )
 
         parser.add_argument(
@@ -151,18 +153,18 @@ class SetServiceProvider(command.Command):
         parser.add_argument(
             '--service-provider-url',
             metavar='<sp-url>',
-            help='A service URL where SAML assertions are being sent',
+            help='New service provider URL, where SAML assertions are sent',
         )
         enable_service_provider = parser.add_mutually_exclusive_group()
         enable_service_provider.add_argument(
             '--enable',
             action='store_true',
-            help='Enable service provider',
+            help='Enable the service provider',
         )
         enable_service_provider.add_argument(
             '--disable',
             action='store_true',
-            help='Disable service provider',
+            help='Disable the service provider',
         )
         return parser
 
@@ -200,8 +202,8 @@ class ShowServiceProvider(show.ShowOne):
         parser = super(ShowServiceProvider, self).get_parser(prog_name)
         parser.add_argument(
             'service_provider',
-            metavar='<service-provider-id>',
-            help='Service provider ID to display (ID)',
+            metavar='<service-provider>',
+            help='Service provider to display',
         )
         return parser
 
