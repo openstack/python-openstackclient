@@ -63,6 +63,27 @@ class AddRole(command.Command):
             metavar='<group>',
             help='Include <group> (name or ID)',
         )
+        parser.add_argument(
+            '--user-domain',
+            metavar='<user-domain>',
+            help=('Domain the user belongs to (name or ID). '
+                  'This can be used in case collisions between user names '
+                  'exist.')
+        )
+        parser.add_argument(
+            '--group-domain',
+            metavar='<group-domain>',
+            help=('Domain the group belongs to (name or ID). '
+                  'This can be used in case collisions between group names '
+                  'exist.')
+        )
+        parser.add_argument(
+            '--project-domain',
+            metavar='<project-domain>',
+            help=('Domain the project belongs to (name or ID). '
+                  'This can be used in case collisions between project names '
+                  'exist.')
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -78,66 +99,75 @@ class AddRole(command.Command):
             parsed_args.role,
         )
 
+        kwargs = {}
         if parsed_args.user and parsed_args.domain:
-            user = common.find_user(
+            user_domain_id = self._get_domain_id_if_requested(
+                parsed_args.user_domain)
+            kwargs['user'] = common.find_user(
                 identity_client,
                 parsed_args.user,
-            )
-            domain = common.find_domain(
+                user_domain_id,
+            ).id
+            kwargs['domain'] = common.find_domain(
                 identity_client,
                 parsed_args.domain,
-            )
-            identity_client.roles.grant(
-                role.id,
-                user=user.id,
-                domain=domain.id,
-            )
+            ).id
         elif parsed_args.user and parsed_args.project:
-            user = common.find_user(
+            user_domain_id = self._get_domain_id_if_requested(
+                parsed_args.user_domain)
+            kwargs['user'] = common.find_user(
                 identity_client,
                 parsed_args.user,
-            )
-            project = common.find_project(
+                user_domain_id,
+            ).id
+            project_domain_id = self._get_domain_id_if_requested(
+                parsed_args.project_domain)
+            kwargs['project'] = common.find_project(
                 identity_client,
                 parsed_args.project,
-            )
-            identity_client.roles.grant(
-                role.id,
-                user=user.id,
-                project=project.id,
-            )
+                project_domain_id,
+            ).id
         elif parsed_args.group and parsed_args.domain:
-            group = common.find_group(
+            group_domain_id = self._get_domain_id_if_requested(
+                parsed_args.group_domain)
+            kwargs['group'] = common.find_group(
                 identity_client,
                 parsed_args.group,
-            )
-            domain = common.find_domain(
+                group_domain_id,
+            ).id
+            kwargs['domain'] = common.find_domain(
                 identity_client,
                 parsed_args.domain,
-            )
-            identity_client.roles.grant(
-                role.id,
-                group=group.id,
-                domain=domain.id,
-            )
+            ).id
         elif parsed_args.group and parsed_args.project:
-            group = common.find_group(
+            group_domain_id = self._get_domain_id_if_requested(
+                parsed_args.group_domain)
+            kwargs['group'] = common.find_group(
                 identity_client,
                 parsed_args.group,
-            )
-            project = common.find_project(
+                group_domain_id,
+            ).id
+            project_domain_id = self._get_domain_id_if_requested(
+                parsed_args.project_domain)
+            kwargs['project'] = common.find_project(
                 identity_client,
                 parsed_args.project,
-            )
-            identity_client.roles.grant(
-                role.id,
-                group=group.id,
-                project=project.id,
-            )
+                project_domain_id,
+            ).id
         else:
             sys.stderr.write("Role not added, incorrect set of arguments \
             provided. See openstack --help for more details\n")
+            return
+
+        identity_client.roles.grant(role.id, **kwargs)
         return
+
+    def _get_domain_id_if_requested(self, domain_name_or_id):
+        if domain_name_or_id is None:
+            return None
+        domain = common.find_domain(self.app.client_manager.identity,
+                                    domain_name_or_id)
+        return domain.id
 
 
 class CreateRole(show.ShowOne):
