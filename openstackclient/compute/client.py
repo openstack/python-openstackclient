@@ -19,7 +19,7 @@ from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
 
-DEFAULT_COMPUTE_API_VERSION = '2'
+DEFAULT_API_VERSION = '2'
 API_VERSION_OPTION = 'os_compute_api_version'
 API_NAME = 'compute'
 API_VERSIONS = {
@@ -68,10 +68,8 @@ def build_option_parser(parser):
     parser.add_argument(
         '--os-compute-api-version',
         metavar='<compute-api-version>',
-        default=utils.env(
-            'OS_COMPUTE_API_VERSION',
-            default=DEFAULT_COMPUTE_API_VERSION),
+        default=utils.env('OS_COMPUTE_API_VERSION'),
         help='Compute API version, default=' +
-             DEFAULT_COMPUTE_API_VERSION +
+             DEFAULT_API_VERSION +
              ' (Env: OS_COMPUTE_API_VERSION)')
     return parser

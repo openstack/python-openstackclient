@@ -41,17 +41,17 @@ DEFAULT_SERVICE_URL = "http://127.0.0.1:8771/v3.0/"
 DEFAULT_AUTH_PLUGIN = "v2password"
 DEFAULT_INTERFACE = "internal"
 
-DEFAULT_COMPUTE_API_VERSION = "2"
-DEFAULT_IDENTITY_API_VERSION = "2"
-DEFAULT_IMAGE_API_VERSION = "2"
-DEFAULT_VOLUME_API_VERSION = "1"
-DEFAULT_NETWORK_API_VERSION = "2"
+DEFAULT_COMPUTE_API_VERSION = ""
+DEFAULT_IDENTITY_API_VERSION = ""
+DEFAULT_IMAGE_API_VERSION = ""
+DEFAULT_VOLUME_API_VERSION = ""
+DEFAULT_NETWORK_API_VERSION = ""
 
-LIB_COMPUTE_API_VERSION = "2"
-LIB_IDENTITY_API_VERSION = "2"
-LIB_IMAGE_API_VERSION = "1"
-LIB_VOLUME_API_VERSION = "1"
-LIB_NETWORK_API_VERSION = "2"
+LIB_COMPUTE_API_VERSION = ""
+LIB_IDENTITY_API_VERSION = ""
+LIB_IMAGE_API_VERSION = ""
+LIB_VOLUME_API_VERSION = ""
+LIB_NETWORK_API_VERSION = ""
 
 CLOUD_1 = {
     'clouds': {
@@ -203,7 +203,9 @@ class TestShell(utils.TestCase):
         initialize_app().
         """
 
-        self.occ_get_one = mock.Mock("Test Shell")
+        cloud = mock.Mock(name="cloudy")
+        cloud.config = {}
+        self.occ_get_one = mock.Mock(return_value=cloud)
         with mock.patch(
                 "os_client_config.config.OpenStackConfig.get_one_cloud",
                 self.occ_get_one,

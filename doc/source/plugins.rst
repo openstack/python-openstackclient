@@ -83,7 +83,7 @@ so the version should not contain the leading 'v' character.
 
 .. code-block:: python
 
-    DEFAULT_OSCPLUGIN_API_VERSION = '1'
+    DEFAULT_API_VERSION = '1'
 
     # Required by the OSC plugin interface
     API_NAME = 'oscplugin'
@@ -123,10 +123,7 @@ so the version should not contain the leading 'v' character.
         parser.add_argument(
             '--os-oscplugin-api-version',
             metavar='<oscplugin-api-version>',
-            default=utils.env(
-                'OS_OSCPLUGIN_API_VERSION',
-                default=DEFAULT_OSCPLUGIN_API_VERSION),
             help='OSC Plugin API version, default=' +
-                 DEFAULT_OSCPLUGIN_API_VERSION +
+                 DEFAULT_API_VERSION +
                  ' (Env: OS_OSCPLUGIN_API_VERSION)')
         return parser

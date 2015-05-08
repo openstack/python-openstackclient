@@ -22,7 +22,7 @@ from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
 
-DEFAULT_OBJECT_API_VERSION = '1'
+DEFAULT_API_VERSION = '1'
 API_VERSION_OPTION = 'os_object_api_version'
 API_NAME = 'object_store'
 API_VERSIONS = {
@@ -52,10 +52,8 @@ def build_option_parser(parser):
     parser.add_argument(
         '--os-object-api-version',
         metavar='<object-api-version>',
-        default=utils.env(
-            'OS_OBJECT_API_VERSION',
-            default=DEFAULT_OBJECT_API_VERSION),
+        default=utils.env('OS_OBJECT_API_VERSION'),
         help='Object API version, default=' +
-             DEFAULT_OBJECT_API_VERSION +
+             DEFAULT_API_VERSION +
              ' (Env: OS_OBJECT_API_VERSION)')
     return parser
