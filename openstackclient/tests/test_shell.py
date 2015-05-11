@@ -13,6 +13,7 @@
 #   under the License.
 #
 
+import copy
 import mock
 import os
 
@@ -36,7 +37,6 @@ DEFAULT_TOKEN = "token"
 DEFAULT_SERVICE_URL = "http://127.0.0.1:8771/v3.0/"
 DEFAULT_AUTH_PLUGIN = "v2password"
 
-
 DEFAULT_COMPUTE_API_VERSION = "2"
 DEFAULT_IDENTITY_API_VERSION = "2"
 DEFAULT_IMAGE_API_VERSION = "2"
@@ -48,6 +48,46 @@ LIB_IDENTITY_API_VERSION = "2"
 LIB_IMAGE_API_VERSION = "1"
 LIB_VOLUME_API_VERSION = "1"
 LIB_NETWORK_API_VERSION = "2"
+
+CLOUD_1 = {
+    'clouds': {
+        'scc': {
+            'auth': {
+                'auth_url': DEFAULT_AUTH_URL,
+                'project_name': DEFAULT_PROJECT_NAME,
+                'username': 'zaphod',
+            },
+            'region_name': 'occ-cloud',
+            'donut': 'glazed',
+        }
+    }
+}
+
+CLOUD_2 = {
+    'clouds': {
+        'megacloud': {
+            'cloud': 'megadodo',
+            'auth': {
+                'project_name': 'heart-o-gold',
+                'username': 'zaphod',
+            },
+            'region_name': 'occ-cloud',
+        }
+    }
+}
+
+PUBLIC_1 = {
+    'public-clouds': {
+        'megadodo': {
+            'auth': {
+                'auth_url': DEFAULT_AUTH_URL,
+                'project_name': DEFAULT_PROJECT_NAME,
+            },
+            'region_name': 'occ-public',
+            'donut': 'cake',
+        }
+    }
+}
 
 
 def make_shell():
@@ -516,3 +556,217 @@ class TestShellCli(TestShell):
             "network_api_version": LIB_NETWORK_API_VERSION
         }
         self._assert_cli(flag, kwargs)
+
+    @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
+    def test_shell_args_cloud_no_vendor(self, config_mock):
+        config_mock.return_value = copy.deepcopy(CLOUD_1)
+        _shell = make_shell()
+
+        fake_execute(
+            _shell,
+            "--os-cloud scc list user",
+        )
+        self.assertEqual(
+            'scc',
+            _shell.cloud.name,
+        )
+
+        # These come from clouds.yaml
+        self.assertEqual(
+            DEFAULT_AUTH_URL,
+            _shell.cloud.config['auth']['auth_url'],
+        )
+        self.assertEqual(
+            DEFAULT_PROJECT_NAME,
+            _shell.cloud.config['auth']['project_name'],
+        )
+        self.assertEqual(
+            'zaphod',
+            _shell.cloud.config['auth']['username'],
+        )
+        self.assertEqual(
+            'occ-cloud',
+            _shell.cloud.config['region_name'],
+        )
+        self.assertEqual(
+            'glazed',
+            _shell.cloud.config['donut'],
+        )
+
+    @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
+    @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
+    def test_shell_args_cloud_public(self, config_mock, public_mock):
+        config_mock.return_value = copy.deepcopy(CLOUD_2)
+        public_mock.return_value = copy.deepcopy(PUBLIC_1)
+        _shell = make_shell()
+
+        fake_execute(
+            _shell,
+            "--os-cloud megacloud list user",
+        )
+        self.assertEqual(
+            'megacloud',
+            _shell.cloud.name,
+        )
+
+        # These come from clouds-public.yaml
+        self.assertEqual(
+            DEFAULT_AUTH_URL,
+            _shell.cloud.config['auth']['auth_url'],
+        )
+        self.assertEqual(
+            'cake',
+            _shell.cloud.config['donut'],
+        )
+
+        # These come from clouds.yaml
+        self.assertEqual(
+            'heart-o-gold',
+            _shell.cloud.config['auth']['project_name'],
+        )
+        self.assertEqual(
+            'zaphod',
+            _shell.cloud.config['auth']['username'],
+        )
+        self.assertEqual(
+            'occ-cloud',
+            _shell.cloud.config['region_name'],
+        )
+
+    @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
+    @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
+    def test_shell_args_precedence(self, config_mock, vendor_mock):
+        config_mock.return_value = copy.deepcopy(CLOUD_2)
+        vendor_mock.return_value = copy.deepcopy(PUBLIC_1)
+        _shell = make_shell()
+
+        # Test command option overriding config file value
+        fake_execute(
+            _shell,
+            "--os-cloud megacloud --os-region-name krikkit list user",
+        )
+        self.assertEqual(
+            'megacloud',
+            _shell.cloud.name,
+        )
+
+        # These come from clouds-public.yaml
+        self.assertEqual(
+            DEFAULT_AUTH_URL,
+            _shell.cloud.config['auth']['auth_url'],
+        )
+        self.assertEqual(
+            'cake',
+            _shell.cloud.config['donut'],
+        )
+
+        # These come from clouds.yaml
+        self.assertEqual(
+            'heart-o-gold',
+            _shell.cloud.config['auth']['project_name'],
+        )
+        self.assertEqual(
+            'zaphod',
+            _shell.cloud.config['auth']['username'],
+        )
+        self.assertEqual(
+            'krikkit',
+            _shell.cloud.config['region_name'],
+        )
+
+
+class TestShellCliEnv(TestShell):
+    def setUp(self):
+        super(TestShellCliEnv, self).setUp()
+        env = {
+            'OS_REGION_NAME': 'occ-env',
+        }
+        self.orig_env, os.environ = os.environ, env.copy()
+
+    def tearDown(self):
+        super(TestShellCliEnv, self).tearDown()
+        os.environ = self.orig_env
+
+    @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
+    @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
+    def test_shell_args_precedence_1(self, config_mock, vendor_mock):
+        config_mock.return_value = copy.deepcopy(CLOUD_2)
+        vendor_mock.return_value = copy.deepcopy(PUBLIC_1)
+        _shell = make_shell()
+
+        # Test env var
+        fake_execute(
+            _shell,
+            "--os-cloud megacloud list user",
+        )
+        self.assertEqual(
+            'megacloud',
+            _shell.cloud.name,
+        )
+
+        # These come from clouds-public.yaml
+        self.assertEqual(
+            DEFAULT_AUTH_URL,
+            _shell.cloud.config['auth']['auth_url'],
+        )
+        self.assertEqual(
+            'cake',
+            _shell.cloud.config['donut'],
+        )
+
+        # These come from clouds.yaml
+        self.assertEqual(
+            'heart-o-gold',
+            _shell.cloud.config['auth']['project_name'],
+        )
+        self.assertEqual(
+            'zaphod',
+            _shell.cloud.config['auth']['username'],
+        )
+        self.assertEqual(
+            'occ-env',
+            _shell.cloud.config['region_name'],
+        )
+
+    @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
+    @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
+    def test_shell_args_precedence_2(self, config_mock, vendor_mock):
+        config_mock.return_value = copy.deepcopy(CLOUD_2)
+        vendor_mock.return_value = copy.deepcopy(PUBLIC_1)
+        _shell = make_shell()
+
+        # Test command option overriding config file value
+        fake_execute(
+            _shell,
+            "--os-cloud megacloud --os-region-name krikkit list user",
+        )
+        self.assertEqual(
+            'megacloud',
+            _shell.cloud.name,
+        )
+
+        # These come from clouds-public.yaml
+        self.assertEqual(
+            DEFAULT_AUTH_URL,
+            _shell.cloud.config['auth']['auth_url'],
+        )
+        self.assertEqual(
+            'cake',
+            _shell.cloud.config['donut'],
+        )
+
+        # These come from clouds.yaml
+        self.assertEqual(
+            'heart-o-gold',
+            _shell.cloud.config['auth']['project_name'],
+        )
+        self.assertEqual(
+            'zaphod',
+            _shell.cloud.config['auth']['username'],
+        )
+
+        # These come from the command line
+        self.assertEqual(
+            'krikkit',
+            _shell.cloud.config['region_name'],
+        )
