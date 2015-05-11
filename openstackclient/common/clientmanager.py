@@ -30,6 +30,8 @@ LOG = logging.getLogger(__name__)
 
 PLUGIN_MODULES = []
 
+USER_AGENT = 'python-openstackclient'
+
 
 class ClientCache(object):
     """Descriptor class for caching created client handles."""
@@ -163,6 +165,7 @@ class ClientManager(object):
             auth=self.auth,
             session=request_session,
             verify=self._verify,
+            user_agent=USER_AGENT,
         )
 
         return
