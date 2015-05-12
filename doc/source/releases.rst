@@ -2,6 +2,11 @@
 Release Notes
 =============
 
+1.0.4 (12 May 2015)
+===================
+
+* Update stable project library requirements
+
 1.0.3 (10 Mar 2015)
 ===================
 
