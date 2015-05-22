@@ -1054,11 +1054,11 @@ class RescueServer(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
-        server = utils.find_resource(
+        _, body = utils.find_resource(
             compute_client.servers,
             parsed_args.server,
-        ).rescue()
-        return zip(*sorted(six.iteritems(server._info)))
+            ).rescue()
+        return zip(*sorted(six.iteritems(body)))
 
 
 class ResizeServer(command.Command):
