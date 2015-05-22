@@ -547,6 +547,9 @@ class TestImageSet(TestImage):
             '--owner', 'new-owner',
             '--min-disk', '2',
             '--min-ram', '4',
+            '--container-format', 'ovf',
+            '--disk-format', 'vmdk',
+            '--size', '35165824',
             image_fakes.image_name,
         ]
         verifylist = [
@@ -554,6 +557,9 @@ class TestImageSet(TestImage):
             ('owner', 'new-owner'),
             ('min_disk', 2),
             ('min_ram', 4),
+            ('container_format', 'ovf'),
+            ('disk_format', 'vmdk'),
+            ('size', 35165824),
             ('image', image_fakes.image_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -566,6 +572,9 @@ class TestImageSet(TestImage):
             'owner': 'new-owner',
             'min_disk': 2,
             'min_ram': 4,
+            'container_format': 'ovf',
+            'disk_format': 'vmdk',
+            'size': 35165824
         }
         # ImageManager.update(image, **kwargs)
         self.images_mock.update.assert_called_with(
