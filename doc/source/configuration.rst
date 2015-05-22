@@ -78,6 +78,7 @@ The keys match the :program:`openstack` global options but without the
           username: openstack
           password: xyzpdq!lazydog
         region_name: DFW,ORD,IAD
+        endpoint_type: internal
 
 In the above example, the ``auth_url`` for the ``rackspace`` cloud is taken
 from :file:`clouds-public.yaml` (see below).
@@ -96,6 +97,7 @@ to the following options if the ``rackspace`` entry in :file:`clouds-public.yaml
     --os-username openstack
     --os-password xyzpdq!lazydog
     --os-region-name DFW
+    --os-endpoint-type internal
 
 and can be selected on the command line::
 
@@ -105,13 +107,17 @@ Note that multiple regions are listed in the ``rackspace`` entry.  An otherwise
 identical configuration is created for each region.  If ``-os-region-name`` is not
 specified on the command line, the first region in the list is used by default.
 
+The selection of ``endpoint_type`` (as seen above in the ``rackspace`` entry)
+is optional.  For this configuration to work, every service for this cloud
+instance must already be configured to support this type of endpoint.
+
 clouds-public.yaml
 ~~~~~~~~~~~~~~~~~~
 
 :file:`clouds-public.yaml` is a configuration file that is intended to contain
 public information about clouds that are common across a large number of users.
 The idea is that :file:`clouds-public.yaml` could easily be shared among users
-to simplify public could configuration.
+to simplify public cloud configuration.
 
 Similar to :file:`clouds.yaml`, OpenStackClient looks for
 :file:`clouds-public.yaml` in the following locations:

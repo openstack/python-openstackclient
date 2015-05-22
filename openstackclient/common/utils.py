@@ -368,3 +368,11 @@ def read_blob_file_contents(blob_file):
     except IOError:
         msg = "Error occurred trying to read from file %s"
         raise exceptions.CommandError(msg % blob_file)
+
+
+def build_kwargs_dict(arg_name, value):
+    """Return a dictionary containing `arg_name` if `value` is set."""
+    kwargs = {}
+    if value:
+        kwargs[arg_name] = value
+    return kwargs

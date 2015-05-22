@@ -47,11 +47,17 @@ def make_client(instance):
     endpoint = instance.get_endpoint_for_service_type(
         API_NAME,
         region_name=instance._region_name,
+        endpoint_type=instance._endpoint_type,
     )
+
+    # Remember endpoint_type only if it is set
+    kwargs = utils.build_kwargs_dict('endpoint_type',
+                                     instance._endpoint_type)
 
     client = network_client(
         session=instance.session,
         region_name=instance._region_name,
+        **kwargs
     )
 
     network_api = utils.get_client_class(
