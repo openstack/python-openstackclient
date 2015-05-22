@@ -37,6 +37,27 @@ Add role to a user or group in a project or domain
 
     .. versionadded:: 3
 
+.. option:: --user-domain <user-domain>
+
+    Domain the user belongs to (name or ID).
+    This can be used in case collisions between user names exist.
+
+    .. versionadded:: 3
+
+.. option:: --group-domain <group-domain>
+
+    Domain the group belongs to (name or ID).
+    This can be used in case collisions between group names exist.
+
+    .. versionadded:: 3
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+    .. versionadded:: 3
+
 .. describe:: <role>
 
     Role to add to `<project>`:`<user>` (name or ID)

@@ -48,23 +48,23 @@ def find_domain(identity_client, name_or_id):
                                    domains.Domain)
 
 
-def find_group(identity_client, name_or_id):
+def find_group(identity_client, name_or_id, domain_id=None):
     return _find_identity_resource(identity_client.groups, name_or_id,
-                                   groups.Group)
+                                   groups.Group, domain_id=domain_id)
 
 
-def find_project(identity_client, name_or_id):
+def find_project(identity_client, name_or_id, domain_id=None):
     return _find_identity_resource(identity_client.projects, name_or_id,
-                                   projects.Project)
+                                   projects.Project, domain_id=domain_id)
 
 
-def find_user(identity_client, name_or_id):
+def find_user(identity_client, name_or_id, domain_id=None):
     return _find_identity_resource(identity_client.users, name_or_id,
-                                   users.User)
+                                   users.User, domain_id=domain_id)
 
 
 def _find_identity_resource(identity_client_manager, name_or_id,
-                            resource_type):
+                            resource_type, **kwargs):
     """Find a specific identity resource.
 
     Using keystoneclient's manager, attempt to find a specific resource by its
@@ -92,7 +92,7 @@ def _find_identity_resource(identity_client_manager, name_or_id,
 
     try:
         identity_resource = utils.find_resource(identity_client_manager,
-                                                name_or_id)
+                                                name_or_id, **kwargs)
         if identity_resource is not None:
             return identity_resource
     except identity_exc.Forbidden:
