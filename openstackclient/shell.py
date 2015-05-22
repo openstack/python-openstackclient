@@ -187,11 +187,13 @@ class OpenStackShell(app.App):
         verify_group = parser.add_mutually_exclusive_group()
         verify_group.add_argument(
             '--verify',
-            action='store_true',
+            default=None,
+            action='store_false',
             help='Verify server certificate (default)',
         )
         verify_group.add_argument(
             '--insecure',
+            default=None,
             action='store_true',
             help='Disable server certificate verification',
         )
@@ -224,12 +226,6 @@ class OpenStackShell(app.App):
         # Parent __init__ parses argv into self.options
         super(OpenStackShell, self).initialize_app(argv)
 
-        # Resolve the verify/insecure exclusive pair here as cloud_config
-        # doesn't know about verify
-        self.options.insecure = (
-            self.options.insecure and not self.options.verify
-        )
-
         # Set the default plugin to token_endpoint if rl and token are given
         if (self.options.url and self.options.token):
             # Use service token authentication
@@ -253,10 +249,8 @@ class OpenStackShell(app.App):
         if cacert:
             self.verify = cacert
         else:
-            self.verify = not getattr(self.cloud.config, 'insecure', False)
-
-        # Neutralize verify option
-        self.options.verify = None
+            self.verify = not self.cloud.config.get('insecure', False)
+            self.verify = self.cloud.config.get('verify', self.verify)
 
         # Save default domain
         self.default_domain = self.options.os_default_domain
