@@ -12,12 +12,13 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
+
+import json as jsonutils
 import mock
 from requests_mock.contrib import fixture
 
 from keystoneclient.auth.identity import v2 as auth_v2
 from keystoneclient import service_catalog
-from oslo_serialization import jsonutils
 
 from openstackclient.api import auth
 from openstackclient.api import auth_plugin
