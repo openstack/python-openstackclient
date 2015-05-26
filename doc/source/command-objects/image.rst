@@ -205,6 +205,9 @@ Set image properties
         [--owner <project>]
         [--min-disk <disk-gb>]
         [--min-ram <disk-ram>]
+        [--container-format <container-format>]
+        [--disk-format <disk-format>]
+        [--size <size>]
         [--protected | --unprotected]
         [--public | --private]
         [--property <key=value> [...] ]
@@ -225,6 +228,21 @@ Set image properties
 .. option:: --min-ram <disk-ram>
 
     Minimum RAM size needed to boot image, in megabytes
+
+.. option:: --container-format <container-format>
+
+    Container format of image.
+    Acceptable formats: ['ami', 'ari', 'aki', 'bare', 'ovf']
+
+.. option:: --disk-format <disk-format>
+
+    Disk format of image.
+    Acceptable formats: ['ami', 'ari', 'aki', 'vhd', 'vmdk', 'raw', 'qcow2',
+                         'vdi', 'iso']
+
+.. option:: --size <size>
+
+    Size of image data (in bytes)
 
 .. option:: --protected
 

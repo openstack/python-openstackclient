@@ -508,6 +508,28 @@ class SetImage(show.ShowOne):
             type=int,
             help="Minimum RAM size needed to boot image, in megabytes",
         )
+        container_choices = ["ami", "ari", "aki", "bare", "ovf"]
+        parser.add_argument(
+            "--container-format",
+            metavar="<container-format>",
+            help=("Container format of image. Acceptable formats: %s" %
+                  container_choices),
+            choices=container_choices
+        )
+        disk_choices = ["ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2",
+                        "vdi", "iso"]
+        parser.add_argument(
+            "--disk-format",
+            metavar="<disk-format>",
+            help="Disk format of image. Acceptable formats: %s" % disk_choices,
+            choices=disk_choices
+        )
+        parser.add_argument(
+            "--size",
+            metavar="<size>",
+            type=int,
+            help="Size of image data (in bytes)"
+        )
         protected_group = parser.add_mutually_exclusive_group()
         protected_group.add_argument(
             "--protected",
@@ -545,7 +567,8 @@ class SetImage(show.ShowOne):
         image_client = self.app.client_manager.image
 
         kwargs = {}
-        copy_attrs = ('name', 'owner', 'min_disk', 'min_ram', 'properties')
+        copy_attrs = ('name', 'owner', 'min_disk', 'min_ram', 'properties',
+                      'container_format', 'disk_format', 'size')
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
