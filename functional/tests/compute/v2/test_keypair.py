@@ -19,7 +19,7 @@ class KeypairTests(test.TestCase):
     """Functional tests for compute keypairs. """
     NAME = uuid.uuid4().hex
     HEADERS = ['Name']
-    FIELDS = ['deleted_at', 'name', 'updated_at']
+    FIELDS = ['name']
 
     @classmethod
     def setUpClass(cls):
@@ -40,5 +40,4 @@ class KeypairTests(test.TestCase):
     def test_keypair_show(self):
         opts = self.get_show_opts(self.FIELDS)
         raw_output = self.openstack('keypair show ' + self.NAME + opts)
-        expected = "None\n" + self.NAME + "\nNone\n"
-        self.assertEqual(expected, raw_output)
+        self.assertEqual(self.NAME + "\n", raw_output)
