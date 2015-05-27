@@ -7,8 +7,40 @@ properly installed for OSC to find and use it.  It utilizes the
 ``setuptools`` entry points mechanism to advertise to OSC the
 plugin module and supported commands.
 
+Adoption
+========
+
+OpenStackClient promises to provide first class support for the following
+OpenStack services: Compute, Identity, Image, Storage, Volume and Network.
+These services are considered essential to any OpenStack deployment.
+
+Other OpenStack services, such as Orchestration or Telemetry may create an
+OpenStackClient plugin. The source code will not be hosted by
+OpenStackClient.
+
+The following is a list of projects and their status as an OpenStackClient
+plugin.
+
+=============================  ======================================
+   project                     notes
+=============================  ======================================
+python-barbicanclient          n/a
+python-ceilometerclient        n/a
+python-congressclient          using OpenStackClient
+python-designateclient         n/a
+python-heatclient              n/a
+python-ironicclient            patch in progress (https://review.openstack.org/#/c/171672/)
+python-magnumclient            n/a
+python-manilaclient            n/a
+python-mistralclient           n/a
+python-muranoclient            n/a
+python-saharaclient            n/a
+python-troveclient             n/a
+python-zaqarclient             n/a
+=============================  ======================================
+
 Implementation
---------------
+==============
 
 Plugins are discovered by enumerating the entry points
 found under :py:mod:`openstack.cli.extension` and initializing the specified
