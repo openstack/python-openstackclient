@@ -2,6 +2,37 @@
 Release Notes
 =============
 
+1.3.0 (27 May 2015)
+===================
+
+* Need to specify domain with role list
+  Bug `1421328 <https://bugs.launchpad.net/bugs/1421328>`_
+
+* Add support for keystone service providers
+  Bug `1435962 <https://bugs.launchpad.net/bugs/1435962>`_
+
+* Can't update disk_format and container_format of image
+  Bug `1446362 <https://bugs.launchpad.net/bugs/1446362>`_
+
+* Openstack --os-image-api-version 2 image show <image_id> fails
+  Bug `1450829 <https://bugs.launchpad.net/bugs/1450829>`_
+
+* The insecure option is ignored for command line options and OCC
+  Bug `1450855 <https://bugs.launchpad.net/bugs/1450855>`_
+
+* Delete security group rule broken
+  Bug `1450872 <https://bugs.launchpad.net/bugs/1450872>`_
+
+* Quota set sends invalid messages
+  Bug `1451640 <https://bugs.launchpad.net/bugs/1451640>`_
+
+* Keystone Access Log logs "python-keystoneclient" as User-Agent even when request is made by openstack client
+  Bug `1453995 <https://bugs.launchpad.net/bugs/1453995>`_
+
+* Client error while rescuing an instance
+  Bug `1457983 <https://bugs.launchpad.net/bugs/1457983>`_
+
+
 1.2.0 (30 Apr 2015)
 ===================
 
