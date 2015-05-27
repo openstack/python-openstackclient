@@ -36,6 +36,7 @@ python-mistralclient           n/a
 python-muranoclient            n/a
 python-saharaclient            n/a
 python-troveclient             n/a
+python-tuskarclient            using OpenStackClient
 python-zaqarclient             n/a
 =============================  ======================================
 
