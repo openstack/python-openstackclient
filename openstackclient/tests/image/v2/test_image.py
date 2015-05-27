@@ -331,3 +331,53 @@ class TestImageShow(TestImage):
 
         self.assertEqual(image_fakes.IMAGE_columns, columns)
         self.assertEqual(image_fakes.IMAGE_data, data)
+
+
+class TestImageSet(TestImage):
+
+    def setUp(self):
+        super(TestImageSet, self).setUp()
+        # Set up the schema
+        self.model = warlock.model_factory(
+            image_fakes.IMAGE_schema,
+            schemas.SchemaBasedModel,
+        )
+
+        self.images_mock.get.return_value = self.model(**image_fakes.IMAGE)
+        self.images_mock.update.return_value = self.model(**image_fakes.IMAGE)
+        # Get the command object to test
+        self.cmd = image.SetImage(self.app, None)
+
+    def test_image_set_options(self):
+        arglist = [
+            '--name', 'new-name',
+            '--owner', 'new-owner',
+            '--min-disk', '2',
+            '--min-ram', '4',
+            image_fakes.image_id,
+        ]
+        verifylist = [
+            ('name', 'new-name'),
+            ('owner', 'new-owner'),
+            ('min_disk', 2),
+            ('min_ram', 4),
+            ('image', image_fakes.image_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'name': 'new-name',
+            'owner': 'new-owner',
+            'min_disk': 2,
+            'min_ram': 4,
+            'protected': False
+        }
+        # ImageManager.update(image, **kwargs)
+        self.images_mock.update.assert_called_with(
+            image_fakes.image_id, **kwargs)
+
+        self.assertEqual(image_fakes.IMAGE_columns, columns)
+        self.assertEqual(image_fakes.IMAGE_data, data)

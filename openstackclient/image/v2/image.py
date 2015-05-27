@@ -250,3 +250,140 @@ class ShowImage(show.ShowOne):
         info = {}
         info.update(image)
         return zip(*sorted(six.iteritems(info)))
+
+
+class SetImage(show.ShowOne):
+    """Set image properties"""
+
+    log = logging.getLogger(__name__ + ".SetImage")
+
+    def get_parser(self, prog_name):
+        parser = super(SetImage, self).get_parser(prog_name)
+        parser.add_argument(
+            "image",
+            metavar="<image>",
+            help="Image to modify (name or ID)"
+        )
+        parser.add_argument(
+            "--name",
+            metavar="<name>",
+            help="New image name"
+        )
+        parser.add_argument(
+            "--architecture",
+            metavar="<architecture>",
+            help="Operating system Architecture"
+        )
+        parser.add_argument(
+            "--protected",
+            dest="protected",
+            action="store_true",
+            help="Prevent image from being deleted"
+        )
+        parser.add_argument(
+            "--instance-uuid",
+            metavar="<instance_uuid>",
+            help="ID of instance used to create this image"
+        )
+        parser.add_argument(
+            "--min-disk",
+            type=int,
+            metavar="<disk-gb>",
+            help="Minimum disk size needed to boot image, in gigabytes"
+        )
+        visibility_choices = ["public", "private"]
+        parser.add_argument(
+            "--visibility",
+            metavar="<visibility>",
+            choices=visibility_choices,
+            help="Scope of image accessibility. Valid values: %s"
+                 % visibility_choices
+        )
+        help_msg = ("ID of image in Glance that should be used as the kernel"
+                    " when booting an AMI-style image")
+        parser.add_argument(
+            "--kernel-id",
+            metavar="<kernel-id>",
+            help=help_msg
+        )
+        parser.add_argument(
+            "--os-version",
+            metavar="<os-version>",
+            help="Operating system version as specified by the distributor"
+        )
+        disk_choices = ["None", "ami", "ari", "aki", "vhd", "vmdk", "raw",
+                        "qcow2", "vdi", "iso"]
+        help_msg = ("Format of the disk. Valid values: %s" % disk_choices)
+        parser.add_argument(
+            "--disk-format",
+            metavar="<disk-format>",
+            choices=disk_choices,
+            help=help_msg
+        )
+        parser.add_argument(
+            "--os-distro",
+            metavar="<os-distro>",
+            help="Common name of operating system distribution"
+        )
+        parser.add_argument(
+            "--owner",
+            metavar="<owner>",
+            help="New Owner of the image"
+        )
+        msg = ("ID of image stored in Glance that should be used as the "
+               "ramdisk when booting an AMI-style image")
+        parser.add_argument(
+            "--ramdisk-id",
+            metavar="<ramdisk-id>",
+            help=msg
+        )
+        parser.add_argument(
+            "--min-ram",
+            type=int,
+            metavar="<ram-mb>",
+            help="Amount of RAM (in MB) required to boot image"
+        )
+        container_choices = ["None", "ami", "ari", "aki", "bare", "ovf", "ova"]
+        help_msg = ("Format of the container. Valid values: %s"
+                    % container_choices)
+        parser.add_argument(
+            "--container-format",
+            metavar="<container-format>",
+            choices=container_choices,
+            help=help_msg
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)", parsed_args)
+        image_client = self.app.client_manager.image
+
+        kwargs = {}
+        copy_attrs = ('architecture', 'container_format', 'disk_format',
+                      'file', 'kernel_id', 'locations', 'name',
+                      'min_disk', 'min_ram', 'name', 'os_distro', 'os_version',
+                      'owner', 'prefix', 'progress', 'ramdisk_id',
+                      'visibility')
+        for attr in copy_attrs:
+            if attr in parsed_args:
+                val = getattr(parsed_args, attr, None)
+                if val:
+                    # Only include a value in kwargs for attributes that are
+                    # actually present on the command line
+                    kwargs[attr] = val
+        if parsed_args.protected:
+            kwargs['protected'] = True
+        else:
+            kwargs['protected'] = False
+
+        if not kwargs:
+            self.log.warning("No arguments specified")
+            return {}, {}
+
+        image = utils.find_resource(
+            image_client.images, parsed_args.image)
+
+        image = image_client.images.update(image.id, **kwargs)
+        info = {}
+        info.update(image)
+        return zip(*sorted(six.iteritems(info)))
