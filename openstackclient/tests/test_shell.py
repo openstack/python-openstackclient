@@ -559,7 +559,7 @@ class TestShellCli(TestShell):
 
     @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
     def test_shell_args_cloud_no_vendor(self, config_mock):
-        config_mock.return_value = copy.deepcopy(CLOUD_1)
+        config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_1))
         _shell = make_shell()
 
         fake_execute(
@@ -596,8 +596,8 @@ class TestShellCli(TestShell):
     @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
     @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
     def test_shell_args_cloud_public(self, config_mock, public_mock):
-        config_mock.return_value = copy.deepcopy(CLOUD_2)
-        public_mock.return_value = copy.deepcopy(PUBLIC_1)
+        config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
+        public_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
         _shell = make_shell()
 
         fake_execute(
@@ -636,8 +636,8 @@ class TestShellCli(TestShell):
     @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
     @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
     def test_shell_args_precedence(self, config_mock, vendor_mock):
-        config_mock.return_value = copy.deepcopy(CLOUD_2)
-        vendor_mock.return_value = copy.deepcopy(PUBLIC_1)
+        config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
+        vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
         _shell = make_shell()
 
         # Test command option overriding config file value
@@ -690,8 +690,8 @@ class TestShellCliEnv(TestShell):
     @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
     @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
     def test_shell_args_precedence_1(self, config_mock, vendor_mock):
-        config_mock.return_value = copy.deepcopy(CLOUD_2)
-        vendor_mock.return_value = copy.deepcopy(PUBLIC_1)
+        config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
+        vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
         _shell = make_shell()
 
         # Test env var
@@ -731,8 +731,8 @@ class TestShellCliEnv(TestShell):
     @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
     @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
     def test_shell_args_precedence_2(self, config_mock, vendor_mock):
-        config_mock.return_value = copy.deepcopy(CLOUD_2)
-        vendor_mock.return_value = copy.deepcopy(PUBLIC_1)
+        config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
+        vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
         _shell = make_shell()
 
         # Test command option overriding config file value
