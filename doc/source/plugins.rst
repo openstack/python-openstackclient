@@ -26,18 +26,18 @@ plugin.
 =============================  ======================================
 python-barbicanclient          n/a
 python-ceilometerclient        n/a
-python-congressclient          using OpenStackClient
+python-congressclient          using only OpenStackClient
 python-designateclient         n/a
-python-heatclient              n/a
+python-heatclient              plans on creating plugins
 python-ironicclient            patch in progress (https://review.openstack.org/#/c/171672/)
-python-magnumclient            n/a
+python-magnumclient            sent note on ML about creating a plugin
 python-manilaclient            n/a
 python-mistralclient           n/a
 python-muranoclient            n/a
 python-saharaclient            n/a
 python-troveclient             n/a
-python-tuskarclient            using OpenStackClient
-python-zaqarclient             n/a
+python-tuskarclient            using OpenStackClient and their own shell
+python-zaqarclient             using only OpenStackClient
 =============================  ======================================
 
 Implementation
