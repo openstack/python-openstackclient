@@ -187,14 +187,14 @@ class OpenStackShell(app.App):
         verify_group = parser.add_mutually_exclusive_group()
         verify_group.add_argument(
             '--verify',
+            action='store_true',
             default=None,
-            action='store_false',
             help='Verify server certificate (default)',
         )
         verify_group.add_argument(
             '--insecure',
-            default=None,
             action='store_true',
+            default=None,
             help='Disable server certificate verification',
         )
         parser.add_argument(

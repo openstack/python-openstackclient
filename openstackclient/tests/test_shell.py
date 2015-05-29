@@ -527,12 +527,64 @@ class TestShellCli(TestShell):
         super(TestShellCli, self).tearDown()
         os.environ = self.orig_env
 
-    def test_shell_args(self):
+    def test_shell_args_no_options(self):
         _shell = make_shell()
         with mock.patch("openstackclient.shell.OpenStackShell.initialize_app",
                         self.app):
             fake_execute(_shell, "list user")
             self.app.assert_called_with(["list", "user"])
+
+    def test_shell_args_ca_options(self):
+        _shell = make_shell()
+
+        # NOTE(dtroyer): The commented out asserts below are the desired
+        #                behaviour and will be uncommented when the
+        #                handling for --verify and --insecure is fixed.
+
+        # Default
+        fake_execute(_shell, "list user")
+        self.assertIsNone(_shell.options.verify)
+        self.assertIsNone(_shell.options.insecure)
+        self.assertEqual('', _shell.options.os_cacert)
+        self.assertTrue(_shell.verify)
+
+        # --verify
+        fake_execute(_shell, "--verify list user")
+        self.assertTrue(_shell.options.verify)
+        self.assertIsNone(_shell.options.insecure)
+        self.assertEqual('', _shell.options.os_cacert)
+        self.assertTrue(_shell.verify)
+
+        # --insecure
+        fake_execute(_shell, "--insecure list user")
+        self.assertIsNone(_shell.options.verify)
+        self.assertTrue(_shell.options.insecure)
+        self.assertEqual('', _shell.options.os_cacert)
+        self.assertFalse(_shell.verify)
+
+        # --os-cacert
+        fake_execute(_shell, "--os-cacert foo list user")
+        self.assertIsNone(_shell.options.verify)
+        self.assertIsNone(_shell.options.insecure)
+        self.assertEqual('foo', _shell.options.os_cacert)
+        self.assertTrue(_shell.verify)
+
+        # --os-cacert and --verify
+        fake_execute(_shell, "--os-cacert foo --verify list user")
+        self.assertTrue(_shell.options.verify)
+        self.assertIsNone(_shell.options.insecure)
+        self.assertEqual('foo', _shell.options.os_cacert)
+        self.assertTrue(_shell.verify)
+
+        # --os-cacert and --insecure
+        # NOTE(dtroyer): This really is a bogus combination, the default is
+        #                to follow the requests.Session convention and let
+        #                --os-cacert override --insecure
+        fake_execute(_shell, "--os-cacert foo --insecure list user")
+        self.assertIsNone(_shell.options.verify)
+        self.assertTrue(_shell.options.insecure)
+        self.assertEqual('foo', _shell.options.os_cacert)
+        self.assertTrue(_shell.verify)
 
     def test_default_env(self):
         flag = ""
