@@ -143,3 +143,74 @@ Debugging
 You may find the :doc:`config show <command-objects/config>`
 helpful to debug configuration issues.  It will display your current
 configuration.
+
+Logging Settings
+----------------
+
+By setting `log_level` or `log_file` in the configuration
+:file:`clouds.yaml`, a user may enable additional logging::
+
+    clouds:
+      devstack:
+        auth:
+          auth_url: http://192.168.122.10:35357/
+          project_name: demo
+          username: demo
+          password: 0penstack
+        region_name: RegionOne
+        operation_log:
+          logging: TRUE
+          file: /tmp/openstackclient_demo.log
+          level: info
+      ds-admin:
+        auth:
+          auth_url: http://192.168.122.10:35357/
+          project_name: admin
+          username: admin
+          password: 0penstack
+        region_name: RegionOne
+        log_file: /tmp/openstackclient_admin.log
+        log_level: debug
+
+:dfn:`log_file`: ``</path/file-name>``
+    Full path to logging file.
+:dfn:`log_level`: ``error`` | ``info`` | ``debug``
+    If log level is not set, ``warning`` will be used.
+
+If log level is ``info``, the following information is recorded:
+
+* cloud name
+* user name
+* project name
+* CLI start time (logging start time)
+* CLI end time
+* CLI arguments
+* CLI return value
+* and any ``info`` messages.
+
+If log level is ``debug``, the following information is recorded:
+
+* cloud name
+* user name
+* project name
+* CLI start time (logging start time)
+* CLI end time
+* CLI arguments
+* CLI return value
+* API request header/body
+* API response header/body
+* and any ``debug`` messages.
+
+When a command is executed, these logs are saved every time. Recording the user
+operations can help to identify resource changes and provide useful information
+for troubleshooting.
+
+If saving the output of a single command use the `--log-file` option instead.
+
+* `--log-file <LOG_FILE>`
+
+The logging level for `--log-file` can be set by using following options.
+
+*  `-v, --verbose`
+*  `-q, --quiet`
+*  `--debug`
