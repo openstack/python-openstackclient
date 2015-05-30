@@ -13,8 +13,8 @@ Add role to a user or group in a project or domain
 .. code:: bash
 
     os role add
-        --domain <domain> | --project <project>
-        --user <user> | --group <group>
+        --domain <domain> | --project <project> [--project-domain <project-domain>]
+        --user <user> [--user-domain <user-domain>] | --group <group> [--group-domain <group-domain>]
         <role>
 
 .. option:: --domain <domain>
