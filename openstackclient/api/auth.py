@@ -149,7 +149,9 @@ def check_valid_auth_options(options, auth_plugin_name):
         if (not options.auth.get('project_id', None) and not
                 options.auth.get('domain_id', None) and not
                 options.auth.get('domain_name', None) and not
-                options.auth.get('project_name', None)):
+                options.auth.get('project_name', None) and not
+                options.auth.get('tenant_id', None) and not
+                options.auth.get('tenant_name', None)):
             msg += _('Set a scope, such as a project or domain, with '
                      '--os-project-name, OS_PROJECT_NAME or auth.project_name')
     elif auth_plugin_name.endswith('token'):

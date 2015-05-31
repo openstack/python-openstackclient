@@ -139,6 +139,7 @@ class ClientManager(object):
         # PROJECT_DOMAIN_ID to 'OS_DEFAULT_DOMAIN' for better usability.
         if (self._api_version.get('identity') == '3' and
             not self._auth_params.get('project_domain_id', None) and
+            not self.auth_plugin_name.startswith('v2') and
                 not self._auth_params.get('project_domain_name', None)):
             self._auth_params['project_domain_id'] = default_domain
 
@@ -147,6 +148,7 @@ class ClientManager(object):
         # to 'OS_DEFAULT_DOMAIN' for better usability.
         if (self._api_version.get('identity') == '3' and
             self.auth_plugin_name.endswith('password') and
+            not self.auth_plugin_name.startswith('v2') and
             not self._auth_params.get('user_domain_id', None) and
                 not self._auth_params.get('user_domain_name', None)):
             self._auth_params['user_domain_id'] = default_domain

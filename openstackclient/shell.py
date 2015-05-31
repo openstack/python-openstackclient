@@ -234,6 +234,23 @@ class OpenStackShell(app.App):
             cloud_config.set_default('auth_type', 'osc_password')
         self.log.debug("options: %s", self.options)
 
+        project_id = getattr(self.options, 'project_id', None)
+        project_name = getattr(self.options, 'project_name', None)
+        tenant_id = getattr(self.options, 'tenant_id', None)
+        tenant_name = getattr(self.options, 'tenant_name', None)
+
+        # handle some v2/v3 authentication inconsistencies by just acting like
+        # both the project and tenant information are both present. This can
+        # go away if we stop registering all the argparse options together.
+        if project_id and not tenant_id:
+            self.options.tenant_id = project_id
+        if project_name and not tenant_name:
+            self.options.tenant_name = project_name
+        if tenant_id and not project_id:
+            self.options.project_id = tenant_id
+        if tenant_name and not project_name:
+            self.options.project_name = tenant_name
+
         # Do configuration file handling
         cc = cloud_config.OpenStackConfig()
         self.log.debug("defaults: %s", cc.defaults)
