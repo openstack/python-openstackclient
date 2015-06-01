@@ -15,28 +15,31 @@ import uuid
 from functional.common import test
 
 
-class ContainerTests(test.TestCase):
-    """Functional tests for object containers. """
+class ImageTests(test.TestCase):
+    """Functional tests for image. """
+
     NAME = uuid.uuid4().hex
+    HEADERS = ['Name']
+    FIELDS = ['name']
 
     @classmethod
     def setUpClass(cls):
-        opts = cls.get_list_opts(['container'])
-        raw_output = cls.openstack('container create ' + cls.NAME + opts)
-        expected = '"container"\n"' + cls.NAME + '"\n'
+        opts = cls.get_show_opts(cls.FIELDS)
+        raw_output = cls.openstack('image create ' + cls.NAME + opts)
+        expected = cls.NAME + '\n'
         cls.assertOutput(expected, raw_output)
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack('container delete ' + cls.NAME)
+        raw_output = cls.openstack('image delete ' + cls.NAME)
         cls.assertOutput('', raw_output)
 
-    def test_container_list(self):
-        opts = self.get_list_opts(['Name'])
-        raw_output = self.openstack('container list' + opts)
+    def test_image_list(self):
+        opts = self.get_list_opts(self.HEADERS)
+        raw_output = self.openstack('image list' + opts)
         self.assertIn(self.NAME, raw_output)
 
-    def test_container_show(self):
-        opts = self.get_show_opts(['container'])
-        raw_output = self.openstack('container show ' + self.NAME + opts)
+    def test_image_show(self):
+        opts = self.get_show_opts(self.FIELDS)
+        raw_output = self.openstack('image show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)

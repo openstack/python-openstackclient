@@ -56,7 +56,7 @@ class TestCase(testtools.TestCase):
 
     @classmethod
     def get_list_opts(cls, headers=[]):
-        opts = ' -f csv --quote none '
+        opts = ' -f csv '
         opts = opts + ' '.join(['-c ' + it for it in headers])
         return opts
 
