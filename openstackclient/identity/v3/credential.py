@@ -105,9 +105,10 @@ class ListCredential(lister.Lister):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
-        columns = ('ID', 'Type', 'User ID', 'Data', 'Project ID')
+        columns = ('ID', 'Type', 'User ID', 'Blob', 'Project ID')
+        column_headers = ('ID', 'Type', 'User ID', 'Data', 'Project ID')
         data = self.app.client_manager.identity.credentials.list()
-        return (columns,
+        return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
                     formatters={},
