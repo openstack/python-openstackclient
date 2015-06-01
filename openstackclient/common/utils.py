@@ -283,6 +283,52 @@ def wait_for_status(status_f,
     return retval
 
 
+def wait_for_delete(manager,
+                    res_id,
+                    status_field='status',
+                    sleep_time=5,
+                    timeout=300,
+                    callback=None):
+    """Wait for resource deletion
+
+    :param res_id: the resource id to watch
+    :param status_field: the status attribute in the returned resource object,
+        this is used to check for error states while the resource is being
+        deleted
+    :param sleep_time: wait this long between checks (seconds)
+    :param timeout: check until this long (seconds)
+    :param callback: called per sleep cycle, useful to display progress; this
+        function is passed a progress value during each iteration of the wait
+        loop
+    :rtype: True on success, False if the resource has gone to error state or
+        the timeout has been reached
+    """
+    total_time = 0
+    while total_time < timeout:
+        try:
+            # might not be a bad idea to re-use find_resource here if it was
+            # a bit more friendly in the exceptions it raised so we could just
+            # handle a NotFound exception here without parsing the message
+            res = manager.get(res_id)
+        except Exception as ex:
+            if type(ex).__name__ == 'NotFound':
+                return True
+            raise
+
+        status = getattr(res, status_field, '').lower()
+        if status == 'error':
+            return False
+
+        if callback:
+            progress = getattr(res, 'progress', None) or 0
+            callback(progress)
+        time.sleep(sleep_time)
+        total_time += sleep_time
+
+    # if we got this far we've timed out
+    return False
+
+
 def get_effective_log_level():
     """Returns the lowest logging level considered by logging handlers
 

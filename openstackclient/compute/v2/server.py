@@ -572,6 +572,11 @@ class DeleteServer(command.Command):
             nargs="+",
             help=_('Server(s) to delete (name or ID)'),
         )
+        parser.add_argument(
+            '--wait',
+            action='store_true',
+            help=_('Wait for delete to complete'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -581,6 +586,18 @@ class DeleteServer(command.Command):
             server_obj = utils.find_resource(
                 compute_client.servers, server)
             compute_client.servers.delete(server_obj.id)
+            if parsed_args.wait:
+                if utils.wait_for_delete(
+                    compute_client.servers,
+                    server_obj.id,
+                    callback=_show_progress,
+                ):
+                    sys.stdout.write('\n')
+                else:
+                    self.log.error(_('Error deleting server: %s'),
+                                   server_obj.id)
+                    sys.stdout.write(_('\nError deleting server'))
+                    raise SystemExit
         return
 
 

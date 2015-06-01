@@ -13,6 +13,9 @@
 #   under the License.
 #
 
+import time
+import uuid
+
 import mock
 
 from openstackclient.common import exceptions
@@ -119,6 +122,42 @@ class TestUtils(test_utils.TestCase):
         self.assertRaises(exceptions.CommandError,
                           utils.sort_items,
                           items, sort_str)
+
+    @mock.patch.object(time, 'sleep')
+    def test_wait_for_delete_ok(self, mock_sleep):
+        # Tests the normal flow that the resource is deleted with a 404 coming
+        # back on the 2nd iteration of the wait loop.
+        resource = mock.MagicMock(status='ACTIVE', progress=None)
+        mock_get = mock.Mock(side_effect=[resource,
+                                          exceptions.NotFound(404)])
+        manager = mock.MagicMock(get=mock_get)
+        res_id = str(uuid.uuid4())
+        callback = mock.Mock()
+        self.assertTrue(utils.wait_for_delete(manager, res_id,
+                                              callback=callback))
+        mock_sleep.assert_called_once_with(5)
+        callback.assert_called_once_with(0)
+
+    @mock.patch.object(time, 'sleep')
+    def test_wait_for_delete_timeout(self, mock_sleep):
+        # Tests that we fail if the resource is not deleted before the timeout.
+        resource = mock.MagicMock(status='ACTIVE')
+        mock_get = mock.Mock(return_value=resource)
+        manager = mock.MagicMock(get=mock_get)
+        res_id = str(uuid.uuid4())
+        self.assertFalse(utils.wait_for_delete(manager, res_id, sleep_time=1,
+                                               timeout=1))
+        mock_sleep.assert_called_once_with(1)
+
+    @mock.patch.object(time, 'sleep')
+    def test_wait_for_delete_error(self, mock_sleep):
+        # Tests that we fail if the resource goes to error state while waiting.
+        resource = mock.MagicMock(status='ERROR')
+        mock_get = mock.Mock(return_value=resource)
+        manager = mock.MagicMock(get=mock_get)
+        res_id = str(uuid.uuid4())
+        self.assertFalse(utils.wait_for_delete(manager, res_id))
+        self.assertFalse(mock_sleep.called)
 
 
 class NoUniqueMatch(Exception):

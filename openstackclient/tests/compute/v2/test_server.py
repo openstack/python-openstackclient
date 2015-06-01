@@ -16,6 +16,7 @@
 import copy
 import mock
 
+from openstackclient.common import utils as common_utils
 from openstackclient.compute.v2 import server
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests import fakes
@@ -317,6 +318,52 @@ class TestServerDelete(TestServer):
 
         self.servers_mock.delete.assert_called_with(
             compute_fakes.server_id,
+        )
+
+    @mock.patch.object(common_utils, 'wait_for_delete', return_value=True)
+    def test_server_delete_wait_ok(self, mock_wait_for_delete):
+        arglist = [
+            compute_fakes.server_id, '--wait'
+        ]
+        verifylist = [
+            ('servers', [compute_fakes.server_id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.delete.assert_called_with(
+            compute_fakes.server_id,
+        )
+
+        mock_wait_for_delete.assert_called_once_with(
+            self.servers_mock,
+            compute_fakes.server_id,
+            callback=server._show_progress
+        )
+
+    @mock.patch.object(common_utils, 'wait_for_delete', return_value=False)
+    def test_server_delete_wait_fails(self, mock_wait_for_delete):
+        arglist = [
+            compute_fakes.server_id, '--wait'
+        ]
+        verifylist = [
+            ('servers', [compute_fakes.server_id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+
+        self.servers_mock.delete.assert_called_with(
+            compute_fakes.server_id,
+        )
+
+        mock_wait_for_delete.assert_called_once_with(
+            self.servers_mock,
+            compute_fakes.server_id,
+            callback=server._show_progress
         )
 
 

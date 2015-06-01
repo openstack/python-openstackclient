@@ -157,7 +157,11 @@ Delete server(s)
 .. code:: bash
 
     os server delete
-        <server> [<server> ...]
+        <server> [<server> ...] [--wait]
+
+.. option:: --wait
+
+    Wait for delete to complete
 
 .. describe:: <server>
 
