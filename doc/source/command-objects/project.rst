@@ -14,6 +14,7 @@ Create new project
 
     os project create
         [--domain <domain>]
+        [--parent <project>]
         [--description <description>]
         [--enable | --disable]
         [--property <key=value>]
