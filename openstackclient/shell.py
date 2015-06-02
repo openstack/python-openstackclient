@@ -182,6 +182,7 @@ class OpenStackShell(app.App):
         parser.add_argument(
             '--os-cacert',
             metavar='<ca-bundle-file>',
+            dest='cacert',
             default=utils.env('OS_CACERT'),
             help='CA certificate bundle file (Env: OS_CACERT)')
         verify_group = parser.add_mutually_exclusive_group()
@@ -200,6 +201,7 @@ class OpenStackShell(app.App):
         parser.add_argument(
             '--os-default-domain',
             metavar='<auth-domain>',
+            dest='default_domain',
             default=utils.env(
                 'OS_DEFAULT_DOMAIN',
                 default=DEFAULT_DOMAIN),
@@ -270,7 +272,7 @@ class OpenStackShell(app.App):
             self.verify = self.cloud.config.get('verify', self.verify)
 
         # Save default domain
-        self.default_domain = self.options.os_default_domain
+        self.default_domain = self.options.default_domain
 
         # Loop through extensions to get API versions
         for mod in clientmanager.PLUGIN_MODULES:
