@@ -2,6 +2,33 @@
 Release Notes
 =============
 
+1.4.0 (04 Jun 2015)
+===================
+
+* AttributeError: 'Client' object has no attribute 'ec2'
+  Bug `1236326 <https://bugs.launchpad.net/bugs/1236326>`_
+
+* ``--insecure`` is ignored if ``OS_CACERT`` env var is set
+  Bug `1447784 <https://bugs.launchpad.net/bugs/1447784>`_
+
+* ``security group list`` always uses identity admin endpoint
+  Bug `1459629 <https://bugs.launchpad.net/bugs/1459629>`_
+
+* Race failure to delete security group
+  Bug `1460112 <https://bugs.launchpad.net/bugs/1460112>`_
+
+* v3 project set is missing ``--domain`` argument
+  Bug `1460122 <https://bugs.launchpad.net/bugs/1460122>`_
+
+* Project create is missing ``--parent`` argument in doc
+  Bug `1460256 <https://bugs.launchpad.net/bugs/1460256>`_
+
+* v3 ``role add`` is missing domain scope arguments in doc
+  Bug `1460296 <https://bugs.launchpad.net/bugs/1460296>`_
+
+* Cannot force v2password auth plugin
+  Bug `1460369 <https://bugs.launchpad.net/bugs/1460369>`_
+
 1.3.0 (27 May 2015)
 ===================
 
