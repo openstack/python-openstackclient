@@ -19,3 +19,4 @@ doc/source/api/
 # Development environment files
 .project
 .pydevproject
+cover
