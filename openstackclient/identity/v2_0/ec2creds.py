@@ -37,14 +37,18 @@ class CreateEC2Creds(show.ShowOne):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Specify an alternate project'
-                   ' (default: current authenticated project)'),
+            help=_(
+                'Create credentials in project '
+                '(name or ID; default: current authenticated project)'
+            ),
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help=_('Specify an alternate user'
-                   ' (default: current authenticated user)'),
+            help=_(
+                'Create credentials for user '
+                '(name or ID; default: current authenticated user)'
+            ),
         )
         return parser
 
@@ -97,7 +101,7 @@ class DeleteEC2Creds(command.Command):
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help=_('Specify a user'),
+            help=_('Delete credentials for user (name or ID)'),
         )
         return parser
 
@@ -127,7 +131,7 @@ class ListEC2Creds(lister.Lister):
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help=_('Specify a user'),
+            help=_('Filter list by user (name or ID)'),
         )
         return parser
 
@@ -170,7 +174,7 @@ class ShowEC2Creds(show.ShowOne):
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help=_('Specify a user'),
+            help=_('Show credentials for user (name or ID)'),
         )
         return parser
 

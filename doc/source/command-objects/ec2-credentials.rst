@@ -20,22 +20,22 @@ Create EC2 credentials
 
 .. option:: --project <project>
 
-    Specify an alternate project (default: current authenticated project)
+    Create credentials in project (name or ID; default: current authenticated project)
 
 .. option:: --user <user>
 
-    Specify an alternate user (default: current authenticated user)
+    Create credentials for user (name or ID; default: current authenticated user)
 
 .. option:: --user-domain <user-domain>
 
-    Domain the user belongs to (name or ID).
+    Select user from a specific domain (name or ID)
     This can be used in case collisions between user names exist.
 
     .. versionadded:: 3
 
 .. option:: --project-domain <project-domain>
 
-    Domain the project belongs to (name or ID).
+    Select project from a specific domain (name or ID)
     This can be used in case collisions between project names exist.
 
     .. versionadded:: 3
@@ -60,11 +60,11 @@ Delete EC2 credentials
 
 .. option:: --user <user>
 
-    Specify a user
+    Delete credentials for user (name or ID)
 
 .. option:: --user-domain <user-domain>
 
-    Domain the user belongs to (name or ID).
+    Select user from a specific domain (name or ID)
     This can be used in case collisions between user names exist.
 
     .. versionadded:: 3
@@ -92,11 +92,11 @@ List EC2 credentials
 
 .. option:: --user <user>
 
-    Filter list by <user>
+    Filter list by <user> (name or ID)
 
 .. option:: --user-domain <user-domain>
 
-    Domain the user belongs to (name or ID).
+    Select user from a specific domain (name or ID)
     This can be used in case collisions between user names exist.
 
     .. versionadded:: 3
@@ -120,11 +120,11 @@ Display EC2 credentials details
 
 .. option:: --user <user>
 
-    Specify a user
+    Show credentials for user (name or ID)
 
 .. option:: --user-domain <user-domain>
 
-    Domain the user belongs to (name or ID).
+    Select user from a specific domain (name or ID)
     This can be used in case collisions between user names exist.
 
     .. versionadded:: 3
