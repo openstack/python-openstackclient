@@ -15,6 +15,8 @@ Create EC2 credentials
     os ec2 credentials create
         [--project <project>]
         [--user <user>]
+        [--user-domain <user-domain>]
+        [--project-domain <project-domain>]
 
 .. option:: --project <project>
 
@@ -23,6 +25,21 @@ Create EC2 credentials
 .. option:: --user <user>
 
     Specify an alternate user (default: current authenticated user)
+
+.. option:: --user-domain <user-domain>
+
+    Domain the user belongs to (name or ID).
+    This can be used in case collisions between user names exist.
+
+    .. versionadded:: 3
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+    .. versionadded:: 3
+
 
 The :option:`--project` and :option:`--user`  options are typically only
 useful for admin users, but may be allowed for other users depending on
@@ -38,11 +55,19 @@ Delete EC2 credentials
 
     os ec2 credentials delete
         [--user <user>]
+        [--user-domain <user-domain>]
         <access-key>
 
 .. option:: --user <user>
 
     Specify a user
+
+.. option:: --user-domain <user-domain>
+
+    Domain the user belongs to (name or ID).
+    This can be used in case collisions between user names exist.
+
+    .. versionadded:: 3
 
 .. _ec2_credentials_delete-access-key:
 .. describe:: access-key
@@ -63,10 +88,18 @@ List EC2 credentials
 
     os ec2 credentials list
         [--user <user>]
+        [--user-domain <user-domain>]
 
 .. option:: --user <user>
 
     Filter list by <user>
+
+.. option:: --user-domain <user-domain>
+
+    Domain the user belongs to (name or ID).
+    This can be used in case collisions between user names exist.
+
+    .. versionadded:: 3
 
 The :option:`--user` option is typically only useful for admin users, but
 may be allowed for other users depending on the policy of the cloud and
@@ -82,11 +115,19 @@ Display EC2 credentials details
 
     os ec2 credentials show
         [--user <user>]
+        [--user-domain <user-domain>]
         <access-key>
 
 .. option:: --user <user>
 
     Specify a user
+
+.. option:: --user-domain <user-domain>
+
+    Domain the user belongs to (name or ID).
+    This can be used in case collisions between user names exist.
+
+    .. versionadded:: 3
 
 .. _ec2_credentials_show-access-key:
 .. describe:: access-key
