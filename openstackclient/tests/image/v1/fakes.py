@@ -30,7 +30,7 @@ image_properties = {
     'Beta': 'b',
     'Gamma': 'g',
 }
-image_properties_str = "{'Alpha': 'a', 'Beta': 'b', 'Gamma': 'g'}"
+image_properties_str = "Alpha='a', Beta='b', Gamma='g'"
 image_data = 'line 1\nline 2\n'
 
 IMAGE = {
@@ -47,7 +47,9 @@ IMAGE = {
 }
 
 IMAGE_columns = tuple(sorted(IMAGE))
-IMAGE_data = tuple((IMAGE[x] for x in sorted(IMAGE)))
+IMAGE_output = dict(IMAGE)
+IMAGE_output['properties'] = image_properties_str
+IMAGE_data = tuple((IMAGE_output[x] for x in sorted(IMAGE_output)))
 
 
 class FakeImagev1Client(object):
