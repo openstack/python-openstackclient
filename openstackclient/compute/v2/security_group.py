@@ -161,7 +161,7 @@ class ListSecurityGroup(lister.Lister):
         project_hash = {}
         try:
             projects = self.app.client_manager.identity.projects.list()
-        except ksc_exc.Forbidden:
+        except ksc_exc.ClientException:
             # This fails when the user is not an admin, just move along
             pass
         else:
