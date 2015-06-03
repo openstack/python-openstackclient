@@ -19,6 +19,7 @@ class VolumeTests(test.TestCase):
     """Functional tests for volume. """
 
     NAME = uuid.uuid4().hex
+    OTHER_NAME = uuid.uuid4().hex
     HEADERS = ['"Display Name"']
     FIELDS = ['display_name']
 
@@ -31,7 +32,12 @@ class VolumeTests(test.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack('volume delete ' + cls.NAME)
+        # Rename test
+        raw_output = cls.openstack(
+            'volume set --name ' + cls.OTHER_NAME + ' ' + cls.NAME)
+        cls.assertOutput('', raw_output)
+        # Delete test
+        raw_output = cls.openstack('volume delete ' + cls.OTHER_NAME)
         cls.assertOutput('', raw_output)
 
     def test_volume_list(self):
@@ -43,3 +49,23 @@ class VolumeTests(test.TestCase):
         opts = self.get_show_opts(self.FIELDS)
         raw_output = self.openstack('volume show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)
+
+    def test_volume_properties(self):
+        raw_output = self.openstack(
+            'volume set --property a=b --property c=d ' + self.NAME)
+        self.assertEqual("", raw_output)
+        opts = self.get_show_opts(["properties"])
+        raw_output = self.openstack('volume show ' + self.NAME + opts)
+        self.assertEqual("a='b', c='d'\n", raw_output)
+
+        raw_output = self.openstack('volume unset --property a ' + self.NAME)
+        self.assertEqual("", raw_output)
+        raw_output = self.openstack('volume show ' + self.NAME + opts)
+        self.assertEqual("c='d'\n", raw_output)
+
+    def test_volume_set(self):
+        raw_output = self.openstack(
+            'volume set --description RAMAC ' + self.NAME)
+        opts = self.get_show_opts(["display_description", "display_name"])
+        raw_output = self.openstack('volume show ' + self.NAME + opts)
+        self.assertEqual("RAMAC\n" + self.NAME + "\n", raw_output)
