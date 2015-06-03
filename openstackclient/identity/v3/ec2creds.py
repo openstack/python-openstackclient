@@ -21,6 +21,35 @@ from cliff import show
 
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
+from openstackclient.identity import common
+
+
+def _determine_ec2_user(parsed_args, client_manager):
+    """Determine a user several different ways.
+
+    Assumes parsed_args has user and user_domain arguments. Attempts to find
+    the user if domain scoping is provided, otherwise revert to a basic user
+    call. Lastly use the currently authenticated user.
+
+    """
+
+    user_domain = None
+    if parsed_args.user_domain:
+        user_domain = common.find_domain(client_manager.identity,
+                                         parsed_args.user_domain)
+    if parsed_args.user:
+        if user_domain is not None:
+            user = utils.find_resource(client_manager.identity.users,
+                                       parsed_args.user,
+                                       domain_id=user_domain.id).id
+        else:
+            user = utils.find_resource(
+                client_manager.identity.users,
+                parsed_args.user).id
+    else:
+        # Get the user from the current auth
+        user = client_manager.auth_ref.user_id
+    return user
 
 
 class CreateEC2Creds(show.ShowOne):
@@ -42,28 +71,45 @@ class CreateEC2Creds(show.ShowOne):
             help=_('Specify an alternate user'
                    ' (default: current authenticated user)'),
         )
+        parser.add_argument(
+            '--user-domain',
+            metavar='<user-domain>',
+            help=('Domain the user belongs to (name or ID). '
+                  'This can be used in case collisions between user names '
+                  'exist.')
+        )
+        parser.add_argument(
+            '--project-domain',
+            metavar='<project-domain>',
+            help=('Domain the project belongs to (name or ID). '
+                  'This can be used in case collisions between project names '
+                  'exist.')
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
+        client_manager = self.app.client_manager
+        user = self.determine_ec2_user(parsed_args, client_manager)
+
+        project_domain = None
+        if parsed_args.project_domain:
+            project_domain = common.find_domain(identity_client,
+                                                parsed_args.project_domain)
 
         if parsed_args.project:
-            project = utils.find_resource(
-                identity_client.projects,
-                parsed_args.project,
-            ).id
+            if project_domain is not None:
+                project = utils.find_resource(identity_client.projects,
+                                              parsed_args.project,
+                                              domain_id=project_domain.id).id
+            else:
+                project = utils.find_resource(
+                    identity_client.projects,
+                    parsed_args.project).id
         else:
             # Get the project from the current auth
             project = self.app.client_manager.auth_ref.project_id
-        if parsed_args.user:
-            user = utils.find_resource(
-                identity_client.users,
-                parsed_args.user,
-            ).id
-        else:
-            # Get the user from the current auth
-            user = self.app.client_manager.auth_ref.user_id
 
         creds = identity_client.ec2.create(user, project)
 
@@ -95,22 +141,20 @@ class DeleteEC2Creds(command.Command):
             metavar='<user>',
             help=_('Specify a user'),
         )
+        parser.add_argument(
+            '--user-domain',
+            metavar='<user-domain>',
+            help=('Domain the user belongs to (name or ID). '
+                  'This can be used in case collisions between user names '
+                  'exist.')
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
-        identity_client = self.app.client_manager.identity
-
-        if parsed_args.user:
-            user = utils.find_resource(
-                identity_client.users,
-                parsed_args.user,
-            ).id
-        else:
-            # Get the user from the current auth
-            user = self.app.client_manager.auth_ref.user_id
-
-        identity_client.ec2.delete(user, parsed_args.access_key)
+        client_manager = self.app.client_manager
+        user = self.determine_ec2_user(parsed_args, client_manager)
+        client_manager.identity.ec2.delete(user, parsed_args.access_key)
 
 
 class ListEC2Creds(lister.Lister):
@@ -125,24 +169,23 @@ class ListEC2Creds(lister.Lister):
             metavar='<user>',
             help=_('Specify a user'),
         )
+        parser.add_argument(
+            '--user-domain',
+            metavar='<user-domain>',
+            help=('Domain the user belongs to (name or ID). '
+                  'This can be used in case collisions between user names '
+                  'exist.')
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
-        identity_client = self.app.client_manager.identity
-
-        if parsed_args.user:
-            user = utils.find_resource(
-                identity_client.users,
-                parsed_args.user,
-            ).id
-        else:
-            # Get the user from the current auth
-            user = self.app.client_manager.auth_ref.user_id
+        client_manager = self.app.client_manager
+        user = self.determine_ec2_user(parsed_args, client_manager)
 
         columns = ('access', 'secret', 'tenant_id', 'user_id')
         column_headers = ('Access', 'Secret', 'Project ID', 'User ID')
-        data = identity_client.ec2.list(user)
+        data = client_manager.identity.ec2.list(user)
 
         return (column_headers,
                 (utils.get_item_properties(
@@ -168,22 +211,20 @@ class ShowEC2Creds(show.ShowOne):
             metavar='<user>',
             help=_('Specify a user'),
         )
+        parser.add_argument(
+            '--user-domain',
+            metavar='<user-domain>',
+            help=('Domain the user belongs to (name or ID). '
+                  'This can be used in case collisions between user names '
+                  'exist.')
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
-        identity_client = self.app.client_manager.identity
-
-        if parsed_args.user:
-            user = utils.find_resource(
-                identity_client.users,
-                parsed_args.user,
-            ).id
-        else:
-            # Get the user from the current auth
-            user = self.app.client_manager.auth_ref.user_id
-
-        creds = identity_client.ec2.get(user, parsed_args.access_key)
+        client_manager = self.app.client_manager
+        user = self.determine_ec2_user(parsed_args, client_manager)
+        creds = client_manager.identity.ec2.get(user, parsed_args.access_key)
 
         info = {}
         info.update(creds._info)
