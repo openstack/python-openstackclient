@@ -264,12 +264,21 @@ class OpenStackShell(app.App):
         self.log.debug("cloud cfg: %s", self.cloud.config)
 
         # Set up client TLS
-        cacert = self.cloud.cacert
-        if cacert:
-            self.verify = cacert
-        else:
-            self.verify = not self.cloud.config.get('insecure', False)
-            self.verify = self.cloud.config.get('verify', self.verify)
+        # NOTE(dtroyer): --insecure is the non-default condition that
+        #                overrides any verify setting in clouds.yaml
+        #                so check it first, then fall back to any verify
+        #                setting provided.
+        self.verify = not self.cloud.config.get(
+            'insecure',
+            not self.cloud.config.get('verify', True),
+        )
+
+        # NOTE(dtroyer): Per bug https://bugs.launchpad.net/bugs/1447784
+        #                --insecure now overrides any --os-cacert setting,
+        #                where before --insecure was ignored if --os-cacert
+        #                was set.
+        if self.verify and self.cloud.cacert:
+            self.verify = self.cloud.cacert
 
         # Save default domain
         self.default_domain = self.options.default_domain

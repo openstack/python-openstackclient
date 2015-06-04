@@ -540,14 +540,15 @@ class TestShellCli(TestShell):
         self.assertTrue(_shell.verify)
 
         # --os-cacert and --insecure
-        # NOTE(dtroyer): This really is a bogus combination, the default is
-        #                to follow the requests.Session convention and let
-        #                --os-cacert override --insecure
+        # NOTE(dtroyer): Per bug https://bugs.launchpad.net/bugs/1447784
+        #                in this combination --insecure now overrides any
+        #                --os-cacert setting, where before --insecure
+        #                was ignored if --os-cacert was set.
         fake_execute(_shell, "--os-cacert foo --insecure list user")
         self.assertIsNone(_shell.options.verify)
         self.assertTrue(_shell.options.insecure)
         self.assertEqual('foo', _shell.options.cacert)
-        self.assertTrue(_shell.verify)
+        self.assertFalse(_shell.verify)
 
     def test_default_env(self):
         flag = ""
