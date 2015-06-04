@@ -242,6 +242,11 @@ class SetProject(command.Command):
             help='Set project name',
         )
         parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='Domain owning <project> (name or ID)',
+        )
+        parser.add_argument(
             '--description',
             metavar='<description>',
             help='Set project description',
@@ -271,6 +276,7 @@ class SetProject(command.Command):
         identity_client = self.app.client_manager.identity
 
         if (not parsed_args.name
+                and not parsed_args.domain
                 and not parsed_args.description
                 and not parsed_args.enable
                 and not parsed_args.property
@@ -285,6 +291,8 @@ class SetProject(command.Command):
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
+        if parsed_args.domain:
+            kwargs['domain'] = parsed_args.domain
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
         if parsed_args.enable:

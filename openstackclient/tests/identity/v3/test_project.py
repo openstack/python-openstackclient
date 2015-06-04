@@ -618,10 +618,12 @@ class TestProjectSet(TestProject):
     def test_project_set_name(self):
         arglist = [
             '--name', 'qwerty',
+            '--domain', identity_fakes.domain_id,
             identity_fakes.project_name,
         ]
         verifylist = [
             ('name', 'qwerty'),
+            ('domain', identity_fakes.domain_id),
             ('enable', False),
             ('disable', False),
             ('project', identity_fakes.project_name),
@@ -634,6 +636,7 @@ class TestProjectSet(TestProject):
         # Set expected values
         kwargs = {
             'name': 'qwerty',
+            'domain': identity_fakes.domain_id,
         }
         # ProjectManager.update(project, name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -644,10 +647,12 @@ class TestProjectSet(TestProject):
 
     def test_project_set_description(self):
         arglist = [
+            '--domain', identity_fakes.domain_id,
             '--description', 'new desc',
             identity_fakes.project_name,
         ]
         verifylist = [
+            ('domain', identity_fakes.domain_id),
             ('description', 'new desc'),
             ('enable', False),
             ('disable', False),
@@ -660,6 +665,7 @@ class TestProjectSet(TestProject):
 
         # Set expected values
         kwargs = {
+            'domain': identity_fakes.domain_id,
             'description': 'new desc',
         }
         self.projects_mock.update.assert_called_with(
@@ -669,10 +675,12 @@ class TestProjectSet(TestProject):
 
     def test_project_set_enable(self):
         arglist = [
+            '--domain', identity_fakes.domain_id,
             '--enable',
             identity_fakes.project_name,
         ]
         verifylist = [
+            ('domain', identity_fakes.domain_id),
             ('enable', True),
             ('disable', False),
             ('project', identity_fakes.project_name),
@@ -684,6 +692,7 @@ class TestProjectSet(TestProject):
 
         # Set expected values
         kwargs = {
+            'domain': identity_fakes.domain_id,
             'enabled': True,
         }
         self.projects_mock.update.assert_called_with(
@@ -693,10 +702,12 @@ class TestProjectSet(TestProject):
 
     def test_project_set_disable(self):
         arglist = [
+            '--domain', identity_fakes.domain_id,
             '--disable',
             identity_fakes.project_name,
         ]
         verifylist = [
+            ('domain', identity_fakes.domain_id),
             ('enable', False),
             ('disable', True),
             ('project', identity_fakes.project_name),
@@ -708,6 +719,7 @@ class TestProjectSet(TestProject):
 
         # Set expected values
         kwargs = {
+            'domain': identity_fakes.domain_id,
             'enabled': False,
         }
         self.projects_mock.update.assert_called_with(
@@ -717,11 +729,13 @@ class TestProjectSet(TestProject):
 
     def test_project_set_property(self):
         arglist = [
+            '--domain', identity_fakes.domain_id,
             '--property', 'fee=fi',
             '--property', 'fo=fum',
             identity_fakes.project_name,
         ]
         verifylist = [
+            ('domain', identity_fakes.domain_id),
             ('property', {'fee': 'fi', 'fo': 'fum'}),
             ('project', identity_fakes.project_name),
         ]
@@ -732,6 +746,7 @@ class TestProjectSet(TestProject):
 
         # Set expected values
         kwargs = {
+            'domain': identity_fakes.domain_id,
             'fee': 'fi',
             'fo': 'fum',
         }
