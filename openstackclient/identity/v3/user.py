@@ -369,7 +369,7 @@ class SetUser(command.Command):
         if parsed_args.project:
             project_id = utils.find_resource(
                 identity_client.projects, parsed_args.project).id
-            kwargs['project'] = project_id
+            kwargs['default_project'] = project_id
         kwargs['enabled'] = user.enabled
         if parsed_args.enable:
             kwargs['enabled'] = True
