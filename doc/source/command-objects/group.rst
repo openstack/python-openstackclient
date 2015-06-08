@@ -13,8 +13,24 @@ Add user to group
 .. code:: bash
 
     os group add user
+        [--group-domain <group-domain>]
+        [--user-domain <user-domain>]
         <group>
         <user>
+
+.. option:: --group-domain <group-domain>
+
+    Domain the group belongs to (name or ID). This can be
+    used in case collisions between group names exist.
+
+    .. versionadded:: 3
+
+.. option:: --user-domain <user-domain>
+
+    Domain the user belongs to (name or ID). This can be
+    used in case collisions between user names exist.
+
+    .. versionadded:: 3
 
 .. describe:: <group>
 
@@ -33,8 +49,24 @@ Check user membership in group
 .. code:: bash
 
     os group contains user
+        [--group-domain <group-domain>]
+        [--user-domain <user-domain>]
         <group>
         <user>
+
+.. option:: --group-domain <group-domain>
+
+    Domain the group belongs to (name or ID). This can be
+    used in case collisions between group names exist.
+
+    .. versionadded:: 3
+
+.. option:: --user-domain <user-domain>
+
+    Domain the user belongs to (name or ID). This can be
+    used in case collisions between user names exist.
+
+    .. versionadded:: 3
 
 .. describe:: <group>
 
@@ -106,7 +138,7 @@ List groups
 
     os group list
         [--domain <domain>]
-        [--user <user>]
+        [--user <user> [--user-domain <user-domain>]]
         [--long]
 
 .. option:: --domain <domain>
@@ -116,6 +148,13 @@ List groups
 .. option:: --user <user>
 
     Filter group list by <user> (name or ID)
+
+.. option:: --user-domain <user-domain>
+
+    Domain the user belongs to (name or ID). This can be
+    used in case collisions between user names exist.
+
+    .. versionadded:: 3
 
 .. option:: --long
 
@@ -130,8 +169,24 @@ Remove user from group
 .. code:: bash
 
     os group remove user
+        [--group-domain <group-domain>]
+        [--user-domain <user-domain>]
         <group>
         <user>
+
+.. option:: --group-domain <group-domain>
+
+    Domain the group belongs to (name or ID). This can be
+    used in case collisions between group names exist.
+
+    .. versionadded:: 3
+
+.. option:: --user-domain <user-domain>
+
+    Domain the user belongs to (name or ID). This can be
+    used in case collisions between user names exist.
+
+    .. versionadded:: 3
 
 .. describe:: <group>
 
@@ -150,9 +205,14 @@ Set group properties
 .. code:: bash
 
     os group set
+        [--domain <domain>]
         [--name <name>]
         [--description <description>]
         <group>
+
+.. option:: --domain <domain>
+
+    Domain containing <group> (name or ID)
 
 .. option:: --name <name>
 

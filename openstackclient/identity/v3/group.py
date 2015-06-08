@@ -46,16 +46,32 @@ class AddUserToGroup(command.Command):
             metavar='<user>',
             help='User to add to <group> (name or ID)',
         )
+        parser.add_argument(
+            '--group-domain',
+            metavar='<group-domain>',
+            help=('Domain the group belongs to (name or ID). '
+                  'This can be used in case collisions between group names '
+                  'exist.')
+        )
+        parser.add_argument(
+            '--user-domain',
+            metavar='<user-domain>',
+            help=('Domain the user belongs to (name or ID). '
+                  'This can be used in case collisions between user names '
+                  'exist.')
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
-        user_id = utils.find_resource(identity_client.users,
-                                      parsed_args.user).id
-        group_id = utils.find_resource(identity_client.groups,
-                                       parsed_args.group).id
+        user_id = common.find_user(identity_client,
+                                   parsed_args.user,
+                                   parsed_args.user_domain).id
+        group_id = common.find_group(identity_client,
+                                     parsed_args.group,
+                                     parsed_args.group_domain).id
 
         try:
             identity_client.users.add_to_group(user_id, group_id)
@@ -84,16 +100,32 @@ class CheckUserInGroup(command.Command):
             metavar='<user>',
             help='User to check (name or ID)',
         )
+        parser.add_argument(
+            '--group-domain',
+            metavar='<group-domain>',
+            help=('Domain the group belongs to (name or ID). '
+                  'This can be used in case collisions between group names '
+                  'exist.')
+        )
+        parser.add_argument(
+            '--user-domain',
+            metavar='<user-domain>',
+            help=('Domain the user belongs to (name or ID). '
+                  'This can be used in case collisions between user names '
+                  'exist.')
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
-        user_id = utils.find_resource(identity_client.users,
-                                      parsed_args.user).id
-        group_id = utils.find_resource(identity_client.groups,
-                                       parsed_args.group).id
+        user_id = common.find_user(identity_client,
+                                   parsed_args.user,
+                                   parsed_args.user_domain).id
+        group_id = common.find_group(identity_client,
+                                     parsed_args.group,
+                                     parsed_args.group_domain).id
 
         try:
             identity_client.users.check_in_group(user_id, group_id)
@@ -184,17 +216,10 @@ class DeleteGroup(command.Command):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
-        domain = None
-        if parsed_args.domain:
-            domain = common.find_domain(identity_client, parsed_args.domain)
         for group in parsed_args.groups:
-            if domain is not None:
-                group_obj = utils.find_resource(identity_client.groups,
-                                                group,
-                                                domain_id=domain.id)
-            else:
-                group_obj = utils.find_resource(identity_client.groups,
-                                                group)
+            group_obj = common.find_group(identity_client,
+                                          group,
+                                          parsed_args.domain)
             identity_client.groups.delete(group_obj.id)
         return
 
@@ -217,6 +242,13 @@ class ListGroup(lister.Lister):
             help='Filter group list by <user> (name or ID)',
         )
         parser.add_argument(
+            '--user-domain',
+            metavar='<user-domain>',
+            help=('Domain the user belongs to (name or ID). '
+                  'This can be used in case collisions between user names '
+                  'exist.')
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -234,9 +266,10 @@ class ListGroup(lister.Lister):
                                         parsed_args.domain).id
 
         if parsed_args.user:
-            user = utils.find_resource(
-                identity_client.users,
+            user = common.find_user(
+                identity_client,
                 parsed_args.user,
+                parsed_args.user_domain,
             ).id
         else:
             user = None
@@ -277,16 +310,32 @@ class RemoveUserFromGroup(command.Command):
             metavar='<user>',
             help='User to remove from <group> (name or ID)',
         )
+        parser.add_argument(
+            '--group-domain',
+            metavar='<group-domain>',
+            help=('Domain the group belongs to (name or ID). '
+                  'This can be used in case collisions between group names '
+                  'exist.')
+        )
+        parser.add_argument(
+            '--user-domain',
+            metavar='<user-domain>',
+            help=('Domain the user belongs to (name or ID). '
+                  'This can be used in case collisions between user names '
+                  'exist.')
+        )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
-        user_id = utils.find_resource(identity_client.users,
-                                      parsed_args.user).id
-        group_id = utils.find_resource(identity_client.groups,
-                                       parsed_args.group).id
+        user_id = common.find_user(identity_client,
+                                   parsed_args.user,
+                                   parsed_args.user_domain).id
+        group_id = common.find_group(identity_client,
+                                     parsed_args.group,
+                                     parsed_args.group_domain).id
 
         try:
             identity_client.users.remove_from_group(user_id, group_id)
@@ -310,6 +359,11 @@ class SetGroup(command.Command):
             metavar='<group>',
             help='Group to modify (name or ID)')
         parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help='Domain containing <group> (name or ID)',
+        )
+        parser.add_argument(
             '--name',
             metavar='<name>',
             help='New group name')
@@ -322,7 +376,8 @@ class SetGroup(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
-        group = utils.find_resource(identity_client.groups, parsed_args.group)
+        group = common.find_group(identity_client, parsed_args.group,
+                                  parsed_args.domain)
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
@@ -359,14 +414,9 @@ class ShowGroup(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
-        if parsed_args.domain:
-            domain = common.find_domain(identity_client, parsed_args.domain)
-            group = utils.find_resource(identity_client.groups,
-                                        parsed_args.group,
-                                        domain_id=domain.id)
-        else:
-            group = utils.find_resource(identity_client.groups,
-                                        parsed_args.group)
+        group = common.find_group(identity_client,
+                                  parsed_args.group,
+                                  domain_name_or_id=parsed_args.domain)
 
         group._info.pop('links')
         return zip(*sorted(six.iteritems(group._info)))
