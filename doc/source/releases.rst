@@ -8,11 +8,14 @@ Release Notes
 * openstack 'ListEC2Creds' object has no attribute 'determine_ec2_user'
   Bug `1465561 <https://bugs.launchpad.net/bugs/1465561>`_
 
-1.4.0 (04 Jun 2015)
+1.4.0 (11 Jun 2015)
 ===================
 
 * AttributeError: 'Client' object has no attribute 'ec2'
   Bug `1236326 <https://bugs.launchpad.net/bugs/1236326>`_
+
+* Group/role identity v3 commands have no option for domain to operate on
+  Bug `1446546 <https://bugs.launchpad.net/bugs/1446546>`_
 
 * ``--insecure`` is ignored if ``OS_CACERT`` env var is set
   Bug `1447784 <https://bugs.launchpad.net/bugs/1447784>`_
@@ -34,6 +37,9 @@ Release Notes
 
 * Cannot force v2password auth plugin
   Bug `1460369 <https://bugs.launchpad.net/bugs/1460369>`_
+
+* Let's not use the deprecated argument
+  Bug `1462389 <https://bugs.launchpad.net/bugs/1462389>`_
 
 1.3.0 (27 May 2015)
 ===================
