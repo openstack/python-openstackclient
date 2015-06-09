@@ -43,22 +43,32 @@ def find_service(identity_client, name_type_or_id):
             raise exceptions.CommandError(msg)
 
 
+def _get_domain_id_if_requested(identity_client, domain_name_or_id):
+    if not domain_name_or_id:
+        return None
+    domain = find_domain(identity_client, domain_name_or_id)
+    return domain.id
+
+
 def find_domain(identity_client, name_or_id):
     return _find_identity_resource(identity_client.domains, name_or_id,
                                    domains.Domain)
 
 
-def find_group(identity_client, name_or_id, domain_id=None):
+def find_group(identity_client, name_or_id, domain_name_or_id=None):
+    domain_id = _get_domain_id_if_requested(identity_client, domain_name_or_id)
     return _find_identity_resource(identity_client.groups, name_or_id,
                                    groups.Group, domain_id=domain_id)
 
 
-def find_project(identity_client, name_or_id, domain_id=None):
+def find_project(identity_client, name_or_id, domain_name_or_id=None):
+    domain_id = _get_domain_id_if_requested(identity_client, domain_name_or_id)
     return _find_identity_resource(identity_client.projects, name_or_id,
                                    projects.Project, domain_id=domain_id)
 
 
-def find_user(identity_client, name_or_id, domain_id=None):
+def find_user(identity_client, name_or_id, domain_name_or_id=None):
+    domain_id = _get_domain_id_if_requested(identity_client, domain_name_or_id)
     return _find_identity_resource(identity_client.users, name_or_id,
                                    users.User, domain_id=domain_id)
 
