@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  python-openstackclient\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-06-03 06:05+0000\n"
-"PO-Revision-Date: 2015-06-01 21:54+0000\n"
+"POT-Creation-Date: 2015-06-09 06:01+0000\n"
+"PO-Revision-Date: 2015-06-04 16:33+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/python-"
 "openstackclient/language/de/)\n"
@@ -111,6 +111,19 @@ msgstr ""
 "IPv4-Adresse für NIC (optional), v6-fixed-ip: Feste IPv6-Adresse für NIC "
 "(optional)."
 
+msgid ""
+"Create credentials for user (name or ID; default: current authenticated user)"
+msgstr ""
+"Anmeldedaten für Benutzer erstellen (Name oder Kennung; Standard: aktuell "
+"authentifizierter Benutzer)"
+
+msgid ""
+"Create credentials in project (name or ID; default: current authenticated "
+"project)"
+msgstr ""
+"Anmeldedaten in Projekt erstellen (Name oder Kennung; Standard: aktuell "
+"authentifiziertes Projekt)"
+
 msgid "Create server from this image"
 msgstr "Server aus diesem Abbild erstellen"
 
@@ -125,6 +138,9 @@ msgstr "Anmeldedaten-Zugriffsschlüssel"
 
 msgid "Default project (name or ID)"
 msgstr "Standardprojekt (Name oder Kennung)"
+
+msgid "Delete credentials for user (name or ID)"
+msgstr "Anmeldedaten für Benutzer löschen (name or ID)"
 
 msgid "Destination port (ssh -p option)"
 msgstr "Zielport (ssh -p Option)"
@@ -178,6 +194,9 @@ msgstr ""
 
 msgid "Filter by parent region ID"
 msgstr "Nach übergeordneter Regionskennung filtern"
+
+msgid "Filter list by user (name or ID)"
+msgstr "Liste nach Benutzer filtern (Name oder Kennung)"
 
 msgid "Filter users by <project> (name or ID)"
 msgstr "Benutzer nach <project> filtern (Name oder Kennung)"
@@ -503,21 +522,11 @@ msgstr "Benutzername festlegen"
 msgid "Set user password"
 msgstr "Benutzerpasswort festlegen"
 
+msgid "Show credentials for user (name or ID)"
+msgstr "Anmeldedaten für Benutzer anzeigen (name or ID)"
+
 msgid "Show service catalog information"
 msgstr "Dienstkataloginformation anzeigen"
-
-msgid "Specify a user"
-msgstr "Geben Sie einen Benutzer an"
-
-msgid "Specify an alternate project (default: current authenticated project)"
-msgstr ""
-"Geben Sie ein alternatives Projekt an (Standard: aktuell authentifiziertes "
-"Projekt)"
-
-msgid "Specify an alternate user (default: current authenticated user)"
-msgstr ""
-"Geben Sie einen alternativen Benutzer an (Standard: aktuell "
-"authentifizierter Benutzer)"
 
 msgid "Target hostname"
 msgstr "Zielhostname"

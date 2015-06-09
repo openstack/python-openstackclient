@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  python-openstackclient\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-06-03 06:05+0000\n"
-"PO-Revision-Date: 2015-06-01 20:40+0000\n"
+"POT-Creation-Date: 2015-06-09 06:01+0000\n"
+"PO-Revision-Date: 2015-06-03 23:04+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/projects/p/python-"
 "openstackclient/language/zh_TW/)\n"
@@ -433,15 +433,6 @@ msgstr "設定用戶密碼"
 
 msgid "Show service catalog information"
 msgstr "顯示伺服器分類資訊"
-
-msgid "Specify a user"
-msgstr "指定用戶"
-
-msgid "Specify an alternate project (default: current authenticated project)"
-msgstr "指定替代的專案（預設值：目前已認證的專案）"
-
-msgid "Specify an alternate user (default: current authenticated user)"
-msgstr "指定替代的用戶（預設值：目前已認證的用戶）"
 
 msgid "Target hostname"
 msgstr "目標主機名稱"
