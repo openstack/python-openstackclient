@@ -52,27 +52,9 @@ def _add_identity_and_resource_options_to_parser(parser):
         metavar='<group>',
         help='Include <group> (name or ID)',
     )
-    parser.add_argument(
-        '--user-domain',
-        metavar='<user-domain>',
-        help=('Domain the user belongs to (name or ID). '
-              'This can be used in case collisions between user names '
-              'exist.')
-    )
-    parser.add_argument(
-        '--group-domain',
-        metavar='<group-domain>',
-        help=('Domain the group belongs to (name or ID). '
-              'This can be used in case collisions between group names '
-              'exist.')
-    )
-    parser.add_argument(
-        '--project-domain',
-        metavar='<project-domain>',
-        help=('Domain the project belongs to (name or ID). '
-              'This can be used in case collisions between project names '
-              'exist.')
-    )
+    common.add_group_domain_option_to_parser(parser)
+    common.add_project_domain_option_to_parser(parser)
+    common.add_user_domain_option_to_parser(parser)
 
 
 def _process_identity_and_resource_options(parsed_args,

@@ -46,20 +46,8 @@ class AddUserToGroup(command.Command):
             metavar='<user>',
             help='User to add to <group> (name or ID)',
         )
-        parser.add_argument(
-            '--group-domain',
-            metavar='<group-domain>',
-            help=('Domain the group belongs to (name or ID). '
-                  'This can be used in case collisions between group names '
-                  'exist.')
-        )
-        parser.add_argument(
-            '--user-domain',
-            metavar='<user-domain>',
-            help=('Domain the user belongs to (name or ID). '
-                  'This can be used in case collisions between user names '
-                  'exist.')
-        )
+        common.add_group_domain_option_to_parser(parser)
+        common.add_user_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -100,20 +88,8 @@ class CheckUserInGroup(command.Command):
             metavar='<user>',
             help='User to check (name or ID)',
         )
-        parser.add_argument(
-            '--group-domain',
-            metavar='<group-domain>',
-            help=('Domain the group belongs to (name or ID). '
-                  'This can be used in case collisions between group names '
-                  'exist.')
-        )
-        parser.add_argument(
-            '--user-domain',
-            metavar='<user-domain>',
-            help=('Domain the user belongs to (name or ID). '
-                  'This can be used in case collisions between user names '
-                  'exist.')
-        )
+        common.add_group_domain_option_to_parser(parser)
+        common.add_user_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -241,13 +217,7 @@ class ListGroup(lister.Lister):
             metavar='<user>',
             help='Filter group list by <user> (name or ID)',
         )
-        parser.add_argument(
-            '--user-domain',
-            metavar='<user-domain>',
-            help=('Domain the user belongs to (name or ID). '
-                  'This can be used in case collisions between user names '
-                  'exist.')
-        )
+        common.add_user_domain_option_to_parser(parser)
         parser.add_argument(
             '--long',
             action='store_true',
@@ -310,20 +280,8 @@ class RemoveUserFromGroup(command.Command):
             metavar='<user>',
             help='User to remove from <group> (name or ID)',
         )
-        parser.add_argument(
-            '--group-domain',
-            metavar='<group-domain>',
-            help=('Domain the group belongs to (name or ID). '
-                  'This can be used in case collisions between group names '
-                  'exist.')
-        )
-        parser.add_argument(
-            '--user-domain',
-            metavar='<user-domain>',
-            help=('Domain the user belongs to (name or ID). '
-                  'This can be used in case collisions between user names '
-                  'exist.')
-        )
+        common.add_group_domain_option_to_parser(parser)
+        common.add_user_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
