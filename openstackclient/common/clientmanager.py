@@ -138,6 +138,7 @@ class ClientManager(object):
         # present, then do not change the behaviour. Otherwise, set the
         # PROJECT_DOMAIN_ID to 'OS_DEFAULT_DOMAIN' for better usability.
         if (self._api_version.get('identity') == '3' and
+            self.auth_plugin_name.endswith('password') and
             not self._auth_params.get('project_domain_id', None) and
             not self.auth_plugin_name.startswith('v2') and
                 not self._auth_params.get('project_domain_name', None)):
@@ -160,6 +161,7 @@ class ClientManager(object):
             self._project_name = self._auth_params['tenant_name']
 
         LOG.info('Using auth plugin: %s' % self.auth_plugin_name)
+        LOG.debug('Using parameters %s' % self._auth_params)
         self.auth = auth_plugin.load_from_options(**self._auth_params)
         # needed by SAML authentication
         request_session = requests.session()
