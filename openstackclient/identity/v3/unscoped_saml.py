@@ -25,7 +25,7 @@ from openstackclient.common import exceptions
 from openstackclient.common import utils
 
 
-UNSCOPED_AUTH_PLUGINS = ['v3unscopedsaml', 'v3unscopedadfs']
+UNSCOPED_AUTH_PLUGINS = ['v3unscopedsaml', 'v3unscopedadfs', 'v3oidc']
 
 
 def auth_with_unscoped_saml(func):
