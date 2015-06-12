@@ -23,6 +23,7 @@ class ServerTests(test.TestCase):
     OTHER_NAME = uuid.uuid4().hex
     HEADERS = ['"Name"']
     FIELDS = ['name']
+    IP_POOL = 'public'
 
     @classmethod
     def setUpClass(cls):
@@ -120,3 +121,23 @@ class ServerTests(test.TestCase):
         raw_output = self.openstack('server unrescue ' + self.NAME)
         self.assertEqual("", raw_output)
         self.wait_for("ACTIVE")
+        # attach ip
+        opts = self.get_show_opts(["id", "ip"])
+        raw_output = self.openstack('ip floating create ' + self.IP_POOL +
+                                    opts)
+        ipid, ip, rol = tuple(raw_output.split('\n'))
+        self.assertNotEqual("", ipid)
+        self.assertNotEqual("", ip)
+        raw_output = self.openstack('ip floating add ' + ip + ' ' + self.NAME)
+        self.assertEqual("", raw_output)
+        opts = self.get_show_opts(["addresses"])
+        raw_output = self.openstack('server show ' + self.NAME)
+        self.assertIn(ip, raw_output)
+        # detach ip
+        raw_output = self.openstack('ip floating remove ' + ip + ' ' +
+                                    self.NAME)
+        self.assertEqual("", raw_output)
+        raw_output = self.openstack('server show ' + self.NAME)
+        self.assertNotIn(ip, raw_output)
+        raw_output = self.openstack('ip floating delete ' + ipid)
+        self.assertEqual("", raw_output)
