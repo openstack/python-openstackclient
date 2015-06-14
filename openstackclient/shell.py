@@ -43,7 +43,7 @@ DEFAULT_DOMAIN = 'default'
 def prompt_for_password(prompt=None):
     """Prompt user for a password
 
-    Propmpt for a password if stdin is a tty.
+    Prompt for a password if stdin is a tty.
     """
 
     if not prompt:
@@ -228,7 +228,7 @@ class OpenStackShell(app.App):
         # Parent __init__ parses argv into self.options
         super(OpenStackShell, self).initialize_app(argv)
 
-        # Set the default plugin to token_endpoint if rl and token are given
+        # Set the default plugin to token_endpoint if url and token are given
         if (self.options.url and self.options.token):
             # Use service token authentication
             cloud_config.set_default('auth_type', 'token_endpoint')
