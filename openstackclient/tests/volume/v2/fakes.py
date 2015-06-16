@@ -12,6 +12,7 @@
 #   under the License.
 #
 
+import copy
 import mock
 
 from openstackclient.tests import fakes
@@ -62,11 +63,17 @@ SNAPSHOT = {
     "name": snapshot_name,
     "description": snapshot_description,
     "size": snapshot_size,
-    "metadata": snapshot_metadata
+    "status": "available",
+    "metadata": snapshot_metadata,
+    "created_at": "2015-06-03T18:49:19.000000",
+    "volume_id": volume_name
 }
-
-SNAPSHOT_columns = tuple(sorted(SNAPSHOT))
-SNAPSHOT_data = tuple((SNAPSHOT[x] for x in sorted(SNAPSHOT)))
+EXPECTED_SNAPSHOT = copy.deepcopy(SNAPSHOT)
+EXPECTED_SNAPSHOT.pop("metadata")
+EXPECTED_SNAPSHOT['properties'] = "foo='bar'"
+SNAPSHOT_columns = tuple(sorted(EXPECTED_SNAPSHOT))
+SNAPSHOT_data = tuple((EXPECTED_SNAPSHOT[x]
+                       for x in sorted(EXPECTED_SNAPSHOT)))
 
 
 type_id = "5520dc9e-6f9b-4378-a719-729911c0f407"
