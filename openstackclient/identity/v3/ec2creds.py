@@ -99,7 +99,7 @@ class CreateEC2Creds(show.ShowOne):
         self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         client_manager = self.app.client_manager
-        user = self.determine_ec2_user(parsed_args, client_manager)
+        user = _determine_ec2_user(parsed_args, client_manager)
 
         project_domain = None
         if parsed_args.project_domain:
@@ -163,7 +163,7 @@ class DeleteEC2Creds(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         client_manager = self.app.client_manager
-        user = self.determine_ec2_user(parsed_args, client_manager)
+        user = _determine_ec2_user(parsed_args, client_manager)
         client_manager.identity.ec2.delete(user, parsed_args.access_key)
 
 
@@ -193,7 +193,7 @@ class ListEC2Creds(lister.Lister):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         client_manager = self.app.client_manager
-        user = self.determine_ec2_user(parsed_args, client_manager)
+        user = _determine_ec2_user(parsed_args, client_manager)
 
         columns = ('access', 'secret', 'tenant_id', 'user_id')
         column_headers = ('Access', 'Secret', 'Project ID', 'User ID')
@@ -237,7 +237,7 @@ class ShowEC2Creds(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         client_manager = self.app.client_manager
-        user = self.determine_ec2_user(parsed_args, client_manager)
+        user = _determine_ec2_user(parsed_args, client_manager)
         creds = client_manager.identity.ec2.get(user, parsed_args.access_key)
 
         info = {}
