@@ -2,6 +2,12 @@
 Release Notes
 =============
 
+1.5.0 (16 Jun 2015)
+===================
+
+* openstack 'ListEC2Creds' object has no attribute 'determine_ec2_user'
+  Bug `1465561 <https://bugs.launchpad.net/bugs/1465561>`_
+
 1.4.0 (04 Jun 2015)
 ===================
 
