@@ -109,3 +109,33 @@ def _find_identity_resource(identity_client_manager, name_or_id,
         pass
 
     return resource_type(None, {'id': name_or_id, 'name': name_or_id})
+
+
+def add_user_domain_option_to_parser(parser):
+    parser.add_argument(
+        '--user-domain',
+        metavar='<user-domain>',
+        help=('Domain the user belongs to (name or ID). '
+              'This can be used in case collisions between user names '
+              'exist.')
+    )
+
+
+def add_group_domain_option_to_parser(parser):
+    parser.add_argument(
+        '--group-domain',
+        metavar='<group-domain>',
+        help=('Domain the group belongs to (name or ID). '
+              'This can be used in case collisions between group names '
+              'exist.')
+    )
+
+
+def add_project_domain_option_to_parser(parser):
+    parser.add_argument(
+        '--project-domain',
+        metavar='<project-domain>',
+        help=('Domain the project belongs to (name or ID). '
+              'This can be used in case collisions between project names '
+              'exist.')
+    )

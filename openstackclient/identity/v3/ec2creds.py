@@ -75,24 +75,8 @@ class CreateEC2Creds(show.ShowOne):
                 '(name or ID; default: current authenticated user)'
             ),
         )
-        parser.add_argument(
-            '--user-domain',
-            metavar='<user-domain>',
-            help=(
-                'Select user from a specific domain (name or ID); '
-                'This can be used in case collisions between user names '
-                'exist.'
-            ),
-        )
-        parser.add_argument(
-            '--project-domain',
-            metavar='<project-domain>',
-            help=(
-                'Select project from a specific domain (name or ID); '
-                'This can be used in case collisions between project names '
-                'exist.'
-            ),
-        )
+        common.add_user_domain_option_to_parser(parser)
+        common.add_project_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -149,15 +133,7 @@ class DeleteEC2Creds(command.Command):
             metavar='<user>',
             help=_('Delete credentials for user (name or ID)'),
         )
-        parser.add_argument(
-            '--user-domain',
-            metavar='<user-domain>',
-            help=(
-                'Select user from a specific domain (name or ID); '
-                'This can be used in case collisions between user names '
-                'exist.'
-            ),
-        )
+        common.add_user_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -179,15 +155,7 @@ class ListEC2Creds(lister.Lister):
             metavar='<user>',
             help=_('Filter list by user (name or ID)'),
         )
-        parser.add_argument(
-            '--user-domain',
-            metavar='<user-domain>',
-            help=(
-                'Select user from a specific domain (name or ID); '
-                'This can be used in case collisions between user names '
-                'exist.'
-            ),
-        )
+        common.add_user_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -223,15 +191,7 @@ class ShowEC2Creds(show.ShowOne):
             metavar='<user>',
             help=_('Show credentials for user (name or ID)'),
         )
-        parser.add_argument(
-            '--user-domain',
-            metavar='<user-domain>',
-            help=(
-                'Select user from a specific domain (name or ID); '
-                'This can be used in case collisions between user names '
-                'exist.'
-            ),
-        )
+        common.add_user_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):

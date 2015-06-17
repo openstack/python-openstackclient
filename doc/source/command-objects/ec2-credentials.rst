@@ -28,18 +28,17 @@ Create EC2 credentials
 
 .. option:: --user-domain <user-domain>
 
-    Select user from a specific domain (name or ID)
-    This can be used in case collisions between user names exist.
+    Domain the user belongs to (name or ID). This can be
+    used in case collisions between user names exist.
 
     .. versionadded:: 3
 
 .. option:: --project-domain <project-domain>
 
-    Select project from a specific domain (name or ID)
-    This can be used in case collisions between project names exist.
+    Domain the project belongs to (name or ID). This can be
+    used in case collisions between user names exist.
 
     .. versionadded:: 3
-
 
 The :option:`--project` and :option:`--user`  options are typically only
 useful for admin users, but may be allowed for other users depending on

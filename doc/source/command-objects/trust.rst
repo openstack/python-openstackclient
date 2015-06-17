@@ -39,15 +39,16 @@ Create new trust
 
     Sets an expiration date for the trust (format of YYYY-mm-ddTHH:MM:SS)
 
-.. option:: --project-domain <domain>
+.. option:: --project-domain <project-domain>
 
-    Domain that contains <project> (name or ID)
+    Domain the project belongs to (name or ID). This can be
+    used in case collisions between user names exist.
 
-.. option:: --trustor-domain <domain>
+.. option:: --trustor-domain <trustor-domain>
 
     Domain that contains <trustor> (name or ID)
 
-.. option:: --trustee-domain <domain>
+.. option:: --trustee-domain <trustee-domain>
 
     Domain that contains <trustee> (name or ID)
 

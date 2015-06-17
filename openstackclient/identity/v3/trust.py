@@ -71,19 +71,15 @@ class CreateTrust(show.ShowOne):
             help='Sets an expiration date for the trust'
                  ' (format of YYYY-mm-ddTHH:MM:SS)',
         )
-        parser.add_argument(
-            '--project-domain',
-            metavar='<domain>',
-            help='Domain that contains <project> (name or ID)',
-        )
+        common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--trustor-domain',
-            metavar='<domain>',
+            metavar='<trustor-domain>',
             help='Domain that contains <trustor> (name or ID)',
         )
         parser.add_argument(
             '--trustee-domain',
-            metavar='<domain>',
+            metavar='<trustee-domain>',
             help='Domain that contains <trustee> (name or ID)',
         )
         return parser
