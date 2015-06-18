@@ -100,6 +100,7 @@ backup_description = "fake description"
 backup_object_count = None
 backup_container = None
 backup_size = 10
+backup_status = "error"
 
 BACKUP = {
     "id": backup_id,
@@ -108,7 +109,9 @@ BACKUP = {
     "description": backup_description,
     "object_count": backup_object_count,
     "container": backup_container,
-    "size": backup_size
+    "size": backup_size,
+    "status": backup_status,
+    "availability_zone": volume_availability_zone,
 }
 
 BACKUP_columns = tuple(sorted(BACKUP))
@@ -125,6 +128,8 @@ class FakeVolumeClient(object):
         self.backups.resource_class = fakes.FakeResource(None, {})
         self.volume_types = mock.Mock()
         self.volume_types.resource_class = fakes.FakeResource(None, {})
+        self.restores = mock.Mock()
+        self.restores.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
