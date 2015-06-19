@@ -65,7 +65,7 @@ Create new user
 
     If the username already exist return the existing user data and do not fail.
 
-.. describe:: <name>
+.. describe:: <user-name>
 
     New user name
 
