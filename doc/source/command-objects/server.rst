@@ -60,7 +60,7 @@ Create a new server
     os server create
         --image <image> | --volume <volume>
         --flavor <flavor>
-        [--security-group <security-group-list> [...] ]
+        [--security-group <security-group-name> [...] ]
         [--key-name <key-name>]
         [--property <key=value> [...] ]
         [--file <dest-filename=source-filename>] [...] ]
