@@ -210,6 +210,14 @@ Set image properties
         [--size <size>]
         [--protected | --unprotected]
         [--public | --private]
+        [--store <store>]
+        [--location <image-url>]
+        [--copy-from <image-url>]
+        [--file <file>]
+        [--volume <volume>]
+        [--force]
+        [--checksum <checksum>]
+        [--stdin]
         [--property <key=value> [...] ]
         <image>
 
@@ -259,6 +267,38 @@ Set image properties
 .. option:: --private
 
     Image is inaccessible to the public (default)
+
+.. option:: --store <store>
+
+    Upload image to this store
+
+.. option:: --location <image-url>
+
+    Download image from an existing URL
+
+.. option:: --copy-from <image-url>
+
+    Copy image from the data store (similar to --location)
+
+.. option:: --file <file>
+
+    Upload image from local file
+
+.. option:: --volume <volume>
+
+    Update image with a volume
+
+.. option:: --force
+
+    Force image update if volume is in use (only meaningful with --volume)
+
+.. option:: --checksum <checksum>
+
+    Image hash used for verification
+
+.. option:: --stdin
+
+    Allow to read image data from standard input
 
 .. option:: --property <key=value>
 

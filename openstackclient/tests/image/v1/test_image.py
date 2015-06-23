@@ -178,8 +178,8 @@ class TestImageCreate(TestImage):
         # Ensure the input file is closed
         mock_file.close.assert_called_with()
 
-        # ImageManager.get(name)
-        self.images_mock.get.assert_called_with(image_fakes.image_name)
+        # ImageManager.get(name) not to be called since update action exists
+        self.images_mock.get.assert_not_called()
 
         # ImageManager.create(name=, **)
         self.images_mock.create.assert_called_with(
@@ -197,71 +197,6 @@ class TestImageCreate(TestImage):
 
         # Verify update() was not called, if it was show the args
         self.assertEqual(self.images_mock.update.call_args_list, [])
-
-        self.assertEqual(image_fakes.IMAGE_columns, columns)
-        self.assertEqual(image_fakes.IMAGE_data, data)
-
-    def test_image_create_volume(self):
-        # Set up VolumeManager Mock
-        volumes_mock = self.app.client_manager.volume.volumes
-        volumes_mock.reset_mock()
-        volumes_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy({'id': 'vol1', 'name': 'volly'}),
-            loaded=True,
-        )
-        response = {
-            "id": 'volume_id',
-            "updated_at": 'updated_at',
-            "status": 'uploading',
-            "display_description": 'desc',
-            "size": 'size',
-            "volume_type": 'volume_type',
-            "image_id": 'image1',
-            "container_format": image.DEFAULT_CONTAINER_FORMAT,
-            "disk_format": image.DEFAULT_DISK_FORMAT,
-            "image_name": image_fakes.image_name,
-        }
-        full_response = {"os-volume_upload_image": response}
-        volumes_mock.upload_to_image.return_value = (201, full_response)
-
-        arglist = [
-            '--volume', 'volly',
-            image_fakes.image_name,
-        ]
-        verifylist = [
-            ('private', False),
-            ('protected', False),
-            ('public', False),
-            ('unprotected', False),
-            ('volume', 'volly'),
-            ('force', False),
-            ('name', image_fakes.image_name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # DisplayCommandBase.take_action() returns two tuples
-        columns, data = self.cmd.take_action(parsed_args)
-
-        # VolumeManager.upload_to_image(volume, force, image_name,
-        #     container_format, disk_format)
-        volumes_mock.upload_to_image.assert_called_with(
-            'vol1',
-            False,
-            image_fakes.image_name,
-            'bare',
-            'raw',
-        )
-
-        # ImageManager.update(image_id, remove_props=, **)
-        self.images_mock.update.assert_called_with(
-            image_fakes.image_id,
-            name=image_fakes.image_name,
-            container_format=image.DEFAULT_CONTAINER_FORMAT,
-            disk_format=image.DEFAULT_DISK_FORMAT,
-            properties=image_fakes.image_properties,
-            volume='volly',
-        )
 
         self.assertEqual(image_fakes.IMAGE_columns, columns)
         self.assertEqual(image_fakes.IMAGE_data, data)
@@ -668,6 +603,69 @@ class TestImageSet(TestImage):
             image_fakes.image_id,
             **kwargs
         )
+
+    def test_image_update_volume(self):
+        # Set up VolumeManager Mock
+        volumes_mock = self.app.client_manager.volume.volumes
+        volumes_mock.reset_mock()
+        volumes_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy({'id': 'vol1', 'name': 'volly'}),
+            loaded=True,
+        )
+        response = {
+            "id": 'volume_id',
+            "updated_at": 'updated_at',
+            "status": 'uploading',
+            "display_description": 'desc',
+            "size": 'size',
+            "volume_type": 'volume_type',
+            "container_format": image.DEFAULT_CONTAINER_FORMAT,
+            "disk_format": image.DEFAULT_DISK_FORMAT,
+            "image": image_fakes.image_name,
+        }
+        full_response = {"os-volume_upload_image": response}
+        volumes_mock.upload_to_image.return_value = (201, full_response)
+
+        arglist = [
+            '--volume', 'volly',
+            '--name', 'updated_image',
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('private', False),
+            ('protected', False),
+            ('public', False),
+            ('unprotected', False),
+            ('volume', 'volly'),
+            ('force', False),
+            ('name', 'updated_image'),
+            ('image', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # VolumeManager.upload_to_image(volume, force, image_name,
+        #     container_format, disk_format)
+        volumes_mock.upload_to_image.assert_called_with(
+            'vol1',
+            False,
+            image_fakes.image_name,
+            '',
+            '',
+        )
+
+        # ImageManager.update(image_id, remove_props=, **)
+        self.images_mock.update.assert_called_with(
+            image_fakes.image_id,
+            name='updated_image',
+            volume='volly',
+        )
+
+        self.assertEqual(image_fakes.IMAGE_columns, columns)
+        self.assertEqual(image_fakes.IMAGE_data, data)
 
 
 class TestImageShow(TestImage):
