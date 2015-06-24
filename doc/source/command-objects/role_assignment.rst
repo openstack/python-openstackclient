@@ -19,6 +19,7 @@ List role assignments
         [--domain <domain>]
         [--project <project>]
         [--effective]
+        [--inherited]
 
 .. option:: --role <role>
 
@@ -43,3 +44,7 @@ List role assignments
 .. option:: --effective
 
     Returns only effective role assignments (defaults to False)
+
+.. option:: --inherited
+
+    Specifies if the role grant is inheritable to the sub projects

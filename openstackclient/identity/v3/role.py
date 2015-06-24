@@ -55,6 +55,7 @@ def _add_identity_and_resource_options_to_parser(parser):
     common.add_group_domain_option_to_parser(parser)
     common.add_project_domain_option_to_parser(parser)
     common.add_user_domain_option_to_parser(parser)
+    common.add_inherited_option_to_parser(parser)
 
 
 def _process_identity_and_resource_options(parsed_args,
@@ -102,6 +103,7 @@ def _process_identity_and_resource_options(parsed_args,
             parsed_args.project,
             parsed_args.group_domain,
         ).id
+    kwargs['inherited'] = parsed_args.inherited
     return kwargs
 
 
