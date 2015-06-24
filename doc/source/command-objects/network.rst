@@ -21,7 +21,7 @@ Create new network
 
 .. option:: --domain <domain>
 
-    Owner's domain (name or ID)"
+    Owner's domain (name or ID)
 
 .. option:: --project <project>
 
