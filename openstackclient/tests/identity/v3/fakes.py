@@ -145,6 +145,25 @@ PROJECT_WITH_PARENT = {
     'links': base_url + 'projects/' + (project_id + '-with-parent'),
 }
 
+PROJECT_WITH_GRANDPARENT = {
+    'id': project_id + '-with-grandparent',
+    'name': project_name + ', granny and grandpa',
+    'description': project_description + ' plus another eight?',
+    'enabled': True,
+    'domain_id': domain_id,
+    'parent_id': PROJECT_WITH_PARENT['id'],
+    'links': base_url + 'projects/' + (project_id + '-with-grandparent'),
+}
+
+parents = [{'project': PROJECT}]
+grandparents = [{'project': PROJECT}, {'project': PROJECT_WITH_PARENT}]
+ids_for_parents = [PROJECT['id']]
+ids_for_parents_and_grandparents = [PROJECT['id'], PROJECT_WITH_PARENT['id']]
+
+children = [{'project': PROJECT_WITH_GRANDPARENT}]
+ids_for_children = [PROJECT_WITH_GRANDPARENT['id']]
+
+
 role_id = 'r1'
 role_name = 'roller'
 

@@ -783,6 +783,8 @@ class TestProjectShow(TestProject):
         columns, data = self.cmd.take_action(parsed_args)
         self.projects_mock.get.assert_called_with(
             identity_fakes.project_id,
+            parents_as_list=False,
+            subtree_as_list=False,
         )
 
         collist = ('description', 'domain_id', 'enabled', 'id', 'name')
@@ -795,3 +797,151 @@ class TestProjectShow(TestProject):
             identity_fakes.project_name,
         )
         self.assertEqual(datalist, data)
+
+    def test_project_show_parents(self):
+        project = copy.deepcopy(identity_fakes.PROJECT_WITH_GRANDPARENT)
+        project['parents'] = identity_fakes.grandparents
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            project,
+            loaded=True,
+        )
+
+        arglist = [
+            identity_fakes.PROJECT_WITH_GRANDPARENT['id'],
+            '--parents',
+        ]
+        verifylist = [
+            ('project', identity_fakes.PROJECT_WITH_GRANDPARENT['id']),
+            ('parents', True),
+            ('children', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.projects_mock.get.assert_called_with(
+            identity_fakes.PROJECT_WITH_GRANDPARENT['id'],
+            parents_as_list=True,
+            subtree_as_list=False,
+        )
+
+        collist = (
+            'description',
+            'domain_id',
+            'enabled',
+            'id',
+            'name',
+            'parent_id',
+            'parents',
+        )
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.PROJECT_WITH_GRANDPARENT['description'],
+            identity_fakes.PROJECT_WITH_GRANDPARENT['domain_id'],
+            identity_fakes.PROJECT_WITH_GRANDPARENT['enabled'],
+            identity_fakes.PROJECT_WITH_GRANDPARENT['id'],
+            identity_fakes.PROJECT_WITH_GRANDPARENT['name'],
+            identity_fakes.PROJECT_WITH_GRANDPARENT['parent_id'],
+            identity_fakes.ids_for_parents_and_grandparents,
+        )
+        self.assertEqual(data, datalist)
+
+    def test_project_show_subtree(self):
+        project = copy.deepcopy(identity_fakes.PROJECT_WITH_PARENT)
+        project['subtree'] = identity_fakes.children
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            project,
+            loaded=True,
+        )
+
+        arglist = [
+            identity_fakes.PROJECT_WITH_PARENT['id'],
+            '--children',
+        ]
+        verifylist = [
+            ('project', identity_fakes.PROJECT_WITH_PARENT['id']),
+            ('parents', False),
+            ('children', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.projects_mock.get.assert_called_with(
+            identity_fakes.PROJECT_WITH_PARENT['id'],
+            parents_as_list=False,
+            subtree_as_list=True,
+        )
+
+        collist = (
+            'description',
+            'domain_id',
+            'enabled',
+            'id',
+            'name',
+            'parent_id',
+            'subtree',
+        )
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.PROJECT_WITH_PARENT['description'],
+            identity_fakes.PROJECT_WITH_PARENT['domain_id'],
+            identity_fakes.PROJECT_WITH_PARENT['enabled'],
+            identity_fakes.PROJECT_WITH_PARENT['id'],
+            identity_fakes.PROJECT_WITH_PARENT['name'],
+            identity_fakes.PROJECT_WITH_PARENT['parent_id'],
+            identity_fakes.ids_for_children,
+        )
+        self.assertEqual(data, datalist)
+
+    def test_project_show_parents_and_children(self):
+        project = copy.deepcopy(identity_fakes.PROJECT_WITH_PARENT)
+        project['subtree'] = identity_fakes.children
+        project['parents'] = identity_fakes.parents
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            project,
+            loaded=True,
+        )
+
+        arglist = [
+            identity_fakes.PROJECT_WITH_PARENT['id'],
+            '--parents',
+            '--children',
+        ]
+        verifylist = [
+            ('project', identity_fakes.PROJECT_WITH_PARENT['id']),
+            ('parents', True),
+            ('children', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.projects_mock.get.assert_called_with(
+            identity_fakes.PROJECT_WITH_PARENT['id'],
+            parents_as_list=True,
+            subtree_as_list=True,
+        )
+
+        collist = (
+            'description',
+            'domain_id',
+            'enabled',
+            'id',
+            'name',
+            'parent_id',
+            'parents',
+            'subtree',
+        )
+        self.assertEqual(columns, collist)
+        datalist = (
+            identity_fakes.PROJECT_WITH_PARENT['description'],
+            identity_fakes.PROJECT_WITH_PARENT['domain_id'],
+            identity_fakes.PROJECT_WITH_PARENT['enabled'],
+            identity_fakes.PROJECT_WITH_PARENT['id'],
+            identity_fakes.PROJECT_WITH_PARENT['name'],
+            identity_fakes.PROJECT_WITH_PARENT['parent_id'],
+            identity_fakes.ids_for_parents,
+            identity_fakes.ids_for_children,
+        )
+        self.assertEqual(data, datalist)

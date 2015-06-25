@@ -323,6 +323,18 @@ class ShowProject(show.ShowOne):
             metavar='<domain>',
             help='Domain owning <project> (name or ID)',
         )
+        parser.add_argument(
+            '--parents',
+            action='store_true',
+            default=False,
+            help='Show the project\'s parents as a list',
+        )
+        parser.add_argument(
+            '--children',
+            action='store_true',
+            default=False,
+            help='Show project\'s subtree (children) as a list',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -331,14 +343,25 @@ class ShowProject(show.ShowOne):
 
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
-            project = utils.find_resource(identity_client.projects,
-                                          parsed_args.project,
-                                          domain_id=domain.id)
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+                domain_id=domain.id,
+                parents_as_list=parsed_args.parents,
+                subtree_as_list=parsed_args.children)
         else:
-            project = utils.find_resource(identity_client.projects,
-                                          parsed_args.project)
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+                parents_as_list=parsed_args.parents,
+                subtree_as_list=parsed_args.children)
+
+        if project._info.get('parents'):
+            project._info['parents'] = [str(p['project']['id'])
+                                        for p in project._info['parents']]
+        if project._info.get('subtree'):
+            project._info['subtree'] = [str(p['project']['id'])
+                                        for p in project._info['subtree']]
 
         project._info.pop('links')
-        # TODO(stevemar): Remove the line below when we support multitenancy
-        project._info.pop('parent_id', None)
         return zip(*sorted(six.iteritems(project._info)))

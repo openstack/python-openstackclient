@@ -51,7 +51,7 @@ def find_resource(manager, name_or_id, **kwargs):
     # Try to get entity as integer id
     try:
         if isinstance(name_or_id, int) or name_or_id.isdigit():
-            return manager.get(int(name_or_id))
+            return manager.get(int(name_or_id), **kwargs)
     # FIXME(dtroyer): The exception to catch here is dependent on which
     #                 client library the manager passed in belongs to.
     #                 Eventually this should be pulled from a common set
@@ -64,7 +64,7 @@ def find_resource(manager, name_or_id, **kwargs):
 
     # Try directly using the passed value
     try:
-        return manager.get(name_or_id)
+        return manager.get(name_or_id, **kwargs)
     except Exception:
         pass
 
