@@ -87,10 +87,7 @@ class CreateNetwork(show.ShowOne):
             '--project',
             metavar='<project>',
             help="Owner's project (name or ID)")
-        parser.add_argument(
-            '--domain',
-            metavar='<domain>',
-            help="Owner's domain (name or ID)")
+        identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -112,15 +109,11 @@ class CreateNetwork(show.ShowOne):
             body['shared'] = parsed_args.shared
         if parsed_args.project is not None:
             identity_client = self.app.client_manager.identity
-            if parsed_args.domain is not None:
-                domain = identity_common.find_domain(identity_client,
-                                                     parsed_args.domain)
-                project_id = utils.find_resource(identity_client.projects,
-                                                 parsed_args.project,
-                                                 domain_id=domain.id).id
-            else:
-                project_id = utils.find_resource(identity_client.projects,
-                                                 parsed_args.project).id
+            project_id = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
             body['tenant_id'] = project_id
         return {'network': body}
 

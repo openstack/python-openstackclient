@@ -90,14 +90,14 @@ class TestCreateNetwork(common.TestNetworkBase):
             "--disable",
             "--share",
             "--project", identity_fakes_v3.project_name,
-            "--domain", identity_fakes_v3.domain_name,
+            "--project-domain", identity_fakes_v3.domain_name,
             FAKE_NAME,
         ] + self.given_show_options
         verifylist = [
             ('admin_state', False),
             ('shared', True),
             ('project', identity_fakes_v3.project_name),
-            ('domain', identity_fakes_v3.domain_name),
+            ('project_domain', identity_fakes_v3.domain_name),
             ('name', FAKE_NAME),
         ] + self.then_show_options
         mocker = mock.Mock(return_value=copy.deepcopy(RESPONSE))
@@ -165,7 +165,6 @@ class TestCreateNetwork(common.TestNetworkBase):
         arglist = [
             "--project", identity_fakes_v2.project_name,
             FAKE_NAME,
-
         ]
         verifylist = [
             ('admin_state', True),
@@ -203,14 +202,14 @@ class TestCreateNetwork(common.TestNetworkBase):
     def test_create_with_domain_identityv2(self):
         arglist = [
             "--project", identity_fakes_v3.project_name,
-            "--domain", identity_fakes_v3.domain_name,
+            "--project-domain", identity_fakes_v3.domain_name,
             FAKE_NAME,
         ]
         verifylist = [
             ('admin_state', True),
             ('shared', None),
             ('project', identity_fakes_v3.project_name),
-            ('domain', identity_fakes_v3.domain_name),
+            ('project_domain', identity_fakes_v3.domain_name),
             ('name', FAKE_NAME),
         ]
         mocker = mock.Mock(return_value=copy.deepcopy(RESPONSE))

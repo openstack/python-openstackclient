@@ -13,19 +13,19 @@ Create new network
 .. code:: bash
 
     os network create
-        [--domain <domain>]
+        [--project <project> [--project-domain <project-domain>]]
         [--enable | --disable]
-        [--project <project>]
         [--share | --no-share]
         <name>
-
-.. option:: --domain <domain>
-
-    Owner's domain (name or ID)
 
 .. option:: --project <project>
 
     Owner's project (name or ID)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 .. option:: --enable
 
