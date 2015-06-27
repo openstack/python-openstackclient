@@ -117,6 +117,47 @@ BACKUP = {
 BACKUP_columns = tuple(sorted(BACKUP))
 BACKUP_data = tuple((BACKUP[x] for x in sorted(BACKUP)))
 
+qos_id = '6f2be1de-997b-4230-b76c-a3633b59e8fb'
+qos_consumer = 'front-end'
+qos_default_consumer = 'both'
+qos_name = "fake-qos-specs"
+qos_specs = {
+    'foo': 'bar',
+    'iops': '9001'
+}
+qos_association = {
+    'association_type': 'volume_type',
+    'name': type_name,
+    'id': type_id
+}
+
+QOS = {
+    'id': qos_id,
+    'consumer': qos_consumer,
+    'name': qos_name
+}
+
+QOS_DEFAULT_CONSUMER = {
+    'id': qos_id,
+    'consumer': qos_default_consumer,
+    'name': qos_name
+}
+
+QOS_WITH_SPECS = {
+    'id': qos_id,
+    'consumer': qos_consumer,
+    'name': qos_name,
+    'specs': qos_specs
+}
+
+QOS_WITH_ASSOCIATIONS = {
+    'id': qos_id,
+    'consumer': qos_consumer,
+    'name': qos_name,
+    'specs': qos_specs,
+    'associations': [qos_association]
+}
+
 
 class FakeVolumeClient(object):
     def __init__(self, **kwargs):
@@ -130,6 +171,8 @@ class FakeVolumeClient(object):
         self.volume_types.resource_class = fakes.FakeResource(None, {})
         self.restores = mock.Mock()
         self.restores.resource_class = fakes.FakeResource(None, {})
+        self.qos_specs = mock.Mock()
+        self.qos_specs.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
