@@ -79,6 +79,42 @@ IMAGE = {
     'name': image_name,
 }
 
+type_id = "5520dc9e-6f9b-4378-a719-729911c0f407"
+type_name = "fake-lvmdriver-1"
+
+TYPE = {
+    'id': type_id,
+    'name': type_name
+}
+
+qos_id = '6f2be1de-997b-4230-b76c-a3633b59e8fb'
+qos_consumer = 'front-end'
+qos_default_consumer = 'both'
+qos_name = "fake-qos-specs"
+qos_specs = {
+    'foo': 'bar',
+    'iops': '9001'
+}
+
+QOS = {
+    'id': qos_id,
+    'consumer': qos_consumer,
+    'name': qos_name
+}
+
+QOS_DEFAULT_CONSUMER = {
+    'id': qos_id,
+    'consumer': qos_default_consumer,
+    'name': qos_name
+}
+
+QOS_WITH_SPECS = {
+    'id': qos_id,
+    'consumer': qos_consumer,
+    'name': qos_name,
+    'specs': qos_specs
+}
+
 
 class FakeImagev1Client(object):
     def __init__(self, **kwargs):
@@ -93,6 +129,10 @@ class FakeVolumev1Client(object):
         self.services.resource_class = fakes.FakeResource(None, {})
         self.extensions = mock.Mock()
         self.extensions.resource_class = fakes.FakeResource(None, {})
+        self.qos_specs = mock.Mock()
+        self.qos_specs.resource_class = fakes.FakeResource(None, {})
+        self.volume_types = mock.Mock()
+        self.volume_types.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
