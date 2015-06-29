@@ -26,6 +26,38 @@ from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
+class AssociateQos(command.Command):
+    """Associate a QoS specification to a volume type"""
+
+    log = logging.getLogger(__name__ + '.AssociateQos')
+
+    def get_parser(self, prog_name):
+        parser = super(AssociateQos, self).get_parser(prog_name)
+        parser.add_argument(
+            'qos_specs',
+            metavar='<qos-specs>',
+            help='QoS specification to modify (name or ID)',
+        )
+        parser.add_argument(
+            'volume_type',
+            metavar='<volume-type>',
+            help='Volume type to associate the QoS (name or ID)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)', parsed_args)
+        volume_client = self.app.client_manager.volume
+        qos_specs = utils.find_resource(volume_client.qos_specs,
+                                        parsed_args.qos_specs)
+        volume_type = utils.find_resource(volume_client.volume_types,
+                                          parsed_args.volume_type)
+
+        volume_client.qos_specs.associate(qos_specs.id, volume_type.id)
+
+        return
+
+
 class CreateQos(show.ShowOne):
     """Create new QoS specification"""
 
@@ -95,175 +127,6 @@ class DeleteQos(command.Command):
         return
 
 
-class ListQos(lister.Lister):
-    """List QoS specifications"""
-
-    log = logging.getLogger(__name__ + '.ListQos')
-
-    def get_parser(self, prog_name):
-        parser = super(ListQos, self).get_parser(prog_name)
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
-        volume_client = self.app.client_manager.volume
-        qos_specs_list = volume_client.qos_specs.list()
-
-        for qos in qos_specs_list:
-            qos_associations = volume_client.qos_specs.get_associations(qos)
-            if qos_associations:
-                associations = [association.name
-                                for association in qos_associations]
-                qos._info.update({'associations': associations})
-
-        columns = ('ID', 'Name', 'Consumer', 'Associations', 'Specs')
-        return (columns,
-                (utils.get_dict_properties(
-                    s._info, columns,
-                    formatters={
-                        'Specs': utils.format_dict,
-                        'Associations': utils.format_list
-                    },
-                ) for s in qos_specs_list))
-
-
-class ShowQos(show.ShowOne):
-    """Display QoS specification details"""
-
-    log = logging.getLogger(__name__ + '.ShowQos')
-
-    def get_parser(self, prog_name):
-        parser = super(ShowQos, self).get_parser(prog_name)
-        parser.add_argument(
-            'qos_specs',
-            metavar='<qos-specs>',
-            help='QoS specification to display (name or ID)',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
-        volume_client = self.app.client_manager.volume
-        qos_specs = utils.find_resource(volume_client.qos_specs,
-                                        parsed_args.qos_specs)
-
-        qos_associations = volume_client.qos_specs.get_associations(qos_specs)
-        if qos_associations:
-            associations = [association.name
-                            for association in qos_associations]
-            qos_specs._info.update({
-                'associations': utils.format_list(associations)
-            })
-        qos_specs._info.update({'specs': utils.format_dict(qos_specs.specs)})
-
-        return zip(*sorted(six.iteritems(qos_specs._info)))
-
-
-class SetQos(command.Command):
-    """Set QoS specification properties"""
-
-    log = logging.getLogger(__name__ + '.SetQos')
-
-    def get_parser(self, prog_name):
-        parser = super(SetQos, self).get_parser(prog_name)
-        parser.add_argument(
-            'qos_specs',
-            metavar='<qos-specs>',
-            help='QoS specification to modify (name or ID)',
-        )
-        parser.add_argument(
-            '--property',
-            metavar='<key=value>',
-            action=parseractions.KeyValueAction,
-            help='Property to add or modify for this QoS specification '
-                 '(repeat option to set multiple properties)',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
-        volume_client = self.app.client_manager.volume
-        qos_specs = utils.find_resource(volume_client.qos_specs,
-                                        parsed_args.qos_specs)
-
-        if parsed_args.property:
-            volume_client.qos_specs.set_keys(qos_specs.id,
-                                             parsed_args.property)
-        else:
-            self.app.log.error("No changes requested\n")
-
-        return
-
-
-class UnsetQos(command.Command):
-    """Unset QoS specification properties"""
-
-    log = logging.getLogger(__name__ + '.SetQos')
-
-    def get_parser(self, prog_name):
-        parser = super(UnsetQos, self).get_parser(prog_name)
-        parser.add_argument(
-            'qos_specs',
-            metavar='<qos-specs>',
-            help='QoS specification to modify (name or ID)',
-        )
-        parser.add_argument(
-            '--property',
-            metavar='<key>',
-            action='append',
-            default=[],
-            help='Property to remove from the QoS specification. '
-                 '(repeat option to unset multiple properties)',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
-        volume_client = self.app.client_manager.volume
-        qos_specs = utils.find_resource(volume_client.qos_specs,
-                                        parsed_args.qos_specs)
-
-        if parsed_args.property:
-            volume_client.qos_specs.unset_keys(qos_specs.id,
-                                               parsed_args.property)
-        else:
-            self.app.log.error("No changes requested\n")
-
-        return
-
-
-class AssociateQos(command.Command):
-    """Associate a QoS specification to a volume type"""
-
-    log = logging.getLogger(__name__ + '.AssociateQos')
-
-    def get_parser(self, prog_name):
-        parser = super(AssociateQos, self).get_parser(prog_name)
-        parser.add_argument(
-            'qos_specs',
-            metavar='<qos-specs>',
-            help='QoS specification to modify (name or ID)',
-        )
-        parser.add_argument(
-            'volume_type',
-            metavar='<volume-type>',
-            help='Volume type to associate the QoS (name or ID)',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
-        volume_client = self.app.client_manager.volume
-        qos_specs = utils.find_resource(volume_client.qos_specs,
-                                        parsed_args.qos_specs)
-        volume_type = utils.find_resource(volume_client.volume_types,
-                                          parsed_args.volume_type)
-
-        volume_client.qos_specs.associate(qos_specs.id, volume_type.id)
-
-        return
-
-
 class DisassociateQos(command.Command):
     """Disassociate a QoS specification from a volume type"""
 
@@ -303,5 +166,142 @@ class DisassociateQos(command.Command):
             volume_client.qos_specs.disassociate(qos_specs.id, volume_type.id)
         elif parsed_args.all:
             volume_client.qos_specs.disassociate_all(qos_specs.id)
+
+        return
+
+
+class ListQos(lister.Lister):
+    """List QoS specifications"""
+
+    log = logging.getLogger(__name__ + '.ListQos')
+
+    def get_parser(self, prog_name):
+        parser = super(ListQos, self).get_parser(prog_name)
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)', parsed_args)
+        volume_client = self.app.client_manager.volume
+        qos_specs_list = volume_client.qos_specs.list()
+
+        for qos in qos_specs_list:
+            qos_associations = volume_client.qos_specs.get_associations(qos)
+            if qos_associations:
+                associations = [association.name
+                                for association in qos_associations]
+                qos._info.update({'associations': associations})
+
+        columns = ('ID', 'Name', 'Consumer', 'Associations', 'Specs')
+        return (columns,
+                (utils.get_dict_properties(
+                    s._info, columns,
+                    formatters={
+                        'Specs': utils.format_dict,
+                        'Associations': utils.format_list
+                    },
+                ) for s in qos_specs_list))
+
+
+class SetQos(command.Command):
+    """Set QoS specification properties"""
+
+    log = logging.getLogger(__name__ + '.SetQos')
+
+    def get_parser(self, prog_name):
+        parser = super(SetQos, self).get_parser(prog_name)
+        parser.add_argument(
+            'qos_specs',
+            metavar='<qos-specs>',
+            help='QoS specification to modify (name or ID)',
+        )
+        parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            help='Property to add or modify for this QoS specification '
+                 '(repeat option to set multiple properties)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)', parsed_args)
+        volume_client = self.app.client_manager.volume
+        qos_specs = utils.find_resource(volume_client.qos_specs,
+                                        parsed_args.qos_specs)
+
+        if parsed_args.property:
+            volume_client.qos_specs.set_keys(qos_specs.id,
+                                             parsed_args.property)
+        else:
+            self.app.log.error("No changes requested\n")
+
+        return
+
+
+class ShowQos(show.ShowOne):
+    """Display QoS specification details"""
+
+    log = logging.getLogger(__name__ + '.ShowQos')
+
+    def get_parser(self, prog_name):
+        parser = super(ShowQos, self).get_parser(prog_name)
+        parser.add_argument(
+            'qos_specs',
+            metavar='<qos-specs>',
+            help='QoS specification to display (name or ID)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)', parsed_args)
+        volume_client = self.app.client_manager.volume
+        qos_specs = utils.find_resource(volume_client.qos_specs,
+                                        parsed_args.qos_specs)
+
+        qos_associations = volume_client.qos_specs.get_associations(qos_specs)
+        if qos_associations:
+            associations = [association.name
+                            for association in qos_associations]
+            qos_specs._info.update({
+                'associations': utils.format_list(associations)
+            })
+        qos_specs._info.update({'specs': utils.format_dict(qos_specs.specs)})
+
+        return zip(*sorted(six.iteritems(qos_specs._info)))
+
+
+class UnsetQos(command.Command):
+    """Unset QoS specification properties"""
+
+    log = logging.getLogger(__name__ + '.SetQos')
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetQos, self).get_parser(prog_name)
+        parser.add_argument(
+            'qos_specs',
+            metavar='<qos-specs>',
+            help='QoS specification to modify (name or ID)',
+        )
+        parser.add_argument(
+            '--property',
+            metavar='<key>',
+            action='append',
+            default=[],
+            help='Property to remove from the QoS specification. '
+                 '(repeat option to unset multiple properties)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)', parsed_args)
+        volume_client = self.app.client_manager.volume
+        qos_specs = utils.find_resource(volume_client.qos_specs,
+                                        parsed_args.qos_specs)
+
+        if parsed_args.property:
+            volume_client.qos_specs.unset_keys(qos_specs.id,
+                                               parsed_args.property)
+        else:
+            self.app.log.error("No changes requested\n")
 
         return
