@@ -32,6 +32,41 @@ class TestQos(volume_fakes.TestVolumev1):
         self.types_mock.reset_mock()
 
 
+class TestQosAssociate(TestQos):
+    def setUp(self):
+        super(TestQosAssociate, self).setUp()
+
+        # Get the command object to test
+        self.cmd = qos_specs.AssociateQos(self.app, None)
+
+    def test_qos_associate(self):
+        self.qos_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.QOS),
+            loaded=True
+        )
+        self.types_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.TYPE),
+            loaded=True
+        )
+        arglist = [
+            volume_fakes.qos_id,
+            volume_fakes.type_id
+        ]
+        verifylist = [
+            ('qos_specs', volume_fakes.qos_id),
+            ('volume_type', volume_fakes.type_id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+        self.qos_mock.associate.assert_called_with(
+            volume_fakes.qos_id,
+            volume_fakes.type_id
+        )
+
+
 class TestQosCreate(TestQos):
     def setUp(self):
         super(TestQosCreate, self).setUp()
@@ -196,6 +231,60 @@ class TestQosDelete(TestQos):
         self.qos_mock.delete.assert_called_with(volume_fakes.qos_id)
 
 
+class TestQosDisassociate(TestQos):
+    def setUp(self):
+        super(TestQosDisassociate, self).setUp()
+
+        # Get the command object to test
+        self.cmd = qos_specs.DisassociateQos(self.app, None)
+
+    def test_qos_disassociate_with_volume_type(self):
+        self.qos_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.QOS),
+            loaded=True
+        )
+        self.types_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.TYPE),
+            loaded=True
+        )
+        arglist = [
+            volume_fakes.qos_id,
+            '--volume-type', volume_fakes.type_id
+        ]
+        verifylist = [
+            ('qos_specs', volume_fakes.qos_id),
+            ('volume_type', volume_fakes.type_id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+        self.qos_mock.disassociate.assert_called_with(
+            volume_fakes.qos_id,
+            volume_fakes.type_id
+        )
+
+    def test_qos_disassociate_with_all_volume_types(self):
+        self.qos_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.QOS),
+            loaded=True
+        )
+
+        arglist = [
+            volume_fakes.qos_id,
+            '--all'
+        ]
+        verifylist = [
+            ('qos_specs', volume_fakes.qos_id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+        self.qos_mock.disassociate_all.assert_called_with(volume_fakes.qos_id)
+
+
 class TestQosSet(TestQos):
     def setUp(self):
         super(TestQosSet, self).setUp()
@@ -257,92 +346,3 @@ class TestQosUnset(TestQos):
             volume_fakes.qos_id,
             ['iops', 'foo']
         )
-
-
-class TestQosAssociate(TestQos):
-    def setUp(self):
-        super(TestQosAssociate, self).setUp()
-
-        # Get the command object to test
-        self.cmd = qos_specs.AssociateQos(self.app, None)
-
-    def test_qos_associate(self):
-        self.qos_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS),
-            loaded=True
-        )
-        self.types_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.TYPE),
-            loaded=True
-        )
-        arglist = [
-            volume_fakes.qos_id,
-            volume_fakes.type_id
-        ]
-        verifylist = [
-            ('qos_specs', volume_fakes.qos_id),
-            ('volume_type', volume_fakes.type_id)
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.cmd.take_action(parsed_args)
-        self.qos_mock.associate.assert_called_with(
-            volume_fakes.qos_id,
-            volume_fakes.type_id
-        )
-
-
-class TestQosDisassociate(TestQos):
-    def setUp(self):
-        super(TestQosDisassociate, self).setUp()
-
-        # Get the command object to test
-        self.cmd = qos_specs.DisassociateQos(self.app, None)
-
-    def test_qos_disassociate_with_volume_type(self):
-        self.qos_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS),
-            loaded=True
-        )
-        self.types_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.TYPE),
-            loaded=True
-        )
-        arglist = [
-            volume_fakes.qos_id,
-            '--volume-type', volume_fakes.type_id
-        ]
-        verifylist = [
-            ('qos_specs', volume_fakes.qos_id),
-            ('volume_type', volume_fakes.type_id)
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.cmd.take_action(parsed_args)
-        self.qos_mock.disassociate.assert_called_with(
-            volume_fakes.qos_id,
-            volume_fakes.type_id
-        )
-
-    def test_qos_disassociate_with_all_volume_types(self):
-        self.qos_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS),
-            loaded=True
-        )
-
-        arglist = [
-            volume_fakes.qos_id,
-            '--all'
-        ]
-        verifylist = [
-            ('qos_specs', volume_fakes.qos_id)
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.cmd.take_action(parsed_args)
-        self.qos_mock.disassociate_all.assert_called_with(volume_fakes.qos_id)
