@@ -101,6 +101,7 @@ def base_parser(parser):
     parser.add_argument(
         '--os-cacert',
         metavar='<ca-bundle-file>',
+        dest='cacert',
         default=env('OS_CACERT'),
         help='CA certificate bundle file (Env: OS_CACERT)',
     )
