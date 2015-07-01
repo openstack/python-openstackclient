@@ -95,6 +95,11 @@ qos_specs = {
     'foo': 'bar',
     'iops': '9001'
 }
+qos_association = {
+    'association_type': 'volume_type',
+    'name': type_name,
+    'id': type_id
+}
 
 QOS = {
     'id': qos_id,
@@ -113,6 +118,14 @@ QOS_WITH_SPECS = {
     'consumer': qos_consumer,
     'name': qos_name,
     'specs': qos_specs
+}
+
+QOS_WITH_ASSOCIATIONS = {
+    'id': qos_id,
+    'consumer': qos_consumer,
+    'name': qos_name,
+    'specs': qos_specs,
+    'associations': [qos_association]
 }
 
 
