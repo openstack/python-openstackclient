@@ -275,6 +275,7 @@ class CreateImage(show.ShowOne):
 
         info = {}
         info.update(image._info)
+        info['properties'] = utils.format_dict(info.get('properties', {}))
         return zip(*sorted(six.iteritems(info)))
 
 
@@ -608,6 +609,7 @@ class SetImage(show.ShowOne):
 
         info = {}
         info.update(image._info)
+        info['properties'] = utils.format_dict(info.get('properties', {}))
         return zip(*sorted(six.iteritems(info)))
 
 
@@ -636,4 +638,5 @@ class ShowImage(show.ShowOne):
 
         info = {}
         info.update(image._info)
+        info['properties'] = utils.format_dict(info.get('properties', {}))
         return zip(*sorted(six.iteritems(info)))
