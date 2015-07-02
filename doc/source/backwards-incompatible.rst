@@ -47,6 +47,20 @@ List of Backwards Incompatible Changes
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1450872
   * Commit: https://review.openstack.org/#/c/179446/
 
+4. Command `openstack image create` does not update already existing image
+
+  Previously, the image create command updated already existing image if it had
+  same name. It disabled possibility to create multiple images with same name
+  and lead to potentially unwanted update of existing images by image create
+  command.
+  Now, update code was moved from create action to set action.
+
+  * In favor of: Create multiple images with same name (as glance does).
+  * As of: 1.5.0
+  * Removed in: NA
+  * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1461817
+  * Commit: https://review.openstack.org/#/c/194654/
+
 For Developers
 ==============
 

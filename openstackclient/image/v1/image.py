@@ -33,7 +33,6 @@ from cliff import show
 
 from glanceclient.common import utils as gc_utils
 from openstackclient.api import utils as api_utils
-from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 
@@ -244,29 +243,7 @@ class CreateImage(show.ShowOne):
 
         # Wrap the call to catch exceptions in order to close files
         try:
-            try:
-                image = utils.find_resource(
-                    image_client.images,
-                    parsed_args.name,
-                )
-
-                # Preserve previous properties if any are being set now
-                if image.properties:
-                    if parsed_args.properties:
-                        image.properties.update(kwargs['properties'])
-                    kwargs['properties'] = image.properties
-
-            except exceptions.CommandError:
-                if not parsed_args.volume:
-                    # This is normal for a create or reserve (create w/o
-                    # an image), but skip for create from volume
-                    image = image_client.images.create(**kwargs)
-            else:
-                # Update an existing reservation
-
-                # If an image is specified via --file, --location or
-                # --copy-from let the API handle it
-                image = image_client.images.update(image.id, **kwargs)
+            image = image_client.images.create(**kwargs)
         finally:
             # Clean up open files - make sure data isn't a string
             if ('data' in kwargs and hasattr(kwargs['data'], 'close') and
@@ -561,6 +538,51 @@ class SetImage(show.ShowOne):
             help="Set a property on this image "
                  "(repeat option to set multiple properties)",
         )
+        parser.add_argument(
+            "--store",
+            metavar="<store>",
+            help="Upload image to this store",
+        )
+        parser.add_argument(
+            "--location",
+            metavar="<image-url>",
+            help="Download image from an existing URL",
+        )
+        parser.add_argument(
+            "--copy-from",
+            metavar="<image-url>",
+            help="Copy image from the data store (similar to --location)",
+        )
+        parser.add_argument(
+            "--file",
+            metavar="<file>",
+            help="Upload image from local file",
+        )
+        parser.add_argument(
+            "--volume",
+            metavar="<volume>",
+            help="Create image from a volume",
+        )
+        parser.add_argument(
+            "--force",
+            dest='force',
+            action='store_true',
+            default=False,
+            help="Force image change if volume is in use "
+            "(only meaningful with --volume)",
+        )
+        parser.add_argument(
+            "--stdin",
+            dest='stdin',
+            action='store_true',
+            default=False,
+            help="Read image data from standard input",
+        )
+        parser.add_argument(
+            "--checksum",
+            metavar="<checksum>",
+            help="Image hash used for verification",
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -569,7 +591,8 @@ class SetImage(show.ShowOne):
 
         kwargs = {}
         copy_attrs = ('name', 'owner', 'min_disk', 'min_ram', 'properties',
-                      'container_format', 'disk_format', 'size')
+                      'container_format', 'disk_format', 'size', 'store',
+                      'location', 'copy_from', 'volume', 'force', 'checksum')
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
@@ -592,20 +615,63 @@ class SetImage(show.ShowOne):
         if parsed_args.private:
             kwargs['is_public'] = False
 
-        if not kwargs:
-            self.log.warning('no arguments specified')
-            return {}, {}
+        # Wrap the call to catch exceptions in order to close files
+        try:
+            image = utils.find_resource(
+                image_client.images,
+                parsed_args.image,
+            )
 
-        image = utils.find_resource(
-            image_client.images,
-            parsed_args.image,
-        )
+            if not parsed_args.location and not parsed_args.copy_from:
+                if parsed_args.volume:
+                    volume_client = self.app.client_manager.volume
+                    source_volume = utils.find_resource(
+                        volume_client.volumes,
+                        parsed_args.volume,
+                    )
+                    response, body = volume_client.volumes.upload_to_image(
+                        source_volume.id,
+                        parsed_args.force,
+                        parsed_args.image,
+                        (parsed_args.container_format
+                         if parsed_args.container_format
+                         else image.container_format),
+                        (parsed_args.disk_format
+                         if parsed_args.disk_format
+                         else image.disk_format),
+                    )
+                    info = body['os-volume_upload_image']
+                elif parsed_args.file:
+                    # Send an open file handle to glanceclient so it will
+                    # do a chunked transfer
+                    kwargs["data"] = io.open(parsed_args.file, "rb")
+                else:
+                    # Read file from stdin
+                    if sys.stdin.isatty() is not True:
+                        if parsed_args.stdin:
+                            if msvcrt:
+                                msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
+                            # Send an open file handle to glanceclient so it
+                            # will do a chunked transfer
+                            kwargs["data"] = sys.stdin
+                        else:
+                            self.log.warning('Use --stdin to enable read image'
+                                             ' data from standard input')
 
-        if image.properties and parsed_args.properties:
-            image.properties.update(kwargs['properties'])
-            kwargs['properties'] = image.properties
+            if image.properties and parsed_args.properties:
+                image.properties.update(kwargs['properties'])
+                kwargs['properties'] = image.properties
 
-        image = image_client.images.update(image.id, **kwargs)
+            if not kwargs:
+                self.log.warning('no arguments specified')
+                return {}, {}
+
+            image = image_client.images.update(image.id, **kwargs)
+        finally:
+            # Clean up open files - make sure data isn't a string
+            if ('data' in kwargs and hasattr(kwargs['data'], 'close') and
+               kwargs['data'] != sys.stdin):
+                    kwargs['data'].close()
 
         info = {}
         info.update(image._info)
