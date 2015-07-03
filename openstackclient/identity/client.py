@@ -46,10 +46,15 @@ def make_client(instance):
         API_VERSIONS)
     LOG.debug('Instantiating identity client: %s', identity_client)
 
+    # Remember interface only if endpoint_type is set
+    kwargs = utils.build_kwargs_dict('interface',
+                                     instance._endpoint_type)
+
     client = identity_client(
         session=instance.session,
         region_name=instance._region_name,
-    )
+        **kwargs
+        )
 
     return client
 

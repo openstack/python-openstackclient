@@ -159,6 +159,16 @@ class TestUtils(test_utils.TestCase):
         self.assertFalse(utils.wait_for_delete(manager, res_id))
         self.assertFalse(mock_sleep.called)
 
+    def test_build_kwargs_dict_value_set(self):
+        self.assertEqual({'arg_bla': 'bla'},
+                         utils.build_kwargs_dict('arg_bla', 'bla'))
+
+    def test_build_kwargs_dict_value_None(self):
+        self.assertEqual({}, utils.build_kwargs_dict('arg_bla', None))
+
+    def test_build_kwargs_dict_value_empty_str(self):
+        self.assertEqual({}, utils.build_kwargs_dict('arg_bla', ''))
+
 
 class NoUniqueMatch(Exception):
     pass

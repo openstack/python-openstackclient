@@ -36,6 +36,7 @@ def make_client(instance):
     endpoint = instance.get_endpoint_for_service_type(
         'object-store',
         region_name=instance._region_name,
+        endpoint_type=instance._endpoint_type,
     )
 
     client = object_store_v1.APIv1(

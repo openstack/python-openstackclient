@@ -38,6 +38,7 @@ DEFAULT_REGION_NAME = "ZZ9_Plural_Z_Alpha"
 DEFAULT_TOKEN = "token"
 DEFAULT_SERVICE_URL = "http://127.0.0.1:8771/v3.0/"
 DEFAULT_AUTH_PLUGIN = "v2password"
+DEFAULT_ENDPOINT_TYPE = "internal"
 
 DEFAULT_COMPUTE_API_VERSION = "2"
 DEFAULT_IDENTITY_API_VERSION = "2"
@@ -61,6 +62,7 @@ CLOUD_1 = {
             },
             'region_name': 'occ-cloud',
             'donut': 'glazed',
+            'endpoint_type': 'public',
         }
     }
 }
@@ -104,6 +106,7 @@ global_options = {
     '--os-default-domain': (DEFAULT_DOMAIN_NAME, True, True),
     '--os-cacert': ('/dev/null', True, True),
     '--timing': (True, True, False),
+    '--os-endpoint-type': (DEFAULT_ENDPOINT_TYPE, True, True)
 }
 
 auth_options = {
@@ -123,6 +126,7 @@ auth_options = {
     '--os-auth-type': ("v2password", True, True),
     '--os-token': (DEFAULT_TOKEN, True, True),
     '--os-url': (DEFAULT_SERVICE_URL, True, True),
+    '--os-endpoint-type': (DEFAULT_ENDPOINT_TYPE, True, True),
 }
 
 
@@ -607,6 +611,10 @@ class TestShellCli(TestShell):
         self.assertEqual(
             'glazed',
             _shell.cloud.config['donut'],
+        )
+        self.assertEqual(
+            'public',
+            _shell.cloud.config['endpoint_type'],
         )
 
     @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")

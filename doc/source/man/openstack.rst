@@ -120,6 +120,8 @@ OPTIONS
 :option:`--os-XXXX-api-version` <XXXX-api-version>
     Additional API version options will be available depending on the installed API libraries.
 
+:option:`--os-endpoint-type` <endpoint-type>
+    Endpoint type. Valid options are `public`, `admin` and `internal`.
 
 COMMANDS
 ========
@@ -343,6 +345,9 @@ The following environment variables can be set to alter the behaviour of :progra
 
 :envvar:`OS_XXXX_API_VERSION`
     Additional API version options will be available depending on the installed API libraries.
+
+:envvar:`OS_ENDPOINT_TYPE`
+    Endpoint type. Valid options are `public`, `admin` and `internal`.
 
 
 BUGS

@@ -53,11 +53,16 @@ def make_client(instance):
 
     extensions = [extension.Extension('list_extensions', list_extensions)]
 
+    # Remember endpoint_type only if it is set
+    kwargs = utils.build_kwargs_dict('endpoint_type',
+                                     instance._endpoint_type)
+
     client = volume_client(
         session=instance.session,
         extensions=extensions,
         http_log_debug=http_log_debug,
         region_name=instance._region_name,
+        **kwargs
     )
 
     return client

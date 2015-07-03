@@ -86,6 +86,7 @@ class ClientManager(object):
         self._pw_callback = pw_func
         self._url = self._cli_options.auth.get('url', None)
         self._region_name = self._cli_options.region_name
+        self._endpoint_type = self._cli_options.endpoint_type
 
         self.timing = self._cli_options.timing
 
@@ -183,18 +184,23 @@ class ClientManager(object):
             self._auth_ref = self.auth.get_auth_ref(self.session)
         return self._auth_ref
 
-    def get_endpoint_for_service_type(self, service_type, region_name=None):
+    def get_endpoint_for_service_type(self, service_type, region_name=None,
+                                      endpoint_type='public'):
         """Return the endpoint URL for the service type."""
+        if not endpoint_type:
+            endpoint_type = 'public'
         # See if we are using password flow auth, i.e. we have a
         # service catalog to select endpoints from
         if self.auth_ref:
             endpoint = self.auth_ref.service_catalog.url_for(
                 service_type=service_type,
                 region_name=region_name,
+                endpoint_type=endpoint_type,
             )
         else:
             # Get the passed endpoint directly from the auth plugin
-            endpoint = self.auth.get_endpoint(self.session)
+            endpoint = self.auth.get_endpoint(self.session,
+                                              interface=endpoint_type)
         return endpoint
 
 
