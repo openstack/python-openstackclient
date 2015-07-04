@@ -78,7 +78,7 @@ The keys match the :program:`openstack` global options but without the
           username: openstack
           password: xyzpdq!lazydog
         region_name: DFW,ORD,IAD
-        endpoint_type: internal
+        interface: internal
 
 In the above example, the ``auth_url`` for the ``rackspace`` cloud is taken
 from :file:`clouds-public.yaml` (see below).
@@ -97,7 +97,7 @@ to the following options if the ``rackspace`` entry in :file:`clouds-public.yaml
     --os-username openstack
     --os-password xyzpdq!lazydog
     --os-region-name DFW
-    --os-endpoint-type internal
+    --os-interface internal
 
 and can be selected on the command line::
 
@@ -107,9 +107,9 @@ Note that multiple regions are listed in the ``rackspace`` entry.  An otherwise
 identical configuration is created for each region.  If ``-os-region-name`` is not
 specified on the command line, the first region in the list is used by default.
 
-The selection of ``endpoint_type`` (as seen above in the ``rackspace`` entry)
+The selection of ``interface`` (as seen above in the ``rackspace`` entry)
 is optional.  For this configuration to work, every service for this cloud
-instance must already be configured to support this type of endpoint.
+instance must already be configured to support this type of interface.
 
 clouds-public.yaml
 ~~~~~~~~~~~~~~~~~~

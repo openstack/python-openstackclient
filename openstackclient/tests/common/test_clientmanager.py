@@ -54,7 +54,7 @@ class FakeOptions(object):
         self.identity_api_version = '2.0'
         self.timing = None
         self.region_name = None
-        self.endpoint_type = None
+        self.interface = None
         self.url = None
         self.auth = {}
         self.default_domain = 'default'
@@ -124,7 +124,7 @@ class TestClientManager(utils.TestCase):
                     auth_url=fakes.AUTH_URL,
                 ),
                 auth_type='v2token',
-                endpoint_type=fakes.ENDPOINT_TYPE,
+                interface=fakes.INTERFACE,
                 region_name=fakes.REGION_NAME,
             ),
             api_version=API_VERSION,
@@ -141,8 +141,8 @@ class TestClientManager(utils.TestCase):
             auth_v2.Token,
         )
         self.assertEqual(
-            fakes.ENDPOINT_TYPE,
-            client_manager._endpoint_type,
+            fakes.INTERFACE,
+            client_manager._interface,
         )
         self.assertEqual(
             fakes.REGION_NAME,

@@ -67,7 +67,7 @@ OPTIONS
     The authentication plugin type to use when connecting to the Identity service.
     If this option is not set, :program:`openstack` will attempt to guess the
     authentication method to use based on the other options.
-    If this option is set, its version must match :option:`--os-identity-api-version` 
+    If this option is set, its version must match :option:`--os-identity-api-version`
 
 :option:`--os-auth-url` <auth-url>
     Authentication URL
@@ -120,8 +120,8 @@ OPTIONS
 :option:`--os-XXXX-api-version` <XXXX-api-version>
     Additional API version options will be available depending on the installed API libraries.
 
-:option:`--os-endpoint-type` <endpoint-type>
-    Endpoint type. Valid options are `public`, `admin` and `internal`.
+:option:`--os-interface` <interface>
+    Interface type. Valid options are `public`, `admin` and `internal`.
 
 COMMANDS
 ========
@@ -299,7 +299,7 @@ The following environment variables can be set to alter the behaviour of :progra
     The name of a cloud configuration in ``clouds.yaml``.
 
 :envvar:`OS_AUTH_PLUGIN`
-    The authentication plugin to use when connecting to the Identity service, its version must match the Identity API version 
+    The authentication plugin to use when connecting to the Identity service, its version must match the Identity API version
 
 :envvar:`OS_AUTH_URL`
     Authentication URL
@@ -346,8 +346,8 @@ The following environment variables can be set to alter the behaviour of :progra
 :envvar:`OS_XXXX_API_VERSION`
     Additional API version options will be available depending on the installed API libraries.
 
-:envvar:`OS_ENDPOINT_TYPE`
-    Endpoint type. Valid options are `public`, `admin` and `internal`.
+:envvar:`OS_INTERFACE`
+    Interface type. Valid options are `public`, `admin` and `internal`.
 
 
 BUGS

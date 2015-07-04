@@ -46,7 +46,7 @@ def make_client(instance):
     endpoint = instance.get_endpoint_for_service_type(
         API_NAME,
         region_name=instance._region_name,
-        endpoint_type=instance._endpoint_type,
+        interface=instance._interface,
     )
 
     client = image_client(
@@ -69,7 +69,7 @@ def make_client(instance):
         endpoint=instance.get_endpoint_for_service_type(
             IMAGE_API_TYPE,
             region_name=instance._region_name,
-            endpoint_type=instance._endpoint_type,
+            interface=instance._interface,
         )
     )
 
