@@ -10,7 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from functional.common import exceptions
+from tempest_lib.common.utils import data_utils
+
 from functional.common import test
 
 BASIC_LIST_HEADERS = ['ID', 'Name']
@@ -19,96 +20,110 @@ BASIC_LIST_HEADERS = ['ID', 'Name']
 class IdentityTests(test.TestCase):
     """Functional tests for Identity commands. """
 
-    USER_FIELDS = ['email', 'enabled', 'id', 'name', 'project_id', 'username']
-    PROJECT_FIELDS = ['enabled', 'id', 'name', 'description']
-    EC2_CREDENTIALS_FIELDS = [
-        'access',
-        'project_id',
-        'secret',
-        'trust_id',
-        'user_id',
-    ]
-    EC2_CREDENTIALS_LIST_HEADERS = [
-        'Access',
-        'Secret',
-        'Project ID',
-        'User ID',
-    ]
+    USER_FIELDS = ['email', 'enabled', 'id', 'name', 'project_id',
+                   'username', 'domain_id', 'default_project_id']
+    PROJECT_FIELDS = ['enabled', 'id', 'name', 'description', 'domain_id']
+    TOKEN_FIELDS = ['expires', 'id', 'project_id', 'user_id']
+    ROLE_FIELDS = ['id', 'name', 'links']
 
-    def test_user_list(self):
-        raw_output = self.openstack('user list')
-        items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, BASIC_LIST_HEADERS)
+    EC2_CREDENTIALS_FIELDS = ['access', 'project_id', 'secret',
+                              'trust_id', 'user_id']
+    EC2_CREDENTIALS_LIST_HEADERS = ['Access', 'Secret',
+                                    'Project ID', 'User ID']
+    CATALOG_LIST_HEADERS = ['Name', 'Type', 'Endpoints']
 
-    def test_user_show(self):
-        raw_output = self.openstack('user show admin')
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.USER_FIELDS)
+    @classmethod
+    def setUpClass(cls):
+        if hasattr(super(IdentityTests, cls), 'setUpClass'):
+            super(IdentityTests, cls).setUpClass()
 
-    def test_user_create(self):
-        raw_output = self.openstack('user create mjordan --password bulls'
-                                    ' --email hoops@example.com')
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.USER_FIELDS)
+        # create dummy project
+        cls.project_name = data_utils.rand_name('TestProject')
+        cls.project_description = data_utils.rand_name('description')
+        cls.openstack(
+            'project create '
+            '--description %(description)s '
+            '--enable '
+            '%(name)s' % {'description': cls.project_description,
+                          'name': cls.project_name})
 
-    def test_user_delete(self):
-        self.openstack('user create dummy')
-        raw_output = self.openstack('user delete dummy')
-        self.assertEqual(0, len(raw_output))
+    @classmethod
+    def tearDownClass(cls):
+        cls.openstack('project delete %s' % cls.project_name)
 
-    def test_bad_user_command(self):
-        self.assertRaises(exceptions.CommandFailed,
-                          self.openstack, 'user unlist')
+        if hasattr(super(IdentityTests, cls), 'tearDownClass'):
+            super(IdentityTests, cls).tearDownClass()
 
-    def test_project_list(self):
-        raw_output = self.openstack('project list')
-        items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, BASIC_LIST_HEADERS)
-
-    def test_project_show(self):
-        raw_output = self.openstack('project show admin')
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.PROJECT_FIELDS)
-
-    def test_project_create(self):
-        raw_output = self.openstack('project create test-project')
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.PROJECT_FIELDS)
-
-    def test_project_delete(self):
-        self.openstack('project create dummy-project')
-        raw_output = self.openstack('project delete dummy-project')
-        self.assertEqual(0, len(raw_output))
-
-    def test_ec2_credentials_create(self):
-        create_output = self.openstack('ec2 credentials create')
-        create_items = self.parse_show(create_output)
-        self.openstack(
-            'ec2 credentials delete %s' % create_items[0]['access'],
-        )
-        self.assert_show_fields(create_items, self.EC2_CREDENTIALS_FIELDS)
-
-    def test_ec2_credentials_delete(self):
-        create_output = self.openstack('ec2 credentials create')
-        create_items = self.parse_show(create_output)
+    def _create_dummy_project(self, add_clean_up=True):
+        project_name = data_utils.rand_name('TestProject')
+        project_description = data_utils.rand_name('description')
         raw_output = self.openstack(
-            'ec2 credentials delete %s' % create_items[0]['access'],
-        )
-        self.assertEqual(0, len(raw_output))
+            'project create '
+            '--description %(description)s '
+            '--enable %(name)s' % {'description': project_description,
+                                   'name': project_name})
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.PROJECT_FIELDS)
+        project = self.parse_show_as_object(raw_output)
+        if add_clean_up:
+            self.addCleanup(
+                self.openstack,
+                'project delete %s' % project['id'])
+        return project_name
 
-    def test_ec2_credentials_list(self):
-        raw_output = self.openstack('ec2 credentials list')
-        items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, self.EC2_CREDENTIALS_LIST_HEADERS)
+    def _create_dummy_user(self, add_clean_up=True):
+        username = data_utils.rand_name('TestUser')
+        password = data_utils.rand_name('password')
+        email = data_utils.rand_name() + '@example.com'
+        raw_output = self.openstack(
+            'user create '
+            '--project %(project)s '
+            '--password %(password)s '
+            '--email %(email)s '
+            '--enable '
+            '%(name)s' % {'project': self.project_name,
+                          'email': email,
+                          'password': password,
+                          'name': username})
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.USER_FIELDS)
+        if add_clean_up:
+            self.addCleanup(
+                self.openstack,
+                'user delete %s' % self.parse_show_as_object(raw_output)['id'])
+        return username
 
-    def test_ec2_credentials_show(self):
-        create_output = self.openstack('ec2 credentials create')
-        create_items = self.parse_show(create_output)
-        show_output = self.openstack(
-            'ec2 credentials show %s' % create_items[0]['access'],
-        )
-        items = self.parse_show(show_output)
-        self.openstack(
-            'ec2 credentials delete %s' % create_items[0]['access'],
-        )
+    def _create_dummy_role(self, add_clean_up=True):
+        role_name = data_utils.rand_name('TestRole')
+        raw_output = self.openstack('role create %s' % role_name)
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.ROLE_FIELDS)
+        role = self.parse_show_as_object(raw_output)
+        self.assertEqual(role_name, role['name'])
+        if add_clean_up:
+            self.addCleanup(
+                self.openstack,
+                'role delete %s' % role['id'])
+        return role_name
+
+    def _create_dummy_ec2_credentials(self, add_clean_up=True):
+        raw_output = self.openstack('ec2 credentials create')
+        items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.EC2_CREDENTIALS_FIELDS)
+        ec2_credentials = self.parse_show_as_object(raw_output)
+        access_key = ec2_credentials['access']
+        if add_clean_up:
+            self.addCleanup(
+                self.openstack,
+                'ec2 credentials delete %s' % access_key)
+        return access_key
+
+    def _create_dummy_token(self, add_clean_up=True):
+        raw_output = self.openstack('token issue')
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.TOKEN_FIELDS)
+        token = self.parse_show_as_object(raw_output)
+        if add_clean_up:
+            self.addCleanup(self.openstack,
+                            'token revoke %s' % token['id'])
+        return token['id']
