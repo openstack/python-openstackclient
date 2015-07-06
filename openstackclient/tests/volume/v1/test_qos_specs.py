@@ -56,7 +56,7 @@ class TestQosAssociate(TestQos):
             volume_fakes.type_id
         ]
         verifylist = [
-            ('qos_specs', volume_fakes.qos_id),
+            ('qos_spec', volume_fakes.qos_id),
             ('volume_type', volume_fakes.type_id)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -210,7 +210,7 @@ class TestQosDelete(TestQos):
             volume_fakes.qos_id
         ]
         verifylist = [
-            ('qos_specs', volume_fakes.qos_id)
+            ('qos_specs', [volume_fakes.qos_id])
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -223,7 +223,7 @@ class TestQosDelete(TestQos):
             volume_fakes.qos_name
         ]
         verifylist = [
-            ('qos_specs', volume_fakes.qos_name)
+            ('qos_specs', [volume_fakes.qos_name])
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -255,7 +255,7 @@ class TestQosDisassociate(TestQos):
             '--volume-type', volume_fakes.type_id
         ]
         verifylist = [
-            ('qos_specs', volume_fakes.qos_id),
+            ('qos_spec', volume_fakes.qos_id),
             ('volume_type', volume_fakes.type_id)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -278,7 +278,7 @@ class TestQosDisassociate(TestQos):
             '--all'
         ]
         verifylist = [
-            ('qos_specs', volume_fakes.qos_id)
+            ('qos_spec', volume_fakes.qos_id)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -351,7 +351,7 @@ class TestQosSet(TestQos):
             '--property', 'iops=9001'
         ]
         verifylist = [
-            ('qos_specs', volume_fakes.qos_id),
+            ('qos_spec', volume_fakes.qos_id),
             ('property', volume_fakes.qos_specs)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -386,7 +386,7 @@ class TestQosShow(TestQos):
             volume_fakes.qos_id
         ]
         verifylist = [
-            ('qos_specs', volume_fakes.qos_id)
+            ('qos_spec', volume_fakes.qos_id)
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -434,7 +434,7 @@ class TestQosUnset(TestQos):
         ]
 
         verifylist = [
-            ('qos_specs', volume_fakes.qos_id),
+            ('qos_spec', volume_fakes.qos_id),
             ('property', ['iops', 'foo'])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

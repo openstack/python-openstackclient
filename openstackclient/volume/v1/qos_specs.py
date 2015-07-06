@@ -34,8 +34,8 @@ class AssociateQos(command.Command):
     def get_parser(self, prog_name):
         parser = super(AssociateQos, self).get_parser(prog_name)
         parser.add_argument(
-            'qos_specs',
-            metavar='<qos-specs>',
+            'qos_spec',
+            metavar='<qos-spec>',
             help='QoS specification to modify (name or ID)',
         )
         parser.add_argument(
@@ -48,12 +48,12 @@ class AssociateQos(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
-        qos_specs = utils.find_resource(volume_client.qos_specs,
-                                        parsed_args.qos_specs)
+        qos_spec = utils.find_resource(volume_client.qos_specs,
+                                       parsed_args.qos_spec)
         volume_type = utils.find_resource(volume_client.volume_types,
                                           parsed_args.volume_type)
 
-        volume_client.qos_specs.associate(qos_specs.id, volume_type.id)
+        volume_client.qos_specs.associate(qos_spec.id, volume_type.id)
 
         return
 
@@ -97,9 +97,9 @@ class CreateQos(show.ShowOne):
         if parsed_args.property:
             specs.update(parsed_args.property)
 
-        qos_specs = volume_client.qos_specs.create(parsed_args.name, specs)
+        qos_spec = volume_client.qos_specs.create(parsed_args.name, specs)
 
-        return zip(*sorted(six.iteritems(qos_specs._info)))
+        return zip(*sorted(six.iteritems(qos_spec._info)))
 
 
 class DeleteQos(command.Command):
@@ -111,19 +111,18 @@ class DeleteQos(command.Command):
         parser = super(DeleteQos, self).get_parser(prog_name)
         parser.add_argument(
             'qos_specs',
-            metavar='<qos-specs>',
-            help='QoS specification to delete (name or ID)',
+            metavar='<qos-spec>',
+            nargs="+",
+            help='QoS specification(s) to delete (name or ID)',
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
-        qos_specs = utils.find_resource(volume_client.qos_specs,
-                                        parsed_args.qos_specs)
-
-        volume_client.qos_specs.delete(qos_specs.id)
-
+        for qos in parsed_args.qos_specs:
+            qos_spec = utils.find_resource(volume_client.qos_specs, qos)
+            volume_client.qos_specs.delete(qos_spec.id)
         return
 
 
@@ -135,8 +134,8 @@ class DisassociateQos(command.Command):
     def get_parser(self, prog_name):
         parser = super(DisassociateQos, self).get_parser(prog_name)
         parser.add_argument(
-            'qos_specs',
-            metavar='<qos-specs>',
+            'qos_spec',
+            metavar='<qos-spec>',
             help='QoS specification to modify (name or ID)',
         )
         volume_type_group = parser.add_mutually_exclusive_group()
@@ -157,15 +156,15 @@ class DisassociateQos(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
-        qos_specs = utils.find_resource(volume_client.qos_specs,
-                                        parsed_args.qos_specs)
+        qos_spec = utils.find_resource(volume_client.qos_specs,
+                                       parsed_args.qos_spec)
 
         if parsed_args.volume_type:
             volume_type = utils.find_resource(volume_client.volume_types,
                                               parsed_args.volume_type)
-            volume_client.qos_specs.disassociate(qos_specs.id, volume_type.id)
+            volume_client.qos_specs.disassociate(qos_spec.id, volume_type.id)
         elif parsed_args.all:
-            volume_client.qos_specs.disassociate_all(qos_specs.id)
+            volume_client.qos_specs.disassociate_all(qos_spec.id)
 
         return
 
@@ -206,8 +205,8 @@ class SetQos(command.Command):
     def get_parser(self, prog_name):
         parser = super(SetQos, self).get_parser(prog_name)
         parser.add_argument(
-            'qos_specs',
-            metavar='<qos-specs>',
+            'qos_spec',
+            metavar='<qos-spec>',
             help='QoS specification to modify (name or ID)',
         )
         parser.add_argument(
@@ -222,11 +221,11 @@ class SetQos(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
-        qos_specs = utils.find_resource(volume_client.qos_specs,
-                                        parsed_args.qos_specs)
+        qos_spec = utils.find_resource(volume_client.qos_specs,
+                                       parsed_args.qos_spec)
 
         if parsed_args.property:
-            volume_client.qos_specs.set_keys(qos_specs.id,
+            volume_client.qos_specs.set_keys(qos_spec.id,
                                              parsed_args.property)
         else:
             self.app.log.error("No changes requested\n")
@@ -242,8 +241,8 @@ class ShowQos(show.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ShowQos, self).get_parser(prog_name)
         parser.add_argument(
-            'qos_specs',
-            metavar='<qos-specs>',
+            'qos_spec',
+            metavar='<qos-spec>',
             help='QoS specification to display (name or ID)',
         )
         return parser
@@ -251,19 +250,19 @@ class ShowQos(show.ShowOne):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
-        qos_specs = utils.find_resource(volume_client.qos_specs,
-                                        parsed_args.qos_specs)
+        qos_spec = utils.find_resource(volume_client.qos_specs,
+                                       parsed_args.qos_spec)
 
-        qos_associations = volume_client.qos_specs.get_associations(qos_specs)
+        qos_associations = volume_client.qos_specs.get_associations(qos_spec)
         if qos_associations:
             associations = [association.name
                             for association in qos_associations]
-            qos_specs._info.update({
+            qos_spec._info.update({
                 'associations': utils.format_list(associations)
             })
-        qos_specs._info.update({'specs': utils.format_dict(qos_specs.specs)})
+        qos_spec._info.update({'specs': utils.format_dict(qos_spec.specs)})
 
-        return zip(*sorted(six.iteritems(qos_specs._info)))
+        return zip(*sorted(six.iteritems(qos_spec._info)))
 
 
 class UnsetQos(command.Command):
@@ -274,8 +273,8 @@ class UnsetQos(command.Command):
     def get_parser(self, prog_name):
         parser = super(UnsetQos, self).get_parser(prog_name)
         parser.add_argument(
-            'qos_specs',
-            metavar='<qos-specs>',
+            'qos_spec',
+            metavar='<qos-spec>',
             help='QoS specification to modify (name or ID)',
         )
         parser.add_argument(
@@ -291,11 +290,11 @@ class UnsetQos(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
-        qos_specs = utils.find_resource(volume_client.qos_specs,
-                                        parsed_args.qos_specs)
+        qos_spec = utils.find_resource(volume_client.qos_specs,
+                                       parsed_args.qos_spec)
 
         if parsed_args.property:
-            volume_client.qos_specs.unset_keys(qos_specs.id,
+            volume_client.qos_specs.unset_keys(qos_spec.id,
                                                parsed_args.property)
         else:
             self.app.log.error("No changes requested\n")
