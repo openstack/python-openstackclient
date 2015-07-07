@@ -89,6 +89,26 @@ class TestCase(testtools.TestCase):
             for key in six.iterkeys(item):
                 self.assertIn(key, field_names)
 
+    def assert_show_structure(self, items, field_names):
+        """Verify that all field_names listed in keys of all items."""
+        if isinstance(items, list):
+            o = {}
+            for d in items:
+                o.update(d)
+        else:
+            o = items
+        item_keys = o.keys()
+        for field in field_names:
+            self.assertIn(field, item_keys)
+
+    def parse_show_as_object(self, raw_output):
+        """Return a dict with values parsed from cli output."""
+        items = self.parse_show(raw_output)
+        o = {}
+        for item in items:
+            o.update(item)
+        return o
+
     def parse_show(self, raw_output):
         """Return list of dicts with item values parsed from cli output."""
 
