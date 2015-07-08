@@ -55,6 +55,39 @@ def _format_servers_list_networks(networks):
     return '; '.join(output)
 
 
+def _get_ip_address(addresses, address_type, ip_address_family):
+        # Old style addresses
+        if address_type in addresses:
+            for addy in addresses[address_type]:
+                if int(addy['version']) in ip_address_family:
+                    return addy['addr']
+
+        # New style addresses
+        new_address_type = address_type
+        if address_type == 'public':
+            new_address_type = 'floating'
+        if address_type == 'private':
+            new_address_type = 'fixed'
+        for network in addresses:
+            for addy in addresses[network]:
+                # Case where it is list of strings
+                if isinstance(addy, six.string_types):
+                    if new_address_type == 'fixed':
+                        return addresses[network][0]
+                    else:
+                        return addresses[network][-1]
+                # Case where it is a dict
+                if 'OS-EXT-IPS:type' not in addy:
+                    continue
+                if addy['OS-EXT-IPS:type'] == new_address_type:
+                    if int(addy['version']) in ip_address_family:
+                        return addy['addr']
+        raise exceptions.CommandError(
+            "ERROR: No %s IP version %s address found" %
+            (address_type, ip_address_family)
+        )
+
+
 def _prep_server_detail(compute_client, server):
     """Prepare the detailed server dict for printing
 
@@ -1283,6 +1316,7 @@ class SshServer(command.Command):
         )
         parser.add_argument(
             '-l',
+            dest='login',
             metavar='<login-name>',
             help=argparse.SUPPRESS,
         )
@@ -1381,13 +1415,6 @@ class SshServer(command.Command):
         # Build the command
         cmd = "ssh"
 
-        # Look for address type
-        if parsed_args.address_type:
-            address_type = parsed_args.address_type
-        if address_type not in server.addresses:
-            raise SystemExit("ERROR: No %s IP address found" % address_type)
-
-        # Set up desired address family
         ip_address_family = [4, 6]
         if parsed_args.ipv4:
             ip_address_family = [4]
@@ -1395,14 +1422,6 @@ class SshServer(command.Command):
         if parsed_args.ipv6:
             ip_address_family = [6]
             cmd += " -6"
-
-        # Grab the first matching IP address
-        ip_address = None
-        for addr in server.addresses[address_type]:
-            if int(addr['version']) in ip_address_family:
-                ip_address = addr['addr']
-        if not ip_address:
-            raise SystemExit("ERROR: No IP address found")
 
         if parsed_args.port:
             cmd += " -p %d" % parsed_args.port
@@ -1418,6 +1437,9 @@ class SshServer(command.Command):
             cmd += " -v"
 
         cmd += " %s@%s"
+        ip_address = _get_ip_address(server.addresses,
+                                     parsed_args.address_type,
+                                     ip_address_family)
         self.log.debug("ssh command: %s", (cmd % (login, ip_address)))
         os.system(cmd % (login, ip_address))
 
