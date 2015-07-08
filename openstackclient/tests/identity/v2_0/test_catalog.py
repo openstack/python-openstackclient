@@ -27,11 +27,13 @@ class TestCatalog(utils.TestCommand):
             {
                 'region': 'one',
                 'publicURL': 'https://public.one.example.com',
+                'internalURL': 'https://internal.one.example.com',
                 'adminURL': 'https://admin.one.example.com',
             },
             {
                 'region': 'two',
                 'publicURL': 'https://public.two.example.com',
+                'internalURL': 'https://internal.two.example.com',
                 'adminURL': 'https://admin.two.example.com',
             },
         ],
@@ -74,11 +76,11 @@ class TestCatalogList(TestCatalog):
             'supernova',
             'compute',
             'one\n  publicURL: https://public.one.example.com\n  '
-            'internalURL: https://public.one.example.com\n  '
-            'adminURL: https://public.one.example.com\n'
+            'internalURL: https://internal.one.example.com\n  '
+            'adminURL: https://admin.one.example.com\n'
             'two\n  publicURL: https://public.two.example.com\n  '
-            'internalURL: https://public.two.example.com\n  '
-            'adminURL: https://public.two.example.com\n',
+            'internalURL: https://internal.two.example.com\n  '
+            'adminURL: https://admin.two.example.com\n',
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -108,11 +110,11 @@ class TestCatalogShow(TestCatalog):
         self.assertEqual(collist, columns)
         datalist = (
             'one\n  publicURL: https://public.one.example.com\n  '
-            'internalURL: https://public.one.example.com\n  '
-            'adminURL: https://public.one.example.com\n'
+            'internalURL: https://internal.one.example.com\n  '
+            'adminURL: https://admin.one.example.com\n'
             'two\n  publicURL: https://public.two.example.com\n  '
-            'internalURL: https://public.two.example.com\n  '
-            'adminURL: https://public.two.example.com\n',
+            'internalURL: https://internal.two.example.com\n  '
+            'adminURL: https://admin.two.example.com\n',
             'qwertyuiop',
             'supernova',
             'compute',
