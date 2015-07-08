@@ -61,6 +61,20 @@ List of Backwards Incompatible Changes
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1461817
   * Commit: https://review.openstack.org/#/c/194654/
 
+5. Command `openstack network list --dhcp` has been removed
+
+  The --dhcp option to network list is not a logical use case of listing
+  networks, it lists agents.  Another command should be added in the future
+  to provide this functionality.  It is highly unlikely anyone uses this
+  feature as we don't support any other agent commands.  Use neutron
+  dhcp-agent-list-hosting-net command instead.
+
+  * In favor of: Create network agent list command in the future
+  * As of: 1.6.0
+  * Removed in: NA
+  * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/472613
+  * Commit: https://review.openstack.org/#/c/194654/
+
 For Developers
 ==============
 

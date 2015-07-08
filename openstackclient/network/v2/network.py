@@ -157,10 +157,6 @@ class ListNetwork(lister.Lister):
             help='List external networks',
         )
         parser.add_argument(
-            '--dhcp',
-            metavar='<dhcp-id>',
-            help='DHCP agent ID')
-        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -172,40 +168,34 @@ class ListNetwork(lister.Lister):
         self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
 
-        if parsed_args.dhcp:
-            data = client.api.dhcp_agent_list(dhcp_id=parsed_args.dhcp)
+        data = client.api.network_list(external=parsed_args.external)
 
-            columns = ('ID',)
-            column_headers = columns
+        if parsed_args.long:
+            columns = (
+                'ID',
+                'Name',
+                'Status',
+                'project_id',
+                'state',
+                'Shared',
+                'Subnets',
+                'provider:network_type',
+                'router_type',
+            )
+            column_headers = (
+                'ID',
+                'Name',
+                'Status',
+                'Project',
+                'State',
+                'Shared',
+                'Subnets',
+                'Network Type',
+                'Router Type',
+            )
         else:
-            data = client.api.network_list(external=parsed_args.external)
-
-            if parsed_args.long:
-                columns = (
-                    'ID',
-                    'Name',
-                    'Status',
-                    'project_id',
-                    'state',
-                    'Shared',
-                    'Subnets',
-                    'provider:network_type',
-                    'router_type',
-                )
-                column_headers = (
-                    'ID',
-                    'Name',
-                    'Status',
-                    'Project',
-                    'State',
-                    'Shared',
-                    'Subnets',
-                    'Network Type',
-                    'Router Type',
-                )
-            else:
-                columns = ('ID', 'Name', 'Subnets')
-                column_headers = columns
+            columns = ('ID', 'Name', 'Subnets')
+            column_headers = columns
 
         for d in data:
             d = _prep_network_detail(d)

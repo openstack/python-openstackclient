@@ -278,7 +278,6 @@ class TestListNetwork(common.TestNetworkBase):
         arglist = []
         verifylist = [
             ('external', False),
-            ('dhcp', None),
             ('long', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -306,7 +305,6 @@ class TestListNetwork(common.TestNetworkBase):
         ]
         verifylist = [
             ('external', True),
-            ('dhcp', None),
             ('long', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -334,7 +332,6 @@ class TestListNetwork(common.TestNetworkBase):
         ]
         verifylist = [
             ('long', True),
-            ('dhcp', None),
             ('external', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -375,51 +372,6 @@ class TestListNetwork(common.TestNetworkBase):
             dataitem,
         ]
         self.assertEqual(list(data), datalist)
-
-
-@mock.patch(
-    'openstackclient.api.network_v2.APIv2.dhcp_agent_list'
-)
-class TestListDhcpAgent(common.TestNetworkBase):
-
-    def setUp(self):
-        super(TestListDhcpAgent, self).setUp()
-
-        # Get the command object to test
-        self.cmd = network.ListNetwork(self.app, self.namespace)
-
-        self.DHCP_LIST = [
-            {'id': '1'},
-            {'id': '2'},
-        ]
-
-    def test_list_dhcp(self, n_mock):
-        n_mock.return_value = self.DHCP_LIST
-
-        arglist = [
-            '--dhcp', 'dhcpid',
-        ]
-        verifylist = [
-            ('external', False),
-            ('dhcp', 'dhcpid'),
-            ('long', False),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # DisplayCommandBase.take_action() returns two tuples
-        columns, data = self.cmd.take_action(parsed_args)
-
-        # Set expected values
-        n_mock.assert_called_with(
-            dhcp_id='dhcpid',
-        )
-
-        self.assertEqual(('ID',), columns)
-        datalist = [
-            ('1',),
-            ('2',),
-        ]
-        self.assertEqual(datalist, list(data))
 
 
 class TestSetNetwork(common.TestNetworkBase):
