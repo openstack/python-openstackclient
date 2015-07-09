@@ -31,7 +31,7 @@ def _format_endpoints(eps=None):
         region = eps[index].get('region', '<none>')
         ret += region + '\n'
         for url in ['publicURL', 'internalURL', 'adminURL']:
-            ret += "  %s: %s\n" % (url, eps[index]['publicURL'])
+            ret += "  %s: %s\n" % (url, eps[index][url])
     return ret
 
 
