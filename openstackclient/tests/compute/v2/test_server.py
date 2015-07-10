@@ -250,7 +250,7 @@ class TestServerCreate(TestServer):
         mock_open.assert_called_with('userdata.sh')
 
         # Ensure the userdata file is closed
-        mock_file.close.assert_called()
+        mock_file.close.assert_called_with()
 
         # Set expected values
         kwargs = dict(

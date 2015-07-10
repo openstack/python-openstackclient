@@ -42,8 +42,7 @@ class IdentityTests(test.TestCase):
         auth_url = auth_url.replace('v2.0', 'v3')
         os.environ['OS_AUTH_URL'] = auth_url
         os.environ['OS_IDENTITY_API_VERSION'] = '3'
-        os.environ['OS_USER_DOMAIN_ID'] = 'default'
-        os.environ['OS_PROJECT_DOMAIN_ID'] = 'default'
+        os.environ['OS_AUTH_TYPE'] = 'v3password'
 
         # create dummy domain
         cls.domain_name = data_utils.rand_name('TestDomain')

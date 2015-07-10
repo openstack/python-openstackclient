@@ -312,7 +312,7 @@ class TestQosList(TestQos):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.qos_mock.list.assert_called()
+        self.qos_mock.list.assert_called_with()
 
         collist = (
             'ID',
