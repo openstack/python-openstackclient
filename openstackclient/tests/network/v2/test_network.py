@@ -92,14 +92,14 @@ class TestCreateNetwork(common.TestNetworkBase):
             "--project", identity_fakes_v3.project_name,
             "--project-domain", identity_fakes_v3.domain_name,
             FAKE_NAME,
-        ] + self.given_show_options
+        ]
         verifylist = [
             ('admin_state', False),
             ('shared', True),
             ('project', identity_fakes_v3.project_name),
             ('project_domain', identity_fakes_v3.domain_name),
             ('name', FAKE_NAME),
-        ] + self.then_show_options
+        ]
         mocker = mock.Mock(return_value=copy.deepcopy(RESPONSE))
         self.app.client_manager.network.create_network = mocker
         identity_client = identity_fakes_v3.FakeIdentityv3Client(
@@ -519,8 +519,8 @@ class TestShowNetwork(common.TestNetworkBase):
         self.assertEqual(FILTERED, result)
 
     def test_show_all_options(self, n_mock):
-        arglist = [FAKE_NAME] + self.given_show_options
-        verifylist = [('identifier', FAKE_NAME)] + self.then_show_options
+        arglist = [FAKE_NAME]
+        verifylist = [('identifier', FAKE_NAME)]
         n_mock.return_value = copy.deepcopy(RECORD)
         self.cmd = network.ShowNetwork(self.app, self.namespace)
 

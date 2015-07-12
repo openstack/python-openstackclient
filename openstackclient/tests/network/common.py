@@ -33,30 +33,3 @@ class TestNetworkBase(utils.TestCommand):
             service_type="network",
         )
         self.api = self.app.client_manager.network.api
-
-    given_show_options = [
-        '-f',
-        'shell',
-        '-c',
-        'id',
-        '--prefix',
-        'TST',
-    ]
-    then_show_options = [
-        ('formatter', 'shell'),
-        ('columns', ['id']),
-        ('prefix', 'TST'),
-    ]
-    given_list_options = [
-        '-f',
-        'csv',
-        '-c',
-        'id',
-        '--quote',
-        'all',
-    ]
-    then_list_options = [
-        ('formatter', 'csv'),
-        ('columns', ['id']),
-        ('quote_mode', 'all'),
-    ]
