@@ -15,7 +15,9 @@
 
 import copy
 import mock
+import testtools
 
+from openstackclient.common import exceptions
 from openstackclient.common import utils as common_utils
 from openstackclient.compute.v2 import server
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
@@ -580,3 +582,55 @@ class TestServerResize(TestServer):
         self.servers_mock.revert_resize.assert_called_with(
             self.servers_get_return_value,
         )
+
+
+class TestServerGeneral(testtools.TestCase):
+    OLD = {
+        'private': [
+            {
+                'addr': '192.168.0.3',
+                'version': 4,
+            },
+        ]
+    }
+    NEW = {
+        'foo': [
+            {
+                'OS-EXT-IPS-MAC:mac_addr': 'fa:16:3e:93:b3:01',
+                'version': 4,
+                'addr': '10.10.1.2',
+                'OS-EXT-IPS:type': 'fixed',
+            },
+            {
+                'OS-EXT-IPS-MAC:mac_addr': 'fa:16:3e:93:b3:02',
+                'version': 6,
+                'addr': '0:0:0:0:0:ffff:a0a:103',
+                'OS-EXT-IPS:type': 'floating',
+            },
+        ]
+    }
+    ODD = {'jenkins': ['10.3.3.18', '124.12.125.4']}
+
+    def test_get_ip_address(self):
+        self.assertEqual("192.168.0.3",
+                         server._get_ip_address(self.OLD, 'private', [4, 6]))
+        self.assertEqual("10.10.1.2",
+                         server._get_ip_address(self.NEW, 'fixed', [4, 6]))
+        self.assertEqual("10.10.1.2",
+                         server._get_ip_address(self.NEW, 'private', [4, 6]))
+        self.assertEqual("0:0:0:0:0:ffff:a0a:103",
+                         server._get_ip_address(self.NEW, 'public', [6]))
+        self.assertEqual("0:0:0:0:0:ffff:a0a:103",
+                         server._get_ip_address(self.NEW, 'floating', [6]))
+        self.assertEqual("124.12.125.4",
+                         server._get_ip_address(self.ODD, 'public', [4, 6]))
+        self.assertEqual("10.3.3.18",
+                         server._get_ip_address(self.ODD, 'private', [4, 6]))
+        self.assertRaises(exceptions.CommandError,
+                          server._get_ip_address, self.NEW, 'public', [4])
+        self.assertRaises(exceptions.CommandError,
+                          server._get_ip_address, self.NEW, 'admin', [4])
+        self.assertRaises(exceptions.CommandError,
+                          server._get_ip_address, self.OLD, 'public', [4, 6])
+        self.assertRaises(exceptions.CommandError,
+                          server._get_ip_address, self.OLD, 'private', [6])
