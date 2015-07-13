@@ -125,7 +125,7 @@ class ClientManager(object):
         # password auth is requested.
         if (self.auth_plugin_name.endswith('password') and
                 not self._cli_options.auth.get('password', None)):
-            self._cli_options.os_password = self._pw_callback()
+            self._cli_options.auth['password'] = self._pw_callback()
 
         (auth_plugin, self._auth_params) = auth.build_auth_params(
             self.auth_plugin_name,
