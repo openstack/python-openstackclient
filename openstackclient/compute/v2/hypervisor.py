@@ -77,6 +77,29 @@ class ShowHypervisor(show.ShowOne):
         hypervisor = utils.find_resource(compute_client.hypervisors,
                                          parsed_args.hypervisor)._info.copy()
 
+        aggregates = compute_client.aggregates.list()
+        hypervisor["aggregates"] = list()
+        if aggregates:
+            # Hypervisors in nova cells are prefixed by "<cell>@"
+            if "@" in hypervisor['service']['host']:
+                cell, service_host = hypervisor['service']['host'].split('@',
+                                                                         1)
+            else:
+                cell = None
+                service_host = hypervisor['service']['host']
+
+            if cell:
+                # The host aggregates are also prefixed by "<cell>@"
+                member_of = [aggregate.name
+                             for aggregate in aggregates
+                             if cell in aggregate.name and
+                             service_host in aggregate.hosts]
+            else:
+                member_of = [aggregate.name
+                             for aggregate in aggregates
+                             if service_host in aggregate.hosts]
+            hypervisor["aggregates"] = member_of
+
         uptime = compute_client.hypervisors.uptime(hypervisor['id'])._info
         # Extract data from uptime value
         # format: 0 up 0,  0 users,  load average: 0, 0, 0
