@@ -16,6 +16,7 @@
 import copy
 import mock
 import os
+import testtools
 
 from openstackclient import shell
 from openstackclient.tests import utils
@@ -283,6 +284,7 @@ class TestShellHelp(TestShell):
         super(TestShellHelp, self).tearDown()
         os.environ = self.orig_env
 
+    @testtools.skip("skip until bug 1444983 is resolved")
     def test_help_options(self):
         flag = "-h list server"
         kwargs = {
