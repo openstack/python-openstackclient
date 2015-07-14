@@ -24,17 +24,20 @@ class CatalogTests(test_identity.IdentityTests):
         """test catalog show command
 
         The output example:
-        +-----------+-------------------------------------------+
-        | Field     | Value                                     |
-        +-----------+-------------------------------------------+
-        | endpoints | test1                                     |
-        |           |   publicURL: http://localhost:5000/v2.0   |
-        |           |   internalURL: http://localhost:5000/v2.0 |
-        |           |   adminURL: http://localhost:5000/v2.0    |
-        |           |                                           |
-        | name      | keystone                                  |
-        | type      | identity                                  |
-        +-----------+-------------------------------------------+
+        +-----------+----------------------------------------+
+        | Field     | Value                                  |
+        +-----------+----------------------------------------+
+        | endpoints | test1                                  |
+        |           |   public: http://localhost:5000/v2.0   |
+        |           | test1                                  |
+        |           |   internal: http://localhost:5000/v2.0 |
+        |           | test1                                  |
+        |           |   admin: http://localhost:35357/v2.0   |
+        |           |                                        |
+        | id        | e1e68b5ba21a43a39ff1cf58e736c3aa       |
+        | name      | keystone                               |
+        | type      | identity                               |
+        +-----------+----------------------------------------+
         """
         raw_output = self.openstack('catalog show %s' % 'identity')
         items = self.parse_show(raw_output)

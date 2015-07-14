@@ -31,6 +31,16 @@ class IdentityTests(test.TestCase):
     PROJECT_FIELDS = ['description', 'id', 'domain_id',
                       'enabled', 'name', 'parent_id', 'links']
     ROLE_FIELDS = ['id', 'name', 'links']
+    SERVICE_FIELDS = ['id', 'enabled', 'name', 'type', 'description']
+    REGION_FIELDS = ['description', 'enabled', 'parent_region',
+                     'region', 'url']
+    ENDPOINT_FIELDS = ['id', 'region', 'region_id', 'service_id',
+                       'service_name', 'service_type', 'enabled',
+                       'interface', 'url']
+
+    REGION_LIST_HEADERS = ['Region', 'Parent Region', 'Description', 'URL']
+    ENDPOINT_LIST_HEADERS = ['ID', 'Region', 'Service Name', 'Service Type',
+                             'Enabled', 'Interface', 'URL']
 
     @classmethod
     def setUpClass(cls):
@@ -68,7 +78,9 @@ class IdentityTests(test.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        # delete dummy project
         cls.openstack('project delete %s' % cls.project_name)
+        # disable and delete dummy domain
         cls.openstack('domain set --disable %s' % cls.domain_name)
         cls.openstack('domain delete %s' % cls.domain_name)
 
@@ -173,3 +185,69 @@ class IdentityTests(test.TestCase):
                 '%(name)s' % {'domain': self.domain_name,
                               'name': project_name})
         return project_name
+
+    def _create_dummy_region(self, parent_region=None, add_clean_up=True):
+        region_id = data_utils.rand_name('TestRegion')
+        description = data_utils.rand_name('description')
+        url = data_utils.rand_url()
+        parent_region_arg = ''
+        if parent_region is not None:
+            parent_region_arg = '--parent-region %s' % parent_region
+        raw_output = self.openstack(
+            'region create '
+            '%(parent_region_arg)s '
+            '--description %(description)s '
+            '--url %(url)s '
+            '%(id)s' % {'parent_region_arg': parent_region_arg,
+                        'description': description,
+                        'url': url,
+                        'id': region_id})
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.REGION_FIELDS)
+        if add_clean_up:
+            self.addCleanup(self.openstack,
+                            'region delete %s' % region_id)
+        return region_id
+
+    def _create_dummy_service(self, add_clean_up=True):
+        service_name = data_utils.rand_name('TestService')
+        description = data_utils.rand_name('description')
+        type_name = data_utils.rand_name('TestType')
+        raw_output = self.openstack(
+            'service create '
+            '--name %(name)s '
+            '--description %(description)s '
+            '--enable '
+            '%(type)s' % {'name': service_name,
+                          'description': description,
+                          'type': type_name})
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.SERVICE_FIELDS)
+        if add_clean_up:
+            service = self.parse_show_as_object(raw_output)
+            self.addCleanup(self.openstack,
+                            'service delete %s' % service['id'])
+        return service_name
+
+    def _create_dummy_endpoint(self, interface='public', add_clean_up=True):
+        region_id = self._create_dummy_region()
+        service_name = self._create_dummy_service()
+        endpoint_url = data_utils.rand_url()
+        raw_output = self.openstack(
+            'endpoint create '
+            '--region %(region)s '
+            '--enable '
+            '%(service)s '
+            '%(interface)s '
+            '%(url)s' % {'region': region_id,
+                         'service': service_name,
+                         'interface': interface,
+                         'url': endpoint_url})
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.ENDPOINT_FIELDS)
+        endpoint = self.parse_show_as_object(raw_output)
+        if add_clean_up:
+            self.addCleanup(
+                self.openstack,
+                'endpoint delete %s' % endpoint['id'])
+        return endpoint['id']
