@@ -219,7 +219,7 @@ class SaveImage(command.Command):
             image_client.images,
             parsed_args.image,
         )
-        data = image_client.images.data(image)
+        data = image_client.images.data(image.id)
 
         gc_utils.save_image(data, parsed_args.file)
 
