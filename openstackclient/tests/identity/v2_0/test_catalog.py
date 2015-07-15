@@ -84,6 +84,46 @@ class TestCatalogList(TestCatalog):
         ), )
         self.assertEqual(datalist, tuple(data))
 
+    def test_catalog_list_with_endpoint_url(self):
+        fake_service = {
+            'id': 'qwertyuiop',
+            'type': 'compute',
+            'name': 'supernova',
+            'endpoints': [
+                {
+                    'region': 'one',
+                    'publicURL': 'https://public.one.example.com',
+                },
+                {
+                    'region': 'two',
+                    'publicURL': 'https://public.two.example.com',
+                    'internalURL': 'https://internal.two.example.com',
+                },
+            ],
+        }
+        self.sc_mock.service_catalog.get_data.return_value = [
+            fake_service,
+        ]
+
+        arglist = []
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+        self.sc_mock.service_catalog.get_data.assert_called_with()
+
+        collist = ('Name', 'Type', 'Endpoints')
+        self.assertEqual(collist, columns)
+        datalist = ((
+            'supernova',
+            'compute',
+            'one\n  publicURL: https://public.one.example.com\n'
+            'two\n  publicURL: https://public.two.example.com\n  '
+            'internalURL: https://internal.two.example.com\n'
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
 
 class TestCatalogShow(TestCatalog):
 
