@@ -107,7 +107,7 @@ class TestTrustCreate(TestTrust):
             identity_fakes.trust_id,
             identity_fakes.trust_impersonation,
             identity_fakes.project_id,
-            identity_fakes.role_name + ' ',
+            identity_fakes.role_name,
             identity_fakes.user_id,
             identity_fakes.user_id
         )
@@ -222,7 +222,7 @@ class TestTrustShow(TestTrust):
             identity_fakes.trust_id,
             identity_fakes.trust_impersonation,
             identity_fakes.project_id,
-            identity_fakes.role_name + ' ',
+            identity_fakes.role_name,
             identity_fakes.user_id,
             identity_fakes.user_id
         )
