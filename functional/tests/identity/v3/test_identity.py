@@ -96,12 +96,14 @@ class IdentityTests(test.TestCase):
             'user create '
             '--domain %(domain)s '
             '--project %(project)s '
+            '--project-domain %(project_domain)s '
             '--password %(password)s '
             '--email %(email)s '
             '--description %(description)s '
             '--enable '
             '%(name)s' % {'domain': self.domain_name,
                           'project': self.project_name,
+                          'project_domain': self.domain_name,
                           'email': email,
                           'password': password,
                           'description': description,
