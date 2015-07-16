@@ -51,6 +51,7 @@ class CreateUser(show.ShowOne):
             metavar='<project>',
             help='Default project (name or ID)',
         )
+        common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--password',
             metavar='<password>',
@@ -96,10 +97,9 @@ class CreateUser(show.ShowOne):
 
         project_id = None
         if parsed_args.project:
-            project_id = utils.find_resource(
-                identity_client.projects,
-                parsed_args.project,
-            ).id
+            project_id = common.find_project(identity_client,
+                                             parsed_args.project,
+                                             parsed_args.project_domain).id
 
         domain_id = None
         if parsed_args.domain:
@@ -301,6 +301,7 @@ class SetUser(command.Command):
             metavar='<project>',
             help='Set default project (name or ID)',
         )
+        common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--password',
             metavar='<password>',
@@ -367,8 +368,9 @@ class SetUser(command.Command):
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
         if parsed_args.project:
-            project_id = utils.find_resource(
-                identity_client.projects, parsed_args.project).id
+            project_id = common.find_project(identity_client,
+                                             parsed_args.project,
+                                             parsed_args.project_domain).id
             kwargs['default_project'] = project_id
         kwargs['enabled'] = user.enabled
         if parsed_args.enable:

@@ -320,6 +320,68 @@ class TestUserCreate(TestUser):
         )
         self.assertEqual(datalist, data)
 
+    def test_user_create_project_domain(self):
+        # Return the new project
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT_2),
+            loaded=True,
+        )
+        # Set up to return an updated user
+        USER_2 = copy.deepcopy(identity_fakes.USER)
+        USER_2['default_project_id'] = identity_fakes.PROJECT_2['id']
+        self.users_mock.create.return_value = fakes.FakeResource(
+            None,
+            USER_2,
+            loaded=True,
+        )
+
+        arglist = [
+            '--project', identity_fakes.PROJECT_2['name'],
+            '--project-domain', identity_fakes.PROJECT_2['domain_id'],
+            identity_fakes.user_name,
+        ]
+        verifylist = [
+            ('project', identity_fakes.PROJECT_2['name']),
+            ('project_domain', identity_fakes.PROJECT_2['domain_id']),
+            ('enable', False),
+            ('disable', False),
+            ('name', identity_fakes.user_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': identity_fakes.user_name,
+            'default_project': identity_fakes.PROJECT_2['id'],
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'password': None,
+        }
+        # UserManager.create(name=, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        collist = ('default_project_id', 'domain_id', 'email',
+                   'enabled', 'id', 'name')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.PROJECT_2['id'],
+            identity_fakes.domain_id,
+            identity_fakes.user_email,
+            True,
+            identity_fakes.user_id,
+            identity_fakes.user_name,
+        )
+        self.assertEqual(datalist, data)
+
     def test_user_create_domain(self):
         arglist = [
             '--domain', identity_fakes.domain_name,

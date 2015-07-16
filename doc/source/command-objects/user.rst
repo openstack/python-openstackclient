@@ -14,7 +14,7 @@ Create new user
 
     os user create
         [--domain <domain>]
-        [--project <project>]
+        [--project <project> [--project-domain <project-domain>]]
         [--password <password>]
         [--password-prompt]
         [--email <email-address>]
@@ -32,6 +32,11 @@ Create new user
 .. option:: --project <project>
 
     Default project (name or ID)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 .. option:: --password <password>
 
@@ -136,7 +141,7 @@ Set user properties
 
     os user set
         [--name <name>]
-        [--project <project>]
+        [--project <project> [--project-domain <project-domain>]]
         [--password <password>]
         [--email <email-address>]
         [--description <description>]
@@ -150,6 +155,11 @@ Set user properties
 .. option:: --project <project>
 
     Set default project (name or ID)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 .. option:: --password <password>
 
