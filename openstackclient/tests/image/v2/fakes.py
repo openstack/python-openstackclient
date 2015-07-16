@@ -18,6 +18,7 @@ import mock
 from openstackclient.tests import fakes
 from openstackclient.tests import utils
 
+from openstackclient.tests.identity.v3 import fakes as identity_fakes
 
 image_id = '0f41529e-7c12-4de8-be2d-181abb825b3c'
 image_name = 'graven'
@@ -35,6 +36,13 @@ IMAGE = {
 
 IMAGE_columns = tuple(sorted(IMAGE))
 IMAGE_data = tuple((IMAGE[x] for x in sorted(IMAGE)))
+
+member_status = 'pending'
+MEMBER = {
+    'member_id': identity_fakes.project_id,
+    'image_id': image_id,
+    'status': member_status,
+}
 
 # Just enough v2 schema to do some testing
 IMAGE_schema = {
@@ -125,6 +133,8 @@ class FakeImagev2Client(object):
     def __init__(self, **kwargs):
         self.images = mock.Mock()
         self.images.resource_class = fakes.FakeResource(None, {})
+        self.image_members = mock.Mock()
+        self.image_members.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
@@ -134,6 +144,11 @@ class TestImagev2(utils.TestCommand):
         super(TestImagev2, self).setUp()
 
         self.app.client_manager.image = FakeImagev2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
+        self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )

@@ -21,6 +21,7 @@ import warlock
 from glanceclient.v2 import schemas
 from openstackclient.image.v2 import image
 from openstackclient.tests import fakes
+from openstackclient.tests.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
 
 
@@ -32,6 +33,96 @@ class TestImage(image_fakes.TestImagev2):
         # Get a shortcut to the ServerManager Mock
         self.images_mock = self.app.client_manager.image.images
         self.images_mock.reset_mock()
+        self.image_members_mock = self.app.client_manager.image.image_members
+        self.image_members_mock.reset_mock()
+        self.project_mock = self.app.client_manager.identity.projects
+        self.project_mock.reset_mock()
+        self.domain_mock = self.app.client_manager.identity.domains
+        self.domain_mock.reset_mock()
+
+
+class TestAddProjectToImage(TestImage):
+
+    def setUp(self):
+        super(TestAddProjectToImage, self).setUp()
+
+        # This is the return value for utils.find_resource()
+        self.images_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(image_fakes.IMAGE),
+            loaded=True,
+        )
+        self.image_members_mock.create.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(image_fakes.MEMBER),
+            loaded=True,
+        )
+        self.project_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+        self.domain_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.DOMAIN),
+            loaded=True,
+        )
+        # Get the command object to test
+        self.cmd = image.AddProjectToImage(self.app, None)
+
+    def test_add_project_to_image_no_option(self):
+        arglist = [
+            image_fakes.image_id,
+            identity_fakes.project_id,
+            ]
+        verifylist = [
+            ('image', image_fakes.image_id),
+            ('project', identity_fakes.project_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+        self.image_members_mock.create.assert_called_with(
+            image_fakes.image_id,
+            identity_fakes.project_id
+        )
+        collist = ('image_id', 'member_id', 'status')
+        self.assertEqual(collist, columns)
+        datalist = (
+            image_fakes.image_id,
+            identity_fakes.project_id,
+            image_fakes.member_status
+        )
+        self.assertEqual(datalist, data)
+
+    def test_add_project_to_image_with_option(self):
+        arglist = [
+            image_fakes.image_id,
+            identity_fakes.project_id,
+            '--project-domain', identity_fakes.domain_id,
+        ]
+        verifylist = [
+            ('image', image_fakes.image_id),
+            ('project', identity_fakes.project_id),
+            ('project_domain', identity_fakes.domain_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+        self.image_members_mock.create.assert_called_with(
+            image_fakes.image_id,
+            identity_fakes.project_id
+        )
+        collist = ('image_id', 'member_id', 'status')
+        self.assertEqual(collist, columns)
+        datalist = (
+            image_fakes.image_id,
+            identity_fakes.project_id,
+            image_fakes.member_status
+        )
+        self.assertEqual(datalist, data)
 
 
 class TestImageDelete(TestImage):
@@ -296,6 +387,70 @@ class TestImageList(TestImage):
             image_fakes.image_name
         ), )
         self.assertEqual(datalist, tuple(data))
+
+
+class TestRemoveProjectImage(TestImage):
+
+    def setUp(self):
+        super(TestRemoveProjectImage, self).setUp()
+
+        # This is the return value for utils.find_resource()
+        self.images_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(image_fakes.IMAGE),
+            loaded=True,
+        )
+        self.project_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+        self.domain_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.DOMAIN),
+            loaded=True,
+        )
+        self.image_members_mock.delete.return_value = None
+        # Get the command object to test
+        self.cmd = image.RemoveProjectImage(self.app, None)
+
+    def test_remove_project_image_no_options(self):
+        arglist = [
+            image_fakes.image_id,
+            identity_fakes.project_id,
+        ]
+        verifylist = [
+            ('image', image_fakes.image_id),
+            ('project', identity_fakes.project_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+        self.image_members_mock.delete.assert_called_with(
+            image_fakes.image_id,
+            identity_fakes.project_id,
+        )
+
+    def test_remove_project_image_with_options(self):
+        arglist = [
+            image_fakes.image_id,
+            identity_fakes.project_id,
+            '--project-domain', identity_fakes.domain_id,
+        ]
+        verifylist = [
+            ('image', image_fakes.image_id),
+            ('project', identity_fakes.project_id),
+            ('project_domain', identity_fakes.domain_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+        self.image_members_mock.delete.assert_called_with(
+            image_fakes.image_id,
+            identity_fakes.project_id,
+        )
 
 
 class TestImageShow(TestImage):
