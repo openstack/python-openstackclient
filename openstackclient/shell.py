@@ -209,14 +209,14 @@ class OpenStackShell(app.App):
                  DEFAULT_DOMAIN +
                  ' (Env: OS_DEFAULT_DOMAIN)')
         parser.add_argument(
-            '--os-endpoint-type',
-            metavar='<endpoint-type>',
-            dest='endpoint_type',
+            '--os-interface',
+            metavar='<interface>',
+            dest='interface',
             choices=['admin', 'public', 'internal'],
-            default=utils.env('OS_ENDPOINT_TYPE'),
-            help='Select an endpoint type.'
-                 ' Valid endpoint types: [admin, public, internal].'
-                 ' (Env: OS_ENDPOINT_TYPE)')
+            default=utils.env('OS_INTERFACE'),
+            help='Select an interface type.'
+                 ' Valid interface types: [admin, public, internal].'
+                 ' (Env: OS_INTERFACE)')
         parser.add_argument(
             '--timing',
             default=False,
@@ -263,10 +263,10 @@ class OpenStackShell(app.App):
             self.options.project_name = tenant_name
 
         # Do configuration file handling
-        # Ignore the default value of endpoint_type. Only if it is set later
+        # Ignore the default value of interface. Only if it is set later
         # will it be used.
         cc = cloud_config.OpenStackConfig(
-            override_defaults={'endpoint_type': None, })
+            override_defaults={'interface': None, })
         self.log.debug("defaults: %s", cc.defaults)
 
         self.cloud = cc.get_one_cloud(

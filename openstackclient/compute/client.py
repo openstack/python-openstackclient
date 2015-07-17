@@ -48,9 +48,8 @@ def make_client(instance):
 
     extensions = [extension.Extension('list_extensions', list_extensions)]
 
-    # Remember endpoint_type only if it is set
-    kwargs = utils.build_kwargs_dict('endpoint_type',
-                                     instance._endpoint_type)
+    # Remember interface only if it is set
+    kwargs = utils.build_kwargs_dict('endpoint_type', instance._interface)
 
     client = compute_client(
         session=instance.session,
