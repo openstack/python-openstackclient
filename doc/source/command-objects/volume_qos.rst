@@ -13,10 +13,10 @@ Associate a QoS specification to a volume type
 .. code:: bash
 
     os volume qos associate
-        <qos-specs>
+        <qos-spec>
         <volume-type>
 
-.. describe:: <qos-specs>
+.. describe:: <qos-spec>
 
     QoS specification to modify (name or ID)
 
@@ -58,11 +58,11 @@ Delete QoS specification
 .. code:: bash
 
     os volume qos delete
-         <qos-specs>
+         <qos-spec> [<qos-spec> ...]
 
-.. describe:: <qos-specs>
+.. describe:: <qos-spec>
 
-    QoS specification to delete (name or ID)
+    QoS specification(s) to delete (name or ID)
 
 volume qos disassociate
 -----------------------
@@ -74,7 +74,7 @@ Disassociate a QoS specification from a volume type
 
     os volume qos disassociate
         --volume-type <volume-type> | --all
-        <qos-specs>
+        <qos-spec>
 
 .. option:: --volume-type <volume-type>
 
@@ -84,7 +84,7 @@ Disassociate a QoS specification from a volume type
 
     Disassociate the QoS from every volume type
 
-.. describe:: <qos-specs>
+.. describe:: <qos-spec>
 
     QoS specification to modify (name or ID)
 
@@ -108,13 +108,13 @@ Set QoS specification properties
 
     os volume qos set
         [--property <key=value> [...] ]
-        <qos-specs>
+        <qos-spec>
 
 .. option:: --property <key=value>
 
     Property to add or modify for this QoS specification (repeat option to set multiple properties)
 
-.. describe:: <qos-specs>
+.. describe:: <qos-spec>
 
     QoS specification to modify (name or ID)
 
@@ -127,9 +127,9 @@ Display QoS specification details
 .. code:: bash
 
     os volume qos show
-        <qos-specs>
+        <qos-spec>
 
-.. describe:: <qos-specs>
+.. describe:: <qos-spec>
 
    QoS specification to display (name or ID)
 
@@ -143,12 +143,12 @@ Unset QoS specification properties
 
     os volume qos unset
         [--property <key>]
-        <qos-specs>
+        <qos-spec>
 
 .. option:: --property <key>
 
     Property to remove from QoS specification (repeat option to remove multiple properties)
 
-.. describe:: <qos-specs>
+.. describe:: <qos-spec>
 
     QoS specification to modify (name or ID)
