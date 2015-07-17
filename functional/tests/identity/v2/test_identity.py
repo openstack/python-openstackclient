@@ -25,12 +25,17 @@ class IdentityTests(test.TestCase):
     PROJECT_FIELDS = ['enabled', 'id', 'name', 'description', 'domain_id']
     TOKEN_FIELDS = ['expires', 'id', 'project_id', 'user_id']
     ROLE_FIELDS = ['id', 'name', 'links']
+    SERVICE_FIELDS = ['id', 'enabled', 'name', 'type', 'description']
+    ENDPOINT_FIELDS = ['id', 'region', 'service_id', 'service_name',
+                       'service_type', 'enabled', 'publicurl',
+                       'adminurl', 'internalurl']
 
     EC2_CREDENTIALS_FIELDS = ['access', 'project_id', 'secret',
                               'trust_id', 'user_id']
     EC2_CREDENTIALS_LIST_HEADERS = ['Access', 'Secret',
                                     'Project ID', 'User ID']
     CATALOG_LIST_HEADERS = ['Name', 'Type', 'Endpoints']
+    ENDPOINT_LIST_HEADERS = ['ID', 'Region', 'Service Name', 'Service Type']
 
     @classmethod
     def setUpClass(cls):
@@ -127,3 +132,48 @@ class IdentityTests(test.TestCase):
             self.addCleanup(self.openstack,
                             'token revoke %s' % token['id'])
         return token['id']
+
+    def _create_dummy_service(self, add_clean_up=True):
+        service_name = data_utils.rand_name('TestService')
+        description = data_utils.rand_name('description')
+        type_name = data_utils.rand_name('TestType')
+        raw_output = self.openstack(
+            'service create '
+            '--name %(name)s '
+            '--description %(description)s '
+            '%(type)s' % {'name': service_name,
+                          'description': description,
+                          'type': type_name})
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.SERVICE_FIELDS)
+        if add_clean_up:
+            service = self.parse_show_as_object(raw_output)
+            self.addCleanup(self.openstack,
+                            'service delete %s' % service['id'])
+        return service_name
+
+    def _create_dummy_endpoint(self, add_clean_up=True):
+        region_id = data_utils.rand_name('TestRegion')
+        service_name = self._create_dummy_service()
+        public_url = data_utils.rand_url()
+        admin_url = data_utils.rand_url()
+        internal_url = data_utils.rand_url()
+        raw_output = self.openstack(
+            'endpoint create '
+            '--publicurl %(publicurl)s '
+            '--adminurl %(adminurl)s '
+            '--internalurl %(internalurl)s '
+            '--region %(region)s '
+            '%(service)s' % {'publicurl': public_url,
+                             'adminurl': admin_url,
+                             'internalurl': internal_url,
+                             'region': region_id,
+                             'service': service_name})
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.ENDPOINT_FIELDS)
+        endpoint = self.parse_show_as_object(raw_output)
+        if add_clean_up:
+            self.addCleanup(
+                self.openstack,
+                'endpoint delete %s' % endpoint['id'])
+        return endpoint['id']
