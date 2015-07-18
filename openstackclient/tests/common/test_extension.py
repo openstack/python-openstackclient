@@ -52,13 +52,6 @@ class TestExtensionList(TestExtension):
                 loaded=True,
             ),
         ]
-        self.network_extensions_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.EXTENSION),
-                loaded=True,
-            ),
-        ]
 
         # Get the command object to test
         self.cmd = extension.ListExtension(self.app, None)
