@@ -295,6 +295,7 @@ class UnsetFlavor(show.ShowOne):
             action='append',
             help='Property to remove from flavor '
                  '(repeat option to unset multiple properties)',
+            required=True,
         )
         parser.add_argument(
             "flavor",
