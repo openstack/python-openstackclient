@@ -956,6 +956,39 @@ class TestUserSet(TestUser):
             **kwargs
         )
 
+    def test_user_set_project_domain(self):
+        arglist = [
+            '--project', identity_fakes.project_id,
+            '--project-domain', identity_fakes.domain_id,
+            identity_fakes.user_name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('project', identity_fakes.project_id),
+            ('project_domain', identity_fakes.domain_id),
+            ('enable', False),
+            ('disable', False),
+            ('user', identity_fakes.user_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'default_project': identity_fakes.project_id,
+        }
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            identity_fakes.user_id,
+            **kwargs
+        )
+
     def test_user_set_enable(self):
         arglist = [
             '--enable',
