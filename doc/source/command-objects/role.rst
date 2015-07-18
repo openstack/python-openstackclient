@@ -71,7 +71,14 @@ Create new role
 .. code:: bash
 
     os role create
+        [--or-show]
         <name>
+
+.. option:: --or-show
+
+    Return existing role
+
+    If the role already exist return the existing role data and do not fail.
 
 .. describe:: <name>
 
