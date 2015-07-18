@@ -62,6 +62,22 @@ FLAVOR = {
     'vcpus': flavor_vcpus,
 }
 
+floating_ip_num = 100
+fix_ip_num = 100
+injected_file_num = 100
+key_pair_num = 100
+project_name = 'project_test'
+QUOTA = {
+    'project': project_name,
+    'floating-ips': floating_ip_num,
+    'fix-ips': fix_ip_num,
+    'injected-files': injected_file_num,
+    'key-pairs': key_pair_num,
+}
+
+QUOTA_columns = tuple(sorted(QUOTA))
+QUOTA_data = tuple(QUOTA[x] for x in sorted(QUOTA))
+
 
 class FakeComputev2Client(object):
     def __init__(self, **kwargs):
@@ -73,6 +89,8 @@ class FakeComputev2Client(object):
         self.extensions.resource_class = fakes.FakeResource(None, {})
         self.flavors = mock.Mock()
         self.flavors.resource_class = fakes.FakeResource(None, {})
+        self.quotas = mock.Mock()
+        self.quotas.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
