@@ -186,9 +186,9 @@ def sort_items(items, sort_str):
 
     :param items: a list or generator object of items
     :param sort_str: a string defining the sort rules, the format is
-    '<key1>:[direction1],<key2>:[direction2]...', direction can be 'asc'
-    for ascending or 'desc' for descending, if direction is not given,
-    it's ascending by default
+        '<key1>:[direction1],<key2>:[direction2]...', direction can be 'asc'
+        for ascending or 'desc' for descending, if direction is not given,
+        it's ascending by default
     :return: sorted items
     """
     if not sort_str:
