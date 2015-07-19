@@ -437,6 +437,7 @@ class UnsetVolume(command.Command):
             default=[],
             help='Property to remove from volume '
                  '(repeat option to remove multiple properties)',
+            required=True,
         )
         return parser
 
