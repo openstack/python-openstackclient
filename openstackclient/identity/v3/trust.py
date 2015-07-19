@@ -144,7 +144,7 @@ class CreateTrust(show.ShowOne):
 
         # Format roles into something sensible
         roles = trust._info.pop('roles')
-        msg = ''.join([r['name'] + ' ' for r in roles])
+        msg = ' '.join(r['name'] for r in roles)
         trust._info['roles'] = msg
 
         return zip(*sorted(six.iteritems(trust._info)))
@@ -215,7 +215,7 @@ class ShowTrust(show.ShowOne):
 
         # Format roles into something sensible
         roles = trust._info.pop('roles')
-        msg = ''.join([r['name'] + ' ' for r in roles])
+        msg = ' '.join(r['name'] for r in roles)
         trust._info['roles'] = msg
 
         return zip(*sorted(six.iteritems(trust._info)))
