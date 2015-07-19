@@ -18,6 +18,7 @@ Create new project
         [--description <description>]
         [--enable | --disable]
         [--property <key=value>]
+        [--or-show]
         <name>
 
 .. option:: --domain <domain>
@@ -48,6 +49,12 @@ Create new project
 
     Add a property to :ref:`\<name\> <project_create-name>`
     (repeat option to set multiple properties)
+
+.. option:: --or-show
+
+    Return existing project
+
+    If the project already exist return the existing project data and do not fail.
 
 .. _project_create-name:
 .. describe:: <name>
