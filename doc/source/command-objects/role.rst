@@ -78,7 +78,7 @@ Create new role
 
     Return existing role
 
-    If the role already exist return the existing role data and do not fail.
+    If the role already exists return the existing role data and do not fail.
 
 .. describe:: <name>
 

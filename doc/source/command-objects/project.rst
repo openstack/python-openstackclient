@@ -54,7 +54,7 @@ Create new project
 
     Return existing project
 
-    If the project already exist return the existing project data and do not fail.
+    If the project already exists return the existing project data and do not fail.
 
 .. _project_create-name:
 .. describe:: <name>
