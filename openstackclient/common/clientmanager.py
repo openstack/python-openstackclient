@@ -15,6 +15,7 @@
 
 """Manage access to the clients, including authenticating when needed."""
 
+import copy
 import logging
 import pkg_resources
 import sys
@@ -202,6 +203,9 @@ class ClientManager(object):
             endpoint = self.auth.get_endpoint(self.session,
                                               interface=interface)
         return endpoint
+
+    def get_configuration(self):
+        return copy.deepcopy(self._cli_options.config)
 
 
 # Plugin Support
