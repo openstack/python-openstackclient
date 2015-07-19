@@ -183,3 +183,27 @@ class UnsetVolumeType(command.Command):
         else:
             self.app.log.error("No changes requested\n")
         return
+
+
+class ShowVolumeType(show.ShowOne):
+    """Display volume type details"""
+
+    log = logging.getLogger(__name__ + ".ShowVolumeType")
+
+    def get_parser(self, prog_name):
+        parser = super(ShowVolumeType, self).get_parser(prog_name)
+        parser.add_argument(
+            "volume_type",
+            metavar="<volume-type>",
+            help="Volume type to display (name or ID)"
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action: (%s)", parsed_args)
+        volume_client = self.app.client_manager.volume
+        volume_type = utils.find_resource(
+            volume_client.volume_types, parsed_args.volume_type)
+        properties = utils.format_dict(volume_type._info.pop('extra_specs'))
+        volume_type._info.update({'properties': properties})
+        return zip(*sorted(six.iteritems(volume_type._info)))
