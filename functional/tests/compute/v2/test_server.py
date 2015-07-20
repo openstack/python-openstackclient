@@ -130,7 +130,6 @@ class ServerTests(test.TestCase):
         self.assertNotEqual("", ip)
         raw_output = self.openstack('ip floating add ' + ip + ' ' + self.NAME)
         self.assertEqual("", raw_output)
-        opts = self.get_show_opts(["addresses"])
         raw_output = self.openstack('server show ' + self.NAME)
         self.assertIn(ip, raw_output)
         # detach ip
@@ -141,3 +140,7 @@ class ServerTests(test.TestCase):
         self.assertNotIn(ip, raw_output)
         raw_output = self.openstack('ip floating delete ' + ipid)
         self.assertEqual("", raw_output)
+        # reboot
+        raw_output = self.openstack('server reboot ' + self.NAME)
+        self.assertEqual("", raw_output)
+        self.wait_for("ACTIVE")
