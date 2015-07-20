@@ -27,6 +27,49 @@ from glanceclient.common import utils as gc_utils
 from openstackclient.api import utils as api_utils
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.identity import common
+
+
+class AddProjectToImage(show.ShowOne):
+    """Associate project with image"""
+
+    log = logging.getLogger(__name__ + ".AddProjectToImage")
+
+    def get_parser(self, prog_name):
+        parser = super(AddProjectToImage, self).get_parser(prog_name)
+        parser.add_argument(
+            "image",
+            metavar="<image>",
+            help="Image to share (name or ID)",
+        )
+        parser.add_argument(
+            "project",
+            metavar="<project>",
+            help="Project to associate with image (name or ID)",
+        )
+        common.add_project_domain_option_to_parser(parser)
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)", parsed_args)
+
+        image_client = self.app.client_manager.image
+        identity_client = self.app.client_manager.identity
+
+        project_id = common.find_project(identity_client,
+                                         parsed_args.project,
+                                         parsed_args.project_domain).id
+
+        image_id = utils.find_resource(
+            image_client.images,
+            parsed_args.image).id
+
+        image_member = image_client.image_members.create(
+            image_id,
+            project_id,
+        )
+
+        return zip(*sorted(six.iteritems(image_member._info)))
 
 
 class DeleteImage(command.Command):
@@ -190,6 +233,43 @@ class ListImage(lister.Lister):
                 },
             ) for s in data)
         )
+
+
+class RemoveProjectImage(command.Command):
+    """Disassociate project with image"""
+
+    log = logging.getLogger(__name__ + ".RemoveProjectImage")
+
+    def get_parser(self, prog_name):
+        parser = super(RemoveProjectImage, self).get_parser(prog_name)
+        parser.add_argument(
+            "image",
+            metavar="<image>",
+            help="Image to unshare (name or ID)",
+        )
+        parser.add_argument(
+            "project",
+            metavar="<project>",
+            help="Project to disassociate with image (name or ID)",
+        )
+        common.add_project_domain_option_to_parser(parser)
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)", parsed_args)
+
+        image_client = self.app.client_manager.image
+        identity_client = self.app.client_manager.identity
+
+        project_id = common.find_project(identity_client,
+                                         parsed_args.project,
+                                         parsed_args.project_domain).id
+
+        image_id = utils.find_resource(
+            image_client.images,
+            parsed_args.image).id
+
+        image_client.image_members.delete(image_id, project_id)
 
 
 class SaveImage(command.Command):
