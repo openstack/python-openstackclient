@@ -51,8 +51,8 @@ class TestTypeShow(TestType):
         columns, data = self.cmd.take_action(parsed_args)
         self.types_mock.get.assert_called_with(volume_fakes.type_id)
 
-        self.assertEqual(volume_fakes.TYPE_columns, columns)
-        self.assertEqual(volume_fakes.TYPE_data, data)
+        self.assertEqual(volume_fakes.TYPE_FORMATTED_columns, columns)
+        self.assertEqual(volume_fakes.TYPE_FORMATTED_data, data)
 
 
 class TestTypeDelete(TestType):
