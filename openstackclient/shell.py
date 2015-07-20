@@ -240,9 +240,9 @@ class OpenStackShell(app.App):
         # Set the default plugin to token_endpoint if url and token are given
         if (self.options.url and self.options.token):
             # Use service token authentication
-            cloud_config.set_default('auth_type', 'token_endpoint')
+            auth_type = 'token_endpoint'
         else:
-            cloud_config.set_default('auth_type', 'osc_password')
+            auth_type = 'osc_password'
         self.log.debug("options: %s", self.options)
 
         project_id = getattr(self.options, 'project_id', None)
@@ -266,7 +266,8 @@ class OpenStackShell(app.App):
         # Ignore the default value of interface. Only if it is set later
         # will it be used.
         cc = cloud_config.OpenStackConfig(
-            override_defaults={'interface': None, })
+            override_defaults={'interface': None,
+                               'auth_type': auth_type, })
         self.log.debug("defaults: %s", cc.defaults)
 
         self.cloud = cc.get_one_cloud(
