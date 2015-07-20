@@ -93,6 +93,17 @@ TYPE = {
 TYPE_columns = tuple(sorted(TYPE))
 TYPE_data = tuple((TYPE[x] for x in sorted(TYPE)))
 
+formatted_type_properties = "foo='bar'"
+TYPE_FORMATTED = {
+    'id': type_id,
+    'name': type_name,
+    'description': type_description,
+    'properties': formatted_type_properties
+}
+TYPE_FORMATTED_columns = tuple(sorted(TYPE_FORMATTED))
+TYPE_FORMATTED_data = tuple((TYPE_FORMATTED[x] for x in
+                             sorted(TYPE_FORMATTED)))
+
 backup_id = "3c409fe6-4d03-4a06-aeab-18bdcdf3c8f4"
 backup_volume_id = "bdbae8dc-e6ca-43c0-8076-951cc1b093a4"
 backup_name = "fake_backup"

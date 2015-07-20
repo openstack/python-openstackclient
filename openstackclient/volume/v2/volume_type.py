@@ -65,4 +65,6 @@ class ShowVolumeType(show.ShowOne):
         volume_client = self.app.client_manager.volume
         volume_type = utils.find_resource(
             volume_client.volume_types, parsed_args.volume_type)
+        properties = utils.format_dict(volume_type._info.pop('extra_specs'))
+        volume_type._info.update({'properties': properties})
         return zip(*sorted(six.iteritems(volume_type._info)))
