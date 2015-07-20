@@ -28,6 +28,135 @@ class TestType(volume_fakes.TestVolume):
         self.types_mock.reset_mock()
 
 
+class TestTypeCreate(TestType):
+
+    def setUp(self):
+        super(TestTypeCreate, self).setUp()
+
+        self.types_mock.create.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.TYPE),
+            loaded=True,
+        )
+        # Get the command object to test
+        self.cmd = volume_type.CreateVolumeType(self.app, None)
+
+    def test_type_create_public(self):
+        arglist = [
+            volume_fakes.type_name,
+            "--description", volume_fakes.type_description,
+            "--public"
+        ]
+        verifylist = [
+            ("name", volume_fakes.type_name),
+            ("description", volume_fakes.type_description),
+            ("public", True),
+            ("private", False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.types_mock.create.assert_called_with(
+            volume_fakes.type_name,
+            description=volume_fakes.type_description,
+            public=True,
+        )
+
+        collist = (
+            'description',
+            'id',
+            'name',
+        )
+        self.assertEqual(collist, columns)
+        datalist = (
+            volume_fakes.type_description,
+            volume_fakes.type_id,
+            volume_fakes.type_name,
+        )
+        self.assertEqual(datalist, data)
+
+    def test_type_create_private(self):
+        arglist = [
+            volume_fakes.type_name,
+            "--description", volume_fakes.type_description,
+            "--private"
+        ]
+        verifylist = [
+            ("name", volume_fakes.type_name),
+            ("description", volume_fakes.type_description),
+            ("public", False),
+            ("private", True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.types_mock.create.assert_called_with(
+            volume_fakes.type_name,
+            description=volume_fakes.type_description,
+            private=True,
+        )
+
+        collist = (
+            'description',
+            'id',
+            'name',
+        )
+        self.assertEqual(collist, columns)
+        datalist = (
+            volume_fakes.type_description,
+            volume_fakes.type_id,
+            volume_fakes.type_name,
+        )
+        self.assertEqual(datalist, data)
+
+
+class TestTypeList(TestType):
+    def setUp(self):
+        super(TestTypeList, self).setUp()
+
+        self.types_mock.list.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(volume_fakes.TYPE),
+                loaded=True
+            )
+        ]
+        # get the command to test
+        self.cmd = volume_type.ListVolumeType(self.app, None)
+
+    def test_type_list_without_options(self):
+        arglist = []
+        verifylist = [
+            ("long", False)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        collist = ["ID", "Name"]
+        self.assertEqual(collist, columns)
+        datalist = ((
+            volume_fakes.type_id,
+            volume_fakes.type_name,
+            ),)
+        self.assertEqual(datalist, tuple(data))
+
+    def test_type_list_with_options(self):
+        arglist = ["--long"]
+        verifylist = [("long", True)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        collist = ["ID", "Name", "Description", "Properties"]
+        self.assertEqual(collist, columns)
+        datalist = ((
+            volume_fakes.type_id,
+            volume_fakes.type_name,
+            volume_fakes.type_description,
+            "foo='bar'"
+            ),)
+        self.assertEqual(datalist, tuple(data))
+
+
 class TestTypeShow(TestType):
     def setUp(self):
         super(TestTypeShow, self).setUp()
