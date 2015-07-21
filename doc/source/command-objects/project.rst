@@ -70,11 +70,12 @@ Delete project(s)
 .. code:: bash
 
     os project delete
+        [--domain <domain>]
         <project> [<project> ...]
 
 .. option:: --domain <domain>
 
-    Domain owning :ref:`\<project\> <_project_delete-project>` (name or ID)
+    Domain owning :ref:`\<project\> <project_delete-project>` (name or ID)
 
     .. versionadded:: 3
 

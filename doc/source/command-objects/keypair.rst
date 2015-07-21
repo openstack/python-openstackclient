@@ -12,7 +12,7 @@ keypair create
 
 Create new public key
 
-.. program keypair create
+.. program:: keypair create
 .. code:: bash
 
     os keypair create
@@ -32,7 +32,7 @@ keypair delete
 
 Delete public key
 
-.. program keypair delete
+.. program:: keypair delete
 .. code:: bash
 
     os keypair delete
@@ -47,7 +47,7 @@ keypair list
 
 List public key fingerprints
 
-.. program keypair list
+.. program:: keypair list
 .. code:: bash
 
     os keypair list
@@ -57,7 +57,7 @@ keypair show
 
 Display public key details
 
-.. program keypair show
+.. program:: keypair show
 .. code:: bash
 
     os keypair show

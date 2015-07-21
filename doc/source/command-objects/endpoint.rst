@@ -48,7 +48,7 @@ Create new endpoint
 .. code:: bash
 
     os endpoint create
-        [--region <region-id>
+        [--region <region-id>]
         [--enable | --disable]
         <service>
         <interface>

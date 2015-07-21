@@ -246,7 +246,7 @@ Set image properties
 
     Disk format of image.
     Acceptable formats: ['ami', 'ari', 'aki', 'vhd', 'vmdk', 'raw', 'qcow2',
-                         'vdi', 'iso']
+    'vdi', 'iso']
 
 .. option:: --size <size>
 
@@ -330,7 +330,7 @@ image add project
 
 Associate project with image
 
-.. progran:: image add project
+.. program:: image add project
 .. code:: bash
 
     os image add project
@@ -357,7 +357,7 @@ image remove project
 
 Disassociate project with image
 
-.. progran:: image remove project
+.. program:: image remove project
 .. code:: bash
 
     os image remove remove

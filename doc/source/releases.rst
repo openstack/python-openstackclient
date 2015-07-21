@@ -100,7 +100,7 @@ Release Notes
   Bug `1446751 <https://bugs.launchpad.net/bugs/1446751>`_
 
 * Document the backward-compatibility-breaking changes in
-  :doc:`backwards-incompatibile`.
+  :doc:`backwards-incompatible`.
   Bug `1406470 <https://bugs.launchpad.net/bugs/1406470>`_
 
 * Add `--parent`` option to `projct create` command.
@@ -203,7 +203,7 @@ Release Notes
 
 * Set a default domain ID when both ``OS_USER_DOMAIN_ID`` and
   ``OS_USER_DOMAIN_NAME`` are not set.  This is also done for
-  ``OS_PROJECT_DOMAIN_ID`` and ``OS_PROJECT_DOMAIN_NAME`.
+  ``OS_PROJECT_DOMAIN_ID`` and ``OS_PROJECT_DOMAIN_NAME``.
   (*Identity API v3 only*).
   Bug `1385338 <https://bugs.launchpad.net/bugs/1385338>`_: Improve domain related defaults when using v3 identity
 
