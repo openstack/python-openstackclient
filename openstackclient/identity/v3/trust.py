@@ -88,35 +88,20 @@ class CreateTrust(show.ShowOne):
         self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
-        project_domain = None
-        if parsed_args.project_domain:
-            project_domain = common.find_domain(identity_client,
-                                                parsed_args.project_domain).id
-
-        trustor_domain = None
-        if parsed_args.trustor_domain:
-            trustor_domain = common.find_domain(identity_client,
-                                                parsed_args.trustor_domain).id
-
-        trustee_domain = None
-        if parsed_args.trustee_domain:
-            trustee_domain = common.find_domain(identity_client,
-                                                parsed_args.trustee_domain).id
-
         # NOTE(stevemar): Find the two users, project and roles that
         # are necessary for making a trust usable, the API dictates that
         # trustee, project and role are optional, but that makes the trust
         # pointless, and trusts are immutable, so let's enforce it at the
         # client level.
-        trustor_id = utils.find_resource(identity_client.users,
-                                         parsed_args.trustor,
-                                         domain_id=trustor_domain).id
-        trustee_id = utils.find_resource(identity_client.users,
-                                         parsed_args.trustee,
-                                         domain_id=trustee_domain).id
-        project_id = utils.find_resource(identity_client.projects,
+        trustor_id = common.find_user(identity_client,
+                                      parsed_args.trustor,
+                                      parsed_args.trustor_domain).id
+        trustee_id = common.find_user(identity_client,
+                                      parsed_args.trustee,
+                                      parsed_args.trustee_domain).id
+        project_id = common.find_project(identity_client,
                                          parsed_args.project,
-                                         domain_id=project_domain).id
+                                         parsed_args.project_domain).id
 
         role_names = []
         for role in parsed_args.role:
