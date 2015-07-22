@@ -48,6 +48,10 @@ class ClientCache(object):
 
 class ClientManager(object):
     """Manages access to API clients, including authentication."""
+
+    # A simple incrementing version for the plugin to know what is available
+    PLUGIN_INTERFACE_VERSION = "2"
+
     identity = ClientCache(identity_client.make_client)
 
     def __getattr__(self, name):
