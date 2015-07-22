@@ -37,7 +37,7 @@ def auth_with_unscoped_saml(func):
         else:
             msg = ('This command requires the use of an unscoped SAML '
                    'authentication plugin. Please use argument '
-                   '--os-auth-plugin with one of the following '
+                   '--os-auth-type with one of the following '
                    'plugins: ' + ', '.join(UNSCOPED_AUTH_PLUGINS))
             raise exceptions.CommandError(msg)
     return _decorated
