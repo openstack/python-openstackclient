@@ -83,16 +83,16 @@ Delete user(s)
 .. code:: bash
 
     os user delete
+        [--domain <domain>]
         <user> [<user> ...]
 
 .. option:: --domain <domain>
 
-    Domain owning :ref:`\<user\> <_user_delete-user>` (name or ID)
+    Domain owning :ref:`\<user\> <user_delete-user>` (name or ID)
 
     .. versionadded:: 3
 
 .. _user_delete-user:
-
 .. describe:: <user>
 
     User to delete (name or ID)
