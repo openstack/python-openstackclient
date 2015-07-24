@@ -75,6 +75,21 @@ List of Backwards Incompatible Changes
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/472613
   * Commit: https://review.openstack.org/#/c/194654/
 
+6. Plugin interface change for default API versions
+
+  Previously, the default version was set in the parsed arguments,
+  but this makes it impossible to tell what has been passed in at the
+  command line, set in an environment variable or is just the default.
+  Now, the module should have a DEFAULT_API_VERSION that contains the
+  value and it will be set after command line argument, environment
+  and OCC file processing.
+
+  * In favor of: DEFAULT_API_VERSION
+  * As of: 1.2.1
+  * Removed in: NA
+  * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1453229
+  * Commit: https://review.openstack.org/#/c/181514/
+
 For Developers
 ==============
 

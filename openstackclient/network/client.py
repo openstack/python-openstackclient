@@ -18,7 +18,7 @@ from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
 
-DEFAULT_NETWORK_API_VERSION = '2'
+DEFAULT_API_VERSION = '2'
 API_VERSION_OPTION = 'os_network_api_version'
 API_NAME = "network"
 API_VERSIONS = {
@@ -83,10 +83,8 @@ def build_option_parser(parser):
     parser.add_argument(
         '--os-network-api-version',
         metavar='<network-api-version>',
-        default=utils.env(
-            'OS_NETWORK_API_VERSION',
-            default=DEFAULT_NETWORK_API_VERSION),
+        default=utils.env('OS_NETWORK_API_VERSION'),
         help='Network API version, default=' +
-             DEFAULT_NETWORK_API_VERSION +
+             DEFAULT_API_VERSION +
              ' (Env: OS_NETWORK_API_VERSION)')
     return parser

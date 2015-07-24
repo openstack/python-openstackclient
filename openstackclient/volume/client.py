@@ -19,7 +19,7 @@ from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
 
-DEFAULT_VOLUME_API_VERSION = '1'
+DEFAULT_API_VERSION = '1'
 API_VERSION_OPTION = 'os_volume_api_version'
 API_NAME = "volume"
 API_VERSIONS = {
@@ -72,10 +72,8 @@ def build_option_parser(parser):
     parser.add_argument(
         '--os-volume-api-version',
         metavar='<volume-api-version>',
-        default=utils.env(
-            'OS_VOLUME_API_VERSION',
-            default=DEFAULT_VOLUME_API_VERSION),
+        default=utils.env('OS_VOLUME_API_VERSION'),
         help='Volume API version, default=' +
-             DEFAULT_VOLUME_API_VERSION +
+             DEFAULT_API_VERSION +
              ' (Env: OS_VOLUME_API_VERSION)')
     return parser

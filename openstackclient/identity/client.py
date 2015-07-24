@@ -21,7 +21,7 @@ from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
 
-DEFAULT_IDENTITY_API_VERSION = '2'
+DEFAULT_API_VERSION = '2'
 API_VERSION_OPTION = 'os_identity_api_version'
 API_NAME = 'identity'
 API_VERSIONS = {
@@ -63,11 +63,9 @@ def build_option_parser(parser):
     parser.add_argument(
         '--os-identity-api-version',
         metavar='<identity-api-version>',
-        default=utils.env(
-            'OS_IDENTITY_API_VERSION',
-            default=DEFAULT_IDENTITY_API_VERSION),
+        default=utils.env('OS_IDENTITY_API_VERSION'),
         help='Identity API version, default=' +
-             DEFAULT_IDENTITY_API_VERSION +
+             DEFAULT_API_VERSION +
              ' (Env: OS_IDENTITY_API_VERSION)')
     return auth.build_auth_plugins_option_parser(parser)
 
