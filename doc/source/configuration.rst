@@ -137,3 +137,9 @@ that appears in :file:`clouds.yaml`
       rackspace:
         auth:
           auth_url: 'https://identity.api.rackspacecloud.com/v2.0/'
+
+Debugging
+~~~~~~~~~
+You may find the :doc:`config show <command-objects/config>`
+helpful to debug configuration issues.  It will display your current
+configuration.

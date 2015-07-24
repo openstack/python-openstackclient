@@ -28,6 +28,7 @@ PASSWORD = "scratchy"
 PROJECT_NAME = "poochie"
 REGION_NAME = "richie"
 INTERFACE = "catchy"
+VERSION = "3"
 
 TEST_RESPONSE_DICT = fixture.V2Token(token_id=AUTH_TOKEN,
                                      user_name=USERNAME)
@@ -101,6 +102,17 @@ class FakeClientManager(object):
         self.session = None
         self.auth_ref = None
         self.auth_plugin_name = None
+
+    def get_configuration(self):
+        return {
+            'auth': {
+                'username': USERNAME,
+                'password': PASSWORD,
+                'token': AUTH_TOKEN,
+            },
+            'region': REGION_NAME,
+            'identity_api_version': VERSION,
+        }
 
 
 class FakeModule(object):
