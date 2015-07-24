@@ -77,16 +77,28 @@ List volume types
 volume type set
 ---------------
 
-*Only supported for Volume API v1*
-
 Set volume type properties
 
 .. program:: volume type set
 .. code:: bash
 
     os volume type set
+        [--name <name>]
+        [--description <description>]
         [--property <key=value> [...] ]
         <volume-type>
+
+.. option:: --name <name>
+
+    Set volume type name
+
+    .. versionadded:: 2
+
+.. option:: --description <description>
+
+    Set volume type description
+
+    .. versionadded:: 2
 
 .. option:: --property <key=value>
 
@@ -98,8 +110,6 @@ Set volume type properties
 
 volume type unset
 -----------------
-
-*Only supported for Volume API v1*
 
 Unset volume type properties
 
