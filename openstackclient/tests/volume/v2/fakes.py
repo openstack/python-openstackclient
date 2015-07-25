@@ -17,6 +17,7 @@ import mock
 
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests.image.v2 import fakes as image_fakes
 from openstackclient.tests import utils
 
 volume_id = "ce26708d-a7f8-4b4b-9861-4a80256615a6"
@@ -26,8 +27,11 @@ volume_status = "available"
 volume_size = 20
 volume_type = "fake_lvmdriver-1"
 volume_metadata = {
-    "foo": "bar"
+    'Alpha': 'a',
+    'Beta': 'b',
+    'Gamma': 'g',
 }
+volume_metadata_str = "Alpha='a', Beta='b', Gamma='g'"
 volume_snapshot_id = 1
 volume_availability_zone = "nova"
 volume_attachments = ["fake_attachments"]
@@ -169,6 +173,13 @@ QOS_WITH_ASSOCIATIONS = {
     'associations': [qos_association]
 }
 
+image_id = 'im1'
+image_name = 'graven'
+IMAGE = {
+    'id': image_id,
+    'name': image_name
+}
+
 
 class FakeVolumeClient(object):
     def __init__(self, **kwargs):
@@ -197,6 +208,10 @@ class TestVolume(utils.TestCommand):
             token=fakes.AUTH_TOKEN
         )
         self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN
+        )
+        self.app.client_manager.image = image_fakes.FakeImagev2Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN
         )
