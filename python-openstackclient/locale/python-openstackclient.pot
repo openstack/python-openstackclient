@@ -7,16 +7,16 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: python-openstackclient 1.5.1.dev45\n"
+"Project-Id-Version: python-openstackclient 1.5.1.dev136\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-07-09 06:11+0000\n"
+"POT-Creation-Date: 2015-07-29 06:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 1.3\n"
+"Generated-By: Babel 2.0\n"
 
 #: openstackclient/api/auth.py:144
 msgid "Set a username with --os-username, OS_USERNAME, or auth.username\n"
@@ -48,7 +48,7 @@ msgid "Set a service URL, with --os-url, OS_URL or auth.url\n"
 msgstr ""
 
 #: openstackclient/compute/v2/availability_zone.py:72
-#: openstackclient/compute/v2/server.py:667
+#: openstackclient/compute/v2/server.py:700
 #: openstackclient/identity/v2_0/endpoint.py:114
 #: openstackclient/identity/v2_0/project.py:145
 #: openstackclient/identity/v2_0/service.py:128
@@ -56,89 +56,89 @@ msgstr ""
 msgid "List additional fields in output"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:121
-#: openstackclient/compute/v2/server.py:158
-#: openstackclient/compute/v2/server.py:509
-#: openstackclient/compute/v2/server.py:738
-#: openstackclient/compute/v2/server.py:772
-#: openstackclient/compute/v2/server.py:855
-#: openstackclient/compute/v2/server.py:879
-#: openstackclient/compute/v2/server.py:934
-#: openstackclient/compute/v2/server.py:1026
-#: openstackclient/compute/v2/server.py:1066
-#: openstackclient/compute/v2/server.py:1092
-#: openstackclient/compute/v2/server.py:1157
-#: openstackclient/compute/v2/server.py:1181
-#: openstackclient/compute/v2/server.py:1240
-#: openstackclient/compute/v2/server.py:1277
-#: openstackclient/compute/v2/server.py:1435
-#: openstackclient/compute/v2/server.py:1459
-#: openstackclient/compute/v2/server.py:1483
-#: openstackclient/compute/v2/server.py:1507
-#: openstackclient/compute/v2/server.py:1531
+#: openstackclient/compute/v2/server.py:154
+#: openstackclient/compute/v2/server.py:191
+#: openstackclient/compute/v2/server.py:542
+#: openstackclient/compute/v2/server.py:771
+#: openstackclient/compute/v2/server.py:805
+#: openstackclient/compute/v2/server.py:888
+#: openstackclient/compute/v2/server.py:912
+#: openstackclient/compute/v2/server.py:967
+#: openstackclient/compute/v2/server.py:1059
+#: openstackclient/compute/v2/server.py:1099
+#: openstackclient/compute/v2/server.py:1125
+#: openstackclient/compute/v2/server.py:1190
+#: openstackclient/compute/v2/server.py:1214
+#: openstackclient/compute/v2/server.py:1273
+#: openstackclient/compute/v2/server.py:1310
+#: openstackclient/compute/v2/server.py:1457
+#: openstackclient/compute/v2/server.py:1481
+#: openstackclient/compute/v2/server.py:1505
+#: openstackclient/compute/v2/server.py:1529
+#: openstackclient/compute/v2/server.py:1553
 msgid "Server (name or ID)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:126
+#: openstackclient/compute/v2/server.py:159
 msgid "Security group to add (name or ID)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:163
+#: openstackclient/compute/v2/server.py:196
 msgid "Volume to add (name or ID)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:168
+#: openstackclient/compute/v2/server.py:201
 msgid "Server internal device name for volume"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:208
-#: openstackclient/compute/v2/server.py:1186
+#: openstackclient/compute/v2/server.py:241
+#: openstackclient/compute/v2/server.py:1219
 msgid "New server name"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:216
+#: openstackclient/compute/v2/server.py:249
 msgid "Create server from this image"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:221
+#: openstackclient/compute/v2/server.py:254
 msgid "Create server from this volume"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:227
+#: openstackclient/compute/v2/server.py:260
 msgid "Create server with this flavor"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:234
+#: openstackclient/compute/v2/server.py:267
 msgid "Security group to assign to this server (repeat for multiple groups)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:240
+#: openstackclient/compute/v2/server.py:273
 msgid "Keypair to inject into this server (optional extension)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:246
+#: openstackclient/compute/v2/server.py:279
 msgid "Set a property on this server (repeat for multiple values)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:254
+#: openstackclient/compute/v2/server.py:287
 msgid "File to inject into image before boot (repeat for multiple files)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:260
+#: openstackclient/compute/v2/server.py:293
 msgid "User data file to serve from the metadata server"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:265
+#: openstackclient/compute/v2/server.py:298
 msgid "Select an availability zone for the server"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:272
+#: openstackclient/compute/v2/server.py:305
 msgid ""
 "Map block devices; map is <id>:<type>:<size(GB)>:<delete_on_terminate> "
 "(optional extension)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:282
+#: openstackclient/compute/v2/server.py:315
 msgid ""
 "Create a NIC on the server. Specify option multiple times to create "
 "multiple NICs. Either net-id or port-id must be provided, but not both. "
@@ -147,318 +147,318 @@ msgid ""
 "-fixed-ip: IPv6 fixed address for NIC (optional)."
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:295
+#: openstackclient/compute/v2/server.py:328
 msgid "Hints for the scheduler (optional extension)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:301
+#: openstackclient/compute/v2/server.py:334
 msgid ""
 "Use specified volume as the config drive, or 'True' to use an ephemeral "
 "drive"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:309
+#: openstackclient/compute/v2/server.py:342
 msgid "Minimum number of servers to launch (default=1)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:316
+#: openstackclient/compute/v2/server.py:349
 msgid "Maximum number of servers to launch (default=1)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:321
+#: openstackclient/compute/v2/server.py:354
 msgid "Wait for build to complete"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:361
+#: openstackclient/compute/v2/server.py:394
 msgid "min instances should be <= max instances"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:364
+#: openstackclient/compute/v2/server.py:397
 msgid "min instances should be > 0"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:367
+#: openstackclient/compute/v2/server.py:400
 msgid "max instances should be > 0"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:403
+#: openstackclient/compute/v2/server.py:436
 msgid "either net-id or port-id should be specified but not both"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:425
+#: openstackclient/compute/v2/server.py:458
 msgid "can't create server with port specified since neutron not enabled"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:490
+#: openstackclient/compute/v2/server.py:523
 #, python-format
 msgid "Error creating server: %s"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:492
+#: openstackclient/compute/v2/server.py:525
 msgid ""
 "\n"
 "Error creating server"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:514
+#: openstackclient/compute/v2/server.py:547
 msgid "Name of new image (default is server name)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:519
+#: openstackclient/compute/v2/server.py:552
 msgid "Wait for image create to complete"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:549
+#: openstackclient/compute/v2/server.py:582
 #, python-format
 msgid "Error creating server snapshot: %s"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:551
+#: openstackclient/compute/v2/server.py:584
 msgid ""
 "\n"
 "Error creating server snapshot"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:573
+#: openstackclient/compute/v2/server.py:606
 msgid "Server(s) to delete (name or ID)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:578
+#: openstackclient/compute/v2/server.py:611
 msgid "Wait for delete to complete"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:597
+#: openstackclient/compute/v2/server.py:630
 #, python-format
 msgid "Error deleting server: %s"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:599
+#: openstackclient/compute/v2/server.py:632
 msgid ""
 "\n"
 "Error deleting server"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:614
+#: openstackclient/compute/v2/server.py:647
 msgid "Only return instances that match the reservation"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:619
+#: openstackclient/compute/v2/server.py:652
 msgid "Regular expression to match IP addresses"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:624
+#: openstackclient/compute/v2/server.py:657
 msgid "Regular expression to match IPv6 addresses"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:629
+#: openstackclient/compute/v2/server.py:662
 msgid "Regular expression to match names"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:634
+#: openstackclient/compute/v2/server.py:667
 msgid "Regular expression to match instance name (admin only)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:640
+#: openstackclient/compute/v2/server.py:673
 msgid "Search by server status"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:645
+#: openstackclient/compute/v2/server.py:678
 msgid "Search by flavor"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:650
+#: openstackclient/compute/v2/server.py:683
 msgid "Search by image"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:655
+#: openstackclient/compute/v2/server.py:688
 msgid "Search by hostname"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:661
+#: openstackclient/compute/v2/server.py:694
 msgid "Include all projects (admin only)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:777
+#: openstackclient/compute/v2/server.py:810
 msgid "Target hostname"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:785
+#: openstackclient/compute/v2/server.py:818
 msgid "Perform a shared live migration (default)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:791
+#: openstackclient/compute/v2/server.py:824
 msgid "Perform a block live migration"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:798
+#: openstackclient/compute/v2/server.py:831
 msgid "Allow disk over-commit on the destination host"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:805
+#: openstackclient/compute/v2/server.py:838
 msgid "Do not over-commit disk on the destination host (default)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:811
-#: openstackclient/compute/v2/server.py:1112
+#: openstackclient/compute/v2/server.py:844
+#: openstackclient/compute/v2/server.py:1145
 msgid "Wait for resize to complete"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:839
-#: openstackclient/compute/v2/server.py:1137
+#: openstackclient/compute/v2/server.py:872
+#: openstackclient/compute/v2/server.py:1170
 msgid "Complete\n"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:841
+#: openstackclient/compute/v2/server.py:874
 msgid ""
 "\n"
 "Error migrating server"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:888
+#: openstackclient/compute/v2/server.py:921
 msgid "Perform a hard reboot"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:896
+#: openstackclient/compute/v2/server.py:929
 msgid "Perform a soft reboot"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:901
+#: openstackclient/compute/v2/server.py:934
 msgid "Wait for reboot to complete"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:918
+#: openstackclient/compute/v2/server.py:951
 msgid ""
 "\n"
 "Reboot complete\n"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:920
+#: openstackclient/compute/v2/server.py:953
 msgid ""
 "\n"
 "Error rebooting server\n"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:940
+#: openstackclient/compute/v2/server.py:973
 msgid "Recreate server from this image"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:950
+#: openstackclient/compute/v2/server.py:983
 msgid "Wait for rebuild to complete"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:971
+#: openstackclient/compute/v2/server.py:1004
 msgid ""
 "\n"
 "Complete\n"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:973
+#: openstackclient/compute/v2/server.py:1006
 msgid ""
 "\n"
 "Error rebuilding server"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:990
+#: openstackclient/compute/v2/server.py:1023
 msgid "Name or ID of server to use"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:995
+#: openstackclient/compute/v2/server.py:1028
 msgid "Name or ID of security group to remove from server"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1031
+#: openstackclient/compute/v2/server.py:1064
 msgid "Volume to remove (name or ID)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1097
+#: openstackclient/compute/v2/server.py:1130
 msgid "Resize server to specified flavor"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1102
+#: openstackclient/compute/v2/server.py:1135
 msgid "Confirm server resize is complete"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1107
+#: openstackclient/compute/v2/server.py:1140
 msgid "Restore server state before resize"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1139
+#: openstackclient/compute/v2/server.py:1172
 msgid ""
 "\n"
 "Error resizing server"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1191
+#: openstackclient/compute/v2/server.py:1224
 msgid "Set new root password (interactive only)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1197
+#: openstackclient/compute/v2/server.py:1230
 msgid ""
 "Property to add/change for this server (repeat option to set multiple "
 "properties)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1221
+#: openstackclient/compute/v2/server.py:1254
 msgid "New password: "
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1222
+#: openstackclient/compute/v2/server.py:1255
 msgid "Retype new password: "
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1226
+#: openstackclient/compute/v2/server.py:1259
 msgid "Passwords do not match, password unchanged"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1246
+#: openstackclient/compute/v2/server.py:1279
 msgid "Display server diagnostics information"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1259
+#: openstackclient/compute/v2/server.py:1292
 msgid "Error retrieving diagnostics data"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1282
+#: openstackclient/compute/v2/server.py:1315
 msgid "Login name (ssh -l option)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1293
+#: openstackclient/compute/v2/server.py:1327
 msgid "Destination port (ssh -p option)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1305
+#: openstackclient/compute/v2/server.py:1339
 msgid "Private key file (ssh -i option)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1316
+#: openstackclient/compute/v2/server.py:1350
 msgid "Options in ssh_config(5) format (ssh -o option)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1330
+#: openstackclient/compute/v2/server.py:1364
 msgid "Use only IPv4 addresses"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1337
+#: openstackclient/compute/v2/server.py:1371
 msgid "Use only IPv6 addresses"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1346
+#: openstackclient/compute/v2/server.py:1380
 msgid "Use public IP address"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1354
+#: openstackclient/compute/v2/server.py:1388
 msgid "Use private IP address"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1361
+#: openstackclient/compute/v2/server.py:1395
 msgid "Use other IP address (public, private, etc)"
 msgstr ""
 
-#: openstackclient/compute/v2/server.py:1538
+#: openstackclient/compute/v2/server.py:1560
 msgid "Property key to remove from server (repeat to unset multiple values)"
 msgstr ""
 
-#: openstackclient/identity/v2_0/catalog.py:73
+#: openstackclient/identity/v2_0/catalog.py:75
 #: openstackclient/identity/v3/catalog.py:72
 msgid "Service to display (type or name)"
 msgstr ""
@@ -707,7 +707,7 @@ msgid "Disable user"
 msgstr ""
 
 #: openstackclient/identity/v2_0/user.py:77
-#: openstackclient/identity/v3/user.py:89
+#: openstackclient/identity/v3/user.py:90
 msgid "Return existing user"
 msgstr ""
 
