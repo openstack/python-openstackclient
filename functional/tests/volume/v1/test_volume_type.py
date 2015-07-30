@@ -44,13 +44,17 @@ class VolumeTypeTests(common.BaseVolumeTests):
         raw_output = self.openstack('volume type show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)
 
-    def test_volume_set_one_property(self):
-        props = "foo='bar'"
+    def test_volume_type_set_unset_properties(self):
+        raw_output = self.openstack(
+            'volume type set --property a=b --property c=d ' + self.NAME)
+        self.assertEqual("", raw_output)
 
-        raw_output = self.openstack('volume type set ' + self.NAME +
-                                    ' --property ' + props)
-        self.assertEqual('', raw_output)
+        opts = self.get_show_opts(["properties"])
+        raw_output = self.openstack('volume type show ' + self.NAME + opts)
+        self.assertEqual("a='b', c='d'\n", raw_output)
 
-        raw_output = self.openstack('volume type show -f value -c properties '
+        raw_output = self.openstack('volume type unset --property a '
                                     + self.NAME)
-        self.assertEqual(props + '\n', raw_output)
+        self.assertEqual("", raw_output)
+        raw_output = self.openstack('volume type show ' + self.NAME + opts)
+        self.assertEqual("c='d'\n", raw_output)
