@@ -10,6 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import os
+
 from functional.common import test
 
 BASIC_CONFIG_HEADERS = ['Field', 'Value']
@@ -21,3 +23,9 @@ class ConfigurationTests(test.TestCase):
         raw_output = self.openstack('configuration show')
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, BASIC_CONFIG_HEADERS)
+
+    def test_configuration_show_unmask(self):
+        opts = "-f value -c auth.password"
+        raw_output = self.openstack('configuration show --unmask ' + opts)
+        passwd = os.environ['OS_PASSWORD']
+        self.assertOutput(passwd + '\n', raw_output)
