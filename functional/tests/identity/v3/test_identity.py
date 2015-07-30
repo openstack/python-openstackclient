@@ -42,6 +42,8 @@ class IdentityTests(test.TestCase):
     ENDPOINT_LIST_HEADERS = ['ID', 'Region', 'Service Name', 'Service Type',
                              'Enabled', 'Interface', 'URL']
 
+    IDENTITY_PROVIDER_FIELDS = ['description', 'enabled', 'id', 'remote_ids']
+
     @classmethod
     def setUpClass(cls):
         if hasattr(super(IdentityTests, cls), 'setUpClass'):
@@ -253,3 +255,20 @@ class IdentityTests(test.TestCase):
                 self.openstack,
                 'endpoint delete %s' % endpoint['id'])
         return endpoint['id']
+
+    def _create_dummy_idp(self, add_clean_up=True):
+        identity_provider = data_utils.rand_name('IdentityProvider')
+        description = data_utils.rand_name('description')
+        raw_output = self.openstack(
+            'identity provider create '
+            ' %(name)s '
+            '--description %(description)s '
+            '--enable ' % {'name': identity_provider,
+                           'description': description})
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.IDENTITY_PROVIDER_FIELDS)
+        if add_clean_up:
+            self.addCleanup(
+                self.openstack,
+                'identity provider delete %s' % identity_provider)
+        return identity_provider
