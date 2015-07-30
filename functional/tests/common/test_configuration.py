@@ -13,11 +13,15 @@
 import os
 
 from functional.common import test
+from openstackclient.common import configuration
+
 
 BASIC_CONFIG_HEADERS = ['Field', 'Value']
 
 
 class ConfigurationTests(test.TestCase):
+
+    opts = "-f value -c auth.password"
 
     def test_configuration_show(self):
         raw_output = self.openstack('configuration show')
@@ -25,7 +29,10 @@ class ConfigurationTests(test.TestCase):
         self.assert_table_structure(items, BASIC_CONFIG_HEADERS)
 
     def test_configuration_show_unmask(self):
-        opts = "-f value -c auth.password"
-        raw_output = self.openstack('configuration show --unmask ' + opts)
+        raw_output = self.openstack('configuration show --unmask ' + self.opts)
         passwd = os.environ['OS_PASSWORD']
         self.assertOutput(passwd + '\n', raw_output)
+
+    def test_configuration_show_mask(self):
+        raw_output = self.openstack('configuration show --mask ' + self.opts)
+        self.assertOutput(configuration.REDACTED + '\n', raw_output)
