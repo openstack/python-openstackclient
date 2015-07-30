@@ -83,14 +83,16 @@ commandline arguments, etc.) should be presumed to be encoded as utf-8.
 
     WRONG:
 
+    infile = open('testfile', 'r')
     mystring = infile.readline()
     myreturnstring = do_some_magic_with(mystring)
     outfile.write(myreturnstring)
 
     RIGHT:
 
+    infile = open('testfile', 'r')
     mystring = infile.readline()
-    mytext = s.decode('utf-8')
+    mytext = mystring.decode('utf-8')
     returntext = do_some_magic_with(mytext)
     returnstring = returntext.encode('utf-8')
     outfile.write(returnstring)
