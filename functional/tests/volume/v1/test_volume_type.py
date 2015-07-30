@@ -38,3 +38,8 @@ class VolumeTypeTests(test.TestCase):
         opts = self.get_list_opts(self.HEADERS)
         raw_output = self.openstack('volume type list' + opts)
         self.assertIn(self.NAME, raw_output)
+
+    def test_volume_type_show(self):
+        opts = self.get_show_opts(self.FIELDS)
+        raw_output = self.openstack('volume type show ' + self.NAME + opts)
+        self.assertEqual(self.NAME + "\n", raw_output)
