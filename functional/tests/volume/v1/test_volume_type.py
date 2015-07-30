@@ -12,10 +12,10 @@
 
 import uuid
 
-from functional.common import test
+from functional.tests.volume.v1 import common
 
 
-class VolumeTypeTests(test.TestCase):
+class VolumeTypeTests(common.BaseVolumeTests):
     """Functional tests for volume type. """
 
     NAME = uuid.uuid4().hex
@@ -43,3 +43,14 @@ class VolumeTypeTests(test.TestCase):
         opts = self.get_show_opts(self.FIELDS)
         raw_output = self.openstack('volume type show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)
+
+    def test_volume_set_one_property(self):
+        props = "foo='bar'"
+
+        raw_output = self.openstack('volume type set ' + self.NAME +
+                                    ' --property ' + props)
+        self.assertEqual('', raw_output)
+
+        raw_output = self.openstack('volume type show -f value -c properties '
+                                    + self.NAME)
+        self.assertEqual(props + '\n', raw_output)
