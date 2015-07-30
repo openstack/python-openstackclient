@@ -12,10 +12,10 @@
 
 import uuid
 
-from functional.common import test
+from functional.tests.volume.v1 import common
 
 
-class VolumeTests(test.TestCase):
+class VolumeTests(common.BaseVolumeTests):
     """Functional tests for volume. """
 
     NAME = uuid.uuid4().hex
