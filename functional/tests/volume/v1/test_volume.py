@@ -64,15 +64,13 @@ class VolumeTests(common.BaseVolumeTests):
         self.assertEqual("c='d'\n", raw_output)
 
     def test_volume_set(self):
-        raw_output = self.openstack(
-            'volume set --description RAMAC ' + self.NAME)
+        self.openstack('volume set --description RAMAC ' + self.NAME)
         opts = self.get_show_opts(["display_description", "display_name"])
         raw_output = self.openstack('volume show ' + self.NAME + opts)
         self.assertEqual("RAMAC\n" + self.NAME + "\n", raw_output)
 
     def test_volume_set_size(self):
-        raw_output = self.openstack(
-            'volume set --size 2 ' + self.NAME)
+        self.openstack('volume set --size 2 ' + self.NAME)
         opts = self.get_show_opts(["display_name", "size"])
         raw_output = self.openstack('volume show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n2\n", raw_output)
