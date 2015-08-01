@@ -15,9 +15,12 @@ List role assignments
     os role assignment list
         [--role <role>]
         [--user <user>]
+        [--user-domain <user-domain>]
         [--group <group>]
+        [--group-domain <group-domain>]
         [--domain <domain>]
         [--project <project>]
+        [--project-domain <project-domain>]
         [--effective]
         [--inherited]
 
@@ -29,9 +32,19 @@ List role assignments
 
     User to filter (name or ID)
 
+.. option:: --user-domain <user-domain>
+
+    Domain the user belongs to (name or ID).
+    This can be used in case collisions between user names exist.
+
 .. option:: --group <group>
 
     Group to filter (name or ID)
+
+.. option:: --group-domain <group-domain>
+
+    Domain the group belongs to (name or ID).
+    This can be used in case collisions between group names exist.
 
 .. option:: --domain <domain>
 
@@ -40,6 +53,11 @@ List role assignments
 .. option:: --project <project>
 
     Project to filter (name or ID)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 .. option:: --effective
 
