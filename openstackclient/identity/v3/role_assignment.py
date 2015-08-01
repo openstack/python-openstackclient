@@ -45,11 +45,13 @@ class ListRoleAssignment(lister.Lister):
             metavar='<user>',
             help='User to filter (name or ID)',
         )
+        common.add_user_domain_option_to_parser(parser)
         user_or_group.add_argument(
             '--group',
             metavar='<group>',
             help='Group to filter (name or ID)',
         )
+        common.add_group_domain_option_to_parser(parser)
         domain_or_project = parser.add_mutually_exclusive_group()
         domain_or_project.add_argument(
             '--domain',
@@ -61,6 +63,7 @@ class ListRoleAssignment(lister.Lister):
             metavar='<project>',
             help='Project to filter (name or ID)',
         )
+        common.add_project_domain_option_to_parser(parser)
 
         return parser
 
@@ -84,6 +87,7 @@ class ListRoleAssignment(lister.Lister):
             user = common.find_user(
                 identity_client,
                 parsed_args.user,
+                parsed_args.user_domain,
             )
 
         domain = None
@@ -98,6 +102,7 @@ class ListRoleAssignment(lister.Lister):
             project = common.find_project(
                 identity_client,
                 parsed_args.project,
+                parsed_args.project_domain,
             )
 
         group = None
@@ -105,6 +110,7 @@ class ListRoleAssignment(lister.Lister):
             group = common.find_group(
                 identity_client,
                 parsed_args.group,
+                parsed_args.group_domain,
             )
 
         effective = True if parsed_args.effective else False
