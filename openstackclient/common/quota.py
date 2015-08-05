@@ -222,8 +222,7 @@ class ShowQuota(show.ShowOne):
                 info.pop(k)
 
         # Handle project ID special as it only appears in output
-        if info['id']:
-            info['project'] = info['id']
-            info.pop('id')
+        if 'id' in info:
+            info['project'] = info.pop('id')
 
         return zip(*sorted(six.iteritems(info)))
