@@ -123,7 +123,7 @@ class TestRoleAdd(TestRole):
         kwargs = {
             'user': identity_fakes.user_id,
             'domain': identity_fakes.domain_id,
-            'inherited': self._is_inheritance_testcase(),
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
         }
         # RoleManager.grant(role, user=, group=, domain=, project=)
         self.roles_mock.grant.assert_called_with(
@@ -156,7 +156,7 @@ class TestRoleAdd(TestRole):
         kwargs = {
             'user': identity_fakes.user_id,
             'project': identity_fakes.project_id,
-            'inherited': self._is_inheritance_testcase(),
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
         }
         # RoleManager.grant(role, user=, group=, domain=, project=)
         self.roles_mock.grant.assert_called_with(
@@ -189,7 +189,7 @@ class TestRoleAdd(TestRole):
         kwargs = {
             'group': identity_fakes.group_id,
             'domain': identity_fakes.domain_id,
-            'inherited': self._is_inheritance_testcase(),
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
         }
         # RoleManager.grant(role, user=, group=, domain=, project=)
         self.roles_mock.grant.assert_called_with(
@@ -222,7 +222,7 @@ class TestRoleAdd(TestRole):
         kwargs = {
             'group': identity_fakes.group_id,
             'project': identity_fakes.project_id,
-            'inherited': self._is_inheritance_testcase(),
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
         }
         # RoleManager.grant(role, user=, group=, domain=, project=)
         self.roles_mock.grant.assert_called_with(
@@ -598,7 +598,7 @@ class TestRoleRemove(TestRole):
         kwargs = {
             'user': identity_fakes.user_id,
             'domain': identity_fakes.domain_id,
-            'inherited': self._is_inheritance_testcase(),
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
@@ -631,7 +631,7 @@ class TestRoleRemove(TestRole):
         kwargs = {
             'user': identity_fakes.user_id,
             'project': identity_fakes.project_id,
-            'inherited': self._is_inheritance_testcase(),
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
@@ -665,7 +665,7 @@ class TestRoleRemove(TestRole):
         kwargs = {
             'group': identity_fakes.group_id,
             'domain': identity_fakes.domain_id,
-            'inherited': self._is_inheritance_testcase(),
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
@@ -698,7 +698,7 @@ class TestRoleRemove(TestRole):
         kwargs = {
             'group': identity_fakes.group_id,
             'project': identity_fakes.project_id,
-            'inherited': self._is_inheritance_testcase(),
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(

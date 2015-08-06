@@ -103,7 +103,7 @@ def _process_identity_and_resource_options(parsed_args,
             parsed_args.project,
             parsed_args.group_domain,
         ).id
-    kwargs['inherited'] = parsed_args.inherited
+    kwargs['os_inherit_extension_inherited'] = parsed_args.inherited
     return kwargs
 
 
