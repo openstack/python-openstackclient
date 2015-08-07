@@ -15,6 +15,7 @@ Add role to a user or group in a project or domain
     os role add
         --domain <domain> | --project <project> [--project-domain <project-domain>]
         --user <user> [--user-domain <user-domain>] | --group <group> [--group-domain <group-domain>]
+        --inherited
         <role>
 
 .. option:: --domain <domain>
@@ -55,6 +56,12 @@ Add role to a user or group in a project or domain
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
+
+    .. versionadded:: 3
+
+.. option:: --inherited
+
+    Specifies if the role grant is inheritable to the sub projects.
 
     .. versionadded:: 3
 
@@ -110,6 +117,7 @@ List roles
     os role list
         --domain <domain> | --project <project> [--project-domain <project-domain>]
         --user <user> [--user-domain <user-domain>] | --group <group> [--group-domain <group-domain>]
+        --inherited
 
 .. option:: --domain <domain>
 
@@ -156,6 +164,12 @@ List roles
 
     .. versionadded:: 3
 
+.. option:: --inherited
+
+    Specifies if the role grant is inheritable to the sub projects.
+
+    .. versionadded:: 3
+
 role remove
 -----------
 
@@ -167,6 +181,7 @@ Remove role from domain/project : user/group
     os role remove
         --domain <domain> | --project <project> [--project-domain <project-domain>]
         --user <user> [--user-domain <user-domain>] | --group <group> [--group-domain <group-domain>]
+        --inherited
         <role>
 
 .. option:: --domain <domain>
@@ -207,6 +222,12 @@ Remove role from domain/project : user/group
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
+
+    .. versionadded:: 3
+
+.. option:: --inherited
+
+    Specifies if the role grant is inheritable to the sub projects.
 
     .. versionadded:: 3
 
