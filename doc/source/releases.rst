@@ -2,6 +2,134 @@
 Release Notes
 =============
 
+1.6.0 (10 Aug 2015)
+===================
+
+* Added support for Volume v2 APIs
+  Blueprint `volume-v2 <https://blueprints.launchpad.net/python-openstackclient/+spec/volume-v2>`_
+
+  * Backup
+  * Snapshot
+  * Volume
+  * Volume Type
+  * Volume QoS
+
+* Updated ``python-cliff`` provides improved UX
+
+  * -h and --help revert to top level help when used in a subcommand
+    Bug `1444983 <https://bugs.launchpad.net/bugs/1444983>`_
+
+  * suggest commands if command is not recognized
+    Bug `1462192 <https://bugs.launchpad.net/bugs/1462192>`_
+
+* Bad argument passed to inherited role assignments CRUD
+  Bug `1482254 <https://bugs.launchpad.net/bugs/1482254>`_
+
+* quota show for a project blows up
+  Bug `1481803 <https://bugs.launchpad.net/bugs/1481803>`_
+
+* Unscoped saml auth error message refers to invalid option os-auth-type
+  Bug `1477083 <https://bugs.launchpad.net/bugs/1477083>`_
+
+* Need a command to show current configuration
+  Bug `1476729 <https://bugs.launchpad.net/bugs/1476729>`_
+
+* type should be volume_type
+  Bug `1475958 <https://bugs.launchpad.net/bugs/1475958>`_
+
+* openstack volume(v1) type missing show
+  Bug `1475879 <https://bugs.launchpad.net/bugs/1475879>`_
+
+* property should be required argument in unset cmd
+  Bug `1475872 <https://bugs.launchpad.net/bugs/1475872>`_
+
+* --or-show missing from some command docs
+  Bug `1475485 <https://bugs.launchpad.net/bugs/1475485>`_
+
+* missing project-domain to prevent project name collisions for user v3
+  Bug `1475357 <https://bugs.launchpad.net/bugs/1475357>`_
+
+* Cannot manipulate group member by ID
+  Bug `1475127 <https://bugs.launchpad.net/bugs/1475127>`_
+
+* glance client expects image ID only, should use base resource
+  Bug `1475001 <https://bugs.launchpad.net/bugs/1475001>`_
+
+* trust roles display a trailing character upon show and create
+  Bug `1474707 <https://bugs.launchpad.net/bugs/1474707>`_
+
+* catalog list fails in identity v2
+  Bug `1474656 <https://bugs.launchpad.net/bugs/1474656>`_
+
+* openstack flavor unset NoneType error when used without --proprty
+  Bug `1474237 <https://bugs.launchpad.net/bugs/1474237>`_
+
+* TypeError: 'NoneType' object does not support item assignment with latest os-client-config
+  Bug `1473921 <https://bugs.launchpad.net/bugs/1473921>`_
+
+* authentication fails when openstackclient prompts for a password
+  Bug `1473862 <https://bugs.launchpad.net/bugs/1473862>`_
+
+* New mock release(1.1.0) broke unit/function tests
+  Bug `1473454 <https://bugs.launchpad.net/bugs/1473454>`_
+
+* Cannot create keystone trust with python-openstackclient using trustor/trustee id
+  Bug `1473298 <https://bugs.launchpad.net/bugs/1473298>`_
+
+* "role assignment list" fails if two users in different domains have the same name
+  Bug `1472909 <https://bugs.launchpad.net/bugs/1472909>`_
+
+* openstack catalog list always returns publicURL
+  Bug `1472629 <https://bugs.launchpad.net/bugs/1472629>`_
+
+* The network list --dhcp option is inconsistent
+  Bug `1472613 <https://bugs.launchpad.net/bugs/1472613>`_
+
+* Add support for showing aggregates in an hypervisor's properties
+  Bug `1470875 <https://bugs.launchpad.net/bugs/1470875>`_
+
+* Can't seem to be able to get Openstackclient/examples to work
+  Bug `1470272 <https://bugs.launchpad.net/bugs/1470272>`_
+
+* openstack server ssh fails to see floating IP address
+  Bug `1469843 <https://bugs.launchpad.net/bugs/1469843>`_
+
+* confused domain argument for network create v2
+  Bug `1468988 <https://bugs.launchpad.net/bugs/1468988>`_
+
+* small typo in network.rst
+  Bug `1468282 <https://bugs.launchpad.net/bugs/1468282>`_
+
+* Add support for Cinder volume qos commands
+  Bug `1467967 <https://bugs.launchpad.net/bugs/1467967>`_
+
+* mismatch option in server.rst
+  Bug `1466742 <https://bugs.launchpad.net/bugs/1466742>`_
+
+* user create mismatch object name in doc
+  Bug `1466738 <https://bugs.launchpad.net/bugs/1466738>`_
+
+* Existing image is updated when call image create
+  Bug `1461817 <https://bugs.launchpad.net/bugs/1461817>`_
+
+* ERROR: openstack 'ArgumentParser' object has no attribute 'debug'
+  Bug `1459519 <https://bugs.launchpad.net/bugs/1459519>`_
+
+* Add an --os-endpoint-type cli optional argument to be able to select endpoint interface type
+  Bug `1454392 <https://bugs.launchpad.net/bugs/1454392>`_
+
+* API versions are ignored from OCC
+  Bug `1453229 <https://bugs.launchpad.net/bugs/1453229>`_
+
+* Issues with OpenStackClient / Locale / OSX
+  Bug `1436898 <https://bugs.launchpad.net/bugs/1436898>`_
+
+* Image sharing does not seem to be supported
+  Bug `1402420 <https://bugs.launchpad.net/bugs/1402420>`_
+
+* rename requires files to standard names
+  Bug `1179008 <https://bugs.launchpad.net/bugs/1179008>`_
+
 1.5.0 (16 Jun 2015)
 ===================
 
