@@ -313,6 +313,13 @@ ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID = {
     'role': {'id': role_id},
 }
 
+ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID_INHERITED = {
+    'scope': {'project': {'id': project_id},
+              'OS-INHERIT:inherited_to': 'projects'},
+    'user': {'id': user_id},
+    'role': {'id': role_id},
+}
+
 ASSIGNMENT_WITH_PROJECT_ID_AND_GROUP_ID = {
     'scope': {'project': {'id': project_id}},
     'group': {'id': group_id},
@@ -321,6 +328,13 @@ ASSIGNMENT_WITH_PROJECT_ID_AND_GROUP_ID = {
 
 ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID = {
     'scope': {'domain': {'id': domain_id}},
+    'user': {'id': user_id},
+    'role': {'id': role_id},
+}
+
+ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID_INHERITED = {
+    'scope': {'domain': {'id': domain_id},
+              'OS-INHERIT:inherited_to': 'projects'},
     'user': {'id': user_id},
     'role': {'id': role_id},
 }
