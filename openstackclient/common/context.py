@@ -22,6 +22,22 @@ _LOG_MESSAGE_FORMAT = ('%(asctime)s.%(msecs)03d %(process)d '
 _LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
+def log_level_from_options(options):
+    # if --debug, --quiet or --verbose is not specified,
+    # the default logging level is warning
+    log_level = logging.WARNING
+    if options.verbose_level == 0:
+        # --quiet
+        log_level = logging.ERROR
+    elif options.verbose_level == 2:
+        # One --verbose
+        log_level = logging.INFO
+    elif options.verbose_level >= 3:
+        # Two or more --verbose
+        log_level = logging.DEBUG
+    return log_level
+
+
 def set_warning_filter(log_level):
     if log_level == logging.ERROR:
         warnings.simplefilter("ignore")

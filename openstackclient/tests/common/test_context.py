@@ -62,6 +62,17 @@ class TestContext(utils.TestCase):
         context.setup_logging(shell, cloud_config)
         self.assertEqual(True, shell.enable_operation_logging)
 
+    def test_log_level_from_options(self):
+        opts = mock.Mock()
+        opts.verbose_level = 0
+        self.assertEqual(logging.ERROR, context.log_level_from_options(opts))
+        opts.verbose_level = 1
+        self.assertEqual(logging.WARNING, context.log_level_from_options(opts))
+        opts.verbose_level = 2
+        self.assertEqual(logging.INFO, context.log_level_from_options(opts))
+        opts.verbose_level = 3
+        self.assertEqual(logging.DEBUG, context.log_level_from_options(opts))
+
     @mock.patch('warnings.simplefilter')
     def test_set_warning_filter(self, simplefilter):
         context.set_warning_filter(logging.ERROR)

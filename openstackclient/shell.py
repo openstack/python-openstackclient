@@ -113,18 +113,7 @@ class OpenStackShell(app.App):
         super(OpenStackShell, self).configure_logging()
 
         # Set logging to the requested level
-        if self.options.verbose_level == 0:
-            # --quiet
-            log_level = logging.ERROR
-        elif self.options.verbose_level == 1:
-            # This is the default case, no --debug, --verbose or --quiet
-            log_level = logging.WARNING
-        elif self.options.verbose_level == 2:
-            # One --verbose
-            log_level = logging.INFO
-        elif self.options.verbose_level >= 3:
-            # Two or more --verbose
-            log_level = logging.DEBUG
+        log_level = context.log_level_from_options(self.options)
         context.set_warning_filter(log_level)
 
         # Set the handler logging level of FileHandler(--log-file)
