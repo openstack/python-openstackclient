@@ -14,11 +14,21 @@
 """Context and Formatter"""
 
 import logging
+import warnings
 
 _LOG_MESSAGE_FORMAT = ('%(asctime)s.%(msecs)03d %(process)d '
                        '%(levelname)s %(name)s [%(clouds_name)s '
                        '%(username)s %(project_name)s] %(message)s')
 _LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+
+def set_warning_filter(log_level):
+    if log_level == logging.ERROR:
+        warnings.simplefilter("ignore")
+    elif log_level == logging.WARNING:
+        warnings.simplefilter("ignore")
+    elif log_level == logging.INFO:
+        warnings.simplefilter("once")
 
 
 def setup_handler_logging_level(handler_type, level):

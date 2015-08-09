@@ -20,7 +20,6 @@ import getpass
 import logging
 import sys
 import traceback
-import warnings
 
 from cliff import app
 from cliff import command
@@ -117,18 +116,16 @@ class OpenStackShell(app.App):
         if self.options.verbose_level == 0:
             # --quiet
             log_level = logging.ERROR
-            warnings.simplefilter("ignore")
         elif self.options.verbose_level == 1:
             # This is the default case, no --debug, --verbose or --quiet
             log_level = logging.WARNING
-            warnings.simplefilter("ignore")
         elif self.options.verbose_level == 2:
             # One --verbose
             log_level = logging.INFO
-            warnings.simplefilter("once")
         elif self.options.verbose_level >= 3:
             # Two or more --verbose
             log_level = logging.DEBUG
+        context.set_warning_filter(log_level)
 
         # Set the handler logging level of FileHandler(--log-file)
         # and StreamHandler
