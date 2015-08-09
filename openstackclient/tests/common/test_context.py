@@ -73,6 +73,30 @@ class TestContext(utils.TestCase):
         opts.verbose_level = 3
         self.assertEqual(logging.DEBUG, context.log_level_from_options(opts))
 
+    def test_log_level_from_config(self):
+        cfg = {'verbose_level': 0}
+        self.assertEqual(logging.ERROR, context.log_level_from_config(cfg))
+        cfg = {'verbose_level': 1}
+        self.assertEqual(logging.WARNING, context.log_level_from_config(cfg))
+        cfg = {'verbose_level': 2}
+        self.assertEqual(logging.INFO, context.log_level_from_config(cfg))
+        cfg = {'verbose_level': 3}
+        self.assertEqual(logging.DEBUG, context.log_level_from_config(cfg))
+        cfg = {'verbose_level': 1, 'log_level': 'critical'}
+        self.assertEqual(logging.CRITICAL, context.log_level_from_config(cfg))
+        cfg = {'verbose_level': 1, 'log_level': 'error'}
+        self.assertEqual(logging.ERROR, context.log_level_from_config(cfg))
+        cfg = {'verbose_level': 1, 'log_level': 'warning'}
+        self.assertEqual(logging.WARNING, context.log_level_from_config(cfg))
+        cfg = {'verbose_level': 1, 'log_level': 'info'}
+        self.assertEqual(logging.INFO, context.log_level_from_config(cfg))
+        cfg = {'verbose_level': 1, 'log_level': 'debug'}
+        self.assertEqual(logging.DEBUG, context.log_level_from_config(cfg))
+        cfg = {'verbose_level': 1, 'log_level': 'bogus'}
+        self.assertEqual(logging.WARNING, context.log_level_from_config(cfg))
+        cfg = {'verbose_level': 1, 'log_level': 'info', 'debug': True}
+        self.assertEqual(logging.DEBUG, context.log_level_from_config(cfg))
+
     @mock.patch('warnings.simplefilter')
     def test_set_warning_filter(self, simplefilter):
         context.set_warning_filter(logging.ERROR)
