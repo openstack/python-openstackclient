@@ -24,20 +24,21 @@ plugin.
 =============================  ======================================
    project                     notes
 =============================  ======================================
-python-barbicanclient          n/a
-python-ceilometerclient        n/a
-python-congressclient          using only OpenStackClient
-python-designateclient         n/a
-python-heatclient              plans on creating plugins
+python-barbicanclient          patch in progress (https://review.openstack.org/#/c/198732/)
+python-ceilometerclient        using argparse
+python-congressclient          using OpenStackClient
+python-cueclient               using OpenStackClient
+python-designateclient         uses cliff, but not OpenStackClient
+python-heatclient              patch in progress (https://review.openstack.org/#/c/195867/)
 python-ironicclient            patch in progress (https://review.openstack.org/#/c/171672/)
-python-magnumclient            sent note on ML about creating a plugin
-python-manilaclient            n/a
-python-mistralclient           n/a
-python-muranoclient            n/a
-python-saharaclient            n/a
-python-troveclient             n/a
+python-magnumclient            using argparse
+python-manilaclient            using argparse
+python-mistralclient           using cliff, but not OpenStackClient
+python-muranoclient            using argparse
+python-saharaclient            using argparse
+python-troveclient             using argparse
 python-tuskarclient            using OpenStackClient and their own shell
-python-zaqarclient             using only OpenStackClient
+python-zaqarclient             using OpenStackClient
 =============================  ======================================
 
 Implementation
