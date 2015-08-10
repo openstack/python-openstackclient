@@ -6,7 +6,8 @@ OpenStackClient (aka OSC) is a command-line client for OpenStack that
 brings the command set for Compute, Identity, Image, Object Store and Volume
 APIs together in a single shell with a uniform command structure.
 
-Contents:
+User Documentation
+------------------
 
 .. toctree::
    :maxdepth: 1
@@ -29,6 +30,13 @@ Getting Started
 * Read the source `on OpenStack's Git server`_
 * Install OpenStackClient from `PyPi`_ or a `tarball`_
 
+Developer Documentation
+-----------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   developing
 
 Project Goals
 -------------
