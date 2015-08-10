@@ -13,6 +13,8 @@
 import time
 import uuid
 
+import testtools
+
 from functional.common import test
 
 
@@ -80,6 +82,7 @@ class ServerTests(test.TestCase):
             total_sleep += interval
         self.assertEqual(desired, status)
 
+    @testtools.skip('skipping due to bug 1483422')
     def test_server_up_test(self):
         self.wait_for("ACTIVE")
         # give it a little bit more time
