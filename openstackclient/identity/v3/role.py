@@ -101,7 +101,7 @@ def _process_identity_and_resource_options(parsed_args,
         kwargs['project'] = common.find_project(
             identity_client_manager,
             parsed_args.project,
-            parsed_args.group_domain,
+            parsed_args.project_domain,
         ).id
     kwargs['os_inherit_extension_inherited'] = parsed_args.inherited
     return kwargs
