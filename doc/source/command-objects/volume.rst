@@ -102,22 +102,40 @@ List volumes
 .. code:: bash
 
     os volume list
-        [--status <status>]
-        [--name <name>]
         [--all-projects]
+        [--project <project> [--project-domain <project-domain>]]
+        [--user <user> [--user-domain <user-domain>]]
+        [--name <name>]
+        [--status <status>]
         [--long]
 
-.. option:: --status <status>
+.. option:: --all-projects
 
-    Filter results by status
+.. option:: --project <project>
+
+    Filter results by project (name or ID) (admin only)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+.. option:: --user <user>
+
+    Filter results by user (name or ID) (admin only)
+
+.. option:: --user-domain <user-domain>
+
+    Domain the user belongs to (name or ID).
+    This can be used in case collisions between user names exist.
 
 .. option:: --name <name>
 
     Filter results by name
 
-.. option:: --all-projects
+.. option:: --status <status>
 
-    Include all projects (admin only)
+    Filter results by status
 
 .. option:: --long
 

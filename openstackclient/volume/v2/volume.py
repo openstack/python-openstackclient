@@ -25,6 +25,7 @@ import six
 
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.identity import common as identity_common
 
 
 class CreateVolume(show.ShowOne):
@@ -206,11 +207,17 @@ class ListVolume(lister.Lister):
             help='Include all projects (admin only)',
         )
         parser.add_argument(
-            '--long',
-            action='store_true',
-            default=False,
-            help='List additional fields in output',
+            '--project',
+            metavar='<project-id>',
+            help='Filter results by project (name or ID) (admin only)'
         )
+        identity_common.add_project_domain_option_to_parser(parser)
+        parser.add_argument(
+            '--user',
+            metavar='<user-id>',
+            help='Filter results by user (name or ID) (admin only)'
+        )
+        identity_common.add_user_domain_option_to_parser(parser)
         parser.add_argument(
             '--name',
             metavar='<name>',
@@ -221,6 +228,12 @@ class ListVolume(lister.Lister):
             metavar='<status>',
             help='Filter results by status',
         )
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help='List additional fields in output',
+        )
         return parser
 
     @utils.log_method(log)
@@ -228,6 +241,7 @@ class ListVolume(lister.Lister):
 
         volume_client = self.app.client_manager.volume
         compute_client = self.app.client_manager.compute
+        identity_client = self.app.client_manager.identity
 
         def _format_attach(attachments):
             """Return a formatted string of a volume's attached instances
@@ -282,8 +296,23 @@ class ListVolume(lister.Lister):
             # Just forget it if there's any trouble
             pass
 
+        project_id = None
+        if parsed_args.project:
+            project_id = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain)
+
+        user_id = None
+        if parsed_args.user:
+            user_id = identity_common.find_project(identity_client,
+                                                   parsed_args.user,
+                                                   parsed_args.user_domain)
+
         search_opts = {
-            'all_projects': parsed_args.all_projects,
+            'all_tenants': parsed_args.all_projects,
+            'project_id': project_id,
+            'user_id': user_id,
             'display_name': parsed_args.name,
             'status': parsed_args.status,
         }
