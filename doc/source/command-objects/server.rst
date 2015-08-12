@@ -237,6 +237,15 @@ List servers
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
 
+.. option:: --user <user>
+
+    Search by user (admin only) (name or ID)
+
+.. option:: --user-domain <user-domain>
+
+    Domain the user belongs to (name or ID).
+    This can be used in case collisions between user names exist.
+
 .. option:: --long
 
     List additional fields in output
