@@ -214,13 +214,11 @@ class ListUser(lister.Lister):
             domain = common.find_domain(identity_client,
                                         parsed_args.domain).id
 
+        group = None
         if parsed_args.group:
-            group = utils.find_resource(
-                identity_client.groups,
-                parsed_args.group,
-            ).id
-        else:
-            group = None
+            group = common.find_group(identity_client,
+                                      parsed_args.group,
+                                      parsed_args.domain).id
 
         if parsed_args.project:
             if domain is not None:
