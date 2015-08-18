@@ -79,6 +79,10 @@ class OpenStackShell(app.App):
         help.HelpCommand.auth_required = False
         complete.CompleteCommand.auth_required = False
 
+        # Slight change to the meaning of --debug
+        self.DEFAULT_DEBUG_VALUE = None
+        self.DEFAULT_DEBUG_HELP = 'Set debug logging and traceback on errors.'
+
         super(OpenStackShell, self).__init__(
             description=__doc__.strip(),
             version=openstackclient.__version__,
