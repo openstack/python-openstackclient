@@ -28,7 +28,7 @@ python-barbicanclient          patch in progress (https://review.openstack.org/#
 python-ceilometerclient        using argparse
 python-congressclient          using OpenStackClient
 python-cueclient               using OpenStackClient
-python-designateclient         uses cliff, but not OpenStackClient
+python-designateclient         patch in progress (https://review.openstack.org/#/c/133676/)
 python-heatclient              patch in progress (https://review.openstack.org/#/c/195867/)
 python-ironicclient            patch in progress (https://review.openstack.org/#/c/171672/)
 python-magnumclient            using argparse
