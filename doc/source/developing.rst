@@ -2,6 +2,16 @@
 Developing with OpenStackClient
 ===============================
 
+Communication
+-------------
+
+Meetings
+=========
+The OpenStackClient team meets regularly on every Thursday.  For details
+please refer to the `wiki`_.
+
+.. _`wiki`: https://wiki.openstack.org/wiki/Meetings/OpenStackClient
+
 Testing
 -------
 
