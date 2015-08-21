@@ -30,9 +30,15 @@ class ConfigurationTests(test.TestCase):
 
     def test_configuration_show_unmask(self):
         raw_output = self.openstack('configuration show --unmask ' + self.opts)
-        passwd = os.environ['OS_PASSWORD']
-        self.assertOutput(passwd + '\n', raw_output)
+        # If we are using os-client-config, this will not be set.  Rather than
+        # parse clouds.yaml to get the right value, just make sure
+        # we are not getting redacted.
+        passwd = os.environ.get('OS_PASSWORD')
+        if passwd:
+            self.assertEqual(passwd + '\n', raw_output)
+        else:
+            self.assertNotEqual(configuration.REDACTED + '\n', raw_output)
 
     def test_configuration_show_mask(self):
         raw_output = self.openstack('configuration show --mask ' + self.opts)
-        self.assertOutput(configuration.REDACTED + '\n', raw_output)
+        self.assertEqual(configuration.REDACTED + '\n', raw_output)
