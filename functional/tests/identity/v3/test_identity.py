@@ -28,7 +28,7 @@ class IdentityTests(test.TestCase):
     TOKEN_FIELDS = ['expires', 'id', 'project_id', 'user_id']
     USER_FIELDS = ['email', 'enabled', 'id', 'name', 'name',
                    'domain_id', 'default_project_id', 'description']
-    PROJECT_FIELDS = ['description', 'id', 'domain_id',
+    PROJECT_FIELDS = ['description', 'id', 'domain_id', 'is_domain',
                       'enabled', 'name', 'parent_id', 'links']
     ROLE_FIELDS = ['id', 'name', 'links']
     SERVICE_FIELDS = ['id', 'enabled', 'name', 'type', 'description']
