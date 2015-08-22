@@ -43,6 +43,7 @@ class IdentityTests(test.TestCase):
                              'Enabled', 'Interface', 'URL']
 
     IDENTITY_PROVIDER_FIELDS = ['description', 'enabled', 'id', 'remote_ids']
+    IDENTITY_PROVIDER_LIST_HEADERS = ['ID', 'Enabled', 'Description']
 
     @classmethod
     def setUpClass(cls):
