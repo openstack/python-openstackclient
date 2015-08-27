@@ -185,6 +185,7 @@ List servers
         [--image <image>]
         [--host <hostname>]
         [--all-projects]
+        [--project <project> [--project-domain <project-domain>]]
         [--long]
 
 .. option:: --reservation-id <reservation-id>
@@ -226,6 +227,15 @@ List servers
 .. option:: --all-projects
 
     Include all projects (admin only)
+
+.. option:: --project <project>
+
+    Search by project (admin only) (name or ID)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 .. option:: --long
 

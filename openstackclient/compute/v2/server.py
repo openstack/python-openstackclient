@@ -36,6 +36,7 @@ from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
+from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 
 
@@ -694,6 +695,11 @@ class ListServer(lister.Lister):
             help=_('Include all projects (admin only)'),
         )
         parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help="Search by project (admin only) (name or ID)")
+        identity_common.add_project_domain_option_to_parser(parser)
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -704,6 +710,17 @@ class ListServer(lister.Lister):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
+
+        project_id = None
+        if parsed_args.project:
+            identity_client = self.app.client_manager.identity
+            project_id = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
+            parsed_args.all_projects = True
+
         search_opts = {
             'reservation_id': parsed_args.reservation_id,
             'ip': parsed_args.ip,
@@ -714,6 +731,7 @@ class ListServer(lister.Lister):
             'flavor': parsed_args.flavor,
             'image': parsed_args.image,
             'host': parsed_args.host,
+            'tenant_id': project_id,
             'all_tenants': parsed_args.all_projects,
         }
         self.log.debug('search options: %s', search_opts)
