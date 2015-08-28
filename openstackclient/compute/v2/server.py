@@ -107,14 +107,20 @@ def _prep_server_detail(compute_client, server):
     image_info = info.get('image', {})
     if image_info:
         image_id = image_info.get('id', '')
-        image = utils.find_resource(compute_client.images, image_id)
-        info['image'] = "%s (%s)" % (image.name, image_id)
+        try:
+            image = utils.find_resource(compute_client.images, image_id)
+            info['image'] = "%s (%s)" % (image.name, image_id)
+        except Exception:
+            info['image'] = image_id
 
     # Convert the flavor blob to a name
     flavor_info = info.get('flavor', {})
     flavor_id = flavor_info.get('id', '')
-    flavor = utils.find_resource(compute_client.flavors, flavor_id)
-    info['flavor'] = "%s (%s)" % (flavor.name, flavor_id)
+    try:
+        flavor = utils.find_resource(compute_client.flavors, flavor_id)
+        info['flavor'] = "%s (%s)" % (flavor.name, flavor_id)
+    except Exception:
+        info['flavor'] = flavor_id
 
     # NOTE(dtroyer): novaclient splits these into separate entries...
     # Format addresses in a useful way
