@@ -238,7 +238,7 @@ class ListVolume(lister.Lister):
 
             msg = ''
             for attachment in attachments:
-                server = attachment['id']
+                server = attachment['server_id']
                 if server in server_cache:
                     server = server_cache[server].name
                 device = attachment['device']

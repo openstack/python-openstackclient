@@ -15,14 +15,15 @@
 import copy
 import mock
 
-from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
 from openstackclient.tests import utils
 
-volume_attachment_server = copy.deepcopy(compute_fakes.SERVER)
-volume_attachment_server['device'] = 'device'
+volume_attachment_server = {
+    'device': '/dev/ice',
+    'server_id': '1233',
+}
 
 volume_id = "ce26708d-a7f8-4b4b-9861-4a80256615a6"
 volume_name = "fake_volume"
