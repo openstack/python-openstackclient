@@ -185,7 +185,7 @@ def build_auth_plugins_option_parser(parser):
         metavar='<auth-type>',
         dest='auth_type',
         default=utils.env('OS_AUTH_TYPE'),
-        help='Select an auhentication type. Available types: ' +
+        help='Select an authentication type. Available types: ' +
              ', '.join(available_plugins) +
              '. Default: selected based on --os-username/--os-token' +
              ' (Env: OS_AUTH_TYPE)',
