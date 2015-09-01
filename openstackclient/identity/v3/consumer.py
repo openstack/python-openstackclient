@@ -40,8 +40,8 @@ class CreateConsumer(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         consumer = identity_client.oauth1.consumers.create(
             parsed_args.description
@@ -64,8 +64,8 @@ class DeleteConsumer(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
             identity_client.oauth1.consumers, parsed_args.consumer)
@@ -78,8 +78,8 @@ class ListConsumer(lister.Lister):
 
     log = logging.getLogger(__name__ + '.ListConsumer')
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         columns = ('ID', 'Description')
         data = self.app.client_manager.identity.oauth1.consumers.list()
         return (columns,
@@ -108,8 +108,8 @@ class SetConsumer(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
             identity_client.oauth1.consumers, parsed_args.consumer)
@@ -140,8 +140,8 @@ class ShowConsumer(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
             identity_client.oauth1.consumers, parsed_args.consumer)

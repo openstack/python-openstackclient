@@ -41,8 +41,8 @@ class CreateContainer(lister.Lister):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         results = []
         for container in parsed_args.containers:
@@ -74,8 +74,8 @@ class DeleteContainer(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         for container in parsed_args.containers:
             self.app.client_manager.object_store.container_delete(
@@ -125,8 +125,8 @@ class ListContainer(lister.Lister):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         if parsed_args.long:
             columns = ('Name', 'Bytes', 'Count')
@@ -192,8 +192,8 @@ class ShowContainer(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         data = self.app.client_manager.object_store.container_show(
             container=parsed_args.container,

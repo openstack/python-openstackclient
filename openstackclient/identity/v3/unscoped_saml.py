@@ -49,8 +49,8 @@ class ListAccessibleDomains(lister.Lister):
     log = logging.getLogger(__name__ + '.ListAccessibleDomains')
 
     @auth_with_unscoped_saml
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         columns = ('ID', 'Enabled', 'Name', 'Description')
         identity_client = self.app.client_manager.identity
         data = identity_client.federation.domains.list()
@@ -67,8 +67,8 @@ class ListAccessibleProjects(lister.Lister):
     log = logging.getLogger(__name__ + '.ListAccessibleProjects')
 
     @auth_with_unscoped_saml
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         columns = ('ID', 'Domain ID', 'Enabled', 'Name')
         identity_client = self.app.client_manager.identity
         data = identity_client.federation.projects.list()

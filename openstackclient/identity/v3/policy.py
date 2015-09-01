@@ -47,8 +47,8 @@ class CreatePolicy(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         blob = utils.read_blob_file_contents(parsed_args.rules)
 
         identity_client = self.app.client_manager.identity
@@ -75,8 +75,8 @@ class DeletePolicy(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         identity_client.policies.delete(parsed_args.policy)
         return
@@ -97,8 +97,8 @@ class ListPolicy(lister.Lister):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         if parsed_args.long:
             columns = ('ID', 'Type', 'Blob')
             column_headers = ('ID', 'Type', 'Rules')
@@ -137,8 +137,8 @@ class SetPolicy(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         blob = None
 
@@ -172,8 +172,8 @@ class ShowPolicy(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         policy = utils.find_resource(identity_client.policies,
                                      parsed_args.policy)

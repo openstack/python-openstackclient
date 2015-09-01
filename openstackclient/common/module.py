@@ -22,6 +22,8 @@ import sys
 from cliff import lister
 from cliff import show
 
+from openstackclient.common import utils
+
 
 class ListCommand(lister.Lister):
     """List recognized commands by group"""
@@ -29,8 +31,8 @@ class ListCommand(lister.Lister):
     auth_required = False
     log = logging.getLogger(__name__ + '.ListCommand')
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         cm = self.app.command_manager
         groups = cm.get_command_groups()
 
@@ -54,8 +56,8 @@ class ListModule(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         data = {}
         # Get module versions

@@ -73,8 +73,8 @@ class CreateServiceProvider(show.ShowOne):
 
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         service_client = self.app.client_manager.identity
         sp = service_client.federation.service_providers.create(
             id=parsed_args.service_provider_id,
@@ -101,8 +101,8 @@ class DeleteServiceProvider(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         service_client = self.app.client_manager.identity
         service_client.federation.service_providers.delete(
             parsed_args.service_provider)
@@ -114,8 +114,8 @@ class ListServiceProvider(lister.Lister):
 
     log = logging.getLogger(__name__ + '.ListServiceProvider')
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         service_client = self.app.client_manager.identity
         data = service_client.federation.service_providers.list()
 
@@ -168,8 +168,8 @@ class SetServiceProvider(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         federation_client = self.app.client_manager.identity.federation
 
         enabled = None
@@ -207,8 +207,8 @@ class ShowServiceProvider(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         service_client = self.app.client_manager.identity
         service_provider = utils.find_resource(
             service_client.federation.service_providers,

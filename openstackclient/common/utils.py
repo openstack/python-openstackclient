@@ -26,6 +26,29 @@ from oslo_utils import importutils
 from openstackclient.common import exceptions
 
 
+def log_method(log, level=logging.DEBUG):
+    """Logs a method and its arguments when entered."""
+
+    def decorator(func):
+        func_name = func.__name__
+
+        @six.wraps(func)
+        def wrapper(self, *args, **kwargs):
+            if log.isEnabledFor(level):
+                pretty_args = []
+                if args:
+                    pretty_args.extend(str(a) for a in args)
+                if kwargs:
+                    pretty_args.extend(
+                        "%s=%s" % (k, v) for k, v in six.iteritems(kwargs))
+                log.log(level, "%s(%s)", func_name, ", ".join(pretty_args))
+            return func(self, *args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
 def find_resource(manager, name_or_id, **kwargs):
     """Helper for the _find_* methods.
 

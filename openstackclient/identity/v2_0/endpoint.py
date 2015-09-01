@@ -62,8 +62,8 @@ class CreateEndpoint(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         service = common.find_service(identity_client, parsed_args.service)
         endpoint = identity_client.endpoints.create(
@@ -93,8 +93,8 @@ class DeleteEndpoint(command.Command):
             help=_('Endpoint ID to delete'))
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         identity_client.endpoints.delete(parsed_args.endpoint)
         return
@@ -115,8 +115,8 @@ class ListEndpoint(lister.Lister):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         if parsed_args.long:
             columns = ('ID', 'Region', 'Service Name', 'Service Type',
@@ -150,8 +150,8 @@ class ShowEndpoint(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         data = identity_client.endpoints.list()
         match = None

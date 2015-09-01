@@ -57,8 +57,8 @@ class CreateBackup(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         volume_id = utils.find_resource(volume_client.volumes,
                                         parsed_args.volume).id
@@ -88,8 +88,8 @@ class DeleteBackup(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         for backup in parsed_args.backups:
             backup_id = utils.find_resource(volume_client.backups,
@@ -113,8 +113,8 @@ class ListBackup(lister.Lister):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         def _format_volume_id(volume_id):
             """Return a volume name if available
@@ -172,8 +172,8 @@ class RestoreBackup(command.Command):
             help='Volume to restore to (name or ID)')
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         backup = utils.find_resource(volume_client.backups,
                                      parsed_args.backup)
@@ -196,8 +196,8 @@ class ShowBackup(show.ShowOne):
             help='Backup to display (ID only)')
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         backup = utils.find_resource(volume_client.backups,
                                      parsed_args.backup)

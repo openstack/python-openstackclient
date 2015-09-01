@@ -182,8 +182,8 @@ class IssueToken(show.ShowOne):
         parser = super(IssueToken, self).get_parser(prog_name)
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         token = self.app.client_manager.auth_ref.service_catalog.get_token()
         if 'tenant_id' in token:
             token['project_id'] = token.pop('tenant_id')

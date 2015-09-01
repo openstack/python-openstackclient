@@ -46,8 +46,8 @@ class CreateObject(lister.Lister):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         results = []
         for obj in parsed_args.objects:
@@ -85,8 +85,8 @@ class DeleteObject(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         for obj in parsed_args.objects:
             self.app.client_manager.object_store.object_delete(
@@ -147,8 +147,8 @@ class ListObject(lister.Lister):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         if parsed_args.long:
             columns = (
@@ -240,8 +240,8 @@ class ShowObject(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         data = self.app.client_manager.object_store.object_show(
             container=parsed_args.container,

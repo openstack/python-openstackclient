@@ -50,8 +50,8 @@ class CreateProtocol(show.ShowOne):
 
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         protocol = identity_client.federation.protocols.create(
             protocol_id=parsed_args.federation_protocol,
@@ -88,8 +88,8 @@ class DeleteProtocol(command.Command):
 
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         identity_client.federation.protocols.delete(
             parsed_args.identity_provider, parsed_args.federation_protocol)
