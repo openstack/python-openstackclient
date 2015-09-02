@@ -31,7 +31,7 @@ class ShowLimits(lister.Lister):
 
     def get_parser(self, prog_name):
         parser = super(ShowLimits, self).get_parser(prog_name)
-        type_group = parser.add_mutually_exclusive_group()
+        type_group = parser.add_mutually_exclusive_group(required=True)
         type_group.add_argument(
             "--absolute",
             dest="is_absolute",
