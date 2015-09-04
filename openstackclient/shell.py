@@ -304,11 +304,23 @@ class OpenStackShell(app.App):
             if version_opt:
                 api = mod.API_NAME
                 self.api_version[api] = version_opt
-                if version_opt not in mod.API_VERSIONS:
-                    self.log.warning(
-                        "The %s version <%s> is not in supported versions <%s>"
-                        % (api, version_opt,
-                           ', '.join(mod.API_VERSIONS.keys())))
+
+                # Add a plugin interface to let the module validate the version
+                # requested by the user
+                skip_old_check = False
+                mod_check_api_version = getattr(mod, 'check_api_version', None)
+                if mod_check_api_version:
+                    # this throws an exception if invalid
+                    skip_old_check = mod_check_api_version(version_opt)
+
+                mod_versions = getattr(mod, 'API_VERSIONS', None)
+                if not skip_old_check and mod_versions:
+                    if version_opt not in mod_versions:
+                        self.log.warning(
+                            "%s version %s is not in supported versions %s"
+                            % (api, version_opt,
+                               ', '.join(mod.API_VERSIONS.keys())))
+
                 # Command groups deal only with major versions
                 version = '.v' + version_opt.replace('.', '_').split('_')[0]
                 cmd_group = 'openstack.' + api.replace('-', '_') + version

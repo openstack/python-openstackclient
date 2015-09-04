@@ -15,6 +15,7 @@
 
 import logging
 
+from openstackclient.common import exceptions
 from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
@@ -25,6 +26,9 @@ API_NAME = 'compute'
 API_VERSIONS = {
     "2": "novaclient.client",
 }
+
+# Save the microversion if in use
+_compute_api_version = None
 
 
 def make_client(instance):
@@ -51,6 +55,9 @@ def make_client(instance):
     # Remember interface only if it is set
     kwargs = utils.build_kwargs_dict('endpoint_type', instance._interface)
 
+    if _compute_api_version is not None:
+        kwargs.update({'api_version': _compute_api_version})
+
     client = compute_client(
         session=instance.session,
         extensions=extensions,
@@ -73,3 +80,45 @@ def build_option_parser(parser):
              DEFAULT_API_VERSION +
              ' (Env: OS_COMPUTE_API_VERSION)')
     return parser
+
+
+def check_api_version(check_version):
+    """Validate version supplied by user
+
+    Returns:
+    * True if version is OK
+    * False if the version has not been checked and the previous plugin
+      check should be performed
+    * throws an exception if the version is no good
+
+    TODO(dtroyer): make the exception thrown a version-related one
+    """
+
+    # Defer client imports until we actually need them
+    try:
+        from novaclient import api_versions
+    except ImportError:
+        # Retain previous behaviour
+        return False
+
+    import novaclient
+
+    global _compute_api_version
+
+    # Copy some logic from novaclient 2.27.0 for basic version detection
+    # NOTE(dtroyer): This is only enough to resume operations using API
+    #                version 2.0 or any valid version supplied by the user.
+    _compute_api_version = api_versions.get_api_version(check_version)
+
+    if _compute_api_version > api_versions.APIVersion("2.0"):
+        if not _compute_api_version.matches(
+            novaclient.API_MIN_VERSION,
+            novaclient.API_MAX_VERSION,
+        ):
+            raise exceptions.CommandError(
+                "versions supported by client: %s - %s" % (
+                    novaclient.API_MIN_VERSION.get_string(),
+                    novaclient.API_MAX_VERSION.get_string(),
+                ),
+            )
+    return True
