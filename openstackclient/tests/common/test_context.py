@@ -62,6 +62,15 @@ class TestContext(utils.TestCase):
         context.setup_logging(shell, cloud_config)
         self.assertEqual(True, shell.enable_operation_logging)
 
+    @mock.patch('warnings.simplefilter')
+    def test_set_warning_filter(self, simplefilter):
+        context.set_warning_filter(logging.ERROR)
+        simplefilter.assert_called_with("ignore")
+        context.set_warning_filter(logging.WARNING)
+        simplefilter.assert_called_with("ignore")
+        context.set_warning_filter(logging.INFO)
+        simplefilter.assert_called_with("once")
+
 
 class Test_LogContext(utils.TestCase):
     def setUp(self):
