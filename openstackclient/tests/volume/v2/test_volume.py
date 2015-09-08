@@ -548,7 +548,7 @@ class TestVolumeList(TestVolume):
         ]
         self.assertEqual(collist, columns)
 
-        server = volume_fakes.volume_attachment_server['id']
+        server = volume_fakes.volume_attachment_server['server_id']
         device = volume_fakes.volume_attachment_server['device']
         msg = 'Attached to %s on %s ' % (server, device)
         datalist = ((
@@ -583,7 +583,7 @@ class TestVolumeList(TestVolume):
         ]
         self.assertEqual(collist, columns)
 
-        server = volume_fakes.volume_attachment_server['id']
+        server = volume_fakes.volume_attachment_server['server_id']
         device = volume_fakes.volume_attachment_server['device']
         msg = 'Attached to %s on %s ' % (server, device)
         datalist = ((
@@ -618,7 +618,7 @@ class TestVolumeList(TestVolume):
         )
         self.assertEqual(collist, tuple(columns))
 
-        server = volume_fakes.volume_attachment_server['id']
+        server = volume_fakes.volume_attachment_server['server_id']
         device = volume_fakes.volume_attachment_server['device']
         msg = 'Attached to %s on %s ' % (server, device)
 
@@ -654,7 +654,7 @@ class TestVolumeList(TestVolume):
         )
         self.assertEqual(collist, tuple(columns))
 
-        server = volume_fakes.volume_attachment_server['id']
+        server = volume_fakes.volume_attachment_server['server_id']
         device = volume_fakes.volume_attachment_server['device']
         msg = 'Attached to %s on %s ' % (server, device)
         datalist = ((
@@ -693,7 +693,7 @@ class TestVolumeList(TestVolume):
         ]
         self.assertEqual(collist, columns)
 
-        server = volume_fakes.volume_attachment_server['id']
+        server = volume_fakes.volume_attachment_server['server_id']
         device = volume_fakes.volume_attachment_server['device']
         msg = 'Attached to %s on %s ' % (server, device)
         datalist = ((
