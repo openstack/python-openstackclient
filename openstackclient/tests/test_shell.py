@@ -77,6 +77,8 @@ CLOUD_2 = {
                 'username': 'zaphod',
             },
             'region_name': 'occ-cloud',
+            'log_file': '/tmp/test_log_file',
+            'log_level': 'debug',
         }
     }
 }
@@ -623,9 +625,12 @@ class TestShellCli(TestShell):
 
     @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
     @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
-    def test_shell_args_cloud_public(self, config_mock, public_mock):
+    @mock.patch("openstackclient.common.context._setup_handler_for_logging")
+    def test_shell_args_cloud_public(self, setup_handler, config_mock,
+                                     public_mock):
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
         public_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
+        setup_handler.return_value = mock.MagicMock()
         _shell = make_shell()
 
         fake_execute(
@@ -663,9 +668,12 @@ class TestShellCli(TestShell):
 
     @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
     @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
-    def test_shell_args_precedence(self, config_mock, vendor_mock):
+    @mock.patch("openstackclient.common.context._setup_handler_for_logging")
+    def test_shell_args_precedence(self, setup_handler, config_mock,
+                                   vendor_mock):
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
         vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
+        setup_handler.return_value = mock.MagicMock()
         _shell = make_shell()
 
         # Test command option overriding config file value
@@ -717,9 +725,12 @@ class TestShellCliEnv(TestShell):
 
     @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
     @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
-    def test_shell_args_precedence_1(self, config_mock, vendor_mock):
+    @mock.patch("openstackclient.common.context._setup_handler_for_logging")
+    def test_shell_args_precedence_1(self, setup_handler, config_mock,
+                                     vendor_mock):
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
         vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
+        setup_handler.return_value = mock.MagicMock()
         _shell = make_shell()
 
         # Test env var
@@ -758,9 +769,12 @@ class TestShellCliEnv(TestShell):
 
     @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
     @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
-    def test_shell_args_precedence_2(self, config_mock, vendor_mock):
+    @mock.patch("openstackclient.common.context._setup_handler_for_logging")
+    def test_shell_args_precedence_2(self, setup_handler, config_mock,
+                                     vendor_mock):
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
         vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
+        setup_handler.return_value = mock.MagicMock()
         _shell = make_shell()
 
         # Test command option overriding config file value
@@ -797,4 +811,78 @@ class TestShellCliEnv(TestShell):
         self.assertEqual(
             'krikkit',
             _shell.cloud.config['region_name'],
+        )
+
+
+class TestShellCliLogging(TestShell):
+    def setUp(self):
+        super(TestShellCliLogging, self).setUp()
+
+    def tearDown(self):
+        super(TestShellCliLogging, self).tearDown()
+
+    @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
+    @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
+    @mock.patch("openstackclient.common.context._setup_handler_for_logging")
+    def test_shell_args_precedence_1(self, setup_handler, config_mock,
+                                     vendor_mock):
+        config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
+        vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
+        setup_handler.return_value = mock.MagicMock()
+        _shell = make_shell()
+
+        # These come from clouds.yaml
+        fake_execute(
+            _shell,
+            "--os-cloud megacloud list user",
+        )
+        self.assertEqual(
+            'megacloud',
+            _shell.cloud.name,
+        )
+
+        self.assertEqual(
+            '/tmp/test_log_file',
+            _shell.cloud.config['log_file'],
+        )
+        self.assertEqual(
+            'debug',
+            _shell.cloud.config['log_level'],
+        )
+
+    @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
+    @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
+    def test_shell_args_precedence_2(self, config_mock, vendor_mock):
+        config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_1))
+        vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
+        _shell = make_shell()
+
+        # Test operation_log_file not set
+        fake_execute(
+            _shell,
+            "--os-cloud scc list user",
+        )
+        self.assertEqual(
+            False,
+            _shell.enable_operation_logging,
+        )
+
+    @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
+    @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
+    @mock.patch("openstackclient.common.context._setup_handler_for_logging")
+    def test_shell_args_precedence_3(self, setup_handler, config_mock,
+                                     vendor_mock):
+        config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
+        vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
+        setup_handler.return_value = mock.MagicMock()
+        _shell = make_shell()
+
+        # Test enable_operation_logging set
+        fake_execute(
+            _shell,
+            "--os-cloud megacloud list user",
+        )
+        self.assertEqual(
+            True,
+            _shell.enable_operation_logging,
         )

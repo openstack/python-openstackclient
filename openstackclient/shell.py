@@ -30,6 +30,7 @@ from cliff import help
 import openstackclient
 from openstackclient.common import clientmanager
 from openstackclient.common import commandmanager
+from openstackclient.common import context
 from openstackclient.common import exceptions as exc
 from openstackclient.common import timing
 from openstackclient.common import utils
@@ -95,6 +96,10 @@ class OpenStackShell(app.App):
 
         self.client_manager = None
 
+        # Operation log
+        self.enable_operation_logging = False
+        self.command_options = None
+
     def configure_logging(self):
         """Configure logging for the app
 
@@ -107,24 +112,30 @@ class OpenStackShell(app.App):
             self.options.verbose_level = 3
 
         super(OpenStackShell, self).configure_logging()
-        root_logger = logging.getLogger('')
 
         # Set logging to the requested level
         if self.options.verbose_level == 0:
             # --quiet
-            root_logger.setLevel(logging.ERROR)
+            log_level = logging.ERROR
             warnings.simplefilter("ignore")
         elif self.options.verbose_level == 1:
             # This is the default case, no --debug, --verbose or --quiet
-            root_logger.setLevel(logging.WARNING)
+            log_level = logging.WARNING
             warnings.simplefilter("ignore")
         elif self.options.verbose_level == 2:
             # One --verbose
-            root_logger.setLevel(logging.INFO)
+            log_level = logging.INFO
             warnings.simplefilter("once")
         elif self.options.verbose_level >= 3:
             # Two or more --verbose
-            root_logger.setLevel(logging.DEBUG)
+            log_level = logging.DEBUG
+
+        # Set the handler logging level of FileHandler(--log-file)
+        # and StreamHandler
+        if self.options.log_file:
+            context.setup_handler_logging_level(logging.FileHandler, log_level)
+
+        context.setup_handler_logging_level(logging.StreamHandler, log_level)
 
         # Requests logs some stuff at INFO that we don't want
         # unless we have DEBUG
@@ -147,9 +158,17 @@ class OpenStackShell(app.App):
         stevedore_log.setLevel(logging.ERROR)
         iso8601_log.setLevel(logging.ERROR)
 
+        # Operation logging
+        self.operation_log = logging.getLogger("operation_log")
+        self.operation_log.setLevel(logging.ERROR)
+        self.operation_log.propagate = False
+
     def run(self, argv):
+        ret_val = 1
+        self.command_options = argv
         try:
-            return super(OpenStackShell, self).run(argv)
+            ret_val = super(OpenStackShell, self).run(argv)
+            return ret_val
         except Exception as e:
             if not logging.getLogger('').handlers:
                 logging.basicConfig()
@@ -157,7 +176,13 @@ class OpenStackShell(app.App):
                 self.log.error(traceback.format_exc(e))
             else:
                 self.log.error('Exception raised: ' + str(e))
-            return 1
+                if self.enable_operation_logging:
+                    self.operation_log.error(traceback.format_exc(e))
+
+            return ret_val
+
+        finally:
+            self.log.info("END return value: %s", ret_val)
 
     def build_option_parser(self, description, version):
         parser = super(OpenStackShell, self).build_option_parser(
@@ -243,7 +268,6 @@ class OpenStackShell(app.App):
             auth_type = 'token_endpoint'
         else:
             auth_type = 'osc_password'
-        self.log.debug("options: %s", self.options)
 
         project_id = getattr(self.options, 'project_id', None)
         project_name = getattr(self.options, 'project_name', None)
@@ -266,14 +290,23 @@ class OpenStackShell(app.App):
         # Ignore the default value of interface. Only if it is set later
         # will it be used.
         cc = cloud_config.OpenStackConfig(
-            override_defaults={'interface': None,
-                               'auth_type': auth_type, })
-        self.log.debug("defaults: %s", cc.defaults)
+            override_defaults={
+                'interface': None,
+                'auth_type': auth_type,
+                },
+            )
 
         self.cloud = cc.get_one_cloud(
             cloud=self.options.cloud,
             argparse=self.options,
         )
+
+        # Set up every time record log in file and logging start
+        context.setup_logging(self, self.cloud)
+
+        self.log.info("START with options: %s", self.command_options)
+        self.log.debug("options: %s", self.options)
+        self.log.debug("defaults: %s", cc.defaults)
         self.log.debug("cloud cfg: %s", self.cloud.config)
 
         # Set up client TLS

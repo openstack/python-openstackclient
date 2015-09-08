@@ -123,6 +123,18 @@ OPTIONS
 :option:`--os-interface` <interface>
     Interface type. Valid options are `public`, `admin` and `internal`.
 
+:option:`--log-file` <LOGFILE>
+    Specify a file to log output. Disabled by default.
+
+:option:`-v, --verbose`
+    Increase verbosity of output. Can be repeated.
+
+:option:`-q, --quiet`
+    suppress output except warnings and errors
+
+:option:`--debug`
+    show tracebacks on errors and set verbosity to debug
+
 COMMANDS
 ========
 
@@ -239,6 +251,15 @@ When :option:`--os-token` and :option:`--os-url` are both present the
 ``token_endpoint`` auth type is selected automatically.  If
 :option:`--os-auth-url` and :option:`--os-username` are present ``password``
 auth type is selected.
+
+Logging Settings
+----------------
+
+:program:`openstack` can record the operation history by logging settings
+in configuration file. Recording the user operation, it can identify the
+change of the resource and it becomes useful information for troubleshooting.
+
+See :doc:`../configuration` about Logging Settings for more details.
 
 
 NOTES
