@@ -50,10 +50,10 @@ def _xform_security_group_rule(sgroup):
         info['ip_range'] = info['ip_range']['cidr']
     else:
         info['ip_range'] = ''
-    if info['ip_protocol'] == 'icmp':
-        info['port_range'] = ''
-    elif info['ip_protocol'] is None:
+    if info['ip_protocol'] is None:
         info['ip_protocol'] = ''
+    elif info['ip_protocol'].lower() == 'icmp':
+        info['port_range'] = ''
     return info
 
 
@@ -307,7 +307,10 @@ class CreateSecurityGroupRule(show.ShowOne):
             compute_client.security_groups,
             parsed_args.group,
         )
-        from_port, to_port = parsed_args.dst_port
+        if parsed_args.proto.lower() == 'icmp':
+            from_port, to_port = -1, -1
+        else:
+            from_port, to_port = parsed_args.dst_port
         data = compute_client.security_group_rules.create(
             group.id,
             parsed_args.proto,
