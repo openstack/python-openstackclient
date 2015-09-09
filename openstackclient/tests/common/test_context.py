@@ -107,40 +107,28 @@ class TestContext(utils.TestCase):
         simplefilter.assert_called_with("once")
 
 
-class Test_LogContext(utils.TestCase):
-    def setUp(self):
-        super(Test_LogContext, self).setUp()
+class TestFileFormatter(utils.TestCase):
+    def test_nothing(self):
+        formatter = context._FileFormatter()
+        self.assertEqual(('%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
+                          '%(name)s %(message)s'), formatter.fmt)
 
-    def test_context(self):
-        ctx = context._LogContext()
-        self.assertTrue(ctx)
+    def test_options(self):
+        class Opts(object):
+            cloud = 'cloudy'
+            os_project_name = 'projecty'
+            username = 'usernamey'
+        options = Opts()
+        formatter = context._FileFormatter(options=options)
+        self.assertEqual(('%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
+                          '%(name)s [cloudy usernamey projecty] %(message)s'),
+                         formatter.fmt)
 
-    def test_context_to_dict(self):
-        ctx = context._LogContext('cloudsName', 'projectName', 'userNmae')
-        ctx_dict = ctx.to_dict()
-        self.assertEqual('cloudsName', ctx_dict['clouds_name'])
-        self.assertEqual('projectName', ctx_dict['project_name'])
-        self.assertEqual('userNmae', ctx_dict['username'])
-
-
-class Test_LogContextFormatter(utils.TestCase):
-    def setUp(self):
-        super(Test_LogContextFormatter, self).setUp()
-        self.ctx = context._LogContext('cloudsName', 'projectName', 'userNmae')
-        self.addfmt = "%(clouds_name)s %(project_name)s %(username)s"
-
-    def test_contextrrormatter(self):
-        ctxfmt = context._LogContextFormatter()
-        self.assertTrue(ctxfmt)
-
-    def test_context_format(self):
-        record = mock.MagicMock()
-        logging.Formatter.format = mock.MagicMock()
-        logging.Formatter.format.return_value = record
-
-        ctxfmt = context._LogContextFormatter(context=self.ctx,
-                                              fmt=self.addfmt)
-        addctx = ctxfmt.format(record)
-        self.assertEqual('cloudsName', addctx.clouds_name)
-        self.assertEqual('projectName', addctx.project_name)
-        self.assertEqual('userNmae', addctx.username)
+    def test_config(self):
+        config = mock.Mock()
+        config.config = {'cloud': 'cloudy'}
+        config.auth = {'project_name': 'projecty', 'username': 'usernamey'}
+        formatter = context._FileFormatter(config=config)
+        self.assertEqual(('%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
+                          '%(name)s [cloudy usernamey projecty] %(message)s'),
+                         formatter.fmt)

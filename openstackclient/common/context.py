@@ -16,11 +16,6 @@
 import logging
 import warnings
 
-_LOG_MESSAGE_FORMAT = ('%(asctime)s.%(msecs)03d %(process)d '
-                       '%(levelname)s %(name)s [%(clouds_name)s '
-                       '%(username)s %(project_name)s] %(message)s')
-_LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
-
 
 def log_level_from_options(options):
     # if --debug, --quiet or --verbose is not specified,
@@ -73,6 +68,37 @@ def set_warning_filter(log_level):
         warnings.simplefilter("once")
 
 
+class _FileFormatter(logging.Formatter):
+    """Customize the logging format for logging handler"""
+    _LOG_MESSAGE_BEGIN = (
+        '%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s ')
+    _LOG_MESSAGE_CONTEXT = '[%(cloud)s %(username)s %(project)s] '
+    _LOG_MESSAGE_END = '%(message)s'
+    _LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+    def __init__(self, options=None, config=None, **kwargs):
+        context = {}
+        if options:
+            context = {
+                'cloud': getattr(options, 'cloud', ''),
+                'project': getattr(options, 'os_project_name', ''),
+                'username': getattr(options, 'username', ''),
+            }
+        elif config:
+            context = {
+                'cloud': config.config.get('cloud', ''),
+                'project': config.auth.get('project_name', ''),
+                'username': config.auth.get('username', ''),
+            }
+        if context:
+            self.fmt = (self._LOG_MESSAGE_BEGIN +
+                        (self._LOG_MESSAGE_CONTEXT % context) +
+                        self._LOG_MESSAGE_END)
+        else:
+            self.fmt = self._LOG_MESSAGE_BEGIN + self._LOG_MESSAGE_END
+        logging.Formatter.__init__(self, self.fmt, self._LOG_DATE_FORMAT)
+
+
 def setup_handler_logging_level(handler_type, level):
     """Setup of the handler for set the logging level
 
@@ -103,17 +129,13 @@ def setup_logging(shell, cloud_config):
     log_file = cloud_config.config.get('log_file', None)
     if log_file:
         # setup the logging context
-        log_cont = _LogContext(
-            clouds_name=cloud_config.config.get('cloud'),
-            project_name=cloud_config.auth.get('project_name'),
-            username=cloud_config.auth.get('username'),
-        )
+        formatter = _FileFormatter(config=cloud_config)
         # setup the logging handler
         log_handler = _setup_handler_for_logging(
             logging.FileHandler,
             log_level,
             file_name=log_file,
-            context=log_cont,
+            formatter=formatter,
         )
         if log_level == logging.DEBUG:
             # DEBUG only.
@@ -123,7 +145,7 @@ def setup_logging(shell, cloud_config):
             shell.operation_log.addHandler(log_handler)
 
 
-def _setup_handler_for_logging(handler_type, level, file_name, context):
+def _setup_handler_for_logging(handler_type, level, file_name, formatter):
     """Setup of the handler
 
        Setup of the handler for addition of the logging handler,
@@ -132,7 +154,7 @@ def _setup_handler_for_logging(handler_type, level, file_name, context):
         :param handler_type: type of logging handler
         :param level: logging level
         :param file_name: name of log-file
-        :param context: instance of _LogContext()
+        :param formatter: instance of logging.Formatter
         :return: logging handler
     """
 
@@ -142,11 +164,6 @@ def _setup_handler_for_logging(handler_type, level, file_name, context):
     handler = logging.FileHandler(
         filename=file_name,
     )
-    formatter = _LogContextFormatter(
-        context=context,
-        fmt=_LOG_MESSAGE_FORMAT,
-        datefmt=_LOG_DATE_FORMAT,
-    )
     handler.setFormatter(formatter)
     handler.setLevel(level)
 
@@ -155,40 +172,3 @@ def _setup_handler_for_logging(handler_type, level, file_name, context):
     root_logger.addHandler(handler)
 
     return handler
-
-
-class _LogContext(object):
-    """Helper class to represent useful information about a logging context"""
-
-    def __init__(self, clouds_name=None, project_name=None, username=None):
-        """Initialize _LogContext instance
-
-            :param clouds_name: one of the cloud name in configuration file
-            :param project_name: the project name in cloud(clouds_name)
-            :param username: the user name in cloud(clouds_name)
-        """
-
-        self.clouds_name = clouds_name
-        self.project_name = project_name
-        self.username = username
-
-    def to_dict(self):
-        return {
-            'clouds_name': self.clouds_name,
-            'project_name': self.project_name,
-            'username': self.username
-        }
-
-
-class _LogContextFormatter(logging.Formatter):
-    """Customize the logging format for logging handler"""
-
-    def __init__(self, *args, **kwargs):
-        self.context = kwargs.pop('context', None)
-        logging.Formatter.__init__(self, *args, **kwargs)
-
-    def format(self, record):
-        d = self.context.to_dict()
-        for k, v in d.items():
-            setattr(record, k, v)
-        return logging.Formatter.format(self, record)
