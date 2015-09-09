@@ -94,60 +94,12 @@ class OpenStackShell(app.App):
         self.verify = True
 
         self.client_manager = None
-
-        # Operation log
-        self.enable_operation_logging = False
         self.command_options = None
 
     def configure_logging(self):
-        """Configure logging for the app
-
-        Cliff sets some defaults we don't want so re-work it a bit
-        """
-
-        if self.options.debug:
-            # --debug forces verbose_level 3
-            # Set this here so cliff.app.configure_logging() can work
-            self.options.verbose_level = 3
-
-        super(OpenStackShell, self).configure_logging()
-
-        # Set logging to the requested level
-        log_level = context.log_level_from_options(self.options)
-        context.set_warning_filter(log_level)
-
-        # Set the handler logging level of FileHandler(--log-file)
-        # and StreamHandler
-        if self.options.log_file:
-            context.setup_handler_logging_level(logging.FileHandler, log_level)
-
-        context.setup_handler_logging_level(logging.StreamHandler, log_level)
-
-        # Requests logs some stuff at INFO that we don't want
-        # unless we have DEBUG
-        requests_log = logging.getLogger("requests")
-
-        # Other modules we don't want DEBUG output for
-        cliff_log = logging.getLogger('cliff')
-        stevedore_log = logging.getLogger('stevedore')
-        iso8601_log = logging.getLogger("iso8601")
-
-        if self.options.debug:
-            # --debug forces traceback
-            self.dump_stack_trace = True
-            requests_log.setLevel(logging.DEBUG)
-        else:
-            self.dump_stack_trace = False
-            requests_log.setLevel(logging.ERROR)
-
-        cliff_log.setLevel(logging.ERROR)
-        stevedore_log.setLevel(logging.ERROR)
-        iso8601_log.setLevel(logging.ERROR)
-
-        # Operation logging
-        self.operation_log = logging.getLogger("operation_log")
-        self.operation_log.setLevel(logging.ERROR)
-        self.operation_log.propagate = False
+        """Configure logging for the app."""
+        self.log_configurator = context.LogConfigurator(self.options)
+        self.dump_stack_trace = self.log_configurator.dump_trace
 
     def run(self, argv):
         ret_val = 1
@@ -162,8 +114,6 @@ class OpenStackShell(app.App):
                 self.log.error(traceback.format_exc(e))
             else:
                 self.log.error('Exception raised: ' + str(e))
-                if self.enable_operation_logging:
-                    self.operation_log.error(traceback.format_exc(e))
 
             return ret_val
 
@@ -287,9 +237,8 @@ class OpenStackShell(app.App):
             argparse=self.options,
         )
 
-        # Set up every time record log in file and logging start
-        context.setup_logging(self, self.cloud)
-
+        self.log_configurator.configure(self.cloud)
+        self.dump_stack_trace = self.log_configurator.dump_trace
         self.log.info("START with options: %s", self.command_options)
         self.log.debug("options: %s", self.options)
         self.log.debug("defaults: %s", cc.defaults)

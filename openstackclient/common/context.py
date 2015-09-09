@@ -11,9 +11,10 @@
 #   under the License.
 #
 
-"""Context and Formatter"""
+"""Application logging"""
 
 import logging
+import sys
 import warnings
 
 
@@ -99,76 +100,71 @@ class _FileFormatter(logging.Formatter):
         logging.Formatter.__init__(self, self.fmt, self._LOG_DATE_FORMAT)
 
 
-def setup_handler_logging_level(handler_type, level):
-    """Setup of the handler for set the logging level
+class LogConfigurator(object):
 
-        :param handler_type: type of logging handler
-        :param level: logging level
-        :return: None
-    """
-    # Set the handler logging level of FileHandler(--log-file)
-    # and StreamHandler
-    for h in logging.getLogger('').handlers:
-        if type(h) is handler_type:
-            h.setLevel(level)
+    _CONSOLE_MESSAGE_FORMAT = '%(message)s'
 
+    def __init__(self, options):
+        self.root_logger = logging.getLogger('')
+        self.root_logger.setLevel(logging.DEBUG)
 
-def setup_logging(shell, cloud_config):
-    """Get one cloud configuration from configuration file and setup logging
+        # Force verbose_level 3 on --debug
+        self.dump_trace = False
+        if options.debug:
+            options.verbose_level = 3
+            self.dump_trace = True
 
-        :param shell: instance of openstackclient shell
-        :param cloud_config:
-            instance of the cloud specified by --os-cloud
-            in the configuration file
-        :return: None
-    """
+        # Always send higher-level messages to the console via stderr
+        self.console_logger = logging.StreamHandler(sys.stderr)
+        log_level = log_level_from_options(options)
+        self.console_logger.setLevel(log_level)
+        formatter = logging.Formatter(self._CONSOLE_MESSAGE_FORMAT)
+        self.console_logger.setFormatter(formatter)
+        self.root_logger.addHandler(self.console_logger)
 
-    log_level = log_level_from_config(cloud_config.config)
-    set_warning_filter(log_level)
+        # Set the warning filter now
+        set_warning_filter(log_level)
 
-    log_file = cloud_config.config.get('log_file', None)
-    if log_file:
-        # setup the logging context
-        formatter = _FileFormatter(config=cloud_config)
-        # setup the logging handler
-        log_handler = _setup_handler_for_logging(
-            logging.FileHandler,
-            log_level,
-            file_name=log_file,
-            formatter=formatter,
-        )
-        if log_level == logging.DEBUG:
-            # DEBUG only.
-            # setup the operation_log
-            shell.enable_operation_logging = True
-            shell.operation_log.setLevel(logging.DEBUG)
-            shell.operation_log.addHandler(log_handler)
+        # Set up logging to a file
+        self.file_logger = None
+        log_file = options.log_file
+        if log_file:
+            self.file_logger = logging.FileHandler(filename=log_file)
+            self.file_logger.setFormatter(_FileFormatter(options=options))
+            self.file_logger.setLevel(log_level)
+            self.root_logger.addHandler(self.file_logger)
 
+        # Requests logs some stuff at INFO that we don't want
+        # unless we have DEBUG
+        requests_log = logging.getLogger("requests")
 
-def _setup_handler_for_logging(handler_type, level, file_name, formatter):
-    """Setup of the handler
+        # Other modules we don't want DEBUG output for
+        cliff_log = logging.getLogger('cliff')
+        stevedore_log = logging.getLogger('stevedore')
+        iso8601_log = logging.getLogger("iso8601")
 
-       Setup of the handler for addition of the logging handler,
-       changes of the logging format, change of the logging level,
+        if options.debug:
+            # --debug forces traceback
+            requests_log.setLevel(logging.DEBUG)
+        else:
+            requests_log.setLevel(logging.ERROR)
 
-        :param handler_type: type of logging handler
-        :param level: logging level
-        :param file_name: name of log-file
-        :param formatter: instance of logging.Formatter
-        :return: logging handler
-    """
+        cliff_log.setLevel(logging.ERROR)
+        stevedore_log.setLevel(logging.ERROR)
+        iso8601_log.setLevel(logging.ERROR)
 
-    root_logger = logging.getLogger('')
-    handler = None
-    # Setup handler for FileHandler(--os-cloud)
-    handler = logging.FileHandler(
-        filename=file_name,
-    )
-    handler.setFormatter(formatter)
-    handler.setLevel(level)
+    def configure(self, cloud_config):
+        log_level = log_level_from_config(cloud_config.config)
+        set_warning_filter(log_level)
+        self.dump_trace = cloud_config.config.get('debug', self.dump_trace)
+        self.console_logger.setLevel(log_level)
 
-    # If both `--log-file` and `--os-cloud` are specified,
-    # the log is output to each file.
-    root_logger.addHandler(handler)
-
-    return handler
+        log_file = cloud_config.config.get('log_file', None)
+        if log_file:
+            if not self.file_logger:
+                self.file_logger = logging.FileHandler(filename=log_file)
+            formatter = _FileFormatter(cloud_config=cloud_config)
+            self.file_logger.setFormatter(formatter)
+            self.file_logger.setFormatter(_FileFormatter(config=cloud_config))
+            self.file_logger.setLevel(log_level)
+            self.root_logger.addHandler(self.file_logger)
