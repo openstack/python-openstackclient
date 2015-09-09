@@ -38,6 +38,32 @@ def log_level_from_options(options):
     return log_level
 
 
+def log_level_from_config(config):
+    # Check the command line option
+    verbose_level = config.get('verbose_level')
+    if config.get('debug', False):
+        verbose_level = 3
+    if verbose_level == 0:
+        verbose_level = 'error'
+    elif verbose_level == 1:
+        # If a command line option has not been specified, check the
+        # configuration file
+        verbose_level = config.get('log_level', 'warning')
+    elif verbose_level == 2:
+        verbose_level = 'info'
+    else:
+        verbose_level = 'debug'
+
+    log_level = {
+        'critical': logging.CRITICAL,
+        'error': logging.ERROR,
+        'warning': logging.WARNING,
+        'info': logging.INFO,
+        'debug': logging.DEBUG,
+    }.get(verbose_level, logging.WARNING)
+    return log_level
+
+
 def set_warning_filter(log_level):
     if log_level == logging.ERROR:
         warnings.simplefilter("ignore")
@@ -71,18 +97,11 @@ def setup_logging(shell, cloud_config):
         :return: None
     """
 
-    log_level = logging.WARNING
+    log_level = log_level_from_config(cloud_config.config)
+    set_warning_filter(log_level)
+
     log_file = cloud_config.config.get('log_file', None)
     if log_file:
-        # setup the logging level
-        get_log_level = cloud_config.config.get('log_level')
-        if get_log_level:
-            log_level = {
-                'error': logging.ERROR,
-                'info': logging.INFO,
-                'debug': logging.DEBUG,
-            }.get(get_log_level, logging.WARNING)
-
         # setup the logging context
         log_cont = _LogContext(
             clouds_name=cloud_config.config.get('cloud'),
