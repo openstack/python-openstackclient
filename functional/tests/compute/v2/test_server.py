@@ -15,6 +15,7 @@ import uuid
 
 import testtools
 
+from functional.common import exceptions
 from functional.common import test
 
 
@@ -28,18 +29,37 @@ class ServerTests(test.TestCase):
     IP_POOL = 'public'
 
     @classmethod
+    def get_flavor(cls):
+        raw_output = cls.openstack('flavor list -f value -c ID')
+        ray = raw_output.split('\n')
+        idx = len(ray)/2
+        return ray[idx]
+
+    @classmethod
+    def get_image(cls):
+        raw_output = cls.openstack('image list -f value -c ID')
+        ray = raw_output.split('\n')
+        idx = len(ray)/2
+        return ray[idx]
+
+    @classmethod
+    def get_network(cls):
+        try:
+            raw_output = cls.openstack('network list -f value -c ID')
+        except exceptions.CommandFailed:
+            return ''
+        ray = raw_output.split('\n')
+        idx = len(ray)/2
+        return ' --nic net-id=' + ray[idx]
+
+    @classmethod
     def setUpClass(cls):
         opts = cls.get_show_opts(cls.FIELDS)
-        # TODO(thowe): pull these values from clouds.yaml
-        flavor = '4'
-        image = 'cirros-0.3.4-x86_64-uec'
-        netid = ''
-        if netid:
-            nicargs = ' --nic net-id=' + netid
-        else:
-            nicargs = ''
+        flavor = cls.get_flavor()
+        image = cls.get_image()
+        network = cls.get_network()
         raw_output = cls.openstack('server create --flavor ' + flavor +
-                                   ' --image ' + image + nicargs + ' ' +
+                                   ' --image ' + image + network + ' ' +
                                    cls.NAME + opts)
         expected = cls.NAME + '\n'
         cls.assertOutput(expected, raw_output)
