@@ -386,3 +386,50 @@ class APIv1(api.BaseAPI):
                 data[key.lower()] = value
 
         return data
+
+    def account_set(
+        self,
+        properties,
+    ):
+        """Set account properties
+
+        :param dict properties:
+            properties to add or update for the account
+        """
+
+        # NOTE(stevemar): As per the API, the headers have to be in the form
+        # of "X-Account-Meta-Book: MobyDick"
+
+        headers = {}
+        for k, v in properties.iteritems():
+            header_name = 'X-Account-Meta-%s' % k
+            headers[header_name] = v
+
+        if headers:
+            # NOTE(stevemar): The URL (first argument) in this case is already
+            # set to the swift account endpoint, because that's how it's
+            # registered in the catalog
+            self.create("", headers=headers)
+
+    def account_unset(
+        self,
+        properties,
+    ):
+        """Unset account properties
+
+        :param dict properties:
+            properties to remove from the account
+        """
+
+        # NOTE(stevemar): As per the API, the headers have to be in the form
+        # of "X-Remove-Account-Meta-Book: x". In the case where metadata is
+        # removed, we can set the value of the header to anything, so it's
+        # set to 'x'
+
+        headers = {}
+        for k in properties:
+            header_name = 'X-Remove-Account-Meta-%s' % k
+            headers[header_name] = "x"
+
+        if headers:
+            self.create("", headers=headers)
