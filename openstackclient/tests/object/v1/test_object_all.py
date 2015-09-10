@@ -160,6 +160,7 @@ class TestObjectShow(TestObjectAll):
             'content-type',
             'etag',
             'last-modified',
+            'meta-owner',
             'object',
             'x-object-manifest',
         )
@@ -171,6 +172,7 @@ class TestObjectShow(TestObjectAll):
             'text/plain',
             '4c4e39a763d58392724bccf76a58783a',
             'yesterday',
+            object_fakes.ACCOUNT_ID,
             object_fakes.object_name_1,
             'manifest',
         )

@@ -44,9 +44,8 @@ class APIv1(api.BaseAPI):
         """
 
         response = self.create(container, method='PUT')
-        url_parts = urlparse(self.endpoint)
         data = {
-            'account': url_parts.path.split('/')[-1],
+            'account': self._find_account_id(),
             'container': container,
             'x-trans-id': response.headers.get('x-trans-id', None),
         }
@@ -154,12 +153,13 @@ class APIv1(api.BaseAPI):
 
         response = self._request('HEAD', container)
         data = {
-            'account': response.headers.get('x-container-meta-owner', None),
+            'account': self._find_account_id(),
             'container': container,
             'object_count': response.headers.get(
                 'x-container-object-count',
                 None,
             ),
+            'meta-owner': response.headers.get('x-container-meta-owner', None),
             'bytes_used': response.headers.get('x-container-bytes-used', None),
             'read_acl': response.headers.get('x-container-read', None),
             'write_acl': response.headers.get('x-container-write', None),
@@ -194,9 +194,8 @@ class APIv1(api.BaseAPI):
                 method='PUT',
                 data=f,
             )
-        url_parts = urlparse(self.endpoint)
         data = {
-            'account': url_parts.path.split('/')[-1],
+            'account': self._find_account_id(),
             'container': container,
             'object': object,
             'x-trans-id': response.headers.get('X-Trans-Id', None),
@@ -352,10 +351,11 @@ class APIv1(api.BaseAPI):
 
         response = self._request('HEAD', "%s/%s" % (container, object))
         data = {
-            'account': response.headers.get('x-container-meta-owner', None),
+            'account': self._find_account_id(),
             'container': container,
             'object': object,
             'content-type': response.headers.get('content-type', None),
+            'meta-owner': response.headers.get('x-container-meta-owner', None),
         }
         if 'content-length' in response.headers:
             data['content-length'] = response.headers.get(
