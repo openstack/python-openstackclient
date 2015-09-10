@@ -42,10 +42,12 @@ def make_client(instance):
     except ImportError:
         from novaclient.v1_1.contrib import list_extensions
 
-    compute_client = nova_client.get_client_class(
-        instance._api_version[API_NAME],
-    )
-    LOG.debug('Instantiating compute client: %s', compute_client)
+    if _compute_api_version is not None:
+        version = _compute_api_version
+    else:
+        version = instance._api_version[API_NAME]
+
+    LOG.debug('Instantiating compute client for V%s' % version)
 
     # Set client http_log_debug to True if verbosity level is high enough
     http_log_debug = utils.get_effective_log_level() <= logging.DEBUG
@@ -55,10 +57,8 @@ def make_client(instance):
     # Remember interface only if it is set
     kwargs = utils.build_kwargs_dict('endpoint_type', instance._interface)
 
-    if _compute_api_version is not None:
-        kwargs.update({'api_version': _compute_api_version})
-
-    client = compute_client(
+    client = nova_client.Client(
+        version,
         session=instance.session,
         extensions=extensions,
         http_log_debug=http_log_debug,
