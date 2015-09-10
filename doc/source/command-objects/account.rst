@@ -19,6 +19,16 @@ Set account properties
 
     Set a property on this account (repeat option to set multiple properties)
 
+account show
+------------
+
+Display account details
+
+.. program:: account show
+.. code:: bash
+
+    os account show
+
 account unset
 -------------
 

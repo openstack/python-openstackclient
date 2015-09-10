@@ -411,6 +411,23 @@ class APIv1(api.BaseAPI):
             # registered in the catalog
             self.create("", headers=headers)
 
+    def account_show(self):
+        """Show account details"""
+
+        # NOTE(stevemar): Just a HEAD request to the endpoint already in the
+        # catalog should be enough.
+        response = self._request("HEAD", "")
+        data = {}
+        for k, v in response.headers.iteritems():
+            data[k] = v
+        # Map containers, bytes and objects a bit nicer
+        data['Containers'] = data.pop('x-account-container-count', None)
+        data['Objects'] = data.pop('x-account-object-count', None)
+        data['Bytes'] = data.pop('x-account-bytes-used', None)
+        # Add in Account info too
+        data['Account'] = self._find_account_id()
+        return data
+
     def account_unset(
         self,
         properties,
@@ -433,3 +450,7 @@ class APIv1(api.BaseAPI):
 
         if headers:
             self.create("", headers=headers)
+
+    def _find_account_id(self):
+        url_parts = urlparse(self.endpoint)
+        return url_parts.path.split('/')[-1]
