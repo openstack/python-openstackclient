@@ -23,6 +23,7 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
+from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
@@ -178,6 +179,36 @@ class SaveContainer(command.Command):
         )
 
 
+class SetContainer(command.Command):
+    """Set container properties"""
+
+    log = logging.getLogger(__name__ + '.SetContainer')
+
+    def get_parser(self, prog_name):
+        parser = super(SetContainer, self).get_parser(prog_name)
+        parser.add_argument(
+            'container',
+            metavar='<container>',
+            help='Container to modify',
+        )
+        parser.add_argument(
+            "--property",
+            metavar="<key=value>",
+            required=True,
+            action=parseractions.KeyValueAction,
+            help="Set a property on this container "
+                 "(repeat option to set multiple properties)"
+        )
+        return parser
+
+    @utils.log_method(log)
+    def take_action(self, parsed_args):
+        self.app.client_manager.object_store.container_set(
+            parsed_args.container,
+            properties=parsed_args.property,
+        )
+
+
 class ShowContainer(show.ShowOne):
     """Display container details"""
 
@@ -200,3 +231,34 @@ class ShowContainer(show.ShowOne):
         )
 
         return zip(*sorted(six.iteritems(data)))
+
+
+class UnsetContainer(command.Command):
+    """Unset container properties"""
+
+    log = logging.getLogger(__name__ + '.UnsetContainer')
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetContainer, self).get_parser(prog_name)
+        parser.add_argument(
+            'container',
+            metavar='<container>',
+            help='Container to modify',
+        )
+        parser.add_argument(
+            '--property',
+            metavar='<key>',
+            required=True,
+            action='append',
+            default=[],
+            help='Property to remove from container '
+                 '(repeat option to remove multiple properties)',
+        )
+        return parser
+
+    @utils.log_method(log)
+    def take_action(self, parsed_args):
+        self.app.client_manager.object_store.container_unset(
+            parsed_args.container,
+            properties=parsed_args.property,
+        )

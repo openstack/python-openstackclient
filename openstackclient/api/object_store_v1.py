@@ -139,6 +139,23 @@ class APIv1(api.BaseAPI):
         for object in objects:
             self.object_save(container=container, object=object['name'])
 
+    def container_set(
+        self,
+        container,
+        properties,
+    ):
+        """Set container properties
+
+        :param string container:
+            name of container to modify
+        :param dict properties:
+            properties to add or update for the container
+        """
+
+        headers = self._set_properties(properties, 'X-Container-Meta-%s')
+        if headers:
+            self.create(container, headers=headers)
+
     def container_show(
         self,
         container=None,
@@ -167,6 +184,24 @@ class APIv1(api.BaseAPI):
             'sync_key': response.headers.get('x-container-sync-key', None),
         }
         return data
+
+    def container_unset(
+        self,
+        container,
+        properties,
+    ):
+        """Unset container properties
+
+        :param string container:
+            name of container to modify
+        :param dict properties:
+            properties to remove from the container
+        """
+
+        headers = self._unset_properties(properties,
+                                         'X-Remove-Container-Meta-%s')
+        if headers:
+            self.create(container, headers=headers)
 
     def object_create(
         self,
@@ -397,14 +432,7 @@ class APIv1(api.BaseAPI):
             properties to add or update for the account
         """
 
-        # NOTE(stevemar): As per the API, the headers have to be in the form
-        # of "X-Account-Meta-Book: MobyDick"
-
-        headers = {}
-        for k, v in properties.iteritems():
-            header_name = 'X-Account-Meta-%s' % k
-            headers[header_name] = v
-
+        headers = self._set_properties(properties, 'X-Account-Meta-%s')
         if headers:
             # NOTE(stevemar): The URL (first argument) in this case is already
             # set to the swift account endpoint, because that's how it's
@@ -438,19 +466,37 @@ class APIv1(api.BaseAPI):
             properties to remove from the account
         """
 
-        # NOTE(stevemar): As per the API, the headers have to be in the form
-        # of "X-Remove-Account-Meta-Book: x". In the case where metadata is
-        # removed, we can set the value of the header to anything, so it's
-        # set to 'x'
-
-        headers = {}
-        for k in properties:
-            header_name = 'X-Remove-Account-Meta-%s' % k
-            headers[header_name] = "x"
-
+        headers = self._unset_properties(properties,
+                                         'X-Remove-Account-Meta-%s')
         if headers:
             self.create("", headers=headers)
 
     def _find_account_id(self):
         url_parts = urlparse(self.endpoint)
         return url_parts.path.split('/')[-1]
+
+    def _unset_properties(self, properties, header_tag):
+        # NOTE(stevemar): As per the API, the headers have to be in the form
+        # of "X-Remove-Account-Meta-Book: x". In the case where metadata is
+        # removed, we can set the value of the header to anything, so it's
+        # set to 'x'. In the case of a Container property we use:
+        # "X-Remove-Container-Meta-Book: x", and the same logic applies for
+        # Object properties
+
+        headers = {}
+        for k in properties:
+            header_name = header_tag % k
+            headers[header_name] = 'x'
+        return headers
+
+    def _set_properties(self, properties, header_tag):
+        # NOTE(stevemar): As per the API, the headers have to be in the form
+        # of "X-Account-Meta-Book: MobyDick". In the case of a Container
+        # property we use: "X-Add-Container-Meta-Book: MobyDick", and the same
+        # logic applies for Object properties
+
+        headers = {}
+        for k, v in properties.iteritems():
+            header_name = header_tag % k
+            headers[header_name] = v
+        return headers

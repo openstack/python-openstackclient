@@ -89,6 +89,26 @@ Save container contents locally
 
     Container to save
 
+container set
+-------------
+
+Set container properties
+
+.. program:: container set
+.. code:: bash
+
+    os container set
+        [<container>]
+        [--property <key=value> [...] ]
+
+.. describe:: <container>
+
+    Container to modify
+
+.. option:: --property <key=value>
+
+    Set a property on this container (repeat option to set multiple properties)
+
 container show
 --------------
 
@@ -103,3 +123,23 @@ Display container details
 .. describe:: <container>
 
     Container to display
+
+container unset
+---------------
+
+Unset container properties
+
+.. program:: container unset
+.. code:: bash
+
+    os container unset
+        [<container>]
+        [--property <key>]
+
+.. describe:: <container>
+
+    Container to modify
+
+.. option:: --property <key>
+
+    Property to remove from container (repeat option to remove multiple properties)
