@@ -286,7 +286,6 @@ class TestContainerShow(TestContainerAll):
 
     def test_object_show_container(self):
         headers = {
-            'x-container-meta-owner': object_fakes.ACCOUNT_ID,
             'x-container-object-count': '42',
             'x-container-bytes-used': '123',
             'x-container-read': 'qaz',
@@ -316,7 +315,6 @@ class TestContainerShow(TestContainerAll):
             'account',
             'bytes_used',
             'container',
-            'meta-owner',
             'object_count',
             'read_acl',
             'sync_key',
@@ -328,7 +326,6 @@ class TestContainerShow(TestContainerAll):
             object_fakes.ACCOUNT_ID,
             '123',
             'ernie',
-            object_fakes.ACCOUNT_ID,
             '42',
             'qaz',
             'rfv',

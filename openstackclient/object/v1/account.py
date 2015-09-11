@@ -55,6 +55,8 @@ class ShowAccount(show.ShowOne):
     @utils.log_method(log)
     def take_action(self, parsed_args):
         data = self.app.client_manager.object_store.account_show()
+        if 'properties' in data:
+            data['properties'] = utils.format_dict(data.pop('properties'))
         return zip(*sorted(six.iteritems(data)))
 
 

@@ -284,6 +284,8 @@ class ShowObject(show.ShowOne):
             container=parsed_args.container,
             object=parsed_args.object,
         )
+        if 'properties' in data:
+            data['properties'] = utils.format_dict(data.pop('properties'))
 
         return zip(*sorted(six.iteritems(data)))
 
