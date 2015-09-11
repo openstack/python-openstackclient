@@ -23,6 +23,8 @@ import sys
 from cliff import command
 from cliff import show
 
+from openstackclient.common import utils
+
 
 # List the quota items, map the internal argument name to the option
 # name that the user sees.
@@ -89,8 +91,8 @@ class SetQuota(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
@@ -188,8 +190,8 @@ class ShowQuota(show.ShowOne):
         else:
             return {}
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume

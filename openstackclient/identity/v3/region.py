@@ -56,8 +56,8 @@ class CreateRegion(show.ShowOne):
 
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         region = identity_client.regions.create(
@@ -87,8 +87,8 @@ class DeleteRegion(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         identity_client.regions.delete(parsed_args.region)
@@ -109,8 +109,8 @@ class ListRegion(lister.Lister):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         kwargs = {}
@@ -157,8 +157,8 @@ class SetRegion(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         if (not parsed_args.url
@@ -192,8 +192,8 @@ class ShowRegion(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         region = utils.find_resource(identity_client.regions,

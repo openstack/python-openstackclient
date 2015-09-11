@@ -45,8 +45,8 @@ class AssociateQos(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(volume_client.qos_specs,
                                        parsed_args.qos_spec)
@@ -88,8 +88,8 @@ class CreateQos(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         specs = {}
         specs.update({'consumer': parsed_args.consumer})
@@ -117,8 +117,8 @@ class DeleteQos(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         for qos in parsed_args.qos_specs:
             qos_spec = utils.find_resource(volume_client.qos_specs, qos)
@@ -153,8 +153,8 @@ class DisassociateQos(command.Command):
 
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(volume_client.qos_specs,
                                        parsed_args.qos_spec)
@@ -174,8 +174,8 @@ class ListQos(lister.Lister):
 
     log = logging.getLogger(__name__ + '.ListQos')
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         qos_specs_list = volume_client.qos_specs.list()
 
@@ -218,8 +218,8 @@ class SetQos(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(volume_client.qos_specs,
                                        parsed_args.qos_spec)
@@ -247,8 +247,8 @@ class ShowQos(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(volume_client.qos_specs,
                                        parsed_args.qos_spec)
@@ -287,8 +287,8 @@ class UnsetQos(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(volume_client.qos_specs,
                                        parsed_args.qos_spec)

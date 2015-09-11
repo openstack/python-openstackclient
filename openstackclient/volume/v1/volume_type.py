@@ -47,8 +47,8 @@ class CreateVolumeType(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         volume_type = volume_client.volume_types.create(parsed_args.name)
         volume_type._info.pop('extra_specs')
@@ -75,8 +75,8 @@ class DeleteVolumeType(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         volume_type_id = utils.find_resource(
             volume_client.volume_types, parsed_args.volume_type).id
@@ -98,8 +98,8 @@ class ListVolumeType(lister.Lister):
             help='List additional fields in output')
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         if parsed_args.long:
             columns = ('ID', 'Name', 'Extra Specs')
             column_headers = ('ID', 'Name', 'Properties')
@@ -135,8 +135,8 @@ class SetVolumeType(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         volume_type = utils.find_resource(
             volume_client.volume_types, parsed_args.volume_type)
@@ -170,8 +170,8 @@ class UnsetVolumeType(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         volume_type = utils.find_resource(
             volume_client.volume_types,

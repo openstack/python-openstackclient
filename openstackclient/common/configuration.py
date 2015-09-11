@@ -18,6 +18,8 @@ import logging
 from cliff import show
 import six
 
+from openstackclient.common import utils
+
 REDACTED = "<redacted>"
 
 
@@ -44,8 +46,8 @@ class ShowConfiguration(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         info = self.app.client_manager.get_configuration()
         for key, value in six.iteritems(info.pop('auth', {})):

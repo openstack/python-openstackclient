@@ -63,8 +63,8 @@ class CreateDomain(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         enabled = True
@@ -103,8 +103,8 @@ class DeleteDomain(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         domain = utils.find_resource(identity_client.domains,
                                      parsed_args.domain)
@@ -117,8 +117,8 @@ class ListDomain(lister.Lister):
 
     log = logging.getLogger(__name__ + '.ListDomain')
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         columns = ('ID', 'Name', 'Enabled', 'Description')
         data = self.app.client_manager.identity.domains.list()
         return (columns,
@@ -163,8 +163,8 @@ class SetDomain(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         domain = utils.find_resource(identity_client.domains,
                                      parsed_args.domain)
@@ -200,8 +200,8 @@ class ShowDomain(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         domain = utils.find_resource(identity_client.domains,
                                      parsed_args.domain)

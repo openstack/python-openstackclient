@@ -79,8 +79,8 @@ class CreateEC2Creds(show.ShowOne):
         common.add_project_domain_option_to_parser(parser)
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         client_manager = self.app.client_manager
         user = _determine_ec2_user(parsed_args, client_manager)
@@ -136,8 +136,8 @@ class DeleteEC2Creds(command.Command):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         client_manager = self.app.client_manager
         user = _determine_ec2_user(parsed_args, client_manager)
         client_manager.identity.ec2.delete(user, parsed_args.access_key)
@@ -158,8 +158,8 @@ class ListEC2Creds(lister.Lister):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         client_manager = self.app.client_manager
         user = _determine_ec2_user(parsed_args, client_manager)
 
@@ -194,8 +194,8 @@ class ShowEC2Creds(show.ShowOne):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         client_manager = self.app.client_manager
         user = _determine_ec2_user(parsed_args, client_manager)
         creds = client_manager.identity.ec2.get(user, parsed_args.access_key)

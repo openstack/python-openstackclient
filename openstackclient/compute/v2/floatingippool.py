@@ -27,8 +27,8 @@ class ListFloatingIPPool(lister.Lister):
 
     log = logging.getLogger(__name__ + '.ListFloatingIPPool')
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         compute_client = self.app.client_manager.compute
 
         columns = ('Name',)

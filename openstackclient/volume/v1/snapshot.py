@@ -59,8 +59,8 @@ class CreateSnapshot(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         volume_id = utils.find_resource(volume_client.volumes,
                                         parsed_args.volume).id
@@ -93,8 +93,8 @@ class DeleteSnapshot(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         for snapshot in parsed_args.snapshots:
             snapshot_id = utils.find_resource(volume_client.volume_snapshots,
@@ -118,8 +118,8 @@ class ListSnapshot(lister.Lister):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         def _format_volume_id(volume_id):
             """Return a volume name if available
@@ -194,8 +194,8 @@ class SetSnapshot(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         snapshot = utils.find_resource(volume_client.volume_snapshots,
                                        parsed_args.snapshot)
@@ -231,8 +231,8 @@ class ShowSnapshot(show.ShowOne):
             help='Snapshot to display (name or ID)')
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         snapshot = utils.find_resource(volume_client.volume_snapshots,
                                        parsed_args.snapshot)
@@ -267,8 +267,8 @@ class UnsetSnapshot(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         volume_client = self.app.client_manager.volume
         snapshot = utils.find_resource(
             volume_client.volume_snapshots, parsed_args.snapshot)

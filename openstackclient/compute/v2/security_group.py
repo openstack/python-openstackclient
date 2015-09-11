@@ -107,8 +107,8 @@ class DeleteSecurityGroup(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         data = utils.find_resource(
@@ -199,8 +199,8 @@ class SetSecurityGroup(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         data = utils.find_resource(
@@ -240,8 +240,8 @@ class ShowSecurityGroup(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         info = {}
@@ -337,8 +337,8 @@ class DeleteSecurityGroupRule(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         compute_client = self.app.client_manager.compute
         compute_client.security_group_rules.delete(parsed_args.rule)

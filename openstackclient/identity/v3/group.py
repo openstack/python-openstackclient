@@ -50,8 +50,8 @@ class AddUserToGroup(command.Command):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         user_id = common.find_user(identity_client,
@@ -92,8 +92,8 @@ class CheckUserInGroup(command.Command):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         user_id = common.find_user(identity_client,
@@ -142,8 +142,8 @@ class CreateGroup(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         domain = None
@@ -188,8 +188,8 @@ class DeleteGroup(command.Command):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         for group in parsed_args.groups:
@@ -226,8 +226,8 @@ class ListGroup(lister.Lister):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         domain = None
@@ -284,8 +284,8 @@ class RemoveUserFromGroup(command.Command):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         user_id = common.find_user(identity_client,
@@ -331,8 +331,8 @@ class SetGroup(command.Command):
             help='New group description')
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
         group = common.find_group(identity_client, parsed_args.group,
                                   parsed_args.domain)
@@ -368,8 +368,8 @@ class ShowGroup(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
         identity_client = self.app.client_manager.identity
 
         group = common.find_group(identity_client,

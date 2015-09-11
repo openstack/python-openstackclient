@@ -39,8 +39,8 @@ class ListCatalog(lister.Lister):
 
     log = logging.getLogger(__name__ + '.ListCatalog')
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         # This is ugly because if auth hasn't happened yet we need
         # to trigger it here.
@@ -73,8 +73,8 @@ class ShowCatalog(show.ShowOne):
         )
         return parser
 
+    @utils.log_method(log)
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
 
         # This is ugly because if auth hasn't happened yet we need
         # to trigger it here.
