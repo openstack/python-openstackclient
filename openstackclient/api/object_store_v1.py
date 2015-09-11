@@ -366,6 +366,46 @@ class APIv1(api.BaseAPI):
                 for chunk in response.iter_content():
                     f.write(chunk)
 
+    def object_set(
+        self,
+        container,
+        object,
+        properties,
+    ):
+        """Set object properties
+
+        :param string container:
+            container name for object to modify
+        :param string object:
+            name of object to modify
+        :param dict properties:
+            properties to add or update for the container
+        """
+
+        headers = self._set_properties(properties, 'X-Object-Meta-%s')
+        if headers:
+            self.create("%s/%s" % (container, object), headers=headers)
+
+    def object_unset(
+        self,
+        container,
+        object,
+        properties,
+    ):
+        """Unset object properties
+
+        :param string container:
+            container name for object to modify
+        :param string object:
+            name of object to modify
+        :param dict properties:
+            properties to remove from the object
+        """
+
+        headers = self._unset_properties(properties, 'X-Remove-Object-Meta-%s')
+        if headers:
+            self.create("%s/%s" % (container, object), headers=headers)
+
     def object_show(
         self,
         container=None,

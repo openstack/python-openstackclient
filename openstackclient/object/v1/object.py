@@ -23,6 +23,7 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
+from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
@@ -221,6 +222,42 @@ class SaveObject(command.Command):
         )
 
 
+class SetObject(command.Command):
+    """Set object properties"""
+
+    log = logging.getLogger(__name__ + '.SetObject')
+
+    def get_parser(self, prog_name):
+        parser = super(SetObject, self).get_parser(prog_name)
+        parser.add_argument(
+            'container',
+            metavar='<container>',
+            help='Modify <object> from <container>',
+        )
+        parser.add_argument(
+            'object',
+            metavar='<object>',
+            help='Object to modify',
+        )
+        parser.add_argument(
+            "--property",
+            metavar="<key=value>",
+            required=True,
+            action=parseractions.KeyValueAction,
+            help="Set a property on this object "
+                 "(repeat option to set multiple properties)"
+        )
+        return parser
+
+    @utils.log_method(log)
+    def take_action(self, parsed_args):
+        self.app.client_manager.object_store.object_set(
+            parsed_args.container,
+            parsed_args.object,
+            properties=parsed_args.property,
+        )
+
+
 class ShowObject(show.ShowOne):
     """Display object details"""
 
@@ -249,3 +286,40 @@ class ShowObject(show.ShowOne):
         )
 
         return zip(*sorted(six.iteritems(data)))
+
+
+class UnsetObject(command.Command):
+    """Unset object properties"""
+
+    log = logging.getLogger(__name__ + '.UnsetObject')
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetObject, self).get_parser(prog_name)
+        parser.add_argument(
+            'container',
+            metavar='<container>',
+            help='Modify <object> from <container>',
+        )
+        parser.add_argument(
+            'object',
+            metavar='<object>',
+            help='Object to modify',
+        )
+        parser.add_argument(
+            '--property',
+            metavar='<key>',
+            required=True,
+            action='append',
+            default=[],
+            help='Property to remove from object '
+                 '(repeat option to remove multiple properties)',
+        )
+        return parser
+
+    @utils.log_method(log)
+    def take_action(self, parsed_args):
+        self.app.client_manager.object_store.object_unset(
+            parsed_args.container,
+            parsed_args.object,
+            properties=parsed_args.property,
+        )
