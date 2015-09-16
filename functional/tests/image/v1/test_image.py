@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import os
 import uuid
 
 from functional.common import test
@@ -25,6 +26,7 @@ class ImageTests(test.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        os.environ['OS_IMAGE_API_VERSION'] = '1'
         opts = cls.get_show_opts(cls.FIELDS)
         raw_output = cls.openstack('image create ' + cls.NAME + opts)
         expected = cls.NAME + '\n'
