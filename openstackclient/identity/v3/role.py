@@ -39,7 +39,7 @@ def _add_identity_and_resource_options_to_parser(parser):
     domain_or_project.add_argument(
         '--project',
         metavar='<project>',
-        help='Include `<project>` (name or ID)',
+        help='Include <project> (name or ID)',
     )
     user_or_group = parser.add_mutually_exclusive_group()
     user_or_group.add_argument(
