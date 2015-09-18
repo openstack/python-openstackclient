@@ -203,7 +203,7 @@ class OpenStackShell(app.App):
             # Use service token authentication
             auth_type = 'token_endpoint'
         else:
-            auth_type = 'osc_password'
+            auth_type = 'password'
 
         project_id = getattr(self.options, 'project_id', None)
         project_name = getattr(self.options, 'project_name', None)
