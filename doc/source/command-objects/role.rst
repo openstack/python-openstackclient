@@ -20,21 +20,21 @@ Add role to a user or group in a project or domain
 
 .. option:: --domain <domain>
 
-    Include `<domain>` (name or ID)
+    Include <domain> (name or ID)
 
     .. versionadded:: 3
 
 .. option:: --project <project>
 
-    Include `<project>` (name or ID)
+    Include <project> (name or ID)
 
 .. option:: --user <user>
 
-    Include `<user>` (name or ID)
+    Include <user> (name or ID)
 
 .. option:: --group <group>
 
-    Include `<group>` (name or ID)
+    Include <group> (name or ID)
 
     .. versionadded:: 3
 
@@ -67,7 +67,7 @@ Add role to a user or group in a project or domain
 
 .. describe:: <role>
 
-    Role to add to `<project>`:`<user>` (name or ID)
+    Role to add to <project>:<user> (name or ID)
 
 role create
 -----------
@@ -186,21 +186,21 @@ Remove role from domain/project : user/group
 
 .. option:: --domain <domain>
 
-    Include `<domain>` (name or ID)
+    Include <domain> (name or ID)
 
     .. versionadded:: 3
 
 .. option:: --project <project>
 
-    Include `<project>` (name or ID)
+    Include <project> (name or ID)
 
 .. option:: --user <user>
 
-    Include `<user>` (name or ID)
+    Include <user> (name or ID)
 
 .. option:: --group <group>
 
-    Include `<group>` (name or ID)
+    Include <group> (name or ID)
 
     .. versionadded:: 3
 
