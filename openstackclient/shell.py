@@ -197,6 +197,8 @@ class OpenStackShell(app.App):
 
         # Parent __init__ parses argv into self.options
         super(OpenStackShell, self).initialize_app(argv)
+        self.log.info("START with options: %s", self.command_options)
+        self.log.debug("options: %s", self.options)
 
         # Set the default plugin to token_endpoint if url and token are given
         if (self.options.url and self.options.token):
@@ -239,8 +241,6 @@ class OpenStackShell(app.App):
 
         self.log_configurator.configure(self.cloud)
         self.dump_stack_trace = self.log_configurator.dump_trace
-        self.log.info("START with options: %s", self.command_options)
-        self.log.debug("options: %s", self.options)
         self.log.debug("defaults: %s", cc.defaults)
         self.log.debug("cloud cfg: %s", self.cloud.config)
 
