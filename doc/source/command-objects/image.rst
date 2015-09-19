@@ -7,7 +7,7 @@ Image v1, v2
 image create
 ------------
 
-*Only supported for Image v1*
+*Image v1, v2*
 
 Create/upload an image
 
@@ -32,6 +32,7 @@ Create/upload an image
         [--protected | --unprotected]
         [--public | --private]
         [--property <key=value> [...] ]
+        [--tag <tag> [...] ]
         <image-name>
 
 .. option:: --id <id>
@@ -41,6 +42,8 @@ Create/upload an image
 .. option:: --store <store>
 
     Upload image to this store
+
+    *Image version 1 only.*
 
 .. option:: --container-format <container-format>
 
@@ -54,9 +57,13 @@ Create/upload an image
 
     Image owner project name or ID
 
+    *Image version 1 only.*
+
 .. option:: --size <size>
 
     Image size, in bytes (only used with --location and --copy-from)
+
+    *Image version 1 only.*
 
 .. option:: --min-disk <disk-gb>
 
@@ -70,9 +77,13 @@ Create/upload an image
 
     Download image from an existing URL
 
+    *Image version 1 only.*
+
 .. option:: --copy-from <image-url>
 
     Copy image from the data store (similar to --location)
+
+    *Image version 1 only.*
 
 .. option:: --file <file>
 
@@ -89,6 +100,8 @@ Create/upload an image
 .. option:: --checksum <checksum>
 
     Image hash used for verification
+
+    *Image version 1 only.*
 
 .. option:: --protected
 
@@ -109,6 +122,12 @@ Create/upload an image
 .. option:: --property <key=value>
 
     Set a property on this image (repeat for multiple values)
+
+.. option:: --tag <tag>
+
+    Set a tag on this image (repeat for multiple values)
+
+    .. versionadded:: 2
 
 .. describe:: <image-name>
 

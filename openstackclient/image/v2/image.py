@@ -22,12 +22,17 @@ import six
 from cliff import command
 from cliff import lister
 from cliff import show
-
 from glanceclient.common import utils as gc_utils
+
 from openstackclient.api import utils as api_utils
+from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 from openstackclient.identity import common
+
+
+DEFAULT_CONTAINER_FORMAT = 'bare'
+DEFAULT_DISK_FORMAT = 'raw'
 
 
 class AddProjectToImage(show.ShowOne):
@@ -70,6 +75,186 @@ class AddProjectToImage(show.ShowOne):
         )
 
         return zip(*sorted(six.iteritems(image_member._info)))
+
+
+class CreateImage(show.ShowOne):
+    """Create/upload an image"""
+
+    log = logging.getLogger(__name__ + ".CreateImage")
+    deadopts = ('owner', 'size', 'location', 'copy-from', 'checksum', 'store')
+
+    def get_parser(self, prog_name):
+        parser = super(CreateImage, self).get_parser(prog_name)
+        # TODO(mordred): add --volume and --force parameters and support
+        # TODO(bunting): There are additional arguments that v1 supported
+        # that v2 either doesn't support or supports weirdly.
+        # --checksum - could be faked clientside perhaps?
+        # --owner - could be set as an update after the put?
+        # --location - maybe location add?
+        # --size - passing image size is actually broken in python-glanceclient
+        # --copy-from - does not exist in v2
+        # --store - does not exits in v2
+        parser.add_argument(
+            "name",
+            metavar="<image-name>",
+            help="New image name",
+        )
+        parser.add_argument(
+            "--id",
+            metavar="<id>",
+            help="Image ID to reserve",
+        )
+        parser.add_argument(
+            "--container-format",
+            default=DEFAULT_CONTAINER_FORMAT,
+            metavar="<container-format>",
+            help="Image container format "
+                 "(default: %s)" % DEFAULT_CONTAINER_FORMAT,
+        )
+        parser.add_argument(
+            "--disk-format",
+            default=DEFAULT_DISK_FORMAT,
+            metavar="<disk-format>",
+            help="Image disk format "
+                 "(default: %s)" % DEFAULT_DISK_FORMAT,
+        )
+        parser.add_argument(
+            "--min-disk",
+            metavar="<disk-gb>",
+            type=int,
+            help="Minimum disk size needed to boot image, in gigabytes",
+        )
+        parser.add_argument(
+            "--min-ram",
+            metavar="<ram-mb>",
+            type=int,
+            help="Minimum RAM size needed to boot image, in megabytes",
+        )
+        parser.add_argument(
+            "--file",
+            metavar="<file>",
+            help="Upload image from local file",
+        )
+        protected_group = parser.add_mutually_exclusive_group()
+        protected_group.add_argument(
+            "--protected",
+            action="store_true",
+            help="Prevent image from being deleted",
+        )
+        protected_group.add_argument(
+            "--unprotected",
+            action="store_true",
+            help="Allow image to be deleted (default)",
+        )
+        public_group = parser.add_mutually_exclusive_group()
+        public_group.add_argument(
+            "--public",
+            action="store_true",
+            help="Image is accessible to the public",
+        )
+        public_group.add_argument(
+            "--private",
+            action="store_true",
+            help="Image is inaccessible to the public (default)",
+        )
+        parser.add_argument(
+            "--property",
+            dest="properties",
+            metavar="<key=value>",
+            action=parseractions.KeyValueAction,
+            help="Set a property on this image "
+                 "(repeat option to set multiple properties)",
+        )
+        parser.add_argument(
+            "--tag",
+            dest="tags",
+            metavar="<tag>",
+            action='append',
+            help="Set a tag on this image "
+                 "(repeat option to set multiple tags)",
+        )
+        for deadopt in self.deadopts:
+            parser.add_argument(
+                "--%s" % deadopt,
+                metavar="<%s>" % deadopt,
+                dest=deadopt.replace('-', '_'),
+                help=argparse.SUPPRESS
+            )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)", parsed_args)
+        image_client = self.app.client_manager.image
+
+        for deadopt in self.deadopts:
+            if getattr(parsed_args, deadopt.replace('-', '_'), None):
+                raise exceptions.CommandError(
+                    "ERROR: --%s was given, which is an Image v1 option"
+                    " that is no longer supported in Image v2" % deadopt)
+
+        # Build an attribute dict from the parsed args, only include
+        # attributes that were actually set on the command line
+        kwargs = {}
+        copy_attrs = ('name', 'id',
+                      'container_format', 'disk_format',
+                      'min_disk', 'min_ram',
+                      'tags')
+        for attr in copy_attrs:
+            if attr in parsed_args:
+                val = getattr(parsed_args, attr, None)
+                if val:
+                    # Only include a value in kwargs for attributes that
+                    # are actually present on the command line
+                    kwargs[attr] = val
+        # properties should get flattened into the general kwargs
+        if getattr(parsed_args, 'properties', None):
+            for k, v in six.iteritems(parsed_args.properties):
+                kwargs[k] = str(v)
+        # Handle exclusive booleans with care
+        # Avoid including attributes in kwargs if an option is not
+        # present on the command line.  These exclusive booleans are not
+        # a single value for the pair of options because the default must be
+        # to do nothing when no options are present as opposed to always
+        # setting a default.
+        if parsed_args.protected:
+            kwargs['protected'] = True
+        if parsed_args.unprotected:
+            kwargs['protected'] = False
+        if parsed_args.public:
+            kwargs['visibility'] = 'public'
+        if parsed_args.private:
+            kwargs['visibility'] = 'private'
+
+        # open the file first to ensure any failures are handled before the
+        # image is created
+        fp = gc_utils.get_data_file(parsed_args)
+
+        if fp is None and parsed_args.file:
+            self.log.warning("Failed to get an image file.")
+            return {}, {}
+
+        image = image_client.images.create(**kwargs)
+
+        if fp is not None:
+            with fp:
+                try:
+                    image_client.images.upload(image.id, fp)
+                except Exception as e:
+                    # If the upload fails for some reason attempt to remove the
+                    # dangling queued image made by the create() call above but
+                    # only if the user did not specify an id which indicates
+                    # the Image already exists and should be left alone.
+                    try:
+                        if 'id' not in kwargs:
+                            image_client.images.delete(image.id)
+                    except Exception:
+                        pass  # we don't care about this one
+                    raise e  # now, throw the upload exception again
+
+                # update the image after the data has been uploaded
+                image = image_client.images.get(image.id)
+
+        return zip(*sorted(six.iteritems(image)))
 
 
 class DeleteImage(command.Command):

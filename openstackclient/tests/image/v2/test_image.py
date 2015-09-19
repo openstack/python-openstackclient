@@ -19,6 +19,7 @@ import mock
 import warlock
 
 from glanceclient.v2 import schemas
+from openstackclient.common import exceptions
 from openstackclient.image.v2 import image
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
@@ -39,6 +40,191 @@ class TestImage(image_fakes.TestImagev2):
         self.project_mock.reset_mock()
         self.domain_mock = self.app.client_manager.identity.domains
         self.domain_mock.reset_mock()
+
+
+class TestImageCreate(TestImage):
+
+    def setUp(self):
+        super(TestImageCreate, self).setUp()
+
+        self.images_mock.create.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(image_fakes.IMAGE),
+            loaded=True,
+        )
+        # This is the return value for utils.find_resource()
+        self.images_mock.get.return_value = copy.deepcopy(image_fakes.IMAGE)
+        self.images_mock.update.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(image_fakes.IMAGE),
+            loaded=True,
+        )
+
+        # Get the command object to test
+        self.cmd = image.CreateImage(self.app, None)
+
+    def test_image_reserve_no_options(self):
+        mock_exception = {
+            'find.side_effect': exceptions.CommandError('x'),
+        }
+        self.images_mock.configure_mock(**mock_exception)
+        arglist = [
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('container_format', image.DEFAULT_CONTAINER_FORMAT),
+            ('disk_format', image.DEFAULT_DISK_FORMAT),
+            ('name', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # ImageManager.create(name=, **)
+        self.images_mock.create.assert_called_with(
+            name=image_fakes.image_name,
+            container_format=image.DEFAULT_CONTAINER_FORMAT,
+            disk_format=image.DEFAULT_DISK_FORMAT,
+        )
+
+        # Verify update() was not called, if it was show the args
+        self.assertEqual(self.images_mock.update.call_args_list, [])
+
+        self.images_mock.upload.assert_called_with(
+            mock.ANY, mock.ANY,
+        )
+
+        self.assertEqual(image_fakes.IMAGE_columns, columns)
+        self.assertEqual(image_fakes.IMAGE_data, data)
+
+    @mock.patch('glanceclient.common.utils.get_data_file', name='Open')
+    def test_image_reserve_options(self, mock_open):
+        mock_file = mock.MagicMock(name='File')
+        mock_open.return_value = mock_file
+        mock_open.read.return_value = None
+        mock_exception = {
+            'find.side_effect': exceptions.CommandError('x'),
+        }
+        self.images_mock.configure_mock(**mock_exception)
+        arglist = [
+            '--container-format', 'ovf',
+            '--disk-format', 'fs',
+            '--min-disk', '10',
+            '--min-ram', '4',
+            '--protected',
+            '--private',
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('container_format', 'ovf'),
+            ('disk_format', 'fs'),
+            ('min_disk', 10),
+            ('min_ram', 4),
+            ('protected', True),
+            ('unprotected', False),
+            ('public', False),
+            ('private', True),
+            ('name', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # ImageManager.create(name=, **)
+        self.images_mock.create.assert_called_with(
+            name=image_fakes.image_name,
+            container_format='ovf',
+            disk_format='fs',
+            min_disk=10,
+            min_ram=4,
+            protected=True,
+            visibility='private',
+        )
+
+        # Verify update() was not called, if it was show the args
+        self.assertEqual(self.images_mock.update.call_args_list, [])
+
+        self.images_mock.upload.assert_called_with(
+            mock.ANY, mock.ANY,
+        )
+
+        self.assertEqual(image_fakes.IMAGE_columns, columns)
+        self.assertEqual(image_fakes.IMAGE_data, data)
+
+    @mock.patch('glanceclient.common.utils.get_data_file', name='Open')
+    def test_image_create_file(self, mock_open):
+        mock_file = mock.MagicMock(name='File')
+        mock_open.return_value = mock_file
+        mock_open.read.return_value = image_fakes.IMAGE_data
+        mock_exception = {
+            'find.side_effect': exceptions.CommandError('x'),
+        }
+        self.images_mock.configure_mock(**mock_exception)
+
+        arglist = [
+            '--file', 'filer',
+            '--unprotected',
+            '--public',
+            '--property', 'Alpha=1',
+            '--property', 'Beta=2',
+            '--tag', 'awesome',
+            '--tag', 'better',
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('file', 'filer'),
+            ('protected', False),
+            ('unprotected', True),
+            ('public', True),
+            ('private', False),
+            ('properties', {'Alpha': '1', 'Beta': '2'}),
+            ('tags', ['awesome', 'better']),
+            ('name', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # ImageManager.create(name=, **)
+        self.images_mock.create.assert_called_with(
+            name=image_fakes.image_name,
+            container_format=image.DEFAULT_CONTAINER_FORMAT,
+            disk_format=image.DEFAULT_DISK_FORMAT,
+            protected=False,
+            visibility='public',
+            Alpha='1',
+            Beta='2',
+            tags=['awesome', 'better'],
+        )
+
+        # Verify update() was not called, if it was show the args
+        self.assertEqual(self.images_mock.update.call_args_list, [])
+
+        self.images_mock.upload.assert_called_with(
+            mock.ANY, mock.ANY,
+        )
+
+        self.assertEqual(image_fakes.IMAGE_columns, columns)
+        self.assertEqual(image_fakes.IMAGE_data, data)
+
+    def test_image_dead_options(self):
+
+        arglist = [
+            '--owner', 'nobody',
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('owner', 'nobody'),
+            ('name', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action, parsed_args)
 
 
 class TestAddProjectToImage(TestImage):
