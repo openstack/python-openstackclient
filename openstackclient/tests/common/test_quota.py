@@ -12,6 +12,8 @@
 
 import copy
 
+import mock
+
 from openstackclient.common import quota
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests import fakes
@@ -38,6 +40,11 @@ class TestQuota(compute_fakes.TestComputev2):
         super(TestQuota, self).setUp()
         self.quotas_mock = self.app.client_manager.compute.quotas
         self.quotas_mock.reset_mock()
+        volume_mock = mock.Mock()
+        volume_mock.quotas = mock.Mock()
+        self.app.client_manager.volume = volume_mock
+        self.volume_quotas_mock = volume_mock.quotas
+        self.volume_quotas_mock.reset_mock()
 
 
 class TestQuotaSet(TestQuota):
@@ -52,6 +59,18 @@ class TestQuotaSet(TestQuota):
         )
 
         self.quotas_mock.update.return_value = FakeQuotaResource(
+            None,
+            copy.deepcopy(compute_fakes.QUOTA),
+            loaded=True,
+        )
+
+        self.volume_quotas_mock.find.return_value = FakeQuotaResource(
+            None,
+            copy.deepcopy(compute_fakes.QUOTA),
+            loaded=True,
+        )
+
+        self.volume_quotas_mock.update.return_value = FakeQuotaResource(
             None,
             copy.deepcopy(compute_fakes.QUOTA),
             loaded=True,
@@ -87,3 +106,29 @@ class TestQuotaSet(TestQuota):
         }
 
         self.quotas_mock.update.assert_called_with('project_test', **kwargs)
+
+    def test_quota_set_volume(self):
+        arglist = [
+            '--gigabytes', str(compute_fakes.floating_ip_num),
+            '--snapshots', str(compute_fakes.fix_ip_num),
+            '--volumes', str(compute_fakes.injected_file_num),
+            compute_fakes.project_name,
+        ]
+        verifylist = [
+            ('gigabytes', compute_fakes.floating_ip_num),
+            ('snapshots', compute_fakes.fix_ip_num),
+            ('volumes', compute_fakes.injected_file_num),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'gigabytes': compute_fakes.floating_ip_num,
+            'snapshots': compute_fakes.fix_ip_num,
+            'volumes': compute_fakes.injected_file_num,
+        }
+
+        self.volume_quotas_mock.update.assert_called_with('project_test',
+                                                          **kwargs)

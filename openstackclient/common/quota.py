@@ -105,8 +105,7 @@ class SetQuota(command.Command):
 
         volume_kwargs = {}
         for k, v in VOLUME_QUOTAS.items():
-            # TODO(jiaxi): Should use k or v needs discuss
-            value = getattr(parsed_args, v, None)
+            value = getattr(parsed_args, k, None)
             if value is not None:
                 if parsed_args.volume_type:
                     k = k + '_%s' % parsed_args.volume_type
