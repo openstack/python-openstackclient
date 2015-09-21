@@ -229,7 +229,7 @@ class ListImage(lister.Lister):
                 s,
                 columns,
                 formatters={
-                    'tags': utils.format_dict,
+                    'tags': utils.format_list,
                 },
             ) for s in data)
         )
