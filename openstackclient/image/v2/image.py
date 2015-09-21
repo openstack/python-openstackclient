@@ -35,6 +35,38 @@ DEFAULT_CONTAINER_FORMAT = 'bare'
 DEFAULT_DISK_FORMAT = 'raw'
 
 
+def _format_image(image):
+    """Format an image to make it more consistent with OSC operations. """
+
+    info = {}
+    properties = {}
+
+    # the only fields we're not including is "links", "tags" and the properties
+    fields_to_show = ['status', 'name', 'container_format', 'created_at',
+                      'size', 'disk_format', 'updated_at', 'visibility',
+                      'min_disk', 'protected', 'id', 'file', 'checksum',
+                      'owner', 'virtual_size', 'min_ram', 'schema']
+
+    # split out the usual key and the properties which are top-level
+    for key in six.iterkeys(image):
+        if key in fields_to_show:
+            info[key] = image.get(key)
+        elif key == 'tags':
+            continue  # handle this later
+        else:
+            properties[key] = image.get(key)
+
+    # format the tags if they are there
+    if image.get('tags'):
+        info['tags'] = utils.format_list(image.get('tags'))
+
+    # add properties back into the dictionary as a top-level key
+    if properties:
+        info['properties'] = utils.format_dict(properties)
+
+    return info
+
+
 class AddProjectToImage(show.ShowOne):
     """Associate project with image"""
 
@@ -254,7 +286,8 @@ class CreateImage(show.ShowOne):
                 # update the image after the data has been uploaded
                 image = image_client.images.get(image.id)
 
-        return zip(*sorted(six.iteritems(image)))
+        info = _format_image(image)
+        return zip(*sorted(six.iteritems(info)))
 
 
 class DeleteImage(command.Command):
@@ -512,8 +545,7 @@ class ShowImage(show.ShowOne):
             parsed_args.image,
         )
 
-        info = {}
-        info.update(image)
+        info = _format_image(image)
         return zip(*sorted(six.iteritems(info)))
 
 
