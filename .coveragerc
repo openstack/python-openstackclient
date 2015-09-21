@@ -4,4 +4,4 @@ source = openstackclient
 omit = openstackclient/openstack/*
 
 [report]
-ignore-errors = True
+ignore_errors = True
