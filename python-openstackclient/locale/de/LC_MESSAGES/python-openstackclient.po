@@ -5,13 +5,15 @@
 #
 # Translators:
 # Ettore Atalan <atalanttore@googlemail.com>, 2014-2015
+# Andreas Jaeger <jaegerandi@gmail.com>, 2015. #zanata
+# OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version:  python-openstackclient\n"
+"Project-Id-Version: python-openstackclient 1.6.1.dev56\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-09-11 06:10+0000\n"
-"PO-Revision-Date: 2015-09-10 23:17+0000\n"
-"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
+"POT-Creation-Date: 2015-09-21 06:09+0000\n"
+"PO-Revision-Date: 2015-09-19 07:10+0000\n"
+"Last-Translator: Andreas Jaeger <jaegerandi@gmail.com>\n"
 "Language-Team: German (http://www.transifex.com/openstack/python-"
 "openstackclient/language/de/)\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -433,7 +435,7 @@ msgid "Search by server status"
 msgstr "Nach Serverstatus suchen"
 
 msgid "Search by user (admin only) (name or ID)"
-msgstr "Nach Benutzer suchen (Nur Administrator) (Name oder Kennung)"
+msgstr "Nach Benutzer suchen (nur Administrator) (Name oder Kennung)"
 
 msgid "Security group to add (name or ID)"
 msgstr "Zu hinzufügende Sicherheitsgruppe (Name oder Kennung)"
@@ -473,6 +475,16 @@ msgid "Set a property on this server (repeat for multiple values)"
 msgstr ""
 "Legen Sie eine Eigenschaft auf diesem Server fest (für mehrere Werte "
 "wiederholen)"
+
+msgid ""
+"Set a scope, such as a project or domain, set a project scope with --os-"
+"project-name, OS_PROJECT_NAME or auth.project_name, set a domain scope with "
+"--os-domain-name, OS_DOMAIN_NAME or auth.domain_name"
+msgstr ""
+"Setzen Sie eine Eigenschaft, wie Projekt oder Domäne, setzen Sie eine "
+"Projekteigenschaft mit --os-project-name, OS_PROJECT_NAME oder auth."
+"project_name, setzen Sie eine Dömaneneigenschaft mit --os-domain-name, "
+"OS_DOMAIN_NAME oder auth.domain_name."
 
 msgid ""
 "Set a service AUTH_URL, with --os-auth-url, OS_AUTH_URL or auth.auth_url\n"
