@@ -238,6 +238,12 @@ Set image properties
         [--checksum <checksum>]
         [--stdin]
         [--property <key=value> [...] ]
+        [--architecture <architecture>]
+        [--instance-id <instance-id>]
+        [--kernel-id <kernel-id>]
+        [--os-distro <os-distro>]
+        [--os-version <os-version>]
+        [--ramdisk-id <ramdisk-id>]
         <image>
 
 .. option:: --name <name>
@@ -258,14 +264,11 @@ Set image properties
 
 .. option:: --container-format <container-format>
 
-    Container format of image.
-    Acceptable formats: ['ami', 'ari', 'aki', 'bare', 'ovf']
+    Image container format (default: bare)
 
 .. option:: --disk-format <disk-format>
 
-    Disk format of image.
-    Acceptable formats: ['ami', 'ari', 'aki', 'vhd', 'vmdk', 'raw', 'qcow2',
-    'vdi', 'iso']
+    Image disk format (default: raw)
 
 .. option:: --size <size>
 
@@ -339,45 +342,41 @@ Set image properties
 
 .. option:: --property <key=value>
 
-    Set a property on this image (repeat for multiple values)
-
-    *Image version 1 only.*
+    Set a property on this image (repeat option to set multiple properties)
 
 .. option:: --architecture <architecture>
 
-    Operating system Architecture
+    Operating system architecture
 
     .. versionadded:: 2
 
-.. option:: --ramdisk-id <ramdisk-id>
+.. option:: --instance-id <instance-id>
 
-    ID of image stored in Glance that should be used as
-    the ramdisk when booting an AMI-style image
-
-    .. versionadded:: 2
-
-.. option:: --os-distro <os-distro>
-
-    Common name of operating system distribution
-
-    .. versionadded:: 2
-
-.. option:: --os-version <os-version>
-
-    Operating system version as specified by the distributor
+    ID of server instance used to create this image
 
     .. versionadded:: 2
 
 .. option:: --kernel-id <kernel-id>
 
-    ID of image in Glance that should be used as the
-    kernel when booting an AMI-style image
+    ID of kernel image used to boot this disk image
 
     .. versionadded:: 2
 
-.. option:: --instance-uuid <instance_uuid>
+.. option:: --os-distro <os-distro>
 
-    ID of instance used to create this image
+    Operating system distribution name
+
+    .. versionadded:: 2
+
+.. option:: --os-version <os-version>
+
+    Operating system distribution version
+
+    .. versionadded:: 2
+
+.. option:: --ramdisk-id <ramdisk-id>
+
+    ID of ramdisk image used to boot this disk image
 
     .. versionadded:: 2
 
