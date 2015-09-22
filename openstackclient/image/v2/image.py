@@ -25,6 +25,7 @@ from cliff import show
 
 from glanceclient.common import utils as gc_utils
 from openstackclient.api import utils as api_utils
+from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 from openstackclient.identity import common
@@ -336,9 +337,22 @@ class SetImage(show.ShowOne):
     """Set image properties"""
 
     log = logging.getLogger(__name__ + ".SetImage")
+    deadopts = ('size', 'store', 'location', 'copy-from', 'checksum')
 
     def get_parser(self, prog_name):
         parser = super(SetImage, self).get_parser(prog_name)
+        # TODO(bunting): There are additional arguments that v1 supported
+        # --size - does not exist in v2
+        # --store - does not exist in v2
+        # --location - maybe location add?
+        # --copy-from - does not exist in v2
+        # --file - should be able to upload file
+        # --volume - needs adding
+        # --force - needs adding
+        # --checksum - maybe could be done client side
+        # --stdin - could be implemented
+        # --property - needs adding
+        # --tags - needs adding
         parser.add_argument(
             "image",
             metavar="<image>",
@@ -354,11 +368,27 @@ class SetImage(show.ShowOne):
             metavar="<architecture>",
             help="Operating system Architecture"
         )
-        parser.add_argument(
+        protected_group = parser.add_mutually_exclusive_group()
+        protected_group.add_argument(
             "--protected",
-            dest="protected",
             action="store_true",
             help="Prevent image from being deleted"
+        )
+        protected_group.add_argument(
+            "--unprotected",
+            action="store_true",
+            help="Allow image to be deleted (default)"
+        )
+        public_group = parser.add_mutually_exclusive_group()
+        public_group.add_argument(
+            "--public",
+            action="store_true",
+            help="Image is accessible to the public",
+        )
+        public_group.add_argument(
+            "--private",
+            action="store_true",
+            help="Image is inaccessible to the public (default)",
         )
         parser.add_argument(
             "--instance-uuid",
@@ -372,12 +402,11 @@ class SetImage(show.ShowOne):
             help="Minimum disk size needed to boot image, in gigabytes"
         )
         visibility_choices = ["public", "private"]
-        parser.add_argument(
+        public_group.add_argument(
             "--visibility",
             metavar="<visibility>",
             choices=visibility_choices,
-            help="Scope of image accessibility. Valid values: %s"
-                 % visibility_choices
+            help=argparse.SUPPRESS
         )
         help_msg = ("ID of image in Glance that should be used as the kernel"
                     " when booting an AMI-style image")
@@ -432,11 +461,24 @@ class SetImage(show.ShowOne):
             choices=container_choices,
             help=help_msg
         )
+        for deadopt in self.deadopts:
+            parser.add_argument(
+                "--%s" % deadopt,
+                metavar="<%s>" % deadopt,
+                dest=deadopt.replace('-', '_'),
+                help=argparse.SUPPRESS
+            )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)", parsed_args)
         image_client = self.app.client_manager.image
+
+        for deadopt in self.deadopts:
+            if getattr(parsed_args, deadopt.replace('-', '_'), None):
+                raise exceptions.CommandError(
+                    "ERROR: --%s was given, which is an Image v1 option"
+                    " that is no longer supported in Image v2" % deadopt)
 
         kwargs = {}
         copy_attrs = ('architecture', 'container_format', 'disk_format',
@@ -451,10 +493,21 @@ class SetImage(show.ShowOne):
                     # Only include a value in kwargs for attributes that are
                     # actually present on the command line
                     kwargs[attr] = val
+
+        # Handle exclusive booleans with care
+        # Avoid including attributes in kwargs if an option is not
+        # present on the command line.  These exclusive booleans are not
+        # a single value for the pair of options because the default must be
+        # to do nothing when no options are present as opposed to always
+        # setting a default.
         if parsed_args.protected:
             kwargs['protected'] = True
-        else:
+        if parsed_args.unprotected:
             kwargs['protected'] = False
+        if parsed_args.public:
+            kwargs['visibility'] = 'public'
+        if parsed_args.private:
+            kwargs['visibility'] = 'private'
 
         if not kwargs:
             self.log.warning("No arguments specified")
