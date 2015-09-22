@@ -2,6 +2,48 @@
 Release Notes
 =============
 
+1.7.0 (22 Sep 2015)
+===================
+
+* Add support for v2 image create/update commands
+  Bug `1405562 <https://bugs.launchpad.net/bugs/1405562>`_
+
+* ICMP secgroup rule must have ``--dst-port -1`` to actually allow ICMP
+  Bug `1477629 <https://bugs.launchpad.net/bugs/1477629>`_
+
+* Add a blurb about ``pip install -e .`` to the developer docs
+  Bug `1483384 <https://bugs.launchpad.net/bugs/1483384>`_
+
+* Add filtering by user for command 'openstack server list'
+  Bug `1483974 <https://bugs.launchpad.net/bugs/1483974>`_
+
+* No support for listing servers of other project with openstack server list
+  Bug `1488486 <https://bugs.launchpad.net/bugs/1488486>`_
+
+* Missing image causes confusing 'server show' response
+  Bug `1489901 <https://bugs.launchpad.net/bugs/1489901>`_
+
+* Volume Attached to is incorrect
+  Bug `1489954 <https://bugs.launchpad.net/bugs/1489954>`_
+
+* novaclient 2.27.0 breaks version handling
+  Bug `1492467 <https://bugs.launchpad.net/bugs/1492467>`_
+
+* Support listing users in a non-default domain scoped group
+  Bug `1492916 <https://bugs.launchpad.net/bugs/1492916>`_
+
+* ERROR: InvocationError:
+  '/opt/stack/new/python-openstackclient/.tox/functional/bin/ostestr'
+  in gate-osc-dsvm-functional
+  Bug `1496337 <https://bugs.launchpad.net/bugs/1496337>`_
+
+* image list --long is broken with v2
+  Bug `1498150 <https://bugs.launchpad.net/bugs/1498150>`_
+
+* Add ``--log-file`` option support
+
+* Set default Volume API version to ``2``
+
 1.6.0 (10 Aug 2015)
 ===================
 
