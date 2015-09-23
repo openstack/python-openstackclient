@@ -713,8 +713,7 @@ class TestImageSet(TestImage):
             'name': 'new-name',
             'owner': 'new-owner',
             'min_disk': 2,
-            'min_ram': 4,
-            'protected': False
+            'min_ram': 4
         }
         # ImageManager.update(image, **kwargs)
         self.images_mock.update.assert_called_with(

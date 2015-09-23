@@ -212,7 +212,7 @@ Save an image locally
 image set
 ---------
 
-*Only supported for Image v1*
+*Image v1, v2*
 
 Set image properties
 
@@ -271,6 +271,8 @@ Set image properties
 
     Size of image data (in bytes)
 
+    *Image version 1 only.*
+
 .. option:: --protected
 
     Prevent image from being deleted
@@ -291,37 +293,93 @@ Set image properties
 
     Upload image to this store
 
+    *Image version 1 only.*
+
 .. option:: --location <image-url>
 
     Download image from an existing URL
+
+    *Image version 1 only.*
 
 .. option:: --copy-from <image-url>
 
     Copy image from the data store (similar to --location)
 
+    *Image version 1 only.*
+
 .. option:: --file <file>
 
     Upload image from local file
+
+    *Image version 1 only.*
 
 .. option:: --volume <volume>
 
     Update image with a volume
 
+    *Image version 1 only.*
+
 .. option:: --force
 
     Force image update if volume is in use (only meaningful with --volume)
+
+    *Image version 1 only.*
 
 .. option:: --checksum <checksum>
 
     Image hash used for verification
 
+    *Image version 1 only.*
+
 .. option:: --stdin
 
     Allow to read image data from standard input
 
+    *Image version 1 only.*
+
 .. option:: --property <key=value>
 
     Set a property on this image (repeat for multiple values)
+
+    *Image version 1 only.*
+
+.. option:: --architecture <architecture>
+
+    Operating system Architecture
+
+    .. versionadded:: 2
+
+.. option:: --ramdisk-id <ramdisk-id>
+
+    ID of image stored in Glance that should be used as
+    the ramdisk when booting an AMI-style image
+
+    .. versionadded:: 2
+
+.. option:: --os-distro <os-distro>
+
+    Common name of operating system distribution
+
+    .. versionadded:: 2
+
+.. option:: --os-version <os-version>
+
+    Operating system version as specified by the distributor
+
+    .. versionadded:: 2
+
+.. option:: --kernel-id <kernel-id>
+
+    ID of image in Glance that should be used as the
+    kernel when booting an AMI-style image
+
+    .. versionadded:: 2
+
+.. option:: --instance-uuid <instance_uuid>
+
+    ID of instance used to create this image
+
+    .. versionadded:: 2
 
 .. describe:: <image>
 
