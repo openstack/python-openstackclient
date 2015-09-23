@@ -34,13 +34,8 @@ _compute_api_version = None
 def make_client(instance):
     """Returns a compute service client."""
 
-    # Defer client imports until we actually need them
+    # Defer client import until we actually need them
     from novaclient import client as nova_client
-    from novaclient import extension
-    try:
-        from novaclient.v2.contrib import list_extensions
-    except ImportError:
-        from novaclient.v1_1.contrib import list_extensions
 
     if _compute_api_version is not None:
         version = _compute_api_version
@@ -52,7 +47,8 @@ def make_client(instance):
     # Set client http_log_debug to True if verbosity level is high enough
     http_log_debug = utils.get_effective_log_level() <= logging.DEBUG
 
-    extensions = [extension.Extension('list_extensions', list_extensions)]
+    extensions = [ext for ext in nova_client.discover_extensions(version)
+                  if ext.name == "list_extensions"]
 
     # Remember interface only if it is set
     kwargs = utils.build_kwargs_dict('endpoint_type', instance._interface)
