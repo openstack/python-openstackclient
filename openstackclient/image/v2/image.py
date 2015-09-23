@@ -57,8 +57,7 @@ def _format_image(image):
             properties[key] = image.get(key)
 
     # format the tags if they are there
-    if image.get('tags'):
-        info['tags'] = utils.format_list(image.get('tags'))
+    info['tags'] = utils.format_list(image.get('tags'))
 
     # add properties back into the dictionary as a top-level key
     if properties:
@@ -540,7 +539,6 @@ class SetImage(show.ShowOne):
         # --force - needs adding
         # --checksum - maybe could be done client side
         # --stdin - could be implemented
-        # --tags - needs adding
         parser.add_argument(
             "image",
             metavar="<image>",
@@ -611,6 +609,15 @@ class SetImage(show.ShowOne):
                  "(repeat option to set multiple properties)",
         )
         parser.add_argument(
+            "--tag",
+            dest="tags",
+            metavar="<tag>",
+            default=[],
+            action='append',
+            help="Set a tag on this image "
+                 "(repeat option to set multiple tags)",
+        )
+        parser.add_argument(
             "--architecture",
             metavar="<architecture>",
             help="Operating system architecture",
@@ -669,7 +676,7 @@ class SetImage(show.ShowOne):
         copy_attrs = ('architecture', 'container_format', 'disk_format',
                       'file', 'instance_id', 'kernel_id', 'locations',
                       'min_disk', 'min_ram', 'name', 'os_distro', 'os_version',
-                      'owner', 'prefix', 'progress', 'ramdisk_id')
+                      'owner', 'prefix', 'progress', 'ramdisk_id', 'tags')
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
@@ -704,6 +711,10 @@ class SetImage(show.ShowOne):
 
         image = utils.find_resource(
             image_client.images, parsed_args.image)
+
+        if parsed_args.tags:
+            # Tags should be extended, but duplicates removed
+            kwargs['tags'] = list(set(image.tags).union(set(parsed_args.tags)))
 
         image = image_client.images.update(image.id, **kwargs)
         info = {}

@@ -13,6 +13,7 @@
 #   under the License.
 #
 
+import copy
 import mock
 
 from openstackclient.tests import fakes
@@ -25,6 +26,7 @@ image_name = 'graven'
 image_owner = 'baal'
 image_protected = False
 image_visibility = 'public'
+image_tags = []
 
 IMAGE = {
     'id': image_id,
@@ -32,10 +34,15 @@ IMAGE = {
     'owner': image_owner,
     'protected': image_protected,
     'visibility': image_visibility,
+    'tags': image_tags
 }
 
 IMAGE_columns = tuple(sorted(IMAGE))
 IMAGE_data = tuple((IMAGE[x] for x in sorted(IMAGE)))
+
+IMAGE_SHOW = copy.copy(IMAGE)
+IMAGE_SHOW['tags'] = ''
+IMAGE_SHOW_data = tuple((IMAGE_SHOW[x] for x in sorted(IMAGE_SHOW)))
 
 member_status = 'pending'
 MEMBER = {
@@ -116,6 +123,14 @@ IMAGE_schema = {
             ],
             "type": "string",
             "description": "Status of the image (READ-ONLY)"
+        },
+        "tags": {
+            "items": {
+                "type": "string",
+                "maxLength": 255
+            },
+            "type": "array",
+            "description": "List of strings related to the image"
         },
         "visibility": {
             "enum": [

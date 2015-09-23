@@ -238,6 +238,7 @@ Set image properties
         [--checksum <checksum>]
         [--stdin]
         [--property <key=value> [...] ]
+        [--tag <tag> [...] ]
         [--architecture <architecture>]
         [--instance-id <instance-id>]
         [--kernel-id <kernel-id>]
@@ -343,6 +344,14 @@ Set image properties
 .. option:: --property <key=value>
 
     Set a property on this image (repeat option to set multiple properties)
+
+    .. versionadded:: 2
+
+.. option:: --tag <tag>
+
+    Set a tag on this image (repeat for multiple values)
+
+    .. versionadded:: 2
 
 .. option:: --architecture <architecture>
 

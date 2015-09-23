@@ -96,7 +96,7 @@ class TestImageCreate(TestImage):
         )
 
         self.assertEqual(image_fakes.IMAGE_columns, columns)
-        self.assertEqual(image_fakes.IMAGE_data, data)
+        self.assertEqual(image_fakes.IMAGE_SHOW_data, data)
 
     @mock.patch('glanceclient.common.utils.get_data_file', name='Open')
     def test_image_reserve_options(self, mock_open):
@@ -151,7 +151,7 @@ class TestImageCreate(TestImage):
         )
 
         self.assertEqual(image_fakes.IMAGE_columns, columns)
-        self.assertEqual(image_fakes.IMAGE_data, data)
+        self.assertEqual(image_fakes.IMAGE_SHOW_data, data)
 
     @mock.patch('glanceclient.common.utils.get_data_file', name='Open')
     def test_image_create_file(self, mock_open):
@@ -208,7 +208,7 @@ class TestImageCreate(TestImage):
         )
 
         self.assertEqual(image_fakes.IMAGE_columns, columns)
-        self.assertEqual(image_fakes.IMAGE_data, data)
+        self.assertEqual(image_fakes.IMAGE_SHOW_data, data)
 
     def test_image_create_dead_options(self):
 
@@ -812,6 +812,81 @@ class TestImageSet(TestImage):
             **kwargs
         )
 
+    def test_image_set_tag(self):
+        arglist = [
+            '--tag', 'test-tag',
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('tags', ['test-tag']),
+            ('image', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'tags': ['test-tag'],
+        }
+        # ImageManager.update(image, **kwargs)
+        self.images_mock.update.assert_called_with(
+            image_fakes.image_id,
+            **kwargs
+        )
+
+    def test_image_set_tag_merge(self):
+        old_image = copy.copy(image_fakes.IMAGE)
+        old_image['tags'] = ['old1', 'new2']
+        self.images_mock.get.return_value = self.model(**old_image)
+        arglist = [
+            '--tag', 'test-tag',
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('tags', ['test-tag']),
+            ('image', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'tags': ['old1', 'new2', 'test-tag'],
+        }
+        # ImageManager.update(image, **kwargs)
+        a, k = self.images_mock.update.call_args
+        self.assertEqual(image_fakes.image_id, a[0])
+        self.assertTrue('tags' in k)
+        self.assertEqual(set(kwargs['tags']), set(k['tags']))
+
+    def test_image_set_tag_merge_dupe(self):
+        old_image = copy.copy(image_fakes.IMAGE)
+        old_image['tags'] = ['old1', 'new2']
+        self.images_mock.get.return_value = self.model(**old_image)
+        arglist = [
+            '--tag', 'old1',
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('tags', ['old1']),
+            ('image', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'tags': ['new2', 'old1'],
+        }
+        # ImageManager.update(image, **kwargs)
+        a, k = self.images_mock.update.call_args
+        self.assertEqual(image_fakes.image_id, a[0])
+        self.assertTrue('tags' in k)
+        self.assertEqual(set(kwargs['tags']), set(k['tags']))
+
     def test_image_set_dead_options(self):
 
         arglist = [
@@ -861,4 +936,4 @@ class TestImageShow(TestImage):
         )
 
         self.assertEqual(image_fakes.IMAGE_columns, columns)
-        self.assertEqual(image_fakes.IMAGE_data, data)
+        self.assertEqual(image_fakes.IMAGE_SHOW_data, data)
