@@ -499,8 +499,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
-        columns, data = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
 
         kwargs = {
             'name': 'new-name',
@@ -516,9 +515,6 @@ class TestImageSet(TestImage):
             image_fakes.image_id,
             **kwargs
         )
-
-        self.assertEqual(image_fakes.IMAGE_columns, columns)
-        self.assertEqual(image_fakes.IMAGE_data, data)
 
     def test_image_set_bools1(self):
         arglist = [
@@ -644,8 +640,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
-        columns, data = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
 
         # VolumeManager.upload_to_image(volume, force, image_name,
         #     container_format, disk_format)
@@ -663,9 +658,6 @@ class TestImageSet(TestImage):
             name='updated_image',
             volume='volly',
         )
-
-        self.assertEqual(image_fakes.IMAGE_columns, columns)
-        self.assertEqual(image_fakes.IMAGE_data, data)
 
 
 class TestImageShow(TestImage):

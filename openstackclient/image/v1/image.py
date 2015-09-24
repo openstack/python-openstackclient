@@ -452,7 +452,7 @@ class SaveImage(command.Command):
         gc_utils.save_image(data, parsed_args.file)
 
 
-class SetImage(show.ShowOne):
+class SetImage(command.Command):
     """Set image properties"""
 
     log = logging.getLogger(__name__ + ".SetImage")
@@ -629,7 +629,7 @@ class SetImage(show.ShowOne):
                         volume_client.volumes,
                         parsed_args.volume,
                     )
-                    response, body = volume_client.volumes.upload_to_image(
+                    volume_client.volumes.upload_to_image(
                         source_volume.id,
                         parsed_args.force,
                         parsed_args.image,
@@ -640,7 +640,6 @@ class SetImage(show.ShowOne):
                          if parsed_args.disk_format
                          else image.disk_format),
                     )
-                    info = body['os-volume_upload_image']
                 elif parsed_args.file:
                     # Send an open file handle to glanceclient so it will
                     # do a chunked transfer
@@ -673,10 +672,7 @@ class SetImage(show.ShowOne):
                kwargs['data'] != sys.stdin):
                     kwargs['data'].close()
 
-        info = {}
-        info.update(image._info)
-        info['properties'] = utils.format_dict(info.get('properties', {}))
-        return zip(*sorted(six.iteritems(info)))
+        return
 
 
 class ShowImage(show.ShowOne):

@@ -35,10 +35,9 @@ class ImageTests(test.TestCase):
     @classmethod
     def tearDownClass(cls):
         # Rename test
-        opts = cls.get_show_opts(cls.FIELDS)
-        raw_output = cls.openstack(
-            'image set --name ' + cls.OTHER_NAME + ' ' + cls.NAME + opts)
-        cls.assertOutput(cls.OTHER_NAME + "\n", raw_output)
+        raw_output = cls.openstack('image set --name ' + cls.OTHER_NAME + ' '
+                                   + cls.NAME)
+        cls.assertOutput('', raw_output)
         # Delete test
         raw_output = cls.openstack('image delete ' + cls.OTHER_NAME)
         cls.assertOutput('', raw_output)
@@ -56,13 +55,13 @@ class ImageTests(test.TestCase):
     def test_image_set(self):
         opts = self.get_show_opts([
             "disk_format", "is_public", "min_disk", "min_ram", "name"])
-        raw_output = self.openstack('image set --min-disk 4 --min-ram 5 ' +
-                                    '--disk-format qcow2  --public ' +
-                                    self.NAME + opts)
+        self.openstack('image set --min-disk 4 --min-ram 5 ' +
+                       '--disk-format qcow2  --public ' + self.NAME)
+        raw_output = self.openstack('image show ' + self.NAME + opts)
         self.assertEqual("qcow2\nTrue\n4\n5\n" + self.NAME + '\n', raw_output)
 
     def test_image_metadata(self):
         opts = self.get_show_opts(["name", "properties"])
-        raw_output = self.openstack(
-            'image set --property a=b --property c=d ' + self.NAME + opts)
+        self.openstack('image set --property a=b --property c=d ' + self.NAME)
+        raw_output = self.openstack('image show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\na='b', c='d'\n", raw_output)
