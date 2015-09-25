@@ -94,12 +94,15 @@ def find_resource(manager, name_or_id, **kwargs):
     if len(kwargs) == 0:
         kwargs = {}
 
-    # Prepare the kwargs for calling find
-    if 'NAME_ATTR' in manager.resource_class.__dict__:
-        # novaclient does this for oddball resources
-        kwargs[manager.resource_class.NAME_ATTR] = name_or_id
-    else:
-        kwargs['name'] = name_or_id
+    try:
+        # Prepare the kwargs for calling find
+        if 'NAME_ATTR' in manager.resource_class.__dict__:
+            # novaclient does this for oddball resources
+            kwargs[manager.resource_class.NAME_ATTR] = name_or_id
+        else:
+            kwargs['name'] = name_or_id
+    except Exception:
+        pass
 
     # finally try to find entity by name
     try:
@@ -118,7 +121,8 @@ def find_resource(manager, name_or_id, **kwargs):
                 (manager.resource_class.__name__.lower(), name_or_id)
             raise exceptions.CommandError(msg)
         else:
-            raise
+            msg = "Could not find resource %s" % name_or_id
+            raise exceptions.CommandError(msg)
 
 
 def format_dict(data):
