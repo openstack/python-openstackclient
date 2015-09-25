@@ -121,8 +121,24 @@ def find_resource(manager, name_or_id, **kwargs):
                 (manager.resource_class.__name__.lower(), name_or_id)
             raise exceptions.CommandError(msg)
         else:
-            msg = "Could not find resource %s" % name_or_id
-            raise exceptions.CommandError(msg)
+            pass
+
+    try:
+        for resource in manager.list():
+            # short circuit and return the first match
+            if (resource.get('id') == name_or_id or
+                    resource.get('name') == name_or_id):
+                return resource
+        else:
+            # we found no match, keep going to bomb out
+            pass
+    except Exception:
+        # in case the list fails for some reason
+        pass
+
+    # if we hit here, we've failed, report back this error:
+    msg = "Could not find resource %s" % name_or_id
+    raise exceptions.CommandError(msg)
 
 
 def format_dict(data):
