@@ -112,6 +112,7 @@ class TestImageCreate(TestImage):
             '--disk-format', 'fs',
             '--min-disk', '10',
             '--min-ram', '4',
+            '--owner', '123456',
             '--protected',
             '--private',
             image_fakes.image_name,
@@ -121,6 +122,7 @@ class TestImageCreate(TestImage):
             ('disk_format', 'fs'),
             ('min_disk', 10),
             ('min_ram', 4),
+            ('owner', '123456'),
             ('protected', True),
             ('unprotected', False),
             ('public', False),
@@ -139,6 +141,7 @@ class TestImageCreate(TestImage):
             disk_format='fs',
             min_disk=10,
             min_ram=4,
+            owner='123456',
             protected=True,
             visibility='private',
         )
@@ -213,11 +216,10 @@ class TestImageCreate(TestImage):
     def test_image_create_dead_options(self):
 
         arglist = [
-            '--owner', 'nobody',
+            '--store', 'somewhere',
             image_fakes.image_name,
         ]
         verifylist = [
-            ('owner', 'nobody'),
             ('name', image_fakes.image_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
