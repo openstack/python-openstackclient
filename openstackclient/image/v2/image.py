@@ -116,7 +116,6 @@ class CreateImage(show.ShowOne):
 
     def get_parser(self, prog_name):
         parser = super(CreateImage, self).get_parser(prog_name)
-        # TODO(mordred): add --volume and --force parameters and support
         # TODO(bunting): There are additional arguments that v1 supported
         # that v2 either doesn't support or supports weirdly.
         # --checksum - could be faked clientside perhaps?
@@ -165,6 +164,19 @@ class CreateImage(show.ShowOne):
             "--file",
             metavar="<file>",
             help="Upload image from local file",
+        )
+        parser.add_argument(
+            "--volume",
+            metavar="<volume>",
+            help="Create image from a volume",
+        )
+        parser.add_argument(
+            "--force",
+            dest='force',
+            action='store_true',
+            default=False,
+            help="Force image creation if volume is in use "
+            "(only meaningful with --volume)",
         )
         protected_group = parser.add_mutually_exclusive_group()
         protected_group.add_argument(
@@ -241,6 +253,7 @@ class CreateImage(show.ShowOne):
         if getattr(parsed_args, 'properties', None):
             for k, v in six.iteritems(parsed_args.properties):
                 kwargs[k] = str(v)
+
         # Handle exclusive booleans with care
         # Avoid including attributes in kwargs if an option is not
         # present on the command line.  These exclusive booleans are not
@@ -259,12 +272,33 @@ class CreateImage(show.ShowOne):
         # open the file first to ensure any failures are handled before the
         # image is created
         fp = gc_utils.get_data_file(parsed_args)
+        info = {}
+        if fp is not None and parsed_args.volume:
+            raise exceptions.CommandError("Uploading data and using container "
+                                          "are not allowed at the same time")
 
         if fp is None and parsed_args.file:
             self.log.warning("Failed to get an image file.")
             return {}, {}
 
-        image = image_client.images.create(**kwargs)
+        # If a volume is specified.
+        if parsed_args.volume:
+            volume_client = self.app.client_manager.volume
+            source_volume = utils.find_resource(
+                volume_client.volumes,
+                parsed_args.volume,
+            )
+            response, body = volume_client.volumes.upload_to_image(
+                source_volume.id,
+                parsed_args.force,
+                parsed_args.name,
+                parsed_args.container_format,
+                parsed_args.disk_format,
+            )
+            info = body['os-volume_upload_image']
+            info['volume_type'] = info['volume_type']['name']
+        else:
+            image = image_client.images.create(**kwargs)
 
         if fp is not None:
             with fp:
@@ -285,7 +319,9 @@ class CreateImage(show.ShowOne):
                 # update the image after the data has been uploaded
                 image = image_client.images.get(image.id)
 
-        info = _format_image(image)
+        if not info:
+            info = _format_image(image)
+
         return zip(*sorted(six.iteritems(info)))
 
 
@@ -535,8 +571,8 @@ class SetImage(command.Command):
         # --location - maybe location add?
         # --copy-from - does not exist in v2
         # --file - should be able to upload file
-        # --volume - needs adding
-        # --force - needs adding
+        # --volume - not possible with v2 as can't change id
+        # --force - see `--volume`
         # --checksum - maybe could be done client side
         # --stdin - could be implemented
         parser.add_argument(
