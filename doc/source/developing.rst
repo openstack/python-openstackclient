@@ -113,4 +113,4 @@ or
 
 .. code-block:: bash
 
-   $ pip install -e
+   $ pip install -e .
