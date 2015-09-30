@@ -2,6 +2,12 @@
 Release Notes
 =============
 
+1.7.1 (30 Sep 2015)
+===================
+
+* Image v2 lookup issues
+  Bug `1501362 <https://bugs.launchpad.net/bugs/1501362>`_
+
 1.7.0 (22 Sep 2015)
 ===================
 
