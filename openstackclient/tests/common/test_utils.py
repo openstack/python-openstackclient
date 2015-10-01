@@ -20,11 +20,24 @@ import mock
 
 from openstackclient.common import exceptions
 from openstackclient.common import utils
+from openstackclient.tests import fakes
 from openstackclient.tests import utils as test_utils
 
 PASSWORD = "Pa$$w0rd"
 WASSPORD = "Wa$$p0rd"
 DROWSSAP = "dr0w$$aP"
+
+
+class FakeOddballResource(fakes.FakeResource):
+
+    def get(self, attr):
+        """get() is needed for utils.find_resource()"""
+        if attr == 'id':
+            return self.id
+        elif attr == 'name':
+            return self.name
+        else:
+            return None
 
 
 class TestUtils(test_utils.TestCase):
@@ -238,6 +251,47 @@ class TestFindResource(test_utils.TestCase):
                                    self.manager,
                                    self.name)
         self.assertEqual("More than one lego exists with the name 'legos'.",
+                         str(result))
+        self.manager.get.assert_called_with(self.name)
+        self.manager.find.assert_called_with(name=self.name)
+
+    def test_find_resource_silly_resource(self):
+        # We need a resource with no resource_class for this test, start fresh
+        self.manager = mock.Mock()
+        self.manager.get = mock.Mock(side_effect=Exception('Boom!'))
+        self.manager.find = mock.Mock(
+            side_effect=AttributeError(
+                "'Controller' object has no attribute 'find'",
+            )
+        )
+        silly_resource = FakeOddballResource(
+            None,
+            {'id': '12345', 'name': self.name},
+            loaded=True,
+        )
+        self.manager.list = mock.Mock(
+            return_value=[silly_resource, ],
+        )
+        result = utils.find_resource(self.manager, self.name)
+        self.assertEqual(silly_resource, result)
+        self.manager.get.assert_called_with(self.name)
+        self.manager.find.assert_called_with(name=self.name)
+
+    def test_find_resource_silly_resource_not_found(self):
+        # We need a resource with no resource_class for this test, start fresh
+        self.manager = mock.Mock()
+        self.manager.get = mock.Mock(side_effect=Exception('Boom!'))
+        self.manager.find = mock.Mock(
+            side_effect=AttributeError(
+                "'Controller' object has no attribute 'find'",
+            )
+        )
+        self.manager.list = mock.Mock(return_value=[])
+        result = self.assertRaises(exceptions.CommandError,
+                                   utils.find_resource,
+                                   self.manager,
+                                   self.name)
+        self.assertEqual("Could not find resource legos",
                          str(result))
         self.manager.get.assert_called_with(self.name)
         self.manager.find.assert_called_with(name=self.name)
