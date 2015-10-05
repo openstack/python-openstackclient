@@ -13,10 +13,11 @@
 
 """Account v1 action implementations"""
 
-
 import logging
 
 from cliff import command
+from cliff import show
+import six
 
 from openstackclient.common import parseractions
 from openstackclient.common import utils
@@ -44,6 +45,17 @@ class SetAccount(command.Command):
         self.app.client_manager.object_store.account_set(
             properties=parsed_args.property,
         )
+
+
+class ShowAccount(show.ShowOne):
+    """Display account details"""
+
+    log = logging.getLogger(__name__ + '.ShowAccount')
+
+    @utils.log_method(log)
+    def take_action(self, parsed_args):
+        data = self.app.client_manager.object_store.account_show()
+        return zip(*sorted(six.iteritems(data)))
 
 
 class UnsetAccount(command.Command):
