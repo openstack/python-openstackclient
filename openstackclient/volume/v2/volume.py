@@ -175,7 +175,7 @@ class DeleteVolume(command.Command):
             action="store_true",
             default=False,
             help="Attempt forced removal of volume(s), regardless of state "
-                 "(defaults to False"
+                 "(defaults to False)"
         )
         return parser
 
