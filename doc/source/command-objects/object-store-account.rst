@@ -1,43 +1,43 @@
-=======
-account
-=======
+====================
+object store account
+====================
 
 Object Store v1
 
-account set
------------
+object store account set
+------------------------
 
 Set account properties
 
-.. program:: account set
+.. program:: object store account set
 .. code:: bash
 
-    os account set
+    os object store account set
         [--property <key=value> [...] ]
 
 .. option:: --property <key=value>
 
     Set a property on this account (repeat option to set multiple properties)
 
-account show
-------------
+object store account show
+-------------------------
 
 Display account details
 
-.. program:: account show
+.. program:: object store account show
 .. code:: bash
 
-    os account show
+    os object store account show
 
-account unset
--------------
+object store account unset
+--------------------------
 
 Unset account properties
 
-.. program:: account unset
+.. program:: object store account unset
 .. code:: bash
 
-    os account unset
+    os object store account unset
         [--property <key>]
 
 .. option:: --property <key>
