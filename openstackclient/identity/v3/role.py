@@ -260,6 +260,7 @@ class ListRole(lister.Lister):
             data = identity_client.roles.list(
                 user=user,
                 domain=domain,
+                os_inherit_extension_inherited=parsed_args.inherited
             )
             for user_role in data:
                 user_role.user = user.name
@@ -269,6 +270,7 @@ class ListRole(lister.Lister):
             data = identity_client.roles.list(
                 user=user,
                 project=project,
+                os_inherit_extension_inherited=parsed_args.inherited
             )
             for user_role in data:
                 user_role.user = user.name
@@ -278,12 +280,14 @@ class ListRole(lister.Lister):
             data = identity_client.roles.list(
                 user=user,
                 domain='default',
+                os_inherit_extension_inherited=parsed_args.inherited
             )
         elif parsed_args.group and parsed_args.domain:
             columns = ('ID', 'Name', 'Domain', 'Group')
             data = identity_client.roles.list(
                 group=group,
                 domain=domain,
+                os_inherit_extension_inherited=parsed_args.inherited
             )
             for group_role in data:
                 group_role.group = group.name
@@ -293,6 +297,7 @@ class ListRole(lister.Lister):
             data = identity_client.roles.list(
                 group=group,
                 project=project,
+                os_inherit_extension_inherited=parsed_args.inherited
             )
             for group_role in data:
                 group_role.group = group.name
