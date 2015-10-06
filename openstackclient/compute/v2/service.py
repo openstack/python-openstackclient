@@ -43,6 +43,7 @@ class ListService(lister.Lister):
         self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         columns = (
+            "Id",
             "Binary",
             "Host",
             "Zone",
