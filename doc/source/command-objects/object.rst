@@ -128,9 +128,13 @@ Set object properties
 .. code:: bash
 
     os object set
+        [--property <key=value> [...] ]
         <container>
         [<object>]
-        [--property <key=value> [...] ]
+
+.. option:: --property <key=value>
+
+    Set a property on this object (repeat option to set multiple properties)
 
 .. describe:: <container>
 
@@ -139,10 +143,6 @@ Set object properties
 .. describe:: <object>
 
     Object to modify
-
-.. option:: --property <key=value>
-
-    Set a property on this object (repeat option to set multiple properties)
 
 object show
 -----------
@@ -173,9 +173,13 @@ Unset object properties
 .. code:: bash
 
     os object unset
+        [--property <key>]
         <container>
         [<object>]
-        [--property <key>]
+
+.. option:: --property <key>
+
+    Property to remove from object (repeat option to remove multiple properties)
 
 .. describe:: <container>
 
@@ -184,7 +188,3 @@ Unset object properties
 .. describe:: <object>
 
     Object to modify
-
-.. option:: --property <key>
-
-    Property to remove from object (repeat option to remove multiple properties)
