@@ -213,6 +213,8 @@ class CreateImage(show.ShowOne):
         if parsed_args.private:
             kwargs['is_public'] = False
 
+        info = {}
+
         if not parsed_args.location and not parsed_args.copy_from:
             if parsed_args.volume:
                 volume_client = self.app.client_manager.volume
@@ -241,18 +243,18 @@ class CreateImage(show.ShowOne):
                     # do a chunked transfer
                     kwargs["data"] = sys.stdin
 
-        # Wrap the call to catch exceptions in order to close files
-        try:
-            image = image_client.images.create(**kwargs)
-        finally:
-            # Clean up open files - make sure data isn't a string
-            if ('data' in kwargs and hasattr(kwargs['data'], 'close') and
-               kwargs['data'] != sys.stdin):
-                    kwargs['data'].close()
+        if not parsed_args.volume:
+            # Wrap the call to catch exceptions in order to close files
+            try:
+                image = image_client.images.create(**kwargs)
+            finally:
+                # Clean up open files - make sure data isn't a string
+                if ('data' in kwargs and hasattr(kwargs['data'], 'close') and
+                   kwargs['data'] != sys.stdin):
+                        kwargs['data'].close()
 
-        info = {}
-        info.update(image._info)
-        info['properties'] = utils.format_dict(info.get('properties', {}))
+            info.update(image._info)
+            info['properties'] = utils.format_dict(info.get('properties', {}))
         return zip(*sorted(six.iteritems(info)))
 
 
