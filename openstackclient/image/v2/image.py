@@ -210,7 +210,7 @@ class CreateImage(show.ShowOne):
                 "--%s" % deadopt,
                 metavar="<%s>" % deadopt,
                 dest=deadopt.replace('-', '_'),
-                help=argparse.SUPPRESS
+                help=argparse.SUPPRESS,
             )
         return parser
 
@@ -522,38 +522,11 @@ class SaveImage(command.Command):
         gc_utils.save_image(data, parsed_args.file)
 
 
-class ShowImage(show.ShowOne):
-    """Display image details"""
-
-    log = logging.getLogger(__name__ + ".ShowImage")
-
-    def get_parser(self, prog_name):
-        parser = super(ShowImage, self).get_parser(prog_name)
-        parser.add_argument(
-            "image",
-            metavar="<image>",
-            help="Image to display (name or ID)",
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
-        image_client = self.app.client_manager.image
-        image = utils.find_resource(
-            image_client.images,
-            parsed_args.image,
-        )
-
-        info = _format_image(image)
-        return zip(*sorted(six.iteritems(info)))
-
-
 class SetImage(show.ShowOne):
     """Set image properties"""
 
     log = logging.getLogger(__name__ + ".SetImage")
-    deadopts = ('size', 'store', 'location', 'copy-from', 'checksum')
+    deadopts = ('visibility',)
 
     def get_parser(self, prog_name):
         parser = super(SetImage, self).get_parser(prog_name)
@@ -567,7 +540,6 @@ class SetImage(show.ShowOne):
         # --force - needs adding
         # --checksum - maybe could be done client side
         # --stdin - could be implemented
-        # --property - needs adding
         # --tags - needs adding
         parser.add_argument(
             "image",
@@ -580,20 +552,44 @@ class SetImage(show.ShowOne):
             help="New image name"
         )
         parser.add_argument(
-            "--architecture",
-            metavar="<architecture>",
-            help="Operating system Architecture"
+            "--owner",
+            metavar="<project>",
+            help="New image owner project (name or ID)",
+        )
+        parser.add_argument(
+            "--min-disk",
+            type=int,
+            metavar="<disk-gb>",
+            help="Minimum disk size needed to boot image, in gigabytes"
+        )
+        parser.add_argument(
+            "--min-ram",
+            type=int,
+            metavar="<ram-mb>",
+            help="Minimum RAM size needed to boot image, in megabytes",
+        )
+        parser.add_argument(
+            "--container-format",
+            metavar="<container-format>",
+            help="Image container format "
+                 "(default: %s)" % DEFAULT_CONTAINER_FORMAT,
+        )
+        parser.add_argument(
+            "--disk-format",
+            metavar="<disk-format>",
+            help="Image disk format "
+                 "(default: %s)" % DEFAULT_DISK_FORMAT,
         )
         protected_group = parser.add_mutually_exclusive_group()
         protected_group.add_argument(
             "--protected",
             action="store_true",
-            help="Prevent image from being deleted"
+            help="Prevent image from being deleted",
         )
         protected_group.add_argument(
             "--unprotected",
             action="store_true",
-            help="Allow image to be deleted (default)"
+            help="Allow image to be deleted (default)",
         )
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
@@ -607,82 +603,55 @@ class SetImage(show.ShowOne):
             help="Image is inaccessible to the public (default)",
         )
         parser.add_argument(
-            "--instance-uuid",
-            metavar="<instance_uuid>",
-            help="ID of instance used to create this image"
+            "--property",
+            dest="properties",
+            metavar="<key=value>",
+            action=parseractions.KeyValueAction,
+            help="Set a property on this image "
+                 "(repeat option to set multiple properties)",
         )
         parser.add_argument(
-            "--min-disk",
-            type=int,
-            metavar="<disk-gb>",
-            help="Minimum disk size needed to boot image, in gigabytes"
+            "--architecture",
+            metavar="<architecture>",
+            help="Operating system architecture",
         )
-        visibility_choices = ["public", "private"]
-        public_group.add_argument(
-            "--visibility",
-            metavar="<visibility>",
-            choices=visibility_choices,
-            help=argparse.SUPPRESS
+        parser.add_argument(
+            "--instance-id",
+            metavar="<instance-id>",
+            help="ID of server instance used to create this image",
         )
-        help_msg = ("ID of image in Glance that should be used as the kernel"
-                    " when booting an AMI-style image")
+        parser.add_argument(
+            "--instance-uuid",
+            metavar="<instance-id>",
+            dest="instance_id",
+            help=argparse.SUPPRESS,
+        )
         parser.add_argument(
             "--kernel-id",
             metavar="<kernel-id>",
-            help=help_msg
-        )
-        parser.add_argument(
-            "--os-version",
-            metavar="<os-version>",
-            help="Operating system version as specified by the distributor"
-        )
-        disk_choices = ["None", "ami", "ari", "aki", "vhd", "vmdk", "raw",
-                        "qcow2", "vdi", "iso"]
-        help_msg = ("Format of the disk. Valid values: %s" % disk_choices)
-        parser.add_argument(
-            "--disk-format",
-            metavar="<disk-format>",
-            choices=disk_choices,
-            help=help_msg
+            help="ID of kernel image used to boot this disk image",
         )
         parser.add_argument(
             "--os-distro",
             metavar="<os-distro>",
-            help="Common name of operating system distribution"
+            help="Operating system distribution name",
         )
         parser.add_argument(
-            "--owner",
-            metavar="<owner>",
-            help="New Owner of the image"
+            "--os-version",
+            metavar="<os-version>",
+            help="Operating system distribution version",
         )
-        msg = ("ID of image stored in Glance that should be used as the "
-               "ramdisk when booting an AMI-style image")
         parser.add_argument(
             "--ramdisk-id",
             metavar="<ramdisk-id>",
-            help=msg
-        )
-        parser.add_argument(
-            "--min-ram",
-            type=int,
-            metavar="<ram-mb>",
-            help="Amount of RAM (in MB) required to boot image"
-        )
-        container_choices = ["None", "ami", "ari", "aki", "bare", "ovf", "ova"]
-        help_msg = ("Format of the container. Valid values: %s"
-                    % container_choices)
-        parser.add_argument(
-            "--container-format",
-            metavar="<container-format>",
-            choices=container_choices,
-            help=help_msg
+            help="ID of ramdisk image used to boot this disk image",
         )
         for deadopt in self.deadopts:
             parser.add_argument(
                 "--%s" % deadopt,
                 metavar="<%s>" % deadopt,
                 dest=deadopt.replace('-', '_'),
-                help=argparse.SUPPRESS
+                help=argparse.SUPPRESS,
             )
         return parser
 
@@ -698,10 +667,9 @@ class SetImage(show.ShowOne):
 
         kwargs = {}
         copy_attrs = ('architecture', 'container_format', 'disk_format',
-                      'file', 'kernel_id', 'locations', 'name',
+                      'file', 'instance_id', 'kernel_id', 'locations',
                       'min_disk', 'min_ram', 'name', 'os_distro', 'os_version',
-                      'owner', 'prefix', 'progress', 'ramdisk_id',
-                      'visibility')
+                      'owner', 'prefix', 'progress', 'ramdisk_id')
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
@@ -709,6 +677,11 @@ class SetImage(show.ShowOne):
                     # Only include a value in kwargs for attributes that are
                     # actually present on the command line
                     kwargs[attr] = val
+
+        # Properties should get flattened into the general kwargs
+        if getattr(parsed_args, 'properties', None):
+            for k, v in six.iteritems(parsed_args.properties):
+                kwargs[k] = str(v)
 
         # Handle exclusive booleans with care
         # Avoid including attributes in kwargs if an option is not
@@ -735,4 +708,31 @@ class SetImage(show.ShowOne):
         image = image_client.images.update(image.id, **kwargs)
         info = {}
         info.update(image)
+        return zip(*sorted(six.iteritems(info)))
+
+
+class ShowImage(show.ShowOne):
+    """Display image details"""
+
+    log = logging.getLogger(__name__ + ".ShowImage")
+
+    def get_parser(self, prog_name):
+        parser = super(ShowImage, self).get_parser(prog_name)
+        parser.add_argument(
+            "image",
+            metavar="<image>",
+            help="Image to display (name or ID)",
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)", parsed_args)
+
+        image_client = self.app.client_manager.image
+        image = utils.find_resource(
+            image_client.images,
+            parsed_args.image,
+        )
+
+        info = _format_image(image)
         return zip(*sorted(six.iteritems(info)))
