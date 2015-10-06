@@ -24,20 +24,20 @@ plugin.
 =============================  ======================================
    project                     notes
 =============================  ======================================
-python-barbicanclient          patch in progress (https://review.openstack.org/#/c/198732/)
+python-barbicanclient          using OpenStackClient
 python-ceilometerclient        using argparse
 python-congressclient          using OpenStackClient
 python-cueclient               using OpenStackClient
-python-designateclient         patch in progress (https://review.openstack.org/#/c/133676/)
+python-designateclient         using OpenStackClient
 python-heatclient              patch in progress (https://review.openstack.org/#/c/195867/)
-python-ironicclient            patch in progress (https://review.openstack.org/#/c/171672/)
+python-ironicclient            Using OpenStackClient
 python-magnumclient            using argparse
 python-manilaclient            using argparse
-python-mistralclient           using cliff, but not OpenStackClient
+python-mistralclient           using cliff
 python-muranoclient            using argparse
-python-saharaclient            using argparse
+python-saharaclient            using OpenStackClient
 python-troveclient             using argparse
-python-tuskarclient            using OpenStackClient and their own shell
+python-tuskarclient            using OpenStackClient
 python-zaqarclient             using OpenStackClient
 =============================  ======================================
 
