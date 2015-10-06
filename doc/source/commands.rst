@@ -120,6 +120,40 @@ referring to both Compute and Volume quotas.
 * ``volume``: (**Volume**) block volumes
 * ``volume type``: (**Volume**) deployment-specific types of volumes available
 
+
+Plugin Objects
+--------------
+
+The following are known `Objects` used by OpenStack :doc:`plugins`. These are
+listed here to avoid name conflicts when creating new plugins.
+
+* ``baremetal``: (**Baremetal (Ironic)**)
+* ``congress datasource``: (**Policy (Congress)**)
+* ``congress driver``: (**Policy (Congress)**)
+* ``congress policy``: (**Policy (Congress)**)
+* ``congress policy rule``: (**Policy (Congress)**)
+* ``dataprocessing data source``: (**Data Processing (Sahara)**)
+* ``dataprocessing image``: (**Data Processing (Sahara)**)
+* ``dataprocessing image tags``: (**Data Processing (Sahara)**)
+* ``dataprocessing plugin``: (**Data Processing (Sahara)**)
+* ``management plan``: (**Management (Tuskar)**)
+* ``management role``: (**Management (Tuskar)**)
+* ``message-broker cluster``: (**Message Broker (Cue)**)
+* ``message flavor``: (**Messaging (Zaqar)**)
+* ``pool``: (**Messaging (Zaqar)**)
+* ``ptr record``: (**DNS (Designate)**)
+* ``queue``: (**Messaging (Zaqar)**)
+* ``recordset``: (**DNS (Designate)**)
+* ``secret``: (**Key Manager (Barbican)**)
+* ``secret container``: (**Key Manager (Barbican)**)
+* ``secret order``: (**Key Manager (Barbican)**)
+* ``stack``: (**Orchestration (Heat)**)
+* ``tld``: (**DNS (Designate)**)
+* ``zone``: (**DNS (Designate)**)
+* ``zone blacklist``: (**DNS (Designate)**)
+* ``zone transfer``: (**DNS (Designate)**)
+
+
 Actions
 -------
 
