@@ -98,16 +98,16 @@ Set container properties
 .. code:: bash
 
     os container set
-        [<container>]
         [--property <key=value> [...] ]
-
-.. describe:: <container>
-
-    Container to modify
+        [<container>]
 
 .. option:: --property <key=value>
 
     Set a property on this container (repeat option to set multiple properties)
+
+.. describe:: <container>
+
+    Container to modify
 
 container show
 --------------
@@ -133,13 +133,13 @@ Unset container properties
 .. code:: bash
 
     os container unset
-        [<container>]
         [--property <key>]
-
-.. describe:: <container>
-
-    Container to modify
+        [<container>]
 
 .. option:: --property <key>
 
     Property to remove from container (repeat option to remove multiple properties)
+
+.. describe:: <container>
+
+    Container to modify
