@@ -25,6 +25,7 @@ from cliff import app
 from cliff import command
 from cliff import complete
 from cliff import help
+from oslo_utils import strutils
 
 import openstackclient
 from openstackclient.common import clientmanager
@@ -201,8 +202,10 @@ class OpenStackShell(app.App):
 
         # Parent __init__ parses argv into self.options
         super(OpenStackShell, self).initialize_app(argv)
-        self.log.info("START with options: %s", self.command_options)
-        self.log.debug("options: %s", self.options)
+        self.log.info("START with options: %s",
+                      strutils.mask_password(self.command_options))
+        self.log.debug("options: %s",
+                       strutils.mask_password(self.options))
 
         # Set the default plugin to token_endpoint if url and token are given
         if (self.options.url and self.options.token):
@@ -246,7 +249,8 @@ class OpenStackShell(app.App):
         self.log_configurator.configure(self.cloud)
         self.dump_stack_trace = self.log_configurator.dump_trace
         self.log.debug("defaults: %s", cc.defaults)
-        self.log.debug("cloud cfg: %s", self.cloud.config)
+        self.log.debug("cloud cfg: %s",
+                       strutils.mask_password(self.cloud.config))
 
         # Set up client TLS
         # NOTE(dtroyer): --insecure is the non-default condition that
