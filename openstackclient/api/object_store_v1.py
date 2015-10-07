@@ -16,6 +16,7 @@
 import io
 import os
 import six
+from six.moves import urllib
 
 try:
     from urllib.parse import urlparse  # noqa
@@ -42,8 +43,7 @@ class APIv1(api.BaseAPI):
         :returns:
             dict of returned headers
         """
-
-        response = self.create(container, method='PUT')
+        response = self.create(urllib.parse.quote(container), method='PUT')
         data = {
             'account': self._find_account_id(),
             'container': container,
@@ -63,7 +63,7 @@ class APIv1(api.BaseAPI):
         """
 
         if container:
-            self.delete(container)
+            self.delete(urllib.parse.quote(container))
 
     def container_list(
         self,
@@ -154,7 +154,7 @@ class APIv1(api.BaseAPI):
 
         headers = self._set_properties(properties, 'X-Container-Meta-%s')
         if headers:
-            self.create(container, headers=headers)
+            self.create(urllib.parse.quote(container), headers=headers)
 
     def container_show(
         self,
@@ -168,7 +168,7 @@ class APIv1(api.BaseAPI):
             dict of returned headers
         """
 
-        response = self._request('HEAD', container)
+        response = self._request('HEAD', urllib.parse.quote(container))
         data = {
             'account': self._find_account_id(),
             'container': container,
@@ -201,7 +201,7 @@ class APIv1(api.BaseAPI):
         headers = self._unset_properties(properties,
                                          'X-Remove-Container-Meta-%s')
         if headers:
-            self.create(container, headers=headers)
+            self.create(urllib.parse.quote(container), headers=headers)
 
     def object_create(
         self,
@@ -222,7 +222,8 @@ class APIv1(api.BaseAPI):
             # TODO(dtroyer): What exception to raise here?
             return {}
 
-        full_url = "%s/%s" % (container, object)
+        full_url = "%s/%s" % (urllib.parse.quote(container),
+                              urllib.parse.quote(object))
         with io.open(object, 'rb') as f:
             response = self.create(
                 full_url,
@@ -255,7 +256,8 @@ class APIv1(api.BaseAPI):
         if container is None or object is None:
             return
 
-        self.delete("%s/%s" % (container, object))
+        self.delete("%s/%s" % (urllib.parse.quote(container),
+                               urllib.parse.quote(object)))
 
     def object_list(
         self,
@@ -332,7 +334,7 @@ class APIv1(api.BaseAPI):
         if delimiter:
             params['delimiter'] = delimiter
 
-        return self.list(container, **params)
+        return self.list(urllib.parse.quote(container), **params)
 
     def object_save(
         self,
@@ -355,7 +357,8 @@ class APIv1(api.BaseAPI):
 
         response = self._request(
             'GET',
-            "%s/%s" % (container, object),
+            "%s/%s" % (urllib.parse.quote(container),
+                       urllib.parse.quote(object)),
             stream=True,
         )
         if response.status_code == 200:
@@ -384,7 +387,9 @@ class APIv1(api.BaseAPI):
 
         headers = self._set_properties(properties, 'X-Object-Meta-%s')
         if headers:
-            self.create("%s/%s" % (container, object), headers=headers)
+            self.create("%s/%s" % (urllib.parse.quote(container),
+                                   urllib.parse.quote(object)),
+                        headers=headers)
 
     def object_unset(
         self,
@@ -404,7 +409,9 @@ class APIv1(api.BaseAPI):
 
         headers = self._unset_properties(properties, 'X-Remove-Object-Meta-%s')
         if headers:
-            self.create("%s/%s" % (container, object), headers=headers)
+            self.create("%s/%s" % (urllib.parse.quote(container),
+                                   urllib.parse.quote(object)),
+                        headers=headers)
 
     def object_show(
         self,
@@ -424,7 +431,9 @@ class APIv1(api.BaseAPI):
         if container is None or object is None:
             return {}
 
-        response = self._request('HEAD', "%s/%s" % (container, object))
+        response = self._request('HEAD', "%s/%s" %
+                                 (urllib.parse.quote(container),
+                                  urllib.parse.quote(object)))
         data = {
             'account': self._find_account_id(),
             'container': container,
