@@ -17,9 +17,31 @@
 
 import logging
 
+from cliff import command
 from cliff import lister
 
 from openstackclient.common import utils
+
+
+class DeleteService(command.Command):
+    """Delete service command"""
+
+    log = logging.getLogger(__name__ + ".DeleteService")
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteService, self).get_parser(prog_name)
+        parser.add_argument(
+            "service",
+            metavar="<service>",
+            help="Compute service to delete (ID only)")
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)", parsed_args)
+        compute_client = self.app.client_manager.compute
+
+        compute_client.services.delete(parsed_args.service)
+        return
 
 
 class ListService(lister.Lister):
