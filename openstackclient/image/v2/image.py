@@ -521,7 +521,7 @@ class SaveImage(command.Command):
         gc_utils.save_image(data, parsed_args.file)
 
 
-class SetImage(show.ShowOne):
+class SetImage(command.Command):
     """Set image properties"""
 
     log = logging.getLogger(__name__ + ".SetImage")
@@ -717,9 +717,6 @@ class SetImage(show.ShowOne):
             kwargs['tags'] = list(set(image.tags).union(set(parsed_args.tags)))
 
         image = image_client.images.update(image.id, **kwargs)
-        info = {}
-        info.update(image)
-        return zip(*sorted(six.iteritems(info)))
 
 
 class ShowImage(show.ShowOne):
