@@ -80,7 +80,7 @@ referring to both Compute and Volume quotas.
 * ``container``: (**Object Store**) a grouping of objects
 * ``credentials``: (**Identity**) specific to identity providers
 * ``domain``: (**Identity**) a grouping of projects
-* ``ec2 cedentials``: (**Identity**) AWS EC2-compatible credentials
+* ``ec2 credentials``: (**Identity**) AWS EC2-compatible credentials
 * ``endpoint``: (**Identity**) the base URL used to contact a specific service
 * ``extension``: (**Compute**, **Identity**, **Volume**) OpenStack server API extensions
 * ``federation protocol``: (**Identity**) the underlying protocol used while federating identities
