@@ -383,6 +383,7 @@ class TestRoleList(TestRole):
         kwargs = {
             'domain': 'default',
             'user': self.users_mock.get(),
+            'os_inherit_extension_inherited': False
         }
         # RoleManager.list(user=, group=, domain=, project=, **kwargs)
         self.roles_mock.list.assert_called_with(
@@ -415,6 +416,7 @@ class TestRoleList(TestRole):
         kwargs = {
             'domain': self.domains_mock.get(),
             'user': self.users_mock.get(),
+            'os_inherit_extension_inherited': False
         }
         # RoleManager.list(user=, group=, domain=, project=, **kwargs)
         self.roles_mock.list.assert_called_with(
@@ -449,6 +451,7 @@ class TestRoleList(TestRole):
         kwargs = {
             'domain': self.domains_mock.get(),
             'group': self.groups_mock.get(),
+            'os_inherit_extension_inherited': False
         }
         # RoleManager.list(user=, group=, domain=, project=, **kwargs)
         self.roles_mock.list.assert_called_with(
@@ -483,6 +486,7 @@ class TestRoleList(TestRole):
         kwargs = {
             'project': self.projects_mock.get(),
             'user': self.users_mock.get(),
+            'os_inherit_extension_inherited': False
         }
         # RoleManager.list(user=, group=, domain=, project=, **kwargs)
         self.roles_mock.list.assert_called_with(
@@ -517,6 +521,7 @@ class TestRoleList(TestRole):
         kwargs = {
             'project': self.projects_mock.get(),
             'group': self.groups_mock.get(),
+            'os_inherit_extension_inherited': False
         }
         # RoleManager.list(user=, group=, domain=, project=, **kwargs)
         self.roles_mock.list.assert_called_with(
