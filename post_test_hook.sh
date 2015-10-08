@@ -12,7 +12,7 @@ OPENSTACKCLIENT_DIR=$(cd $(dirname "$0") && pwd)
 
 echo "Running openstackclient functional test suite"
 sudo -H -u stack -i <<!
-source ~stack/devstack/accrc/admin/admin
+source ~stack/devstack/openrc admin admin
 echo 'Running tests with:'
 env | grep OS_
 cd ${OPENSTACKCLIENT_DIR}
