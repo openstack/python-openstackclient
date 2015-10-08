@@ -83,7 +83,7 @@ by the ``ClientManager`` object.
   * Load the selected plugin class.
 
 * When an operation that requires authentication is attempted ``ClientManager``
-  makes the actual inital request to the Identity service.
+  makes the actual initial request to the Identity service.
 
   * if ``--os-auth-url`` is not supplied for any of the types except
     Token/Endpoint, exit with an error.
@@ -132,7 +132,7 @@ If using a domain as authorization scope, set either it's name or ID.
 Note that if the user and project share the same domain, then simply setting
 ``os-default-domain`` or ``OS_DEFAULT_DOMAIN`` is sufficient.
 
-Thus, a minimal set of of environment variables would be:
+Thus, a minimal set of environment variables would be:
 
 .. code-block:: bash
 
