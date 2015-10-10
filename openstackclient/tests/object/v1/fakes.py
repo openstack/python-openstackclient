@@ -13,7 +13,7 @@
 #   under the License.
 #
 
-from keystoneclient import session
+from keystoneauth1 import session
 from openstackclient.api import object_store_v1 as object_store
 from openstackclient.tests import utils
 

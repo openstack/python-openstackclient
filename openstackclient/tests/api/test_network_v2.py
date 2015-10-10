@@ -15,7 +15,7 @@
 
 from requests_mock.contrib import fixture
 
-from keystoneclient import session
+from keystoneauth1 import session
 from openstackclient.api import network_v2 as network
 from openstackclient.tests import utils
 
