@@ -32,14 +32,14 @@ class ServerTests(test.TestCase):
     def get_flavor(cls):
         raw_output = cls.openstack('flavor list -f value -c ID')
         ray = raw_output.split('\n')
-        idx = len(ray)/2
+        idx = int(len(ray)/2)
         return ray[idx]
 
     @classmethod
     def get_image(cls):
         raw_output = cls.openstack('image list -f value -c ID')
         ray = raw_output.split('\n')
-        idx = len(ray)/2
+        idx = int(len(ray)/2)
         return ray[idx]
 
     @classmethod
@@ -49,7 +49,7 @@ class ServerTests(test.TestCase):
         except exceptions.CommandFailed:
             return ''
         ray = raw_output.split('\n')
-        idx = len(ray)/2
+        idx = int(len(ray)/2)
         return ' --nic net-id=' + ray[idx]
 
     @classmethod

@@ -28,13 +28,14 @@ EXAMPLE_DIR = os.path.join(ROOT_DIR, 'examples')
 
 def execute(cmd, fail_ok=False, merge_stderr=False):
     """Executes specified command for the given action."""
-    cmdlist = shlex.split(cmd.encode('utf-8'))
+    cmdlist = shlex.split(cmd)
     result = ''
     result_err = ''
     stdout = subprocess.PIPE
     stderr = subprocess.STDOUT if merge_stderr else subprocess.PIPE
     proc = subprocess.Popen(cmdlist, stdout=stdout, stderr=stderr)
     result, result_err = proc.communicate()
+    result = result.decode('utf-8')
     if not fail_ok and proc.returncode != 0:
         raise exceptions.CommandFailed(proc.returncode, cmd, result,
                                        result_err)
