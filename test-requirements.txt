@@ -15,4 +15,4 @@ os-testr>=0.4.1
 testrepository>=0.0.18
 testtools>=1.4.0
 WebOb<1.5.0,>=1.2.3
-tempest-lib>=0.9.0
+tempest-lib>=0.10.0
