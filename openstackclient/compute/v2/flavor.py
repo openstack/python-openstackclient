@@ -181,6 +181,15 @@ class ListFlavor(lister.Lister):
             action='store_true',
             default=False,
             help='List additional fields in output')
+        parser.add_argument(
+            '--marker',
+            metavar="<marker>",
+            help='The last flavor ID of the previous page')
+        parser.add_argument(
+            '--limit',
+            type=int,
+            metavar="<limit>",
+            help='Maximum number of flavors to display')
         return parser
 
     def take_action(self, parsed_args):
@@ -202,7 +211,9 @@ class ListFlavor(lister.Lister):
         # and flavors from their own projects only.
         is_public = None if parsed_args.all else parsed_args.public
 
-        data = compute_client.flavors.list(is_public=is_public)
+        data = compute_client.flavors.list(is_public=is_public,
+                                           marker=parsed_args.marker,
+                                           limit=parsed_args.limit)
 
         if parsed_args.long:
             columns = columns + (

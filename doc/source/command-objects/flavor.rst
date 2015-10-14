@@ -91,6 +91,8 @@ List flavors
     os flavor list
         [--public | --private | --all]
         [--long]
+        [--marker <marker>]
+        [--limit <limit>]
 
 .. option:: --public
 
@@ -107,6 +109,14 @@ List flavors
 .. option:: --long
 
     List additional fields in output
+
+.. option:: --marker <marker>
+
+    The last flavor ID of the previous page
+
+.. option:: --limit <limit>
+
+    Maximum number of flavors to display
 
 flavor show
 -----------
