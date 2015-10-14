@@ -15,6 +15,7 @@
 
 import io
 import os
+
 import six
 from six.moves import urllib
 
@@ -176,13 +177,24 @@ class APIv1(api.BaseAPI):
                 'x-container-object-count',
                 None,
             ),
-            'meta-owner': response.headers.get('x-container-meta-owner', None),
-            'bytes_used': response.headers.get('x-container-bytes-used', None),
-            'read_acl': response.headers.get('x-container-read', None),
-            'write_acl': response.headers.get('x-container-write', None),
-            'sync_to': response.headers.get('x-container-sync-to', None),
-            'sync_key': response.headers.get('x-container-sync-key', None),
+            'bytes_used': response.headers.get('x-container-bytes-used', None)
         }
+
+        if 'x-container-read' in response.headers:
+            data['read_acl'] = response.headers.get('x-container-read', None)
+        if 'x-container-write' in response.headers:
+            data['write_acl'] = response.headers.get('x-container-write', None)
+        if 'x-container-sync-to' in response.headers:
+            data['sync_to'] = response.headers.get('x-container-sync-to', None)
+        if 'x-container-sync-key' in response.headers:
+            data['sync_key'] = response.headers.get('x-container-sync-key',
+                                                    None)
+
+        properties = self._get_properties(response.headers,
+                                          'x-container-meta-')
+        if properties:
+            data['properties'] = properties
+
         return data
 
     def container_unset(
@@ -434,12 +446,12 @@ class APIv1(api.BaseAPI):
         response = self._request('HEAD', "%s/%s" %
                                  (urllib.parse.quote(container),
                                   urllib.parse.quote(object)))
+
         data = {
             'account': self._find_account_id(),
             'container': container,
             'object': object,
             'content-type': response.headers.get('content-type', None),
-            'meta-owner': response.headers.get('x-container-meta-owner', None),
         }
         if 'content-length' in response.headers:
             data['content-length'] = response.headers.get(
@@ -455,19 +467,10 @@ class APIv1(api.BaseAPI):
                 'x-object-manifest',
                 None,
             )
-        for key, value in six.iteritems(response.headers):
-            if key.startswith('x-object-meta-'):
-                data[key[len('x-object-meta-'):].lower()] = value
-            elif key not in (
-                    'content-type',
-                    'content-length',
-                    'last-modified',
-                    'etag',
-                    'date',
-                    'x-object-manifest',
-                    'x-container-meta-owner',
-            ):
-                data[key.lower()] = value
+
+        properties = self._get_properties(response.headers, 'x-object-meta-')
+        if properties:
+            data['properties'] = properties
 
         return data
 
@@ -495,12 +498,16 @@ class APIv1(api.BaseAPI):
         # catalog should be enough.
         response = self._request("HEAD", "")
         data = {}
-        for k, v in response.headers.iteritems():
-            data[k] = v
+
+        properties = self._get_properties(response.headers, 'x-account-meta-')
+        if properties:
+            data['properties'] = properties
+
         # Map containers, bytes and objects a bit nicer
-        data['Containers'] = data.pop('x-account-container-count', None)
-        data['Objects'] = data.pop('x-account-object-count', None)
-        data['Bytes'] = data.pop('x-account-bytes-used', None)
+        data['Containers'] = response.headers.get('x-account-container-count',
+                                                  None)
+        data['Objects'] = response.headers.get('x-account-object-count', None)
+        data['Bytes'] = response.headers.get('x-account-bytes-used', None)
         # Add in Account info too
         data['Account'] = self._find_account_id()
         return data
@@ -549,3 +556,12 @@ class APIv1(api.BaseAPI):
             header_name = header_tag % k
             headers[header_name] = v
         return headers
+
+    def _get_properties(self, headers, header_tag):
+        # Add in properties as a top level key, this is consistent with other
+        # OSC commands
+        properties = {}
+        for k, v in six.iteritems(headers):
+            if k.startswith(header_tag):
+                properties[k[len(header_tag):]] = v
+        return properties

@@ -229,6 +229,8 @@ class ShowContainer(show.ShowOne):
         data = self.app.client_manager.object_store.container_show(
             container=parsed_args.container,
         )
+        if 'properties' in data:
+            data['properties'] = utils.format_dict(data.pop('properties'))
 
         return zip(*sorted(six.iteritems(data)))
 
