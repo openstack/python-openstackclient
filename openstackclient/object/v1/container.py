@@ -59,6 +59,12 @@ class DeleteContainer(command.Command):
     def get_parser(self, prog_name):
         parser = super(DeleteContainer, self).get_parser(prog_name)
         parser.add_argument(
+            '--recursive', '-r',
+            action='store_true',
+            default=False,
+            help='Recursively delete objects and container',
+        )
+        parser.add_argument(
             'containers',
             metavar='<container>',
             nargs="+",
@@ -69,6 +75,14 @@ class DeleteContainer(command.Command):
     def take_action(self, parsed_args):
 
         for container in parsed_args.containers:
+            if parsed_args.recursive:
+                objs = self.app.client_manager.object_store.object_list(
+                    container=container)
+                for obj in objs:
+                    self.app.client_manager.object_store.object_delete(
+                        container=container,
+                        object=obj['name'],
+                    )
             self.app.client_manager.object_store.container_delete(
                 container=container,
             )
