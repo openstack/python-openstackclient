@@ -2,6 +2,39 @@
 Release Notes
 =============
 
+1.8.0 (18 Oct 2015)
+===================
+
+* `image create --volume` command (v1) will attempt to create two images
+  Bug `1497221 <https://bugs.launchpad.net/bugs/1497221>`_
+
+* Add filtering by project/uesr for command `volume list`
+  Bug `1483976 <https://bugs.launchpad.net/bugs/1483976>`_
+
+* Password used by plugin shows up in debug mode
+  Bug `1501598 <https://bugs.launchpad.net/bugs/1501598>`_
+
+* Add support for `object store account`
+  Bug `1501943 <https://bugs.launchpad.net/bugs/1501943>`_
+
+* Add support for setting properties on objects and containers
+  Bug `1501945 <https://bugs.launchpad.net/bugs/1501945>`_
+
+* `role list` ignores `--inherited` option
+  Bug `1502822 <https://bugs.launchpad.net/bugs/1502822>`_
+
+* `compute service list` does not return service ID number
+  Bug `1503430 <https://bugs.launchpad.net/bugs/1503430>`_
+
+* Containers and objects with non-ascii characters fails
+  Bug `1503508 <https://bugs.launchpad.net/bugs/1503508>`_
+
+1.7.1 (30 Sep 2015)
+===================
+
+* Image v2 lookup issues
+  Bug `1501362 <https://bugs.launchpad.net/bugs/1501362>`_
+
 1.7.0 (22 Sep 2015)
 ===================
 
