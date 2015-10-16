@@ -38,6 +38,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'oslosphinx',
               'ext.apidoc',
+              'stevedore.sphinxext',
               ]
 
 # Add any paths that contain templates here, relative to this directory.

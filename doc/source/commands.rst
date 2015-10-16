@@ -126,7 +126,8 @@ Plugin Objects
 --------------
 
 The following are known `Objects` used by OpenStack :doc:`plugins`. These are
-listed here to avoid name conflicts when creating new plugins.
+listed here to avoid name conflicts when creating new plugins. For a complete
+list check out :doc:`plugin-commands`.
 
 * ``baremetal``: (**Baremetal (Ironic)**)
 * ``congress datasource``: (**Policy (Congress)**)
