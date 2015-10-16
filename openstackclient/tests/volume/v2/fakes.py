@@ -16,7 +16,7 @@ import copy
 import mock
 
 from openstackclient.tests import fakes
-from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
 from openstackclient.tests import utils
 
@@ -212,7 +212,7 @@ class TestVolume(utils.TestCommand):
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN
         )
-        self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
+        self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN
         )

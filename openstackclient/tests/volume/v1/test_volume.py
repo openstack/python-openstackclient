@@ -527,6 +527,188 @@ class TestVolumeCreate(TestVolume):
         self.assertEqual(datalist, data)
 
 
+class TestVolumeList(TestVolume):
+
+    def setUp(self):
+        super(TestVolumeList, self).setUp()
+
+        self.volumes_mock.list.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(volume_fakes.VOLUME),
+                loaded=True,
+            ),
+        ]
+
+        # Get the command object to test
+        self.cmd = volume.ListVolume(self.app, None)
+
+    def test_volume_list_no_options(self):
+        arglist = []
+        verifylist = [
+            ('long', False),
+            ('all_projects', False),
+            ('name', None),
+            ('status', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        collist = (
+            'ID',
+            'Display Name',
+            'Status',
+            'Size',
+            'Attached to',
+        )
+        self.assertEqual(collist, columns)
+
+        datalist = ((
+            volume_fakes.volume_id,
+            volume_fakes.volume_name,
+            volume_fakes.volume_status,
+            volume_fakes.volume_size,
+            '',
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_volume_list_name(self):
+        arglist = [
+            '--name', volume_fakes.volume_name,
+        ]
+        verifylist = [
+            ('long', False),
+            ('all_projects', False),
+            ('name', volume_fakes.volume_name),
+            ('status', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        collist = (
+            'ID',
+            'Display Name',
+            'Status',
+            'Size',
+            'Attached to',
+        )
+        self.assertEqual(collist, tuple(columns))
+
+        datalist = ((
+            volume_fakes.volume_id,
+            volume_fakes.volume_name,
+            volume_fakes.volume_status,
+            volume_fakes.volume_size,
+            '',
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_volume_list_status(self):
+        arglist = [
+            '--status', volume_fakes.volume_status,
+        ]
+        verifylist = [
+            ('long', False),
+            ('all_projects', False),
+            ('name', None),
+            ('status', volume_fakes.volume_status),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        collist = (
+            'ID',
+            'Display Name',
+            'Status',
+            'Size',
+            'Attached to',
+        )
+        self.assertEqual(collist, tuple(columns))
+
+        datalist = ((
+            volume_fakes.volume_id,
+            volume_fakes.volume_name,
+            volume_fakes.volume_status,
+            volume_fakes.volume_size,
+            '',
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_volume_list_all_projects(self):
+        arglist = [
+            '--all-projects',
+        ]
+        verifylist = [
+            ('long', False),
+            ('all_projects', True),
+            ('name', None),
+            ('status', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        collist = (
+            'ID',
+            'Display Name',
+            'Status',
+            'Size',
+            'Attached to',
+        )
+        self.assertEqual(collist, columns)
+
+        datalist = ((
+            volume_fakes.volume_id,
+            volume_fakes.volume_name,
+            volume_fakes.volume_status,
+            volume_fakes.volume_size,
+            '',
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_volume_list_long(self):
+        arglist = [
+            '--long',
+        ]
+        verifylist = [
+            ('long', True),
+            ('all_projects', False),
+            ('name', None),
+            ('status', None),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        collist = (
+            'ID',
+            'Display Name',
+            'Status',
+            'Size',
+            'Type',
+            'Bootable',
+            'Attached to',
+            'Properties',
+        )
+        self.assertEqual(collist, columns)
+
+        datalist = ((
+            volume_fakes.volume_id,
+            volume_fakes.volume_name,
+            volume_fakes.volume_status,
+            volume_fakes.volume_size,
+            volume_fakes.volume_type,
+            '',
+            '',
+            "Alpha='a', Beta='b', Gamma='g'",
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+
 class TestVolumeSet(TestVolume):
 
     def setUp(self):
