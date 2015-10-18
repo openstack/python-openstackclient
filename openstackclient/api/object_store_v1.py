@@ -14,6 +14,7 @@
 """Object Store v1 API Library"""
 
 import io
+import logging
 import os
 
 import six
@@ -25,6 +26,7 @@ except ImportError:
     from urlparse import urlparse  # noqa
 
 from openstackclient.api import api
+from openstackclient.common import utils
 
 
 class APIv1(api.BaseAPI):
@@ -551,8 +553,14 @@ class APIv1(api.BaseAPI):
         # property we use: "X-Add-Container-Meta-Book: MobyDick", and the same
         # logic applies for Object properties
 
+        log = logging.getLogger(__name__ + '._set_properties')
+
         headers = {}
         for k, v in properties.iteritems():
+            if not utils.is_ascii(k) or not utils.is_ascii(v):
+                log.error('Cannot set property %s to non-ascii value', k)
+                continue
+
             header_name = header_tag % k
             headers[header_name] = v
         return headers
