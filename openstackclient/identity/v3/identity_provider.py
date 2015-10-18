@@ -88,6 +88,8 @@ class CreateIdentityProvider(show.ShowOne):
             enabled=parsed_args.enabled)
 
         idp._info.pop('links', None)
+        remote_ids = utils.format_list(idp._info.pop('remote_ids', []))
+        idp._info['remote_ids'] = remote_ids
         return zip(*sorted(six.iteritems(idp._info)))
 
 
@@ -221,9 +223,11 @@ class ShowIdentityProvider(show.ShowOne):
     @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        identity_provider = utils.find_resource(
+        idp = utils.find_resource(
             identity_client.federation.identity_providers,
             parsed_args.identity_provider)
 
-        identity_provider._info.pop('links', None)
-        return zip(*sorted(six.iteritems(identity_provider._info)))
+        idp._info.pop('links', None)
+        remote_ids = utils.format_list(idp._info.pop('remote_ids', []))
+        idp._info['remote_ids'] = remote_ids
+        return zip(*sorted(six.iteritems(idp._info)))
