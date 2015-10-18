@@ -102,6 +102,18 @@ List of Backwards Incompatible Changes
   * Bug: NA
   * Commit: NA
 
+8. `region` commands no longer support `url`
+
+  The Keystone team removed support for thr `url` attribute from the client
+  and server side. Changes to the `create`, `set` and `list` commands for
+  regions have been affected.
+
+  * In favor of: NA
+  * As of 1.9.0
+  * Removed in: NA
+  * Bug: https://launchpad.net/bugs/1506841
+  * Commit: https://review.openstack.org/#/c/236736/
+
 For Developers
 ==============
 

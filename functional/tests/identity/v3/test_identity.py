@@ -32,13 +32,12 @@ class IdentityTests(test.TestCase):
                       'enabled', 'name', 'parent_id', 'links']
     ROLE_FIELDS = ['id', 'name', 'links']
     SERVICE_FIELDS = ['id', 'enabled', 'name', 'type', 'description']
-    REGION_FIELDS = ['description', 'enabled', 'parent_region',
-                     'region', 'url']
+    REGION_FIELDS = ['description', 'enabled', 'parent_region', 'region']
     ENDPOINT_FIELDS = ['id', 'region', 'region_id', 'service_id',
                        'service_name', 'service_type', 'enabled',
                        'interface', 'url']
 
-    REGION_LIST_HEADERS = ['Region', 'Parent Region', 'Description', 'URL']
+    REGION_LIST_HEADERS = ['Region', 'Parent Region', 'Description']
     ENDPOINT_LIST_HEADERS = ['ID', 'Region', 'Service Name', 'Service Type',
                              'Enabled', 'Interface', 'URL']
 
@@ -194,7 +193,6 @@ class IdentityTests(test.TestCase):
     def _create_dummy_region(self, parent_region=None, add_clean_up=True):
         region_id = data_utils.rand_name('TestRegion')
         description = data_utils.rand_name('description')
-        url = data_utils.rand_url()
         parent_region_arg = ''
         if parent_region is not None:
             parent_region_arg = '--parent-region %s' % parent_region
@@ -202,10 +200,8 @@ class IdentityTests(test.TestCase):
             'region create '
             '%(parent_region_arg)s '
             '--description %(description)s '
-            '--url %(url)s '
             '%(id)s' % {'parent_region_arg': parent_region_arg,
                         'description': description,
-                        'url': url,
                         'id': region_id})
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.REGION_FIELDS)
