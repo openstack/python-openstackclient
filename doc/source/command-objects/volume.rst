@@ -109,33 +109,43 @@ List volumes
         [--status <status>]
         [--long]
 
-.. option:: --all-projects
-
 .. option:: --project <project>
 
     Filter results by project (name or ID) (admin only)
+
+    *Volume version 2 only*
 
 .. option:: --project-domain <project-domain>
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
 
+    *Volume version 2 only*
+
 .. option:: --user <user>
 
     Filter results by user (name or ID) (admin only)
+
+    *Volume version 2 only*
 
 .. option:: --user-domain <user-domain>
 
     Domain the user belongs to (name or ID).
     This can be used in case collisions between user names exist.
 
+    *Volume version 2 only*
+
 .. option:: --name <name>
 
-    Filter results by name
+    Filter results by volume name
 
 .. option:: --status <status>
 
     Filter results by status
+
+.. option:: --all-projects
+
+    Include all projects (admin only)
 
 .. option:: --long
 

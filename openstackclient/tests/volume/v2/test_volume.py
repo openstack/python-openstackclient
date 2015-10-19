@@ -15,7 +15,7 @@
 import copy
 
 from openstackclient.tests import fakes
-from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import volume
 
@@ -27,7 +27,7 @@ class TestVolume(volume_fakes.TestVolume):
         self.volumes_mock = self.app.client_manager.volume.volumes
         self.volumes_mock.reset_mock()
 
-        self.projects_mock = self.app.client_manager.identity.tenants
+        self.projects_mock = self.app.client_manager.identity.projects
         self.projects_mock.reset_mock()
 
         self.users_mock = self.app.client_manager.identity.users
@@ -560,32 +560,145 @@ class TestVolumeList(TestVolume):
         ), )
         self.assertEqual(datalist, tuple(data))
 
-    def test_volume_list_all_projects_option(self):
+    def test_volume_list_project(self):
         arglist = [
-            '--all-projects',
+            '--project', identity_fakes.project_name,
         ]
         verifylist = [
+            ('project', identity_fakes.project_name),
             ('long', False),
-            ('all_projects', True),
-            ('name', None),
+            ('all_projects', False),
             ('status', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        collist = [
+        collist = (
             'ID',
             'Display Name',
             'Status',
             'Size',
             'Attached to',
-        ]
-        self.assertEqual(collist, columns)
+        )
+        self.assertEqual(collist, tuple(columns))
 
         server = volume_fakes.volume_attachment_server['server_id']
         device = volume_fakes.volume_attachment_server['device']
         msg = 'Attached to %s on %s ' % (server, device)
+
+        datalist = ((
+            volume_fakes.volume_id,
+            volume_fakes.volume_name,
+            volume_fakes.volume_status,
+            volume_fakes.volume_size,
+            msg,
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_volume_list_project_domain(self):
+        arglist = [
+            '--project', identity_fakes.project_name,
+            '--project-domain', identity_fakes.domain_name,
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_name),
+            ('project_domain', identity_fakes.domain_name),
+            ('long', False),
+            ('all_projects', False),
+            ('status', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        collist = (
+            'ID',
+            'Display Name',
+            'Status',
+            'Size',
+            'Attached to',
+        )
+        self.assertEqual(collist, tuple(columns))
+
+        server = volume_fakes.volume_attachment_server['server_id']
+        device = volume_fakes.volume_attachment_server['device']
+        msg = 'Attached to %s on %s ' % (server, device)
+
+        datalist = ((
+            volume_fakes.volume_id,
+            volume_fakes.volume_name,
+            volume_fakes.volume_status,
+            volume_fakes.volume_size,
+            msg,
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_volume_list_user(self):
+        arglist = [
+            '--user', identity_fakes.user_name,
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('long', False),
+            ('all_projects', False),
+            ('status', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        collist = (
+            'ID',
+            'Display Name',
+            'Status',
+            'Size',
+            'Attached to',
+        )
+        self.assertEqual(collist, tuple(columns))
+
+        server = volume_fakes.volume_attachment_server['server_id']
+        device = volume_fakes.volume_attachment_server['device']
+        msg = 'Attached to %s on %s ' % (server, device)
+
+        datalist = ((
+            volume_fakes.volume_id,
+            volume_fakes.volume_name,
+            volume_fakes.volume_status,
+            volume_fakes.volume_size,
+            msg,
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_volume_list_user_domain(self):
+        arglist = [
+            '--user', identity_fakes.user_name,
+            '--user-domain', identity_fakes.domain_name,
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('user_domain', identity_fakes.domain_name),
+            ('long', False),
+            ('all_projects', False),
+            ('status', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        collist = (
+            'ID',
+            'Display Name',
+            'Status',
+            'Size',
+            'Attached to',
+        )
+        self.assertEqual(collist, tuple(columns))
+
+        server = volume_fakes.volume_attachment_server['server_id']
+        device = volume_fakes.volume_attachment_server['device']
+        msg = 'Attached to %s on %s ' % (server, device)
+
         datalist = ((
             volume_fakes.volume_id,
             volume_fakes.volume_name,
@@ -653,6 +766,41 @@ class TestVolumeList(TestVolume):
             'Attached to',
         )
         self.assertEqual(collist, tuple(columns))
+
+        server = volume_fakes.volume_attachment_server['server_id']
+        device = volume_fakes.volume_attachment_server['device']
+        msg = 'Attached to %s on %s ' % (server, device)
+        datalist = ((
+            volume_fakes.volume_id,
+            volume_fakes.volume_name,
+            volume_fakes.volume_status,
+            volume_fakes.volume_size,
+            msg,
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_volume_list_all_projects(self):
+        arglist = [
+            '--all-projects',
+        ]
+        verifylist = [
+            ('long', False),
+            ('all_projects', True),
+            ('name', None),
+            ('status', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        collist = [
+            'ID',
+            'Display Name',
+            'Status',
+            'Size',
+            'Attached to',
+        ]
+        self.assertEqual(collist, columns)
 
         server = volume_fakes.volume_attachment_server['server_id']
         device = volume_fakes.volume_attachment_server['device']

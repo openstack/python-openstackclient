@@ -16,7 +16,6 @@
 
 import copy
 import logging
-import os
 
 from cliff import command
 from cliff import lister
@@ -201,12 +200,6 @@ class ListVolume(lister.Lister):
     def get_parser(self, prog_name):
         parser = super(ListVolume, self).get_parser(prog_name)
         parser.add_argument(
-            '--all-projects',
-            action='store_true',
-            default=bool(int(os.environ.get("ALL_PROJECTS", 0))),
-            help='Include all projects (admin only)',
-        )
-        parser.add_argument(
             '--project',
             metavar='<project-id>',
             help='Filter results by project (name or ID) (admin only)'
@@ -221,12 +214,18 @@ class ListVolume(lister.Lister):
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='Filter results by name',
+            help='Filter results by volume name',
         )
         parser.add_argument(
             '--status',
             metavar='<status>',
             help='Filter results by status',
+        )
+        parser.add_argument(
+            '--all-projects',
+            action='store_true',
+            default=False,
+            help='Include all projects (admin only)',
         )
         parser.add_argument(
             '--long',

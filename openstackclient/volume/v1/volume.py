@@ -207,14 +207,14 @@ class ListVolume(lister.Lister):
     def get_parser(self, prog_name):
         parser = super(ListVolume, self).get_parser(prog_name)
         parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help='Filter results by volume name',
+        )
+        parser.add_argument(
             '--status',
             metavar='<status>',
             help='Filter results by status',
-        )
-        parser.add_argument(
-            '--name',
-            metavar='<name>',
-            help='Filter results by name',
         )
         parser.add_argument(
             '--all-projects',
