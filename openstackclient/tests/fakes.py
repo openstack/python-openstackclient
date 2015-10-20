@@ -17,7 +17,7 @@ import json
 import six
 import sys
 
-from keystoneclient import fixture
+from keystoneauth1 import fixture
 import requests
 
 
