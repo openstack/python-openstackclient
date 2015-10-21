@@ -37,7 +37,7 @@ import os
 import sys
 import traceback
 
-from keystoneclient import session as ksc_session
+from keystoneauth1 import session as ks_session
 
 from openstackclient.api import auth
 
@@ -226,7 +226,7 @@ def make_session(opts, **kwargs):
     )
     auth_p = auth_plugin.load_from_options(**auth_params)
 
-    session = ksc_session.Session(
+    session = ks_session.Session(
         auth=auth_p,
         **kwargs
     )

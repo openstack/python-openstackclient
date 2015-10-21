@@ -22,7 +22,7 @@ import sys
 from cliff import command
 from cliff import lister
 from cliff import show
-from keystoneclient import exceptions as ksc_exc
+from keystoneauth1 import exceptions as ks_exc
 
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
@@ -172,7 +172,7 @@ class CreateRole(show.ShowOne):
 
         try:
             role = identity_client.roles.create(name=parsed_args.name)
-        except ksc_exc.Conflict as e:
+        except ks_exc.Conflict as e:
             if parsed_args.or_show:
                 role = utils.find_resource(identity_client.roles,
                                            parsed_args.name)

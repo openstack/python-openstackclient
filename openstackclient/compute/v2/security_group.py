@@ -23,7 +23,7 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
-from keystoneclient import exceptions as ksc_exc
+from keystoneauth1 import exceptions as ks_exc
 
 try:
     from novaclient.v2 import security_group_rules
@@ -241,7 +241,7 @@ class ListSecurityGroup(lister.Lister):
         project_hash = {}
         try:
             projects = self.app.client_manager.identity.projects.list()
-        except ksc_exc.ClientException:
+        except ks_exc.ClientException:
             # This fails when the user is not an admin, just move along
             pass
         else:

@@ -11,9 +11,9 @@
 #   under the License.
 #
 
-"""Subclass of keystoneclient.session"""
+"""Subclass of keystoneauth1.session"""
 
-from keystoneclient import session
+from keystoneauth1 import session
 
 
 class TimingSession(session.Session):

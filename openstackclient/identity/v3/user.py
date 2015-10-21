@@ -22,7 +22,7 @@ import six
 from cliff import command
 from cliff import lister
 from cliff import show
-from keystoneclient import exceptions as ksc_exc
+from keystoneauth1 import exceptions as ks_exc
 
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
@@ -122,7 +122,7 @@ class CreateUser(show.ShowOne):
                 description=parsed_args.description,
                 enabled=enabled
             )
-        except ksc_exc.Conflict as e:
+        except ks_exc.Conflict as e:
             if parsed_args.or_show:
                 user = utils.find_resource(identity_client.users,
                                            parsed_args.name,

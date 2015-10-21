@@ -22,7 +22,7 @@ import sys
 from cliff import command
 from cliff import lister
 from cliff import show
-from keystoneclient import exceptions as ksc_exc
+from keystoneauth1 import exceptions as ks_exc
 
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
@@ -156,7 +156,7 @@ class CreateGroup(show.ShowOne):
                 name=parsed_args.name,
                 domain=domain,
                 description=parsed_args.description)
-        except ksc_exc.Conflict as e:
+        except ks_exc.Conflict as e:
             if parsed_args.or_show:
                 group = utils.find_resource(identity_client.groups,
                                             parsed_args.name,

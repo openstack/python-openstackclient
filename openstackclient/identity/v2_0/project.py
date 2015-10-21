@@ -21,7 +21,7 @@ import six
 from cliff import command
 from cliff import lister
 from cliff import show
-from keystoneclient import exceptions as ksc_exc
+from keystoneauth1 import exceptions as ks_exc
 
 from openstackclient.common import parseractions
 from openstackclient.common import utils
@@ -88,7 +88,7 @@ class CreateProject(show.ShowOne):
                 enabled=enabled,
                 **kwargs
             )
-        except ksc_exc.Conflict as e:
+        except ks_exc.Conflict as e:
             if parsed_args.or_show:
                 project = utils.find_resource(
                     identity_client.tenants,
@@ -264,7 +264,7 @@ class ShowProject(show.ShowOne):
                 parsed_args.project,
             )
             info.update(project._info)
-        except ksc_exc.Forbidden as e:
+        except ks_exc.Forbidden as e:
             auth_ref = self.app.client_manager.auth_ref
             if (
                 parsed_args.project == auth_ref.project_id or
