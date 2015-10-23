@@ -311,17 +311,17 @@ Migrate server to different host
 server pause
 ------------
 
-Pause server
+Pause server(s)
 
 .. program:: server pause
 .. code:: bash
 
     os server pause
-        <server>
+        <server> [<server> ...]
 
 .. describe:: <server>
 
-    Server (name or ID)
+    Server(s) to pause (name or ID)
 
 server reboot
 -------------

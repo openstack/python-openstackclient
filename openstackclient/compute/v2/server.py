@@ -915,7 +915,7 @@ class MigrateServer(command.Command):
 
 
 class PauseServer(command.Command):
-    """Pause server"""
+    """Pause server(s)"""
 
     log = logging.getLogger(__name__ + '.PauseServer')
 
@@ -924,18 +924,19 @@ class PauseServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help=_('Server (name or ID)'),
+            nargs='+',
+            help=_('Server(s) to pause (name or ID)'),
         )
         return parser
 
     @utils.log_method(log)
     def take_action(self, parsed_args):
-
         compute_client = self.app.client_manager.compute
-        utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
-        ).pause()
+        for server in parsed_args.server:
+            utils.find_resource(
+                compute_client.servers,
+                server
+            ).pause()
 
 
 class RebootServer(command.Command):

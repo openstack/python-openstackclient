@@ -172,7 +172,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``lock`` (``unlock``) - lock a server so that non-admin user won't be able to execute actions
 * ``migrate`` - move a server to a different host; ``--live`` performs a
   live migration if possible
-* ``pause`` (``unpause``) - stop a server and leave it in memory
+* ``pause`` (``unpause``) - stop one or more servers and leave them in memory
 * ``reboot`` - forcibly reboot a server
 * ``rebuild`` - rebuild a server using (most of) the same arguments as in the original create
 * ``remove`` (``add``) - remove an object from a group of objects
