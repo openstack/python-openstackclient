@@ -76,7 +76,9 @@ class TestFlavorList(TestFlavor):
 
         # Set expected values
         kwargs = {
-            'is_public': True
+            'is_public': True,
+            'limit': None,
+            'marker': None
         }
 
         self.flavors_mock.list.assert_called_with(
@@ -119,7 +121,9 @@ class TestFlavorList(TestFlavor):
 
         # Set expected values
         kwargs = {
-            'is_public': None
+            'is_public': None,
+            'limit': None,
+            'marker': None
         }
 
         self.flavors_mock.list.assert_called_with(
@@ -162,7 +166,9 @@ class TestFlavorList(TestFlavor):
 
         # Set expected values
         kwargs = {
-            'is_public': False
+            'is_public': False,
+            'limit': None,
+            'marker': None
         }
 
         self.flavors_mock.list.assert_called_with(
@@ -205,7 +211,9 @@ class TestFlavorList(TestFlavor):
 
         # Set expected values
         kwargs = {
-            'is_public': True
+            'is_public': True,
+            'limit': None,
+            'marker': None
         }
 
         self.flavors_mock.list.assert_called_with(
@@ -248,7 +256,9 @@ class TestFlavorList(TestFlavor):
 
         # Set expected values
         kwargs = {
-            'is_public': True
+            'is_public': True,
+            'limit': None,
+            'marker': None
         }
 
         self.flavors_mock.list.assert_called_with(
