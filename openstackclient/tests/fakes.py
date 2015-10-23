@@ -150,3 +150,11 @@ class FakeResponse(requests.Response):
         self._content = json.dumps(data)
         if not isinstance(self._content, six.binary_type):
             self._content = self._content.encode()
+
+
+class FakeModel(dict):
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(key)
