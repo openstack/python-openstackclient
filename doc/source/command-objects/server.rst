@@ -595,6 +595,21 @@ Ssh to server
 
     Server (name or ID)
 
+server start
+------------
+
+Start server(s)
+
+.. program:: server start
+.. code:: bash
+
+    os server start
+        <server> [<server> ...]
+
+.. describe:: <server>
+
+    Server(s) to start (name or ID)
+
 server suspend
 --------------
 
