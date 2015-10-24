@@ -1508,6 +1508,31 @@ class StartServer(command.Command):
             ).start()
 
 
+class StopServer(command.Command):
+    """Stop server(s)."""
+
+    log = logging.getLogger(__name__ + '.StopServer')
+
+    def get_parser(self, prog_name):
+        parser = super(StopServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            nargs="+",
+            help=_('Server(s) to stop (name or ID)'),
+        )
+        return parser
+
+    @utils.log_method(log)
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+        for server in parsed_args.server:
+            utils.find_resource(
+                compute_client.servers,
+                server,
+            ).stop()
+
+
 class SuspendServer(command.Command):
     """Suspend server"""
 
