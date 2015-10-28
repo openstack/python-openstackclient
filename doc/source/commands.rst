@@ -169,7 +169,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``delete`` (``create``) - delete a specific occurrence of the specified object
 * ``issue`` (``revoke``) - issue a token
 * ``list`` - display summary information about multiple objects
-* ``lock`` (``unlock``)
+* ``lock`` (``unlock``) - lock a server so that non-admin user won't be able to execute actions
 * ``migrate`` - move a server to a different host; ``--live`` performs a
   live migration if possible
 * ``pause`` (``unpause``) - stop a server and leave it in memory
@@ -184,7 +184,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``set`` (``unset``) - set a property on the object, formerly called metadata
 * ``show`` - display detailed information about the specific object
 * ``suspend`` (``resume``) - stop a server and save to disk freeing memory
-* ``unlock`` (``lock``)
+* ``unlock`` (``lock``) - unlock a server
 * ``unpause`` (``pause``) - return a paused server to running state
 * ``unrescue`` (``rescue``) - return a server to normal boot mode
 * ``unset`` (``set``) - remove an attribute of the object
