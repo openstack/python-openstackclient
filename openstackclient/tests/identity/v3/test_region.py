@@ -61,19 +61,17 @@ class TestRegionCreate(TestRegion):
             'description': identity_fakes.region_description,
             'id': identity_fakes.region_id,
             'parent_region': None,
-            'url': None,
         }
         self.regions_mock.create.assert_called_with(
             **kwargs
         )
 
-        collist = ('description', 'parent_region', 'region', 'url')
+        collist = ('description', 'parent_region', 'region')
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.region_description,
             identity_fakes.region_parent_region_id,
             identity_fakes.region_id,
-            identity_fakes.region_url,
         )
         self.assertEqual(datalist, data)
 
@@ -94,19 +92,17 @@ class TestRegionCreate(TestRegion):
             'description': None,
             'id': identity_fakes.region_id,
             'parent_region': None,
-            'url': None,
         }
         self.regions_mock.create.assert_called_with(
             **kwargs
         )
 
-        collist = ('description', 'parent_region', 'region', 'url')
+        collist = ('description', 'parent_region', 'region')
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.region_description,
             identity_fakes.region_parent_region_id,
             identity_fakes.region_id,
-            identity_fakes.region_url,
         )
         self.assertEqual(datalist, data)
 
@@ -129,54 +125,17 @@ class TestRegionCreate(TestRegion):
             'description': None,
             'id': identity_fakes.region_id,
             'parent_region': identity_fakes.region_parent_region_id,
-            'url': None,
         }
         self.regions_mock.create.assert_called_with(
             **kwargs
         )
 
-        collist = ('description', 'parent_region', 'region', 'url')
+        collist = ('description', 'parent_region', 'region')
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.region_description,
             identity_fakes.region_parent_region_id,
             identity_fakes.region_id,
-            identity_fakes.region_url,
-        )
-        self.assertEqual(datalist, data)
-
-    def test_region_create_url(self):
-        arglist = [
-            identity_fakes.region_id,
-            '--url', identity_fakes.region_url,
-        ]
-        verifylist = [
-            ('region', identity_fakes.region_id),
-            ('url', identity_fakes.region_url),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # DisplayCommandBase.take_action() returns two tuples
-        columns, data = self.cmd.take_action(parsed_args)
-
-        # Set expected values
-        kwargs = {
-            'description': None,
-            'id': identity_fakes.region_id,
-            'parent_region': None,
-            'url': identity_fakes.region_url,
-        }
-        self.regions_mock.create.assert_called_with(
-            **kwargs
-        )
-
-        collist = ('description', 'parent_region', 'region', 'url')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.region_description,
-            identity_fakes.region_parent_region_id,
-            identity_fakes.region_id,
-            identity_fakes.region_url,
         )
         self.assertEqual(datalist, data)
 
@@ -233,13 +192,12 @@ class TestRegionList(TestRegion):
         columns, data = self.cmd.take_action(parsed_args)
         self.regions_mock.list.assert_called_with()
 
-        collist = ('Region', 'Parent Region', 'Description', 'URL')
+        collist = ('Region', 'Parent Region', 'Description')
         self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.region_id,
             identity_fakes.region_parent_region_id,
             identity_fakes.region_description,
-            identity_fakes.region_url,
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -257,13 +215,12 @@ class TestRegionList(TestRegion):
         self.regions_mock.list.assert_called_with(
             parent_region_id=identity_fakes.region_parent_region_id)
 
-        collist = ('Region', 'Parent Region', 'Description', 'URL')
+        collist = ('Region', 'Parent Region', 'Description')
         self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.region_id,
             identity_fakes.region_parent_region_id,
             identity_fakes.region_description,
-            identity_fakes.region_url,
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -313,29 +270,6 @@ class TestRegionSet(TestRegion):
         # Set expected values
         kwargs = {
             'description': 'qwerty',
-        }
-        self.regions_mock.update.assert_called_with(
-            identity_fakes.region_id,
-            **kwargs
-        )
-
-    def test_region_set_url(self):
-        arglist = [
-            '--url', 'new url',
-            identity_fakes.region_id,
-        ]
-        verifylist = [
-            ('url', 'new url'),
-            ('region', identity_fakes.region_id),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
-
-        # Set expected values
-        kwargs = {
-            'url': 'new url',
         }
         self.regions_mock.update.assert_called_with(
             identity_fakes.region_id,
@@ -395,12 +329,11 @@ class TestRegionShow(TestRegion):
             identity_fakes.region_id,
         )
 
-        collist = ('description', 'parent_region', 'region', 'url')
+        collist = ('description', 'parent_region', 'region')
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.region_description,
             identity_fakes.region_parent_region_id,
             identity_fakes.region_id,
-            identity_fakes.region_url,
         )
         self.assertEqual(datalist, data)

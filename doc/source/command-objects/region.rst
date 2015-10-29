@@ -15,7 +15,6 @@ Create new region
     os region create
         [--parent-region <region-id>]
         [--description <description>]
-        [--url <url>]
         <region-id>
 
 .. option:: --parent-region <region-id>
@@ -25,10 +24,6 @@ Create new region
 .. option:: --description <description>
 
     New region description
-
-.. option:: --url <url>
-
-    New region URL
 
 .. _region_create-region-id:
 .. describe:: <region-id>
@@ -77,7 +72,6 @@ Set region properties
     os region set
         [--parent-region <region-id>]
         [--description <description>]
-        [--url <url>]
         <region-id>
 
 .. option:: --parent-region <region-id>
@@ -87,10 +81,6 @@ Set region properties
 .. option:: --description <description>
 
     New region description
-
-.. option:: --url <url>
-
-    New region URL
 
 .. _region_set-region-id:
 .. describe:: <region-id>

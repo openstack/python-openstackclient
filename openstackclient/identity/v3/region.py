@@ -48,12 +48,6 @@ class CreateRegion(show.ShowOne):
             metavar='<description>',
             help=_('New region description'),
         )
-        parser.add_argument(
-            '--url',
-            metavar='<url>',
-            help=_('New region url'),
-        )
-
         return parser
 
     @utils.log_method(log)
@@ -62,7 +56,6 @@ class CreateRegion(show.ShowOne):
 
         region = identity_client.regions.create(
             id=parsed_args.region,
-            url=parsed_args.url,
             parent_region=parsed_args.parent_region,
             description=parsed_args.description,
         )
@@ -117,8 +110,8 @@ class ListRegion(lister.Lister):
         if parsed_args.parent_region:
             kwargs['parent_region_id'] = parsed_args.parent_region
 
-        columns_headers = ('Region', 'Parent Region', 'Description', 'URL')
-        columns = ('ID', 'Parent Region Id', 'Description', 'URL')
+        columns_headers = ('Region', 'Parent Region', 'Description')
+        columns = ('ID', 'Parent Region Id', 'Description')
 
         data = identity_client.regions.list(**kwargs)
         return (columns_headers,
@@ -150,25 +143,16 @@ class SetRegion(command.Command):
             metavar='<description>',
             help=_('New region description'),
         )
-        parser.add_argument(
-            '--url',
-            metavar='<url>',
-            help=_('New region url'),
-        )
         return parser
 
     @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        if (not parsed_args.url
-                and not parsed_args.parent_region
-                and not parsed_args.description):
+        if not parsed_args.parent_region and not parsed_args.description:
             return
 
         kwargs = {}
-        if parsed_args.url:
-            kwargs['url'] = parsed_args.url
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
         if parsed_args.parent_region:

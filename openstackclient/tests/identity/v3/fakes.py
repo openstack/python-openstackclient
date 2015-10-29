@@ -123,13 +123,11 @@ PROJECT_2 = {
 }
 
 region_id = 'region_one'
-region_url = 'http://localhost:1111'
 region_parent_region_id = 'region_two'
 region_description = 'region one'
 
 REGION = {
     'id': region_id,
-    'url': region_url,
     'description': region_description,
     'parent_region_id': region_parent_region_id,
     'links': base_url + 'regions/' + region_id,
