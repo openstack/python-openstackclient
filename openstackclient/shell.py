@@ -30,8 +30,8 @@ from oslo_utils import strutils
 import openstackclient
 from openstackclient.common import clientmanager
 from openstackclient.common import commandmanager
-from openstackclient.common import context
 from openstackclient.common import exceptions as exc
+from openstackclient.common import logs
 from openstackclient.common import timing
 from openstackclient.common import utils
 
@@ -103,7 +103,7 @@ class OpenStackShell(app.App):
 
     def configure_logging(self):
         """Configure logging for the app."""
-        self.log_configurator = context.LogConfigurator(self.options)
+        self.log_configurator = logs.LogConfigurator(self.options)
         self.dump_stack_trace = self.log_configurator.dump_trace
 
     def run(self, argv):
@@ -249,8 +249,6 @@ class OpenStackShell(app.App):
             cloud=self.options.cloud,
             argparse=self.options,
         )
-        if self.options.debug is not None:
-            self.options.debug = False
 
         self.log_configurator.configure(self.cloud)
         self.dump_stack_trace = self.log_configurator.dump_trace
