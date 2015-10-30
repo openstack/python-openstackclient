@@ -241,10 +241,16 @@ class OpenStackShell(app.App):
                 },
             )
 
+        # TODO(thowe): Change cliff so the default value for debug
+        # can be set to None.
+        if not self.options.debug:
+            self.options.debug = None
         self.cloud = cc.get_one_cloud(
             cloud=self.options.cloud,
             argparse=self.options,
         )
+        if self.options.debug is not None:
+            self.options.debug = False
 
         self.log_configurator.configure(self.cloud)
         self.dump_stack_trace = self.log_configurator.dump_trace
