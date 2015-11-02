@@ -311,7 +311,7 @@ class TestServerDelete(TestServer):
             compute_fakes.server_id,
         ]
         verifylist = [
-            ('servers', [compute_fakes.server_id]),
+            ('server', [compute_fakes.server_id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -328,7 +328,7 @@ class TestServerDelete(TestServer):
             compute_fakes.server_id, '--wait'
         ]
         verifylist = [
-            ('servers', [compute_fakes.server_id]),
+            ('server', [compute_fakes.server_id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -351,7 +351,7 @@ class TestServerDelete(TestServer):
             compute_fakes.server_id, '--wait'
         ]
         verifylist = [
-            ('servers', [compute_fakes.server_id]),
+            ('server', [compute_fakes.server_id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

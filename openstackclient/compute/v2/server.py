@@ -607,7 +607,7 @@ class DeleteServer(command.Command):
     def get_parser(self, prog_name):
         parser = super(DeleteServer, self).get_parser(prog_name)
         parser.add_argument(
-            'servers',
+            'server',
             metavar='<server>',
             nargs="+",
             help=_('Server(s) to delete (name or ID)'),
@@ -622,7 +622,7 @@ class DeleteServer(command.Command):
     @utils.log_method(log)
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        for server in parsed_args.servers:
+        for server in parsed_args.server:
             server_obj = utils.find_resource(
                 compute_client.servers, server)
             compute_client.servers.delete(server_obj.id)
