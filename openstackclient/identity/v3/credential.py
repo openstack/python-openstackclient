@@ -17,7 +17,6 @@
 
 import logging
 import six
-import sys
 
 from cliff import command
 from cliff import lister
@@ -130,17 +129,20 @@ class SetCredential(command.Command):
         parser.add_argument(
             '--user',
             metavar='<user>',
+            required=True,
             help='Name or ID of user that owns the credential',
         )
         parser.add_argument(
             '--type',
             metavar='<type>',
             choices=['ec2', 'cert'],
+            required=True,
             help='New credential type',
         )
         parser.add_argument(
             '--data',
             metavar='<data>',
+            required=True,
             help='New credential data',
         )
         parser.add_argument(
@@ -153,25 +155,22 @@ class SetCredential(command.Command):
     @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        kwargs = {}
-        if parsed_args.user:
-            user_id = utils.find_resource(identity_client.users,
-                                          parsed_args.user).id
-            if user_id:
-                kwargs['user'] = user_id
-        if parsed_args.type:
-            kwargs['type'] = parsed_args.type
-        if parsed_args.data:
-            kwargs['data'] = parsed_args.data
+
+        user_id = utils.find_resource(identity_client.users,
+                                      parsed_args.user).id
+
         if parsed_args.project:
             project = utils.find_resource(identity_client.projects,
                                           parsed_args.project).id
-            kwargs['project'] = project
+        else:
+            project = None
 
-        if not kwargs:
-            sys.stdout.write("Credential not updated, no arguments present")
-            return
-        identity_client.credentials.update(parsed_args.credential, **kwargs)
+        identity_client.credentials.update(parsed_args.credential,
+                                           user=user_id,
+                                           type=parsed_args.type,
+                                           blob=parsed_args.data,
+                                           project=project)
+
         return
 
 
