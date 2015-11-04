@@ -9,14 +9,13 @@
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: python-openstackclient 1.7.1.dev7\n"
+"Project-Id-Version: python-openstackclient 1.8.1.dev15\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-10-01 06:12+0000\n"
+"POT-Creation-Date: 2015-11-04 06:04+0000\n"
 "PO-Revision-Date: 2015-09-19 07:10+0000\n"
 "Last-Translator: Andreas Jaeger <jaegerandi@gmail.com>\n"
 "Language: de\n"
-"Language-Team: German (http://www.transifex.com/openstack/python-"
-"openstackclient/language/de/)\n"
+"Language-Team: German\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -279,9 +278,6 @@ msgstr "Neue Regionskennung"
 
 msgid "New region description"
 msgstr "Beschreibung des neuen Bereichs"
-
-msgid "New region url"
-msgstr "URL des neuen Bereichs"
 
 msgid "New role name"
 msgstr "Name der neuen Rolle"

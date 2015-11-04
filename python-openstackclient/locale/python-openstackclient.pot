@@ -7,16 +7,16 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: python-openstackclient 1.6.1.dev43\n"
+"Project-Id-Version: python-openstackclient 1.8.1.dev15\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-09-11 06:10+0000\n"
+"POT-Creation-Date: 2015-11-04 06:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.0\n"
+"Generated-By: Babel 2.1.1\n"
 
 #: openstackclient/api/auth.py:144
 msgid "Set a username with --os-username, OS_USERNAME, or auth.username\n"
@@ -756,32 +756,27 @@ msgid "Parent region ID"
 msgstr ""
 
 #: openstackclient/identity/v3/region.py:49
-#: openstackclient/identity/v3/region.py:151
+#: openstackclient/identity/v3/region.py:144
 msgid "New region description"
 msgstr ""
 
-#: openstackclient/identity/v3/region.py:54
-#: openstackclient/identity/v3/region.py:156
-msgid "New region url"
-msgstr ""
-
-#: openstackclient/identity/v3/region.py:86
+#: openstackclient/identity/v3/region.py:79
 msgid "Region ID to delete"
 msgstr ""
 
-#: openstackclient/identity/v3/region.py:108
+#: openstackclient/identity/v3/region.py:101
 msgid "Filter by parent region ID"
 msgstr ""
 
-#: openstackclient/identity/v3/region.py:141
+#: openstackclient/identity/v3/region.py:134
 msgid "Region to modify"
 msgstr ""
 
-#: openstackclient/identity/v3/region.py:146
+#: openstackclient/identity/v3/region.py:139
 msgid "New parent region ID"
 msgstr ""
 
-#: openstackclient/identity/v3/region.py:191
+#: openstackclient/identity/v3/region.py:175
 msgid "Region to display"
 msgstr ""
 
