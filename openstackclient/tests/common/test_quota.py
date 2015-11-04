@@ -17,6 +17,7 @@ import mock
 from openstackclient.common import quota
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests import fakes
+from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
 
 
 class FakeQuotaResource(fakes.FakeResource):
@@ -45,6 +46,8 @@ class TestQuota(compute_fakes.TestComputev2):
         self.app.client_manager.volume = volume_mock
         self.volume_quotas_mock = volume_mock.quotas
         self.volume_quotas_mock.reset_mock()
+        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock.reset_mock()
 
 
 class TestQuotaSet(TestQuota):
@@ -76,6 +79,12 @@ class TestQuotaSet(TestQuota):
             loaded=True,
         )
 
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
         self.cmd = quota.SetQuota(self.app, None)
 
     def test_quota_set(self):
@@ -84,14 +93,14 @@ class TestQuotaSet(TestQuota):
             '--fixed-ips', str(compute_fakes.fix_ip_num),
             '--injected-files', str(compute_fakes.injected_file_num),
             '--key-pairs', str(compute_fakes.key_pair_num),
-            compute_fakes.project_name,
+            identity_fakes.project_name,
         ]
         verifylist = [
             ('floating_ips', compute_fakes.floating_ip_num),
             ('fixed_ips', compute_fakes.fix_ip_num),
             ('injected_files', compute_fakes.injected_file_num),
             ('key_pairs', compute_fakes.key_pair_num),
-            ('project', compute_fakes.project_name),
+            ('project', identity_fakes.project_name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -105,14 +114,17 @@ class TestQuotaSet(TestQuota):
             'key_pairs': compute_fakes.key_pair_num,
         }
 
-        self.quotas_mock.update.assert_called_with('project_test', **kwargs)
+        self.quotas_mock.update.assert_called_with(
+            identity_fakes.project_id,
+            **kwargs
+        )
 
     def test_quota_set_volume(self):
         arglist = [
             '--gigabytes', str(compute_fakes.floating_ip_num),
             '--snapshots', str(compute_fakes.fix_ip_num),
             '--volumes', str(compute_fakes.injected_file_num),
-            compute_fakes.project_name,
+            identity_fakes.project_name,
         ]
         verifylist = [
             ('gigabytes', compute_fakes.floating_ip_num),
@@ -130,5 +142,7 @@ class TestQuotaSet(TestQuota):
             'volumes': compute_fakes.injected_file_num,
         }
 
-        self.volume_quotas_mock.update.assert_called_with('project_test',
-                                                          **kwargs)
+        self.volume_quotas_mock.update.assert_called_with(
+            identity_fakes.project_id,
+            **kwargs
+        )
