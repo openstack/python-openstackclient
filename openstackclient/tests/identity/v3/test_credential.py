@@ -14,7 +14,7 @@ import json
 
 from openstackclient.identity.v3 import credential
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
-from openstackclient.tests.utils import ParserException
+from openstackclient.tests import utils
 
 
 class TestCredential(identity_fakes.TestIdentityv3):
@@ -55,7 +55,7 @@ class TestCredentialSet(TestCredential):
             identity_fakes.credential_id,
         ]
 
-        self.assertRaises(ParserException,
+        self.assertRaises(utils.ParserException,
                           self.check_parser, self.cmd, arglist, [])
 
     def test_credential_set_missing_user(self):
@@ -65,7 +65,7 @@ class TestCredentialSet(TestCredential):
             identity_fakes.credential_id,
         ]
 
-        self.assertRaises(ParserException,
+        self.assertRaises(utils.ParserException,
                           self.check_parser, self.cmd, arglist, [])
 
     def test_credential_set_missing_type(self):
@@ -75,7 +75,7 @@ class TestCredentialSet(TestCredential):
             identity_fakes.credential_id,
         ]
 
-        self.assertRaises(ParserException,
+        self.assertRaises(utils.ParserException,
                           self.check_parser, self.cmd, arglist, [])
 
     def test_credential_set_missing_data(self):
@@ -85,7 +85,7 @@ class TestCredentialSet(TestCredential):
             identity_fakes.credential_id,
         ]
 
-        self.assertRaises(ParserException,
+        self.assertRaises(utils.ParserException,
                           self.check_parser, self.cmd, arglist, [])
 
     def test_credential_set_valid(self):
