@@ -183,7 +183,8 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``save`` - download an object locally
 * ``set`` (``unset``) - set a property on the object, formerly called metadata
 * ``show`` - display detailed information about the specific object
-* ``start`` - start one or more servers
+* ``start`` (``stop``) - start one or more servers
+* ``stop`` (``start``) - stop one or more servers
 * ``suspend`` (``resume``) - stop a server and save to disk freeing memory
 * ``unlock`` (``lock``) - unlock a server
 * ``unpause`` (``pause``) - return a paused server to running state

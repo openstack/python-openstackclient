@@ -610,6 +610,21 @@ Start server(s)
 
     Server(s) to start (name or ID)
 
+server stop
+-----------
+
+Stop server(s)
+
+.. program:: server stop
+.. code:: bash
+
+    os server stop
+        <server> [<server> ...]
+
+.. describe:: <server>
+
+    Server(s) to stop (name or ID)
+
 server suspend
 --------------
 
