@@ -306,6 +306,18 @@ class TestFindResource(test_utils.TestCase):
         self.manager.get.assert_called_with(self.name)
         self.manager.find.assert_called_with(name=self.name)
 
+    def test_find_resource_list_forbidden(self):
+        self.manager.get = mock.Mock(side_effect=Exception('Boom!'))
+        self.manager.find = mock.Mock(side_effect=Exception('Boom!'))
+        self.manager.list = mock.Mock(
+            side_effect=exceptions.Forbidden(403)
+        )
+        self.assertRaises(exceptions.Forbidden,
+                          utils.find_resource,
+                          self.manager,
+                          self.name)
+        self.manager.list.assert_called_with()
+
     def test_find_resource_find_no_unique(self):
         self.manager.get = mock.Mock(side_effect=Exception('Boom!'))
         self.manager.find = mock.Mock(side_effect=NoUniqueMatch())
