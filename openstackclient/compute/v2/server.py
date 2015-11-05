@@ -1483,6 +1483,31 @@ class SshServer(command.Command):
         os.system(cmd % (login, ip_address))
 
 
+class StartServer(command.Command):
+    """Start server(s)."""
+
+    log = logging.getLogger(__name__ + '.StartServer')
+
+    def get_parser(self, prog_name):
+        parser = super(StartServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            nargs="+",
+            help=_('Server(s) to start (name or ID)'),
+        )
+        return parser
+
+    @utils.log_method(log)
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+        for server in parsed_args.server:
+            utils.find_resource(
+                compute_client.servers,
+                server,
+            ).start()
+
+
 class SuspendServer(command.Command):
     """Suspend server"""
 
