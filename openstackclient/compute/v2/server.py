@@ -735,7 +735,7 @@ class ListServer(lister.Lister):
 
         user_id = None
         if parsed_args.user:
-            user_id = identity_common.find_project(
+            user_id = identity_common.find_user(
                 identity_client,
                 parsed_args.user,
                 parsed_args.user_domain,
