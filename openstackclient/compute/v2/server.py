@@ -56,6 +56,29 @@ def _format_servers_list_networks(networks):
     return '; '.join(output)
 
 
+def _format_servers_list_power_state(state):
+    """Return a formatted string of a server's power state
+
+    :param state: the power state number of a server
+    :rtype: a string mapped to the power state number
+    """
+    power_states = [
+        'NOSTATE',      # 0x00
+        'Running',      # 0x01
+        '',             # 0x02
+        'Paused',       # 0x03
+        'Shutdown',     # 0x04
+        '',             # 0x05
+        'Crashed',      # 0x06
+        'Suspended'     # 0x07
+    ]
+
+    try:
+        return power_states[state]
+    except Exception:
+        return 'N/A'
+
+
 def _get_ip_address(addresses, address_type, ip_address_family):
         # Old style addresses
         if address_type in addresses:
@@ -762,6 +785,8 @@ class ListServer(lister.Lister):
                 'ID',
                 'Name',
                 'Status',
+                'OS-EXT-STS:task_state',
+                'OS-EXT-STS:power_state',
                 'Networks',
                 'OS-EXT-AZ:availability_zone',
                 'OS-EXT-SRV-ATTR:host',
@@ -771,18 +796,32 @@ class ListServer(lister.Lister):
                 'ID',
                 'Name',
                 'Status',
+                'Task State',
+                'Power State',
                 'Networks',
                 'Availability Zone',
                 'Host',
                 'Properties',
             )
             mixed_case_fields = [
+                'OS-EXT-STS:task_state',
+                'OS-EXT-STS:power_state',
                 'OS-EXT-AZ:availability_zone',
                 'OS-EXT-SRV-ATTR:host',
             ]
         else:
-            columns = ('ID', 'Name', 'Status', 'Networks')
-            column_headers = columns
+            columns = (
+                'ID',
+                'Name',
+                'Status',
+                'Networks',
+            )
+            column_headers = (
+                'ID',
+                'Name',
+                'Status',
+                'Networks',
+            )
             mixed_case_fields = []
         data = compute_client.servers.list(search_opts=search_opts)
         return (column_headers,
@@ -790,6 +829,8 @@ class ListServer(lister.Lister):
                     s, columns,
                     mixed_case_fields=mixed_case_fields,
                     formatters={
+                        'OS-EXT-STS:power_state':
+                            _format_servers_list_power_state,
                         'Networks': _format_servers_list_networks,
                         'Metadata': utils.format_dict,
                     },
