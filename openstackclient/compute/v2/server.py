@@ -43,7 +43,7 @@ from openstackclient.network import common
 def _format_servers_list_networks(networks):
     """Return a formatted string of a server's networks
 
-    :param server: a Server.networks field
+    :param networks: a Server.networks field
     :rtype: a string of formatted network addresses
     """
     output = []
