@@ -280,7 +280,7 @@ class OpenStackShell(app.App):
         for mod in clientmanager.PLUGIN_MODULES:
             default_version = getattr(mod, 'DEFAULT_API_VERSION', None)
             option = mod.API_VERSION_OPTION.replace('os_', '')
-            version_opt = self.cloud.config.get(option, default_version)
+            version_opt = str(self.cloud.config.get(option, default_version))
             if version_opt:
                 api = mod.API_NAME
                 self.api_version[api] = version_opt
