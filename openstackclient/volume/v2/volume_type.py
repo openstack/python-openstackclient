@@ -73,9 +73,9 @@ class CreateVolumeType(show.ShowOne):
 
         kwargs = {}
         if parsed_args.public:
-            kwargs['public'] = True
+            kwargs['is_public'] = True
         if parsed_args.private:
-            kwargs['private'] = True
+            kwargs['is_public'] = False
 
         volume_type = volume_client.volume_types.create(
             parsed_args.name,

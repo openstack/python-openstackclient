@@ -73,7 +73,7 @@ class TestTypeCreate(TestType):
         self.types_mock.create.assert_called_with(
             volume_fakes.type_name,
             description=volume_fakes.type_description,
-            public=True,
+            is_public=True,
         )
 
         collist = (
@@ -93,7 +93,7 @@ class TestTypeCreate(TestType):
         arglist = [
             volume_fakes.type_name,
             "--description", volume_fakes.type_description,
-            "--private"
+            "--private",
         ]
         verifylist = [
             ("name", volume_fakes.type_name),
@@ -107,7 +107,7 @@ class TestTypeCreate(TestType):
         self.types_mock.create.assert_called_with(
             volume_fakes.type_name,
             description=volume_fakes.type_description,
-            private=True,
+            is_public=False,
         )
 
         collist = (
