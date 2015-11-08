@@ -85,10 +85,10 @@ class TestServerCreate(TestServer):
 
     def test_server_create_no_options(self):
         arglist = [
-            compute_fakes.server_id,
+            compute_fakes.server_name,
         ]
         verifylist = [
-            ('server_name', compute_fakes.server_id),
+            ('server_name', compute_fakes.server_name),
         ]
         try:
             # Missing required args should bail here
@@ -100,13 +100,13 @@ class TestServerCreate(TestServer):
         arglist = [
             '--image', 'image1',
             '--flavor', 'flavor1',
-            compute_fakes.server_id,
+            compute_fakes.server_name,
         ]
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
             ('config_drive', False),
-            ('server_name', compute_fakes.server_id),
+            ('server_name', compute_fakes.server_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -131,7 +131,7 @@ class TestServerCreate(TestServer):
         )
         # ServerManager.create(name, image, flavor, **kwargs)
         self.servers_mock.create.assert_called_with(
-            compute_fakes.server_id,
+            compute_fakes.server_name,
             self.image,
             self.flavor,
             **kwargs
@@ -154,14 +154,14 @@ class TestServerCreate(TestServer):
             '--flavor', 'flavor1',
             '--nic', 'net-id=net1',
             '--nic', 'port-id=port1',
-            compute_fakes.server_id,
+            compute_fakes.server_name,
         ]
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
             ('nic', ['net-id=net1', 'port-id=port1']),
             ('config_drive', False),
-            ('server_name', compute_fakes.server_id),
+            ('server_name', compute_fakes.server_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -207,7 +207,7 @@ class TestServerCreate(TestServer):
         )
         # ServerManager.create(name, image, flavor, **kwargs)
         self.servers_mock.create.assert_called_with(
-            compute_fakes.server_id,
+            compute_fakes.server_name,
             self.image,
             self.flavor,
             **kwargs
@@ -234,14 +234,14 @@ class TestServerCreate(TestServer):
             '--image', 'image1',
             '--flavor', 'flavor1',
             '--user-data', 'userdata.sh',
-            compute_fakes.server_id,
+            compute_fakes.server_name,
         ]
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
             ('user_data', 'userdata.sh'),
             ('config_drive', False),
-            ('server_name', compute_fakes.server_id),
+            ('server_name', compute_fakes.server_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -272,7 +272,7 @@ class TestServerCreate(TestServer):
         )
         # ServerManager.create(name, image, flavor, **kwargs)
         self.servers_mock.create.assert_called_with(
-            compute_fakes.server_id,
+            compute_fakes.server_name,
             self.image,
             self.flavor,
             **kwargs
