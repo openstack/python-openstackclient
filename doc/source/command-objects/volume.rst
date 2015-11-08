@@ -2,7 +2,7 @@
 volume
 ======
 
-Volume v1, v2
+Block Storage v1, v2
 
 volume create
 -------------

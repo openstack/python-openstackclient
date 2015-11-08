@@ -25,7 +25,7 @@ from openstackclient.identity import common as identity_common
 
 
 class ShowLimits(lister.Lister):
-    """Show compute and volume limits"""
+    """Show compute and block storage limits"""
 
     log = logging.getLogger(__name__ + '.ShowLimits')
 

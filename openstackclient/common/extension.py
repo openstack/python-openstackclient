@@ -49,7 +49,7 @@ class ListExtension(lister.Lister):
             '--volume',
             action='store_true',
             default=False,
-            help='List extensions for the Volume API')
+            help='List extensions for the Block Storage API')
         parser.add_argument(
             '--long',
             action='store_true',
@@ -95,7 +95,7 @@ class ListExtension(lister.Lister):
             try:
                 data += volume_client.list_extensions.show_all()
             except Exception:
-                message = "Extensions list not supported by Volume API"
+                message = "Extensions list not supported by Block Storage API"
                 self.log.warning(message)
 
         # Resource classes for the above

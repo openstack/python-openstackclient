@@ -171,7 +171,7 @@ project support.  The object names may consist of multiple words to compose a
 unique name.  Occasionally when multiple APIs have a common name with common
 overlapping purposes there will be options to select which object to use, or
 the API resources will be merged, as in the ``quota`` object that has options
-referring to both Compute and Volume quotas.
+referring to both Compute and Block Storage quotas.
 
 Command Actions
 ---------------

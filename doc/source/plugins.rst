@@ -11,8 +11,9 @@ Adoption
 ========
 
 OpenStackClient promises to provide first class support for the following
-OpenStack services: Compute, Identity, Image, Storage, Volume and Network.
-These services are considered essential to any OpenStack deployment.
+OpenStack services: Compute, Identity, Image, Object Storage, Block Storage
+and Network. These services are considered essential to any OpenStack
+deployment.
 
 Other OpenStack services, such as Orchestration or Telemetry may create an
 OpenStackClient plugin. The source code will not be hosted by
