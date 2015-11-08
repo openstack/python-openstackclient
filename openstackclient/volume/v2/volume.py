@@ -304,9 +304,9 @@ class ListVolume(lister.Lister):
 
         user_id = None
         if parsed_args.user:
-            user_id = identity_common.find_project(identity_client,
-                                                   parsed_args.user,
-                                                   parsed_args.user_domain)
+            user_id = identity_common.find_user(identity_client,
+                                                parsed_args.user,
+                                                parsed_args.user_domain)
 
         search_opts = {
             'all_tenants': parsed_args.all_projects,
