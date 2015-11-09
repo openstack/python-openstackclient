@@ -65,3 +65,18 @@ class RangeAction(argparse.Action):
             # Too many values
             msg = "Invalid range, too many values"
             raise argparse.ArgumentError(self, msg)
+
+
+class NonNegativeAction(argparse.Action):
+    """A custom action to check whether the value is non-negative or not
+
+    Ensures the value is >= 0.
+    """
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        try:
+            assert(int(values) >= 0)
+            setattr(namespace, self.dest, values)
+        except Exception:
+            msg = "%s expected a non-negative integer" % (str(option_string))
+            raise argparse.ArgumentTypeError(self, msg)

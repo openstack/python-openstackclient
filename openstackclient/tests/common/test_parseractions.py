@@ -102,3 +102,58 @@ class TestKeyValueAction(utils.TestCase):
         expect = {'green': '100%'}
         self.assertDictEqual(expect, actual)
         self.assertEqual(None, failhere)
+
+
+class TestNonNegativeAction(utils.TestCase):
+    def test_negative_values(self):
+        parser = argparse.ArgumentParser()
+
+        # Set up our typical usage
+        parser.add_argument(
+            '--foo',
+            metavar='<foo>',
+            type=int,
+            action=parseractions.NonNegativeAction,
+        )
+
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            parser.parse_args,
+            "--foo -1".split()
+        )
+
+    def test_zero_values(self):
+        parser = argparse.ArgumentParser()
+
+        # Set up our typical usage
+        parser.add_argument(
+            '--foo',
+            metavar='<foo>',
+            type=int,
+            action=parseractions.NonNegativeAction,
+        )
+
+        results = parser.parse_args(
+            '--foo 0'.split()
+        )
+
+        actual = getattr(results, 'foo', None)
+        self.assertEqual(actual, 0)
+
+    def test_positive_values(self):
+        parser = argparse.ArgumentParser()
+
+        # Set up our typical usage
+        parser.add_argument(
+            '--foo',
+            metavar='<foo>',
+            type=int,
+            action=parseractions.NonNegativeAction,
+        )
+
+        results = parser.parse_args(
+            '--foo 1'.split()
+        )
+
+        actual = getattr(results, 'foo', None)
+        self.assertEqual(actual, 1)
