@@ -18,10 +18,11 @@ from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
 
-DEFAULT_API_VERSION = '2'
+DEFAULT_API_VERSION = '2.0'
 API_VERSION_OPTION = 'os_network_api_version'
 API_NAME = "network"
 API_VERSIONS = {
+    "2.0": "neutronclient.v2_0.client.Client",
     "2": "neutronclient.v2_0.client.Client",
 }
 # Translate our API version to auth plugin version prefix
@@ -32,6 +33,7 @@ API_VERSION_MAP = {
 
 NETWORK_API_TYPE = 'network'
 NETWORK_API_VERSIONS = {
+    '2.0': 'openstackclient.api.network_v2.APIv2',
     '2': 'openstackclient.api.network_v2.APIv2',
 }
 
