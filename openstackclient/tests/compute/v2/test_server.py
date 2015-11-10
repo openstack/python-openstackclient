@@ -24,6 +24,7 @@ from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests import fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
 from openstackclient.tests import utils
+from openstackclient.tests.volume.v2 import fakes as volume_fakes
 
 
 class TestServer(compute_fakes.TestComputev2):
@@ -46,6 +47,10 @@ class TestServer(compute_fakes.TestComputev2):
         # Get a shortcut to the ImageManager Mock
         self.images_mock = self.app.client_manager.image.images
         self.images_mock.reset_mock()
+
+        # Get a shortcut to the VolumeManager Mock
+        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock.reset_mock()
 
 
 class TestServerCreate(TestServer):
@@ -79,6 +84,13 @@ class TestServerCreate(TestServer):
             loaded=True,
         )
         self.flavors_mock.get.return_value = self.flavor
+
+        self.volume = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.VOLUME),
+            loaded=True,
+        )
+        self.volumes_mock.get.return_value = self.volume
 
         # Get the command object to test
         self.cmd = server.CreateServer(self.app, None)
@@ -266,6 +278,67 @@ class TestServerCreate(TestServer):
             key_name=None,
             availability_zone=None,
             block_device_mapping={},
+            nics=[],
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            compute_fakes.server_name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        collist = ('addresses', 'flavor', 'id', 'name', 'properties')
+        self.assertEqual(collist, columns)
+        datalist = (
+            '',
+            'Large ()',
+            compute_fakes.server_id,
+            compute_fakes.server_name,
+            '',
+        )
+        self.assertEqual(datalist, data)
+
+    def test_server_create_with_block_device_mapping(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', compute_fakes.flavor_id,
+            '--block-device-mapping', compute_fakes.block_device_mapping,
+            compute_fakes.server_name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', compute_fakes.flavor_id),
+            ('block_device_mapping', [compute_fakes.block_device_mapping]),
+            ('config_drive', False),
+            ('server_name', compute_fakes.server_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # CreateServer.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        real_volume_mapping = (
+            (compute_fakes.block_device_mapping.split('=', 1)[1]).replace(
+                volume_fakes.volume_name,
+                volume_fakes.volume_id))
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping={
+                'vda': real_volume_mapping
+            },
             nics=[],
             scheduler_hints={},
             config_drive=None,

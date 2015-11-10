@@ -20,6 +20,7 @@ from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
 from openstackclient.tests.network.v2 import fakes as network_fakes
 from openstackclient.tests import utils
+from openstackclient.tests.volume.v2 import fakes as volume_fakes
 
 
 server_id = 'serv1'
@@ -80,6 +81,8 @@ QUOTA = {
 QUOTA_columns = tuple(sorted(QUOTA))
 QUOTA_data = tuple(QUOTA[x] for x in sorted(QUOTA))
 
+block_device_mapping = 'vda=' + volume_fakes.volume_name + ':::0'
+
 
 class FakeComputev2Client(object):
     def __init__(self, **kwargs):
@@ -95,6 +98,8 @@ class FakeComputev2Client(object):
         self.flavors.resource_class = fakes.FakeResource(None, {})
         self.quotas = mock.Mock()
         self.quotas.resource_class = fakes.FakeResource(None, {})
+        self.volumes = mock.Mock()
+        self.volumes.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
@@ -119,6 +124,11 @@ class TestComputev2(utils.TestCommand):
         )
 
         self.app.client_manager.network = network_fakes.FakeNetworkV2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
+        self.app.client_manager.volume = volume_fakes.FakeVolumeClient(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
