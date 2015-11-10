@@ -165,7 +165,7 @@ Delete server(s)
 
 .. describe:: <server>
 
-    Server to delete (name or ID)
+    Server(s) to delete (name or ID)
 
 server list
 -----------
