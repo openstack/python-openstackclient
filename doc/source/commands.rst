@@ -166,7 +166,7 @@ Those actions with an opposite action are noted in parens if applicable.
   is built in the order of ``container add object <container> <object>``,
   the positional arguments appear in the same order
 * ``create`` (``delete``) - create a new occurrence of the specified object
-* ``delete`` (``create``) - delete a specific occurrence of the specified object
+* ``delete`` (``create``) - delete specific occurrences of the specified objects
 * ``issue`` (``revoke``) - issue a token
 * ``list`` - display summary information about multiple objects
 * ``lock`` (``unlock``) - lock a server so that non-admin user won't be able to execute actions
