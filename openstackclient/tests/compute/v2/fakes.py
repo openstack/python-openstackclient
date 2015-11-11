@@ -25,6 +25,8 @@ from openstackclient.tests import utils
 server_id = 'serv1'
 server_name = 'waiter'
 
+service_id = '1'
+
 SERVER = {
     'id': server_id,
     'name': server_name,
@@ -85,6 +87,8 @@ class FakeComputev2Client(object):
         self.images.resource_class = fakes.FakeResource(None, {})
         self.servers = mock.Mock()
         self.servers.resource_class = fakes.FakeResource(None, {})
+        self.services = mock.Mock()
+        self.services.resource_class = fakes.FakeResource(None, {})
         self.extensions = mock.Mock()
         self.extensions.resource_class = fakes.FakeResource(None, {})
         self.flavors = mock.Mock()
