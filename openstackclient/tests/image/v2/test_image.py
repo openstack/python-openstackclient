@@ -238,10 +238,8 @@ class TestAddProjectToImage(TestImage):
             copy.deepcopy(image_fakes.IMAGE),
             loaded=True,
         )
-        self.image_members_mock.create.return_value = fakes.FakeResource(
-            None,
+        self.image_members_mock.create.return_value = fakes.FakeModel(
             copy.deepcopy(image_fakes.MEMBER),
-            loaded=True,
         )
         self.project_mock.get.return_value = fakes.FakeResource(
             None,

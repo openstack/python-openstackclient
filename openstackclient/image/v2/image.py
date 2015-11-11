@@ -105,7 +105,7 @@ class AddProjectToImage(show.ShowOne):
             project_id,
         )
 
-        return zip(*sorted(six.iteritems(image_member._info)))
+        return zip(*sorted(six.iteritems(image_member)))
 
 
 class CreateImage(show.ShowOne):
