@@ -183,10 +183,18 @@ class ShowUsage(show.ShowOne):
             ))
 
         info = {}
-        info['Servers'] = len(usage.server_usages)
-        info['RAM MB-Hours'] = float("%.2f" % usage.total_memory_mb_usage)
-        info['CPU Hours'] = float("%.2f" % usage.total_vcpus_usage)
-        info['Disk GB-Hours'] = float("%.2f" % usage.total_local_gb_usage)
+        info['Servers'] = (
+            len(usage.server_usages)
+            if hasattr(usage, "server_usages") else None)
+        info['RAM MB-Hours'] = (
+            float("%.2f" % usage.total_memory_mb_usage)
+            if hasattr(usage, "total_memory_mb_usage") else None)
+        info['CPU Hours'] = (
+            float("%.2f" % usage.total_vcpus_usage)
+            if hasattr(usage, "total_vcpus_usage") else None)
+        info['Disk GB-Hours'] = (
+            float("%.2f" % usage.total_local_gb_usage)
+            if hasattr(usage, "total_local_gb_usage") else None)
         return zip(*sorted(six.iteritems(info)))
 
 
