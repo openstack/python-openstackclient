@@ -37,6 +37,7 @@ Developer Documentation
    :maxdepth: 1
 
    developing
+   command-options
 
 Project Goals
 -------------
