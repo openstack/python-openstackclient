@@ -245,7 +245,7 @@ class ListVolume(lister.Lister):
         def _format_attach(attachments):
             """Return a formatted string of a volume's attached instances
 
-            :param volume: a volume.attachments field
+            :param attachments: a volume.attachments field
             :rtype: a string of formatted instances
             """
 
