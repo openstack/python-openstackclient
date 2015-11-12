@@ -112,7 +112,7 @@ class CreateImage(show.ShowOne):
     """Create/upload an image"""
 
     log = logging.getLogger(__name__ + ".CreateImage")
-    deadopts = ('owner', 'size', 'location', 'copy-from', 'checksum', 'store')
+    deadopts = ('size', 'location', 'copy-from', 'checksum', 'store')
 
     def get_parser(self, prog_name):
         parser = super(CreateImage, self).get_parser(prog_name)
@@ -120,7 +120,6 @@ class CreateImage(show.ShowOne):
         # TODO(bunting): There are additional arguments that v1 supported
         # that v2 either doesn't support or supports weirdly.
         # --checksum - could be faked clientside perhaps?
-        # --owner - could be set as an update after the put?
         # --location - maybe location add?
         # --size - passing image size is actually broken in python-glanceclient
         # --copy-from - does not exist in v2
@@ -148,6 +147,11 @@ class CreateImage(show.ShowOne):
             metavar="<disk-format>",
             help="Image disk format "
                  "(default: %s)" % DEFAULT_DISK_FORMAT,
+        )
+        parser.add_argument(
+            "--owner",
+            metavar="<owner>",
+            help="Image owner project name or ID",
         )
         parser.add_argument(
             "--min-disk",
@@ -229,7 +233,7 @@ class CreateImage(show.ShowOne):
         copy_attrs = ('name', 'id',
                       'container_format', 'disk_format',
                       'min_disk', 'min_ram',
-                      'tags')
+                      'tags', 'owner')
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)

@@ -57,8 +57,6 @@ Create/upload an image
 
     Image owner project name or ID
 
-    *Image version 1 only.*
-
 .. option:: --size <size>
 
     Image size, in bytes (only used with --location and --copy-from)
