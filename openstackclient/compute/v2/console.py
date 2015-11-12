@@ -22,6 +22,7 @@ import sys
 from cliff import command
 from cliff import show
 
+from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
@@ -42,6 +43,7 @@ class ShowConsoleLog(command.Command):
             metavar='<num-lines>',
             type=int,
             default=None,
+            action=parseractions.NonNegativeAction,
             help='Number of lines to display from the end of the log '
                  '(default=all)',
         )
