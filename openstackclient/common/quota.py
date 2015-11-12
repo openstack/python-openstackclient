@@ -94,6 +94,7 @@ class SetQuota(command.Command):
     @utils.log_method(log)
     def take_action(self, parsed_args):
 
+        identity_client = self.app.client_manager.identity
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
 
@@ -115,23 +116,29 @@ class SetQuota(command.Command):
             sys.stderr.write("No quotas updated")
             return
 
+        if parsed_args.project:
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+            )
+
         if parsed_args.quota_class:
             if compute_kwargs:
                 compute_client.quota_classes.update(
-                    parsed_args.project,
+                    project.id,
                     **compute_kwargs)
             if volume_kwargs:
                 volume_client.quota_classes.update(
-                    parsed_args.project,
+                    project.id,
                     **volume_kwargs)
         else:
             if compute_kwargs:
                 compute_client.quotas.update(
-                    parsed_args.project,
+                    project.id,
                     **compute_kwargs)
             if volume_kwargs:
                 volume_client.quotas.update(
-                    parsed_args.project,
+                    project.id,
                     **volume_kwargs)
 
 
