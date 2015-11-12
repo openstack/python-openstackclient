@@ -528,6 +528,63 @@ class TestServerImageCreate(TestServer):
         self.assertEqual(datalist, data)
 
 
+class TestServerPause(TestServer):
+
+    def setUp(self):
+        super(TestServerPause, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.PauseServer(self.app, None)
+
+        # Set methods to be tested.
+        self.methods = {
+            'pause': None,
+        }
+
+    def setup_servers_mock(self, count=1):
+        servers = fakes.FakeServer.create_servers(methods=self.methods,
+                                                  count=count)
+
+        # This is the return value for utils.find_resource()
+        self.servers_mock.get = fakes.FakeServer.get_servers(servers, 1)
+
+        return servers
+
+    def test_server_pause_one_server(self):
+        servers = self.setup_servers_mock(1)
+
+        arglist = [
+            servers[0].id,
+        ]
+        verifylist = [
+            ('server', [servers[0].id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        servers[0].pause.assert_called_with()
+
+    def test_server_pause_multi_servers(self):
+        servers = self.setup_servers_mock(3)
+        arglist = []
+        verifylist = []
+
+        for i in range(0, len(servers)):
+            arglist.append(servers[i].id)
+        verifylist = [
+            ('server', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        for i in range(0, len(servers)):
+            servers[i].pause.assert_called_with()
+
+
 class TestServerResize(TestServer):
 
     def setUp(self):
