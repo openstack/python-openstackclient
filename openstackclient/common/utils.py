@@ -419,3 +419,11 @@ def build_kwargs_dict(arg_name, value):
     if value:
         kwargs[arg_name] = value
     return kwargs
+
+
+def is_ascii(string):
+    try:
+        string.decode('ascii')
+        return True
+    except UnicodeDecodeError:
+        return False
