@@ -2,7 +2,7 @@
 object
 ======
 
-Object Store v1
+Object Storage v1
 
 object create
 -------------
