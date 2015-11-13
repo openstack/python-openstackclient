@@ -425,10 +425,17 @@ class CreateServer(show.ShowOne):
                 dev_key, dev_vol = dev_map.split('=', 1)
                 block_volume = None
                 if dev_vol:
-                    block_volume = utils.find_resource(
-                        volume_client.volumes,
-                        dev_vol,
-                    ).id
+                    vol = dev_vol.split(':', 1)[0]
+                    if vol:
+                        vol_id = utils.find_resource(
+                            volume_client.volumes,
+                            vol,
+                        ).id
+                        block_volume = dev_vol.replace(vol, vol_id)
+                    else:
+                        msg = _("Volume name or ID must be specified if "
+                                "--block-device-mapping is specified")
+                        raise exceptions.CommandError(msg)
                 block_device_mapping.update({dev_key: block_volume})
 
         nics = []
