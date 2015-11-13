@@ -1561,7 +1561,7 @@ class SuspendServer(command.Command):
 
 
 class UnlockServer(command.Command):
-    """Unlock server"""
+    """Unlock server(s)"""
 
     log = logging.getLogger(__name__ + '.UnlockServer')
 
@@ -1570,7 +1570,8 @@ class UnlockServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help=_('Server (name or ID)'),
+            nargs='+',
+            help=_('Server(s) to unlock (name or ID)'),
         )
         return parser
 
@@ -1578,10 +1579,11 @@ class UnlockServer(command.Command):
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute
-        utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
-        ).unlock()
+        for server in parsed_args.server:
+            utils.find_resource(
+                compute_client.servers,
+                server,
+            ).unlock()
 
 
 class UnpauseServer(command.Command):

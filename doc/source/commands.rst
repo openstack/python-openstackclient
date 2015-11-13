@@ -186,7 +186,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``start`` (``stop``) - start one or more servers
 * ``stop`` (``start``) - stop one or more servers
 * ``suspend`` (``resume``) - stop a server and save to disk freeing memory
-* ``unlock`` (``lock``) - unlock a server
+* ``unlock`` (``lock``) - unlock one or more servers
 * ``unpause`` (``pause``) - return one or more paused servers to running state
 * ``unrescue`` (``rescue``) - return a server to normal boot mode
 * ``unset`` (``set``) - remove an attribute of the object

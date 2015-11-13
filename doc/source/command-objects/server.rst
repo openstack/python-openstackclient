@@ -643,17 +643,17 @@ Suspend server
 server unlock
 -------------
 
-Unlock server
+Unlock server(s)
 
 .. program:: server unlock
 .. code:: bash
 
     os server unlock
-        <server>
+        <server> [<server> ...]
 
 .. describe:: <server>
 
-    Server (name or ID)
+    Server(s) to unlock (name or ID)
 
 server unpause
 --------------
