@@ -169,7 +169,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``delete`` (``create``) - delete specific occurrences of the specified objects
 * ``issue`` (``revoke``) - issue a token
 * ``list`` - display summary information about multiple objects
-* ``lock`` (``unlock``) - lock a server so that non-admin user won't be able to execute actions
+* ``lock`` (``unlock``) - lock one or more servers so that non-admin user won't be able to execute actions
 * ``migrate`` - move a server to a different host; ``--live`` performs a
   live migration if possible
 * ``pause`` (``unpause``) - stop one or more servers and leave them in memory
