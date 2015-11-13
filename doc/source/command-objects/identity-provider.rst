@@ -81,6 +81,7 @@ Set identity provider properties
 
     os identity provider set
         [--remote-id <remote-id> [...] | --remote-id-file <file-name>]
+        [--description <description>]
         [--enable | --disable]
         <identity-provider>
 
@@ -93,6 +94,10 @@ Set identity provider properties
 
     Name of a file that contains many remote IDs to associate with the identity
     provider, one per line
+
+.. option:: --description
+
+    Set identity provider description
 
 .. option:: --enable
 

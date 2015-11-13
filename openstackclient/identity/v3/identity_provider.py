@@ -142,6 +142,11 @@ class SetIdentityProvider(command.Command):
             metavar='<identity-provider>',
             help='Identity provider to modify',
         )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help='Set identity provider description',
+        )
         identity_remote_id_provider = parser.add_mutually_exclusive_group()
         identity_remote_id_provider.add_argument(
             '--remote-id',
@@ -174,8 +179,10 @@ class SetIdentityProvider(command.Command):
         federation_client = self.app.client_manager.identity.federation
 
         # Basic argument checking
-        if (not parsed_args.enable and not parsed_args.disable and not
-                parsed_args.remote_id and not parsed_args.remote_id_file):
+        if (not parsed_args.enable and not parsed_args.disable and
+                not parsed_args.remote_id and
+                not parsed_args.remote_id_file and
+                not parsed_args.description):
             self.log.error('No changes requested')
             return (None, None)
 
@@ -190,6 +197,8 @@ class SetIdentityProvider(command.Command):
 
         # Setup keyword args for the client
         kwargs = {}
+        if parsed_args.description:
+            kwargs['description'] = parsed_args.description
         if parsed_args.enable:
             kwargs['enabled'] = True
         if parsed_args.disable:
