@@ -69,7 +69,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
-            identity_fakes.idp_remote_ids
+            identity_fakes.formatted_idp_remote_ids
         )
         self.assertEqual(datalist, data)
 
@@ -103,7 +103,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
-            identity_fakes.idp_remote_ids
+            identity_fakes.formatted_idp_remote_ids
         )
         self.assertEqual(datalist, data)
 
@@ -137,7 +137,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
-            identity_fakes.idp_remote_ids
+            identity_fakes.formatted_idp_remote_ids
         )
         self.assertEqual(datalist, data)
 
@@ -172,7 +172,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
-            identity_fakes.idp_remote_ids
+            identity_fakes.formatted_idp_remote_ids
         )
         self.assertEqual(datalist, data)
 
@@ -211,7 +211,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
-            identity_fakes.idp_remote_ids
+            identity_fakes.formatted_idp_remote_ids
         )
         self.assertEqual(datalist, data)
 
@@ -253,7 +253,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             None,
             False,
             identity_fakes.idp_id,
-            identity_fakes.idp_remote_ids
+            identity_fakes.formatted_idp_remote_ids
         )
         self.assertEqual(datalist, data)
 
@@ -363,7 +363,7 @@ class TestIdentityProviderShow(TestIdentityProvider):
             identity_fakes.idp_description,
             True,
             identity_fakes.idp_id,
-            identity_fakes.idp_remote_ids
+            identity_fakes.formatted_idp_remote_ids
         )
         self.assertEqual(datalist, data)
 

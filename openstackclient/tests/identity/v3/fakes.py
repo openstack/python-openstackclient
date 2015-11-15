@@ -261,6 +261,7 @@ TOKEN_WITH_DOMAIN_ID = {
 idp_id = 'test_idp'
 idp_description = 'super exciting IdP description'
 idp_remote_ids = ['entity1', 'entity2']
+formatted_idp_remote_ids = 'entity1, entity2'
 
 IDENTITY_PROVIDER = {
     'id': idp_id,
