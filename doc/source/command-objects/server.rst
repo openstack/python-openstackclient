@@ -253,17 +253,17 @@ List servers
 server lock
 -----------
 
-Lock a server. A non-admin user will not be able to execute actions
+Lock server(s). A non-admin user will not be able to execute actions
 
 .. program:: server lock
 .. code:: bash
 
     os server lock
-        <server>
+        <server> [<server> ...]
 
 .. describe:: <server>
 
-    Server (name or ID)
+    Server(s) to lock (name or ID)
 
 server migrate
 --------------

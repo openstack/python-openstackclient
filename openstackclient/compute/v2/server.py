@@ -846,7 +846,7 @@ class ListServer(lister.Lister):
 
 class LockServer(command.Command):
 
-    """Lock a server. A non-admin user will not be able to execute actions"""
+    """Lock server(s). A non-admin user will not be able to execute actions"""
 
     log = logging.getLogger(__name__ + '.LockServer')
 
@@ -855,7 +855,8 @@ class LockServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help=_('Server (name or ID)'),
+            nargs='+',
+            help=_('Server(s) to lock (name or ID)'),
         )
         return parser
 
@@ -863,10 +864,11 @@ class LockServer(command.Command):
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute
-        utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
-        ).lock()
+        for server in parsed_args.server:
+            utils.find_resource(
+                compute_client.servers,
+                server,
+            ).lock()
 
 
 # FIXME(dtroyer): Here is what I want, how with argparse/cliff?
