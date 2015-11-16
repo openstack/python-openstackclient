@@ -1631,7 +1631,7 @@ class UnlockServer(command.Command):
 
 
 class UnpauseServer(command.Command):
-    """Unpause server"""
+    """Unpause server(s)"""
 
     log = logging.getLogger(__name__ + '.UnpauseServer')
 
@@ -1640,7 +1640,8 @@ class UnpauseServer(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help=_('Server (name or ID)'),
+            nargs='+',
+            help=_('Server(s) to unpause (name or ID)'),
         )
         return parser
 
@@ -1648,10 +1649,11 @@ class UnpauseServer(command.Command):
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute
-        utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
-        ).unpause()
+        for server in parsed_args.server:
+            utils.find_resource(
+                compute_client.servers,
+                server,
+            ).unpause()
 
 
 class UnrescueServer(command.Command):

@@ -658,17 +658,17 @@ Unlock server
 server unpause
 --------------
 
-Unpause server
+Unpause server(s)
 
 .. program:: server unpause
 .. code:: bash
 
     os server unpause
-        <server>
+        <server> [<server> ...]
 
 .. describe:: <server>
 
-    Server (name or ID)
+   Server(s) to unpause (name or ID)
 
 server unrescue
 ---------------
