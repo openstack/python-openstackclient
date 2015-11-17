@@ -2,6 +2,64 @@
 Release Notes
 =============
 
+1.9.0 (17 Nov 2015)
+===================
+
+* Several updates to `openstack server`
+  Blueprint `servers <https://blueprints.launchpad.net/python-openstackclient/+spec/cmd-with-multi-servers>`_
+
+  * `openstack server start`
+  * `openstack server stop`
+  * `openstack server pause`
+  * `openstack server unpause`
+  * `openstack server lock`
+  * `openstack server unlock`
+
+* Obfuscate passwords when used in debug mode
+  Bug `1501598 <https://bugs.launchpad.net/bugs/1501598>`_
+
+* Clean up `identity provider show`
+  Bug `1478995 <https://bugs.launchpad.net/bugs/1478995>`_
+
+* Add `description` to `identity provider set`
+  Bug `1515815 <https://bugs.launchpad.net/bugs/1515815>`_
+
+* Add `compute service delete`
+  Bug `1503510 <https://bugs.launchpad.net/bugs/1503510>`_
+
+* Log a warning when setting non-ascii object store properties
+  Bug `1503898 <https://bugs.launchpad.net/bugs/1503898>`_
+
+* Add 'marker' and 'limit' to `openstack flavor list`
+  Bug `1505874 <https://bugs.launchpad.net/bugs/1505874>`_
+
+* Remove `url` from `region create` and `region set`
+  Bug `1506841 <https://bugs.launchpad.net/bugs/1506841>`_
+
+* `openstack image add project` fails with AttributeError for image v2
+  Bug `1509054 <https://bugs.launchpad.net/bugs/1509054>`_
+
+* Inconsistent output with `openstack usage show`
+  Bug `1512220 <https://bugs.launchpad.net/bugs/1512220>`_
+
+* Validate --lines with `openstack console log show`
+  Bug `1512263 <https://bugs.launchpad.net/bugs/1512263>`_
+
+* Validate --project does not exist with `openstack quota set`
+  Bug `1512638 <https://bugs.launchpad.net/bugs/1512638>`_
+
+* Cannot list servers while --user specified for `openstack server list`
+  Bug `1513701 <https://bugs.launchpad.net/bugs/1513701>`_
+
+* Cannot list volumes while --user specified for `openstack volume list`
+  Bug `1514145 <https://bugs.launchpad.net/bugs/1514145>`_
+
+* Cannot find volume with --block-device-mapping with `openstack server create`
+  Bug `1514394 <https://bugs.launchpad.net/bugs/1514394>`_
+
+* Fix documentation for `credential set`
+  Bug `1418837 <https://bugs.launchpad.net/bugs/1418837>`_
+
 1.8.0 (18 Oct 2015)
 ===================
 
