@@ -655,6 +655,23 @@ class TestImageList(TestImage):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
+    def test_image_list_limit_option(self):
+        arglist = [
+            '--limit', str(1),
+        ]
+        verifylist = [
+            ('limit', 1),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.api_mock.image_list.assert_called_with(
+            limit=1,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(len(self.datalist), len(tuple(data)))
+
 
 class TestRemoveProjectImage(TestImage):
 

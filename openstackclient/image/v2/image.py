@@ -431,6 +431,12 @@ class ListImage(command.Lister):
                  "(default: asc), multiple keys and directions can be "
                  "specified separated by comma",
         )
+        parser.add_argument(
+            "--limit",
+            metavar="<limit>",
+            type=int,
+            help="Maximum number of images to display.",
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -443,6 +449,8 @@ class ListImage(command.Lister):
             kwargs['private'] = True
         if parsed_args.shared:
             kwargs['shared'] = True
+        if parsed_args.limit:
+            kwargs['limit'] = parsed_args.limit
 
         if parsed_args.long:
             columns = (
