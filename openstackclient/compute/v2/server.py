@@ -747,6 +747,14 @@ class ListServer(lister.Lister):
             default=False,
             help=_('List additional fields in output'),
         )
+        parser.add_argument(
+            '--marker',
+            metavar='<marker>',
+            default=None,
+            help=('The last server (name or ID) of the previous page. Display'
+                  ' list of servers after marker. Display all servers if not'
+                  ' specified.')
+        )
         return parser
 
     @utils.log_method(log)
@@ -830,7 +838,14 @@ class ListServer(lister.Lister):
                 'Networks',
             )
             mixed_case_fields = []
-        data = compute_client.servers.list(search_opts=search_opts)
+
+        marker_id = None
+        if parsed_args.marker:
+            marker_id = utils.find_resource(compute_client.servers,
+                                            parsed_args.marker).id
+
+        data = compute_client.servers.list(search_opts=search_opts,
+                                           marker=marker_id)
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
