@@ -225,6 +225,7 @@ class TestSnapshotList(TestSnapshot):
     def test_snapshot_list_without_options(self):
         arglist = []
         verifylist = [
+            ('all_projects', False),
             ("long", False)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -243,7 +244,7 @@ class TestSnapshotList(TestSnapshot):
 
     def test_snapshot_list_with_options(self):
         arglist = ["--long"]
-        verifylist = [("long", True)]
+        verifylist = [("long", True), ('all_projects', False)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
@@ -262,4 +263,34 @@ class TestSnapshotList(TestSnapshot):
             volume_fakes.volume_name,
             volume_fakes.EXPECTED_SNAPSHOT.get("properties")
         ),)
+        self.assertEqual(datalist, tuple(data))
+
+    def test_snapshot_list_all_projects(self):
+        arglist = [
+            '--all-projects',
+        ]
+        verifylist = [
+            ('long', False),
+            ('all_projects', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        collist = [
+            "ID",
+            "Name",
+            "Description",
+            "Status",
+            "Size"
+        ]
+        self.assertEqual(collist, columns)
+
+        datalist = ((
+            volume_fakes.snapshot_id,
+            volume_fakes.snapshot_name,
+            volume_fakes.snapshot_description,
+            "available",
+            volume_fakes.snapshot_size
+        ), )
         self.assertEqual(datalist, tuple(data))

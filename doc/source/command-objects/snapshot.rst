@@ -60,6 +60,11 @@ List snapshots
 .. code:: bash
 
     os snapshot list
+        [--all-projects]
+
+.. option:: --all-projects
+
+    Include all projects (admin only)
 
 .. option:: --long
 

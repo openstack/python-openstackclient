@@ -108,6 +108,12 @@ class ListSnapshot(lister.Lister):
     def get_parser(self, prog_name):
         parser = super(ListSnapshot, self).get_parser(prog_name)
         parser.add_argument(
+            '--all-projects',
+            action='store_true',
+            default=False,
+            help='Include all projects (admin only)',
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -149,7 +155,12 @@ class ListSnapshot(lister.Lister):
             # Just forget it if there's any trouble
             pass
 
-        data = self.app.client_manager.volume.volume_snapshots.list()
+        search_opts = {
+            'all_tenants': parsed_args.all_projects,
+        }
+
+        data = self.app.client_manager.volume.volume_snapshots.list(
+            search_opts=search_opts)
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
