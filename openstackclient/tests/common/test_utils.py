@@ -137,6 +137,46 @@ class TestUtils(test_utils.TestCase):
                           items, sort_str)
 
     @mock.patch.object(time, 'sleep')
+    def test_wait_for_status_ok(self, mock_sleep):
+        # Tests the normal flow that the resource is status=active
+        resource = mock.MagicMock(status='ACTIVE')
+        status_f = mock.Mock(return_value=resource)
+        res_id = str(uuid.uuid4())
+        self.assertTrue(utils.wait_for_status(status_f, res_id,))
+        self.assertFalse(mock_sleep.called)
+
+    @mock.patch.object(time, 'sleep')
+    def test_wait_for_status_ok__with_overrides(self, mock_sleep):
+        # Tests the normal flow that the resource is status=complete
+        resource = mock.MagicMock(my_status='COMPLETE')
+        status_f = mock.Mock(return_value=resource)
+        res_id = str(uuid.uuid4())
+        self.assertTrue(utils.wait_for_status(status_f, res_id,
+                                              status_field='my_status',
+                                              success_status=['complete']))
+        self.assertFalse(mock_sleep.called)
+
+    @mock.patch.object(time, 'sleep')
+    def test_wait_for_status_error(self, mock_sleep):
+        # Tests that we fail if the resource is status=error
+        resource = mock.MagicMock(status='ERROR')
+        status_f = mock.Mock(return_value=resource)
+        res_id = str(uuid.uuid4())
+        self.assertFalse(utils.wait_for_status(status_f, res_id))
+        self.assertFalse(mock_sleep.called)
+
+    @mock.patch.object(time, 'sleep')
+    def test_wait_for_status_error_with_overrides(self, mock_sleep):
+        # Tests that we fail if the resource is my_status=failed
+        resource = mock.MagicMock(my_status='FAILED')
+        status_f = mock.Mock(return_value=resource)
+        res_id = str(uuid.uuid4())
+        self.assertFalse(utils.wait_for_status(status_f, res_id,
+                                               status_field='my_status',
+                                               error_status=['failed']))
+        self.assertFalse(mock_sleep.called)
+
+    @mock.patch.object(time, 'sleep')
     def test_wait_for_delete_ok(self, mock_sleep):
         # Tests the normal flow that the resource is deleted with a 404 coming
         # back on the 2nd iteration of the wait loop.

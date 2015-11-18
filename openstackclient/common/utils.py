@@ -298,6 +298,7 @@ def wait_for_status(status_f,
                     res_id,
                     status_field='status',
                     success_status=['active'],
+                    error_status=['error'],
                     sleep_time=5,
                     callback=None):
     """Wait for status change on a resource during a long-running operation
@@ -316,7 +317,7 @@ def wait_for_status(status_f,
         if status in success_status:
             retval = True
             break
-        elif status == 'error':
+        elif status in error_status:
             retval = False
             break
         if callback:
