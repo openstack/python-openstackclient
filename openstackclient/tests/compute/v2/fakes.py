@@ -25,8 +25,6 @@ from openstackclient.tests import utils
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
 
 
-service_id = '1'
-
 extension_name = 'Multinic'
 extension_namespace = 'http://docs.openstack.org/compute/ext/'\
     'multinic/api/v1.1'
@@ -79,6 +77,15 @@ QUOTA_columns = tuple(sorted(QUOTA))
 QUOTA_data = tuple(QUOTA[x] for x in sorted(QUOTA))
 
 block_device_mapping = 'vda=' + volume_fakes.volume_name + ':::0'
+
+service_host = 'host_test'
+service_binary = 'compute_test'
+service_status = 'enabled'
+SERVICE = {
+    'host': service_host,
+    'binary': service_binary,
+    'status': service_status,
+}
 
 
 class FakeComputev2Client(object):
