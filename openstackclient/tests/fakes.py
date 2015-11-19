@@ -14,6 +14,7 @@
 #
 
 import json
+import mock
 import six
 import sys
 
@@ -122,16 +123,40 @@ class FakeModule(object):
 
 
 class FakeResource(object):
-    def __init__(self, manager, info, loaded=False):
+    def __init__(self, manager=None, info={}, loaded=False, methods={}):
+        """Set attributes and methods for a resource.
+
+        :param manager:
+            The resource manager
+        :param Dictionary info:
+            A dictionary with all attributes
+        :param bool loaded:
+            True if the resource is loaded in memory
+        :param Dictionary methods:
+            A dictionary with all methods
+        """
         self.__name__ = type(self).__name__
         self.manager = manager
         self._info = info
         self._add_details(info)
+        self._add_methods(methods)
         self._loaded = loaded
 
     def _add_details(self, info):
         for (k, v) in six.iteritems(info):
             setattr(self, k, v)
+
+    def _add_methods(self, methods):
+        """Fake methods with MagicMock objects.
+
+        For each <@key, @value> pairs in methods, add an callable MagicMock
+        object named @key as an attribute, and set the mock's return_value to
+        @value. When users access the attribute with (), @value will be
+        returned, which looks like a function call.
+        """
+        for (name, ret) in six.iteritems(methods):
+            method = mock.MagicMock(return_value=ret)
+            setattr(self, name, method)
 
     def __repr__(self):
         reprkeys = sorted(k for k in self.__dict__.keys() if k[0] != '_' and
