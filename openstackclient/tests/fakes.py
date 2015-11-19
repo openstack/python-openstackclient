@@ -13,10 +13,12 @@
 #   under the License.
 #
 
+import copy
 import json
 import mock
 import six
 import sys
+import uuid
 
 from keystoneauth1 import fixture
 import requests
@@ -183,3 +185,71 @@ class FakeModel(dict):
             return self[key]
         except KeyError:
             raise AttributeError(key)
+
+
+class FakeServer(object):
+    """Fake one or more compute servers."""
+
+    @staticmethod
+    def create_one_server(attrs={}, methods={}):
+        """Create a fake server.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object, with id, name, metadata
+        """
+        # Set default attributes.
+        server_info = {
+            'id': 'server-id-' + uuid.uuid4().hex,
+            'name': 'server-name-' + uuid.uuid4().hex,
+            'metadata': {},
+        }
+
+        # Overwrite default attributes.
+        server_info.update(attrs)
+
+        server = FakeResource(info=copy.deepcopy(server_info),
+                              methods=methods,
+                              loaded=True)
+        return server
+
+    @staticmethod
+    def create_servers(attrs={}, methods={}, count=2):
+        """Create multiple fake servers.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of servers to fake
+        :return:
+            A list of FakeResource objects faking the servers
+        """
+        servers = []
+        for i in range(0, count):
+            servers.append(FakeServer.create_one_server(attrs, methods))
+
+        return servers
+
+    @staticmethod
+    def get_servers(servers=None, count=2):
+        """Get an iterable MagicMock object with a list of faked servers.
+
+        If servers list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List servers:
+            A list of FakeResource objects faking servers
+        :param int count:
+            The number of servers to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            servers
+        """
+        if servers is None:
+            servers = FakeServer.create_servers(count)
+        return mock.MagicMock(side_effect=servers)
