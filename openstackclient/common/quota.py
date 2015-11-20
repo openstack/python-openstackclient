@@ -81,6 +81,7 @@ class SetQuota(command.Command):
             parser.add_argument(
                 '--%s' % v,
                 metavar='<%s>' % v,
+                dest=k,
                 type=int,
                 help='New value for the %s quota' % v,
             )

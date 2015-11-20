@@ -68,14 +68,30 @@ FLAVOR = {
 floating_ip_num = 100
 fix_ip_num = 100
 injected_file_num = 100
+injected_file_size_num = 10240
+injected_path_size_num = 255
 key_pair_num = 100
+core_num = 20
+ram_num = 51200
+instance_num = 10
+property_num = 128
+secgroup_rule_num = 20
+secgroup_num = 10
 project_name = 'project_test'
 QUOTA = {
     'project': project_name,
     'floating-ips': floating_ip_num,
     'fix-ips': fix_ip_num,
     'injected-files': injected_file_num,
+    'injected-file-size': injected_file_size_num,
+    'injected-path-size': injected_path_size_num,
     'key-pairs': key_pair_num,
+    'cores': core_num,
+    'ram': ram_num,
+    'instances': instance_num,
+    'properties': property_num,
+    'secgroup_rules': secgroup_rule_num,
+    'secgroups': secgroup_num,
 }
 
 QUOTA_columns = tuple(sorted(QUOTA))
