@@ -38,6 +38,7 @@ Developer Documentation
 
    developing
    command-options
+   command-wrappers
 
 Project Goals
 -------------
