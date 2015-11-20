@@ -196,20 +196,3 @@ class ShowUsage(show.ShowOne):
             float("%.2f" % usage.total_local_gb_usage)
             if hasattr(usage, "total_local_gb_usage") else None)
         return zip(*sorted(six.iteritems(info)))
-
-
-# This is out of order due to the subclass, will eventually be removed
-
-class ListProjectUsage(ListUsage):
-    """List resource usage per project"""
-
-    deprecated = True
-
-    log = logging.getLogger('DEPRECATED:')
-
-    def take_action(self, parsed_args):
-        self.log.warning(
-            "%s is deprecated, use 'usage list'",
-            getattr(self, 'cmd_name', 'this command'),
-        )
-        return super(ListProjectUsage, self).take_action(parsed_args)
