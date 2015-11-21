@@ -335,6 +335,7 @@ def wait_for_delete(manager,
                     callback=None):
     """Wait for resource deletion
 
+    :param manager: the manager from which we can get the resource
     :param res_id: the resource id to watch
     :param status_field: the status attribute in the returned resource object,
         this is used to check for error states while the resource is being
