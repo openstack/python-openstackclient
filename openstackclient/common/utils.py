@@ -377,7 +377,7 @@ def wait_for_delete(manager,
 def get_effective_log_level():
     """Returns the lowest logging level considered by logging handlers
 
-    Retrieve an return the smallest log level set among the root
+    Retrieve and return the smallest log level set among the root
     logger's handlers (in case of multiple handlers).
     """
     root_log = logging.getLogger()
