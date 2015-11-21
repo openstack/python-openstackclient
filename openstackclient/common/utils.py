@@ -305,8 +305,9 @@ def wait_for_status(status_f,
 
     :param status_f: a status function that takes a single id argument
     :param res_id: the resource id to watch
-    :param success_status: a list of status strings for successful completion
     :param status_field: the status attribute in the returned resource object
+    :param success_status: a list of status strings for successful completion
+    :param error_status: a list of status strings for error
     :param sleep_time: wait this long (seconds)
     :param callback: called per sleep cycle, useful to display progress
     :rtype: True on success
