@@ -476,12 +476,10 @@ class TestServerImageCreate(TestServer):
     def setUp(self):
         super(TestServerImageCreate, self).setUp()
 
+        self.server = fakes.FakeServer.create_one_server()
+
         # This is the return value for utils.find_resource()
-        self.servers_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(compute_fakes.SERVER),
-            loaded=True,
-        )
+        self.servers_mock.get.return_value = self.server
 
         self.servers_mock.create_image.return_value = image_fakes.image_id
 
@@ -496,10 +494,10 @@ class TestServerImageCreate(TestServer):
 
     def test_server_image_create_no_options(self):
         arglist = [
-            compute_fakes.server_id,
+            self.server.id,
         ]
         verifylist = [
-            ('server', compute_fakes.server_id),
+            ('server', self.server.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -509,7 +507,7 @@ class TestServerImageCreate(TestServer):
         # ServerManager.create_image(server, image_name, metadata=)
         self.servers_mock.create_image.assert_called_with(
             self.servers_mock.get.return_value,
-            compute_fakes.server_name,
+            self.server.name,
         )
 
         collist = ('id', 'name', 'owner', 'protected', 'tags', 'visibility')
@@ -527,11 +525,11 @@ class TestServerImageCreate(TestServer):
     def test_server_image_create_name(self):
         arglist = [
             '--name', 'img-nam',
-            compute_fakes.server_id,
+            self.server.id,
         ]
         verifylist = [
             ('name', 'img-nam'),
-            ('server', compute_fakes.server_id),
+            ('server', self.server.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
