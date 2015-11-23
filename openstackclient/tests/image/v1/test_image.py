@@ -261,16 +261,17 @@ class TestImageList(TestImage):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
-            detailed=False,
+            detailed=True,
             marker=image_fakes.image_id,
         )
 
-        collist = ('ID', 'Name')
+        collist = ('ID', 'Name', 'Status')
 
         self.assertEqual(collist, columns)
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,
+            '',
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -288,17 +289,18 @@ class TestImageList(TestImage):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
-            detailed=False,
+            detailed=True,
             public=True,
             marker=image_fakes.image_id,
         )
 
-        collist = ('ID', 'Name')
+        collist = ('ID', 'Name', 'Status')
 
         self.assertEqual(collist, columns)
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,
+            '',
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -316,17 +318,18 @@ class TestImageList(TestImage):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
-            detailed=False,
+            detailed=True,
             private=True,
             marker=image_fakes.image_id,
         )
 
-        collist = ('ID', 'Name')
+        collist = ('ID', 'Name', 'Status')
 
         self.assertEqual(collist, columns)
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,
+            '',
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -401,12 +404,13 @@ class TestImageList(TestImage):
             property_field='properties',
         )
 
-        collist = ('ID', 'Name')
+        collist = ('ID', 'Name', 'Status')
 
         self.assertEqual(columns, collist)
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,
+            '',
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -423,7 +427,7 @@ class TestImageList(TestImage):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
-            detailed=False,
+            detailed=True,
             marker=image_fakes.image_id,
         )
         si_mock.assert_called_with(
@@ -431,12 +435,13 @@ class TestImageList(TestImage):
             'name:asc'
         )
 
-        collist = ('ID', 'Name')
+        collist = ('ID', 'Name', 'Status')
 
         self.assertEqual(collist, columns)
         datalist = ((
             image_fakes.image_id,
-            image_fakes.image_name
+            image_fakes.image_name,
+            '',
         ), )
         self.assertEqual(datalist, tuple(data))
 
