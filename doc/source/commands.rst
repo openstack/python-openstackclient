@@ -185,7 +185,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``show`` - display detailed information about the specific object
 * ``start`` (``stop``) - start one or more servers
 * ``stop`` (``start``) - stop one or more servers
-* ``suspend`` (``resume``) - stop a server and save to disk freeing memory
+* ``suspend`` (``resume``) - stop one or more servers and save to disk freeing memory
 * ``unlock`` (``lock``) - unlock one or more servers
 * ``unpause`` (``pause``) - return one or more paused servers to running state
 * ``unrescue`` (``rescue``) - return a server to normal boot mode

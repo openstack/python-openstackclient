@@ -628,17 +628,17 @@ Stop server(s)
 server suspend
 --------------
 
-Suspend server
+Suspend server(s)
 
 .. program:: server suspend
 .. code:: bash
 
     os server suspend
-        <server>
+        <server> [<server> ...]
 
 .. describe:: <server>
 
-    Server (name or ID)
+    Server(s) to suspend (name or ID)
 
 server unlock
 -------------
