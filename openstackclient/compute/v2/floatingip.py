@@ -26,7 +26,7 @@ from openstackclient.common import utils
 
 
 class AddFloatingIP(command.Command):
-    """Add floating-ip to server"""
+    """Add floating IP address to server"""
 
     log = logging.getLogger(__name__ + ".AddFloatingIP")
 
@@ -35,7 +35,7 @@ class AddFloatingIP(command.Command):
         parser.add_argument(
             "ip_address",
             metavar="<ip-address>",
-            help="IP address to add to server",
+            help="IP address to add to server (name only)",
         )
         parser.add_argument(
             "server",
@@ -56,7 +56,7 @@ class AddFloatingIP(command.Command):
 
 
 class CreateFloatingIP(show.ShowOne):
-    """Create new floating-ip"""
+    """Create new floating IP address"""
 
     log = logging.getLogger(__name__ + '.CreateFloatingIP')
 
@@ -65,7 +65,7 @@ class CreateFloatingIP(show.ShowOne):
         parser.add_argument(
             'pool',
             metavar='<pool>',
-            help='Pool to fetch floating IP from',
+            help='Pool to fetch IP address from (name or ID)',
         )
         return parser
 
@@ -80,7 +80,7 @@ class CreateFloatingIP(show.ShowOne):
 
 
 class DeleteFloatingIP(command.Command):
-    """Delete a floating-ip"""
+    """Delete a floating IP address"""
 
     log = logging.getLogger(__name__ + '.DeleteFloatingIP')
 
@@ -89,7 +89,7 @@ class DeleteFloatingIP(command.Command):
         parser.add_argument(
             "ip_address",
             metavar="<ip-address>",
-            help="IP address to delete",
+            help="IP address to delete (ID only)",
         )
         return parser
 
@@ -107,7 +107,7 @@ class DeleteFloatingIP(command.Command):
 
 
 class ListFloatingIP(lister.Lister):
-    """List floating-ips"""
+    """List floating IP addresses"""
 
     log = logging.getLogger(__name__ + '.ListFloatingIP')
 
@@ -127,7 +127,7 @@ class ListFloatingIP(lister.Lister):
 
 
 class RemoveFloatingIP(command.Command):
-    """Remove floating-ip from server"""
+    """Remove floating IP address from server"""
 
     log = logging.getLogger(__name__ + ".RemoveFloatingIP")
 
@@ -136,7 +136,7 @@ class RemoveFloatingIP(command.Command):
         parser.add_argument(
             "ip_address",
             metavar="<ip-address>",
-            help="IP address to remove from server",
+            help="IP address to remove from server (name only)",
         )
         parser.add_argument(
             "server",

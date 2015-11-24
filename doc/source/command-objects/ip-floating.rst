@@ -1,24 +1,24 @@
-==========
-floatingip
-==========
+===========
+ip floating
+===========
 
 Compute v2
 
 ip floating add
 ---------------
 
-Add floating-ip to server
+Add floating IP address to server
 
 .. program:: ip floating add
 .. code:: bash
 
     os ip floating add
-        <ip_address>
+        <ip-address>
         <server>
 
-.. describe:: <ip_address>
+.. describe:: <ip-address>
 
-    IP address to add to server
+    IP address to add to server (name only)
 
 .. describe:: <server>
 
@@ -27,7 +27,7 @@ Add floating-ip to server
 ip floating create
 ------------------
 
-Create new floating-ip
+Create new floating IP address
 
 .. program:: ip floating create
 .. code:: bash
@@ -37,27 +37,27 @@ Create new floating-ip
 
 .. describe:: <pool>
 
-    Pool to fetch floating IP from
+    Pool to fetch IP address from (name or ID)
 
 ip floating delete
 ------------------
 
-Delete a floating-ip
+Delete a floating IP address
 
 .. program:: ip floating delete
 .. code:: bash
 
     os ip floating delete
-        <ip_address>
+        <ip-address>
 
-.. describe:: <ip_address>
+.. describe:: <ip-address>
 
-    IP address to delete
+    IP address to delete (ID only)
 
 ip floating list
 ----------------
 
-List floating-ips
+List floating IP addresses
 
 .. program:: ip floating list
 .. code:: bash
@@ -67,18 +67,18 @@ List floating-ips
 ip floating remove
 ------------------
 
-Remove floating-ip from server
+Remove floating IP address from server
 
 .. program:: ip floating remove
 .. code:: bash
 
     os ip floating remove
-        <ip_address>
+        <ip-address>
         <server>
 
-.. describe:: <ip_address>
+.. describe:: <ip-address>
 
-    IP address to remove from server
+    IP address to remove from server (name only)
 
 .. describe:: <server>
 
