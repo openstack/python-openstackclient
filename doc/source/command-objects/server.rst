@@ -483,17 +483,17 @@ a revert to release the new server and restart the old one.
 server resume
 -------------
 
-Resume server
+Resume server(s)
 
 .. program:: server resume
 .. code:: bash
 
     os server resume
-        <server>
+        <server> [<server> ...]
 
 .. describe:: <server>
 
-    Server (name or ID)
+    Server(s) to resume (name or ID)
 
 server set
 ----------
