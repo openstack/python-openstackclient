@@ -766,3 +766,57 @@ class TestServerGeneral(testtools.TestCase):
                           server._get_ip_address, self.OLD, 'public', [4, 6])
         self.assertRaises(exceptions.CommandError,
                           server._get_ip_address, self.OLD, 'private', [6])
+
+
+class TestShelveServer(TestServer):
+
+    def setUp(self):
+        super(TestShelveServer, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.ShelveServer(self.app, None)
+
+        # Set shelve method to be tested.
+        self.methods = {
+            'shelve': None,
+        }
+
+    def setup_servers_mock(self, count=1):
+        servers = fakes.FakeServer.create_servers(methods=self.methods,
+                                                  count=count)
+
+        self.servers_mock.get = fakes.FakeServer.get_servers(servers, 1)
+
+        return servers
+
+    def test_shelve_one_server(self):
+        server = self.setup_servers_mock(1)[0]
+
+        arglist = [
+            server.id,
+        ]
+        verifylist = [
+            ('server', [server.id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        server.shelve.assert_called_with()
+
+    def test_shelve_multi_servers(self):
+        servers = self.setup_servers_mock(3)
+        arglist = []
+        verifylist = []
+
+        for i in range(0, len(servers)):
+            arglist.append(servers[i].id)
+        verifylist = [
+            ('server', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        for i in range(0, len(servers)):
+            servers[i].shelve.assert_called_with()

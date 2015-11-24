@@ -495,6 +495,21 @@ Resume server
 
     Server (name or ID)
 
+server shelve
+-------------
+
+Shelve server(s)
+
+.. program:: server shelve
+.. code:: bash
+
+    os server shelve
+        <server> [<server> ...]
+
+.. describe:: <server>
+
+    Server(s) to shelve (name or ID)
+
 server set
 ----------
 
