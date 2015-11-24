@@ -1389,6 +1389,31 @@ class ShowServer(show.ShowOne):
         return zip(*sorted(six.iteritems(data)))
 
 
+class ShelveServer(command.Command):
+    """Shelve server(s)"""
+
+    log = logging.getLogger(__name__ + '.ShelveServer')
+
+    def get_parser(self, prog_name):
+        parser = super(ShelveServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            nargs='+',
+            help=_('Server(s) to shelve (name or ID)'),
+        )
+        return parser
+
+    @utils.log_method(log)
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+        for server in parsed_args.server:
+            utils.find_resource(
+                compute_client.servers,
+                server,
+            ).shelve()
+
+
 class SshServer(command.Command):
     """Ssh to server"""
 
