@@ -91,13 +91,14 @@ referring to both Compute and Volume quotas.
 * ``hypervisor stats``: (**Compute**) hypervisor statistics over all compute nodes
 * ``identity provider``: (**Identity**) a source of users and authentication
 * ``image``: (**Image**) a disk image
-* ``ip fixed``: Compute, Network - an internal IP address assigned to a server
-* ``ip floating``: Compute, Network - a public IP address that can be mapped to a server
+* ``ip fixed``: (**Compute**, **Network**) - an internal IP address assigned to a server
+* ``ip floating``: (**Compute**, **Network**) - a public IP address that can be mapped to a server
+* ``ip floating pool``: (**Compute**, **Network**) - a pool of public IP addresses
 * ``keypair``: (**Compute**) an SSH public key
 * ``limits``: (**Compute**, **Volume**) resource usage limits
 * ``mapping``: (**Identity**) a definition to translate identity provider attributes to Identity concepts
 * ``module``: internal - installed Python modules in the OSC process
-* ``network``: Network - a virtual network for connecting servers and other resources
+* ``network``: (**Network**) - a virtual network for connecting servers and other resources
 * ``object``: (**Object Store**) a single file in the Object Store
 * ``policy``: (**Identity**) determines authorization
 * ``project``: (**Identity**) owns a group of resources
@@ -106,8 +107,8 @@ referring to both Compute and Volume quotas.
 * ``request token``: (**Identity**) temporary OAuth-based token
 * ``role``: (**Identity**) a policy object used to determine authorization
 * ``role assignment``: (**Identity**) a relationship between roles, users or groups, and domains or projects
-* ``security group``: Compute, Network - groups of network access rules
-* ``security group rule``: Compute, Network - the individual rules that define protocol/IP/port access
+* ``security group``: (**Compute**, **Network**) - groups of network access rules
+* ``security group rule``: (**Compute**, **Network**) - the individual rules that define protocol/IP/port access
 * ``server``: (**Compute**) virtual machine instance
 * ``server image``: (**Compute**) saved server disk image
 * ``service``: (**Identity**) a cloud service

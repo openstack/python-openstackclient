@@ -23,7 +23,7 @@ from openstackclient.common import utils
 
 
 class AddFixedIP(command.Command):
-    """Add fixed-ip command"""
+    """Add fixed IP address to server"""
 
     log = logging.getLogger(__name__ + ".AddFixedIP")
 
@@ -32,12 +32,12 @@ class AddFixedIP(command.Command):
         parser.add_argument(
             "network",
             metavar="<network>",
-            help="Name of the network to fetch an IP address from",
+            help="Network to fetch an IP address from (name or ID)",
         )
         parser.add_argument(
             "server",
             metavar="<server>",
-            help="Name of the server to receive the IP address",
+            help="Server to receive the IP address (name or ID)",
         )
         return parser
 
@@ -56,7 +56,7 @@ class AddFixedIP(command.Command):
 
 
 class RemoveFixedIP(command.Command):
-    """Remove fixed-ip command"""
+    """Remove fixed IP address from server"""
 
     log = logging.getLogger(__name__ + ".RemoveFixedIP")
 
@@ -65,12 +65,12 @@ class RemoveFixedIP(command.Command):
         parser.add_argument(
             "ip_address",
             metavar="<ip-address>",
-            help="IP address to remove from server",
+            help="IP address to remove from server (name only)",
         )
         parser.add_argument(
             "server",
             metavar="<server>",
-            help="Name of the server to remove the IP address from",
+            help="Server to remove the IP address from (name or ID)",
         )
         return parser
 

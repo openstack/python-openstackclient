@@ -23,7 +23,7 @@ from openstackclient.common import utils
 
 
 class ListFloatingIPPool(lister.Lister):
-    """List floating-ip-pools"""
+    """List pools of floating IP addresses"""
 
     log = logging.getLogger(__name__ + '.ListFloatingIPPool')
 
