@@ -103,7 +103,7 @@ class DeleteSecurityGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Name or ID of security group to delete',
+            help='Security group to delete (name or ID)',
         )
         return parser
 
@@ -120,7 +120,7 @@ class DeleteSecurityGroup(command.Command):
 
 
 class ListSecurityGroup(lister.Lister):
-    """List all security groups"""
+    """List security groups"""
 
     log = logging.getLogger(__name__ + ".ListSecurityGroup")
 
@@ -185,7 +185,7 @@ class SetSecurityGroup(show.ShowOne):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Name or ID of security group to change',
+            help='Security group to modify (name or ID)',
         )
         parser.add_argument(
             '--name',
@@ -195,7 +195,7 @@ class SetSecurityGroup(show.ShowOne):
         parser.add_argument(
             "--description",
             metavar="<description>",
-            help="New security group name",
+            help="New security group description",
         )
         return parser
 
@@ -227,7 +227,7 @@ class SetSecurityGroup(show.ShowOne):
 
 
 class ShowSecurityGroup(show.ShowOne):
-    """Show a specific security group"""
+    """Display security group details"""
 
     log = logging.getLogger(__name__ + '.ShowSecurityGroup')
 
@@ -236,7 +236,7 @@ class ShowSecurityGroup(show.ShowOne):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Name or ID of security group to change',
+            help='Security group to display (name or ID)',
         )
         return parser
 
@@ -275,7 +275,7 @@ class CreateSecurityGroupRule(show.ShowOne):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Create rule in this security group',
+            help='Create rule in this security group (name or ID)',
         )
         parser.add_argument(
             "--proto",
@@ -333,7 +333,7 @@ class DeleteSecurityGroupRule(command.Command):
         parser.add_argument(
             'rule',
             metavar='<rule>',
-            help='Security group rule ID to delete',
+            help='Security group rule to delete (ID only)',
         )
         return parser
 
@@ -346,7 +346,7 @@ class DeleteSecurityGroupRule(command.Command):
 
 
 class ListSecurityGroupRule(lister.Lister):
-    """List all security group rules"""
+    """List security group rules"""
 
     log = logging.getLogger(__name__ + ".ListSecurityGroupRule")
 
@@ -355,7 +355,7 @@ class ListSecurityGroupRule(lister.Lister):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='List all rules in this security group',
+            help='List all rules in this security group (name or ID)',
         )
         return parser
 
