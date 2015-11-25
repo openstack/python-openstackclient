@@ -61,7 +61,8 @@ class TestServerCreate(TestServer):
         attrs = {
             'networks': {},
         }
-        self.new_server = fakes.FakeServer.create_one_server(attrs=attrs)
+        self.new_server = compute_fakes.FakeServer.create_one_server(
+            attrs=attrs)
 
         # This is the return value for utils.find_resource().
         # This is for testing --wait option.
@@ -398,7 +399,7 @@ class TestServerDelete(TestServer):
     def setUp(self):
         super(TestServerDelete, self).setUp()
 
-        self.server = fakes.FakeServer.create_one_server()
+        self.server = compute_fakes.FakeServer.create_one_server()
 
         # This is the return value for utils.find_resource()
         self.servers_mock.get.return_value = self.server
@@ -476,7 +477,7 @@ class TestServerImageCreate(TestServer):
     def setUp(self):
         super(TestServerImageCreate, self).setUp()
 
-        self.server = fakes.FakeServer.create_one_server()
+        self.server = compute_fakes.FakeServer.create_one_server()
 
         # This is the return value for utils.find_resource()
         self.servers_mock.get.return_value = self.server
@@ -569,11 +570,14 @@ class TestServerPause(TestServer):
         }
 
     def setup_servers_mock(self, count=1):
-        servers = fakes.FakeServer.create_servers(methods=self.methods,
-                                                  count=count)
+        servers = compute_fakes.FakeServer.create_servers(
+            methods=self.methods,
+            count=count)
 
         # This is the return value for utils.find_resource()
-        self.servers_mock.get = fakes.FakeServer.get_servers(servers, 1)
+        self.servers_mock.get = compute_fakes.FakeServer.get_servers(
+            servers,
+            1)
 
         return servers
 
@@ -617,7 +621,7 @@ class TestServerResize(TestServer):
     def setUp(self):
         super(TestServerResize, self).setUp()
 
-        self.server = fakes.FakeServer.create_one_server()
+        self.server = compute_fakes.FakeServer.create_one_server()
 
         # This is the return value for utils.find_resource()
         self.servers_mock.get.return_value = self.server
@@ -806,10 +810,13 @@ class TestShelveServer(TestServer):
         }
 
     def setup_servers_mock(self, count=1):
-        servers = fakes.FakeServer.create_servers(methods=self.methods,
-                                                  count=count)
+        servers = compute_fakes.FakeServer.create_servers(
+            methods=self.methods,
+            count=count)
 
-        self.servers_mock.get = fakes.FakeServer.get_servers(servers, 1)
+        self.servers_mock.get = compute_fakes.FakeServer.get_servers(
+            servers,
+            1)
 
         return servers
 
