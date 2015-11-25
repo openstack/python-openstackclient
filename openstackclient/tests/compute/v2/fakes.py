@@ -23,16 +23,7 @@ from openstackclient.tests import utils
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
 
 
-server_id = 'serv1'
-server_name = 'waiter'
-
 service_id = '1'
-
-SERVER = {
-    'id': server_id,
-    'name': server_name,
-    'metadata': {},
-}
 
 extension_name = 'Multinic'
 extension_namespace = 'http://docs.openstack.org/compute/ext/'\
