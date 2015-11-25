@@ -617,13 +617,10 @@ class TestServerResize(TestServer):
     def setUp(self):
         super(TestServerResize, self).setUp()
 
+        self.server = fakes.FakeServer.create_one_server()
+
         # This is the return value for utils.find_resource()
-        self.servers_get_return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(compute_fakes.SERVER),
-            loaded=True,
-        )
-        self.servers_mock.get.return_value = self.servers_get_return_value
+        self.servers_mock.get.return_value = self.server
 
         self.servers_mock.resize.return_value = None
         self.servers_mock.confirm_resize.return_value = None
@@ -642,12 +639,12 @@ class TestServerResize(TestServer):
 
     def test_server_resize_no_options(self):
         arglist = [
-            compute_fakes.server_id,
+            self.server.id,
         ]
         verifylist = [
             ('confirm', False),
             ('revert', False),
-            ('server', compute_fakes.server_id),
+            ('server', self.server.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -655,7 +652,7 @@ class TestServerResize(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(
-            compute_fakes.server_id,
+            self.server.id,
         )
 
         self.assertNotCalled(self.servers_mock.resize)
@@ -665,13 +662,13 @@ class TestServerResize(TestServer):
     def test_server_resize(self):
         arglist = [
             '--flavor', compute_fakes.flavor_id,
-            compute_fakes.server_id,
+            self.server.id,
         ]
         verifylist = [
             ('flavor', compute_fakes.flavor_id),
             ('confirm', False),
             ('revert', False),
-            ('server', compute_fakes.server_id),
+            ('server', self.server.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -679,14 +676,14 @@ class TestServerResize(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(
-            compute_fakes.server_id,
+            self.server.id,
         )
         self.flavors_mock.get.assert_called_with(
             compute_fakes.flavor_id,
         )
 
         self.servers_mock.resize.assert_called_with(
-            self.servers_get_return_value,
+            self.server,
             self.flavors_get_return_value,
         )
         self.assertNotCalled(self.servers_mock.confirm_resize)
@@ -695,12 +692,12 @@ class TestServerResize(TestServer):
     def test_server_resize_confirm(self):
         arglist = [
             '--confirm',
-            compute_fakes.server_id,
+            self.server.id,
         ]
         verifylist = [
             ('confirm', True),
             ('revert', False),
-            ('server', compute_fakes.server_id),
+            ('server', self.server.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -708,24 +705,24 @@ class TestServerResize(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(
-            compute_fakes.server_id,
+            self.server.id,
         )
 
         self.assertNotCalled(self.servers_mock.resize)
         self.servers_mock.confirm_resize.assert_called_with(
-            self.servers_get_return_value,
+            self.server,
         )
         self.assertNotCalled(self.servers_mock.revert_resize)
 
     def test_server_resize_revert(self):
         arglist = [
             '--revert',
-            compute_fakes.server_id,
+            self.server.id,
         ]
         verifylist = [
             ('confirm', False),
             ('revert', True),
-            ('server', compute_fakes.server_id),
+            ('server', self.server.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -733,13 +730,13 @@ class TestServerResize(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(
-            compute_fakes.server_id,
+            self.server.id,
         )
 
         self.assertNotCalled(self.servers_mock.resize)
         self.assertNotCalled(self.servers_mock.confirm_resize)
         self.servers_mock.revert_resize.assert_called_with(
-            self.servers_get_return_value,
+            self.server,
         )
 
 
