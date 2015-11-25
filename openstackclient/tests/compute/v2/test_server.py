@@ -58,18 +58,16 @@ class TestServerCreate(TestServer):
     def setUp(self):
         super(TestServerCreate, self).setUp()
 
-        self.servers_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(compute_fakes.SERVER),
-            loaded=True,
-        )
-        new_server = fakes.FakeResource(
-            None,
-            copy.deepcopy(compute_fakes.SERVER),
-            loaded=True,
-        )
-        new_server.__dict__['networks'] = {}
-        self.servers_mock.get.return_value = new_server
+        attrs = {
+            'networks': {},
+        }
+        self.new_server = fakes.FakeServer.create_one_server(attrs=attrs)
+
+        # This is the return value for utils.find_resource().
+        # This is for testing --wait option.
+        self.servers_mock.get.return_value = self.new_server
+
+        self.servers_mock.create.return_value = self.new_server
 
         self.image = fakes.FakeResource(
             None,
@@ -97,10 +95,10 @@ class TestServerCreate(TestServer):
 
     def test_server_create_no_options(self):
         arglist = [
-            compute_fakes.server_name,
+            self.new_server.name,
         ]
         verifylist = [
-            ('server_name', compute_fakes.server_name),
+            ('server_name', self.new_server.name),
         ]
         try:
             # Missing required args should bail here
@@ -112,13 +110,13 @@ class TestServerCreate(TestServer):
         arglist = [
             '--image', 'image1',
             '--flavor', 'flavor1',
-            compute_fakes.server_name,
+            self.new_server.name,
         ]
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
             ('config_drive', False),
-            ('server_name', compute_fakes.server_name),
+            ('server_name', self.new_server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -143,19 +141,27 @@ class TestServerCreate(TestServer):
         )
         # ServerManager.create(name, image, flavor, **kwargs)
         self.servers_mock.create.assert_called_with(
-            compute_fakes.server_name,
+            self.new_server.name,
             self.image,
             self.flavor,
             **kwargs
         )
 
-        collist = ('addresses', 'flavor', 'id', 'name', 'properties')
+        collist = (
+            'addresses',
+            'flavor',
+            'id',
+            'name',
+            'networks',
+            'properties',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             '',
             'Large ()',
-            compute_fakes.server_id,
-            compute_fakes.server_name,
+            self.new_server.id,
+            self.new_server.name,
+            self.new_server.networks,
             '',
         )
         self.assertEqual(datalist, data)
@@ -166,14 +172,14 @@ class TestServerCreate(TestServer):
             '--flavor', 'flavor1',
             '--nic', 'net-id=net1',
             '--nic', 'port-id=port1',
-            compute_fakes.server_name,
+            self.new_server.name,
         ]
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
             ('nic', ['net-id=net1', 'port-id=port1']),
             ('config_drive', False),
-            ('server_name', compute_fakes.server_name),
+            ('server_name', self.new_server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -219,19 +225,27 @@ class TestServerCreate(TestServer):
         )
         # ServerManager.create(name, image, flavor, **kwargs)
         self.servers_mock.create.assert_called_with(
-            compute_fakes.server_name,
+            self.new_server.name,
             self.image,
             self.flavor,
             **kwargs
         )
 
-        collist = ('addresses', 'flavor', 'id', 'name', 'properties')
+        collist = (
+            'addresses',
+            'flavor',
+            'id',
+            'name',
+            'networks',
+            'properties',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             '',
             'Large ()',
-            compute_fakes.server_id,
-            compute_fakes.server_name,
+            self.new_server.id,
+            self.new_server.name,
+            self.new_server.networks,
             '',
         )
         self.assertEqual(datalist, data)
@@ -246,14 +260,14 @@ class TestServerCreate(TestServer):
             '--image', 'image1',
             '--flavor', 'flavor1',
             '--user-data', 'userdata.sh',
-            compute_fakes.server_name,
+            self.new_server.name,
         ]
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
             ('user_data', 'userdata.sh'),
             ('config_drive', False),
-            ('server_name', compute_fakes.server_name),
+            ('server_name', self.new_server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -284,19 +298,27 @@ class TestServerCreate(TestServer):
         )
         # ServerManager.create(name, image, flavor, **kwargs)
         self.servers_mock.create.assert_called_with(
-            compute_fakes.server_name,
+            self.new_server.name,
             self.image,
             self.flavor,
             **kwargs
         )
 
-        collist = ('addresses', 'flavor', 'id', 'name', 'properties')
+        collist = (
+            'addresses',
+            'flavor',
+            'id',
+            'name',
+            'networks',
+            'properties',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             '',
             'Large ()',
-            compute_fakes.server_id,
-            compute_fakes.server_name,
+            self.new_server.id,
+            self.new_server.name,
+            self.new_server.networks,
             '',
         )
         self.assertEqual(datalist, data)
@@ -306,14 +328,14 @@ class TestServerCreate(TestServer):
             '--image', 'image1',
             '--flavor', compute_fakes.flavor_id,
             '--block-device-mapping', compute_fakes.block_device_mapping,
-            compute_fakes.server_name,
+            self.new_server.name,
         ]
         verifylist = [
             ('image', 'image1'),
             ('flavor', compute_fakes.flavor_id),
             ('block_device_mapping', [compute_fakes.block_device_mapping]),
             ('config_drive', False),
-            ('server_name', compute_fakes.server_name),
+            ('server_name', self.new_server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -345,19 +367,27 @@ class TestServerCreate(TestServer):
         )
         # ServerManager.create(name, image, flavor, **kwargs)
         self.servers_mock.create.assert_called_with(
-            compute_fakes.server_name,
+            self.new_server.name,
             self.image,
             self.flavor,
             **kwargs
         )
 
-        collist = ('addresses', 'flavor', 'id', 'name', 'properties')
+        collist = (
+            'addresses',
+            'flavor',
+            'id',
+            'name',
+            'networks',
+            'properties',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             '',
             'Large ()',
-            compute_fakes.server_id,
-            compute_fakes.server_name,
+            self.new_server.id,
+            self.new_server.name,
+            self.new_server.networks,
             '',
         )
         self.assertEqual(datalist, data)
