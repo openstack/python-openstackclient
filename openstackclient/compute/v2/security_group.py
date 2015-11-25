@@ -93,6 +93,64 @@ class CreateSecurityGroup(show.ShowOne):
         return zip(*sorted(six.iteritems(info)))
 
 
+class CreateSecurityGroupRule(show.ShowOne):
+    """Create a new security group rule"""
+
+    log = logging.getLogger(__name__ + ".CreateSecurityGroupRule")
+
+    def get_parser(self, prog_name):
+        parser = super(CreateSecurityGroupRule, self).get_parser(prog_name)
+        parser.add_argument(
+            'group',
+            metavar='<group>',
+            help='Create rule in this security group (name or ID)',
+        )
+        parser.add_argument(
+            "--proto",
+            metavar="<proto>",
+            default="tcp",
+            help="IP protocol (icmp, tcp, udp; default: tcp)",
+        )
+        parser.add_argument(
+            "--src-ip",
+            metavar="<ip-address>",
+            default="0.0.0.0/0",
+            help="Source IP (may use CIDR notation; default: 0.0.0.0/0)",
+        )
+        parser.add_argument(
+            "--dst-port",
+            metavar="<port-range>",
+            default=(0, 0),
+            action=parseractions.RangeAction,
+            help="Destination port, may be a range: 137:139 (default: 0; "
+                 "only required for proto tcp and udp)",
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)", parsed_args)
+
+        compute_client = self.app.client_manager.compute
+        group = utils.find_resource(
+            compute_client.security_groups,
+            parsed_args.group,
+        )
+        if parsed_args.proto.lower() == 'icmp':
+            from_port, to_port = -1, -1
+        else:
+            from_port, to_port = parsed_args.dst_port
+        data = compute_client.security_group_rules.create(
+            group.id,
+            parsed_args.proto,
+            from_port,
+            to_port,
+            parsed_args.src_ip,
+        )
+
+        info = _xform_security_group_rule(data._info)
+        return zip(*sorted(six.iteritems(info)))
+
+
 class DeleteSecurityGroup(command.Command):
     """Delete a security group"""
 
@@ -116,6 +174,28 @@ class DeleteSecurityGroup(command.Command):
             parsed_args.group,
         )
         compute_client.security_groups.delete(data.id)
+        return
+
+
+class DeleteSecurityGroupRule(command.Command):
+    """Delete a security group rule"""
+
+    log = logging.getLogger(__name__ + '.DeleteSecurityGroupRule')
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteSecurityGroupRule, self).get_parser(prog_name)
+        parser.add_argument(
+            'rule',
+            metavar='<rule>',
+            help='Security group rule to delete (ID only)',
+        )
+        return parser
+
+    @utils.log_method(log)
+    def take_action(self, parsed_args):
+
+        compute_client = self.app.client_manager.compute
+        compute_client.security_group_rules.delete(parsed_args.rule)
         return
 
 
@@ -173,6 +253,49 @@ class ListSecurityGroup(lister.Lister):
                     s, columns,
                     formatters={'Tenant ID': _get_project},
                 ) for s in data))
+
+
+class ListSecurityGroupRule(lister.Lister):
+    """List security group rules"""
+
+    log = logging.getLogger(__name__ + ".ListSecurityGroupRule")
+
+    def get_parser(self, prog_name):
+        parser = super(ListSecurityGroupRule, self).get_parser(prog_name)
+        parser.add_argument(
+            'group',
+            metavar='<group>',
+            help='List all rules in this security group (name or ID)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug("take_action(%s)", parsed_args)
+
+        compute_client = self.app.client_manager.compute
+        group = utils.find_resource(
+            compute_client.security_groups,
+            parsed_args.group,
+        )
+
+        # Argh, the rules are not Resources...
+        rules = []
+        for rule in group.rules:
+            rules.append(security_group_rules.SecurityGroupRule(
+                compute_client.security_group_rules,
+                _xform_security_group_rule(rule),
+            ))
+
+        columns = column_headers = (
+            "ID",
+            "IP Protocol",
+            "IP Range",
+            "Port Range",
+        )
+        return (column_headers,
+                (utils.get_item_properties(
+                    s, columns,
+                ) for s in rules))
 
 
 class SetSecurityGroup(show.ShowOne):
@@ -263,126 +386,3 @@ class ShowSecurityGroup(show.ShowOne):
         )
 
         return zip(*sorted(six.iteritems(info)))
-
-
-class CreateSecurityGroupRule(show.ShowOne):
-    """Create a new security group rule"""
-
-    log = logging.getLogger(__name__ + ".CreateSecurityGroupRule")
-
-    def get_parser(self, prog_name):
-        parser = super(CreateSecurityGroupRule, self).get_parser(prog_name)
-        parser.add_argument(
-            'group',
-            metavar='<group>',
-            help='Create rule in this security group (name or ID)',
-        )
-        parser.add_argument(
-            "--proto",
-            metavar="<proto>",
-            default="tcp",
-            help="IP protocol (icmp, tcp, udp; default: tcp)",
-        )
-        parser.add_argument(
-            "--src-ip",
-            metavar="<ip-address>",
-            default="0.0.0.0/0",
-            help="Source IP (may use CIDR notation; default: 0.0.0.0/0)",
-        )
-        parser.add_argument(
-            "--dst-port",
-            metavar="<port-range>",
-            default=(0, 0),
-            action=parseractions.RangeAction,
-            help="Destination port, may be a range: 137:139 (default: 0; "
-                 "only required for proto tcp and udp)",
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
-        compute_client = self.app.client_manager.compute
-        group = utils.find_resource(
-            compute_client.security_groups,
-            parsed_args.group,
-        )
-        if parsed_args.proto.lower() == 'icmp':
-            from_port, to_port = -1, -1
-        else:
-            from_port, to_port = parsed_args.dst_port
-        data = compute_client.security_group_rules.create(
-            group.id,
-            parsed_args.proto,
-            from_port,
-            to_port,
-            parsed_args.src_ip,
-        )
-
-        info = _xform_security_group_rule(data._info)
-        return zip(*sorted(six.iteritems(info)))
-
-
-class DeleteSecurityGroupRule(command.Command):
-    """Delete a security group rule"""
-
-    log = logging.getLogger(__name__ + '.DeleteSecurityGroupRule')
-
-    def get_parser(self, prog_name):
-        parser = super(DeleteSecurityGroupRule, self).get_parser(prog_name)
-        parser.add_argument(
-            'rule',
-            metavar='<rule>',
-            help='Security group rule to delete (ID only)',
-        )
-        return parser
-
-    @utils.log_method(log)
-    def take_action(self, parsed_args):
-
-        compute_client = self.app.client_manager.compute
-        compute_client.security_group_rules.delete(parsed_args.rule)
-        return
-
-
-class ListSecurityGroupRule(lister.Lister):
-    """List security group rules"""
-
-    log = logging.getLogger(__name__ + ".ListSecurityGroupRule")
-
-    def get_parser(self, prog_name):
-        parser = super(ListSecurityGroupRule, self).get_parser(prog_name)
-        parser.add_argument(
-            'group',
-            metavar='<group>',
-            help='List all rules in this security group (name or ID)',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
-        compute_client = self.app.client_manager.compute
-        group = utils.find_resource(
-            compute_client.security_groups,
-            parsed_args.group,
-        )
-
-        # Argh, the rules are not Resources...
-        rules = []
-        for rule in group.rules:
-            rules.append(security_group_rules.SecurityGroupRule(
-                compute_client.security_group_rules,
-                _xform_security_group_rule(rule),
-            ))
-
-        columns = column_headers = (
-            "ID",
-            "IP Protocol",
-            "IP Range",
-            "Port Range",
-        )
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in rules))
