@@ -412,22 +412,19 @@ class TestServerDelete(TestServer):
     def setUp(self):
         super(TestServerDelete, self).setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_server()
-
-        # This is the return value for utils.find_resource()
-        self.servers_mock.get.return_value = self.server
-
         self.servers_mock.delete.return_value = None
 
         # Get the command object to test
         self.cmd = server.DeleteServer(self.app, None)
 
     def test_server_delete_no_options(self):
+        servers = self.setup_servers_mock(count=1)
+
         arglist = [
-            self.server.id,
+            servers[0].id,
         ]
         verifylist = [
-            ('server', [self.server.id]),
+            ('server', [servers[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -435,16 +432,18 @@ class TestServerDelete(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.delete.assert_called_with(
-            self.server.id,
+            servers[0].id,
         )
 
     @mock.patch.object(common_utils, 'wait_for_delete', return_value=True)
     def test_server_delete_wait_ok(self, mock_wait_for_delete):
+        servers = self.setup_servers_mock(count=1)
+
         arglist = [
-            self.server.id, '--wait'
+            servers[0].id, '--wait'
         ]
         verifylist = [
-            ('server', [self.server.id]),
+            ('server', [servers[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -452,22 +451,24 @@ class TestServerDelete(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.delete.assert_called_with(
-            self.server.id,
+            servers[0].id,
         )
 
         mock_wait_for_delete.assert_called_once_with(
             self.servers_mock,
-            self.server.id,
+            servers[0].id,
             callback=server._show_progress
         )
 
     @mock.patch.object(common_utils, 'wait_for_delete', return_value=False)
     def test_server_delete_wait_fails(self, mock_wait_for_delete):
+        servers = self.setup_servers_mock(count=1)
+
         arglist = [
-            self.server.id, '--wait'
+            servers[0].id, '--wait'
         ]
         verifylist = [
-            ('server', [self.server.id]),
+            ('server', [servers[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -475,12 +476,12 @@ class TestServerDelete(TestServer):
         self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
 
         self.servers_mock.delete.assert_called_with(
-            self.server.id,
+            servers[0].id,
         )
 
         mock_wait_for_delete.assert_called_once_with(
             self.servers_mock,
-            self.server.id,
+            servers[0].id,
             callback=server._show_progress
         )
 
