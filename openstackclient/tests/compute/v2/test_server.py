@@ -779,6 +779,26 @@ class TestServerResize(TestServer):
         )
 
 
+class TestServerResume(TestServer):
+
+    def setUp(self):
+        super(TestServerResume, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.ResumeServer(self.app, None)
+
+        # Set methods to be tested.
+        self.methods = {
+            'resume': None,
+        }
+
+    def test_server_resume_one_server(self):
+        self.run_method_with_servers('resume', 1)
+
+    def test_server_resume_multi_servers(self):
+        self.run_method_with_servers('resume', 3)
+
+
 class TestServerSuspend(TestServer):
 
     def setUp(self):
