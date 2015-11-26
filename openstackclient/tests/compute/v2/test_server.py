@@ -52,6 +52,19 @@ class TestServer(compute_fakes.TestComputev2):
         self.volumes_mock = self.app.client_manager.volume.volumes
         self.volumes_mock.reset_mock()
 
+        # Set object methods to be tested. Could be overwriten in subclass.
+        self.methods = {}
+
+    def setup_servers_mock(self, count):
+        servers = compute_fakes.FakeServer.create_servers(methods=self.methods,
+                                                          count=count)
+
+        # This is the return value for utils.find_resource()
+        self.servers_mock.get = compute_fakes.FakeServer.get_servers(servers,
+                                                                     0)
+
+        return servers
+
 
 class TestServerCreate(TestServer):
 
@@ -569,18 +582,6 @@ class TestServerPause(TestServer):
             'pause': None,
         }
 
-    def setup_servers_mock(self, count=1):
-        servers = compute_fakes.FakeServer.create_servers(
-            methods=self.methods,
-            count=count)
-
-        # This is the return value for utils.find_resource()
-        self.servers_mock.get = compute_fakes.FakeServer.get_servers(
-            servers,
-            1)
-
-        return servers
-
     def test_server_pause_one_server(self):
         servers = self.setup_servers_mock(1)
 
@@ -808,17 +809,6 @@ class TestShelveServer(TestServer):
         self.methods = {
             'shelve': None,
         }
-
-    def setup_servers_mock(self, count=1):
-        servers = compute_fakes.FakeServer.create_servers(
-            methods=self.methods,
-            count=count)
-
-        self.servers_mock.get = compute_fakes.FakeServer.get_servers(
-            servers,
-            1)
-
-        return servers
 
     def test_shelve_one_server(self):
         server = self.setup_servers_mock(1)[0]
