@@ -779,6 +779,26 @@ class TestServerResize(TestServer):
         )
 
 
+class TestServerUnlock(TestServer):
+
+    def setUp(self):
+        super(TestServerUnlock, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.UnlockServer(self.app, None)
+
+        # Set methods to be tested.
+        self.methods = {
+            'unlock': None,
+        }
+
+    def test_server_unlock_one_server(self):
+        self.run_method_with_servers('unlock', 1)
+
+    def test_server_unlock_multi_servers(self):
+        self.run_method_with_servers('unlock', 3)
+
+
 class TestServerUnpause(TestServer):
 
     def setUp(self):
