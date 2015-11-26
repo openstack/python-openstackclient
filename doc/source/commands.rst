@@ -77,7 +77,7 @@ referring to both Compute and Volume quotas.
 * ``console log``: (**Compute**) server console text dump
 * ``console url``: (**Compute**) server remote console URL
 * ``consumer``: (**Identity**) OAuth-based delegatee
-* ``container``: (**Object Store**) a grouping of objects
+* ``container``: (**Object Storage**) a grouping of objects
 * ``credentials``: (**Identity**) specific to identity providers
 * ``domain``: (**Identity**) a grouping of projects
 * ``ec2 credentials``: (**Identity**) AWS EC2-compatible credentials
@@ -99,7 +99,7 @@ referring to both Compute and Volume quotas.
 * ``mapping``: (**Identity**) a definition to translate identity provider attributes to Identity concepts
 * ``module``: internal - installed Python modules in the OSC process
 * ``network``: (**Network**) - a virtual network for connecting servers and other resources
-* ``object``: (**Object Store**) a single file in the Object Store
+* ``object``: (**Object Storage**) a single file in the Object Storage
 * ``policy``: (**Identity**) determines authorization
 * ``project``: (**Identity**) owns a group of resources
 * ``quota``: (**Compute**, **Volume**) resource usage restrictions

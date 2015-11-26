@@ -2,7 +2,7 @@
 object store account
 ====================
 
-Object Store v1
+Object Storage v1
 
 object store account set
 ------------------------

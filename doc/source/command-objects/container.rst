@@ -2,7 +2,7 @@
 container
 =========
 
-Object Store v1
+Object Storage v1
 
 container create
 ----------------
