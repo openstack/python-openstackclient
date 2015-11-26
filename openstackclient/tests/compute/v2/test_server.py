@@ -17,6 +17,7 @@ import copy
 import mock
 import testtools
 
+from mock import call
 from openstackclient.common import exceptions
 from openstackclient.common import utils as common_utils
 from openstackclient.compute.v2 import server
@@ -434,6 +435,27 @@ class TestServerDelete(TestServer):
         self.servers_mock.delete.assert_called_with(
             servers[0].id,
         )
+
+    def test_server_delete_multi_servers(self):
+        servers = self.setup_servers_mock(count=3)
+
+        arglist = []
+        verifylist = []
+
+        for s in servers:
+            arglist.append(s.id)
+        verifylist = [
+            ('server', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        calls = []
+        for s in servers:
+            calls.append(call(s.id))
+        self.servers_mock.delete.assert_has_calls(calls)
 
     @mock.patch.object(common_utils, 'wait_for_delete', return_value=True)
     def test_server_delete_wait_ok(self, mock_wait_for_delete):
