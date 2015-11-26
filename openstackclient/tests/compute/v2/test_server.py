@@ -63,8 +63,27 @@ class TestServer(compute_fakes.TestComputev2):
         # This is the return value for utils.find_resource()
         self.servers_mock.get = compute_fakes.FakeServer.get_servers(servers,
                                                                      0)
-
         return servers
+
+    def run_method_with_servers(self, method_name, server_count):
+        servers = self.setup_servers_mock(server_count)
+
+        arglist = []
+        verifylist = []
+
+        for s in servers:
+            arglist.append(s.id)
+        verifylist = [
+            ('server', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        for s in servers:
+            method = getattr(s, method_name)
+            method.assert_called_with()
 
 
 class TestServerCreate(TestServer):
@@ -606,38 +625,10 @@ class TestServerPause(TestServer):
         }
 
     def test_server_pause_one_server(self):
-        servers = self.setup_servers_mock(1)
-
-        arglist = [
-            servers[0].id,
-        ]
-        verifylist = [
-            ('server', [servers[0].id]),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # DisplayCommandBase.take_action() returns two tuples
-        self.cmd.take_action(parsed_args)
-
-        servers[0].pause.assert_called_with()
+        self.run_method_with_servers('pause', 1)
 
     def test_server_pause_multi_servers(self):
-        servers = self.setup_servers_mock(3)
-        arglist = []
-        verifylist = []
-
-        for i in range(0, len(servers)):
-            arglist.append(servers[i].id)
-        verifylist = [
-            ('server', arglist),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # DisplayCommandBase.take_action() returns two tuples
-        self.cmd.take_action(parsed_args)
-
-        for i in range(0, len(servers)):
-            servers[i].pause.assert_called_with()
+        self.run_method_with_servers('pause', 3)
 
 
 class TestServerResize(TestServer):
@@ -834,33 +825,7 @@ class TestShelveServer(TestServer):
         }
 
     def test_shelve_one_server(self):
-        server = self.setup_servers_mock(1)[0]
-
-        arglist = [
-            server.id,
-        ]
-        verifylist = [
-            ('server', [server.id]),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.cmd.take_action(parsed_args)
-
-        server.shelve.assert_called_with()
+        self.run_method_with_servers('shelve', 1)
 
     def test_shelve_multi_servers(self):
-        servers = self.setup_servers_mock(3)
-        arglist = []
-        verifylist = []
-
-        for i in range(0, len(servers)):
-            arglist.append(servers[i].id)
-        verifylist = [
-            ('server', arglist),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.cmd.take_action(parsed_args)
-
-        for i in range(0, len(servers)):
-            servers[i].shelve.assert_called_with()
+        self.run_method_with_servers('shelve', 3)
