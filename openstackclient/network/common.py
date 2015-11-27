@@ -27,7 +27,8 @@ def find(client, resource, resources, name_or_id, name_attr='name'):
         n = find(netclient, 'network', 'networks', 'matrix')
     """
     list_method = getattr(client, "list_%s" % resources)
-    # Search for by name
+
+    # Search by name
     kwargs = {name_attr: name_or_id, 'fields': 'id'}
     data = list_method(**kwargs)
     info = data[resources]
@@ -36,7 +37,8 @@ def find(client, resource, resources, name_or_id, name_attr='name'):
     if len(info) > 1:
         msg = "More than one %s exists with the name '%s'."
         raise exceptions.CommandError(msg % (resource, name_or_id))
-    # Search for by id
+
+    # Search by id
     data = list_method(id=name_or_id, fields='id')
     info = data[resources]
     if len(info) == 1:
