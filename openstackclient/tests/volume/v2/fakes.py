@@ -14,6 +14,8 @@
 
 import copy
 import mock
+import random
+import uuid
 
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
@@ -220,3 +222,85 @@ class TestVolume(utils.TestCommand):
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN
         )
+
+
+class FakeVolume(object):
+    """Fake one or more volumes.
+
+    TODO(xiexs): Currently, only volume API v2 is supported by this class.
+    """
+
+    @staticmethod
+    def create_one_volume(attrs={}):
+        """Create a fake volume.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes of volume
+        :retrun:
+            A FakeResource object with id, name, status, etc.
+        """
+        # Set default attribute
+        volume_info = {
+            'id': 'volume-id' + uuid.uuid4().hex,
+            'name': 'volume-name' + uuid.uuid4().hex,
+            'description': 'description' + uuid.uuid4().hex,
+            'status': random.choice(['available', 'in_use']),
+            'size': random.randint(1, 20),
+            'volume_type':
+                random.choice(['fake_lvmdriver-1', 'fake_lvmdriver-2']),
+            'metadata': {
+                'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
+                'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
+                'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex},
+            'snapshot_id': random.randint(1, 5),
+            'availability_zone': 'zone' + uuid.uuid4().hex,
+            'attachments': {
+                'device': '/dev/' + uuid.uuid4().hex,
+                'server_id': uuid.uuid4().hex},
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        volume_info.update(attrs)
+
+        volume = fakes.FakeResource(
+            None,
+            volume_info,
+            loaded=True)
+        return volume
+
+    @staticmethod
+    def create_volumes(attrs={}, count=2):
+        """Create multiple fake volumes.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes of volume
+        :param Integer count:
+            The number of volumes to be faked
+        :return:
+            A list of FakeResource objects
+        """
+        volumes = []
+        for n in range(0, count):
+            volumes.append(FakeVolume.create_one_volume(attrs))
+
+        return volumes
+
+    @staticmethod
+    def get_volumes(volumes=None, count=2):
+        """Get an iterable MagicMock object with a list of faked volumes.
+
+        If volumes list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List volumes:
+            A list of FakeResource objects faking volumes
+        :param Integer count:
+            The number of volumes to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            volumes
+        """
+        if volumes is None:
+            volumes = FakeVolume.create_volumes(count)
+
+        return mock.MagicMock(side_effect=volumes)
