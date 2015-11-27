@@ -611,6 +611,26 @@ class TestServerImageCreate(TestServer):
         self.assertEqual(datalist, data)
 
 
+class TestServerLock(TestServer):
+
+    def setUp(self):
+        super(TestServerLock, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.LockServer(self.app, None)
+
+        # Set methods to be tested.
+        self.methods = {
+            'lock': None,
+        }
+
+    def test_server_lock_one_server(self):
+        self.run_method_with_servers('lock', 1)
+
+    def test_server_lock_multi_servers(self):
+        self.run_method_with_servers('lock', 3)
+
+
 class TestServerPause(TestServer):
 
     def setUp(self):
