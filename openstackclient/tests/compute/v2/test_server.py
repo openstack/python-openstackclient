@@ -779,6 +779,26 @@ class TestServerResize(TestServer):
         )
 
 
+class TestServerSuspend(TestServer):
+
+    def setUp(self):
+        super(TestServerSuspend, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.SuspendServer(self.app, None)
+
+        # Set methods to be tested.
+        self.methods = {
+            'suspend': None,
+        }
+
+    def test_server_suspend_one_server(self):
+        self.run_method_with_servers('suspend', 1)
+
+    def test_server_suspend_multi_servers(self):
+        self.run_method_with_servers('suspend', 3)
+
+
 class TestServerUnlock(TestServer):
 
     def setUp(self):
