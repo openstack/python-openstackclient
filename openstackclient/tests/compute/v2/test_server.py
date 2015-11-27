@@ -819,6 +819,26 @@ class TestServerStart(TestServer):
         self.run_method_with_servers('start', 3)
 
 
+class TestServerStop(TestServer):
+
+    def setUp(self):
+        super(TestServerStop, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.StopServer(self.app, None)
+
+        # Set methods to be tested.
+        self.methods = {
+            'stop': None,
+        }
+
+    def test_server_stop_one_server(self):
+        self.run_method_with_servers('stop', 1)
+
+    def test_server_stop_multi_servers(self):
+        self.run_method_with_servers('stop', 3)
+
+
 class TestServerSuspend(TestServer):
 
     def setUp(self):
