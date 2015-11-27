@@ -759,6 +759,26 @@ class TestServerResize(TestServer):
         )
 
 
+class TestServerUnpause(TestServer):
+
+    def setUp(self):
+        super(TestServerUnpause, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.UnpauseServer(self.app, None)
+
+        # Set methods to be tested.
+        self.methods = {
+            'unpause': None,
+        }
+
+    def test_server_unpause_one_server(self):
+        self.run_method_with_servers('unpause', 1)
+
+    def test_server_unpause_multi_servers(self):
+        self.run_method_with_servers('unpause', 3)
+
+
 class TestServerGeneral(testtools.TestCase):
     OLD = {
         'private': [
