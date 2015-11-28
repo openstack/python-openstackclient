@@ -210,14 +210,13 @@ class TestFlavorList(TestFlavor):
 
 class TestFlavorSet(TestFlavor):
 
+    # Return value of self.flavors_mock.find().
+    flavor = compute_fakes.FakeFlavor.create_one_flavor()
+
     def setUp(self):
         super(TestFlavorSet, self).setUp()
 
-        self.flavors_mock.find.return_value = compute_fakes.FakeFlavorResource(
-            None,
-            copy.deepcopy(compute_fakes.FLAVOR),
-            loaded=True,
-        )
+        self.flavors_mock.find.return_value = self.flavor
 
         self.cmd = flavor.SetFlavor(self.app, None)
 
