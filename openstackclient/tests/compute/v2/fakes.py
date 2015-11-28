@@ -209,3 +209,24 @@ class FakeServer(object):
         if servers is None:
             servers = FakeServer.create_servers(count)
         return mock.MagicMock(side_effect=servers)
+
+
+class FakeFlavorResource(fakes.FakeResource):
+    """Fake flavor object's methods to help test.
+
+    The flavor object has three methods to get, set, unset its properties.
+    Need to fake them, otherwise the functions to be tested won't run properly.
+    """
+
+    # Fake properties.
+    _keys = {'property': 'value'}
+
+    def set_keys(self, args):
+        self._keys.update(args)
+
+    def unset_keys(self, keys):
+        for key in keys:
+            self._keys.pop(key, None)
+
+    def get_keys(self):
+        return self._keys

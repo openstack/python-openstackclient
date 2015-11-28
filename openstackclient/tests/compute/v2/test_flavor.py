@@ -17,22 +17,6 @@ import copy
 
 from openstackclient.compute.v2 import flavor
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
-from openstackclient.tests import fakes
-
-
-class FakeFlavorResource(fakes.FakeResource):
-
-    _keys = {'property': 'value'}
-
-    def set_keys(self, args):
-        self._keys.update(args)
-
-    def unset_keys(self, keys):
-        for key in keys:
-            self._keys.pop(key, None)
-
-    def get_keys(self):
-        return self._keys
 
 
 class TestFlavor(compute_fakes.TestComputev2):
@@ -81,7 +65,7 @@ class TestFlavorList(TestFlavor):
         super(TestFlavorList, self).setUp()
 
         self.flavors_mock.list.return_value = [
-            FakeFlavorResource(
+            compute_fakes.FakeFlavorResource(
                 None,
                 copy.deepcopy(compute_fakes.FLAVOR),
                 loaded=True,
@@ -232,7 +216,7 @@ class TestFlavorSet(TestFlavor):
     def setUp(self):
         super(TestFlavorSet, self).setUp()
 
-        self.flavors_mock.find.return_value = FakeFlavorResource(
+        self.flavors_mock.find.return_value = compute_fakes.FakeFlavorResource(
             None,
             copy.deepcopy(compute_fakes.FLAVOR),
             loaded=True,
@@ -265,7 +249,7 @@ class TestFlavorUnset(TestFlavor):
     def setUp(self):
         super(TestFlavorUnset, self).setUp()
 
-        self.flavors_mock.find.return_value = FakeFlavorResource(
+        self.flavors_mock.find.return_value = compute_fakes.FakeFlavorResource(
             None,
             copy.deepcopy(compute_fakes.FLAVOR),
             loaded=True,
