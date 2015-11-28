@@ -110,11 +110,7 @@ class TestServerCreate(TestServer):
         )
         self.cimages_mock.get.return_value = self.image
 
-        self.flavor = fakes.FakeResource(
-            None,
-            copy.deepcopy(compute_fakes.FLAVOR),
-            loaded=True,
-        )
+        self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
         self.flavors_mock.get.return_value = self.flavor
 
         self.volume = fakes.FakeResource(
@@ -192,7 +188,7 @@ class TestServerCreate(TestServer):
         self.assertEqual(collist, columns)
         datalist = (
             '',
-            'Large ()',
+            self.flavor.name + ' ()',
             self.new_server.id,
             self.new_server.name,
             self.new_server.networks,
@@ -276,7 +272,7 @@ class TestServerCreate(TestServer):
         self.assertEqual(collist, columns)
         datalist = (
             '',
-            'Large ()',
+            self.flavor.name + ' ()',
             self.new_server.id,
             self.new_server.name,
             self.new_server.networks,
@@ -349,7 +345,7 @@ class TestServerCreate(TestServer):
         self.assertEqual(collist, columns)
         datalist = (
             '',
-            'Large ()',
+            self.flavor.name + ' ()',
             self.new_server.id,
             self.new_server.name,
             self.new_server.networks,
@@ -360,13 +356,13 @@ class TestServerCreate(TestServer):
     def test_server_create_with_block_device_mapping(self):
         arglist = [
             '--image', 'image1',
-            '--flavor', compute_fakes.flavor_id,
+            '--flavor', self.flavor.id,
             '--block-device-mapping', compute_fakes.block_device_mapping,
             self.new_server.name,
         ]
         verifylist = [
             ('image', 'image1'),
-            ('flavor', compute_fakes.flavor_id),
+            ('flavor', self.flavor.id),
             ('block_device_mapping', [compute_fakes.block_device_mapping]),
             ('config_drive', False),
             ('server_name', self.new_server.name),
@@ -418,7 +414,7 @@ class TestServerCreate(TestServer):
         self.assertEqual(collist, columns)
         datalist = (
             '',
-            'Large ()',
+            self.flavor.name + ' ()',
             self.new_server.id,
             self.new_server.name,
             self.new_server.networks,
