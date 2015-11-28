@@ -62,6 +62,21 @@ class TestFlavorList(TestFlavor):
         'Properties'
     )
 
+    data = ((
+        compute_fakes.flavor_id,
+        compute_fakes.flavor_name,
+        compute_fakes.flavor_ram,
+        '',
+        '',
+        compute_fakes.flavor_vcpus,
+        ''
+    ), )
+    data_long = (data[0] + (
+        '',
+        '',
+        'property=\'value\''
+    ), )
+
     def setUp(self):
         super(TestFlavorList, self).setUp()
 
@@ -101,16 +116,7 @@ class TestFlavorList(TestFlavor):
         )
 
         self.assertEqual(self.columns, columns)
-        datalist = ((
-            compute_fakes.flavor_id,
-            compute_fakes.flavor_name,
-            compute_fakes.flavor_ram,
-            '',
-            '',
-            compute_fakes.flavor_vcpus,
-            ''
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(tuple(self.data), tuple(data))
 
     def test_flavor_list_all_flavors(self):
         arglist = [
@@ -137,16 +143,7 @@ class TestFlavorList(TestFlavor):
         )
 
         self.assertEqual(self.columns, columns)
-        datalist = ((
-            compute_fakes.flavor_id,
-            compute_fakes.flavor_name,
-            compute_fakes.flavor_ram,
-            '',
-            '',
-            compute_fakes.flavor_vcpus,
-            ''
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(tuple(self.data), tuple(data))
 
     def test_flavor_list_private_flavors(self):
         arglist = [
@@ -173,16 +170,7 @@ class TestFlavorList(TestFlavor):
         )
 
         self.assertEqual(self.columns, columns)
-        datalist = ((
-            compute_fakes.flavor_id,
-            compute_fakes.flavor_name,
-            compute_fakes.flavor_ram,
-            '',
-            '',
-            compute_fakes.flavor_vcpus,
-            ''
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(tuple(self.data), tuple(data))
 
     def test_flavor_list_public_flavors(self):
         arglist = [
@@ -209,16 +197,7 @@ class TestFlavorList(TestFlavor):
         )
 
         self.assertEqual(self.columns, columns)
-        datalist = ((
-            compute_fakes.flavor_id,
-            compute_fakes.flavor_name,
-            compute_fakes.flavor_ram,
-            '',
-            '',
-            compute_fakes.flavor_vcpus,
-            ''
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(tuple(self.data), tuple(data))
 
     def test_flavor_list_long(self):
         arglist = [
@@ -245,19 +224,7 @@ class TestFlavorList(TestFlavor):
         )
 
         self.assertEqual(self.columns_long, columns)
-        datalist = ((
-            compute_fakes.flavor_id,
-            compute_fakes.flavor_name,
-            compute_fakes.flavor_ram,
-            '',
-            '',
-            compute_fakes.flavor_vcpus,
-            '',
-            '',
-            '',
-            'property=\'value\''
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(tuple(self.data_long), tuple(data))
 
 
 class TestFlavorSet(TestFlavor):
