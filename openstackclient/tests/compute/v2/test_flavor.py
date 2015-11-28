@@ -47,6 +47,21 @@ class TestFlavor(compute_fakes.TestComputev2):
 
 class TestFlavorList(TestFlavor):
 
+    columns = (
+        'ID',
+        'Name',
+        'RAM',
+        'Disk',
+        'Ephemeral',
+        'VCPUs',
+        'Is Public',
+    )
+    columns_long = columns + (
+        'Swap',
+        'RXTX Factor',
+        'Properties'
+    )
+
     def setUp(self):
         super(TestFlavorList, self).setUp()
 
@@ -85,16 +100,7 @@ class TestFlavorList(TestFlavor):
             **kwargs
         )
 
-        collist = (
-            'ID',
-            'Name',
-            'RAM',
-            'Disk',
-            'Ephemeral',
-            'VCPUs',
-            'Is Public',
-        )
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             compute_fakes.flavor_id,
             compute_fakes.flavor_name,
@@ -130,16 +136,7 @@ class TestFlavorList(TestFlavor):
             **kwargs
         )
 
-        collist = (
-            'ID',
-            'Name',
-            'RAM',
-            'Disk',
-            'Ephemeral',
-            'VCPUs',
-            'Is Public',
-        )
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             compute_fakes.flavor_id,
             compute_fakes.flavor_name,
@@ -175,16 +172,7 @@ class TestFlavorList(TestFlavor):
             **kwargs
         )
 
-        collist = (
-            'ID',
-            'Name',
-            'RAM',
-            'Disk',
-            'Ephemeral',
-            'VCPUs',
-            'Is Public',
-        )
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             compute_fakes.flavor_id,
             compute_fakes.flavor_name,
@@ -220,16 +208,7 @@ class TestFlavorList(TestFlavor):
             **kwargs
         )
 
-        collist = (
-            'ID',
-            'Name',
-            'RAM',
-            'Disk',
-            'Ephemeral',
-            'VCPUs',
-            'Is Public',
-        )
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             compute_fakes.flavor_id,
             compute_fakes.flavor_name,
@@ -265,19 +244,7 @@ class TestFlavorList(TestFlavor):
             **kwargs
         )
 
-        collist = (
-            'ID',
-            'Name',
-            'RAM',
-            'Disk',
-            'Ephemeral',
-            'VCPUs',
-            'Is Public',
-            'Swap',
-            'RXTX Factor',
-            'Properties'
-        )
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns_long, columns)
         datalist = ((
             compute_fakes.flavor_id,
             compute_fakes.flavor_name,
