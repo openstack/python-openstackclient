@@ -31,6 +31,9 @@ class TestFlavor(compute_fakes.TestComputev2):
 
 class TestFlavorList(TestFlavor):
 
+    # Return value of self.flavors_mock.list().
+    flavors = compute_fakes.FakeFlavor.create_flavors(count=1)
+
     columns = (
         'ID',
         'Name',
@@ -47,12 +50,12 @@ class TestFlavorList(TestFlavor):
     )
 
     data = ((
-        compute_fakes.flavor_id,
-        compute_fakes.flavor_name,
-        compute_fakes.flavor_ram,
+        flavors[0].id,
+        flavors[0].name,
+        flavors[0].ram,
         '',
         '',
-        compute_fakes.flavor_vcpus,
+        flavors[0].vcpus,
         ''
     ), )
     data_long = (data[0] + (
@@ -64,13 +67,7 @@ class TestFlavorList(TestFlavor):
     def setUp(self):
         super(TestFlavorList, self).setUp()
 
-        self.flavors_mock.list.return_value = [
-            compute_fakes.FakeFlavorResource(
-                None,
-                copy.deepcopy(compute_fakes.FLAVOR),
-                loaded=True,
-            ),
-        ]
+        self.flavors_mock.list.return_value = self.flavors
 
         # Get the command object to test
         self.cmd = flavor.ListFlavor(self.app, None)
