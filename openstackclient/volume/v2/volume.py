@@ -185,10 +185,10 @@ class DeleteVolume(command.Command):
         for volume in parsed_args.volumes:
             volume_obj = utils.find_resource(
                 volume_client.volumes, volume)
-        if parsed_args.force:
-            volume_client.volumes.force_delete(volume_obj.id)
-        else:
-            volume_client.volumes.delete(volume_obj.id)
+            if parsed_args.force:
+                volume_client.volumes.force_delete(volume_obj.id)
+            else:
+                volume_client.volumes.delete(volume_obj.id)
         return
 
 
