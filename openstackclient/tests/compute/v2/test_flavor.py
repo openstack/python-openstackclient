@@ -13,8 +13,6 @@
 #   under the License.
 #
 
-import copy
-
 from openstackclient.compute.v2 import flavor
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 
@@ -242,14 +240,13 @@ class TestFlavorSet(TestFlavor):
 
 class TestFlavorUnset(TestFlavor):
 
+    # Return value of self.flavors_mock.find().
+    flavor = compute_fakes.FakeFlavor.create_one_flavor()
+
     def setUp(self):
         super(TestFlavorUnset, self).setUp()
 
-        self.flavors_mock.find.return_value = compute_fakes.FakeFlavorResource(
-            None,
-            copy.deepcopy(compute_fakes.FLAVOR),
-            loaded=True,
-        )
+        self.flavors_mock.find.return_value = self.flavor
 
         self.cmd = flavor.UnsetFlavor(self.app, None)
 
