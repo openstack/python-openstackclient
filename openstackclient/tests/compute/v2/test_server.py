@@ -666,11 +666,8 @@ class TestServerResize(TestServer):
         self.servers_mock.revert_resize.return_value = None
 
         # This is the return value for utils.find_resource()
-        self.flavors_get_return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(compute_fakes.FLAVOR),
-            loaded=True,
-        )
+        self.flavors_get_return_value = \
+            compute_fakes.FakeFlavor.create_one_flavor()
         self.flavors_mock.get.return_value = self.flavors_get_return_value
 
         # Get the command object to test
@@ -700,11 +697,11 @@ class TestServerResize(TestServer):
 
     def test_server_resize(self):
         arglist = [
-            '--flavor', compute_fakes.flavor_id,
+            '--flavor', self.flavors_get_return_value.id,
             self.server.id,
         ]
         verifylist = [
-            ('flavor', compute_fakes.flavor_id),
+            ('flavor', self.flavors_get_return_value.id),
             ('confirm', False),
             ('revert', False),
             ('server', self.server.id),
@@ -718,7 +715,7 @@ class TestServerResize(TestServer):
             self.server.id,
         )
         self.flavors_mock.get.assert_called_with(
-            compute_fakes.flavor_id,
+            self.flavors_get_return_value.id,
         )
 
         self.servers_mock.resize.assert_called_with(
