@@ -230,3 +230,67 @@ class FakeFlavorResource(fakes.FakeResource):
 
     def get_keys(self):
         return self._keys
+
+
+class FakeFlavor(object):
+    """Fake one or more flavors."""
+
+    @staticmethod
+    def create_one_flavor(attrs={}):
+        """Create a fake flavor.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeFlavorResource object, with id, name, ram, vcpus, properties
+        """
+        # Set default attributes.
+        flavor_info = {
+            'id': 'flavor-id-' + uuid.uuid4().hex,
+            'name': 'flavor-name-' + uuid.uuid4().hex,
+            'ram': 8192,
+            'vcpus': 4,
+        }
+
+        # Overwrite default attributes.
+        flavor_info.update(attrs)
+
+        flavor = FakeFlavorResource(info=copy.deepcopy(flavor_info),
+                                    loaded=True)
+        return flavor
+
+    @staticmethod
+    def create_flavors(attrs={}, count=2):
+        """Create multiple fake flavors.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of flavors to fake
+        :return:
+            A list of FakeFlavorResource objects faking the flavors
+        """
+        flavors = []
+        for i in range(0, count):
+            flavors.append(FakeFlavor.create_one_flavor(attrs))
+
+        return flavors
+
+    @staticmethod
+    def get_flavors(flavors=None, count=2):
+        """Get an iterable MagicMock object with a list of faked flavors.
+
+        If flavors list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List flavors:
+            A list of FakeFlavorResource objects faking flavors
+        :param int count:
+            The number of flavors to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            flavors
+        """
+        if flavors is None:
+            flavors = FakeServer.create_flavors(count)
+        return mock.MagicMock(side_effect=flavors)
