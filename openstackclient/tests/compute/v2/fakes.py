@@ -46,18 +46,6 @@ EXTENSION = {
     'links': extension_links,
 }
 
-flavor_id = 'm1.large'
-flavor_name = 'Large'
-flavor_ram = 8192
-flavor_vcpus = 4
-
-FLAVOR = {
-    'id': flavor_id,
-    'name': flavor_name,
-    'ram': flavor_ram,
-    'vcpus': flavor_vcpus,
-}
-
 floating_ip_num = 100
 fix_ip_num = 100
 injected_file_num = 100
