@@ -374,12 +374,13 @@ class TestImageList(TestImage):
             marker=image_fakes.image_id,
         )
 
-        collist = ('ID', 'Name')
+        collist = ('ID', 'Name', 'Status')
 
         self.assertEqual(collist, columns)
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,
+            '',
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -402,12 +403,13 @@ class TestImageList(TestImage):
             marker=image_fakes.image_id,
         )
 
-        collist = ('ID', 'Name')
+        collist = ('ID', 'Name', 'Status')
 
         self.assertEqual(collist, columns)
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,
+            '',
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -430,12 +432,13 @@ class TestImageList(TestImage):
             marker=image_fakes.image_id,
         )
 
-        collist = ('ID', 'Name')
+        collist = ('ID', 'Name', 'Status')
 
         self.assertEqual(collist, columns)
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,
+            '',
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -458,12 +461,13 @@ class TestImageList(TestImage):
             marker=image_fakes.image_id,
         )
 
-        collist = ('ID', 'Name')
+        collist = ('ID', 'Name', 'Status')
 
         self.assertEqual(columns, collist)
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,
+            '',
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -536,12 +540,13 @@ class TestImageList(TestImage):
             property_field='properties',
         )
 
-        collist = ('ID', 'Name')
+        collist = ('ID', 'Name', 'Status')
 
         self.assertEqual(columns, collist)
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,
+            '',
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -565,12 +570,13 @@ class TestImageList(TestImage):
             'name:asc'
         )
 
-        collist = ('ID', 'Name')
+        collist = ('ID', 'Name', 'Status')
 
         self.assertEqual(collist, columns)
         datalist = ((
             image_fakes.image_id,
-            image_fakes.image_name
+            image_fakes.image_name,
+            '',
         ), )
         self.assertEqual(datalist, tuple(data))
 

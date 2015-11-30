@@ -417,7 +417,7 @@ class ListImage(lister.Lister):
                 'Tags',
             )
         else:
-            columns = ("ID", "Name")
+            columns = ("ID", "Name", "Status")
             column_headers = columns
 
         # List of image data received

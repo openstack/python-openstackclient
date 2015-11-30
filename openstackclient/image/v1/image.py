@@ -354,7 +354,12 @@ class ListImage(lister.Lister):
             kwargs['public'] = True
         if parsed_args.private:
             kwargs['private'] = True
-        kwargs['detailed'] = bool(parsed_args.property or parsed_args.long)
+        # Note: We specifically need to do that below to get the 'status'
+        #       column.
+        #
+        # Always set kwargs['detailed'] to True, and then filter the columns
+        # according to whether the --long option is specified or not.
+        kwargs['detailed'] = True
 
         if parsed_args.long:
             columns = (
@@ -382,7 +387,7 @@ class ListImage(lister.Lister):
                 'Properties',
             )
         else:
-            columns = ("ID", "Name")
+            columns = ("ID", "Name", "Status")
             column_headers = columns
 
         # List of image data received
