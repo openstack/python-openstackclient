@@ -187,6 +187,7 @@ List servers
         [--all-projects]
         [--project <project> [--project-domain <project-domain>]]
         [--long]
+        [--marker <server>]
 
 .. option:: --reservation-id <reservation-id>
 
@@ -249,6 +250,11 @@ List servers
 .. option:: --long
 
     List additional fields in output
+
+.. option:: --marker <server>
+
+    The last server (name or ID) of the previous page. Display list of servers
+    after marker. Display all servers if not specified.
 
 server lock
 -----------
