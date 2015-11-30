@@ -1352,6 +1352,31 @@ class SetServer(command.Command):
                 raise exceptions.CommandError(msg)
 
 
+class ShelveServer(command.Command):
+    """Shelve server(s)"""
+
+    log = logging.getLogger(__name__ + '.ShelveServer')
+
+    def get_parser(self, prog_name):
+        parser = super(ShelveServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            nargs='+',
+            help=_('Server(s) to shelve (name or ID)'),
+        )
+        return parser
+
+    @utils.log_method(log)
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+        for server in parsed_args.server:
+            utils.find_resource(
+                compute_client.servers,
+                server,
+            ).shelve()
+
+
 class ShowServer(show.ShowOne):
     """Show server details"""
 
@@ -1387,31 +1412,6 @@ class ShowServer(show.ShowOne):
             data = _prep_server_detail(compute_client, server)
 
         return zip(*sorted(six.iteritems(data)))
-
-
-class ShelveServer(command.Command):
-    """Shelve server(s)"""
-
-    log = logging.getLogger(__name__ + '.ShelveServer')
-
-    def get_parser(self, prog_name):
-        parser = super(ShelveServer, self).get_parser(prog_name)
-        parser.add_argument(
-            'server',
-            metavar='<server>',
-            nargs='+',
-            help=_('Server(s) to shelve (name or ID)'),
-        )
-        return parser
-
-    @utils.log_method(log)
-    def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        for server in parsed_args.server:
-            utils.find_resource(
-                compute_client.servers,
-                server,
-            ).shelve()
 
 
 class SshServer(command.Command):
@@ -1748,3 +1748,28 @@ class UnsetServer(command.Command):
                 server,
                 parsed_args.property,
             )
+
+
+class UnshelveServer(command.Command):
+    """Unshelve server(s)"""
+
+    log = logging.getLogger(__name__ + '.UnshelveServer')
+
+    def get_parser(self, prog_name):
+        parser = super(UnshelveServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            nargs='+',
+            help=_('Server(s) to unshelve (name or ID)'),
+        )
+        return parser
+
+    @utils.log_method(log)
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+        for server in parsed_args.server:
+            utils.find_resource(
+                compute_client.servers,
+                server,
+            ).unshelve()

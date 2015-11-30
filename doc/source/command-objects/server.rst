@@ -720,3 +720,18 @@ Unset server properties
 .. describe:: <server>
 
     Server (name or ID)
+
+server unshelve
+---------------
+
+Unshelve server(s)
+
+.. program:: server unshelve
+.. code:: bash
+
+    os server unshelve
+        <server> [<server> ...]
+
+.. describe:: <server>
+
+    Server(s) to unshelve (name or ID)

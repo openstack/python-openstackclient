@@ -183,7 +183,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``revoke`` (``issue``) - revoke a token
 * ``save`` - download an object locally
 * ``set`` (``unset``) - set a property on the object, formerly called metadata
-* ``shelve`` (``unshelve``) - shelve one or more server
+* ``shelve`` (``unshelve``) - shelve one or more servers
 * ``show`` - display detailed information about the specific object
 * ``start`` (``stop``) - start one or more servers
 * ``stop`` (``start``) - stop one or more servers
@@ -192,6 +192,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``unpause`` (``pause``) - return one or more paused servers to running state
 * ``unrescue`` (``rescue``) - return a server to normal boot mode
 * ``unset`` (``set``) - remove an attribute of the object
+* ``unshelve`` (``shelve``) - unshelve one or more servers
 
 
 Implementation

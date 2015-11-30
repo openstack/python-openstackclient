@@ -792,6 +792,26 @@ class TestServerResume(TestServer):
         self.run_method_with_servers('resume', 3)
 
 
+class TestServerShelve(TestServer):
+
+    def setUp(self):
+        super(TestServerShelve, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.ShelveServer(self.app, None)
+
+        # Set shelve method to be tested.
+        self.methods = {
+            'shelve': None,
+        }
+
+    def test_shelve_one_server(self):
+        self.run_method_with_servers('shelve', 1)
+
+    def test_shelve_multi_servers(self):
+        self.run_method_with_servers('shelve', 3)
+
+
 class TestServerStart(TestServer):
 
     def setUp(self):
@@ -892,6 +912,26 @@ class TestServerUnpause(TestServer):
         self.run_method_with_servers('unpause', 3)
 
 
+class TestServerUnshelve(TestServer):
+
+    def setUp(self):
+        super(TestServerUnshelve, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.UnshelveServer(self.app, None)
+
+        # Set unshelve method to be tested.
+        self.methods = {
+            'unshelve': None,
+        }
+
+    def test_unshelve_one_server(self):
+        self.run_method_with_servers('unshelve', 1)
+
+    def test_unshelve_multi_servers(self):
+        self.run_method_with_servers('unshelve', 3)
+
+
 class TestServerGeneral(testtools.TestCase):
     OLD = {
         'private': [
@@ -942,23 +982,3 @@ class TestServerGeneral(testtools.TestCase):
                           server._get_ip_address, self.OLD, 'public', [4, 6])
         self.assertRaises(exceptions.CommandError,
                           server._get_ip_address, self.OLD, 'private', [6])
-
-
-class TestShelveServer(TestServer):
-
-    def setUp(self):
-        super(TestShelveServer, self).setUp()
-
-        # Get the command object to test
-        self.cmd = server.ShelveServer(self.app, None)
-
-        # Set shelve method to be tested.
-        self.methods = {
-            'shelve': None,
-        }
-
-    def test_shelve_one_server(self):
-        self.run_method_with_servers('shelve', 1)
-
-    def test_shelve_multi_servers(self):
-        self.run_method_with_servers('shelve', 3)
