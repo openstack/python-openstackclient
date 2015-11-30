@@ -173,13 +173,19 @@ class ShowQuota(show.ShowOne):
         return parser
 
     def get_compute_volume_quota(self, client, parsed_args):
+        identity_client = self.app.client_manager.identity
+        project = utils.find_resource(
+            identity_client.projects,
+            parsed_args.project,
+            ).id
+
         try:
             if parsed_args.quota_class:
-                quota = client.quota_classes.get(parsed_args.project)
+                quota = client.quota_classes.get(project)
             elif parsed_args.default:
-                quota = client.quotas.defaults(parsed_args.project)
+                quota = client.quotas.defaults(project)
             else:
-                quota = client.quotas.get(parsed_args.project)
+                quota = client.quotas.get(project)
         except Exception as e:
             if type(e).__name__ == 'EndpointNotFound':
                 return {}
