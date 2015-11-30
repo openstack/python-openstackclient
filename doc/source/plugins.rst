@@ -33,7 +33,7 @@ python-heatclient              patch in progress (https://review.openstack.org/#
 python-ironicclient            Using OpenStackClient
 python-magnumclient            using argparse
 python-manilaclient            using argparse
-python-mistralclient           using cliff
+python-mistralclient           using OpenStackClient
 python-muranoclient            using argparse
 python-saharaclient            using OpenStackClient
 python-troveclient             using argparse
