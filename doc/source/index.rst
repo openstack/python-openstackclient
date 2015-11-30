@@ -20,7 +20,6 @@ User Documentation
    interactive
    humaninterfaceguide
    backwards-incompatible
-   releases
    man/openstack
 
 Getting Started
@@ -29,6 +28,15 @@ Getting Started
 * Try :doc:`some commands <command-list>`
 * Read the source `on OpenStack's Git server`_
 * Install OpenStackClient from `PyPi`_ or a `tarball`_
+
+Release Notes
+-------------
+
+.. toctree::
+   :maxdepth: 1
+
+   releases
+   history
 
 Developer Documentation
 -----------------------
