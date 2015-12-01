@@ -16,6 +16,7 @@ User Documentation
    commands
    configuration
    plugins
+   plugin-commands
    authentication
    interactive
    humaninterfaceguide

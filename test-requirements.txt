@@ -16,3 +16,14 @@ testrepository>=0.0.18
 testtools>=1.4.0
 WebOb>=1.2.3
 tempest-lib>=0.10.0
+
+# Install these to generate sphinx autodocs
+python-barbicanclient>=3.3.0
+python-congressclient>=1.0.0
+python-designateclient>=1.5.0
+python-heatclient>=0.6.0
+python-ironicclient>=0.8.0
+python-mistralclient>=1.0.0
+python-saharaclient>=0.10.0
+python-tuskarclient>=0.1.17
+python-zaqarclient>=0.3.0
