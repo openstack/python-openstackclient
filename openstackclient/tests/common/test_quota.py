@@ -18,6 +18,7 @@ from openstackclient.common import quota
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests.network.v2 import fakes as network_fakes
 
 
 class FakeQuotaResource(fakes.FakeResource):
@@ -41,13 +42,23 @@ class TestQuota(compute_fakes.TestComputev2):
         super(TestQuota, self).setUp()
         self.quotas_mock = self.app.client_manager.compute.quotas
         self.quotas_mock.reset_mock()
+        self.quotas_class_mock = self.app.client_manager.compute.quota_classes
+        self.quotas_class_mock.reset_mock()
         volume_mock = mock.Mock()
         volume_mock.quotas = mock.Mock()
         self.app.client_manager.volume = volume_mock
         self.volume_quotas_mock = volume_mock.quotas
         self.volume_quotas_mock.reset_mock()
+        self.volume_quotas_class_mock = \
+            self.app.client_manager.volume.quota_classes
+        self.volume_quotas_class_mock.reset_mock()
         self.projects_mock = self.app.client_manager.identity.projects
         self.projects_mock.reset_mock()
+        self.app.client_manager.auth_ref = mock.Mock()
+        self.app.client_manager.auth_ref.service_catalog = mock.Mock()
+        self.service_catalog_mock = \
+            self.app.client_manager.auth_ref.service_catalog
+        self.service_catalog_mock.reset_mock()
 
 
 class TestQuotaSet(TestQuota):
@@ -172,3 +183,113 @@ class TestQuotaSet(TestQuota):
             identity_fakes.project_id,
             **kwargs
         )
+
+
+class TestQuotaShow(TestQuota):
+
+    def setUp(self):
+        super(TestQuotaShow, self).setUp()
+
+        self.quotas_mock.get.return_value = FakeQuotaResource(
+            None,
+            copy.deepcopy(compute_fakes.QUOTA),
+            loaded=True,
+        )
+
+        self.quotas_mock.defaults.return_value = FakeQuotaResource(
+            None,
+            copy.deepcopy(compute_fakes.QUOTA),
+            loaded=True,
+        )
+
+        self.volume_quotas_mock.get.return_value = FakeQuotaResource(
+            None,
+            copy.deepcopy(compute_fakes.QUOTA),
+            loaded=True,
+        )
+
+        self.volume_quotas_mock.defaults.return_value = FakeQuotaResource(
+            None,
+            copy.deepcopy(compute_fakes.QUOTA),
+            loaded=True,
+        )
+
+        self.service_catalog_mock.get_endpoints.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(identity_fakes.ENDPOINT),
+                loaded=True,
+            )
+        ]
+
+        self.quotas_class_mock.get.return_value = FakeQuotaResource(
+            None,
+            copy.deepcopy(compute_fakes.QUOTA),
+            loaded=True,
+        )
+
+        self.volume_quotas_class_mock.get.return_value = FakeQuotaResource(
+            None,
+            copy.deepcopy(compute_fakes.QUOTA),
+            loaded=True,
+        )
+
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
+        self.app.client_manager.network = network_fakes.FakeNetworkV2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
+        self.cmd = quota.ShowQuota(self.app, None)
+
+    def test_quota_show(self):
+        arglist = [
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.quotas_mock.get.assert_called_with(identity_fakes.project_id)
+
+    def test_quota_show_with_default(self):
+        arglist = [
+            '--default',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('default', True),
+            ('project', identity_fakes.project_name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.quotas_mock.defaults.assert_called_with(identity_fakes.project_id)
+
+    def test_quota_show_with_class(self):
+        arglist = [
+            '--class',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('quota_class', True),
+            ('project', identity_fakes.project_name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.quotas_class_mock.get.assert_called_with(
+            identity_fakes.project_id)

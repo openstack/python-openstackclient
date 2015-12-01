@@ -102,6 +102,8 @@ class FakeComputev2Client(object):
         self.flavors.resource_class = fakes.FakeResource(None, {})
         self.quotas = mock.Mock()
         self.quotas.resource_class = fakes.FakeResource(None, {})
+        self.quota_classes = mock.Mock()
+        self.quota_classes.resource_class = fakes.FakeResource(None, {})
         self.volumes = mock.Mock()
         self.volumes.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
