@@ -77,6 +77,12 @@ class TestCreateNetworkIdentityV3(TestNetwork):
     def setUp(self):
         super(TestCreateNetworkIdentityV3, self).setUp()
 
+        self.new_network = mock.Mock(return_value=copy.deepcopy(RESPONSE))
+        self.network.create_network = self.new_network
+
+        # Get the command object to test
+        self.cmd = network.CreateNetwork(self.app, self.namespace)
+
     def test_create_no_options(self):
         arglist = [
             FAKE_NAME,
@@ -87,14 +93,11 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('shared', None),
             ('project', None),
         ]
-        mocker = mock.Mock(return_value=copy.deepcopy(RESPONSE))
-        self.app.client_manager.network.create_network = mocker
-        cmd = network.CreateNetwork(self.app, self.namespace)
 
-        parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = list(cmd.take_action(parsed_args))
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = list(self.cmd.take_action(parsed_args))
 
-        mocker.assert_called_with({
+        self.network.create_network.assert_called_with({
             RESOURCE: {
                 'admin_state_up': True,
                 'name': FAKE_NAME,
@@ -117,8 +120,6 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('project_domain', identity_fakes_v3.domain_name),
             ('name', FAKE_NAME),
         ]
-        mocker = mock.Mock(return_value=copy.deepcopy(RESPONSE))
-        self.app.client_manager.network.create_network = mocker
         identity_client = identity_fakes_v3.FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
@@ -136,12 +137,11 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             copy.deepcopy(identity_fakes_v3.DOMAIN),
             loaded=True,
         )
-        cmd = network.CreateNetwork(self.app, self.namespace)
 
-        parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = list(cmd.take_action(parsed_args))
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = list(self.cmd.take_action(parsed_args))
 
-        mocker.assert_called_with({
+        self.network.create_network.assert_called_with({
             RESOURCE: {
                 'admin_state_up': False,
                 'name': FAKE_NAME,
@@ -162,14 +162,11 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('shared', False),
             ('name', FAKE_NAME),
         ]
-        mocker = mock.Mock(return_value=copy.deepcopy(RESPONSE))
-        self.app.client_manager.network.create_network = mocker
-        cmd = network.CreateNetwork(self.app, self.namespace)
 
-        parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = list(cmd.take_action(parsed_args))
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = list(self.cmd.take_action(parsed_args))
 
-        mocker.assert_called_with({
+        self.network.create_network.assert_called_with({
             RESOURCE: {
                 'admin_state_up': True,
                 'name': FAKE_NAME,
