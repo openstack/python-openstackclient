@@ -12,7 +12,9 @@
 #
 
 import argparse
+import copy
 import mock
+import uuid
 
 from openstackclient.api import network_v2
 from openstackclient.tests import fakes
@@ -46,6 +48,8 @@ class TestNetworkV2(utils.TestCommand):
 
         self.namespace = argparse.Namespace()
 
+        self.app.client_manager.session = mock.Mock()
+
         self.app.client_manager.network = FakeNetworkV2Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
@@ -55,3 +59,88 @@ class TestNetworkV2(utils.TestCommand):
             session=mock.Mock(),
             service_type="network",
         )
+
+
+class FakeNetwork(object):
+    """Fake one or more networks."""
+
+    @staticmethod
+    def create_one_network(attrs={}, methods={}):
+        """Create a fake network.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object, with id, name, admin_state_up,
+            router_external, status, subnets, tenant_id
+        """
+        # Set default attributes.
+        network_attrs = {
+            'id': 'network-id-' + uuid.uuid4().hex,
+            'name': 'network-name-' + uuid.uuid4().hex,
+            'status': 'ACTIVE',
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'admin_state_up': True,
+            'shared': False,
+            'subnets': ['a', 'b'],
+            'provider_network_type': 'vlan',
+            'router_external': True,
+            'is_dirty': True,
+        }
+
+        # Overwrite default attributes.
+        network_attrs.update(attrs)
+
+        # Set default methods.
+        network_methods = {
+            'keys': ['id', 'name', 'admin_state_up', 'router_external',
+                     'status', 'subnets', 'tenant_id'],
+        }
+
+        # Overwrite default methods.
+        network_methods.update(methods)
+
+        network = fakes.FakeResource(info=copy.deepcopy(network_attrs),
+                                     methods=copy.deepcopy(network_methods),
+                                     loaded=True)
+        return network
+
+    @staticmethod
+    def create_networks(attrs={}, methods={}, count=2):
+        """Create multiple fake networks.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of networks to fake
+        :return:
+            A list of FakeResource objects faking the networks
+        """
+        networks = []
+        for i in range(0, count):
+            networks.append(FakeNetwork.create_one_network(attrs, methods))
+
+        return networks
+
+    @staticmethod
+    def get_networks(networks=None, count=2):
+        """Get an iterable MagicMock object with a list of faked networks.
+
+        If networks list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List networks:
+            A list of FakeResource objects faking networks
+        :param int count:
+            The number of networks to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            networks
+        """
+        if networks is None:
+            networks = FakeNetwork.create_networks(count)
+        return mock.MagicMock(side_effect=networks)
