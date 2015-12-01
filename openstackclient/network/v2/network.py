@@ -188,21 +188,21 @@ class ListNetwork(lister.Lister):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+        self.app.client_manager.network = \
+            _make_client_sdk(self.app.client_manager)
         client = self.app.client_manager.network
-
-        data = client.api.network_list(external=parsed_args.external)
 
         if parsed_args.long:
             columns = (
-                'ID',
-                'Name',
-                'Status',
-                'project_id',
-                'state',
-                'Shared',
-                'Subnets',
-                'provider:network_type',
-                'router_type',
+                'id',
+                'name',
+                'status',
+                'tenant_id',
+                'admin_state_up',
+                'shared',
+                'subnets',
+                'provider_network_type',
+                'router_external',
             )
             column_headers = (
                 'ID',
@@ -216,16 +216,26 @@ class ListNetwork(lister.Lister):
                 'Router Type',
             )
         else:
-            columns = ('ID', 'Name', 'Subnets')
-            column_headers = columns
+            columns = (
+                'id',
+                'name',
+                'subnets'
+            )
+            column_headers = (
+                'ID',
+                'Name',
+                'Subnets',
+            )
 
-        for d in data:
-            d = _prep_network_detail(d)
-
+        if parsed_args.external:
+            args = {'router:external': True}
+        else:
+            args = {}
+        data = client.networks(**args)
         return (column_headers,
-                (utils.get_dict_properties(
+                (utils.get_item_properties(
                     s, columns,
-                    formatters={'subnets': utils.format_list},
+                    formatters=_formatters,
                 ) for s in data))
 
 

@@ -15,6 +15,7 @@ import copy
 import mock
 
 from openstackclient.common import exceptions
+from openstackclient.common import utils
 from openstackclient.network.v2 import network
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes_v2
@@ -288,17 +289,18 @@ class TestDeleteNetwork(TestNetwork):
         self.assertEqual(None, result)
 
 
-@mock.patch(
-    'openstackclient.api.network_v2.APIv2.network_list'
-)
+@mock.patch('openstackclient.network.v2.network._make_client_sdk')
 class TestListNetwork(TestNetwork):
 
-    columns = [
+    # The networks going to be listed up.
+    _network = network_fakes.FakeNetwork.create_networks(count=3)
+
+    columns = (
         'ID',
         'Name',
-        'Subnets'
-    ]
-    columns_long = [
+        'Subnets',
+    )
+    columns_long = (
         'ID',
         'Name',
         'Status',
@@ -308,18 +310,29 @@ class TestListNetwork(TestNetwork):
         'Subnets',
         'Network Type',
         'Router Type',
-    ]
+    )
 
-    data = [
-        (FAKE_ID, FAKE_NAME, 'a, b'),
-        (FAKE_ID, FAKE_NAME, 'a, b'),
-    ]
-    data_long = [
-        (FAKE_ID, FAKE_NAME, 'ACTIVE', FAKE_PROJECT,
-         'UP', '', 'a, b', '', 'External'),
-        (FAKE_ID, FAKE_NAME, 'ACTIVE', FAKE_PROJECT,
-         'UP', '', 'a, b', '', 'External'),
-    ]
+    data = []
+    for net in _network:
+        data.append((
+            net.id,
+            net.name,
+            utils.format_list(net.subnets),
+        ))
+
+    data_long = []
+    for net in _network:
+        data_long.append((
+            net.id,
+            net.name,
+            net.status,
+            net.tenant_id,
+            network._format_admin_state(net.admin_state_up),
+            net.shared,
+            utils.format_list(net.subnets),
+            net.provider_network_type,
+            network._format_router_external(net.router_external),
+        ))
 
     def setUp(self):
         super(TestListNetwork, self).setUp()
@@ -327,13 +340,10 @@ class TestListNetwork(TestNetwork):
         # Get the command object to test
         self.cmd = network.ListNetwork(self.app, self.namespace)
 
-        self.NETWORK_LIST = [
-            copy.deepcopy(RECORD),
-            copy.deepcopy(RECORD),
-        ]
+        self.network.networks = mock.Mock(return_value=self._network)
 
-    def test_network_list_no_options(self, network_list):
-        network_list.return_value = self.NETWORK_LIST
+    def test_network_list_no_options(self, _make_client_sdk):
+        _make_client_sdk.return_value = self.app.client_manager.network
 
         arglist = []
         verifylist = [
@@ -345,16 +355,12 @@ class TestListNetwork(TestNetwork):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        network_list.assert_called_with(
-            external=False,
-        )
-
-        self.assertEqual(tuple(self.columns), columns)
+        self.network.networks.assert_called_with()
+        self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
-    def test_list_external(self, network_list):
-        network_list.return_value = self.NETWORK_LIST
+    def test_list_external(self, _make_client_sdk):
+        _make_client_sdk.return_value = self.app.client_manager.network
 
         arglist = [
             '--external',
@@ -368,16 +374,14 @@ class TestListNetwork(TestNetwork):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        network_list.assert_called_with(
-            external=True,
+        self.network.networks.assert_called_with(
+            **{'router:external': True}
         )
-
-        self.assertEqual(tuple(self.columns), columns)
+        self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
-    def test_network_list_long(self, network_list):
-        network_list.return_value = self.NETWORK_LIST
+    def test_network_list_long(self, _make_client_sdk):
+        _make_client_sdk.return_value = self.app.client_manager.network
 
         arglist = [
             '--long',
@@ -391,12 +395,8 @@ class TestListNetwork(TestNetwork):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        network_list.assert_called_with(
-            external=False,
-        )
-
-        self.assertEqual(columns, tuple(self.columns_long))
+        self.network.networks.assert_called_with()
+        self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
 
