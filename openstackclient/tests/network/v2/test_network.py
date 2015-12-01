@@ -72,7 +72,11 @@ class TestNetwork(network_fakes.TestNetworkV2):
         self.api = self.app.client_manager.network.api
 
 
-class TestCreateNetwork(common.TestNetworkBase):
+class TestCreateNetworkIdentityV3(TestNetwork):
+
+    def setUp(self):
+        super(TestCreateNetworkIdentityV3, self).setUp()
+
     def test_create_no_options(self):
         arglist = [
             FAKE_NAME,
@@ -173,6 +177,12 @@ class TestCreateNetwork(common.TestNetworkBase):
             }
         })
         self.assertEqual(FILTERED, result)
+
+
+class TestCreateNetworkIdentityV2(TestNetwork):
+
+    def setUp(self):
+        super(TestCreateNetworkIdentityV2, self).setUp()
 
     def test_create_with_project_identityv2(self):
         arglist = [
