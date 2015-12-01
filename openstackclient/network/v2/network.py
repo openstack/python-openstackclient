@@ -20,15 +20,37 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
+from openstack import connection
+
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 
 
+def _format_admin_state(item):
+    return 'UP' if item else 'DOWN'
+
+
+def _format_router_external(item):
+    return 'External' if item else 'Internal'
+
+
+_formatters = {
+    'subnets': utils.format_list,
+    'admin_state_up': _format_admin_state,
+    'router_external': _format_router_external,
+}
+
+
+def _make_client_sdk(instance):
+    """Return a network proxy"""
+    conn = connection.Connection(authenticator=instance.session.auth)
+    return conn.network
+
+
 def _prep_network_detail(net):
     """Prepare network object for output"""
-
     if 'subnets' in net:
         net['subnets'] = utils.format_list(net['subnets'])
     if 'admin_state_up' in net:
