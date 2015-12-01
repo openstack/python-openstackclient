@@ -2,6 +2,41 @@
 Release Notes
 =============
 
+2.0.0 (1 Dec 2015)
+==================
+
+* Dropping python 2.6 support
+  Bug `1519510 <https://bugs.launchpad.net/bugs/1519510>`_
+
+* Removed the deprecated command `project usage list` in favor of `usage list`
+
+* Several updates to `openstack server`
+
+  * Added `--marker` to `openstack server list`
+  * Added `--limit` to `openstack server list`
+  * Added `openstack server shelve`
+  * Added `openstack server unshelve`
+  * `openstack server resume` now takes multiple servers
+  * `openstack server suspend` now takes multiple servers
+
+* Some compute quotas were not being set
+  Bug `1475831 <https://bugs.launchpad.net/bugs/1475831>`_
+
+* Add `--all` for `snapshot list`
+  Bug `1517386 <https://bugs.launchpad.net/bugs/1517386>`_
+
+* Add `status` to `image list` (v1 and v2)
+  Bug `1519181 <https://bugs.launchpad.net/bugs/1519181>`_
+
+* Fix `volume type create`, passes incorrect privacy argument
+  Bug `1520115 <https://bugs.launchpad.net/bugs/1520115>`_
+
+* `volume delete` only deletes last volume specified
+  Bug `1520541 <https://bugs.launchpad.net/bugs/1520541>`_
+
+* Add dependency on keystoneauth1 module to perform authentication in place
+  of python-keystoneclient.
+
 1.9.0 (17 Nov 2015)
 ===================
 
