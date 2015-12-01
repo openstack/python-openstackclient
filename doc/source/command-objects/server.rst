@@ -188,6 +188,7 @@ List servers
         [--project <project> [--project-domain <project-domain>]]
         [--long]
         [--marker <server>]
+        [--limit <limit>]
 
 .. option:: --reservation-id <reservation-id>
 
@@ -255,6 +256,12 @@ List servers
 
     The last server (name or ID) of the previous page. Display list of servers
     after marker. Display all servers if not specified.
+
+.. option:: --limit <limit>
+
+    Maximum number of servers to display. If limit equals -1, all servers will
+    be displayed. If limit is greater than 'osapi_max_limit' option of Nova
+    API, 'osapi_max_limit' will be used instead.
 
 server lock
 -----------

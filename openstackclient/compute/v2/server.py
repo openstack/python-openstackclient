@@ -755,6 +755,16 @@ class ListServer(lister.Lister):
                   ' list of servers after marker. Display all servers if not'
                   ' specified.')
         )
+        parser.add_argument(
+            '--limit',
+            metavar='<limit>',
+            type=int,
+            default=None,
+            help=("Maximum number of servers to display. If limit equals -1,"
+                  " all servers will be displayed. If limit is greater than"
+                  " 'osapi_max_limit' option of Nova API,"
+                  " 'osapi_max_limit' will be used instead."),
+        )
         return parser
 
     @utils.log_method(log)
@@ -845,7 +855,8 @@ class ListServer(lister.Lister):
                                             parsed_args.marker).id
 
         data = compute_client.servers.list(search_opts=search_opts,
-                                           marker=marker_id)
+                                           marker=marker_id,
+                                           limit=parsed_args.limit)
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
