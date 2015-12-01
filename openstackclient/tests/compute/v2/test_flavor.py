@@ -13,6 +13,7 @@
 #   under the License.
 #
 
+from openstackclient.common import exceptions
 from openstackclient.compute.v2 import flavor
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 
@@ -25,6 +26,51 @@ class TestFlavor(compute_fakes.TestComputev2):
         # Get a shortcut to the FlavorManager Mock
         self.flavors_mock = self.app.client_manager.compute.flavors
         self.flavors_mock.reset_mock()
+
+
+class TestFlavorDelete(TestFlavor):
+
+    flavor = compute_fakes.FakeFlavor.create_one_flavor()
+
+    def setUp(self):
+        super(TestFlavorDelete, self).setUp()
+
+        self.flavors_mock.get.return_value = self.flavor
+        self.flavors_mock.delete.return_value = None
+
+        self.cmd = flavor.DeleteFlavor(self.app, None)
+
+    def test_flavor_delete(self):
+        arglist = [
+            self.flavor.id
+        ]
+        verifylist = [
+            ('flavor', self.flavor.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.flavors_mock.delete.assert_called_with(self.flavor.id)
+
+    def test_flavor_delete_with_unexist_flavor(self):
+        self.flavors_mock.get.side_effect = exceptions.NotFound(None)
+        self.flavors_mock.find.side_effect = exceptions.NotFound(None)
+
+        arglist = [
+            'unexist_flavor'
+        ]
+        verifylist = [
+            ('flavor', 'unexist_flavor'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
 
 
 class TestFlavorList(TestFlavor):
