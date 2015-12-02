@@ -1,0 +1,5 @@
+---
+other:
+  - |
+    Add dependency on keystoneauth1 module to perform authentication in place
+    of python-keystoneclient.

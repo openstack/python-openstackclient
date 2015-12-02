@@ -1,0 +1,5 @@
+---
+other:
+  - |
+    Drop Python 2.6 support
+    [Bug `1519510 <https://bugs.launchpad.net/bugs/1519510>`_]

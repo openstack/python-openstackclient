@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Add `--all` for `snapshot list`
+    [Bug `1517386 <https://bugs.launchpad.net/bugs/1517386>`_]

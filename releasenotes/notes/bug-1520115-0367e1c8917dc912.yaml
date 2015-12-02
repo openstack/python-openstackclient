@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix `volume type create`, passes incorrect privacy argument
+    [Bug `1520115 <https://bugs.launchpad.net/bugs/1520115>`_]

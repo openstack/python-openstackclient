@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Add Status column to default `image list` output (v1 and v2)
+    [Bug `1519181 <https://bugs.launchpad.net/bugs/1519181>`_]
+

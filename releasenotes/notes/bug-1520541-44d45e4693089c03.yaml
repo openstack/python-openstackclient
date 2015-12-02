@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    `volume delete` only deletes last volume specified
+    [Bug `1520541 <https://bugs.launchpad.net/bugs/1520541>`_]
