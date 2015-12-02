@@ -81,7 +81,7 @@ class ListService(lister.Lister):
                 ) for s in data))
 
 
-class SetService(lister.Lister):
+class SetService(command.Command):
     """Set service command"""
 
     log = logging.getLogger(__name__ + ".SetService")
@@ -113,19 +113,10 @@ class SetService(lister.Lister):
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
-        columns = (
-            "Host",
-            "Service",
-            "Disabled"
-        )
 
         if parsed_args.enabled:
             action = compute_client.services.enable
         else:
             action = compute_client.services.disable
 
-        data = action(parsed_args.host, parsed_args.service)
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        action(parsed_args.host, parsed_args.service)
