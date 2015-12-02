@@ -16,7 +16,7 @@
 import copy
 import mock
 
-from keystoneclient import exceptions as ksc_exc
+from keystoneauth1 import exceptions as ks_exc
 
 from openstackclient.common import exceptions
 from openstackclient.identity.v2_0 import role
@@ -146,7 +146,7 @@ class TestRoleCreate(TestRole):
 
     def test_role_create_or_show_exists(self):
         def _raise_conflict(*args, **kwargs):
-            raise ksc_exc.Conflict(None)
+            raise ks_exc.Conflict(None)
 
         # need to make this throw an exception...
         self.roles_mock.create.side_effect = _raise_conflict

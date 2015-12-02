@@ -15,8 +15,9 @@
 
 import simplejson as json
 
-from keystoneclient import exceptions as ksc_exceptions
-from keystoneclient import session as ksc_session
+from keystoneauth1 import exceptions as ks_exceptions
+from keystoneauth1 import session as ks_session
+
 from openstackclient.common import exceptions
 
 
@@ -24,7 +25,7 @@ class KeystoneSession(object):
     """Wrapper for the Keystone Session
 
     Restore some requests.session.Session compatibility;
-    keystoneclient.session.Session.request() has the method and url
+    keystoneauth1.session.Session.request() has the method and url
     arguments swapped from the rest of the requests-using world.
 
     """
@@ -70,7 +71,7 @@ class KeystoneSession(object):
         if not session:
             session = self.session
         if not session:
-            session = ksc_session.Session()
+            session = ks_session.Session()
 
         if self.endpoint:
             if url:
@@ -255,7 +256,7 @@ class BaseAPI(KeystoneSession):
             return data[0]
         if len(data) > 1:
             msg = "Multiple %s exist with %s='%s'"
-            raise ksc_exceptions.CommandError(
+            raise exceptions.CommandError(
                 msg % (resource, attr, value),
             )
 
@@ -314,7 +315,7 @@ class BaseAPI(KeystoneSession):
         num_bulk = len(bulk_list)
         if num_bulk == 0:
             msg = "none found"
-            raise ksc_exceptions.NotFound(msg)
+            raise exceptions.NotFound(msg)
         elif num_bulk > 1:
             msg = "many found"
             raise RuntimeError(msg)
@@ -338,12 +339,12 @@ class BaseAPI(KeystoneSession):
 
         try:
             ret = self._request('GET', "/%s/%s" % (path, value)).json()
-        except ksc_exceptions.NotFound:
+        except ks_exceptions.NotFound:
             kwargs = {attr: value}
             try:
                 ret = self.find_one("/%s/detail" % (path), **kwargs)
-            except ksc_exceptions.NotFound:
+            except ks_exceptions.NotFound:
                 msg = "%s not found" % value
-                raise ksc_exceptions.NotFound(msg)
+                raise exceptions.NotFound(msg)
 
         return ret

@@ -16,7 +16,8 @@
 import copy
 import mock
 
-from keystoneclient import exceptions as ksc_exc
+from keystoneauth1 import exceptions as ks_exc
+
 from openstackclient.identity.v2_0 import user
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
@@ -345,7 +346,7 @@ class TestUserCreate(TestUser):
 
     def test_user_create_or_show_exists(self):
         def _raise_conflict(*args, **kwargs):
-            raise ksc_exc.Conflict(None)
+            raise ks_exc.Conflict(None)
 
         # need to make this throw an exception...
         self.users_mock.create.side_effect = _raise_conflict
