@@ -20,3 +20,5 @@ doc/source/api/
 .project
 .pydevproject
 cover
+# Files created by releasenotes build
+releasenotes/build

@@ -98,6 +98,41 @@ create HTML docs, run the following:
 
 The resultant HTML will be the ``doc/build/html`` directory.
 
+Release Notes
+-------------
+
+The release notes for a patch should be included in the patch.  See the
+`Project Team Guide`_ for more information on using reno in OpenStack.
+
+.. _`Project Team Guide`: http://docs.openstack.org/project-team-guide/release-management.html#managing-release-notes
+
+If any of the following applies to the patch, a release note is required:
+
+* The deployer needs to take an action when upgrading
+* The plugin interface changes
+* A new feature is implemented
+* A command or option is removed
+* Current behavior is changed
+* A security bug is fixed
+
+Reno is used to generate release notes. Please read the docs for details. In summary, use
+
+.. code-block:: bash
+
+    $ tox -e venv -- reno new <bug-,bp-,whatever>
+
+Then edit the sample file that was created and push it with your change.
+
+To see the results:
+
+.. code-block:: bash
+
+    $ git commit  # Commit the change because reno scans git log.
+
+    $ tox -e releasenotes
+
+Then look at the generated release notes files in releasenotes/build/html in your favorite browser.
+
 Testing new code
 ----------------
 
