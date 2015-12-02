@@ -611,6 +611,87 @@ class TestServerImageCreate(TestServer):
         self.assertEqual(datalist, data)
 
 
+class TestServerList(TestServer):
+
+    # Columns to be listed up.
+    columns = (
+        'ID',
+        'Name',
+        'Status',
+        'Networks',
+    )
+
+    # Data returned by corresponding Nova API. The elements in this list are
+    # tuples filled with server attributes.
+    data = []
+
+    # Default search options, in the case of no commandline option specified.
+    search_opts = {
+        'reservation_id': None,
+        'ip': None,
+        'ip6': None,
+        'name': None,
+        'instance_name': None,
+        'status': None,
+        'flavor': None,
+        'image': None,
+        'host': None,
+        'tenant_id': None,
+        'all_tenants': False,
+        'user_id': None,
+    }
+
+    # Default params of the core function of the command in the case of no
+    # commandline option specified.
+    kwargs = {
+        'search_opts': search_opts,
+        'marker': None,
+        'limit': None,
+    }
+
+    def setUp(self):
+        super(TestServerList, self).setUp()
+
+        # The fake servers' attributes.
+        self.attrs = {
+            'status': 'ACTIVE',
+            'networks': {
+                u'public': [u'10.20.30.40', u'2001:db8::5']
+            },
+        }
+
+        # The servers to be listed.
+        self.servers = self.setup_servers_mock(3)
+
+        self.servers_mock.list.return_value = self.servers
+
+        # Get the command object to test
+        self.cmd = server.ListServer(self.app, None)
+
+        # Prepare data returned by fake Nova API.
+        for s in self.servers:
+            self.data.append((
+                s.id,
+                s.name,
+                s.status,
+                u'public=10.20.30.40, 2001:db8::5',
+            ))
+
+    def test_server_list_no_option(self):
+        arglist = []
+        verifylist = [
+            ('all_projects', False),
+            ('long', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+
 class TestServerLock(TestServer):
 
     def setUp(self):
