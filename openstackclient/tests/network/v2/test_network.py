@@ -36,7 +36,6 @@ RECORD = {
     'subnets': ['a', 'b'],
     'tenant_id': FAKE_PROJECT,
 }
-COLUMNS = ['ID', 'Name', 'Subnets']
 RESPONSE = {RESOURCE: copy.deepcopy(RECORD)}
 FILTERED = [
     (
@@ -293,7 +292,35 @@ class TestDeleteNetwork(TestNetwork):
 @mock.patch(
     'openstackclient.api.network_v2.APIv2.network_list'
 )
-class TestListNetwork(common.TestNetworkBase):
+class TestListNetwork(TestNetwork):
+
+    columns = [
+        'ID',
+        'Name',
+        'Subnets'
+    ]
+    columns_long = [
+        'ID',
+        'Name',
+        'Status',
+        'Project',
+        'State',
+        'Shared',
+        'Subnets',
+        'Network Type',
+        'Router Type',
+    ]
+
+    data = [
+        (FAKE_ID, FAKE_NAME, 'a, b'),
+        (FAKE_ID, FAKE_NAME, 'a, b'),
+    ]
+    data_long = [
+        (FAKE_ID, FAKE_NAME, 'ACTIVE', FAKE_PROJECT,
+         'UP', '', 'a, b', '', 'External'),
+        (FAKE_ID, FAKE_NAME, 'ACTIVE', FAKE_PROJECT,
+         'UP', '', 'a, b', '', 'External'),
+    ]
 
     def setUp(self):
         super(TestListNetwork, self).setUp()
@@ -306,8 +333,8 @@ class TestListNetwork(common.TestNetworkBase):
             copy.deepcopy(RECORD),
         ]
 
-    def test_network_list_no_options(self, n_mock):
-        n_mock.return_value = self.NETWORK_LIST
+    def test_network_list_no_options(self, network_list):
+        network_list.return_value = self.NETWORK_LIST
 
         arglist = []
         verifylist = [
@@ -320,19 +347,15 @@ class TestListNetwork(common.TestNetworkBase):
         columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
-        n_mock.assert_called_with(
+        network_list.assert_called_with(
             external=False,
         )
 
-        self.assertEqual(tuple(COLUMNS), columns)
-        datalist = [
-            (FAKE_ID, FAKE_NAME, 'a, b'),
-            (FAKE_ID, FAKE_NAME, 'a, b'),
-        ]
-        self.assertEqual(datalist, list(data))
+        self.assertEqual(tuple(self.columns), columns)
+        self.assertEqual(self.data, list(data))
 
-    def test_list_external(self, n_mock):
-        n_mock.return_value = self.NETWORK_LIST
+    def test_list_external(self, network_list):
+        network_list.return_value = self.NETWORK_LIST
 
         arglist = [
             '--external',
@@ -347,19 +370,15 @@ class TestListNetwork(common.TestNetworkBase):
         columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
-        n_mock.assert_called_with(
+        network_list.assert_called_with(
             external=True,
         )
 
-        self.assertEqual(tuple(COLUMNS), columns)
-        datalist = [
-            (FAKE_ID, FAKE_NAME, 'a, b'),
-            (FAKE_ID, FAKE_NAME, 'a, b'),
-        ]
-        self.assertEqual(datalist, list(data))
+        self.assertEqual(tuple(self.columns), columns)
+        self.assertEqual(self.data, list(data))
 
-    def test_network_list_long(self, n_mock):
-        n_mock.return_value = self.NETWORK_LIST
+    def test_network_list_long(self, network_list):
+        network_list.return_value = self.NETWORK_LIST
 
         arglist = [
             '--long',
@@ -374,38 +393,12 @@ class TestListNetwork(common.TestNetworkBase):
         columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
-        n_mock.assert_called_with(
+        network_list.assert_called_with(
             external=False,
         )
 
-        collist = (
-            'ID',
-            'Name',
-            'Status',
-            'Project',
-            'State',
-            'Shared',
-            'Subnets',
-            'Network Type',
-            'Router Type',
-        )
-        self.assertEqual(columns, collist)
-        dataitem = (
-            FAKE_ID,
-            FAKE_NAME,
-            'ACTIVE',
-            FAKE_PROJECT,
-            'UP',
-            '',
-            'a, b',
-            '',
-            'External',
-        )
-        datalist = [
-            dataitem,
-            dataitem,
-        ]
-        self.assertEqual(list(data), datalist)
+        self.assertEqual(columns, tuple(self.columns_long))
+        self.assertEqual(self.data_long, list(data))
 
 
 class TestSetNetwork(common.TestNetworkBase):
