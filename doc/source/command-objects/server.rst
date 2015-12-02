@@ -216,7 +216,7 @@ List servers
 
 .. option:: --flavor <flavor>
 
-    Search by flavor ID
+    Search by flavor (name or ID)
 
 .. option:: --image <image>
 

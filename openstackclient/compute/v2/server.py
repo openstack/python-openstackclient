@@ -712,7 +712,7 @@ class ListServer(lister.Lister):
         parser.add_argument(
             '--flavor',
             metavar='<flavor>',
-            help=_('Search by flavor'),
+            help=_('Search by flavor (name or ID)'),
         )
         parser.add_argument(
             '--image',
@@ -789,6 +789,13 @@ class ListServer(lister.Lister):
                 parsed_args.user_domain,
             ).id
 
+        # Nova only supports list servers searching by flavor ID. So if a
+        # flavor name is given, map it to ID.
+        flavor_id = None
+        if parsed_args.flavor:
+            flavor_id = utils.find_resource(compute_client.flavors,
+                                            parsed_args.flavor).id
+
         search_opts = {
             'reservation_id': parsed_args.reservation_id,
             'ip': parsed_args.ip,
@@ -796,7 +803,7 @@ class ListServer(lister.Lister):
             'name': parsed_args.name,
             'instance_name': parsed_args.instance_name,
             'status': parsed_args.status,
-            'flavor': parsed_args.flavor,
+            'flavor': flavor_id,
             'image': parsed_args.image,
             'host': parsed_args.host,
             'tenant_id': project_id,
