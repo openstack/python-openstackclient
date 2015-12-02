@@ -53,11 +53,15 @@ class TestServer(compute_fakes.TestComputev2):
         self.volumes_mock = self.app.client_manager.volume.volumes
         self.volumes_mock.reset_mock()
 
+        # Set object attributes to be tested. Could be overwriten in subclass.
+        self.attrs = {}
+
         # Set object methods to be tested. Could be overwriten in subclass.
         self.methods = {}
 
     def setup_servers_mock(self, count):
-        servers = compute_fakes.FakeServer.create_servers(methods=self.methods,
+        servers = compute_fakes.FakeServer.create_servers(attrs=self.attrs,
+                                                          methods=self.methods,
                                                           count=count)
 
         # This is the return value for utils.find_resource()
