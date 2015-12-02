@@ -220,7 +220,7 @@ List servers
 
 .. option:: --image <image>
 
-    Search by image ID
+    Search by image (name or ID)
 
 .. option:: --host <hostname>
 
