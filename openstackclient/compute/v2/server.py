@@ -257,10 +257,6 @@ class CreateServer(show.ShowOne):
 
     log = logging.getLogger(__name__ + '.CreateServer')
 
-    def _is_neutron_enabled(self):
-        service_catalog = self.app.client_manager.auth_ref.service_catalog
-        return 'network' in service_catalog.get_endpoints()
-
     def get_parser(self, prog_name):
         parser = super(CreateServer, self).get_parser(prog_name)
         parser.add_argument(
@@ -460,8 +456,6 @@ class CreateServer(show.ShowOne):
                 block_device_mapping.update({dev_key: block_volume})
 
         nics = []
-        if parsed_args.nic:
-            neutron_enabled = self._is_neutron_enabled()
         for nic_str in parsed_args.nic:
             nic_info = {"net-id": "", "v4-fixed-ip": "",
                         "v6-fixed-ip": "", "port-id": ""}
@@ -471,7 +465,7 @@ class CreateServer(show.ShowOne):
                 msg = _("either net-id or port-id should be specified "
                         "but not both")
                 raise exceptions.CommandError(msg)
-            if neutron_enabled:
+            if self.app.client_manager.is_network_endpoint_enabled():
                 network_client = self.app.client_manager.network
                 if nic_info["net-id"]:
                     net = network_client.find_network(
@@ -489,7 +483,7 @@ class CreateServer(show.ShowOne):
                     ).id
                 if nic_info["port-id"]:
                     msg = _("can't create server with port specified "
-                            "since neutron not enabled")
+                            "since network endpoint not enabled")
                     raise exceptions.CommandError(msg)
             nics.append(nic_info)
 

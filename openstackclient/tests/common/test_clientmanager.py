@@ -77,6 +77,9 @@ class TestClientManager(utils.TestCase):
         self.requests = self.useFixture(fixture.Fixture())
         # fake v2password token retrieval
         self.stub_auth(json=fakes.TEST_RESPONSE_DICT)
+        # fake token and token_endpoint retrieval
+        self.stub_auth(json=fakes.TEST_RESPONSE_DICT,
+                       url='/'.join([fakes.AUTH_URL, 'v2.0/tokens']))
         # fake v3password token retrieval
         self.stub_auth(json=fakes.TEST_RESPONSE_DICT_V3,
                        url='/'.join([fakes.AUTH_URL, 'auth/tokens']))
@@ -99,6 +102,7 @@ class TestClientManager(utils.TestCase):
             verify=True
         )
         client_manager.setup_auth()
+        client_manager.auth_ref
 
         self.assertEqual(
             fakes.AUTH_URL,
@@ -114,6 +118,7 @@ class TestClientManager(utils.TestCase):
         )
         self.assertFalse(client_manager._insecure)
         self.assertTrue(client_manager._verify)
+        self.assertTrue(client_manager.is_network_endpoint_enabled())
 
     def test_client_manager_token(self):
 
@@ -131,6 +136,7 @@ class TestClientManager(utils.TestCase):
             verify=True
         )
         client_manager.setup_auth()
+        client_manager.auth_ref
 
         self.assertEqual(
             fakes.AUTH_URL,
@@ -150,6 +156,7 @@ class TestClientManager(utils.TestCase):
         )
         self.assertFalse(client_manager._insecure)
         self.assertTrue(client_manager._verify)
+        self.assertTrue(client_manager.is_network_endpoint_enabled())
 
     def test_client_manager_password(self):
 
@@ -166,6 +173,7 @@ class TestClientManager(utils.TestCase):
             verify=False,
         )
         client_manager.setup_auth()
+        client_manager.auth_ref
 
         self.assertEqual(
             fakes.AUTH_URL,
@@ -195,6 +203,28 @@ class TestClientManager(utils.TestCase):
             dir(SERVICE_CATALOG),
             dir(client_manager.auth_ref.service_catalog),
         )
+        self.assertTrue(client_manager.is_network_endpoint_enabled())
+
+    def test_client_manager_network_endpoint_disabled(self):
+
+        client_manager = clientmanager.ClientManager(
+            cli_options=FakeOptions(
+                auth=dict(
+                    auth_url=fakes.AUTH_URL,
+                    username=fakes.USERNAME,
+                    password=fakes.PASSWORD,
+                    project_name=fakes.PROJECT_NAME,
+                ),
+                auth_type='v3password',
+            ),
+            api_version={"identity": "3"},
+            verify=False,
+        )
+        client_manager.setup_auth()
+        client_manager.auth_ref
+
+        # v3 fake doesn't have network endpoint.
+        self.assertFalse(client_manager.is_network_endpoint_enabled())
 
     def stub_auth(self, json=None, url=None, verb=None, **kwargs):
         subject_token = fakes.AUTH_TOKEN
@@ -229,10 +259,12 @@ class TestClientManager(utils.TestCase):
             verify='cafile',
         )
         client_manager.setup_auth()
+        client_manager.auth_ref
 
         self.assertFalse(client_manager._insecure)
         self.assertTrue(client_manager._verify)
         self.assertEqual('cafile', client_manager._cacert)
+        self.assertTrue(client_manager.is_network_endpoint_enabled())
 
     def _select_auth_plugin(self, auth_params, api_version, auth_plugin_name):
         auth_params['auth_type'] = auth_plugin_name
@@ -243,6 +275,7 @@ class TestClientManager(utils.TestCase):
             verify=True
         )
         client_manager.setup_auth()
+        client_manager.auth_ref
 
         self.assertEqual(
             auth_plugin_name,
