@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Add remote security group to `os security group rule list`
+    [Bug `1520003 <https://bugs.launchpad.net/bugs/1520003>`_]

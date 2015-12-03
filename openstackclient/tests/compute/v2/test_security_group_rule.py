@@ -28,13 +28,6 @@ security_group_description = 'nothing but net'
 security_group_rule_id = '1'
 security_group_rule_cidr = '0.0.0.0/0'
 
-SECURITY_GROUP = {
-    'id': security_group_id,
-    'name': security_group_name,
-    'description': security_group_description,
-    'tenant_id': identity_fakes.project_id,
-}
-
 SECURITY_GROUP_RULE = {
     'id': security_group_rule_id,
     'group': {},
@@ -53,6 +46,26 @@ SECURITY_GROUP_RULE_ICMP = {
     'parent_group_id': security_group_id,
     'from_port': -1,
     'to_port': -1,
+}
+
+SECURITY_GROUP_RULE_REMOTE_GROUP = {
+    'id': security_group_rule_id,
+    'group': {"tenant_id": "14", "name": "default"},
+    'ip_protocol': 'tcp',
+    'ip_range': {},
+    'parent_group_id': security_group_id,
+    'from_port': 80,
+    'to_port': 80,
+}
+
+SECURITY_GROUP = {
+    'id': security_group_id,
+    'name': security_group_name,
+    'description': security_group_description,
+    'tenant_id': identity_fakes.project_id,
+    'rules': [SECURITY_GROUP_RULE,
+              SECURITY_GROUP_RULE_ICMP,
+              SECURITY_GROUP_RULE_REMOTE_GROUP],
 }
 
 
@@ -122,21 +135,21 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
         )
 
         collist = (
-            'group',
             'id',
             'ip_protocol',
             'ip_range',
             'parent_group_id',
             'port_range',
+            'remote_security_group',
         )
         self.assertEqual(collist, columns)
         datalist = (
-            {},
             security_group_rule_id,
             'tcp',
             security_group_rule_cidr,
             security_group_id,
             '0:0',
+            '',
         )
         self.assertEqual(datalist, data)
 
@@ -174,21 +187,21 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
         )
 
         collist = (
-            'group',
             'id',
             'ip_protocol',
             'ip_range',
             'parent_group_id',
             'port_range',
+            'remote_security_group',
         )
         self.assertEqual(collist, columns)
         datalist = (
-            {},
             security_group_rule_id,
             'tcp',
             security_group_rule_cidr,
             security_group_id,
             '20:21',
+            '',
         )
         self.assertEqual(datalist, data)
 
@@ -196,6 +209,7 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
         sg_rule = copy.deepcopy(SECURITY_GROUP_RULE)
         sg_rule['from_port'] = 22
         sg_rule['to_port'] = 22
+        sg_rule['ip_range'] = {}
         sg_rule['group'] = {'name': security_group_name}
         self.sg_rules_mock.create.return_value = FakeSecurityGroupRuleResource(
             None,
@@ -229,21 +243,21 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
         )
 
         collist = (
-            'group',
             'id',
             'ip_protocol',
             'ip_range',
             'parent_group_id',
             'port_range',
+            'remote_security_group',
         )
         self.assertEqual(collist, columns)
         datalist = (
-            {'name': security_group_name},
             security_group_rule_id,
             'tcp',
-            security_group_rule_cidr,
+            '',
             security_group_id,
             '22:22',
+            security_group_name,
         )
         self.assertEqual(datalist, data)
 
@@ -280,21 +294,21 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
         )
 
         collist = (
-            'group',
             'id',
             'ip_protocol',
             'ip_range',
             'parent_group_id',
             'port_range',
+            'remote_security_group',
         )
         self.assertEqual(collist, columns)
         datalist = (
-            {},
             security_group_rule_id,
             'udp',
             security_group_rule_cidr,
             security_group_id,
             '0:0',
+            '',
         )
         self.assertEqual(datalist, data)
 
@@ -334,20 +348,20 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
         )
 
         collist = (
-            'group',
             'id',
             'ip_protocol',
             'ip_range',
             'parent_group_id',
             'port_range',
+            'remote_security_group',
         )
         self.assertEqual(collist, columns)
         datalist = (
-            {},
             security_group_rule_id,
             'icmp',
             sg_rule_cidr,
             security_group_id,
+            '',
             '',
         )
         self.assertEqual(datalist, data)
@@ -362,3 +376,62 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
 
         self.assertRaises(utils.ParserException,
                           self.check_parser, self.cmd, arglist, [])
+
+
+class TestSecurityGroupRuleList(TestSecurityGroupRule):
+
+    def setUp(self):
+        super(TestSecurityGroupRuleList, self).setUp()
+
+        self.secgroups_mock.get.return_value = FakeSecurityGroupRuleResource(
+            None,
+            copy.deepcopy(SECURITY_GROUP),
+            loaded=True,
+        )
+
+        # Get the command object to test
+        self.cmd = security_group.ListSecurityGroupRule(self.app, None)
+
+    def test_security_group_rule_list(self):
+
+        arglist = [
+            security_group_name,
+        ]
+        verifylist = [
+            ('group', security_group_name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        collist = (
+            'ID',
+            'IP Protocol',
+            'IP Range',
+            'Port Range',
+            'Remote Security Group',
+        )
+        self.assertEqual(collist, columns)
+        datalist = ((
+            security_group_rule_id,
+            'tcp',
+            security_group_rule_cidr,
+            '0:0',
+            '',
+            ), (
+            security_group_rule_id,
+            'icmp',
+            security_group_rule_cidr,
+            '',
+            '',
+            ), (
+            security_group_rule_id,
+            'tcp',
+            '',
+            '80:80',
+            'default',
+            ),
+        )
+        self.assertEqual(datalist, tuple(data))
