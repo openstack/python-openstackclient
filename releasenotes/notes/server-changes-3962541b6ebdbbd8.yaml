@@ -1,0 +1,10 @@
+---
+other:
+  - |
+    `server` resource changes:
+
+    * Added `--limit` and `--marker` to `server list`
+    * Added `server shelve`
+    * Added `server unshelve`
+    * `server resume` now takes multiple servers
+    * `server suspend` now takes multiple servers
