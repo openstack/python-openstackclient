@@ -326,7 +326,7 @@ class ListVolume(lister.Lister):
                 ) for s in data))
 
 
-class SetVolume(show.ShowOne):
+class SetVolume(command.Command):
     """Set volume properties"""
 
     log = logging.getLogger(__name__ + '.SetVolume')
