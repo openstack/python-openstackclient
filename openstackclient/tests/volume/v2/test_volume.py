@@ -14,6 +14,8 @@
 
 import copy
 
+from mock import call
+
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
@@ -35,6 +37,14 @@ class TestVolume(volume_fakes.TestVolume):
 
         self.images_mock = self.app.client_manager.image.images
         self.images_mock.reset_mock()
+
+    def setup_volumes_mock(self, count):
+        volumes = volume_fakes.FakeVolume.create_volumes(count=count)
+
+        self.volumes_mock.get = volume_fakes.FakeVolume.get_volumes(
+            volumes,
+            0)
+        return volumes
 
 
 class TestVolumeCreate(TestVolume):
@@ -888,24 +898,38 @@ class TestVolumeDelete(TestVolume):
     def setUp(self):
         super(TestVolumeDelete, self).setUp()
 
-        self.volumes_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.VOLUME),
-            loaded=True)
         self.volumes_mock.delete.return_value = None
 
         # Get the command object to mock
         self.cmd = volume.DeleteVolume(self.app, None)
 
-    def test_volume_delete(self):
+    def test_volume_delete_one_volume(self):
+        volumes = self.setup_volumes_mock(count=1)
+
         arglist = [
-            volume_fakes.volume_id
+            volumes[0].id
         ]
         verifylist = [
-            ("volumes", [volume_fakes.volume_id])
+            ("volumes", [volumes[0].id])
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.cmd.take_action(parsed_args)
-        self.volumes_mock.delete.assert_called_with(volume_fakes.volume_id)
+        self.volumes_mock.delete.assert_called_with(volumes[0].id)
+
+    def test_volume_delete_multi_volumes(self):
+        volumes = self.setup_volumes_mock(count=3)
+
+        arglist = [v.id for v in volumes]
+        verifylist = [
+            ('volumes', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        calls = [call(v.id) for v in volumes]
+
+        self.volumes_mock.delete.assert_has_calls(calls)
