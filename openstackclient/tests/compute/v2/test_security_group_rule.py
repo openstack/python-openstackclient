@@ -18,6 +18,7 @@ from openstackclient.compute.v2 import security_group
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests import utils
 
 
 security_group_id = '11'
@@ -25,6 +26,7 @@ security_group_name = 'wide-open'
 security_group_description = 'nothing but net'
 
 security_group_rule_id = '1'
+security_group_rule_cidr = '0.0.0.0/0'
 
 SECURITY_GROUP = {
     'id': security_group_id,
@@ -37,7 +39,7 @@ SECURITY_GROUP_RULE = {
     'id': security_group_rule_id,
     'group': {},
     'ip_protocol': 'tcp',
-    'ip_range': '0.0.0.0/0',
+    'ip_range': {'cidr': security_group_rule_cidr},
     'parent_group_id': security_group_id,
     'from_port': 0,
     'to_port': 0,
@@ -47,7 +49,7 @@ SECURITY_GROUP_RULE_ICMP = {
     'id': security_group_rule_id,
     'group': {},
     'ip_protocol': 'icmp',
-    'ip_range': '0.0.0.0/0',
+    'ip_range': {'cidr': security_group_rule_cidr},
     'parent_group_id': security_group_id,
     'from_port': -1,
     'to_port': -1,
@@ -115,7 +117,8 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             'tcp',
             0,
             0,
-            '0.0.0.0/0',
+            security_group_rule_cidr,
+            None,
         )
 
         collist = (
@@ -131,7 +134,7 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             {},
             security_group_rule_id,
             'tcp',
-            '',
+            security_group_rule_cidr,
             security_group_id,
             '0:0',
         )
@@ -166,7 +169,8 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             'tcp',
             20,
             21,
-            '0.0.0.0/0',
+            security_group_rule_cidr,
+            None,
         )
 
         collist = (
@@ -182,7 +186,7 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             {},
             security_group_rule_id,
             'tcp',
-            '',
+            security_group_rule_cidr,
             security_group_id,
             '20:21',
         )
@@ -192,6 +196,7 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
         sg_rule = copy.deepcopy(SECURITY_GROUP_RULE)
         sg_rule['from_port'] = 22
         sg_rule['to_port'] = 22
+        sg_rule['group'] = {'name': security_group_name}
         self.sg_rules_mock.create.return_value = FakeSecurityGroupRuleResource(
             None,
             sg_rule,
@@ -201,10 +206,12 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
         arglist = [
             security_group_name,
             '--dst-port', '22',
+            '--src-group', security_group_id,
         ]
         verifylist = [
             ('group', security_group_name),
             ('dst_port', (22, 22)),
+            ('src_group', security_group_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -217,7 +224,8 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             'tcp',
             22,
             22,
-            '0.0.0.0/0',
+            security_group_rule_cidr,
+            security_group_id,
         )
 
         collist = (
@@ -230,10 +238,10 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
         )
         self.assertEqual(collist, columns)
         datalist = (
-            {},
+            {'name': security_group_name},
             security_group_rule_id,
             'tcp',
-            '',
+            security_group_rule_cidr,
             security_group_id,
             '22:22',
         )
@@ -267,7 +275,8 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             'udp',
             0,
             0,
-            '0.0.0.0/0',
+            security_group_rule_cidr,
+            None,
         )
 
         collist = (
@@ -283,26 +292,31 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             {},
             security_group_rule_id,
             'udp',
-            '',
+            security_group_rule_cidr,
             security_group_id,
             '0:0',
         )
         self.assertEqual(datalist, data)
 
     def test_security_group_rule_create_icmp(self):
+        sg_rule_cidr = '10.0.2.0/24'
+        sg_rule = copy.deepcopy(SECURITY_GROUP_RULE_ICMP)
+        sg_rule['ip_range'] = {'cidr': sg_rule_cidr}
         self.sg_rules_mock.create.return_value = FakeSecurityGroupRuleResource(
             None,
-            copy.deepcopy(SECURITY_GROUP_RULE_ICMP),
+            sg_rule,
             loaded=True,
         )
 
         arglist = [
             security_group_name,
             '--proto', 'ICMP',
+            '--src-ip', sg_rule_cidr,
         ]
         verifylist = [
             ('group', security_group_name),
             ('proto', 'ICMP'),
+            ('src_ip', sg_rule_cidr)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -315,7 +329,8 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             'ICMP',
             -1,
             -1,
-            '0.0.0.0/0',
+            sg_rule_cidr,
+            None,
         )
 
         collist = (
@@ -331,8 +346,19 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             {},
             security_group_rule_id,
             'icmp',
-            '',
+            sg_rule_cidr,
             security_group_id,
             '',
         )
         self.assertEqual(datalist, data)
+
+    def test_security_group_rule_create_src_invalid(self):
+        arglist = [
+            security_group_name,
+            '--proto', 'ICMP',
+            '--src-ip', security_group_rule_cidr,
+            '--src-group', security_group_id,
+        ]
+
+        self.assertRaises(utils.ParserException,
+                          self.check_parser, self.cmd, arglist, [])

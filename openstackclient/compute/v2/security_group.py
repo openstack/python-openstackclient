@@ -111,11 +111,18 @@ class CreateSecurityGroupRule(show.ShowOne):
             default="tcp",
             help="IP protocol (icmp, tcp, udp; default: tcp)",
         )
-        parser.add_argument(
+        source_group = parser.add_mutually_exclusive_group()
+        source_group.add_argument(
             "--src-ip",
             metavar="<ip-address>",
             default="0.0.0.0/0",
-            help="Source IP (may use CIDR notation; default: 0.0.0.0/0)",
+            help="Source IP address block (may use CIDR notation; default: "
+                 "0.0.0.0/0)",
+        )
+        source_group.add_argument(
+            "--src-group",
+            metavar="<group>",
+            help="Source security group (ID only)",
         )
         parser.add_argument(
             "--dst-port",
@@ -145,6 +152,7 @@ class CreateSecurityGroupRule(show.ShowOne):
             from_port,
             to_port,
             parsed_args.src_ip,
+            parsed_args.src_group,
         )
 
         info = _xform_security_group_rule(data._info)
