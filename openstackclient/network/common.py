@@ -11,8 +11,6 @@
 #   under the License.
 #
 
-from openstackclient.common import exceptions
-
 
 def find(client, resource, resources, name_or_id, name_attr='name'):
     """Find a network resource
@@ -26,22 +24,6 @@ def find(client, resource, resources, name_or_id, name_attr='name'):
     For example:
         n = find(netclient, 'network', 'networks', 'matrix')
     """
-    list_method = getattr(client, "list_%s" % resources)
-
-    # Search by name
-    kwargs = {name_attr: name_or_id, 'fields': 'id'}
-    data = list_method(**kwargs)
-    info = data[resources]
-    if len(info) == 1:
-        return info[0]['id']
-    if len(info) > 1:
-        msg = "More than one %s exists with the name '%s'."
-        raise exceptions.CommandError(msg % (resource, name_or_id))
-
-    # Search by id
-    data = list_method(id=name_or_id, fields='id')
-    info = data[resources]
-    if len(info) == 1:
-        return info[0]['id']
-    msg = "No %s with a name or ID of '%s' exists." % (resource, name_or_id)
-    raise exceptions.CommandError(msg)
+    list_method = getattr(client, "find_%s" % resource)
+    data = list_method(name_or_id, ignore_missing=False)
+    return data.id
