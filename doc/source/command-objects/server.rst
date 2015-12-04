@@ -77,19 +77,20 @@ Create a new server
 
 .. option:: --image <image>
 
-    Create server from this image
+    Create server from this image (name or ID)
 
 .. option:: --volume <volume>
 
-    Create server from this volume
+    Create server from this volume (name or ID)
 
 .. option:: --flavor <flavor>
 
-    Create server with this flavor
+    Create server with this flavor (name or ID)
 
 .. option:: --security-group <security-group-name>
 
-    Security group to assign to this server (repeat for multiple groups)
+    Security group to assign to this server (name or ID)
+    (repeat for multiple groups)
 
 .. option:: --key-name <key-name>
 

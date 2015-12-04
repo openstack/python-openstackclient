@@ -276,25 +276,25 @@ class CreateServer(show.ShowOne):
         disk_group.add_argument(
             '--image',
             metavar='<image>',
-            help=_('Create server from this image'),
+            help=_('Create server from this image (name or ID)'),
         )
         disk_group.add_argument(
             '--volume',
             metavar='<volume>',
-            help=_('Create server from this volume'),
+            help=_('Create server from this volume (name or ID)'),
         )
         parser.add_argument(
             '--flavor',
             metavar='<flavor>',
             required=True,
-            help=_('Create server with this flavor'),
+            help=_('Create server with this flavor (name or ID)'),
         )
         parser.add_argument(
             '--security-group',
             metavar='<security-group-name>',
             action='append',
             default=[],
-            help=_('Security group to assign to this server '
+            help=_('Security group to assign to this server (name or ID) '
                    '(repeat for multiple groups)'),
         )
         parser.add_argument(
