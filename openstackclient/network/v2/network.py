@@ -114,15 +114,14 @@ class CreateNetwork(show.ShowOne):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+        self.app.client_manager.network = \
+            _make_client_sdk(self.app.client_manager)
         client = self.app.client_manager.network
         body = self.get_body(parsed_args)
-        create_method = getattr(client, "create_network")
-        data = create_method(body)['network']
-        if data:
-            data = _prep_network_detail(data)
-        else:
-            data = {'': ''}
-        return zip(*sorted(six.iteritems(data)))
+        obj = client.create_network(**body)
+        columns = sorted(obj.keys())
+        data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        return (tuple(columns), data)
 
     def get_body(self, parsed_args):
         body = {'name': str(parsed_args.name),
@@ -137,7 +136,7 @@ class CreateNetwork(show.ShowOne):
                 parsed_args.project_domain,
             ).id
             body['tenant_id'] = project_id
-        return {'network': body}
+        return body
 
 
 class DeleteNetwork(command.Command):
