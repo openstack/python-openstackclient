@@ -194,6 +194,24 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         # Get the command object to test
         self.cmd = network.CreateNetwork(self.app, self.namespace)
 
+        # Set identity client v2. And get a shortcut to Identity client.
+        identity_client = identity_fakes_v2.FakeIdentityv2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+        self.app.client_manager.identity = identity_client
+        self.identity = self.app.client_manager.identity
+
+        # Get a shortcut to the ProjectManager Mock
+        self.projects_mock = self.identity.tenants
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes_v2.PROJECT),
+            loaded=True,
+        )
+
+        # There is no DomainManager Mock in fake identity v2.
+
     def test_create_with_project_identityv2(self):
         arglist = [
             "--project", identity_fakes_v2.project_name,
@@ -205,17 +223,6 @@ class TestCreateNetworkIdentityV2(TestNetwork):
             ('name', FAKE_NAME),
             ('project', identity_fakes_v2.project_name),
         ]
-        identity_client = identity_fakes_v2.FakeIdentityv2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-        self.app.client_manager.identity = identity_client
-        self.projects_mock = self.app.client_manager.identity.tenants
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes_v2.PROJECT),
-            loaded=True,
-        )
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = list(self.cmd.take_action(parsed_args))
@@ -242,17 +249,6 @@ class TestCreateNetworkIdentityV2(TestNetwork):
             ('project_domain', identity_fakes_v3.domain_name),
             ('name', FAKE_NAME),
         ]
-        identity_client = identity_fakes_v2.FakeIdentityv2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-        self.app.client_manager.identity = identity_client
-        self.projects_mock = self.app.client_manager.identity.tenants
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes_v2.PROJECT),
-            loaded=True,
-        )
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
