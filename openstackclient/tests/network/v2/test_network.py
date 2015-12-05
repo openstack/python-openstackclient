@@ -23,42 +23,6 @@ from openstackclient.tests.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.network.v2 import fakes as network_fakes
 from openstackclient.tests import utils as tests_utils
 
-RESOURCE = 'network'
-RESOURCES = 'networks'
-FAKE_ID = 'iditty'
-FAKE_NAME = 'noo'
-FAKE_PROJECT = 'yaa'
-RECORD = {
-    'id': FAKE_ID,
-    'name': FAKE_NAME,
-    'admin_state_up': True,
-    'router:external': True,
-    'status': 'ACTIVE',
-    'subnets': ['a', 'b'],
-    'tenant_id': FAKE_PROJECT,
-}
-RESPONSE = {RESOURCE: copy.deepcopy(RECORD)}
-FILTERED = [
-    (
-        'id',
-        'name',
-        'project_id',
-        'router_type',
-        'state',
-        'status',
-        'subnets',
-    ),
-    (
-        FAKE_ID,
-        FAKE_NAME,
-        FAKE_PROJECT,
-        'External',
-        'UP',
-        'ACTIVE',
-        'a, b',
-    ),
-]
-
 
 class TestNetwork(network_fakes.TestNetworkV2):
 
