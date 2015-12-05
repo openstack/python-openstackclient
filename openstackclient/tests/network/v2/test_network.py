@@ -83,6 +83,30 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         # Get the command object to test
         self.cmd = network.CreateNetwork(self.app, self.namespace)
 
+        # Set identity client v3. And get a shortcut to Identity client.
+        identity_client = identity_fakes_v3.FakeIdentityv3Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+        self.app.client_manager.identity = identity_client
+        self.identity = self.app.client_manager.identity
+
+        # Get a shortcut to the ProjectManager Mock
+        self.projects_mock = self.identity.projects
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes_v3.PROJECT),
+            loaded=True,
+        )
+
+        # Get a shortcut to the DomainManager Mock
+        self.domains_mock = self.identity.domains
+        self.domains_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes_v3.DOMAIN),
+            loaded=True,
+        )
+
     def test_create_no_options(self):
         arglist = [
             FAKE_NAME,
@@ -120,23 +144,6 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('project_domain', identity_fakes_v3.domain_name),
             ('name', FAKE_NAME),
         ]
-        identity_client = identity_fakes_v3.FakeIdentityv3Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-        self.app.client_manager.identity = identity_client
-        self.projects_mock = self.app.client_manager.identity.projects
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes_v3.PROJECT),
-            loaded=True,
-        )
-        self.domains_mock = self.app.client_manager.identity.domains
-        self.domains_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes_v3.DOMAIN),
-            loaded=True,
-        )
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = list(self.cmd.take_action(parsed_args))
