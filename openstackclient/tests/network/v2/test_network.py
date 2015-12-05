@@ -21,6 +21,7 @@ from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes_v2
 from openstackclient.tests.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.network.v2 import fakes as network_fakes
+from openstackclient.tests import utils as tests_utils
 
 RESOURCE = 'network'
 RESOURCES = 'networks'
@@ -533,39 +534,67 @@ class TestSetNetwork(TestNetwork):
                           parsed_args)
 
 
-@mock.patch(
-    'openstackclient.api.network_v2.APIv2.find_attr'
-)
+@mock.patch('openstackclient.network.v2.network._make_client_sdk')
 class TestShowNetwork(TestNetwork):
+
+    # The network to set.
+    _network = network_fakes.FakeNetwork.create_one_network()
+
+    columns = (
+        'admin_state_up',
+        'id',
+        'name',
+        'router_external',
+        'status',
+        'subnets',
+        'tenant_id',
+    )
+
+    data = (
+        network._format_admin_state(_network.admin_state_up),
+        _network.id,
+        _network.name,
+        network._format_router_external(_network.router_external),
+        _network.status,
+        utils.format_list(_network.subnets),
+        _network.tenant_id,
+    )
 
     def setUp(self):
         super(TestShowNetwork, self).setUp()
 
+        self.network.find_network = mock.Mock(return_value=self._network)
+
         # Get the command object to test
         self.cmd = network.ShowNetwork(self.app, self.namespace)
 
-    def test_show_no_options(self, find_attr):
+    def test_show_no_options(self, _make_client_sdk):
+        _make_client_sdk.return_value = self.app.client_manager.network
+
+        arglist = []
+        verifylist = []
+
+        try:
+            # Missing required args should bail here
+            self.check_parser(self.cmd, arglist, verifylist)
+        except tests_utils.ParserException:
+            pass
+
+    def test_show_all_options(self, _make_client_sdk):
+        _make_client_sdk.return_value = self.app.client_manager.network
+
         arglist = [
-            FAKE_NAME,
+            self._network.name,
         ]
         verifylist = [
-            ('identifier', FAKE_NAME),
+            ('identifier', self._network.name),
         ]
-        find_attr.return_value = copy.deepcopy(RECORD)
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = list(self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        find_attr.assert_called_with('networks', FAKE_NAME)
-        self.assertEqual(FILTERED, result)
+        self.network.find_network.assert_called_with(self._network.name,
+                                                     ignore_missing=False)
 
-    def test_show_all_options(self, find_attr):
-        arglist = [FAKE_NAME]
-        verifylist = [('identifier', FAKE_NAME)]
-        find_attr.return_value = copy.deepcopy(RECORD)
-
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = list(self.cmd.take_action(parsed_args))
-
-        find_attr.assert_called_with('networks', FAKE_NAME)
-        self.assertEqual(FILTERED, result)
+        self.assertEqual(tuple(self.columns), columns)
+        self.assertEqual(list(self.data), list(data))

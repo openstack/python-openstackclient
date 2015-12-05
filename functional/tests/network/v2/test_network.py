@@ -40,9 +40,9 @@ class NetworkTests(test.TestCase):
 
     def test_network_set(self):
         raw_output = self.openstack('network set --disable ' + self.NAME)
-        opts = self.get_show_opts(['name', 'state'])
+        opts = self.get_show_opts(['name', 'admin_state_up'])
         raw_output = self.openstack('network show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + "\nDOWN\n", raw_output)
+        self.assertEqual("DOWN\n" + self.NAME + "\n", raw_output)
 
     def test_network_show(self):
         opts = self.get_show_opts(self.FIELDS)
