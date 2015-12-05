@@ -20,6 +20,7 @@ from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes_v2
 from openstackclient.tests.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.network import common
+from openstackclient.tests.network.v2 import fakes as network_fakes
 
 RESOURCE = 'network'
 RESOURCES = 'networks'
@@ -57,6 +58,18 @@ FILTERED = [
         'a, b',
     ),
 ]
+
+
+class TestNetwork(network_fakes.TestNetworkV2):
+
+    def setUp(self):
+        super(TestNetwork, self).setUp()
+
+        # Get a shortcut to the network client
+        self.network = self.app.client_manager.network
+
+        # Get a shortcut to the APIManager
+        self.api = self.app.client_manager.network.api
 
 
 class TestCreateNetwork(common.TestNetworkBase):
