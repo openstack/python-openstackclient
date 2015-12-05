@@ -119,17 +119,17 @@ class DeleteNetwork(command.Command):
     def get_parser(self, prog_name):
         parser = super(DeleteNetwork, self).get_parser(prog_name)
         parser.add_argument(
-            'networks',
+            'network',
             metavar="<network>",
             nargs="+",
-            help=("Network to delete (name or ID)")
+            help=("Network(s) to delete (name or ID)")
         )
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
-        for network in parsed_args.networks:
+        for network in parsed_args.network:
             obj = client.find_network(network)
             client.delete_network(obj)
         return

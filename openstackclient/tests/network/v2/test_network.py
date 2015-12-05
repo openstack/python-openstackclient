@@ -284,7 +284,7 @@ class TestDeleteNetwork(TestNetwork):
             self._network.name,
         ]
         verifylist = [
-            ('networks', [self._network.name]),
+            ('network', [self._network.name]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

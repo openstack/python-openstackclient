@@ -62,7 +62,7 @@ Delete network(s)
 .. _network_delete-project:
 .. describe:: <network>
 
-    Network to delete (name or ID)
+    Network(s) to delete (name or ID)
 
 network list
 ------------
