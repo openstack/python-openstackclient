@@ -57,6 +57,19 @@ class TestImageCreate(TestImage):
 
         self.new_image = image_fakes.FakeImage.create_one_image()
         self.images_mock.create.return_value = self.new_image
+
+        self.project_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
+        self.domain_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.DOMAIN),
+            loaded=True,
+        )
+
         # This is the return value for utils.find_resource()
         self.images_mock.get.return_value = copy.deepcopy(
             image_fakes.FakeImage.get_image_info(self.new_image))
@@ -123,6 +136,7 @@ class TestImageCreate(TestImage):
                 if self.new_image.protected else '--unprotected'),
             ('--private'
                 if self.new_image.visibility == 'private' else '--public'),
+            '--project-domain', identity_fakes.domain_id,
             self.new_image.name,
         ]
         verifylist = [
@@ -135,6 +149,7 @@ class TestImageCreate(TestImage):
             ('unprotected', not self.new_image.protected),
             ('public', self.new_image.visibility == 'public'),
             ('private', self.new_image.visibility == 'private'),
+            ('project_domain', identity_fakes.domain_id),
             ('name', self.new_image.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -149,7 +164,7 @@ class TestImageCreate(TestImage):
             disk_format='fs',
             min_disk=10,
             min_ram=4,
-            owner=self.new_image.owner,
+            owner=identity_fakes.project_id,
             protected=self.new_image.protected,
             visibility=self.new_image.visibility,
         )
@@ -167,6 +182,40 @@ class TestImageCreate(TestImage):
         self.assertEqual(
             image_fakes.FakeImage.get_image_data(self.new_image),
             data)
+
+    def test_image_create_with_unexist_owner(self):
+        self.project_mock.get.side_effect = exceptions.NotFound(None)
+        self.project_mock.find.side_effect = exceptions.NotFound(None)
+
+        arglist = [
+            '--container-format', 'ovf',
+            '--disk-format', 'fs',
+            '--min-disk', '10',
+            '--min-ram', '4',
+            '--owner', 'unexist_owner',
+            '--protected',
+            '--private',
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('container_format', 'ovf'),
+            ('disk_format', 'fs'),
+            ('min_disk', 10),
+            ('min_ram', 4),
+            ('owner', 'unexist_owner'),
+            ('protected', True),
+            ('unprotected', False),
+            ('public', False),
+            ('private', True),
+            ('name', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
 
     @mock.patch('glanceclient.common.utils.get_data_file', name='Open')
     def test_image_create_file(self, mock_open):
@@ -686,6 +735,18 @@ class TestImageSet(TestImage):
             schemas.SchemaBasedModel,
         )
 
+        self.project_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
+        self.domain_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.DOMAIN),
+            loaded=True,
+        )
+
         self.images_mock.get.return_value = self.model(**image_fakes.IMAGE)
         self.images_mock.update.return_value = self.model(**image_fakes.IMAGE)
         # Get the command object to test
@@ -694,20 +755,22 @@ class TestImageSet(TestImage):
     def test_image_set_options(self):
         arglist = [
             '--name', 'new-name',
-            '--owner', 'new-owner',
+            '--owner', identity_fakes.project_name,
             '--min-disk', '2',
             '--min-ram', '4',
             '--container-format', 'ovf',
             '--disk-format', 'vmdk',
+            '--project-domain', identity_fakes.domain_id,
             image_fakes.image_id,
         ]
         verifylist = [
             ('name', 'new-name'),
-            ('owner', 'new-owner'),
+            ('owner', identity_fakes.project_name),
             ('min_disk', 2),
             ('min_ram', 4),
             ('container_format', 'ovf'),
             ('disk_format', 'vmdk'),
+            ('project_domain', identity_fakes.domain_id),
             ('image', image_fakes.image_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -717,7 +780,7 @@ class TestImageSet(TestImage):
 
         kwargs = {
             'name': 'new-name',
-            'owner': 'new-owner',
+            'owner': identity_fakes.project_id,
             'min_disk': 2,
             'min_ram': 4,
             'container_format': 'ovf',
@@ -726,6 +789,25 @@ class TestImageSet(TestImage):
         # ImageManager.update(image, **kwargs)
         self.images_mock.update.assert_called_with(
             image_fakes.image_id, **kwargs)
+
+    def test_image_set_with_unexist_owner(self):
+        self.project_mock.get.side_effect = exceptions.NotFound(None)
+        self.project_mock.find.side_effect = exceptions.NotFound(None)
+
+        arglist = [
+            '--owner', 'unexist_owner',
+            image_fakes.image_id,
+        ]
+        verifylist = [
+            ('owner', 'unexist_owner'),
+            ('image', image_fakes.image_id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action, parsed_args)
 
     def test_image_set_bools1(self):
         arglist = [
