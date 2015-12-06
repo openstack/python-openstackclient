@@ -401,7 +401,21 @@ class TestListNetwork(TestNetwork):
         self.assertEqual(self.data_long, list(data))
 
 
-class TestSetNetwork(common.TestNetworkBase):
+class TestSetNetwork(TestNetwork):
+
+    def setUp(self):
+        super(TestSetNetwork, self).setUp()
+
+        self.network.update_network = mock.Mock(
+            return_value=None
+        )
+
+        self.network.list_networks = mock.Mock(
+            return_value={RESOURCES: [copy.deepcopy(RECORD)]}
+        )
+
+        self.cmd = network.SetNetwork(self.app, self.namespace)
+
     def test_set_this(self):
         arglist = [
             FAKE_NAME,
@@ -415,18 +429,13 @@ class TestSetNetwork(common.TestNetworkBase):
             ('name', 'noob'),
             ('shared', True),
         ]
-        lister = mock.Mock(return_value={RESOURCES: [copy.deepcopy(RECORD)]})
-        self.app.client_manager.network.list_networks = lister
-        mocker = mock.Mock(return_value=None)
-        self.app.client_manager.network.update_network = mocker
-        cmd = network.SetNetwork(self.app, self.namespace)
 
-        parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = cmd.take_action(parsed_args)
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
 
         exp = {'admin_state_up': True, 'name': 'noob', 'shared': True}
         exp_record = {RESOURCE: exp}
-        mocker.assert_called_with(FAKE_ID, exp_record)
+        self.network.update_network.assert_called_with(FAKE_ID, exp_record)
         self.assertEqual(None, result)
 
     def test_set_that(self):
@@ -440,31 +449,21 @@ class TestSetNetwork(common.TestNetworkBase):
             ('admin_state', False),
             ('shared', False),
         ]
-        lister = mock.Mock(return_value={RESOURCES: [copy.deepcopy(RECORD)]})
-        self.app.client_manager.network.list_networks = lister
-        mocker = mock.Mock(return_value=None)
-        self.app.client_manager.network.update_network = mocker
-        cmd = network.SetNetwork(self.app, self.namespace)
 
-        parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = cmd.take_action(parsed_args)
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
 
         exp = {'admin_state_up': False, 'shared': False}
         exp_record = {RESOURCE: exp}
-        mocker.assert_called_with(FAKE_ID, exp_record)
+        self.network.update_network.assert_called_with(FAKE_ID, exp_record)
         self.assertEqual(None, result)
 
     def test_set_nothing(self):
         arglist = [FAKE_NAME, ]
         verifylist = [('identifier', FAKE_NAME), ]
-        lister = mock.Mock(return_value={RESOURCES: [copy.deepcopy(RECORD)]})
-        self.app.client_manager.network.list_networks = lister
-        mocker = mock.Mock(return_value=None)
-        self.app.client_manager.network.update_network = mocker
-        cmd = network.SetNetwork(self.app, self.namespace)
 
-        parsed_args = self.check_parser(cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, cmd.take_action,
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                           parsed_args)
 
 
