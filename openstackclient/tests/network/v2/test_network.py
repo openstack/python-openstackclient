@@ -19,7 +19,6 @@ from openstackclient.network.v2 import network
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes_v2
 from openstackclient.tests.identity.v3 import fakes as identity_fakes_v3
-from openstackclient.tests.network import common
 from openstackclient.tests.network.v2 import fakes as network_fakes
 
 RESOURCE = 'network'
@@ -414,6 +413,7 @@ class TestSetNetwork(TestNetwork):
             return_value={RESOURCES: [copy.deepcopy(RECORD)]}
         )
 
+        # Get the command object to test
         self.cmd = network.SetNetwork(self.app, self.namespace)
 
     def test_set_this(self):
@@ -470,7 +470,7 @@ class TestSetNetwork(TestNetwork):
 @mock.patch(
     'openstackclient.api.network_v2.APIv2.find_attr'
 )
-class TestShowNetwork(common.TestNetworkBase):
+class TestShowNetwork(TestNetwork):
 
     def setUp(self):
         super(TestShowNetwork, self).setUp()
@@ -478,32 +478,28 @@ class TestShowNetwork(common.TestNetworkBase):
         # Get the command object to test
         self.cmd = network.ShowNetwork(self.app, self.namespace)
 
-        self.NETWORK_ITEM = copy.deepcopy(RECORD)
-
-    def test_show_no_options(self, n_mock):
+    def test_show_no_options(self, find_attr):
         arglist = [
             FAKE_NAME,
         ]
         verifylist = [
             ('identifier', FAKE_NAME),
         ]
-        n_mock.return_value = copy.deepcopy(RECORD)
-        self.cmd = network.ShowNetwork(self.app, self.namespace)
+        find_attr.return_value = copy.deepcopy(RECORD)
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = list(self.cmd.take_action(parsed_args))
 
-        n_mock.assert_called_with('networks', FAKE_NAME)
+        find_attr.assert_called_with('networks', FAKE_NAME)
         self.assertEqual(FILTERED, result)
 
-    def test_show_all_options(self, n_mock):
+    def test_show_all_options(self, find_attr):
         arglist = [FAKE_NAME]
         verifylist = [('identifier', FAKE_NAME)]
-        n_mock.return_value = copy.deepcopy(RECORD)
-        self.cmd = network.ShowNetwork(self.app, self.namespace)
+        find_attr.return_value = copy.deepcopy(RECORD)
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = list(self.cmd.take_action(parsed_args))
 
-        n_mock.assert_called_with('networks', FAKE_NAME)
+        find_attr.assert_called_with('networks', FAKE_NAME)
         self.assertEqual(FILTERED, result)
