@@ -259,7 +259,22 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         )
 
 
-class TestDeleteNetwork(common.TestNetworkBase):
+class TestDeleteNetwork(TestNetwork):
+
+    def setUp(self):
+        super(TestDeleteNetwork, self).setUp()
+
+        self.network.delete_network = mock.Mock(
+            return_value=None
+        )
+
+        self.network.list_networks = mock.Mock(
+            return_value={RESOURCES: [copy.deepcopy(RECORD)]}
+        )
+
+        # Get the command object to test
+        self.cmd = network.DeleteNetwork(self.app, self.namespace)
+
     def test_delete(self):
         arglist = [
             FAKE_NAME,
@@ -267,16 +282,11 @@ class TestDeleteNetwork(common.TestNetworkBase):
         verifylist = [
             ('networks', [FAKE_NAME]),
         ]
-        lister = mock.Mock(return_value={RESOURCES: [copy.deepcopy(RECORD)]})
-        self.app.client_manager.network.list_networks = lister
-        mocker = mock.Mock(return_value=None)
-        self.app.client_manager.network.delete_network = mocker
-        cmd = network.DeleteNetwork(self.app, self.namespace)
 
-        parsed_args = self.check_parser(cmd, arglist, verifylist)
-        result = cmd.take_action(parsed_args)
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
 
-        mocker.assert_called_with(FAKE_ID)
+        self.network.delete_network.assert_called_with(FAKE_ID)
         self.assertEqual(None, result)
 
 
