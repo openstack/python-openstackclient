@@ -674,7 +674,7 @@ class TestServerList(TestServer):
                 s.id,
                 s.name,
                 s.status,
-                u'public=10.20.30.40, 2001:db8::5',
+                server._format_servers_list_networks(s.networks),
             ))
 
     def test_server_list_no_option(self):
