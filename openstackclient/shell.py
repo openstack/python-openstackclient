@@ -116,7 +116,7 @@ class OpenStackShell(app.App):
             if not logging.getLogger('').handlers:
                 logging.basicConfig()
             if self.dump_stack_trace:
-                self.log.error(traceback.format_exc(e))
+                self.log.error(traceback.format_exc())
             else:
                 self.log.error('Exception raised: ' + str(e))
 
