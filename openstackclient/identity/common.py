@@ -41,6 +41,11 @@ def find_service(identity_client, name_type_or_id):
             msg = ("No service with a type, name or ID of '%s' exists."
                    % name_type_or_id)
             raise exceptions.CommandError(msg)
+        except identity_exc.NoUniqueMatch:
+            msg = ("Multiple service matches found for '%s', "
+                   "use an ID to be more specific."
+                   % name_type_or_id)
+            raise exceptions.CommandError(msg)
 
 
 def _get_domain_id_if_requested(identity_client, domain_name_or_id):
