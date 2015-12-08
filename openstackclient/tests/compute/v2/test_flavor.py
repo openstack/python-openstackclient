@@ -173,10 +173,10 @@ class TestFlavorList(TestFlavor):
     def test_flavor_list_private_flavors(self):
         arglist = [
             '--private',
-            ]
+        ]
         verifylist = [
             ('public', False),
-            ]
+        ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -200,10 +200,10 @@ class TestFlavorList(TestFlavor):
     def test_flavor_list_public_flavors(self):
         arglist = [
             '--public',
-            ]
+        ]
         verifylist = [
             ('public', True),
-            ]
+        ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
