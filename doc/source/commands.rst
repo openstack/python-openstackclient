@@ -129,11 +129,14 @@ The following are known `Objects` used by OpenStack :doc:`plugins`. These are
 listed here to avoid name conflicts when creating new plugins. For a complete
 list check out :doc:`plugin-commands`.
 
+* ``action definition``: (**Workflow Engine (Mistral)**)
+* ``action execution``: (**Workflow Engine (Mistral)**)
 * ``baremetal``: (**Baremetal (Ironic)**)
 * ``congress datasource``: (**Policy (Congress)**)
 * ``congress driver``: (**Policy (Congress)**)
 * ``congress policy``: (**Policy (Congress)**)
 * ``congress policy rule``: (**Policy (Congress)**)
+* ``cron trigger``: (**Workflow Engine (Mistral)**)
 * ``dataprocessing data source``: (**Data Processing (Sahara)**)
 * ``dataprocessing image``: (**Data Processing (Sahara)**)
 * ``dataprocessing image tags``: (**Data Processing (Sahara)**)
@@ -150,7 +153,11 @@ list check out :doc:`plugin-commands`.
 * ``secret container``: (**Key Manager (Barbican)**)
 * ``secret order``: (**Key Manager (Barbican)**)
 * ``stack``: (**Orchestration (Heat)**)
+* ``task exeuction``: (**Workflow Engine (Mistral)**)
 * ``tld``: (**DNS (Designate)**)
+* ``workbook``: (**Workflow Engine (Mistral)**)
+* ``workflow``: (**Workflow Engine (Mistral)**)
+* ``workflow execution``: (**Workflow Engine (Mistral)**)
 * ``zone``: (**DNS (Designate)**)
 * ``zone blacklist``: (**DNS (Designate)**)
 * ``zone transfer``: (**DNS (Designate)**)
