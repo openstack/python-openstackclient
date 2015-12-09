@@ -620,10 +620,17 @@ class TestServerList(TestServer):
         'Status',
         'Networks',
     )
-
-    # Data returned by corresponding Nova API. The elements in this list are
-    # tuples filled with server attributes.
-    data = []
+    columns_long = (
+        'ID',
+        'Name',
+        'Status',
+        'Task State',
+        'Power State',
+        'Networks',
+        'Availability Zone',
+        'Host',
+        'Properties',
+    )
 
     # Default search options, in the case of no commandline option specified.
     search_opts = {
@@ -652,12 +659,18 @@ class TestServerList(TestServer):
     def setUp(self):
         super(TestServerList, self).setUp()
 
-        # The fake servers' attributes.
+        # The fake servers' attributes. Use the original attributes names in
+        # nova, not the ones printed by "server list" command.
         self.attrs = {
             'status': 'ACTIVE',
+            'OS-EXT-STS:task_state': 'None',
+            'OS-EXT-STS:power_state': 0x01,   # Running
             'networks': {
                 u'public': [u'10.20.30.40', u'2001:db8::5']
             },
+            'OS-EXT-AZ:availability_zone': 'availability-zone-xxx',
+            'OS-EXT-SRV-ATTR:host': 'host-name-xxx',
+            'Metadata': '',
         }
 
         # The servers to be listed.
@@ -669,12 +682,28 @@ class TestServerList(TestServer):
         self.cmd = server.ListServer(self.app, None)
 
         # Prepare data returned by fake Nova API.
+        self.data = []
+        self.data_long = []
+
         for s in self.servers:
             self.data.append((
                 s.id,
                 s.name,
                 s.status,
                 server._format_servers_list_networks(s.networks),
+            ))
+            self.data_long.append((
+                s.id,
+                s.name,
+                s.status,
+                getattr(s, 'OS-EXT-STS:task_state'),
+                server._format_servers_list_power_state(
+                    getattr(s, 'OS-EXT-STS:power_state')
+                ),
+                server._format_servers_list_networks(s.networks),
+                getattr(s, 'OS-EXT-AZ:availability_zone'),
+                getattr(s, 'OS-EXT-SRV-ATTR:host'),
+                s.Metadata,
             ))
 
     def test_server_list_no_option(self):
@@ -690,6 +719,22 @@ class TestServerList(TestServer):
         self.servers_mock.list.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_long_option(self):
+        arglist = [
+            '--long',
+        ]
+        verifylist = [
+            ('all_projects', False),
+            ('long', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertEqual(self.columns_long, columns)
+        self.assertEqual(tuple(self.data_long), tuple(data))
 
 
 class TestServerLock(TestServer):
