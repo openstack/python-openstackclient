@@ -220,12 +220,12 @@ class TestServerCreate(TestServer):
         network_client = self.app.client_manager.network
         network_client.find_network = find_network
         network_client.find_port = find_port
-        netty = mock.Mock()
-        netty.id = 'net1_uuid'
-        porty = mock.Mock()
-        porty.id = 'port1_uuid'
-        find_network.return_value = netty
-        find_port.return_value = porty
+        network_resource = mock.Mock()
+        network_resource.id = 'net1_uuid'
+        port_resource = mock.Mock()
+        port_resource.id = 'port1_uuid'
+        find_network.return_value = network_resource
+        find_port.return_value = port_resource
 
         # Mock sdk APIs.
         _network = mock.Mock()
