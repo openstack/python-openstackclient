@@ -14,7 +14,6 @@
 """Network action implementations"""
 
 import logging
-import six
 
 from cliff import command
 from cliff import lister
@@ -46,22 +45,6 @@ def _make_client_sdk(instance):
     """Return a network proxy"""
     conn = connection.Connection(authenticator=instance.session.auth)
     return conn.network
-
-
-def _prep_network_detail(net):
-    """Prepare network object for output"""
-    if 'subnets' in net:
-        net['subnets'] = utils.format_list(net['subnets'])
-    if 'admin_state_up' in net:
-        net['state'] = 'UP' if net['admin_state_up'] else 'DOWN'
-        net.pop('admin_state_up')
-    if 'router:external' in net:
-        net['router_type'] = 'External' if net['router:external'] \
-            else 'Internal'
-        net.pop('router:external')
-    if 'tenant_id' in net:
-        net['project_id'] = net.pop('tenant_id')
-    return net
 
 
 class CreateNetwork(show.ShowOne):
@@ -323,10 +306,10 @@ class ShowNetwork(show.ShowOne):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+        self.app.client_manager.network = \
+            _make_client_sdk(self.app.client_manager)
         client = self.app.client_manager.network
-        net = client.api.find_attr(
-            'networks',
-            parsed_args.identifier,
-        )
-        data = _prep_network_detail(net)
-        return zip(*sorted(six.iteritems(data)))
+        obj = client.find_network(parsed_args.identifier, ignore_missing=False)
+        columns = sorted(obj.keys())
+        data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        return (tuple(columns), data)
