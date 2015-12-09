@@ -314,34 +314,36 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         )
 
 
+@mock.patch('openstackclient.network.v2.network._make_client_sdk')
 class TestDeleteNetwork(TestNetwork):
+
+    # The network to delete.
+    _network = network_fakes.FakeNetwork.create_one_network()
 
     def setUp(self):
         super(TestDeleteNetwork, self).setUp()
 
-        self.network.delete_network = mock.Mock(
-            return_value=None
-        )
+        self.network.delete_network = mock.Mock(return_value=None)
 
-        self.network.list_networks = mock.Mock(
-            return_value={RESOURCES: [copy.deepcopy(RECORD)]}
-        )
+        self.network.find_network = mock.Mock(return_value=self._network)
 
         # Get the command object to test
         self.cmd = network.DeleteNetwork(self.app, self.namespace)
 
-    def test_delete(self):
+    def test_delete(self, _make_client_sdk):
+        _make_client_sdk.return_value = self.app.client_manager.network
+
         arglist = [
-            FAKE_NAME,
+            self._network.name,
         ]
         verifylist = [
-            ('networks', [FAKE_NAME]),
+            ('networks', [self._network.name]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_network.assert_called_with(FAKE_ID)
+        self.network.delete_network.assert_called_with(self._network)
         self.assertEqual(None, result)
 
 

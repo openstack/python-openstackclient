@@ -156,11 +156,12 @@ class DeleteNetwork(command.Command):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+        self.app.client_manager.network = \
+            _make_client_sdk(self.app.client_manager)
         client = self.app.client_manager.network
-        delete_method = getattr(client, "delete_network")
         for network in parsed_args.networks:
-            _id = common.find(client, 'network', 'networks', network)
-            delete_method(_id)
+            obj = client.find_network(network)
+            client.delete_network(obj)
         return
 
 
