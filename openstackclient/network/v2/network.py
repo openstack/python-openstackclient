@@ -19,8 +19,6 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
-from openstack import connection
-
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.identity import common as identity_common
@@ -39,12 +37,6 @@ _formatters = {
     'admin_state_up': _format_admin_state,
     'router_external': _format_router_external,
 }
-
-
-def _make_client_sdk(instance):
-    """Return a network proxy"""
-    conn = connection.Connection(authenticator=instance.session.auth)
-    return conn.network
 
 
 class CreateNetwork(show.ShowOne):
@@ -96,8 +88,6 @@ class CreateNetwork(show.ShowOne):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        self.app.client_manager.network = \
-            _make_client_sdk(self.app.client_manager)
         client = self.app.client_manager.network
         body = self.get_body(parsed_args)
         obj = client.create_network(**body)
@@ -138,8 +128,6 @@ class DeleteNetwork(command.Command):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        self.app.client_manager.network = \
-            _make_client_sdk(self.app.client_manager)
         client = self.app.client_manager.network
         for network in parsed_args.networks:
             obj = client.find_network(network)
@@ -170,8 +158,6 @@ class ListNetwork(lister.Lister):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        self.app.client_manager.network = \
-            _make_client_sdk(self.app.client_manager)
         client = self.app.client_manager.network
 
         if parsed_args.long:
@@ -270,8 +256,6 @@ class SetNetwork(command.Command):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        self.app.client_manager.network = \
-            _make_client_sdk(self.app.client_manager)
         client = self.app.client_manager.network
         obj = client.find_network(parsed_args.identifier, ignore_missing=False)
 
@@ -306,8 +290,6 @@ class ShowNetwork(show.ShowOne):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
-        self.app.client_manager.network = \
-            _make_client_sdk(self.app.client_manager)
         client = self.app.client_manager.network
         obj = client.find_network(parsed_args.identifier, ignore_missing=False)
         columns = sorted(obj.keys())

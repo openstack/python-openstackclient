@@ -72,7 +72,6 @@ class TestNetwork(network_fakes.TestNetworkV2):
         self.api = self.app.client_manager.network.api
 
 
-@mock.patch('openstackclient.network.v2.network._make_client_sdk')
 class TestCreateNetworkIdentityV3(TestNetwork):
 
     # The new network created.
@@ -132,9 +131,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             loaded=True,
         )
 
-    def test_create_no_options(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_create_no_options(self):
         arglist = [
             self._network.name,
         ]
@@ -155,9 +152,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-    def test_create_all_options(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_create_all_options(self):
         arglist = [
             "--disable",
             "--share",
@@ -185,9 +180,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-    def test_create_other_options(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_create_other_options(self):
         arglist = [
             "--enable",
             "--no-share",
@@ -211,7 +204,6 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         self.assertEqual(self.data, data)
 
 
-@mock.patch('openstackclient.network.v2.network._make_client_sdk')
 class TestCreateNetworkIdentityV2(TestNetwork):
 
     # The new network created.
@@ -265,9 +257,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
 
         # There is no DomainManager Mock in fake identity v2.
 
-    def test_create_with_project_identityv2(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_create_with_project_identityv2(self):
         arglist = [
             "--project", identity_fakes_v2.project_name,
             self._network.name,
@@ -290,9 +280,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-    def test_create_with_domain_identityv2(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_create_with_domain_identityv2(self):
         arglist = [
             "--project", identity_fakes_v3.project_name,
             "--project-domain", identity_fakes_v3.domain_name,
@@ -315,7 +303,6 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         )
 
 
-@mock.patch('openstackclient.network.v2.network._make_client_sdk')
 class TestDeleteNetwork(TestNetwork):
 
     # The network to delete.
@@ -331,9 +318,7 @@ class TestDeleteNetwork(TestNetwork):
         # Get the command object to test
         self.cmd = network.DeleteNetwork(self.app, self.namespace)
 
-    def test_delete(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_delete(self):
         arglist = [
             self._network.name,
         ]
@@ -348,7 +333,6 @@ class TestDeleteNetwork(TestNetwork):
         self.assertEqual(None, result)
 
 
-@mock.patch('openstackclient.network.v2.network._make_client_sdk')
 class TestListNetwork(TestNetwork):
 
     # The networks going to be listed up.
@@ -401,9 +385,7 @@ class TestListNetwork(TestNetwork):
 
         self.network.networks = mock.Mock(return_value=self._network)
 
-    def test_network_list_no_options(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_network_list_no_options(self):
         arglist = []
         verifylist = [
             ('external', False),
@@ -418,9 +400,7 @@ class TestListNetwork(TestNetwork):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
-    def test_list_external(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_list_external(self):
         arglist = [
             '--external',
         ]
@@ -439,9 +419,7 @@ class TestListNetwork(TestNetwork):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
-    def test_network_list_long(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_network_list_long(self):
         arglist = [
             '--long',
         ]
@@ -459,7 +437,6 @@ class TestListNetwork(TestNetwork):
         self.assertEqual(self.data_long, list(data))
 
 
-@mock.patch('openstackclient.network.v2.network._make_client_sdk')
 class TestSetNetwork(TestNetwork):
 
     # The network to set.
@@ -475,9 +452,7 @@ class TestSetNetwork(TestNetwork):
         # Get the command object to test
         self.cmd = network.SetNetwork(self.app, self.namespace)
 
-    def test_set_this(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_set_this(self):
         self._network.is_dirty = True
 
         arglist = [
@@ -499,9 +474,7 @@ class TestSetNetwork(TestNetwork):
         self.network.update_network.assert_called_with(self._network)
         self.assertEqual(None, result)
 
-    def test_set_that(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_set_that(self):
         self._network.is_dirty = True
 
         arglist = [
@@ -521,9 +494,7 @@ class TestSetNetwork(TestNetwork):
         self.network.update_network.assert_called_with(self._network)
         self.assertEqual(None, result)
 
-    def test_set_nothing(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_set_nothing(self):
         self._network.is_dirty = False
 
         arglist = [self._network.name, ]
@@ -534,7 +505,6 @@ class TestSetNetwork(TestNetwork):
                           parsed_args)
 
 
-@mock.patch('openstackclient.network.v2.network._make_client_sdk')
 class TestShowNetwork(TestNetwork):
 
     # The network to set.
@@ -568,9 +538,7 @@ class TestShowNetwork(TestNetwork):
         # Get the command object to test
         self.cmd = network.ShowNetwork(self.app, self.namespace)
 
-    def test_show_no_options(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_show_no_options(self):
         arglist = []
         verifylist = []
 
@@ -580,9 +548,7 @@ class TestShowNetwork(TestNetwork):
         except tests_utils.ParserException:
             pass
 
-    def test_show_all_options(self, _make_client_sdk):
-        _make_client_sdk.return_value = self.app.client_manager.network
-
+    def test_show_all_options(self):
         arglist = [
             self._network.name,
         ]

@@ -231,6 +231,18 @@ class TestServerCreate(TestServer):
         list_networks.return_value = {'networks': [{'id': 'net1_uuid'}]}
         list_ports.return_value = {'ports': [{'id': 'port1_uuid'}]}
 
+        # Mock sdk APIs.
+        _network = mock.Mock()
+        _network.id = 'net1_uuid'
+        _port = mock.Mock()
+        _port.id = 'port1_uuid'
+        find_network = mock.Mock()
+        find_port = mock.Mock()
+        find_network.return_value = _network
+        find_port.return_value = _port
+        self.app.client_manager.network.find_network = find_network
+        self.app.client_manager.network.find_port = find_port
+
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 

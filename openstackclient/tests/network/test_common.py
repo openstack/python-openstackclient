@@ -13,7 +13,6 @@
 
 import mock
 
-from openstackclient.common import exceptions
 from openstackclient.network import common
 from openstackclient.tests import utils
 
@@ -28,45 +27,31 @@ class TestFind(utils.TestCase):
         super(TestFind, self).setUp()
         self.mock_client = mock.Mock()
         self.list_resources = mock.Mock()
-        self.mock_client.list_resources = self.list_resources
-        self.matrix = {'id': ID}
+        self.mock_client.find_resource = self.list_resources
+        self.resource = mock.Mock()
+        self.resource.id = ID
 
     def test_name(self):
-        self.list_resources.return_value = {RESOURCES: [self.matrix]}
+        self.list_resources.return_value = self.resource
 
         result = common.find(self.mock_client, RESOURCE, RESOURCES, NAME)
 
         self.assertEqual(ID, result)
-        self.list_resources.assert_called_with(fields='id', name=NAME)
+        self.list_resources.assert_called_with(NAME, ignore_missing=False)
 
     def test_id(self):
-        self.list_resources.side_effect = [{RESOURCES: []},
-                                           {RESOURCES: [self.matrix]}]
+        self.list_resources.return_value = self.resource
 
         result = common.find(self.mock_client, RESOURCE, RESOURCES, NAME)
 
         self.assertEqual(ID, result)
-        self.list_resources.assert_called_with(fields='id', id=NAME)
+        self.list_resources.assert_called_with(NAME, ignore_missing=False)
 
     def test_nameo(self):
-        self.list_resources.return_value = {RESOURCES: [self.matrix]}
+        self.list_resources.return_value = self.resource
 
         result = common.find(self.mock_client, RESOURCE, RESOURCES, NAME,
                              name_attr='nameo')
 
         self.assertEqual(ID, result)
-        self.list_resources.assert_called_with(fields='id', nameo=NAME)
-
-    def test_dups(self):
-        dup = {'id': 'Larry'}
-        self.list_resources.return_value = {RESOURCES: [self.matrix, dup]}
-
-        self.assertRaises(exceptions.CommandError, common.find,
-                          self.mock_client, RESOURCE, RESOURCES, NAME)
-
-    def test_nada(self):
-        self.list_resources.side_effect = [{RESOURCES: []},
-                                           {RESOURCES: []}]
-
-        self.assertRaises(exceptions.CommandError, common.find,
-                          self.mock_client, RESOURCE, RESOURCES, NAME)
+        self.list_resources.assert_called_with(NAME, ignore_missing=False)
