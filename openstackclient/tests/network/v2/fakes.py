@@ -16,7 +16,6 @@ import copy
 import mock
 import uuid
 
-from openstackclient.api import network_v2
 from openstackclient.tests import fakes
 from openstackclient.tests import utils
 
@@ -55,11 +54,6 @@ class TestNetworkV2(utils.TestCommand):
         self.app.client_manager.network = FakeNetworkV2Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
-        )
-
-        self.app.client_manager.network.api = network_v2.APIv2(
-            session=mock.Mock(),
-            service_type="network",
         )
 
 

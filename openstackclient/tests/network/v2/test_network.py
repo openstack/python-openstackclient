@@ -32,9 +32,6 @@ class TestNetwork(network_fakes.TestNetworkV2):
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
 
-        # Get a shortcut to the APIManager
-        self.api = self.app.client_manager.network.api
-
 
 class TestCreateNetworkIdentityV3(TestNetwork):
 
