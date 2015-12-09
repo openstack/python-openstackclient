@@ -25,7 +25,6 @@ from openstack import connection
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.identity import common as identity_common
-from openstackclient.network import common
 
 
 def _format_admin_state(item):
@@ -288,21 +287,23 @@ class SetNetwork(command.Command):
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)' % parsed_args)
+        self.app.client_manager.network = \
+            _make_client_sdk(self.app.client_manager)
         client = self.app.client_manager.network
-        _id = common.find(client, 'network', 'networks',
-                          parsed_args.identifier)
-        body = {}
+        obj = client.find_network(parsed_args.identifier, ignore_missing=False)
+
         if parsed_args.name is not None:
-            body['name'] = str(parsed_args.name)
+            obj.name = str(parsed_args.name)
         if parsed_args.admin_state is not None:
-            body['admin_state_up'] = parsed_args.admin_state
+            obj.admin_state_up = parsed_args.admin_state
         if parsed_args.shared is not None:
-            body['shared'] = parsed_args.shared
-        if body == {}:
+            obj.shared = parsed_args.shared
+
+        if not obj.is_dirty:
             msg = "Nothing specified to be set"
             raise exceptions.CommandError(msg)
-        update_method = getattr(client, "update_network")
-        update_method(_id, {'network': body})
+
+        client.update_network(obj)
         return
 
 

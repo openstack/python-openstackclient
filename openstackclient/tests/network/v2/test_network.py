@@ -458,31 +458,35 @@ class TestListNetwork(TestNetwork):
         self.assertEqual(self.data_long, list(data))
 
 
+@mock.patch('openstackclient.network.v2.network._make_client_sdk')
 class TestSetNetwork(TestNetwork):
+
+    # The network to set.
+    _network = network_fakes.FakeNetwork.create_one_network()
 
     def setUp(self):
         super(TestSetNetwork, self).setUp()
 
-        self.network.update_network = mock.Mock(
-            return_value=None
-        )
+        self.network.update_network = mock.Mock(return_value=None)
 
-        self.network.list_networks = mock.Mock(
-            return_value={RESOURCES: [copy.deepcopy(RECORD)]}
-        )
+        self.network.find_network = mock.Mock(return_value=self._network)
 
         # Get the command object to test
         self.cmd = network.SetNetwork(self.app, self.namespace)
 
-    def test_set_this(self):
+    def test_set_this(self, _make_client_sdk):
+        _make_client_sdk.return_value = self.app.client_manager.network
+
+        self._network.is_dirty = True
+
         arglist = [
-            FAKE_NAME,
+            self._network.name,
             '--enable',
             '--name', 'noob',
             '--share',
         ]
         verifylist = [
-            ('identifier', FAKE_NAME),
+            ('identifier', self._network.name),
             ('admin_state', True),
             ('name', 'noob'),
             ('shared', True),
@@ -491,19 +495,21 @@ class TestSetNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        exp = {'admin_state_up': True, 'name': 'noob', 'shared': True}
-        exp_record = {RESOURCE: exp}
-        self.network.update_network.assert_called_with(FAKE_ID, exp_record)
+        self.network.update_network.assert_called_with(self._network)
         self.assertEqual(None, result)
 
-    def test_set_that(self):
+    def test_set_that(self, _make_client_sdk):
+        _make_client_sdk.return_value = self.app.client_manager.network
+
+        self._network.is_dirty = True
+
         arglist = [
-            FAKE_NAME,
+            self._network.name,
             '--disable',
             '--no-share',
         ]
         verifylist = [
-            ('identifier', FAKE_NAME),
+            ('identifier', self._network.name),
             ('admin_state', False),
             ('shared', False),
         ]
@@ -511,14 +517,16 @@ class TestSetNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        exp = {'admin_state_up': False, 'shared': False}
-        exp_record = {RESOURCE: exp}
-        self.network.update_network.assert_called_with(FAKE_ID, exp_record)
+        self.network.update_network.assert_called_with(self._network)
         self.assertEqual(None, result)
 
-    def test_set_nothing(self):
-        arglist = [FAKE_NAME, ]
-        verifylist = [('identifier', FAKE_NAME), ]
+    def test_set_nothing(self, _make_client_sdk):
+        _make_client_sdk.return_value = self.app.client_manager.network
+
+        self._network.is_dirty = False
+
+        arglist = [self._network.name, ]
+        verifylist = [('identifier', self._network.name), ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(exceptions.CommandError, self.cmd.take_action,
