@@ -347,6 +347,22 @@ class TestImageDelete(TestImage):
             images[0].id,
         )
 
+    def test_image_delete_multi_images(self):
+        images = self.setup_images_mock(count=3)
+
+        arglist = [i.id for i in images]
+        verifylist = [
+            ('images', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        calls = [mock.call(i.id) for i in images]
+
+        self.images_mock.delete.assert_has_calls(calls)
+
 
 class TestImageList(TestImage):
 
