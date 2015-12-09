@@ -375,14 +375,15 @@ Rebuild server
 .. code:: bash
 
     os server rebuild
-        --image <image>
+        [--image <image>]
         [--password <password>]
         [--wait]
         <server>
 
 .. option:: --image <image>
 
-    Recreate server from this image
+    Recreate server from the specified image (name or ID). Defaults to the
+    currently used one.
 
 .. option:: --password <password>
 
