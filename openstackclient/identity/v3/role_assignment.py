@@ -39,6 +39,11 @@ class ListRoleAssignment(lister.Lister):
             metavar='<role>',
             help='Role to filter (name or ID)',
         )
+        parser.add_argument(
+            '--names',
+            action="store_true",
+            help='Display names instead of IDs',
+        )
         user_or_group = parser.add_mutually_exclusive_group()
         user_or_group.add_argument(
             '--user',
@@ -113,6 +118,7 @@ class ListRoleAssignment(lister.Lister):
                 parsed_args.group_domain,
             )
 
+        include_names = True if parsed_args.names else False
         effective = True if parsed_args.effective else False
         self.log.debug('take_action(%s)' % parsed_args)
         columns = ('Role', 'User', 'Group', 'Project', 'Domain', 'Inherited')
@@ -125,17 +131,26 @@ class ListRoleAssignment(lister.Lister):
             project=project,
             role=role,
             effective=effective,
-            os_inherit_extension_inherited_to=inherited_to)
+            os_inherit_extension_inherited_to=inherited_to,
+            include_names=include_names)
 
         data_parsed = []
         for assignment in data:
             # Removing the extra "scope" layer in the assignment json
             scope = assignment.scope
             if 'project' in scope:
-                setattr(assignment, 'project', scope['project']['id'])
+                if include_names:
+                    prj = '@'.join([scope['project']['name'],
+                                   scope['project']['domain']['name']])
+                    setattr(assignment, 'project', prj)
+                else:
+                    setattr(assignment, 'project', scope['project']['id'])
                 assignment.domain = ''
             elif 'domain' in scope:
-                setattr(assignment, 'domain', scope['domain']['id'])
+                if include_names:
+                    setattr(assignment, 'domain', scope['domain']['name'])
+                else:
+                    setattr(assignment, 'domain', scope['domain']['id'])
                 assignment.project = ''
 
             else:
@@ -148,17 +163,30 @@ class ListRoleAssignment(lister.Lister):
             del assignment.scope
 
             if hasattr(assignment, 'user'):
-                setattr(assignment, 'user', assignment.user['id'])
+                if include_names:
+                    usr = '@'.join([assignment.user['name'],
+                                    assignment.user['domain']['name']])
+                    setattr(assignment, 'user', usr)
+                else:
+                    setattr(assignment, 'user', assignment.user['id'])
                 assignment.group = ''
             elif hasattr(assignment, 'group'):
-                setattr(assignment, 'group', assignment.group['id'])
+                if include_names:
+                    grp = '@'.join([assignment.group['name'],
+                                    assignment.group['domain']['name']])
+                    setattr(assignment, 'group', grp)
+                else:
+                    setattr(assignment, 'group', assignment.group['id'])
                 assignment.user = ''
             else:
                 assignment.user = ''
                 assignment.group = ''
 
             if hasattr(assignment, 'role'):
-                setattr(assignment, 'role', assignment.role['id'])
+                if include_names:
+                    setattr(assignment, 'role', assignment.role['name'])
+                else:
+                    setattr(assignment, 'role', assignment.role['id'])
             else:
                 assignment.role = ''
 

@@ -1,0 +1,6 @@
+---
+features:
+  - >
+    [`bug 1479569 <https://bugs.launchpad.net/python-keystoneclient/+bug/1479569>`_]
+    Add an optional ``--names`` argument to the `role assignment list`` command. This
+    will output names instead of IDs for users, groups, roles, projects, and domains.

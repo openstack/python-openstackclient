@@ -66,3 +66,7 @@ List role assignments
 .. option:: --inherited
 
     Specifies if the role grant is inheritable to the sub projects
+
+.. option:: --names
+
+    Returns role assignments with names instead of IDs
