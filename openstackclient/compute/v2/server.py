@@ -37,7 +37,6 @@ from openstackclient.common import parseractions
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
 from openstackclient.identity import common as identity_common
-from openstackclient.network import common as network_common
 
 
 def _format_servers_list_networks(networks):
@@ -476,19 +475,13 @@ class CreateServer(show.ShowOne):
             if neutron_enabled:
                 network_client = self.app.client_manager.network
                 if nic_info["net-id"]:
-                    nic_info["net-id"] = network_common.find(
-                        network_client,
-                        'network',
-                        'networks',
-                        nic_info["net-id"]
-                    )
+                    net = network_client.find_network(
+                        nic_info["net-id"], ignore_missing=False)
+                    nic_info["net-id"] = net.id
                 if nic_info["port-id"]:
-                    nic_info["port-id"] = network_common.find(
-                        network_client,
-                        'port',
-                        'ports',
-                        nic_info["port-id"]
-                    )
+                    port = network_client.find_port(
+                        nic_info["port-id"], ignore_missing=False)
+                    nic_info["port-id"] = port.id
             else:
                 if nic_info["net-id"]:
                     nic_info["net-id"] = utils.find_resource(

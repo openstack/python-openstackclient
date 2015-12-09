@@ -215,12 +215,17 @@ class TestServerCreate(TestServer):
         self.app.client_manager.auth_ref.service_catalog.get_endpoints = (
             get_endpoints)
 
-        list_networks = mock.Mock()
-        list_ports = mock.Mock()
-        self.app.client_manager.network.list_networks = list_networks
-        self.app.client_manager.network.list_ports = list_ports
-        list_networks.return_value = {'networks': [{'id': 'net1_uuid'}]}
-        list_ports.return_value = {'ports': [{'id': 'port1_uuid'}]}
+        find_network = mock.Mock()
+        find_port = mock.Mock()
+        network_client = self.app.client_manager.network
+        network_client.find_network = find_network
+        network_client.find_port = find_port
+        netty = mock.Mock()
+        netty.id = 'net1_uuid'
+        porty = mock.Mock()
+        porty.id = 'port1_uuid'
+        find_network.return_value = netty
+        find_port.return_value = porty
 
         # Mock sdk APIs.
         _network = mock.Mock()

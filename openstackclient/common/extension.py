@@ -111,9 +111,9 @@ class ListExtension(lister.Lister):
         if parsed_args.network or show_all:
             network_client = self.app.client_manager.network
             try:
-                data = network_client.list_extensions()['extensions']
+                data = network_client.extensions()
                 dict_tuples = (
-                    utils.get_dict_properties(
+                    utils.get_item_properties(
                         s,
                         columns,
                         formatters={},

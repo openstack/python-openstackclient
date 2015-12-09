@@ -27,19 +27,21 @@ extension_updated = '2013-07-09T12:00:0-00:00'
 extension_alias = 'Dystopian'
 extension_links = '[{"href":''"https://github.com/os/network", "type"}]'
 
-NETEXT = {
-    'name': extension_name,
-    'namespace': extension_namespace,
-    'description': extension_description,
-    'updated': extension_updated,
-    'alias': extension_alias,
-    'links': extension_links,
-}
+
+def create_extension():
+    extension = mock.Mock()
+    extension.name = extension_name
+    extension.namespace = extension_namespace
+    extension.description = extension_description
+    extension.updated = extension_updated
+    extension.alias = extension_alias
+    extension.links = extension_links
+    return extension
 
 
 class FakeNetworkV2Client(object):
     def __init__(self, **kwargs):
-        self.list_extensions = mock.Mock(return_value={'extensions': [NETEXT]})
+        self.extensions = mock.Mock(return_value=[create_extension()])
 
 
 class TestNetworkV2(utils.TestCommand):

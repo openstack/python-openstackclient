@@ -34,9 +34,9 @@ class TestExtension(utils.TestCommand):
             self.app.client_manager.identity.extensions)
         self.identity_extensions_mock.reset_mock()
 
-        network = network_fakes.FakeNetworkV2Client()
-        self.app.client_manager.network = network
-        self.network_extensions_mock = network.list_extensions
+        network_client = network_fakes.FakeNetworkV2Client()
+        self.app.client_manager.network = network_client
+        self.network_extensions_mock = network_client.extensions
         self.network_extensions_mock.reset_mock()
 
 
