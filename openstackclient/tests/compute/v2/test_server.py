@@ -107,11 +107,7 @@ class TestServerCreate(TestServer):
 
         self.servers_mock.create.return_value = self.new_server
 
-        self.image = fakes.FakeResource(
-            None,
-            copy.deepcopy(image_fakes.IMAGE),
-            loaded=True,
-        )
+        self.image = image_fakes.FakeImage.create_one_image()
         self.cimages_mock.get.return_value = self.image
 
         self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
@@ -549,13 +545,9 @@ class TestServerImageCreate(TestServer):
         # This is the return value for utils.find_resource()
         self.servers_mock.get.return_value = self.server
 
-        self.servers_mock.create_image.return_value = image_fakes.image_id
-
-        self.images_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(image_fakes.IMAGE),
-            loaded=True,
-        )
+        self.image = image_fakes.FakeImage.create_one_image()
+        self.images_mock.get.return_value = self.image
+        self.servers_mock.create_image.return_value = self.image.id
 
         # Get the command object to test
         self.cmd = server.CreateServerImage(self.app, None)
@@ -581,12 +573,12 @@ class TestServerImageCreate(TestServer):
         collist = ('id', 'name', 'owner', 'protected', 'tags', 'visibility')
         self.assertEqual(collist, columns)
         datalist = (
-            image_fakes.image_id,
-            image_fakes.image_name,
-            image_fakes.image_owner,
-            image_fakes.image_protected,
-            image_fakes.image_tags,
-            image_fakes.image_visibility,
+            self.image.id,
+            self.image.name,
+            self.image.owner,
+            self.image.protected,
+            self.image.tags,
+            self.image.visibility,
         )
         self.assertEqual(datalist, data)
 
@@ -613,12 +605,12 @@ class TestServerImageCreate(TestServer):
         collist = ('id', 'name', 'owner', 'protected', 'tags', 'visibility')
         self.assertEqual(collist, columns)
         datalist = (
-            image_fakes.image_id,
-            image_fakes.image_name,
-            image_fakes.image_owner,
-            image_fakes.image_protected,
-            image_fakes.image_tags,
-            image_fakes.image_visibility,
+            self.image.id,
+            self.image.name,
+            self.image.owner,
+            self.image.protected,
+            self.image.tags,
+            self.image.visibility,
         )
         self.assertEqual(datalist, data)
 
