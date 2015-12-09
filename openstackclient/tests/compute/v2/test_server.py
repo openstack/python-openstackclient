@@ -13,7 +13,6 @@
 #   under the License.
 #
 
-import copy
 import mock
 import testtools
 
@@ -22,7 +21,6 @@ from openstackclient.common import exceptions
 from openstackclient.common import utils as common_utils
 from openstackclient.compute.v2 import server
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
-from openstackclient.tests import fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
 from openstackclient.tests import utils
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
@@ -113,12 +111,9 @@ class TestServerCreate(TestServer):
         self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
         self.flavors_mock.get.return_value = self.flavor
 
-        self.volume = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.VOLUME),
-            loaded=True,
-        )
+        self.volume = volume_fakes.FakeVolume.create_one_volume()
         self.volumes_mock.get.return_value = self.volume
+        self.block_device_mapping = 'vda=' + self.volume.name + ':::0'
 
         # Get the command object to test
         self.cmd = server.CreateServer(self.app, None)
@@ -369,13 +364,13 @@ class TestServerCreate(TestServer):
         arglist = [
             '--image', 'image1',
             '--flavor', self.flavor.id,
-            '--block-device-mapping', compute_fakes.block_device_mapping,
+            '--block-device-mapping', self.block_device_mapping,
             self.new_server.name,
         ]
         verifylist = [
             ('image', 'image1'),
             ('flavor', self.flavor.id),
-            ('block_device_mapping', [compute_fakes.block_device_mapping]),
+            ('block_device_mapping', [self.block_device_mapping]),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -385,9 +380,9 @@ class TestServerCreate(TestServer):
         columns, data = self.cmd.take_action(parsed_args)
 
         real_volume_mapping = (
-            (compute_fakes.block_device_mapping.split('=', 1)[1]).replace(
-                volume_fakes.volume_name,
-                volume_fakes.volume_id))
+            (self.block_device_mapping.split('=', 1)[1]).replace(
+                self.volume.name,
+                self.volume.id))
 
         # Set expected values
         kwargs = dict(

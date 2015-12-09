@@ -76,8 +76,6 @@ QUOTA = {
 QUOTA_columns = tuple(sorted(QUOTA))
 QUOTA_data = tuple(QUOTA[x] for x in sorted(QUOTA))
 
-block_device_mapping = 'vda=' + volume_fakes.volume_name + ':::0'
-
 service_host = 'host_test'
 service_binary = 'compute_test'
 service_status = 'enabled'
