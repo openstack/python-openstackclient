@@ -39,6 +39,17 @@ _formatters = {
 }
 
 
+def _get_columns(item):
+    columns = item.keys()
+    if 'tenant_id' in columns:
+        columns.remove('tenant_id')
+        columns.append('project_id')
+    if 'router:external' in columns:
+        columns.remove('router:external')
+        columns.append('router_external')
+    return tuple(sorted(columns))
+
+
 class CreateNetwork(show.ShowOne):
     """Create new network"""
 
@@ -91,9 +102,9 @@ class CreateNetwork(show.ShowOne):
         client = self.app.client_manager.network
         body = self.get_body(parsed_args)
         obj = client.create_network(**body)
-        columns = sorted(obj.keys())
+        columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return (tuple(columns), data)
+        return (columns, data)
 
     def get_body(self, parsed_args):
         body = {'name': str(parsed_args.name),
@@ -292,6 +303,6 @@ class ShowNetwork(show.ShowOne):
         self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
         obj = client.find_network(parsed_args.identifier, ignore_missing=False)
-        columns = sorted(obj.keys())
+        columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return (tuple(columns), data)
+        return (columns, data)

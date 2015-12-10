@@ -73,11 +73,12 @@ class FakeNetwork(object):
             router_external, status, subnets, tenant_id
         """
         # Set default attributes.
+        project_id = 'project-id-' + uuid.uuid4().hex
         network_attrs = {
             'id': 'network-id-' + uuid.uuid4().hex,
             'name': 'network-name-' + uuid.uuid4().hex,
             'status': 'ACTIVE',
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'tenant_id': project_id,
             'admin_state_up': True,
             'shared': False,
             'subnets': ['a', 'b'],
@@ -101,6 +102,8 @@ class FakeNetwork(object):
         network = fakes.FakeResource(info=copy.deepcopy(network_attrs),
                                      methods=copy.deepcopy(network_methods),
                                      loaded=True)
+        network.project_id = project_id
+
         return network
 
     @staticmethod
