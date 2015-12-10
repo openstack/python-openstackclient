@@ -123,6 +123,12 @@ OPTIONS
 :option:`--os-interface` <interface>
     Interface type. Valid options are `public`, `admin` and `internal`.
 
+:option: `--profile` <hmac-key>
+    HMAC key to use for encrypting context data for performance profiling of
+    requested operation. This key should be the value of one of the HMAC keys
+    defined in the configuration files of OpenStack services, user would like
+    to trace through.
+
 :option:`--log-file` <LOGFILE>
     Specify a file to log output. Disabled by default.
 
