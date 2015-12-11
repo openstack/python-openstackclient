@@ -59,7 +59,7 @@ Delete network(s)
     os network delete
         <network> [<network> ...]
 
-.. _network_delete-project:
+.. _network_delete-network:
 .. describe:: <network>
 
     Network(s) to delete (name or ID)
@@ -118,7 +118,7 @@ Set network properties
 
     Do not share the network between projects
 
-.. _network_set-name:
+.. _network_set-network:
 .. describe:: <network>
 
     Network to modify (name or ID)
@@ -134,7 +134,7 @@ Display network details
     os network show
         <network>
 
-.. _network_show-name:
+.. _network_show-network:
 .. describe:: <network>
 
     Network to display (name or ID)
