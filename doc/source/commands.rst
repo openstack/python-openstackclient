@@ -107,6 +107,7 @@ referring to both Compute and Volume quotas.
 * ``request token``: (**Identity**) temporary OAuth-based token
 * ``role``: (**Identity**) a policy object used to determine authorization
 * ``role assignment``: (**Identity**) a relationship between roles, users or groups, and domains or projects
+* ``router``: (**Network**) - a virtual router
 * ``security group``: (**Compute**, **Network**) - groups of network access rules
 * ``security group rule``: (**Compute**, **Network**) - the individual rules that define protocol/IP/port access
 * ``server``: (**Compute**) virtual machine instance
