@@ -31,23 +31,23 @@ class TestServer(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestServer, self).setUp()
 
-        # Get a shortcut to the ServerManager Mock
+        # Get a shortcut to the compute client ServerManager Mock
         self.servers_mock = self.app.client_manager.compute.servers
         self.servers_mock.reset_mock()
 
-        # Get a shortcut to the ImageManager Mock
+        # Get a shortcut to the compute client ImageManager Mock
         self.cimages_mock = self.app.client_manager.compute.images
         self.cimages_mock.reset_mock()
 
-        # Get a shortcut to the FlavorManager Mock
+        # Get a shortcut to the compute client FlavorManager Mock
         self.flavors_mock = self.app.client_manager.compute.flavors
         self.flavors_mock.reset_mock()
 
-        # Get a shortcut to the ImageManager Mock
+        # Get a shortcut to the image client ImageManager Mock
         self.images_mock = self.app.client_manager.image.images
         self.images_mock.reset_mock()
 
-        # Get a shortcut to the VolumeManager Mock
+        # Get a shortcut to the volume client VolumeManager Mock
         self.volumes_mock = self.app.client_manager.volume.volumes
         self.volumes_mock.reset_mock()
 
