@@ -54,6 +54,11 @@ def _xform_security_group_rule(sgroup):
         info['ip_protocol'] = ''
     elif info['ip_protocol'].lower() == 'icmp':
         info['port_range'] = ''
+    group = info.pop('group')
+    if 'name' in group:
+        info['remote_security_group'] = group['name']
+    else:
+        info['remote_security_group'] = ''
     return info
 
 
@@ -299,6 +304,7 @@ class ListSecurityGroupRule(lister.Lister):
             "IP Protocol",
             "IP Range",
             "Port Range",
+            "Remote Security Group",
         )
         return (column_headers,
                 (utils.get_item_properties(
