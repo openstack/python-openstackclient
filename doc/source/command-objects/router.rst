@@ -44,6 +44,22 @@ Create new router
 
     New router name
 
+router delete
+--------------
+
+Delete router(s)
+
+.. program:: router delete
+.. code:: bash
+
+    os router delete
+        <router> [<router> ...]
+
+.. _router_delete-router:
+.. describe:: <router>
+
+    Router(s) to delete (name or ID)
+
 router list
 -----------
 
