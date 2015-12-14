@@ -169,28 +169,6 @@ class CreateSecurityGroupRule(command.ShowOne):
         return zip(*sorted(six.iteritems(info)))
 
 
-class DeleteSecurityGroup(command.Command):
-    """Delete a security group"""
-
-    def get_parser(self, prog_name):
-        parser = super(DeleteSecurityGroup, self).get_parser(prog_name)
-        parser.add_argument(
-            'group',
-            metavar='<group>',
-            help='Security group to delete (name or ID)',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-
-        compute_client = self.app.client_manager.compute
-        data = utils.find_resource(
-            compute_client.security_groups,
-            parsed_args.group,
-        )
-        compute_client.security_groups.delete(data.id)
-
-
 class DeleteSecurityGroupRule(command.Command):
     """Delete a security group rule"""
 

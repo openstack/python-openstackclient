@@ -321,6 +321,84 @@ class FakeRouter(object):
         return mock.MagicMock(side_effect=routers)
 
 
+class FakeSecurityGroup(object):
+    """Fake one or more security groups."""
+
+    @staticmethod
+    def create_one_security_group(attrs={}, methods={}):
+        """Create a fake security group.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object, with id, name, etc.
+        """
+        # Set default attributes.
+        security_group_attrs = {
+            'id': 'security-group-id-' + uuid.uuid4().hex,
+            'name': 'security-group-name-' + uuid.uuid4().hex,
+            'description': 'security-group-description-' + uuid.uuid4().hex,
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'security_group_rules': [],
+        }
+
+        # Overwrite default attributes.
+        security_group_attrs.update(attrs)
+
+        # Set default methods.
+        security_group_methods = {}
+
+        # Overwrite default methods.
+        security_group_methods.update(methods)
+
+        security_group = fakes.FakeResource(
+            info=copy.deepcopy(security_group_attrs),
+            methods=copy.deepcopy(security_group_methods),
+            loaded=True)
+        return security_group
+
+    @staticmethod
+    def create_security_groups(attrs={}, methods={}, count=2):
+        """Create multiple fake security groups.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of security groups to fake
+        :return:
+            A list of FakeResource objects faking the security groups
+        """
+        security_groups = []
+        for i in range(0, count):
+            security_groups.append(
+                FakeRouter.create_one_security_group(attrs, methods))
+
+        return security_groups
+
+    @staticmethod
+    def get_security_groups(security_groups=None, count=2):
+        """Get an iterable MagicMock object with a list of faked security groups.
+
+        If security group list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List security groups:
+            A list of FakeResource objects faking security groups
+        :param int count:
+            The number of security groups to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            security groups
+        """
+        if security_groups is None:
+            security_groups = FakeRouter.create_security_groups(count)
+        return mock.MagicMock(side_effect=security_groups)
+
+
 class FakeSubnet(object):
     """Fake one or more subnets."""
 
