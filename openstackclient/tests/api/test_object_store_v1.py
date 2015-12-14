@@ -157,6 +157,7 @@ class TestContainer(TestObjectAPIv1):
             'container': 'qaz',
             'object_count': '1',
             'bytes_used': '577',
+            'properties': {'Owner': FAKE_ACCOUNT},
         }
         self.requests_mock.register_uri(
             'HEAD',
@@ -309,6 +310,7 @@ class TestObject(TestObjectAPIv1):
             'etag': 'qaz',
             'x-container-meta-owner': FAKE_ACCOUNT,
             'x-object-meta-wife': 'Wilma',
+            'x-object-meta-Husband': 'fred',
             'x-tra-header': 'yabba-dabba-do',
         }
         resp = {
@@ -319,7 +321,8 @@ class TestObject(TestObjectAPIv1):
             'content-length': '577',
             'last-modified': '20130101',
             'etag': 'qaz',
-            'properties': {'wife': 'Wilma'},
+            'properties': {'wife': 'Wilma',
+                           'Husband': 'fred'},
         }
         self.requests_mock.register_uri(
             'HEAD',

@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix case sensitivity when showing object-store properties.
+    [Bug `1525805 <https://bugs.launchpad.net/bugs/1525805>`_]

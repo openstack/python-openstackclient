@@ -570,6 +570,6 @@ class APIv1(api.BaseAPI):
         # OSC commands
         properties = {}
         for k, v in six.iteritems(headers):
-            if k.startswith(header_tag):
+            if k.lower().startswith(header_tag):
                 properties[k[len(header_tag):]] = v
         return properties
