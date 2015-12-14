@@ -838,6 +838,64 @@ class TestImageSet(TestImage):
             **kwargs
         )
 
+    def test_image_set_activate(self):
+        arglist = [
+            '--tag', 'test-tag',
+            '--activate',
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('tags', ['test-tag']),
+            ('image', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'tags': ['test-tag'],
+        }
+
+        self.images_mock.reactivate.assert_called_with(
+            image_fakes.image_id,
+        )
+
+        # ImageManager.update(image, **kwargs)
+        self.images_mock.update.assert_called_with(
+            image_fakes.image_id,
+            **kwargs
+        )
+
+    def test_image_set_deactivate(self):
+        arglist = [
+            '--tag', 'test-tag',
+            '--deactivate',
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('tags', ['test-tag']),
+            ('image', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'tags': ['test-tag'],
+        }
+
+        self.images_mock.deactivate.assert_called_with(
+            image_fakes.image_id,
+        )
+
+        # ImageManager.update(image, **kwargs)
+        self.images_mock.update.assert_called_with(
+            image_fakes.image_id,
+            **kwargs
+        )
+
     def test_image_set_tag_merge(self):
         old_image = copy.copy(image_fakes.IMAGE)
         old_image['tags'] = ['old1', 'new2']
