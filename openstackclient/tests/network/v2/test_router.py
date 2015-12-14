@@ -15,6 +15,7 @@ import mock
 
 from openstackclient.network.v2 import router
 from openstackclient.tests.network.v2 import fakes as network_fakes
+from openstackclient.tests import utils as tests_utils
 
 
 class TestRouter(network_fakes.TestNetworkV2):
@@ -24,6 +25,67 @@ class TestRouter(network_fakes.TestNetworkV2):
 
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
+
+
+class TestCreateRouter(TestRouter):
+
+    # The new router created.
+    new_router = network_fakes.FakeRouter.create_one_router()
+
+    columns = (
+        'admin_state_up',
+        'distributed',
+        'ha',
+        'id',
+        'name',
+        'project_id',
+    )
+    data = (
+        router._format_admin_state(new_router.admin_state_up),
+        new_router.distributed,
+        new_router.ha,
+        new_router.id,
+        new_router.name,
+        new_router.tenant_id,
+    )
+
+    def setUp(self):
+        super(TestCreateRouter, self).setUp()
+
+        self.network.create_router = mock.Mock(return_value=self.new_router)
+
+        # Get the command object to test
+        self.cmd = router.CreateRouter(self.app, self.namespace)
+
+    def test_create_no_options(self):
+        arglist = []
+        verifylist = []
+
+        try:
+            self.check_parser(self.cmd, arglist, verifylist)
+        except tests_utils.ParserException:
+            pass
+
+    def test_create_default_options(self):
+        arglist = [
+            self.new_router.name,
+        ]
+        verifylist = [
+            ('name', self.new_router.name),
+            ('admin_state_up', True),
+            ('distributed', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_router.assert_called_with(**{
+            'admin_state_up': True,
+            'name': self.new_router.name,
+            'distributed': False,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
 
 class TestListRouter(TestRouter):

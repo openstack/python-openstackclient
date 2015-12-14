@@ -174,7 +174,10 @@ class FakeRouter(object):
         router_attrs.update(attrs)
 
         # Set default methods.
-        router_methods = {}
+        router_methods = {
+            'keys': ['id', 'name', 'admin_state_up', 'distributed', 'ha',
+                     'tenant_id'],
+        }
 
         # Overwrite default methods.
         router_methods.update(methods)
