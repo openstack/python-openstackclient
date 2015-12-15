@@ -96,7 +96,6 @@ class FakeNetwork(object):
             'subnets': ['a', 'b'],
             'provider_network_type': 'vlan',
             'router_external': True,
-            'is_dirty': True,
             'availability_zones': [],
             'availability_zone_hints': [],
         }
