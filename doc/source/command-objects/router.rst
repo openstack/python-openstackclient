@@ -5,7 +5,7 @@ router
 Network v2
 
 router create
---------------
+-------------
 
 Create new router
 
@@ -45,7 +45,7 @@ Create new router
     New router name
 
 router delete
---------------
+-------------
 
 Delete router(s)
 
@@ -113,3 +113,19 @@ Set router properties
 .. describe:: <router>
 
     Router to modify (name or ID)
+
+router show
+-----------
+
+Display router details
+
+.. program:: router show
+.. code:: bash
+
+    os router show
+        <router>
+
+.. _router_show-router:
+.. describe:: <router>
+
+    Router to display (name or ID)

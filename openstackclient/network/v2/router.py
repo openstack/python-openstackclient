@@ -273,3 +273,26 @@ class SetRouter(command.Command):
             raise exceptions.CommandError(msg)
 
         client.update_router(obj, **attrs)
+
+
+class ShowRouter(show.ShowOne):
+    """Display router details"""
+
+    log = logging.getLogger(__name__ + '.ShowRouter')
+
+    def get_parser(self, prog_name):
+        parser = super(ShowRouter, self).get_parser(prog_name)
+        parser.add_argument(
+            'router',
+            metavar="<router>",
+            help="Router to display (name or ID)"
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+        client = self.app.client_manager.network
+        obj = client.find_router(parsed_args.router, ignore_missing=False)
+        columns = sorted(obj.keys())
+        data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        return (tuple(columns), data)
