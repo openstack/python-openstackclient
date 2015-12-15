@@ -74,3 +74,42 @@ List routers
 .. option:: --long
 
     List additional fields in output
+
+router set
+----------
+
+Set router properties
+
+.. program:: router set
+.. code:: bash
+
+    os router set
+        [--name <name>]
+        [--enable | --disable]
+        [--distributed | --centralized]
+        <router>
+
+.. option:: --name <name>
+
+    Set router name
+
+.. option:: --enable
+
+    Enable router
+
+.. option:: --disable
+
+    Disable router
+
+.. option:: --distributed
+
+    Set router to distributed mode (disabled router only)
+
+.. option:: --centralized
+
+    Set router to centralized mode (disabled router only)
+
+.. _router_set-router:
+.. describe:: <router>
+
+    Router to modify (name or ID)

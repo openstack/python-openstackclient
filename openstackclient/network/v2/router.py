@@ -20,6 +20,7 @@ from cliff import command
 from cliff import lister
 from cliff import show
 
+from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.identity import common as identity_common
 
@@ -49,6 +50,7 @@ def _get_attrs(client_manager, parsed_args):
         attrs['admin_state_up'] = parsed_args.admin_state_up
     if parsed_args.distributed is not None:
         attrs['distributed'] = parsed_args.distributed
+    # "router set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
         identity_client = client_manager.identity
         project_id = identity_common.find_project(
@@ -57,6 +59,11 @@ def _get_attrs(client_manager, parsed_args):
             parsed_args.project_domain,
         ).id
         attrs['tenant_id'] = project_id
+
+    # TODO(tangchen): Support getting 'ha' property.
+    # TODO(tangchen): Support getting 'external_gateway_info' property.
+    # TODO(tangchen): Support getting 'routes' property.
+
     return attrs
 
 
@@ -195,3 +202,74 @@ class ListRouter(lister.Lister):
                     s, columns,
                     formatters=_formatters,
                 ) for s in data))
+
+
+class SetRouter(command.Command):
+    """Set router properties"""
+
+    log = logging.getLogger(__name__ + '.SetRouter')
+
+    def get_parser(self, prog_name):
+        parser = super(SetRouter, self).get_parser(prog_name)
+        parser.add_argument(
+            'router',
+            metavar="<router>",
+            help=("Router to modify (name or ID)")
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help='Set router name',
+        )
+        admin_group = parser.add_mutually_exclusive_group()
+        admin_group.add_argument(
+            '--enable',
+            dest='admin_state_up',
+            action='store_true',
+            default=None,
+            help='Enable router',
+        )
+        admin_group.add_argument(
+            '--disable',
+            dest='admin_state_up',
+            action='store_false',
+            help='Disable router',
+        )
+        distribute_group = parser.add_mutually_exclusive_group()
+        distribute_group.add_argument(
+            '--distributed',
+            dest='distributed',
+            action='store_true',
+            default=None,
+            help="Set router to distributed mode (disabled router only)",
+        )
+        distribute_group.add_argument(
+            '--centralized',
+            dest='distributed',
+            action='store_false',
+            help="Set router to centralized mode (disabled router only)",
+        )
+
+        # TODO(tangchen): Support setting 'ha' property in 'router set'
+        # command. It appears that changing the ha state is supported by
+        # neutron under certain conditions.
+
+        # TODO(tangchen): Support setting 'external_gateway_info' property in
+        # 'router set' command.
+
+        # TODO(tangchen): Support setting 'routes' property in 'router set'
+        # command.
+
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+        client = self.app.client_manager.network
+        obj = client.find_router(parsed_args.router, ignore_missing=False)
+
+        attrs = _get_attrs(self.app.client_manager, parsed_args)
+        if attrs == {}:
+            msg = "Nothing specified to be set"
+            raise exceptions.CommandError(msg)
+
+        client.update_router(obj, **attrs)
