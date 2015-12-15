@@ -41,6 +41,14 @@ class TestImage(image_fakes.TestImagev2):
         self.domain_mock = self.app.client_manager.identity.domains
         self.domain_mock.reset_mock()
 
+    def setup_images_mock(self, count):
+        images = image_fakes.FakeImage.create_images(count=count)
+
+        self.images_mock.get = image_fakes.FakeImage.get_images(
+            images,
+            0)
+        return images
+
 
 class TestImageCreate(TestImage):
 
@@ -316,23 +324,19 @@ class TestImageDelete(TestImage):
     def setUp(self):
         super(TestImageDelete, self).setUp()
 
-        # This is the return value for utils.find_resource()
-        self.images_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(image_fakes.IMAGE),
-            loaded=True,
-        )
         self.images_mock.delete.return_value = None
 
         # Get the command object to test
         self.cmd = image.DeleteImage(self.app, None)
 
     def test_image_delete_no_options(self):
+        images = self.setup_images_mock(count=1)
+
         arglist = [
-            image_fakes.image_id,
+            images[0].id,
         ]
         verifylist = [
-            ('images', [image_fakes.image_id]),
+            ('images', [images[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -340,7 +344,7 @@ class TestImageDelete(TestImage):
         self.cmd.take_action(parsed_args)
 
         self.images_mock.delete.assert_called_with(
-            image_fakes.image_id,
+            images[0].id,
         )
 
 
