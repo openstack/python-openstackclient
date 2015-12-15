@@ -16,6 +16,7 @@
 import json
 import logging
 
+from cliff import command
 from cliff import lister
 from cliff import show
 
@@ -115,6 +116,30 @@ class CreateRouter(show.ShowOne):
             index = columns.index('tenant_id')
             columns[index] = 'project_id'
         return (tuple(columns), data)
+
+
+class DeleteRouter(command.Command):
+    """Delete router(s)"""
+
+    log = logging.getLogger(__name__ + '.DeleteRouter')
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteRouter, self).get_parser(prog_name)
+        parser.add_argument(
+            'router',
+            metavar="<router>",
+            nargs="+",
+            help=("Router(s) to delete (name or ID)")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('take_action(%s)' % parsed_args)
+        client = self.app.client_manager.network
+        for router in parsed_args.router:
+            obj = client.find_router(router)
+            client.delete_router(obj)
+        return
 
 
 class ListRouter(lister.Lister):
