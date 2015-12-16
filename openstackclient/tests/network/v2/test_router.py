@@ -13,6 +13,7 @@
 
 import mock
 
+from openstackclient.common import exceptions
 from openstackclient.network.v2 import router
 from openstackclient.tests.network.v2 import fakes as network_fakes
 from openstackclient.tests import utils as tests_utils
@@ -194,3 +195,92 @@ class TestListRouter(TestRouter):
         self.network.routers.assert_called_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
+
+
+class TestSetRouter(TestRouter):
+
+    # The router to set.
+    _router = network_fakes.FakeRouter.create_one_router()
+
+    def setUp(self):
+        super(TestSetRouter, self).setUp()
+
+        self.network.update_router = mock.Mock(return_value=None)
+
+        self.network.find_router = mock.Mock(return_value=self._router)
+
+        # Get the command object to test
+        self.cmd = router.SetRouter(self.app, self.namespace)
+
+    def test_set_this(self):
+        arglist = [
+            self._router.name,
+            '--enable',
+            '--distributed',
+            '--name', 'noob',
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('admin_state_up', True),
+            ('distributed', True),
+            ('name', 'noob'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'admin_state_up': True,
+            'distributed': True,
+            'name': 'noob',
+        }
+        self.network.update_router.assert_called_with(self._router, **attrs)
+        self.assertEqual(None, result)
+
+    def test_set_that(self):
+        arglist = [
+            self._router.name,
+            '--disable',
+            '--centralized',
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('admin_state_up', False),
+            ('distributed', False),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'admin_state_up': False,
+            'distributed': False,
+        }
+        self.network.update_router.assert_called_with(self._router, **attrs)
+        self.assertEqual(None, result)
+
+    def test_set_distributed_centralized(self):
+        arglist = [
+            self._router.name,
+            '--distributed',
+            '--centralized',
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('distributed', True),
+            ('distributed', False),
+        ]
+
+        try:
+            # Argument parse failing should bail here
+            self.check_parser(self.cmd, arglist, verifylist)
+        except tests_utils.ParserException:
+            pass
+
+    def test_set_nothing(self):
+        arglist = [self._router.name, ]
+        verifylist = [('router', self._router.name), ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
