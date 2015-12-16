@@ -284,3 +284,61 @@ class TestSetRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                           parsed_args)
+
+
+class TestShowRouter(TestRouter):
+
+    # The router to set.
+    _router = network_fakes.FakeRouter.create_one_router()
+
+    columns = (
+        'admin_state_up',
+        'distributed',
+        'ha',
+        'id',
+        'name',
+        'tenant_id',
+    )
+
+    data = (
+        router._format_admin_state(_router.admin_state_up),
+        _router.distributed,
+        _router.ha,
+        _router.id,
+        _router.name,
+        _router.tenant_id,
+    )
+
+    def setUp(self):
+        super(TestShowRouter, self).setUp()
+
+        self.network.find_router = mock.Mock(return_value=self._router)
+
+        # Get the command object to test
+        self.cmd = router.ShowRouter(self.app, self.namespace)
+
+    def test_show_no_options(self):
+        arglist = []
+        verifylist = []
+
+        try:
+            # Missing required args should bail here
+            self.check_parser(self.cmd, arglist, verifylist)
+        except tests_utils.ParserException:
+            pass
+
+    def test_show_all_options(self):
+        arglist = [
+            self._router.name,
+        ]
+        verifylist = [
+            ('router', self._router.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.find_router.assert_called_with(self._router.name,
+                                                    ignore_missing=False)
+        self.assertEqual(tuple(self.columns), columns)
+        self.assertEqual(self.data, data)
