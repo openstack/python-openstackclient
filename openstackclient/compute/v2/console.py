@@ -65,7 +65,6 @@ class ShowConsoleLog(command.Command):
 
         data = server.get_console_output(length=length)
         sys.stdout.write(data)
-        return
 
 
 class ShowConsoleURL(show.ShowOne):

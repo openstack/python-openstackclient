@@ -97,7 +97,6 @@ class DeleteKeypair(command.Command):
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         compute_client.keypairs.delete(parsed_args.name)
-        return
 
 
 class ListKeypair(lister.Lister):

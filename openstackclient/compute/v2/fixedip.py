@@ -52,7 +52,6 @@ class AddFixedIP(command.Command):
             compute_client.servers, parsed_args.server)
 
         server.add_fixed_ip(network.id)
-        return
 
 
 class RemoveFixedIP(command.Command):
@@ -82,4 +81,3 @@ class RemoveFixedIP(command.Command):
             compute_client.servers, parsed_args.server)
 
         server.remove_fixed_ip(parsed_args.ip_address)
-        return

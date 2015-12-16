@@ -41,7 +41,6 @@ class DeleteService(command.Command):
         compute_client = self.app.client_manager.compute
 
         compute_client.services.delete(parsed_args.service)
-        return
 
 
 class ListService(lister.Lister):
