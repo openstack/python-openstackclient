@@ -93,6 +93,16 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         )
 
     def test_create_no_options(self):
+        arglist = []
+        verifylist = []
+
+        try:
+            # Missing required args should bail here
+            self.check_parser(self.cmd, arglist, verifylist)
+        except tests_utils.ParserException:
+            pass
+
+    def test_create_default_options(self):
         arglist = [
             self._network.name,
         ]
