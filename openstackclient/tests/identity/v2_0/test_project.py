@@ -592,12 +592,58 @@ class TestProjectShow(TestProject):
             identity_fakes.project_id,
         )
 
-        collist = ('description', 'enabled', 'id', 'name')
+        collist = ('description', 'enabled', 'id', 'name', 'properties')
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.project_description,
             True,
             identity_fakes.project_id,
             identity_fakes.project_name,
+            '',
         )
         self.assertEqual(datalist, data)
+
+
+class TestProjectUnset(TestProject):
+
+    def setUp(self):
+        super(TestProjectUnset, self).setUp()
+
+        project_dict = {'fee': 'fi', 'fo': 'fum'}
+        project_dict.update(identity_fakes.PROJECT)
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(project_dict),
+            loaded=True,
+        )
+
+        # Get the command object to test
+        self.cmd = project.UnsetProject(self.app, None)
+
+    def test_project_unset_key(self):
+        arglist = [
+            '--property', 'fee',
+            '--property', 'fo',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('property', ['fee', 'fo']),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.run(parsed_args)
+        # Set expected values
+        kwargs = {
+            'description': identity_fakes.project_description,
+            'enabled': True,
+            'fee': None,
+            'fo': None,
+            'id': identity_fakes.project_id,
+            'name': identity_fakes.project_name,
+        }
+
+        self.projects_mock.update.assert_called_with(
+            identity_fakes.project_id,
+            **kwargs
+        )

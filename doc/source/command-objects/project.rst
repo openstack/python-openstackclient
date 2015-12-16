@@ -156,6 +156,8 @@ Set project properties
     Set a property on :ref:`\<project\> <project_set-project>`
     (repeat option to set multiple properties)
 
+    *Identity version 2 only*
+
 .. _project_set-project:
 .. describe:: <project>
 
@@ -195,3 +197,25 @@ Display project details
 .. describe:: <project>
 
     Project to display (name or ID)
+
+project unset
+-------------
+
+Unset project properties
+
+*Identity version 2 only*
+
+.. program:: project unset
+.. code:: bash
+
+    os project unset
+        --property <key> [--property <key> ...]
+        <project>
+
+.. option:: --property <key>
+
+    Property key to remove from project (repeat option to remove multiple properties)
+
+.. describe:: <project>
+
+    Project to modify (name or ID)
