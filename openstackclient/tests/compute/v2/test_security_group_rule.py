@@ -68,6 +68,28 @@ SECURITY_GROUP = {
               SECURITY_GROUP_RULE_REMOTE_GROUP],
 }
 
+security_group_2_id = '12'
+security_group_2_name = 'he-shoots'
+security_group_2_description = 'he scores'
+
+SECURITY_GROUP_2_RULE = {
+    'id': '2',
+    'group': {},
+    'ip_protocol': 'tcp',
+    'ip_range': {},
+    'parent_group_id': security_group_2_id,
+    'from_port': 80,
+    'to_port': 80,
+}
+
+SECURITY_GROUP_2 = {
+    'id': security_group_2_id,
+    'name': security_group_2_name,
+    'description': security_group_2_description,
+    'tenant_id': identity_fakes.project_id,
+    'rules': [SECURITY_GROUP_2_RULE],
+}
+
 
 class FakeSecurityGroupRuleResource(fakes.FakeResource):
 
@@ -383,11 +405,21 @@ class TestSecurityGroupRuleList(TestSecurityGroupRule):
     def setUp(self):
         super(TestSecurityGroupRuleList, self).setUp()
 
-        self.secgroups_mock.get.return_value = FakeSecurityGroupRuleResource(
+        security_group_mock = FakeSecurityGroupRuleResource(
             None,
             copy.deepcopy(SECURITY_GROUP),
             loaded=True,
         )
+
+        security_group_2_mock = FakeSecurityGroupRuleResource(
+            None,
+            copy.deepcopy(SECURITY_GROUP_2),
+            loaded=True,
+        )
+
+        self.secgroups_mock.get.return_value = security_group_mock
+        self.secgroups_mock.list.return_value = [security_group_mock,
+                                                 security_group_2_mock]
 
         # Get the command object to test
         self.cmd = security_group.ListSecurityGroupRule(self.app, None)
@@ -420,18 +452,64 @@ class TestSecurityGroupRuleList(TestSecurityGroupRule):
             security_group_rule_cidr,
             '0:0',
             '',
-            ), (
+        ), (
             security_group_rule_id,
             'icmp',
             security_group_rule_cidr,
             '',
             '',
-            ), (
+        ), (
             security_group_rule_id,
             'tcp',
             '',
             '80:80',
             'default',
-            ),
+        ),)
+        self.assertEqual(datalist, tuple(data))
+
+    def test_security_group_rule_list_no_group(self):
+
+        parsed_args = self.check_parser(self.cmd, [], [])
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        collist = (
+            'ID',
+            'IP Protocol',
+            'IP Range',
+            'Port Range',
+            'Remote Security Group',
+            'Security Group',
         )
+        self.assertEqual(collist, columns)
+        datalist = ((
+            security_group_rule_id,
+            'tcp',
+            security_group_rule_cidr,
+            '0:0',
+            '',
+            security_group_id,
+        ), (
+            security_group_rule_id,
+            'icmp',
+            security_group_rule_cidr,
+            '',
+            '',
+            security_group_id,
+        ), (
+            security_group_rule_id,
+            'tcp',
+            '',
+            '80:80',
+            'default',
+            security_group_id,
+        ), (
+            '2',
+            'tcp',
+            '',
+            '80:80',
+            '',
+            security_group_2_id,
+        ),)
         self.assertEqual(datalist, tuple(data))

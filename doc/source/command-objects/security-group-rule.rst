@@ -62,7 +62,7 @@ List security group rules
 .. code:: bash
 
     os security group rule list
-        <group>
+        [<group>]
 
 .. describe:: <group>
 
