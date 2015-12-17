@@ -1116,3 +1116,23 @@ class TestServerGeneral(testtools.TestCase):
                           server._get_ip_address, self.OLD, 'public', [4, 6])
         self.assertRaises(exceptions.CommandError,
                           server._get_ip_address, self.OLD, 'private', [6])
+
+    def test_format_servers_list_power_state(self):
+        self.assertEqual("NOSTATE",
+                         server._format_servers_list_power_state(0x00))
+        self.assertEqual("Running",
+                         server._format_servers_list_power_state(0x01))
+        self.assertEqual("",
+                         server._format_servers_list_power_state(0x02))
+        self.assertEqual("Paused",
+                         server._format_servers_list_power_state(0x03))
+        self.assertEqual("Shutdown",
+                         server._format_servers_list_power_state(0x04))
+        self.assertEqual("",
+                         server._format_servers_list_power_state(0x05))
+        self.assertEqual("Crashed",
+                         server._format_servers_list_power_state(0x06))
+        self.assertEqual("Suspended",
+                         server._format_servers_list_power_state(0x07))
+        self.assertEqual("N/A",
+                         server._format_servers_list_power_state(0x08))
