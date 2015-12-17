@@ -115,7 +115,7 @@ class TestDeleteRouter(TestRouter):
 
         result = self.cmd.take_action(parsed_args)
         self.network.delete_router.assert_called_with(self._router)
-        self.assertEqual(None, result)
+        self.assertIsNone(result)
 
 
 class TestListRouter(TestRouter):
@@ -235,7 +235,7 @@ class TestSetRouter(TestRouter):
             'name': 'noob',
         }
         self.network.update_router.assert_called_with(self._router, **attrs)
-        self.assertEqual(None, result)
+        self.assertIsNone(result)
 
     def test_set_that(self):
         arglist = [
@@ -257,7 +257,7 @@ class TestSetRouter(TestRouter):
             'distributed': False,
         }
         self.network.update_router.assert_called_with(self._router, **attrs)
-        self.assertEqual(None, result)
+        self.assertIsNone(result)
 
     def test_set_distributed_centralized(self):
         arglist = [
