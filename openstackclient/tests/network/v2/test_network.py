@@ -301,7 +301,7 @@ class TestDeleteNetwork(TestNetwork):
         result = self.cmd.take_action(parsed_args)
 
         self.network.delete_network.assert_called_with(self._network)
-        self.assertEqual(None, result)
+        self.assertIsNone(result)
 
 
 class TestListNetwork(TestNetwork):
@@ -443,7 +443,7 @@ class TestSetNetwork(TestNetwork):
         result = self.cmd.take_action(parsed_args)
 
         self.network.update_network.assert_called_with(self._network)
-        self.assertEqual(None, result)
+        self.assertIsNone(result)
 
     def test_set_that(self):
         self._network.is_dirty = True
@@ -463,7 +463,7 @@ class TestSetNetwork(TestNetwork):
         result = self.cmd.take_action(parsed_args)
 
         self.network.update_network.assert_called_with(self._network)
-        self.assertEqual(None, result)
+        self.assertIsNone(result)
 
     def test_set_nothing(self):
         self._network.is_dirty = False
