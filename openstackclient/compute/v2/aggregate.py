@@ -132,7 +132,6 @@ class DeleteAggregate(command.Command):
             parsed_args.aggregate,
         )
         compute_client.aggregates.delete(data.id)
-        return
 
 
 class ListAggregate(lister.Lister):

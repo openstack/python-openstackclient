@@ -91,7 +91,6 @@ class DeleteAgent(command.Command):
         self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         compute_client.agents.delete(parsed_args.id)
-        return
 
 
 class ListAgent(lister.Lister):

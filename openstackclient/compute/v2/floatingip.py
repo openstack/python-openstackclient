@@ -52,7 +52,6 @@ class AddFloatingIP(command.Command):
             compute_client.servers, parsed_args.server)
 
         server.add_floating_ip(parsed_args.ip_address)
-        return
 
 
 class CreateFloatingIP(show.ShowOne):
@@ -103,7 +102,6 @@ class DeleteFloatingIP(command.Command):
         )
 
         compute_client.floating_ips.delete(floating_ip)
-        return
 
 
 class ListFloatingIP(lister.Lister):
@@ -153,4 +151,3 @@ class RemoveFloatingIP(command.Command):
             compute_client.servers, parsed_args.server)
 
         server.remove_floating_ip(parsed_args.ip_address)
-        return

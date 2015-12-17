@@ -204,7 +204,6 @@ class AddServerSecurityGroup(command.Command):
         )
 
         server.add_security_group(security_group.name)
-        return
 
 
 class AddServerVolume(command.Command):
@@ -665,7 +664,6 @@ class DeleteServer(command.Command):
                                    server_obj.id)
                     sys.stdout.write(_('\nError deleting server'))
                     raise SystemExit
-        return
 
 
 class ListServer(lister.Lister):

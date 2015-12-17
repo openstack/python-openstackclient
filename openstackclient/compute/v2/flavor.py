@@ -145,7 +145,6 @@ class DeleteFlavor(command.Command):
         flavor = utils.find_resource(compute_client.flavors,
                                      parsed_args.flavor)
         compute_client.flavors.delete(flavor.id)
-        return
 
 
 class ListFlavor(lister.Lister):

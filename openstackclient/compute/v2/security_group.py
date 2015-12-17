@@ -174,7 +174,6 @@ class DeleteSecurityGroup(command.Command):
             parsed_args.group,
         )
         compute_client.security_groups.delete(data.id)
-        return
 
 
 class DeleteSecurityGroupRule(command.Command):
@@ -196,7 +195,6 @@ class DeleteSecurityGroupRule(command.Command):
 
         compute_client = self.app.client_manager.compute
         compute_client.security_group_rules.delete(parsed_args.rule)
-        return
 
 
 class ListSecurityGroup(lister.Lister):
