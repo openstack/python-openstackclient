@@ -189,7 +189,6 @@ class DeleteVolume(command.Command):
                 volume_client.volumes.force_delete(volume_obj.id)
             else:
                 volume_client.volumes.delete(volume_obj.id)
-        return
 
 
 class ListVolume(lister.Lister):
@@ -394,8 +393,6 @@ class SetVolume(command.Command):
         if not kwargs and not parsed_args.property and not parsed_args.size:
             self.app.log.error("No changes requested\n")
 
-        return
-
 
 class ShowVolume(show.ShowOne):
     """Display volume details"""
@@ -452,4 +449,3 @@ class UnsetVolume(command.Command):
 
         volume_client.volumes.delete_metadata(
             volume.id, parsed_args.property)
-        return

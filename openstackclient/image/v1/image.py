@@ -679,8 +679,6 @@ class SetImage(command.Command):
                kwargs['data'] != sys.stdin):
                     kwargs['data'].close()
 
-        return
-
 
 class ShowImage(show.ShowOne):
     """Display image details"""

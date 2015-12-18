@@ -97,7 +97,6 @@ class DeleteSnapshot(command.Command):
             snapshot_id = utils.find_resource(
                 volume_client.volume_snapshots, snapshot).id
             volume_client.volume_snapshots.delete(snapshot_id)
-        return
 
 
 class ListSnapshot(lister.Lister):
@@ -217,7 +216,6 @@ class SetSnapshot(command.Command):
             volume_client.volume_snapshots.set_metadata(snapshot.id,
                                                         parsed_args.property)
         volume_client.volume_snapshots.update(snapshot.id, **kwargs)
-        return
 
 
 class ShowSnapshot(show.ShowOne):
@@ -280,4 +278,3 @@ class UnsetSnapshot(command.Command):
             )
         else:
             self.app.log.error("No changes requested\n")
-        return
