@@ -28,6 +28,7 @@ from openstackclient.api import utils as api_utils
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 from openstackclient.identity import common
 
 
@@ -148,11 +149,6 @@ class CreateImage(show.ShowOne):
                  "(default: %s)" % DEFAULT_DISK_FORMAT,
         )
         parser.add_argument(
-            "--owner",
-            metavar="<owner>",
-            help="Image owner project name or ID",
-        )
-        parser.add_argument(
             "--min-disk",
             metavar="<disk-gb>",
             type=int,
@@ -220,6 +216,20 @@ class CreateImage(show.ShowOne):
             help="Set a tag on this image "
                  "(repeat option to set multiple tags)",
         )
+        # NOTE(dtroyer): --owner is deprecated in Jan 2016 in an early
+        #                2.x release.  Do not remove before Jan 2017
+        #                and a 3.x release.
+        project_group = parser.add_mutually_exclusive_group()
+        project_group.add_argument(
+            "--project",
+            metavar="<project>",
+            help="Set an alternate project on this image (name or ID)",
+        )
+        project_group.add_argument(
+            "--owner",
+            metavar="<project>",
+            help=argparse.SUPPRESS,
+        )
         common.add_project_domain_option_to_parser(parser)
         for deadopt in self.deadopts:
             parser.add_argument(
@@ -246,8 +256,7 @@ class CreateImage(show.ShowOne):
         kwargs = {}
         copy_attrs = ('name', 'id',
                       'container_format', 'disk_format',
-                      'min_disk', 'min_ram',
-                      'tags', 'owner')
+                      'min_disk', 'min_ram', 'tags')
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
@@ -255,6 +264,7 @@ class CreateImage(show.ShowOne):
                     # Only include a value in kwargs for attributes that
                     # are actually present on the command line
                     kwargs[attr] = val
+
         # properties should get flattened into the general kwargs
         if getattr(parsed_args, 'properties', None):
             for k, v in six.iteritems(parsed_args.properties):
@@ -274,6 +284,21 @@ class CreateImage(show.ShowOne):
             kwargs['visibility'] = 'public'
         if parsed_args.private:
             kwargs['visibility'] = 'private'
+
+        # Handle deprecated --owner option
+        project_arg = parsed_args.project
+        if parsed_args.owner:
+            project_arg = parsed_args.owner
+            self.log.warning(_(
+                'The --owner option is deprecated, '
+                'please use --project instead.'
+            ))
+        if project_arg:
+            kwargs['owner'] = common.find_project(
+                identity_client,
+                project_arg,
+                parsed_args.project_domain,
+            ).id
 
         # open the file first to ensure any failures are handled before the
         # image is created
@@ -458,7 +483,7 @@ class ListImage(lister.Lister):
                 'Status',
                 'Visibility',
                 'Protected',
-                'Owner',
+                'Project',
                 'Tags',
             )
         else:
@@ -599,11 +624,6 @@ class SetImage(command.Command):
             help="New image name"
         )
         parser.add_argument(
-            "--owner",
-            metavar="<project>",
-            help="New image owner project (name or ID)",
-        )
-        parser.add_argument(
             "--min-disk",
             type=int,
             metavar="<disk-gb>",
@@ -713,6 +733,20 @@ class SetImage(command.Command):
             action="store_true",
             help="Activate the image",
         )
+        # NOTE(dtroyer): --owner is deprecated in Jan 2016 in an early
+        #                2.x release.  Do not remove before Jan 2017
+        #                and a 3.x release.
+        project_group = parser.add_mutually_exclusive_group()
+        project_group.add_argument(
+            "--project",
+            metavar="<project>",
+            help="Set an alternate project on this image (name or ID)",
+        )
+        project_group.add_argument(
+            "--owner",
+            metavar="<project>",
+            help=argparse.SUPPRESS,
+        )
         common.add_project_domain_option_to_parser(parser)
         for deadopt in self.deadopts:
             parser.add_argument(
@@ -738,7 +772,7 @@ class SetImage(command.Command):
         copy_attrs = ('architecture', 'container_format', 'disk_format',
                       'file', 'instance_id', 'kernel_id', 'locations',
                       'min_disk', 'min_ram', 'name', 'os_distro', 'os_version',
-                      'owner', 'prefix', 'progress', 'ramdisk_id', 'tags')
+                      'prefix', 'progress', 'ramdisk_id', 'tags')
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
@@ -767,6 +801,21 @@ class SetImage(command.Command):
         if parsed_args.private:
             kwargs['visibility'] = 'private'
 
+        # Handle deprecated --owner option
+        project_arg = parsed_args.project
+        if parsed_args.owner:
+            project_arg = parsed_args.owner
+            self.log.warning(_(
+                'The --owner option is deprecated, '
+                'please use --project instead.'
+            ))
+        if project_arg:
+            kwargs['owner'] = common.find_project(
+                identity_client,
+                project_arg,
+                parsed_args.project_domain,
+            ).id
+
         # Checks if anything that requires getting the image
         if not (kwargs or parsed_args.deactivate or parsed_args.activate):
             self.log.warning("No arguments specified")
@@ -789,13 +838,6 @@ class SetImage(command.Command):
         if parsed_args.tags:
             # Tags should be extended, but duplicates removed
             kwargs['tags'] = list(set(image.tags).union(set(parsed_args.tags)))
-
-        if parsed_args.owner:
-            kwargs['owner'] = common.find_project(
-                identity_client,
-                parsed_args.owner,
-                parsed_args.project_domain,
-            ).id
 
         try:
             image = image_client.images.update(image.id, **kwargs)

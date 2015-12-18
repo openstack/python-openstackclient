@@ -103,6 +103,7 @@ class TestImageCreate(TestImage):
             '--min-ram', '4',
             '--protected',
             '--private',
+            '--project', 'q',
             image_fakes.image_name,
         ]
         verifylist = [
@@ -114,6 +115,7 @@ class TestImageCreate(TestImage):
             ('unprotected', False),
             ('public', False),
             ('private', True),
+            ('project', 'q'),
             ('name', image_fakes.image_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -130,6 +132,7 @@ class TestImageCreate(TestImage):
             min_ram=4,
             protected=True,
             is_public=False,
+            owner='q',
             data=mock.ANY,
         )
 
@@ -358,7 +361,7 @@ class TestImageList(TestImage):
             'Status',
             'Visibility',
             'Protected',
-            'Owner',
+            'Project',
             'Properties',
         )
 
@@ -484,22 +487,22 @@ class TestImageSet(TestImage):
     def test_image_set_options(self):
         arglist = [
             '--name', 'new-name',
-            '--owner', 'new-owner',
             '--min-disk', '2',
             '--min-ram', '4',
             '--container-format', 'ovf',
             '--disk-format', 'vmdk',
             '--size', '35165824',
+            '--project', 'new-owner',
             image_fakes.image_name,
         ]
         verifylist = [
             ('name', 'new-name'),
-            ('owner', 'new-owner'),
             ('min_disk', 2),
             ('min_ram', 4),
             ('container_format', 'ovf'),
             ('disk_format', 'vmdk'),
             ('size', 35165824),
+            ('project', 'new-owner'),
             ('image', image_fakes.image_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
