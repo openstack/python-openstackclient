@@ -243,6 +243,7 @@ Set image properties
         [--os-distro <os-distro>]
         [--os-version <os-version>]
         [--ramdisk-id <ramdisk-id>]
+        [--activate|--deactivate]
         <image>
 
 .. option:: --name <name>
@@ -384,6 +385,18 @@ Set image properties
 .. option:: --ramdisk-id <ramdisk-id>
 
     ID of ramdisk image used to boot this disk image
+
+    .. versionadded:: 2
+
+.. option:: --activate
+
+    Activate the image.
+
+    .. versionadded:: 2
+
+.. option:: --deactivate
+
+    Deactivate the image.
 
     .. versionadded:: 2
 

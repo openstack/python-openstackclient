@@ -693,6 +693,17 @@ class SetImage(command.Command):
             metavar="<ramdisk-id>",
             help="ID of ramdisk image used to boot this disk image",
         )
+        deactivate_group = parser.add_mutually_exclusive_group()
+        deactivate_group.add_argument(
+            "--deactivate",
+            action="store_true",
+            help="Deactivate the image",
+        )
+        deactivate_group.add_argument(
+            "--activate",
+            action="store_true",
+            help="Activate the image",
+        )
         for deadopt in self.deadopts:
             parser.add_argument(
                 "--%s" % deadopt,
@@ -745,18 +756,35 @@ class SetImage(command.Command):
         if parsed_args.private:
             kwargs['visibility'] = 'private'
 
-        if not kwargs:
+        # Checks if anything that requires getting the image
+        if not (kwargs or parsed_args.deactivate or parsed_args.activate):
             self.log.warning("No arguments specified")
             return {}, {}
 
         image = utils.find_resource(
             image_client.images, parsed_args.image)
 
+        if parsed_args.deactivate:
+            image_client.images.deactivate(image.id)
+            activation_status = "deactivated"
+        if parsed_args.activate:
+            image_client.images.reactivate(image.id)
+            activation_status = "activated"
+
+        # Check if need to do the actual update
+        if not kwargs:
+            return {}, {}
+
         if parsed_args.tags:
             # Tags should be extended, but duplicates removed
             kwargs['tags'] = list(set(image.tags).union(set(parsed_args.tags)))
 
-        image = image_client.images.update(image.id, **kwargs)
+        try:
+            image = image_client.images.update(image.id, **kwargs)
+        except Exception as e:
+            if activation_status is not None:
+                print("Image %s was %s." % (image.id, activation_status))
+            raise e
 
 
 class ShowImage(show.ShowOne):
