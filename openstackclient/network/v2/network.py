@@ -132,7 +132,6 @@ class DeleteNetwork(command.Command):
         for network in parsed_args.network:
             obj = client.find_network(network)
             client.delete_network(obj)
-        return
 
 
 class ListNetwork(lister.Lister):
@@ -271,7 +270,6 @@ class SetNetwork(command.Command):
             raise exceptions.CommandError(msg)
 
         client.update_network(obj)
-        return
 
 
 class ShowNetwork(show.ShowOne):

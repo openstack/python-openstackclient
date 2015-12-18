@@ -146,7 +146,6 @@ class DeleteRouter(command.Command):
         for router in parsed_args.router:
             obj = client.find_router(router)
             client.delete_router(obj)
-        return
 
 
 class ListRouter(lister.Lister):
