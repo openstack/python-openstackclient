@@ -195,7 +195,7 @@ class FakeImage(object):
             'owner': 'image-owner' + uuid.uuid4().hex,
             'protected': bool(random.choice([0, 1])),
             'visibility': random.choice(['public', 'private']),
-            'tags': [uuid.uuid4().hex for r in range(random.randint(1, 5))],
+            'tags': [uuid.uuid4().hex for r in range(2)],
         }
 
         # Overwrite default attributes if there are some attributes set

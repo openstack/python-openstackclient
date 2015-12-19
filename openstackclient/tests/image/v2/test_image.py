@@ -55,18 +55,12 @@ class TestImageCreate(TestImage):
     def setUp(self):
         super(TestImageCreate, self).setUp()
 
-        self.images_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(image_fakes.IMAGE),
-            loaded=True,
-        )
+        self.new_image = image_fakes.FakeImage.create_one_image()
+        self.images_mock.create.return_value = self.new_image
         # This is the return value for utils.find_resource()
-        self.images_mock.get.return_value = copy.deepcopy(image_fakes.IMAGE)
-        self.images_mock.update.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(image_fakes.IMAGE),
-            loaded=True,
-        )
+        self.images_mock.get.return_value = copy.deepcopy(
+            image_fakes.FakeImage.get_image_info(self.new_image))
+        self.images_mock.update.return_value = self.new_image
 
         # Get the command object to test
         self.cmd = image.CreateImage(self.app, None)
@@ -77,12 +71,12 @@ class TestImageCreate(TestImage):
         }
         self.images_mock.configure_mock(**mock_exception)
         arglist = [
-            image_fakes.image_name,
+            self.new_image.name
         ]
         verifylist = [
             ('container_format', image.DEFAULT_CONTAINER_FORMAT),
             ('disk_format', image.DEFAULT_DISK_FORMAT),
-            ('name', image_fakes.image_name),
+            ('name', self.new_image.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -91,7 +85,7 @@ class TestImageCreate(TestImage):
 
         # ImageManager.create(name=, **)
         self.images_mock.create.assert_called_with(
-            name=image_fakes.image_name,
+            name=self.new_image.name,
             container_format=image.DEFAULT_CONTAINER_FORMAT,
             disk_format=image.DEFAULT_DISK_FORMAT,
         )
@@ -103,8 +97,12 @@ class TestImageCreate(TestImage):
             mock.ANY, mock.ANY,
         )
 
-        self.assertEqual(image_fakes.IMAGE_columns, columns)
-        self.assertEqual(image_fakes.IMAGE_SHOW_data, data)
+        self.assertEqual(
+            image_fakes.FakeImage.get_image_columns(self.new_image),
+            columns)
+        self.assertEqual(
+            image_fakes.FakeImage.get_image_data(self.new_image),
+            data)
 
     @mock.patch('glanceclient.common.utils.get_data_file', name='Open')
     def test_image_reserve_options(self, mock_open):
@@ -120,22 +118,24 @@ class TestImageCreate(TestImage):
             '--disk-format', 'fs',
             '--min-disk', '10',
             '--min-ram', '4',
-            '--owner', '123456',
-            '--protected',
-            '--private',
-            image_fakes.image_name,
+            '--owner', self.new_image.owner,
+            ('--protected'
+                if self.new_image.protected else '--unprotected'),
+            ('--private'
+                if self.new_image.visibility == 'private' else '--public'),
+            self.new_image.name,
         ]
         verifylist = [
             ('container_format', 'ovf'),
             ('disk_format', 'fs'),
             ('min_disk', 10),
             ('min_ram', 4),
-            ('owner', '123456'),
-            ('protected', True),
-            ('unprotected', False),
-            ('public', False),
-            ('private', True),
-            ('name', image_fakes.image_name),
+            ('owner', self.new_image.owner),
+            ('protected', self.new_image.protected),
+            ('unprotected', not self.new_image.protected),
+            ('public', self.new_image.visibility == 'public'),
+            ('private', self.new_image.visibility == 'private'),
+            ('name', self.new_image.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -144,14 +144,14 @@ class TestImageCreate(TestImage):
 
         # ImageManager.create(name=, **)
         self.images_mock.create.assert_called_with(
-            name=image_fakes.image_name,
+            name=self.new_image.name,
             container_format='ovf',
             disk_format='fs',
             min_disk=10,
             min_ram=4,
-            owner='123456',
-            protected=True,
-            visibility='private',
+            owner=self.new_image.owner,
+            protected=self.new_image.protected,
+            visibility=self.new_image.visibility,
         )
 
         # Verify update() was not called, if it was show the args
@@ -161,14 +161,19 @@ class TestImageCreate(TestImage):
             mock.ANY, mock.ANY,
         )
 
-        self.assertEqual(image_fakes.IMAGE_columns, columns)
-        self.assertEqual(image_fakes.IMAGE_SHOW_data, data)
+        self.assertEqual(
+            image_fakes.FakeImage.get_image_columns(self.new_image),
+            columns)
+        self.assertEqual(
+            image_fakes.FakeImage.get_image_data(self.new_image),
+            data)
 
     @mock.patch('glanceclient.common.utils.get_data_file', name='Open')
     def test_image_create_file(self, mock_open):
         mock_file = mock.MagicMock(name='File')
         mock_open.return_value = mock_file
-        mock_open.read.return_value = image_fakes.IMAGE_data
+        mock_open.read.return_value = (
+            image_fakes.FakeImage.get_image_data(self.new_image))
         mock_exception = {
             'find.side_effect': exceptions.CommandError('x'),
         }
@@ -176,23 +181,25 @@ class TestImageCreate(TestImage):
 
         arglist = [
             '--file', 'filer',
-            '--unprotected',
-            '--public',
+            ('--unprotected'
+                if not self.new_image.protected else '--protected'),
+            ('--public'
+                if self.new_image.visibility == 'public' else '--private'),
             '--property', 'Alpha=1',
             '--property', 'Beta=2',
-            '--tag', 'awesome',
-            '--tag', 'better',
-            image_fakes.image_name,
+            '--tag', self.new_image.tags[0],
+            '--tag', self.new_image.tags[1],
+            self.new_image.name,
         ]
         verifylist = [
             ('file', 'filer'),
-            ('protected', False),
-            ('unprotected', True),
-            ('public', True),
-            ('private', False),
+            ('protected', self.new_image.protected),
+            ('unprotected', not self.new_image.protected),
+            ('public', self.new_image.visibility == 'public'),
+            ('private', self.new_image.visibility == 'private'),
             ('properties', {'Alpha': '1', 'Beta': '2'}),
-            ('tags', ['awesome', 'better']),
-            ('name', image_fakes.image_name),
+            ('tags', self.new_image.tags),
+            ('name', self.new_image.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -201,14 +208,14 @@ class TestImageCreate(TestImage):
 
         # ImageManager.create(name=, **)
         self.images_mock.create.assert_called_with(
-            name=image_fakes.image_name,
+            name=self.new_image.name,
             container_format=image.DEFAULT_CONTAINER_FORMAT,
             disk_format=image.DEFAULT_DISK_FORMAT,
-            protected=False,
-            visibility='public',
+            protected=self.new_image.protected,
+            visibility=self.new_image.visibility,
             Alpha='1',
             Beta='2',
-            tags=['awesome', 'better'],
+            tags=self.new_image.tags,
         )
 
         # Verify update() was not called, if it was show the args
@@ -218,17 +225,21 @@ class TestImageCreate(TestImage):
             mock.ANY, mock.ANY,
         )
 
-        self.assertEqual(image_fakes.IMAGE_columns, columns)
-        self.assertEqual(image_fakes.IMAGE_SHOW_data, data)
+        self.assertEqual(
+            image_fakes.FakeImage.get_image_columns(self.new_image),
+            columns)
+        self.assertEqual(
+            image_fakes.FakeImage.get_image_data(self.new_image),
+            data)
 
     def test_image_create_dead_options(self):
 
         arglist = [
             '--store', 'somewhere',
-            image_fakes.image_name,
+            self.new_image.name,
         ]
         verifylist = [
-            ('name', image_fakes.image_name),
+            ('name', self.new_image.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
