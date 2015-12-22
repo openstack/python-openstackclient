@@ -220,6 +220,7 @@ class CreateImage(show.ShowOne):
             help="Set a tag on this image "
                  "(repeat option to set multiple tags)",
         )
+        common.add_project_domain_option_to_parser(parser)
         for deadopt in self.deadopts:
             parser.add_argument(
                 "--%s" % deadopt,
@@ -231,6 +232,7 @@ class CreateImage(show.ShowOne):
 
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)", parsed_args)
+        identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
 
         for deadopt in self.deadopts:
@@ -284,6 +286,13 @@ class CreateImage(show.ShowOne):
         if fp is None and parsed_args.file:
             self.log.warning("Failed to get an image file.")
             return {}, {}
+
+        if parsed_args.owner:
+            kwargs['owner'] = common.find_project(
+                identity_client,
+                parsed_args.owner,
+                parsed_args.project_domain,
+            ).id
 
         # If a volume is specified.
         if parsed_args.volume:
@@ -704,6 +713,7 @@ class SetImage(command.Command):
             action="store_true",
             help="Activate the image",
         )
+        common.add_project_domain_option_to_parser(parser)
         for deadopt in self.deadopts:
             parser.add_argument(
                 "--%s" % deadopt,
@@ -715,6 +725,7 @@ class SetImage(command.Command):
 
     def take_action(self, parsed_args):
         self.log.debug("take_action(%s)", parsed_args)
+        identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
 
         for deadopt in self.deadopts:
@@ -778,6 +789,13 @@ class SetImage(command.Command):
         if parsed_args.tags:
             # Tags should be extended, but duplicates removed
             kwargs['tags'] = list(set(image.tags).union(set(parsed_args.tags)))
+
+        if parsed_args.owner:
+            kwargs['owner'] = common.find_project(
+                identity_client,
+                parsed_args.owner,
+                parsed_args.project_domain,
+            ).id
 
         try:
             image = image_client.images.update(image.id, **kwargs)

@@ -33,6 +33,7 @@ Create/upload an image
         [--public | --private]
         [--property <key=value> [...] ]
         [--tag <tag> [...] ]
+        [--project-domain <project-domain>]
         <image-name>
 
 .. option:: --id <id>
@@ -126,6 +127,11 @@ Create/upload an image
     Set a tag on this image (repeat for multiple values)
 
     .. versionadded:: 2
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 .. describe:: <image-name>
 
@@ -244,6 +250,7 @@ Set image properties
         [--os-version <os-version>]
         [--ramdisk-id <ramdisk-id>]
         [--activate|--deactivate]
+        [--project-domain <project-domain>]
         <image>
 
 .. option:: --name <name>
@@ -399,6 +406,11 @@ Set image properties
     Deactivate the image.
 
     .. versionadded:: 2
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 .. describe:: <image>
 
