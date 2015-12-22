@@ -101,6 +101,7 @@ referring to both Compute and Volume quotas.
 * ``network``: (**Network**) - a virtual network for connecting servers and other resources
 * ``object``: (**Object Storage**) a single file in the Object Storage
 * ``policy``: (**Identity**) determines authorization
+* ``port``: (**Network**) - a virtual port for connecting servers and other resources to a network
 * ``project``: (**Identity**) owns a group of resources
 * ``quota``: (**Compute**, **Volume**) resource usage restrictions
 * ``region``: (**Identity**) a subset of an OpenStack deployment
