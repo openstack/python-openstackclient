@@ -14,7 +14,6 @@
 #
 
 import mock
-import testtools
 
 from mock import call
 from openstackclient.common import exceptions
@@ -1066,7 +1065,7 @@ class TestServerUnshelve(TestServer):
         self.run_method_with_servers('unshelve', 3)
 
 
-class TestServerGeneral(testtools.TestCase):
+class TestServerGeneral(TestServer):
     OLD = {
         'private': [
             {
@@ -1160,3 +1159,46 @@ class TestServerGeneral(testtools.TestCase):
                'actual    = %s\n' %
                (data_1, data_2, networks_format))
         self.assertIn(networks_format, (data_1, data_2), msg)
+
+    @mock.patch('openstackclient.common.utils.find_resource')
+    def test_prep_server_detail(self, find_resource):
+        # Setup mock method return value. utils.find_resource() will be called
+        # twice in _prep_server_detail():
+        # - The first time, return image info.
+        # - The second time, return flavor info.
+        _image = image_fakes.FakeImage.create_one_image()
+        _flavor = compute_fakes.FakeFlavor.create_one_flavor()
+        find_resource.side_effect = [_image, _flavor]
+
+        # compute_client.servers.get() will be called once, return server info.
+        server_info = {
+            'image': {u'id': _image.id},
+            'flavor': {u'id': _flavor.id},
+            'tenant_id': u'tenant-id-xxx',
+            'networks': {u'public': [u'10.20.30.40', u'2001:db8::f']},
+            'links': u'http://xxx.yyy.com',
+        }
+        _server = compute_fakes.FakeServer.create_one_server(attrs=server_info)
+        self.servers_mock.get.return_value = _server
+
+        # Prepare result data.
+        info = {
+            'id': _server.id,
+            'name': _server.name,
+            'addresses': u'public=10.20.30.40, 2001:db8::f',
+            'flavor': u'%s (%s)' % (_flavor.name, _flavor.id),
+            'image': u'%s (%s)' % (_image.name, _image.id),
+            'project_id': u'tenant-id-xxx',
+            'properties': '',
+        }
+
+        # Call _prep_server_detail().
+        server_detail = server._prep_server_detail(
+            self.app.client_manager.compute,
+            _server
+        )
+        # 'networks' is used to create _server. Remove it.
+        server_detail.pop('networks')
+
+        # Check the results.
+        self.assertDictEqual(info, server_detail)
