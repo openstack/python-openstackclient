@@ -1136,3 +1136,27 @@ class TestServerGeneral(testtools.TestCase):
                          server._format_servers_list_power_state(0x07))
         self.assertEqual("N/A",
                          server._format_servers_list_power_state(0x08))
+
+    def test_format_servers_list_networks(self):
+        # Setup network info to test.
+        networks = {
+            u'public': [u'10.20.30.40', u'2001:db8::f'],
+            u'private': [u'2001:db8::f', u'10.20.30.40'],
+        }
+
+        # Prepare expected data.
+        # Since networks is a dict, whose items are in random order, there
+        # could be two results after formatted.
+        data_1 = (u'private=2001:db8::f, 10.20.30.40; '
+                  u'public=10.20.30.40, 2001:db8::f')
+        data_2 = (u'public=10.20.30.40, 2001:db8::f; '
+                  u'private=2001:db8::f, 10.20.30.40')
+
+        # Call _format_servers_list_networks().
+        networks_format = server._format_servers_list_networks(networks)
+
+        msg = ('Network string is not formatted correctly.\n'
+               'reference = %s or %s\n'
+               'actual    = %s\n' %
+               (data_1, data_2, networks_format))
+        self.assertIn(networks_format, (data_1, data_2), msg)
