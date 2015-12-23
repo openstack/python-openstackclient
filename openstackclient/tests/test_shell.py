@@ -76,7 +76,7 @@ CLOUD_2 = {
                 'project_name': 'heart-o-gold',
                 'username': 'zaphod',
             },
-            'region_name': 'occ-cloud',
+            'region_name': 'occ-cloud,krikkit,occ-env',
             'log_file': '/tmp/test_log_file',
             'log_level': 'debug',
         }
