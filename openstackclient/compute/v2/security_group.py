@@ -390,7 +390,7 @@ class ShowSecurityGroup(show.ShowOne):
 
         # Format rules into a list of strings
         info.update(
-            {'rules': rules}
+            {'rules': utils.format_list(rules, separator='\n')}
         )
         # Map 'tenant_id' column to 'project_id'
         info.update(

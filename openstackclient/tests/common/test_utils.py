@@ -347,3 +347,10 @@ class TestFindResource(test_utils.TestCase):
         expected = 'a, b, c'
         self.assertEqual(expected, utils.format_list(['a', 'b', 'c']))
         self.assertEqual(expected, utils.format_list(['c', 'b', 'a']))
+
+    def test_format_list_separator(self):
+        expected = 'a\nb\nc'
+        actual_pre_sorted = utils.format_list(['a', 'b', 'c'], separator='\n')
+        actual_unsorted = utils.format_list(['c', 'b', 'a'], separator='\n')
+        self.assertEqual(expected, actual_pre_sorted)
+        self.assertEqual(expected, actual_unsorted)
