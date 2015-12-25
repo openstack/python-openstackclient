@@ -101,7 +101,7 @@ class TestKeyValueAction(utils.TestCase):
         # There should be no red or blue
         expect = {'green': '100%'}
         self.assertDictEqual(expect, actual)
-        self.assertEqual(None, failhere)
+        self.assertIsNone(failhere)
 
 
 class TestNonNegativeAction(utils.TestCase):
