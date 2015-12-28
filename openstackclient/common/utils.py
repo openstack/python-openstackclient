@@ -154,14 +154,15 @@ def format_dict(data):
     return output[:-2]
 
 
-def format_list(data):
+def format_list(data, separator=', '):
     """Return a formatted strings
 
     :param data: a list of strings
-    :rtype: a string formatted to a,b,c
+    :param separator: the separator to use between strings (default: ', ')
+    :rtype: a string formatted based on separator
     """
 
-    return ', '.join(sorted(data))
+    return separator.join(sorted(data))
 
 
 def get_field(item, field):
