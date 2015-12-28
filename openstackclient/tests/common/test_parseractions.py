@@ -62,35 +62,29 @@ class TestKeyValueAction(utils.TestCase):
 
 
 class TestNonNegativeAction(utils.TestCase):
-    def test_negative_values(self):
-        parser = argparse.ArgumentParser()
+
+    def setUp(self):
+        super(TestNonNegativeAction, self).setUp()
+
+        self.parser = argparse.ArgumentParser()
 
         # Set up our typical usage
-        parser.add_argument(
+        self.parser.add_argument(
             '--foo',
             metavar='<foo>',
             type=int,
             action=parseractions.NonNegativeAction,
         )
 
+    def test_negative_values(self):
         self.assertRaises(
             argparse.ArgumentTypeError,
-            parser.parse_args,
+            self.parser.parse_args,
             "--foo -1".split()
         )
 
     def test_zero_values(self):
-        parser = argparse.ArgumentParser()
-
-        # Set up our typical usage
-        parser.add_argument(
-            '--foo',
-            metavar='<foo>',
-            type=int,
-            action=parseractions.NonNegativeAction,
-        )
-
-        results = parser.parse_args(
+        results = self.parser.parse_args(
             '--foo 0'.split()
         )
 
@@ -98,17 +92,7 @@ class TestNonNegativeAction(utils.TestCase):
         self.assertEqual(actual, 0)
 
     def test_positive_values(self):
-        parser = argparse.ArgumentParser()
-
-        # Set up our typical usage
-        parser.add_argument(
-            '--foo',
-            metavar='<foo>',
-            type=int,
-            action=parseractions.NonNegativeAction,
-        )
-
-        results = parser.parse_args(
+        results = self.parser.parse_args(
             '--foo 1'.split()
         )
 
