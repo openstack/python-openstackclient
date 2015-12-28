@@ -55,8 +55,6 @@ class AssociateQos(command.Command):
 
         volume_client.qos_specs.associate(qos_spec.id, volume_type.id)
 
-        return
-
 
 class CreateQos(show.ShowOne):
     """Create new QoS specification"""
@@ -123,7 +121,6 @@ class DeleteQos(command.Command):
         for qos in parsed_args.qos_specs:
             qos_spec = utils.find_resource(volume_client.qos_specs, qos)
             volume_client.qos_specs.delete(qos_spec.id)
-        return
 
 
 class DisassociateQos(command.Command):
@@ -165,8 +162,6 @@ class DisassociateQos(command.Command):
             volume_client.qos_specs.disassociate(qos_spec.id, volume_type.id)
         elif parsed_args.all:
             volume_client.qos_specs.disassociate_all(qos_spec.id)
-
-        return
 
 
 class ListQos(lister.Lister):
@@ -229,8 +224,6 @@ class SetQos(command.Command):
                                              parsed_args.property)
         else:
             self.app.log.error("No changes requested\n")
-
-        return
 
 
 class ShowQos(show.ShowOne):
@@ -298,5 +291,3 @@ class UnsetQos(command.Command):
                                                parsed_args.property)
         else:
             self.app.log.error("No changes requested\n")
-
-        return

@@ -110,7 +110,6 @@ class DeleteVolumeType(command.Command):
         volume_type = utils.find_resource(
             volume_client.volume_types, parsed_args.volume_type)
         volume_client.volume_types.delete(volume_type.id)
-        return
 
 
 class ListVolumeType(lister.Lister):
@@ -201,8 +200,6 @@ class SetVolumeType(command.Command):
         if parsed_args.property:
             volume_type.set_keys(parsed_args.property)
 
-        return
-
 
 class ShowVolumeType(show.ShowOne):
     """Display volume type details"""
@@ -258,4 +255,3 @@ class UnsetVolumeType(command.Command):
             parsed_args.volume_type,
         )
         volume_type.unset_keys(parsed_args.property)
-        return

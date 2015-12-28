@@ -95,7 +95,6 @@ class DeleteBackup(command.Command):
             backup_id = utils.find_resource(volume_client.backups,
                                             backup).id
             volume_client.backups.delete(backup_id)
-        return
 
 
 class ListBackup(lister.Lister):

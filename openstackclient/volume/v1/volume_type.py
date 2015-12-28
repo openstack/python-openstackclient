@@ -81,7 +81,6 @@ class DeleteVolumeType(command.Command):
         volume_type_id = utils.find_resource(
             volume_client.volume_types, parsed_args.volume_type).id
         volume_client.volume_types.delete(volume_type_id)
-        return
 
 
 class ListVolumeType(lister.Lister):
@@ -144,8 +143,6 @@ class SetVolumeType(command.Command):
         if parsed_args.property:
             volume_type.set_keys(parsed_args.property)
 
-        return
-
 
 class UnsetVolumeType(command.Command):
     """Unset volume type properties"""
@@ -182,7 +179,6 @@ class UnsetVolumeType(command.Command):
             volume_type.unset_keys(parsed_args.property)
         else:
             self.app.log.error("No changes requested\n")
-        return
 
 
 class ShowVolumeType(show.ShowOne):
