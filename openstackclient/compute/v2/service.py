@@ -100,7 +100,7 @@ class SetService(command.Command):
             "--enable",
             dest="enabled",
             default=True,
-            help="Enable a service",
+            help="Enable a service (default)",
             action="store_true")
         enabled_group.add_argument(
             "--disable",

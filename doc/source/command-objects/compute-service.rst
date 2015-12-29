@@ -57,7 +57,7 @@ Set service command
 .. _compute-service-set:
 .. describe:: --enable
 
-    Enable service
+    Enable service (default)
 
 .. describe:: --disable
 
