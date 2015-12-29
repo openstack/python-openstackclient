@@ -283,16 +283,12 @@ class SetProject(command.Command):
                 and not parsed_args.disable):
             return
 
-        project = utils.find_resource(
-            identity_client.projects,
-            parsed_args.project,
-        )
+        project = common.find_project(identity_client, parsed_args.project,
+                                      parsed_args.domain)
 
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
-        if parsed_args.domain:
-            kwargs['domain'] = parsed_args.domain
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
         if parsed_args.enable:
