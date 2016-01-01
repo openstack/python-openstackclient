@@ -44,20 +44,20 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         'admin_state_up',
         'id',
         'name',
+        'project_id',
         'router_external',
         'status',
         'subnets',
-        'tenant_id',
     )
 
     data = (
         network._format_admin_state(_network.admin_state_up),
         _network.id,
         _network.name,
+        _network.project_id,
         network._format_router_external(_network.router_external),
         _network.status,
         utils.format_list(_network.subnets),
-        _network.tenant_id,
     )
 
     def setUp(self):
@@ -186,20 +186,20 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         'admin_state_up',
         'id',
         'name',
+        'project_id',
         'router_external',
         'status',
         'subnets',
-        'tenant_id',
     )
 
     data = (
         network._format_admin_state(_network.admin_state_up),
         _network.id,
         _network.name,
+        _network.project_id,
         network._format_router_external(_network.router_external),
         _network.status,
         utils.format_list(_network.subnets),
-        _network.tenant_id,
     )
 
     def setUp(self):
@@ -340,7 +340,7 @@ class TestListNetwork(TestNetwork):
             net.id,
             net.name,
             net.status,
-            net.tenant_id,
+            net.project_id,
             network._format_admin_state(net.admin_state_up),
             net.shared,
             utils.format_list(net.subnets),
@@ -485,20 +485,20 @@ class TestShowNetwork(TestNetwork):
         'admin_state_up',
         'id',
         'name',
+        'project_id',
         'router_external',
         'status',
         'subnets',
-        'tenant_id',
     )
 
     data = (
         network._format_admin_state(_network.admin_state_up),
         _network.id,
         _network.name,
+        _network.project_id,
         network._format_router_external(_network.router_external),
         _network.status,
         utils.format_list(_network.subnets),
-        _network.tenant_id,
     )
 
     def setUp(self):
