@@ -2,7 +2,7 @@
 volume type
 ===========
 
-Volume v1, v2
+Block Storage v1, v2
 
 volume type create
 ------------------

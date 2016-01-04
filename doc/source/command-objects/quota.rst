@@ -4,7 +4,7 @@ quota
 
 Resource quotas appear in multiple APIs, OpenStackClient presents them as a single object with multiple properties.
 
-Compute v2, Volume v1
+Compute v2, Block Storage v1
 
 quota set
 ---------
@@ -26,7 +26,7 @@ Set quotas for project
         [--properties <num-properties>]
         [--ram <ram-mb>]
 
-        # Volume settings
+        # Block Storage settings
         [--gigabytes <new-gigabytes>]
         [--snapshots <new-snapshots>]
         [--volumes <new-volumes>]
@@ -51,7 +51,7 @@ Set quotas for class
         [--properties <num-properties>]
         [--ram <ram-mb>]
 
-        # Volume settings
+        # Block Storage settings
         [--gigabytes <new-gigabytes>]
         [--snapshots <new-snapshots>]
         [--volumes <new-volumes>]

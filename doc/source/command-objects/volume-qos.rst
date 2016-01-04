@@ -2,7 +2,7 @@
 volume qos
 ==========
 
-volume v1, v2
+Block Storage v1, v2
 
 volume qos associate
 --------------------

@@ -2,7 +2,7 @@
 snapshot
 ========
 
-Volume v1
+Block Storage v1
 
 snapshot create
 ---------------

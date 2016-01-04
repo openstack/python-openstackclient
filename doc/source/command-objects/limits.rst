@@ -2,14 +2,14 @@
 limits
 ======
 
-The Compute and Volume APIs have resource usage limits.
+The Compute and Block Storage APIs have resource usage limits.
 
-Compute v2, Volume v1
+Compute v2, Block Storage v1
 
 limits show
 -----------
 
-Show compute and volume limits
+Show compute and block storage limits
 
 .. program:: limits show
 .. code:: bash

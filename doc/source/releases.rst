@@ -137,12 +137,12 @@ As of release 2.0 the release notes can be found on the OpenStack `Release Notes
 
 * Add ``--log-file`` option support
 
-* Set default Volume API version to ``2``
+* Set default Block Storage API version to ``2``
 
 1.6.0 (10 Aug 2015)
 ===================
 
-* Added support for Volume v2 APIs
+* Added support for Block Storage v2 APIs
   Blueprint `volume-v2 <https://blueprints.launchpad.net/python-openstackclient/+spec/volume-v2>`_
 
   * Backup

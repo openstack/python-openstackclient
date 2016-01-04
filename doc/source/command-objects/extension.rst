@@ -34,7 +34,7 @@ List API extensions
 
 .. option:: --volume
 
-    List extensions for the Volume API
+    List extensions for the Block Storage API
 
 .. option:: --long
 

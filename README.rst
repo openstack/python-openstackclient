@@ -11,8 +11,8 @@ OpenStackClient
     :alt: Downloads
 
 OpenStackClient (aka OSC) is a command-line client for OpenStack that brings
-the command set for Compute, Identity, Image, Object Store and Volume APIs
-together in a single shell with a uniform command structure.
+the command set for Compute, Identity, Image, Object Store and Block Storage
+APIs together in a single shell with a uniform command structure.
 
 The primary goal is to provide a unified shell command structure and a common
 language to describe operations in OpenStack.
