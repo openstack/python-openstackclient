@@ -276,6 +276,7 @@ class ListSecurityGroupRule(lister.Lister):
         parser.add_argument(
             'group',
             metavar='<group>',
+            nargs='?',
             help='List all rules in this security group (name or ID)',
         )
         return parser
@@ -284,19 +285,6 @@ class ListSecurityGroupRule(lister.Lister):
         self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
-        group = utils.find_resource(
-            compute_client.security_groups,
-            parsed_args.group,
-        )
-
-        # Argh, the rules are not Resources...
-        rules = []
-        for rule in group.rules:
-            rules.append(security_group_rules.SecurityGroupRule(
-                compute_client.security_group_rules,
-                _xform_security_group_rule(rule),
-            ))
-
         columns = column_headers = (
             "ID",
             "IP Protocol",
@@ -304,6 +292,28 @@ class ListSecurityGroupRule(lister.Lister):
             "Port Range",
             "Remote Security Group",
         )
+
+        rules_to_list = []
+        if parsed_args.group:
+            group = utils.find_resource(
+                compute_client.security_groups,
+                parsed_args.group,
+            )
+            rules_to_list = group.rules
+        else:
+            columns = columns + ('parent_group_id',)
+            column_headers = column_headers + ('Security Group',)
+            for group in compute_client.security_groups.list():
+                rules_to_list.extend(group.rules)
+
+        # Argh, the rules are not Resources...
+        rules = []
+        for rule in rules_to_list:
+            rules.append(security_group_rules.SecurityGroupRule(
+                compute_client.security_group_rules,
+                _xform_security_group_rule(rule),
+            ))
+
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
