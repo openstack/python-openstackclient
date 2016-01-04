@@ -68,12 +68,12 @@ class ProjectTests(test_identity.IdentityTests):
         )
         items = self.parse_show(raw_output)
         fields = list(self.PROJECT_FIELDS)
-        fields.extend(['k0'])
+        fields.extend(['properties'])
         self.assert_show_fields(items, fields)
         project = self.parse_show_as_object(raw_output)
         self.assertEqual(new_project_name, project['name'])
         self.assertEqual('False', project['enabled'])
-        self.assertEqual('v0', project['k0'])
+        self.assertEqual("k0='v0'", project['properties'])
 
     def test_project_show(self):
         project_name = self._create_dummy_project()
@@ -81,4 +81,6 @@ class ProjectTests(test_identity.IdentityTests):
             'project show %s' % project_name
         )
         items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.PROJECT_FIELDS)
+        fields = list(self.PROJECT_FIELDS)
+        fields.extend(['properties'])
+        self.assert_show_fields(items, fields)

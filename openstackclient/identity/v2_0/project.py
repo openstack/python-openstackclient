@@ -282,4 +282,60 @@ class ShowProject(show.ShowOne):
 
         # TODO(stevemar): Remove the line below when we support multitenancy
         info.pop('parent_id', None)
+
+        # NOTE(stevemar): Property handling isn't really supported in Keystone
+        # and needs a lot of extra handling. Let's reserve the properties that
+        # the API has and handle the extra top level properties.
+        reserved = ('name', 'id', 'enabled', 'description')
+        properties = {}
+        for k, v in info.items():
+            if k not in reserved:
+                # If a key is not in `reserved` it's a property, pop it
+                info.pop(k)
+                # If a property has been "unset" it's `None`, so don't show it
+                if v is not None:
+                    properties[k] = v
+
+        info['properties'] = utils.format_dict(properties)
         return zip(*sorted(six.iteritems(info)))
+
+
+class UnsetProject(command.Command):
+    """Unset project properties"""
+
+    log = logging.getLogger(__name__ + '.UnsetProject')
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetProject, self).get_parser(prog_name)
+        parser.add_argument(
+            'project',
+            metavar='<project>',
+            help=_('Project to modify (name or ID)'),
+        )
+        parser.add_argument(
+            '--property',
+            metavar='<key>',
+            action='append',
+            default=[],
+            help=_('Unset a project property '
+                   '(repeat option to unset multiple properties)'),
+            required=True,
+        )
+        return parser
+
+    @utils.log_method(log)
+    def take_action(self, parsed_args):
+        identity_client = self.app.client_manager.identity
+        project = utils.find_resource(
+            identity_client.tenants,
+            parsed_args.project,
+        )
+        if not parsed_args.property:
+            self.app.log.error("No changes requested\n")
+        else:
+            kwargs = project._info
+            for key in parsed_args.property:
+                if key in kwargs:
+                    kwargs[key] = None
+            identity_client.tenants.update(project.id, **kwargs)
+        return
