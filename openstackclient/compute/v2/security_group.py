@@ -62,6 +62,23 @@ def _xform_security_group_rule(sgroup):
     return info
 
 
+def _xform_and_trim_security_group_rule(sgroup):
+    info = _xform_security_group_rule(sgroup)
+    # Trim parent security group ID since caller has this information.
+    info.pop('parent_group_id', None)
+    # Trim keys with empty string values.
+    keys_to_trim = [
+        'ip_protocol',
+        'ip_range',
+        'port_range',
+        'remote_security_group',
+    ]
+    for key in keys_to_trim:
+        if key in info and not info[key]:
+            info.pop(key)
+    return info
+
+
 class CreateSecurityGroup(show.ShowOne):
     """Create a new security group"""
 
@@ -396,7 +413,8 @@ class ShowSecurityGroup(show.ShowOne):
         )._info)
         rules = []
         for r in info['rules']:
-            rules.append(utils.format_dict(_xform_security_group_rule(r)))
+            formatted_rule = _xform_and_trim_security_group_rule(r)
+            rules.append(utils.format_dict(formatted_rule))
 
         # Format rules into a list of strings
         info.update(
