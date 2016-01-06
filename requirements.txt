@@ -8,8 +8,8 @@ Babel>=1.3
 cliff>=1.15.0 # Apache-2.0
 keystoneauth1>=2.1.0
 openstacksdk
-os-client-config!=1.6.2,>=1.4.0
-oslo.config>=2.7.0 # Apache-2.0
+os-client-config>=1.13.1
+oslo.config>=3.2.0 # Apache-2.0
 oslo.i18n>=1.5.0 # Apache-2.0
 oslo.utils>=3.2.0 # Apache-2.0
 python-glanceclient>=1.2.0
