@@ -408,5 +408,5 @@ class TestServiceProviderSet(TestServiceProvider):
         # expect take_action() to return (None, None) as none of --disabled,
         # --enabled, --description, --service-provider-url, --auth_url option
         # was set.
-        self.assertEqual(columns, None)
-        self.assertEqual(data, None)
+        self.assertIsNone(columns)
+        self.assertIsNone(data)
