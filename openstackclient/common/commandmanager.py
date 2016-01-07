@@ -15,13 +15,9 @@
 
 """Modify cliff.CommandManager"""
 
-import logging
 import pkg_resources
 
 import cliff.commandmanager
-
-
-LOG = logging.getLogger(__name__)
 
 
 class CommandManager(cliff.commandmanager.CommandManager):
