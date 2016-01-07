@@ -137,7 +137,7 @@ class TestLogConfigurator(utils.TestCase):
         self.cliff_log.setLevel.assert_called_with(logging.ERROR)
         self.stevedore_log.setLevel.assert_called_with(logging.ERROR)
         self.iso8601_log.setLevel.assert_called_with(logging.ERROR)
-        self.assertEqual(False, configurator.dump_trace)
+        self.assertFalse(configurator.dump_trace)
 
     @mock.patch('logging.getLogger')
     @mock.patch('openstackclient.common.logs.set_warning_filter')
@@ -149,7 +149,7 @@ class TestLogConfigurator(utils.TestCase):
 
         warning_filter.assert_called_with(logging.DEBUG)
         self.requests_log.setLevel.assert_called_with(logging.DEBUG)
-        self.assertEqual(True, configurator.dump_trace)
+        self.assertTrue(configurator.dump_trace)
 
     @mock.patch('logging.FileHandler')
     @mock.patch('logging.getLogger')
@@ -199,4 +199,4 @@ class TestLogConfigurator(utils.TestCase):
         self.root_logger.addHandler.assert_called_with(file_logger)
         file_logger.setFormatter.assert_called_with(mock_formatter)
         file_logger.setLevel.assert_called_with(logging.INFO)
-        self.assertEqual(False, configurator.dump_trace)
+        self.assertFalse(configurator.dump_trace)
