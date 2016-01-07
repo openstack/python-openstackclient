@@ -89,6 +89,26 @@ class TestServer(compute_fakes.TestComputev2):
 
 class TestServerCreate(TestServer):
 
+    columns = (
+        'addresses',
+        'flavor',
+        'id',
+        'name',
+        'networks',
+        'properties',
+    )
+
+    def datalist(self):
+        datalist = (
+            '',
+            self.flavor.name + ' ()',
+            self.new_server.id,
+            self.new_server.name,
+            self.new_server.networks,
+            '',
+        )
+        return datalist
+
     def setUp(self):
         super(TestServerCreate, self).setUp()
 
@@ -171,24 +191,8 @@ class TestServerCreate(TestServer):
             **kwargs
         )
 
-        collist = (
-            'addresses',
-            'flavor',
-            'id',
-            'name',
-            'networks',
-            'properties',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            '',
-            self.flavor.name + ' ()',
-            self.new_server.id,
-            self.new_server.name,
-            self.new_server.networks,
-            '',
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_network(self):
         arglist = [
@@ -272,24 +276,8 @@ class TestServerCreate(TestServer):
             **kwargs
         )
 
-        collist = (
-            'addresses',
-            'flavor',
-            'id',
-            'name',
-            'networks',
-            'properties',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            '',
-            self.flavor.name + ' ()',
-            self.new_server.id,
-            self.new_server.name,
-            self.new_server.networks,
-            '',
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
 
     @mock.patch('openstackclient.compute.v2.server.io.open')
     def test_server_create_userdata(self, mock_open):
@@ -345,24 +333,8 @@ class TestServerCreate(TestServer):
             **kwargs
         )
 
-        collist = (
-            'addresses',
-            'flavor',
-            'id',
-            'name',
-            'networks',
-            'properties',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            '',
-            self.flavor.name + ' ()',
-            self.new_server.id,
-            self.new_server.name,
-            self.new_server.networks,
-            '',
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping(self):
         arglist = [
@@ -414,24 +386,8 @@ class TestServerCreate(TestServer):
             **kwargs
         )
 
-        collist = (
-            'addresses',
-            'flavor',
-            'id',
-            'name',
-            'networks',
-            'properties',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            '',
-            self.flavor.name + ' ()',
-            self.new_server.id,
-            self.new_server.name,
-            self.new_server.networks,
-            '',
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
 
 
 class TestServerDelete(TestServer):
@@ -536,6 +492,26 @@ class TestServerDelete(TestServer):
 
 class TestServerImageCreate(TestServer):
 
+    columns = (
+        'id',
+        'name',
+        'owner',
+        'protected',
+        'tags',
+        'visibility',
+    )
+
+    def datalist(self):
+        datalist = (
+            self.image.id,
+            self.image.name,
+            self.image.owner,
+            self.image.protected,
+            self.image.tags,
+            self.image.visibility,
+        )
+        return datalist
+
     def setUp(self):
         super(TestServerImageCreate, self).setUp()
 
@@ -569,17 +545,8 @@ class TestServerImageCreate(TestServer):
             self.server.name,
         )
 
-        collist = ('id', 'name', 'owner', 'protected', 'tags', 'visibility')
-        self.assertEqual(collist, columns)
-        datalist = (
-            self.image.id,
-            self.image.name,
-            self.image.owner,
-            self.image.protected,
-            self.image.tags,
-            self.image.visibility,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
 
     def test_server_image_create_name(self):
         arglist = [
@@ -601,17 +568,8 @@ class TestServerImageCreate(TestServer):
             'img-nam',
         )
 
-        collist = ('id', 'name', 'owner', 'protected', 'tags', 'visibility')
-        self.assertEqual(collist, columns)
-        datalist = (
-            self.image.id,
-            self.image.name,
-            self.image.owner,
-            self.image.protected,
-            self.image.tags,
-            self.image.visibility,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
 
 
 class TestServerList(TestServer):

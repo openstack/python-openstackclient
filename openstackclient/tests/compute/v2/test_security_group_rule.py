@@ -116,6 +116,15 @@ class TestSecurityGroupRule(compute_fakes.TestComputev2):
 
 class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
 
+    columns = (
+        'id',
+        'ip_protocol',
+        'ip_range',
+        'parent_group_id',
+        'port_range',
+        'remote_security_group',
+    )
+
     def setUp(self):
         super(TestSecurityGroupRuleCreate, self).setUp()
 
@@ -156,15 +165,7 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             None,
         )
 
-        collist = (
-            'id',
-            'ip_protocol',
-            'ip_range',
-            'parent_group_id',
-            'port_range',
-            'remote_security_group',
-        )
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             security_group_rule_id,
             'tcp',
@@ -208,15 +209,7 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             None,
         )
 
-        collist = (
-            'id',
-            'ip_protocol',
-            'ip_range',
-            'parent_group_id',
-            'port_range',
-            'remote_security_group',
-        )
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             security_group_rule_id,
             'tcp',
@@ -264,15 +257,7 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             security_group_id,
         )
 
-        collist = (
-            'id',
-            'ip_protocol',
-            'ip_range',
-            'parent_group_id',
-            'port_range',
-            'remote_security_group',
-        )
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             security_group_rule_id,
             'tcp',
@@ -315,15 +300,7 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             None,
         )
 
-        collist = (
-            'id',
-            'ip_protocol',
-            'ip_range',
-            'parent_group_id',
-            'port_range',
-            'remote_security_group',
-        )
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             security_group_rule_id,
             'udp',
@@ -369,15 +346,7 @@ class TestSecurityGroupRuleCreate(TestSecurityGroupRule):
             None,
         )
 
-        collist = (
-            'id',
-            'ip_protocol',
-            'ip_range',
-            'parent_group_id',
-            'port_range',
-            'remote_security_group',
-        )
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             security_group_rule_id,
             'icmp',

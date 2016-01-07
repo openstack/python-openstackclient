@@ -56,6 +56,19 @@ class TestSecurityGroup(compute_fakes.TestComputev2):
 
 class TestSecurityGroupCreate(TestSecurityGroup):
 
+    columns = (
+        'description',
+        'id',
+        'name',
+        'tenant_id',
+    )
+    data = (
+        security_group_description,
+        security_group_id,
+        security_group_name,
+        identity_fakes.project_id,
+    )
+
     def setUp(self):
         super(TestSecurityGroupCreate, self).setUp()
 
@@ -86,20 +99,8 @@ class TestSecurityGroupCreate(TestSecurityGroup):
             security_group_name,
         )
 
-        collist = (
-            'description',
-            'id',
-            'name',
-            'tenant_id',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            security_group_description,
-            security_group_id,
-            security_group_name,
-            identity_fakes.project_id,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_security_group_create_description(self):
         arglist = [
@@ -121,20 +122,8 @@ class TestSecurityGroupCreate(TestSecurityGroup):
             security_group_description,
         )
 
-        collist = (
-            'description',
-            'id',
-            'name',
-            'tenant_id',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            security_group_description,
-            security_group_id,
-            security_group_name,
-            identity_fakes.project_id,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
 
 class TestSecurityGroupList(TestSecurityGroup):
