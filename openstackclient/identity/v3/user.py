@@ -392,14 +392,41 @@ class SetPasswordUser(command.Command):
             metavar='<new-password>',
             help='New user password'
         )
+        parser.add_argument(
+            '--original-password',
+            metavar='<original-password>',
+            help='Original user password'
+        )
         return parser
 
     @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        current_password = utils.get_password(
-            self.app.stdin, prompt="Current Password:", confirm=False)
+        # FIXME(gyee): there are two scenarios:
+        #
+        # 1. user update password for himself
+        # 2. admin update password on behalf of the user. This is an unlikely
+        #    scenario because that will require admin knowing the user's
+        #    original password which is forbidden under most security
+        #    policies.
+        #
+        # Of the two scenarios above, user either authenticate using its
+        # original password or an authentication token. For scenario #1,
+        # if user is authenticating with its original password (i.e. passing
+        # --os-password argument), we can just make use of it instead of using
+        # --original-password or prompting. For scenario #2, admin will need
+        # to specify --original-password option or this won't work because
+        # --os-password is the admin's own password. In the future if we stop
+        # supporting scenario #2 then we can just do this.
+        #
+        # current_password = (parsed_args.original_password or
+        #                     self.app.cloud.password)
+        #
+        current_password = parsed_args.original_password
+        if current_password is None:
+            current_password = utils.get_password(
+                self.app.stdin, prompt="Current Password:", confirm=False)
 
         password = parsed_args.password
         if password is None:
