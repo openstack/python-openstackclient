@@ -259,10 +259,6 @@ def sort_items(items, sort_str):
     return items
 
 
-def string_to_bool(arg):
-    return arg.strip().lower() in ('t', 'true', 'yes', '1')
-
-
 def env(*vars, **kwargs):
     """Search for the first defined of possibly many env vars
 
