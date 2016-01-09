@@ -26,27 +26,31 @@ from oslo_utils import importutils
 from openstackclient.common import exceptions
 
 
-def log_method(log, level=logging.DEBUG):
-    """Logs a method and its arguments when entered."""
+class log_method(object):
 
-    def decorator(func):
+    def __init__(self, log=None, level=logging.DEBUG):
+        self._log = log
+        self._level = level
+
+    def __call__(self, func):
         func_name = func.__name__
+        if not self._log:
+            self._log = logging.getLogger(func.__class__.__name__)
 
         @six.wraps(func)
-        def wrapper(self, *args, **kwargs):
-            if log.isEnabledFor(level):
+        def wrapper(*args, **kwargs):
+            if self._log.isEnabledFor(self._level):
                 pretty_args = []
                 if args:
                     pretty_args.extend(str(a) for a in args)
                 if kwargs:
                     pretty_args.extend(
                         "%s=%s" % (k, v) for k, v in six.iteritems(kwargs))
-                log.log(level, "%s(%s)", func_name, ", ".join(pretty_args))
-            return func(self, *args, **kwargs)
+                self._log.log(self._level, "%s(%s)",
+                              func_name, ", ".join(pretty_args))
+            return func(*args, **kwargs)
 
         return wrapper
-
-    return decorator
 
 
 def find_resource(manager, name_or_id, **kwargs):
