@@ -32,6 +32,19 @@ class TestService(identity_fakes.TestIdentityv2):
 
 class TestServiceCreate(TestService):
 
+    columns = (
+        'description',
+        'id',
+        'name',
+        'type',
+    )
+    datalist = (
+        identity_fakes.service_description,
+        identity_fakes.service_id,
+        identity_fakes.service_name,
+        identity_fakes.service_type,
+    )
+
     def setUp(self):
         super(TestServiceCreate, self).setUp()
 
@@ -66,15 +79,8 @@ class TestServiceCreate(TestService):
             None,
         )
 
-        collist = ('description', 'id', 'name', 'type')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.service_description,
-            identity_fakes.service_id,
-            identity_fakes.service_name,
-            identity_fakes.service_type,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_service_create_with_type_option(self):
         arglist = [
@@ -99,15 +105,8 @@ class TestServiceCreate(TestService):
             None,
         )
 
-        collist = ('description', 'id', 'name', 'type')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.service_description,
-            identity_fakes.service_id,
-            identity_fakes.service_name,
-            identity_fakes.service_type,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_service_create_with_name_option(self):
         arglist = [
@@ -132,15 +131,8 @@ class TestServiceCreate(TestService):
             None,
         )
 
-        collist = ('description', 'id', 'name', 'type')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.service_description,
-            identity_fakes.service_id,
-            identity_fakes.service_name,
-            identity_fakes.service_type,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_service_create_description(self):
         arglist = [
@@ -166,15 +158,8 @@ class TestServiceCreate(TestService):
             identity_fakes.service_description,
         )
 
-        collist = ('description', 'id', 'name', 'type')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.service_description,
-            identity_fakes.service_id,
-            identity_fakes.service_name,
-            identity_fakes.service_type,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
 
 class TestServiceDelete(TestService):

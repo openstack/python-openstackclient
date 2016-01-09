@@ -31,6 +31,21 @@ class TestServiceProvider(service_fakes.TestFederatedIdentity):
 
 class TestServiceProviderCreate(TestServiceProvider):
 
+    columns = (
+        'auth_url',
+        'description',
+        'enabled',
+        'id',
+        'sp_url',
+    )
+    datalist = (
+        service_fakes.sp_auth_url,
+        service_fakes.sp_description,
+        True,
+        service_fakes.sp_id,
+        service_fakes.service_provider_url
+    )
+
     def setUp(self):
         super(TestServiceProviderCreate, self).setUp()
 
@@ -67,16 +82,8 @@ class TestServiceProviderCreate(TestServiceProvider):
             **kwargs
         )
 
-        collist = ('auth_url', 'description', 'enabled', 'id', 'sp_url')
-        self.assertEqual(collist, columns)
-        datalist = (
-            service_fakes.sp_auth_url,
-            service_fakes.sp_description,
-            True,
-            service_fakes.sp_id,
-            service_fakes.service_provider_url
-        )
-        self.assertEqual(data, datalist)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_create_service_provider_description(self):
 
@@ -109,16 +116,8 @@ class TestServiceProviderCreate(TestServiceProvider):
             **kwargs
         )
 
-        collist = ('auth_url', 'description', 'enabled', 'id', 'sp_url')
-        self.assertEqual(columns, collist)
-        datalist = (
-            service_fakes.sp_auth_url,
-            service_fakes.sp_description,
-            True,
-            service_fakes.sp_id,
-            service_fakes.service_provider_url
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_create_service_provider_disabled(self):
 
@@ -155,9 +154,7 @@ class TestServiceProviderCreate(TestServiceProvider):
             id=service_fakes.sp_id,
             **kwargs
         )
-
-        collist = ('auth_url', 'description', 'enabled', 'id', 'sp_url')
-        self.assertEqual(collist, collist)
+        self.assertEqual(self.columns, columns)
         datalist = (
             service_fakes.sp_auth_url,
             None,
@@ -282,6 +279,21 @@ class TestServiceProviderShow(TestServiceProvider):
 
 class TestServiceProviderSet(TestServiceProvider):
 
+    columns = (
+        'auth_url',
+        'description',
+        'enabled',
+        'id',
+        'sp_url',
+    )
+    datalist = (
+        service_fakes.sp_auth_url,
+        service_fakes.sp_description,
+        False,
+        service_fakes.sp_id,
+        service_fakes.service_provider_url,
+    )
+
     def setUp(self):
         super(TestServiceProviderSet, self).setUp()
         self.cmd = service_provider.SetServiceProvider(self.app, None)
@@ -321,16 +333,8 @@ class TestServiceProviderSet(TestServiceProvider):
             sp_url=None
         )
 
-        collist = ('auth_url', 'description', 'enabled', 'id', 'sp_url')
-        self.assertEqual(collist, columns)
-        datalist = (
-            service_fakes.sp_auth_url,
-            service_fakes.sp_description,
-            False,
-            service_fakes.sp_id,
-            service_fakes.service_provider_url
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_service_provider_enable(self):
         """Enable Service Provider.
@@ -361,8 +365,7 @@ class TestServiceProviderSet(TestServiceProvider):
         self.service_providers_mock.update.assert_called_with(
             service_fakes.sp_id, enabled=True, description=None,
             auth_url=None, sp_url=None)
-        collist = ('auth_url', 'description', 'enabled', 'id', 'sp_url')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             service_fakes.sp_auth_url,
             service_fakes.sp_description,
@@ -370,7 +373,7 @@ class TestServiceProviderSet(TestServiceProvider):
             service_fakes.sp_id,
             service_fakes.service_provider_url
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_service_provider_no_options(self):
         def prepare(self):
@@ -408,5 +411,5 @@ class TestServiceProviderSet(TestServiceProvider):
         # expect take_action() to return (None, None) as none of --disabled,
         # --enabled, --description, --service-provider-url, --auth_url option
         # was set.
-        self.assertEqual(columns, None)
-        self.assertEqual(data, None)
+        self.assertIsNone(columns)
+        self.assertIsNone(data)

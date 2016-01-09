@@ -55,6 +55,12 @@ class TestCatalog(utils.TestCommand):
 
 class TestCatalogList(TestCatalog):
 
+    columns = (
+        'Name',
+        'Type',
+        'Endpoints',
+    )
+
     def setUp(self):
         super(TestCatalogList, self).setUp()
 
@@ -70,8 +76,7 @@ class TestCatalogList(TestCatalog):
         columns, data = self.cmd.take_action(parsed_args)
         self.sc_mock.service_catalog.get_data.assert_called_with()
 
-        collist = ('Name', 'Type', 'Endpoints')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             'supernova',
             'compute',
@@ -113,8 +118,7 @@ class TestCatalogList(TestCatalog):
         columns, data = self.cmd.take_action(parsed_args)
         self.sc_mock.service_catalog.get_data.assert_called_with()
 
-        collist = ('Name', 'Type', 'Endpoints')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             'supernova',
             'compute',

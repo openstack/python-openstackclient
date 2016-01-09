@@ -30,6 +30,17 @@ class TestRegion(identity_fakes.TestIdentityv3):
 
 class TestRegionCreate(TestRegion):
 
+    columns = (
+        'description',
+        'parent_region',
+        'region',
+    )
+    datalist = (
+        identity_fakes.region_description,
+        identity_fakes.region_parent_region_id,
+        identity_fakes.region_id,
+    )
+
     def setUp(self):
         super(TestRegionCreate, self).setUp()
 
@@ -66,14 +77,8 @@ class TestRegionCreate(TestRegion):
             **kwargs
         )
 
-        collist = ('description', 'parent_region', 'region')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.region_description,
-            identity_fakes.region_parent_region_id,
-            identity_fakes.region_id,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_region_create_no_options(self):
         arglist = [
@@ -97,14 +102,8 @@ class TestRegionCreate(TestRegion):
             **kwargs
         )
 
-        collist = ('description', 'parent_region', 'region')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.region_description,
-            identity_fakes.region_parent_region_id,
-            identity_fakes.region_id,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_region_create_parent_region_id(self):
         arglist = [
@@ -129,15 +128,8 @@ class TestRegionCreate(TestRegion):
         self.regions_mock.create.assert_called_with(
             **kwargs
         )
-
-        collist = ('description', 'parent_region', 'region')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.region_description,
-            identity_fakes.region_parent_region_id,
-            identity_fakes.region_id,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
 
 class TestRegionDelete(TestRegion):
@@ -169,6 +161,19 @@ class TestRegionDelete(TestRegion):
 
 class TestRegionList(TestRegion):
 
+    columns = (
+        'Region',
+        'Parent Region',
+        'Description',
+    )
+    datalist = (
+        (
+            identity_fakes.region_id,
+            identity_fakes.region_parent_region_id,
+            identity_fakes.region_description,
+        ),
+    )
+
     def setUp(self):
         super(TestRegionList, self).setUp()
 
@@ -192,14 +197,8 @@ class TestRegionList(TestRegion):
         columns, data = self.cmd.take_action(parsed_args)
         self.regions_mock.list.assert_called_with()
 
-        collist = ('Region', 'Parent Region', 'Description')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.region_id,
-            identity_fakes.region_parent_region_id,
-            identity_fakes.region_description,
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_region_list_parent_region_id(self):
         arglist = [
@@ -215,14 +214,8 @@ class TestRegionList(TestRegion):
         self.regions_mock.list.assert_called_with(
             parent_region_id=identity_fakes.region_parent_region_id)
 
-        collist = ('Region', 'Parent Region', 'Description')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.region_id,
-            identity_fakes.region_parent_region_id,
-            identity_fakes.region_description,
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
 
 class TestRegionSet(TestRegion):

@@ -34,6 +34,19 @@ class TestProject(identity_fakes.TestIdentityv2):
 
 class TestProjectCreate(TestProject):
 
+    columns = (
+        'description',
+        'enabled',
+        'id',
+        'name',
+    )
+    datalist = (
+        identity_fakes.project_description,
+        True,
+        identity_fakes.project_id,
+        identity_fakes.project_name,
+    )
+
     def setUp(self):
         super(TestProjectCreate, self).setUp()
 
@@ -69,16 +82,8 @@ class TestProjectCreate(TestProject):
             identity_fakes.project_name,
             **kwargs
         )
-
-        collist = ('description', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.project_description,
-            True,
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_project_create_description(self):
         arglist = [
@@ -104,15 +109,8 @@ class TestProjectCreate(TestProject):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.project_description,
-            True,
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_project_create_enable(self):
         arglist = [
@@ -139,15 +137,8 @@ class TestProjectCreate(TestProject):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.project_description,
-            True,
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_project_create_disable(self):
         arglist = [
@@ -174,15 +165,8 @@ class TestProjectCreate(TestProject):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.project_description,
-            True,
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_project_create_property(self):
         arglist = [
@@ -211,15 +195,8 @@ class TestProjectCreate(TestProject):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.project_description,
-            True,
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_project_create_or_show_exists(self):
         def _raise_conflict(*args, **kwargs):
@@ -260,15 +237,8 @@ class TestProjectCreate(TestProject):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.project_description,
-            True,
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_project_create_or_show_not_exists(self):
         arglist = [
@@ -294,15 +264,8 @@ class TestProjectCreate(TestProject):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.project_description,
-            True,
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
 
 class TestProjectDelete(TestProject):

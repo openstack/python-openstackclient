@@ -37,6 +37,17 @@ class TestEndpoint(identity_fakes.TestIdentityv3):
 
 class TestEndpointCreate(TestEndpoint):
 
+    columns = (
+        'enabled',
+        'id',
+        'interface',
+        'region',
+        'service_id',
+        'service_name',
+        'service_type',
+        'url',
+    )
+
     def setUp(self):
         super(TestEndpointCreate, self).setUp()
 
@@ -86,9 +97,7 @@ class TestEndpointCreate(TestEndpoint):
             **kwargs
         )
 
-        collist = ('enabled', 'id', 'interface', 'region', 'service_id',
-                   'service_name', 'service_type', 'url')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             True,
             identity_fakes.endpoint_id,
@@ -133,9 +142,7 @@ class TestEndpointCreate(TestEndpoint):
             **kwargs
         )
 
-        collist = ('enabled', 'id', 'interface', 'region', 'service_id',
-                   'service_name', 'service_type', 'url')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             True,
             identity_fakes.endpoint_id,
@@ -179,9 +186,7 @@ class TestEndpointCreate(TestEndpoint):
             **kwargs
         )
 
-        collist = ('enabled', 'id', 'interface', 'region', 'service_id',
-                   'service_name', 'service_type', 'url')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             True,
             identity_fakes.endpoint_id,
@@ -225,9 +230,7 @@ class TestEndpointCreate(TestEndpoint):
             **kwargs
         )
 
-        collist = ('enabled', 'id', 'interface', 'region', 'service_id',
-                   'service_name', 'service_type', 'url')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             True,
             identity_fakes.endpoint_id,
@@ -276,6 +279,16 @@ class TestEndpointDelete(TestEndpoint):
 
 class TestEndpointList(TestEndpoint):
 
+    columns = (
+        'ID',
+        'Region',
+        'Service Name',
+        'Service Type',
+        'Enabled',
+        'Interface',
+        'URL',
+    )
+
     def setUp(self):
         super(TestEndpointList, self).setUp()
 
@@ -306,18 +319,18 @@ class TestEndpointList(TestEndpoint):
         columns, data = self.cmd.take_action(parsed_args)
         self.endpoints_mock.list.assert_called_with()
 
-        collist = ('ID', 'Region', 'Service Name', 'Service Type',
-                   'Enabled', 'Interface', 'URL')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.endpoint_id,
-            identity_fakes.endpoint_region,
-            self.get_fake_service_name(),
-            identity_fakes.service_type,
-            True,
-            identity_fakes.endpoint_interface,
-            identity_fakes.endpoint_url,
-        ),)
+        self.assertEqual(self.columns, columns)
+        datalist = (
+            (
+                identity_fakes.endpoint_id,
+                identity_fakes.endpoint_region,
+                self.get_fake_service_name(),
+                identity_fakes.service_type,
+                True,
+                identity_fakes.endpoint_interface,
+                identity_fakes.endpoint_url,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_endpoint_list_service(self):
@@ -338,18 +351,18 @@ class TestEndpointList(TestEndpoint):
         }
         self.endpoints_mock.list.assert_called_with(**kwargs)
 
-        collist = ('ID', 'Region', 'Service Name', 'Service Type',
-                   'Enabled', 'Interface', 'URL')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.endpoint_id,
-            identity_fakes.endpoint_region,
-            self.get_fake_service_name(),
-            identity_fakes.service_type,
-            True,
-            identity_fakes.endpoint_interface,
-            identity_fakes.endpoint_url,
-        ),)
+        self.assertEqual(self.columns, columns)
+        datalist = (
+            (
+                identity_fakes.endpoint_id,
+                identity_fakes.endpoint_region,
+                self.get_fake_service_name(),
+                identity_fakes.service_type,
+                True,
+                identity_fakes.endpoint_interface,
+                identity_fakes.endpoint_url,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_endpoint_list_interface(self):
@@ -370,18 +383,18 @@ class TestEndpointList(TestEndpoint):
         }
         self.endpoints_mock.list.assert_called_with(**kwargs)
 
-        collist = ('ID', 'Region', 'Service Name', 'Service Type',
-                   'Enabled', 'Interface', 'URL')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.endpoint_id,
-            identity_fakes.endpoint_region,
-            self.get_fake_service_name(),
-            identity_fakes.service_type,
-            True,
-            identity_fakes.endpoint_interface,
-            identity_fakes.endpoint_url,
-        ),)
+        self.assertEqual(self.columns, columns)
+        datalist = (
+            (
+                identity_fakes.endpoint_id,
+                identity_fakes.endpoint_region,
+                self.get_fake_service_name(),
+                identity_fakes.service_type,
+                True,
+                identity_fakes.endpoint_interface,
+                identity_fakes.endpoint_url,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_endpoint_list_region(self):
@@ -402,18 +415,18 @@ class TestEndpointList(TestEndpoint):
         }
         self.endpoints_mock.list.assert_called_with(**kwargs)
 
-        collist = ('ID', 'Region', 'Service Name', 'Service Type',
-                   'Enabled', 'Interface', 'URL')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.endpoint_id,
-            identity_fakes.endpoint_region,
-            self.get_fake_service_name(),
-            identity_fakes.service_type,
-            True,
-            identity_fakes.endpoint_interface,
-            identity_fakes.endpoint_url,
-        ),)
+        self.assertEqual(self.columns, columns)
+        datalist = (
+            (
+                identity_fakes.endpoint_id,
+                identity_fakes.endpoint_region,
+                self.get_fake_service_name(),
+                identity_fakes.service_type,
+                True,
+                identity_fakes.endpoint_interface,
+                identity_fakes.endpoint_url,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
 
@@ -658,8 +671,16 @@ class TestEndpointShow(TestEndpoint):
             identity_fakes.endpoint_id,
         )
 
-        collist = ('enabled', 'id', 'interface', 'region', 'service_id',
-                   'service_name', 'service_type', 'url')
+        collist = (
+            'enabled',
+            'id',
+            'interface',
+            'region',
+            'service_id',
+            'service_name',
+            'service_type',
+            'url',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             True,

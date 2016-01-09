@@ -39,6 +39,21 @@ class TestUser(identity_fakes.TestIdentityv2):
 
 class TestUserCreate(TestUser):
 
+    columns = (
+        'email',
+        'enabled',
+        'id',
+        'name',
+        'project_id',
+    )
+    datalist = (
+        identity_fakes.user_email,
+        True,
+        identity_fakes.user_id,
+        identity_fakes.user_name,
+        identity_fakes.project_id,
+    )
+
     def setUp(self):
         super(TestUserCreate, self).setUp()
 
@@ -84,16 +99,8 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('email', 'enabled', 'id', 'name', 'project_id')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.user_email,
-            True,
-            identity_fakes.user_id,
-            identity_fakes.user_name,
-            identity_fakes.project_id,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_user_create_password(self):
         arglist = [
@@ -122,17 +129,8 @@ class TestUserCreate(TestUser):
             None,
             **kwargs
         )
-
-        collist = ('email', 'enabled', 'id', 'name', 'project_id')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.user_email,
-            True,
-            identity_fakes.user_id,
-            identity_fakes.user_name,
-            identity_fakes.project_id,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_user_create_password_prompt(self):
         arglist = [
@@ -164,16 +162,8 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('email', 'enabled', 'id', 'name', 'project_id')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.user_email,
-            True,
-            identity_fakes.user_id,
-            identity_fakes.user_name,
-            identity_fakes.project_id,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_user_create_email(self):
         arglist = [
@@ -202,16 +192,8 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('email', 'enabled', 'id', 'name', 'project_id')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.user_email,
-            True,
-            identity_fakes.user_id,
-            identity_fakes.user_name,
-            identity_fakes.project_id,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_user_create_project(self):
         # Return the new project
@@ -255,8 +237,7 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('email', 'enabled', 'id', 'name', 'project_id')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             identity_fakes.user_email,
             True,
@@ -294,16 +275,8 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('email', 'enabled', 'id', 'name', 'project_id')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.user_email,
-            True,
-            identity_fakes.user_id,
-            identity_fakes.user_name,
-            identity_fakes.project_id,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_user_create_disable(self):
         arglist = [
@@ -333,16 +306,8 @@ class TestUserCreate(TestUser):
             **kwargs
         )
 
-        collist = ('email', 'enabled', 'id', 'name', 'project_id')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.user_email,
-            True,
-            identity_fakes.user_id,
-            identity_fakes.user_name,
-            identity_fakes.project_id,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_user_create_or_show_exists(self):
         def _raise_conflict(*args, **kwargs):
@@ -373,16 +338,8 @@ class TestUserCreate(TestUser):
         # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.get.assert_called_with(identity_fakes.user_name)
 
-        collist = ('email', 'enabled', 'id', 'name', 'project_id')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.user_email,
-            True,
-            identity_fakes.user_id,
-            identity_fakes.user_name,
-            identity_fakes.project_id,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_user_create_or_show_not_exists(self):
         arglist = [
@@ -410,17 +367,8 @@ class TestUserCreate(TestUser):
             None,
             **kwargs
         )
-
-        collist = ('email', 'enabled', 'id', 'name', 'project_id')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.user_email,
-            True,
-            identity_fakes.user_id,
-            identity_fakes.user_name,
-            identity_fakes.project_id,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
 
 class TestUserDelete(TestUser):
@@ -457,6 +405,17 @@ class TestUserDelete(TestUser):
 
 
 class TestUserList(TestUser):
+
+    columns = (
+        'ID',
+        'Name',
+    )
+    datalist = (
+        (
+            identity_fakes.user_id,
+            identity_fakes.user_name,
+        ),
+    )
 
     def setUp(self):
         super(TestUserList, self).setUp()
@@ -495,13 +454,8 @@ class TestUserList(TestUser):
 
         self.users_mock.list.assert_called_with(tenant_id=None)
 
-        collist = ('ID', 'Name')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.user_id,
-            identity_fakes.user_name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_user_list_project(self):
         arglist = [
@@ -518,13 +472,8 @@ class TestUserList(TestUser):
 
         self.users_mock.list.assert_called_with(tenant_id=project_id)
 
-        collist = ('ID', 'Name')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.user_id,
-            identity_fakes.user_name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_user_list_long(self):
         arglist = [

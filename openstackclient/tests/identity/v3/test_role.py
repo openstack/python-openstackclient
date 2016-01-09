@@ -314,6 +314,17 @@ class TestRoleDelete(TestRole):
 
 class TestRoleList(TestRole):
 
+    columns = (
+        'ID',
+        'Name',
+    )
+    datalist = (
+        (
+            identity_fakes.role_id,
+            identity_fakes.role_name,
+        ),
+    )
+
     def setUp(self):
         super(TestRoleList, self).setUp()
 
@@ -359,13 +370,8 @@ class TestRoleList(TestRole):
 
         self.roles_mock.list.assert_called_with()
 
-        collist = ('ID', 'Name')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.role_id,
-            identity_fakes.role_name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_user_list_inherited(self):
         arglist = [
@@ -392,13 +398,8 @@ class TestRoleList(TestRole):
             **kwargs
         )
 
-        collist = ('ID', 'Name')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.role_id,
-            identity_fakes.role_name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_user_list_user(self):
         arglist = [
@@ -423,13 +424,8 @@ class TestRoleList(TestRole):
             **kwargs
         )
 
-        collist = ('ID', 'Name')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.role_id,
-            identity_fakes.role_name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_role_list_domain_user(self):
         arglist = [

@@ -33,6 +33,19 @@ class TestIdentityProvider(identity_fakes.TestFederatedIdentity):
 
 class TestIdentityProviderCreate(TestIdentityProvider):
 
+    columns = (
+        'description',
+        'enabled',
+        'id',
+        'remote_ids',
+    )
+    datalist = (
+        identity_fakes.idp_description,
+        True,
+        identity_fakes.idp_id,
+        identity_fakes.formatted_idp_remote_ids,
+    )
+
     def setUp(self):
         super(TestIdentityProviderCreate, self).setUp()
 
@@ -63,15 +76,8 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'remote_ids')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.idp_description,
-            True,
-            identity_fakes.idp_id,
-            identity_fakes.formatted_idp_remote_ids
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_create_identity_provider_description(self):
         arglist = [
@@ -97,15 +103,8 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'remote_ids')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.idp_description,
-            True,
-            identity_fakes.idp_id,
-            identity_fakes.formatted_idp_remote_ids
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_create_identity_provider_remote_id(self):
         arglist = [
@@ -131,15 +130,8 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'remote_ids')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.idp_description,
-            True,
-            identity_fakes.idp_id,
-            identity_fakes.formatted_idp_remote_ids
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_create_identity_provider_remote_ids_multiple(self):
         arglist = [
@@ -166,15 +158,8 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'remote_ids')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.idp_description,
-            True,
-            identity_fakes.idp_id,
-            identity_fakes.formatted_idp_remote_ids
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_create_identity_provider_remote_ids_file(self):
         arglist = [
@@ -205,15 +190,8 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'remote_ids')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.idp_description,
-            True,
-            identity_fakes.idp_id,
-            identity_fakes.formatted_idp_remote_ids
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_create_identity_provider_disabled(self):
 
@@ -247,8 +225,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'remote_ids')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             None,
             False,
@@ -370,6 +347,19 @@ class TestIdentityProviderShow(TestIdentityProvider):
 
 class TestIdentityProviderSet(TestIdentityProvider):
 
+    columns = (
+        'description',
+        'enabled',
+        'id',
+        'remote_ids',
+    )
+    datalist = (
+        identity_fakes.idp_description,
+        True,
+        identity_fakes.idp_id,
+        identity_fakes.idp_remote_ids,
+    )
+
     def setUp(self):
         super(TestIdentityProviderSet, self).setUp()
         self.cmd = identity_provider.SetIdentityProvider(self.app, None)
@@ -401,15 +391,12 @@ class TestIdentityProviderSet(TestIdentityProvider):
             ('remote_id', None)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
         columns, data = self.cmd.take_action(parsed_args)
         self.identity_providers_mock.update.assert_called_with(
             identity_fakes.idp_id,
-            description=new_description
+            description=new_description,
         )
-
-        collist = ('description', 'enabled', 'id', 'remote_ids')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             identity_fakes.idp_description,
             False,
@@ -456,8 +443,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
             remote_ids=identity_fakes.idp_remote_ids
         )
 
-        collist = ('description', 'enabled', 'id', 'remote_ids')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             identity_fakes.idp_description,
             False,
@@ -499,15 +485,8 @@ class TestIdentityProviderSet(TestIdentityProvider):
         self.identity_providers_mock.update.assert_called_with(
             identity_fakes.idp_id, enabled=True,
             remote_ids=identity_fakes.idp_remote_ids)
-        collist = ('description', 'enabled', 'id', 'remote_ids')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.idp_description,
-            True,
-            identity_fakes.idp_id,
-            identity_fakes.idp_remote_ids
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_identity_provider_replace_remote_ids(self):
         """Enable Identity Provider.
@@ -545,8 +524,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
         self.identity_providers_mock.update.assert_called_with(
             identity_fakes.idp_id, enabled=True,
             remote_ids=[self.new_remote_id])
-        collist = ('description', 'enabled', 'id', 'remote_ids')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             identity_fakes.idp_description,
             True,
@@ -595,8 +573,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
         self.identity_providers_mock.update.assert_called_with(
             identity_fakes.idp_id, enabled=True,
             remote_ids=[self.new_remote_id])
-        collist = ('description', 'enabled', 'id', 'remote_ids')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             identity_fakes.idp_description,
             True,
