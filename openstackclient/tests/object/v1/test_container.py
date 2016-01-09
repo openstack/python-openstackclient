@@ -32,6 +32,9 @@ class FakeClient(object):
 
 
 class TestContainer(object_fakes.TestObjectv1):
+
+    columns = ('Name',)
+
     def setUp(self):
         super(TestContainer, self).setUp()
         self.app.client_manager.object_store = object_store.APIv1(
@@ -73,8 +76,7 @@ class TestContainerList(TestContainer):
             **kwargs
         )
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             (object_fakes.container_name, ),
             (object_fakes.container_name_3, ),
@@ -107,8 +109,7 @@ class TestContainerList(TestContainer):
             **kwargs
         )
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             (object_fakes.container_name, ),
             (object_fakes.container_name_3, ),
@@ -143,8 +144,7 @@ class TestContainerList(TestContainer):
             **kwargs
         )
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             (object_fakes.container_name, ),
             (object_fakes.container_name_3, ),
@@ -176,8 +176,7 @@ class TestContainerList(TestContainer):
             **kwargs
         )
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             (object_fakes.container_name, ),
             (object_fakes.container_name_3, ),
@@ -250,8 +249,7 @@ class TestContainerList(TestContainer):
             **kwargs
         )
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             (object_fakes.container_name, ),
             (object_fakes.container_name_2, ),

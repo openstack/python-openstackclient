@@ -240,6 +240,19 @@ class TestImageDelete(TestImage):
 
 class TestImageList(TestImage):
 
+    columns = (
+        'ID',
+        'Name',
+        'Status',
+    )
+    datalist = (
+        (
+            image_fakes.image_id,
+            image_fakes.image_name,
+            '',
+        ),
+    )
+
     def setUp(self):
         super(TestImageList, self).setUp()
 
@@ -268,15 +281,8 @@ class TestImageList(TestImage):
             marker=image_fakes.image_id,
         )
 
-        collist = ('ID', 'Name', 'Status')
-
-        self.assertEqual(collist, columns)
-        datalist = ((
-            image_fakes.image_id,
-            image_fakes.image_name,
-            '',
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_image_list_public_option(self):
         arglist = [
@@ -297,15 +303,8 @@ class TestImageList(TestImage):
             marker=image_fakes.image_id,
         )
 
-        collist = ('ID', 'Name', 'Status')
-
-        self.assertEqual(collist, columns)
-        datalist = ((
-            image_fakes.image_id,
-            image_fakes.image_name,
-            '',
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_image_list_private_option(self):
         arglist = [
@@ -326,15 +325,8 @@ class TestImageList(TestImage):
             marker=image_fakes.image_id,
         )
 
-        collist = ('ID', 'Name', 'Status')
-
-        self.assertEqual(collist, columns)
-        datalist = ((
-            image_fakes.image_id,
-            image_fakes.image_name,
-            '',
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_image_list_long_option(self):
         arglist = [
@@ -407,15 +399,8 @@ class TestImageList(TestImage):
             property_field='properties',
         )
 
-        collist = ('ID', 'Name', 'Status')
-
-        self.assertEqual(columns, collist)
-        datalist = ((
-            image_fakes.image_id,
-            image_fakes.image_name,
-            '',
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     @mock.patch('openstackclient.common.utils.sort_items')
     def test_image_list_sort_option(self, si_mock):
@@ -438,15 +423,8 @@ class TestImageList(TestImage):
             'name:asc'
         )
 
-        collist = ('ID', 'Name', 'Status')
-
-        self.assertEqual(collist, columns)
-        datalist = ((
-            image_fakes.image_id,
-            image_fakes.image_name,
-            '',
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
 
 class TestImageSet(TestImage):
