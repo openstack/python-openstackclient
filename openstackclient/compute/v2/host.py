@@ -15,17 +15,12 @@
 
 """Host action implementations"""
 
-import logging
-
-from cliff import lister
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class ListHost(lister.Lister):
+class ListHost(command.Lister):
     """List host command"""
-
-    log = logging.getLogger(__name__ + ".ListHost")
 
     def get_parser(self, prog_name):
         parser = super(ListHost, self).get_parser(prog_name)
@@ -36,7 +31,6 @@ class ListHost(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         columns = (
             "Host Name",
@@ -50,10 +44,8 @@ class ListHost(lister.Lister):
                 ) for s in data))
 
 
-class ShowHost(lister.Lister):
+class ShowHost(command.Lister):
     """Show host command"""
-
-    log = logging.getLogger(__name__ + ".ShowHost")
 
     def get_parser(self, prog_name):
         parser = super(ShowHost, self).get_parser(prog_name)
@@ -64,7 +56,6 @@ class ShowHost(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         columns = (
             "Host",

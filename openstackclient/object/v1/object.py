@@ -16,21 +16,15 @@
 """Object v1 action implementations"""
 
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
-class CreateObject(lister.Lister):
+class CreateObject(command.Lister):
     """Upload object to container"""
-
-    log = logging.getLogger(__name__ + '.CreateObject')
 
     def get_parser(self, prog_name):
         parser = super(CreateObject, self).get_parser(prog_name)
@@ -47,7 +41,6 @@ class CreateObject(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         results = []
@@ -69,8 +62,6 @@ class CreateObject(lister.Lister):
 class DeleteObject(command.Command):
     """Delete object from container"""
 
-    log = logging.getLogger(__name__ + '.DeleteObject')
-
     def get_parser(self, prog_name):
         parser = super(DeleteObject, self).get_parser(prog_name)
         parser.add_argument(
@@ -86,7 +77,6 @@ class DeleteObject(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         for obj in parsed_args.objects:
@@ -96,10 +86,8 @@ class DeleteObject(command.Command):
             )
 
 
-class ListObject(lister.Lister):
+class ListObject(command.Lister):
     """List objects"""
-
-    log = logging.getLogger(__name__ + '.ListObject')
 
     def get_parser(self, prog_name):
         parser = super(ListObject, self).get_parser(prog_name)
@@ -148,7 +136,6 @@ class ListObject(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         if parsed_args.long:
@@ -191,8 +178,6 @@ class ListObject(lister.Lister):
 class SaveObject(command.Command):
     """Save object locally"""
 
-    log = logging.getLogger(__name__ + ".SaveObject")
-
     def get_parser(self, prog_name):
         parser = super(SaveObject, self).get_parser(prog_name)
         parser.add_argument(
@@ -213,8 +198,6 @@ class SaveObject(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         self.app.client_manager.object_store.object_save(
             container=parsed_args.container,
             object=parsed_args.object,
@@ -224,8 +207,6 @@ class SaveObject(command.Command):
 
 class SetObject(command.Command):
     """Set object properties"""
-
-    log = logging.getLogger(__name__ + '.SetObject')
 
     def get_parser(self, prog_name):
         parser = super(SetObject, self).get_parser(prog_name)
@@ -249,7 +230,6 @@ class SetObject(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         self.app.client_manager.object_store.object_set(
             parsed_args.container,
@@ -258,10 +238,8 @@ class SetObject(command.Command):
         )
 
 
-class ShowObject(show.ShowOne):
+class ShowObject(command.ShowOne):
     """Display object details"""
-
-    log = logging.getLogger(__name__ + '.ShowObject')
 
     def get_parser(self, prog_name):
         parser = super(ShowObject, self).get_parser(prog_name)
@@ -277,7 +255,6 @@ class ShowObject(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         data = self.app.client_manager.object_store.object_show(
@@ -292,8 +269,6 @@ class ShowObject(show.ShowOne):
 
 class UnsetObject(command.Command):
     """Unset object properties"""
-
-    log = logging.getLogger(__name__ + '.UnsetObject')
 
     def get_parser(self, prog_name):
         parser = super(UnsetObject, self).get_parser(prog_name)
@@ -318,7 +293,6 @@ class UnsetObject(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         self.app.client_manager.object_store.object_unset(
             parsed_args.container,

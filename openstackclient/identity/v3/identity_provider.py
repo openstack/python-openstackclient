@@ -13,20 +13,14 @@
 
 """Identity v3 IdentityProvider action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class CreateIdentityProvider(show.ShowOne):
+class CreateIdentityProvider(command.ShowOne):
     """Create new identity provider"""
-
-    log = logging.getLogger(__name__ + '.CreateIdentityProvider')
 
     def get_parser(self, prog_name):
         parser = super(CreateIdentityProvider, self).get_parser(prog_name)
@@ -70,7 +64,6 @@ class CreateIdentityProvider(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         if parsed_args.remote_id_file:
@@ -96,8 +89,6 @@ class CreateIdentityProvider(show.ShowOne):
 class DeleteIdentityProvider(command.Command):
     """Delete identity provider"""
 
-    log = logging.getLogger(__name__ + '.DeleteIdentityProvider')
-
     def get_parser(self, prog_name):
         parser = super(DeleteIdentityProvider, self).get_parser(prog_name)
         parser.add_argument(
@@ -107,7 +98,6 @@ class DeleteIdentityProvider(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         identity_client.federation.identity_providers.delete(
@@ -115,12 +105,9 @@ class DeleteIdentityProvider(command.Command):
         return
 
 
-class ListIdentityProvider(lister.Lister):
+class ListIdentityProvider(command.Lister):
     """List identity providers"""
 
-    log = logging.getLogger(__name__ + '.ListIdentityProvider')
-
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         columns = ('ID', 'Enabled', 'Description')
         identity_client = self.app.client_manager.identity
@@ -134,8 +121,6 @@ class ListIdentityProvider(lister.Lister):
 
 class SetIdentityProvider(command.Command):
     """Set identity provider properties"""
-
-    log = logging.getLogger(__name__ + '.SetIdentityProvider')
 
     def get_parser(self, prog_name):
         parser = super(SetIdentityProvider, self).get_parser(prog_name)
@@ -176,7 +161,6 @@ class SetIdentityProvider(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         federation_client = self.app.client_manager.identity.federation
 
@@ -215,10 +199,8 @@ class SetIdentityProvider(command.Command):
         return zip(*sorted(six.iteritems(identity_provider._info)))
 
 
-class ShowIdentityProvider(show.ShowOne):
+class ShowIdentityProvider(command.ShowOne):
     """Display identity provider details"""
-
-    log = logging.getLogger(__name__ + '.ShowIdentityProvider')
 
     def get_parser(self, prog_name):
         parser = super(ShowIdentityProvider, self).get_parser(prog_name)
@@ -229,7 +211,6 @@ class ShowIdentityProvider(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         idp = utils.find_resource(

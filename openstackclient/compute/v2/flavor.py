@@ -98,7 +98,6 @@ class CreateFlavor(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
 
         args = (
@@ -132,7 +131,6 @@ class DeleteFlavor(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         flavor = utils.find_resource(compute_client.flavors,
                                      parsed_args.flavor)
@@ -182,7 +180,6 @@ class ListFlavor(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         columns = (
             "ID",
@@ -234,7 +231,6 @@ class ShowFlavor(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         resource_flavor = utils.find_resource(compute_client.flavors,
                                               parsed_args.flavor)
@@ -266,7 +262,6 @@ class SetFlavor(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         resource_flavor = compute_client.flavors.find(name=parsed_args.flavor)
 
@@ -299,7 +294,6 @@ class UnsetFlavor(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         resource_flavor = compute_client.flavors.find(name=parsed_args.flavor)
 

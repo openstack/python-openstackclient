@@ -16,23 +16,17 @@
 """Service action implementations"""
 
 import argparse
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
 from openstackclient.identity import common
 
 
-class CreateService(show.ShowOne):
+class CreateService(command.ShowOne):
     """Create new service"""
-
-    log = logging.getLogger(__name__ + '.CreateService')
 
     def get_parser(self, prog_name):
         parser = super(CreateService, self).get_parser(prog_name)
@@ -59,7 +53,6 @@ class CreateService(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -95,8 +88,6 @@ class CreateService(show.ShowOne):
 class DeleteService(command.Command):
     """Delete service"""
 
-    log = logging.getLogger(__name__ + '.DeleteService')
-
     def get_parser(self, prog_name):
         parser = super(DeleteService, self).get_parser(prog_name)
         parser.add_argument(
@@ -106,7 +97,6 @@ class DeleteService(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         service = common.find_service(identity_client, parsed_args.service)
@@ -114,10 +104,8 @@ class DeleteService(command.Command):
         return
 
 
-class ListService(lister.Lister):
+class ListService(command.Lister):
     """List services"""
-
-    log = logging.getLogger(__name__ + '.ListService')
 
     def get_parser(self, prog_name):
         parser = super(ListService, self).get_parser(prog_name)
@@ -129,7 +117,6 @@ class ListService(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         if parsed_args.long:
@@ -143,10 +130,8 @@ class ListService(lister.Lister):
         )
 
 
-class ShowService(show.ShowOne):
+class ShowService(command.ShowOne):
     """Display service details"""
-
-    log = logging.getLogger(__name__ + '.ShowService')
 
     def get_parser(self, prog_name):
         parser = super(ShowService, self).get_parser(prog_name)
@@ -163,7 +148,6 @@ class ShowService(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         auth_ref = self.app.client_manager.auth_ref

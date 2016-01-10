@@ -13,21 +13,15 @@
 
 """Identity v3 Region action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
 
 
-class CreateRegion(show.ShowOne):
+class CreateRegion(command.ShowOne):
     """Create new region"""
-
-    log = logging.getLogger(__name__ + '.CreateRegion')
 
     def get_parser(self, prog_name):
         parser = super(CreateRegion, self).get_parser(prog_name)
@@ -50,7 +44,6 @@ class CreateRegion(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -69,8 +62,6 @@ class CreateRegion(show.ShowOne):
 class DeleteRegion(command.Command):
     """Delete region"""
 
-    log = logging.getLogger(__name__ + '.DeleteRegion')
-
     def get_parser(self, prog_name):
         parser = super(DeleteRegion, self).get_parser(prog_name)
         parser.add_argument(
@@ -80,7 +71,6 @@ class DeleteRegion(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -88,10 +78,8 @@ class DeleteRegion(command.Command):
         return
 
 
-class ListRegion(lister.Lister):
+class ListRegion(command.Lister):
     """List regions"""
-
-    log = logging.getLogger(__name__ + '.ListRegion')
 
     def get_parser(self, prog_name):
         parser = super(ListRegion, self).get_parser(prog_name)
@@ -102,7 +90,6 @@ class ListRegion(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -124,8 +111,6 @@ class ListRegion(lister.Lister):
 class SetRegion(command.Command):
     """Set region properties"""
 
-    log = logging.getLogger(__name__ + '.SetRegion')
-
     def get_parser(self, prog_name):
         parser = super(SetRegion, self).get_parser(prog_name)
         parser.add_argument(
@@ -145,7 +130,6 @@ class SetRegion(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -162,10 +146,8 @@ class SetRegion(command.Command):
         return
 
 
-class ShowRegion(show.ShowOne):
+class ShowRegion(command.ShowOne):
     """Display region details"""
-
-    log = logging.getLogger(__name__ + '.ShowRegion')
 
     def get_parser(self, prog_name):
         parser = super(ShowRegion, self).get_parser(prog_name)
@@ -176,7 +158,6 @@ class ShowRegion(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 

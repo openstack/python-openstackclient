@@ -15,23 +15,18 @@
 
 """Identity v3 Domain action implementations"""
 
-import logging
 import six
 import sys
 
-from cliff import command
-from cliff import lister
-from cliff import show
 from keystoneauth1 import exceptions as ks_exc
 
+from openstackclient.common import command
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
 
 
-class CreateDomain(show.ShowOne):
+class CreateDomain(command.ShowOne):
     """Create new domain"""
-
-    log = logging.getLogger(__name__ + '.CreateDomain')
 
     def get_parser(self, prog_name):
         parser = super(CreateDomain, self).get_parser(prog_name)
@@ -63,7 +58,6 @@ class CreateDomain(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -92,8 +86,6 @@ class CreateDomain(show.ShowOne):
 class DeleteDomain(command.Command):
     """Delete domain"""
 
-    log = logging.getLogger(__name__ + '.DeleteDomain')
-
     def get_parser(self, prog_name):
         parser = super(DeleteDomain, self).get_parser(prog_name)
         parser.add_argument(
@@ -103,7 +95,6 @@ class DeleteDomain(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         domain = utils.find_resource(identity_client.domains,
@@ -112,12 +103,9 @@ class DeleteDomain(command.Command):
         return
 
 
-class ListDomain(lister.Lister):
+class ListDomain(command.Lister):
     """List domains"""
 
-    log = logging.getLogger(__name__ + '.ListDomain')
-
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         columns = ('ID', 'Name', 'Enabled', 'Description')
         data = self.app.client_manager.identity.domains.list()
@@ -130,8 +118,6 @@ class ListDomain(lister.Lister):
 
 class SetDomain(command.Command):
     """Set domain properties"""
-
-    log = logging.getLogger(__name__ + '.SetDomain')
 
     def get_parser(self, prog_name):
         parser = super(SetDomain, self).get_parser(prog_name)
@@ -163,7 +149,6 @@ class SetDomain(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         domain = utils.find_resource(identity_client.domains,
@@ -186,10 +171,8 @@ class SetDomain(command.Command):
         return
 
 
-class ShowDomain(show.ShowOne):
+class ShowDomain(command.ShowOne):
     """Display domain details"""
-
-    log = logging.getLogger(__name__ + '.ShowDomain')
 
     def get_parser(self, prog_name):
         parser = super(ShowDomain, self).get_parser(prog_name)
@@ -200,7 +183,6 @@ class ShowDomain(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         domain = utils.find_resource(identity_client.domains,

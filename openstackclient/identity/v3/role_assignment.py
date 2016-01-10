@@ -13,18 +13,13 @@
 
 """Identity v3 Assignment action implementations """
 
-import logging
-
-from cliff import lister
-
+from openstackclient.common import command
 from openstackclient.common import utils
 from openstackclient.identity import common
 
 
-class ListRoleAssignment(lister.Lister):
+class ListRoleAssignment(command.Lister):
     """List role assignments"""
-
-    log = logging.getLogger(__name__ + '.ListRoleAssignment')
 
     def get_parser(self, prog_name):
         parser = super(ListRoleAssignment, self).get_parser(prog_name)
@@ -72,7 +67,6 @@ class ListRoleAssignment(lister.Lister):
                 assignment.project, assignment.domain, assignment.inherited)
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
         role = None
@@ -114,7 +108,6 @@ class ListRoleAssignment(lister.Lister):
             )
 
         effective = True if parsed_args.effective else False
-        self.log.debug('take_action(%s)' % parsed_args)
         columns = ('Role', 'User', 'Group', 'Project', 'Domain', 'Inherited')
 
         inherited_to = 'projects' if parsed_args.inherited else None

@@ -15,21 +15,15 @@
 
 """Identity v3 Consumer action implementations"""
 
-import logging
 import six
 import sys
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class CreateConsumer(show.ShowOne):
+class CreateConsumer(command.ShowOne):
     """Create new consumer"""
-
-    log = logging.getLogger(__name__ + '.CreateConsumer')
 
     def get_parser(self, prog_name):
         parser = super(CreateConsumer, self).get_parser(prog_name)
@@ -40,7 +34,6 @@ class CreateConsumer(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         consumer = identity_client.oauth1.consumers.create(
@@ -53,8 +46,6 @@ class CreateConsumer(show.ShowOne):
 class DeleteConsumer(command.Command):
     """Delete consumer"""
 
-    log = logging.getLogger(__name__ + '.DeleteConsumer')
-
     def get_parser(self, prog_name):
         parser = super(DeleteConsumer, self).get_parser(prog_name)
         parser.add_argument(
@@ -64,7 +55,6 @@ class DeleteConsumer(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
@@ -73,12 +63,9 @@ class DeleteConsumer(command.Command):
         return
 
 
-class ListConsumer(lister.Lister):
+class ListConsumer(command.Lister):
     """List consumers"""
 
-    log = logging.getLogger(__name__ + '.ListConsumer')
-
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         columns = ('ID', 'Description')
         data = self.app.client_manager.identity.oauth1.consumers.list()
@@ -91,8 +78,6 @@ class ListConsumer(lister.Lister):
 
 class SetConsumer(command.Command):
     """Set consumer properties"""
-
-    log = logging.getLogger(__name__ + '.SetConsumer')
 
     def get_parser(self, prog_name):
         parser = super(SetConsumer, self).get_parser(prog_name)
@@ -108,7 +93,6 @@ class SetConsumer(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
@@ -126,10 +110,8 @@ class SetConsumer(command.Command):
         return
 
 
-class ShowConsumer(show.ShowOne):
+class ShowConsumer(command.ShowOne):
     """Display consumer details"""
-
-    log = logging.getLogger(__name__ + '.ShowConsumer')
 
     def get_parser(self, prog_name):
         parser = super(ShowConsumer, self).get_parser(prog_name)
@@ -140,7 +122,6 @@ class ShowConsumer(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(

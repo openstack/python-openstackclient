@@ -15,20 +15,14 @@
 
 """Agent action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class CreateAgent(show.ShowOne):
+class CreateAgent(command.ShowOne):
     """Create compute agent command"""
-
-    log = logging.getLogger(__name__ + ".CreateAgent")
 
     def get_parser(self, prog_name):
         parser = super(CreateAgent, self).get_parser(prog_name)
@@ -60,7 +54,6 @@ class CreateAgent(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         args = (
             parsed_args.os,
@@ -77,8 +70,6 @@ class CreateAgent(show.ShowOne):
 class DeleteAgent(command.Command):
     """Delete compute agent command"""
 
-    log = logging.getLogger(__name__ + ".DeleteAgent")
-
     def get_parser(self, prog_name):
         parser = super(DeleteAgent, self).get_parser(prog_name)
         parser.add_argument(
@@ -88,15 +79,12 @@ class DeleteAgent(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         compute_client.agents.delete(parsed_args.id)
 
 
-class ListAgent(lister.Lister):
+class ListAgent(command.Lister):
     """List compute agent command"""
-
-    log = logging.getLogger(__name__ + ".ListAgent")
 
     def get_parser(self, prog_name):
         parser = super(ListAgent, self).get_parser(prog_name)
@@ -107,7 +95,6 @@ class ListAgent(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         columns = (
             "Agent ID",
@@ -125,10 +112,8 @@ class ListAgent(lister.Lister):
                 ) for s in data))
 
 
-class SetAgent(show.ShowOne):
+class SetAgent(command.ShowOne):
     """Set compute agent command"""
-
-    log = logging.getLogger(__name__ + ".SetAgent")
 
     def get_parser(self, prog_name):
         parser = super(SetAgent, self).get_parser(prog_name)
@@ -151,7 +136,6 @@ class SetAgent(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         args = (
             parsed_args.id,

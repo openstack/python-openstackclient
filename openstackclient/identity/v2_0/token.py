@@ -15,26 +15,19 @@
 
 """Identity v2 Token action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import show
-
-from openstackclient.common import utils
+from openstackclient.common import command
 from openstackclient.i18n import _  # noqa
 
 
-class IssueToken(show.ShowOne):
+class IssueToken(command.ShowOne):
     """Issue new token"""
-
-    log = logging.getLogger(__name__ + '.IssueToken')
 
     def get_parser(self, prog_name):
         parser = super(IssueToken, self).get_parser(prog_name)
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         token = self.app.client_manager.auth_ref.service_catalog.get_token()
@@ -44,8 +37,6 @@ class IssueToken(show.ShowOne):
 
 class RevokeToken(command.Command):
     """Revoke existing token"""
-
-    log = logging.getLogger(__name__ + '.RevokeToken')
 
     def get_parser(self, prog_name):
         parser = super(RevokeToken, self).get_parser(prog_name)
@@ -57,7 +48,6 @@ class RevokeToken(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
         identity_client.tokens.delete(parsed_args.token)

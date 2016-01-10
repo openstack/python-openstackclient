@@ -15,21 +15,15 @@
 
 """Volume v1 Type action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
-class CreateVolumeType(show.ShowOne):
+class CreateVolumeType(command.ShowOne):
     """Create new volume type"""
-
-    log = logging.getLogger(__name__ + '.CreateVolumeType')
 
     def get_parser(self, prog_name):
         parser = super(CreateVolumeType, self).get_parser(prog_name)
@@ -47,7 +41,6 @@ class CreateVolumeType(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         volume_type = volume_client.volume_types.create(parsed_args.name)
@@ -64,8 +57,6 @@ class CreateVolumeType(show.ShowOne):
 class DeleteVolumeType(command.Command):
     """Delete volume type"""
 
-    log = logging.getLogger(__name__ + '.DeleteVolumeType')
-
     def get_parser(self, prog_name):
         parser = super(DeleteVolumeType, self).get_parser(prog_name)
         parser.add_argument(
@@ -75,7 +66,6 @@ class DeleteVolumeType(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         volume_type_id = utils.find_resource(
@@ -83,10 +73,8 @@ class DeleteVolumeType(command.Command):
         volume_client.volume_types.delete(volume_type_id)
 
 
-class ListVolumeType(lister.Lister):
+class ListVolumeType(command.Lister):
     """List volume types"""
-
-    log = logging.getLogger(__name__ + '.ListVolumeType')
 
     def get_parser(self, prog_name):
         parser = super(ListVolumeType, self).get_parser(prog_name)
@@ -97,7 +85,6 @@ class ListVolumeType(lister.Lister):
             help='List additional fields in output')
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         if parsed_args.long:
             columns = ('ID', 'Name', 'Extra Specs')
@@ -116,8 +103,6 @@ class ListVolumeType(lister.Lister):
 class SetVolumeType(command.Command):
     """Set volume type properties"""
 
-    log = logging.getLogger(__name__ + '.SetVolumeType')
-
     def get_parser(self, prog_name):
         parser = super(SetVolumeType, self).get_parser(prog_name)
         parser.add_argument(
@@ -134,7 +119,6 @@ class SetVolumeType(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         volume_type = utils.find_resource(
@@ -146,8 +130,6 @@ class SetVolumeType(command.Command):
 
 class UnsetVolumeType(command.Command):
     """Unset volume type properties"""
-
-    log = logging.getLogger(__name__ + '.UnsetVolumeType')
 
     def get_parser(self, prog_name):
         parser = super(UnsetVolumeType, self).get_parser(prog_name)
@@ -167,7 +149,6 @@ class UnsetVolumeType(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         volume_type = utils.find_resource(
@@ -181,10 +162,8 @@ class UnsetVolumeType(command.Command):
             self.app.log.error("No changes requested\n")
 
 
-class ShowVolumeType(show.ShowOne):
+class ShowVolumeType(command.ShowOne):
     """Display volume type details"""
-
-    log = logging.getLogger(__name__ + ".ShowVolumeType")
 
     def get_parser(self, prog_name):
         parser = super(ShowVolumeType, self).get_parser(prog_name)
@@ -196,7 +175,6 @@ class ShowVolumeType(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action: (%s)", parsed_args)
         volume_client = self.app.client_manager.volume
         volume_type = utils.find_resource(
             volume_client.volume_types, parsed_args.volume_type)

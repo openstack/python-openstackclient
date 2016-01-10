@@ -16,18 +16,14 @@
 """Limits Action Implementation"""
 
 import itertools
-import logging
 
-from cliff import lister
-
+from openstackclient.common import command
 from openstackclient.common import utils
 from openstackclient.identity import common as identity_common
 
 
-class ShowLimits(lister.Lister):
+class ShowLimits(command.Lister):
     """Show compute and block storage limits"""
-
-    log = logging.getLogger(__name__ + '.ShowLimits')
 
     def get_parser(self, prog_name):
         parser = super(ShowLimits, self).get_parser(prog_name)
@@ -64,7 +60,6 @@ class ShowLimits(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute

@@ -15,18 +15,12 @@
 
 """Service action implementations"""
 
-import logging
-
-from cliff import command
-from cliff import lister
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
 class DeleteService(command.Command):
     """Delete service command"""
-
-    log = logging.getLogger(__name__ + ".DeleteService")
 
     def get_parser(self, prog_name):
         parser = super(DeleteService, self).get_parser(prog_name)
@@ -37,16 +31,13 @@ class DeleteService(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
 
         compute_client.services.delete(parsed_args.service)
 
 
-class ListService(lister.Lister):
+class ListService(command.Lister):
     """List service command"""
-
-    log = logging.getLogger(__name__ + ".ListService")
 
     def get_parser(self, prog_name):
         parser = super(ListService, self).get_parser(prog_name)
@@ -61,7 +52,6 @@ class ListService(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         columns = (
             "Id",
@@ -82,8 +72,6 @@ class ListService(lister.Lister):
 
 class SetService(command.Command):
     """Set service command"""
-
-    log = logging.getLogger(__name__ + ".SetService")
 
     def get_parser(self, prog_name):
         parser = super(SetService, self).get_parser(prog_name)
@@ -110,7 +98,6 @@ class SetService(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
 
         if parsed_args.enabled:

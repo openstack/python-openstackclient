@@ -12,13 +12,9 @@
 
 """Identity v3 EC2 Credentials action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
 from openstackclient.identity import common
@@ -52,10 +48,8 @@ def _determine_ec2_user(parsed_args, client_manager):
     return user
 
 
-class CreateEC2Creds(show.ShowOne):
+class CreateEC2Creds(command.ShowOne):
     """Create EC2 credentials"""
-
-    log = logging.getLogger(__name__ + ".CreateEC2Creds")
 
     def get_parser(self, prog_name):
         parser = super(CreateEC2Creds, self).get_parser(prog_name)
@@ -79,7 +73,6 @@ class CreateEC2Creds(show.ShowOne):
         common.add_project_domain_option_to_parser(parser)
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         client_manager = self.app.client_manager
@@ -119,8 +112,6 @@ class CreateEC2Creds(show.ShowOne):
 class DeleteEC2Creds(command.Command):
     """Delete EC2 credentials"""
 
-    log = logging.getLogger(__name__ + '.DeleteEC2Creds')
-
     def get_parser(self, prog_name):
         parser = super(DeleteEC2Creds, self).get_parser(prog_name)
         parser.add_argument(
@@ -136,17 +127,14 @@ class DeleteEC2Creds(command.Command):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         client_manager = self.app.client_manager
         user = _determine_ec2_user(parsed_args, client_manager)
         client_manager.identity.ec2.delete(user, parsed_args.access_key)
 
 
-class ListEC2Creds(lister.Lister):
+class ListEC2Creds(command.Lister):
     """List EC2 credentials"""
-
-    log = logging.getLogger(__name__ + '.ListEC2Creds')
 
     def get_parser(self, prog_name):
         parser = super(ListEC2Creds, self).get_parser(prog_name)
@@ -158,7 +146,6 @@ class ListEC2Creds(lister.Lister):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         client_manager = self.app.client_manager
         user = _determine_ec2_user(parsed_args, client_manager)
@@ -174,10 +161,8 @@ class ListEC2Creds(lister.Lister):
                 ) for s in data))
 
 
-class ShowEC2Creds(show.ShowOne):
+class ShowEC2Creds(command.ShowOne):
     """Display EC2 credentials details"""
-
-    log = logging.getLogger(__name__ + '.ShowEC2Creds')
 
     def get_parser(self, prog_name):
         parser = super(ShowEC2Creds, self).get_parser(prog_name)
@@ -194,7 +179,6 @@ class ShowEC2Creds(show.ShowOne):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         client_manager = self.app.client_manager
         user = _determine_ec2_user(parsed_args, client_manager)

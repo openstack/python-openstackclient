@@ -15,21 +15,16 @@
 
 """Compute v2 Console action implementations"""
 
-import logging
 import six
 import sys
 
-from cliff import command
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
 class ShowConsoleLog(command.Command):
     """Show server's console output"""
-
-    log = logging.getLogger(__name__ + '.ShowConsoleLog')
 
     def get_parser(self, prog_name):
         parser = super(ShowConsoleLog, self).get_parser(prog_name)
@@ -49,7 +44,6 @@ class ShowConsoleLog(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
 
@@ -67,10 +61,8 @@ class ShowConsoleLog(command.Command):
         sys.stdout.write(data)
 
 
-class ShowConsoleURL(show.ShowOne):
+class ShowConsoleURL(command.ShowOne):
     """Show server's remote console URL"""
-
-    log = logging.getLogger(__name__ + '.ShowConsoleURL')
 
     def get_parser(self, prog_name):
         parser = super(ShowConsoleURL, self).get_parser(prog_name)
@@ -104,7 +96,6 @@ class ShowConsoleURL(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(

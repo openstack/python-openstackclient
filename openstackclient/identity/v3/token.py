@@ -15,19 +15,15 @@
 
 """Identity v3 Token action implementations"""
 
-import logging
 import six
 
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 from openstackclient.identity import common
 
 
-class AuthorizeRequestToken(show.ShowOne):
+class AuthorizeRequestToken(command.ShowOne):
     """Authorize a request token"""
-
-    log = logging.getLogger(__name__ + '.AuthorizeRequestToken')
 
     def get_parser(self, prog_name):
         parser = super(AuthorizeRequestToken, self).get_parser(prog_name)
@@ -49,7 +45,6 @@ class AuthorizeRequestToken(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
         # NOTE(stevemar): We want a list of role ids
@@ -68,10 +63,8 @@ class AuthorizeRequestToken(show.ShowOne):
         return zip(*sorted(six.iteritems(verifier_pin._info)))
 
 
-class CreateAccessToken(show.ShowOne):
+class CreateAccessToken(command.ShowOne):
     """Create an access token"""
-
-    log = logging.getLogger(__name__ + '.CreateAccessToken')
 
     def get_parser(self, prog_name):
         parser = super(CreateAccessToken, self).get_parser(prog_name)
@@ -108,7 +101,6 @@ class CreateAccessToken(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         token_client = self.app.client_manager.identity.oauth1.access_tokens
         access_token = token_client.create(
             parsed_args.consumer_key, parsed_args.consumer_secret,
@@ -117,10 +109,8 @@ class CreateAccessToken(show.ShowOne):
         return zip(*sorted(six.iteritems(access_token._info)))
 
 
-class CreateRequestToken(show.ShowOne):
+class CreateRequestToken(command.ShowOne):
     """Create a request token"""
-
-    log = logging.getLogger(__name__ + '.CreateRequestToken')
 
     def get_parser(self, prog_name):
         parser = super(CreateRequestToken, self).get_parser(prog_name)
@@ -151,8 +141,6 @@ class CreateRequestToken(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
-
         identity_client = self.app.client_manager.identity
 
         if parsed_args.domain:
@@ -173,16 +161,13 @@ class CreateRequestToken(show.ShowOne):
         return zip(*sorted(six.iteritems(request_token._info)))
 
 
-class IssueToken(show.ShowOne):
+class IssueToken(command.ShowOne):
     """Issue new token"""
-
-    log = logging.getLogger(__name__ + '.IssueToken')
 
     def get_parser(self, prog_name):
         parser = super(IssueToken, self).get_parser(prog_name)
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         token = self.app.client_manager.auth_ref.service_catalog.get_token()
         if 'tenant_id' in token:

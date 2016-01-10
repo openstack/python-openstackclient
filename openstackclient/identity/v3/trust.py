@@ -14,21 +14,15 @@
 """Identity v3 Trust action implementations"""
 
 import datetime
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 from openstackclient.identity import common
 
 
-class CreateTrust(show.ShowOne):
+class CreateTrust(command.ShowOne):
     """Create new trust"""
-
-    log = logging.getLogger(__name__ + '.CreateTrust')
 
     def get_parser(self, prog_name):
         parser = super(CreateTrust, self).get_parser(prog_name)
@@ -85,7 +79,6 @@ class CreateTrust(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
         # NOTE(stevemar): Find the two users, project and roles that
@@ -138,8 +131,6 @@ class CreateTrust(show.ShowOne):
 class DeleteTrust(command.Command):
     """Delete trust(s)"""
 
-    log = logging.getLogger(__name__ + '.DeleteTrust')
-
     def get_parser(self, prog_name):
         parser = super(DeleteTrust, self).get_parser(prog_name)
         parser.add_argument(
@@ -151,20 +142,16 @@ class DeleteTrust(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         for t in parsed_args.trust:
             trust_obj = utils.find_resource(identity_client.trusts, t)
             identity_client.trusts.delete(trust_obj.id)
 
 
-class ListTrust(lister.Lister):
+class ListTrust(command.Lister):
     """List trusts"""
 
-    log = logging.getLogger(__name__ + '.ListTrust')
-
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         columns = ('ID', 'Expires At', 'Impersonation', 'Project ID',
                    'Trustee User ID', 'Trustor User ID')
         data = self.app.client_manager.identity.trusts.list()
@@ -175,10 +162,8 @@ class ListTrust(lister.Lister):
                 ) for s in data))
 
 
-class ShowTrust(show.ShowOne):
+class ShowTrust(command.ShowOne):
     """Display trust details"""
-
-    log = logging.getLogger(__name__ + '.ShowTrust')
 
     def get_parser(self, prog_name):
         parser = super(ShowTrust, self).get_parser(prog_name)
@@ -190,7 +175,6 @@ class ShowTrust(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
         trust = utils.find_resource(identity_client.trusts,
                                     parsed_args.trust)

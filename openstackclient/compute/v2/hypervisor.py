@@ -15,20 +15,15 @@
 
 """Hypervisor action implementations"""
 
-import logging
 import re
 import six
 
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class ListHypervisor(lister.Lister):
+class ListHypervisor(command.Lister):
     """List hypervisors"""
-
-    log = logging.getLogger(__name__ + ".ListHypervisor")
 
     def get_parser(self, prog_name):
         parser = super(ListHypervisor, self).get_parser(prog_name)
@@ -40,7 +35,6 @@ class ListHypervisor(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         columns = (
             "ID",
@@ -58,10 +52,8 @@ class ListHypervisor(lister.Lister):
                 ) for s in data))
 
 
-class ShowHypervisor(show.ShowOne):
+class ShowHypervisor(command.ShowOne):
     """Display hypervisor details"""
-
-    log = logging.getLogger(__name__ + ".ShowHypervisor")
 
     def get_parser(self, prog_name):
         parser = super(ShowHypervisor, self).get_parser(prog_name)
@@ -72,7 +64,6 @@ class ShowHypervisor(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         hypervisor = utils.find_resource(compute_client.hypervisors,
                                          parsed_args.hypervisor)._info.copy()

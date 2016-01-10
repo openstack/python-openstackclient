@@ -13,12 +13,9 @@
 
 """Identity v3 Service Catalog action implementations"""
 
-import logging
-
-from cliff import lister
-from cliff import show
 import six
 
+from openstackclient.common import command
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
 
@@ -34,12 +31,9 @@ def _format_endpoints(eps=None):
     return ret
 
 
-class ListCatalog(lister.Lister):
+class ListCatalog(command.Lister):
     """List services in the service catalog"""
 
-    log = logging.getLogger(__name__ + '.ListCatalog')
-
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         # This is ugly because if auth hasn't happened yet we need
@@ -59,10 +53,8 @@ class ListCatalog(lister.Lister):
                 ) for s in data))
 
 
-class ShowCatalog(show.ShowOne):
+class ShowCatalog(command.ShowOne):
     """Display service catalog details"""
-
-    log = logging.getLogger(__name__ + '.ShowCatalog')
 
     def get_parser(self, prog_name):
         parser = super(ShowCatalog, self).get_parser(prog_name)
@@ -73,7 +65,6 @@ class ShowCatalog(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         # This is ugly because if auth hasn't happened yet we need

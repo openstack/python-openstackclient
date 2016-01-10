@@ -16,13 +16,10 @@
 """Identity v3 federation mapping action implementations"""
 
 import json
-import logging
 
-from cliff import command
-from cliff import lister
-from cliff import show
 import six
 
+from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 
@@ -79,10 +76,8 @@ class _RulesReader(object):
             return rules
 
 
-class CreateMapping(show.ShowOne, _RulesReader):
+class CreateMapping(command.ShowOne, _RulesReader):
     """Create new mapping"""
-
-    log = logging.getLogger(__name__ + '.CreateMapping')
 
     def get_parser(self, prog_name):
         parser = super(CreateMapping, self).get_parser(prog_name)
@@ -99,7 +94,6 @@ class CreateMapping(show.ShowOne, _RulesReader):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
         rules = self._read_rules(parsed_args.rules)
@@ -114,8 +108,6 @@ class CreateMapping(show.ShowOne, _RulesReader):
 class DeleteMapping(command.Command):
     """Delete mapping"""
 
-    log = logging.getLogger(__name__ + '.DeleteMapping')
-
     def get_parser(self, prog_name):
         parser = super(DeleteMapping, self).get_parser(prog_name)
         parser.add_argument(
@@ -126,19 +118,16 @@ class DeleteMapping(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
         identity_client.federation.mappings.delete(parsed_args.mapping)
         return
 
 
-class ListMapping(lister.Lister):
+class ListMapping(command.Lister):
     """List mappings"""
-    log = logging.getLogger(__name__ + '.ListMapping')
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         # NOTE(marek-denis): Since rules can be long and tedious I have decided
         # to only list ids of the mappings. If somebody wants to check the
         # rules, (s)he should show specific ones.
@@ -151,8 +140,6 @@ class ListMapping(lister.Lister):
 
 class SetMapping(command.Command, _RulesReader):
     """Set mapping properties"""
-
-    log = logging.getLogger(__name__ + '.SetMapping')
 
     def get_parser(self, prog_name):
         parser = super(SetMapping, self).get_parser(prog_name)
@@ -169,7 +156,6 @@ class SetMapping(command.Command, _RulesReader):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
         if not parsed_args.rules:
@@ -186,10 +172,8 @@ class SetMapping(command.Command, _RulesReader):
         return zip(*sorted(six.iteritems(mapping._info)))
 
 
-class ShowMapping(show.ShowOne):
+class ShowMapping(command.ShowOne):
     """Display mapping details"""
-
-    log = logging.getLogger(__name__ + '.ShowMapping')
 
     def get_parser(self, prog_name):
         parser = super(ShowMapping, self).get_parser(prog_name)
@@ -201,7 +185,6 @@ class ShowMapping(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         identity_client = self.app.client_manager.identity
 
         mapping = identity_client.federation.mappings.get(parsed_args.mapping)

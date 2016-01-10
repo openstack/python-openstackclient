@@ -13,12 +13,7 @@
 
 """Network action implementations"""
 
-import logging
-
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.identity import common as identity_common
@@ -52,10 +47,8 @@ def _get_columns(item):
     return tuple(sorted(columns))
 
 
-class CreateNetwork(show.ShowOne):
+class CreateNetwork(command.ShowOne):
     """Create new network"""
-
-    log = logging.getLogger(__name__ + '.CreateNetwork')
 
     def get_parser(self, prog_name):
         parser = super(CreateNetwork, self).get_parser(prog_name)
@@ -111,7 +104,6 @@ class CreateNetwork(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
         body = self.get_body(parsed_args)
         obj = client.create_network(**body)
@@ -142,8 +134,6 @@ class CreateNetwork(show.ShowOne):
 class DeleteNetwork(command.Command):
     """Delete network(s)"""
 
-    log = logging.getLogger(__name__ + '.DeleteNetwork')
-
     def get_parser(self, prog_name):
         parser = super(DeleteNetwork, self).get_parser(prog_name)
         parser.add_argument(
@@ -155,17 +145,14 @@ class DeleteNetwork(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
         for network in parsed_args.network:
             obj = client.find_network(network)
             client.delete_network(obj)
 
 
-class ListNetwork(lister.Lister):
+class ListNetwork(command.Lister):
     """List networks"""
-
-    log = logging.getLogger(__name__ + '.ListNetwork')
 
     def get_parser(self, prog_name):
         parser = super(ListNetwork, self).get_parser(prog_name)
@@ -184,7 +171,6 @@ class ListNetwork(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
 
         if parsed_args.long:
@@ -239,8 +225,6 @@ class ListNetwork(lister.Lister):
 class SetNetwork(command.Command):
     """Set network properties"""
 
-    log = logging.getLogger(__name__ + '.SetNetwork')
-
     def get_parser(self, prog_name):
         parser = super(SetNetwork, self).get_parser(prog_name)
         parser.add_argument(
@@ -284,7 +268,6 @@ class SetNetwork(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
         obj = client.find_network(parsed_args.identifier, ignore_missing=False)
 
@@ -302,10 +285,8 @@ class SetNetwork(command.Command):
         client.update_network(obj)
 
 
-class ShowNetwork(show.ShowOne):
+class ShowNetwork(command.ShowOne):
     """Show network details"""
-
-    log = logging.getLogger(__name__ + '.ShowNetwork')
 
     def get_parser(self, prog_name):
         parser = super(ShowNetwork, self).get_parser(prog_name)
@@ -317,7 +298,6 @@ class ShowNetwork(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
         obj = client.find_network(parsed_args.identifier, ignore_missing=False)
         columns = _get_columns(obj)

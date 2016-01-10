@@ -14,12 +14,11 @@
 """Availability Zone action implementations"""
 
 import copy
-import logging
 
-from cliff import lister
 from novaclient import exceptions as nova_exceptions
 import six
 
+from openstackclient.common import command
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
 
@@ -70,10 +69,8 @@ def _xform_volume_availability_zone(az):
     return result
 
 
-class ListAvailabilityZone(lister.Lister):
+class ListAvailabilityZone(command.Lister):
     """List availability zones and their status"""
-
-    log = logging.getLogger(__name__ + '.ListAvailabilityZone')
 
     def get_parser(self, prog_name):
         parser = super(ListAvailabilityZone, self).get_parser(prog_name)
@@ -125,7 +122,6 @@ class ListAvailabilityZone(lister.Lister):
             result += _xform_volume_availability_zone(zone)
         return result
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         if parsed_args.long:

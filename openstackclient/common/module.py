@@ -15,23 +15,17 @@
 
 """Module action implementation"""
 
-import logging
 import six
 import sys
 
-from cliff import lister
-from cliff import show
-
-from openstackclient.common import utils
+from openstackclient.common import command
 
 
-class ListCommand(lister.Lister):
+class ListCommand(command.Lister):
     """List recognized commands by group"""
 
     auth_required = False
-    log = logging.getLogger(__name__ + '.ListCommand')
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         cm = self.app.command_manager
         groups = cm.get_command_groups()
@@ -40,11 +34,10 @@ class ListCommand(lister.Lister):
         return (columns, ((c, cm.get_command_names(group=c)) for c in groups))
 
 
-class ListModule(show.ShowOne):
+class ListModule(command.ShowOne):
     """List module versions"""
 
     auth_required = False
-    log = logging.getLogger(__name__ + '.ListModule')
 
     def get_parser(self, prog_name):
         parser = super(ListModule, self).get_parser(prog_name)
@@ -56,7 +49,6 @@ class ListModule(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         data = {}

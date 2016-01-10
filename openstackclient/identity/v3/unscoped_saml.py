@@ -17,10 +17,7 @@ The first step of federated auth is to fetch an unscoped token. From there,
 the user can list domains and projects they are allowed to access, and request
 a scoped token."""
 
-import logging
-
-from cliff import lister
-
+from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 
@@ -43,13 +40,10 @@ def auth_with_unscoped_saml(func):
     return _decorated
 
 
-class ListAccessibleDomains(lister.Lister):
+class ListAccessibleDomains(command.Lister):
     """List accessible domains"""
 
-    log = logging.getLogger(__name__ + '.ListAccessibleDomains')
-
     @auth_with_unscoped_saml
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         columns = ('ID', 'Enabled', 'Name', 'Description')
         identity_client = self.app.client_manager.identity
@@ -61,13 +55,10 @@ class ListAccessibleDomains(lister.Lister):
                 ) for s in data))
 
 
-class ListAccessibleProjects(lister.Lister):
+class ListAccessibleProjects(command.Lister):
     """List accessible projects"""
 
-    log = logging.getLogger(__name__ + '.ListAccessibleProjects')
-
     @auth_with_unscoped_saml
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         columns = ('ID', 'Domain ID', 'Enabled', 'Name')
         identity_client = self.app.client_manager.identity

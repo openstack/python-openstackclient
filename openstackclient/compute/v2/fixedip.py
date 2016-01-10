@@ -15,17 +15,12 @@
 
 """Fixed IP action implementations"""
 
-import logging
-
-from cliff import command
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
 class AddFixedIP(command.Command):
     """Add fixed IP address to server"""
-
-    log = logging.getLogger(__name__ + ".AddFixedIP")
 
     def get_parser(self, prog_name):
         parser = super(AddFixedIP, self).get_parser(prog_name)
@@ -42,7 +37,6 @@ class AddFixedIP(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
 
         network = utils.find_resource(
@@ -56,8 +50,6 @@ class AddFixedIP(command.Command):
 
 class RemoveFixedIP(command.Command):
     """Remove fixed IP address from server"""
-
-    log = logging.getLogger(__name__ + ".RemoveFixedIP")
 
     def get_parser(self, prog_name):
         parser = super(RemoveFixedIP, self).get_parser(prog_name)
@@ -74,7 +66,6 @@ class RemoveFixedIP(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
 
         server = utils.find_resource(

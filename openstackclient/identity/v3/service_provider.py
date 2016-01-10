@@ -13,21 +13,15 @@
 
 """Service Provider action implementations"""
 
-import logging
 import six
 import sys
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class CreateServiceProvider(show.ShowOne):
+class CreateServiceProvider(command.ShowOne):
     """Create new service provider"""
-
-    log = logging.getLogger(__name__ + '.CreateServiceProvider')
 
     def get_parser(self, prog_name):
         parser = super(CreateServiceProvider, self).get_parser(prog_name)
@@ -73,7 +67,6 @@ class CreateServiceProvider(show.ShowOne):
 
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         service_client = self.app.client_manager.identity
         sp = service_client.federation.service_providers.create(
@@ -90,8 +83,6 @@ class CreateServiceProvider(show.ShowOne):
 class DeleteServiceProvider(command.Command):
     """Delete service provider"""
 
-    log = logging.getLogger(__name__ + '.DeleteServiceProvider')
-
     def get_parser(self, prog_name):
         parser = super(DeleteServiceProvider, self).get_parser(prog_name)
         parser.add_argument(
@@ -101,7 +92,6 @@ class DeleteServiceProvider(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         service_client = self.app.client_manager.identity
         service_client.federation.service_providers.delete(
@@ -109,12 +99,9 @@ class DeleteServiceProvider(command.Command):
         return
 
 
-class ListServiceProvider(lister.Lister):
+class ListServiceProvider(command.Lister):
     """List service providers"""
 
-    log = logging.getLogger(__name__ + '.ListServiceProvider')
-
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         service_client = self.app.client_manager.identity
         data = service_client.federation.service_providers.list()
@@ -129,8 +116,6 @@ class ListServiceProvider(lister.Lister):
 
 class SetServiceProvider(command.Command):
     """Set service provider properties"""
-
-    log = logging.getLogger(__name__ + '.SetServiceProvider')
 
     def get_parser(self, prog_name):
         parser = super(SetServiceProvider, self).get_parser(prog_name)
@@ -168,7 +153,6 @@ class SetServiceProvider(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         federation_client = self.app.client_manager.identity.federation
 
@@ -193,10 +177,8 @@ class SetServiceProvider(command.Command):
         return zip(*sorted(six.iteritems(service_provider._info)))
 
 
-class ShowServiceProvider(show.ShowOne):
+class ShowServiceProvider(command.ShowOne):
     """Display service provider details"""
-
-    log = logging.getLogger(__name__ + '.ShowServiceProvider')
 
     def get_parser(self, prog_name):
         parser = super(ShowServiceProvider, self).get_parser(prog_name)
@@ -207,7 +189,6 @@ class ShowServiceProvider(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         service_client = self.app.client_manager.identity
         service_provider = utils.find_resource(

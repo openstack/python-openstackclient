@@ -15,21 +15,15 @@
 
 """Volume v2 QoS action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
 class AssociateQos(command.Command):
     """Associate a QoS specification to a volume type"""
-
-    log = logging.getLogger(__name__ + '.AssociateQos')
 
     def get_parser(self, prog_name):
         parser = super(AssociateQos, self).get_parser(prog_name)
@@ -45,7 +39,6 @@ class AssociateQos(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(volume_client.qos_specs,
@@ -56,10 +49,8 @@ class AssociateQos(command.Command):
         volume_client.qos_specs.associate(qos_spec.id, volume_type.id)
 
 
-class CreateQos(show.ShowOne):
+class CreateQos(command.ShowOne):
     """Create new QoS specification"""
-
-    log = logging.getLogger(__name__ + '.CreateQos')
 
     def get_parser(self, prog_name):
         parser = super(CreateQos, self).get_parser(prog_name)
@@ -86,7 +77,6 @@ class CreateQos(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         specs = {}
@@ -103,8 +93,6 @@ class CreateQos(show.ShowOne):
 class DeleteQos(command.Command):
     """Delete QoS specification"""
 
-    log = logging.getLogger(__name__ + '.DeleteQos')
-
     def get_parser(self, prog_name):
         parser = super(DeleteQos, self).get_parser(prog_name)
         parser.add_argument(
@@ -115,7 +103,6 @@ class DeleteQos(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         for qos in parsed_args.qos_specs:
@@ -125,8 +112,6 @@ class DeleteQos(command.Command):
 
 class DisassociateQos(command.Command):
     """Disassociate a QoS specification from a volume type"""
-
-    log = logging.getLogger(__name__ + '.DisassociateQos')
 
     def get_parser(self, prog_name):
         parser = super(DisassociateQos, self).get_parser(prog_name)
@@ -150,7 +135,6 @@ class DisassociateQos(command.Command):
 
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(volume_client.qos_specs,
@@ -164,12 +148,9 @@ class DisassociateQos(command.Command):
             volume_client.qos_specs.disassociate_all(qos_spec.id)
 
 
-class ListQos(lister.Lister):
+class ListQos(command.Lister):
     """List QoS specifications"""
 
-    log = logging.getLogger(__name__ + '.ListQos')
-
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         qos_specs_list = volume_client.qos_specs.list()
@@ -195,8 +176,6 @@ class ListQos(lister.Lister):
 class SetQos(command.Command):
     """Set QoS specification properties"""
 
-    log = logging.getLogger(__name__ + '.SetQos')
-
     def get_parser(self, prog_name):
         parser = super(SetQos, self).get_parser(prog_name)
         parser.add_argument(
@@ -213,7 +192,6 @@ class SetQos(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(volume_client.qos_specs,
@@ -226,10 +204,8 @@ class SetQos(command.Command):
             self.app.log.error("No changes requested\n")
 
 
-class ShowQos(show.ShowOne):
+class ShowQos(command.ShowOne):
     """Display QoS specification details"""
-
-    log = logging.getLogger(__name__ + '.ShowQos')
 
     def get_parser(self, prog_name):
         parser = super(ShowQos, self).get_parser(prog_name)
@@ -240,7 +216,6 @@ class ShowQos(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(volume_client.qos_specs,
@@ -261,8 +236,6 @@ class ShowQos(show.ShowOne):
 class UnsetQos(command.Command):
     """Unset QoS specification properties"""
 
-    log = logging.getLogger(__name__ + '.SetQos')
-
     def get_parser(self, prog_name):
         parser = super(UnsetQos, self).get_parser(prog_name)
         parser.add_argument(
@@ -280,7 +253,6 @@ class UnsetQos(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(volume_client.qos_specs,

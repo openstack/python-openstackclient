@@ -15,19 +15,13 @@
 
 """Floating IP Pool action implementations"""
 
-import logging
-
-from cliff import lister
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class ListFloatingIPPool(lister.Lister):
+class ListFloatingIPPool(command.Lister):
     """List pools of floating IP addresses"""
 
-    log = logging.getLogger(__name__ + '.ListFloatingIPPool')
-
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
 

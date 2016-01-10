@@ -15,21 +15,15 @@
 
 """Identity v3 Policy action implementations"""
 
-import logging
 import six
 import sys
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class CreatePolicy(show.ShowOne):
+class CreatePolicy(command.ShowOne):
     """Create new policy"""
-
-    log = logging.getLogger(__name__ + '.CreatePolicy')
 
     def get_parser(self, prog_name):
         parser = super(CreatePolicy, self).get_parser(prog_name)
@@ -47,7 +41,6 @@ class CreatePolicy(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         blob = utils.read_blob_file_contents(parsed_args.rules)
 
@@ -64,8 +57,6 @@ class CreatePolicy(show.ShowOne):
 class DeletePolicy(command.Command):
     """Delete policy"""
 
-    log = logging.getLogger(__name__ + '.DeletePolicy')
-
     def get_parser(self, prog_name):
         parser = super(DeletePolicy, self).get_parser(prog_name)
         parser.add_argument(
@@ -75,17 +66,14 @@ class DeletePolicy(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         identity_client.policies.delete(parsed_args.policy)
         return
 
 
-class ListPolicy(lister.Lister):
+class ListPolicy(command.Lister):
     """List policies"""
-
-    log = logging.getLogger(__name__ + '.ListPolicy')
 
     def get_parser(self, prog_name):
         parser = super(ListPolicy, self).get_parser(prog_name)
@@ -97,7 +85,6 @@ class ListPolicy(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         if parsed_args.long:
             columns = ('ID', 'Type', 'Blob')
@@ -115,8 +102,6 @@ class ListPolicy(lister.Lister):
 
 class SetPolicy(command.Command):
     """Set policy properties"""
-
-    log = logging.getLogger(__name__ + '.SetPolicy')
 
     def get_parser(self, prog_name):
         parser = super(SetPolicy, self).get_parser(prog_name)
@@ -137,7 +122,6 @@ class SetPolicy(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         blob = None
@@ -158,10 +142,8 @@ class SetPolicy(command.Command):
         return
 
 
-class ShowPolicy(show.ShowOne):
+class ShowPolicy(command.ShowOne):
     """Display policy details"""
-
-    log = logging.getLogger(__name__ + '.ShowPolicy')
 
     def get_parser(self, prog_name):
         parser = super(ShowPolicy, self).get_parser(prog_name)
@@ -172,7 +154,6 @@ class ShowPolicy(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         policy = utils.find_resource(identity_client.policies,

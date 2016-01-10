@@ -14,19 +14,15 @@
 
 """Hypervisor Stats action implementations"""
 
-import logging
 import six
 
-from cliff import show
+from openstackclient.common import command
 
 
-class ShowHypervisorStats(show.ShowOne):
+class ShowHypervisorStats(command.ShowOne):
     """Display hypervisor stats details"""
 
-    log = logging.getLogger(__name__ + ".ShowHypervisorStats")
-
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         hypervisor_stats = compute_client.hypervisors.statistics().to_dict()
 

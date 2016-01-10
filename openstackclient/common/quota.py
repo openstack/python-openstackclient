@@ -16,13 +16,10 @@
 """Quota action implementations"""
 
 import itertools
-import logging
 import six
 import sys
 
-from cliff import command
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
@@ -60,8 +57,6 @@ NETWORK_QUOTAS = {
 class SetQuota(command.Command):
     """Set quotas for project or class"""
 
-    log = logging.getLogger(__name__ + '.SetQuota')
-
     def get_parser(self, prog_name):
         parser = super(SetQuota, self).get_parser(prog_name)
         parser.add_argument(
@@ -92,7 +87,6 @@ class SetQuota(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         identity_client = self.app.client_manager.identity
@@ -143,10 +137,8 @@ class SetQuota(command.Command):
                     **volume_kwargs)
 
 
-class ShowQuota(show.ShowOne):
+class ShowQuota(command.ShowOne):
     """Show quotas for project or class"""
-
-    log = logging.getLogger(__name__ + '.ShowQuota')
 
     def get_parser(self, prog_name):
         parser = super(ShowQuota, self).get_parser(prog_name)
@@ -203,7 +195,6 @@ class ShowQuota(show.ShowOne):
         else:
             return {}
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute

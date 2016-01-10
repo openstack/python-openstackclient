@@ -31,7 +31,10 @@ class CommandMeta(abc.ABCMeta):
 
 @six.add_metaclass(CommandMeta)
 class Command(command.Command):
-    pass
+
+    def run(self, parsed_args):
+        self.log.debug('run(%s)', parsed_args)
+        return super(Command, self).run(parsed_args)
 
 
 class Lister(Command, lister.Lister):

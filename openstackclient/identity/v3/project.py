@@ -15,24 +15,19 @@
 
 """Project action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
 from keystoneauth1 import exceptions as ks_exc
 
+from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
 from openstackclient.identity import common
 
 
-class CreateProject(show.ShowOne):
+class CreateProject(command.ShowOne):
     """Create new project"""
-
-    log = logging.getLogger(__name__ + '.CreateProject')
 
     def get_parser(self, prog_name):
         parser = super(CreateProject, self).get_parser(prog_name)
@@ -81,7 +76,6 @@ class CreateProject(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -129,8 +123,6 @@ class CreateProject(show.ShowOne):
 class DeleteProject(command.Command):
     """Delete project(s)"""
 
-    log = logging.getLogger(__name__ + '.DeleteProject')
-
     def get_parser(self, prog_name):
         parser = super(DeleteProject, self).get_parser(prog_name)
         parser.add_argument(
@@ -146,7 +138,6 @@ class DeleteProject(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -165,10 +156,8 @@ class DeleteProject(command.Command):
         return
 
 
-class ListProject(lister.Lister):
+class ListProject(command.Lister):
     """List projects"""
-
-    log = logging.getLogger(__name__ + '.ListProject')
 
     def get_parser(self, prog_name):
         parser = super(ListProject, self).get_parser(prog_name)
@@ -190,7 +179,6 @@ class ListProject(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         if parsed_args.long:
@@ -226,8 +214,6 @@ class ListProject(lister.Lister):
 
 class SetProject(command.Command):
     """Set project properties"""
-
-    log = logging.getLogger(__name__ + '.SetProject')
 
     def get_parser(self, prog_name):
         parser = super(SetProject, self).get_parser(prog_name)
@@ -271,7 +257,6 @@ class SetProject(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -302,10 +287,8 @@ class SetProject(command.Command):
         return
 
 
-class ShowProject(show.ShowOne):
+class ShowProject(command.ShowOne):
     """Display project details"""
-
-    log = logging.getLogger(__name__ + '.ShowProject')
 
     def get_parser(self, prog_name):
         parser = super(ShowProject, self).get_parser(prog_name)
@@ -333,7 +316,6 @@ class ShowProject(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 

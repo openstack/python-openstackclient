@@ -15,20 +15,14 @@
 
 """Identity v3 Credential action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class CreateCredential(show.ShowOne):
+class CreateCredential(command.ShowOne):
     """Create credential command"""
-
-    log = logging.getLogger(__name__ + '.CreateCredential')
 
     def get_parser(self, prog_name):
         parser = super(CreateCredential, self).get_parser(prog_name)
@@ -56,7 +50,6 @@ class CreateCredential(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         user_id = utils.find_resource(identity_client.users,
@@ -79,8 +72,6 @@ class CreateCredential(show.ShowOne):
 class DeleteCredential(command.Command):
     """Delete credential command"""
 
-    log = logging.getLogger(__name__ + '.DeleteCredential')
-
     def get_parser(self, prog_name):
         parser = super(DeleteCredential, self).get_parser(prog_name)
         parser.add_argument(
@@ -90,19 +81,15 @@ class DeleteCredential(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         identity_client.credentials.delete(parsed_args.credential)
         return
 
 
-class ListCredential(lister.Lister):
+class ListCredential(command.Lister):
     """List credential command"""
 
-    log = logging.getLogger(__name__ + '.ListCredential')
-
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         columns = ('ID', 'Type', 'User ID', 'Blob', 'Project ID')
         column_headers = ('ID', 'Type', 'User ID', 'Data', 'Project ID')
@@ -116,8 +103,6 @@ class ListCredential(lister.Lister):
 
 class SetCredential(command.Command):
     """Set credential command"""
-
-    log = logging.getLogger(__name__ + '.SetCredential')
 
     def get_parser(self, prog_name):
         parser = super(SetCredential, self).get_parser(prog_name)
@@ -152,7 +137,6 @@ class SetCredential(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -174,10 +158,8 @@ class SetCredential(command.Command):
         return
 
 
-class ShowCredential(show.ShowOne):
+class ShowCredential(command.ShowOne):
     """Show credential command"""
-
-    log = logging.getLogger(__name__ + '.ShowCredential')
 
     def get_parser(self, prog_name):
         parser = super(ShowCredential, self).get_parser(prog_name)
@@ -188,7 +170,6 @@ class ShowCredential(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         credential = utils.find_resource(identity_client.credentials,

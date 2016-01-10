@@ -13,19 +13,13 @@
 
 """Timing Implementation"""
 
-import logging
-
-from cliff import lister
+from openstackclient.common import command
 
 
-class Timing(lister.Lister):
+class Timing(command.Lister):
     """Show timing data"""
 
-    log = logging.getLogger(__name__ + '.Timing')
-
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
-
         column_headers = (
             'URL',
             'Seconds',

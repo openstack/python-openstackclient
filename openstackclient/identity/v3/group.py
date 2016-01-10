@@ -15,15 +15,12 @@
 
 """Group action implementations"""
 
-import logging
 import six
 import sys
 
-from cliff import command
-from cliff import lister
-from cliff import show
 from keystoneauth1 import exceptions as ks_exc
 
+from openstackclient.common import command
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
 from openstackclient.identity import common
@@ -31,8 +28,6 @@ from openstackclient.identity import common
 
 class AddUserToGroup(command.Command):
     """Add user to group"""
-
-    log = logging.getLogger(__name__ + '.AddUserToGroup')
 
     def get_parser(self, prog_name):
         parser = super(AddUserToGroup, self).get_parser(prog_name)
@@ -50,7 +45,6 @@ class AddUserToGroup(command.Command):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -74,8 +68,6 @@ class AddUserToGroup(command.Command):
 class CheckUserInGroup(command.Command):
     """Check user membership in group"""
 
-    log = logging.getLogger(__name__ + '.CheckUserInGroup')
-
     def get_parser(self, prog_name):
         parser = super(CheckUserInGroup, self).get_parser(prog_name)
         parser.add_argument(
@@ -92,7 +84,6 @@ class CheckUserInGroup(command.Command):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -113,10 +104,8 @@ class CheckUserInGroup(command.Command):
                              (parsed_args.user, parsed_args.group))
 
 
-class CreateGroup(show.ShowOne):
+class CreateGroup(command.ShowOne):
     """Create new group"""
-
-    log = logging.getLogger(__name__ + '.CreateGroup')
 
     def get_parser(self, prog_name):
         parser = super(CreateGroup, self).get_parser(prog_name)
@@ -142,7 +131,6 @@ class CreateGroup(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -172,8 +160,6 @@ class CreateGroup(show.ShowOne):
 class DeleteGroup(command.Command):
     """Delete group(s)"""
 
-    log = logging.getLogger(__name__ + '.DeleteGroup')
-
     def get_parser(self, prog_name):
         parser = super(DeleteGroup, self).get_parser(prog_name)
         parser.add_argument(
@@ -188,7 +174,6 @@ class DeleteGroup(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -200,10 +185,8 @@ class DeleteGroup(command.Command):
         return
 
 
-class ListGroup(lister.Lister):
+class ListGroup(command.Lister):
     """List groups"""
-
-    log = logging.getLogger(__name__ + '.ListGroup')
 
     def get_parser(self, prog_name):
         parser = super(ListGroup, self).get_parser(prog_name)
@@ -226,7 +209,6 @@ class ListGroup(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -266,8 +248,6 @@ class ListGroup(lister.Lister):
 class RemoveUserFromGroup(command.Command):
     """Remove user from group"""
 
-    log = logging.getLogger(__name__ + '.RemoveUserFromGroup')
-
     def get_parser(self, prog_name):
         parser = super(RemoveUserFromGroup, self).get_parser(prog_name)
         parser.add_argument(
@@ -284,7 +264,6 @@ class RemoveUserFromGroup(command.Command):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -308,8 +287,6 @@ class RemoveUserFromGroup(command.Command):
 class SetGroup(command.Command):
     """Set group properties"""
 
-    log = logging.getLogger(__name__ + '.SetGroup')
-
     def get_parser(self, prog_name):
         parser = super(SetGroup, self).get_parser(prog_name)
         parser.add_argument(
@@ -331,7 +308,6 @@ class SetGroup(command.Command):
             help='New group description')
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         group = common.find_group(identity_client, parsed_args.group,
@@ -349,10 +325,8 @@ class SetGroup(command.Command):
         return
 
 
-class ShowGroup(show.ShowOne):
+class ShowGroup(command.ShowOne):
     """Display group details"""
-
-    log = logging.getLogger(__name__ + '.ShowGroup')
 
     def get_parser(self, prog_name):
         parser = super(ShowGroup, self).get_parser(prog_name)
@@ -368,7 +342,6 @@ class ShowGroup(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 

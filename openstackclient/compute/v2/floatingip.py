@@ -15,20 +15,14 @@
 
 """Floating IP action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
 class AddFloatingIP(command.Command):
     """Add floating IP address to server"""
-
-    log = logging.getLogger(__name__ + ".AddFloatingIP")
 
     def get_parser(self, prog_name):
         parser = super(AddFloatingIP, self).get_parser(prog_name)
@@ -45,7 +39,6 @@ class AddFloatingIP(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
 
         server = utils.find_resource(
@@ -54,10 +47,8 @@ class AddFloatingIP(command.Command):
         server.add_floating_ip(parsed_args.ip_address)
 
 
-class CreateFloatingIP(show.ShowOne):
+class CreateFloatingIP(command.ShowOne):
     """Create new floating IP address"""
-
-    log = logging.getLogger(__name__ + '.CreateFloatingIP')
 
     def get_parser(self, prog_name):
         parser = super(CreateFloatingIP, self).get_parser(prog_name)
@@ -68,7 +59,6 @@ class CreateFloatingIP(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         floating_ip = compute_client.floating_ips.create(parsed_args.pool)
@@ -81,8 +71,6 @@ class CreateFloatingIP(show.ShowOne):
 class DeleteFloatingIP(command.Command):
     """Delete a floating IP address"""
 
-    log = logging.getLogger(__name__ + '.DeleteFloatingIP')
-
     def get_parser(self, prog_name):
         parser = super(DeleteFloatingIP, self).get_parser(prog_name)
         parser.add_argument(
@@ -92,7 +80,6 @@ class DeleteFloatingIP(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
 
@@ -104,12 +91,9 @@ class DeleteFloatingIP(command.Command):
         compute_client.floating_ips.delete(floating_ip)
 
 
-class ListFloatingIP(lister.Lister):
+class ListFloatingIP(command.Lister):
     """List floating IP addresses"""
 
-    log = logging.getLogger(__name__ + '.ListFloatingIP')
-
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
 
@@ -127,8 +111,6 @@ class ListFloatingIP(lister.Lister):
 class RemoveFloatingIP(command.Command):
     """Remove floating IP address from server"""
 
-    log = logging.getLogger(__name__ + ".RemoveFloatingIP")
-
     def get_parser(self, prog_name):
         parser = super(RemoveFloatingIP, self).get_parser(prog_name)
         parser.add_argument(
@@ -144,7 +126,6 @@ class RemoveFloatingIP(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
 
         server = utils.find_resource(

@@ -16,12 +16,7 @@
 
 """Compute v2 Security Group action implementations"""
 
-import logging
 import six
-
-from cliff import command
-from cliff import lister
-from cliff import show
 
 from keystoneauth1 import exceptions as ks_exc
 
@@ -30,6 +25,7 @@ try:
 except ImportError:
     from novaclient.v1_1 import security_group_rules
 
+from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 
@@ -79,10 +75,8 @@ def _xform_and_trim_security_group_rule(sgroup):
     return info
 
 
-class CreateSecurityGroup(show.ShowOne):
+class CreateSecurityGroup(command.ShowOne):
     """Create a new security group"""
-
-    log = logging.getLogger(__name__ + ".CreateSecurityGroup")
 
     def get_parser(self, prog_name):
         parser = super(CreateSecurityGroup, self).get_parser(prog_name)
@@ -99,8 +93,6 @@ class CreateSecurityGroup(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         compute_client = self.app.client_manager.compute
 
         description = parsed_args.description or parsed_args.name
@@ -115,10 +107,8 @@ class CreateSecurityGroup(show.ShowOne):
         return zip(*sorted(six.iteritems(info)))
 
 
-class CreateSecurityGroupRule(show.ShowOne):
+class CreateSecurityGroupRule(command.ShowOne):
     """Create a new security group rule"""
-
-    log = logging.getLogger(__name__ + ".CreateSecurityGroupRule")
 
     def get_parser(self, prog_name):
         parser = super(CreateSecurityGroupRule, self).get_parser(prog_name)
@@ -157,8 +147,6 @@ class CreateSecurityGroupRule(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         compute_client = self.app.client_manager.compute
         group = utils.find_resource(
             compute_client.security_groups,
@@ -184,8 +172,6 @@ class CreateSecurityGroupRule(show.ShowOne):
 class DeleteSecurityGroup(command.Command):
     """Delete a security group"""
 
-    log = logging.getLogger(__name__ + '.DeleteSecurityGroup')
-
     def get_parser(self, prog_name):
         parser = super(DeleteSecurityGroup, self).get_parser(prog_name)
         parser.add_argument(
@@ -195,7 +181,6 @@ class DeleteSecurityGroup(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute
@@ -209,8 +194,6 @@ class DeleteSecurityGroup(command.Command):
 class DeleteSecurityGroupRule(command.Command):
     """Delete a security group rule"""
 
-    log = logging.getLogger(__name__ + '.DeleteSecurityGroupRule')
-
     def get_parser(self, prog_name):
         parser = super(DeleteSecurityGroupRule, self).get_parser(prog_name)
         parser.add_argument(
@@ -220,17 +203,14 @@ class DeleteSecurityGroupRule(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute
         compute_client.security_group_rules.delete(parsed_args.rule)
 
 
-class ListSecurityGroup(lister.Lister):
+class ListSecurityGroup(command.Lister):
     """List security groups"""
-
-    log = logging.getLogger(__name__ + ".ListSecurityGroup")
 
     def get_parser(self, prog_name):
         parser = super(ListSecurityGroup, self).get_parser(prog_name)
@@ -249,8 +229,6 @@ class ListSecurityGroup(lister.Lister):
                 return getattr(project_hash[project_id], 'name', project_id)
             except KeyError:
                 return project_id
-
-        self.log.debug("take_action(%s)", parsed_args)
 
         compute_client = self.app.client_manager.compute
         columns = (
@@ -283,10 +261,8 @@ class ListSecurityGroup(lister.Lister):
                 ) for s in data))
 
 
-class ListSecurityGroupRule(lister.Lister):
+class ListSecurityGroupRule(command.Lister):
     """List security group rules"""
-
-    log = logging.getLogger(__name__ + ".ListSecurityGroupRule")
 
     def get_parser(self, prog_name):
         parser = super(ListSecurityGroupRule, self).get_parser(prog_name)
@@ -299,8 +275,6 @@ class ListSecurityGroupRule(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         compute_client = self.app.client_manager.compute
         columns = column_headers = (
             "ID",
@@ -337,10 +311,8 @@ class ListSecurityGroupRule(lister.Lister):
                 ) for s in rules))
 
 
-class SetSecurityGroup(show.ShowOne):
+class SetSecurityGroup(command.ShowOne):
     """Set security group properties"""
-
-    log = logging.getLogger(__name__ + '.SetSecurityGroup')
 
     def get_parser(self, prog_name):
         parser = super(SetSecurityGroup, self).get_parser(prog_name)
@@ -361,7 +333,6 @@ class SetSecurityGroup(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute
@@ -388,10 +359,8 @@ class SetSecurityGroup(show.ShowOne):
             return ({}, {})
 
 
-class ShowSecurityGroup(show.ShowOne):
+class ShowSecurityGroup(command.ShowOne):
     """Display security group details"""
-
-    log = logging.getLogger(__name__ + '.ShowSecurityGroup')
 
     def get_parser(self, prog_name):
         parser = super(ShowSecurityGroup, self).get_parser(prog_name)
@@ -402,7 +371,6 @@ class ShowSecurityGroup(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute

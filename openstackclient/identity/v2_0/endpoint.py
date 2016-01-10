@@ -15,22 +15,16 @@
 
 """Endpoint action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
 from openstackclient.identity import common
 
 
-class CreateEndpoint(show.ShowOne):
+class CreateEndpoint(command.ShowOne):
     """Create new endpoint"""
-
-    log = logging.getLogger(__name__ + '.CreateEndpoint')
 
     def get_parser(self, prog_name):
         parser = super(CreateEndpoint, self).get_parser(prog_name)
@@ -62,7 +56,6 @@ class CreateEndpoint(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         service = common.find_service(identity_client, parsed_args.service)
@@ -83,8 +76,6 @@ class CreateEndpoint(show.ShowOne):
 class DeleteEndpoint(command.Command):
     """Delete endpoint"""
 
-    log = logging.getLogger(__name__ + '.DeleteEndpoint')
-
     def get_parser(self, prog_name):
         parser = super(DeleteEndpoint, self).get_parser(prog_name)
         parser.add_argument(
@@ -93,17 +84,14 @@ class DeleteEndpoint(command.Command):
             help=_('Endpoint ID to delete'))
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         identity_client.endpoints.delete(parsed_args.endpoint)
         return
 
 
-class ListEndpoint(lister.Lister):
+class ListEndpoint(command.Lister):
     """List endpoints"""
-
-    log = logging.getLogger(__name__ + '.ListEndpoint')
 
     def get_parser(self, prog_name):
         parser = super(ListEndpoint, self).get_parser(prog_name)
@@ -115,7 +103,6 @@ class ListEndpoint(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         if parsed_args.long:
@@ -136,10 +123,8 @@ class ListEndpoint(lister.Lister):
                 ) for s in data))
 
 
-class ShowEndpoint(show.ShowOne):
+class ShowEndpoint(command.ShowOne):
     """Display endpoint details"""
-
-    log = logging.getLogger(__name__ + '.ShowEndpoint')
 
     def get_parser(self, prog_name):
         parser = super(ShowEndpoint, self).get_parser(prog_name)
@@ -150,7 +135,6 @@ class ShowEndpoint(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         data = identity_client.endpoints.list()

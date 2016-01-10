@@ -15,23 +15,17 @@
 
 """Keypair action implementations"""
 
-import logging
 import os
 import six
 import sys
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 
 
-class CreateKeypair(show.ShowOne):
+class CreateKeypair(command.ShowOne):
     """Create new public key"""
-
-    log = logging.getLogger(__name__ + '.CreateKeypair')
 
     def get_parser(self, prog_name):
         parser = super(CreateKeypair, self).get_parser(prog_name)
@@ -47,7 +41,6 @@ class CreateKeypair(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
 
@@ -82,8 +75,6 @@ class CreateKeypair(show.ShowOne):
 class DeleteKeypair(command.Command):
     """Delete public key"""
 
-    log = logging.getLogger(__name__ + '.DeleteKeypair')
-
     def get_parser(self, prog_name):
         parser = super(DeleteKeypair, self).get_parser(prog_name)
         parser.add_argument(
@@ -93,19 +84,15 @@ class DeleteKeypair(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         compute_client.keypairs.delete(parsed_args.name)
 
 
-class ListKeypair(lister.Lister):
+class ListKeypair(command.Lister):
     """List public key fingerprints"""
 
-    log = logging.getLogger(__name__ + ".ListKeypair")
-
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         compute_client = self.app.client_manager.compute
         columns = (
             "Name",
@@ -119,10 +106,8 @@ class ListKeypair(lister.Lister):
                 ) for s in data))
 
 
-class ShowKeypair(show.ShowOne):
+class ShowKeypair(command.ShowOne):
     """Display public key details"""
-
-    log = logging.getLogger(__name__ + '.ShowKeypair')
 
     def get_parser(self, prog_name):
         parser = super(ShowKeypair, self).get_parser(prog_name)
@@ -139,7 +124,6 @@ class ShowKeypair(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         keypair = utils.find_resource(compute_client.keypairs,

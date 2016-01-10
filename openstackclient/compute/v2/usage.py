@@ -16,20 +16,16 @@
 """Usage action implementations"""
 
 import datetime
-import logging
 import sys
 
-from cliff import lister
-from cliff import show
 import six
 
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class ListUsage(lister.Lister):
+class ListUsage(command.Lister):
     """List resource usage per project"""
-
-    log = logging.getLogger(__name__ + ".ListUsage")
 
     def get_parser(self, prog_name):
         parser = super(ListUsage, self).get_parser(prog_name)
@@ -49,7 +45,6 @@ class ListUsage(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
 
         def _format_project(project):
             if not project:
@@ -118,10 +113,8 @@ class ListUsage(lister.Lister):
                 ) for s in usage_list))
 
 
-class ShowUsage(show.ShowOne):
+class ShowUsage(command.ShowOne):
     """Show resource usage for a single project"""
-
-    log = logging.getLogger(__name__ + ".ShowUsage")
 
     def get_parser(self, prog_name):
         parser = super(ShowUsage, self).get_parser(prog_name)
@@ -147,8 +140,6 @@ class ShowUsage(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         identity_client = self.app.client_manager.identity
         compute_client = self.app.client_manager.compute
         dateformat = "%Y-%m-%d"

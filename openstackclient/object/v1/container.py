@@ -16,21 +16,15 @@
 """Container v1 action implementations"""
 
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
-class CreateContainer(lister.Lister):
+class CreateContainer(command.Lister):
     """Create new container"""
-
-    log = logging.getLogger(__name__ + '.CreateContainer')
 
     def get_parser(self, prog_name):
         parser = super(CreateContainer, self).get_parser(prog_name)
@@ -42,7 +36,6 @@ class CreateContainer(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         results = []
@@ -63,8 +56,6 @@ class CreateContainer(lister.Lister):
 class DeleteContainer(command.Command):
     """Delete container"""
 
-    log = logging.getLogger(__name__ + '.DeleteContainer')
-
     def get_parser(self, prog_name):
         parser = super(DeleteContainer, self).get_parser(prog_name)
         parser.add_argument(
@@ -75,7 +66,6 @@ class DeleteContainer(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         for container in parsed_args.containers:
@@ -84,10 +74,8 @@ class DeleteContainer(command.Command):
             )
 
 
-class ListContainer(lister.Lister):
+class ListContainer(command.Lister):
     """List containers"""
-
-    log = logging.getLogger(__name__ + '.ListContainer')
 
     def get_parser(self, prog_name):
         parser = super(ListContainer, self).get_parser(prog_name)
@@ -126,7 +114,6 @@ class ListContainer(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         if parsed_args.long:
@@ -160,8 +147,6 @@ class ListContainer(lister.Lister):
 class SaveContainer(command.Command):
     """Save container contents locally"""
 
-    log = logging.getLogger(__name__ + ".SaveContainer")
-
     def get_parser(self, prog_name):
         parser = super(SaveContainer, self).get_parser(prog_name)
         parser.add_argument(
@@ -172,8 +157,6 @@ class SaveContainer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         self.app.client_manager.object_store.container_save(
             container=parsed_args.container,
         )
@@ -181,8 +164,6 @@ class SaveContainer(command.Command):
 
 class SetContainer(command.Command):
     """Set container properties"""
-
-    log = logging.getLogger(__name__ + '.SetContainer')
 
     def get_parser(self, prog_name):
         parser = super(SetContainer, self).get_parser(prog_name)
@@ -201,7 +182,6 @@ class SetContainer(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         self.app.client_manager.object_store.container_set(
             parsed_args.container,
@@ -209,10 +189,8 @@ class SetContainer(command.Command):
         )
 
 
-class ShowContainer(show.ShowOne):
+class ShowContainer(command.ShowOne):
     """Display container details"""
-
-    log = logging.getLogger(__name__ + '.ShowContainer')
 
     def get_parser(self, prog_name):
         parser = super(ShowContainer, self).get_parser(prog_name)
@@ -223,7 +201,6 @@ class ShowContainer(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         data = self.app.client_manager.object_store.container_show(
@@ -237,8 +214,6 @@ class ShowContainer(show.ShowOne):
 
 class UnsetContainer(command.Command):
     """Unset container properties"""
-
-    log = logging.getLogger(__name__ + '.UnsetContainer')
 
     def get_parser(self, prog_name):
         parser = super(UnsetContainer, self).get_parser(prog_name)
@@ -258,7 +233,6 @@ class UnsetContainer(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         self.app.client_manager.object_store.container_unset(
             parsed_args.container,

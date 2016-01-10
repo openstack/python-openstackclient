@@ -13,8 +13,6 @@
 
 """Subnet action implementations"""
 
-import logging
-
 from cliff import lister
 
 from openstackclient.common import utils
@@ -36,8 +34,6 @@ _formatters = {
 class ListSubnet(lister.Lister):
     """List subnets"""
 
-    log = logging.getLogger(__name__ + '.ListSubnet')
-
     def get_parser(self, prog_name):
         parser = super(ListSubnet, self).get_parser(prog_name)
         parser.add_argument(
@@ -49,8 +45,6 @@ class ListSubnet(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
-
         data = self.app.client_manager.network.subnets()
 
         headers = ('ID', 'Name', 'Network', 'Subnet')

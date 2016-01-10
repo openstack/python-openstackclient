@@ -14,12 +14,8 @@
 """Router action implementations"""
 
 import json
-import logging
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.identity import common as identity_common
@@ -67,10 +63,8 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
-class CreateRouter(show.ShowOne):
+class CreateRouter(command.ShowOne):
     """Create a new router"""
-
-    log = logging.getLogger(__name__ + '.CreateRouter')
 
     def get_parser(self, prog_name):
         parser = super(CreateRouter, self).get_parser(prog_name)
@@ -109,7 +103,6 @@ class CreateRouter(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
 
         attrs = _get_attrs(self.app.client_manager, parsed_args)
@@ -128,8 +121,6 @@ class CreateRouter(show.ShowOne):
 class DeleteRouter(command.Command):
     """Delete router(s)"""
 
-    log = logging.getLogger(__name__ + '.DeleteRouter')
-
     def get_parser(self, prog_name):
         parser = super(DeleteRouter, self).get_parser(prog_name)
         parser.add_argument(
@@ -141,17 +132,14 @@ class DeleteRouter(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
         for router in parsed_args.router:
             obj = client.find_router(router)
             client.delete_router(obj)
 
 
-class ListRouter(lister.Lister):
+class ListRouter(command.Lister):
     """List routers"""
-
-    log = logging.getLogger(__name__ + '.ListRouter')
 
     def get_parser(self, prog_name):
         parser = super(ListRouter, self).get_parser(prog_name)
@@ -164,7 +152,6 @@ class ListRouter(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
 
         columns = (
@@ -205,8 +192,6 @@ class ListRouter(lister.Lister):
 
 class SetRouter(command.Command):
     """Set router properties"""
-
-    log = logging.getLogger(__name__ + '.SetRouter')
 
     def get_parser(self, prog_name):
         parser = super(SetRouter, self).get_parser(prog_name)
@@ -262,7 +247,6 @@ class SetRouter(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
         obj = client.find_router(parsed_args.router, ignore_missing=False)
 
@@ -274,10 +258,8 @@ class SetRouter(command.Command):
         client.update_router(obj, **attrs)
 
 
-class ShowRouter(show.ShowOne):
+class ShowRouter(command.ShowOne):
     """Display router details"""
-
-    log = logging.getLogger(__name__ + '.ShowRouter')
 
     def get_parser(self, prog_name):
         parser = super(ShowRouter, self).get_parser(prog_name)
@@ -289,7 +271,6 @@ class ShowRouter(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
         obj = client.find_router(parsed_args.router, ignore_missing=False)
         columns = sorted(obj.keys())

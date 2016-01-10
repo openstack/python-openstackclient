@@ -15,23 +15,18 @@
 
 """Identity v2 Role action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
 from keystoneauth1 import exceptions as ks_exc
 
+from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
 
 
-class AddRole(show.ShowOne):
+class AddRole(command.ShowOne):
     """Add role to project:user"""
-
-    log = logging.getLogger(__name__ + '.AddRole')
 
     def get_parser(self, prog_name):
         parser = super(AddRole, self).get_parser(prog_name)
@@ -54,7 +49,6 @@ class AddRole(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         role = utils.find_resource(identity_client.roles, parsed_args.role)
@@ -74,10 +68,8 @@ class AddRole(show.ShowOne):
         return zip(*sorted(six.iteritems(info)))
 
 
-class CreateRole(show.ShowOne):
+class CreateRole(command.ShowOne):
     """Create new role"""
-
-    log = logging.getLogger(__name__ + '.CreateRole')
 
     def get_parser(self, prog_name):
         parser = super(CreateRole, self).get_parser(prog_name)
@@ -93,7 +85,6 @@ class CreateRole(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         try:
@@ -116,8 +107,6 @@ class CreateRole(show.ShowOne):
 class DeleteRole(command.Command):
     """Delete role(s)"""
 
-    log = logging.getLogger(__name__ + '.DeleteRole')
-
     def get_parser(self, prog_name):
         parser = super(DeleteRole, self).get_parser(prog_name)
         parser.add_argument(
@@ -128,7 +117,6 @@ class DeleteRole(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -141,10 +129,8 @@ class DeleteRole(command.Command):
         return
 
 
-class ListRole(lister.Lister):
+class ListRole(command.Lister):
     """List roles"""
-
-    log = logging.getLogger(__name__ + '.ListRole')
 
     def get_parser(self, prog_name):
         parser = super(ListRole, self).get_parser(prog_name)
@@ -160,7 +146,6 @@ class ListRole(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         auth_ref = self.app.client_manager.auth_ref
@@ -222,10 +207,8 @@ class ListRole(lister.Lister):
                 ) for s in data))
 
 
-class ListUserRole(lister.Lister):
+class ListUserRole(command.Lister):
     """List user-role assignments"""
-
-    log = logging.getLogger(__name__ + '.ListUserRole')
 
     def get_parser(self, prog_name):
         parser = super(ListUserRole, self).get_parser(prog_name)
@@ -242,7 +225,6 @@ class ListUserRole(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         auth_ref = self.app.client_manager.auth_ref
@@ -293,8 +275,6 @@ class ListUserRole(lister.Lister):
 class RemoveRole(command.Command):
     """Remove role from project : user"""
 
-    log = logging.getLogger(__name__ + '.RemoveRole')
-
     def get_parser(self, prog_name):
         parser = super(RemoveRole, self).get_parser(prog_name)
         parser.add_argument(
@@ -316,7 +296,6 @@ class RemoveRole(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         role = utils.find_resource(identity_client.roles, parsed_args.role)
@@ -331,10 +310,8 @@ class RemoveRole(command.Command):
             project.id)
 
 
-class ShowRole(show.ShowOne):
+class ShowRole(command.ShowOne):
     """Display role details"""
-
-    log = logging.getLogger(__name__ + '.ShowRole')
 
     def get_parser(self, prog_name):
         parser = super(ShowRole, self).get_parser(prog_name)
@@ -345,7 +322,6 @@ class ShowRole(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         role = utils.find_resource(identity_client.roles, parsed_args.role)

@@ -14,20 +14,14 @@
 
 """Identity v3 Protocols actions implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class CreateProtocol(show.ShowOne):
+class CreateProtocol(command.ShowOne):
     """Create new federation protocol"""
-
-    log = logging.getLogger(__name__ + 'CreateProtocol')
 
     def get_parser(self, prog_name):
         parser = super(CreateProtocol, self).get_parser(prog_name)
@@ -50,7 +44,6 @@ class CreateProtocol(show.ShowOne):
 
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         protocol = identity_client.federation.protocols.create(
@@ -71,8 +64,6 @@ class CreateProtocol(show.ShowOne):
 class DeleteProtocol(command.Command):
     """Delete federation protocol"""
 
-    log = logging.getLogger(__name__ + '.DeleteProtocol')
-
     def get_parser(self, prog_name):
         parser = super(DeleteProtocol, self).get_parser(prog_name)
         parser.add_argument(
@@ -88,7 +79,6 @@ class DeleteProtocol(command.Command):
 
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         identity_client.federation.protocols.delete(
@@ -96,10 +86,8 @@ class DeleteProtocol(command.Command):
         return
 
 
-class ListProtocols(lister.Lister):
+class ListProtocols(command.Lister):
     """List federation protocols"""
-
-    log = logging.getLogger(__name__ + '.ListProtocols')
 
     def get_parser(self, prog_name):
         parser = super(ListProtocols, self).get_parser(prog_name)
@@ -125,8 +113,6 @@ class ListProtocols(lister.Lister):
 
 class SetProtocol(command.Command):
     """Set federation protocol properties"""
-
-    log = logging.getLogger(__name__ + '.SetProtocol')
 
     def get_parser(self, prog_name):
         parser = super(SetProtocol, self).get_parser(prog_name)
@@ -166,10 +152,8 @@ class SetProtocol(command.Command):
         return zip(*sorted(six.iteritems(info)))
 
 
-class ShowProtocol(show.ShowOne):
+class ShowProtocol(command.ShowOne):
     """Display federation protocol details"""
-
-    log = logging.getLogger(__name__ + '.ShowProtocol')
 
     def get_parser(self, prog_name):
         parser = super(ShowProtocol, self).get_parser(prog_name)

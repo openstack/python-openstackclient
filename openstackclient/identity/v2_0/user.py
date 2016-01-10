@@ -15,22 +15,17 @@
 
 """Identity v2.0 User action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
 from keystoneauth1 import exceptions as ks_exc
 
+from openstackclient.common import command
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
 
 
-class CreateUser(show.ShowOne):
+class CreateUser(command.ShowOne):
     """Create new user"""
-
-    log = logging.getLogger(__name__ + '.CreateUser')
 
     def get_parser(self, prog_name):
         parser = super(CreateUser, self).get_parser(prog_name)
@@ -78,7 +73,6 @@ class CreateUser(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -130,8 +124,6 @@ class CreateUser(show.ShowOne):
 class DeleteUser(command.Command):
     """Delete user(s)"""
 
-    log = logging.getLogger(__name__ + '.DeleteUser')
-
     def get_parser(self, prog_name):
         parser = super(DeleteUser, self).get_parser(prog_name)
         parser.add_argument(
@@ -142,7 +134,6 @@ class DeleteUser(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -155,10 +146,8 @@ class DeleteUser(command.Command):
         return
 
 
-class ListUser(lister.Lister):
+class ListUser(command.Lister):
     """List users"""
-
-    log = logging.getLogger(__name__ + '.ListUser')
 
     def get_parser(self, prog_name):
         parser = super(ListUser, self).get_parser(prog_name)
@@ -174,7 +163,6 @@ class ListUser(lister.Lister):
             help=_('List additional fields in output'))
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -248,8 +236,6 @@ class ListUser(lister.Lister):
 class SetUser(command.Command):
     """Set user properties"""
 
-    log = logging.getLogger(__name__ + '.SetUser')
-
     def get_parser(self, prog_name):
         parser = super(SetUser, self).get_parser(prog_name)
         parser.add_argument(
@@ -296,7 +282,6 @@ class SetUser(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
@@ -348,10 +333,8 @@ class SetUser(command.Command):
         return
 
 
-class ShowUser(show.ShowOne):
+class ShowUser(command.ShowOne):
     """Display user details"""
-
-    log = logging.getLogger(__name__ + '.ShowUser')
 
     def get_parser(self, prog_name):
         parser = super(ShowUser, self).get_parser(prog_name)
@@ -362,7 +345,6 @@ class ShowUser(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 

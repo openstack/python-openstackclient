@@ -13,20 +13,15 @@
 
 """Configuration action implementations"""
 
-import logging
-
-from cliff import show
 import six
 
-from openstackclient.common import utils
+from openstackclient.common import command
 
 REDACTED = "<redacted>"
 
 
-class ShowConfiguration(show.ShowOne):
+class ShowConfiguration(command.ShowOne):
     """Display configuration details"""
-
-    log = logging.getLogger(__name__ + '.ShowConfiguration')
 
     def get_parser(self, prog_name):
         parser = super(ShowConfiguration, self).get_parser(prog_name)
@@ -46,7 +41,6 @@ class ShowConfiguration(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         info = self.app.client_manager.get_configuration()

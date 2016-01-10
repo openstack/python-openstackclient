@@ -13,20 +13,15 @@
 
 """Account v1 action implementations"""
 
-import logging
-
-from cliff import command
-from cliff import show
 import six
 
+from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
 class SetAccount(command.Command):
     """Set account properties"""
-
-    log = logging.getLogger(__name__ + '.SetAccount')
 
     def get_parser(self, prog_name):
         parser = super(SetAccount, self).get_parser(prog_name)
@@ -40,19 +35,15 @@ class SetAccount(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         self.app.client_manager.object_store.account_set(
             properties=parsed_args.property,
         )
 
 
-class ShowAccount(show.ShowOne):
+class ShowAccount(command.ShowOne):
     """Display account details"""
 
-    log = logging.getLogger(__name__ + '.ShowAccount')
-
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         data = self.app.client_manager.object_store.account_show()
         if 'properties' in data:
@@ -62,8 +53,6 @@ class ShowAccount(show.ShowOne):
 
 class UnsetAccount(command.Command):
     """Unset account properties"""
-
-    log = logging.getLogger(__name__ + '.UnsetAccount')
 
     def get_parser(self, prog_name):
         parser = super(UnsetAccount, self).get_parser(prog_name)
@@ -78,7 +67,6 @@ class UnsetAccount(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         self.app.client_manager.object_store.account_unset(
             properties=parsed_args.property,

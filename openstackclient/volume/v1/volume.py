@@ -16,21 +16,15 @@
 """Volume v1 Volume action implementations"""
 
 import argparse
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
-class CreateVolume(show.ShowOne):
+class CreateVolume(command.ShowOne):
     """Create new volume"""
-
-    log = logging.getLogger(__name__ + '.CreateVolume')
 
     def get_parser(self, prog_name):
         parser = super(CreateVolume, self).get_parser(prog_name)
@@ -102,7 +96,6 @@ class CreateVolume(show.ShowOne):
 
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         identity_client = self.app.client_manager.identity
@@ -166,8 +159,6 @@ class CreateVolume(show.ShowOne):
 class DeleteVolume(command.Command):
     """Delete volume(s)"""
 
-    log = logging.getLogger(__name__ + '.DeleteVolume')
-
     def get_parser(self, prog_name):
         parser = super(DeleteVolume, self).get_parser(prog_name)
         parser.add_argument(
@@ -186,7 +177,6 @@ class DeleteVolume(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         for volume in parsed_args.volumes:
@@ -198,10 +188,8 @@ class DeleteVolume(command.Command):
                 volume_client.volumes.delete(volume_obj.id)
 
 
-class ListVolume(lister.Lister):
+class ListVolume(command.Lister):
     """List volumes"""
-
-    log = logging.getLogger(__name__ + '.ListVolume')
 
     def get_parser(self, prog_name):
         parser = super(ListVolume, self).get_parser(prog_name)
@@ -229,7 +217,6 @@ class ListVolume(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         volume_client = self.app.client_manager.volume
@@ -316,8 +303,6 @@ class ListVolume(lister.Lister):
 class SetVolume(command.Command):
     """Set volume properties"""
 
-    log = logging.getLogger(__name__ + '.SetVolume')
-
     def get_parser(self, prog_name):
         parser = super(SetVolume, self).get_parser(prog_name)
         parser.add_argument(
@@ -350,7 +335,6 @@ class SetVolume(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
@@ -382,10 +366,8 @@ class SetVolume(command.Command):
             self.app.log.error("No changes requested\n")
 
 
-class ShowVolume(show.ShowOne):
+class ShowVolume(command.ShowOne):
     """Show volume details"""
-
-    log = logging.getLogger(__name__ + '.ShowVolume')
 
     def get_parser(self, prog_name):
         parser = super(ShowVolume, self).get_parser(prog_name)
@@ -396,7 +378,6 @@ class ShowVolume(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
@@ -418,8 +399,6 @@ class ShowVolume(show.ShowOne):
 class UnsetVolume(command.Command):
     """Unset volume properties"""
 
-    log = logging.getLogger(__name__ + '.UnsetVolume')
-
     def get_parser(self, prog_name):
         parser = super(UnsetVolume, self).get_parser(prog_name)
         parser.add_argument(
@@ -438,7 +417,6 @@ class UnsetVolume(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(

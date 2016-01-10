@@ -17,7 +17,6 @@
 
 import argparse
 import io
-import logging
 import os
 import six
 import sys
@@ -27,12 +26,9 @@ if os.name == "nt":
 else:
     msvcrt = None
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
 from glanceclient.common import utils as gc_utils
 from openstackclient.api import utils as api_utils
+from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
@@ -57,10 +53,8 @@ def _format_visibility(data):
         return 'private'
 
 
-class CreateImage(show.ShowOne):
+class CreateImage(command.ShowOne):
     """Create/upload an image"""
-
-    log = logging.getLogger(__name__ + ".CreateImage")
 
     def get_parser(self, prog_name):
         parser = super(CreateImage, self).get_parser(prog_name)
@@ -191,7 +185,6 @@ class CreateImage(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         image_client = self.app.client_manager.image
 
         if getattr(parsed_args, 'owner', None) is not None:
@@ -283,8 +276,6 @@ class CreateImage(show.ShowOne):
 class DeleteImage(command.Command):
     """Delete image(s)"""
 
-    log = logging.getLogger(__name__ + ".DeleteImage")
-
     def get_parser(self, prog_name):
         parser = super(DeleteImage, self).get_parser(prog_name)
         parser.add_argument(
@@ -296,8 +287,6 @@ class DeleteImage(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         image_client = self.app.client_manager.image
         for image in parsed_args.images:
             image_obj = utils.find_resource(
@@ -307,10 +296,8 @@ class DeleteImage(command.Command):
             image_client.images.delete(image_obj.id)
 
 
-class ListImage(lister.Lister):
+class ListImage(command.Lister):
     """List available images"""
-
-    log = logging.getLogger(__name__ + ".ListImage")
 
     def get_parser(self, prog_name):
         parser = super(ListImage, self).get_parser(prog_name)
@@ -367,8 +354,6 @@ class ListImage(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         image_client = self.app.client_manager.image
 
         kwargs = {}
@@ -452,8 +437,6 @@ class ListImage(lister.Lister):
 class SaveImage(command.Command):
     """Save an image locally"""
 
-    log = logging.getLogger(__name__ + ".SaveImage")
-
     def get_parser(self, prog_name):
         parser = super(SaveImage, self).get_parser(prog_name)
         parser.add_argument(
@@ -469,8 +452,6 @@ class SaveImage(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         image_client = self.app.client_manager.image
         image = utils.find_resource(
             image_client.images,
@@ -483,8 +464,6 @@ class SaveImage(command.Command):
 
 class SetImage(command.Command):
     """Set image properties"""
-
-    log = logging.getLogger(__name__ + ".SetImage")
 
     def get_parser(self, prog_name):
         parser = super(SetImage, self).get_parser(prog_name)
@@ -624,7 +603,6 @@ class SetImage(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
         image_client = self.app.client_manager.image
 
         if getattr(parsed_args, 'owner', None) is not None:
@@ -723,10 +701,8 @@ class SetImage(command.Command):
                     kwargs['data'].close()
 
 
-class ShowImage(show.ShowOne):
+class ShowImage(command.ShowOne):
     """Display image details"""
-
-    log = logging.getLogger(__name__ + ".ShowImage")
 
     def get_parser(self, prog_name):
         parser = super(ShowImage, self).get_parser(prog_name)
@@ -738,8 +714,6 @@ class ShowImage(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         image_client = self.app.client_manager.image
         image = utils.find_resource(
             image_client.images,

@@ -16,21 +16,15 @@
 
 """Compute v2 Aggregate action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
-class AddAggregateHost(show.ShowOne):
+class AddAggregateHost(command.ShowOne):
     """Add host to aggregate"""
-
-    log = logging.getLogger(__name__ + '.AddAggregateHost')
 
     def get_parser(self, prog_name):
         parser = super(AddAggregateHost, self).get_parser(prog_name)
@@ -47,8 +41,6 @@ class AddAggregateHost(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         compute_client = self.app.client_manager.compute
 
         aggregate = utils.find_resource(
@@ -62,10 +54,8 @@ class AddAggregateHost(show.ShowOne):
         return zip(*sorted(six.iteritems(info)))
 
 
-class CreateAggregate(show.ShowOne):
+class CreateAggregate(command.ShowOne):
     """Create a new aggregate"""
-
-    log = logging.getLogger(__name__ + ".CreateAggregate")
 
     def get_parser(self, prog_name):
         parser = super(CreateAggregate, self).get_parser(prog_name)
@@ -89,8 +79,6 @@ class CreateAggregate(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         compute_client = self.app.client_manager.compute
 
         info = {}
@@ -112,8 +100,6 @@ class CreateAggregate(show.ShowOne):
 class DeleteAggregate(command.Command):
     """Delete an existing aggregate"""
 
-    log = logging.getLogger(__name__ + '.DeleteAggregate')
-
     def get_parser(self, prog_name):
         parser = super(DeleteAggregate, self).get_parser(prog_name)
         parser.add_argument(
@@ -123,7 +109,6 @@ class DeleteAggregate(command.Command):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute
@@ -134,10 +119,8 @@ class DeleteAggregate(command.Command):
         compute_client.aggregates.delete(data.id)
 
 
-class ListAggregate(lister.Lister):
+class ListAggregate(command.Lister):
     """List all aggregates"""
-
-    log = logging.getLogger(__name__ + ".ListAggregate")
 
     def get_parser(self, prog_name):
         parser = super(ListAggregate, self).get_parser(prog_name)
@@ -149,8 +132,6 @@ class ListAggregate(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         compute_client = self.app.client_manager.compute
 
         data = compute_client.aggregates.list()
@@ -186,10 +167,8 @@ class ListAggregate(lister.Lister):
                 ) for s in data))
 
 
-class RemoveAggregateHost(show.ShowOne):
+class RemoveAggregateHost(command.ShowOne):
     """Remove host from aggregate"""
-
-    log = logging.getLogger(__name__ + '.RemoveAggregateHost')
 
     def get_parser(self, prog_name):
         parser = super(RemoveAggregateHost, self).get_parser(prog_name)
@@ -206,8 +185,6 @@ class RemoveAggregateHost(show.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug("take_action(%s)", parsed_args)
-
         compute_client = self.app.client_manager.compute
 
         aggregate = utils.find_resource(
@@ -224,10 +201,8 @@ class RemoveAggregateHost(show.ShowOne):
         return zip(*sorted(six.iteritems(info)))
 
 
-class SetAggregate(show.ShowOne):
+class SetAggregate(command.ShowOne):
     """Set aggregate properties"""
-
-    log = logging.getLogger(__name__ + '.SetAggregate')
 
     def get_parser(self, prog_name):
         parser = super(SetAggregate, self).get_parser(prog_name)
@@ -255,7 +230,6 @@ class SetAggregate(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute
@@ -288,10 +262,8 @@ class SetAggregate(show.ShowOne):
             return ({}, {})
 
 
-class ShowAggregate(show.ShowOne):
+class ShowAggregate(command.ShowOne):
     """Display aggregate details"""
-
-    log = logging.getLogger(__name__ + '.ShowAggregate')
 
     def get_parser(self, prog_name):
         parser = super(ShowAggregate, self).get_parser(prog_name)
@@ -302,7 +274,6 @@ class ShowAggregate(show.ShowOne):
         )
         return parser
 
-    @utils.log_method(log)
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute

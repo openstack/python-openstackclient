@@ -16,17 +16,13 @@
 """Extension action implementations"""
 
 import itertools
-import logging
 
-from cliff import lister
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
-class ListExtension(lister.Lister):
+class ListExtension(command.Lister):
     """List API extensions"""
-
-    log = logging.getLogger(__name__ + '.ListExtension')
 
     def get_parser(self, prog_name):
         parser = super(ListExtension, self).get_parser(prog_name)
@@ -58,8 +54,6 @@ class ListExtension(lister.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
-
         if parsed_args.long:
             columns = ('Name', 'Namespace', 'Description',
                        'Alias', 'Updated', 'Links')

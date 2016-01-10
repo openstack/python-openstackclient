@@ -13,15 +13,11 @@
 
 """Port action implementations"""
 
-import logging
-
 from cliff import command
 
 
 class DeletePort(command.Command):
     """Delete port(s)"""
-
-    log = logging.getLogger(__name__ + '.DeletePort')
 
     def get_parser(self, prog_name):
         parser = super(DeletePort, self).get_parser(prog_name)
@@ -34,7 +30,6 @@ class DeletePort(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)' % parsed_args)
         client = self.app.client_manager.network
 
         for port in parsed_args.port:
