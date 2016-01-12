@@ -202,6 +202,15 @@ class TestSnapshotUnset(TestSnapshot):
 
 
 class TestSnapshotList(TestSnapshot):
+
+    columns = [
+        "ID",
+        "Name",
+        "Description",
+        "Status",
+        "Size"
+    ]
+
     def setUp(self):
         super(TestSnapshotList, self).setUp()
 
@@ -231,8 +240,7 @@ class TestSnapshotList(TestSnapshot):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        collist = ["ID", "Name", "Description", "Status", "Size"]
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             volume_fakes.snapshot_id,
             volume_fakes.snapshot_name,
@@ -249,9 +257,12 @@ class TestSnapshotList(TestSnapshot):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        collist = ["ID", "Name", "Description", "Status", "Size", "Created At",
-                   "Volume", "Properties"]
-        self.assertEqual(collist, columns)
+        columns = self.columns + [
+            "Created At",
+            "Volume",
+            "Properties"
+        ]
+        self.assertEqual(columns, columns)
 
         datalist = ((
             volume_fakes.snapshot_id,
@@ -277,14 +288,7 @@ class TestSnapshotList(TestSnapshot):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        collist = [
-            "ID",
-            "Name",
-            "Description",
-            "Status",
-            "Size"
-        ]
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
 
         datalist = ((
             volume_fakes.snapshot_id,

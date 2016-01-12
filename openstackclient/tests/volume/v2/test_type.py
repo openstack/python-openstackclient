@@ -44,6 +44,17 @@ class TestType(volume_fakes.TestVolume):
 
 class TestTypeCreate(TestType):
 
+    columns = (
+        'description',
+        'id',
+        'name',
+    )
+    datalist = (
+        volume_fakes.type_description,
+        volume_fakes.type_id,
+        volume_fakes.type_name,
+    )
+
     def setUp(self):
         super(TestTypeCreate, self).setUp()
 
@@ -76,18 +87,8 @@ class TestTypeCreate(TestType):
             is_public=True,
         )
 
-        collist = (
-            'description',
-            'id',
-            'name',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            volume_fakes.type_description,
-            volume_fakes.type_id,
-            volume_fakes.type_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_type_create_private(self):
         arglist = [
@@ -110,21 +111,17 @@ class TestTypeCreate(TestType):
             is_public=False,
         )
 
-        collist = (
-            'description',
-            'id',
-            'name',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            volume_fakes.type_description,
-            volume_fakes.type_id,
-            volume_fakes.type_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
 
 class TestTypeList(TestType):
+
+    columns = [
+        "ID",
+        "Name"
+    ]
+
     def setUp(self):
         super(TestTypeList, self).setUp()
 
@@ -146,8 +143,7 @@ class TestTypeList(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        collist = ["ID", "Name"]
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             volume_fakes.type_id,
             volume_fakes.type_name,
@@ -160,8 +156,11 @@ class TestTypeList(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        collist = ["ID", "Name", "Description", "Properties"]
-        self.assertEqual(collist, columns)
+        columns = self.columns + [
+            "Description",
+            "Properties"
+        ]
+        self.assertEqual(columns, columns)
         datalist = ((
             volume_fakes.type_id,
             volume_fakes.type_name,

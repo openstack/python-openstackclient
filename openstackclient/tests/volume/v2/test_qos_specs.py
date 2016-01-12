@@ -69,6 +69,18 @@ class TestQosAssociate(TestQos):
 
 
 class TestQosCreate(TestQos):
+
+    columns = (
+        'consumer',
+        'id',
+        'name'
+    )
+    datalist = (
+        volume_fakes.qos_consumer,
+        volume_fakes.qos_id,
+        volume_fakes.qos_name
+    )
+
     def setUp(self):
         super(TestQosCreate, self).setUp()
 
@@ -97,12 +109,7 @@ class TestQosCreate(TestQos):
             {'consumer': volume_fakes.qos_default_consumer}
         )
 
-        collist = (
-            'consumer',
-            'id',
-            'name'
-        )
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             volume_fakes.qos_default_consumer,
             volume_fakes.qos_id,
@@ -134,18 +141,8 @@ class TestQosCreate(TestQos):
             {'consumer': volume_fakes.qos_consumer}
         )
 
-        collist = (
-            'consumer',
-            'id',
-            'name'
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            volume_fakes.qos_consumer,
-            volume_fakes.qos_id,
-            volume_fakes.qos_name
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_qos_create_with_properties(self):
         self.qos_mock.create.return_value = fakes.FakeResource(
@@ -176,17 +173,11 @@ class TestQosCreate(TestQos):
             specs
         )
 
-        collist = (
-            'consumer',
-            'id',
-            'name',
+        columns = self.columns + (
             'specs',
         )
-        self.assertEqual(collist, columns)
-        datalist = (
-            volume_fakes.qos_consumer,
-            volume_fakes.qos_id,
-            volume_fakes.qos_name,
+        self.assertEqual(columns, columns)
+        datalist = self.datalist + (
             volume_fakes.qos_specs,
         )
         self.assertEqual(datalist, data)
