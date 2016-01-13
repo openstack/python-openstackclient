@@ -88,6 +88,8 @@ SERVICE = {
 
 class FakeComputev2Client(object):
     def __init__(self, **kwargs):
+        self.availability_zones = mock.Mock()
+        self.availability_zones.resource_class = fakes.FakeResource(None, {})
         self.images = mock.Mock()
         self.images.resource_class = fakes.FakeResource(None, {})
         self.servers = mock.Mock()
@@ -289,3 +291,63 @@ class FakeFlavor(object):
         if flavors is None:
             flavors = FakeServer.create_flavors(count)
         return mock.MagicMock(side_effect=flavors)
+
+
+class FakeAvailabilityZone(object):
+    """Fake one or more compute availability zones (AZs)."""
+
+    @staticmethod
+    def create_one_availability_zone(attrs={}, methods={}):
+        """Create a fake AZ.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object with zoneName, zoneState, etc.
+        """
+        # Set default attributes.
+        host_name = uuid.uuid4().hex
+        service_name = uuid.uuid4().hex
+        service_updated_at = uuid.uuid4().hex
+        availability_zone = {
+            'zoneName': uuid.uuid4().hex,
+            'zoneState': {'available': True},
+            'hosts': {host_name: {service_name: {
+                'available': True,
+                'active': True,
+                'updated_at': service_updated_at,
+            }}},
+        }
+
+        # Overwrite default attributes.
+        availability_zone.update(attrs)
+
+        availability_zone = fakes.FakeResource(
+            info=copy.deepcopy(availability_zone),
+            methods=methods,
+            loaded=True)
+        return availability_zone
+
+    @staticmethod
+    def create_availability_zones(attrs={}, methods={}, count=2):
+        """Create multiple fake AZs.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of AZs to fake
+        :return:
+            A list of FakeResource objects faking the AZs
+        """
+        availability_zones = []
+        for i in range(0, count):
+            availability_zone = \
+                FakeAvailabilityZone.create_one_availability_zone(
+                    attrs, methods)
+            availability_zones.append(availability_zone)
+
+        return availability_zones
