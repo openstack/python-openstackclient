@@ -202,6 +202,8 @@ class FakeVolumeClient(object):
         self.restores.resource_class = fakes.FakeResource(None, {})
         self.qos_specs = mock.Mock()
         self.qos_specs.resource_class = fakes.FakeResource(None, {})
+        self.availability_zones = mock.Mock()
+        self.availability_zones.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
@@ -304,3 +306,55 @@ class FakeVolume(object):
             volumes = FakeVolume.create_volumes(count)
 
         return mock.MagicMock(side_effect=volumes)
+
+
+class FakeAvailabilityZone(object):
+    """Fake one or more volume availability zones (AZs)."""
+
+    @staticmethod
+    def create_one_availability_zone(attrs={}, methods={}):
+        """Create a fake AZ.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object with zoneName, zoneState, etc.
+        """
+        # Set default attributes.
+        availability_zone = {
+            'zoneName': uuid.uuid4().hex,
+            'zoneState': {'available': True},
+        }
+
+        # Overwrite default attributes.
+        availability_zone.update(attrs)
+
+        availability_zone = fakes.FakeResource(
+            info=copy.deepcopy(availability_zone),
+            methods=methods,
+            loaded=True)
+        return availability_zone
+
+    @staticmethod
+    def create_availability_zones(attrs={}, methods={}, count=2):
+        """Create multiple fake AZs.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of AZs to fake
+        :return:
+            A list of FakeResource objects faking the AZs
+        """
+        availability_zones = []
+        for i in range(0, count):
+            availability_zone = \
+                FakeAvailabilityZone.create_one_availability_zone(
+                    attrs, methods)
+            availability_zones.append(availability_zone)
+
+        return availability_zones

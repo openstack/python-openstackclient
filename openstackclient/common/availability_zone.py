@@ -11,7 +11,7 @@
 #   under the License.
 #
 
-"""Compute v2 Availability Zone action implementations"""
+"""Availability Zone action implementations"""
 
 import copy
 import logging
@@ -24,14 +24,18 @@ from openstackclient.common import utils
 from openstackclient.i18n import _  # noqa
 
 
-def _xform_availability_zone(az, include_extra):
-    result = []
-    zone_info = {}
+def _xform_common_availability_zone(az, zone_info):
     if hasattr(az, 'zoneState'):
         zone_info['zone_status'] = ('available' if az.zoneState['available']
                                     else 'not available')
     if hasattr(az, 'zoneName'):
         zone_info['zone_name'] = az.zoneName
+
+
+def _xform_compute_availability_zone(az, include_extra):
+    result = []
+    zone_info = {}
+    _xform_common_availability_zone(az, zone_info)
 
     if not include_extra:
         result.append(zone_info)
@@ -58,6 +62,14 @@ def _xform_availability_zone(az, include_extra):
     return result
 
 
+def _xform_volume_availability_zone(az):
+    result = []
+    zone_info = {}
+    _xform_common_availability_zone(az, zone_info)
+    result.append(zone_info)
+    return result
+
+
 class ListAvailabilityZone(lister.Lister):
     """List availability zones and their status"""
 
@@ -66,6 +78,16 @@ class ListAvailabilityZone(lister.Lister):
     def get_parser(self, prog_name):
         parser = super(ListAvailabilityZone, self).get_parser(prog_name)
         parser.add_argument(
+            '--compute',
+            action='store_true',
+            default=False,
+            help='List compute availability zones')
+        parser.add_argument(
+            '--volume',
+            action='store_true',
+            default=False,
+            help='List volume availability zones')
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -73,15 +95,7 @@ class ListAvailabilityZone(lister.Lister):
         )
         return parser
 
-    @utils.log_method(log)
-    def take_action(self, parsed_args):
-
-        if parsed_args.long:
-            columns = ('Zone Name', 'Zone Status',
-                       'Host Name', 'Service Name', 'Service Status')
-        else:
-            columns = ('Zone Name', 'Zone Status')
-
+    def get_compute_availability_zones(self, parsed_args):
         compute_client = self.app.client_manager.compute
         try:
             data = compute_client.availability_zones.list()
@@ -94,7 +108,40 @@ class ListAvailabilityZone(lister.Lister):
         # Argh, the availability zones are not iterable...
         result = []
         for zone in data:
-            result += _xform_availability_zone(zone, parsed_args.long)
+            result += _xform_compute_availability_zone(zone, parsed_args.long)
+        return result
+
+    def get_volume_availability_zones(self, parsed_args):
+        volume_client = self.app.client_manager.volume
+        try:
+            data = volume_client.availability_zones.list()
+        except Exception:
+            message = "Availability zones list not supported by " \
+                      "Block Storage API"
+            self.log.warning(message)
+
+        result = []
+        for zone in data:
+            result += _xform_volume_availability_zone(zone)
+        return result
+
+    @utils.log_method(log)
+    def take_action(self, parsed_args):
+
+        if parsed_args.long:
+            columns = ('Zone Name', 'Zone Status',
+                       'Host Name', 'Service Name', 'Service Status')
+        else:
+            columns = ('Zone Name', 'Zone Status')
+
+        # Show everything by default.
+        show_all = (not parsed_args.compute and not parsed_args.volume)
+
+        result = []
+        if parsed_args.compute or show_all:
+            result += self.get_compute_availability_zones(parsed_args)
+        if parsed_args.volume or show_all:
+            result += self.get_volume_availability_zones(parsed_args)
 
         return (columns,
                 (utils.get_dict_properties(
