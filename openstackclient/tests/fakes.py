@@ -34,7 +34,15 @@ VERSION = "3"
 TEST_RESPONSE_DICT = fixture.V2Token(token_id=AUTH_TOKEN,
                                      user_name=USERNAME)
 _s = TEST_RESPONSE_DICT.add_service('identity', name='keystone')
-_s.add_endpoint(AUTH_URL + '/v2.0')
+_s.add_endpoint(AUTH_URL + ':5000/v2.0')
+_s = TEST_RESPONSE_DICT.add_service('network', name='neutron')
+_s.add_endpoint(AUTH_URL + ':9696')
+_s = TEST_RESPONSE_DICT.add_service('compute', name='nova')
+_s.add_endpoint(AUTH_URL + ':8774/v2')
+_s = TEST_RESPONSE_DICT.add_service('image', name='glance')
+_s.add_endpoint(AUTH_URL + ':9292')
+_s = TEST_RESPONSE_DICT.add_service('object', name='swift')
+_s.add_endpoint(AUTH_URL + ':8080/v1')
 
 TEST_RESPONSE_DICT_V3 = fixture.V3Token(user_name=USERNAME)
 TEST_RESPONSE_DICT_V3.set_project_scope()
@@ -103,6 +111,7 @@ class FakeClientManager(object):
         self.session = None
         self.auth_ref = None
         self.auth_plugin_name = None
+        self.network_endpoint_enabled = True
 
     def get_configuration(self):
         return {
@@ -114,6 +123,9 @@ class FakeClientManager(object):
             'region': REGION_NAME,
             'identity_api_version': VERSION,
         }
+
+    def is_network_endpoint_enabled(self):
+        return self.network_endpoint_enabled
 
 
 class FakeModule(object):
