@@ -38,6 +38,17 @@ class TestGroup(identity_fakes.TestIdentityv3):
 
 class TestGroupList(TestGroup):
 
+    columns = (
+        'ID',
+        'Name',
+    )
+    datalist = (
+        (
+            identity_fakes.group_id,
+            identity_fakes.group_name,
+        ),
+    )
+
     def setUp(self):
         super(TestGroupList, self).setUp()
 
@@ -87,13 +98,8 @@ class TestGroupList(TestGroup):
             **kwargs
         )
 
-        collist = ('ID', 'Name')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.group_id,
-            identity_fakes.group_name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_group_list_domain(self):
         arglist = [
@@ -117,13 +123,8 @@ class TestGroupList(TestGroup):
             **kwargs
         )
 
-        collist = ('ID', 'Name')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.group_id,
-            identity_fakes.group_name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_group_list_user(self):
         arglist = [
@@ -147,13 +148,8 @@ class TestGroupList(TestGroup):
             **kwargs
         )
 
-        collist = ('ID', 'Name')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.group_id,
-            identity_fakes.group_name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_group_list_long(self):
         arglist = [
@@ -177,17 +173,15 @@ class TestGroupList(TestGroup):
             **kwargs
         )
 
-        collist = (
-            'ID',
-            'Name',
+        columns = self.columns + (
             'Domain ID',
             'Description',
         )
-        self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.group_id,
             identity_fakes.group_name,
             '',
             '',
         ), )
+        self.assertEqual(columns, columns)
         self.assertEqual(datalist, tuple(data))

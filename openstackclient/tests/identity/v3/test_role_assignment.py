@@ -26,6 +26,15 @@ class TestRoleAssignment(identity_fakes.TestIdentityv3):
 
 class TestRoleAssignmentList(TestRoleAssignment):
 
+    columns = (
+        'Role',
+        'User',
+        'Group',
+        'Project',
+        'Domain',
+        'Inherited',
+    )
+
     def setUp(self):
         super(TestRoleAssignment, self).setUp()
 
@@ -89,8 +98,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             project=None,
             os_inherit_extension_inherited_to=None)
 
-        collist = ('Role', 'User', 'Group', 'Project', 'Domain', 'Inherited')
-        self.assertEqual(columns, collist)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.user_id,
@@ -150,8 +158,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             effective=False,
             os_inherit_extension_inherited_to=None)
 
-        collist = ('Role', 'User', 'Group', 'Project', 'Domain', 'Inherited')
-        self.assertEqual(columns, collist)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.user_id,
@@ -211,8 +218,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             user=None,
             os_inherit_extension_inherited_to=None)
 
-        collist = ('Role', 'User', 'Group', 'Project', 'Domain', 'Inherited')
-        self.assertEqual(columns, collist)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             identity_fakes.role_id,
             '',
@@ -272,8 +278,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             user=None,
             os_inherit_extension_inherited_to=None)
 
-        collist = ('Role', 'User', 'Group', 'Project', 'Domain', 'Inherited')
-        self.assertEqual(columns, collist)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.user_id,
@@ -333,8 +338,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             user=None,
             os_inherit_extension_inherited_to=None)
 
-        collist = ('Role', 'User', 'Group', 'Project', 'Domain', 'Inherited')
-        self.assertEqual(columns, collist)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.user_id,
@@ -392,8 +396,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             user=None,
             os_inherit_extension_inherited_to=None)
 
-        collist = ('Role', 'User', 'Group', 'Project', 'Domain', 'Inherited')
-        self.assertEqual(columns, collist)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.user_id,
@@ -453,8 +456,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             user=None,
             os_inherit_extension_inherited_to='projects')
 
-        collist = ('Role', 'User', 'Group', 'Project', 'Domain', 'Inherited')
-        self.assertEqual(columns, collist)
+        self.assertEqual(self.columns, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.user_id,

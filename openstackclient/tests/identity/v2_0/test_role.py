@@ -107,6 +107,15 @@ class TestRoleAdd(TestRole):
 
 class TestRoleCreate(TestRole):
 
+    columns = (
+        'id',
+        'name'
+    )
+    datalist = (
+        identity_fakes.role_id,
+        identity_fakes.role_name,
+    )
+
     def setUp(self):
         super(TestRoleCreate, self).setUp()
 
@@ -136,13 +145,8 @@ class TestRoleCreate(TestRole):
             identity_fakes.role_name,
         )
 
-        collist = ('id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.role_id,
-            identity_fakes.role_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_role_create_or_show_exists(self):
         def _raise_conflict(*args, **kwargs):
@@ -178,13 +182,8 @@ class TestRoleCreate(TestRole):
             identity_fakes.role_name,
         )
 
-        collist = ('id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.role_id,
-            identity_fakes.role_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_role_create_or_show_not_exists(self):
         arglist = [
@@ -205,13 +204,8 @@ class TestRoleCreate(TestRole):
             identity_fakes.role_name,
         )
 
-        collist = ('id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.role_id,
-            identity_fakes.role_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
 
 class TestRoleDelete(TestRole):
@@ -282,6 +276,13 @@ class TestRoleList(TestRole):
 
 
 class TestUserRoleList(TestRole):
+
+    columns = (
+        'ID',
+        'Name',
+        'Project',
+        'User'
+    )
 
     def setUp(self):
         super(TestUserRoleList, self).setUp()
@@ -395,8 +396,7 @@ class TestUserRoleList(TestRole):
             identity_fakes.PROJECT_2['id'],
         )
 
-        collist = ('ID', 'Name', 'Project', 'User')
-        self.assertEqual(collist, columns)
+        self.assertEqual(columns, columns)
         datalist = ((
             identity_fakes.role_id,
             identity_fakes.role_name,

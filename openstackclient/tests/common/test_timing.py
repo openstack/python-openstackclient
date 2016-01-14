@@ -33,6 +33,11 @@ class FakeGenericClient(object):
 
 class TestTiming(utils.TestCommand):
 
+    columns = (
+        'URL',
+        'Seconds',
+    )
+
     def setUp(self):
         super(TestTiming, self).setUp()
 
@@ -59,8 +64,7 @@ class TestTiming(utils.TestCommand):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        collist = ('URL', 'Seconds')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = [
             ('Total', 0.0,)
         ]
@@ -78,9 +82,7 @@ class TestTiming(utils.TestCommand):
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
-
-        collist = ('URL', 'Seconds')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = [
             (timing_url, timing_elapsed),
             ('Total', timing_elapsed),

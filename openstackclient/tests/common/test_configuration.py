@@ -18,6 +18,21 @@ from openstackclient.tests import utils
 
 class TestConfiguration(utils.TestCommand):
 
+    columns = (
+        'auth.password',
+        'auth.token',
+        'auth.username',
+        'identity_api_version',
+        'region',
+    )
+    datalist = (
+        configuration.REDACTED,
+        configuration.REDACTED,
+        fakes.USERNAME,
+        fakes.VERSION,
+        fakes.REGION_NAME,
+    )
+
     def test_show(self):
         arglist = []
         verifylist = [('mask', True)]
@@ -26,17 +41,8 @@ class TestConfiguration(utils.TestCommand):
 
         columns, data = cmd.take_action(parsed_args)
 
-        collist = ('auth.password', 'auth.token', 'auth.username',
-                   'identity_api_version', 'region')
-        self.assertEqual(collist, columns)
-        datalist = (
-            configuration.REDACTED,
-            configuration.REDACTED,
-            fakes.USERNAME,
-            fakes.VERSION,
-            fakes.REGION_NAME,
-        )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_show_unmask(self):
         arglist = ['--unmask']
@@ -46,9 +52,7 @@ class TestConfiguration(utils.TestCommand):
 
         columns, data = cmd.take_action(parsed_args)
 
-        collist = ('auth.password', 'auth.token', 'auth.username',
-                   'identity_api_version', 'region')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             fakes.PASSWORD,
             fakes.AUTH_TOKEN,
@@ -56,7 +60,7 @@ class TestConfiguration(utils.TestCommand):
             fakes.VERSION,
             fakes.REGION_NAME,
         )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(datalist, data)
 
     def test_show_mask(self):
         arglist = ['--mask']
@@ -66,14 +70,5 @@ class TestConfiguration(utils.TestCommand):
 
         columns, data = cmd.take_action(parsed_args)
 
-        collist = ('auth.password', 'auth.token', 'auth.username',
-                   'identity_api_version', 'region')
-        self.assertEqual(collist, columns)
-        datalist = (
-            configuration.REDACTED,
-            configuration.REDACTED,
-            fakes.USERNAME,
-            fakes.VERSION,
-            fakes.REGION_NAME,
-        )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)

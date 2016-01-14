@@ -29,6 +29,19 @@ class TestDomain(identity_fakes.TestIdentityv3):
 
 class TestDomainCreate(TestDomain):
 
+    columns = (
+        'description',
+        'enabled',
+        'id',
+        'name',
+    )
+    datalist = (
+        identity_fakes.domain_description,
+        True,
+        identity_fakes.domain_id,
+        identity_fakes.domain_name,
+    )
+
     def setUp(self):
         super(TestDomainCreate, self).setUp()
 
@@ -63,15 +76,8 @@ class TestDomainCreate(TestDomain):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.domain_description,
-            True,
-            identity_fakes.domain_id,
-            identity_fakes.domain_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_domain_create_description(self):
         arglist = [
@@ -97,15 +103,8 @@ class TestDomainCreate(TestDomain):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.domain_description,
-            True,
-            identity_fakes.domain_id,
-            identity_fakes.domain_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_domain_create_enable(self):
         arglist = [
@@ -131,15 +130,8 @@ class TestDomainCreate(TestDomain):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.domain_description,
-            True,
-            identity_fakes.domain_id,
-            identity_fakes.domain_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_domain_create_disable(self):
         arglist = [
@@ -165,15 +157,8 @@ class TestDomainCreate(TestDomain):
             **kwargs
         )
 
-        collist = ('description', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.domain_description,
-            True,
-            identity_fakes.domain_id,
-            identity_fakes.domain_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
 
 class TestDomainDelete(TestDomain):

@@ -38,6 +38,21 @@ class TestProject(identity_fakes.TestIdentityv3):
 
 class TestProjectCreate(TestProject):
 
+    columns = (
+        'description',
+        'domain_id',
+        'enabled',
+        'id',
+        'name'
+    )
+    datalist = (
+        identity_fakes.project_description,
+        identity_fakes.domain_id,
+        True,
+        identity_fakes.project_id,
+        identity_fakes.project_name,
+    )
+
     def setUp(self):
         super(TestProjectCreate, self).setUp()
 
@@ -127,16 +142,8 @@ class TestProjectCreate(TestProject):
             **kwargs
         )
 
-        collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.project_description,
-            identity_fakes.domain_id,
-            True,
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_project_create_domain(self):
         arglist = [
@@ -169,16 +176,8 @@ class TestProjectCreate(TestProject):
             **kwargs
         )
 
-        collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.project_description,
-            identity_fakes.domain_id,
-            True,
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_project_create_domain_no_perms(self):
         arglist = [
@@ -210,16 +209,8 @@ class TestProjectCreate(TestProject):
         self.projects_mock.create.assert_called_with(
             **kwargs
         )
-        collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.project_description,
-            identity_fakes.domain_id,
-            True,
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_project_create_enable(self):
         arglist = [
@@ -251,16 +242,8 @@ class TestProjectCreate(TestProject):
             **kwargs
         )
 
-        collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.project_description,
-            identity_fakes.domain_id,
-            True,
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_project_create_disable(self):
         arglist = [
@@ -292,16 +275,8 @@ class TestProjectCreate(TestProject):
             **kwargs
         )
 
-        collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.project_description,
-            identity_fakes.domain_id,
-            True,
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_project_create_property(self):
         arglist = [
@@ -334,16 +309,8 @@ class TestProjectCreate(TestProject):
             **kwargs
         )
 
-        collist = ('description', 'domain_id', 'enabled', 'id', 'name')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.project_description,
-            identity_fakes.domain_id,
-            True,
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_project_create_parent(self):
         self.projects_mock.get.return_value = fakes.FakeResource(
@@ -467,6 +434,17 @@ class TestProjectDelete(TestProject):
 
 class TestProjectList(TestProject):
 
+    columns = (
+        'ID',
+        'Name',
+    )
+    datalist = (
+        (
+            identity_fakes.project_id,
+            identity_fakes.project_name,
+        ),
+    )
+
     def setUp(self):
         super(TestProjectList, self).setUp()
 
@@ -490,13 +468,8 @@ class TestProjectList(TestProject):
         columns, data = self.cmd.take_action(parsed_args)
         self.projects_mock.list.assert_called_with()
 
-        collist = ('ID', 'Name')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_project_list_long(self):
         arglist = [
@@ -543,13 +516,8 @@ class TestProjectList(TestProject):
         self.projects_mock.list.assert_called_with(
             domain=identity_fakes.domain_id)
 
-        collist = ('ID', 'Name')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_project_list_domain_no_perms(self):
         arglist = [
@@ -567,13 +535,8 @@ class TestProjectList(TestProject):
 
         self.projects_mock.list.assert_called_with(
             domain=identity_fakes.domain_id)
-        collist = ('ID', 'Name')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.project_id,
-            identity_fakes.project_name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
 
 class TestProjectSet(TestProject):
