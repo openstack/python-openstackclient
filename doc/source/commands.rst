@@ -70,7 +70,7 @@ the API resources will be merged, as in the ``quota`` object that has options
 referring to both Compute and Volume quotas.
 
 * ``access token``: (**Identity**) long-lived OAuth-based token
-* ``availability zone``: (**Compute**, **Volume**) a logical partition of hosts or block storage services
+* ``availability zone``: (**Compute**, **Network**, **Volume**) a logical partition of hosts or block storage or network services
 * ``aggregate``: (**Compute**) a grouping of servers
 * ``backup``: (**Volume**) a volume copy
 * ``catalog``: (**Identity**) service catalog
