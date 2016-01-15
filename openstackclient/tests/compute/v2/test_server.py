@@ -780,6 +780,76 @@ class TestServerPause(TestServer):
         self.run_method_with_servers('pause', 3)
 
 
+class TestServerRebuild(TestServer):
+
+    def setUp(self):
+        super(TestServerRebuild, self).setUp()
+
+        # Return value for utils.find_resource for image
+        self.image = image_fakes.FakeImage.create_one_image()
+        self.cimages_mock.get.return_value = self.image
+
+        # Fake the rebuilt new server.
+        new_server = compute_fakes.FakeServer.create_one_server()
+
+        # Fake the server to be rebuilt. The IDs of them should be the same.
+        attrs = {
+            'id': new_server.id,
+            'image': {
+                'id': self.image.id
+            },
+            'networks': {},
+            'adminPass': 'passw0rd',
+        }
+        methods = {
+            'rebuild': new_server,
+        }
+        self.server = compute_fakes.FakeServer.create_one_server(
+            attrs=attrs,
+            methods=methods
+        )
+
+        # Return value for utils.find_resource for server.
+        self.servers_mock.get.return_value = self.server
+
+        self.cmd = server.RebuildServer(self.app, None)
+
+    def test_rebuild_with_current_image(self):
+        arglist = [
+            self.server.id,
+        ]
+        verifylist = [
+            ('server', self.server.id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Get the command object to test.
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.cimages_mock.get.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(self.image, None)
+
+    def test_rebuild_with_current_image_and_password(self):
+        password = 'password-xxx'
+        arglist = [
+            self.server.id,
+            '--password', password
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('password', password)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Get the command object to test
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.cimages_mock.get.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(self.image, password)
+
+
 class TestServerResize(TestServer):
 
     def setUp(self):

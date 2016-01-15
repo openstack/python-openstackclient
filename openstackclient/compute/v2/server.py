@@ -1088,8 +1088,8 @@ class RebuildServer(show.ShowOne):
         parser.add_argument(
             '--image',
             metavar='<image>',
-            required=True,
-            help=_('Recreate server from this image'),
+            help=_('Recreate server from the specified image (name or ID).'
+                   ' Defaults to the currently used one.'),
         )
         parser.add_argument(
             '--password',
@@ -1107,11 +1107,12 @@ class RebuildServer(show.ShowOne):
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
 
-        # Lookup parsed_args.image
-        image = utils.find_resource(compute_client.images, parsed_args.image)
-
         server = utils.find_resource(
             compute_client.servers, parsed_args.server)
+
+        # If parsed_args.image is not set, default to the currently used one.
+        image_id = parsed_args.image or server._info.get('image', {}).get('id')
+        image = utils.find_resource(compute_client.images, image_id)
 
         server = server.rebuild(image, parsed_args.password)
         if parsed_args.wait:
