@@ -3,28 +3,28 @@
 # process, which may cause wedges in the gate later.
 hacking<0.11,>=0.10.0
 
-coverage>=3.6
-discover
-fixtures>=1.3.1
-mock>=1.2
+coverage>=3.6 # Apache-2.0
+discover # BSD
+fixtures>=1.3.1 # Apache-2.0/BSD
+mock>=1.2 # BSD
 oslosphinx!=3.4.0,>=2.5.0 # Apache-2.0
 oslotest>=1.10.0 # Apache-2.0
 reno>=0.1.1 # Apache2
 requests-mock>=0.7.0 # Apache-2.0
-sphinx!=1.2.0,!=1.3b1,<1.3,>=1.1.2
-os-testr>=0.4.1
-testrepository>=0.0.18
-testtools>=1.4.0
-WebOb>=1.2.3
-tempest-lib>=0.13.0
+sphinx!=1.2.0,!=1.3b1,<1.3,>=1.1.2 # BSD
+os-testr>=0.4.1 # Apache-2.0
+testrepository>=0.0.18 # Apache-2.0/BSD
+testtools>=1.4.0 # MIT
+WebOb>=1.2.3 # MIT
+tempest-lib>=0.13.0 # Apache-2.0
 
 # Install these to generate sphinx autodocs
-python-barbicanclient>=3.3.0
-python-congressclient>=1.0.0
-python-designateclient>=1.5.0
-python-heatclient>=0.6.0
-python-ironicclient>=0.8.0
-python-mistralclient>=1.0.0
-python-saharaclient>=0.10.0
-python-tuskarclient>=0.1.17
-python-zaqarclient>=0.3.0
+python-barbicanclient>=3.3.0 # Apache-2.0
+python-congressclient>=1.0.0 # Apache-2.0
+python-designateclient>=1.5.0 # Apache-2.0
+python-heatclient>=0.6.0 # Apache-2.0
+python-ironicclient>=0.8.0 # Apache-2.0
+python-mistralclient>=1.0.0 # Apache-2.0
+python-saharaclient>=0.10.0 # Apache-2.0
+python-tuskarclient>=0.1.17 # Apache-2.0
+python-zaqarclient>=0.3.0 # Apache-2.0
