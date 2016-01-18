@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Support a new ``--state`` option for ``snapshot set`` command that
+    changes the state of a snapshot.
+    [Bug `1535239 <https://bugs.launchpad.net/bugs/1535239>`_]
