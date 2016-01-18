@@ -180,6 +180,7 @@ Set volume properties
         [--description <description>]
         [--property <key=value> [...] ]
         [--image-property <key=value> [...] ]
+        [--state <state>]
         <volume>
 
 .. option:: --name <name>
@@ -206,6 +207,14 @@ Set volume properties
     Image properties are copied along with the image when creating a volume
     using :option:`--image`.  Note that these properties are immutable on the
     image itself, this option updates the copy attached to this volume.
+
+    *Volume version 2 only*
+
+.. option:: --state <state>
+
+    New volume state
+    ("available", "error", "creating", "deleting", "in-use",
+    "attaching", "detaching", "error_deleting" or "maintenance")
 
     *Volume version 2 only*
 

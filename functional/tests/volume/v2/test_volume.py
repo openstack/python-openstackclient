@@ -43,9 +43,16 @@ class VolumeTests(common.BaseVolumeTests):
             'volume set --name ' + cls.OTHER_NAME + ' ' + cls.NAME)
         cls.assertOutput('', raw_output)
 
+        # Set volume state
+        cls.openstack('volume set --state error ' + cls.OTHER_NAME)
+        opts = cls.get_opts(["status"])
+        raw_output_status = cls.openstack(
+            'volume show ' + cls.OTHER_NAME + opts)
+
         # Delete test volume
         raw_output = cls.openstack('volume delete ' + cls.OTHER_NAME)
         cls.assertOutput('', raw_output)
+        cls.assertOutput('error\n', raw_output_status)
 
     def test_volume_list(self):
         opts = self.get_opts(self.HEADERS)
