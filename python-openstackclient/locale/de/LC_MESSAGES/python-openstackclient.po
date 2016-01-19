@@ -1,4 +1,4 @@
-# German translations for python-openstackclient.
+# Translations template for python-openstackclient.
 # Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the
 # python-openstackclient project.
@@ -9,18 +9,19 @@
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: python-openstackclient 1.8.1.dev15\n"
+"Project-Id-Version: python-openstackclient 2.0.1.dev168\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-11-04 06:04+0000\n"
+"POT-Creation-Date: 2016-01-19 02:20+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2015-09-19 07:10+0000\n"
 "Last-Translator: Andreas Jaeger <jaegerandi@gmail.com>\n"
 "Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.0\n"
+"X-Generator: Zanata 3.7.3\n"
 "Language-Team: German\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.1.1\n"
 
 msgid ""
 "\n"
@@ -125,15 +126,6 @@ msgid ""
 msgstr ""
 "Anmeldedaten in Projekt erstellen (Name oder Kennung; Standard: aktuell "
 "authentifiziertes Projekt)"
-
-msgid "Create server from this image"
-msgstr "Server aus diesem Abbild erstellen"
-
-msgid "Create server from this volume"
-msgstr "Server aus diesem Datenträger erstellen"
-
-msgid "Create server with this flavor"
-msgstr "Server mit dieser Variante erstellen"
 
 msgid "Credentials access key"
 msgstr "Anmeldedaten-Zugriffsschlüssel"
@@ -358,9 +350,6 @@ msgstr ""
 "Zu hinzufügende/ändernde Eigenschaft für diesen Server (wiederholen Sie die "
 "Option, um mehrere Eigenschaften festzulegen)"
 
-msgid "Recreate server from this image"
-msgstr "Server aus diesem Abbild neu erstellen"
-
 msgid "Region ID to delete"
 msgstr "Zu löschende Regionskennung"
 
@@ -419,14 +408,8 @@ msgstr "Zu entfernende Rolle (Name oder Kennung)"
 msgid "Role(s) to delete (name or ID)"
 msgstr "Zu löschende Rolle(n) (Name oder Kennung)"
 
-msgid "Search by flavor"
-msgstr "Nach Variante suchen"
-
 msgid "Search by hostname"
 msgstr "Nach Hostname suchen"
-
-msgid "Search by image"
-msgstr "Nach Bild suchen"
 
 msgid "Search by server status"
 msgstr "Nach Serverstatus suchen"
@@ -436,11 +419,6 @@ msgstr "Nach Benutzer suchen (nur Administrator) (Name oder Kennung)"
 
 msgid "Security group to add (name or ID)"
 msgstr "Zu hinzufügende Sicherheitsgruppe (Name oder Kennung)"
-
-msgid "Security group to assign to this server (repeat for multiple groups)"
-msgstr ""
-"Zu diesem Server zuweisende Sicherheitsgruppe (für mehrere Gruppen "
-"wiederholen)"
 
 msgid "Select an availability zone for the server"
 msgstr "Wählen Sie eine Verfügbarkeitszone für den Server aus"
@@ -608,11 +586,6 @@ msgstr "Warten Sie, bis die Wiederherstellung abgeschlossen ist"
 
 msgid "Wait for resize to complete"
 msgstr "Warten Sie, bis die Größenänderung abgeschlossen ist"
-
-msgid "can't create server with port specified since neutron not enabled"
-msgstr ""
-"Server mit dem angegebenen Port kann nicht erstellt werden, da Neutron nicht "
-"aktiviert ist"
 
 msgid "either net-id or port-id should be specified but not both"
 msgstr "entweder net-id oder port-id sollten angegeben sein, aber nicht beide"

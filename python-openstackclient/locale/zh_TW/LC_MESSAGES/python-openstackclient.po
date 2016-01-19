@@ -1,4 +1,4 @@
-# Chinese (Traditional, Taiwan) translations for python-openstackclient.
+# Translations template for python-openstackclient.
 # Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the
 # python-openstackclient project.
@@ -7,18 +7,19 @@
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: python-openstackclient 1.8.1.dev15\n"
+"Project-Id-Version: python-openstackclient 2.0.1.dev168\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-11-04 06:04+0000\n"
+"POT-Creation-Date: 2016-01-19 02:20+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2015-06-14 06:41+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
-"Language: zh_Hant_TW\n"
+"Language: zh-TW\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.0\n"
+"X-Generator: Zanata 3.7.3\n"
 "Language-Team: Chinese (Taiwan)\n"
-"Plural-Forms: nplurals=1; plural=0\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.1.1\n"
 
 msgid ""
 "\n"
@@ -87,15 +88,6 @@ msgstr "完成\n"
 
 msgid "Confirm server resize is complete"
 msgstr "確認調整雲實例容量完成"
-
-msgid "Create server from this image"
-msgstr "從此映像檔新增雲實例"
-
-msgid "Create server from this volume"
-msgstr "從此雲硬碟新增雲實例"
-
-msgid "Create server with this flavor"
-msgstr "以這個虛擬硬體樣板新增雲實例"
 
 msgid "Credentials access key"
 msgstr "憑鑰存取密鑰"
@@ -303,9 +295,6 @@ msgid ""
 "properties)"
 msgstr "要加入這個雲實例的屬性（重復這選項來設定多個屬性）"
 
-msgid "Recreate server from this image"
-msgstr "從此映像檔重建雲實例"
-
 msgid "Region ID to delete"
 msgstr "要刪除的地區識別號"
 
@@ -363,23 +352,14 @@ msgstr "要移除的角色（名稱或識別號）"
 msgid "Role(s) to delete (name or ID)"
 msgstr "要刪除的角色（名稱或識別號）"
 
-msgid "Search by flavor"
-msgstr "以虛擬硬體樣板來尋找"
-
 msgid "Search by hostname"
 msgstr "以主機名稱來尋找"
-
-msgid "Search by image"
-msgstr "以映像檔來尋找"
 
 msgid "Search by server status"
 msgstr "以雲實例狀態來尋找"
 
 msgid "Security group to add (name or ID)"
 msgstr "要加入的安全性群組（名稱或識別號）"
-
-msgid "Security group to assign to this server (repeat for multiple groups)"
-msgstr "要指定到此雲實例的安全性群組（為多個群組重復指定）"
 
 msgid "Select an availability zone for the server"
 msgstr "為雲實例選擇可用的區域。"
@@ -501,9 +481,6 @@ msgstr "等待重建完成"
 
 msgid "Wait for resize to complete"
 msgstr "等待調整容量完成"
-
-msgid "can't create server with port specified since neutron not enabled"
-msgstr "Neutron 未啟用時，不能以指定的接口來新增雲實例"
 
 msgid "either net-id or port-id should be specified but not both"
 msgstr "任選網路識別號或接口識別號，但不能兩者都指定"
