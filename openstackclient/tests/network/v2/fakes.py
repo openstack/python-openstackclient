@@ -145,6 +145,83 @@ class FakeNetwork(object):
         return mock.MagicMock(side_effect=networks)
 
 
+class FakePort(object):
+    """Fake one or more ports."""
+
+    @staticmethod
+    def create_one_port(attrs={}, methods={}):
+        """Create a fake port.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object, with id, name, admin_state_up,
+            status, tenant_id
+        """
+        # Set default attributes.
+        port_attrs = {
+            'id': 'port-id-' + uuid.uuid4().hex,
+            'name': 'port-name-' + uuid.uuid4().hex,
+            'status': 'ACTIVE',
+            'admin_state_up': True,
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        port_attrs.update(attrs)
+
+        # Set default methods.
+        port_methods = {}
+
+        # Overwrite default methods.
+        port_methods.update(methods)
+
+        port = fakes.FakeResource(info=copy.deepcopy(port_attrs),
+                                  methods=copy.deepcopy(port_methods),
+                                  loaded=True)
+        return port
+
+    @staticmethod
+    def create_ports(attrs={}, methods={}, count=2):
+        """Create multiple fake ports.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of ports to fake
+        :return:
+            A list of FakeResource objects faking the ports
+        """
+        ports = []
+        for i in range(0, count):
+            ports.append(FakePort.create_one_port(attrs, methods))
+
+        return ports
+
+    @staticmethod
+    def get_ports(ports=None, count=2):
+        """Get an iterable MagicMock object with a list of faked ports.
+
+        If ports list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List ports:
+            A list of FakeResource objects faking ports
+        :param int count:
+            The number of ports to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            ports
+        """
+        if ports is None:
+            ports = FakePort.create_ports(count)
+        return mock.MagicMock(side_effect=ports)
+
+
 class FakeRouter(object):
     """Fake one or more routers."""
 
