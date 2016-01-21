@@ -15,21 +15,15 @@
 
 """Flavor action implementations"""
 
-import logging
 import six
 
-from cliff import command
-from cliff import lister
-from cliff import show
-
+from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
-class CreateFlavor(show.ShowOne):
+class CreateFlavor(command.ShowOne):
     """Create new flavor"""
-
-    log = logging.getLogger(__name__ + ".CreateFlavor")
 
     def get_parser(self, prog_name):
         parser = super(CreateFlavor, self).get_parser(prog_name)
@@ -128,8 +122,6 @@ class CreateFlavor(show.ShowOne):
 class DeleteFlavor(command.Command):
     """Delete flavor"""
 
-    log = logging.getLogger(__name__ + ".DeleteFlavor")
-
     def get_parser(self, prog_name):
         parser = super(DeleteFlavor, self).get_parser(prog_name)
         parser.add_argument(
@@ -147,10 +139,8 @@ class DeleteFlavor(command.Command):
         compute_client.flavors.delete(flavor.id)
 
 
-class ListFlavor(lister.Lister):
+class ListFlavor(command.Lister):
     """List flavors"""
-
-    log = logging.getLogger(__name__ + ".ListFlavor")
 
     def get_parser(self, prog_name):
         parser = super(ListFlavor, self).get_parser(prog_name)
@@ -231,10 +221,8 @@ class ListFlavor(lister.Lister):
                 ) for s in data))
 
 
-class ShowFlavor(show.ShowOne):
+class ShowFlavor(command.ShowOne):
     """Display flavor details"""
-
-    log = logging.getLogger(__name__ + ".ShowFlavor")
 
     def get_parser(self, prog_name):
         parser = super(ShowFlavor, self).get_parser(prog_name)
@@ -258,10 +246,8 @@ class ShowFlavor(show.ShowOne):
         return zip(*sorted(six.iteritems(flavor)))
 
 
-class SetFlavor(show.ShowOne):
+class SetFlavor(command.ShowOne):
     """Set flavor properties"""
-
-    log = logging.getLogger(__name__ + ".SetFlavor")
 
     def get_parser(self, prog_name):
         parser = super(SetFlavor, self).get_parser(prog_name)
@@ -292,10 +278,8 @@ class SetFlavor(show.ShowOne):
         return zip(*sorted(six.iteritems(flavor)))
 
 
-class UnsetFlavor(show.ShowOne):
+class UnsetFlavor(command.ShowOne):
     """Unset flavor properties"""
-
-    log = logging.getLogger(__name__ + ".UnsetFlavor")
 
     def get_parser(self, prog_name):
         parser = super(UnsetFlavor, self).get_parser(prog_name)
