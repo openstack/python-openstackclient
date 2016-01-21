@@ -19,7 +19,6 @@ Create/upload an image
         [--store <store>]
         [--container-format <container-format>]
         [--disk-format <disk-format>]
-        [--owner <project>]
         [--size <size>]
         [--min-disk <disk-gb>]
         [--min-ram <ram-mb>]
@@ -33,7 +32,7 @@ Create/upload an image
         [--public | --private]
         [--property <key=value> [...] ]
         [--tag <tag> [...] ]
-        [--project-domain <project-domain>]
+        [--project <project> [--project-domain <project-domain>]]
         <image-name>
 
 .. option:: --id <id>
@@ -53,10 +52,6 @@ Create/upload an image
 .. option:: --disk-format <disk-format>
 
     Image disk format (default: raw)
-
-.. option:: --owner <project>
-
-    Image owner project name or ID
 
 .. option:: --size <size>
 
@@ -128,10 +123,17 @@ Create/upload an image
 
     .. versionadded:: 2
 
+.. option:: --project <project>
+
+    Set an alternate project on this image (name or ID).
+    Previously known as `--owner`.
+
 .. option:: --project-domain <project-domain>
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
+
+    .. versionadded:: 2
 
 .. describe:: <image-name>
 
@@ -225,7 +227,6 @@ Set image properties
 
     os image set
         [--name <name>]
-        [--owner <project>]
         [--min-disk <disk-gb>]
         [--min-ram <disk-ram>]
         [--container-format <container-format>]
@@ -250,16 +251,12 @@ Set image properties
         [--os-version <os-version>]
         [--ramdisk-id <ramdisk-id>]
         [--activate|--deactivate]
-        [--project-domain <project-domain>]
+        [--project <project> [--project-domain <project-domain>]]
         <image>
 
 .. option:: --name <name>
 
     New image name
-
-.. option:: --owner <project>
-
-    New image owner project (name or ID)
 
 .. option:: --min-disk <disk-gb>
 
@@ -407,10 +404,17 @@ Set image properties
 
     .. versionadded:: 2
 
+.. option:: --project <project>
+
+    Set an alternate project on this image (name or ID).
+    Previously known as `--owner`.
+
 .. option:: --project-domain <project-domain>
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
+
+    .. versionadded:: 2
 
 .. describe:: <image>
 

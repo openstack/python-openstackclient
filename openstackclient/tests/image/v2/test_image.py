@@ -131,11 +131,11 @@ class TestImageCreate(TestImage):
             '--disk-format', 'fs',
             '--min-disk', '10',
             '--min-ram', '4',
-            '--owner', self.new_image.owner,
             ('--protected'
                 if self.new_image.protected else '--unprotected'),
             ('--private'
                 if self.new_image.visibility == 'private' else '--public'),
+            '--project', self.new_image.owner,
             '--project-domain', identity_fakes.domain_id,
             self.new_image.name,
         ]
@@ -144,11 +144,11 @@ class TestImageCreate(TestImage):
             ('disk_format', 'fs'),
             ('min_disk', 10),
             ('min_ram', 4),
-            ('owner', self.new_image.owner),
             ('protected', self.new_image.protected),
             ('unprotected', not self.new_image.protected),
             ('public', self.new_image.visibility == 'public'),
             ('private', self.new_image.visibility == 'private'),
+            ('project', self.new_image.owner),
             ('project_domain', identity_fakes.domain_id),
             ('name', self.new_image.name),
         ]
@@ -207,6 +207,40 @@ class TestImageCreate(TestImage):
             ('unprotected', False),
             ('public', False),
             ('private', True),
+            ('name', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+    def test_image_create_with_unexist_project(self):
+        self.project_mock.get.side_effect = exceptions.NotFound(None)
+        self.project_mock.find.side_effect = exceptions.NotFound(None)
+
+        arglist = [
+            '--container-format', 'ovf',
+            '--disk-format', 'fs',
+            '--min-disk', '10',
+            '--min-ram', '4',
+            '--protected',
+            '--private',
+            '--project', 'unexist_owner',
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('container_format', 'ovf'),
+            ('disk_format', 'fs'),
+            ('min_disk', 10),
+            ('min_ram', 4),
+            ('protected', True),
+            ('unprotected', False),
+            ('public', False),
+            ('private', True),
+            ('project', 'unexist_owner'),
             ('name', image_fakes.image_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -575,7 +609,7 @@ class TestImageList(TestImage):
             'Status',
             'Visibility',
             'Protected',
-            'Owner',
+            'Project',
             'Tags',
         )
 
@@ -755,21 +789,21 @@ class TestImageSet(TestImage):
     def test_image_set_options(self):
         arglist = [
             '--name', 'new-name',
-            '--owner', identity_fakes.project_name,
             '--min-disk', '2',
             '--min-ram', '4',
             '--container-format', 'ovf',
             '--disk-format', 'vmdk',
+            '--project', identity_fakes.project_name,
             '--project-domain', identity_fakes.domain_id,
             image_fakes.image_id,
         ]
         verifylist = [
             ('name', 'new-name'),
-            ('owner', identity_fakes.project_name),
             ('min_disk', 2),
             ('min_ram', 4),
             ('container_format', 'ovf'),
             ('disk_format', 'vmdk'),
+            ('project', identity_fakes.project_name),
             ('project_domain', identity_fakes.domain_id),
             ('image', image_fakes.image_id),
         ]
@@ -800,6 +834,25 @@ class TestImageSet(TestImage):
         ]
         verifylist = [
             ('owner', 'unexist_owner'),
+            ('image', image_fakes.image_id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action, parsed_args)
+
+    def test_image_set_with_unexist_project(self):
+        self.project_mock.get.side_effect = exceptions.NotFound(None)
+        self.project_mock.find.side_effect = exceptions.NotFound(None)
+
+        arglist = [
+            '--project', 'unexist_owner',
+            image_fakes.image_id,
+        ]
+        verifylist = [
+            ('project', 'unexist_owner'),
             ('image', image_fakes.image_id),
         ]
 

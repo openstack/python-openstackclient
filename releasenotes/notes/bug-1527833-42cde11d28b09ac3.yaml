@@ -1,0 +1,7 @@
+---
+other:
+  - Change the `--owner` option to `--project` in `image create`
+    and `image set` commands.  `--owner` is deprecated and no longer
+    documented but is still accepted; a warning message will be shown
+    if it is used.
+    [Bug `1527833 <https://bugs.launchpad.net/bugs/1527833>`_]
