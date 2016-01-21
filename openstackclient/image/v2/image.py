@@ -824,6 +824,7 @@ class SetImage(command.Command):
         image = utils.find_resource(
             image_client.images, parsed_args.image)
 
+        activation_status = None
         if parsed_args.deactivate:
             image_client.images.deactivate(image.id)
             activation_status = "deactivated"
