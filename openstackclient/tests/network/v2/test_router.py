@@ -14,6 +14,7 @@
 import mock
 
 from openstackclient.common import exceptions
+from openstackclient.common import utils as osc_utils
 from openstackclient.network.v2 import router
 from openstackclient.tests.network.v2 import fakes as network_fakes
 from openstackclient.tests import utils as tests_utils
@@ -88,6 +89,31 @@ class TestCreateRouter(TestRouter):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def test_create_with_AZ_hints(self):
+        arglist = [
+            self.new_router.name,
+            '--availability-zone-hint', 'fake-az',
+            '--availability-zone-hint', 'fake-az2',
+        ]
+        verifylist = [
+            ('name', self.new_router.name),
+            ('availability_zone_hints', ['fake-az', 'fake-az2']),
+            ('admin_state_up', True),
+            ('distributed', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+        self.network.create_router.assert_called_with(**{
+            'admin_state_up': True,
+            'name': self.new_router.name,
+            'distributed': False,
+            'availability_zone_hints': ['fake-az', 'fake-az2'],
+        })
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
 
 class TestDeleteRouter(TestRouter):
 
@@ -135,6 +161,7 @@ class TestListRouter(TestRouter):
     columns_long = columns + (
         'Routes',
         'External gateway info',
+        'Availability zones'
     )
 
     data = []
@@ -155,6 +182,7 @@ class TestListRouter(TestRouter):
             data[i] + (
                 r.routes,
                 router._format_external_gateway_info(r.external_gateway_info),
+                osc_utils.format_list(r.availability_zones),
             )
         )
 

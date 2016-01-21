@@ -16,6 +16,7 @@ Create new router
         [--project <project> [--project-domain <project-domain>]]
         [--enable | --disable]
         [--distributed]
+	[--availability-zone-hint <availability-zone>]
         <name>
 
 .. option:: --project <project>
@@ -38,6 +39,11 @@ Create new router
 .. option:: --distributed
 
     Create a distributed router
+
+.. option:: --availability-zone-hint <availability-zone>
+
+    Availability Zone in which to create this router (requires the Router
+    Availability Zone extension, this option can be repeated).
 
 .. _router_create-name:
 .. describe:: <name>

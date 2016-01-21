@@ -171,6 +171,8 @@ class FakeRouter(object):
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'routes': [],
             'external_gateway_info': {},
+            'availability_zone_hints': [],
+            'availability_zones': [],
         }
 
         # Overwrite default attributes.
