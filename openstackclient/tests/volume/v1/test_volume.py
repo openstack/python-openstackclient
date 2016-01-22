@@ -49,6 +49,29 @@ class TestVolume(volume_fakes.TestVolumev1):
 
 class TestVolumeCreate(TestVolume):
 
+    columns = (
+        'attach_status',
+        'availability_zone',
+        'display_description',
+        'display_name',
+        'id',
+        'properties',
+        'size',
+        'status',
+        'type',
+    )
+    datalist = (
+        'detached',
+        volume_fakes.volume_zone,
+        volume_fakes.volume_description,
+        volume_fakes.volume_name,
+        volume_fakes.volume_id,
+        volume_fakes.volume_metadata_str,
+        volume_fakes.volume_size,
+        volume_fakes.volume_status,
+        volume_fakes.volume_type,
+    )
+
     def setUp(self):
         super(TestVolumeCreate, self).setUp()
 
@@ -93,31 +116,8 @@ class TestVolumeCreate(TestVolume):
             None,
             None,
         )
-
-        collist = (
-            'attach_status',
-            'availability_zone',
-            'display_description',
-            'display_name',
-            'id',
-            'properties',
-            'size',
-            'status',
-            'type',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            'detached',
-            volume_fakes.volume_zone,
-            volume_fakes.volume_description,
-            volume_fakes.volume_name,
-            volume_fakes.volume_id,
-            volume_fakes.volume_metadata_str,
-            volume_fakes.volume_size,
-            volume_fakes.volume_status,
-            volume_fakes.volume_type,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_volume_create_options(self):
         arglist = [
@@ -158,30 +158,8 @@ class TestVolumeCreate(TestVolume):
             None,
         )
 
-        collist = (
-            'attach_status',
-            'availability_zone',
-            'display_description',
-            'display_name',
-            'id',
-            'properties',
-            'size',
-            'status',
-            'type',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            'detached',
-            volume_fakes.volume_zone,
-            volume_fakes.volume_description,
-            volume_fakes.volume_name,
-            volume_fakes.volume_id,
-            volume_fakes.volume_metadata_str,
-            volume_fakes.volume_size,
-            volume_fakes.volume_status,
-            volume_fakes.volume_type,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_volume_create_user_project_id(self):
         # Return a project
@@ -233,30 +211,8 @@ class TestVolumeCreate(TestVolume):
             None,
         )
 
-        collist = (
-            'attach_status',
-            'availability_zone',
-            'display_description',
-            'display_name',
-            'id',
-            'properties',
-            'size',
-            'status',
-            'type',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            'detached',
-            volume_fakes.volume_zone,
-            volume_fakes.volume_description,
-            volume_fakes.volume_name,
-            volume_fakes.volume_id,
-            volume_fakes.volume_metadata_str,
-            volume_fakes.volume_size,
-            volume_fakes.volume_status,
-            volume_fakes.volume_type,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_volume_create_user_project_name(self):
         # Return a project
@@ -308,30 +264,8 @@ class TestVolumeCreate(TestVolume):
             None,
         )
 
-        collist = (
-            'attach_status',
-            'availability_zone',
-            'display_description',
-            'display_name',
-            'id',
-            'properties',
-            'size',
-            'status',
-            'type',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            'detached',
-            volume_fakes.volume_zone,
-            volume_fakes.volume_description,
-            volume_fakes.volume_name,
-            volume_fakes.volume_id,
-            volume_fakes.volume_metadata_str,
-            volume_fakes.volume_size,
-            volume_fakes.volume_status,
-            volume_fakes.volume_type,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_volume_create_properties(self):
         arglist = [
@@ -369,30 +303,8 @@ class TestVolumeCreate(TestVolume):
             None,
         )
 
-        collist = (
-            'attach_status',
-            'availability_zone',
-            'display_description',
-            'display_name',
-            'id',
-            'properties',
-            'size',
-            'status',
-            'type',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            'detached',
-            volume_fakes.volume_zone,
-            volume_fakes.volume_description,
-            volume_fakes.volume_name,
-            volume_fakes.volume_id,
-            volume_fakes.volume_metadata_str,
-            volume_fakes.volume_size,
-            volume_fakes.volume_status,
-            volume_fakes.volume_type,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_volume_create_image_id(self):
         self.images_mock.get.return_value = fakes.FakeResource(
@@ -435,30 +347,8 @@ class TestVolumeCreate(TestVolume):
             volume_fakes.image_id,
         )
 
-        collist = (
-            'attach_status',
-            'availability_zone',
-            'display_description',
-            'display_name',
-            'id',
-            'properties',
-            'size',
-            'status',
-            'type',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            'detached',
-            volume_fakes.volume_zone,
-            volume_fakes.volume_description,
-            volume_fakes.volume_name,
-            volume_fakes.volume_id,
-            volume_fakes.volume_metadata_str,
-            volume_fakes.volume_size,
-            volume_fakes.volume_status,
-            volume_fakes.volume_type,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
     def test_volume_create_image_name(self):
         self.images_mock.get.return_value = fakes.FakeResource(
@@ -501,33 +391,28 @@ class TestVolumeCreate(TestVolume):
             volume_fakes.image_id,
         )
 
-        collist = (
-            'attach_status',
-            'availability_zone',
-            'display_description',
-            'display_name',
-            'id',
-            'properties',
-            'size',
-            'status',
-            'type',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            'detached',
-            volume_fakes.volume_zone,
-            volume_fakes.volume_description,
-            volume_fakes.volume_name,
-            volume_fakes.volume_id,
-            volume_fakes.volume_metadata_str,
-            volume_fakes.volume_size,
-            volume_fakes.volume_status,
-            volume_fakes.volume_type,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
 
 class TestVolumeList(TestVolume):
+
+    columns = (
+        'ID',
+        'Display Name',
+        'Status',
+        'Size',
+        'Attached to',
+    )
+    datalist = (
+        (
+            volume_fakes.volume_id,
+            volume_fakes.volume_name,
+            volume_fakes.volume_status,
+            volume_fakes.volume_size,
+            '',
+        ),
+    )
 
     def setUp(self):
         super(TestVolumeList, self).setUp()
@@ -555,23 +440,8 @@ class TestVolumeList(TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        collist = (
-            'ID',
-            'Display Name',
-            'Status',
-            'Size',
-            'Attached to',
-        )
-        self.assertEqual(collist, columns)
-
-        datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
-            '',
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_volume_list_name(self):
         arglist = [
@@ -586,24 +456,8 @@ class TestVolumeList(TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-
-        collist = (
-            'ID',
-            'Display Name',
-            'Status',
-            'Size',
-            'Attached to',
-        )
-        self.assertEqual(collist, tuple(columns))
-
-        datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
-            '',
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, tuple(columns))
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_volume_list_status(self):
         arglist = [
@@ -618,24 +472,8 @@ class TestVolumeList(TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-
-        collist = (
-            'ID',
-            'Display Name',
-            'Status',
-            'Size',
-            'Attached to',
-        )
-        self.assertEqual(collist, tuple(columns))
-
-        datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
-            '',
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, tuple(columns))
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_volume_list_all_projects(self):
         arglist = [
@@ -650,24 +488,8 @@ class TestVolumeList(TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-
-        collist = (
-            'ID',
-            'Display Name',
-            'Status',
-            'Size',
-            'Attached to',
-        )
-        self.assertEqual(collist, columns)
-
-        datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
-            '',
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, tuple(columns))
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_volume_list_long(self):
         arglist = [

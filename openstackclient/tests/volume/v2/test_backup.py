@@ -166,6 +166,24 @@ class TestBackupRestore(TestBackup):
 
 
 class TestBackupList(TestBackup):
+
+    columns = [
+        'ID',
+        'Name',
+        'Description',
+        'Status',
+        'Size',
+    ]
+    datalist = (
+        (
+            volume_fakes.backup_id,
+            volume_fakes.backup_name,
+            volume_fakes.backup_description,
+            volume_fakes.backup_status,
+            volume_fakes.backup_size
+        ),
+    )
+
     def setUp(self):
         super(TestBackupList, self).setUp()
 
@@ -193,17 +211,8 @@ class TestBackupList(TestBackup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        collist = ['ID', 'Name', 'Description', 'Status', 'Size']
-        self.assertEqual(collist, columns)
-
-        datalist = ((
-            volume_fakes.backup_id,
-            volume_fakes.backup_name,
-            volume_fakes.backup_description,
-            volume_fakes.backup_status,
-            volume_fakes.backup_size
-        ),)
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_backup_list_with_options(self):
         arglist = ["--long"]
@@ -212,9 +221,13 @@ class TestBackupList(TestBackup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        collist = ['ID', 'Name', 'Description', 'Status', 'Size',
-                   'Availability Zone', 'Volume', 'Container']
-        self.assertEqual(collist, columns)
+        columns = self.columns + [
+            'Availability Zone',
+            'Volume',
+            'Container',
+        ]
+
+        self.assertEqual(columns, columns)
 
         datalist = ((
             volume_fakes.backup_id,
