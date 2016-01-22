@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add volume support to `os availability zone list`
+    [Bug `1532945 <https://bugs.launchpad.net/bugs/1532945>`_]
+
+    * New `--compute` option to only list compute availability zones.
+    * New `--volume` option to only list volume availability zones.
