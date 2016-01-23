@@ -40,6 +40,13 @@ class TestObject(object_fakes.TestObjectv1):
 )
 class TestObjectList(TestObject):
 
+    columns = ('Name',)
+    datalist = (
+        (
+            object_fakes.object_name_2,
+        ),
+    )
+
     def setUp(self):
         super(TestObjectList, self).setUp()
 
@@ -67,8 +74,7 @@ class TestObjectList(TestObject):
             container=object_fakes.container_name,
         )
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             (object_fakes.object_name_1, ),
             (object_fakes.object_name_2, ),
@@ -102,12 +108,8 @@ class TestObjectList(TestObject):
             **kwargs
         )
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
-        datalist = (
-            (object_fakes.object_name_2, ),
-        )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_object_list_objects_delimiter(self, o_mock):
         o_mock.return_value = [
@@ -136,12 +138,8 @@ class TestObjectList(TestObject):
             **kwargs
         )
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
-        datalist = (
-            (object_fakes.object_name_2, ),
-        )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_object_list_objects_marker(self, o_mock):
         o_mock.return_value = [
@@ -170,12 +168,8 @@ class TestObjectList(TestObject):
             **kwargs
         )
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
-        datalist = (
-            (object_fakes.object_name_2, ),
-        )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_object_list_objects_end_marker(self, o_mock):
         o_mock.return_value = [
@@ -204,12 +198,8 @@ class TestObjectList(TestObject):
             **kwargs
         )
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
-        datalist = (
-            (object_fakes.object_name_2, ),
-        )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_object_list_objects_limit(self, o_mock):
         o_mock.return_value = [
@@ -238,12 +228,8 @@ class TestObjectList(TestObject):
             **kwargs
         )
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
-        datalist = (
-            (object_fakes.object_name_2, ),
-        )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
 
     def test_object_list_objects_long(self, o_mock):
         o_mock.return_value = [
@@ -320,8 +306,7 @@ class TestObjectList(TestObject):
             **kwargs
         )
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             (object_fakes.object_name_1, ),
             (object_fakes.object_name_2, ),

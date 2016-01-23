@@ -29,6 +29,12 @@ class TestContainerAll(object_fakes.TestObjectv1):
 
 class TestContainerCreate(TestContainerAll):
 
+    columns = (
+        'account',
+        'container',
+        'x-trans-id',
+    )
+
     def setUp(self):
         super(TestContainerCreate, self).setUp()
 
@@ -54,8 +60,7 @@ class TestContainerCreate(TestContainerAll):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        collist = ('account', 'container', 'x-trans-id')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = [(
             object_fakes.ACCOUNT_ID,
             'ernie',
@@ -89,8 +94,7 @@ class TestContainerCreate(TestContainerAll):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        collist = ('account', 'container', 'x-trans-id')
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = [
             (
                 object_fakes.ACCOUNT_ID,
@@ -161,6 +165,8 @@ class TestContainerDelete(TestContainerAll):
 
 class TestContainerList(TestContainerAll):
 
+    columns = ('Name',)
+
     def setUp(self):
         super(TestContainerList, self).setUp()
 
@@ -187,8 +193,7 @@ class TestContainerList(TestContainerAll):
         # Lister.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = [
             (object_fakes.container_name, ),
             (object_fakes.container_name_3, ),
@@ -219,8 +224,7 @@ class TestContainerList(TestContainerAll):
         # Lister.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = [
             (object_fakes.container_name, ),
             (object_fakes.container_name_3, ),

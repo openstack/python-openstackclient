@@ -37,6 +37,8 @@ class TestObjectCreate(TestObjectAll):
 
 class TestObjectList(TestObjectAll):
 
+    columns = ('Name',)
+
     def setUp(self):
         super(TestObjectList, self).setUp()
 
@@ -69,8 +71,7 @@ class TestObjectList(TestObjectAll):
         # Lister.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = [
             (object_fakes.object_name_1, ),
             (object_fakes.object_name_2, ),
@@ -104,8 +105,7 @@ class TestObjectList(TestObjectAll):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        collist = ('Name',)
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
         datalist = (
             (object_fakes.object_name_2, ),
         )
