@@ -169,6 +169,16 @@ def format_list(data, separator=', '):
     return separator.join(sorted(data))
 
 
+def format_list_of_dicts(data):
+    """Return a formatted string of key value pairs for each dict
+
+    :param data: a list of dicts
+    :rtype: a string formatted to key='value' with dicts separated by new line
+    """
+
+    return '\n'.join(format_dict(i) for i in data)
+
+
 def get_field(item, field):
     try:
         if isinstance(item, dict):
