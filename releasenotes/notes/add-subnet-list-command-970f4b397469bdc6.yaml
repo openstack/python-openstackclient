@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support for the ``subnet list`` command.
+    [Bug `1523258 <https://bugs.launchpad.net/python-openstackclient/+bug/1523258>`_]
