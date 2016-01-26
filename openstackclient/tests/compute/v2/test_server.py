@@ -490,6 +490,26 @@ class TestServerDelete(TestServer):
         )
 
 
+class TestServerDumpCreate(TestServer):
+
+    def setUp(self):
+        super(TestServerDumpCreate, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.CreateServerDump(self.app, None)
+
+        # Set methods to be tested.
+        self.methods = {
+            'trigger_crash_dump': None,
+        }
+
+    def test_server_dump_one_server(self):
+        self.run_method_with_servers('trigger_crash_dump', 1)
+
+    def test_server_dump_multi_servers(self):
+        self.run_method_with_servers('trigger_crash_dump', 3)
+
+
 class TestServerImageCreate(TestServer):
 
     columns = (
