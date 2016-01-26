@@ -34,12 +34,12 @@ class TestListSubnet(TestSubnet):
         'ID',
         'Name',
         'Network',
-        'CIDR'
+        'Subnet'
     )
     columns_long = columns + (
         'Project',
         'DHCP',
-        'DNS Nameservers',
+        'Name Servers',
         'Allocation Pools',
         'Host Routes',
         'IP Version',

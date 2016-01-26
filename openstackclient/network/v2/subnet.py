@@ -53,10 +53,10 @@ class ListSubnet(lister.Lister):
 
         data = self.app.client_manager.network.subnets()
 
-        headers = ('ID', 'Name', 'Network', 'CIDR')
+        headers = ('ID', 'Name', 'Network', 'Subnet')
         columns = ('id', 'name', 'network_id', 'cidr')
         if parsed_args.long:
-            headers += ('Project', 'DHCP', 'DNS Nameservers',
+            headers += ('Project', 'DHCP', 'Name Servers',
                         'Allocation Pools', 'Host Routes', 'IP Version',
                         'Gateway')
             columns += ('tenant_id', 'enable_dhcp', 'dns_nameservers',
