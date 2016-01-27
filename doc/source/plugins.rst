@@ -38,7 +38,6 @@ python-mistralclient           using OpenStackClient
 python-muranoclient            using argparse
 python-saharaclient            using OpenStackClient
 python-troveclient             using argparse
-python-tuskarclient            using OpenStackClient
 python-zaqarclient             using OpenStackClient
 =============================  ======================================
 
