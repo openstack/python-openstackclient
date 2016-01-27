@@ -304,3 +304,71 @@ class FakeRouter(object):
         if routers is None:
             routers = FakeRouter.create_routers(count)
         return mock.MagicMock(side_effect=routers)
+
+
+class FakeSubnet(object):
+    """Fake one or more subnets."""
+
+    @staticmethod
+    def create_one_subnet(attrs={}, methods={}):
+        """Create a fake subnet.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object faking the subnet
+        """
+        # Set default attributes.
+        subnet_attrs = {
+            'id': 'subnet-id-' + uuid.uuid4().hex,
+            'name': 'subnet-name-' + uuid.uuid4().hex,
+            'network_id': 'network-id-' + uuid.uuid4().hex,
+            'cidr': '10.10.10.0/24',
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'enable_dhcp': True,
+            'dns_nameservers': [],
+            'allocation_pools': [],
+            'host_routes': [],
+            'ip_version': '4',
+            'gateway_ip': '10.10.10.1',
+        }
+
+        # Overwrite default attributes.
+        subnet_attrs.update(attrs)
+
+        # Set default methods.
+        subnet_methods = {
+            'keys': ['id', 'name', 'network_id', 'cidr', 'enable_dhcp',
+                     'allocation_pools', 'dns_nameservers', 'gateway_ip',
+                     'host_routes', 'ip_version', 'tenant_id']
+        }
+
+        # Overwrite default methods.
+        subnet_methods.update(methods)
+
+        subnet = fakes.FakeResource(info=copy.deepcopy(subnet_attrs),
+                                    methods=copy.deepcopy(subnet_methods),
+                                    loaded=True)
+
+        return subnet
+
+    @staticmethod
+    def create_subnets(attrs={}, methods={}, count=2):
+        """Create multiple fake subnets.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of subnets to fake
+        :return:
+            A list of FakeResource objects faking the subnets
+        """
+        subnets = []
+        for i in range(0, count):
+            subnets.append(FakeSubnet.create_one_subnet(attrs, methods))
+
+        return subnets
