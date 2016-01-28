@@ -27,6 +27,150 @@ class TestPort(network_fakes.TestNetworkV2):
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
 
+    def _get_common_cols_data(self, fake_port):
+        columns = (
+            'admin_state_up',
+            'allowed_address_pairs',
+            'binding_host_id',
+            'binding_profile',
+            'binding_vif_details',
+            'binding_vif_type',
+            'binding_vnic_type',
+            'device_id',
+            'device_owner',
+            'dns_assignment',
+            'dns_name',
+            'extra_dhcp_opts',
+            'fixed_ips',
+            'id',
+            'mac_address',
+            'name',
+            'network_id',
+            'port_security_enabled',
+            'project_id',
+            'security_groups',
+            'status',
+        )
+
+        data = (
+            port._format_admin_state(fake_port.admin_state_up),
+            utils.format_list_of_dicts(fake_port.allowed_address_pairs),
+            fake_port.binding_host_id,
+            utils.format_dict(fake_port.binding_profile),
+            utils.format_dict(fake_port.binding_vif_details),
+            fake_port.binding_vif_type,
+            fake_port.binding_vnic_type,
+            fake_port.device_id,
+            fake_port.device_owner,
+            utils.format_list_of_dicts(fake_port.dns_assignment),
+            fake_port.dns_name,
+            utils.format_list_of_dicts(fake_port.extra_dhcp_opts),
+            utils.format_list_of_dicts(fake_port.fixed_ips),
+            fake_port.id,
+            fake_port.mac_address,
+            fake_port.name,
+            fake_port.network_id,
+            fake_port.port_security_enabled,
+            fake_port.project_id,
+            utils.format_list(fake_port.security_groups),
+            fake_port.status,
+        )
+
+        return columns, data
+
+
+class TestCreatePort(TestPort):
+
+    _port = network_fakes.FakePort.create_one_port()
+
+    def setUp(self):
+        super(TestCreatePort, self).setUp()
+
+        self.network.create_port = mock.Mock(return_value=self._port)
+        fake_net = network_fakes.FakeNetwork.create_one_network({
+            'id': self._port.network_id,
+        })
+        self.network.find_network = mock.Mock(return_value=fake_net)
+        self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet()
+        self.network.find_subnet = mock.Mock(return_value=self.fake_subnet)
+        # Get the command object to test
+        self.cmd = port.CreatePort(self.app, self.namespace)
+
+    def test_create_default_options(self):
+        arglist = [
+            '--network', self._port.network_id,
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id,),
+            ('admin_state', True),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_port.assert_called_with(**{
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'name': 'test-port',
+        })
+
+        ref_columns, ref_data = self._get_common_cols_data(self._port)
+        self.assertEqual(ref_columns, columns)
+        self.assertEqual(ref_data, data)
+
+    def test_create_full_options(self):
+        arglist = [
+            '--mac-address', 'aa:aa:aa:aa:aa:aa',
+            '--fixed-ip', 'subnet=%s,ip-address=10.0.0.2'
+            % self.fake_subnet.id,
+            '--device-id', 'deviceid',
+            '--device-owner', 'fakeowner',
+            '--disable',
+            '--vnic-type', 'macvtap',
+            '--binding-profile', 'foo=bar',
+            '--binding-profile', 'foo2=bar2',
+            '--network', self._port.network_id,
+            'test-port',
+
+        ]
+        verifylist = [
+            ('mac_address', 'aa:aa:aa:aa:aa:aa'),
+            (
+                'fixed_ip',
+                [{'subnet': self.fake_subnet.id, 'ip-address': '10.0.0.2'}]
+            ),
+            ('device_id', 'deviceid'),
+            ('device_owner', 'fakeowner'),
+            ('admin_state', False),
+            ('vnic_type', 'macvtap'),
+            ('binding_profile', {'foo': 'bar', 'foo2': 'bar2'}),
+            ('network', self._port.network_id),
+            ('name', 'test-port'),
+
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_port.assert_called_with(**{
+            'mac_address': 'aa:aa:aa:aa:aa:aa',
+            'fixed_ips': [{'subnet_id': self.fake_subnet.id,
+                           'ip_address': '10.0.0.2'}],
+            'device_id': 'deviceid',
+            'device_owner': 'fakeowner',
+            'admin_state_up': False,
+            'binding:vnic_type': 'macvtap',
+            'binding:profile': {'foo': 'bar', 'foo2': 'bar2'},
+            'network_id': self._port.network_id,
+            'name': 'test-port',
+        })
+
+        ref_columns, ref_data = self._get_common_cols_data(self._port)
+        self.assertEqual(ref_columns, columns)
+        self.assertEqual(ref_data, data)
+
 
 class TestDeletePort(TestPort):
 
@@ -60,54 +204,6 @@ class TestShowPort(TestPort):
     # The port to show.
     _port = network_fakes.FakePort.create_one_port()
 
-    columns = (
-        'admin_state_up',
-        'allowed_address_pairs',
-        'binding_host_id',
-        'binding_profile',
-        'binding_vif_details',
-        'binding_vif_type',
-        'binding_vnic_type',
-        'device_id',
-        'device_owner',
-        'dns_assignment',
-        'dns_name',
-        'extra_dhcp_opts',
-        'fixed_ips',
-        'id',
-        'mac_address',
-        'name',
-        'network_id',
-        'port_security_enabled',
-        'project_id',
-        'security_groups',
-        'status',
-    )
-
-    data = (
-        port._format_admin_state(_port.admin_state_up),
-        utils.format_list_of_dicts(_port.allowed_address_pairs),
-        _port.binding_host_id,
-        utils.format_dict(_port.binding_profile),
-        utils.format_dict(_port.binding_vif_details),
-        _port.binding_vif_type,
-        _port.binding_vnic_type,
-        _port.device_id,
-        _port.device_owner,
-        utils.format_list_of_dicts(_port.dns_assignment),
-        _port.dns_name,
-        utils.format_list_of_dicts(_port.extra_dhcp_opts),
-        utils.format_list_of_dicts(_port.fixed_ips),
-        _port.id,
-        _port.mac_address,
-        _port.name,
-        _port.network_id,
-        _port.port_security_enabled,
-        _port.project_id,
-        utils.format_list(_port.security_groups),
-        _port.status,
-    )
-
     def setUp(self):
         super(TestShowPort, self).setUp()
 
@@ -136,5 +232,7 @@ class TestShowPort(TestPort):
 
         self.network.find_port.assert_called_with(self._port.name,
                                                   ignore_missing=False)
-        self.assertEqual(tuple(self.columns), columns)
-        self.assertEqual(self.data, data)
+
+        ref_columns, ref_data = self._get_common_cols_data(self._port)
+        self.assertEqual(ref_columns, columns)
+        self.assertEqual(ref_data, data)
