@@ -144,8 +144,6 @@ list check out :doc:`plugin-commands`.
 * ``dataprocessing image``: (**Data Processing (Sahara)**)
 * ``dataprocessing image tags``: (**Data Processing (Sahara)**)
 * ``dataprocessing plugin``: (**Data Processing (Sahara)**)
-* ``management plan``: (**Management (Tuskar)**)
-* ``management role``: (**Management (Tuskar)**)
 * ``message-broker cluster``: (**Message Broker (Cue)**)
 * ``message flavor``: (**Messaging (Zaqar)**)
 * ``pool``: (**Messaging (Zaqar)**)
