@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``project unset`` command for Identity v2
+    [Bug `1486597 <https://bugs.launchpad.net/bugs/1486597>`_]

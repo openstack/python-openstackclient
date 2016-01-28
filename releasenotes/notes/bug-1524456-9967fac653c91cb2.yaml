@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Change the ``project set --domain`` option to use the argument as a lookup
+    for locating projects in non-default domains.
+    [Bug `1524456 <https://bugs.launchpad.net/bugs/1524456>`_]

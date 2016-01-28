@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``router`` commands ``create``, ``delete``, ``list``, ``set``, ``show``
+    [Bug `1519503 <https://bugs.launchpad.net/bugs/1519503>`_]
