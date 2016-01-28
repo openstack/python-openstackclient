@@ -36,6 +36,8 @@ _formatters = {
     'subnets': utils.format_list,
     'admin_state_up': _format_admin_state,
     'router_external': _format_router_external,
+    'availability_zones': utils.format_list,
+    'availability_zone_hints': utils.format_list,
 }
 
 
@@ -93,8 +95,19 @@ class CreateNetwork(show.ShowOne):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help="Owner's project (name or ID)")
+            help="Owner's project (name or ID)"
+        )
         identity_common.add_project_domain_option_to_parser(parser)
+
+        parser.add_argument(
+            '--availability-zone-hint',
+            action='append',
+            dest='availability_zone_hints',
+            metavar='<availability-zone>',
+            help='Availability Zone in which to create this network '
+                 '(requires the Network Availability Zone extension, '
+                 'this option can be repeated).',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -119,6 +132,10 @@ class CreateNetwork(show.ShowOne):
                 parsed_args.project_domain,
             ).id
             body['tenant_id'] = project_id
+        if parsed_args.availability_zone_hints is not None:
+            body['availability_zone_hints'] = \
+                parsed_args.availability_zone_hints
+
         return body
 
 
@@ -181,6 +198,7 @@ class ListNetwork(lister.Lister):
                 'subnets',
                 'provider_network_type',
                 'router_external',
+                'availability_zones',
             )
             column_headers = (
                 'ID',
@@ -192,6 +210,7 @@ class ListNetwork(lister.Lister):
                 'Subnets',
                 'Network Type',
                 'Router Type',
+                'Availability Zones',
             )
         else:
             columns = (

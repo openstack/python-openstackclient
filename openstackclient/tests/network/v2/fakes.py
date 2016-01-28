@@ -85,6 +85,8 @@ class FakeNetwork(object):
             'provider_network_type': 'vlan',
             'router_external': True,
             'is_dirty': True,
+            'availability_zones': [],
+            'availability_zone_hints': [],
         }
 
         # Overwrite default attributes.
@@ -93,7 +95,8 @@ class FakeNetwork(object):
         # Set default methods.
         network_methods = {
             'keys': ['id', 'name', 'admin_state_up', 'router_external',
-                     'status', 'subnets', 'tenant_id'],
+                     'status', 'subnets', 'tenant_id', 'availability_zones',
+                     'availability_zone_hints'],
         }
 
         # Overwrite default methods.
