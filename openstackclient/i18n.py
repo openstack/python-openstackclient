@@ -15,7 +15,7 @@
 
 import oslo_i18n
 
-_translators = oslo_i18n.TranslatorFactory(domain='python-openstackclient')
+_translators = oslo_i18n.TranslatorFactory(domain='openstackclient')
 
 # The primary translation function using the well-known name "_"
 _ = _translators.primary
