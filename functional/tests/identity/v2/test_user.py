@@ -10,12 +10,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
 from tempest_lib.common.utils import data_utils
 
 from functional.common import exceptions
 from functional.tests.identity.v2 import test_identity
 
 
+@testtools.skip('bug/1539780')
 class UserTests(test_identity.IdentityTests):
 
     def test_user_create(self):

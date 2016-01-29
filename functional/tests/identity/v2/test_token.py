@@ -10,9 +10,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
 from functional.tests.identity.v2 import test_identity
 
 
+@testtools.skip('bug/1539780')
 class TokenTests(test_identity.IdentityTests):
 
     def test_token_issue(self):

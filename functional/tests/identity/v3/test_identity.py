@@ -10,8 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
-
 from tempest_lib.common.utils import data_utils
 
 from functional.common import test
@@ -48,13 +46,6 @@ class IdentityTests(test.TestCase):
     def setUpClass(cls):
         if hasattr(super(IdentityTests, cls), 'setUpClass'):
             super(IdentityTests, cls).setUpClass()
-
-        # prepare v3 env
-        auth_url = os.environ.get('OS_AUTH_URL')
-        auth_url = auth_url.replace('v2.0', 'v3')
-        os.environ['OS_AUTH_URL'] = auth_url
-        os.environ['OS_IDENTITY_API_VERSION'] = '3'
-        os.environ['OS_AUTH_TYPE'] = 'v3password'
 
         # create dummy domain
         cls.domain_name = data_utils.rand_name('TestDomain')
