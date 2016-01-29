@@ -498,9 +498,7 @@ class TestImageList(TestImage):
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            marker=image_fakes.image_id,
-        )
+        self.api_mock.image_list.assert_called_with()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
@@ -521,7 +519,6 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             public=True,
-            marker=image_fakes.image_id,
         )
 
         self.assertEqual(self.columns, columns)
@@ -543,7 +540,6 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             private=True,
-            marker=image_fakes.image_id,
         )
 
         self.assertEqual(self.columns, columns)
@@ -565,7 +561,6 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             shared=True,
-            marker=image_fakes.image_id,
         )
 
         self.assertEqual(self.columns, columns)
@@ -582,9 +577,7 @@ class TestImageList(TestImage):
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            marker=image_fakes.image_id,
-        )
+        self.api_mock.image_list.assert_called_with()
 
         collist = (
             'ID',
@@ -630,9 +623,7 @@ class TestImageList(TestImage):
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            marker=image_fakes.image_id,
-        )
+        self.api_mock.image_list.assert_called_with()
         sf_mock.assert_called_with(
             [image_fakes.IMAGE],
             attr='a',
@@ -655,9 +646,7 @@ class TestImageList(TestImage):
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            marker=image_fakes.image_id,
-        )
+        self.api_mock.image_list.assert_called_with()
         si_mock.assert_called_with(
             [image_fakes.IMAGE],
             'name:asc'
