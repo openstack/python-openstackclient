@@ -37,11 +37,16 @@ class TestCreateNetworkIdentityV3(TestNetwork):
 
     # The new network created.
     _network = network_fakes.FakeNetwork.create_one_network(
-        attrs={'tenant_id': identity_fakes_v3.project_id}
+        attrs={
+            'tenant_id': identity_fakes_v3.project_id,
+            'availability_zone_hints': ["nova"],
+        }
     )
 
     columns = (
         'admin_state_up',
+        'availability_zone_hints',
+        'availability_zones',
         'id',
         'name',
         'project_id',
@@ -52,6 +57,8 @@ class TestCreateNetworkIdentityV3(TestNetwork):
 
     data = (
         network._format_admin_state(_network.admin_state_up),
+        utils.format_list(_network.availability_zone_hints),
+        utils.format_list(_network.availability_zones),
         _network.id,
         _network.name,
         _network.project_id,
@@ -129,6 +136,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             "--share",
             "--project", identity_fakes_v3.project_name,
             "--project-domain", identity_fakes_v3.domain_name,
+            "--availability-zone-hint", "nova",
             self._network.name,
         ]
         verifylist = [
@@ -136,6 +144,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('shared', True),
             ('project', identity_fakes_v3.project_name),
             ('project_domain', identity_fakes_v3.domain_name),
+            ('availability_zone_hints', ["nova"]),
             ('name', self._network.name),
         ]
 
@@ -144,6 +153,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
 
         self.network.create_network.assert_called_with(**{
             'admin_state_up': False,
+            'availability_zone_hints': ["nova"],
             'name': self._network.name,
             'shared': True,
             'tenant_id': identity_fakes_v3.project_id,
@@ -184,6 +194,8 @@ class TestCreateNetworkIdentityV2(TestNetwork):
 
     columns = (
         'admin_state_up',
+        'availability_zone_hints',
+        'availability_zones',
         'id',
         'name',
         'project_id',
@@ -194,6 +206,8 @@ class TestCreateNetworkIdentityV2(TestNetwork):
 
     data = (
         network._format_admin_state(_network.admin_state_up),
+        utils.format_list(_network.availability_zone_hints),
+        utils.format_list(_network.availability_zones),
         _network.id,
         _network.name,
         _network.project_id,
@@ -324,6 +338,7 @@ class TestListNetwork(TestNetwork):
         'Subnets',
         'Network Type',
         'Router Type',
+        'Availability Zones',
     )
 
     data = []
@@ -346,6 +361,7 @@ class TestListNetwork(TestNetwork):
             utils.format_list(net.subnets),
             net.provider_network_type,
             network._format_router_external(net.router_external),
+            utils.format_list(net.availability_zones),
         ))
 
     def setUp(self):
@@ -483,6 +499,8 @@ class TestShowNetwork(TestNetwork):
 
     columns = (
         'admin_state_up',
+        'availability_zone_hints',
+        'availability_zones',
         'id',
         'name',
         'project_id',
@@ -493,6 +511,8 @@ class TestShowNetwork(TestNetwork):
 
     data = (
         network._format_admin_state(_network.admin_state_up),
+        utils.format_list(_network.availability_zone_hints),
+        utils.format_list(_network.availability_zones),
         _network.id,
         _network.name,
         _network.project_id,

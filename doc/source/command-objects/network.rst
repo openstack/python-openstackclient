@@ -16,6 +16,7 @@ Create new network
         [--project <project> [--project-domain <project-domain>]]
         [--enable | --disable]
         [--share | --no-share]
+        [--availability-zone-hint <availability-zone>]
         <name>
 
 .. option:: --project <project>
@@ -42,6 +43,11 @@ Create new network
 .. option:: --no-share
 
     Do not share the network between projects
+
+.. option:: --availability-zone-hint <availability-zone>
+
+     Availability Zone in which to create this network (requires the Network
+     Availability Zone extension, this option can be repeated).
 
 .. _network_create-name:
 .. describe:: <name>
