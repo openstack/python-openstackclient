@@ -4,3 +4,6 @@ features:
     Add ``--limit`` option to ``image list`` to limit the number of images
     in output.
     [Bug `1540988 <https://bugs.launchpad.net/bugs/1540988>`_]
+  - |
+    Add ``--marker`` option to ``image list`` to handle paginate requests.
+    [Bug `1540988 <https://bugs.launchpad.net/bugs/1540988>`_]
