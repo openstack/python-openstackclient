@@ -31,11 +31,13 @@ class TestImage(image_fakes.TestImagev2):
     def setUp(self):
         super(TestImage, self).setUp()
 
-        # Get a shortcut to the ServerManager Mock
+        # Get shortcuts to the Mocks in image client
         self.images_mock = self.app.client_manager.image.images
         self.images_mock.reset_mock()
         self.image_members_mock = self.app.client_manager.image.image_members
         self.image_members_mock.reset_mock()
+
+        # Get shortcut to the Mocks in identity client
         self.project_mock = self.app.client_manager.identity.projects
         self.project_mock.reset_mock()
         self.domain_mock = self.app.client_manager.identity.domains
