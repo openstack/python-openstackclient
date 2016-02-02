@@ -214,13 +214,15 @@ class TestQuotaShow(TestQuota):
             loaded=True,
         )
 
-        self.service_catalog_mock.get_endpoints.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.ENDPOINT),
-                loaded=True,
-            )
-        ]
+        fake_network_endpoint = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ENDPOINT),
+            loaded=True,
+        )
+
+        self.service_catalog_mock.get_endpoints.return_value = {
+            'network': fake_network_endpoint
+        }
 
         self.quotas_class_mock.get.return_value = FakeQuotaResource(
             None,
@@ -244,6 +246,8 @@ class TestQuotaShow(TestQuota):
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+        self.network = self.app.client_manager.network
+        self.network.get_quota = mock.Mock(return_value=network_fakes.QUOTA)
 
         self.cmd = quota.ShowQuota(self.app, None)
 
@@ -260,6 +264,9 @@ class TestQuotaShow(TestQuota):
         self.cmd.take_action(parsed_args)
 
         self.quotas_mock.get.assert_called_with(identity_fakes.project_id)
+        self.volume_quotas_mock.get.assert_called_with(
+            identity_fakes.project_id)
+        self.network.get_quota.assert_called_with(identity_fakes.project_id)
 
     def test_quota_show_with_default(self):
         arglist = [
@@ -276,6 +283,8 @@ class TestQuotaShow(TestQuota):
         self.cmd.take_action(parsed_args)
 
         self.quotas_mock.defaults.assert_called_with(identity_fakes.project_id)
+        self.volume_quotas_mock.defaults.assert_called_with(
+            identity_fakes.project_id)
 
     def test_quota_show_with_class(self):
         arglist = [
@@ -292,4 +301,6 @@ class TestQuotaShow(TestQuota):
         self.cmd.take_action(parsed_args)
 
         self.quotas_class_mock.get.assert_called_with(
+            identity_fakes.project_id)
+        self.volume_quotas_class_mock.get.assert_called_with(
             identity_fakes.project_id)

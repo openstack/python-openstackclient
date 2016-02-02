@@ -26,6 +26,18 @@ extension_updated = '2013-07-09T12:00:0-00:00'
 extension_alias = 'Dystopian'
 extension_links = '[{"href":''"https://github.com/os/network", "type"}]'
 
+QUOTA = {
+    "subnet": 10,
+    "network": 10,
+    "floatingip": 50,
+    "subnetpool": -1,
+    "security_group_rule": 100,
+    "security_group": 10,
+    "router": 10,
+    "rbac_policy": -1,
+    "port": 50,
+}
+
 
 def create_extension():
     extension = mock.Mock()
