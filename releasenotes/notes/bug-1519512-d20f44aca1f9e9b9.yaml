@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Make ``security group rule list`` group argument optional to list all
+    security groups
+    [Bug `1519512 <https://bugs.launchpad.net/bugs/1519512>`_]

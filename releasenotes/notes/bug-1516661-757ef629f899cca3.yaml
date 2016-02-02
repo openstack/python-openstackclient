@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``image set --activate|--deactivate`` options (Image v2 only)
+    [Bug `1516661 <https://bugs.launchpad.net/bugs/1516661>`_]

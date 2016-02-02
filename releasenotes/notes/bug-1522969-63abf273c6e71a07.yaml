@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--src-group`` option to ``security group rule create`` to include a
+    'remote' security group rule.
+    [Bug `1522969 <https://bugs.launchpad.net/bugs/1522969>`_]

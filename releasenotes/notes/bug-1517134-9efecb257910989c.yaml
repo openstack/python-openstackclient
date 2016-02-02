@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--project-domain`` option to ``image create`` and ``image set`` commands
+    (Image v2 only)
+    [Bug `1517134 <https://bugs.launchpad.net/bugs/1517134>`_]
