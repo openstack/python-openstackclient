@@ -226,7 +226,6 @@ class FakePort(object):
         :return:
             A FakeResource object, with id, name, etc.
         """
-
         # Set default attributes.
         port_attrs = {
             'admin_state_up': True,
@@ -553,3 +552,79 @@ class FakeSubnet(object):
             subnets.append(FakeSubnet.create_one_subnet(attrs, methods))
 
         return subnets
+
+
+class FakeFloatingIP(object):
+    """Fake one or more floating ip."""
+
+    @staticmethod
+    def create_one_floating_ip(attrs={}, methods={}):
+        """Create a fake floating ip.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object, with id, ip
+        """
+        # Set default attributes.
+        floating_ip_attrs = {
+            'id': 'floating-ip-id-' + uuid.uuid4().hex,
+            'ip': '1.0.9.0',
+        }
+
+        # Overwrite default attributes.
+        floating_ip_attrs.update(attrs)
+
+        # Set default methods.
+        floating_ip_methods = {}
+
+        # Overwrite default methods.
+        floating_ip_methods.update(methods)
+
+        floating_ip = fakes.FakeResource(
+            info=copy.deepcopy(floating_ip_attrs),
+            methods=copy.deepcopy(floating_ip_methods),
+            loaded=True)
+        return floating_ip
+
+    @staticmethod
+    def create_floating_ips(attrs={}, methods={}, count=2):
+        """Create multiple fake floating ips.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of floating ips to fake
+        :return:
+            A list of FakeResource objects faking the floating ips
+        """
+        floating_ips = []
+        for i in range(0, count):
+            floating_ips.append(FakeFloatingIP.create_one_floating_ip(
+                attrs,
+                methods
+            ))
+        return floating_ips
+
+    @staticmethod
+    def get_floating_ips(floating_ips=None, count=2):
+        """Get an iterable MagicMock object with a list of faked floating ips.
+
+        If floating_ips list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List floating ips:
+            A list of FakeResource objects faking floating ips
+        :param int count:
+            The number of floating ips to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            floating ips
+        """
+        if floating_ips is None:
+            floating_ips = FakeFloatingIP.create_floating_ips(count)
+        return mock.MagicMock(side_effect=floating_ips)

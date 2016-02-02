@@ -2,7 +2,7 @@
 ip floating
 ===========
 
-Compute v2
+Compute v2, Network v2
 
 ip floating add
 ---------------
@@ -42,17 +42,16 @@ Create new floating IP address
 ip floating delete
 ------------------
 
-Delete a floating IP address
+Delete floating IP
 
 .. program:: ip floating delete
-.. code:: bash
+   .. code:: bash
 
-    os ip floating delete
-        <ip-address>
+    os ip floating delete <floating-ip>
 
-.. describe:: <ip-address>
+.. describe:: <floating-ip>
 
-    IP address to delete (ID only)
+    Floating IP to delete (IP address or ID)
 
 ip floating list
 ----------------

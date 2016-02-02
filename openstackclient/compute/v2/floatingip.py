@@ -68,29 +68,6 @@ class CreateFloatingIP(command.ShowOne):
         return zip(*sorted(six.iteritems(info)))
 
 
-class DeleteFloatingIP(command.Command):
-    """Delete a floating IP address"""
-
-    def get_parser(self, prog_name):
-        parser = super(DeleteFloatingIP, self).get_parser(prog_name)
-        parser.add_argument(
-            "ip_address",
-            metavar="<ip-address>",
-            help="IP address to delete (ID only)",
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-
-        floating_ip = utils.find_resource(
-            compute_client.floating_ips,
-            parsed_args.ip_address,
-        )
-
-        compute_client.floating_ips.delete(floating_ip)
-
-
 class ListFloatingIP(command.Lister):
     """List floating IP addresses"""
 
