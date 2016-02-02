@@ -13,8 +13,7 @@
 
 """Subnet action implementations"""
 
-from cliff import lister
-
+from openstackclient.common import command
 from openstackclient.common import utils
 
 
@@ -31,7 +30,7 @@ _formatters = {
 }
 
 
-class ListSubnet(lister.Lister):
+class ListSubnet(command.Lister):
     """List subnets"""
 
     def get_parser(self, prog_name):

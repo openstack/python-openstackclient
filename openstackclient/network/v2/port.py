@@ -13,7 +13,7 @@
 
 """Port action implementations"""
 
-from cliff import command
+from openstackclient.common import command
 
 
 class DeletePort(command.Command):
