@@ -2,7 +2,7 @@
 security group
 ==============
 
-Compute v2
+Compute v2, Network v2
 
 security group create
 ---------------------
