@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--limit`` option to ``image list`` to limit the number of images
+    in output.
+    [Bug `1540988 <https://bugs.launchpad.net/bugs/1540988>`_]

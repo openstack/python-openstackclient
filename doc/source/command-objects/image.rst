@@ -167,6 +167,7 @@ List available images
         [--property <key=value>]
         [--long]
         [--sort <key>[:<direction>]]
+        [--limit <limit>]
 
 .. option:: --public
 
@@ -194,6 +195,10 @@ List available images
 
     Sort output by selected keys and directions(asc or desc) (default: asc),
     multiple keys and directions can be specified separated by comma
+
+.. option:: --limit <limit>
+
+    Maximum number of images to display.
 
 image save
 ----------
