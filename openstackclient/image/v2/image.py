@@ -474,16 +474,7 @@ class ListImage(command.Lister):
             column_headers = columns
 
         # List of image data received
-        data = []
-        # No pages received yet, so start the page marker at None.
-        marker = None
-        while True:
-            page = image_client.api.image_list(marker=marker, **kwargs)
-            if not page:
-                break
-            data.extend(page)
-            # Set the marker to the id of the last item we received
-            marker = page[-1]['id']
+        data = image_client.api.image_list(**kwargs)
 
         if parsed_args.property:
             # NOTE(dtroyer): coerce to a list to subscript it in py3
