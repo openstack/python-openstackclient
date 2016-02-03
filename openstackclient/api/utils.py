@@ -27,11 +27,11 @@ def simple_filter(
         be changed if any filtering occurs.
     :param string attr:
         The name of the attribute to filter.  If attr does not exist no
-        match will succeed and no rows will be retrurned.  If attr is
+        match will succeed and no rows will be returned.  If attr is
         None no filtering will be performed and all rows will be returned.
     :param sring value:
         The value to filter.  None is considered to be a 'no filter' value.
-        '' matches agains a Python empty string.
+        '' matches against a Python empty string.
     :param string property_field:
         The name of the data field containing a property dict to filter.
         If property_field is None, attr is a field name. If property_field
