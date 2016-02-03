@@ -102,7 +102,7 @@ class CreateRouter(show.ShowOne):
         )
         parser.add_argument(
             '--project',
-            metavar='<poroject>',
+            metavar='<project>',
             help="Owner's project (name or ID)",
         )
         identity_common.add_project_domain_option_to_parser(parser)
