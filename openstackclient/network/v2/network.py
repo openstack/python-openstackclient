@@ -47,6 +47,33 @@ def _get_columns(item):
     return tuple(sorted(columns))
 
 
+def _get_attrs(client_manager, parsed_args):
+    attrs = {}
+    if parsed_args.name is not None:
+        attrs['name'] = str(parsed_args.name)
+    if parsed_args.admin_state is not None:
+        attrs['admin_state_up'] = parsed_args.admin_state
+    if parsed_args.shared is not None:
+        attrs['shared'] = parsed_args.shared
+
+    # "network set" command doesn't support setting project.
+    if 'project' in parsed_args and parsed_args.project is not None:
+        identity_client = client_manager.identity
+        project_id = identity_common.find_project(
+            identity_client,
+            parsed_args.project,
+            parsed_args.project_domain,
+        ).id
+        attrs['tenant_id'] = project_id
+
+    # "network set" command doesn't support setting availability zone hints.
+    if 'availability_zone_hints' in parsed_args and \
+       parsed_args.availability_zone_hints is not None:
+        attrs['availability_zone_hints'] = parsed_args.availability_zone_hints
+
+    return attrs
+
+
 class CreateNetwork(command.ShowOne):
     """Create new network"""
 
@@ -105,30 +132,13 @@ class CreateNetwork(command.ShowOne):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        body = self.get_body(parsed_args)
-        obj = client.create_network(**body)
+
+        attrs = _get_attrs(self.app.client_manager, parsed_args)
+        obj = client.create_network(**attrs)
         columns = _get_columns(obj)
+
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (columns, data)
-
-    def get_body(self, parsed_args):
-        body = {'name': str(parsed_args.name),
-                'admin_state_up': parsed_args.admin_state}
-        if parsed_args.shared is not None:
-            body['shared'] = parsed_args.shared
-        if parsed_args.project is not None:
-            identity_client = self.app.client_manager.identity
-            project_id = identity_common.find_project(
-                identity_client,
-                parsed_args.project,
-                parsed_args.project_domain,
-            ).id
-            body['tenant_id'] = project_id
-        if parsed_args.availability_zone_hints is not None:
-            body['availability_zone_hints'] = \
-                parsed_args.availability_zone_hints
-
-        return body
 
 
 class DeleteNetwork(command.Command):
@@ -271,18 +281,13 @@ class SetNetwork(command.Command):
         client = self.app.client_manager.network
         obj = client.find_network(parsed_args.identifier, ignore_missing=False)
 
-        if parsed_args.name is not None:
-            obj.name = str(parsed_args.name)
-        if parsed_args.admin_state is not None:
-            obj.admin_state_up = parsed_args.admin_state
-        if parsed_args.shared is not None:
-            obj.shared = parsed_args.shared
-
-        if not obj.is_dirty:
+        attrs = _get_attrs(self.app.client_manager, parsed_args)
+        if attrs == {}:
             msg = "Nothing specified to be set"
             raise exceptions.CommandError(msg)
 
-        client.update_network(obj)
+        client.update_network(obj, **attrs)
+        return
 
 
 class ShowNetwork(command.ShowOne):

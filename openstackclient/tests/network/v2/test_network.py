@@ -440,8 +440,6 @@ class TestSetNetwork(TestNetwork):
         self.cmd = network.SetNetwork(self.app, self.namespace)
 
     def test_set_this(self):
-        self._network.is_dirty = True
-
         arglist = [
             self._network.name,
             '--enable',
@@ -458,12 +456,15 @@ class TestSetNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.update_network.assert_called_with(self._network)
+        attrs = {
+            'name': 'noob',
+            'admin_state_up': True,
+            'shared': True,
+        }
+        self.network.update_network.assert_called_with(self._network, **attrs)
         self.assertIsNone(result)
 
     def test_set_that(self):
-        self._network.is_dirty = True
-
         arglist = [
             self._network.name,
             '--disable',
@@ -478,12 +479,14 @@ class TestSetNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.update_network.assert_called_with(self._network)
+        attrs = {
+            'admin_state_up': False,
+            'shared': False,
+        }
+        self.network.update_network.assert_called_with(self._network, **attrs)
         self.assertIsNone(result)
 
     def test_set_nothing(self):
-        self._network.is_dirty = False
-
         arglist = [self._network.name, ]
         verifylist = [('identifier', self._network.name), ]
 
