@@ -19,7 +19,7 @@ Boolean Options
 
 Boolean options for any command that sets a resource state, such as 'enabled'
 or 'public', shall always have both positive and negative options defined.
-The names of those options shall either be a naturally occuring pair of
+The names of those options shall either be a naturally occurring pair of
 words (in English) or a positive option and a negative option with `no-`
 prepended (such as in the traditional GNU option usage) like `--share` and
 `--no-share`.
