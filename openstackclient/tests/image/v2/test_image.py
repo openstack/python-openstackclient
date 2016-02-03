@@ -672,6 +672,27 @@ class TestImageList(TestImage):
         self.assertEqual(self.columns, columns)
         self.assertEqual(len(self.datalist), len(tuple(data)))
 
+    @mock.patch('openstackclient.common.utils.find_resource')
+    def test_image_list_marker_option(self, fr_mock):
+        # tangchen: Since image_fakes.IMAGE is a dict, it cannot offer a .id
+        #           operation. Will fix this by using FakeImage class instead
+        #           of IMAGE dict.
+        fr_mock.return_value = mock.Mock()
+        fr_mock.return_value.id = image_fakes.image_id
+
+        arglist = [
+            '--marker', image_fakes.image_name,
+        ]
+        verifylist = [
+            ('marker', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.api_mock.image_list.assert_called_with(
+            marker=image_fakes.image_id,
+        )
+
 
 class TestRemoveProjectImage(TestImage):
 

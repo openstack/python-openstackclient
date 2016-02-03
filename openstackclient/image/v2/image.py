@@ -437,6 +437,14 @@ class ListImage(command.Lister):
             type=int,
             help="Maximum number of images to display.",
         )
+        parser.add_argument(
+            '--marker',
+            metavar='<marker>',
+            default=None,
+            help="The last image (name or ID) of the previous page. Display "
+                 "list of images after marker. Display all images if not "
+                 "specified."
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -451,6 +459,9 @@ class ListImage(command.Lister):
             kwargs['shared'] = True
         if parsed_args.limit:
             kwargs['limit'] = parsed_args.limit
+        if parsed_args.marker:
+            kwargs['marker'] = utils.find_resource(image_client.images,
+                                                   parsed_args.marker).id
 
         if parsed_args.long:
             columns = (

@@ -168,6 +168,7 @@ List available images
         [--long]
         [--sort <key>[:<direction>]]
         [--limit <limit>]
+        [--marker <marker>]
 
 .. option:: --public
 
@@ -199,6 +200,11 @@ List available images
 .. option:: --limit <limit>
 
     Maximum number of images to display.
+
+.. option:: --marker <marker>
+
+    The last image (name or ID) of the previous page. Display list of images
+    after marker. Display all images if not specified.
 
 image save
 ----------
