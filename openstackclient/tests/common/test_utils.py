@@ -143,7 +143,7 @@ class TestUtils(test_utils.TestCase):
         status_f = mock.Mock(return_value=resource)
         res_id = str(uuid.uuid4())
         self.assertTrue(utils.wait_for_status(status_f, res_id,))
-        self.assertFalse(mock_sleep.called)
+        mock_sleep.assert_not_called()
 
     @mock.patch.object(time, 'sleep')
     def test_wait_for_status_ok__with_overrides(self, mock_sleep):
@@ -154,7 +154,7 @@ class TestUtils(test_utils.TestCase):
         self.assertTrue(utils.wait_for_status(status_f, res_id,
                                               status_field='my_status',
                                               success_status=['complete']))
-        self.assertFalse(mock_sleep.called)
+        mock_sleep.assert_not_called()
 
     @mock.patch.object(time, 'sleep')
     def test_wait_for_status_error(self, mock_sleep):
@@ -163,7 +163,7 @@ class TestUtils(test_utils.TestCase):
         status_f = mock.Mock(return_value=resource)
         res_id = str(uuid.uuid4())
         self.assertFalse(utils.wait_for_status(status_f, res_id))
-        self.assertFalse(mock_sleep.called)
+        mock_sleep.assert_not_called()
 
     @mock.patch.object(time, 'sleep')
     def test_wait_for_status_error_with_overrides(self, mock_sleep):
@@ -174,7 +174,7 @@ class TestUtils(test_utils.TestCase):
         self.assertFalse(utils.wait_for_status(status_f, res_id,
                                                status_field='my_status',
                                                error_status=['failed']))
-        self.assertFalse(mock_sleep.called)
+        mock_sleep.assert_not_called()
 
     @mock.patch.object(time, 'sleep')
     def test_wait_for_delete_ok(self, mock_sleep):
@@ -210,7 +210,7 @@ class TestUtils(test_utils.TestCase):
         manager = mock.MagicMock(get=mock_get)
         res_id = str(uuid.uuid4())
         self.assertFalse(utils.wait_for_delete(manager, res_id))
-        self.assertFalse(mock_sleep.called)
+        mock_sleep.assert_not_called()
 
     @mock.patch.object(time, 'sleep')
     def test_wait_for_delete_error_with_overrides(self, mock_sleep):
@@ -222,7 +222,7 @@ class TestUtils(test_utils.TestCase):
         self.assertFalse(utils.wait_for_delete(manager, res_id,
                                                status_field='my_status',
                                                error_status=['failed']))
-        self.assertFalse(mock_sleep.called)
+        mock_sleep.assert_not_called()
 
     @mock.patch.object(time, 'sleep')
     def test_wait_for_delete_error_with_overrides_exception(self, mock_sleep):
@@ -232,7 +232,7 @@ class TestUtils(test_utils.TestCase):
         res_id = str(uuid.uuid4())
         self.assertTrue(utils.wait_for_delete(manager, res_id,
                                               exception_name=['Exception']))
-        self.assertFalse(mock_sleep.called)
+        mock_sleep.assert_not_called()
 
     def test_build_kwargs_dict_value_set(self):
         self.assertEqual({'arg_bla': 'bla'},
