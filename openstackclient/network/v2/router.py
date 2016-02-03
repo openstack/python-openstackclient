@@ -35,6 +35,8 @@ def _format_external_gateway_info(info):
 _formatters = {
     'admin_state_up': _format_admin_state,
     'external_gateway_info': _format_external_gateway_info,
+    'availability_zones': utils.format_list,
+    'availability_zone_hints': utils.format_list,
 }
 
 
@@ -46,6 +48,9 @@ def _get_attrs(client_manager, parsed_args):
         attrs['admin_state_up'] = parsed_args.admin_state_up
     if parsed_args.distributed is not None:
         attrs['distributed'] = parsed_args.distributed
+    if ('availability_zone_hints' in parsed_args
+            and parsed_args.availability_zone_hints is not None):
+        attrs['availability_zone_hints'] = parsed_args.availability_zone_hints
     # "router set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
         identity_client = client_manager.identity
@@ -99,6 +104,16 @@ class CreateRouter(command.ShowOne):
             metavar='<poroject>',
             help="Owner's project (name or ID)",
         )
+        parser.add_argument(
+            '--availability-zone-hint',
+            metavar='<availability-zone>',
+            action='append',
+            dest='availability_zone_hints',
+            help='Availability Zone in which to create this router '
+                 '(requires the Router Availability Zone extension, '
+                 'this option can be repeated).',
+        )
+
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
@@ -176,10 +191,12 @@ class ListRouter(command.Lister):
             columns = columns + (
                 'routes',
                 'external_gateway_info',
+                'availability_zones'
             )
             column_headers = column_headers + (
                 'Routes',
                 'External gateway info',
+                'Availability zones'
             )
 
         data = client.routers()
