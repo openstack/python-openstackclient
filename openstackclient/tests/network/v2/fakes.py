@@ -172,15 +172,31 @@ class FakePort(object):
         :param Dictionary methods:
             A dictionary with all methods
         :return:
-            A FakeResource object, with id, name, admin_state_up,
-            status, tenant_id
+            A FakeResource object, with id, name, etc.
         """
+
         # Set default attributes.
         port_attrs = {
-            'id': 'port-id-' + uuid.uuid4().hex,
-            'name': 'port-name-' + uuid.uuid4().hex,
-            'status': 'ACTIVE',
             'admin_state_up': True,
+            'allowed_address_pairs': [{}],
+            'binding:host_id': 'binding-host-id-' + uuid.uuid4().hex,
+            'binding:profile': {},
+            'binding:vif_details': {},
+            'binding:vif_type': 'ovs',
+            'binding:vnic_type': 'normal',
+            'device_id': 'device-id-' + uuid.uuid4().hex,
+            'device_owner': 'compute:nova',
+            'dns_assignment': [{}],
+            'dns_name': 'dns-name-' + uuid.uuid4().hex,
+            'extra_dhcp_opts': [{}],
+            'fixed_ips': [{}],
+            'id': 'port-id-' + uuid.uuid4().hex,
+            'mac_address': 'fa:16:3e:a9:4e:72',
+            'name': 'port-name-' + uuid.uuid4().hex,
+            'network_id': 'network-id-' + uuid.uuid4().hex,
+            'port_security_enabled': True,
+            'security_groups': [],
+            'status': 'ACTIVE',
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
         }
 
@@ -188,7 +204,16 @@ class FakePort(object):
         port_attrs.update(attrs)
 
         # Set default methods.
-        port_methods = {}
+        port_methods = {
+            'keys': ['admin_state_up', 'allowed_address_pairs',
+                     'binding:host_id', 'binding:profile',
+                     'binding:vif_details', 'binding:vif_type',
+                     'binding:vnic_type', 'device_id', 'device_owner',
+                     'dns_assignment', 'dns_name', 'extra_dhcp_opts',
+                     'fixed_ips', 'id', 'mac_address', 'name',
+                     'network_id', 'port_security_enabled',
+                     'security_groups', 'status', 'tenant_id'],
+        }
 
         # Overwrite default methods.
         port_methods.update(methods)
@@ -196,6 +221,15 @@ class FakePort(object):
         port = fakes.FakeResource(info=copy.deepcopy(port_attrs),
                                   methods=copy.deepcopy(port_methods),
                                   loaded=True)
+
+        # Set attributes with special mappings.
+        port.project_id = port_attrs['tenant_id']
+        port.binding_host_id = port_attrs['binding:host_id']
+        port.binding_profile = port_attrs['binding:profile']
+        port.binding_vif_details = port_attrs['binding:vif_details']
+        port.binding_vif_type = port_attrs['binding:vif_type']
+        port.binding_vnic_type = port_attrs['binding:vnic_type']
+
         return port
 
     @staticmethod

@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support for the ``port show`` command.
+    [Bug `1519909 <https://bugs.launchpad.net/python-openstackclient/+bug/1519909>`_]
