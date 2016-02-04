@@ -16,14 +16,11 @@
 import argparse
 import logging
 
-import stevedore
-
-from keystoneclient.auth import base
+from keystoneauth1.loading import base
 
 from openstackclient.common import exceptions as exc
 from openstackclient.common import utils
 from openstackclient.i18n import _
-
 
 LOG = logging.getLogger(__name__)
 
@@ -37,15 +34,10 @@ OPTIONS_LIST = {}
 
 def get_plugin_list():
     """Gather plugin list and cache it"""
-
     global PLUGIN_LIST
 
     if PLUGIN_LIST is None:
-        PLUGIN_LIST = stevedore.ExtensionManager(
-            base.PLUGIN_NAMESPACE,
-            invoke_on_load=False,
-            propagate_map_exceptions=True,
-        )
+        PLUGIN_LIST = base.get_available_plugin_names()
     return PLUGIN_LIST
 
 
@@ -55,8 +47,9 @@ def get_options_list():
     global OPTIONS_LIST
 
     if not OPTIONS_LIST:
-        for plugin in get_plugin_list():
-            for o in plugin.plugin.get_options():
+        for plugin_name in get_plugin_list():
+            plugin_options = base.get_plugin_options(plugin_name)
+            for o in plugin_options:
                 os_name = o.dest.lower().replace('_', '-')
                 os_env_name = 'OS_' + os_name.upper().replace('-', '_')
                 OPTIONS_LIST.setdefault(
@@ -66,7 +59,7 @@ def get_options_list():
                 # help texts if they vary from one auth plugin to another
                 # also the text rendering is ugly in the CLI ...
                 OPTIONS_LIST[os_name]['help'] += 'With %s: %s\n' % (
-                    plugin.name,
+                    plugin_name,
                     o.help,
                 )
     return OPTIONS_LIST
@@ -83,7 +76,7 @@ def select_auth_plugin(options):
     if options.auth.get('url') and options.auth.get('token'):
         # service token authentication
         auth_plugin_name = 'token_endpoint'
-    elif options.auth_type in [plugin.name for plugin in PLUGIN_LIST]:
+    elif options.auth_type in PLUGIN_LIST:
         # A direct plugin name was given, use it
         auth_plugin_name = options.auth_type
     elif options.auth.get('username'):
@@ -115,7 +108,7 @@ def build_auth_params(auth_plugin_name, cmd_options):
     auth_params = dict(cmd_options.auth)
     if auth_plugin_name:
         LOG.debug('auth_type: %s', auth_plugin_name)
-        auth_plugin_class = base.get_plugin_class(auth_plugin_name)
+        auth_plugin_loader = base.get_plugin_loader(auth_plugin_name)
         # grab tenant from project for v2.0 API compatibility
         if auth_plugin_name.startswith("v2"):
             if 'project_id' in auth_params:
@@ -127,12 +120,12 @@ def build_auth_params(auth_plugin_name, cmd_options):
     else:
         LOG.debug('no auth_type')
         # delay the plugin choice, grab every option
-        auth_plugin_class = None
+        auth_plugin_loader = None
         plugin_options = set([o.replace('-', '_') for o in get_options_list()])
         for option in plugin_options:
             LOG.debug('fetching option %s', option)
             auth_params[option] = getattr(cmd_options.auth, option, None)
-    return (auth_plugin_class, auth_params)
+    return (auth_plugin_loader, auth_params)
 
 
 def check_valid_auth_options(options, auth_plugin_name, required_scope=True):
@@ -188,7 +181,7 @@ def build_auth_plugins_option_parser(parser):
     authentication plugin.
 
     """
-    available_plugins = [plugin.name for plugin in get_plugin_list()]
+    available_plugins = list(get_plugin_list())
     parser.add_argument(
         '--os-auth-type',
         metavar='<auth-type>',

@@ -17,6 +17,9 @@ import copy
 import mock
 import uuid
 
+from keystoneauth1 import access
+from keystoneauth1 import fixture
+
 from openstackclient.tests import fakes
 from openstackclient.tests import utils
 
@@ -107,6 +110,43 @@ ENDPOINT = {
     'publicurl': endpoint_publicurl,
     'service_id': endpoint_service_id,
 }
+
+
+def fake_auth_ref(fake_token, fake_service=None):
+    """Create an auth_ref using keystoneauth's fixtures"""
+    token_copy = copy.deepcopy(fake_token)
+    token_copy['token_id'] = token_copy.pop('id')
+    token = fixture.V2Token(**token_copy)
+    # An auth_ref is actually an access info object
+    auth_ref = access.create(body=token)
+
+    # Create a service catalog
+    if fake_service:
+        service = token.add_service(
+            fake_service['type'],
+            fake_service['name'],
+        )
+        # TODO(dtroyer): Add an 'id' element to KSA's _Service fixure
+        service['id'] = fake_service['id']
+        for e in fake_service['endpoints']:
+            # KSA's _Service fixture copies publicURL to internalURL and
+            # adminURL if they do not exist.  Soooo helpful...
+            internal = e.get('internalURL', None)
+            admin = e.get('adminURL', None)
+            region = e.get('region_id') or e.get('region', '<none>')
+            endpoint = service.add_endpoint(
+                public=e['publicURL'],
+                internal=internal,
+                admin=admin,
+                region=region,
+            )
+            # ...so undo that helpfulness
+            if not internal:
+                endpoint['internalURL'] = None
+            if not admin:
+                endpoint['adminURL'] = None
+
+    return auth_ref
 
 
 class FakeIdentityv2Client(object):

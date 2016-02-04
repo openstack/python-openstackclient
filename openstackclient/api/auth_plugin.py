@@ -18,13 +18,13 @@ import logging
 from oslo_config import cfg
 from six.moves.urllib import parse as urlparse
 
-from keystoneclient.auth.identity.generic import password as ksc_password
-from keystoneclient.auth import token_endpoint
+from keystoneauth1.loading._plugins import admin_token as token_endpoint
+from keystoneauth1.loading._plugins.identity import generic as ksa_password
 
 LOG = logging.getLogger(__name__)
 
 
-class TokenEndpoint(token_endpoint.Token):
+class TokenEndpoint(token_endpoint.AdminToken):
     """Auth plugin to handle traditional token/endpoint usage
 
     Implements the methods required to handle token authentication
@@ -36,20 +36,15 @@ class TokenEndpoint(token_endpoint.Token):
     is for bootstrapping the Keystone database.
     """
 
-    def __init__(self, url, token, **kwargs):
+    def load_from_options(self, url, token):
         """A plugin for static authentication with an existing token
 
         :param string url: Service endpoint
         :param string token: Existing token
         """
-        super(TokenEndpoint, self).__init__(endpoint=url,
-                                            token=token)
+        return super(TokenEndpoint, self).load_from_options(endpoint=url,
+                                                            token=token)
 
-    def get_auth_ref(self, session, **kwargs):
-        # Stub this method for compatibility
-        return None
-
-    @classmethod
     def get_options(self):
         options = super(TokenEndpoint, self).get_options()
 
@@ -65,7 +60,7 @@ class TokenEndpoint(token_endpoint.Token):
         return options
 
 
-class OSCGenericPassword(ksc_password.Password):
+class OSCGenericPassword(ksa_password.Password):
     """Auth plugin hack to work around broken Keystone configurations
 
     The default Keystone configuration uses http://localhost:xxxx in

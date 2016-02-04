@@ -18,6 +18,7 @@
 import six
 
 from openstackclient.common import command
+from openstackclient.common import exceptions
 from openstackclient.i18n import _
 
 
@@ -32,11 +33,21 @@ class IssueToken(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
+        auth_ref = self.app.client_manager.auth_ref
+        if not auth_ref:
+            raise exceptions.AuthorizationFailure(
+                "Only an authorized user may issue a new token.")
 
-        token = self.app.client_manager.auth_ref.service_catalog.get_token()
-        if 'tenant_id' in token:
-            token['project_id'] = token.pop('tenant_id')
-        return zip(*sorted(six.iteritems(token)))
+        data = {}
+        if auth_ref.auth_token:
+            data['id'] = auth_ref.auth_token
+        if auth_ref.expires:
+            data['expires'] = auth_ref.expires
+        if auth_ref.project_id:
+            data['project_id'] = auth_ref.project_id
+        if auth_ref.user_id:
+            data['user_id'] = auth_ref.user_id
+        return zip(*sorted(six.iteritems(data)))
 
 
 class RevokeToken(command.Command):
