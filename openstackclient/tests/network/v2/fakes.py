@@ -550,18 +550,22 @@ class FakeSubnet(object):
             A FakeResource object faking the subnet
         """
         # Set default attributes.
+        project_id = 'project-id-' + uuid.uuid4().hex
         subnet_attrs = {
             'id': 'subnet-id-' + uuid.uuid4().hex,
             'name': 'subnet-name-' + uuid.uuid4().hex,
             'network_id': 'network-id-' + uuid.uuid4().hex,
             'cidr': '10.10.10.0/24',
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'tenant_id': project_id,
             'enable_dhcp': True,
             'dns_nameservers': [],
             'allocation_pools': [],
             'host_routes': [],
             'ip_version': '4',
             'gateway_ip': '10.10.10.1',
+            'ipv6_address_mode': 'None',
+            'ipv6_ra_mode': 'None',
+            'subnetpool_id': 'None',
         }
 
         # Overwrite default attributes.
@@ -571,7 +575,8 @@ class FakeSubnet(object):
         subnet_methods = {
             'keys': ['id', 'name', 'network_id', 'cidr', 'enable_dhcp',
                      'allocation_pools', 'dns_nameservers', 'gateway_ip',
-                     'host_routes', 'ip_version', 'tenant_id']
+                     'host_routes', 'ip_version', 'tenant_id',
+                     'ipv6_address_mode', 'ipv6_ra_mode', 'subnetpool_id']
         }
 
         # Overwrite default methods.
@@ -580,6 +585,8 @@ class FakeSubnet(object):
         subnet = fakes.FakeResource(info=copy.deepcopy(subnet_attrs),
                                     methods=copy.deepcopy(subnet_methods),
                                     loaded=True)
+        # Set attributes with special mappings in OpenStack SDK.
+        subnet.project_id = subnet_attrs['tenant_id']
 
         return subnet
 
