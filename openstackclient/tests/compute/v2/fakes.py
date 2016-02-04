@@ -90,25 +90,39 @@ class FakeComputev2Client(object):
     def __init__(self, **kwargs):
         self.availability_zones = mock.Mock()
         self.availability_zones.resource_class = fakes.FakeResource(None, {})
+
         self.images = mock.Mock()
         self.images.resource_class = fakes.FakeResource(None, {})
+
         self.servers = mock.Mock()
         self.servers.resource_class = fakes.FakeResource(None, {})
+
         self.services = mock.Mock()
         self.services.resource_class = fakes.FakeResource(None, {})
+
         self.extensions = mock.Mock()
         self.extensions.resource_class = fakes.FakeResource(None, {})
+
         self.flavors = mock.Mock()
         self.flavors.resource_class = fakes.FakeResource(None, {})
+
         self.quotas = mock.Mock()
         self.quotas.resource_class = fakes.FakeResource(None, {})
+
         self.quota_classes = mock.Mock()
         self.quota_classes.resource_class = fakes.FakeResource(None, {})
+
         self.volumes = mock.Mock()
         self.volumes.resource_class = fakes.FakeResource(None, {})
+
         self.hypervisors = mock.Mock()
         self.hypervisors.resource_class = fakes.FakeResource(None, {})
+
+        self.security_groups = mock.Mock()
+        self.security_groups.resource_class = fakes.FakeResource(None, {})
+
         self.auth_token = kwargs['token']
+
         self.management_url = kwargs['endpoint']
 
 

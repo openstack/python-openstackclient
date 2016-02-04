@@ -102,9 +102,8 @@ class TestSecurityGroupRule(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestSecurityGroupRule, self).setUp()
 
-        self.secgroups_mock = mock.Mock()
-        self.secgroups_mock.resource_class = fakes.FakeResource(None, {})
-        self.app.client_manager.compute.security_groups = self.secgroups_mock
+        # Get a shortcut compute client security_groups mock
+        self.secgroups_mock = self.app.client_manager.compute.security_groups
         self.secgroups_mock.reset_mock()
 
         self.sg_rules_mock = mock.Mock()
