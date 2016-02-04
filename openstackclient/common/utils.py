@@ -314,6 +314,8 @@ def wait_for_status(status_f,
 def wait_for_delete(manager,
                     res_id,
                     status_field='status',
+                    error_status=['error'],
+                    exception_name=['NotFound'],
                     sleep_time=5,
                     timeout=300,
                     callback=None):
@@ -324,6 +326,8 @@ def wait_for_delete(manager,
     :param status_field: the status attribute in the returned resource object,
         this is used to check for error states while the resource is being
         deleted
+    :param error_status: a list of status strings for error
+    :param exception_name: a list of exception strings for deleted case
     :param sleep_time: wait this long between checks (seconds)
     :param timeout: check until this long (seconds)
     :param callback: called per sleep cycle, useful to display progress; this
@@ -340,12 +344,12 @@ def wait_for_delete(manager,
             # handle a NotFound exception here without parsing the message
             res = manager.get(res_id)
         except Exception as ex:
-            if type(ex).__name__ == 'NotFound':
+            if type(ex).__name__ in exception_name:
                 return True
             raise
 
         status = getattr(res, status_field, '').lower()
-        if status == 'error':
+        if status in error_status:
             return False
 
         if callback:
