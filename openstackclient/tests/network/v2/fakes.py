@@ -69,6 +69,59 @@ class TestNetworkV2(utils.TestCommand):
         )
 
 
+class FakeAvailabilityZone(object):
+    """Fake one or more network availability zones (AZs)."""
+
+    @staticmethod
+    def create_one_availability_zone(attrs={}, methods={}):
+        """Create a fake AZ.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object with name, state, etc.
+        """
+        # Set default attributes.
+        availability_zone = {
+            'name': uuid.uuid4().hex,
+            'state': 'available',
+            'resource': 'network',
+        }
+
+        # Overwrite default attributes.
+        availability_zone.update(attrs)
+
+        availability_zone = fakes.FakeResource(
+            info=copy.deepcopy(availability_zone),
+            methods=methods,
+            loaded=True)
+        return availability_zone
+
+    @staticmethod
+    def create_availability_zones(attrs={}, methods={}, count=2):
+        """Create multiple fake AZs.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of AZs to fake
+        :return:
+            A list of FakeResource objects faking the AZs
+        """
+        availability_zones = []
+        for i in range(0, count):
+            availability_zone = \
+                FakeAvailabilityZone.create_one_availability_zone(
+                    attrs, methods)
+            availability_zones.append(availability_zone)
+
+        return availability_zones
+
+
 class FakeNetwork(object):
     """Fake one or more networks."""
 
