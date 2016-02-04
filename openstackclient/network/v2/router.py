@@ -17,6 +17,7 @@ import json
 
 from openstackclient.common import command
 from openstackclient.common import exceptions
+from openstackclient.common import parseractions
 from openstackclient.common import utils
 from openstackclient.identity import common as identity_common
 
@@ -51,6 +52,12 @@ def _get_attrs(client_manager, parsed_args):
     if ('availability_zone_hints' in parsed_args
             and parsed_args.availability_zone_hints is not None):
         attrs['availability_zone_hints'] = parsed_args.availability_zone_hints
+
+    if 'clear_routes' in parsed_args and parsed_args.clear_routes:
+        attrs['routes'] = []
+    elif 'routes' in parsed_args and parsed_args.routes is not None:
+        attrs['routes'] = parsed_args.routes
+
     # "router set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
         identity_client = client_manager.identity
@@ -63,7 +70,6 @@ def _get_attrs(client_manager, parsed_args):
 
     # TODO(tangchen): Support getting 'ha' property.
     # TODO(tangchen): Support getting 'external_gateway_info' property.
-    # TODO(tangchen): Support getting 'routes' property.
 
     return attrs
 
@@ -250,6 +256,25 @@ class SetRouter(command.Command):
             action='store_false',
             help="Set router to centralized mode (disabled router only)",
         )
+        routes_group = parser.add_mutually_exclusive_group()
+        routes_group.add_argument(
+            '--route',
+            metavar='destination=<subnet>,gateway=<ip-address>',
+            action=parseractions.MultiKeyValueAction,
+            dest='routes',
+            default=None,
+            required_keys=['destination', 'gateway'],
+            help="Routes associated with the router. "
+                 "Repeat this option to set multiple routes. "
+                 "destination: destination subnet (in CIDR notation). "
+                 "gateway: nexthop IP address.",
+        )
+        routes_group.add_argument(
+            '--clear-routes',
+            dest='clear_routes',
+            action='store_true',
+            help="Clear routes associated with the router",
+        )
 
         # TODO(tangchen): Support setting 'ha' property in 'router set'
         # command. It appears that changing the ha state is supported by
@@ -257,9 +282,6 @@ class SetRouter(command.Command):
 
         # TODO(tangchen): Support setting 'external_gateway_info' property in
         # 'router set' command.
-
-        # TODO(tangchen): Support setting 'routes' property in 'router set'
-        # command.
 
         return parser
 

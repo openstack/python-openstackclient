@@ -93,6 +93,7 @@ Set router properties
         [--name <name>]
         [--enable | --disable]
         [--distributed | --centralized]
+        [--route destination=<subnet>,gateway=<ip-address> | --clear-routes]
         <router>
 
 .. option:: --name <name>
@@ -114,6 +115,17 @@ Set router properties
 .. option:: --centralized
 
     Set router to centralized mode (disabled router only)
+
+.. option:: --route destination=<subnet>,gateway=<ip-address>
+
+    Routes associated with the router.
+    Repeat this option to set multiple routes.
+    destination: destination subnet (in CIDR notation).
+    gateway: nexthop IP address.
+
+.. option:: --clear-routes
+
+    Clear routes associated with the router
 
 .. _router_set-router:
 .. describe:: <router>
