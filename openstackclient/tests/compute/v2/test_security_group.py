@@ -12,7 +12,6 @@
 #
 
 import copy
-import mock
 
 from openstackclient.compute.v2 import security_group
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
@@ -47,9 +46,8 @@ class TestSecurityGroup(compute_fakes.TestComputev2):
         self.secgroups_mock = self.app.client_manager.compute.security_groups
         self.secgroups_mock.reset_mock()
 
-        self.projects_mock = mock.Mock()
-        self.projects_mock.resource_class = fakes.FakeResource(None, {})
-        self.app.client_manager.identity.projects = self.projects_mock
+        # Get a shortcut identity client projects mock
+        self.projects_mock = self.app.client_manager.identity.projects
         self.projects_mock.reset_mock()
 
 
