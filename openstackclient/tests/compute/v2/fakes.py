@@ -106,6 +106,8 @@ class FakeComputev2Client(object):
         self.quota_classes.resource_class = fakes.FakeResource(None, {})
         self.volumes = mock.Mock()
         self.volumes.resource_class = fakes.FakeResource(None, {})
+        self.hypervisors = mock.Mock()
+        self.hypervisors.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
@@ -138,6 +140,49 @@ class TestComputev2(utils.TestCommand):
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+
+
+class FakeHypervisor(object):
+    """Fake one or more hypervisor."""
+
+    @staticmethod
+    def create_one_hypervisor(attrs={}):
+        """Create a fake hypervisor.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, hypervisor_hostname, and so on
+        """
+        # Set default attributes.
+        hypervisor_info = {
+            'id': 'hypervisor-id-' + uuid.uuid4().hex,
+            'hypervisor_hostname': 'hypervisor-hostname-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        hypervisor_info.update(attrs)
+
+        hypervisor = fakes.FakeResource(info=copy.deepcopy(hypervisor_info),
+                                        loaded=True)
+        return hypervisor
+
+    @staticmethod
+    def create_hypervisors(attrs={}, count=2):
+        """Create multiple fake hypervisors.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of hypervisors to fake
+        :return:
+            A list of FakeResource objects faking the hypervisors
+        """
+        hypervisors = []
+        for i in range(0, count):
+            hypervisors.append(FakeHypervisor.create_one_hypervisor(attrs))
+
+        return hypervisors
 
 
 class FakeServer(object):
