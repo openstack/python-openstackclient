@@ -101,7 +101,7 @@ class CreateRouter(command.ShowOne):
         )
         parser.add_argument(
             '--project',
-            metavar='<poroject>',
+            metavar='<project>',
             help="Owner's project (name or ID)",
         )
         parser.add_argument(
