@@ -238,6 +238,33 @@ class DeletePort(command.Command):
             client.delete_port(res)
 
 
+class ListPort(command.Lister):
+    """List ports"""
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+
+        columns = (
+            'id',
+            'name',
+            'mac_address',
+            'fixed_ips',
+        )
+        column_headers = (
+            'ID',
+            'Name',
+            'MAC Address',
+            'Fixed IP Addresses',
+        )
+
+        data = client.ports()
+        return (column_headers,
+                (utils.get_item_properties(
+                    s, columns,
+                    formatters=_formatters,
+                ) for s in data))
+
+
 class ShowPort(command.ShowOne):
     """Display port details"""
 
