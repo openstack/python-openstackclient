@@ -463,28 +463,76 @@ class FakeSecurityGroup(object):
         security_groups = []
         for i in range(0, count):
             security_groups.append(
-                FakeRouter.create_one_security_group(attrs, methods))
+                FakeSecurityGroup.create_one_security_group(attrs, methods))
 
         return security_groups
 
+
+class FakeSecurityGroupRule(object):
+    """Fake one or more security group rules."""
+
     @staticmethod
-    def get_security_groups(security_groups=None, count=2):
-        """Get an iterable MagicMock object with a list of faked security groups.
+    def create_one_security_group_rule(attrs={}, methods={}):
+        """Create a fake security group rule.
 
-        If security group list is provided, then initialize the Mock object
-        with the list. Otherwise create one.
-
-        :param List security groups:
-            A list of FakeResource objects faking security groups
-        :param int count:
-            The number of security groups to fake
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
         :return:
-            An iterable Mock object with side_effect set to a list of faked
-            security groups
+            A FakeResource object, with id, name, etc.
         """
-        if security_groups is None:
-            security_groups = FakeRouter.create_security_groups(count)
-        return mock.MagicMock(side_effect=security_groups)
+        # Set default attributes.
+        security_group_rule_attrs = {
+            'description': 'security-group-rule-desc-' + uuid.uuid4().hex,
+            'direction': 'ingress',
+            'ethertype': 'IPv4',
+            'id': 'security-group-rule-id-' + uuid.uuid4().hex,
+            'name': 'security-group-rule-name-' + uuid.uuid4().hex,
+            'port_range_max': None,
+            'port_range_min': None,
+            'protocol': None,
+            'remote_group_id': 'remote-security-group-id-' + uuid.uuid4().hex,
+            'remote_ip_prefix': None,
+            'security_group_id': 'security-group-id-' + uuid.uuid4().hex,
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        security_group_rule_attrs.update(attrs)
+
+        # Set default methods.
+        security_group_rule_methods = {}
+
+        # Overwrite default methods.
+        security_group_rule_methods.update(methods)
+
+        security_group_rule = fakes.FakeResource(
+            info=copy.deepcopy(security_group_rule_attrs),
+            methods=copy.deepcopy(security_group_rule_methods),
+            loaded=True)
+        return security_group_rule
+
+    @staticmethod
+    def create_security_group_rules(attrs={}, methods={}, count=2):
+        """Create multiple fake security group rules.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of security group rules to fake
+        :return:
+            A list of FakeResource objects faking the security group rules
+        """
+        security_group_rules = []
+        for i in range(0, count):
+            security_group_rules.append(
+                FakeSecurityGroupRule.create_one_security_group_rule(
+                    attrs, methods))
+
+        return security_group_rules
 
 
 class FakeSubnet(object):

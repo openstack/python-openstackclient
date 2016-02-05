@@ -228,6 +228,68 @@ class FakeHypervisor(object):
         return hypervisors
 
 
+class FakeSecurityGroupRule(object):
+    """Fake one or more security group rules."""
+
+    @staticmethod
+    def create_one_security_group_rule(attrs={}, methods={}):
+        """Create a fake security group rule.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object, with id, etc.
+        """
+        # Set default attributes.
+        security_group_rule_attrs = {
+            'from_port': -1,
+            'group': {},
+            'id': 'security-group-rule-id-' + uuid.uuid4().hex,
+            'ip_protocol': 'icmp',
+            'ip_range': {'cidr': '0.0.0.0/0'},
+            'parent_group_id': 'security-group-id-' + uuid.uuid4().hex,
+            'to_port': -1,
+        }
+
+        # Overwrite default attributes.
+        security_group_rule_attrs.update(attrs)
+
+        # Set default methods.
+        security_group_rule_methods = {}
+
+        # Overwrite default methods.
+        security_group_rule_methods.update(methods)
+
+        security_group_rule = fakes.FakeResource(
+            info=copy.deepcopy(security_group_rule_attrs),
+            methods=copy.deepcopy(security_group_rule_methods),
+            loaded=True)
+        return security_group_rule
+
+    @staticmethod
+    def create_security_group_rules(attrs={}, methods={}, count=2):
+        """Create multiple fake security group rules.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of security group rules to fake
+        :return:
+            A list of FakeResource objects faking the security group rules
+        """
+        security_group_rules = []
+        for i in range(0, count):
+            security_group_rules.append(
+                FakeSecurityGroupRule.create_one_security_group_rule(
+                    attrs, methods))
+
+        return security_group_rules
+
+
 class FakeServer(object):
     """Fake one or more compute servers."""
 
