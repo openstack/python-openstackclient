@@ -168,6 +168,25 @@ Delete server(s)
 
     Server(s) to delete (name or ID)
 
+server dump create
+------------------
+Create a dump file in server(s)
+
+Trigger crash dump in server(s) with features like kdump in Linux. It will
+create a dump file in the server(s) dumping the server(s)' memory, and also
+crash the server(s). OSC sees the dump file (server dump) as a kind of
+resource.
+
+.. program:: server dump create
+.. code:: bash
+
+    os server dump create
+        <server> [<server> ...]
+
+.. describe:: <server>
+
+    Server(s) to create dump file (name or ID)
+
 server list
 -----------
 

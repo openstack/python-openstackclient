@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support for the `server dump create` command
+    [Bug `1538372 <https://bugs.launchpad.net/python-openstackclient/+bug/1538372>`_]

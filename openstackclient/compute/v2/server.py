@@ -542,6 +542,34 @@ class CreateServer(command.ShowOne):
         return zip(*sorted(six.iteritems(details)))
 
 
+class CreateServerDump(command.Command):
+    """Create a dump file in server(s)
+
+    Trigger crash dump in server(s) with features like kdump in Linux.
+    It will create a dump file in the server(s) dumping the server(s)'
+    memory, and also crash the server(s). OSC sees the dump file
+    (server dump) as a kind of resource.
+    """
+
+    def get_parser(self, prog_name):
+        parser = super(CreateServerDump, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            nargs='+',
+            help=_('Server(s) to create dump file (name or ID)'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+        for server in parsed_args.server:
+            utils.find_resource(
+                compute_client.servers,
+                server,
+            ).trigger_crash_dump()
+
+
 class CreateServerImage(command.ShowOne):
     """Create a new disk image from a running server"""
 
