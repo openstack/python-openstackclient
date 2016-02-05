@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Add network support to `os availability zone list`
+    Add network support to ``os availability zone list``
     [Bug `1534202 <https://bugs.launchpad.net/bugs/1534202>`_]
 
-    * New `--network` option to only list network availability zones.
+    * New ``--network`` option to only list network availability zones.
