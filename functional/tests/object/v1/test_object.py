@@ -74,5 +74,8 @@ class ObjectTests(test.TestCase):
                                     + ' ' + self.OBJECT_NAME)
         self.assertEqual(0, len(raw_output))
 
-        raw_output = self.openstack('container delete ' + self.CONTAINER_NAME)
+        self.openstack('object create ' + self.CONTAINER_NAME
+                       + ' ' + self.OBJECT_NAME)
+        raw_output = self.openstack('container delete -r ' +
+                                    self.CONTAINER_NAME)
         self.assertEqual(0, len(raw_output))

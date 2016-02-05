@@ -28,7 +28,12 @@ Delete container
 .. code:: bash
 
     os container delete
+        [-r] | [--recursive]
         <container> [<container> ...]
+
+.. option:: --recursive, -r
+
+    Recursively delete objects in container before container delete
 
 .. describe:: <container>
 
@@ -40,7 +45,7 @@ container list
 List containers
 
 .. program:: container list
-.. code::bash
+.. code:: bash
 
     os container list
         [--prefix <prefix>]
