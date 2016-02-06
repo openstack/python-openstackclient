@@ -1,5 +1,6 @@
 ---
 fixes:
   - |
-    Fix `volume type create`, passes incorrect privacy argument
+    Fix ``--public|--private`` options for ``volume type create`` command
+    to correctly pass privacy argument to client library
     [Bug `1520115 <https://bugs.launchpad.net/bugs/1520115>`_]

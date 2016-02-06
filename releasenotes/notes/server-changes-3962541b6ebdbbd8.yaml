@@ -1,10 +1,10 @@
 ---
 other:
   - |
-    `server` resource changes:
+    Changes to ``server`` resource commands:
 
-    * Added `--limit` and `--marker` to `server list`
-    * Added `server shelve`
-    * Added `server unshelve`
-    * `server resume` now takes multiple servers
-    * `server suspend` now takes multiple servers
+    * Added ``--limit`` and ``--marker`` to ``server list``
+    * Added ``server shelve``
+    * Added ``server unshelve``
+    * ``server resume`` now takes multiple server arguments
+    * ``server suspend`` now takes multiple server arguments
