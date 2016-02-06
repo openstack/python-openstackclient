@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Allow custom logging of components
+    [Bug `1484660 <https://bugs.launchpad.net/python-openstackclient/+bug/1484660>`_]
