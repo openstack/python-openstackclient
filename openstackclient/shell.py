@@ -353,6 +353,9 @@ class OpenStackShell(app.App):
             cmd.__class__.__name__,
         )
         if cmd.auth_required:
+            if hasattr(cmd, 'required_scope'):
+                # let the command decide whether we need a scoped token
+                self.client_manager.setup_auth(cmd.required_scope)
             # Trigger the Identity client to initialize
             self.client_manager.auth_ref
         return

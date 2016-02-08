@@ -113,19 +113,35 @@ class ClientManager(object):
         root_logger = logging.getLogger('')
         LOG.setLevel(root_logger.getEffectiveLevel())
 
-    def setup_auth(self):
+        # NOTE(gyee): use this flag to indicate whether auth setup has already
+        # been completed. If so, do not perform auth setup again. The reason
+        # we need this flag is that we want to be able to perform auth setup
+        # outside of auth_ref as auth_ref itself is a property. We can not
+        # retrofit auth_ref to optionally skip scope check. Some operations
+        # do not require a scoped token. In those cases, we call setup_auth
+        # prior to dereferrencing auth_ref.
+        self._auth_setup_completed = False
+
+    def setup_auth(self, required_scope=True):
         """Set up authentication
+
+        :param required_scope: indicate whether a scoped token is required
 
         This is deferred until authentication is actually attempted because
         it gets in the way of things that do not require auth.
         """
+
+        if self._auth_setup_completed:
+            return
 
         # If no auth type is named by the user, select one based on
         # the supplied options
         self.auth_plugin_name = auth.select_auth_plugin(self._cli_options)
 
         # Basic option checking to avoid unhelpful error messages
-        auth.check_valid_auth_options(self._cli_options, self.auth_plugin_name)
+        auth.check_valid_auth_options(self._cli_options,
+                                      self.auth_plugin_name,
+                                      required_scope=required_scope)
 
         # Horrible hack alert...must handle prompt for null password if
         # password auth is requested.
@@ -179,6 +195,8 @@ class ClientManager(object):
             verify=self._verify,
             user_agent=USER_AGENT,
         )
+
+        self._auth_setup_completed = True
 
         return
 

@@ -24,6 +24,9 @@ from openstackclient.i18n import _  # noqa
 class IssueToken(command.ShowOne):
     """Issue new token"""
 
+    # scoped token is optional
+    required_scope = False
+
     def get_parser(self, prog_name):
         parser = super(IssueToken, self).get_parser(prog_name)
         return parser
@@ -31,7 +34,8 @@ class IssueToken(command.ShowOne):
     def take_action(self, parsed_args):
 
         token = self.app.client_manager.auth_ref.service_catalog.get_token()
-        token['project_id'] = token.pop('tenant_id')
+        if 'tenant_id' in token:
+            token['project_id'] = token.pop('tenant_id')
         return zip(*sorted(six.iteritems(token)))
 
 

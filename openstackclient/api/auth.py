@@ -135,8 +135,12 @@ def build_auth_params(auth_plugin_name, cmd_options):
     return (auth_plugin_class, auth_params)
 
 
-def check_valid_auth_options(options, auth_plugin_name):
-    """Perform basic option checking, provide helpful error messages"""
+def check_valid_auth_options(options, auth_plugin_name, required_scope=True):
+    """Perform basic option checking, provide helpful error messages.
+
+    :param required_scope: indicate whether a scoped token is required
+
+    """
 
     msg = ''
     if auth_plugin_name.endswith('password'):
@@ -146,7 +150,8 @@ def check_valid_auth_options(options, auth_plugin_name):
         if not options.auth.get('auth_url', None):
             msg += _('Set an authentication URL, with --os-auth-url,'
                      ' OS_AUTH_URL or auth.auth_url\n')
-        if (not options.auth.get('project_id', None) and not
+        if (required_scope and not
+                options.auth.get('project_id', None) and not
                 options.auth.get('domain_id', None) and not
                 options.auth.get('domain_name', None) and not
                 options.auth.get('project_name', None) and not
