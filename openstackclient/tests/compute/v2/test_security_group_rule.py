@@ -12,7 +12,6 @@
 #
 
 import copy
-import mock
 
 from openstackclient.compute.v2 import security_group
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
@@ -106,10 +105,9 @@ class TestSecurityGroupRule(compute_fakes.TestComputev2):
         self.secgroups_mock = self.app.client_manager.compute.security_groups
         self.secgroups_mock.reset_mock()
 
-        self.sg_rules_mock = mock.Mock()
-        self.sg_rules_mock.resource_class = fakes.FakeResource(None, {})
-        self.app.client_manager.compute.security_group_rules = \
-            self.sg_rules_mock
+        # Get a shortcut compute client security_group_rules mock
+        self.sg_rules_mock = \
+            self.app.client_manager.compute.security_group_rules
         self.sg_rules_mock.reset_mock()
 
 

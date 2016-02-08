@@ -121,6 +121,9 @@ class FakeComputev2Client(object):
         self.security_groups = mock.Mock()
         self.security_groups.resource_class = fakes.FakeResource(None, {})
 
+        self.security_group_rules = mock.Mock()
+        self.security_group_rules.resource_class = fakes.FakeResource(None, {})
+
         self.auth_token = kwargs['token']
 
         self.management_url = kwargs['endpoint']
