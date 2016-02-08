@@ -13,9 +13,12 @@
 #   under the License.
 #
 
+import copy
+
 from openstackclient.common import exceptions
 from openstackclient.compute.v2 import hypervisor
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
+from openstackclient.tests import fakes
 
 
 class TestHypervisor(compute_fakes.TestComputev2):
@@ -26,6 +29,10 @@ class TestHypervisor(compute_fakes.TestComputev2):
         # Get a shortcut to the compute client hypervisors mock
         self.hypervisors_mock = self.app.client_manager.compute.hypervisors
         self.hypervisors_mock.reset_mock()
+
+        # Get a shortcut to the compute client aggregates mock
+        self.aggregates_mock = self.app.client_manager.compute.aggregates
+        self.aggregates_mock.reset_mock()
 
 
 class TestHypervisorList(TestHypervisor):
@@ -113,3 +120,101 @@ class TestHypervisorList(TestHypervisor):
         self.assertRaises(exceptions.NotFound,
                           self.cmd.take_action,
                           parsed_args)
+
+
+class TestHypervisorShow(TestHypervisor):
+
+    def setUp(self):
+        super(TestHypervisorShow, self).setUp()
+
+        # Fake hypervisors to be listed up
+        self.hypervisor = compute_fakes.FakeHypervisor.create_one_hypervisor()
+
+        # Return value of utils.find_resource()
+        self.hypervisors_mock.get.return_value = self.hypervisor
+
+        # Return value of compute_client.aggregates.list()
+        self.aggregates_mock.list.return_value = []
+
+        # Return value of compute_client.hypervisors.uptime()
+        uptime_info = {
+            'status': self.hypervisor.status,
+            'state': self.hypervisor.state,
+            'id': self.hypervisor.id,
+            'hypervisor_hostname': self.hypervisor.hypervisor_hostname,
+            'uptime': ' 01:28:24 up 3 days, 11:15,  1 user, '
+                      ' load average: 0.94, 0.62, 0.50\n',
+        }
+        self.hypervisors_mock.uptime.return_value = fakes.FakeResource(
+            info=copy.deepcopy(uptime_info),
+            loaded=True
+        )
+
+        self.columns = (
+            'aggregates',
+            'cpu_info',
+            'current_workload',
+            'disk_available_least',
+            'free_disk_gb',
+            'free_ram_mb',
+            'host_ip',
+            'hypervisor_hostname',
+            'hypervisor_type',
+            'hypervisor_version',
+            'id',
+            'local_gb',
+            'local_gb_used',
+            'memory_mb',
+            'memory_mb_used',
+            'running_vms',
+            'service_host',
+            'service_id',
+            'state',
+            'status',
+            'vcpus',
+            'vcpus_used',
+        )
+        self.data = (
+            [],
+            {'aaa': 'aaa'},
+            0,
+            50,
+            50,
+            1024,
+            '192.168.0.10',
+            self.hypervisor.hypervisor_hostname,
+            'QEMU',
+            2004001,
+            self.hypervisor.id,
+            50,
+            0,
+            1024,
+            512,
+            0,
+            'aaa',
+            1,
+            'up',
+            'enabled',
+            4,
+            0,
+        )
+
+        # Get the command object to test
+        self.cmd = hypervisor.ShowHypervisor(self.app, None)
+
+    def test_hypervisor_show(self):
+        arglist = [
+            self.hypervisor.hypervisor_hostname,
+        ]
+        verifylist = [
+            ('hypervisor', self.hypervisor.hypervisor_hostname),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstractmethod take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)

@@ -88,6 +88,8 @@ SERVICE = {
 
 class FakeComputev2Client(object):
     def __init__(self, **kwargs):
+        self.aggregates = mock.Mock()
+        self.aggregates.resource_class = fakes.FakeResource(None, {})
         self.availability_zones = mock.Mock()
         self.availability_zones.resource_class = fakes.FakeResource(None, {})
 
@@ -175,6 +177,30 @@ class FakeHypervisor(object):
         hypervisor_info = {
             'id': 'hypervisor-id-' + uuid.uuid4().hex,
             'hypervisor_hostname': 'hypervisor-hostname-' + uuid.uuid4().hex,
+            'status': 'enabled',
+            'host_ip': '192.168.0.10',
+            'cpu_info': {
+                'aaa': 'aaa',
+            },
+            'free_disk_gb': 50,
+            'hypervisor_version': 2004001,
+            'disk_available_least': 50,
+            'local_gb': 50,
+            'free_ram_mb': 1024,
+            'service': {
+                'host': 'aaa',
+                'disabled_reason': None,
+                'id': 1,
+            },
+            'vcpus_used': 0,
+            'hypervisor_type': 'QEMU',
+            'local_gb_used': 0,
+            'vcpus': 4,
+            'memory_mb_used': 512,
+            'memory_mb': 1024,
+            'current_workload': 0,
+            'state': 'up',
+            'running_vms': 0,
         }
 
         # Overwrite default attributes.
