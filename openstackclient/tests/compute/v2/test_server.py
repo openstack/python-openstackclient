@@ -79,7 +79,6 @@ class TestServer(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         for s in servers:
@@ -411,7 +410,6 @@ class TestServerDelete(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.delete.assert_called_with(
@@ -431,7 +429,6 @@ class TestServerDelete(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         calls = []
@@ -451,7 +448,6 @@ class TestServerDelete(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.delete.assert_called_with(
@@ -476,7 +472,6 @@ class TestServerDelete(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
 
         self.servers_mock.delete.assert_called_with(
@@ -861,7 +856,6 @@ class TestServerResize(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(
@@ -885,7 +879,6 @@ class TestServerResize(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(
@@ -914,7 +907,6 @@ class TestServerResize(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(
@@ -939,7 +931,6 @@ class TestServerResize(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(
