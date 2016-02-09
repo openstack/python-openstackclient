@@ -18,8 +18,6 @@
 
 import six
 
-from keystoneauth1 import exceptions as ks_exc
-
 try:
     from novaclient.v2 import security_group_rules
 except ImportError:
@@ -167,58 +165,6 @@ class CreateSecurityGroupRule(command.ShowOne):
 
         info = _xform_security_group_rule(data._info)
         return zip(*sorted(six.iteritems(info)))
-
-
-class ListSecurityGroup(command.Lister):
-    """List security groups"""
-
-    def get_parser(self, prog_name):
-        parser = super(ListSecurityGroup, self).get_parser(prog_name)
-        parser.add_argument(
-            '--all-projects',
-            action='store_true',
-            default=False,
-            help='Display information from all projects (admin only)',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-
-        def _get_project(project_id):
-            try:
-                return getattr(project_hash[project_id], 'name', project_id)
-            except KeyError:
-                return project_id
-
-        compute_client = self.app.client_manager.compute
-        columns = (
-            "ID",
-            "Name",
-            "Description",
-        )
-        column_headers = columns
-        if parsed_args.all_projects:
-            # TODO(dtroyer): Translate Project_ID to Project (name)
-            columns = columns + ('Tenant ID',)
-            column_headers = column_headers + ('Project',)
-        search = {'all_tenants': parsed_args.all_projects}
-        data = compute_client.security_groups.list(search_opts=search)
-
-        project_hash = {}
-        try:
-            projects = self.app.client_manager.identity.projects.list()
-        except ks_exc.ClientException:
-            # This fails when the user is not an admin, just move along
-            pass
-        else:
-            for project in projects:
-                project_hash[project.id] = project
-
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                    formatters={'Tenant ID': _get_project},
-                ) for s in data))
 
 
 class ListSecurityGroupRule(command.Lister):

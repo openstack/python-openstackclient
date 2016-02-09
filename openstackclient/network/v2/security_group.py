@@ -13,6 +13,8 @@
 
 """Security Group action implementations"""
 
+import argparse
+
 from openstackclient.common import utils
 from openstackclient.network import common
 
@@ -38,3 +40,51 @@ class DeleteSecurityGroup(common.NetworkAndComputeCommand):
             parsed_args.group,
         )
         client.security_groups.delete(data.id)
+
+
+class ListSecurityGroup(common.NetworkAndComputeLister):
+    """List security groups"""
+
+    def update_parser_network(self, parser):
+        # Maintain and hide the argument for backwards compatibility.
+        # Network will always return all projects for an admin.
+        parser.add_argument(
+            '--all-projects',
+            action='store_true',
+            default=False,
+            help=argparse.SUPPRESS,
+        )
+        return parser
+
+    def update_parser_compute(self, parser):
+        parser.add_argument(
+            '--all-projects',
+            action='store_true',
+            default=False,
+            help='Display information from all projects (admin only)',
+        )
+        return parser
+
+    def _get_return_data(self, data, include_project=True):
+        columns = (
+            "ID",
+            "Name",
+            "Description",
+        )
+        column_headers = columns
+        if include_project:
+            columns = columns + ('Tenant ID',)
+            column_headers = column_headers + ('Project',)
+        return (column_headers,
+                (utils.get_item_properties(
+                    s, columns,
+                ) for s in data))
+
+    def take_action_network(self, client, parsed_args):
+        return self._get_return_data(client.security_groups())
+
+    def take_action_compute(self, client, parsed_args):
+        search = {'all_tenants': parsed_args.all_projects}
+        data = client.security_groups.list(search_opts=search)
+        return self._get_return_data(data,
+                                     include_project=parsed_args.all_projects)
