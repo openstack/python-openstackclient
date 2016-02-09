@@ -90,6 +90,7 @@ class FakeComputev2Client(object):
     def __init__(self, **kwargs):
         self.aggregates = mock.Mock()
         self.aggregates.resource_class = fakes.FakeResource(None, {})
+
         self.availability_zones = mock.Mock()
         self.availability_zones.resource_class = fakes.FakeResource(None, {})
 
@@ -128,6 +129,9 @@ class FakeComputev2Client(object):
 
         self.floating_ips = mock.Mock()
         self.floating_ips.resource_class = fakes.FakeResource(None, {})
+
+        self.networks = mock.Mock()
+        self.networks.resource_class = fakes.FakeResource(None, {})
 
         self.auth_token = kwargs['token']
 

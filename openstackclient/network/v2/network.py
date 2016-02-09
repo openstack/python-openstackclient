@@ -17,6 +17,7 @@ from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.identity import common as identity_common
+from openstackclient.network import common
 
 
 def _format_admin_state(item):
@@ -141,11 +142,10 @@ class CreateNetwork(command.ShowOne):
         return (columns, data)
 
 
-class DeleteNetwork(command.Command):
+class DeleteNetwork(common.NetworkAndComputeCommand):
     """Delete network(s)"""
 
-    def get_parser(self, prog_name):
-        parser = super(DeleteNetwork, self).get_parser(prog_name)
+    def update_parser_common(self, parser):
         parser.add_argument(
             'network',
             metavar="<network>",
@@ -154,11 +154,18 @@ class DeleteNetwork(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        client = self.app.client_manager.network
+    def take_action_network(self, client, parsed_args):
         for network in parsed_args.network:
             obj = client.find_network(network)
             client.delete_network(obj)
+
+    def take_action_compute(self, client, parsed_args):
+        for network in parsed_args.network:
+            network = utils.find_resource(
+                client.networks,
+                network,
+            )
+            client.networks.delete(network.id)
 
 
 class ListNetwork(command.Lister):

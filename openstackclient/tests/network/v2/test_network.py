@@ -17,6 +17,7 @@ import mock
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.network.v2 import network
+from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes_v2
 from openstackclient.tests.identity.v3 import fakes as identity_fakes_v3
@@ -24,6 +25,8 @@ from openstackclient.tests.network.v2 import fakes as network_fakes
 from openstackclient.tests import utils as tests_utils
 
 
+# Tests for Neutron network
+#
 class TestNetwork(network_fakes.TestNetworkV2):
 
     def setUp(self):
@@ -564,3 +567,47 @@ class TestShowNetwork(TestNetwork):
 
         self.assertEqual(tuple(self.columns), columns)
         self.assertEqual(list(self.data), list(data))
+
+
+# Tests for Nova network
+#
+class TestNetworkCompute(compute_fakes.TestComputev2):
+
+    def setUp(self):
+        super(TestNetworkCompute, self).setUp()
+
+        # Get a shortcut to the compute client
+        self.compute = self.app.client_manager.compute
+
+
+class TestDeleteNetworkCompute(TestNetworkCompute):
+
+    # The network to delete.
+    _network = network_fakes.FakeNetwork.create_one_network()
+
+    def setUp(self):
+        super(TestDeleteNetworkCompute, self).setUp()
+
+        self.app.client_manager.network_endpoint_enabled = False
+
+        self.compute.networks.delete.return_value = None
+
+        # Return value of utils.find_resource()
+        self.compute.networks.get.return_value = self._network
+
+        # Get the command object to test
+        self.cmd = network.DeleteNetwork(self.app, None)
+
+    def test_network_delete(self):
+        arglist = [
+            self._network.name,
+        ]
+        verifylist = [
+            ('network', [self._network.name]),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.compute.networks.delete.assert_called_with(self._network.id)
+        self.assertIsNone(result)

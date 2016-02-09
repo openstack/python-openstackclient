@@ -98,7 +98,7 @@ referring to both Compute and Volume quotas.
 * ``limits``: (**Compute**, **Volume**) resource usage limits
 * ``mapping``: (**Identity**) a definition to translate identity provider attributes to Identity concepts
 * ``module``: internal - installed Python modules in the OSC process
-* ``network``: (**Network**) - a virtual network for connecting servers and other resources
+* ``network``: (**Compute**, **Network**) - a virtual network for connecting servers and other resources
 * ``object``: (**Object Storage**) a single file in the Object Storage
 * ``policy``: (**Identity**) determines authorization
 * ``port``: (**Network**) - a virtual port for connecting servers and other resources to a network
