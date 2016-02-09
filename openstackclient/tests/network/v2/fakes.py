@@ -566,12 +566,15 @@ class FakeFloatingIP(object):
         :param Dictionary methods:
             A dictionary with all methods
         :return:
-            A FakeResource object, with id, ip
+            A FakeResource object, with id, ip, and so on
         """
         # Set default attributes.
         floating_ip_attrs = {
             'id': 'floating-ip-id-' + uuid.uuid4().hex,
             'ip': '1.0.9.0',
+            'fixed_ip': '2.0.9.0',
+            'instance_id': 'server-id-' + uuid.uuid4().hex,
+            'pool': 'public',
         }
 
         # Overwrite default attributes.

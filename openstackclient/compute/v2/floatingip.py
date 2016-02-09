@@ -68,23 +68,6 @@ class CreateFloatingIP(command.ShowOne):
         return zip(*sorted(six.iteritems(info)))
 
 
-class ListFloatingIP(command.Lister):
-    """List floating IP addresses"""
-
-    def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-
-        columns = ('ID', 'Pool', 'IP', 'Fixed IP', 'Instance ID')
-
-        data = compute_client.floating_ips.list()
-
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                    formatters={},
-                ) for s in data))
-
-
 class RemoveFloatingIP(command.Command):
     """Remove floating IP address from server"""
 

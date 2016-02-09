@@ -59,6 +59,43 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
         self.assertIsNone(result)
 
 
+class TestListFloatingIPNetwork(TestFloatingIPNetwork):
+
+    # The floating ips to list up
+    floating_ips = network_fakes.FakeFloatingIP.create_floating_ips(count=3)
+
+    columns = ('ID', 'Floating IP', 'Fixed IP', 'Server ID', 'Pool')
+
+    data = []
+    for ip in floating_ips:
+        data.append((
+            ip.id,
+            ip.ip,
+            ip.fixed_ip,
+            ip.instance_id,
+            ip.pool,
+        ))
+
+    def setUp(self):
+        super(TestListFloatingIPNetwork, self).setUp()
+
+        self.network.ips = mock.Mock(return_value=self.floating_ips)
+
+        # Get the command object to test
+        self.cmd = floating_ip.ListFloatingIP(self.app, self.namespace)
+
+    def test_floating_ip_list(self):
+        arglist = []
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ips.assert_called_with(**{})
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+
 # Tests for Nova network
 #
 class TestFloatingIPCompute(compute_fakes.TestComputev2):
@@ -103,3 +140,42 @@ class TestDeleteFloatingIPCompute(TestFloatingIPCompute):
             self.floating_ip.id
         )
         self.assertIsNone(result)
+
+
+class TestListFloatingIPCompute(TestFloatingIPCompute):
+
+    # The floating ips to be list up
+    floating_ips = network_fakes.FakeFloatingIP.create_floating_ips(count=3)
+
+    columns = ('ID', 'Floating IP', 'Fixed IP', 'Server ID', 'Pool')
+
+    data = []
+    for ip in floating_ips:
+        data.append((
+            ip.id,
+            ip.ip,
+            ip.fixed_ip,
+            ip.instance_id,
+            ip.pool,
+        ))
+
+    def setUp(self):
+        super(TestListFloatingIPCompute, self).setUp()
+
+        self.app.client_manager.network_endpoint_enabled = False
+
+        self.compute.floating_ips.list.return_value = self.floating_ips
+
+        # Get the command object to test
+        self.cmd = floating_ip.ListFloatingIP(self.app, None)
+
+    def test_floating_ip_list(self):
+        arglist = []
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute.floating_ips.list.assert_called_with()
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
