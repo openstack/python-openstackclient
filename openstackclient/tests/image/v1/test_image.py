@@ -273,7 +273,9 @@ class TestImageList(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             detailed=True,
@@ -294,7 +296,9 @@ class TestImageList(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             detailed=True,
@@ -316,7 +320,9 @@ class TestImageList(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             detailed=True,
@@ -336,7 +342,9 @@ class TestImageList(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             detailed=True,
@@ -385,7 +393,9 @@ class TestImageList(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             detailed=True,
@@ -411,7 +421,9 @@ class TestImageList(TestImage):
         verifylist = [('sort', 'name:asc')]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             detailed=True,
