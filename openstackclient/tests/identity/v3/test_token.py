@@ -44,7 +44,9 @@ class TestTokenIssue(TestToken):
         self.sc_mock.get_token.return_value = \
             identity_fakes.TOKEN_WITH_PROJECT_ID
 
-        # DisplayCommandBase.take_action() returns two tuples
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
         self.sc_mock.get_token.assert_called_with()
@@ -66,7 +68,9 @@ class TestTokenIssue(TestToken):
         self.sc_mock.get_token.return_value = \
             identity_fakes.TOKEN_WITH_DOMAIN_ID
 
-        # DisplayCommandBase.take_action() returns two tuples
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
         self.sc_mock.get_token.assert_called_with()
