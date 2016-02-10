@@ -146,21 +146,20 @@ class ListAvailabilityZone(command.Lister):
 
     def _get_network_availability_zones(self, parsed_args):
         network_client = self.app.client_manager.network
-        data = []
         try:
             # Verify that the extension exists.
             network_client.find_extension('Availability Zone',
                                           ignore_missing=False)
-            data = network_client.availability_zones()
         except Exception as e:
             self.log.debug('Network availability zone exception: ' + str(e))
             if parsed_args.network:
                 message = "Availability zones list not supported by " \
                           "Network API"
                 self.log.warning(message)
+            return []
 
         result = []
-        for zone in data:
+        for zone in network_client.availability_zones():
             result += _xform_network_availability_zone(zone)
         return result
 
