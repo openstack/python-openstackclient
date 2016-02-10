@@ -168,11 +168,10 @@ class DeleteNetwork(common.NetworkAndComputeCommand):
             client.networks.delete(network.id)
 
 
-class ListNetwork(command.Lister):
+class ListNetwork(common.NetworkAndComputeLister):
     """List networks"""
 
-    def get_parser(self, prog_name):
-        parser = super(ListNetwork, self).get_parser(prog_name)
+    def update_parser_common(self, parser):
         parser.add_argument(
             '--external',
             action='store_true',
@@ -187,9 +186,7 @@ class ListNetwork(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        client = self.app.client_manager.network
-
+    def take_action_network(self, client, parsed_args):
         if parsed_args.long:
             columns = (
                 'id',
@@ -231,7 +228,29 @@ class ListNetwork(command.Lister):
             args = {'router:external': True}
         else:
             args = {}
+
         data = client.networks(**args)
+
+        return (column_headers,
+                (utils.get_item_properties(
+                    s, columns,
+                    formatters=_formatters,
+                ) for s in data))
+
+    def take_action_compute(self, client, parsed_args):
+        columns = (
+            'id',
+            'label',
+            'cidr',
+        )
+        column_headers = (
+            'ID',
+            'Name',
+            'Subnet',
+        )
+
+        data = client.networks.list()
+
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,

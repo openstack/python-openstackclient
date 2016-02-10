@@ -2,7 +2,7 @@
 network
 =======
 
-Network v2
+Compute v2, Network v2
 
 network create
 --------------

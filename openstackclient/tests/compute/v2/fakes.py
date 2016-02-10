@@ -525,3 +525,61 @@ class FakeFloatingIP(object):
         if floating_ips is None:
             floating_ips = FakeFloatingIP.create_floating_ips(count)
         return mock.MagicMock(side_effect=floating_ips)
+
+
+class FakeNetwork(object):
+    """Fake one or more networks."""
+
+    @staticmethod
+    def create_one_network(attrs={}, methods={}):
+        """Create a fake network.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object, with id, label, cidr
+        """
+        # Set default attributes.
+        network_attrs = {
+            'id': 'network-id-' + uuid.uuid4().hex,
+            'label': 'network-label-' + uuid.uuid4().hex,
+            'cidr': '10.0.0.0/24',
+        }
+
+        # Overwrite default attributes.
+        network_attrs.update(attrs)
+
+        # Set default methods.
+        network_methods = {
+            'keys': ['id', 'label', 'cidr'],
+        }
+
+        # Overwrite default methods.
+        network_methods.update(methods)
+
+        network = fakes.FakeResource(info=copy.deepcopy(network_attrs),
+                                     methods=copy.deepcopy(network_methods),
+                                     loaded=True)
+
+        return network
+
+    @staticmethod
+    def create_networks(attrs={}, methods={}, count=2):
+        """Create multiple fake networks.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of networks to fake
+        :return:
+            A list of FakeResource objects faking the networks
+        """
+        networks = []
+        for i in range(0, count):
+            networks.append(FakeNetwork.create_one_network(attrs, methods))
+
+        return networks
