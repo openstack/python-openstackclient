@@ -80,3 +80,24 @@ class TestTokenIssue(TestToken):
             identity_fakes.user_id,
         )
         self.assertEqual(datalist, data)
+
+
+class TestTokenRevoke(TestToken):
+
+    TOKEN = 'fob'
+
+    def setUp(self):
+        super(TestTokenRevoke, self).setUp()
+        self.tokens_mock = self.app.client_manager.identity.tokens
+        self.tokens_mock.reset_mock()
+        self.tokens_mock.revoke_token.return_value = True
+        self.cmd = token.RevokeToken(self.app, None)
+
+    def test_token_revoke(self):
+        arglist = [self.TOKEN]
+        verifylist = [('token', self.TOKEN)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.tokens_mock.revoke_token.assert_called_with(self.TOKEN)
