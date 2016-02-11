@@ -316,7 +316,7 @@ class SetNetwork(command.Command):
         return
 
 
-class ShowNetwork(command.ShowOne):
+class ShowNetwork(common.NetworkAndComputeShowOne):
     """Show network details"""
 
     def get_parser(self, prog_name):
@@ -328,9 +328,17 @@ class ShowNetwork(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        client = self.app.client_manager.network
+    def take_action_network(self, client, parsed_args):
         obj = client.find_network(parsed_args.network, ignore_missing=False)
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        return (columns, data)
+
+    def take_action_compute(self, client, parsed_args):
+        network = utils.find_resource(
+            client.networks,
+            parsed_args.network,
+        )
+        columns = sorted(network._info.keys())
+        data = utils.get_dict_properties(network._info, columns)
         return (columns, data)
