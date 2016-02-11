@@ -573,7 +573,7 @@ class FakeSubnet(object):
             'dns_nameservers': [],
             'allocation_pools': [],
             'host_routes': [],
-            'ip_version': '4',
+            'ip_version': 4,
             'gateway_ip': '10.10.10.1',
             'ipv6_address_mode': 'None',
             'ipv6_ra_mode': 'None',
