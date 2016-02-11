@@ -503,7 +503,7 @@ class TestSetNetwork(TestNetwork):
 
 class TestShowNetwork(TestNetwork):
 
-    # The network to set.
+    # The network to show.
     _network = network_fakes.FakeNetwork.create_one_network()
 
     columns = (
