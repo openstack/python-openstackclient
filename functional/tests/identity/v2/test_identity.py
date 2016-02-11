@@ -24,7 +24,7 @@ class IdentityTests(test.TestCase):
                    'username', 'domain_id', 'default_project_id']
     PROJECT_FIELDS = ['enabled', 'id', 'name', 'description', 'domain_id']
     TOKEN_FIELDS = ['expires', 'id', 'project_id', 'user_id']
-    ROLE_FIELDS = ['id', 'name', 'links']
+    ROLE_FIELDS = ['id', 'name', 'links', 'domain_id']
     SERVICE_FIELDS = ['id', 'enabled', 'name', 'type', 'description']
     ENDPOINT_FIELDS = ['id', 'region', 'service_id', 'service_name',
                        'service_type', 'enabled', 'publicurl',
