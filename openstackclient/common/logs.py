@@ -18,6 +18,13 @@ import sys
 import warnings
 
 
+def get_loggers():
+    loggers = {}
+    for logkey in logging.Logger.manager.loggerDict.keys():
+        loggers[logkey] = logging.getLevelName(logging.getLogger(logkey).level)
+    return loggers
+
+
 def log_level_from_options(options):
     # if --debug, --quiet or --verbose is not specified,
     # the default logging level is warning
@@ -31,6 +38,17 @@ def log_level_from_options(options):
     elif options.verbose_level >= 3:
         # Two or more --verbose
         log_level = logging.DEBUG
+    return log_level
+
+
+def log_level_from_string(level_string):
+    log_level = {
+        'critical': logging.CRITICAL,
+        'error': logging.ERROR,
+        'warning': logging.WARNING,
+        'info': logging.INFO,
+        'debug': logging.DEBUG,
+    }.get(level_string, logging.WARNING)
     return log_level
 
 
@@ -49,15 +67,7 @@ def log_level_from_config(config):
         verbose_level = 'info'
     else:
         verbose_level = 'debug'
-
-    log_level = {
-        'critical': logging.CRITICAL,
-        'error': logging.ERROR,
-        'warning': logging.WARNING,
-        'info': logging.INFO,
-        'debug': logging.DEBUG,
-    }.get(verbose_level, logging.WARNING)
-    return log_level
+    return log_level_from_string(verbose_level)
 
 
 def set_warning_filter(log_level):
@@ -168,3 +178,21 @@ class LogConfigurator(object):
             self.file_logger.setFormatter(_FileFormatter(config=cloud_config))
             self.file_logger.setLevel(log_level)
             self.root_logger.addHandler(self.file_logger)
+
+        logconfig = cloud_config.config.get('logging', None)
+        if logconfig:
+            highest_level = logging.NOTSET
+            for k in logconfig.keys():
+                level = log_level_from_string(logconfig[k])
+                logging.getLogger(k).setLevel(level)
+                if (highest_level < level):
+                    highest_level = level
+            self.console_logger.setLevel(highest_level)
+            if self.file_logger:
+                self.file_logger.setLevel(highest_level)
+            # loggers that are not set will use the handler level, so we
+            # need to set the global level for all the loggers
+            for logkey in logging.Logger.manager.loggerDict.keys():
+                logger = logging.getLogger(logkey)
+                if logger.level == logging.NOTSET:
+                    logger.setLevel(log_level)
