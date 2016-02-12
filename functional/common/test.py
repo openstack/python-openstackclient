@@ -52,6 +52,11 @@ class TestCase(testtools.TestCase):
         return execute('openstack ' + cmd, fail_ok=fail_ok)
 
     @classmethod
+    def get_openstack_configuration_value(cls, configuration):
+        opts = cls.get_show_opts([configuration])
+        return cls.openstack('configuration show ' + opts)
+
+    @classmethod
     def get_show_opts(cls, fields=[]):
         return ' -f value ' + ' '.join(['-c ' + it for it in fields])
 
