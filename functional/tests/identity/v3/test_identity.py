@@ -30,7 +30,7 @@ class IdentityTests(test.TestCase):
                    'domain_id', 'default_project_id', 'description']
     PROJECT_FIELDS = ['description', 'id', 'domain_id', 'is_domain',
                       'enabled', 'name', 'parent_id', 'links']
-    ROLE_FIELDS = ['id', 'name', 'links']
+    ROLE_FIELDS = ['id', 'name', 'links', 'domain_id']
     SERVICE_FIELDS = ['id', 'enabled', 'name', 'type', 'description']
     REGION_FIELDS = ['description', 'enabled', 'parent_region', 'region']
     ENDPOINT_FIELDS = ['id', 'region', 'region_id', 'service_id',
