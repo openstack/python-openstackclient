@@ -81,7 +81,7 @@ class TestServiceList(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # In base command class Lister in cliff, abstractmethod take_action()
+        # In base command class Lister in cliff, abstract method take_action()
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         self.cmd.take_action(parsed_args)
