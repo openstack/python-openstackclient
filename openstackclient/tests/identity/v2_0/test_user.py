@@ -448,7 +448,9 @@ class TestUserList(TestUser):
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
         self.users_mock.list.assert_called_with(tenant_id=None)
@@ -466,7 +468,9 @@ class TestUserList(TestUser):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         project_id = identity_fakes.PROJECT_2['id']
 
-        # DisplayCommandBase.take_action() returns two tuples
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
         self.users_mock.list.assert_called_with(tenant_id=project_id)
@@ -483,7 +487,9 @@ class TestUserList(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
         self.users_mock.list.assert_called_with(tenant_id=None)
