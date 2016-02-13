@@ -19,3 +19,18 @@ Delete subnet pool
 .. describe:: <subnet-pool>
 
     Subnet pool to delete (name or ID)
+
+subnet pool list
+----------------
+
+List subnet pools
+
+.. program:: subnet pool list
+.. code:: bash
+
+    os subnet pool list
+        [--long]
+
+.. option:: --long
+
+    List additional fields in output

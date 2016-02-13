@@ -55,3 +55,72 @@ class TestDeleteSubnetPool(TestSubnetPool):
 
         self.network.delete_subnet_pool.assert_called_with(self._subnet_pool)
         self.assertIsNone(result)
+
+
+class TestListSubnetPool(TestSubnetPool):
+    # The subnet pools going to be listed up.
+    _subnet_pools = network_fakes.FakeSubnetPool.create_subnet_pools(count=3)
+
+    columns = (
+        'ID',
+        'Name',
+        'Prefixes',
+    )
+    columns_long = columns + (
+        'Default Prefix Length',
+        'Address Scope',
+    )
+
+    data = []
+    for pool in _subnet_pools:
+        data.append((
+            pool.id,
+            pool.name,
+            pool.prefixes,
+        ))
+
+    data_long = []
+    for pool in _subnet_pools:
+        data_long.append((
+            pool.id,
+            pool.name,
+            pool.prefixes,
+            pool.default_prefixlen,
+            pool.address_scope_id,
+        ))
+
+    def setUp(self):
+        super(TestListSubnetPool, self).setUp()
+
+        # Get the command object to test
+        self.cmd = subnet_pool.ListSubnetPool(self.app, self.namespace)
+
+        self.network.subnet_pools = mock.Mock(return_value=self._subnet_pools)
+
+    def test_subnet_pool_list_no_option(self):
+        arglist = []
+        verifylist = [
+            ('long', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.subnet_pools.assert_called_with()
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_pool_list_long(self):
+        arglist = [
+            '--long',
+        ]
+        verifylist = [
+            ('long', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.subnet_pools.assert_called_with()
+        self.assertEqual(self.columns_long, columns)
+        self.assertEqual(self.data_long, list(data))

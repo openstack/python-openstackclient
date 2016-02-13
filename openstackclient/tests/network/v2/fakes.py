@@ -699,6 +699,9 @@ class FakeSubnetPool(object):
         subnet_pool_attrs = {
             'id': 'subnet-pool-id-' + uuid.uuid4().hex,
             'name': 'subnet-pool-name-' + uuid.uuid4().hex,
+            'prefixes': ['10.0.0.0/24', '10.1.0.0/24'],
+            'default_prefixlen': 8,
+            'address_scope_id': 'address-scope-id-' + uuid.uuid4().hex,
         }
 
         # Overwrite default attributes.
@@ -706,7 +709,8 @@ class FakeSubnetPool(object):
 
         # Set default methods.
         subnet_pool_methods = {
-            'keys': ['id', 'name']
+            'keys': ['id', 'name', 'prefixes', 'default_prefixlen',
+                     'address_scope_id']
         }
 
         # Overwrite default methods.
