@@ -232,7 +232,6 @@ class TestRoleDelete(TestRole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         self.roles_mock.delete.assert_called_with(
@@ -446,7 +445,6 @@ class TestRoleRemove(TestRole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         # RoleManager.remove_user_role(user, role, tenant=None)

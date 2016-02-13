@@ -396,7 +396,6 @@ class TestUserDelete(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         self.users_mock.delete.assert_called_with(
@@ -554,7 +553,6 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         # Set expected values
@@ -585,7 +583,6 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         # UserManager.update_password(user, password)
@@ -611,7 +608,6 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         mocker = mock.Mock()
         mocker.return_value = 'abc123'
         with mock.patch("openstackclient.common.utils.get_password", mocker):
@@ -639,7 +635,6 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         # Set expected values
@@ -669,7 +664,6 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         # UserManager.update_tenant(user, tenant)
@@ -694,7 +688,6 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         # Set expected values
@@ -723,7 +716,6 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         # Set expected values

@@ -186,7 +186,6 @@ class TestServiceDelete(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # DisplayCommandBase.take_action() returns two tuples
         self.cmd.take_action(parsed_args)
 
         self.services_mock.delete.assert_called_with(
