@@ -234,12 +234,17 @@ class OpenStackShell(app.App):
         # Do configuration file handling
         # Ignore the default value of interface. Only if it is set later
         # will it be used.
-        cc = cloud_config.OpenStackConfig(
-            override_defaults={
-                'interface': None,
-                'auth_type': auth_type,
+        try:
+            cc = cloud_config.OpenStackConfig(
+                override_defaults={
+                    'interface': None,
+                    'auth_type': auth_type,
                 },
             )
+        except (IOError, OSError) as e:
+            self.log.critical("Could not read clouds.yaml configuration file")
+            self.print_help_if_requested()
+            raise e
 
         # TODO(thowe): Change cliff so the default value for debug
         # can be set to None.
