@@ -453,7 +453,7 @@ class TestSetNetwork(TestNetwork):
             '--share',
         ]
         verifylist = [
-            ('identifier', self._network.name),
+            ('network', self._network.name),
             ('admin_state', True),
             ('name', 'noob'),
             ('shared', True),
@@ -477,7 +477,7 @@ class TestSetNetwork(TestNetwork):
             '--no-share',
         ]
         verifylist = [
-            ('identifier', self._network.name),
+            ('network', self._network.name),
             ('admin_state', False),
             ('shared', False),
         ]
@@ -494,7 +494,7 @@ class TestSetNetwork(TestNetwork):
 
     def test_set_nothing(self):
         arglist = [self._network.name, ]
-        verifylist = [('identifier', self._network.name), ]
+        verifylist = [('network', self._network.name), ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(exceptions.CommandError, self.cmd.take_action,
@@ -553,7 +553,7 @@ class TestShowNetwork(TestNetwork):
             self._network.name,
         ]
         verifylist = [
-            ('identifier', self._network.name),
+            ('network', self._network.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

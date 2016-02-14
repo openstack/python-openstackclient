@@ -238,7 +238,7 @@ class SetNetwork(command.Command):
     def get_parser(self, prog_name):
         parser = super(SetNetwork, self).get_parser(prog_name)
         parser.add_argument(
-            'identifier',
+            'network',
             metavar="<network>",
             help=("Network to modify (name or ID)")
         )
@@ -279,7 +279,7 @@ class SetNetwork(command.Command):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_network(parsed_args.identifier, ignore_missing=False)
+        obj = client.find_network(parsed_args.network, ignore_missing=False)
 
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         if attrs == {}:
@@ -296,7 +296,7 @@ class ShowNetwork(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ShowNetwork, self).get_parser(prog_name)
         parser.add_argument(
-            'identifier',
+            'network',
             metavar="<network>",
             help=("Network to display (name or ID)")
         )
@@ -304,7 +304,7 @@ class ShowNetwork(command.ShowOne):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_network(parsed_args.identifier, ignore_missing=False)
+        obj = client.find_network(parsed_args.network, ignore_missing=False)
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (columns, data)
