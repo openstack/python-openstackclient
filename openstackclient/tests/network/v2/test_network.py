@@ -103,11 +103,9 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         arglist = []
         verifylist = []
 
-        try:
-            # Missing required args should bail here
-            self.check_parser(self.cmd, arglist, verifylist)
-        except tests_utils.ParserException:
-            pass
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
     def test_create_default_options(self):
         arglist = [
@@ -542,11 +540,9 @@ class TestShowNetwork(TestNetwork):
         arglist = []
         verifylist = []
 
-        try:
-            # Missing required args should bail here
-            self.check_parser(self.cmd, arglist, verifylist)
-        except tests_utils.ParserException:
-            pass
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
     def test_show_all_options(self):
         arglist = [
