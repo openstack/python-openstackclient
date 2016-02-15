@@ -63,10 +63,9 @@ class TestCreateRouter(TestRouter):
         arglist = []
         verifylist = []
 
-        try:
-            self.check_parser(self.cmd, arglist, verifylist)
-        except tests_utils.ParserException:
-            pass
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
     def test_create_default_options(self):
         arglist = [
@@ -303,11 +302,9 @@ class TestSetRouter(TestRouter):
             ('distributed', False),
         ]
 
-        try:
-            # Argument parse failing should bail here
-            self.check_parser(self.cmd, arglist, verifylist)
-        except tests_utils.ParserException:
-            pass
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
     def test_set_nothing(self):
         arglist = [self._router.name, ]
@@ -353,11 +350,9 @@ class TestShowRouter(TestRouter):
         arglist = []
         verifylist = []
 
-        try:
-            # Missing required args should bail here
-            self.check_parser(self.cmd, arglist, verifylist)
-        except tests_utils.ParserException:
-            pass
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
     def test_show_all_options(self):
         arglist = [

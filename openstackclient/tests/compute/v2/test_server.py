@@ -143,11 +143,10 @@ class TestServerCreate(TestServer):
         verifylist = [
             ('server_name', self.new_server.name),
         ]
-        try:
-            # Missing required args should bail here
-            self.check_parser(self.cmd, arglist, verifylist)
-        except utils.ParserException:
-            pass
+
+        # Missing required args should bail here
+        self.assertRaises(utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
     def test_server_create_minimal(self):
         arglist = [
