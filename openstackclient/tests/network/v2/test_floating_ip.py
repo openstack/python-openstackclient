@@ -110,7 +110,7 @@ class TestFloatingIPCompute(compute_fakes.TestComputev2):
 class TestDeleteFloatingIPCompute(TestFloatingIPCompute):
 
     # The floating ip to be deleted.
-    floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
+    floating_ip = compute_fakes.FakeFloatingIP.create_one_floating_ip()
 
     def setUp(self):
         super(TestDeleteFloatingIPCompute, self).setUp()
@@ -145,7 +145,7 @@ class TestDeleteFloatingIPCompute(TestFloatingIPCompute):
 class TestListFloatingIPCompute(TestFloatingIPCompute):
 
     # The floating ips to be list up
-    floating_ips = network_fakes.FakeFloatingIP.create_floating_ips(count=3)
+    floating_ips = compute_fakes.FakeFloatingIP.create_floating_ips(count=3)
 
     columns = ('ID', 'Floating IP', 'Fixed IP', 'Server ID', 'Pool')
 
