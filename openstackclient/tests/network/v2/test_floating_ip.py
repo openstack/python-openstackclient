@@ -64,16 +64,20 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
     # The floating ips to list up
     floating_ips = network_fakes.FakeFloatingIP.create_floating_ips(count=3)
 
-    columns = ('ID', 'Floating IP', 'Fixed IP', 'Server ID', 'Pool')
+    columns = (
+        'ID',
+        'Floating IP Address',
+        'Fixed IP Address',
+        'Port',
+    )
 
     data = []
     for ip in floating_ips:
         data.append((
             ip.id,
-            ip.ip,
-            ip.fixed_ip,
-            ip.instance_id,
-            ip.pool,
+            ip.floating_ip_address,
+            ip.fixed_ip_address,
+            ip.port_id,
         ))
 
     def setUp(self):
@@ -147,7 +151,13 @@ class TestListFloatingIPCompute(TestFloatingIPCompute):
     # The floating ips to be list up
     floating_ips = compute_fakes.FakeFloatingIP.create_floating_ips(count=3)
 
-    columns = ('ID', 'Floating IP', 'Fixed IP', 'Server ID', 'Pool')
+    columns = (
+        'ID',
+        'Floating IP Address',
+        'Fixed IP Address',
+        'Server',
+        'Pool',
+    )
 
     data = []
     for ip in floating_ips:

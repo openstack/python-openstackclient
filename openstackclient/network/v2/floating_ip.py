@@ -43,24 +43,49 @@ class DeleteFloatingIP(common.NetworkAndComputeCommand):
 class ListFloatingIP(common.NetworkAndComputeLister):
     """List floating IP(s)"""
 
-    columns = ('ID', 'IP', 'Fixed IP', 'Instance ID', 'Pool')
-    column_headers = ('ID', 'Floating IP', 'Fixed IP', 'Server ID', 'Pool')
-
     def take_action_network(self, client, parsed_args):
+        columns = (
+            'id',
+            'floating_ip_address',
+            'fixed_ip_address',
+            'port_id',
+        )
+        headers = (
+            'ID',
+            'Floating IP Address',
+            'Fixed IP Address',
+            'Port',
+        )
+
         query = {}
         data = client.ips(**query)
 
-        return (self.column_headers,
+        return (headers,
                 (utils.get_item_properties(
-                    s, self.columns,
+                    s, columns,
                     formatters={},
                 ) for s in data))
 
     def take_action_compute(self, client, parsed_args):
+        columns = (
+            'ID',
+            'IP',
+            'Fixed IP',
+            'Instance ID',
+            'Pool',
+        )
+        headers = (
+            'ID',
+            'Floating IP Address',
+            'Fixed IP Address',
+            'Server',
+            'Pool',
+        )
+
         data = client.floating_ips.list()
 
-        return (self.column_headers,
+        return (headers,
                 (utils.get_item_properties(
-                    s, self.columns,
+                    s, columns,
                     formatters={},
                 ) for s in data))

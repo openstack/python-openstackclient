@@ -619,10 +619,9 @@ class FakeFloatingIP(object):
         # Set default attributes.
         floating_ip_attrs = {
             'id': 'floating-ip-id-' + uuid.uuid4().hex,
-            'ip': '1.0.9.0',
-            'fixed_ip': '2.0.9.0',
-            'instance_id': 'server-id-' + uuid.uuid4().hex,
-            'pool': 'public',
+            'floating_ip_address': '1.0.9.0',
+            'fixed_ip_address': '2.0.9.0',
+            'port_id': 'port-id-' + uuid.uuid4().hex,
         }
 
         # Overwrite default attributes.
