@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``token revoke`` command for Identity v3
+    [Bug `1543226 <https://bugs.launchpad.net/bugs/1543226>`_]

@@ -17,8 +17,6 @@ Issue new token
 token revoke
 ------------
 
-*Identity version 2 only.*
-
 Revoke existing token
 
 .. program:: token revoke

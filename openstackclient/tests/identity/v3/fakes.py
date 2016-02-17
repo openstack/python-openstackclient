@@ -420,6 +420,8 @@ class FakeIdentityv3Client(object):
         self.session = mock.Mock()
         self.session.auth.auth_ref.service_catalog.resource_class = \
             fakes.FakeResource(None, {})
+        self.tokens = mock.Mock()
+        self.tokens.resource_class = fakes.FakeResource(None, {})
         self.trusts = mock.Mock()
         self.trusts.resource_class = fakes.FakeResource(None, {})
         self.users = mock.Mock()
