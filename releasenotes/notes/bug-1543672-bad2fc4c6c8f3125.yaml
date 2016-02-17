@@ -1,0 +1,4 @@
+---
+features:
+  - Command ``network delete`` is now available for nova network.
+    [Bug `1543672 <https://bugs.launchpad.net/python-openstackclient/+bug/1543672>`_]
