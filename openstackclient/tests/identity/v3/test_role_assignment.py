@@ -98,7 +98,8 @@ class TestRoleAssignmentList(TestRoleAssignment):
             role=None,
             user=None,
             project=None,
-            os_inherit_extension_inherited_to=None)
+            os_inherit_extension_inherited_to=None,
+            include_names=False)
 
         self.assertEqual(self.columns, columns)
         datalist = ((
@@ -145,6 +146,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             ('role', None),
             ('effective', False),
             ('inherited', False),
+            ('names', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -160,7 +162,8 @@ class TestRoleAssignmentList(TestRoleAssignment):
             project=None,
             role=None,
             effective=False,
-            os_inherit_extension_inherited_to=None)
+            os_inherit_extension_inherited_to=None,
+            include_names=False)
 
         self.assertEqual(self.columns, columns)
         datalist = ((
@@ -207,6 +210,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             ('role', None),
             ('effective', False),
             ('inherited', False),
+            ('names', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -222,7 +226,8 @@ class TestRoleAssignmentList(TestRoleAssignment):
             project=None,
             role=None,
             user=None,
-            os_inherit_extension_inherited_to=None)
+            os_inherit_extension_inherited_to=None,
+            include_names=False)
 
         self.assertEqual(self.columns, columns)
         datalist = ((
@@ -269,6 +274,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             ('role', None),
             ('effective', False),
             ('inherited', False),
+            ('names', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -284,7 +290,8 @@ class TestRoleAssignmentList(TestRoleAssignment):
             project=None,
             role=None,
             user=None,
-            os_inherit_extension_inherited_to=None)
+            os_inherit_extension_inherited_to=None,
+            include_names=False)
 
         self.assertEqual(self.columns, columns)
         datalist = ((
@@ -331,6 +338,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             ('role', None),
             ('effective', False),
             ('inherited', False),
+            ('names', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -346,7 +354,8 @@ class TestRoleAssignmentList(TestRoleAssignment):
             project=self.projects_mock.get(),
             role=None,
             user=None,
-            os_inherit_extension_inherited_to=None)
+            os_inherit_extension_inherited_to=None,
+            include_names=False)
 
         self.assertEqual(self.columns, columns)
         datalist = ((
@@ -391,6 +400,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             ('role', None),
             ('effective', True),
             ('inherited', False),
+            ('names', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -406,7 +416,8 @@ class TestRoleAssignmentList(TestRoleAssignment):
             project=None,
             role=None,
             user=None,
-            os_inherit_extension_inherited_to=None)
+            os_inherit_extension_inherited_to=None,
+            include_names=False)
 
         self.assertEqual(self.columns, columns)
         datalist = ((
@@ -453,6 +464,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             ('role', None),
             ('effective', False),
             ('inherited', True),
+            ('names', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -468,7 +480,8 @@ class TestRoleAssignmentList(TestRoleAssignment):
             project=None,
             role=None,
             user=None,
-            os_inherit_extension_inherited_to='projects')
+            os_inherit_extension_inherited_to='projects',
+            include_names=False)
 
         self.assertEqual(self.columns, columns)
         datalist = ((
@@ -486,3 +499,72 @@ class TestRoleAssignmentList(TestRoleAssignment):
             True
             ),)
         self.assertEqual(datalist, tuple(data))
+
+    def test_role_assignment_list_include_names(self):
+
+        self.role_assignments_mock.list.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(
+                    identity_fakes
+                    .ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID_INCLUDE_NAMES),
+                loaded=True,
+            ),
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(
+                    identity_fakes
+                    .ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID_INCLUDE_NAMES),
+                loaded=True,
+            ),
+        ]
+
+        arglist = ['--names']
+        verifylist = [
+            ('user', None),
+            ('group', None),
+            ('domain', None),
+            ('project', None),
+            ('role', None),
+            ('effective', False),
+            ('inherited', False),
+            ('names', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+
+        # This test will not run correctly until the patch in the python
+        # client is merged. Once that is done 'data' should return the
+        # correct information
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.role_assignments_mock.list.assert_called_with(
+            domain=None,
+            group=None,
+            effective=False,
+            project=None,
+            role=None,
+            user=None,
+            os_inherit_extension_inherited_to=None,
+            include_names=True)
+
+        collist = ('Role', 'User', 'Group', 'Project', 'Domain', 'Inherited')
+        self.assertEqual(columns, collist)
+
+        datalist1 = ((
+            identity_fakes.role_name,
+            '@'.join([identity_fakes.user_name, identity_fakes.domain_name]),
+            '',
+            '@'.join([identity_fakes.project_name,
+                     identity_fakes.domain_name]),
+            '',
+            False
+        ), (identity_fakes.role_name,
+            '@'.join([identity_fakes.user_name, identity_fakes.domain_name]),
+            '',
+            '',
+            identity_fakes.domain_name,
+            False
+            ),)
+        self.assertEqual(tuple(data), datalist1)

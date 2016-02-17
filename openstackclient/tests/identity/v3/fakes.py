@@ -314,6 +314,22 @@ ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID = {
     'role': {'id': role_id},
 }
 
+ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID_INCLUDE_NAMES = {
+    'scope': {
+        'project': {
+            'domain': {'id': domain_id,
+                       'name': domain_name},
+            'id': project_id,
+            'name': project_name}},
+    'user': {
+        'domain': {'id': domain_id,
+                   'name': domain_name},
+        'id': user_id,
+        'name': user_name},
+    'role': {'id': role_id,
+             'name': role_name},
+}
+
 ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID_INHERITED = {
     'scope': {'project': {'id': project_id},
               'OS-INHERIT:inherited_to': 'projects'},
@@ -331,6 +347,19 @@ ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID = {
     'scope': {'domain': {'id': domain_id}},
     'user': {'id': user_id},
     'role': {'id': role_id},
+}
+
+ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID_INCLUDE_NAMES = {
+    'scope': {
+        'domain': {'id': domain_id,
+                   'name': domain_name}},
+    'user': {
+        'domain': {'id': domain_id,
+                   'name': domain_name},
+        'id': user_id,
+        'name': user_name},
+    'role': {'id': role_id,
+             'name': role_name},
 }
 
 ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID_INHERITED = {
