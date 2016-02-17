@@ -6,3 +6,5 @@ fixes:
     [Bug `1546065 <https://bugs.launchpad.net/python-openstackclient/+bug/1546065>`_]
   - Command ``compute agent set`` now outputs nothing.
     [Bug `1546065 <https://bugs.launchpad.net/python-openstackclient/+bug/1546065>`_]
+  - Command ``aggregate set`` now outputs nothing.
+    [Bug `1546065 <https://bugs.launchpad.net/python-openstackclient/+bug/1546065>`_]
