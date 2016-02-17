@@ -1,0 +1,6 @@
+---
+features:
+  - Command ``ip floating delete`` is now available for neutron network.
+    [Bug `1519502 <https://bugs.launchpad.net/python-openstackclient/+bug/1519502>`_]
+  - Command ``ip floating list`` is now available for neutron network.
+    [Bug `1519502 <https://bugs.launchpad.net/python-openstackclient/+bug/1519502>`_]
