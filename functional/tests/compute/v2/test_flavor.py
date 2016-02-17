@@ -46,11 +46,20 @@ class FlavorTests(test.TestCase):
         self.assertEqual(self.NAME + "\n", raw_output)
 
     def test_flavor_properties(self):
-        opts = self.get_show_opts(["properties"])
+        opts = self.get_show_opts(['properties'])
+
         raw_output = self.openstack(
-            'flavor set --property a=b --property c=d ' + self.NAME + opts)
+            'flavor set --property a=b --property c=d ' + self.NAME
+        )
+        self.assertEqual('', raw_output)
+
+        raw_output = self.openstack('flavor show ' + self.NAME + opts)
         self.assertEqual("a='b', c='d'\n", raw_output)
 
-        raw_output = self.openstack('flavor unset --property a ' +
-                                    self.NAME + opts)
+        raw_output = self.openstack(
+            'flavor unset --property a ' + self.NAME
+        )
+        self.assertEqual('', raw_output)
+
+        raw_output = self.openstack('flavor show ' + self.NAME + opts)
         self.assertEqual("c='d'\n", raw_output)

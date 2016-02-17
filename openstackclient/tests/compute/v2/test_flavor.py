@@ -285,15 +285,12 @@ class TestFlavorSet(TestFlavor):
             ('property', {'FOO': '"B A R"'}),
             ('flavor', 'baremetal')
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.flavors_mock.find.assert_called_with(name='baremetal')
-
-        self.assertEqual('properties', columns[6])
-        self.assertIn('FOO=\'"B A R"\'', data[6])
+        self.assertIsNone(result)
 
 
 class TestFlavorShow(TestFlavor):
@@ -382,12 +379,9 @@ class TestFlavorUnset(TestFlavor):
             ('property', ['property']),
             ('flavor', 'baremetal'),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.flavors_mock.find.assert_called_with(name='baremetal')
-
-        self.assertEqual('properties', columns[6])
-        self.assertNotIn('property', data[6])
+        self.assertIsNone(result)
