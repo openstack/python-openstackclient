@@ -32,10 +32,9 @@ class SecurityGroupTests(test.TestCase):
     @classmethod
     def tearDownClass(cls):
         # Rename test
-        opts = cls.get_show_opts(cls.FIELDS)
         raw_output = cls.openstack('security group set --name ' +
-                                   cls.OTHER_NAME + ' ' + cls.NAME + opts)
-        cls.assertOutput(cls.OTHER_NAME + "\n", raw_output)
+                                   cls.OTHER_NAME + ' ' + cls.NAME)
+        cls.assertOutput('', raw_output)
         # Delete test
         raw_output = cls.openstack('security group delete ' + cls.OTHER_NAME)
         cls.assertOutput('', raw_output)
@@ -46,10 +45,14 @@ class SecurityGroupTests(test.TestCase):
         self.assertIn(self.NAME, raw_output)
 
     def test_security_group_set(self):
-        opts = self.get_show_opts(['description', 'name'])
-        raw_output = self.openstack('security group set --description NSA ' +
-                                    self.NAME + opts)
-        self.assertEqual("NSA\n" + self.NAME + "\n", raw_output)
+        raw_output = self.openstack(
+            'security group set --description NSA ' + self.NAME
+        )
+        self.assertEqual('', raw_output)
+
+        opts = self.get_show_opts(['description'])
+        raw_output = self.openstack('security group show ' + self.NAME + opts)
+        self.assertEqual("NSA\n", raw_output)
 
     def test_security_group_show(self):
         opts = self.get_show_opts(self.FIELDS)

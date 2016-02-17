@@ -271,7 +271,7 @@ class ListSecurityGroupRule(command.Lister):
                 ) for s in rules))
 
 
-class SetSecurityGroup(command.ShowOne):
+class SetSecurityGroup(command.Command):
     """Set security group properties"""
 
     def get_parser(self, prog_name):
@@ -294,7 +294,6 @@ class SetSecurityGroup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-
         compute_client = self.app.client_manager.compute
         data = utils.find_resource(
             compute_client.security_groups,
@@ -306,17 +305,11 @@ class SetSecurityGroup(command.ShowOne):
         if parsed_args.description:
             data.description = parsed_args.description
 
-        info = {}
-        info.update(compute_client.security_groups.update(
+        compute_client.security_groups.update(
             data,
             data.name,
             data.description,
-        )._info)
-
-        if info:
-            return zip(*sorted(six.iteritems(info)))
-        else:
-            return ({}, {})
+        )
 
 
 class ShowSecurityGroup(command.ShowOne):
