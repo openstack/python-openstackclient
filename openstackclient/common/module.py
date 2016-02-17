@@ -19,6 +19,7 @@ import six
 import sys
 
 from openstackclient.common import command
+from openstackclient.common import utils
 
 
 class ListCommand(command.Lister):
@@ -29,9 +30,24 @@ class ListCommand(command.Lister):
     def take_action(self, parsed_args):
         cm = self.app.command_manager
         groups = cm.get_command_groups()
-
+        groups = sorted(groups)
         columns = ('Command Group', 'Commands')
-        return (columns, ((c, cm.get_command_names(group=c)) for c in groups))
+
+        commands = []
+        for group in groups:
+            command_names = cm.get_command_names(group)
+            command_names = sorted(command_names)
+
+            if command_names != []:
+
+                # TODO(bapalm): Fix this when cliff properly supports
+                # handling the detection rather than using the hard-code below.
+                if parsed_args.formatter == 'table':
+                    command_names = utils.format_list(command_names, "\n")
+
+                commands.append((group, command_names))
+
+        return (columns, commands)
 
 
 class ListModule(command.ShowOne):

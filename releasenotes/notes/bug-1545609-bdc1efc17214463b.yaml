@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixed ``openstack command list`` to display properly
+    [Bug `1545609 <https://bugs.launchpad.net/python-openstackclient/+bug/1545609>`_]
