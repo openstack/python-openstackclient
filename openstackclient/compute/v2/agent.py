@@ -112,7 +112,7 @@ class ListAgent(command.Lister):
                 ) for s in data))
 
 
-class SetAgent(command.ShowOne):
+class SetAgent(command.Command):
     """Set compute agent command"""
 
     def get_parser(self, prog_name):
@@ -143,5 +143,4 @@ class SetAgent(command.ShowOne):
             parsed_args.url,
             parsed_args.md5hash
         )
-        agent = compute_client.agents.update(*args)._info.copy()
-        return zip(*sorted(six.iteritems(agent)))
+        compute_client.agents.update(*args)
