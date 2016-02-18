@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``router add port`` command
+    [Bug `1546849 <https://bugs.launchpad.net/bugs/1546849>`_]

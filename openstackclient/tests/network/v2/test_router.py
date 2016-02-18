@@ -29,6 +29,47 @@ class TestRouter(network_fakes.TestNetworkV2):
         self.network = self.app.client_manager.network
 
 
+class TestAddPortToRouter(TestRouter):
+    '''Add port to Router '''
+
+    _port = network_fakes.FakePort.create_one_port()
+    _router = network_fakes.FakeRouter.create_one_router(
+        attrs={'port': _port.id})
+
+    def setUp(self):
+        super(TestAddPortToRouter, self).setUp()
+        self.network.router_add_interface = mock.Mock()
+        self.cmd = router.AddPortToRouter(self.app, self.namespace)
+        self.network.find_router = mock.Mock(return_value=self._router)
+        self.network.find_port = mock.Mock(return_value=self._port)
+
+    def test_add_port_no_option(self):
+        arglist = []
+        verifylist = []
+
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_add_port_required_options(self):
+        arglist = [
+            self._router.id,
+            self._router.port,
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('port', self._router.port),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.router_add_interface.assert_called_with(self._router, **{
+            'port_id': self._router.port,
+        })
+        self.assertIsNone(result)
+
+
 class TestCreateRouter(TestRouter):
 
     # The new router created.
