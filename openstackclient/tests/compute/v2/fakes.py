@@ -601,13 +601,42 @@ class FakeNetwork(object):
         :param Dictionary methods:
             A dictionary with all methods
         :return:
-            A FakeResource object, with id, label, cidr
+            A FakeResource object, with id, label, cidr and so on
         """
         # Set default attributes.
         network_attrs = {
-            'id': 'network-id-' + uuid.uuid4().hex,
-            'label': 'network-label-' + uuid.uuid4().hex,
+            'bridge': 'br100',
+            'bridge_interface': None,
+            'broadcast': '10.0.0.255',
             'cidr': '10.0.0.0/24',
+            'cidr_v6': None,
+            'created_at': '2016-02-11T11:17:37.000000',
+            'deleted': False,
+            'deleted_at': None,
+            'dhcp_server': '10.0.0.1',
+            'dhcp_start': '10.0.0.2',
+            'dns1': '8.8.4.4',
+            'dns2': None,
+            'enable_dhcp': True,
+            'gateway': '10.0.0.1',
+            'gateway_v6': None,
+            'host': None,
+            'id': 'network-id-' + uuid.uuid4().hex,
+            'injected': False,
+            'label': 'network-label-' + uuid.uuid4().hex,
+            'mtu': None,
+            'multi_host': False,
+            'netmask': '255.255.255.0',
+            'netmask_v6': None,
+            'priority': None,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
+            'rxtx_base': None,
+            'share_address': False,
+            'updated_at': None,
+            'vlan': None,
+            'vpn_private_address': None,
+            'vpn_public_address': None,
+            'vpn_public_port': None,
         }
 
         # Overwrite default attributes.
