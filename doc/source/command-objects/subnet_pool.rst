@@ -1,0 +1,21 @@
+===========
+subnet pool
+===========
+
+Network v2
+
+subnet pool delete
+------------------
+
+Delete subnet pool
+
+.. program:: subnet pool delete
+.. code:: bash
+
+    os subnet pool delete
+        <subnet-pool>
+
+.. _subnet_pool_delete-subnet-pool:
+.. describe:: <subnet-pool>
+
+    Subnet pool to delete (name or ID)

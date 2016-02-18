@@ -679,3 +679,64 @@ class FakeFloatingIP(object):
         if floating_ips is None:
             floating_ips = FakeFloatingIP.create_floating_ips(count)
         return mock.MagicMock(side_effect=floating_ips)
+
+
+class FakeSubnetPool(object):
+    """Fake one or more subnet pools."""
+
+    @staticmethod
+    def create_one_subnet_pool(attrs={}, methods={}):
+        """Create a fake subnet pool.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object faking the subnet pool
+        """
+        # Set default attributes.
+        subnet_pool_attrs = {
+            'id': 'subnet-pool-id-' + uuid.uuid4().hex,
+            'name': 'subnet-pool-name-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        subnet_pool_attrs.update(attrs)
+
+        # Set default methods.
+        subnet_pool_methods = {
+            'keys': ['id', 'name']
+        }
+
+        # Overwrite default methods.
+        subnet_pool_methods.update(methods)
+
+        subnet_pool = fakes.FakeResource(
+            info=copy.deepcopy(subnet_pool_attrs),
+            methods=copy.deepcopy(subnet_pool_methods),
+            loaded=True
+        )
+
+        return subnet_pool
+
+    @staticmethod
+    def create_subnet_pools(attrs={}, methods={}, count=2):
+        """Create multiple fake subnet pools.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of subnet pools to fake
+        :return:
+            A list of FakeResource objects faking the subnet pools
+        """
+        subnet_pools = []
+        for i in range(0, count):
+            subnet_pools.append(
+                FakeSubnetPool.create_one_subnet_pool(attrs, methods)
+            )
+
+        return subnet_pools
