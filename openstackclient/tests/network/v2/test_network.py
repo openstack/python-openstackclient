@@ -579,7 +579,7 @@ class TestNetworkCompute(compute_fakes.TestComputev2):
 class TestDeleteNetworkCompute(TestNetworkCompute):
 
     # The network to delete.
-    _network = network_fakes.FakeNetwork.create_one_network()
+    _network = compute_fakes.FakeNetwork.create_one_network()
 
     def setUp(self):
         super(TestDeleteNetworkCompute, self).setUp()
@@ -596,10 +596,10 @@ class TestDeleteNetworkCompute(TestNetworkCompute):
 
     def test_network_delete(self):
         arglist = [
-            self._network.name,
+            self._network.label,
         ]
         verifylist = [
-            ('network', [self._network.name]),
+            ('network', [self._network.label]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -607,3 +607,50 @@ class TestDeleteNetworkCompute(TestNetworkCompute):
 
         self.compute.networks.delete.assert_called_with(self._network.id)
         self.assertIsNone(result)
+
+
+class TestListNetworkCompute(TestNetworkCompute):
+
+    # The networks going to be listed up.
+    _networks = compute_fakes.FakeNetwork.create_networks(count=3)
+
+    columns = (
+        'ID',
+        'Name',
+        'Subnet',
+    )
+
+    data = []
+    for net in _networks:
+        data.append((
+            net.id,
+            net.label,
+            net.cidr,
+        ))
+
+    def setUp(self):
+        super(TestListNetworkCompute, self).setUp()
+
+        self.app.client_manager.network_endpoint_enabled = False
+
+        self.compute.networks.list.return_value = self._networks
+
+        # Get the command object to test
+        self.cmd = network.ListNetwork(self.app, None)
+
+    def test_network_list_no_options(self):
+        arglist = []
+        verifylist = [
+            ('external', False),
+            ('long', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute.networks.list.assert_called_with()
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
