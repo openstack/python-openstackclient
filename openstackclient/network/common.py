@@ -19,7 +19,13 @@ from openstackclient.common import command
 
 @six.add_metaclass(abc.ABCMeta)
 class NetworkAndComputeCommand(command.Command):
-    """Network and Compute Command"""
+    """Network and Compute Command
+
+    Command class for commands that support implementation via
+    the network or compute endpoint. Such commands have different
+    implementations for take_action() and may even have different
+    arguments.
+    """
 
     def take_action(self, parsed_args):
         if self.app.client_manager.is_network_endpoint_enabled():
