@@ -67,7 +67,7 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.delete_security_group_rule.assert_called_with(
             self._security_group_rule)
-        self.assertEqual(None, result)
+        self.assertIsNone(result)
 
 
 class TestDeleteSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
@@ -97,4 +97,4 @@ class TestDeleteSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
         self.compute.security_group_rules.delete.assert_called_with(
             self._security_group_rule.id)
-        self.assertEqual(None, result)
+        self.assertIsNone(result)
