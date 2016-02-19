@@ -14,6 +14,7 @@
 """Subnet pool action implementations"""
 
 from openstackclient.common import command
+from openstackclient.common import utils
 
 
 class DeleteSubnetPool(command.Command):
@@ -32,3 +33,53 @@ class DeleteSubnetPool(command.Command):
         client = self.app.client_manager.network
         obj = client.find_subnet_pool(parsed_args.subnet_pool)
         client.delete_subnet_pool(obj)
+
+
+class ListSubnetPool(command.Lister):
+    """List subnet pools"""
+
+    def get_parser(self, prog_name):
+        parser = super(ListSubnetPool, self).get_parser(prog_name)
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help='List additional fields in output',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        data = self.app.client_manager.network.subnet_pools()
+
+        if parsed_args.long:
+            headers = (
+                'ID',
+                'Name',
+                'Prefixes',
+                'Default Prefix Length',
+                'Address Scope',
+            )
+            columns = (
+                'id',
+                'name',
+                'prefixes',
+                'default_prefixlen',
+                'address_scope_id',
+            )
+        else:
+            headers = (
+                'ID',
+                'Name',
+                'Prefixes',
+            )
+            columns = (
+                'id',
+                'name',
+                'prefixes',
+            )
+
+        return (headers,
+                (utils.get_item_properties(
+                    s, columns,
+                    formatters={},
+                ) for s in data))
