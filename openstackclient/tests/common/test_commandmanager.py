@@ -100,6 +100,6 @@ class TestCommandManager(utils.TestCase):
             mock_pkg_resources,
         ) as iter_entry_points:
             mgr = commandmanager.CommandManager('test')
-            assert iter_entry_points.called_once_with('test')
+            iter_entry_points.assert_called_once_with('test')
             cmds = mgr.get_command_names('test')
             self.assertEqual(['one', 'cmd two'], cmds)
