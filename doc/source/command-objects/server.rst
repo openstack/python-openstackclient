@@ -514,6 +514,21 @@ process for the user: the first is to perform the resize, the second is
 to either confirm (verify) success and release the old server, or to declare
 a revert to release the new server and restart the old one.
 
+server restore
+--------------
+
+Restore server(s) from soft-deleted state
+
+.. program:: server restore
+.. code:: bash
+
+    os server restore
+        <server> [<server> ...]
+
+.. describe:: <server>
+
+    Server(s) to restore (name or ID)
+
 server resume
 -------------
 

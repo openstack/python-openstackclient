@@ -998,6 +998,26 @@ class TestServerResize(TestServer):
         )
 
 
+class TestServerRestore(TestServer):
+
+    def setUp(self):
+        super(TestServerRestore, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.RestoreServer(self.app, None)
+
+        # Set methods to be tested.
+        self.methods = {
+            'restore': None,
+        }
+
+    def test_server_restore_one_server(self):
+        self.run_method_with_servers('restore', 1)
+
+    def test_server_restore_multi_servers(self):
+        self.run_method_with_servers('restore', 3)
+
+
 class TestServerResume(TestServer):
 
     def setUp(self):
