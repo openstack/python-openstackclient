@@ -34,3 +34,19 @@ List subnet pools
 .. option:: --long
 
     List additional fields in output
+
+subnet pool show
+----------------
+
+Show subnet pool details
+
+.. program:: subnet pool show
+.. code:: bash
+
+    os subnet pool show
+        <subnet-pool>
+
+.. _subnet_pool_show-subnet-pool:
+.. describe:: <subnet-pool>
+
+    Subnet pool to show (name or ID)

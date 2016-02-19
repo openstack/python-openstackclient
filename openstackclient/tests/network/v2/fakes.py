@@ -695,12 +695,24 @@ class FakeSubnetPool(object):
             A FakeResource object faking the subnet pool
         """
         # Set default attributes.
+        project_id = 'project-id-' + uuid.uuid4().hex
         subnet_pool_attrs = {
             'id': 'subnet-pool-id-' + uuid.uuid4().hex,
             'name': 'subnet-pool-name-' + uuid.uuid4().hex,
             'prefixes': ['10.0.0.0/24', '10.1.0.0/24'],
             'default_prefixlen': 8,
             'address_scope_id': 'address-scope-id-' + uuid.uuid4().hex,
+            'tenant_id': project_id,
+            'is_default': False,
+            'shared': False,
+            'max_prefixlen': 32,
+            'min_prefixlen': 8,
+            'default_quota': None,
+            'ip_version': 4,
+
+            # OpenStack SDK automatically translates project_id to tenant_id.
+            # So we need an additional attr to simulate this behavior.
+            'project_id': project_id,
         }
 
         # Overwrite default attributes.
@@ -709,7 +721,9 @@ class FakeSubnetPool(object):
         # Set default methods.
         subnet_pool_methods = {
             'keys': ['id', 'name', 'prefixes', 'default_prefixlen',
-                     'address_scope_id']
+                     'address_scope_id', 'tenant_id', 'is_default',
+                     'shared', 'max_prefixlen', 'min_prefixlen',
+                     'default_quota', 'ip_version']
         }
 
         # Overwrite default methods.

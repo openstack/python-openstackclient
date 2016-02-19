@@ -17,6 +17,19 @@ from openstackclient.common import command
 from openstackclient.common import utils
 
 
+def _get_columns(item):
+    columns = item.keys()
+    if 'tenant_id' in columns:
+        columns.remove('tenant_id')
+        columns.append('project_id')
+    return tuple(sorted(columns))
+
+
+_formatters = {
+    'prefixes': utils.format_list,
+}
+
+
 class DeleteSubnetPool(command.Command):
     """Delete subnet pool"""
 
@@ -83,3 +96,26 @@ class ListSubnetPool(command.Lister):
                     s, columns,
                     formatters={},
                 ) for s in data))
+
+
+class ShowSubnetPool(command.ShowOne):
+    """Show subnet pool details"""
+
+    def get_parser(self, prog_name):
+        parser = super(ShowSubnetPool, self).get_parser(prog_name)
+        parser.add_argument(
+            'subnet_pool',
+            metavar="<subnet-pool>",
+            help=("Subnet pool to show (name or ID)")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        obj = client.find_subnet_pool(
+            parsed_args.subnet_pool,
+            ignore_missing=False
+        )
+        columns = _get_columns(obj)
+        data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        return (columns, data)
