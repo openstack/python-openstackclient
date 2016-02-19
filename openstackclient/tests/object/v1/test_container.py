@@ -67,7 +67,7 @@ class TestContainerDelete(TestContainer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertEqual(None, self.cmd.take_action(parsed_args))
+        self.assertIsNone(self.cmd.take_action(parsed_args))
 
         kwargs = {}
         c_mock.assert_called_with(
@@ -92,7 +92,7 @@ class TestContainerDelete(TestContainer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertEqual(None, self.cmd.take_action(parsed_args))
+        self.assertIsNone(self.cmd.take_action(parsed_args))
 
         kwargs = {}
         c_mock.assert_called_with(
@@ -120,7 +120,7 @@ class TestContainerDelete(TestContainer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertEqual(None, self.cmd.take_action(parsed_args))
+        self.assertIsNone(self.cmd.take_action(parsed_args))
 
         kwargs = {}
         c_mock.assert_called_with(
