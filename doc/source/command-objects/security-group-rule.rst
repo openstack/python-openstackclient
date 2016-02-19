@@ -67,3 +67,18 @@ List security group rules
 .. describe:: <group>
 
     List all rules in this security group (name or ID)
+
+security group rule show
+------------------------
+
+Display security group rule details
+
+.. program:: security group rule show
+.. code:: bash
+
+    os security group rule show
+        <rule>
+
+.. describe:: <rule>
+
+    Security group rule to display (ID only)
