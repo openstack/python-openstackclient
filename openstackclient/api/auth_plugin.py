@@ -97,7 +97,7 @@ class OSCGenericPassword(ksc_password.Password):
                 ver_u.query,
                 ver_u.fragment,
             ))
-            LOG.debug('Version URL updated: %s' % url)
+            LOG.debug('Version URL updated: %s', url)
 
         return super(OSCGenericPassword, self).create_plugin(
             session=session,

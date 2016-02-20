@@ -106,7 +106,7 @@ def select_auth_plugin(options):
         # The ultimate default is similar to the original behaviour,
         # but this time with version discovery
         auth_plugin_name = 'osc_password'
-    LOG.debug("Auth plugin %s selected" % auth_plugin_name)
+    LOG.debug("Auth plugin %s selected", auth_plugin_name)
     return auth_plugin_name
 
 
@@ -130,7 +130,7 @@ def build_auth_params(auth_plugin_name, cmd_options):
         auth_plugin_class = None
         plugin_options = set([o.replace('-', '_') for o in get_options_list()])
         for option in plugin_options:
-            LOG.debug('fetching option %s' % option)
+            LOG.debug('fetching option %s', option)
             auth_params[option] = getattr(cmd_options.auth, option, None)
     return (auth_plugin_class, auth_params)
 

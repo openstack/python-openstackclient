@@ -167,8 +167,8 @@ class ClientManager(object):
         elif 'tenant_name' in self._auth_params:
             self._project_name = self._auth_params['tenant_name']
 
-        LOG.info('Using auth plugin: %s' % self.auth_plugin_name)
-        LOG.debug('Using parameters %s' %
+        LOG.info('Using auth plugin: %s', self.auth_plugin_name)
+        LOG.debug('Using parameters %s',
                   strutils.mask_password(self._auth_params))
         self.auth = auth_plugin.load_from_options(**self._auth_params)
         # needed by SAML authentication

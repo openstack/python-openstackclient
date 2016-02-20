@@ -42,7 +42,7 @@ def make_client(instance):
     else:
         version = instance._api_version[API_NAME]
 
-    LOG.debug('Instantiating compute client for V%s' % version)
+    LOG.debug('Instantiating compute client for V%s', version)
 
     # Set client http_log_debug to True if verbosity level is high enough
     http_log_debug = utils.get_effective_log_level() <= logging.DEBUG
