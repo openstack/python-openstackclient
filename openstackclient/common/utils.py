@@ -163,7 +163,7 @@ def get_field(item, field):
         raise exceptions.CommandError(msg)
 
 
-def get_item_properties(item, fields, mixed_case_fields=[], formatters={}):
+def get_item_properties(item, fields, mixed_case_fields=None, formatters=None):
     """Return a tuple containing the item properties.
 
     :param item: a single item resource (e.g. Server, Project, etc)
@@ -172,6 +172,11 @@ def get_item_properties(item, fields, mixed_case_fields=[], formatters={}):
     :param formatters: dictionary mapping field names to callables
        to format the values
     """
+    if mixed_case_fields is None:
+        mixed_case_fields = []
+    if formatters is None:
+        formatters = {}
+
     row = []
 
     for field in fields:
@@ -187,7 +192,7 @@ def get_item_properties(item, fields, mixed_case_fields=[], formatters={}):
     return tuple(row)
 
 
-def get_dict_properties(item, fields, mixed_case_fields=[], formatters={}):
+def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
     """Return a tuple containing the item properties.
 
     :param item: a single dict resource
@@ -196,6 +201,11 @@ def get_dict_properties(item, fields, mixed_case_fields=[], formatters={}):
     :param formatters: dictionary mapping field names to callables
        to format the values
     """
+    if mixed_case_fields is None:
+        mixed_case_fields = []
+    if formatters is None:
+        formatters = {}
+
     row = []
 
     for field in fields:
