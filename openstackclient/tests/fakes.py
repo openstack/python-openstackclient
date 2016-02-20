@@ -105,6 +105,9 @@ class FakeClient(object):
 
 
 class FakeClientManager(object):
+    _api_version = {
+        'image': '2',
+    }
 
     def __init__(self):
         self.compute = None
