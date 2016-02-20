@@ -99,14 +99,14 @@ class ListSubnetPool(command.Lister):
 
 
 class ShowSubnetPool(command.ShowOne):
-    """Show subnet pool details"""
+    """Display subnet pool details"""
 
     def get_parser(self, prog_name):
         parser = super(ShowSubnetPool, self).get_parser(prog_name)
         parser.add_argument(
             'subnet_pool',
             metavar="<subnet-pool>",
-            help=("Subnet pool to show (name or ID)")
+            help=("Subnet pool to display (name or ID)")
         )
         return parser
 
