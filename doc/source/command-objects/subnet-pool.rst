@@ -38,7 +38,7 @@ List subnet pools
 subnet pool show
 ----------------
 
-Show subnet pool details
+Display subnet pool details
 
 .. program:: subnet pool show
 .. code:: bash
@@ -49,4 +49,4 @@ Show subnet pool details
 .. _subnet_pool_show-subnet-pool:
 .. describe:: <subnet-pool>
 
-    Subnet pool to show (name or ID)
+    Subnet pool to display (name or ID)
