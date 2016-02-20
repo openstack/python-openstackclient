@@ -90,7 +90,7 @@ class ClientManager(object):
         self._cli_options = cli_options
         self._api_version = api_version
         self._pw_callback = pw_func
-        self._url = self._cli_options.auth.get('url', None)
+        self._url = self._cli_options.auth.get('url')
         self._region_name = self._cli_options.region_name
         self._interface = self._cli_options.interface
 
@@ -146,7 +146,7 @@ class ClientManager(object):
         # Horrible hack alert...must handle prompt for null password if
         # password auth is requested.
         if (self.auth_plugin_name.endswith('password') and
-                not self._cli_options.auth.get('password', None)):
+                not self._cli_options.auth.get('password')):
             self._cli_options.auth['password'] = self._pw_callback()
 
         (auth_plugin, self._auth_params) = auth.build_auth_params(
@@ -162,9 +162,9 @@ class ClientManager(object):
         # PROJECT_DOMAIN_ID to 'OS_DEFAULT_DOMAIN' for better usability.
         if (self._api_version.get('identity') == '3' and
             self.auth_plugin_name.endswith('password') and
-            not self._auth_params.get('project_domain_id', None) and
+            not self._auth_params.get('project_domain_id') and
             not self.auth_plugin_name.startswith('v2') and
-                not self._auth_params.get('project_domain_name', None)):
+                not self._auth_params.get('project_domain_name')):
             self._auth_params['project_domain_id'] = default_domain
 
         # NOTE(stevemar): If USER_DOMAIN_ID or USER_DOMAIN_NAME is present,
@@ -173,8 +173,8 @@ class ClientManager(object):
         if (self._api_version.get('identity') == '3' and
             self.auth_plugin_name.endswith('password') and
             not self.auth_plugin_name.startswith('v2') and
-            not self._auth_params.get('user_domain_id', None) and
-                not self._auth_params.get('user_domain_name', None)):
+            not self._auth_params.get('user_domain_id') and
+                not self._auth_params.get('user_domain_name')):
             self._auth_params['user_domain_id'] = default_domain
 
         # For compatibility until all clients can be updated

@@ -122,8 +122,8 @@ def from_response(response, body):
     if body:
         if hasattr(body, 'keys'):
             error = body[body.keys()[0]]
-            message = error.get('message', None)
-            details = error.get('details', None)
+            message = error.get('message')
+            details = error.get('details')
         else:
             # If we didn't get back a properly formed error message we
             # probably couldn't communicate with Keystone at all.

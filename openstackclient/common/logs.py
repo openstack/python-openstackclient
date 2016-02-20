@@ -169,7 +169,7 @@ class LogConfigurator(object):
         self.dump_trace = cloud_config.config.get('debug', self.dump_trace)
         self.console_logger.setLevel(log_level)
 
-        log_file = cloud_config.config.get('log_file', None)
+        log_file = cloud_config.config.get('log_file')
         if log_file:
             if not self.file_logger:
                 self.file_logger = logging.FileHandler(filename=log_file)
@@ -179,7 +179,7 @@ class LogConfigurator(object):
             self.file_logger.setLevel(log_level)
             self.root_logger.addHandler(self.file_logger)
 
-        logconfig = cloud_config.config.get('logging', None)
+        logconfig = cloud_config.config.get('logging')
         if logconfig:
             highest_level = logging.NOTSET
             for k in logconfig.keys():
