@@ -394,6 +394,16 @@ class ShowVolume(command.ShowOne):
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 
+        # Special mapping for columns to make the output easier to read:
+        # 'metadata' --> 'properties'
+        # 'volume_type' --> 'type'
+        volume._info.update(
+            {
+                'properties': utils.format_dict(volume._info.pop('metadata')),
+                'type': volume._info.pop('volume_type'),
+            },
+        )
+
         # Remove key links from being displayed
         volume._info.pop("links", None)
         return zip(*sorted(six.iteritems(volume._info)))
