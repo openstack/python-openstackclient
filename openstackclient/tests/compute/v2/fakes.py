@@ -137,6 +137,9 @@ class FakeComputev2Client(object):
         self.networks = mock.Mock()
         self.networks.resource_class = fakes.FakeResource(None, {})
 
+        self.keypairs = mock.Mock()
+        self.keypairs.resource_class = fakes.FakeResource(None, {})
+
         self.auth_token = kwargs['token']
 
         self.management_url = kwargs['endpoint']
@@ -532,6 +535,58 @@ class FakeFlavor(object):
         if flavors is None:
             flavors = FakeServer.create_flavors(count)
         return mock.MagicMock(side_effect=flavors)
+
+
+class FakeKeypair(object):
+    """Fake one or more keypairs."""
+
+    @staticmethod
+    def create_one_keypair(attrs=None, no_pri=False):
+        """Create a fake keypair
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource
+        """
+        # Set default attributes.
+        if attrs is None:
+            attrs = {}
+
+        keypair_info = {
+            'name': 'keypair-name-' + uuid.uuid4().hex,
+            'fingerprint': 'dummy',
+            'public_key': 'dummy',
+            'user_id': 'user'
+        }
+        if not no_pri:
+            keypair_info['private_key'] = 'private_key'
+
+        # Overwrite default attributes.
+        keypair_info.update(attrs)
+
+        keypair = fakes.FakeResource(info=copy.deepcopy(keypair_info),
+                                     loaded=True)
+
+        return keypair
+
+    @staticmethod
+    def create_keypairs(attrs=None, count=2):
+        """Create multiple fake flavors.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of flavors to fake
+        :return:
+            A list of FakeFlavorResource objects faking the flavors
+        """
+
+        keypairs = []
+        for i in range(0, count):
+            keypairs.append(FakeKeypair.create_one_keypair(attrs))
+
+        return keypairs
 
 
 class FakeAvailabilityZone(object):
