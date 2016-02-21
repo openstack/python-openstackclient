@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    The ``token issue`` can now return an unscoped token. If a `project` or `domain`
+    target scope are not specified, an unscoped token will be returned.
+    [Bug `1543214 <https://bugs.launchpad.net/bugs/1543214>`_]

@@ -80,6 +80,12 @@ TOKEN = {
     'user_id': user_id,
 }
 
+UNSCOPED_TOKEN = {
+    'expires': token_expires,
+    'id': token_id,
+    'user_id': user_id,
+}
+
 endpoint_name = service_name
 endpoint_adminurl = 'https://admin.example.com/v2/UUID'
 endpoint_region = 'RegionOne'

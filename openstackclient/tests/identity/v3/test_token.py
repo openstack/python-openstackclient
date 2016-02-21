@@ -85,6 +85,27 @@ class TestTokenIssue(TestToken):
         )
         self.assertEqual(datalist, data)
 
+    def test_token_issue_with_unscoped(self):
+        arglist = []
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.sc_mock.get_token.return_value = \
+            identity_fakes.UNSCOPED_TOKEN
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.sc_mock.get_token.assert_called_with()
+
+        collist = ('expires', 'id', 'user_id')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.token_expires,
+            identity_fakes.token_id,
+            identity_fakes.user_id,
+        )
+        self.assertEqual(datalist, data)
+
 
 class TestTokenRevoke(TestToken):
 
