@@ -138,12 +138,11 @@ class FakeNetwork(object):
             router_external, status, subnets, tenant_id
         """
         # Set default attributes.
-        project_id = 'project-id-' + uuid.uuid4().hex
         network_attrs = {
             'id': 'network-id-' + uuid.uuid4().hex,
             'name': 'network-name-' + uuid.uuid4().hex,
             'status': 'ACTIVE',
-            'tenant_id': project_id,
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'admin_state_up': True,
             'shared': False,
             'subnets': ['a', 'b'],
@@ -169,7 +168,9 @@ class FakeNetwork(object):
         network = fakes.FakeResource(info=copy.deepcopy(network_attrs),
                                      methods=copy.deepcopy(network_methods),
                                      loaded=True)
-        network.project_id = project_id
+
+        # Set attributes with special mapping in OpenStack SDK.
+        network.project_id = network_attrs['tenant_id']
 
         return network
 
@@ -273,7 +274,7 @@ class FakePort(object):
                                   methods=copy.deepcopy(port_methods),
                                   loaded=True)
 
-        # Set attributes with special mappings.
+        # Set attributes with special mappings in OpenStack SDK.
         port.project_id = port_attrs['tenant_id']
         port.binding_host_id = port_attrs['binding:host_id']
         port.binding_profile = port_attrs['binding:profile']
@@ -695,24 +696,19 @@ class FakeSubnetPool(object):
             A FakeResource object faking the subnet pool
         """
         # Set default attributes.
-        project_id = 'project-id-' + uuid.uuid4().hex
         subnet_pool_attrs = {
             'id': 'subnet-pool-id-' + uuid.uuid4().hex,
             'name': 'subnet-pool-name-' + uuid.uuid4().hex,
             'prefixes': ['10.0.0.0/24', '10.1.0.0/24'],
             'default_prefixlen': 8,
             'address_scope_id': 'address-scope-id-' + uuid.uuid4().hex,
-            'tenant_id': project_id,
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'is_default': False,
             'shared': False,
             'max_prefixlen': 32,
             'min_prefixlen': 8,
             'default_quota': None,
             'ip_version': 4,
-
-            # OpenStack SDK automatically translates project_id to tenant_id.
-            # So we need an additional attr to simulate this behavior.
-            'project_id': project_id,
         }
 
         # Overwrite default attributes.
@@ -734,6 +730,9 @@ class FakeSubnetPool(object):
             methods=copy.deepcopy(subnet_pool_methods),
             loaded=True
         )
+
+        # Set attributes with special mapping in OpenStack SDK.
+        subnet_pool.project_id = subnet_pool_attrs['tenant_id']
 
         return subnet_pool
 
