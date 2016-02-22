@@ -404,6 +404,12 @@ class FakeFlavor(object):
             'name': 'flavor-name-' + uuid.uuid4().hex,
             'ram': 8192,
             'vcpus': 4,
+            'disk': 128,
+            'swap': '',
+            'rxtx_factor': '1.0',
+            'OS-FLV-DISABLED:disabled': False,
+            'os-flavor-access:is_public': True,
+            'OS-FLV-EXT-DATA:ephemeral': 0,
         }
 
         # Overwrite default attributes.
@@ -411,6 +417,12 @@ class FakeFlavor(object):
 
         flavor = FakeFlavorResource(info=copy.deepcopy(flavor_info),
                                     loaded=True)
+
+        # Set attributes with special mappings in nova client.
+        flavor.disabled = flavor_info['OS-FLV-DISABLED:disabled']
+        flavor.is_public = flavor_info['os-flavor-access:is_public']
+        flavor.ephemeral = flavor_info['OS-FLV-EXT-DATA:ephemeral']
+
         return flavor
 
     @staticmethod
