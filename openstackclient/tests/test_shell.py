@@ -317,7 +317,7 @@ class TestShellOptions(TestShell):
             if not test_opts[opt][1]:
                 continue
             key = opt2attr(opt)
-            if type(test_opts[opt][0]) is str:
+            if isinstance(test_opts[opt][0], str):
                 cmd = opt + " " + test_opts[opt][0]
             else:
                 cmd = opt
@@ -331,7 +331,7 @@ class TestShellOptions(TestShell):
             if not test_opts[opt][1]:
                 continue
             key = opt2attr(opt)
-            if type(test_opts[opt][0]) is str:
+            if isinstance(test_opts[opt][0], str):
                 cmd = opt + " " + test_opts[opt][0]
             else:
                 cmd = opt

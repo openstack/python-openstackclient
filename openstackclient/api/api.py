@@ -243,14 +243,14 @@ class BaseAPI(KeystoneSession):
         def getlist(kw):
             """Do list call, unwrap resource dict if present"""
             ret = self.list(path, **kw)
-            if type(ret) == dict and resource in ret:
+            if isinstance(ret, dict) and resource in ret:
                 ret = ret[resource]
             return ret
 
         # Search by attribute
         kwargs = {attr: value}
         data = getlist(kwargs)
-        if type(data) == dict:
+        if isinstance(data, dict):
             return data
         if len(data) == 1:
             return data[0]
@@ -283,7 +283,7 @@ class BaseAPI(KeystoneSession):
         """
 
         items = self.list(path)
-        if type(items) == dict:
+        if isinstance(items, dict):
             # strip off the enclosing dict
             key = list(items.keys())[0]
             items = items[key]
