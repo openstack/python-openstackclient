@@ -240,6 +240,85 @@ class TestListPort(TestPort):
         self.assertEqual(self.data, list(data))
 
 
+class TestSetPort(TestPort):
+
+    _port = network_fakes.FakePort.create_one_port()
+
+    def setUp(self):
+        super(TestSetPort, self).setUp()
+
+        self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet()
+        self.network.find_subnet = mock.Mock(return_value=self.fake_subnet)
+        self.network.find_port = mock.Mock(return_value=self._port)
+        self.network.update_port = mock.Mock(return_value=None)
+
+        # Get the command object to test
+        self.cmd = port.SetPort(self.app, self.namespace)
+
+    def test_set_fixed_ip(self):
+        arglist = [
+            '--fixed-ip', 'ip-address=10.0.0.11',
+            self._port.name,
+        ]
+        verifylist = [
+            ('fixed_ip', [{'ip-address': '10.0.0.11'}]),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'fixed_ips': [{'ip_address': '10.0.0.11'}],
+        }
+        self.network.update_port.assert_called_with(self._port, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_this(self):
+        arglist = [
+            '--disable',
+            self._port.name,
+        ]
+        verifylist = [
+            ('admin_state', False),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'admin_state_up': False,
+        }
+        self.network.update_port.assert_called_with(self._port, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_that(self):
+        arglist = [
+            '--enable',
+            '--vnic-type', 'macvtap',
+            '--binding-profile', 'foo=bar',
+            '--host-id', 'binding-host-id-xxxx',
+            self._port.name,
+        ]
+        verifylist = [
+            ('admin_state', True),
+            ('vnic_type', 'macvtap'),
+            ('binding_profile', {'foo': 'bar'}),
+            ('host_id', 'binding-host-id-xxxx'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'admin_state_up': True,
+            'binding:vnic_type': 'macvtap',
+            'binding:profile': {'foo': 'bar'},
+            'binding:host_id': 'binding-host-id-xxxx',
+        }
+        self.network.update_port.assert_called_with(self._port, **attrs)
+        self.assertIsNone(result)
+
+
 class TestShowPort(TestPort):
 
     # The port to show.

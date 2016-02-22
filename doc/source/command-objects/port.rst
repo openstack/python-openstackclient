@@ -45,7 +45,8 @@ Create new port
 
 .. option:: --vnic-type <vnic-type>
 
-    VNIC type for this port (direct | direct-physical | macvtap | normal(default) | baremetal)
+    VNIC type for this port (direct | direct-physical | macvtap | normal | baremetal).
+    If unspecified during port creation, default value will be 'normal'.
 
 .. option:: --binding-profile <binding-profile>
 
@@ -107,6 +108,65 @@ List ports
 .. code:: bash
 
     os port list
+
+port set
+--------
+
+Set port properties
+
+.. program:: port set
+.. code:: bash
+
+    os port set
+        [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]
+        [--device-id <device-id>]
+        [--device-owner <device-owner>]
+        [--vnic-type <vnic-type>]
+        [--binding-profile <binding-profile>]
+        [--host-id <host-id>]
+        [--enable | --disable]
+        <port>
+
+.. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
+
+    Desired IP and/or subnet for this port:
+    subnet=<subnet>,ip-address=<ip-address>
+    (you can repeat this option)
+
+.. option:: --device-id <device-id>
+
+    Device ID of this port
+
+.. option:: --device-owner <device-owner>
+
+    Device owner of this port
+
+.. option:: --vnic-type <vnic-type>
+
+    VNIC type for this port (direct | direct-physical | macvtap | normal | baremetal).
+    If unspecified during port creation, default value will be 'normal'.
+
+.. option:: --binding-profile <binding-profile>
+
+    Custom data to be passed as binding:profile: <key>=<value>
+    (this option can be repeated)
+
+.. option:: --host-id <host-id>
+
+    The ID of the host where the port is allocated
+
+.. option:: --enable
+
+    Enable port
+
+.. option:: --disable
+
+    Disable port
+
+.. _port_set-port:
+.. describe:: <port>
+
+    Port to modify (name or ID)
 
 port show
 ---------

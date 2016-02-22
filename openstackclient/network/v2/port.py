@@ -14,6 +14,7 @@
 """Port action implementations"""
 
 from openstackclient.common import command
+from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 from openstackclient.identity import common as identity_common
@@ -56,8 +57,6 @@ def _get_columns(item):
 def _get_attrs(client_manager, parsed_args):
     attrs = {}
 
-    if parsed_args.name is not None:
-        attrs['name'] = str(parsed_args.name)
     if parsed_args.fixed_ip is not None:
         attrs['fixed_ips'] = parsed_args.fixed_ip
     if parsed_args.device_id is not None:
@@ -75,6 +74,8 @@ def _get_attrs(client_manager, parsed_args):
 
     # The remaining options do not support 'port set' command, so they require
     # additional check
+    if 'name' in parsed_args and parsed_args.name is not None:
+        attrs['name'] = str(parsed_args.name)
     if 'mac_address' in parsed_args and parsed_args.mac_address is not None:
         attrs['mac_address'] = parsed_args.mac_address
     if 'network' in parsed_args and parsed_args.network is not None:
@@ -145,8 +146,9 @@ def _add_updatable_args(parser):
             metavar='<vnic-type>',
             choices=['direct', 'direct-physical', 'macvtap',
                      'normal', 'baremetal'],
-            help='VNIC type for this port (direct | direct-physical |'
-                 ' macvtap | normal(default) | baremetal)')
+            help="VNIC type for this port (direct | direct-physical |"
+                 " macvtap | normal | baremetal). If unspecified during"
+                 " port creation, default value will be 'normal'.")
         parser.add_argument(
             '--binding-profile',
             metavar='<binding-profile>',
@@ -263,6 +265,48 @@ class ListPort(command.Lister):
                     s, columns,
                     formatters=_formatters,
                 ) for s in data))
+
+
+class SetPort(command.Command):
+    """Set port properties"""
+
+    def get_parser(self, prog_name):
+        parser = super(SetPort, self).get_parser(prog_name)
+        _add_updatable_args(parser)
+        admin_group = parser.add_mutually_exclusive_group()
+        admin_group.add_argument(
+            '--enable',
+            dest='admin_state',
+            action='store_true',
+            default=None,
+            help='Enable port',
+        )
+        admin_group.add_argument(
+            '--disable',
+            dest='admin_state',
+            action='store_false',
+            help='Disable port',
+        )
+        parser.add_argument(
+            'port',
+            metavar="<port>",
+            help=("Port to modify (name or ID)")
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+
+        _prepare_fixed_ips(self.app.client_manager, parsed_args)
+        attrs = _get_attrs(self.app.client_manager, parsed_args)
+
+        if attrs == {}:
+            msg = "Nothing specified to be set"
+            raise exceptions.CommandError(msg)
+
+        obj = client.find_port(parsed_args.port, ignore_missing=False)
+        client.update_port(obj, **attrs)
 
 
 class ShowPort(command.ShowOne):
