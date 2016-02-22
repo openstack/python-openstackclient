@@ -50,7 +50,7 @@ class APIv1(api.BaseAPI):
         data = {
             'account': self._find_account_id(),
             'container': container,
-            'x-trans-id': response.headers.get('x-trans-id', None),
+            'x-trans-id': response.headers.get('x-trans-id'),
         }
 
         return data
@@ -176,21 +176,19 @@ class APIv1(api.BaseAPI):
             'account': self._find_account_id(),
             'container': container,
             'object_count': response.headers.get(
-                'x-container-object-count',
-                None,
+                'x-container-object-count'
             ),
-            'bytes_used': response.headers.get('x-container-bytes-used', None)
+            'bytes_used': response.headers.get('x-container-bytes-used')
         }
 
         if 'x-container-read' in response.headers:
-            data['read_acl'] = response.headers.get('x-container-read', None)
+            data['read_acl'] = response.headers.get('x-container-read')
         if 'x-container-write' in response.headers:
-            data['write_acl'] = response.headers.get('x-container-write', None)
+            data['write_acl'] = response.headers.get('x-container-write')
         if 'x-container-sync-to' in response.headers:
-            data['sync_to'] = response.headers.get('x-container-sync-to', None)
+            data['sync_to'] = response.headers.get('x-container-sync-to')
         if 'x-container-sync-key' in response.headers:
-            data['sync_key'] = response.headers.get('x-container-sync-key',
-                                                    None)
+            data['sync_key'] = response.headers.get('x-container-sync-key')
 
         properties = self._get_properties(response.headers,
                                           'x-container-meta-')
@@ -248,8 +246,8 @@ class APIv1(api.BaseAPI):
             'account': self._find_account_id(),
             'container': container,
             'object': object,
-            'x-trans-id': response.headers.get('X-Trans-Id', None),
-            'etag': response.headers.get('Etag', None),
+            'x-trans-id': response.headers.get('X-Trans-Id'),
+            'etag': response.headers.get('Etag'),
         }
 
         return data
@@ -453,21 +451,19 @@ class APIv1(api.BaseAPI):
             'account': self._find_account_id(),
             'container': container,
             'object': object,
-            'content-type': response.headers.get('content-type', None),
+            'content-type': response.headers.get('content-type'),
         }
         if 'content-length' in response.headers:
             data['content-length'] = response.headers.get(
-                'content-length',
-                None,
+                'content-length'
             )
         if 'last-modified' in response.headers:
-            data['last-modified'] = response.headers.get('last-modified', None)
+            data['last-modified'] = response.headers.get('last-modified')
         if 'etag' in response.headers:
-            data['etag'] = response.headers.get('etag', None)
+            data['etag'] = response.headers.get('etag')
         if 'x-object-manifest' in response.headers:
             data['x-object-manifest'] = response.headers.get(
-                'x-object-manifest',
-                None,
+                'x-object-manifest'
             )
 
         properties = self._get_properties(response.headers, 'x-object-meta-')
@@ -506,10 +502,9 @@ class APIv1(api.BaseAPI):
             data['properties'] = properties
 
         # Map containers, bytes and objects a bit nicer
-        data['Containers'] = response.headers.get('x-account-container-count',
-                                                  None)
-        data['Objects'] = response.headers.get('x-account-object-count', None)
-        data['Bytes'] = response.headers.get('x-account-bytes-used', None)
+        data['Containers'] = response.headers.get('x-account-container-count')
+        data['Objects'] = response.headers.get('x-account-object-count')
+        data['Bytes'] = response.headers.get('x-account-bytes-used')
         # Add in Account info too
         data['Account'] = self._find_account_id()
         return data

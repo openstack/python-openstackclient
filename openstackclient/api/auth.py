@@ -80,13 +80,13 @@ def select_auth_plugin(options):
     # Do the token/url check first as this must override the default
     # 'password' set by os-client-config
     # Also, url and token are not copied into o-c-c's auth dict (yet?)
-    if options.auth.get('url', None) and options.auth.get('token', None):
+    if options.auth.get('url') and options.auth.get('token'):
         # service token authentication
         auth_plugin_name = 'token_endpoint'
     elif options.auth_type in [plugin.name for plugin in PLUGIN_LIST]:
         # A direct plugin name was given, use it
         auth_plugin_name = options.auth_type
-    elif options.auth.get('username', None):
+    elif options.auth.get('username'):
         if options.identity_api_version == '3':
             auth_plugin_name = 'v3password'
         elif options.identity_api_version.startswith('2'):
@@ -94,7 +94,7 @@ def select_auth_plugin(options):
         else:
             # let keystoneclient figure it out itself
             auth_plugin_name = 'osc_password'
-    elif options.auth.get('token', None):
+    elif options.auth.get('token'):
         if options.identity_api_version == '3':
             auth_plugin_name = 'v3token'
         elif options.identity_api_version.startswith('2'):
@@ -144,33 +144,33 @@ def check_valid_auth_options(options, auth_plugin_name, required_scope=True):
 
     msg = ''
     if auth_plugin_name.endswith('password'):
-        if not options.auth.get('username', None):
+        if not options.auth.get('username'):
             msg += _('Set a username with --os-username, OS_USERNAME,'
                      ' or auth.username\n')
-        if not options.auth.get('auth_url', None):
+        if not options.auth.get('auth_url'):
             msg += _('Set an authentication URL, with --os-auth-url,'
                      ' OS_AUTH_URL or auth.auth_url\n')
         if (required_scope and not
-                options.auth.get('project_id', None) and not
-                options.auth.get('domain_id', None) and not
-                options.auth.get('domain_name', None) and not
-                options.auth.get('project_name', None) and not
-                options.auth.get('tenant_id', None) and not
-                options.auth.get('tenant_name', None)):
+                options.auth.get('project_id') and not
+                options.auth.get('domain_id') and not
+                options.auth.get('domain_name') and not
+                options.auth.get('project_name') and not
+                options.auth.get('tenant_id') and not
+                options.auth.get('tenant_name')):
             msg += _('Set a scope, such as a project or domain, set a '
                      'project scope with --os-project-name, OS_PROJECT_NAME '
                      'or auth.project_name, set a domain scope with '
                      '--os-domain-name, OS_DOMAIN_NAME or auth.domain_name')
     elif auth_plugin_name.endswith('token'):
-        if not options.auth.get('token', None):
+        if not options.auth.get('token'):
             msg += _('Set a token with --os-token, OS_TOKEN or auth.token\n')
-        if not options.auth.get('auth_url', None):
+        if not options.auth.get('auth_url'):
             msg += _('Set a service AUTH_URL, with --os-auth-url, '
                      'OS_AUTH_URL or auth.auth_url\n')
     elif auth_plugin_name == 'token_endpoint':
-        if not options.auth.get('token', None):
+        if not options.auth.get('token'):
             msg += _('Set a token with --os-token, OS_TOKEN or auth.token\n')
-        if not options.auth.get('url', None):
+        if not options.auth.get('url'):
             msg += _('Set a service URL, with --os-url, OS_URL or auth.url\n')
 
     if msg:
