@@ -7,6 +7,7 @@
 *.swp
 *~
 .coverage
+.idea
 .testrepository
 .tox
 AUTHORS
