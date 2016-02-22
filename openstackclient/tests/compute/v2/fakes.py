@@ -372,8 +372,11 @@ class FakeFlavorResource(fakes.FakeResource):
     Need to fake them, otherwise the functions to be tested won't run properly.
     """
 
-    # Fake properties.
-    _keys = {'property': 'value'}
+    def __init__(self, manager=None, info={}, loaded=False, methods={}):
+        super(FakeFlavorResource, self).__init__(manager, info,
+                                                 loaded, methods)
+        # Fake properties.
+        self._keys = {'property': 'value'}
 
     def set_keys(self, args):
         self._keys.update(args)
