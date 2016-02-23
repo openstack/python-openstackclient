@@ -319,8 +319,7 @@ class SetNetwork(command.Command):
 class ShowNetwork(common.NetworkAndComputeShowOne):
     """Show network details"""
 
-    def get_parser(self, prog_name):
-        parser = super(ShowNetwork, self).get_parser(prog_name)
+    def update_parser_common(self, parser):
         parser.add_argument(
             'network',
             metavar="<network>",
