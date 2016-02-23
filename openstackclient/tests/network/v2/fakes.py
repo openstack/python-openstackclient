@@ -480,15 +480,13 @@ class FakeSecurityGroupRule(object):
         :param Dictionary methods:
             A dictionary with all methods
         :return:
-            A FakeResource object, with id, name, etc.
+            A FakeResource object, with id, etc.
         """
         # Set default attributes.
         security_group_rule_attrs = {
-            'description': 'security-group-rule-desc-' + uuid.uuid4().hex,
             'direction': 'ingress',
             'ethertype': 'IPv4',
             'id': 'security-group-rule-id-' + uuid.uuid4().hex,
-            'name': 'security-group-rule-name-' + uuid.uuid4().hex,
             'port_range_max': None,
             'port_range_min': None,
             'protocol': None,
@@ -502,7 +500,11 @@ class FakeSecurityGroupRule(object):
         security_group_rule_attrs.update(attrs)
 
         # Set default methods.
-        security_group_rule_methods = {}
+        security_group_rule_methods = {
+            'keys': ['direction', 'ethertype', 'id', 'port_range_max',
+                     'port_range_min', 'protocol', 'remote_group_id',
+                     'remote_ip_prefix', 'security_group_id', 'tenant_id'],
+        }
 
         # Overwrite default methods.
         security_group_rule_methods.update(methods)
@@ -511,6 +513,10 @@ class FakeSecurityGroupRule(object):
             info=copy.deepcopy(security_group_rule_attrs),
             methods=copy.deepcopy(security_group_rule_methods),
             loaded=True)
+
+        # Set attributes with special mappings.
+        security_group_rule.project_id = security_group_rule_attrs['tenant_id']
+
         return security_group_rule
 
     @staticmethod

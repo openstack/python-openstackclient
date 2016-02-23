@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support for ``security group rule show`` command.
+    [Bug `1519512 <https://bugs.launchpad.net/bugs/1519512>`_]

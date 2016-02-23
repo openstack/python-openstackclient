@@ -57,3 +57,10 @@ class SecurityGroupRuleTests(test.TestCase):
                                     self.SECURITY_GROUP_NAME +
                                     opts)
         self.assertIn(self.SECURITY_GROUP_RULE_ID, raw_output)
+
+    def test_security_group_rule_show(self):
+        opts = self.get_show_opts(self.ID_FIELD)
+        raw_output = self.openstack('security group rule show ' +
+                                    self.SECURITY_GROUP_RULE_ID +
+                                    opts)
+        self.assertEqual(self.SECURITY_GROUP_RULE_ID + "\n", raw_output)
