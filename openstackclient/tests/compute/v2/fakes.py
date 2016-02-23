@@ -121,6 +121,9 @@ class FakeComputev2Client(object):
         self.hypervisors = mock.Mock()
         self.hypervisors.resource_class = fakes.FakeResource(None, {})
 
+        self.hypervisors_stats = mock.Mock()
+        self.hypervisors_stats.resource_class = fakes.FakeResource(None, {})
+
         self.security_groups = mock.Mock()
         self.security_groups.resource_class = fakes.FakeResource(None, {})
 
@@ -231,6 +234,64 @@ class FakeHypervisor(object):
         hypervisors = []
         for i in range(0, count):
             hypervisors.append(FakeHypervisor.create_one_hypervisor(attrs))
+
+        return hypervisors
+
+
+class FakehypervisorStats(object):
+    """Fake one or more hypervisor stats."""
+
+    @staticmethod
+    def create_one_hypervisor_stats(attrs={}, methods={}):
+        """Create a fake hypervisor stats.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, hypervisor_hostname, and so on
+        """
+        # Set default attributes.
+        stats_info = {
+            'count': 2,
+            'current_workload': 0,
+            'disk_available_least': 50,
+            'free_disk_gb': 100,
+            'free_ram_mb': 23000,
+            'local_gb': 100,
+            'local_gb_used': 0,
+            'memory_mb': 23800,
+            'memory_mb_used': 1400,
+            'running_vms': 3,
+            'vcpus': 8,
+            'vcpus_used': 3,
+        }
+        stats_info.update(attrs)
+
+        # Set default method.
+        hypervisor_stats_method = {'to_dict': stats_info}
+        hypervisor_stats_method.update(methods)
+
+        hypervisor_stats = fakes.FakeResource(
+            info=copy.deepcopy(stats_info),
+            methods=copy.deepcopy(hypervisor_stats_method),
+            loaded=True)
+        return hypervisor_stats
+
+    @staticmethod
+    def create_hypervisors_stats(attrs={}, count=2):
+        """Create multiple fake hypervisors stats.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of hypervisors to fake
+        :return:
+            A list of FakeResource objects faking the hypervisors
+        """
+        hypervisors = []
+        for i in range(0, count):
+            hypervisors.append(
+                FakehypervisorStats.create_one_hypervisor_stats(attrs))
 
         return hypervisors
 
