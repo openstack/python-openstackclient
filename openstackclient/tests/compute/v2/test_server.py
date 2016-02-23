@@ -595,6 +595,64 @@ class TestServerImageCreate(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
+    def test_server_create_image_with_wait_fails(self, mock_wait_for_status):
+        arglist = [
+            '--wait',
+            self.server.id,
+        ]
+        verifylist = [
+            ('wait', True),
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+
+        mock_wait_for_status.assert_called_once_with(
+            self.images_mock.get,
+            self.image.id,
+            callback=server._show_progress
+        )
+
+        # ServerManager.create_image(server, image_name, metadata=)
+        self.servers_mock.create_image.assert_called_with(
+            self.servers_mock.get.return_value,
+            self.server.name,
+        )
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
+    def test_server_create_image_with_wait_ok(self, mock_wait_for_status):
+        arglist = [
+            '--wait',
+            self.server.id,
+        ]
+        verifylist = [
+            ('wait', True),
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # ServerManager.create_image(server, image_name, metadata=)
+        self.servers_mock.create_image.assert_called_with(
+            self.servers_mock.get.return_value,
+            self.server.name,
+        )
+
+        mock_wait_for_status.assert_called_once_with(
+            self.images_mock.get,
+            self.image.id,
+            callback=server._show_progress
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
 
 class TestServerList(TestServer):
 
@@ -831,6 +889,58 @@ class TestServerRebuild(TestServer):
         self.cimages_mock.get.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, password)
 
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
+    def test_rebuild_with_wait_ok(self, mock_wait_for_status):
+        arglist = [
+            '--wait',
+            self.server.id,
+        ]
+        verifylist = [
+            ('wait', True),
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Get the command object to test.
+        self.cmd.take_action(parsed_args)
+
+        # kwargs = dict(success_status=['active', 'verify_resize'],)
+
+        mock_wait_for_status.assert_called_once_with(
+            self.servers_mock.get,
+            self.server.id,
+            callback=server._show_progress,
+            # **kwargs
+        )
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.cimages_mock.get.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(self.image, None)
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
+    def test_rebuild_with_wait_fails(self, mock_wait_for_status):
+        arglist = [
+            '--wait',
+            self.server.id,
+        ]
+        verifylist = [
+            ('wait', True),
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+
+        mock_wait_for_status.assert_called_once_with(
+            self.servers_mock.get,
+            self.server.id,
+            callback=server._show_progress
+        )
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.cimages_mock.get.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(self.image, None)
+
 
 class TestServerResize(TestServer):
 
@@ -950,6 +1060,84 @@ class TestServerResize(TestServer):
         self.assertNotCalled(self.servers_mock.confirm_resize)
         self.servers_mock.revert_resize.assert_called_with(
             self.server,
+        )
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
+    def test_server_resize_with_wait_ok(self, mock_wait_for_status):
+
+        arglist = [
+            '--flavor', self.flavors_get_return_value.id,
+            '--wait',
+            self.server.id,
+        ]
+
+        verifylist = [
+            ('flavor', self.flavors_get_return_value.id),
+            ('confirm', False),
+            ('revert', False),
+            ('wait', True),
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(
+            self.server.id,
+        )
+
+        kwargs = dict(success_status=['active', 'verify_resize'],)
+
+        mock_wait_for_status.assert_called_once_with(
+            self.servers_mock.get,
+            self.server.id,
+            callback=server._show_progress,
+            **kwargs
+        )
+
+        self.servers_mock.resize.assert_called_with(
+            self.server,
+            self.flavors_get_return_value
+        )
+        self.assertNotCalled(self.servers_mock.confirm_resize)
+        self.assertNotCalled(self.servers_mock.revert_resize)
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
+    def test_server_resize_with_wait_fails(self, mock_wait_for_status):
+
+        arglist = [
+            '--flavor', self.flavors_get_return_value.id,
+            '--wait',
+            self.server.id,
+        ]
+
+        verifylist = [
+            ('flavor', self.flavors_get_return_value.id),
+            ('confirm', False),
+            ('revert', False),
+            ('wait', True),
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+
+        self.servers_mock.get.assert_called_with(
+            self.server.id,
+        )
+
+        kwargs = dict(success_status=['active', 'verify_resize'],)
+
+        mock_wait_for_status.assert_called_once_with(
+            self.servers_mock.get,
+            self.server.id,
+            callback=server._show_progress,
+            **kwargs
+        )
+
+        self.servers_mock.resize.assert_called_with(
+            self.server,
+            self.flavors_get_return_value
         )
 
 
