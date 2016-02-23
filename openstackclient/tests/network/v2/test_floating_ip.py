@@ -37,7 +37,7 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
     def setUp(self):
         super(TestDeleteFloatingIPNetwork, self).setUp()
 
-        self.network.delete_ip = mock.Mock(return_value=self.floating_ip)
+        self.network.delete_ip = mock.Mock(return_value=None)
         self.network.find_ip = mock.Mock(return_value=self.floating_ip)
 
         # Get the command object to test
