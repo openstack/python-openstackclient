@@ -1206,7 +1206,7 @@ class RescueServer(command.ShowOne):
         _, body = utils.find_resource(
             compute_client.servers,
             parsed_args.server,
-            ).rescue()
+        ).rescue()
         return zip(*sorted(six.iteritems(body)))
 
 

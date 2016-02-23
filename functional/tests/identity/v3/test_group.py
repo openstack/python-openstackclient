@@ -131,7 +131,7 @@ class GroupTests(test_identity.IdentityTests):
             '%(group)s %(user)s' % {'group_domain': self.domain_name,
                                     'user_domain': self.domain_name,
                                     'group': group_name,
-                                    'user':  username})
+                                    'user': username})
         self.assertOutput(
             '%(user)s in group %(group)s\n' % {'user': username,
                                                'group': group_name},
