@@ -17,6 +17,7 @@ import mock
 import random
 import uuid
 
+from openstackclient.common import utils as common_utils
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
@@ -56,8 +57,31 @@ VOLUME = {
     "attachments": volume_attachments
 }
 
-VOLUME_columns = tuple(sorted(VOLUME))
-VOLUME_data = tuple((VOLUME[x] for x in sorted(VOLUME)))
+VOLUME_columns = (
+    "attachments",
+    "availability_zone",
+    "description",
+    "id",
+    "name",
+    "properties",
+    "size",
+    "snapshot_id",
+    "status",
+    "type"
+)
+
+VOLUME_data = (
+    volume_attachments,
+    volume_availability_zone,
+    volume_description,
+    volume_id,
+    volume_name,
+    common_utils.format_dict(volume_metadata),
+    volume_size,
+    volume_snapshot_id,
+    volume_status,
+    volume_type
+)
 
 
 snapshot_id = "cb2d364e-4d1c-451a-8c68-b5bbcb340fb2"
