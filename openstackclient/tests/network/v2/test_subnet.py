@@ -16,6 +16,7 @@ import mock
 from openstackclient.common import utils
 from openstackclient.network.v2 import subnet as subnet_v2
 from openstackclient.tests.network.v2 import fakes as network_fakes
+from openstackclient.tests import utils as tests_utils
 
 
 class TestSubnet(network_fakes.TestNetworkV2):
@@ -106,3 +107,76 @@ class TestListSubnet(TestSubnet):
         self.network.subnets.assert_called_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
+
+
+class TestShowSubnet(TestSubnet):
+    # The subnets to be shown
+    _subnet = network_fakes.FakeSubnet.create_one_subnet()
+
+    columns = (
+        'allocation_pools',
+        'cidr',
+        'dns_nameservers',
+        'enable_dhcp',
+        'gateway_ip',
+        'host_routes',
+        'id',
+        'ip_version',
+        'ipv6_address_mode',
+        'ipv6_ra_mode',
+        'name',
+        'network_id',
+        'project_id',
+        'subnetpool_id',
+    )
+
+    data = (
+        subnet_v2._format_allocation_pools(_subnet.allocation_pools),
+        _subnet.cidr,
+        utils.format_list(_subnet.dns_nameservers),
+        _subnet.enable_dhcp,
+        _subnet.gateway_ip,
+        utils.format_list(_subnet.host_routes),
+        _subnet.id,
+        _subnet.ip_version,
+        _subnet.ipv6_address_mode,
+        _subnet.ipv6_ra_mode,
+        _subnet.name,
+        _subnet.network_id,
+        _subnet.tenant_id,
+        _subnet.subnetpool_id,
+    )
+
+    def setUp(self):
+        super(TestShowSubnet, self).setUp()
+
+        # Get the command object to test
+        self.cmd = subnet_v2.ShowSubnet(self.app, self.namespace)
+
+        self.network.find_subnet = mock.Mock(return_value=self._subnet)
+
+    def test_show_no_options(self):
+        arglist = []
+        verifylist = []
+
+        # Testing that a call without the required argument will fail and
+        # throw a "ParserExecption"
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser, self.cmd, arglist, verifylist)
+
+    def test_show_all_options(self):
+        arglist = [
+            self._subnet.name,
+        ]
+        verifylist = [
+            ('subnet', self._subnet.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.find_subnet.assert_called_with(self._subnet.name,
+                                                    ignore_missing=False)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(list(self.data), list(data))

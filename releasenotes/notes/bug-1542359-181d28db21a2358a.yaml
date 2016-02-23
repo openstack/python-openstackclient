@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``subnet show`` command.
+    [Bug `1542359 <https://bugs.launchpad.net/bugs/1542359>`_]
