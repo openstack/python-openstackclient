@@ -53,6 +53,7 @@ IMAGE_data = tuple((IMAGE_output[x] for x in sorted(IMAGE_output)))
 
 
 class FakeImagev1Client(object):
+
     def __init__(self, **kwargs):
         self.images = mock.Mock()
         self.images.resource_class = fakes.FakeResource(None, {})
@@ -61,6 +62,7 @@ class FakeImagev1Client(object):
 
 
 class TestImagev1(utils.TestCommand):
+
     def setUp(self):
         super(TestImagev1, self).setUp()
 

@@ -26,6 +26,7 @@ AUTH_URL = "http://0.0.0.0"
 
 
 class TestObject(object_fakes.TestObjectv1):
+
     def setUp(self):
         super(TestObject, self).setUp()
         self.app.client_manager.object_store = object_store.APIv1(

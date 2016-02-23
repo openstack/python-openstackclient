@@ -148,6 +148,7 @@ IMAGE_schema = {
 
 
 class FakeImagev2Client(object):
+
     def __init__(self, **kwargs):
         self.images = mock.Mock()
         self.images.resource_class = fakes.FakeResource(None, {})
@@ -158,6 +159,7 @@ class FakeImagev2Client(object):
 
 
 class TestImagev2(utils.TestCommand):
+
     def setUp(self):
         super(TestImagev2, self).setUp()
 

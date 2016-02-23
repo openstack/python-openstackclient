@@ -20,6 +20,7 @@ from openstackclient.tests.object.v1 import fakes as object_fakes
 
 
 class TestObjectAll(object_fakes.TestObjectv1):
+
     def setUp(self):
         super(TestObjectAll, self).setUp()
 

@@ -27,6 +27,7 @@ UNSCOPED_AUTH_PLUGINS = ['v3unscopedsaml', 'v3unscopedadfs', 'v3oidc']
 
 def auth_with_unscoped_saml(func):
     """Check the unscoped federated context"""
+
     def _decorated(self, parsed_args):
         auth_plugin_name = self.app.client_manager.auth_plugin_name
         if auth_plugin_name in UNSCOPED_AUTH_PLUGINS:

@@ -87,6 +87,7 @@ SERVICE = {
 
 
 class FakeComputev2Client(object):
+
     def __init__(self, **kwargs):
         self.aggregates = mock.Mock()
         self.aggregates.resource_class = fakes.FakeResource(None, {})
@@ -142,6 +143,7 @@ class FakeComputev2Client(object):
 
 
 class TestComputev2(utils.TestCommand):
+
     def setUp(self):
         super(TestComputev2, self).setUp()
 

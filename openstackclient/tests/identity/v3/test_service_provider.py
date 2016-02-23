@@ -305,6 +305,7 @@ class TestServiceProviderSet(TestServiceProvider):
 
         Set Service Provider's ``enabled`` attribute to False.
         """
+
         def prepare(self):
             """Prepare fake return objects before the test is executed"""
             updated_sp = copy.deepcopy(service_fakes.SERVICE_PROVIDER)
@@ -343,6 +344,7 @@ class TestServiceProviderSet(TestServiceProvider):
 
         Set Service Provider's ``enabled`` attribute to True.
         """
+
         def prepare(self):
             """Prepare fake return objects before the test is executed"""
             resources = fakes.FakeResource(

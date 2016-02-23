@@ -20,6 +20,7 @@ from openstackclient.tests import utils
 
 
 class FakeCommand(object):
+
     @classmethod
     def load(cls):
         return cls
@@ -48,6 +49,7 @@ class FakeCommandManager(commandmanager.CommandManager):
 
 
 class TestCommandManager(utils.TestCase):
+
     def test_add_command_group(self):
         mgr = FakeCommandManager('test')
 

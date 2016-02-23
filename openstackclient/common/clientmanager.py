@@ -37,6 +37,7 @@ USER_AGENT = 'python-openstackclient'
 
 class ClientCache(object):
     """Descriptor class for caching created client handles."""
+
     def __init__(self, factory):
         self.factory = factory
         self._handle = None

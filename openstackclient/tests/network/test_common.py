@@ -46,6 +46,7 @@ def _add_compute_argument(parser):
 
 
 class FakeNetworkAndComputeCommand(common.NetworkAndComputeCommand):
+
     def update_parser_common(self, parser):
         return _add_common_argument(parser)
 
@@ -63,6 +64,7 @@ class FakeNetworkAndComputeCommand(common.NetworkAndComputeCommand):
 
 
 class FakeNetworkAndComputeLister(common.NetworkAndComputeLister):
+
     def update_parser_common(self, parser):
         return _add_common_argument(parser)
 
@@ -80,6 +82,7 @@ class FakeNetworkAndComputeLister(common.NetworkAndComputeLister):
 
 
 class FakeNetworkAndComputeShowOne(common.NetworkAndComputeShowOne):
+
     def update_parser_common(self, parser):
         return _add_common_argument(parser)
 
@@ -97,6 +100,7 @@ class FakeNetworkAndComputeShowOne(common.NetworkAndComputeShowOne):
 
 
 class TestNetworkAndCompute(utils.TestCommand):
+
     def setUp(self):
         super(TestNetworkAndCompute, self).setUp()
 
@@ -150,18 +154,21 @@ class TestNetworkAndCompute(utils.TestCommand):
 
 
 class TestNetworkAndComputeCommand(TestNetworkAndCompute):
+
     def setUp(self):
         super(TestNetworkAndComputeCommand, self).setUp()
         self.cmd = FakeNetworkAndComputeCommand(self.app, self.namespace)
 
 
 class TestNetworkAndComputeLister(TestNetworkAndCompute):
+
     def setUp(self):
         super(TestNetworkAndComputeLister, self).setUp()
         self.cmd = FakeNetworkAndComputeLister(self.app, self.namespace)
 
 
 class TestNetworkAndComputeShowOne(TestNetworkAndCompute):
+
     def setUp(self):
         super(TestNetworkAndComputeShowOne, self).setUp()
         self.cmd = FakeNetworkAndComputeShowOne(self.app, self.namespace)

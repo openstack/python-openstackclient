@@ -26,6 +26,7 @@ AUTH_URL = "http://0.0.0.0"
 
 
 class FakeClient(object):
+
     def __init__(self, endpoint=None, **kwargs):
         self.endpoint = AUTH_URL
         self.token = AUTH_TOKEN

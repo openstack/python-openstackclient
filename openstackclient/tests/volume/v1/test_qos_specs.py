@@ -34,6 +34,7 @@ class TestQos(volume_fakes.TestVolumev1):
 
 
 class TestQosAssociate(TestQos):
+
     def setUp(self):
         super(TestQosAssociate, self).setUp()
 
@@ -183,6 +184,7 @@ class TestQosCreate(TestQos):
 
 
 class TestQosDelete(TestQos):
+
     def setUp(self):
         super(TestQosDelete, self).setUp()
 
@@ -223,6 +225,7 @@ class TestQosDelete(TestQos):
 
 
 class TestQosDisassociate(TestQos):
+
     def setUp(self):
         super(TestQosDisassociate, self).setUp()
 
@@ -277,6 +280,7 @@ class TestQosDisassociate(TestQos):
 
 
 class TestQosList(TestQos):
+
     def setUp(self):
         super(TestQosList, self).setUp()
 
@@ -323,6 +327,7 @@ class TestQosList(TestQos):
 
 
 class TestQosSet(TestQos):
+
     def setUp(self):
         super(TestQosSet, self).setUp()
 
@@ -354,6 +359,7 @@ class TestQosSet(TestQos):
 
 
 class TestQosShow(TestQos):
+
     def setUp(self):
         super(TestQosShow, self).setUp()
 
@@ -405,6 +411,7 @@ class TestQosShow(TestQos):
 
 
 class TestQosUnset(TestQos):
+
     def setUp(self):
         super(TestQosUnset, self).setUp()
 

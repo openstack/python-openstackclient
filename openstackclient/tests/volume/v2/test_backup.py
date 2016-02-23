@@ -33,6 +33,7 @@ class TestBackup(volume_fakes.TestVolume):
 
 
 class TestBackupCreate(TestBackup):
+
     def setUp(self):
         super(TestBackupCreate, self).setUp()
 
@@ -78,6 +79,7 @@ class TestBackupCreate(TestBackup):
 
 
 class TestBackupShow(TestBackup):
+
     def setUp(self):
         super(TestBackupShow, self).setUp()
 
@@ -105,6 +107,7 @@ class TestBackupShow(TestBackup):
 
 
 class TestBackupDelete(TestBackup):
+
     def setUp(self):
         super(TestBackupDelete, self).setUp()
 
@@ -132,6 +135,7 @@ class TestBackupDelete(TestBackup):
 
 
 class TestBackupRestore(TestBackup):
+
     def setUp(self):
         super(TestBackupRestore, self).setUp()
 

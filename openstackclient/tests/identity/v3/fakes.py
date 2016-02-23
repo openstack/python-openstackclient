@@ -420,6 +420,7 @@ OAUTH_VERIFIER = {
 
 
 class FakeAuth(object):
+
     def __init__(self, auth_method_class=None):
         self._auth_method_class = auth_method_class
 
@@ -428,11 +429,13 @@ class FakeAuth(object):
 
 
 class FakeSession(object):
+
     def __init__(self, **kwargs):
         self.auth = FakeAuth()
 
 
 class FakeIdentityv3Client(object):
+
     def __init__(self, **kwargs):
         self.domains = mock.Mock()
         self.domains.resource_class = fakes.FakeResource(None, {})
@@ -468,6 +471,7 @@ class FakeIdentityv3Client(object):
 
 
 class FakeFederationManager(object):
+
     def __init__(self, **kwargs):
         self.identity_providers = mock.Mock()
         self.identity_providers.resource_class = fakes.FakeResource(None, {})
@@ -484,12 +488,14 @@ class FakeFederationManager(object):
 
 
 class FakeFederatedClient(FakeIdentityv3Client):
+
     def __init__(self, **kwargs):
         super(FakeFederatedClient, self).__init__(**kwargs)
         self.federation = FakeFederationManager()
 
 
 class FakeOAuth1Client(FakeIdentityv3Client):
+
     def __init__(self, **kwargs):
         super(FakeOAuth1Client, self).__init__(**kwargs)
 
@@ -502,6 +508,7 @@ class FakeOAuth1Client(FakeIdentityv3Client):
 
 
 class TestIdentityv3(utils.TestCommand):
+
     def setUp(self):
         super(TestIdentityv3, self).setUp()
 
@@ -512,6 +519,7 @@ class TestIdentityv3(utils.TestCommand):
 
 
 class TestFederatedIdentity(utils.TestCommand):
+
     def setUp(self):
         super(TestFederatedIdentity, self).setUp()
 
@@ -522,6 +530,7 @@ class TestFederatedIdentity(utils.TestCommand):
 
 
 class TestOAuth1(utils.TestCommand):
+
     def setUp(self):
         super(TestOAuth1, self).setUp()
 

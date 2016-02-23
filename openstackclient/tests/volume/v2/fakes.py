@@ -213,6 +213,7 @@ IMAGE = {
 
 
 class FakeVolumeClient(object):
+
     def __init__(self, **kwargs):
         self.volumes = mock.Mock()
         self.volumes.resource_class = fakes.FakeResource(None, {})
@@ -233,6 +234,7 @@ class FakeVolumeClient(object):
 
 
 class TestVolume(utils.TestCommand):
+
     def setUp(self):
         super(TestVolume, self).setUp()
 

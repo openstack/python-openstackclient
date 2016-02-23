@@ -76,6 +76,7 @@ OBJECT_2 = {
 
 
 class TestObjectv1(utils.TestCommand):
+
     def setUp(self):
         super(TestObjectv1, self).setUp()
 

@@ -53,7 +53,7 @@ def make_client(instance):
         session=instance.session,
         region_name=instance._region_name,
         **kwargs
-        )
+    )
 
     return client
 
@@ -72,6 +72,7 @@ def build_option_parser(parser):
 
 class IdentityClientv2(identity_client_v2.Client):
     """Tweak the earlier client class to deal with some changes"""
+
     def __getattr__(self, name):
         # Map v3 'projects' back to v2 'tenants'
         if name == "projects":

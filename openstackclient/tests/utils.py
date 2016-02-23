@@ -28,6 +28,7 @@ class ParserException(Exception):
 
 
 class TestCase(testtools.TestCase):
+
     def setUp(self):
         testtools.TestCase.setUp(self)
 

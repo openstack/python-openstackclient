@@ -147,7 +147,7 @@ class TestTypeList(TestType):
         datalist = ((
             volume_fakes.type_id,
             volume_fakes.type_name,
-            ),)
+        ),)
         self.assertEqual(datalist, tuple(data))
 
     def test_type_list_with_options(self):
@@ -166,11 +166,12 @@ class TestTypeList(TestType):
             volume_fakes.type_name,
             volume_fakes.type_description,
             "foo='bar'"
-            ),)
+        ),)
         self.assertEqual(datalist, tuple(data))
 
 
 class TestTypeShow(TestType):
+
     def setUp(self):
         super(TestTypeShow, self).setUp()
 
@@ -314,6 +315,7 @@ class TestTypeUnset(TestType):
 
 
 class TestTypeDelete(TestType):
+
     def setUp(self):
         super(TestTypeDelete, self).setUp()
 

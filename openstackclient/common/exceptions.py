@@ -41,6 +41,7 @@ class UnsupportedVersion(Exception):
 
 class ClientException(Exception):
     """The base exception class for all exceptions this library raises."""
+
     def __init__(self, code, message=None, details=None):
         self.code = code
         self.message = message or self.__class__.message

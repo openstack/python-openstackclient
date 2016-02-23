@@ -169,7 +169,7 @@ class ShowQuota(command.ShowOne):
         project = utils.find_resource(
             identity_client.projects,
             parsed_args.project,
-            ).id
+        ).id
 
         try:
             if parsed_args.quota_class:
@@ -193,7 +193,7 @@ class ShowQuota(command.ShowOne):
             project = utils.find_resource(
                 identity_client.projects,
                 parsed_args.project,
-                ).id
+            ).id
             return self.app.client_manager.network.get_quota(project)
         else:
             return {}

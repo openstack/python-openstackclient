@@ -33,71 +33,74 @@ class TestMapping(identity_fakes.TestFederatedIdentity):
 
 
 class TestMappingCreate(TestMapping):
-        def setUp(self):
-                super(TestMappingCreate, self).setUp()
-                self.mapping_mock.create.return_value = fakes.FakeResource(
-                    None,
-                    copy.deepcopy(identity_fakes.MAPPING_RESPONSE),
-                    loaded=True
-                )
-                self.cmd = mapping.CreateMapping(self.app, None)
 
-        def test_create_mapping(self):
-                arglist = [
-                    '--rules', identity_fakes.mapping_rules_file_path,
-                    identity_fakes.mapping_id
-                ]
-                verifylist = [
-                    ('mapping', identity_fakes.mapping_id),
-                    ('rules', identity_fakes.mapping_rules_file_path)
-                ]
+    def setUp(self):
+        super(TestMappingCreate, self).setUp()
+        self.mapping_mock.create.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.MAPPING_RESPONSE),
+            loaded=True
+        )
+        self.cmd = mapping.CreateMapping(self.app, None)
 
-                parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+    def test_create_mapping(self):
+        arglist = [
+            '--rules', identity_fakes.mapping_rules_file_path,
+            identity_fakes.mapping_id
+        ]
+        verifylist = [
+            ('mapping', identity_fakes.mapping_id),
+            ('rules', identity_fakes.mapping_rules_file_path)
+        ]
 
-                mocker = mock.Mock()
-                mocker.return_value = identity_fakes.MAPPING_RULES
-                with mock.patch("openstackclient.identity.v3.mapping."
-                                "CreateMapping._read_rules", mocker):
-                        columns, data = self.cmd.take_action(parsed_args)
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-                self.mapping_mock.create.assert_called_with(
-                    mapping_id=identity_fakes.mapping_id,
-                    rules=identity_fakes.MAPPING_RULES)
+        mocker = mock.Mock()
+        mocker.return_value = identity_fakes.MAPPING_RULES
+        with mock.patch("openstackclient.identity.v3.mapping."
+                        "CreateMapping._read_rules", mocker):
+            columns, data = self.cmd.take_action(parsed_args)
 
-                collist = ('id', 'rules')
-                self.assertEqual(collist, columns)
+        self.mapping_mock.create.assert_called_with(
+            mapping_id=identity_fakes.mapping_id,
+            rules=identity_fakes.MAPPING_RULES)
 
-                datalist = (identity_fakes.mapping_id,
-                            identity_fakes.MAPPING_RULES)
-                self.assertEqual(datalist, data)
+        collist = ('id', 'rules')
+        self.assertEqual(collist, columns)
+
+        datalist = (identity_fakes.mapping_id,
+                    identity_fakes.MAPPING_RULES)
+        self.assertEqual(datalist, data)
 
 
 class TestMappingDelete(TestMapping):
-        def setUp(self):
-            super(TestMappingDelete, self).setUp()
-            self.mapping_mock.get.return_value = fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.MAPPING_RESPONSE),
-                loaded=True)
 
-            self.mapping_mock.delete.return_value = None
-            self.cmd = mapping.DeleteMapping(self.app, None)
+    def setUp(self):
+        super(TestMappingDelete, self).setUp()
+        self.mapping_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.MAPPING_RESPONSE),
+            loaded=True)
 
-        def test_delete_mapping(self):
-            arglist = [
-                identity_fakes.mapping_id
-            ]
-            verifylist = [
-                ('mapping', identity_fakes.mapping_id)
-            ]
+        self.mapping_mock.delete.return_value = None
+        self.cmd = mapping.DeleteMapping(self.app, None)
 
-            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-            self.cmd.take_action(parsed_args)
-            self.mapping_mock.delete.assert_called_with(
-                identity_fakes.mapping_id)
+    def test_delete_mapping(self):
+        arglist = [
+            identity_fakes.mapping_id
+        ]
+        verifylist = [
+            ('mapping', identity_fakes.mapping_id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+        self.mapping_mock.delete.assert_called_with(
+            identity_fakes.mapping_id)
 
 
 class TestMappingList(TestMapping):
+
     def setUp(self):
         super(TestMappingList, self).setUp()
         self.mapping_mock.get.return_value = fakes.FakeResource(
@@ -141,6 +144,7 @@ class TestMappingList(TestMapping):
 
 
 class TestMappingShow(TestMapping):
+
     def setUp(self):
         super(TestMappingShow, self).setUp()
 

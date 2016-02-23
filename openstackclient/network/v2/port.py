@@ -26,9 +26,9 @@ _formatters = {
     'allowed_address_pairs': utils.format_list_of_dicts,
     'binding_profile': utils.format_dict,
     'binding_vif_details': utils.format_dict,
-    'dns_assignment':  utils.format_list_of_dicts,
+    'dns_assignment': utils.format_list_of_dicts,
     'extra_dhcp_opts': utils.format_list_of_dicts,
-    'fixed_ips':  utils.format_list_of_dicts,
+    'fixed_ips': utils.format_list_of_dicts,
     'security_groups': utils.format_list,
 }
 
