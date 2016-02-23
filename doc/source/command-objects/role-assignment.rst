@@ -14,6 +14,7 @@ List role assignments
 
     os role assignment list
         [--role <role>]
+        [--role-domain <role-domain>]
         [--user <user>]
         [--user-domain <user-domain>]
         [--group <group>]
@@ -28,6 +29,13 @@ List role assignments
 .. option:: --role <role>
 
     Role to filter (name or ID)
+
+    .. versionadded:: 3
+
+.. option:: --role-domain <role-domain>
+
+    Domain the role belongs to (name or ID).
+    This can be used in case collisions between role names exist.
 
     .. versionadded:: 3
 

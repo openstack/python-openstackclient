@@ -201,6 +201,16 @@ def add_project_domain_option_to_parser(parser):
     )
 
 
+def add_role_domain_option_to_parser(parser):
+    parser.add_argument(
+        '--role-domain',
+        metavar='<role-domain>',
+        help=_('Domain the role belongs to (name or ID). '
+               'This must be specified when the name of a domain specific '
+               'role is used.'),
+    )
+
+
 def add_inherited_option_to_parser(parser):
     parser.add_argument(
         '--inherited',

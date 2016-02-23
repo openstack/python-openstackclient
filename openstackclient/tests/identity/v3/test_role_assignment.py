@@ -628,3 +628,56 @@ class TestRoleAssignmentList(TestRoleAssignment):
             False
             ),)
         self.assertEqual(tuple(data), datalist1)
+
+    def test_role_assignment_list_domain_role(self):
+
+        self.role_assignments_mock.list.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(
+                    identity_fakes.ASSIGNMENT_WITH_DOMAIN_ROLE),
+                loaded=True,
+            ),
+        ]
+
+        arglist = [
+            '--role', identity_fakes.ROLE_2['name'],
+            '--role-domain', identity_fakes.domain_name
+        ]
+        verifylist = [
+            ('user', None),
+            ('group', None),
+            ('domain', None),
+            ('project', None),
+            ('role', identity_fakes.ROLE_2['name']),
+            ('effective', False),
+            ('inherited', False),
+            ('names', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.role_assignments_mock.list.assert_called_with(
+            domain=None,
+            user=None,
+            group=None,
+            project=None,
+            role=self.roles_mock.get(),
+            effective=False,
+            os_inherit_extension_inherited_to=None,
+            include_names=False)
+
+        self.assertEqual(self.columns, columns)
+        datalist = ((
+            identity_fakes.ROLE_2['id'],
+            identity_fakes.user_id,
+            '',
+            '',
+            identity_fakes.domain_id,
+            False
+        ),)
+        self.assertEqual(datalist, tuple(data))
