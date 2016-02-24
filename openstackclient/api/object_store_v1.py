@@ -551,7 +551,7 @@ class APIv1(api.BaseAPI):
         log = logging.getLogger(__name__ + '._set_properties')
 
         headers = {}
-        for k, v in properties.iteritems():
+        for k, v in six.iteritems(properties):
             if not utils.is_ascii(k) or not utils.is_ascii(v):
                 log.error('Cannot set property %s to non-ascii value', k)
                 continue
