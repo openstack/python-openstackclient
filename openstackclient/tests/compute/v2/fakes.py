@@ -377,6 +377,12 @@ class FakeServer(object):
             'id': 'server-id-' + uuid.uuid4().hex,
             'name': 'server-name-' + uuid.uuid4().hex,
             'metadata': {},
+            'image': {
+                'id': 'image-id-' + uuid.uuid4().hex,
+            },
+            'flavor': {
+                'id': 'flavor-id-' + uuid.uuid4().hex,
+            }
         }
 
         # Overwrite default attributes.
