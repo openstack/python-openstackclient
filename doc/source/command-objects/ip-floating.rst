@@ -82,3 +82,17 @@ Remove floating IP address from server
 .. describe:: <server>
 
     Server to remove the IP address from (name or ID)
+
+ip floating show
+----------------
+
+Display floating IP details
+
+.. program:: ip floating show
+   .. code:: bash
+
+    os ip floating show <floating-ip>
+
+.. describe:: <floating-ip>
+
+    Floating IP to display (IP address or ID)
