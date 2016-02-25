@@ -31,6 +31,7 @@ class TestSnapshot(volume_fakes.TestVolume):
 
 
 class TestSnapshotCreate(TestSnapshot):
+
     def setUp(self):
         super(TestSnapshotCreate, self).setUp()
 
@@ -76,6 +77,7 @@ class TestSnapshotCreate(TestSnapshot):
 
 
 class TestSnapshotShow(TestSnapshot):
+
     def setUp(self):
         super(TestSnapshotShow, self).setUp()
 
@@ -103,6 +105,7 @@ class TestSnapshotShow(TestSnapshot):
 
 
 class TestSnapshotDelete(TestSnapshot):
+
     def setUp(self):
         super(TestSnapshotDelete, self).setUp()
 
@@ -130,6 +133,7 @@ class TestSnapshotDelete(TestSnapshot):
 
 
 class TestSnapshotSet(TestSnapshot):
+
     def setUp(self):
         super(TestSnapshotSet, self).setUp()
 
@@ -171,6 +175,7 @@ class TestSnapshotSet(TestSnapshot):
 
 
 class TestSnapshotUnset(TestSnapshot):
+
     def setUp(self):
         super(TestSnapshotUnset, self).setUp()
 
@@ -247,7 +252,7 @@ class TestSnapshotList(TestSnapshot):
             volume_fakes.snapshot_description,
             "available",
             volume_fakes.snapshot_size
-            ),)
+        ),)
         self.assertEqual(datalist, tuple(data))
 
     def test_snapshot_list_with_options(self):

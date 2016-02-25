@@ -557,7 +557,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             '@'.join([identity_fakes.user_name, identity_fakes.domain_name]),
             '',
             '@'.join([identity_fakes.project_name,
-                     identity_fakes.domain_name]),
+                      identity_fakes.domain_name]),
             '',
             False
         ), (identity_fakes.role_name,

@@ -22,6 +22,7 @@ import six
 
 
 class CommandMeta(abc.ABCMeta):
+
     def __new__(mcs, name, bases, cls_dict):
         if 'log' not in cls_dict:
             cls_dict['log'] = logging.getLogger(

@@ -130,11 +130,13 @@ QOS_WITH_ASSOCIATIONS = {
 
 
 class FakeImagev1Client(object):
+
     def __init__(self, **kwargs):
         self.images = mock.Mock()
 
 
 class FakeVolumev1Client(object):
+
     def __init__(self, **kwargs):
         self.volumes = mock.Mock()
         self.volumes.resource_class = fakes.FakeResource(None, {})
@@ -151,6 +153,7 @@ class FakeVolumev1Client(object):
 
 
 class TestVolumev1(utils.TestCommand):
+
     def setUp(self):
         super(TestVolumev1, self).setUp()
 

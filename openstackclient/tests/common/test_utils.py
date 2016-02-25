@@ -250,6 +250,7 @@ class NoUniqueMatch(Exception):
 
 
 class TestFindResource(test_utils.TestCase):
+
     def setUp(self):
         super(TestFindResource, self).setUp()
         self.name = 'legos'

@@ -66,6 +66,7 @@ class TestContext(utils.TestCase):
 
 
 class TestFileFormatter(utils.TestCase):
+
     def test_nothing(self):
         formatter = logs._FileFormatter()
         self.assertEqual(('%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
@@ -93,6 +94,7 @@ class TestFileFormatter(utils.TestCase):
 
 
 class TestLogConfigurator(utils.TestCase):
+
     def setUp(self):
         super(TestLogConfigurator, self).setUp()
         self.options = mock.Mock()

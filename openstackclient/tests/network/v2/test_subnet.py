@@ -20,6 +20,7 @@ from openstackclient.tests import utils as tests_utils
 
 
 class TestSubnet(network_fakes.TestNetworkV2):
+
     def setUp(self):
         super(TestSubnet, self).setUp()
 

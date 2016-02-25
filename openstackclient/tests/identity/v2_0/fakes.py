@@ -128,6 +128,7 @@ EXTENSION = {
 
 
 class FakeIdentityv2Client(object):
+
     def __init__(self, **kwargs):
         self.roles = mock.Mock()
         self.roles.resource_class = fakes.FakeResource(None, {})
@@ -157,6 +158,7 @@ class FakeIdentityv2Client(object):
 
 
 class TestIdentityv2(utils.TestCommand):
+
     def setUp(self):
         super(TestIdentityv2, self).setUp()
 

@@ -24,6 +24,7 @@ from openstackclient.volume.v2 import volume
 
 
 class TestVolume(volume_fakes.TestVolume):
+
     def setUp(self):
         super(TestVolume, self).setUp()
 
@@ -377,6 +378,7 @@ class TestVolumeCreate(TestVolume):
 
 
 class TestVolumeDelete(TestVolume):
+
     def setUp(self):
         super(TestVolumeDelete, self).setUp()
 
@@ -726,6 +728,7 @@ class TestVolumeList(TestVolume):
 
 
 class TestVolumeShow(TestVolume):
+
     def setUp(self):
         super(TestVolumeShow, self).setUp()
 

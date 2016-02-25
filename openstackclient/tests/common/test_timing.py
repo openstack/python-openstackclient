@@ -75,7 +75,7 @@ class TestTiming(utils.TestCommand):
     def test_timing_list(self):
         self.app.timing_data = [(
             timing_url,
-            datetime.timedelta(microseconds=timing_elapsed*1000000),
+            datetime.timedelta(microseconds=timing_elapsed * 1000000),
         )]
 
         arglist = []

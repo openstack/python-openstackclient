@@ -46,6 +46,7 @@ class TestCredential(identity_fakes.TestIdentityv3):
 
 
 class TestCredentialSet(TestCredential):
+
     def setUp(self):
         super(TestCredentialSet, self).setUp()
         self.cmd = credential.SetCredential(self.app, None)

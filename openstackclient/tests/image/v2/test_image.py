@@ -381,7 +381,7 @@ class TestAddProjectToImage(TestImage):
         arglist = [
             image_fakes.image_id,
             identity_fakes.project_id,
-            ]
+        ]
         verifylist = [
             ('image', image_fakes.image_id),
             ('project', identity_fakes.project_id),

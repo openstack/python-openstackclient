@@ -51,11 +51,13 @@ def create_extension():
 
 
 class FakeNetworkV2Client(object):
+
     def __init__(self, **kwargs):
         self.extensions = mock.Mock(return_value=[create_extension()])
 
 
 class TestNetworkV2(utils.TestCommand):
+
     def setUp(self):
         super(TestNetworkV2, self).setUp()
 

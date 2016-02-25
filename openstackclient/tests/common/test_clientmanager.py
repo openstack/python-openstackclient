@@ -47,6 +47,7 @@ class Container(object):
 
 
 class FakeOptions(object):
+
     def __init__(self, **kwargs):
         for option in auth.OPTIONS_LIST:
             setattr(self, option.replace('-', '_'), None)
@@ -71,6 +72,7 @@ class TestClientCache(utils.TestCase):
 
 
 class TestClientManager(utils.TestCase):
+
     def setUp(self):
         super(TestClientManager, self).setUp()
         self.mock = mock.Mock()

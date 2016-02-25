@@ -19,6 +19,7 @@ from openstackclient.tests import utils as test_utils
 
 
 class FakeCommand(command.Command):
+
     def take_action(self, parsed_args):
         pass
 

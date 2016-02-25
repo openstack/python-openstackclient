@@ -134,7 +134,7 @@ class ListRoleAssignment(command.Lister):
             if 'project' in scope:
                 if include_names:
                     prj = '@'.join([scope['project']['name'],
-                                   scope['project']['domain']['name']])
+                                    scope['project']['domain']['name']])
                     setattr(assignment, 'project', prj)
                 else:
                     setattr(assignment, 'project', scope['project']['id'])

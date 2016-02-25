@@ -51,6 +51,7 @@ TEST_VERSIONS = fixture.DiscoveryList(href=AUTH_URL)
 
 
 class FakeStdout(object):
+
     def __init__(self):
         self.content = []
 
@@ -65,6 +66,7 @@ class FakeStdout(object):
 
 
 class FakeLog(object):
+
     def __init__(self):
         self.messages = {}
 
@@ -85,6 +87,7 @@ class FakeLog(object):
 
 
 class FakeApp(object):
+
     def __init__(self, _stdout, _log):
         self.stdout = _stdout
         self.client_manager = None
@@ -95,12 +98,14 @@ class FakeApp(object):
 
 
 class FakeClient(object):
+
     def __init__(self, **kwargs):
         self.endpoint = kwargs['endpoint']
         self.token = kwargs['token']
 
 
 class FakeClientManager(object):
+
     def __init__(self):
         self.compute = None
         self.identity = None
@@ -129,12 +134,14 @@ class FakeClientManager(object):
 
 
 class FakeModule(object):
+
     def __init__(self, name, version):
         self.name = name
         self.__version__ = version
 
 
 class FakeResource(object):
+
     def __init__(self, manager=None, info={}, loaded=False, methods={}):
         """Set attributes and methods for a resource.
 
@@ -178,6 +185,7 @@ class FakeResource(object):
 
 
 class FakeResponse(requests.Response):
+
     def __init__(self, headers={}, status_code=200, data=None, encoding=None):
         super(FakeResponse, self).__init__()
 
@@ -190,6 +198,7 @@ class FakeResponse(requests.Response):
 
 
 class FakeModel(dict):
+
     def __getattr__(self, key):
         try:
             return self[key]

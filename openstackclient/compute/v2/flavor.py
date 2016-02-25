@@ -149,20 +149,20 @@ class ListFlavor(command.Lister):
             action="store_true",
             default=True,
             help="List only public flavors (default)",
-            )
+        )
         public_group.add_argument(
             "--private",
             dest="public",
             action="store_false",
             help="List only private flavors",
-            )
+        )
         public_group.add_argument(
             "--all",
             dest="all",
             action="store_true",
             default=False,
             help="List all flavors, whether public or private",
-            )
+        )
         parser.add_argument(
             '--long',
             action='store_true',

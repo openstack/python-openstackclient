@@ -267,7 +267,7 @@ class ListVolume(command.Lister):
                 'Status',
                 'Size',
                 'Attachments',
-                ]
+            ]
             column_headers = copy.deepcopy(columns)
             column_headers[1] = 'Display Name'
             column_headers[4] = 'Attached to'

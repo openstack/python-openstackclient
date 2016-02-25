@@ -265,8 +265,8 @@ class CreateImage(command.ShowOne):
             finally:
                 # Clean up open files - make sure data isn't a string
                 if ('data' in kwargs and hasattr(kwargs['data'], 'close') and
-                   kwargs['data'] != sys.stdin):
-                        kwargs['data'].close()
+                        kwargs['data'] != sys.stdin):
+                    kwargs['data'].close()
 
             info.update(image._info)
             info['properties'] = utils.format_dict(info.get('properties', {}))
@@ -697,8 +697,8 @@ class SetImage(command.Command):
         finally:
             # Clean up open files - make sure data isn't a string
             if ('data' in kwargs and hasattr(kwargs['data'], 'close') and
-               kwargs['data'] != sys.stdin):
-                    kwargs['data'].close()
+                    kwargs['data'] != sys.stdin):
+                kwargs['data'].close()
 
 
 class ShowImage(command.ShowOne):

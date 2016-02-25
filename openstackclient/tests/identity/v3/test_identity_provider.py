@@ -368,6 +368,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
 
     def test_identity_provider_set_description(self):
         """Set Identity Provider's description. """
+
         def prepare(self):
             """Prepare fake return objects before the test is executed"""
             updated_idp = copy.deepcopy(identity_fakes.IDENTITY_PROVIDER)
@@ -412,6 +413,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
 
         Set Identity Provider's ``enabled`` attribute to False.
         """
+
         def prepare(self):
             """Prepare fake return objects before the test is executed"""
             updated_idp = copy.deepcopy(identity_fakes.IDENTITY_PROVIDER)
@@ -459,6 +461,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
 
         Set Identity Provider's ``enabled`` attribute to True.
         """
+
         def prepare(self):
             """Prepare fake return objects before the test is executed"""
             resources = fakes.FakeResource(
@@ -495,6 +498,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
 
         Set Identity Provider's ``enabled`` attribute to True.
         """
+
         def prepare(self):
             """Prepare fake return objects before the test is executed"""
             self.new_remote_id = 'new_entity'
@@ -540,6 +544,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
 
         Set Identity Provider's ``enabled`` attribute to True.
         """
+
         def prepare(self):
             """Prepare fake return objects before the test is executed"""
             self.new_remote_id = 'new_entity'
