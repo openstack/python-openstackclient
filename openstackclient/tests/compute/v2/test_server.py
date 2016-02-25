@@ -12,7 +12,6 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-
 import mock
 
 from mock import call
@@ -92,6 +91,7 @@ class TestServerCreate(TestServer):
         'addresses',
         'flavor',
         'id',
+        'image',
         'name',
         'networks',
         'properties',
@@ -100,8 +100,9 @@ class TestServerCreate(TestServer):
     def datalist(self):
         datalist = (
             '',
-            self.flavor.name + ' ()',
+            self.flavor.name + ' (' + self.new_server.flavor.get('id') + ')',
             self.new_server.id,
+            self.image.name + ' (' + self.new_server.image.get('id') + ')',
             self.new_server.name,
             self.new_server.networks,
             '',
@@ -617,32 +618,31 @@ class TestServerList(TestServer):
         'Properties',
     )
 
-    # Default search options, in the case of no commandline option specified.
-    search_opts = {
-        'reservation_id': None,
-        'ip': None,
-        'ip6': None,
-        'name': None,
-        'instance_name': None,
-        'status': None,
-        'flavor': None,
-        'image': None,
-        'host': None,
-        'tenant_id': None,
-        'all_tenants': False,
-        'user_id': None,
-    }
-
-    # Default params of the core function of the command in the case of no
-    # commandline option specified.
-    kwargs = {
-        'search_opts': search_opts,
-        'marker': None,
-        'limit': None,
-    }
-
     def setUp(self):
         super(TestServerList, self).setUp()
+
+        self.search_opts = {
+            'reservation_id': None,
+            'ip': None,
+            'ip6': None,
+            'name': None,
+            'instance_name': None,
+            'status': None,
+            'flavor': None,
+            'image': None,
+            'host': None,
+            'tenant_id': None,
+            'all_tenants': False,
+            'user_id': None,
+        }
+
+        # Default params of the core function of the command in the case of no
+        # commandline option specified.
+        self.kwargs = {
+            'search_opts': self.search_opts,
+            'marker': None,
+            'limit': None,
+        }
 
         # The fake servers' attributes. Use the original attributes names in
         # nova, not the ones printed by "server list" command.
@@ -660,8 +660,13 @@ class TestServerList(TestServer):
 
         # The servers to be listed.
         self.servers = self.setup_servers_mock(3)
-
         self.servers_mock.list.return_value = self.servers
+
+        self.image = image_fakes.FakeImage.create_one_image()
+        self.cimages_mock.get.return_value = self.image
+
+        self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
+        self.flavors_mock.get.return_value = self.flavor
 
         # Get the command object to test
         self.cmd = server.ListServer(self.app, None)
@@ -720,6 +725,46 @@ class TestServerList(TestServer):
         self.servers_mock.list.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(tuple(self.data_long), tuple(data))
+
+    def test_server_list_with_image(self):
+
+        arglist = [
+            '--image', self.image.id
+        ]
+        verifylist = [
+            ('image', self.image.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.cimages_mock.get.assert_called_with(self.image.id)
+
+        self.search_opts['image'] = self.image.id
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_with_flavor(self):
+
+        arglist = [
+            '--flavor', self.flavor.id
+        ]
+        verifylist = [
+            ('flavor', self.flavor.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.flavors_mock.get.assert_called_with(self.flavor.id)
+
+        self.search_opts['flavor'] = self.flavor.id
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
 
 
 class TestServerLock(TestServer):
