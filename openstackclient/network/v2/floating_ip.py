@@ -17,6 +17,14 @@ from openstackclient.common import utils
 from openstackclient.network import common
 
 
+def _get_columns(item):
+    columns = item.keys()
+    if 'tenant_id' in columns:
+        columns.remove('tenant_id')
+        columns.append('project_id')
+    return tuple(sorted(columns))
+
+
 class DeleteFloatingIP(common.NetworkAndComputeCommand):
     """Delete floating IP"""
 
@@ -89,3 +97,30 @@ class ListFloatingIP(common.NetworkAndComputeLister):
                     s, columns,
                     formatters={},
                 ) for s in data))
+
+
+class ShowFloatingIP(common.NetworkAndComputeShowOne):
+    """Show floating IP details"""
+
+    def update_parser_common(self, parser):
+        parser.add_argument(
+            'floating_ip',
+            metavar="<floating-ip>",
+            help=("Floating IP to display (IP address or ID)")
+        )
+        return parser
+
+    def take_action_network(self, client, parsed_args):
+        obj = client.find_ip(parsed_args.floating_ip, ignore_missing=False)
+        columns = _get_columns(obj)
+        data = utils.get_item_properties(obj, columns)
+        return (columns, data)
+
+    def take_action_compute(self, client, parsed_args):
+        obj = utils.find_resource(
+            client.floating_ips,
+            parsed_args.floating_ip,
+        )
+        columns = _get_columns(obj._info)
+        data = utils.get_dict_properties(obj._info, columns)
+        return (columns, data)

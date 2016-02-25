@@ -630,6 +630,7 @@ class FakeFloatingIP(object):
             info=copy.deepcopy(floating_ip_attrs),
             methods=copy.deepcopy(floating_ip_methods),
             loaded=True)
+
         return floating_ip
 
     @staticmethod

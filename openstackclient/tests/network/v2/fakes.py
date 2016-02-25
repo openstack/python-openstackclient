@@ -637,14 +637,24 @@ class FakeFloatingIP(object):
             'id': 'floating-ip-id-' + uuid.uuid4().hex,
             'floating_ip_address': '1.0.9.0',
             'fixed_ip_address': '2.0.9.0',
+            'dns_domain': None,
+            'dns_name': None,
+            'status': 'DOWN',
+            'floating_network_id': 'network-id-' + uuid.uuid4().hex,
+            'router_id': 'router-id-' + uuid.uuid4().hex,
             'port_id': 'port-id-' + uuid.uuid4().hex,
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
         }
 
         # Overwrite default attributes.
         floating_ip_attrs.update(attrs)
 
         # Set default methods.
-        floating_ip_methods = {}
+        floating_ip_methods = {
+            'keys': ['id', 'floating_ip_address', 'fixed_ip_address',
+                     'dns_domain', 'dns_name', 'status', 'router_id',
+                     'floating_network_id', 'port_id', 'tenant_id']
+        }
 
         # Overwrite default methods.
         floating_ip_methods.update(methods)
@@ -652,7 +662,12 @@ class FakeFloatingIP(object):
         floating_ip = fakes.FakeResource(
             info=copy.deepcopy(floating_ip_attrs),
             methods=copy.deepcopy(floating_ip_methods),
-            loaded=True)
+            loaded=True
+        )
+
+        # Set attributes with special mappings in OpenStack SDK.
+        floating_ip.project_id = floating_ip_attrs['tenant_id']
+
         return floating_ip
 
     @staticmethod
