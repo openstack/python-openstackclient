@@ -22,19 +22,23 @@ Create new network
 .. option:: --project <project>
 
     Owner's project (name or ID)
+    (Network v2 only)
 
 .. option:: --project-domain <project-domain>
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
+    (Network v2 only)
 
 .. option:: --enable
 
     Enable network (default)
+    (Network v2 only)
 
 .. option:: --disable
 
     Disable network
+    (Network v2 only)
 
 .. option:: --share
 
@@ -46,8 +50,14 @@ Create new network
 
 .. option:: --availability-zone-hint <availability-zone>
 
-     Availability Zone in which to create this network (requires the Network
-     Availability Zone extension, this option can be repeated).
+    Availability Zone in which to create this network (requires the Network
+    Availability Zone extension, this option can be repeated).
+    (Network v2 only)
+
+.. option:: --subnet <subnet>
+
+    IPv4 subnet for fixed IPs (in CIDR notation)
+    (Compute v2 network only)
 
 .. _network_create-name:
 .. describe:: <name>

@@ -75,29 +75,26 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
-class CreateNetwork(command.ShowOne):
+def _get_attrs_compute(client_manager, parsed_args):
+    attrs = {}
+    if parsed_args.name is not None:
+        attrs['label'] = str(parsed_args.name)
+    if parsed_args.shared is not None:
+        attrs['share_address'] = parsed_args.shared
+    if parsed_args.subnet is not None:
+        attrs['cidr'] = parsed_args.subnet
+
+    return attrs
+
+
+class CreateNetwork(common.NetworkAndComputeShowOne):
     """Create new network"""
 
-    def get_parser(self, prog_name):
-        parser = super(CreateNetwork, self).get_parser(prog_name)
+    def update_parser_common(self, parser):
         parser.add_argument(
             'name',
             metavar='<name>',
             help='New network name',
-        )
-        admin_group = parser.add_mutually_exclusive_group()
-        admin_group.add_argument(
-            '--enable',
-            dest='admin_state',
-            action='store_true',
-            default=True,
-            help='Enable network (default)',
-        )
-        admin_group.add_argument(
-            '--disable',
-            dest='admin_state',
-            action='store_false',
-            help='Disable network',
         )
         share_group = parser.add_mutually_exclusive_group()
         share_group.add_argument(
@@ -113,13 +110,29 @@ class CreateNetwork(command.ShowOne):
             action='store_false',
             help='Do not share the network between projects',
         )
+        return parser
+
+    def update_parser_network(self, parser):
+        admin_group = parser.add_mutually_exclusive_group()
+        admin_group.add_argument(
+            '--enable',
+            dest='admin_state',
+            action='store_true',
+            default=True,
+            help='Enable network (default)',
+        )
+        admin_group.add_argument(
+            '--disable',
+            dest='admin_state',
+            action='store_false',
+            help='Disable network',
+        )
         parser.add_argument(
             '--project',
             metavar='<project>',
             help="Owner's project (name or ID)"
         )
         identity_common.add_project_domain_option_to_parser(parser)
-
         parser.add_argument(
             '--availability-zone-hint',
             action='append',
@@ -131,14 +144,26 @@ class CreateNetwork(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        client = self.app.client_manager.network
+    def update_parser_compute(self, parser):
+        parser.add_argument(
+            '--subnet',
+            metavar='<subnet>',
+            help="IPv4 subnet for fixed IPs (in CIDR notation)"
+        )
+        return parser
 
+    def take_action_network(self, client, parsed_args):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_network(**attrs)
         columns = _get_columns(obj)
-
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        return (columns, data)
+
+    def take_action_compute(self, client, parsed_args):
+        attrs = _get_attrs_compute(self.app.client_manager, parsed_args)
+        obj = client.networks.create(**attrs)
+        columns = tuple(sorted(obj._info.keys()))
+        data = utils.get_dict_properties(obj._info, columns)
         return (columns, data)
 
 

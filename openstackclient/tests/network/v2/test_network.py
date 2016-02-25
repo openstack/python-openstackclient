@@ -576,6 +576,120 @@ class TestNetworkCompute(compute_fakes.TestComputev2):
         self.compute = self.app.client_manager.compute
 
 
+class TestCreateNetworkCompute(TestNetworkCompute):
+
+    # The network to create.
+    _network = compute_fakes.FakeNetwork.create_one_network()
+
+    columns = (
+        'bridge',
+        'bridge_interface',
+        'broadcast',
+        'cidr',
+        'cidr_v6',
+        'created_at',
+        'deleted',
+        'deleted_at',
+        'dhcp_server',
+        'dhcp_start',
+        'dns1',
+        'dns2',
+        'enable_dhcp',
+        'gateway',
+        'gateway_v6',
+        'host',
+        'id',
+        'injected',
+        'label',
+        'mtu',
+        'multi_host',
+        'netmask',
+        'netmask_v6',
+        'priority',
+        'project_id',
+        'rxtx_base',
+        'share_address',
+        'updated_at',
+        'vlan',
+        'vpn_private_address',
+        'vpn_public_address',
+        'vpn_public_port',
+    )
+
+    data = (
+        _network.bridge,
+        _network.bridge_interface,
+        _network.broadcast,
+        _network.cidr,
+        _network.cidr_v6,
+        _network.created_at,
+        _network.deleted,
+        _network.deleted_at,
+        _network.dhcp_server,
+        _network.dhcp_start,
+        _network.dns1,
+        _network.dns2,
+        _network.enable_dhcp,
+        _network.gateway,
+        _network.gateway_v6,
+        _network.host,
+        _network.id,
+        _network.injected,
+        _network.label,
+        _network.mtu,
+        _network.multi_host,
+        _network.netmask,
+        _network.netmask_v6,
+        _network.priority,
+        _network.project_id,
+        _network.rxtx_base,
+        _network.share_address,
+        _network.updated_at,
+        _network.vlan,
+        _network.vpn_private_address,
+        _network.vpn_public_address,
+        _network.vpn_public_port,
+    )
+
+    def setUp(self):
+        super(TestCreateNetworkCompute, self).setUp()
+
+        self.app.client_manager.network_endpoint_enabled = False
+
+        self.compute.networks.create.return_value = self._network
+
+        # Get the command object to test
+        self.cmd = network.CreateNetwork(self.app, None)
+
+    def test_create_no_options(self):
+        arglist = []
+        verifylist = []
+
+        # Missing required args should raise exception here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_create_default_options(self):
+        arglist = [
+            "--subnet", self._network.cidr,
+            self._network.label,
+        ]
+        verifylist = [
+            ('subnet', self._network.cidr),
+            ('name', self._network.label),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute.networks.create.assert_called_with(**{
+            'cidr': self._network.cidr,
+            'label': self._network.label,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+
 class TestDeleteNetworkCompute(TestNetworkCompute):
 
     # The network to delete.
