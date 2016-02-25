@@ -148,6 +148,8 @@ list check out :doc:`plugin-commands`.
 * ``dataprocessing plugin``: (**Data Processing (Sahara)**)
 * ``message-broker cluster``: (**Message Broker (Cue)**)
 * ``message flavor``: (**Messaging (Zaqar)**)
+* ``orchestration resource``: (**Orchestration (Heat)**)
+* ``orchestration template``: (**Orchestration (Heat)**)
 * ``pool``: (**Messaging (Zaqar)**)
 * ``ptr record``: (**DNS (Designate)**)
 * ``queue``: (**Messaging (Zaqar)**)
@@ -155,7 +157,14 @@ list check out :doc:`plugin-commands`.
 * ``secret``: (**Key Manager (Barbican)**)
 * ``secret container``: (**Key Manager (Barbican)**)
 * ``secret order``: (**Key Manager (Barbican)**)
-* ``stack``: (**Orchestration (Heat)**)
+* ``software config``: (**Orchestration (Heat)**)
+* ``software deployment``: (**Orchestration (Heat)**)
+* ``stack event``: (**Orchestration (Heat)**)
+* ``stack hook``: (**Orchestration (Heat)**)
+* ``stack output``: (**Orchestration (Heat)**)
+* ``stack resource``: (**Orchestration (Heat)**)
+* ``stack snapshot``: (**Orchestration (Heat)**)
+* ``stack template``: (**Orchestration (Heat)**)
 * ``task exeuction``: (**Workflow Engine (Mistral)**)
 * ``tld``: (**DNS (Designate)**)
 * ``workbook``: (**Workflow Engine (Mistral)**)
@@ -190,6 +199,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``remove`` (``add``) - remove an object from a group of objects
 * ``rescue`` (``unrescue``) - reboot a server in a special rescue mode allowing access to the original disks
 * ``resize`` - change a server's flavor
+* ``restore`` - restore a heat stack snapshot
 * ``resume`` (``suspend``) - return one or more suspended servers to running state
 * ``revoke`` (``issue``) - revoke a token
 * ``save`` - download an object locally

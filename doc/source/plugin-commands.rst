@@ -2,6 +2,8 @@
  Plugin Commands
 =================
 
+Note: To see the complete syntax for the plugin commands, see the `CLI_Ref`_
+
 .. list-plugins:: openstack.cli.extension
 
 .. list-plugins:: openstack.key_manager.v1
@@ -30,3 +32,5 @@
 
 .. list-plugins:: openstack.orchestration.v1
    :detailed:
+
+.. _CLI_Ref: http://docs.openstack.org/cli-reference/openstack.html

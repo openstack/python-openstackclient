@@ -30,7 +30,7 @@ python-ceilometerclient        using argparse
 python-congressclient          using OpenStackClient
 python-cueclient               using OpenStackClient
 python-designateclient         using OpenStackClient
-python-heatclient              patch in progress (https://review.openstack.org/#/c/195867/)
+python-heatclient              using OpenStackClient
 python-ironicclient            Using OpenStackClient
 python-magnumclient            using argparse
 python-manilaclient            using argparse
