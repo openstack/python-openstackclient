@@ -25,6 +25,7 @@ from cliff import app
 from cliff import command
 from cliff import complete
 from cliff import help
+from oslo_utils import importutils
 from oslo_utils import strutils
 
 import openstackclient
@@ -36,6 +37,8 @@ from openstackclient.common import timing
 from openstackclient.common import utils
 
 from os_client_config import config as cloud_config
+
+osprofiler_profiler = importutils.try_import("osprofiler.profiler")
 
 
 DEFAULT_DOMAIN = 'default'
@@ -101,6 +104,8 @@ class OpenStackShell(app.App):
         self.client_manager = None
         self.command_options = None
 
+        self.do_profile = False
+
     def configure_logging(self):
         """Configure logging for the app."""
         self.log_configurator = logs.LogConfigurator(self.options)
@@ -124,6 +129,39 @@ class OpenStackShell(app.App):
 
         finally:
             self.log.info("END return value: %s", ret_val)
+
+    def init_profile(self):
+        self.do_profile = osprofiler_profiler and self.options.profile
+        if self.do_profile:
+            osprofiler_profiler.init(self.options.profile)
+
+    def close_profile(self):
+        if self.do_profile:
+            trace_id = osprofiler_profiler.get().get_base_id()
+
+            # NOTE(dbelova): let's use warning log level to see these messages
+            # printed. In fact we can define custom log level here with value
+            # bigger than most big default one (CRITICAL) or something like
+            # that (PROFILE = 60 for instance), but not sure we need it here.
+            self.log.warning("Trace ID: %s" % trace_id)
+            self.log.warning("To display trace use next command:\n"
+                             "osprofiler trace show --html %s " % trace_id)
+
+    def run_subcommand(self, argv):
+        self.init_profile()
+        try:
+            ret_value = super(OpenStackShell, self).run_subcommand(argv)
+        finally:
+            self.close_profile()
+        return ret_value
+
+    def interact(self):
+        self.init_profile()
+        try:
+            ret_value = super(OpenStackShell, self).run_subcommand()
+        finally:
+            self.close_profile()
+        return ret_value
 
     def build_option_parser(self, description, version):
         parser = super(OpenStackShell, self).build_option_parser(
@@ -189,6 +227,19 @@ class OpenStackShell(app.App):
             action='store_true',
             help="Print API call timing info",
         )
+
+        # osprofiler HMAC key argument
+        if osprofiler_profiler:
+            parser.add_argument('--profile',
+                                metavar='hmac-key',
+                                help='HMAC key to use for encrypting context '
+                                'data for performance profiling of operation. '
+                                'This key should be the value of one of the '
+                                'HMAC keys configured in osprofiler '
+                                'middleware in the projects user would like '
+                                'to profile. It needs to be specified in '
+                                'configuration files of the required '
+                                'projects.')
 
         return clientmanager.build_plugin_option_parser(parser)
 

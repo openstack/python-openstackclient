@@ -1,0 +1,17 @@
+---
+features:
+  - |
+    OSprofiler support was added. To initiate OpenStack request tracing
+    ``--profile <HMAC_KEY>`` option needs to be added to the CLI command. This
+    key needs to present one of the secret keys defined in the OpenStack
+    projects configuration files (if there is a wish to generate cross-project
+    trace, the chosen key needs to be presented in all these configuration
+    files). By default all OpenStack projects, that support OSprofiler,
+    are using ``SECRET_KEY`` HMAC key.
+
+    To use tracing functionality OSprofiler (and its storage backend)
+    needs to be installed in the environment. If so, you will be able to
+    trigger profiling via `openstack --profile SECRET_KEY <operation>` command.
+    At the end of output there will be message with <trace_id>, and to plot
+    human-readable HTML chart the following command should be used -
+    ``osprofiler trace show <trace_id> --html --out result.html``.

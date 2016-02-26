@@ -16,6 +16,7 @@ os-testr>=0.4.1 # Apache-2.0
 testrepository>=0.0.18 # Apache-2.0/BSD
 testtools>=1.4.0 # MIT
 tempest-lib>=0.14.0 # Apache-2.0
+osprofiler>=1.1.0 # Apache-2.0
 
 # Install these to generate sphinx autodocs
 python-barbicanclient>=3.3.0 # Apache-2.0

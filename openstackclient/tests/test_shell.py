@@ -109,6 +109,7 @@ global_options = {
     '--os-default-domain': (DEFAULT_DOMAIN_NAME, True, True),
     '--os-cacert': ('/dev/null', True, True),
     '--timing': (True, True, False),
+    '--profile': ('SECRET_KEY', True, False),
     '--os-interface': (DEFAULT_INTERFACE, True, True)
 }
 
