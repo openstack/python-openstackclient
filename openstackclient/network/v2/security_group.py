@@ -14,9 +14,81 @@
 """Security Group action implementations"""
 
 import argparse
+import six
 
 from openstackclient.common import utils
 from openstackclient.network import common
+from openstackclient.network import utils as network_utils
+
+
+def _format_network_security_group_rules(sg_rules):
+    # For readability and to align with formatting compute security group
+    # rules, trim keys with caller known (e.g. security group and tenant ID)
+    # or empty values.
+    for sg_rule in sg_rules:
+        empty_keys = [k for k, v in six.iteritems(sg_rule) if not v]
+        for key in empty_keys:
+            sg_rule.pop(key)
+        sg_rule.pop('security_group_id', None)
+        sg_rule.pop('tenant_id', None)
+    return utils.format_list_of_dicts(sg_rules)
+
+
+def _format_compute_security_group_rule(sg_rule):
+    info = network_utils.transform_compute_security_group_rule(sg_rule)
+    # Trim parent security group ID since caller has this information.
+    info.pop('parent_group_id', None)
+    # Trim keys with empty string values.
+    keys_to_trim = [
+        'ip_protocol',
+        'ip_range',
+        'port_range',
+        'remote_security_group',
+    ]
+    for key in keys_to_trim:
+        if key in info and not info[key]:
+            info.pop(key)
+    return utils.format_dict(info)
+
+
+def _format_compute_security_group_rules(sg_rules):
+    rules = []
+    for sg_rule in sg_rules:
+        rules.append(_format_compute_security_group_rule(sg_rule))
+    return utils.format_list(rules, separator='\n')
+
+
+_formatters_network = {
+    'security_group_rules': _format_network_security_group_rules,
+}
+
+
+_formatters_compute = {
+    'rules': _format_compute_security_group_rules,
+}
+
+
+def _get_columns(item):
+    # Build the display columns and a list of the property columns
+    # that need to be mapped (display column name, property name).
+    columns = list(item.keys())
+    property_column_mappings = []
+    if 'security_group_rules' in columns:
+        columns.append('rules')
+        columns.remove('security_group_rules')
+        property_column_mappings.append(('rules', 'security_group_rules'))
+    if 'tenant_id' in columns:
+        columns.append('project_id')
+        columns.remove('tenant_id')
+        property_column_mappings.append(('project_id', 'tenant_id'))
+    display_columns = sorted(columns)
+
+    # Build the property columns and apply any column mappings.
+    property_columns = sorted(columns)
+    for property_column_mapping in property_column_mappings:
+        property_index = property_columns.index(property_column_mapping[0])
+        property_columns[property_index] = property_column_mapping[1]
+    return tuple(display_columns), property_columns
 
 
 class DeleteSecurityGroup(common.NetworkAndComputeCommand):
@@ -143,3 +215,39 @@ class SetSecurityGroup(common.NetworkAndComputeCommand):
             data.name,
             data.description,
         )
+
+
+class ShowSecurityGroup(common.NetworkAndComputeShowOne):
+    """Display security group details"""
+
+    def update_parser_common(self, parser):
+        parser.add_argument(
+            'group',
+            metavar='<group>',
+            help='Security group to display (name or ID)',
+        )
+        return parser
+
+    def take_action_network(self, client, parsed_args):
+        obj = client.find_security_group(parsed_args.group,
+                                         ignore_missing=False)
+        display_columns, property_columns = _get_columns(obj)
+        data = utils.get_item_properties(
+            obj,
+            property_columns,
+            formatters=_formatters_network
+        )
+        return (display_columns, data)
+
+    def take_action_compute(self, client, parsed_args):
+        obj = utils.find_resource(
+            client.security_groups,
+            parsed_args.group,
+        )
+        display_columns, property_columns = _get_columns(obj._info)
+        data = utils.get_dict_properties(
+            obj._info,
+            property_columns,
+            formatters=_formatters_compute
+        )
+        return (display_columns, data)
