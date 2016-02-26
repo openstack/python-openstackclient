@@ -74,6 +74,8 @@ referring to both Compute and Volume quotas.
 * ``aggregate``: (**Compute**) a grouping of servers
 * ``backup``: (**Volume**) a volume copy
 * ``catalog``: (**Identity**) service catalog
+* ``command``: (**Internal**) installed commands in the OSC process
+* ``configuration``: (**Internal**) openstack client configuration
 * ``console log``: (**Compute**) server console text dump
 * ``console url``: (**Compute**) server remote console URL
 * ``consumer``: (**Identity**) OAuth-based delegatee
@@ -86,7 +88,7 @@ referring to both Compute and Volume quotas.
 * ``federation protocol``: (**Identity**) the underlying protocol used while federating identities
 * ``flavor``: (**Compute**) predefined server configurations: ram, root disk, etc
 * ``group``: (**Identity**) a grouping of users
-* ``host``: Compute - the physical computer running a hypervisor
+* ``host``: (**Compute**) - the physical computer running a hypervisor
 * ``hypervisor``: (**Compute**) the virtual machine manager
 * ``hypervisor stats``: (**Compute**) hypervisor statistics over all compute nodes
 * ``identity provider``: (**Identity**) a source of users and authentication
@@ -97,7 +99,7 @@ referring to both Compute and Volume quotas.
 * ``keypair``: (**Compute**) an SSH public key
 * ``limits``: (**Compute**, **Volume**) resource usage limits
 * ``mapping``: (**Identity**) a definition to translate identity provider attributes to Identity concepts
-* ``module``: internal - installed Python modules in the OSC process
+* ``module``: (**Internal**) - installed Python modules in the OSC process
 * ``network``: (**Compute**, **Network**) - a virtual network for connecting servers and other resources
 * ``object``: (**Object Storage**) a single file in the Object Storage
 * ``policy``: (**Identity**) determines authorization

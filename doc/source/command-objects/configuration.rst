@@ -16,3 +16,12 @@ show different configurations.
 .. code:: bash
 
     os configuration show
+        [--mask | --unmask]
+
+.. option:: --mask
+
+    Attempt to mask passwords (default)
+
+.. option:: --unmask
+
+    Show password in clear text
