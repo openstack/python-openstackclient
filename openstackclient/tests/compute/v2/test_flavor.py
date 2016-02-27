@@ -49,12 +49,12 @@ class TestFlavorDelete(TestFlavor):
         verifylist = [
             ('flavor', self.flavor.id),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.flavors_mock.delete.assert_called_with(self.flavor.id)
+        self.assertIsNone(result)
 
     def test_flavor_delete_with_unexist_flavor(self):
         self.flavors_mock.get.side_effect = exceptions.NotFound(None)

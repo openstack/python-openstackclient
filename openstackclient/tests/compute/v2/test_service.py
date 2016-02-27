@@ -49,11 +49,12 @@ class TestServiceDelete(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.service_mock.delete.assert_called_with(
             compute_fakes.service_binary,
         )
+        self.assertIsNone(result)
 
 
 class TestServiceList(TestService):
@@ -124,12 +125,13 @@ class TestServiceSet(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.service_mock.enable.assert_called_with(
             compute_fakes.service_host,
             compute_fakes.service_binary,
         )
+        self.assertIsNone(result)
 
     def test_service_set_disable(self):
         arglist = [
@@ -144,9 +146,10 @@ class TestServiceSet(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.service_mock.disable.assert_called_with(
             compute_fakes.service_host,
             compute_fakes.service_binary,
         )
+        self.assertIsNone(result)
