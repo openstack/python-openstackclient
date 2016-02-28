@@ -123,7 +123,6 @@ class AddRole(command.Command):
         if (not parsed_args.user and not parsed_args.domain
                 and not parsed_args.group and not parsed_args.project):
             return
-
         role = utils.find_resource(
             identity_client.roles,
             parsed_args.role,
@@ -138,7 +137,6 @@ class AddRole(command.Command):
             return
 
         identity_client.roles.grant(role.id, **kwargs)
-        return
 
 
 class CreateRole(command.ShowOne):
@@ -197,7 +195,6 @@ class DeleteRole(command.Command):
                 role,
             )
             identity_client.roles.delete(role_obj.id)
-        return
 
 
 class ListRole(command.Lister):
@@ -318,8 +315,10 @@ class RemoveRole(command.Command):
 
         if (not parsed_args.user and not parsed_args.domain
                 and not parsed_args.group and not parsed_args.project):
+            sys.stderr.write("Incorrect set of arguments "
+                             "provided. See openstack --help for more "
+                             "details\n")
             return
-
         role = utils.find_resource(
             identity_client.roles,
             parsed_args.role,
@@ -331,9 +330,7 @@ class RemoveRole(command.Command):
             sys.stderr.write("Role not removed, incorrect set of arguments \
             provided. See openstack --help for more details\n")
             return
-
         identity_client.roles.revoke(role.id, **kwargs)
-        return
 
 
 class SetRole(command.Command):
@@ -357,15 +354,16 @@ class SetRole(command.Command):
         identity_client = self.app.client_manager.identity
 
         if not parsed_args.name:
+            sys.stderr.write("Incorrect set of arguments "
+                             "provided. See openstack --help for more "
+                             "details\n")
             return
-
         role = utils.find_resource(
             identity_client.roles,
             parsed_args.role,
         )
 
         identity_client.roles.update(role.id, name=parsed_args.name)
-        return
 
 
 class ShowRole(command.ShowOne):

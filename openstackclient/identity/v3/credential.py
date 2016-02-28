@@ -84,7 +84,6 @@ class DeleteCredential(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         identity_client.credentials.delete(parsed_args.credential)
-        return
 
 
 class ListCredential(command.Lister):
@@ -154,8 +153,6 @@ class SetCredential(command.Command):
                                            type=parsed_args.type,
                                            blob=parsed_args.data,
                                            project=project)
-
-        return
 
 
 class ShowCredential(command.ShowOne):

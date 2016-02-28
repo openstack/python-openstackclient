@@ -182,7 +182,6 @@ class DeleteGroup(command.Command):
                                           group,
                                           parsed_args.domain)
             identity_client.groups.delete(group_obj.id)
-        return
 
 
 class ListGroup(command.Lister):
@@ -322,7 +321,6 @@ class SetGroup(command.Command):
             sys.stderr.write("Group not updated, no arguments present")
             return
         identity_client.groups.update(group.id, **kwargs)
-        return
 
 
 class ShowGroup(command.ShowOne):

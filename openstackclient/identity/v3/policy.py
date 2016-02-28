@@ -69,7 +69,6 @@ class DeletePolicy(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         identity_client.policies.delete(parsed_args.policy)
-        return
 
 
 class ListPolicy(command.Lister):
@@ -139,7 +138,6 @@ class SetPolicy(command.Command):
             sys.stdout.write('Policy not updated, no arguments present \n')
             return
         identity_client.policies.update(parsed_args.policy, **kwargs)
-        return
 
 
 class ShowPolicy(command.ShowOne):

@@ -16,6 +16,7 @@
 """Identity v3 Service action implementations"""
 
 import six
+import sys
 
 from openstackclient.common import command
 from openstackclient.common import utils
@@ -91,7 +92,6 @@ class DeleteService(command.Command):
         service = common.find_service(identity_client, parsed_args.service)
 
         identity_client.services.delete(service.id)
-        return
 
 
 class ListService(command.Lister):
@@ -166,10 +166,12 @@ class SetService(command.Command):
                 and not parsed_args.description
                 and not parsed_args.enable
                 and not parsed_args.disable):
+            sys.stderr.write("Incorrect set of arguments "
+                             "provided. See openstack --help for more "
+                             "details\n")
             return
-
-        service = common.find_service(identity_client, parsed_args.service)
-
+        service = common.find_service(identity_client,
+                                      parsed_args.service)
         kwargs = {}
         if parsed_args.type:
             kwargs['type'] = parsed_args.type
@@ -186,7 +188,6 @@ class SetService(command.Command):
             service.id,
             **kwargs
         )
-        return
 
 
 class ShowService(command.ShowOne):

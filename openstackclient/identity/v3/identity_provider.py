@@ -102,7 +102,6 @@ class DeleteIdentityProvider(command.Command):
         identity_client = self.app.client_manager.identity
         identity_client.federation.identity_providers.delete(
             parsed_args.identity_provider)
-        return
 
 
 class ListIdentityProvider(command.Lister):

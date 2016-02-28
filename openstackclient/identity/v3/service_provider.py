@@ -96,7 +96,6 @@ class DeleteServiceProvider(command.Command):
         service_client = self.app.client_manager.identity
         service_client.federation.service_providers.delete(
             parsed_args.service_provider)
-        return
 
 
 class ListServiceProvider(command.Lister):
