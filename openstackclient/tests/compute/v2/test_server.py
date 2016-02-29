@@ -78,11 +78,12 @@ class TestServer(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         for s in servers:
             method = getattr(s, method_name)
             method.assert_called_with()
+        self.assertIsNone(result)
 
 
 class TestServerCreate(TestServer):
@@ -416,11 +417,10 @@ class TestServerDelete(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.delete.assert_called_with(
-            servers[0].id,
-        )
+        self.servers_mock.delete.assert_called_with(servers[0].id)
+        self.assertIsNone(result)
 
     def test_server_delete_multi_servers(self):
         servers = self.setup_servers_mock(count=3)
@@ -435,12 +435,13 @@ class TestServerDelete(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         calls = []
         for s in servers:
             calls.append(call(s.id))
         self.servers_mock.delete.assert_has_calls(calls)
+        self.assertIsNone(result)
 
     @mock.patch.object(common_utils, 'wait_for_delete', return_value=True)
     def test_server_delete_wait_ok(self, mock_wait_for_delete):
@@ -454,17 +455,15 @@ class TestServerDelete(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.delete.assert_called_with(
-            servers[0].id,
-        )
-
+        self.servers_mock.delete.assert_called_with(servers[0].id)
         mock_wait_for_delete.assert_called_once_with(
             self.servers_mock,
             servers[0].id,
             callback=server._show_progress
         )
+        self.assertIsNone(result)
 
     @mock.patch.object(common_utils, 'wait_for_delete', return_value=False)
     def test_server_delete_wait_fails(self, mock_wait_for_delete):
@@ -480,10 +479,7 @@ class TestServerDelete(TestServer):
 
         self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
 
-        self.servers_mock.delete.assert_called_with(
-            servers[0].id,
-        )
-
+        self.servers_mock.delete.assert_called_with(servers[0].id)
         mock_wait_for_delete.assert_called_once_with(
             self.servers_mock,
             servers[0].id,
@@ -910,15 +906,14 @@ class TestServerResize(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(
-            self.server.id,
-        )
+        self.servers_mock.get.assert_called_with(self.server.id)
 
         self.assertNotCalled(self.servers_mock.resize)
         self.assertNotCalled(self.servers_mock.confirm_resize)
         self.assertNotCalled(self.servers_mock.revert_resize)
+        self.assertIsNone(result)
 
     def test_server_resize(self):
         arglist = [
@@ -933,21 +928,19 @@ class TestServerResize(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(
-            self.server.id,
-        )
+        self.servers_mock.get.assert_called_with(self.server.id)
         self.flavors_mock.get.assert_called_with(
             self.flavors_get_return_value.id,
         )
-
         self.servers_mock.resize.assert_called_with(
             self.server,
             self.flavors_get_return_value,
         )
         self.assertNotCalled(self.servers_mock.confirm_resize)
         self.assertNotCalled(self.servers_mock.revert_resize)
+        self.assertIsNone(result)
 
     def test_server_resize_confirm(self):
         arglist = [
@@ -961,17 +954,13 @@ class TestServerResize(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(
-            self.server.id,
-        )
-
+        self.servers_mock.get.assert_called_with(self.server.id)
         self.assertNotCalled(self.servers_mock.resize)
-        self.servers_mock.confirm_resize.assert_called_with(
-            self.server,
-        )
+        self.servers_mock.confirm_resize.assert_called_with(self.server)
         self.assertNotCalled(self.servers_mock.revert_resize)
+        self.assertIsNone(result)
 
     def test_server_resize_revert(self):
         arglist = [
@@ -985,17 +974,13 @@ class TestServerResize(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(
-            self.server.id,
-        )
-
+        self.servers_mock.get.assert_called_with(self.server.id)
         self.assertNotCalled(self.servers_mock.resize)
         self.assertNotCalled(self.servers_mock.confirm_resize)
-        self.servers_mock.revert_resize.assert_called_with(
-            self.server,
-        )
+        self.servers_mock.revert_resize.assert_called_with(self.server)
+        self.assertIsNone(result)
 
 
 class TestServerResume(TestServer):
