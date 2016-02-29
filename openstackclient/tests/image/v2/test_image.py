@@ -445,11 +445,10 @@ class TestImageDelete(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
-        self.images_mock.delete.assert_called_with(
-            images[0].id,
-        )
+        self.images_mock.delete.assert_called_with(images[0].id)
+        self.assertIsNone(result)
 
     def test_image_delete_multi_images(self):
         images = self.setup_images_mock(count=3)
@@ -458,14 +457,13 @@ class TestImageDelete(TestImage):
         verifylist = [
             ('images', arglist),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         calls = [mock.call(i.id) for i in images]
-
         self.images_mock.delete.assert_has_calls(calls)
+        self.assertIsNone(result)
 
 
 class TestImageList(TestImage):
@@ -753,11 +751,13 @@ class TestRemoveProjectImage(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
         self.image_members_mock.delete.assert_called_with(
             image_fakes.image_id,
             identity_fakes.project_id,
         )
+        self.assertIsNone(result)
 
     def test_remove_project_image_with_options(self):
         arglist = [
@@ -772,11 +772,13 @@ class TestRemoveProjectImage(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
         self.image_members_mock.delete.assert_called_with(
             image_fakes.image_id,
             identity_fakes.project_id,
         )
+        self.assertIsNone(result)
 
 
 class TestImageSet(TestImage):
@@ -829,7 +831,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'name': 'new-name',
@@ -842,6 +844,7 @@ class TestImageSet(TestImage):
         # ImageManager.update(image, **kwargs)
         self.images_mock.update.assert_called_with(
             image_fakes.image_id, **kwargs)
+        self.assertIsNone(result)
 
     def test_image_set_with_unexist_owner(self):
         self.project_mock.get.side_effect = exceptions.NotFound(None)
@@ -855,7 +858,6 @@ class TestImageSet(TestImage):
             ('owner', 'unexist_owner'),
             ('image', image_fakes.image_id),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.assertRaises(
@@ -874,7 +876,6 @@ class TestImageSet(TestImage):
             ('project', 'unexist_owner'),
             ('image', image_fakes.image_id),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.assertRaises(
@@ -896,7 +897,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'protected': True,
@@ -907,6 +908,7 @@ class TestImageSet(TestImage):
             image_fakes.image_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_image_set_bools2(self):
         arglist = [
@@ -923,7 +925,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'protected': False,
@@ -934,6 +936,7 @@ class TestImageSet(TestImage):
             image_fakes.image_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_image_set_properties(self):
         arglist = [
@@ -947,7 +950,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'Alpha': '1',
@@ -958,6 +961,7 @@ class TestImageSet(TestImage):
             image_fakes.image_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_image_set_fake_properties(self):
         arglist = [
@@ -980,7 +984,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'architecture': 'z80',
@@ -995,6 +999,7 @@ class TestImageSet(TestImage):
             image_fakes.image_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_image_set_tag(self):
         arglist = [
@@ -1007,7 +1012,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'tags': ['test-tag'],
@@ -1017,6 +1022,7 @@ class TestImageSet(TestImage):
             image_fakes.image_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_image_set_activate(self):
         arglist = [
@@ -1030,7 +1036,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'tags': ['test-tag'],
@@ -1039,12 +1045,12 @@ class TestImageSet(TestImage):
         self.images_mock.reactivate.assert_called_with(
             image_fakes.image_id,
         )
-
         # ImageManager.update(image, **kwargs)
         self.images_mock.update.assert_called_with(
             image_fakes.image_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_image_set_deactivate(self):
         arglist = [
@@ -1058,7 +1064,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'tags': ['test-tag'],
@@ -1067,12 +1073,12 @@ class TestImageSet(TestImage):
         self.images_mock.deactivate.assert_called_with(
             image_fakes.image_id,
         )
-
         # ImageManager.update(image, **kwargs)
         self.images_mock.update.assert_called_with(
             image_fakes.image_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_image_set_tag_merge(self):
         old_image = copy.copy(image_fakes.IMAGE)
@@ -1088,7 +1094,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'tags': ['old1', 'new2', 'test-tag'],
@@ -1098,6 +1104,7 @@ class TestImageSet(TestImage):
         self.assertEqual(image_fakes.image_id, a[0])
         self.assertTrue('tags' in k)
         self.assertEqual(set(kwargs['tags']), set(k['tags']))
+        self.assertIsNone(result)
 
     def test_image_set_tag_merge_dupe(self):
         old_image = copy.copy(image_fakes.IMAGE)
@@ -1113,7 +1120,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'tags': ['new2', 'old1'],
@@ -1123,6 +1130,7 @@ class TestImageSet(TestImage):
         self.assertEqual(image_fakes.image_id, a[0])
         self.assertTrue('tags' in k)
         self.assertEqual(set(kwargs['tags']), set(k['tags']))
+        self.assertIsNone(result)
 
     def test_image_set_dead_options(self):
 

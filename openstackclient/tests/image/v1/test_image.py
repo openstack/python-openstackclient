@@ -236,11 +236,10 @@ class TestImageDelete(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
-        self.images_mock.delete.assert_called_with(
-            image_fakes.image_id,
-        )
+        self.images_mock.delete.assert_called_with(image_fakes.image_id)
+        self.assertIsNone(result)
 
 
 class TestImageList(TestImage):
@@ -473,10 +472,11 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # Verify update() was not called, if it was show the args
         self.assertEqual(self.images_mock.update.call_args_list, [])
+        self.assertIsNone(result)
 
     def test_image_set_options(self):
         arglist = [
@@ -501,7 +501,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'name': 'new-name',
@@ -517,6 +517,7 @@ class TestImageSet(TestImage):
             image_fakes.image_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_image_set_bools1(self):
         arglist = [
@@ -533,7 +534,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'protected': True,
@@ -544,6 +545,7 @@ class TestImageSet(TestImage):
             image_fakes.image_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_image_set_bools2(self):
         arglist = [
@@ -560,7 +562,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'protected': False,
@@ -571,6 +573,7 @@ class TestImageSet(TestImage):
             image_fakes.image_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_image_set_properties(self):
         arglist = [
@@ -584,7 +587,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'properties': {
@@ -598,6 +601,7 @@ class TestImageSet(TestImage):
             image_fakes.image_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_image_update_volume(self):
         # Set up VolumeManager Mock
@@ -639,7 +643,7 @@ class TestImageSet(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # VolumeManager.upload_to_image(volume, force, image_name,
         #     container_format, disk_format)
@@ -650,13 +654,13 @@ class TestImageSet(TestImage):
             '',
             '',
         )
-
         # ImageManager.update(image_id, remove_props=, **)
         self.images_mock.update.assert_called_with(
             image_fakes.image_id,
             name='updated_image',
             volume='volly',
         )
+        self.assertIsNone(result)
 
 
 class TestImageShow(TestImage):
