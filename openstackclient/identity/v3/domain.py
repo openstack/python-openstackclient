@@ -100,7 +100,6 @@ class DeleteDomain(command.Command):
         domain = utils.find_resource(identity_client.domains,
                                      parsed_args.domain)
         identity_client.domains.delete(domain.id)
-        return
 
 
 class ListDomain(command.Lister):
@@ -168,7 +167,6 @@ class SetDomain(command.Command):
             sys.stdout.write("Domain not updated, no arguments present")
             return
         identity_client.domains.update(domain.id, **kwargs)
-        return
 
 
 class ShowDomain(command.ShowOne):

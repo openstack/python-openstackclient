@@ -17,6 +17,7 @@
 
 import copy
 import six
+import sys
 
 from keystoneauth1 import exceptions as ks_exc
 
@@ -162,7 +163,6 @@ class DeleteUser(command.Command):
                 user_obj = utils.find_resource(identity_client.users,
                                                user)
             identity_client.users.delete(user_obj.id)
-        return
 
 
 class ListUser(command.Lister):
@@ -334,13 +334,15 @@ class SetUser(command.Command):
                 and not parsed_args.description
                 and not parsed_args.enable
                 and not parsed_args.disable):
+            sys.stderr.write("Incorrect set of arguments "
+                             "provided. See openstack --help for more "
+                             "details\n")
             return
 
         user = utils.find_resource(
             identity_client.users,
             parsed_args.user,
         )
-
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
@@ -362,7 +364,6 @@ class SetUser(command.Command):
             kwargs['enabled'] = False
 
         identity_client.users.update(user.id, **kwargs)
-        return
 
 
 class SetPasswordUser(command.Command):

@@ -60,7 +60,6 @@ class DeleteConsumer(command.Command):
         consumer = utils.find_resource(
             identity_client.oauth1.consumers, parsed_args.consumer)
         identity_client.oauth1.consumers.delete(consumer.id)
-        return
 
 
 class ListConsumer(command.Lister):
@@ -107,7 +106,6 @@ class SetConsumer(command.Command):
 
         consumer = identity_client.oauth1.consumers.update(
             consumer.id, **kwargs)
-        return
 
 
 class ShowConsumer(command.ShowOne):

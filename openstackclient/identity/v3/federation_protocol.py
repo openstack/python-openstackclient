@@ -83,7 +83,6 @@ class DeleteProtocol(command.Command):
         identity_client = self.app.client_manager.identity
         identity_client.federation.protocols.delete(
             parsed_args.identity_provider, parsed_args.federation_protocol)
-        return
 
 
 class ListProtocols(command.Lister):

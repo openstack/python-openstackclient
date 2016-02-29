@@ -153,7 +153,6 @@ class DeleteProject(command.Command):
                 project_obj = utils.find_resource(identity_client.projects,
                                                   project)
             identity_client.projects.delete(project_obj.id)
-        return
 
 
 class ListProject(command.Lister):
@@ -267,8 +266,8 @@ class SetProject(command.Command):
                 and not parsed_args.property
                 and not parsed_args.disable):
             return
-
-        project = common.find_project(identity_client, parsed_args.project,
+        project = common.find_project(identity_client,
+                                      parsed_args.project,
                                       parsed_args.domain)
 
         kwargs = {}
@@ -284,7 +283,6 @@ class SetProject(command.Command):
             kwargs.update(parsed_args.property)
 
         identity_client.projects.update(project.id, **kwargs)
-        return
 
 
 class ShowProject(command.ShowOne):

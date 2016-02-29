@@ -121,7 +121,6 @@ class DeleteMapping(command.Command):
         identity_client = self.app.client_manager.identity
 
         identity_client.federation.mappings.delete(parsed_args.mapping)
-        return
 
 
 class ListMapping(command.Lister):

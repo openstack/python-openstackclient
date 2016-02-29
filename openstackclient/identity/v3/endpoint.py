@@ -109,7 +109,6 @@ class DeleteEndpoint(command.Command):
         endpoint_id = utils.find_resource(identity_client.endpoints,
                                           parsed_args.endpoint).id
         identity_client.endpoints.delete(endpoint_id)
-        return
 
 
 class ListEndpoint(command.Lister):
@@ -221,7 +220,6 @@ class SetEndpoint(command.Command):
         if parsed_args.service:
             service = common.find_service(identity_client, parsed_args.service)
             service_id = service.id
-
         enabled = None
         if parsed_args.enabled:
             enabled = True
@@ -236,8 +234,6 @@ class SetEndpoint(command.Command):
             region=parsed_args.region,
             enabled=enabled
         )
-
-        return
 
 
 class ShowEndpoint(command.ShowOne):
