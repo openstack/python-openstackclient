@@ -34,7 +34,7 @@ deprecation message as a warning to the user then calls the original class.
 Example Deprecation Class
 -------------------------
 
-.. code-block: python
+.. code-block:: python
 
     class ListFooOld(ListFoo):
         """List resources"""
