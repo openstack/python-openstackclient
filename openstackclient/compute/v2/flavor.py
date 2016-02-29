@@ -242,7 +242,7 @@ class ShowFlavor(command.ShowOne):
         return zip(*sorted(six.iteritems(flavor)))
 
 
-class SetFlavor(command.ShowOne):
+class SetFlavor(command.Command):
     """Set flavor properties"""
 
     def get_parser(self, prog_name):
@@ -263,17 +263,11 @@ class SetFlavor(command.ShowOne):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        resource_flavor = compute_client.flavors.find(name=parsed_args.flavor)
-
-        resource_flavor.set_keys(parsed_args.property)
-
-        flavor = resource_flavor._info.copy()
-        flavor['properties'] = utils.format_dict(resource_flavor.get_keys())
-        flavor.pop("links", None)
-        return zip(*sorted(six.iteritems(flavor)))
+        flavor = compute_client.flavors.find(name=parsed_args.flavor)
+        flavor.set_keys(parsed_args.property)
 
 
-class UnsetFlavor(command.ShowOne):
+class UnsetFlavor(command.Command):
     """Unset flavor properties"""
 
     def get_parser(self, prog_name):
@@ -295,11 +289,5 @@ class UnsetFlavor(command.ShowOne):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        resource_flavor = compute_client.flavors.find(name=parsed_args.flavor)
-
-        resource_flavor.unset_keys(parsed_args.property)
-
-        flavor = resource_flavor._info.copy()
-        flavor['properties'] = utils.format_dict(resource_flavor.get_keys())
-        flavor.pop("links", None)
-        return zip(*sorted(six.iteritems(flavor)))
+        flavor = compute_client.flavors.find(name=parsed_args.flavor)
+        flavor.unset_keys(parsed_args.property)

@@ -1,0 +1,4 @@
+---
+fixes:
+  - Command ``flavor set/unset`` now outputs nothing.
+    [Bug `1546065 <https://bugs.launchpad.net/python-openstackclient/+bug/1546065>`_]
