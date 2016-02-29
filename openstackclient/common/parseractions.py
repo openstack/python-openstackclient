@@ -89,7 +89,7 @@ class MultiKeyValueAction(argparse.Action):
             else:
                 msg = ("Expected key=value pairs separated by comma, "
                        "but got: %s" % (str(kv)))
-                raise argparse.ArgumentTypeError(self, msg)
+                raise argparse.ArgumentTypeError(msg)
 
         # Check key validation
         valid_keys = self.required_keys | self.optional_keys
@@ -160,4 +160,4 @@ class NonNegativeAction(argparse.Action):
             setattr(namespace, self.dest, values)
         except Exception:
             msg = "%s expected a non-negative integer" % (str(option_string))
-            raise argparse.ArgumentTypeError(self, msg)
+            raise argparse.ArgumentTypeError(msg)
