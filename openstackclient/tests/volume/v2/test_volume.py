@@ -396,11 +396,12 @@ class TestVolumeDelete(TestVolume):
         verifylist = [
             ("volumes", [volumes[0].id])
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
         self.volumes_mock.delete.assert_called_with(volumes[0].id)
+        self.assertIsNone(result)
 
     def test_volume_delete_multi_volumes(self):
         volumes = self.setup_volumes_mock(count=3)
@@ -409,14 +410,13 @@ class TestVolumeDelete(TestVolume):
         verifylist = [
             ('volumes', arglist),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         calls = [call(v.id) for v in volumes]
-
         self.volumes_mock.delete.assert_has_calls(calls)
+        self.assertIsNone(result)
 
 
 class TestVolumeList(TestVolume):

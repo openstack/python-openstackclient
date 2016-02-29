@@ -137,11 +137,12 @@ class TestTypeDelete(TestType):
         verifylist = [
             ("volume_type", volume_fakes.type_id)
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
         self.types_mock.delete.assert_called_with(volume_fakes.type_id)
+        self.assertIsNone(result)
 
 
 class TestTypeList(TestType):
@@ -227,7 +228,7 @@ class TestTypeSet(TestType):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -237,6 +238,7 @@ class TestTypeSet(TestType):
             volume_fakes.type_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_type_set_description(self):
         new_desc = 'new_desc'
@@ -252,7 +254,7 @@ class TestTypeSet(TestType):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -262,6 +264,7 @@ class TestTypeSet(TestType):
             volume_fakes.type_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_type_set_property(self):
         arglist = [
@@ -276,7 +279,8 @@ class TestTypeSet(TestType):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
 
         result = self.types_mock.get.return_value._keys
         self.assertIn('myprop', result)
@@ -338,8 +342,8 @@ class TestTypeUnset(TestType):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
 
         result = self.types_mock.get.return_value._keys
-
         self.assertNotIn('property', result)
