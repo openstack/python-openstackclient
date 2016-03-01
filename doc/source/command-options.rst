@@ -14,8 +14,11 @@ for defining and using options in all situations.  The alternative of only
 using it when necessary leads to errors when copy-n-paste is used for a
 new command without understanding why or why not that instance is correct.
 
+General Command Options
+=======================
+
 Boolean Options
-===============
+---------------
 
 Boolean options for any command that sets a resource state, such as 'enabled'
 or 'public', shall always have both positive and negative options defined.
@@ -72,6 +75,35 @@ An example handler in `take_action()`:
             kwargs['enabled'] = True
         if parsed_args.disable:
             kwargs['enabled'] = False
+
+Options with Choices
+--------------------
+
+Some options have a specific set of values (or choices) that are valid.
+These choices may be validated by the CLI. If the underlying API is stable
+and the list of choices are unlikely to change then the CLI may validate
+the choices. Otherwise, the CLI must defer validation of the choices to
+the API. If the option has a default choice then it must be documented.
+
+Having the CLI validate choices will be faster and may provide a better
+error message for the user if an invalid choice is specified
+(for example: ``argument --test: invalid choice: 'choice4' (choose from 'choice1', 'choice2', 'choice3')``).
+The trade-off is that CLI changes are required in order to take advantage
+of new choices.
+
+Implementation
+~~~~~~~~~~~~~~
+
+An example parser declaration:
+
+.. code-block:: python
+
+        choice_option.add_argument(
+            '--test',
+            metavar='<test>,
+            choices=['choice1', 'choice2', 'choice3'],
+            help=_('Test type (choice1, choice2 or choice3)'),
+        )
 
 List Command Options
 ====================
