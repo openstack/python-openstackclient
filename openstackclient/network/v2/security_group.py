@@ -91,6 +91,56 @@ def _get_columns(item):
     return tuple(display_columns), property_columns
 
 
+class CreateSecurityGroup(common.NetworkAndComputeShowOne):
+    """Create a new security group"""
+
+    def update_parser_common(self, parser):
+        parser.add_argument(
+            "name",
+            metavar="<name>",
+            help="New security group name",
+        )
+        parser.add_argument(
+            "--description",
+            metavar="<description>",
+            help="Security group description",
+        )
+        return parser
+
+    def _get_description(self, parsed_args):
+        if parsed_args.description is not None:
+            return parsed_args.description
+        else:
+            return parsed_args.name
+
+    def take_action_network(self, client, parsed_args):
+        attrs = {}
+        attrs['name'] = parsed_args.name
+        attrs['description'] = self._get_description(parsed_args)
+        obj = client.create_security_group(**attrs)
+        display_columns, property_columns = _get_columns(obj)
+        data = utils.get_item_properties(
+            obj,
+            property_columns,
+            formatters=_formatters_network
+        )
+        return (display_columns, data)
+
+    def take_action_compute(self, client, parsed_args):
+        description = self._get_description(parsed_args)
+        obj = client.security_groups.create(
+            parsed_args.name,
+            description,
+        )
+        display_columns, property_columns = _get_columns(obj._info)
+        data = utils.get_dict_properties(
+            obj._info,
+            property_columns,
+            formatters=_formatters_compute
+        )
+        return (display_columns, data)
+
+
 class DeleteSecurityGroup(common.NetworkAndComputeCommand):
     """Delete a security group"""
 

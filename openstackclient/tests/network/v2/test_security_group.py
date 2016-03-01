@@ -37,6 +37,153 @@ class TestSecurityGroupCompute(compute_fakes.TestComputev2):
         self.compute = self.app.client_manager.compute
 
 
+class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
+
+    # The security group to be created.
+    _security_group = \
+        network_fakes.FakeSecurityGroup.create_one_security_group()
+
+    columns = (
+        'description',
+        'id',
+        'name',
+        'project_id',
+        'rules',
+    )
+
+    data = (
+        _security_group.description,
+        _security_group.id,
+        _security_group.name,
+        _security_group.project_id,
+        '',
+    )
+
+    def setUp(self):
+        super(TestCreateSecurityGroupNetwork, self).setUp()
+
+        self.network.create_security_group = mock.Mock(
+            return_value=self._security_group)
+
+        # Get the command object to test
+        self.cmd = security_group.CreateSecurityGroup(self.app, self.namespace)
+
+    def test_create_no_options(self):
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser, self.cmd, [], [])
+
+    def test_create_min_options(self):
+        arglist = [
+            self._security_group.name,
+        ]
+        verifylist = [
+            ('name', self._security_group.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_security_group.assert_called_once_with(**{
+            'description': self._security_group.name,
+            'name': self._security_group.name,
+        })
+        self.assertEqual(tuple(self.columns), columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_all_options(self):
+        arglist = [
+            '--description', self._security_group.description,
+            self._security_group.name,
+        ]
+        verifylist = [
+            ('description', self._security_group.description),
+            ('name', self._security_group.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_security_group.assert_called_once_with(**{
+            'description': self._security_group.description,
+            'name': self._security_group.name,
+        })
+        self.assertEqual(tuple(self.columns), columns)
+        self.assertEqual(self.data, data)
+
+
+class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
+
+    # The security group to be shown.
+    _security_group = \
+        compute_fakes.FakeSecurityGroup.create_one_security_group()
+
+    columns = (
+        'description',
+        'id',
+        'name',
+        'project_id',
+        'rules',
+    )
+
+    data = (
+        _security_group.description,
+        _security_group.id,
+        _security_group.name,
+        _security_group.tenant_id,
+        '',
+    )
+
+    def setUp(self):
+        super(TestCreateSecurityGroupCompute, self).setUp()
+
+        self.app.client_manager.network_endpoint_enabled = False
+
+        self.compute.security_groups.create.return_value = self._security_group
+
+        # Get the command object to test
+        self.cmd = security_group.CreateSecurityGroup(self.app, None)
+
+    def test_create_no_options(self):
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser, self.cmd, [], [])
+
+    def test_create_min_options(self):
+        arglist = [
+            self._security_group.name,
+        ]
+        verifylist = [
+            ('name', self._security_group.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute.security_groups.create.assert_called_once_with(
+            self._security_group.name,
+            self._security_group.name)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_all_options(self):
+        arglist = [
+            '--description', self._security_group.description,
+            self._security_group.name,
+        ]
+        verifylist = [
+            ('description', self._security_group.description),
+            ('name', self._security_group.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute.security_groups.create.assert_called_once_with(
+            self._security_group.name,
+            self._security_group.description)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+
 class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
 
     # The security group to be deleted.
@@ -65,7 +212,7 @@ class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_security_group.assert_called_with(
+        self.network.delete_security_group.assert_called_once_with(
             self._security_group)
         self.assertIsNone(result)
 
@@ -100,7 +247,7 @@ class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute.security_groups.delete.assert_called_with(
+        self.compute.security_groups.delete.assert_called_once_with(
             self._security_group.id)
         self.assertIsNone(result)
 
@@ -143,7 +290,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.security_groups.assert_called_with()
+        self.network.security_groups.assert_called_once_with()
         self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, tuple(data))
 
@@ -158,7 +305,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.security_groups.assert_called_with()
+        self.network.security_groups.assert_called_once_with()
         self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, tuple(data))
 
@@ -212,7 +359,7 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
         columns, data = self.cmd.take_action(parsed_args)
 
         kwargs = {'search_opts': {'all_tenants': False}}
-        self.compute.security_groups.list.assert_called_with(**kwargs)
+        self.compute.security_groups.list.assert_called_once_with(**kwargs)
         self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, tuple(data))
 
@@ -228,7 +375,7 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
         columns, data = self.cmd.take_action(parsed_args)
 
         kwargs = {'search_opts': {'all_tenants': True}}
-        self.compute.security_groups.list.assert_called_with(**kwargs)
+        self.compute.security_groups.list.assert_called_once_with(**kwargs)
         self.assertEqual(self.expected_columns_all_projects, columns)
         self.assertEqual(self.expected_data_all_projects, tuple(data))
 
