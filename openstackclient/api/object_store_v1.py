@@ -20,11 +20,6 @@ import os
 import six
 from six.moves import urllib
 
-try:
-    from urllib.parse import urlparse  # noqa
-except ImportError:
-    from urlparse import urlparse  # noqa
-
 from openstackclient.api import api
 from openstackclient.common import utils
 
@@ -525,7 +520,7 @@ class APIv1(api.BaseAPI):
             self.create("", headers=headers)
 
     def _find_account_id(self):
-        url_parts = urlparse(self.endpoint)
+        url_parts = urllib.parse.urlparse(self.endpoint)
         return url_parts.path.split('/')[-1]
 
     def _unset_properties(self, properties, header_tag):
