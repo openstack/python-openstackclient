@@ -27,10 +27,10 @@ prepended (such as in the traditional GNU option usage) like `--share` and
 In order to handle those APIs that behave differently when a field is set to
 `None` and when the field is not present in a passed argument list or dict,
 each of the boolean options shall set its own variable to `True` as part of
-a mutiually exclusive group, rather than the more common configuration of setting a
-single destination variable `True` or `False` directly.  This allows us to
-detect the situation when neither option is present (both variables will be
-`False`) and act accordingly for those APIs where this matters.
+a mutiually exclusive group, rather than the more common configuration of
+setting a single destination variable `True` or `False` directly.  This allows
+us to detect the situation when neither option is present (both variables will
+be `False`) and act accordingly for those APIs where this matters.
 
 This also requires that each of the boolean values be tested in the
 `take_action()` method to correctly set (or not) the underlying API field
@@ -47,9 +47,9 @@ values.
 Implementation
 ~~~~~~~~~~~~~~
 
-The parser declaration should look like this::
+The parser declaration should look like this:
 
-.. code-block: python
+.. code-block:: python
 
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
@@ -63,7 +63,9 @@ The parser declaration should look like this::
             help=_('Disable <resource>'),
         )
 
-An example handler in `take_action()`::
+An example handler in `take_action()`:
+
+.. code-block:: python
 
         # This leaves 'enabled' undefined if neither option is present
         if parsed_args.enable:
@@ -88,9 +90,9 @@ commands should allow `--long` even if they return all fields by default.
 Implementation
 ~~~~~~~~~~~~~~
 
-The parser declaration should look like this::
+The parser declaration should look like this:
 
-.. code-block: python
+.. code-block:: python
 
         parser.add_argument(
             '--long',
@@ -102,9 +104,9 @@ The parser declaration should look like this::
 Pagination
 ----------
 
-There are many ways to do pagination, some OpenStack APIs support it, some don't.
-OpenStackClient attempts to define a single common way to specify pagination on
-the command line.
+There are many ways to do pagination, some OpenStack APIs support it, some
+don't. OpenStackClient attempts to define a single common way to specify
+pagination on the command line.
 
 .. option:: --marker <marker>
 
@@ -117,9 +119,9 @@ the command line.
 Implementation
 ~~~~~~~~~~~~~~
 
-The parser declaration should look like this::
+The parser declaration should look like this:
 
-.. code-block: python
+.. code-block:: python
 
         parser.add_argument(
             "--marker",
