@@ -218,30 +218,6 @@ class ListFlavor(command.Lister):
                 ) for s in data))
 
 
-class ShowFlavor(command.ShowOne):
-    """Display flavor details"""
-
-    def get_parser(self, prog_name):
-        parser = super(ShowFlavor, self).get_parser(prog_name)
-        parser.add_argument(
-            "flavor",
-            metavar="<flavor>",
-            help="Flavor to display (name or ID)",
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        resource_flavor = utils.find_resource(compute_client.flavors,
-                                              parsed_args.flavor)
-        flavor = resource_flavor._info.copy()
-        flavor.pop("links", None)
-
-        flavor['properties'] = utils.format_dict(resource_flavor.get_keys())
-
-        return zip(*sorted(six.iteritems(flavor)))
-
-
 class SetFlavor(command.Command):
     """Set flavor properties"""
 
@@ -265,6 +241,30 @@ class SetFlavor(command.Command):
         compute_client = self.app.client_manager.compute
         flavor = compute_client.flavors.find(name=parsed_args.flavor)
         flavor.set_keys(parsed_args.property)
+
+
+class ShowFlavor(command.ShowOne):
+    """Display flavor details"""
+
+    def get_parser(self, prog_name):
+        parser = super(ShowFlavor, self).get_parser(prog_name)
+        parser.add_argument(
+            "flavor",
+            metavar="<flavor>",
+            help="Flavor to display (name or ID)",
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+        resource_flavor = utils.find_resource(compute_client.flavors,
+                                              parsed_args.flavor)
+        flavor = resource_flavor._info.copy()
+        flavor.pop("links", None)
+
+        flavor['properties'] = utils.format_dict(resource_flavor.get_keys())
+
+        return zip(*sorted(six.iteritems(flavor)))
 
 
 class UnsetFlavor(command.Command):
