@@ -44,11 +44,14 @@ class APIv2(image_v1.APIv1):
             Return public images if True
         :param private:
             Return private images if True
+        :param shared:
+            Return shared images if True
 
-        If public and private are both True or both False then all images are
-        returned.  Both arguments False is equivalent to no filter and all
-        images are returned.  Both arguments True is a filter that includes
-        both public and private images which is the same set as all images.
+        If public, private and shared are all True or all False then all
+        images are returned.  All arguments False is equivalent to no filter
+        and all images are returned.  All arguments True is a filter that
+        includes all public, private and shared images which is the same set
+        as all images.
 
         http://docs.openstack.org/api/openstack-image-service/2.0/content/list-images.html
         """
