@@ -61,7 +61,7 @@ class TestTypeCreate(TestType):
         self.types_mock.create.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(volume_fakes.TYPE),
-            loaded=True,
+            loaded=True
         )
         # Get the command object to test
         self.cmd = volume_type.CreateVolumeType(self.app, None)
@@ -113,6 +113,35 @@ class TestTypeCreate(TestType):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
+
+
+class TestTypeDelete(TestType):
+
+    def setUp(self):
+        super(TestTypeDelete, self).setUp()
+
+        self.types_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.TYPE),
+            loaded=True
+        )
+        self.types_mock.delete.return_value = None
+
+        # Get the command object to mock
+        self.cmd = volume_type.DeleteVolumeType(self.app, None)
+
+    def test_type_delete(self):
+        arglist = [
+            volume_fakes.type_id
+        ]
+        verifylist = [
+            ("volume_type", volume_fakes.type_id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+        self.types_mock.delete.assert_called_with(volume_fakes.type_id)
 
 
 class TestTypeList(TestType):
@@ -168,34 +197,6 @@ class TestTypeList(TestType):
             "foo='bar'"
         ),)
         self.assertEqual(datalist, tuple(data))
-
-
-class TestTypeShow(TestType):
-
-    def setUp(self):
-        super(TestTypeShow, self).setUp()
-
-        self.types_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.TYPE),
-            loaded=True)
-        # Get the command object to test
-        self.cmd = volume_type.ShowVolumeType(self.app, None)
-
-    def test_type_show(self):
-        arglist = [
-            volume_fakes.type_id
-        ]
-        verifylist = [
-            ("volume_type", volume_fakes.type_id)
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-        self.types_mock.get.assert_called_with(volume_fakes.type_id)
-
-        self.assertEqual(volume_fakes.TYPE_FORMATTED_columns, columns)
-        self.assertEqual(volume_fakes.TYPE_FORMATTED_data, data)
 
 
 class TestTypeSet(TestType):
@@ -282,6 +283,36 @@ class TestTypeSet(TestType):
         self.assertEqual('myvalue', result['myprop'])
 
 
+class TestTypeShow(TestType):
+
+    def setUp(self):
+        super(TestTypeShow, self).setUp()
+
+        self.types_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.TYPE),
+            loaded=True
+        )
+
+        # Get the command object to test
+        self.cmd = volume_type.ShowVolumeType(self.app, None)
+
+    def test_type_show(self):
+        arglist = [
+            volume_fakes.type_id
+        ]
+        verifylist = [
+            ("volume_type", volume_fakes.type_id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.types_mock.get.assert_called_with(volume_fakes.type_id)
+
+        self.assertEqual(volume_fakes.TYPE_FORMATTED_columns, columns)
+        self.assertEqual(volume_fakes.TYPE_FORMATTED_data, data)
+
+
 class TestTypeUnset(TestType):
 
     def setUp(self):
@@ -290,7 +321,7 @@ class TestTypeUnset(TestType):
         self.types_mock.get.return_value = FakeTypeResource(
             None,
             copy.deepcopy(volume_fakes.TYPE),
-            loaded=True,
+            loaded=True
         )
 
         self.cmd = volume_type.UnsetVolumeType(self.app, None)
@@ -312,31 +343,3 @@ class TestTypeUnset(TestType):
         result = self.types_mock.get.return_value._keys
 
         self.assertNotIn('property', result)
-
-
-class TestTypeDelete(TestType):
-
-    def setUp(self):
-        super(TestTypeDelete, self).setUp()
-
-        self.types_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.TYPE),
-            loaded=True)
-        self.types_mock.delete.return_value = None
-
-        # Get the command object to mock
-        self.cmd = volume_type.DeleteVolumeType(self.app, None)
-
-    def test_type_delete(self):
-        arglist = [
-            volume_fakes.type_id
-        ]
-        verifylist = [
-            ("volume_type", volume_fakes.type_id)
-        ]
-
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.cmd.take_action(parsed_args)
-        self.types_mock.delete.assert_called_with(volume_fakes.type_id)
