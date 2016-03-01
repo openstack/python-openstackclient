@@ -158,7 +158,7 @@ class OpenStackShell(app.App):
     def interact(self):
         self.init_profile()
         try:
-            ret_value = super(OpenStackShell, self).run_subcommand()
+            ret_value = super(OpenStackShell, self).interact()
         finally:
             self.close_profile()
         return ret_value
