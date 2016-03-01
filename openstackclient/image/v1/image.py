@@ -691,7 +691,7 @@ class SetImage(command.Command):
 
             if not kwargs:
                 self.log.warning('no arguments specified')
-                return {}, {}
+                return
 
             image = image_client.images.update(image.id, **kwargs)
         finally:
