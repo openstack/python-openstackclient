@@ -38,6 +38,24 @@ def _get_columns(item):
     return tuple(sorted(columns))
 
 
+class DeleteSubnet(command.Command):
+    """Delete subnet"""
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteSubnet, self).get_parser(prog_name)
+        parser.add_argument(
+            'subnet',
+            metavar="<subnet>",
+            help="Subnet to delete (name or ID)"
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        client.delete_subnet(
+            client.find_subnet(parsed_args.subnet))
+
+
 class ListSubnet(command.Lister):
     """List subnets"""
 
@@ -89,21 +107,3 @@ class ShowSubnet(command.ShowOne):
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (columns, data)
-
-
-class DeleteSubnet(command.Command):
-    """Delete subnet"""
-
-    def get_parser(self, prog_name):
-        parser = super(DeleteSubnet, self).get_parser(prog_name)
-        parser.add_argument(
-            'subnet',
-            metavar="<subnet>",
-            help=("Subnet to delete (name or ID)")
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        client = self.app.client_manager.network
-        client.delete_subnet(
-            client.find_subnet(parsed_args.subnet))

@@ -28,6 +28,35 @@ class TestSubnet(network_fakes.TestNetworkV2):
         self.network = self.app.client_manager.network
 
 
+class TestDeleteSubnet(TestSubnet):
+
+    # The subnet to delete.
+    _subnet = network_fakes.FakeSubnet.create_one_subnet()
+
+    def setUp(self):
+        super(TestDeleteSubnet, self).setUp()
+
+        self.network.delete_subnet = mock.Mock(return_value=None)
+
+        self.network.find_subnet = mock.Mock(return_value=self._subnet)
+
+        # Get the command object to test
+        self.cmd = subnet_v2.DeleteSubnet(self.app, self.namespace)
+
+    def test_delete(self):
+        arglist = [
+            self._subnet.name,
+        ]
+        verifylist = [
+            ('subnet', self._subnet.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.network.delete_subnet.assert_called_with(self._subnet)
+        self.assertIsNone(result)
+
+
 class TestListSubnet(TestSubnet):
     # The subnets going to be listed up.
     _subnet = network_fakes.FakeSubnet.create_subnets(count=3)
@@ -181,32 +210,3 @@ class TestShowSubnet(TestSubnet):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(list(self.data), list(data))
-
-
-class TestDeleteSubnet(TestSubnet):
-
-    # The subnet to delete.
-    _subnet = network_fakes.FakeSubnet.create_one_subnet()
-
-    def setUp(self):
-        super(TestDeleteSubnet, self).setUp()
-
-        self.network.delete_subnet = mock.Mock(return_value=None)
-
-        self.network.find_subnet = mock.Mock(return_value=self._subnet)
-
-        # Get the command object to test
-        self.cmd = subnet_v2.DeleteSubnet(self.app, self.namespace)
-
-    def test_delete(self):
-        arglist = [
-            self._subnet.name,
-        ]
-        verifylist = [
-            ('subnet', self._subnet.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        result = self.cmd.take_action(parsed_args)
-        self.network.delete_subnet.assert_called_with(self._subnet)
-        self.assertIsNone(result)
