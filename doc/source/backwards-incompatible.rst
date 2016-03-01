@@ -150,6 +150,18 @@ List of Backwards Incompatible Changes
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1546065
   * Commit: https://review.openstack.org/#/c/281088/
 
+13. `aggregate set` commands will no longer return the modified resource
+
+  Previously, modifying an aggregate would result in the new aggregate being
+  displayed to the user. To keep things consistent with other `set` commands,
+  we will no longer be showing the modified resource.
+
+  * In favor of: Use `set` then `show`
+  * As of: NA
+  * Removed in: NA
+  * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1546065
+  * Commit: https://review.openstack.org/#/c/281089/
+
 For Developers
 ==============
 

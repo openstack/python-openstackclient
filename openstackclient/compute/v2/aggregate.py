@@ -201,7 +201,7 @@ class RemoveAggregateHost(command.ShowOne):
         return zip(*sorted(six.iteritems(info)))
 
 
-class SetAggregate(command.ShowOne):
+class SetAggregate(command.Command):
     """Set aggregate properties"""
 
     def get_parser(self, prog_name):
@@ -238,28 +238,22 @@ class SetAggregate(command.ShowOne):
             parsed_args.aggregate,
         )
 
-        info = {}
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
         if parsed_args.zone:
             kwargs['availability_zone'] = parsed_args.zone
         if kwargs:
-            info.update(compute_client.aggregates.update(
+            compute_client.aggregates.update(
                 aggregate,
                 kwargs
-            )._info)
+            )
 
         if parsed_args.property:
-            info.update(compute_client.aggregates.set_metadata(
+            compute_client.aggregates.set_metadata(
                 aggregate,
-                parsed_args.property,
-            )._info)
-
-        if info:
-            return zip(*sorted(six.iteritems(info)))
-        else:
-            return ({}, {})
+                parsed_args.property
+            )
 
 
 class ShowAggregate(command.ShowOne):
@@ -284,8 +278,14 @@ class ShowAggregate(command.ShowOne):
         # Remove availability_zone from metadata because Nova doesn't
         if 'availability_zone' in data.metadata:
             data.metadata.pop('availability_zone')
-        # Map 'metadata' column to 'properties'
-        data._info.update({'properties': data._info.pop('metadata')})
+
+        # Special mapping for columns to make the output easier to read:
+        # 'metadata' --> 'properties'
+        data._info.update(
+            {
+                'properties': utils.format_dict(data._info.pop('metadata')),
+            },
+        )
 
         info = {}
         info.update(data._info)
