@@ -16,6 +16,7 @@ import mock
 from openstackclient.network.v2 import security_group
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.network.v2 import fakes as network_fakes
+from openstackclient.tests import utils as tests_utils
 
 
 class TestSecurityGroupNetwork(network_fakes.TestNetworkV2):
@@ -230,3 +231,135 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
         self.compute.security_groups.list.assert_called_with(**kwargs)
         self.assertEqual(self.expected_columns_all_projects, columns)
         self.assertEqual(self.expected_data_all_projects, tuple(data))
+
+
+class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
+
+    # The security group to be set.
+    _security_group = \
+        network_fakes.FakeSecurityGroup.create_one_security_group()
+
+    def setUp(self):
+        super(TestSetSecurityGroupNetwork, self).setUp()
+
+        self.network.update_security_group = mock.Mock(return_value=None)
+
+        self.network.find_security_group = mock.Mock(
+            return_value=self._security_group)
+
+        # Get the command object to test
+        self.cmd = security_group.SetSecurityGroup(self.app, self.namespace)
+
+    def test_set_no_options(self):
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser, self.cmd, [], [])
+
+    def test_set_no_updates(self):
+        arglist = [
+            self._security_group.name,
+        ]
+        verifylist = [
+            ('group', self._security_group.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.update_security_group.assert_called_once_with(
+            self._security_group,
+            **{}
+        )
+        self.assertIsNone(result)
+
+    def test_set_all_options(self):
+        new_name = 'new-' + self._security_group.name
+        new_description = 'new-' + self._security_group.description
+        arglist = [
+            '--name', new_name,
+            '--description', new_description,
+            self._security_group.name,
+        ]
+        verifylist = [
+            ('description', new_description),
+            ('group', self._security_group.name),
+            ('name', new_name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'description': new_description,
+            'name': new_name,
+        }
+        self.network.update_security_group.assert_called_once_with(
+            self._security_group,
+            **attrs
+        )
+        self.assertIsNone(result)
+
+
+class TestSetSecurityGroupCompute(TestSecurityGroupCompute):
+
+    # The security group to be set.
+    _security_group = \
+        compute_fakes.FakeSecurityGroup.create_one_security_group()
+
+    def setUp(self):
+        super(TestSetSecurityGroupCompute, self).setUp()
+
+        self.app.client_manager.network_endpoint_enabled = False
+
+        self.compute.security_groups.update = mock.Mock(return_value=None)
+
+        self.compute.security_groups.get = mock.Mock(
+            return_value=self._security_group)
+
+        # Get the command object to test
+        self.cmd = security_group.SetSecurityGroup(self.app, None)
+
+    def test_set_no_options(self):
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser, self.cmd, [], [])
+
+    def test_set_no_updates(self):
+        arglist = [
+            self._security_group.name,
+        ]
+        verifylist = [
+            ('group', self._security_group.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.compute.security_groups.update.assert_called_once_with(
+            self._security_group,
+            self._security_group.name,
+            self._security_group.description
+        )
+        self.assertIsNone(result)
+
+    def test_set_all_options(self):
+        new_name = 'new-' + self._security_group.name
+        new_description = 'new-' + self._security_group.description
+        arglist = [
+            '--name', new_name,
+            '--description', new_description,
+            self._security_group.name,
+        ]
+        verifylist = [
+            ('description', new_description),
+            ('group', self._security_group.name),
+            ('name', new_name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.compute.security_groups.update.assert_called_once_with(
+            self._security_group,
+            new_name,
+            new_description
+        )
+        self.assertIsNone(result)
