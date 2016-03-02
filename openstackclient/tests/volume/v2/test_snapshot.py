@@ -76,34 +76,6 @@ class TestSnapshotCreate(TestSnapshot):
         self.assertEqual(data, volume_fakes.SNAPSHOT_data)
 
 
-class TestSnapshotShow(TestSnapshot):
-
-    def setUp(self):
-        super(TestSnapshotShow, self).setUp()
-
-        self.snapshots_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.SNAPSHOT),
-            loaded=True)
-        # Get the command object to test
-        self.cmd = snapshot.ShowSnapshot(self.app, None)
-
-    def test_snapshot_show(self):
-        arglist = [
-            volume_fakes.snapshot_id
-        ]
-        verifylist = [
-            ("snapshot", volume_fakes.snapshot_id)
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-        self.snapshots_mock.get.assert_called_with(volume_fakes.snapshot_id)
-
-        self.assertEqual(volume_fakes.SNAPSHOT_columns, columns)
-        self.assertEqual(volume_fakes.SNAPSHOT_data, data)
-
-
 class TestSnapshotDelete(TestSnapshot):
 
     def setUp(self):
@@ -130,80 +102,6 @@ class TestSnapshotDelete(TestSnapshot):
 
         self.cmd.take_action(parsed_args)
         self.snapshots_mock.delete.assert_called_with(volume_fakes.snapshot_id)
-
-
-class TestSnapshotSet(TestSnapshot):
-
-    def setUp(self):
-        super(TestSnapshotSet, self).setUp()
-
-        self.snapshots_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.SNAPSHOT),
-            loaded=True
-        )
-        self.snapshots_mock.set_metadata.return_value = None
-        self.snapshots_mock.update.return_value = None
-        # Get the command object to mock
-        self.cmd = snapshot.SetSnapshot(self.app, None)
-
-    def test_snapshot_set(self):
-        arglist = [
-            volume_fakes.snapshot_id,
-            "--name", "new_snapshot",
-            "--property", "x=y",
-            "--property", "foo=foo"
-        ]
-        new_property = {"x": "y", "foo": "foo"}
-        verifylist = [
-            ("snapshot", volume_fakes.snapshot_id),
-            ("name", "new_snapshot"),
-            ("property", new_property)
-        ]
-
-        kwargs = {
-            "name": "new_snapshot",
-        }
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.cmd.take_action(parsed_args)
-
-        self.snapshots_mock.update.assert_called_with(
-            volume_fakes.snapshot_id, **kwargs)
-        self.snapshots_mock.set_metadata.assert_called_with(
-            volume_fakes.snapshot_id, new_property
-        )
-
-
-class TestSnapshotUnset(TestSnapshot):
-
-    def setUp(self):
-        super(TestSnapshotUnset, self).setUp()
-
-        self.snapshots_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.SNAPSHOT),
-            loaded=True
-        )
-        self.snapshots_mock.delete_metadata.return_value = None
-        # Get the command object to mock
-        self.cmd = snapshot.UnsetSnapshot(self.app, None)
-
-    def test_snapshot_unset(self):
-        arglist = [
-            volume_fakes.snapshot_id,
-            "--property", "foo"
-        ]
-        verifylist = [
-            ("snapshot", volume_fakes.snapshot_id),
-            ("property", ["foo"])
-        ]
-
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.cmd.take_action(parsed_args)
-
-        self.snapshots_mock.delete_metadata.assert_called_with(
-            volume_fakes.snapshot_id, ["foo"]
-        )
 
 
 class TestSnapshotList(TestSnapshot):
@@ -303,3 +201,105 @@ class TestSnapshotList(TestSnapshot):
             volume_fakes.snapshot_size
         ), )
         self.assertEqual(datalist, tuple(data))
+
+
+class TestSnapshotSet(TestSnapshot):
+
+    def setUp(self):
+        super(TestSnapshotSet, self).setUp()
+
+        self.snapshots_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.SNAPSHOT),
+            loaded=True
+        )
+        self.snapshots_mock.set_metadata.return_value = None
+        self.snapshots_mock.update.return_value = None
+        # Get the command object to mock
+        self.cmd = snapshot.SetSnapshot(self.app, None)
+
+    def test_snapshot_set(self):
+        arglist = [
+            volume_fakes.snapshot_id,
+            "--name", "new_snapshot",
+            "--property", "x=y",
+            "--property", "foo=foo"
+        ]
+        new_property = {"x": "y", "foo": "foo"}
+        verifylist = [
+            ("snapshot", volume_fakes.snapshot_id),
+            ("name", "new_snapshot"),
+            ("property", new_property)
+        ]
+
+        kwargs = {
+            "name": "new_snapshot",
+        }
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.update.assert_called_with(
+            volume_fakes.snapshot_id, **kwargs)
+        self.snapshots_mock.set_metadata.assert_called_with(
+            volume_fakes.snapshot_id, new_property
+        )
+
+
+class TestSnapshotShow(TestSnapshot):
+
+    def setUp(self):
+        super(TestSnapshotShow, self).setUp()
+
+        self.snapshots_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.SNAPSHOT),
+            loaded=True)
+        # Get the command object to test
+        self.cmd = snapshot.ShowSnapshot(self.app, None)
+
+    def test_snapshot_show(self):
+        arglist = [
+            volume_fakes.snapshot_id
+        ]
+        verifylist = [
+            ("snapshot", volume_fakes.snapshot_id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.snapshots_mock.get.assert_called_with(volume_fakes.snapshot_id)
+
+        self.assertEqual(volume_fakes.SNAPSHOT_columns, columns)
+        self.assertEqual(volume_fakes.SNAPSHOT_data, data)
+
+
+class TestSnapshotUnset(TestSnapshot):
+
+    def setUp(self):
+        super(TestSnapshotUnset, self).setUp()
+
+        self.snapshots_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(volume_fakes.SNAPSHOT),
+            loaded=True
+        )
+        self.snapshots_mock.delete_metadata.return_value = None
+        # Get the command object to mock
+        self.cmd = snapshot.UnsetSnapshot(self.app, None)
+
+    def test_snapshot_unset(self):
+        arglist = [
+            volume_fakes.snapshot_id,
+            "--property", "foo"
+        ]
+        verifylist = [
+            ("snapshot", volume_fakes.snapshot_id),
+            ("property", ["foo"])
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.delete_metadata.assert_called_with(
+            volume_fakes.snapshot_id, ["foo"]
+        )
