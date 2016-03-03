@@ -383,7 +383,7 @@ class TestShowRouter(TestRouter):
         'ha',
         'id',
         'name',
-        'tenant_id',
+        'project_id',
     )
 
     data = (
@@ -392,7 +392,7 @@ class TestShowRouter(TestRouter):
         _router.ha,
         _router.id,
         _router.name,
-        _router.tenant_id,
+        _router.project_id,
     )
 
     def setUp(self):
