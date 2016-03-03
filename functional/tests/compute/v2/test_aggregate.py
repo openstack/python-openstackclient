@@ -25,7 +25,10 @@ class AggregateTests(test.TestCase):
     @classmethod
     def setUpClass(cls):
         opts = cls.get_show_opts(cls.FIELDS)
-        raw_output = cls.openstack('aggregate create ' + cls.NAME + opts)
+        # Use the default 'nova' availability zone for the aggregate.
+        raw_output = cls.openstack(
+            'aggregate create --zone nova ' + cls.NAME + opts
+        )
         expected = cls.NAME + '\n'
         cls.assertOutput(expected, raw_output)
 
