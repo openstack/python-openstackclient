@@ -33,11 +33,35 @@ Create new floating IP address
 .. code:: bash
 
     os ip floating create
-        <pool>
+        [--subnet <subnet>]
+        [--port <port>]
+        [--floating-ip-address <floating-ip-address>]
+        [--fixed-ip-address <fixed-ip-address>]
+        <network>
 
-.. describe:: <pool>
+.. option:: --subnet <subnet>
 
-    Pool to fetch IP address from (name or ID)
+    Subnet on which you want to create the floating IP (name or ID)
+    (Network v2 only)
+
+.. option:: --port <port>
+
+    Port to be associated with the floating IP (name or ID)
+    (Network v2 only)
+
+.. option:: --floating-ip-address <floating-ip-address>
+
+    Floating IP address
+    (Network v2 only)
+
+.. option:: --fixed-ip-address <fixed-ip-address>
+
+    Fixed IP address mapped to the floating IP
+    (Network v2 only)
+
+.. describe:: <network>
+
+    Network to allocate floating IP from (name or ID)
 
 ip floating delete
 ------------------

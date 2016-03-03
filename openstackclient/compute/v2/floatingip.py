@@ -15,8 +15,6 @@
 
 """Floating IP action implementations"""
 
-import six
-
 from openstackclient.common import command
 from openstackclient.common import utils
 
@@ -45,27 +43,6 @@ class AddFloatingIP(command.Command):
             compute_client.servers, parsed_args.server)
 
         server.add_floating_ip(parsed_args.ip_address)
-
-
-class CreateFloatingIP(command.ShowOne):
-    """Create new floating IP address"""
-
-    def get_parser(self, prog_name):
-        parser = super(CreateFloatingIP, self).get_parser(prog_name)
-        parser.add_argument(
-            'pool',
-            metavar='<pool>',
-            help='Pool to fetch IP address from (name or ID)',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        floating_ip = compute_client.floating_ips.create(parsed_args.pool)
-
-        info = {}
-        info.update(floating_ip._info)
-        return zip(*sorted(six.iteritems(info)))
 
 
 class RemoveFloatingIP(command.Command):

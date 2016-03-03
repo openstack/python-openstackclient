@@ -1,0 +1,4 @@
+---
+features:
+  - Command ``ip floating create`` is now available for neutron network.
+    [Bug `1519502 <https://bugs.launchpad.net/python-openstackclient/+bug/1519502>`_]

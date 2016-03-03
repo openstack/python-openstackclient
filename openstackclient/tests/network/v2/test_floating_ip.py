@@ -16,6 +16,7 @@ import mock
 from openstackclient.network.v2 import floating_ip
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.network.v2 import fakes as network_fakes
+from openstackclient.tests import utils as tests_utils
 
 
 # Tests for Neutron network
@@ -27,6 +28,115 @@ class TestFloatingIPNetwork(network_fakes.TestNetworkV2):
 
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
+
+
+class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
+
+    # Fake data for option tests.
+    floating_network = network_fakes.FakeNetwork.create_one_network()
+    subnet = network_fakes.FakeSubnet.create_one_subnet()
+    port = network_fakes.FakePort.create_one_port()
+
+    # The floating ip to be deleted.
+    floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip(
+        attrs={
+            'floating_network_id': floating_network.id,
+            'port_id': port.id,
+        }
+    )
+
+    columns = (
+        'dns_domain',
+        'dns_name',
+        'fixed_ip_address',
+        'floating_ip_address',
+        'floating_network_id',
+        'id',
+        'port_id',
+        'project_id',
+        'router_id',
+        'status',
+    )
+
+    data = (
+        floating_ip.dns_domain,
+        floating_ip.dns_name,
+        floating_ip.fixed_ip_address,
+        floating_ip.floating_ip_address,
+        floating_ip.floating_network_id,
+        floating_ip.id,
+        floating_ip.port_id,
+        floating_ip.project_id,
+        floating_ip.router_id,
+        floating_ip.status,
+    )
+
+    def setUp(self):
+        super(TestCreateFloatingIPNetwork, self).setUp()
+
+        self.network.create_ip = mock.Mock(return_value=self.floating_ip)
+
+        self.network.find_network = mock.Mock(
+            return_value=self.floating_network)
+        self.network.find_subnet = mock.Mock(return_value=self.subnet)
+        self.network.find_port = mock.Mock(return_value=self.port)
+
+        # Get the command object to test
+        self.cmd = floating_ip.CreateFloatingIP(self.app, self.namespace)
+
+    def test_create_no_options(self):
+        arglist = []
+        verifylist = []
+
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_create_default_options(self):
+        arglist = [
+            self.floating_ip.floating_network_id,
+        ]
+        verifylist = [
+            ('network', self.floating_ip.floating_network_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_ip.assert_called_once_with(**{
+            'floating_network_id': self.floating_ip.floating_network_id,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_all_options(self):
+        arglist = [
+            '--subnet', self.subnet.id,
+            '--port', self.floating_ip.port_id,
+            '--floating-ip-address', self.floating_ip.floating_ip_address,
+            '--fixed-ip-address', self.floating_ip.fixed_ip_address,
+            self.floating_ip.floating_network_id,
+        ]
+        verifylist = [
+            ('subnet', self.subnet.id),
+            ('port', self.floating_ip.port_id),
+            ('floating_ip_address', self.floating_ip.floating_ip_address),
+            ('fixed_ip_address', self.floating_ip.fixed_ip_address),
+            ('network', self.floating_ip.floating_network_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_ip.assert_called_once_with(**{
+            'subnet_id': self.subnet.id,
+            'port_id': self.floating_ip.port_id,
+            'floating_ip_address': self.floating_ip.floating_ip_address,
+            'fixed_ip_address': self.floating_ip.fixed_ip_address,
+            'floating_network_id': self.floating_ip.floating_network_id,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
 
 class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
@@ -167,6 +277,62 @@ class TestFloatingIPCompute(compute_fakes.TestComputev2):
 
         # Get a shortcut to the compute client
         self.compute = self.app.client_manager.compute
+
+
+class TestCreateFloatingIPCompute(TestFloatingIPCompute):
+
+    # The floating ip to be deleted.
+    floating_ip = compute_fakes.FakeFloatingIP.create_one_floating_ip()
+
+    columns = (
+        'fixed_ip',
+        'id',
+        'instance_id',
+        'ip',
+        'pool',
+    )
+
+    data = (
+        floating_ip.fixed_ip,
+        floating_ip.id,
+        floating_ip.instance_id,
+        floating_ip.ip,
+        floating_ip.pool,
+    )
+
+    def setUp(self):
+        super(TestCreateFloatingIPCompute, self).setUp()
+
+        self.app.client_manager.network_endpoint_enabled = False
+
+        self.compute.floating_ips.create.return_value = self.floating_ip
+
+        # Get the command object to test
+        self.cmd = floating_ip.CreateFloatingIP(self.app, None)
+
+    def test_create_no_options(self):
+        arglist = []
+        verifylist = []
+
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_create_default_options(self):
+        arglist = [
+            self.floating_ip.pool,
+        ]
+        verifylist = [
+            ('network', self.floating_ip.pool),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute.floating_ips.create.assert_called_once_with(
+            self.floating_ip.pool)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
 
 class TestDeleteFloatingIPCompute(TestFloatingIPCompute):
