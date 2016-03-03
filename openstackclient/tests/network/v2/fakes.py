@@ -370,6 +370,10 @@ class FakeRouter(object):
         router = fakes.FakeResource(info=copy.deepcopy(router_attrs),
                                     methods=copy.deepcopy(router_methods),
                                     loaded=True)
+
+        # Set attributes with special mapping in OpenStack SDK.
+        router.project_id = router_attrs['tenant_id']
+
         return router
 
     @staticmethod

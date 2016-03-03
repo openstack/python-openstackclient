@@ -41,6 +41,14 @@ _formatters = {
 }
 
 
+def _get_columns(item):
+    columns = item.keys()
+    if 'tenant_id' in columns:
+        columns.remove('tenant_id')
+        columns.append('project_id')
+    return tuple(sorted(columns))
+
+
 def _get_attrs(client_manager, parsed_args):
     attrs = {}
     if parsed_args.name is not None:
@@ -129,14 +137,10 @@ class CreateRouter(command.ShowOne):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_router(**attrs)
 
-        columns = sorted(obj.keys())
+        columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
 
-        if 'tenant_id' in columns:
-            # Rename "tenant_id" to "project_id".
-            index = columns.index('tenant_id')
-            columns[index] = 'project_id'
-        return (tuple(columns), data)
+        return columns, data
 
 
 class DeleteRouter(command.Command):
@@ -312,6 +316,6 @@ class ShowRouter(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj = client.find_router(parsed_args.router, ignore_missing=False)
-        columns = sorted(obj.keys())
+        columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return (tuple(columns), data)
+        return columns, data
