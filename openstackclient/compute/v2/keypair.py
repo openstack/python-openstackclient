@@ -15,6 +15,7 @@
 
 """Keypair action implementations"""
 
+import io
 import os
 import six
 import sys
@@ -47,7 +48,8 @@ class CreateKeypair(command.ShowOne):
         public_key = parsed_args.public_key
         if public_key:
             try:
-                with open(os.path.expanduser(parsed_args.public_key)) as p:
+                with io.open(os.path.expanduser(parsed_args.public_key),
+                             "rb") as p:
                     public_key = p.read()
             except IOError as e:
                 msg = "Key file %s not found: %s"
