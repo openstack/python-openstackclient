@@ -201,7 +201,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``remove`` (``add``) - remove an object from a group of objects
 * ``rescue`` (``unrescue``) - reboot a server in a special rescue mode allowing access to the original disks
 * ``resize`` - change a server's flavor
-* ``restore`` - restore a heat stack snapshot
+* ``restore`` - restore a heat stack snapshot or restore a server in soft-deleted state
 * ``resume`` (``suspend``) - return one or more suspended servers to running state
 * ``revoke`` (``issue``) - revoke a token
 * ``save`` - download an object locally

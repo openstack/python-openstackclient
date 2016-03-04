@@ -1273,6 +1273,28 @@ class ResizeServer(command.Command):
             compute_client.servers.revert_resize(server)
 
 
+class RestoreServer(command.Command):
+    """Restore server(s)"""
+
+    def get_parser(self, prog_name):
+        parser = super(RestoreServer, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            nargs='+',
+            help=_('Server(s) to restore (name or ID)'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+        for server in parsed_args.server:
+            utils.find_resource(
+                compute_client.servers,
+                server
+            ).restore()
+
+
 class ResumeServer(command.Command):
     """Resume server(s)"""
 
