@@ -62,11 +62,13 @@ class TestQosAssociate(TestQos):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
         self.qos_mock.associate.assert_called_with(
             volume_fakes.qos_id,
             volume_fakes.type_id
         )
+        self.assertIsNone(result)
 
 
 class TestQosCreate(TestQos):
@@ -205,11 +207,12 @@ class TestQosDelete(TestQos):
         verifylist = [
             ('qos_specs', [volume_fakes.qos_id])
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
         self.qos_mock.delete.assert_called_with(volume_fakes.qos_id)
+        self.assertIsNone(result)
 
     def test_qos_delete_with_name(self):
         arglist = [
@@ -218,11 +221,12 @@ class TestQosDelete(TestQos):
         verifylist = [
             ('qos_specs', [volume_fakes.qos_name])
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
         self.qos_mock.delete.assert_called_with(volume_fakes.qos_id)
+        self.assertIsNone(result)
 
 
 class TestQosDisassociate(TestQos):
@@ -254,11 +258,13 @@ class TestQosDisassociate(TestQos):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
         self.qos_mock.disassociate.assert_called_with(
             volume_fakes.qos_id,
             volume_fakes.type_id
         )
+        self.assertIsNone(result)
 
     def test_qos_disassociate_with_all_volume_types(self):
         self.qos_mock.get.return_value = fakes.FakeResource(
@@ -276,8 +282,10 @@ class TestQosDisassociate(TestQos):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
         self.qos_mock.disassociate_all.assert_called_with(volume_fakes.qos_id)
+        self.assertIsNone(result)
 
 
 class TestQosList(TestQos):
@@ -352,11 +360,13 @@ class TestQosSet(TestQos):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
         self.qos_mock.set_keys.assert_called_with(
             volume_fakes.qos_id,
             volume_fakes.qos_specs
         )
+        self.assertIsNone(result)
 
 
 class TestQosShow(TestQos):
@@ -430,15 +440,16 @@ class TestQosUnset(TestQos):
             '--property', 'iops',
             '--property', 'foo'
         ]
-
         verifylist = [
             ('qos_spec', volume_fakes.qos_id),
             ('property', ['iops', 'foo'])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
         self.qos_mock.unset_keys.assert_called_with(
             volume_fakes.qos_id,
             ['iops', 'foo']
         )
+        self.assertIsNone(result)

@@ -97,11 +97,12 @@ class TestSnapshotDelete(TestSnapshot):
         verifylist = [
             ("snapshots", [volume_fakes.snapshot_id])
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
         self.snapshots_mock.delete.assert_called_with(volume_fakes.snapshot_id)
+        self.assertIsNone(result)
 
 
 class TestSnapshotList(TestSnapshot):
@@ -231,18 +232,19 @@ class TestSnapshotSet(TestSnapshot):
             ("name", "new_snapshot"),
             ("property", new_property)
         ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             "name": "new_snapshot",
         }
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.cmd.take_action(parsed_args)
-
         self.snapshots_mock.update.assert_called_with(
             volume_fakes.snapshot_id, **kwargs)
         self.snapshots_mock.set_metadata.assert_called_with(
             volume_fakes.snapshot_id, new_property
         )
+        self.assertIsNone(result)
 
 
 class TestSnapshotShow(TestSnapshot):
@@ -296,10 +298,11 @@ class TestSnapshotUnset(TestSnapshot):
             ("snapshot", volume_fakes.snapshot_id),
             ("property", ["foo"])
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.cmd.take_action(parsed_args)
+
+        result = self.cmd.take_action(parsed_args)
 
         self.snapshots_mock.delete_metadata.assert_called_with(
             volume_fakes.snapshot_id, ["foo"]
         )
+        self.assertIsNone(result)

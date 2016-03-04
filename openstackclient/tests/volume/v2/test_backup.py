@@ -99,11 +99,12 @@ class TestBackupDelete(TestBackup):
         verifylist = [
             ("backups", [volume_fakes.backup_id])
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
         self.backups_mock.delete.assert_called_with(volume_fakes.backup_id)
+        self.assertIsNone(result)
 
 
 class TestBackupList(TestBackup):
@@ -213,9 +214,10 @@ class TestBackupRestore(TestBackup):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
         self.restores_mock.restore.assert_called_with(volume_fakes.backup_id,
                                                       volume_fakes.volume_id)
+        self.assertIsNone(result)
 
 
 class TestBackupShow(TestBackup):
