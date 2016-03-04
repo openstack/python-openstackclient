@@ -617,8 +617,8 @@ class CreateServerImage(command.ShowOne):
             ):
                 sys.stdout.write('\n')
             else:
-                self.log.error(_('Error creating server snapshot: %s'),
-                               parsed_args.image_name)
+                self.log.error(_('Error creating snapshot of server: %s'),
+                               parsed_args.server)
                 sys.stdout.write(_('\nError creating server snapshot'))
                 raise SystemExit
 
