@@ -96,9 +96,11 @@ class TestCredentialSet(TestCredential):
             '--data', self.json_data,
             identity_fakes.credential_id,
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, [])
-        self.cmd.take_action(parsed_args)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
 
     def test_credential_set_valid_with_project(self):
         arglist = [
@@ -108,6 +110,8 @@ class TestCredentialSet(TestCredential):
             '--project', identity_fakes.project_name,
             identity_fakes.credential_id,
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, [])
-        self.cmd.take_action(parsed_args)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)

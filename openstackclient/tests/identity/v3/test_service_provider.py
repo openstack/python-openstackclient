@@ -188,10 +188,13 @@ class TestServiceProviderDelete(TestServiceProvider):
             ('service_provider', service_fakes.sp_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.cmd.take_action(parsed_args)
+
+        result = self.cmd.take_action(parsed_args)
+
         self.service_providers_mock.delete.assert_called_with(
             service_fakes.sp_id,
         )
+        self.assertIsNone(result)
 
 
 class TestServiceProviderList(TestServiceProvider):

@@ -306,11 +306,12 @@ class TestRoleDelete(TestRole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.roles_mock.delete.assert_called_with(
             identity_fakes.role_id,
         )
+        self.assertIsNone(result)
 
 
 class TestRoleList(TestRole):
@@ -640,7 +641,7 @@ class TestRoleRemove(TestRole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -653,6 +654,7 @@ class TestRoleRemove(TestRole):
             identity_fakes.role_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_role_remove_user_project(self):
         arglist = [
@@ -672,7 +674,7 @@ class TestRoleRemove(TestRole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -685,6 +687,7 @@ class TestRoleRemove(TestRole):
             identity_fakes.role_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_role_remove_group_domain(self):
         arglist = [
@@ -705,7 +708,7 @@ class TestRoleRemove(TestRole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -718,6 +721,7 @@ class TestRoleRemove(TestRole):
             identity_fakes.role_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_role_remove_group_project(self):
         arglist = [
@@ -737,7 +741,7 @@ class TestRoleRemove(TestRole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -750,6 +754,7 @@ class TestRoleRemove(TestRole):
             identity_fakes.role_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
 
 class TestRoleSet(TestRole):
@@ -778,7 +783,7 @@ class TestRoleSet(TestRole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -789,6 +794,7 @@ class TestRoleSet(TestRole):
             identity_fakes.role_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
 
 class TestRoleShow(TestRole):

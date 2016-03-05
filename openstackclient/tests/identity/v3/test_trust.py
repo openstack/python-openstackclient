@@ -141,11 +141,12 @@ class TestTrustDelete(TestTrust):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.trusts_mock.delete.assert_called_with(
             identity_fakes.trust_id,
         )
+        self.assertIsNone(result)
 
 
 class TestTrustList(TestTrust):

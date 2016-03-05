@@ -92,11 +92,13 @@ class TestMappingDelete(TestMapping):
         verifylist = [
             ('mapping', identity_fakes.mapping_id)
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.cmd.take_action(parsed_args)
+
+        result = self.cmd.take_action(parsed_args)
+
         self.mapping_mock.delete.assert_called_with(
             identity_fakes.mapping_id)
+        self.assertIsNone(result)
 
 
 class TestMappingList(TestMapping):
@@ -234,7 +236,6 @@ class TestMappingSet(TestMapping):
             ('mapping', identity_fakes.mapping_id),
             ('rules', identity_fakes.mapping_rules_file_path)
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.assertRaises(

@@ -92,9 +92,12 @@ class TestProtocolDelete(TestProtocol):
             ('identity_provider', identity_fakes.idp_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.cmd.take_action(parsed_args)
+
+        result = self.cmd.take_action(parsed_args)
+
         self.protocols_mock.delete.assert_called_with(
             identity_fakes.idp_id, identity_fakes.protocol_id)
+        self.assertIsNone(result)
 
 
 class TestProtocolList(TestProtocol):

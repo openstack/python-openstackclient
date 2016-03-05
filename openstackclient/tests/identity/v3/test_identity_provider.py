@@ -258,10 +258,13 @@ class TestIdentityProviderDelete(TestIdentityProvider):
             ('identity_provider', identity_fakes.idp_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.cmd.take_action(parsed_args)
+
+        result = self.cmd.take_action(parsed_args)
+
         self.identity_providers_mock.delete.assert_called_with(
             identity_fakes.idp_id,
         )
+        self.assertIsNone(result)
 
 
 class TestIdentityProviderList(TestIdentityProvider):
