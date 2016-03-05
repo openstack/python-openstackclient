@@ -436,12 +436,12 @@ class TestProjectDelete(TestProject):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         self.projects_mock.delete.assert_called_with(
             identity_fakes.project_id,
         )
+        self.assertIsNone(result)
 
 
 class TestProjectList(TestProject):
@@ -593,8 +593,9 @@ class TestProjectSet(TestProject):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
 
     def test_project_set_name(self):
         arglist = [
@@ -611,8 +612,7 @@ class TestProjectSet(TestProject):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -624,6 +624,7 @@ class TestProjectSet(TestProject):
             identity_fakes.project_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_project_set_description(self):
         arglist = [
@@ -640,8 +641,7 @@ class TestProjectSet(TestProject):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -651,6 +651,7 @@ class TestProjectSet(TestProject):
             identity_fakes.project_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_project_set_enable(self):
         arglist = [
@@ -666,8 +667,7 @@ class TestProjectSet(TestProject):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -677,6 +677,7 @@ class TestProjectSet(TestProject):
             identity_fakes.project_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_project_set_disable(self):
         arglist = [
@@ -692,8 +693,7 @@ class TestProjectSet(TestProject):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -703,6 +703,7 @@ class TestProjectSet(TestProject):
             identity_fakes.project_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_project_set_property(self):
         arglist = [
@@ -718,8 +719,7 @@ class TestProjectSet(TestProject):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -730,6 +730,7 @@ class TestProjectSet(TestProject):
             identity_fakes.project_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
 
 class TestProjectShow(TestProject):

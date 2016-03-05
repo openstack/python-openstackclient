@@ -194,12 +194,12 @@ class TestDomainDelete(TestDomain):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         self.domains_mock.delete.assert_called_with(
             identity_fakes.domain_id,
         )
+        self.assertIsNone(result)
 
 
 class TestDomainList(TestDomain):
@@ -269,10 +269,10 @@ class TestDomainSet(TestDomain):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         self.assertNotCalled(self.domains_mock.update)
+        self.assertIsNone(result)
 
     def test_domain_set_name(self):
         arglist = [
@@ -285,8 +285,7 @@ class TestDomainSet(TestDomain):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -296,6 +295,7 @@ class TestDomainSet(TestDomain):
             identity_fakes.domain_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_domain_set_description(self):
         arglist = [
@@ -308,8 +308,7 @@ class TestDomainSet(TestDomain):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -319,6 +318,7 @@ class TestDomainSet(TestDomain):
             identity_fakes.domain_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_domain_set_enable(self):
         arglist = [
@@ -331,8 +331,7 @@ class TestDomainSet(TestDomain):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -342,6 +341,7 @@ class TestDomainSet(TestDomain):
             identity_fakes.domain_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_domain_set_disable(self):
         arglist = [
@@ -354,8 +354,7 @@ class TestDomainSet(TestDomain):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -365,6 +364,7 @@ class TestDomainSet(TestDomain):
             identity_fakes.domain_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
 
 class TestDomainShow(TestDomain):

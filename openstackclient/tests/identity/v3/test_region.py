@@ -157,12 +157,12 @@ class TestRegionDelete(TestRegion):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         self.regions_mock.delete.assert_called_with(
             identity_fakes.region_id,
         )
+        self.assertIsNone(result)
 
 
 class TestRegionList(TestRegion):
@@ -251,10 +251,10 @@ class TestRegionSet(TestRegion):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         self.assertNotCalled(self.regions_mock.update)
+        self.assertIsNone(result)
 
     def test_region_set_description(self):
         arglist = [
@@ -267,8 +267,7 @@ class TestRegionSet(TestRegion):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -278,6 +277,7 @@ class TestRegionSet(TestRegion):
             identity_fakes.region_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_region_set_parent_region_id(self):
         arglist = [
@@ -290,8 +290,7 @@ class TestRegionSet(TestRegion):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -301,6 +300,7 @@ class TestRegionSet(TestRegion):
             identity_fakes.region_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
 
 class TestRegionShow(TestRegion):

@@ -277,12 +277,12 @@ class TestEndpointDelete(TestEndpoint):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         self.endpoints_mock.delete.assert_called_with(
             identity_fakes.endpoint_id,
         )
+        self.assertIsNone(result)
 
 
 class TestEndpointList(TestEndpoint):
@@ -483,10 +483,10 @@ class TestEndpointSet(TestEndpoint):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         self.assertNotCalled(self.endpoints_mock.update)
+        self.assertIsNone(result)
 
     def test_endpoint_set_interface(self):
         arglist = [
@@ -499,8 +499,7 @@ class TestEndpointSet(TestEndpoint):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -514,6 +513,7 @@ class TestEndpointSet(TestEndpoint):
             identity_fakes.endpoint_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_endpoint_set_url(self):
         arglist = [
@@ -526,8 +526,7 @@ class TestEndpointSet(TestEndpoint):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -541,6 +540,7 @@ class TestEndpointSet(TestEndpoint):
             identity_fakes.endpoint_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_endpoint_set_service(self):
         arglist = [
@@ -553,8 +553,7 @@ class TestEndpointSet(TestEndpoint):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -568,6 +567,7 @@ class TestEndpointSet(TestEndpoint):
             identity_fakes.endpoint_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_endpoint_set_region(self):
         arglist = [
@@ -580,8 +580,7 @@ class TestEndpointSet(TestEndpoint):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -595,6 +594,7 @@ class TestEndpointSet(TestEndpoint):
             identity_fakes.endpoint_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_endpoint_set_enable(self):
         arglist = [
@@ -607,8 +607,7 @@ class TestEndpointSet(TestEndpoint):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -622,6 +621,7 @@ class TestEndpointSet(TestEndpoint):
             identity_fakes.endpoint_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_endpoint_set_disable(self):
         arglist = [
@@ -634,8 +634,7 @@ class TestEndpointSet(TestEndpoint):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -649,6 +648,7 @@ class TestEndpointSet(TestEndpoint):
             identity_fakes.endpoint_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
 
 class TestEndpointShow(TestEndpoint):
