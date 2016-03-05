@@ -88,3 +88,59 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
         data = client.security_groups.list(search_opts=search)
         return self._get_return_data(data,
                                      include_project=parsed_args.all_projects)
+
+
+class SetSecurityGroup(common.NetworkAndComputeCommand):
+    """Set security group properties"""
+
+    def update_parser_common(self, parser):
+        parser.add_argument(
+            'group',
+            metavar='<group>',
+            help='Security group to modify (name or ID)',
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<new-name>',
+            help='New security group name',
+        )
+        parser.add_argument(
+            "--description",
+            metavar="<description>",
+            help="New security group description",
+        )
+        return parser
+
+    def take_action_network(self, client, parsed_args):
+        obj = client.find_security_group(parsed_args.group,
+                                         ignore_missing=False)
+        attrs = {}
+        if parsed_args.name is not None:
+            attrs['name'] = parsed_args.name
+        if parsed_args.description is not None:
+            attrs['description'] = parsed_args.description
+        # NOTE(rtheis): Previous behavior did not raise a CommandError
+        # if there were no updates. Maintain this behavior and issue
+        # the update.
+        client.update_security_group(obj, **attrs)
+        return
+
+    def take_action_compute(self, client, parsed_args):
+        data = utils.find_resource(
+            client.security_groups,
+            parsed_args.group,
+        )
+
+        if parsed_args.name is not None:
+            data.name = parsed_args.name
+        if parsed_args.description is not None:
+            data.description = parsed_args.description
+
+        # NOTE(rtheis): Previous behavior did not raise a CommandError
+        # if there were no updates. Maintain this behavior and issue
+        # the update.
+        client.security_groups.update(
+            data,
+            data.name,
+            data.description,
+        )

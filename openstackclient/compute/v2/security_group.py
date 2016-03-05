@@ -217,47 +217,6 @@ class ListSecurityGroupRule(command.Lister):
                 ) for s in rules))
 
 
-class SetSecurityGroup(command.Command):
-    """Set security group properties"""
-
-    def get_parser(self, prog_name):
-        parser = super(SetSecurityGroup, self).get_parser(prog_name)
-        parser.add_argument(
-            'group',
-            metavar='<group>',
-            help='Security group to modify (name or ID)',
-        )
-        parser.add_argument(
-            '--name',
-            metavar='<new-name>',
-            help='New security group name',
-        )
-        parser.add_argument(
-            "--description",
-            metavar="<description>",
-            help="New security group description",
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        data = utils.find_resource(
-            compute_client.security_groups,
-            parsed_args.group,
-        )
-
-        if parsed_args.name:
-            data.name = parsed_args.name
-        if parsed_args.description:
-            data.description = parsed_args.description
-
-        compute_client.security_groups.update(
-            data,
-            data.name,
-            data.description,
-        )
-
-
 class ShowSecurityGroup(command.ShowOne):
     """Display security group details"""
 
