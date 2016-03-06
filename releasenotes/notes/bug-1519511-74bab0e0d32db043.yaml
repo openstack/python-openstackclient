@@ -1,7 +1,10 @@
 ---
 fixes:
-  - |
-    Ignore the ``security group list`` command ``--all-projects`` option
+  - Ignore the ``security group list`` command ``--all-projects`` option
     for Network v2 since security groups will be displayed for all projects
     by default (admin only).
+    [Bug `1519511 <https://bugs.launchpad.net/bugs/1519511>`_]
+  - The ``security group set`` command now uses Network v2 when
+    enabled which allows the security group name and description
+    to be set to an empty value.
     [Bug `1519511 <https://bugs.launchpad.net/bugs/1519511>`_]
