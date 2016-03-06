@@ -161,6 +161,23 @@ def _prep_server_detail(compute_client, server):
     return info
 
 
+def _prep_image_detail(image_client, image_id):
+    """Prepare the detailed image dict for printing
+
+    :param image_client: an image client instance
+    :param image_id: id of image created
+    :rtype: a dict of image details
+    """
+
+    info = utils.find_resource(
+        image_client.images,
+        image_id,
+    )
+    # Glance client V2 doesn't have _info attribute
+    # The following condition deals with it.
+    return getattr(info, "_info", info)
+
+
 def _show_progress(progress):
     if progress:
         sys.stdout.write('\rProgress: %s' % progress)
@@ -622,12 +639,9 @@ class CreateServerImage(command.ShowOne):
                 sys.stdout.write(_('\nError creating server snapshot'))
                 raise SystemExit
 
-        image = utils.find_resource(
-            image_client.images,
-            image_id,
-        )
+        image = _prep_image_detail(image_client, image_id)
 
-        return zip(*sorted(six.iteritems(image._info)))
+        return zip(*sorted(six.iteritems(image)))
 
 
 class DeleteServer(command.Command):
