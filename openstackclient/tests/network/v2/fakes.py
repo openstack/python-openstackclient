@@ -734,15 +734,15 @@ class FakeSubnetPool(object):
             'id': 'subnet-pool-id-' + uuid.uuid4().hex,
             'name': 'subnet-pool-name-' + uuid.uuid4().hex,
             'prefixes': ['10.0.0.0/24', '10.1.0.0/24'],
-            'default_prefixlen': 8,
+            'default_prefixlen': '8',
             'address_scope_id': 'address-scope-id-' + uuid.uuid4().hex,
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'is_default': False,
             'shared': False,
-            'max_prefixlen': 32,
-            'min_prefixlen': 8,
+            'max_prefixlen': '32',
+            'min_prefixlen': '8',
             'default_quota': None,
-            'ip_version': 4,
+            'ip_version': '4',
         }
 
         # Overwrite default attributes.

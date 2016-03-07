@@ -30,6 +30,117 @@ class TestSubnetPool(network_fakes.TestNetworkV2):
         self.network = self.app.client_manager.network
 
 
+class TestCreateSubnetPool(TestSubnetPool):
+
+    # The new subnet pool to create.
+    _subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
+
+    columns = (
+        'address_scope_id',
+        'default_prefixlen',
+        'default_quota',
+        'id',
+        'ip_version',
+        'is_default',
+        'max_prefixlen',
+        'min_prefixlen',
+        'name',
+        'prefixes',
+        'project_id',
+        'shared',
+    )
+    data = (
+        _subnet_pool.address_scope_id,
+        _subnet_pool.default_prefixlen,
+        _subnet_pool.default_quota,
+        _subnet_pool.id,
+        _subnet_pool.ip_version,
+        _subnet_pool.is_default,
+        _subnet_pool.max_prefixlen,
+        _subnet_pool.min_prefixlen,
+        _subnet_pool.name,
+        utils.format_list(_subnet_pool.prefixes),
+        _subnet_pool.project_id,
+        _subnet_pool.shared,
+    )
+
+    def setUp(self):
+        super(TestCreateSubnetPool, self).setUp()
+
+        self.network.create_subnet_pool = mock.Mock(
+            return_value=self._subnet_pool)
+
+        # Get the command object to test
+        self.cmd = subnet_pool.CreateSubnetPool(self.app, self.namespace)
+
+    def test_create_no_options(self):
+        arglist = []
+        verifylist = []
+
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_create_default_options(self):
+        arglist = [
+            '--pool-prefix', '10.0.10.0/24',
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('prefixes', ['10.0.10.0/24']),
+            ('name', self._subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_subnet_pool.assert_called_with(**{
+            'prefixes': ['10.0.10.0/24'],
+            'name': self._subnet_pool.name,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_prefixlen_options(self):
+        arglist = [
+            '--default-prefix-length', self._subnet_pool.default_prefixlen,
+            '--max-prefix-length', self._subnet_pool.max_prefixlen,
+            '--min-prefix-length', self._subnet_pool.min_prefixlen,
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('default_prefix_length', self._subnet_pool.default_prefixlen),
+            ('max_prefix_length', self._subnet_pool.max_prefixlen),
+            ('min_prefix_length', self._subnet_pool.min_prefixlen),
+            ('name', self._subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_subnet_pool.assert_called_with(**{
+            'default_prefix_length': self._subnet_pool.default_prefixlen,
+            'max_prefix_length': self._subnet_pool.max_prefixlen,
+            'min_prefix_length': self._subnet_pool.min_prefixlen,
+            'name': self._subnet_pool.name,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_len_negative(self):
+        arglist = [
+            self._subnet_pool.name,
+            '--min-prefix-length', '-16',
+        ]
+        verifylist = [
+            ('subnet_pool', self._subnet_pool.name),
+            ('min_prefix_length', '-16'),
+        ]
+
+        self.assertRaises(argparse.ArgumentTypeError, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+
 class TestDeleteSubnetPool(TestSubnetPool):
 
     # The subnet pool to delete.
