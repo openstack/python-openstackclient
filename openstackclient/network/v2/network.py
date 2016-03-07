@@ -162,7 +162,7 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
     def take_action_compute(self, client, parsed_args):
         attrs = _get_attrs_compute(self.app.client_manager, parsed_args)
         obj = client.networks.create(**attrs)
-        columns = tuple(sorted(obj._info.keys()))
+        columns = _get_columns(obj._info)
         data = utils.get_dict_properties(obj._info, columns)
         return (columns, data)
 
@@ -358,10 +358,10 @@ class ShowNetwork(common.NetworkAndComputeShowOne):
         return (columns, data)
 
     def take_action_compute(self, client, parsed_args):
-        network = utils.find_resource(
+        obj = utils.find_resource(
             client.networks,
             parsed_args.network,
         )
-        columns = sorted(network._info.keys())
-        data = utils.get_dict_properties(network._info, columns)
+        columns = _get_columns(obj._info)
+        data = utils.get_dict_properties(obj._info, columns)
         return (columns, data)
