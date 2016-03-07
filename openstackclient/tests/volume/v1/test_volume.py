@@ -577,11 +577,11 @@ class TestVolumeSet(TestVolume):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
-        self.assertEqual(0, result)
         self.assertEqual("No changes requested\n",
                          self.app.log.messages.get('error'))
+        self.assertIsNone(result)
 
     def test_volume_set_name(self):
         arglist = [
@@ -673,12 +673,12 @@ class TestVolumeSet(TestVolume):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
-        self.assertEqual(0, result)
         self.assertEqual("New size must be greater than %s GB" %
                          volume_fakes.volume_size,
                          self.app.log.messages.get('error'))
+        self.assertIsNone(result)
 
     def test_volume_set_size_not_available(self):
         self.volumes_mock.get.return_value.status = 'error'
@@ -695,12 +695,12 @@ class TestVolumeSet(TestVolume):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
-        self.assertEqual(0, result)
         self.assertEqual("Volume is in %s state, it must be available before "
                          "size can be extended" % 'error',
                          self.app.log.messages.get('error'))
+        self.assertIsNone(result)
 
     def test_volume_set_property(self):
         arglist = [

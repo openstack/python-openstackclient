@@ -754,8 +754,9 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.run(parsed_args)
-        self.assertEqual(0, result)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
 
     def test_user_set_name(self):
         arglist = [
