@@ -101,7 +101,6 @@ class DeleteService(command.Command):
         identity_client = self.app.client_manager.identity
         service = common.find_service(identity_client, parsed_args.service)
         identity_client.services.delete(service.id)
-        return
 
 
 class ListService(command.Lister):

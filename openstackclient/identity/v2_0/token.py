@@ -55,4 +55,3 @@ class RevokeToken(command.Command):
         identity_client = self.app.client_manager.identity
 
         identity_client.tokens.delete(parsed_args.token)
-        return

@@ -126,7 +126,6 @@ class DeleteRole(command.Command):
                 role,
             )
             identity_client.roles.delete(role_obj.id)
-        return
 
 
 class ListRole(command.Lister):

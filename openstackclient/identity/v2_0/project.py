@@ -119,7 +119,6 @@ class DeleteProject(command.Command):
                 project,
             )
             identity_client.tenants.delete(project_obj.id)
-        return
 
 
 class ListProject(command.Lister):
@@ -222,7 +221,6 @@ class SetProject(command.Command):
             del kwargs['name']
 
         identity_client.tenants.update(project.id, **kwargs)
-        return
 
 
 class ShowProject(command.ShowOne):
@@ -317,4 +315,3 @@ class UnsetProject(command.Command):
                 if key in kwargs:
                     kwargs[key] = None
             identity_client.tenants.update(project.id, **kwargs)
-        return

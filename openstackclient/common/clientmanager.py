@@ -199,8 +199,6 @@ class ClientManager(object):
 
         self._auth_setup_completed = True
 
-        return
-
     @property
     def auth_ref(self):
         """Dereference will trigger an auth if it hasn't already"""

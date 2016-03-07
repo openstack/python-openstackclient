@@ -338,7 +338,6 @@ class SetNetwork(command.Command):
             raise exceptions.CommandError(msg)
 
         client.update_network(obj, **attrs)
-        return
 
 
 class ShowNetwork(common.NetworkAndComputeShowOne):

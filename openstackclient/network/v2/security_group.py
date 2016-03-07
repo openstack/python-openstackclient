@@ -123,7 +123,6 @@ class SetSecurityGroup(common.NetworkAndComputeCommand):
         # if there were no updates. Maintain this behavior and issue
         # the update.
         client.update_security_group(obj, **attrs)
-        return
 
     def take_action_compute(self, client, parsed_args):
         data = utils.find_resource(
