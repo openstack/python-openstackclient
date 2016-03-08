@@ -636,14 +636,14 @@ class FakeKeypair(object):
 
     @staticmethod
     def create_keypairs(attrs=None, count=2):
-        """Create multiple fake flavors.
+        """Create multiple fake keypairs.
 
         :param Dictionary attrs:
             A dictionary with all attributes
         :param int count:
-            The number of flavors to fake
+            The number of keypairs to fake
         :return:
-            A list of FakeFlavorResource objects faking the flavors
+            A list of FakeResource objects faking the keypairs
         """
 
         keypairs = []
