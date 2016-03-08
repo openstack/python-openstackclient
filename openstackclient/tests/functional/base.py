@@ -58,6 +58,11 @@ class TestCase(testtools.TestCase):
         return cls.openstack('configuration show ' + opts)
 
     @classmethod
+    def get_openstack_extention_names(cls):
+        opts = cls.get_opts(['Name'])
+        return cls.openstack('extension list ' + opts)
+
+    @classmethod
     def get_opts(cls, fields, format='value'):
         return ' -f {0} {1}'.format(format,
                                     ' '.join(['-c ' + it for it in fields]))

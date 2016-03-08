@@ -362,11 +362,14 @@ class FakeNetworkSegment(object):
         attrs = attrs or {}
 
         # Set default attributes.
+        fake_uuid = uuid.uuid4().hex
         network_segment_attrs = {
-            'id': 'network-segment-id-' + uuid.uuid4().hex,
-            'network_id': 'network-id-' + uuid.uuid4().hex,
+            'description': 'network-segment-description-' + fake_uuid,
+            'id': 'network-segment-id-' + fake_uuid,
+            'name': 'network-segment-name-' + fake_uuid,
+            'network_id': 'network-id-' + fake_uuid,
             'network_type': 'vlan',
-            'physical_network': 'physical-network-name-' + uuid.uuid4().hex,
+            'physical_network': 'physical-network-name-' + fake_uuid,
             'segmentation_id': 1024,
         }
 

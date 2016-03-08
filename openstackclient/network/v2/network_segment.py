@@ -13,12 +13,127 @@
 
 """Network segment action implementations"""
 
-# TODO(rtheis): Add description and name properties when support is available.
+import logging
 
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
+
+
+class CreateNetworkSegment(command.ShowOne):
+    """Create new network segment
+
+       (Caution: This is a beta command and subject to change.
+        Use global option --os-beta-command to enable
+        this command)
+    """
+
+    def get_parser(self, prog_name):
+        parser = super(CreateNetworkSegment, self).get_parser(prog_name)
+        parser.add_argument(
+            'name',
+            metavar='<name>',
+            help=_('New network segment name')
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('Network segment description'),
+        )
+        parser.add_argument(
+            '--physical-network',
+            metavar='<physical-network>',
+            help=_('Physical network name of this network segment'),
+        )
+        parser.add_argument(
+            '--segment',
+            metavar='<segment>',
+            type=int,
+            help=_('Segment identifier for this network segment which is '
+                   'based on the network type, VLAN ID for vlan network '
+                   'type and tunnel ID for geneve, gre and vxlan network '
+                   'types'),
+        )
+        parser.add_argument(
+            '--network',
+            metavar='<network>',
+            required=True,
+            help=_('Network this network segment belongs to (name or ID)'),
+        )
+        parser.add_argument(
+            '--network-type',
+            metavar='<network-type>',
+            choices=['flat', 'geneve', 'gre', 'local', 'vlan', 'vxlan'],
+            required=True,
+            help=_('Network type of this network segment '
+                   '(flat, geneve, gre, local, vlan or vxlan)'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.validate_os_beta_command_enabled()
+        client = self.app.client_manager.network
+        attrs = {}
+        attrs['name'] = parsed_args.name
+        attrs['network_id'] = client.find_network(parsed_args.network,
+                                                  ignore_missing=False).id
+        attrs['network_type'] = parsed_args.network_type
+        if parsed_args.description is not None:
+            attrs['description'] = parsed_args.description
+        if parsed_args.physical_network is not None:
+            attrs['physical_network'] = parsed_args.physical_network
+        if parsed_args.segment is not None:
+            attrs['segmentation_id'] = parsed_args.segment
+        obj = client.create_segment(**attrs)
+        columns = tuple(sorted(obj.keys()))
+        data = utils.get_item_properties(obj, columns)
+        return (columns, data)
+
+
+class DeleteNetworkSegment(command.Command):
+    """Delete network segment(s)
+
+       (Caution: This is a beta command and subject to change.
+        Use global option --os-beta-command to enable
+        this command)
+    """
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteNetworkSegment, self).get_parser(prog_name)
+        parser.add_argument(
+            'network_segment',
+            metavar='<network-segment>',
+            nargs='+',
+            help=_('Network segment(s) to delete (name or ID)'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.validate_os_beta_command_enabled()
+        client = self.app.client_manager.network
+
+        result = 0
+        for network_segment in parsed_args.network_segment:
+            try:
+                obj = client.find_segment(network_segment,
+                                          ignore_missing=False)
+                client.delete_segment(obj)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete network segment with "
+                            "ID '%(network_segment)s': %(e)s")
+                          % {'network_segment': network_segment, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.network_segment)
+            msg = (_("%(result)s of %(total)s network segments failed "
+                     "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListNetworkSegment(command.Lister):
@@ -61,12 +176,14 @@ class ListNetworkSegment(command.Lister):
 
         headers = (
             'ID',
+            'Name',
             'Network',
             'Network Type',
             'Segment',
         )
         columns = (
             'id',
+            'name',
             'network_id',
             'network_type',
             'segmentation_id',
@@ -86,6 +203,46 @@ class ListNetworkSegment(command.Lister):
                 ) for s in data))
 
 
+class SetNetworkSegment(command.Command):
+    """Set network segment properties
+
+       (Caution: This is a beta command and subject to change.
+        Use global option --os-beta-command to enable
+        this command)
+    """
+
+    def get_parser(self, prog_name):
+        parser = super(SetNetworkSegment, self).get_parser(prog_name)
+        parser.add_argument(
+            'network_segment',
+            metavar='<network-segment>',
+            help=_('Network segment to modify (name or ID)'),
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('Set network segment description'),
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_('Set network segment name'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        self.validate_os_beta_command_enabled()
+        client = self.app.client_manager.network
+        obj = client.find_segment(parsed_args.network_segment,
+                                  ignore_missing=False)
+        attrs = {}
+        if parsed_args.description is not None:
+            attrs['description'] = parsed_args.description
+        if parsed_args.name is not None:
+            attrs['name'] = parsed_args.name
+        client.update_segment(obj, **attrs)
+
+
 class ShowNetworkSegment(command.ShowOne):
     """Display network segment details
 
@@ -99,7 +256,7 @@ class ShowNetworkSegment(command.ShowOne):
         parser.add_argument(
             'network_segment',
             metavar='<network-segment>',
-            help=_('Network segment to display (ID only)'),
+            help=_('Network segment to display (name or ID)'),
         )
         return parser
 
