@@ -199,6 +199,47 @@ class TestDeletePort(TestPort):
         self.assertIsNone(result)
 
 
+class TestListPort(TestPort):
+
+    _ports = network_fakes.FakePort.create_ports(count=3)
+
+    columns = (
+        'ID',
+        'Name',
+        'MAC Address',
+        'Fixed IP Addresses',
+    )
+
+    data = []
+    for prt in _ports:
+        data.append((
+            prt.id,
+            prt.name,
+            prt.mac_address,
+            utils.format_list_of_dicts(prt.fixed_ips),
+        ))
+
+    def setUp(self):
+        super(TestListPort, self).setUp()
+
+        # Get the command object to test
+        self.cmd = port.ListPort(self.app, self.namespace)
+
+        self.network.ports = mock.Mock(return_value=self._ports)
+
+    def test_port_list_no_options(self):
+        arglist = []
+        verifylist = []
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ports.assert_called_with()
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+
 class TestShowPort(TestPort):
 
     # The port to show.

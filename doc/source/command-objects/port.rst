@@ -98,6 +98,16 @@ Delete port(s)
 
     Port(s) to delete (name or ID)
 
+port list
+---------
+
+List ports
+
+.. program:: port list
+.. code:: bash
+
+    os port list
+
 port show
 ---------
 
