@@ -49,6 +49,7 @@ Developer Documentation
    developing
    command-options
    command-wrappers
+   command-errors
    specs/commands
 
 Project Goals
