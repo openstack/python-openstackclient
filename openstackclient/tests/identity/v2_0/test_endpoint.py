@@ -132,11 +132,12 @@ class TestEndpointDelete(TestEndpoint):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.endpoints_mock.delete.assert_called_with(
             identity_fakes.endpoint_id,
         )
+        self.assertIsNone(result)
 
 
 class TestEndpointList(TestEndpoint):

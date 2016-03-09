@@ -414,11 +414,12 @@ class TestUserDelete(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.users_mock.delete.assert_called_with(
             identity_fakes.user_id,
         )
+        self.assertIsNone(result)
 
 
 class TestUserList(TestUser):
@@ -578,7 +579,7 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -590,6 +591,7 @@ class TestUserSet(TestUser):
             identity_fakes.user_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_user_set_password(self):
         arglist = [
@@ -608,13 +610,14 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # UserManager.update_password(user, password)
         self.users_mock.update_password.assert_called_with(
             identity_fakes.user_id,
             'secret',
         )
+        self.assertIsNone(result)
 
     def test_user_set_password_prompt(self):
         arglist = [
@@ -636,13 +639,14 @@ class TestUserSet(TestUser):
         mocker = mock.Mock()
         mocker.return_value = 'abc123'
         with mock.patch("openstackclient.common.utils.get_password", mocker):
-            self.cmd.take_action(parsed_args)
+            result = self.cmd.take_action(parsed_args)
 
         # UserManager.update_password(user, password)
         self.users_mock.update_password.assert_called_with(
             identity_fakes.user_id,
             'abc123',
         )
+        self.assertIsNone(result)
 
     def test_user_set_email(self):
         arglist = [
@@ -660,7 +664,7 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -672,6 +676,7 @@ class TestUserSet(TestUser):
             identity_fakes.user_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_user_set_project(self):
         arglist = [
@@ -689,13 +694,14 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # UserManager.update_tenant(user, tenant)
         self.users_mock.update_tenant.assert_called_with(
             identity_fakes.user_id,
             identity_fakes.project_id,
         )
+        self.assertIsNone(result)
 
     def test_user_set_enable(self):
         arglist = [
@@ -713,7 +719,7 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -724,6 +730,7 @@ class TestUserSet(TestUser):
             identity_fakes.user_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_user_set_disable(self):
         arglist = [
@@ -741,7 +748,7 @@ class TestUserSet(TestUser):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
@@ -752,6 +759,7 @@ class TestUserSet(TestUser):
             identity_fakes.user_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
 
 class TestUserShow(TestUser):

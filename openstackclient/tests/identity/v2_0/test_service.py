@@ -194,11 +194,12 @@ class TestServiceDelete(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.services_mock.delete.assert_called_with(
             identity_fakes.service_id,
         )
+        self.assertIsNone(result)
 
 
 class TestServiceList(TestService):
