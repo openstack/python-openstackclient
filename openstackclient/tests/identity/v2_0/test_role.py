@@ -240,11 +240,12 @@ class TestRoleDelete(TestRole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.roles_mock.delete.assert_called_with(
             identity_fakes.role_id,
         )
+        self.assertIsNone(result)
 
 
 class TestRoleList(TestRole):
@@ -459,7 +460,7 @@ class TestRoleRemove(TestRole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         # RoleManager.remove_user_role(user, role, tenant=None)
         self.roles_mock.remove_user_role.assert_called_with(
@@ -467,6 +468,7 @@ class TestRoleRemove(TestRole):
             identity_fakes.role_id,
             identity_fakes.project_id,
         )
+        self.assertIsNone(result)
 
 
 class TestRoleShow(TestRole):

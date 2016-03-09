@@ -613,10 +613,9 @@ class TestProjectUnset(TestProject):
         verifylist = [
             ('property', ['fee', 'fo']),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
             'description': identity_fakes.project_description,
@@ -631,3 +630,4 @@ class TestProjectUnset(TestProject):
             identity_fakes.project_id,
             **kwargs
         )
+        self.assertIsNone(result)

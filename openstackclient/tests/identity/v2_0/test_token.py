@@ -99,6 +99,7 @@ class TestTokenRevoke(TestToken):
         verifylist = [('token', self.TOKEN)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.tokens_mock.delete.assert_called_with(self.TOKEN)
+        self.assertIsNone(result)
