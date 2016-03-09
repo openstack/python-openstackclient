@@ -50,18 +50,23 @@ Set service command
 .. program:: compute service set
 .. code:: bash
 
-    os compute service list
+    os compute service set
         [--enable | --disable]
+        [--disable-reason <reason>]
         <host> <service>
 
 .. _compute-service-set:
-.. describe:: --enable
+.. option:: --enable
 
     Enable service (default)
 
-.. describe:: --disable
+.. option:: --disable
 
     Disable service
+
+.. option:: --disable-reason <reason>
+
+    Reason for disabling the service (in quotes)
 
 .. describe:: <host>
 

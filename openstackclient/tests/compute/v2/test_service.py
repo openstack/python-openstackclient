@@ -153,3 +153,29 @@ class TestServiceSet(TestService):
             compute_fakes.service_binary,
         )
         self.assertIsNone(result)
+
+    def test_service_set_disable_with_reason(self):
+        reason = 'earthquake'
+        arglist = [
+            compute_fakes.service_host,
+            compute_fakes.service_binary,
+            '--disable',
+            '--disable-reason',
+            reason
+        ]
+        verifylist = [
+            ('host', compute_fakes.service_host),
+            ('service', compute_fakes.service_binary),
+            ('enabled', False),
+            ('disable_reason', reason)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.service_mock.disable_log_reason.assert_called_with(
+            compute_fakes.service_host,
+            compute_fakes.service_binary,
+            reason
+        )
+        self.assertIsNone(result)

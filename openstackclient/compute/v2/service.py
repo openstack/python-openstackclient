@@ -95,14 +95,24 @@ class SetService(command.Command):
             dest="enabled",
             help="Disable a service",
             action="store_false")
+        parser.add_argument(
+            "--disable-reason",
+            default=None,
+            metavar="<reason>",
+            help="Reason for disabling the service (in quotas)"
+        )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
+        cs = compute_client.services
 
-        if parsed_args.enabled:
-            action = compute_client.services.enable
+        if not parsed_args.enabled:
+            if parsed_args.disable_reason:
+                cs.disable_log_reason(parsed_args.host,
+                                      parsed_args.service,
+                                      parsed_args.disable_reason)
+            else:
+                cs.disable(parsed_args.host, parsed_args.service)
         else:
-            action = compute_client.services.disable
-
-        action(parsed_args.host, parsed_args.service)
+            cs.enable(parsed_args.host, parsed_args.service)
