@@ -501,42 +501,21 @@ class FakeServer(object):
         return mock.MagicMock(side_effect=servers)
 
 
-class FakeFlavorResource(fakes.FakeResource):
-    """Fake flavor object's methods to help test.
-
-    The flavor object has three methods to get, set, unset its properties.
-    Need to fake them, otherwise the functions to be tested won't run properly.
-    """
-
-    def __init__(self, manager=None, info={}, loaded=False, methods={}):
-        super(FakeFlavorResource, self).__init__(manager, info,
-                                                 loaded, methods)
-        # Fake properties.
-        self._keys = {'property': 'value'}
-
-    def set_keys(self, args):
-        self._keys.update(args)
-
-    def unset_keys(self, keys):
-        for key in keys:
-            self._keys.pop(key, None)
-
-    def get_keys(self):
-        return self._keys
-
-
 class FakeFlavor(object):
     """Fake one or more flavors."""
 
     @staticmethod
-    def create_one_flavor(attrs={}):
+    def create_one_flavor(attrs=None):
         """Create a fake flavor.
 
         :param Dictionary attrs:
             A dictionary with all attributes
         :return:
-            A FakeFlavorResource object, with id, name, ram, vcpus, properties
+            A FakeResource object, with id, name, ram, vcpus, properties
         """
+        if attrs is None:
+            attrs = {}
+
         # Set default attributes.
         flavor_info = {
             'id': 'flavor-id-' + uuid.uuid4().hex,
@@ -554,7 +533,15 @@ class FakeFlavor(object):
         # Overwrite default attributes.
         flavor_info.update(attrs)
 
-        flavor = FakeFlavorResource(info=copy.deepcopy(flavor_info),
+        # Set default methods.
+        flavor_methods = {
+            'set_keys': None,
+            'unset_keys': None,
+            'get_keys': {'property': 'value'},
+        }
+
+        flavor = fakes.FakeResource(info=copy.deepcopy(flavor_info),
+                                    methods=flavor_methods,
                                     loaded=True)
 
         # Set attributes with special mappings in nova client.
@@ -573,7 +560,7 @@ class FakeFlavor(object):
         :param int count:
             The number of flavors to fake
         :return:
-            A list of FakeFlavorResource objects faking the flavors
+            A list of FakeResource objects faking the flavors
         """
         flavors = []
         for i in range(0, count):
@@ -589,7 +576,7 @@ class FakeFlavor(object):
         list. Otherwise create one.
 
         :param List flavors:
-            A list of FakeFlavorResource objects faking flavors
+            A list of FakeResource objects faking flavors
         :param int count:
             The number of flavors to fake
         :return:
