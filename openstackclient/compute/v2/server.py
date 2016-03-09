@@ -1445,7 +1445,7 @@ class ShowServer(command.ShowOne):
 
 
 class SshServer(command.Command):
-    """Ssh to server"""
+    """SSH to server"""
 
     def get_parser(self, prog_name):
         parser = super(SshServer, self).get_parser(prog_name)

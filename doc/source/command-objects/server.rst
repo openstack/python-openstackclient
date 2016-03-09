@@ -614,7 +614,7 @@ Show server details
 server ssh
 ----------
 
-Ssh to server
+SSH to server
 
 .. program:: server ssh
 .. code:: bash
