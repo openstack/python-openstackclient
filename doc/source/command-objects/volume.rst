@@ -164,6 +164,7 @@ Set volume properties
         [--description <description>]
         [--size <size>]
         [--property <key=value> [...] ]
+        [--image-property <key=value> [...] ]
         <volume>
 
 .. option:: --name <name>
@@ -181,6 +182,13 @@ Set volume properties
 .. option:: --property <key=value>
 
     Property to add or modify for this volume (repeat option to set multiple properties)
+
+.. option:: --image-property <key=value>
+
+    To add or modify image properties for this volume.
+    (repeat option to set multiple image properties)
+
+    *Volume version 2 only*
 
 .. describe:: <volume>
 

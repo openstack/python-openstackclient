@@ -1,0 +1,14 @@
+---
+fixes:
+  - |
+    Added support for setting volume image property.
+
+    Image properties are copied from image when volume is created.
+    But since a volume is mutable, user sometime wants to update
+    image properties for volume.
+
+    So, this fix enables user to update image properties of volume
+    using below command:
+    ``volume set --image-property <key=value> <volume>``.
+
+    [Bug 'https://bugs.launchpad.net/python-openstackclient/+bug/1554877'_]

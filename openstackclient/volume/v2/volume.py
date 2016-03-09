@@ -345,6 +345,13 @@ class SetVolume(command.Command):
             help='Property to add or modify for this volume '
                  '(repeat option to set multiple properties)',
         )
+        parser.add_argument(
+            '--image-property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            help='To add or modify image properties for this volume '
+                 '(repeat option to set multiple image properties)',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -365,6 +372,9 @@ class SetVolume(command.Command):
 
         if parsed_args.property:
             volume_client.volumes.set_metadata(volume.id, parsed_args.property)
+        if parsed_args.image_property:
+            volume_client.volumes.set_image_metadata(
+                volume.id, parsed_args.image_property)
 
         kwargs = {}
         if parsed_args.name:
@@ -374,7 +384,8 @@ class SetVolume(command.Command):
         if kwargs:
             volume_client.volumes.update(volume.id, **kwargs)
 
-        if not kwargs and not parsed_args.property and not parsed_args.size:
+        if (not kwargs and not parsed_args.property
+           and not parsed_args.image_property and not parsed_args.size):
             self.app.log.error("No changes requested\n")
 
 

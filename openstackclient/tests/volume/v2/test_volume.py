@@ -753,3 +753,33 @@ class TestVolumeShow(TestVolume):
 
         self.assertEqual(volume_fakes.VOLUME_columns, columns)
         self.assertEqual(volume_fakes.VOLUME_data, data)
+
+
+class TestVolumeSet(TestVolume):
+
+    def setUp(self):
+        super(TestVolumeSet, self).setUp()
+
+        self.new_volume = volume_fakes.FakeVolume.create_one_volume()
+        self.volumes_mock.create.return_value = self.new_volume
+
+        # Get the command object to test
+        self.cmd = volume.SetVolume(self.app, None)
+
+    def test_volume_set_image_property(self):
+        arglist = [
+            '--image-property', 'Alpha=a',
+            '--image-property', 'Beta=b',
+            self.new_volume.id,
+        ]
+        verifylist = [
+            ('image_property', {'Alpha': 'a', 'Beta': 'b'}),
+            ('volume', self.new_volume.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns nothing
+        self.cmd.take_action(parsed_args)
+        self.volumes_mock.set_image_metadata.assert_called_with(
+            self.volumes_mock.get().id, parsed_args.image_property)
