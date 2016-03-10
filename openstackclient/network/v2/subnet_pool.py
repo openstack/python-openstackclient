@@ -14,6 +14,8 @@
 """Subnet pool action implementations"""
 
 from openstackclient.common import command
+from openstackclient.common import exceptions
+from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
@@ -30,6 +32,51 @@ _formatters = {
 }
 
 
+def _get_attrs(parsed_args):
+    attrs = {}
+    if parsed_args.name is not None:
+        attrs['name'] = str(parsed_args.name)
+    if parsed_args.prefixes is not None:
+        attrs['prefixes'] = parsed_args.prefixes
+    if parsed_args.default_prefix_length is not None:
+        attrs['default_prefix_length'] = parsed_args.default_prefix_length
+    if parsed_args.min_prefix_length is not None:
+        attrs['min_prefix_length'] = parsed_args.min_prefix_length
+    if parsed_args.max_prefix_length is not None:
+        attrs['max_prefix_length'] = parsed_args.max_prefix_length
+
+    return attrs
+
+
+def _add_prefix_options(parser):
+    parser.add_argument(
+        '--pool-prefix',
+        metavar='<pool-prefix>',
+        dest='prefixes',
+        action='append',
+        help='Set subnet pool prefixes (in CIDR notation). '
+             'Repeat this option to set multiple prefixes.',
+    )
+    parser.add_argument(
+        '--default-prefix-length',
+        metavar='<default-prefix-length>',
+        action=parseractions.NonNegativeAction,
+        help='Set subnet pool default prefix length',
+    )
+    parser.add_argument(
+        '--min-prefix-length',
+        metavar='<min-prefix-length>',
+        action=parseractions.NonNegativeAction,
+        help='Set subnet pool minimum prefix length',
+    )
+    parser.add_argument(
+        '--max-prefix-length',
+        metavar='<max-prefix-length>',
+        action=parseractions.NonNegativeAction,
+        help='Set subnet pool maximum prefix length',
+    )
+
+
 class DeleteSubnetPool(command.Command):
     """Delete subnet pool"""
 
@@ -37,8 +84,8 @@ class DeleteSubnetPool(command.Command):
         parser = super(DeleteSubnetPool, self).get_parser(prog_name)
         parser.add_argument(
             'subnet_pool',
-            metavar="<subnet-pool>",
-            help=("Subnet pool to delete (name or ID)")
+            metavar='<subnet-pool>',
+            help='Subnet pool to delete (name or ID)'
         )
         return parser
 
@@ -98,6 +145,42 @@ class ListSubnetPool(command.Lister):
                 ) for s in data))
 
 
+class SetSubnetPool(command.Command):
+    """Set subnet pool properties"""
+
+    def get_parser(self, prog_name):
+        parser = super(SetSubnetPool, self).get_parser(prog_name)
+        parser.add_argument(
+            'subnet_pool',
+            metavar='<subnet-pool>',
+            help='Subnet pool to modify (name or ID)'
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help='Set subnet pool name',
+        )
+        _add_prefix_options(parser)
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        obj = client.find_subnet_pool(parsed_args.subnet_pool,
+                                      ignore_missing=False)
+
+        attrs = _get_attrs(parsed_args)
+        if attrs == {}:
+            msg = "Nothing specified to be set"
+            raise exceptions.CommandError(msg)
+
+        # Existing prefixes must be a subset of the new prefixes.
+        if 'prefixes' in attrs:
+            attrs['prefixes'].extend(obj.prefixes)
+
+        client.update_subnet_pool(obj, **attrs)
+
+
 class ShowSubnetPool(command.ShowOne):
     """Display subnet pool details"""
 
@@ -105,8 +188,8 @@ class ShowSubnetPool(command.ShowOne):
         parser = super(ShowSubnetPool, self).get_parser(prog_name)
         parser.add_argument(
             'subnet_pool',
-            metavar="<subnet-pool>",
-            help=("Subnet pool to display (name or ID)")
+            metavar='<subnet-pool>',
+            help='Subnet pool to display (name or ID)'
         )
         return parser
 
