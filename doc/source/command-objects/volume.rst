@@ -219,11 +219,17 @@ Unset volume properties
 
     os volume unset
         [--property <key>]
+        [--image-property <key>]
         <volume>
 
 .. option:: --property <key>
 
     Property to remove from volume (repeat option to remove multiple properties)
+
+.. option:: --image-property <key>
+
+    To remove image properties from volume
+    (repeat option to remove multiple image properties)
 
 .. describe:: <volume>
 

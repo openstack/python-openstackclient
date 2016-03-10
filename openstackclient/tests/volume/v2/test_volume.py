@@ -783,3 +783,56 @@ class TestVolumeSet(TestVolume):
         self.cmd.take_action(parsed_args)
         self.volumes_mock.set_image_metadata.assert_called_with(
             self.volumes_mock.get().id, parsed_args.image_property)
+
+
+class TestVolumeUnset(TestVolume):
+
+    def setUp(self):
+        super(TestVolumeUnset, self).setUp()
+
+        self.new_volume = volume_fakes.FakeVolume.create_one_volume()
+        self.volumes_mock.create.return_value = self.new_volume
+
+        # Get the command object to set property
+        self.cmd_set = volume.SetVolume(self.app, None)
+
+        # Get the command object to unset property
+        self.cmd_unset = volume.UnsetVolume(self.app, None)
+
+    def test_volume_unset_image_property(self):
+
+        # Arguments for setting image properties
+        arglist = [
+            '--image-property', 'Alpha=a',
+            '--image-property', 'Beta=b',
+            self.new_volume.id,
+        ]
+        verifylist = [
+            ('image_property', {'Alpha': 'a', 'Beta': 'b'}),
+            ('volume', self.new_volume.id),
+        ]
+        parsed_args = self.check_parser(self.cmd_set, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns nothing
+        self.cmd_set.take_action(parsed_args)
+
+        # Arguments for unsetting image properties
+        arglist_unset = [
+            '--image-property', 'Alpha',
+            self.new_volume.id,
+        ]
+        verifylist_unset = [
+            ('image_property', ['Alpha']),
+            ('volume', self.new_volume.id),
+        ]
+        parsed_args_unset = self.check_parser(self.cmd_unset,
+                                              arglist_unset,
+                                              verifylist_unset)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns nothing
+        self.cmd_unset.take_action(parsed_args_unset)
+
+        self.volumes_mock.delete_image_metadata.assert_called_with(
+            self.volumes_mock.get().id, parsed_args_unset.image_property)

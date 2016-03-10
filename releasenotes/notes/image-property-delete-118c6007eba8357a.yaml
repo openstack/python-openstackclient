@@ -1,0 +1,14 @@
+---
+fixes:
+  - |
+    Added support for deleting volume image property.
+
+    Image properties are copied from image when volume is created.
+    But since a volume is mutable, user sometime wants to delete
+    image properties for volume.
+
+    So, this fix enables user to delete image properties of volume
+    using below command:
+    ``volume unset  [--image-property <key>] <volume>``.
+
+    [Bug 'https://bugs.launchpad.net/python-openstackclient/+bug/1554879'_]

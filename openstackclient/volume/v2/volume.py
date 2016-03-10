@@ -433,11 +433,16 @@ class UnsetVolume(command.Command):
         parser.add_argument(
             '--property',
             metavar='<key>',
-            required=True,
             action='append',
-            default=[],
             help='Property to remove from volume '
                  '(repeat option to remove multiple properties)',
+        )
+        parser.add_argument(
+            '--image-property',
+            metavar='<key>',
+            action='append',
+            help='To remove image properties from volume '
+                 '(repeat option to remove multiple image properties)',
         )
         return parser
 
@@ -446,5 +451,12 @@ class UnsetVolume(command.Command):
         volume = utils.find_resource(
             volume_client.volumes, parsed_args.volume)
 
-        volume_client.volumes.delete_metadata(
-            volume.id, parsed_args.property)
+        if parsed_args.property:
+            volume_client.volumes.delete_metadata(
+                volume.id, parsed_args.property)
+        if parsed_args.image_property:
+            volume_client.volumes.delete_image_metadata(
+                volume.id, parsed_args.image_property)
+
+        if (not parsed_args.image_property and not parsed_args.property):
+            self.app.log.error("No changes requested\n")
