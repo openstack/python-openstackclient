@@ -77,6 +77,29 @@ def _add_prefix_options(parser):
     )
 
 
+class CreateSubnetPool(command.ShowOne):
+    """Create subnet pool"""
+
+    def get_parser(self, prog_name):
+        parser = super(CreateSubnetPool, self).get_parser(prog_name)
+        parser.add_argument(
+            'name',
+            metavar="<name>",
+            help='Name of the new subnet pool'
+        )
+        _add_prefix_options(parser)
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        attrs = _get_attrs(parsed_args)
+        obj = client.create_subnet_pool(**attrs)
+        columns = _get_columns(obj)
+        data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        return (columns, data)
+
+
 class DeleteSubnetPool(command.Command):
     """Delete subnet pool"""
 

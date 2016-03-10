@@ -4,6 +4,43 @@ subnet pool
 
 Network v2
 
+subnet pool create
+------------------
+
+Create subnet pool
+
+.. program:: subnet pool create
+      .. code:: bash
+
+    os subnet pool create
+        [--pool-prefix <pool-prefix> [...]]
+        [--default-prefix-length <default-prefix-length>]
+        [--min-prefix-length <min-prefix-length>]
+        [--max-prefix-length <max-prefix-length>]
+        <name>
+
+.. option:: --pool-prefix <pool-prefix>
+
+    Set subnet pool prefixes (in CIDR notation).
+    Repeat this option to set multiple prefixes.
+
+.. option:: --default-prefix-length <default-prefix-length>
+
+    Set subnet pool default prefix length
+
+.. option:: --min-prefix-length <min-prefix-length>
+
+    Set subnet pool minimum prefix length
+
+.. option:: --max-prefix-length <max-prefix-length>
+
+    Set subnet pool maximum prefix length
+
+.. _subnet_pool_create-name:
+      .. describe:: <name>
+
+    Name of the new subnet pool
+
 subnet pool delete
 ------------------
 
