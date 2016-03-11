@@ -162,6 +162,36 @@ List of Backwards Incompatible Changes
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1546065
   * Commit: https://review.openstack.org/#/c/281089/
 
+14. Output of `ip floating list` command has changed.
+
+  When using Compute v2, the original output of `ip floating list` command is:
+  +----+--------+------------+----------+-------------+
+  | ID | Pool   | IP         | Fixed IP | Instance ID |
+  +----+--------+-----------------------+-------------+
+  |  1 | public | 172.24.4.1 | None     | None        |
+  +----+--------+------------+----------+-------------+
+
+  Now it changes to:
+  +----+---------------------+------------------+-----------+--------+
+  | ID | Floating IP Address | Fixed IP Address | Server ID | Pool   |
+  +----+---------------------+------------------+-----------+--------+
+  |  1 | 172.24.4.1          | None             | None      | public |
+  +----+---------------------+------------------+-----------+--------+
+
+  When using Network v2, the output of `ip floating list` command is:
+  +--------------------------------------+---------------------+------------------+------+
+  | ID                                   | Floating IP Address | Fixed IP Address | Port |
+  +--------------------------------------+---------------------+------------------+------+
+  | 1976df86-e66a-4f96-81bd-c6ffee6407f1 | 172.24.4.3          | None             | None |
+  +--------------------------------------+---------------------+------------------+------+
+  which is different from Compute v2.
+
+  * In favor of: Use `ip floating list` command
+  * As of: NA
+  * Removed in: NA
+  * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1519502
+  * Commit: https://review.openstack.org/#/c/277720/
+
 For Developers
 ==============
 
