@@ -333,7 +333,9 @@ class FakeSecurityGroup(object):
         security_group_attrs.update(attrs)
 
         # Set default methods.
-        security_group_methods = {}
+        security_group_methods = {
+            'keys': ['id', 'name', 'description', 'tenant_id', 'rules'],
+        }
 
         # Overwrite default methods.
         security_group_methods.update(methods)
@@ -369,7 +371,7 @@ class FakeSecurityGroupRule(object):
     """Fake one or more security group rules."""
 
     @staticmethod
-    def create_one_security_group_rule(attrs={}, methods={}):
+    def create_one_security_group_rule(attrs=None, methods=None):
         """Create a fake security group rule.
 
         :param Dictionary attrs:
@@ -379,6 +381,11 @@ class FakeSecurityGroupRule(object):
         :return:
             A FakeResource object, with id, etc.
         """
+        if attrs is None:
+            attrs = {}
+        if methods is None:
+            methods = {}
+
         # Set default attributes.
         security_group_rule_attrs = {
             'from_port': -1,
@@ -406,7 +413,7 @@ class FakeSecurityGroupRule(object):
         return security_group_rule
 
     @staticmethod
-    def create_security_group_rules(attrs={}, methods={}, count=2):
+    def create_security_group_rules(attrs=None, methods=None, count=2):
         """Create multiple fake security group rules.
 
         :param Dictionary attrs:

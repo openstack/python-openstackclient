@@ -56,23 +56,6 @@ def _xform_security_group_rule(sgroup):
     return info
 
 
-def _xform_and_trim_security_group_rule(sgroup):
-    info = _xform_security_group_rule(sgroup)
-    # Trim parent security group ID since caller has this information.
-    info.pop('parent_group_id', None)
-    # Trim keys with empty string values.
-    keys_to_trim = [
-        'ip_protocol',
-        'ip_range',
-        'port_range',
-        'remote_security_group',
-    ]
-    for key in keys_to_trim:
-        if key in info and not info[key]:
-            info.pop(key)
-    return info
-
-
 class CreateSecurityGroup(command.ShowOne):
     """Create a new security group"""
 
@@ -215,40 +198,3 @@ class ListSecurityGroupRule(command.Lister):
                 (utils.get_item_properties(
                     s, columns,
                 ) for s in rules))
-
-
-class ShowSecurityGroup(command.ShowOne):
-    """Display security group details"""
-
-    def get_parser(self, prog_name):
-        parser = super(ShowSecurityGroup, self).get_parser(prog_name)
-        parser.add_argument(
-            'group',
-            metavar='<group>',
-            help='Security group to display (name or ID)',
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-
-        compute_client = self.app.client_manager.compute
-        info = {}
-        info.update(utils.find_resource(
-            compute_client.security_groups,
-            parsed_args.group,
-        )._info)
-        rules = []
-        for r in info['rules']:
-            formatted_rule = _xform_and_trim_security_group_rule(r)
-            rules.append(utils.format_dict(formatted_rule))
-
-        # Format rules into a list of strings
-        info.update(
-            {'rules': utils.format_list(rules, separator='\n')}
-        )
-        # Map 'tenant_id' column to 'project_id'
-        info.update(
-            {'project_id': info.pop('tenant_id')}
-        )
-
-        return zip(*sorted(six.iteritems(info)))

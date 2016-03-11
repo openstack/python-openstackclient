@@ -419,7 +419,7 @@ class FakeSecurityGroup(object):
     """Fake one or more security groups."""
 
     @staticmethod
-    def create_one_security_group(attrs={}, methods={}):
+    def create_one_security_group(attrs=None, methods=None):
         """Create a fake security group.
 
         :param Dictionary attrs:
@@ -429,6 +429,11 @@ class FakeSecurityGroup(object):
         :return:
             A FakeResource object, with id, name, etc.
         """
+        if attrs is None:
+            attrs = {}
+        if methods is None:
+            methods = {}
+
         # Set default attributes.
         security_group_attrs = {
             'id': 'security-group-id-' + uuid.uuid4().hex,
@@ -442,7 +447,10 @@ class FakeSecurityGroup(object):
         security_group_attrs.update(attrs)
 
         # Set default methods.
-        security_group_methods = {}
+        security_group_methods = {
+            'keys': ['id', 'name', 'description', 'tenant_id',
+                     'security_group_rules'],
+        }
 
         # Overwrite default methods.
         security_group_methods.update(methods)
@@ -451,10 +459,14 @@ class FakeSecurityGroup(object):
             info=copy.deepcopy(security_group_attrs),
             methods=copy.deepcopy(security_group_methods),
             loaded=True)
+
+        # Set attributes with special mapping in OpenStack SDK.
+        security_group.project_id = security_group_attrs['tenant_id']
+
         return security_group
 
     @staticmethod
-    def create_security_groups(attrs={}, methods={}, count=2):
+    def create_security_groups(attrs=None, methods=None, count=2):
         """Create multiple fake security groups.
 
         :param Dictionary attrs:
@@ -478,7 +490,7 @@ class FakeSecurityGroupRule(object):
     """Fake one or more security group rules."""
 
     @staticmethod
-    def create_one_security_group_rule(attrs={}, methods={}):
+    def create_one_security_group_rule(attrs=None, methods=None):
         """Create a fake security group rule.
 
         :param Dictionary attrs:
@@ -488,6 +500,11 @@ class FakeSecurityGroupRule(object):
         :return:
             A FakeResource object, with id, etc.
         """
+        if attrs is None:
+            attrs = {}
+        if methods is None:
+            methods = {}
+
         # Set default attributes.
         security_group_rule_attrs = {
             'direction': 'ingress',
@@ -520,13 +537,13 @@ class FakeSecurityGroupRule(object):
             methods=copy.deepcopy(security_group_rule_methods),
             loaded=True)
 
-        # Set attributes with special mappings.
+        # Set attributes with special mapping in OpenStack SDK.
         security_group_rule.project_id = security_group_rule_attrs['tenant_id']
 
         return security_group_rule
 
     @staticmethod
-    def create_security_group_rules(attrs={}, methods={}, count=2):
+    def create_security_group_rules(attrs=None, methods=None, count=2):
         """Create multiple fake security group rules.
 
         :param Dictionary attrs:
