@@ -192,7 +192,8 @@ class ShowServiceProvider(command.ShowOne):
         service_client = self.app.client_manager.identity
         service_provider = utils.find_resource(
             service_client.federation.service_providers,
-            parsed_args.service_provider)
+            parsed_args.service_provider,
+            id=parsed_args.service_provider)
 
         service_provider._info.pop('links', None)
         return zip(*sorted(six.iteritems(service_provider._info)))
