@@ -13,11 +13,18 @@
 
 """Port action implementations"""
 
+import argparse
+import logging
+
 from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 from openstackclient.identity import common as identity_common
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _format_admin_state(state):
@@ -57,10 +64,26 @@ def _get_columns(item):
 def _get_attrs(client_manager, parsed_args):
     attrs = {}
 
+    # Handle deprecated options
+    # NOTE(dtroyer): --device-id and --host-id were deprecated in Mar 2016.
+    #                Do not remove before 3.x release or Mar 2017.
+    if parsed_args.device_id:
+        attrs['device_id'] = parsed_args.device_id
+        LOG.warning(_(
+            'The --device-id option is deprecated, '
+            'please use --device instead.'
+        ))
+    if parsed_args.host_id:
+        attrs['binding:host_id'] = parsed_args.host_id
+        LOG.warning(_(
+            'The --host-id option is deprecated, '
+            'please use --host instead.'
+        ))
+
     if parsed_args.fixed_ip is not None:
         attrs['fixed_ips'] = parsed_args.fixed_ip
-    if parsed_args.device_id is not None:
-        attrs['device_id'] = parsed_args.device_id
+    if parsed_args.device:
+        attrs['device_id'] = parsed_args.device
     if parsed_args.device_owner is not None:
         attrs['device_owner'] = parsed_args.device_owner
     if parsed_args.admin_state is not None:
@@ -69,8 +92,8 @@ def _get_attrs(client_manager, parsed_args):
         attrs['binding:profile'] = parsed_args.binding_profile
     if parsed_args.vnic_type is not None:
         attrs['binding:vnic_type'] = parsed_args.vnic_type
-    if parsed_args.host_id is not None:
-        attrs['binding:host_id'] = parsed_args.host_id
+    if parsed_args.host:
+        attrs['binding:host_id'] = parsed_args.host
 
     # The remaining options do not support 'port set' command, so they require
     # additional check
@@ -133,10 +156,19 @@ def _add_updatable_args(parser):
             help='Desired IP and/or subnet (name or ID) for this port: '
                  'subnet=<subnet>,ip-address=<ip-address> '
                  '(this option can be repeated)')
-        parser.add_argument(
+        # NOTE(dtroyer): --device-id is deprecated in Mar 2016.  Do not
+        #                remove before 3.x release or Mar 2017.
+        device_group = parser.add_mutually_exclusive_group()
+        device_group.add_argument(
+            '--device',
+            metavar='<device-id>',
+            help='Port device ID',
+        )
+        device_group.add_argument(
             '--device-id',
             metavar='<device-id>',
-            help='Device ID of this port')
+            help=argparse.SUPPRESS,
+        )
         parser.add_argument(
             '--device-owner',
             metavar='<device-owner>',
@@ -155,10 +187,18 @@ def _add_updatable_args(parser):
             action=parseractions.KeyValueAction,
             help='Custom data to be passed as binding:profile: <key>=<value> '
                  '(this option can be repeated)')
-        parser.add_argument(
+        # NOTE(dtroyer): --host-id is deprecated in Mar 2016.  Do not
+        #                remove before 3.x release or Mar 2017.
+        host_group = parser.add_mutually_exclusive_group()
+        host_group.add_argument(
+            '--host',
+            metavar='<host-id>',
+            help='Allocate port on host <host-id> (ID only)',
+        )
+        host_group.add_argument(
             '--host-id',
             metavar='<host-id>',
-            help='The ID of the host where the port is allocated'
+            help=argparse.SUPPRESS,
         )
 
 

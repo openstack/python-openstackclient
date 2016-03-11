@@ -125,7 +125,7 @@ class TestCreatePort(TestPort):
             '--mac-address', 'aa:aa:aa:aa:aa:aa',
             '--fixed-ip', 'subnet=%s,ip-address=10.0.0.2'
             % self.fake_subnet.id,
-            '--device-id', 'deviceid',
+            '--device', 'deviceid',
             '--device-owner', 'fakeowner',
             '--disable',
             '--vnic-type', 'macvtap',
@@ -141,7 +141,7 @@ class TestCreatePort(TestPort):
                 'fixed_ip',
                 [{'subnet': self.fake_subnet.id, 'ip-address': '10.0.0.2'}]
             ),
-            ('device_id', 'deviceid'),
+            ('device', 'deviceid'),
             ('device_owner', 'fakeowner'),
             ('admin_state', False),
             ('vnic_type', 'macvtap'),
@@ -296,14 +296,14 @@ class TestSetPort(TestPort):
             '--enable',
             '--vnic-type', 'macvtap',
             '--binding-profile', 'foo=bar',
-            '--host-id', 'binding-host-id-xxxx',
+            '--host', 'binding-host-id-xxxx',
             self._port.name,
         ]
         verifylist = [
             ('admin_state', True),
             ('vnic_type', 'macvtap'),
             ('binding_profile', {'foo': 'bar'}),
-            ('host_id', 'binding-host-id-xxxx'),
+            ('host', 'binding-host-id-xxxx'),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

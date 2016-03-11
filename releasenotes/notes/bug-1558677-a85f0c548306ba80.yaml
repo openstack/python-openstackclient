@@ -1,0 +1,7 @@
+---
+fixes:
+  - Change the ``--device-id`` option to ``--device`` and the ``--host-id``
+    option to ``--host`` for the ``port create`` and ``pot set`` commands.
+    The original options are deprecated and maintained for backward compatibility
+    until at least March 2017.
+    [Bug `1558677 <https://bugs.launchpad.net/python-openstackclient/+bug/1558677>`_]
