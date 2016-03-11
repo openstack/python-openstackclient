@@ -1,0 +1,7 @@
+---
+upgrade:
+  - The ``security group rule create`` command now uses Network v2
+    when enabled which results in a more detailed output for network
+    security group rules that matches the ``security group rule show``
+    command.
+    [Bug `1519512 <https://bugs.launchpad.net/bugs/1519512>`_]

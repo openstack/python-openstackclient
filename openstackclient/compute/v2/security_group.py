@@ -16,15 +16,12 @@
 
 """Compute v2 Security Group action implementations"""
 
-import six
-
 try:
     from novaclient.v2 import security_group_rules
 except ImportError:
     from novaclient.v1_1 import security_group_rules
 
 from openstackclient.common import command
-from openstackclient.common import parseractions
 from openstackclient.common import utils
 
 
@@ -54,68 +51,6 @@ def _xform_security_group_rule(sgroup):
     else:
         info['remote_security_group'] = ''
     return info
-
-
-class CreateSecurityGroupRule(command.ShowOne):
-    """Create a new security group rule"""
-
-    def get_parser(self, prog_name):
-        parser = super(CreateSecurityGroupRule, self).get_parser(prog_name)
-        parser.add_argument(
-            'group',
-            metavar='<group>',
-            help='Create rule in this security group (name or ID)',
-        )
-        parser.add_argument(
-            "--proto",
-            metavar="<proto>",
-            default="tcp",
-            help="IP protocol (icmp, tcp, udp; default: tcp)",
-        )
-        source_group = parser.add_mutually_exclusive_group()
-        source_group.add_argument(
-            "--src-ip",
-            metavar="<ip-address>",
-            default="0.0.0.0/0",
-            help="Source IP address block (may use CIDR notation; default: "
-                 "0.0.0.0/0)",
-        )
-        source_group.add_argument(
-            "--src-group",
-            metavar="<group>",
-            help="Source security group (ID only)",
-        )
-        parser.add_argument(
-            "--dst-port",
-            metavar="<port-range>",
-            default=(0, 0),
-            action=parseractions.RangeAction,
-            help="Destination port, may be a range: 137:139 (default: 0; "
-                 "only required for proto tcp and udp)",
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        group = utils.find_resource(
-            compute_client.security_groups,
-            parsed_args.group,
-        )
-        if parsed_args.proto.lower() == 'icmp':
-            from_port, to_port = -1, -1
-        else:
-            from_port, to_port = parsed_args.dst_port
-        data = compute_client.security_group_rules.create(
-            group.id,
-            parsed_args.proto,
-            from_port,
-            to_port,
-            parsed_args.src_ip,
-            parsed_args.src_group,
-        )
-
-        info = _xform_security_group_rule(data._info)
-        return zip(*sorted(six.iteritems(info)))
 
 
 class ListSecurityGroupRule(command.Lister):
