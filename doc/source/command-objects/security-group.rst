@@ -14,11 +14,25 @@ Create a new security group
 
     os security group create
         [--description <description>]
+        [--project <project> [--project-domain <project-domain>]]
         <name>
 
 .. option:: --description <description>
 
     Security group description
+
+.. option:: --project <project>
+
+    Owner's project (name or ID)
+
+    *Network version 2 only*
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+    *Network version 2 only*
 
 .. describe:: <name>
 

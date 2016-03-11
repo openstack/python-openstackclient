@@ -17,6 +17,7 @@ import argparse
 import six
 
 from openstackclient.common import utils
+from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 from openstackclient.network import utils as network_utils
 
@@ -107,6 +108,15 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
         )
         return parser
 
+    def update_parser_network(self, parser):
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help="Owner's project (name or ID)"
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
+        return parser
+
     def _get_description(self, parsed_args):
         if parsed_args.description is not None:
             return parsed_args.description
@@ -114,9 +124,20 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
             return parsed_args.name
 
     def take_action_network(self, client, parsed_args):
+        # Build the create attributes.
         attrs = {}
         attrs['name'] = parsed_args.name
         attrs['description'] = self._get_description(parsed_args)
+        if parsed_args.project is not None:
+            identity_client = self.app.client_manager.identity
+            project_id = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
+            attrs['tenant_id'] = project_id
+
+        # Create the security group and display the results.
         obj = client.create_security_group(**attrs)
         display_columns, property_columns = _get_columns(obj)
         data = utils.get_item_properties(
