@@ -108,6 +108,11 @@ List ports
 .. code:: bash
 
     os port list
+        [--router <router>]
+
+.. option:: --router <router>
+
+    List only ports attached to this router (name or ID)
 
 port set
 --------
