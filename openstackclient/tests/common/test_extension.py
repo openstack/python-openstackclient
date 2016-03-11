@@ -12,13 +12,16 @@
 #
 
 import copy
+import mock
 
 from openstackclient.common import extension
 from openstackclient.tests import fakes
 from openstackclient.tests import utils
 
+from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.network.v2 import fakes as network_fakes
+from openstackclient.tests.volume.v2 import fakes as volume_fakes
 
 
 class TestExtension(utils.TestCommand):
@@ -34,6 +37,16 @@ class TestExtension(utils.TestCommand):
             self.app.client_manager.identity.extensions)
         self.identity_extensions_mock.reset_mock()
 
+        self.app.client_manager.compute = compute_fakes.FakeComputev2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
+        self.app.client_manager.volume = volume_fakes.FakeVolumeClient(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
         network_client = network_fakes.FakeNetworkV2Client()
         self.app.client_manager.network = network_client
         self.network_extensions_mock = network_client.extensions
@@ -43,6 +56,8 @@ class TestExtension(utils.TestCommand):
 class TestExtensionList(TestExtension):
 
     columns = ('Name', 'Alias', 'Description')
+    long_columns = ('Name', 'Namespace', 'Description', 'Alias', 'Updated',
+                    'Links')
 
     def setUp(self):
         super(TestExtensionList, self).setUp()
@@ -55,12 +70,33 @@ class TestExtensionList(TestExtension):
             ),
         ]
 
+        self.app.client_manager.compute.list_extensions = mock.Mock()
+        self.compute_extensions_mock = (
+            self.app.client_manager.compute.list_extensions)
+        self.compute_extensions_mock.show_all.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(compute_fakes.EXTENSION),
+                loaded=True,
+            ),
+        ]
+
+        self.app.client_manager.volume.list_extensions = mock.Mock()
+        self.volume_extensions_mock = (
+            self.app.client_manager.volume.list_extensions)
+        self.volume_extensions_mock.show_all.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(volume_fakes.EXTENSION),
+                loaded=True,
+            ),
+        ]
+
         # Get the command object to test
         self.cmd = extension.ListExtension(self.app, None)
 
-    def test_extension_list_no_options(self):
-        arglist = []
-        verifylist = []
+    def _test_extension_list_helper(self, arglist, verifylist,
+                                    expected_data, long=False):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # In base command class Lister in cliff, abstract method take_action()
@@ -68,10 +104,15 @@ class TestExtensionList(TestExtension):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # no args should output from all services
-        self.identity_extensions_mock.list.assert_called_with()
+        if long:
+            self.assertEqual(self.long_columns, columns)
+        else:
+            self.assertEqual(self.columns, columns)
+        self.assertEqual(expected_data, tuple(data))
 
-        self.assertEqual(self.columns, columns)
+    def test_extension_list_no_options(self):
+        arglist = []
+        verifylist = []
         datalist = (
             (
                 identity_fakes.extension_name,
@@ -79,12 +120,26 @@ class TestExtensionList(TestExtension):
                 identity_fakes.extension_description,
             ),
             (
+                compute_fakes.extension_name,
+                compute_fakes.extension_alias,
+                compute_fakes.extension_description,
+            ),
+            (
+                volume_fakes.extension_name,
+                volume_fakes.extension_alias,
+                volume_fakes.extension_description,
+            ),
+            (
                 network_fakes.extension_name,
                 network_fakes.extension_alias,
                 network_fakes.extension_description,
             ),
         )
-        self.assertEqual(datalist, tuple(data))
+        self._test_extension_list_helper(arglist, verifylist, datalist)
+        self.identity_extensions_mock.list.assert_called_with()
+        self.compute_extensions_mock.show_all.assert_called_with()
+        self.volume_extensions_mock.show_all.assert_called_with()
+        self.network_extensions_mock.assert_called_with()
 
     def test_extension_list_long(self):
         arglist = [
@@ -93,19 +148,6 @@ class TestExtensionList(TestExtension):
         verifylist = [
             ('long', True),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # In base command class Lister in cliff, abstract method take_action()
-        # returns a tuple containing the column names and an iterable
-        # containing the data to be listed.
-        columns, data = self.cmd.take_action(parsed_args)
-
-        # no args should output from all services
-        self.identity_extensions_mock.list.assert_called_with()
-
-        collist = ('Name', 'Namespace', 'Description', 'Alias', 'Updated',
-                   'Links')
-        self.assertEqual(collist, columns)
         datalist = (
             (
                 identity_fakes.extension_name,
@@ -116,6 +158,22 @@ class TestExtensionList(TestExtension):
                 identity_fakes.extension_links,
             ),
             (
+                compute_fakes.extension_name,
+                compute_fakes.extension_namespace,
+                compute_fakes.extension_description,
+                compute_fakes.extension_alias,
+                compute_fakes.extension_updated,
+                compute_fakes.extension_links,
+            ),
+            (
+                volume_fakes.extension_name,
+                volume_fakes.extension_namespace,
+                volume_fakes.extension_description,
+                volume_fakes.extension_alias,
+                volume_fakes.extension_updated,
+                volume_fakes.extension_links,
+            ),
+            (
                 network_fakes.extension_name,
                 network_fakes.extension_namespace,
                 network_fakes.extension_description,
@@ -124,7 +182,11 @@ class TestExtensionList(TestExtension):
                 network_fakes.extension_links,
             ),
         )
-        self.assertEqual(datalist, tuple(data))
+        self._test_extension_list_helper(arglist, verifylist, datalist, True)
+        self.identity_extensions_mock.list.assert_called_with()
+        self.compute_extensions_mock.show_all.assert_called_with()
+        self.volume_extensions_mock.show_all.assert_called_with()
+        self.network_extensions_mock.assert_called_with()
 
     def test_extension_list_identity(self):
         arglist = [
@@ -133,22 +195,13 @@ class TestExtensionList(TestExtension):
         verifylist = [
             ('identity', True),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # In base command class Lister in cliff, abstract method take_action()
-        # returns a tuple containing the column names and an iterable
-        # containing the data to be listed.
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.identity_extensions_mock.list.assert_called_with()
-
-        self.assertEqual(self.columns, columns)
         datalist = ((
             identity_fakes.extension_name,
             identity_fakes.extension_alias,
             identity_fakes.extension_description,
         ), )
-        self.assertEqual(datalist, tuple(data))
+        self._test_extension_list_helper(arglist, verifylist, datalist)
+        self.identity_extensions_mock.list.assert_called_with()
 
     def test_extension_list_network(self):
         arglist = [
@@ -157,13 +210,6 @@ class TestExtensionList(TestExtension):
         verifylist = [
             ('network', True),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.network_extensions_mock.assert_called_with()
-
-        self.assertEqual(self.columns, columns)
         datalist = (
             (
                 network_fakes.extension_name,
@@ -171,4 +217,35 @@ class TestExtensionList(TestExtension):
                 network_fakes.extension_description,
             ),
         )
-        self.assertEqual(datalist, tuple(data))
+        self._test_extension_list_helper(arglist, verifylist, datalist)
+        self.network_extensions_mock.assert_called_with()
+
+    def test_extension_list_compute(self):
+        arglist = [
+            '--compute',
+        ]
+        verifylist = [
+            ('compute', True),
+        ]
+        datalist = ((
+            compute_fakes.extension_name,
+            compute_fakes.extension_alias,
+            compute_fakes.extension_description,
+        ), )
+        self._test_extension_list_helper(arglist, verifylist, datalist)
+        self.compute_extensions_mock.show_all.assert_called_with()
+
+    def test_extension_list_volume(self):
+        arglist = [
+            '--volume',
+        ]
+        verifylist = [
+            ('volume', True),
+        ]
+        datalist = ((
+            volume_fakes.extension_name,
+            volume_fakes.extension_alias,
+            volume_fakes.extension_description,
+        ), )
+        self._test_extension_list_helper(arglist, verifylist, datalist)
+        self.volume_extensions_mock.show_all.assert_called_with()

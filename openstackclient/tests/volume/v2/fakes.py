@@ -211,6 +211,26 @@ IMAGE = {
     'name': image_name
 }
 
+extension_name = 'SchedulerHints'
+extension_namespace = 'http://docs.openstack.org/'\
+    'block-service/ext/scheduler-hints/api/v2'
+extension_description = 'Pass arbitrary key/value'\
+    'pairs to the scheduler.'
+extension_updated = '2013-04-18T00:00:00+00:00'
+extension_alias = 'OS-SCH-HNT'
+extension_links = '[{"href":'\
+    '"https://github.com/openstack/block-api", "type":'\
+    ' "text/html", "rel": "describedby"}]'
+
+EXTENSION = {
+    'name': extension_name,
+    'namespace': extension_namespace,
+    'description': extension_description,
+    'updated': extension_updated,
+    'alias': extension_alias,
+    'links': extension_links,
+}
+
 
 class FakeVolumeClient(object):
 
