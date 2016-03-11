@@ -48,10 +48,11 @@ class TestCommandList(utils.TestCommand):
         super(TestCommandList, self).setUp()
 
         self.app.command_manager = mock.Mock()
-        self.app.command_manager.get_command_groups.return_value = ['test']
+        self.app.command_manager.get_command_groups.return_value = [
+            'openstack.common'
+        ]
         self.app.command_manager.get_command_names.return_value = [
-            'one',
-            'cmd two',
+            'limits show\nextension list'
         ]
 
         # Get the command object to test
@@ -67,12 +68,15 @@ class TestCommandList(utils.TestCommand):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
+        # TODO(bapalm): Adjust this when cliff properly supports
+        # handling the detection rather than using the hard-code below.
         collist = ('Command Group', 'Commands')
         self.assertEqual(collist, columns)
         datalist = ((
-            'test',
-            ['one', 'cmd two'],
-        ), )
+            'openstack.common',
+            'limits show\nextension list'
+        ),)
+
         self.assertEqual(datalist, tuple(data))
 
 
