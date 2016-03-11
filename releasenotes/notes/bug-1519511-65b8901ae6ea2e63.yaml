@@ -1,0 +1,13 @@
+---
+features:
+  - The ``security group create`` command now uses Network v2 when
+    enabled which results in a more detailed output for network
+    security group rules.
+    [Bug `1519511 <https://bugs.launchpad.net/bugs/1519511>`_]
+fixes:
+  - The ``security group create`` command now uses Network v2 when
+    enabled which allows the security group description to be created
+    with an empty value. In addition, the ``tenant_id`` field changed
+    to ``project_id`` to match the ``security group show`` command
+    output.
+    [Bug `1519511 <https://bugs.launchpad.net/bugs/1519511>`_]

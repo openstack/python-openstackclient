@@ -56,38 +56,6 @@ def _xform_security_group_rule(sgroup):
     return info
 
 
-class CreateSecurityGroup(command.ShowOne):
-    """Create a new security group"""
-
-    def get_parser(self, prog_name):
-        parser = super(CreateSecurityGroup, self).get_parser(prog_name)
-        parser.add_argument(
-            "name",
-            metavar="<name>",
-            help="New security group name",
-        )
-        parser.add_argument(
-            "--description",
-            metavar="<description>",
-            help="Security group description",
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-
-        description = parsed_args.description or parsed_args.name
-
-        data = compute_client.security_groups.create(
-            parsed_args.name,
-            description,
-        )
-
-        info = {}
-        info.update(data._info)
-        return zip(*sorted(six.iteritems(info)))
-
-
 class CreateSecurityGroupRule(command.ShowOne):
     """Create a new security group rule"""
 
