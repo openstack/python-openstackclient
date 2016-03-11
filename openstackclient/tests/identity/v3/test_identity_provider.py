@@ -310,46 +310,6 @@ class TestIdentityProviderList(TestIdentityProvider):
         self.assertEqual(datalist, tuple(data))
 
 
-class TestIdentityProviderShow(TestIdentityProvider):
-
-    def setUp(self):
-        super(TestIdentityProviderShow, self).setUp()
-
-        ret = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.IDENTITY_PROVIDER),
-            loaded=True,
-        )
-        self.identity_providers_mock.get.return_value = ret
-        # Get the command object to test
-        self.cmd = identity_provider.ShowIdentityProvider(self.app, None)
-
-    def test_identity_provider_show(self):
-        arglist = [
-            identity_fakes.idp_id,
-        ]
-        verifylist = [
-            ('identity_provider', identity_fakes.idp_id),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.identity_providers_mock.get.assert_called_with(
-            identity_fakes.idp_id,
-        )
-
-        collist = ('description', 'enabled', 'id', 'remote_ids')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.idp_description,
-            True,
-            identity_fakes.idp_id,
-            identity_fakes.formatted_idp_remote_ids
-        )
-        self.assertEqual(datalist, data)
-
-
 class TestIdentityProviderSet(TestIdentityProvider):
 
     columns = (
@@ -627,3 +587,43 @@ class TestIdentityProviderSet(TestIdentityProvider):
         # neither --enable nor --disable was specified
         self.assertIsNone(columns)
         self.assertIsNone(data)
+
+
+class TestIdentityProviderShow(TestIdentityProvider):
+
+    def setUp(self):
+        super(TestIdentityProviderShow, self).setUp()
+
+        ret = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.IDENTITY_PROVIDER),
+            loaded=True,
+        )
+        self.identity_providers_mock.get.return_value = ret
+        # Get the command object to test
+        self.cmd = identity_provider.ShowIdentityProvider(self.app, None)
+
+    def test_identity_provider_show(self):
+        arglist = [
+            identity_fakes.idp_id,
+        ]
+        verifylist = [
+            ('identity_provider', identity_fakes.idp_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.identity_providers_mock.get.assert_called_with(
+            identity_fakes.idp_id,
+        )
+
+        collist = ('description', 'enabled', 'id', 'remote_ids')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.idp_description,
+            True,
+            identity_fakes.idp_id,
+            identity_fakes.formatted_idp_remote_ids
+        )
+        self.assertEqual(datalist, data)

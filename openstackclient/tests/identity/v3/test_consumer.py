@@ -136,45 +136,6 @@ class TestConsumerList(TestOAuth1):
         self.assertEqual(datalist, tuple(data))
 
 
-class TestConsumerShow(TestOAuth1):
-
-    def setUp(self):
-        super(TestConsumerShow, self).setUp()
-
-        consumer_no_secret = copy.deepcopy(identity_fakes.OAUTH_CONSUMER)
-        del consumer_no_secret['secret']
-        self.consumers_mock.get.return_value = fakes.FakeResource(
-            None,
-            consumer_no_secret,
-            loaded=True,
-        )
-
-        # Get the command object to test
-        self.cmd = consumer.ShowConsumer(self.app, None)
-
-    def test_consumer_show(self):
-        arglist = [
-            identity_fakes.consumer_id,
-        ]
-        verifylist = [
-            ('consumer', identity_fakes.consumer_id),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.consumers_mock.get.assert_called_with(
-            identity_fakes.consumer_id,
-        )
-
-        collist = ('description', 'id')
-        self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.consumer_description,
-            identity_fakes.consumer_id,
-        )
-        self.assertEqual(datalist, data)
-
-
 class TestConsumerSet(TestOAuth1):
 
     def setUp(self):
@@ -217,3 +178,42 @@ class TestConsumerSet(TestOAuth1):
             **kwargs
         )
         self.assertIsNone(result)
+
+
+class TestConsumerShow(TestOAuth1):
+
+    def setUp(self):
+        super(TestConsumerShow, self).setUp()
+
+        consumer_no_secret = copy.deepcopy(identity_fakes.OAUTH_CONSUMER)
+        del consumer_no_secret['secret']
+        self.consumers_mock.get.return_value = fakes.FakeResource(
+            None,
+            consumer_no_secret,
+            loaded=True,
+        )
+
+        # Get the command object to test
+        self.cmd = consumer.ShowConsumer(self.app, None)
+
+    def test_consumer_show(self):
+        arglist = [
+            identity_fakes.consumer_id,
+        ]
+        verifylist = [
+            ('consumer', identity_fakes.consumer_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.consumers_mock.get.assert_called_with(
+            identity_fakes.consumer_id,
+        )
+
+        collist = ('description', 'id')
+        self.assertEqual(collist, columns)
+        datalist = (
+            identity_fakes.consumer_description,
+            identity_fakes.consumer_id,
+        )
+        self.assertEqual(datalist, data)

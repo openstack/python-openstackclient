@@ -30,57 +30,6 @@ class TestUnscopedSAML(identity_fakes.TestFederatedIdentity):
         self.domains_mock.reset_mock()
 
 
-class TestProjectList(TestUnscopedSAML):
-
-    def setUp(self):
-        super(TestProjectList, self).setUp()
-
-        self.projects_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.PROJECT),
-                loaded=True,
-            ),
-        ]
-
-        # Get the command object to test
-        self.cmd = unscoped_saml.ListAccessibleProjects(self.app, None)
-
-    def test_accessible_projects_list(self):
-        self.app.client_manager.auth_plugin_name = 'v3unscopedsaml'
-        arglist = []
-        verifylist = []
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # In base command class Lister in cliff, abstract method take_action()
-        # returns a tuple containing the column names and an iterable
-        # containing the data to be listed.
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.projects_mock.list.assert_called_with()
-
-        collist = ('ID', 'Domain ID', 'Enabled', 'Name')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.project_id,
-            identity_fakes.domain_id,
-            True,
-            identity_fakes.project_name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
-
-    def test_accessible_projects_list_wrong_auth(self):
-        auth = identity_fakes.FakeAuth("wrong auth")
-        self.app.client_manager.identity.session.auth = auth
-        arglist = []
-        verifylist = []
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action,
-                          parsed_args)
-
-
 class TestDomainList(TestUnscopedSAML):
 
     def setUp(self):
@@ -121,6 +70,57 @@ class TestDomainList(TestUnscopedSAML):
         self.assertEqual(datalist, tuple(data))
 
     def test_accessible_domains_list_wrong_auth(self):
+        auth = identity_fakes.FakeAuth("wrong auth")
+        self.app.client_manager.identity.session.auth = auth
+        arglist = []
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)
+
+
+class TestProjectList(TestUnscopedSAML):
+
+    def setUp(self):
+        super(TestProjectList, self).setUp()
+
+        self.projects_mock.list.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(identity_fakes.PROJECT),
+                loaded=True,
+            ),
+        ]
+
+        # Get the command object to test
+        self.cmd = unscoped_saml.ListAccessibleProjects(self.app, None)
+
+    def test_accessible_projects_list(self):
+        self.app.client_manager.auth_plugin_name = 'v3unscopedsaml'
+        arglist = []
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.projects_mock.list.assert_called_with()
+
+        collist = ('ID', 'Domain ID', 'Enabled', 'Name')
+        self.assertEqual(collist, columns)
+        datalist = ((
+            identity_fakes.project_id,
+            identity_fakes.domain_id,
+            True,
+            identity_fakes.project_name,
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_accessible_projects_list_wrong_auth(self):
         auth = identity_fakes.FakeAuth("wrong auth")
         self.app.client_manager.identity.session.auth = auth
         arglist = []
