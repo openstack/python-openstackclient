@@ -56,4 +56,4 @@ class CommandManager(cliff.commandmanager.CommandManager):
                 )
                 group_list.append(cmd_name)
             return group_list
-        return self.commands.keys()
+        return list(self.commands.keys())

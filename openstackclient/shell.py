@@ -355,7 +355,7 @@ class OpenStackShell(app.App):
                         self.log.warning(
                             "%s version %s is not in supported versions %s"
                             % (api, version_opt,
-                               ', '.join(mod.API_VERSIONS.keys())))
+                               ', '.join(list(mod.API_VERSIONS.keys()))))
 
                 # Command groups deal only with major versions
                 version = '.v' + version_opt.replace('.', '_').split('_')[0]

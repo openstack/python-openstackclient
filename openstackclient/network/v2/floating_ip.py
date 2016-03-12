@@ -18,7 +18,7 @@ from openstackclient.network import common
 
 
 def _get_columns(item):
-    columns = item.keys()
+    columns = list(item.keys())
     if 'tenant_id' in columns:
         columns.remove('tenant_id')
         columns.append('project_id')
