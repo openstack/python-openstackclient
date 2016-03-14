@@ -118,22 +118,6 @@ List flavors
 
     Maximum number of flavors to display
 
-flavor show
------------
-
-Display flavor details
-
-.. program:: flavor show
-.. code:: bash
-
-    os flavor show
-        <flavor>
-
-.. _flavor_show-flavor:
-.. describe:: <flavor>
-
-    Flavor to display (name or ID)
-
 flavor set
 ----------
 
@@ -153,6 +137,22 @@ Set flavor properties
 .. describe:: <flavor>
 
     Flavor to modify (name or ID)
+
+flavor show
+-----------
+
+Display flavor details
+
+.. program:: flavor show
+.. code:: bash
+
+    os flavor show
+        <flavor>
+
+.. _flavor_show-flavor:
+.. describe:: <flavor>
+
+    Flavor to display (name or ID)
 
 flavor unset
 ------------
