@@ -45,7 +45,7 @@ ip floating delete
 Delete floating IP
 
 .. program:: ip floating delete
-   .. code:: bash
+.. code:: bash
 
     os ip floating delete <floating-ip>
 
@@ -89,7 +89,7 @@ ip floating show
 Display floating IP details
 
 .. program:: ip floating show
-   .. code:: bash
+.. code:: bash
 
     os ip floating show <floating-ip>
 

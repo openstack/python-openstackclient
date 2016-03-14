@@ -140,8 +140,8 @@ that appears in :file:`clouds.yaml`
 
 Debugging
 ~~~~~~~~~
-You may find the :doc:`config show <command-objects/config>`
-helpful to debug configuration issues.  It will display your current
+You may find the :doc:`configuration show <command-objects/configuration>`
+command helpful to debug configuration issues.  It will display your current
 configuration.
 
 Logging Settings
