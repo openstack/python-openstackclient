@@ -99,8 +99,8 @@ to be handled by having the proper options in a set command available to allow
 recovery in the case where the primary resource has been created but the
 subsequent calls did not complete.
 
-Example
-~~~~~~~
+Example 1
+~~~~~~~~~
 
 This example is taken from the ``volume snapshot set`` command where ``--property``
 arguments are set using the volume manager's ``set_metadata()`` method,
@@ -161,3 +161,41 @@ remaining arguments are set using the ``update()`` method.
         #                without aborting prematurely
         if result > 0:
             raise SomeNonFatalException
+
+Example 2
+~~~~~~~~~
+
+This example is taken from the ``network delete`` command which takes multiple
+networks to delete. All networks will be delete in a loop, which makes multiple
+``delete_network()`` calls.
+
+.. code-block:: python
+
+    class DeleteNetwork(common.NetworkAndComputeCommand):
+        """Delete network(s)"""
+
+        def update_parser_common(self, parser):
+            parser.add_argument(
+                'network',
+                metavar="<network>",
+                nargs="+",
+                help=("Network(s) to delete (name or ID)")
+            )
+            return parser
+
+        def take_action(self, client, parsed_args):
+            ret = 0
+
+            for network in parsed_args.network:
+                try:
+                    obj = client.find_network(network, ignore_missing=False)
+                    client.delete_network(obj)
+                except Exception:
+                    self.app.log.error("Failed to delete network with name "
+                                       "or ID %s." % network)
+                    ret += 1
+
+            if ret > 0:
+                total = len(parsed_args.network)
+                msg = "Failed to delete %s of %s networks." % (ret, total)
+                raise exceptions.CommandError(msg)

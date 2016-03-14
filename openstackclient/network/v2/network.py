@@ -224,8 +224,12 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
         return (columns, data)
 
 
-class DeleteNetwork(common.NetworkAndComputeCommand):
+class DeleteNetwork(common.NetworkAndComputeDelete):
     """Delete network(s)"""
+
+    # Used by base class to find resources in parsed_args.
+    resource = 'network'
+    r = None
 
     def update_parser_common(self, parser):
         parser.add_argument(
@@ -234,20 +238,16 @@ class DeleteNetwork(common.NetworkAndComputeCommand):
             nargs="+",
             help=("Network(s) to delete (name or ID)")
         )
+
         return parser
 
     def take_action_network(self, client, parsed_args):
-        for network in parsed_args.network:
-            obj = client.find_network(network)
-            client.delete_network(obj)
+        obj = client.find_network(self.r, ignore_missing=False)
+        client.delete_network(obj)
 
     def take_action_compute(self, client, parsed_args):
-        for network in parsed_args.network:
-            network = utils.find_resource(
-                client.networks,
-                network,
-            )
-            client.networks.delete(network.id)
+        network = utils.find_resource(client.networks, self.r)
+        client.networks.delete(network.id)
 
 
 class ListNetwork(common.NetworkAndComputeLister):

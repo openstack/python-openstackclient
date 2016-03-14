@@ -15,6 +15,7 @@ import abc
 import six
 
 from openstackclient.common import command
+from openstackclient.common import exceptions
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -66,6 +67,42 @@ class NetworkAndComputeCommand(command.Command):
     def take_action_compute(self, client, parsed_args):
         """Override to do something useful."""
         pass
+
+
+@six.add_metaclass(abc.ABCMeta)
+class NetworkAndComputeDelete(NetworkAndComputeCommand):
+    """Network and Compute Delete
+
+    Delete class for commands that support implementation via
+    the network or compute endpoint. Such commands have different
+    implementations for take_action() and may even have different
+    arguments. This class supports bulk deletion, and error handling
+    following the rules in doc/source/command-errors.rst.
+    """
+
+    def take_action(self, parsed_args):
+        ret = 0
+        resources = getattr(parsed_args, self.resource, [])
+
+        for r in resources:
+            self.r = r
+            try:
+                if self.app.client_manager.is_network_endpoint_enabled():
+                    self.take_action_network(self.app.client_manager.network,
+                                             parsed_args)
+                else:
+                    self.take_action_compute(self.app.client_manager.compute,
+                                             parsed_args)
+            except Exception as e:
+                self.app.log.error("Failed to delete %s with name or ID "
+                                   "'%s': %s" % (self.resource, r, e))
+                ret += 1
+
+        if ret:
+            total = len(resources)
+            msg = "%s of %s %ss failed to delete." % (ret, total,
+                                                      self.resource)
+            raise exceptions.CommandError(msg)
 
 
 @six.add_metaclass(abc.ABCMeta)
