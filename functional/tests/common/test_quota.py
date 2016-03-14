@@ -16,7 +16,7 @@ from functional.common import test
 class QuotaTests(test.TestCase):
     """Functional tests for quota. """
     # Test quota information for compute, network and volume.
-    EXPECTED_FIELDS = ['instances', 'network', 'volumes']
+    EXPECTED_FIELDS = ['instances', 'networks', 'volumes']
     PROJECT_NAME = None
 
     @classmethod
@@ -25,12 +25,11 @@ class QuotaTests(test.TestCase):
             cls.get_openstack_configuration_value('auth.project_name')
 
     def test_quota_set(self):
-        # TODO(rtheis): Add --network option once supported on set.
-        self.openstack('quota set --instances 11 --volumes 11 ' +
-                       self.PROJECT_NAME)
+        self.openstack('quota set --instances 11 --volumes 11 --networks 11 '
+                       + self.PROJECT_NAME)
         opts = self.get_show_opts(self.EXPECTED_FIELDS)
         raw_output = self.openstack('quota show ' + self.PROJECT_NAME + opts)
-        self.assertEqual("11\n10\n11\n", raw_output)
+        self.assertEqual("11\n11\n11\n", raw_output)
 
     def test_quota_show(self):
         raw_output = self.openstack('quota show ' + self.PROJECT_NAME)
