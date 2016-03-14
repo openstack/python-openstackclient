@@ -36,7 +36,7 @@ List service command
 .. _compute-service-list:
 .. option:: --host <host>
 
-    List services on specified host (name only) 
+    List services on specified host (name only)
 
 .. option:: --service <service>
 
@@ -71,7 +71,8 @@ Set service command
 
 .. option:: --disable-reason <reason>
 
-    Reason for disabling the service (in quotes)
+    Reason for disabling the service (in quotes).  Note that when the service
+    is enabled, this option is ignored.
 
 .. describe:: <host>
 

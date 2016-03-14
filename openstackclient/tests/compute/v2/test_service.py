@@ -14,6 +14,7 @@
 #
 
 import copy
+import mock
 
 from openstackclient.compute.v2 import service
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
@@ -138,14 +139,14 @@ class TestServiceSet(TestService):
 
     def test_service_set_enable(self):
         arglist = [
+            '--enable',
             compute_fakes.service_host,
             compute_fakes.service_binary,
-            '--enable',
         ]
         verifylist = [
+            ('enabled', True),
             ('host', compute_fakes.service_host),
             ('service', compute_fakes.service_binary),
-            ('enabled', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -159,14 +160,14 @@ class TestServiceSet(TestService):
 
     def test_service_set_disable(self):
         arglist = [
+            '--disable',
             compute_fakes.service_host,
             compute_fakes.service_binary,
-            '--disable',
         ]
         verifylist = [
+            ('enabled', False),
             ('host', compute_fakes.service_host),
             ('service', compute_fakes.service_binary),
-            ('enabled', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -181,17 +182,16 @@ class TestServiceSet(TestService):
     def test_service_set_disable_with_reason(self):
         reason = 'earthquake'
         arglist = [
+            '--disable',
+            '--disable-reason', reason,
             compute_fakes.service_host,
             compute_fakes.service_binary,
-            '--disable',
-            '--disable-reason',
-            reason
         ]
         verifylist = [
+            ('enabled', False),
+            ('disable_reason', reason),
             ('host', compute_fakes.service_host),
             ('service', compute_fakes.service_binary),
-            ('enabled', False),
-            ('disable_reason', reason)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -201,5 +201,60 @@ class TestServiceSet(TestService):
             compute_fakes.service_host,
             compute_fakes.service_binary,
             reason
+        )
+        self.assertIsNone(result)
+
+    def test_service_set_only_with_disable_reason(self):
+        reason = 'earthquake'
+        arglist = [
+            '--disable-reason', reason,
+            compute_fakes.service_host,
+            compute_fakes.service_binary,
+        ]
+        verifylist = [
+            ('enabled', True),
+            ('disable_reason', reason),
+            ('host', compute_fakes.service_host),
+            ('service', compute_fakes.service_binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(self.cmd.log, 'info') as mock_log:
+            result = self.cmd.take_action(parsed_args)
+
+            msg = "argument --disable-reason has been ignored"
+            mock_log.assert_called_once_with(msg)
+
+        self.service_mock.enable.assert_called_with(
+            compute_fakes.service_host,
+            compute_fakes.service_binary
+        )
+        self.assertIsNone(result)
+
+    def test_service_set_enable_with_disable_reason(self):
+        reason = 'earthquake'
+        arglist = [
+            '--enable',
+            '--disable-reason', reason,
+            compute_fakes.service_host,
+            compute_fakes.service_binary,
+        ]
+        verifylist = [
+            ('enabled', True),
+            ('disable_reason', reason),
+            ('host', compute_fakes.service_host),
+            ('service', compute_fakes.service_binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(self.cmd.log, 'info') as mock_log:
+            result = self.cmd.take_action(parsed_args)
+
+            msg = "argument --disable-reason has been ignored"
+            mock_log.assert_called_once_with(msg)
+
+        self.service_mock.enable.assert_called_with(
+            compute_fakes.service_host,
+            compute_fakes.service_binary
         )
         self.assertIsNone(result)

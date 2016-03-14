@@ -17,6 +17,7 @@
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _  # noqa
 
 
 class DeleteService(command.Command):
@@ -117,8 +118,8 @@ class SetService(command.Command):
             "--disable-reason",
             default=None,
             metavar="<reason>",
-            help="Reason for disabling the service (in quotas)"
-        )
+            help="Reason for disabling the service (in quotas).  Note that "
+                 "when the service is enabled, this option is ignored.")
         return parser
 
     def take_action(self, parsed_args):
@@ -133,4 +134,8 @@ class SetService(command.Command):
             else:
                 cs.disable(parsed_args.host, parsed_args.service)
         else:
+            if parsed_args.disable_reason:
+                msg = _("argument --disable-reason has been ignored")
+                self.log.info(msg)
+
             cs.enable(parsed_args.host, parsed_args.service)
