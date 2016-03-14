@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``subnet create`` command.
+    [Bug `1542364 <https://bugs.launchpad.net/bugs/1542364>`_]
