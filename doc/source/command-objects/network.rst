@@ -17,6 +17,7 @@ Create new network
         [--enable | --disable]
         [--share | --no-share]
         [--availability-zone-hint <availability-zone>]
+        [--external [--default | --no-default] | --internal]
         <name>
 
 .. option:: --project <project>
@@ -58,6 +59,29 @@ Create new network
 
     IPv4 subnet for fixed IPs (in CIDR notation)
     (Compute v2 network only)
+
+.. option:: --external
+
+    Set this network as an external network.
+    Requires the "external-net" extension to be enabled.
+    (Network v2 only)
+
+.. option:: --internal
+
+    Set this network as an internal network (default)
+    (Network v2 only)
+
+.. option:: --default
+
+    Specify if this network should be used as
+    the default external network
+    (Network v2 only)
+
+.. option:: --no-default
+
+    Do not use the network as the default external network.
+    By default, no network is set as an external network.
+    (Network v2 only)
 
 .. _network_create-name:
 .. describe:: <name>
