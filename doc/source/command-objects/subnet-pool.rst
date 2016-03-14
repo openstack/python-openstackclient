@@ -10,7 +10,7 @@ subnet pool create
 Create subnet pool
 
 .. program:: subnet pool create
-      .. code:: bash
+.. code:: bash
 
     os subnet pool create
         [--pool-prefix <pool-prefix> [...]]
@@ -78,7 +78,7 @@ subnet pool set
 Set subnet pool properties
 
 .. program:: subnet pool set
-   .. code:: bash
+.. code:: bash
 
     os subnet pool set
         [--name <name>]
