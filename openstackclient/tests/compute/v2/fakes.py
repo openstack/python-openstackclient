@@ -79,10 +79,12 @@ QUOTA_data = tuple(QUOTA[x] for x in sorted(QUOTA))
 service_host = 'host_test'
 service_binary = 'compute_test'
 service_status = 'enabled'
+service_disabled_reason = 'earthquake'
 SERVICE = {
     'host': service_host,
     'binary': service_binary,
     'status': service_status,
+    'disabled_reason': service_disabled_reason,
 }
 
 

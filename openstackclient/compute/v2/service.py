@@ -49,19 +49,37 @@ class ListService(command.Lister):
             "--service",
             metavar="<service>",
             help="Name of service")
+        parser.add_argument(
+            "--long",
+            action="store_true",
+            default=False,
+            help="List additional fields in output"
+        )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        columns = (
-            "Id",
-            "Binary",
-            "Host",
-            "Zone",
-            "Status",
-            "State",
-            "Updated At"
-        )
+        if parsed_args.long:
+            columns = (
+                "Id",
+                "Binary",
+                "Host",
+                "Zone",
+                "Status",
+                "State",
+                "Updated At",
+                "Disabled Reason"
+            )
+        else:
+            columns = (
+                "Id",
+                "Binary",
+                "Host",
+                "Zone",
+                "Status",
+                "State",
+                "Updated At"
+            )
         data = compute_client.services.list(parsed_args.host,
                                             parsed_args.service)
         return (columns,

@@ -85,12 +85,36 @@ class TestServiceList(TestService):
         # In base command class Lister in cliff, abstract method take_action()
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
-        self.cmd.take_action(parsed_args)
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.service_mock.list.assert_called_with(
             compute_fakes.service_host,
             compute_fakes.service_binary,
         )
+
+        self.assertNotIn("Disabled Reason", columns)
+        self.assertNotIn(compute_fakes.service_disabled_reason, list(data)[0])
+
+    def test_service_list_with_long_option(self):
+        arglist = [
+            '--host', compute_fakes.service_host,
+            '--service', compute_fakes.service_binary,
+            '--long'
+        ]
+        verifylist = [
+            ('host', compute_fakes.service_host),
+            ('service', compute_fakes.service_binary),
+            ('long', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertIn("Disabled Reason", columns)
+        self.assertIn(compute_fakes.service_disabled_reason, list(data)[0])
 
 
 class TestServiceSet(TestService):

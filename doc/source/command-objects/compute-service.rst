@@ -31,6 +31,7 @@ List service command
     os compute service list
         [--host <host>]
         [--service <service>]
+        [--long]
 
 .. _compute-service-list:
 .. describe:: --host <host>
@@ -40,6 +41,10 @@ List service command
 .. describe:: --service <service>
 
     Name of service
+
+.. describe:: --long
+
+    List additional fields in output
 
 
 compute service set
