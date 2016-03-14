@@ -4,6 +4,33 @@ image
 
 Image v1, v2
 
+image add project
+-----------------
+
+*Only supported for Image v2*
+
+Associate project with image
+
+.. program:: image add project
+.. code:: bash
+
+    os image add project
+        [--project-domain <project-domain>]
+        <image> <project>
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+.. describe:: <image>
+
+    Image to share (name or ID).
+
+.. describe:: <project>
+
+    Project to associate with image (name or ID)
+
 image create
 ------------
 
@@ -205,6 +232,33 @@ List available images
 
     The last image (name or ID) of the previous page. Display list of images
     after marker. Display all images if not specified.
+
+image remove project
+--------------------
+
+*Only supported for Image v2*
+
+Disassociate project with image
+
+.. program:: image remove project
+.. code:: bash
+
+    os image remove remove
+        [--project-domain <project-domain>]
+        <image> <project>
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+.. describe:: <image>
+
+    Image to unshare (name or ID).
+
+.. describe:: <project>
+
+    Project to disassociate with image (name or ID)
 
 image save
 ----------
@@ -445,57 +499,3 @@ Display image details
 .. describe:: <image>
 
     Image to display (name or ID)
-
-image add project
------------------
-
-*Only supported for Image v2*
-
-Associate project with image
-
-.. program:: image add project
-.. code:: bash
-
-    os image add project
-        [--project-domain <project-domain>]
-        <image> <project>
-
-.. option:: --project-domain <project-domain>
-
-    Domain the project belongs to (name or ID).
-    This can be used in case collisions between project names exist.
-
-.. describe:: <image>
-
-    Image to share (name or ID).
-
-.. describe:: <project>
-
-    Project to associate with image (name or ID)
-
-image remove project
---------------------
-
-*Only supported for Image v2*
-
-Disassociate project with image
-
-.. program:: image remove project
-.. code:: bash
-
-    os image remove remove
-        [--project-domain <project-domain>]
-        <image> <project>
-
-.. option:: --project-domain <project-domain>
-
-    Domain the project belongs to (name or ID).
-    This can be used in case collisions between project names exist.
-
-.. describe:: <image>
-
-    Image to unshare (name or ID).
-
-.. describe:: <project>
-
-    Project to disassociate with image (name or ID)
