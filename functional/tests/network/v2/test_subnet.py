@@ -12,8 +12,6 @@
 
 import uuid
 
-import testtools
-
 from functional.common import test
 
 
@@ -49,7 +47,6 @@ class SubnetTests(test.TestCase):
         raw_output = self.openstack('subnet list' + opts)
         self.assertIn(self.NAME, raw_output)
 
-    @testtools.skip('bug/1542363')
     def test_subnet_set(self):
         self.openstack('subnet set --no-dhcp ' + self.NAME)
         opts = self.get_show_opts(['name', 'enable_dhcp'])
