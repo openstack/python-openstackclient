@@ -1,0 +1,5 @@
+---
+features:
+  - Add ``--project`` and ``--project-domain`` options to the
+    ``security group create`` command for Network v2.
+    [Bug `1519511 <https://bugs.launchpad.net/bugs/1519511>`_]
