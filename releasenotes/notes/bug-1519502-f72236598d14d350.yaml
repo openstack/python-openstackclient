@@ -6,3 +6,7 @@ features:
     [Bug `1519502 <https://bugs.launchpad.net/python-openstackclient/+bug/1519502>`_]
   - Add command ``ip floating show`` for neutron and nova network.
     [Bug `1519502 <https://bugs.launchpad.net/python-openstackclient/+bug/1519502>`_]
+upgrade:
+  - Output of command ``ip floating list`` for nova network has been changed.
+    And it is different from the output of neutron network.
+    [Ref `<http://docs.openstack.org/developer/python-openstackclient/backwards-incompatible.html>`_]
