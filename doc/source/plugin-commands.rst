@@ -33,4 +33,24 @@ Note: To see the complete syntax for the plugin commands, see the `CLI_Ref`_
 .. list-plugins:: openstack.orchestration.v1
    :detailed:
 
+.. list-plugins:: openstack.search.v1
+   :detailed:
+
+.. list-plugins:: openstack.baremetal_introspection.v1
+   :detailed:
+
+.. list-plugins:: openstack.application_catalog.v1
+   :detailed:
+
+.. list-plugins:: openstack.clustering.v1
+   :detailed:
+
+.. # tripleoclient is not in global-requirements
+.. #.. list-plugins:: openstack.tripleoclient.v1
+.. #   :detailed:
+
+.. # cueclient is not in global-requirements
+.. #.. list-plugins:: openstack.mb.v1
+.. #   :detailed:
+
 .. _CLI_Ref: http://docs.openstack.org/cli-reference/openstack.html
