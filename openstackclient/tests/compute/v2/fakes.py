@@ -142,6 +142,9 @@ class FakeComputev2Client(object):
         self.keypairs = mock.Mock()
         self.keypairs.resource_class = fakes.FakeResource(None, {})
 
+        self.hosts = mock.Mock()
+        self.hosts.resource_class = fakes.FakeResource(None, {})
+
         self.auth_token = kwargs['token']
 
         self.management_url = kwargs['endpoint']
@@ -874,3 +877,56 @@ class FakeNetwork(object):
             networks.append(FakeNetwork.create_one_network(attrs, methods))
 
         return networks
+
+
+class FakeHost(object):
+    """Fake one host."""
+
+    @staticmethod
+    def create_one_host(attrs=None):
+        """Create a fake host.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id and other attributes
+        """
+        if attrs is None:
+            attrs = {}
+
+        # Set default attributes.
+        host_info = {
+            "id": 1,
+            "service_id": 1,
+            "host": "host1",
+            "uuid": 'host-id-' + uuid.uuid4().hex,
+            "vcpus": 10,
+            "memory_mb": 100,
+            "local_gb": 100,
+            "vcpus_used": 5,
+            "memory_mb_used": 50,
+            "local_gb_used": 10,
+            "hypervisor_type": "xen",
+            "hypervisor_version": 1,
+            "hypervisor_hostname": "devstack1",
+            "free_ram_mb": 50,
+            "free_disk_gb": 50,
+            "current_workload": 10,
+            "running_vms": 1,
+            "cpu_info": "",
+            "disk_available_least": 1,
+            "host_ip": "10.10.10.10",
+            "supported_instances": "",
+            "metrics": "",
+            "pci_stats": "",
+            "extra_resources": "",
+            "stats": "",
+            "numa_topology": "",
+            "ram_allocation_ratio": 1.0,
+            "cpu_allocation_ratio": 1.0
+        }
+        host_info.update(attrs)
+        host = fakes.FakeResource(
+            info=copy.deepcopy(host_info),
+            loaded=True)
+        return host

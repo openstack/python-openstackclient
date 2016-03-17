@@ -21,6 +21,41 @@ List all hosts
 
     Only return hosts in the availability zone
 
+host set
+--------
+
+Set host command
+
+.. program:: host set
+.. code:: bash
+
+    os host set
+        [--enable | --disable]
+        [--enable-maintenance | --disable-maintenance]
+        <host>
+
+.. _host-set:
+.. option:: --enable
+
+    Enable the host
+
+.. option:: --disable
+
+    Disable the host
+
+.. _maintenance-set:
+.. option:: --enable-maintenance
+
+    Enable maintenance mode for the host
+
+.. option:: --disable-maintenance
+
+    Disable maintenance mode for the host
+
+.. describe:: <host>
+
+    The host (name or ID)
+
 host show
 ---------
 
