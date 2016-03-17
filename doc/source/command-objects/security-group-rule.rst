@@ -28,7 +28,7 @@ Create a new security group rule
 
 .. option:: --src-group <group>
 
-    Source security group (ID only)
+    Source security group (name or ID)
 
 .. option:: --dst-port <port-range>
 
