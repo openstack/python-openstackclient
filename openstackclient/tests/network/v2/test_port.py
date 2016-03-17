@@ -224,8 +224,11 @@ class TestListPort(TestPort):
 
         # Get the command object to test
         self.cmd = port.ListPort(self.app, self.namespace)
-
         self.network.ports = mock.Mock(return_value=self._ports)
+        fake_router = network_fakes.FakeRouter.create_one_router({
+            'id': 'fake-router-id',
+        })
+        self.network.find_router = mock.Mock(return_value=fake_router)
 
     def test_port_list_no_options(self):
         arglist = []
@@ -236,6 +239,25 @@ class TestListPort(TestPort):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.ports.assert_called_with()
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_port_list_router_opt(self):
+        arglist = [
+            '--router', 'fake-router-name',
+        ]
+
+        verifylist = [
+            ('router', 'fake-router-name')
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ports.assert_called_with(**{
+            'device_id': 'fake-router-id'
+        })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 

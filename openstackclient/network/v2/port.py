@@ -243,6 +243,16 @@ class DeletePort(command.Command):
 class ListPort(command.Lister):
     """List ports"""
 
+    def get_parser(self, prog_name):
+        parser = super(ListPort, self).get_parser(prog_name)
+        parser.add_argument(
+            '--router',
+            metavar='<router>',
+            dest='router',
+            help='List only ports attached to this router (name or ID)',
+        )
+        return parser
+
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
 
@@ -259,7 +269,14 @@ class ListPort(command.Lister):
             'Fixed IP Addresses',
         )
 
-        data = client.ports()
+        filters = {}
+        if parsed_args.router:
+            _router = client.find_router(parsed_args.router,
+                                         ignore_missing=False)
+            filters = {'device_id': _router.id}
+
+        data = client.ports(**filters)
+
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
