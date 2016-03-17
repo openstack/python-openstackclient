@@ -15,11 +15,11 @@ Create new port
     os port create
         --network <network>
         [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]
-        [--device-id <device-id>]
+        [--device <device-id>]
         [--device-owner <device-owner>]
         [--vnic-type <vnic-type>]
         [--binding-profile <binding-profile>]
-        [--host-id <host-id>]
+        [--host <host-id>]
         [--enable | --disable]
         [--mac-address <mac-address>]
         [--project <project> [--project-domain <project-domain>]]
@@ -35,9 +35,9 @@ Create new port
     subnet=<subnet>,ip-address=<ip-address>
     (this option can be repeated)
 
-.. option:: --device-id <device-id>
+.. option:: --device <device-id>
 
-    Device ID of this port
+    Port device ID
 
 .. option:: --device-owner <device-owner>
 
@@ -53,9 +53,9 @@ Create new port
     Custom data to be passed as binding:profile: <key>=<value>
     (this option can be repeated)
 
-.. option:: --host-id <host-id>
+.. option:: --host <host-id>
 
-    The ID of the host where the port is allocated
+    Allocate port on host ``<host-id>`` (ID only)
 
 .. option:: --enable
 
