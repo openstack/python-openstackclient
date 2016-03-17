@@ -75,6 +75,30 @@ class TestSnapshotCreate(TestSnapshot):
         self.assertEqual(columns, volume_fakes.SNAPSHOT_columns)
         self.assertEqual(data, volume_fakes.SNAPSHOT_data)
 
+    def test_snapshot_create_without_name(self):
+        arglist = [
+            volume_fakes.volume_id,
+            "--description", volume_fakes.snapshot_description,
+            "--force"
+        ]
+        verifylist = [
+            ("volume", volume_fakes.volume_id),
+            ("description", volume_fakes.snapshot_description),
+            ("force", True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.create.assert_called_with(
+            volume_fakes.volume_id,
+            force=True,
+            name=None,
+            description=volume_fakes.snapshot_description
+        )
+        self.assertEqual(columns, volume_fakes.SNAPSHOT_columns)
+        self.assertEqual(data, volume_fakes.SNAPSHOT_data)
+
 
 class TestSnapshotDelete(TestSnapshot):
 

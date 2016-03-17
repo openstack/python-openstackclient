@@ -1,0 +1,4 @@
+---
+fixes:
+  - Make ``--name`` optional in ``volume snapshot create`` and
+    ``volume backup create`` commands.
