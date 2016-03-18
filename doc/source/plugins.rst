@@ -19,28 +19,33 @@ Other OpenStack services, such as Orchestration or Telemetry may create an
 OpenStackClient plugin. The source code will not be hosted by
 OpenStackClient.
 
-The following is a list of projects and their status as an OpenStackClient
-plugin.
+The following is a list of projects that are an OpenStackClient plugin.
 
-=============================  ======================================
-   project                     notes
-=============================  ======================================
-python-barbicanclient          using OpenStackClient
-python-ceilometerclient        using argparse
-python-congressclient          using OpenStackClient
-python-cueclient               using OpenStackClient
-python-designateclient         using OpenStackClient
-python-heatclient              using OpenStackClient
-python-ironicclient            Using OpenStackClient
-python-magnumclient            using argparse
-python-manilaclient            using argparse
-python-mistralclient           using OpenStackClient
-python-muranoclient            using argparse
-python-saharaclient            using OpenStackClient
-python-searchlightclient       using OpenStackClient
-python-troveclient             using argparse
-python-zaqarclient             using OpenStackClient
-=============================  ======================================
+- python-barbicanclient
+- python-congressclient
+- python-cueclient\*\*
+- python-designateclient
+- python-heatclient
+- python-ironicclient
+- python-ironic-inspector-client
+- python-mistralclient
+- python-muranoclient
+- python-saharaclient
+- python-searchlightclient
+- python-senlinclient
+- python-tripleoclient\*\*
+- python-zaqarclient
+
+\*\* Note that some clients are not listed in global-requirements
+
+The following is a list of projects that are not an OpenStackClient plugin.
+
+- aodhclient
+- gnocchiclient
+- python-troveclient
+- python-magnumclient
+- python-ceilometerclient
+- python-solumclient
 
 Implementation
 ==============
