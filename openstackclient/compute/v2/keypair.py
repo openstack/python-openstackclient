@@ -48,8 +48,7 @@ class CreateKeypair(command.ShowOne):
         public_key = parsed_args.public_key
         if public_key:
             try:
-                with io.open(os.path.expanduser(parsed_args.public_key),
-                             "rb") as p:
+                with io.open(os.path.expanduser(parsed_args.public_key)) as p:
                     public_key = p.read()
             except IOError as e:
                 msg = "Key file %s not found: %s"
