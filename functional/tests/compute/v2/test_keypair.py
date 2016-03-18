@@ -10,9 +10,20 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import os
 import uuid
 
 from functional.common import test
+
+
+PUBLIC_KEY = (
+    'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWNGczJxNaFUrJJVhta4dWsZY6bU'
+    '5HUMPbyfSMu713ca3mYtG848W4dfDCB98KmSQx2Bl0D6Q2nrOszOXEQWAXNdfMadnW'
+    'c4mNwhZcPBVohIFoC1KZJC8kcBTvFZcoz3mdIijxJtywZNpGNh34VRJlZeHyYjg8/D'
+    'esHzdoBVd5c/4R36emQSIV9ukY6PHeZ3scAH4B3K9PxItJBwiFtouSRphQG0bJgOv/'
+    'gjAjMElAvg5oku98cb4QiHZ8T8WY68id804raHR6pJxpVVJN4TYJmlUs+NOVM+pPKb'
+    'KJttqrIBTkawGK9pLHNfn7z6v1syvUo/4enc1l0Q/Qn2kWiz67 fake@openstack'
+)
 
 
 class KeypairTests(test.TestCase):
@@ -31,6 +42,21 @@ class KeypairTests(test.TestCase):
     def tearDownClass(cls):
         raw_output = cls.openstack('keypair delete ' + cls.NAME)
         cls.assertOutput('', raw_output)
+
+    def test_keypair_create(self):
+        TMP_FILE = uuid.uuid4().hex
+        self.addCleanup(os.remove, TMP_FILE)
+        with open(TMP_FILE, 'w') as f:
+            f.write(PUBLIC_KEY)
+
+        raw_output = self.openstack(
+            'keypair create --public-key ' + TMP_FILE + ' tmpkey',
+        )
+        self.addCleanup(
+            self.openstack,
+            'keypair delete tmpkey',
+        )
+        self.assertIn('tmpkey', raw_output)
 
     def test_keypair_list(self):
         opts = self.get_list_opts(self.HEADERS)
