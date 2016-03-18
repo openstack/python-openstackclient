@@ -100,7 +100,7 @@ An example parser declaration:
 
         choice_option.add_argument(
             '--test',
-            metavar='<test>,
+            metavar='<test>',
             choices=['choice1', 'choice2', 'choice3'],
             help=_('Test type (choice1, choice2 or choice3)'),
         )
