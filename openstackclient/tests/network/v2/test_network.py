@@ -124,7 +124,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network.assert_called_with(**{
+        self.network.create_network.assert_called_once_with(**{
             'admin_state_up': True,
             'name': self._network.name,
         })
@@ -152,7 +152,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = (self.cmd.take_action(parsed_args))
 
-        self.network.create_network.assert_called_with(**{
+        self.network.create_network.assert_called_once_with(**{
             'admin_state_up': False,
             'availability_zone_hints': ["nova"],
             'name': self._network.name,
@@ -177,7 +177,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network.assert_called_with(**{
+        self.network.create_network.assert_called_once_with(**{
             'admin_state_up': True,
             'name': self._network.name,
             'shared': False,
@@ -258,7 +258,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network.assert_called_with(**{
+        self.network.create_network.assert_called_once_with(**{
             'admin_state_up': True,
             'name': self._network.name,
             'tenant_id': identity_fakes_v2.project_id,
@@ -315,7 +315,7 @@ class TestDeleteNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_network.assert_called_with(self._network)
+        self.network.delete_network.assert_called_once_with(self._network)
         self.assertIsNone(result)
 
 
@@ -386,7 +386,7 @@ class TestListNetwork(TestNetwork):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_with()
+        self.network.networks.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -405,7 +405,7 @@ class TestListNetwork(TestNetwork):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_with(
+        self.network.networks.assert_called_once_with(
             **{'router:external': True}
         )
         self.assertEqual(self.columns, columns)
@@ -426,7 +426,7 @@ class TestListNetwork(TestNetwork):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_with()
+        self.network.networks.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
@@ -468,7 +468,8 @@ class TestSetNetwork(TestNetwork):
             'admin_state_up': True,
             'shared': True,
         }
-        self.network.update_network.assert_called_with(self._network, **attrs)
+        self.network.update_network.assert_called_once_with(
+            self._network, **attrs)
         self.assertIsNone(result)
 
     def test_set_that(self):
@@ -490,7 +491,8 @@ class TestSetNetwork(TestNetwork):
             'admin_state_up': False,
             'shared': False,
         }
-        self.network.update_network.assert_called_with(self._network, **attrs)
+        self.network.update_network.assert_called_once_with(
+            self._network, **attrs)
         self.assertIsNone(result)
 
     def test_set_nothing(self):
@@ -558,8 +560,8 @@ class TestShowNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_network.assert_called_with(self._network.name,
-                                                     ignore_missing=False)
+        self.network.find_network.assert_called_once_with(
+            self._network.name, ignore_missing=False)
 
         self.assertEqual(tuple(self.columns), columns)
         self.assertEqual(list(self.data), list(data))
@@ -682,7 +684,7 @@ class TestCreateNetworkCompute(TestNetworkCompute):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute.networks.create.assert_called_with(**{
+        self.compute.networks.create.assert_called_once_with(**{
             'cidr': self._network.cidr,
             'label': self._network.label,
         })
@@ -719,7 +721,7 @@ class TestDeleteNetworkCompute(TestNetworkCompute):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute.networks.delete.assert_called_with(self._network.id)
+        self.compute.networks.delete.assert_called_once_with(self._network.id)
         self.assertIsNone(result)
 
 
@@ -765,7 +767,7 @@ class TestListNetworkCompute(TestNetworkCompute):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute.networks.list.assert_called_with()
+        self.compute.networks.list.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 

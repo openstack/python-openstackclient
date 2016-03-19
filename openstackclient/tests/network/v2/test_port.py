@@ -110,7 +110,7 @@ class TestCreatePort(TestPort):
 
         columns, data = (self.cmd.take_action(parsed_args))
 
-        self.network.create_port.assert_called_with(**{
+        self.network.create_port.assert_called_once_with(**{
             'admin_state_up': True,
             'network_id': self._port.network_id,
             'name': 'test-port',
@@ -154,7 +154,7 @@ class TestCreatePort(TestPort):
 
         columns, data = (self.cmd.take_action(parsed_args))
 
-        self.network.create_port.assert_called_with(**{
+        self.network.create_port.assert_called_once_with(**{
             'mac_address': 'aa:aa:aa:aa:aa:aa',
             'fixed_ips': [{'subnet_id': self.fake_subnet.id,
                            'ip_address': '10.0.0.2'}],
@@ -195,7 +195,7 @@ class TestDeletePort(TestPort):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.delete_port.assert_called_with(self._port)
+        self.network.delete_port.assert_called_once_with(self._port)
         self.assertIsNone(result)
 
 
@@ -238,7 +238,7 @@ class TestListPort(TestPort):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ports.assert_called_with()
+        self.network.ports.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -255,7 +255,7 @@ class TestListPort(TestPort):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ports.assert_called_with(**{
+        self.network.ports.assert_called_once_with(**{
             'device_id': 'fake-router-id'
         })
         self.assertEqual(self.columns, columns)
@@ -292,7 +292,7 @@ class TestSetPort(TestPort):
         attrs = {
             'fixed_ips': [{'ip_address': '10.0.0.11'}],
         }
-        self.network.update_port.assert_called_with(self._port, **attrs)
+        self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
     def test_set_this(self):
@@ -310,7 +310,7 @@ class TestSetPort(TestPort):
         attrs = {
             'admin_state_up': False,
         }
-        self.network.update_port.assert_called_with(self._port, **attrs)
+        self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
     def test_set_that(self):
@@ -337,7 +337,7 @@ class TestSetPort(TestPort):
             'binding:profile': {'foo': 'bar'},
             'binding:host_id': 'binding-host-id-xxxx',
         }
-        self.network.update_port.assert_called_with(self._port, **attrs)
+        self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
 
@@ -372,8 +372,8 @@ class TestShowPort(TestPort):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_port.assert_called_with(self._port.name,
-                                                  ignore_missing=False)
+        self.network.find_port.assert_called_once_with(
+            self._port.name, ignore_missing=False)
 
         ref_columns, ref_data = self._get_common_cols_data(self._port)
         self.assertEqual(ref_columns, columns)

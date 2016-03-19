@@ -80,7 +80,7 @@ class TestCreateRouter(TestRouter):
 
         columns, data = (self.cmd.take_action(parsed_args))
 
-        self.network.create_router.assert_called_with(**{
+        self.network.create_router.assert_called_once_with(**{
             'admin_state_up': True,
             'name': self.new_router.name,
             'distributed': False,
@@ -103,7 +103,7 @@ class TestCreateRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = (self.cmd.take_action(parsed_args))
-        self.network.create_router.assert_called_with(**{
+        self.network.create_router.assert_called_once_with(**{
             'admin_state_up': True,
             'name': self.new_router.name,
             'distributed': False,
@@ -139,7 +139,7 @@ class TestDeleteRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.delete_router.assert_called_with(self._router)
+        self.network.delete_router.assert_called_once_with(self._router)
         self.assertIsNone(result)
 
 
@@ -205,7 +205,7 @@ class TestListRouter(TestRouter):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.routers.assert_called_with()
+        self.network.routers.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -223,7 +223,7 @@ class TestListRouter(TestRouter):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.routers.assert_called_with()
+        self.network.routers.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
@@ -265,7 +265,8 @@ class TestSetRouter(TestRouter):
             'distributed': True,
             'name': 'noob',
         }
-        self.network.update_router.assert_called_with(self._router, **attrs)
+        self.network.update_router.assert_called_once_with(
+            self._router, **attrs)
         self.assertIsNone(result)
 
     def test_set_that(self):
@@ -287,7 +288,8 @@ class TestSetRouter(TestRouter):
             'admin_state_up': False,
             'distributed': False,
         }
-        self.network.update_router.assert_called_with(self._router, **attrs)
+        self.network.update_router.assert_called_once_with(
+            self._router, **attrs)
         self.assertIsNone(result)
 
     def test_set_distributed_centralized(self):
@@ -324,7 +326,8 @@ class TestSetRouter(TestRouter):
             'routes': [{'destination': '10.20.30.0/24',
                         'gateway': '10.20.30.1'}],
         }
-        self.network.update_router.assert_called_with(self._router, **attrs)
+        self.network.update_router.assert_called_once_with(
+            self._router, **attrs)
         self.assertIsNone(result)
 
     def test_set_clear_routes(self):
@@ -343,7 +346,8 @@ class TestSetRouter(TestRouter):
         attrs = {
             'routes': [],
         }
-        self.network.update_router.assert_called_with(self._router, **attrs)
+        self.network.update_router.assert_called_once_with(
+            self._router, **attrs)
         self.assertIsNone(result)
 
     def test_set_route_clear_routes(self):
@@ -422,7 +426,7 @@ class TestShowRouter(TestRouter):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_router.assert_called_with(self._router.name,
-                                                    ignore_missing=False)
+        self.network.find_router.assert_called_once_with(
+            self._router.name, ignore_missing=False)
         self.assertEqual(tuple(self.columns), columns)
         self.assertEqual(self.data, data)

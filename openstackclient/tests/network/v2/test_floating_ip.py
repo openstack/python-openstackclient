@@ -54,8 +54,8 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.find_ip.assert_called_with(self.floating_ip.id)
-        self.network.delete_ip.assert_called_with(self.floating_ip)
+        self.network.find_ip.assert_called_once_with(self.floating_ip.id)
+        self.network.delete_ip.assert_called_once_with(self.floating_ip)
         self.assertIsNone(result)
 
 
@@ -95,7 +95,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_with(**{})
+        self.network.ips.assert_called_once_with(**{})
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -150,7 +150,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_ip.assert_called_with(
+        self.network.find_ip.assert_called_once_with(
             self.floating_ip.id,
             ignore_missing=False
         )
@@ -198,7 +198,7 @@ class TestDeleteFloatingIPCompute(TestFloatingIPCompute):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute.floating_ips.delete.assert_called_with(
+        self.compute.floating_ips.delete.assert_called_once_with(
             self.floating_ip.id
         )
         self.assertIsNone(result)
@@ -244,7 +244,7 @@ class TestListFloatingIPCompute(TestFloatingIPCompute):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute.floating_ips.list.assert_called_with()
+        self.compute.floating_ips.list.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 

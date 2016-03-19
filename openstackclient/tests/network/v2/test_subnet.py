@@ -219,7 +219,7 @@ class TestCreateSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet.assert_called_with(**{
+        self.network.create_subnet.assert_called_once_with(**{
             'cidr': self._subnet.cidr,
             'enable_dhcp': self._subnet.enable_dhcp,
             'ip_version': self._subnet.ip_version,
@@ -275,7 +275,7 @@ class TestCreateSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet.assert_called_with(**{
+        self.network.create_subnet.assert_called_once_with(**{
             'dns_nameservers': self._subnet_from_pool.dns_nameservers,
             'enable_dhcp': self._subnet_from_pool.enable_dhcp,
             'gateway_ip': self._subnet_from_pool.gateway_ip,
@@ -341,7 +341,7 @@ class TestCreateSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet.assert_called_with(**{
+        self.network.create_subnet.assert_called_once_with(**{
             'cidr': self._subnet_ipv6.cidr,
             'dns_nameservers': self._subnet_ipv6.dns_nameservers,
             'enable_dhcp': self._subnet_ipv6.enable_dhcp,
@@ -383,7 +383,7 @@ class TestDeleteSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.delete_subnet.assert_called_with(self._subnet)
+        self.network.delete_subnet.assert_called_once_with(self._subnet)
         self.assertIsNone(result)
 
 
@@ -449,7 +449,7 @@ class TestListSubnet(TestSubnet):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.subnets.assert_called_with()
+        self.network.subnets.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -464,7 +464,7 @@ class TestListSubnet(TestSubnet):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.subnets.assert_called_with()
+        self.network.subnets.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
@@ -535,8 +535,8 @@ class TestShowSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_subnet.assert_called_with(self._subnet.name,
-                                                    ignore_missing=False)
+        self.network.find_subnet.assert_called_once_with(
+            self._subnet.name, ignore_missing=False)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(list(self.data), list(data))

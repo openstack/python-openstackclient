@@ -94,7 +94,7 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         columns, data = (self.cmd.take_action(parsed_args))
 
-        self.network.create_subnet_pool.assert_called_with(**{
+        self.network.create_subnet_pool.assert_called_once_with(**{
             'prefixes': ['10.0.10.0/24'],
             'name': self._subnet_pool.name,
         })
@@ -118,7 +118,7 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         columns, data = (self.cmd.take_action(parsed_args))
 
-        self.network.create_subnet_pool.assert_called_with(**{
+        self.network.create_subnet_pool.assert_called_once_with(**{
             'default_prefix_length': self._subnet_pool.default_prefixlen,
             'max_prefix_length': self._subnet_pool.max_prefixlen,
             'min_prefix_length': self._subnet_pool.min_prefixlen,
@@ -169,7 +169,8 @@ class TestDeleteSubnetPool(TestSubnetPool):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_subnet_pool.assert_called_with(self._subnet_pool)
+        self.network.delete_subnet_pool.assert_called_once_with(
+            self._subnet_pool)
         self.assertIsNone(result)
 
 
@@ -222,7 +223,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.subnet_pools.assert_called_with()
+        self.network.subnet_pools.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -237,7 +238,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.subnet_pools.assert_called_with()
+        self.network.subnet_pools.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
@@ -280,7 +281,7 @@ class TestSetSubnetPool(TestSubnetPool):
             'default_prefix_length': '8',
             'min_prefix_length': '8',
         }
-        self.network.update_subnet_pool.assert_called_with(
+        self.network.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs)
         self.assertIsNone(result)
 
@@ -306,7 +307,7 @@ class TestSetSubnetPool(TestSubnetPool):
             'prefixes': prefixes,
             'max_prefix_length': '16',
         }
-        self.network.update_subnet_pool.assert_called_with(
+        self.network.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs)
         self.assertIsNone(result)
 
@@ -396,7 +397,7 @@ class TestShowSubnetPool(TestSubnetPool):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_subnet_pool.assert_called_with(
+        self.network.find_subnet_pool.assert_called_once_with(
             self._subnet_pool.name,
             ignore_missing=False
         )
