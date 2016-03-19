@@ -269,6 +269,46 @@ class TestListRouter(TestRouter):
         self.assertEqual(self.data_long, list(data))
 
 
+class TestRemovePortFromRouter(TestRouter):
+    '''Remove port from a Router '''
+
+    _port = network_fakes.FakePort.create_one_port()
+    _router = network_fakes.FakeRouter.create_one_router(
+        attrs={'port': _port.id})
+
+    def setUp(self):
+        super(TestRemovePortFromRouter, self).setUp()
+        self.network.router_remove_interface = mock.Mock()
+        self.cmd = router.RemovePortFromRouter(self.app, self.namespace)
+        self.network.find_router = mock.Mock(return_value=self._router)
+        self.network.find_port = mock.Mock(return_value=self._port)
+
+    def test_remove_port_no_option(self):
+        arglist = []
+        verifylist = []
+
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_remove_port_required_options(self):
+        arglist = [
+            self._router.id,
+            self._router.port,
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('port', self._router.port),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.router_remove_interface.assert_called_with(
+            self._router, **{'port_id': self._router.port})
+        self.assertIsNone(result)
+
+
 class TestSetRouter(TestRouter):
 
     # The router to set.
