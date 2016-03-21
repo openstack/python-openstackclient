@@ -20,7 +20,7 @@ from functional.common import test
 
 
 class ServerTests(test.TestCase):
-    """Functional tests for server. """
+    """Functional tests for server."""
 
     NAME = uuid.uuid4().hex
     OTHER_NAME = uuid.uuid4().hex
