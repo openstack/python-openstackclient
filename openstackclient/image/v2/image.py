@@ -325,7 +325,10 @@ class CreateImage(command.ShowOne):
                 parsed_args.disk_format,
             )
             info = body['os-volume_upload_image']
-            info['volume_type'] = info['volume_type']['name']
+            try:
+                info['volume_type'] = info['volume_type']['name']
+            except TypeError:
+                info['volume_type'] = None
         else:
             image = image_client.images.create(**kwargs)
 
