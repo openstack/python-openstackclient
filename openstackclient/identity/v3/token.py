@@ -18,6 +18,7 @@
 import six
 
 from openstackclient.common import command
+from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.identity import common
 
@@ -172,6 +173,9 @@ class IssueToken(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
+        if not self.app.client_manager.auth_ref:
+            raise exceptions.AuthorizationFailure(
+                "Only an authorized user may issue a new token.")
         token = self.app.client_manager.auth_ref.service_catalog.get_token()
         if 'tenant_id' in token:
             token['project_id'] = token.pop('tenant_id')
