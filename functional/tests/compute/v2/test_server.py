@@ -87,8 +87,6 @@ class ServerTests(test.TestCase):
     def wait_for(self, desired, wait=120, interval=5, failures=['ERROR']):
         # TODO(thowe): Add a server wait command to osc
         status = "notset"
-        wait = 120
-        interval = 5
         total_sleep = 0
         opts = self.get_show_opts(['status'])
         while total_sleep < wait:
