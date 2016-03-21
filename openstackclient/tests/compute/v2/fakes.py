@@ -88,6 +88,38 @@ SERVICE = {
 }
 
 
+class FakeAggregate(object):
+    """Fake one aggregate."""
+
+    @staticmethod
+    def create_one_aggregate(attrs=None):
+        """Create a fake aggregate.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id and other attributes
+        """
+        if attrs is None:
+            attrs = {}
+
+        # Set default attribute
+        aggregate_info = {
+            "name": "aggregate-name-" + uuid.uuid4().hex,
+            "availability_zone": "ag_zone",
+            "hosts": [],
+            "id": "aggregate-id-" + uuid.uuid4().hex,
+            "metadata": {
+                "availability_zone": "ag_zone",
+            }
+        }
+        aggregate_info.update(attrs)
+        aggregate = fakes.FakeResource(
+            info=copy.deepcopy(aggregate_info),
+            loaded=True)
+        return aggregate
+
+
 class FakeComputev2Client(object):
 
     def __init__(self, **kwargs):
