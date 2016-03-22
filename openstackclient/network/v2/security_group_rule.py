@@ -15,6 +15,11 @@
 
 import six
 
+try:
+    from novaclient.v2 import security_group_rules as compute_secgroup_rules
+except ImportError:
+    from novaclient.v1_1 import security_group_rules as compute_secgroup_rules
+
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
@@ -25,6 +30,20 @@ from openstackclient.network import utils as network_utils
 def _format_security_group_rule_show(obj):
     data = network_utils.transform_compute_security_group_rule(obj)
     return zip(*sorted(six.iteritems(data)))
+
+
+def _format_network_port_range(rule):
+    port_range = ''
+    if (rule.protocol != 'icmp' and
+            (rule.port_range_min or rule.port_range_max)):
+        port_range_min = str(rule.port_range_min)
+        port_range_max = str(rule.port_range_max)
+        if rule.port_range_min is None:
+            port_range_min = port_range_max
+        if rule.port_range_max is None:
+            port_range_max = port_range_min
+        port_range = port_range_min + ':' + port_range_max
+    return port_range
 
 
 def _get_columns(item):
@@ -159,6 +178,102 @@ class DeleteSecurityGroupRule(common.NetworkAndComputeCommand):
 
     def take_action_compute(self, client, parsed_args):
         client.security_group_rules.delete(parsed_args.rule)
+
+
+class ListSecurityGroupRule(common.NetworkAndComputeLister):
+    """List security group rules"""
+
+    def update_parser_common(self, parser):
+        parser.add_argument(
+            'group',
+            metavar='<group>',
+            nargs='?',
+            help='List all rules in this security group (name or ID)',
+        )
+        return parser
+
+    def _get_column_headers(self, parsed_args):
+        column_headers = (
+            'ID',
+            'IP Protocol',
+            'IP Range',
+            'Port Range',
+            'Remote Security Group',
+        )
+        if parsed_args.group is None:
+            column_headers = column_headers + ('Security Group',)
+        return column_headers
+
+    def take_action_network(self, client, parsed_args):
+        column_headers = self._get_column_headers(parsed_args)
+        columns = (
+            'id',
+            'protocol',
+            'remote_ip_prefix',
+            'port_range_min',
+            'remote_group_id',
+        )
+
+        # Get the security group rules using the requested query.
+        query = {}
+        if parsed_args.group is not None:
+            # NOTE(rtheis): Unfortunately, the security group resource
+            # does not contain security group rules resources. So use
+            # the security group ID in a query to get the resources.
+            security_group_id = client.find_security_group(
+                parsed_args.group,
+                ignore_missing=False
+            ).id
+            query = {'security_group_id': security_group_id}
+        else:
+            columns = columns + ('security_group_id',)
+        rules = list(client.security_group_rules(**query))
+
+        # Reformat the rules to display a port range instead
+        # of just the port range minimum. This maintains
+        # output compatibility with compute.
+        for rule in rules:
+            rule.port_range_min = _format_network_port_range(rule)
+
+        return (column_headers,
+                (utils.get_item_properties(
+                    s, columns,
+                ) for s in rules))
+
+    def take_action_compute(self, client, parsed_args):
+        column_headers = self._get_column_headers(parsed_args)
+        columns = (
+            "ID",
+            "IP Protocol",
+            "IP Range",
+            "Port Range",
+            "Remote Security Group",
+        )
+
+        rules_to_list = []
+        if parsed_args.group is not None:
+            group = utils.find_resource(
+                client.security_groups,
+                parsed_args.group,
+            )
+            rules_to_list = group.rules
+        else:
+            columns = columns + ('parent_group_id',)
+            for group in client.security_groups.list():
+                rules_to_list.extend(group.rules)
+
+        # NOTE(rtheis): Turn the raw rules into resources.
+        rules = []
+        for rule in rules_to_list:
+            rules.append(compute_secgroup_rules.SecurityGroupRule(
+                client.security_group_rules,
+                network_utils.transform_compute_security_group_rule(rule),
+            ))
+
+        return (column_headers,
+                (utils.get_item_properties(
+                    s, columns,
+                ) for s in rules))
 
 
 class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):

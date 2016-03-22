@@ -14,6 +14,7 @@
 import copy
 import mock
 
+from openstackclient.network import utils as network_utils
 from openstackclient.network.v2 import security_group_rule
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests import fakes
@@ -412,6 +413,191 @@ class TestDeleteSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         self.compute.security_group_rules.delete.assert_called_once_with(
             self._security_group_rule.id)
         self.assertIsNone(result)
+
+
+class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
+
+    # The security group to hold the rules.
+    _security_group = \
+        network_fakes.FakeSecurityGroup.create_one_security_group()
+
+    # The security group rule to be listed.
+    _security_group_rule_tcp = \
+        network_fakes.FakeSecurityGroupRule.create_one_security_group_rule({
+            'protocol': 'tcp',
+            'port_range_max': 80,
+            'port_range_min': 80,
+            'security_group_id': _security_group.id,
+        })
+    _security_group_rule_icmp = \
+        network_fakes.FakeSecurityGroupRule.create_one_security_group_rule({
+            'protocol': 'icmp',
+            'port_range_max': -1,
+            'port_range_min': -1,
+            'remote_ip_prefix': '10.0.2.0/24',
+            'security_group_id': _security_group.id,
+        })
+    _security_group.security_group_rules = [_security_group_rule_tcp._info,
+                                            _security_group_rule_icmp._info]
+    _security_group_rules = [_security_group_rule_tcp,
+                             _security_group_rule_icmp]
+
+    expected_columns_with_group = (
+        'ID',
+        'IP Protocol',
+        'IP Range',
+        'Port Range',
+        'Remote Security Group',
+    )
+    expected_columns_no_group = \
+        expected_columns_with_group + ('Security Group',)
+
+    expected_data_with_group = []
+    expected_data_no_group = []
+    for _security_group_rule in _security_group_rules:
+        expected_rule_with_group = (
+            _security_group_rule.id,
+            _security_group_rule.protocol,
+            _security_group_rule.remote_ip_prefix,
+            security_group_rule._format_network_port_range(
+                _security_group_rule),
+            _security_group_rule.remote_group_id,
+        )
+        expected_rule_no_group = expected_rule_with_group + \
+            (_security_group_rule.security_group_id,)
+        expected_data_with_group.append(expected_rule_with_group)
+        expected_data_no_group.append(expected_rule_no_group)
+
+    def setUp(self):
+        super(TestListSecurityGroupRuleNetwork, self).setUp()
+
+        self.network.find_security_group = mock.Mock(
+            return_value=self._security_group)
+        self.network.security_group_rules = mock.Mock(
+            return_value=self._security_group_rules)
+
+        # Get the command object to test
+        self.cmd = security_group_rule.ListSecurityGroupRule(
+            self.app, self.namespace)
+
+    def test_list_no_group(self):
+        self._security_group_rule_tcp.port_range_min = 80
+        parsed_args = self.check_parser(self.cmd, [], [])
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.security_group_rules.assert_called_once_with(**{})
+        self.assertEqual(self.expected_columns_no_group, columns)
+        self.assertEqual(self.expected_data_no_group, list(data))
+
+    def test_list_with_group(self):
+        self._security_group_rule_tcp.port_range_min = 80
+        arglist = [
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.security_group_rules.assert_called_once_with(**{
+            'security_group_id': self._security_group.id,
+        })
+        self.assertEqual(self.expected_columns_with_group, columns)
+        self.assertEqual(self.expected_data_with_group, list(data))
+
+
+class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
+
+    # The security group to hold the rules.
+    _security_group = \
+        compute_fakes.FakeSecurityGroup.create_one_security_group()
+
+    # The security group rule to be listed.
+    _security_group_rule_tcp = \
+        compute_fakes.FakeSecurityGroupRule.create_one_security_group_rule({
+            'ip_protocol': 'tcp',
+            'from_port': 80,
+            'to_port': 80,
+            'group': {'name': _security_group.name},
+        })
+    _security_group_rule_icmp = \
+        compute_fakes.FakeSecurityGroupRule.create_one_security_group_rule({
+            'ip_protocol': 'icmp',
+            'from_port': -1,
+            'to_port': -1,
+            'ip_range': {'cidr': '10.0.2.0/24'},
+            'group': {'name': _security_group.name},
+        })
+    _security_group.rules = [_security_group_rule_tcp._info,
+                             _security_group_rule_icmp._info]
+
+    expected_columns_with_group = (
+        'ID',
+        'IP Protocol',
+        'IP Range',
+        'Port Range',
+        'Remote Security Group',
+    )
+    expected_columns_no_group = \
+        expected_columns_with_group + ('Security Group',)
+
+    expected_data_with_group = []
+    expected_data_no_group = []
+    for _security_group_rule in _security_group.rules:
+        rule = network_utils.transform_compute_security_group_rule(
+            _security_group_rule
+        )
+        expected_rule_with_group = (
+            rule['id'],
+            rule['ip_protocol'],
+            rule['ip_range'],
+            rule['port_range'],
+            rule['remote_security_group'],
+        )
+        expected_rule_no_group = expected_rule_with_group + \
+            (_security_group_rule['parent_group_id'],)
+        expected_data_with_group.append(expected_rule_with_group)
+        expected_data_no_group.append(expected_rule_no_group)
+
+    def setUp(self):
+        super(TestListSecurityGroupRuleCompute, self).setUp()
+
+        self.app.client_manager.network_endpoint_enabled = False
+
+        self.compute.security_groups.get.return_value = \
+            self._security_group
+        self.compute.security_groups.list.return_value = \
+            [self._security_group]
+
+        # Get the command object to test
+        self.cmd = security_group_rule.ListSecurityGroupRule(self.app, None)
+
+    def test_list_no_group(self):
+        parsed_args = self.check_parser(self.cmd, [], [])
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.compute.security_groups.list.assert_called_once_with()
+        self.assertEqual(self.expected_columns_no_group, columns)
+        self.assertEqual(self.expected_data_no_group, list(data))
+
+    def test_list_with_group(self):
+        arglist = [
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.compute.security_groups.get.assert_called_once_with(
+            self._security_group.id
+        )
+        self.assertEqual(self.expected_columns_with_group, columns)
+        self.assertEqual(self.expected_data_with_group, list(data))
 
 
 class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
