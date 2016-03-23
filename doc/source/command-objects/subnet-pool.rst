@@ -17,6 +17,7 @@ Create subnet pool
         [--default-prefix-length <default-prefix-length>]
         [--min-prefix-length <min-prefix-length>]
         [--max-prefix-length <max-prefix-length>]
+        [--project <project> [--project-domain <project-domain>]]
         <name>
 
 .. option:: --pool-prefix <pool-prefix>
@@ -35,6 +36,15 @@ Create subnet pool
 .. option:: --max-prefix-length <max-prefix-length>
 
     Set subnet pool maximum prefix length
+
+.. option:: --project <project>
+
+    Owner's project (name or ID)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID). This can be used in case
+    collisions between project names exist.
 
 .. _subnet_pool_create-name:
       .. describe:: <name>

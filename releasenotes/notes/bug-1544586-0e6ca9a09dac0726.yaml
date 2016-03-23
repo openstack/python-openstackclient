@@ -2,3 +2,6 @@
 features:
   - Add ``subnet pool create`` command.
     [Bug `1544586 <https://bugs.launchpad.net/python-openstackclient/+bug/1544586>`_]
+  - Command ``subnet pool create`` now supports ``--project`` and
+    ``--project-domain`` options.
+    [Bug `1544586 <https://bugs.launchpad.net/python-openstackclient/+bug/1544586>`_]

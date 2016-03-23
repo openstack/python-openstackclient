@@ -12,11 +12,14 @@
 #
 
 import argparse
+import copy
 import mock
 
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.network.v2 import subnet_pool
+from openstackclient.tests import fakes
+from openstackclient.tests.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.network.v2 import fakes as network_fakes
 from openstackclient.tests import utils as tests_utils
 
@@ -72,6 +75,30 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         # Get the command object to test
         self.cmd = subnet_pool.CreateSubnetPool(self.app, self.namespace)
+
+        # Set identity client. And get a shortcut to Identity client.
+        identity_client = identity_fakes_v3.FakeIdentityv3Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+        self.app.client_manager.identity = identity_client
+        self.identity = self.app.client_manager.identity
+
+        # Get a shortcut to the ProjectManager Mock
+        self.projects_mock = self.identity.projects
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes_v3.PROJECT),
+            loaded=True,
+        )
+
+        # Get a shortcut to the DomainManager Mock
+        self.domains_mock = self.identity.domains
+        self.domains_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes_v3.DOMAIN),
+            loaded=True,
+        )
 
     def test_create_no_options(self):
         arglist = []
@@ -139,6 +166,31 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         self.assertRaises(argparse.ArgumentTypeError, self.check_parser,
                           self.cmd, arglist, verifylist)
+
+    def test_create_project_domain(self):
+        arglist = [
+            '--pool-prefix', '10.0.10.0/24',
+            "--project", identity_fakes_v3.project_name,
+            "--project-domain", identity_fakes_v3.domain_name,
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('prefixes', ['10.0.10.0/24']),
+            ('project', identity_fakes_v3.project_name),
+            ('project_domain', identity_fakes_v3.domain_name),
+            ('name', self._subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_subnet_pool.assert_called_once_with(**{
+            'prefixes': ['10.0.10.0/24'],
+            'tenant_id': identity_fakes_v3.project_id,
+            'name': self._subnet_pool.name,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
 
 class TestDeleteSubnetPool(TestSubnetPool):

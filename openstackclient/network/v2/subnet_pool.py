@@ -17,6 +17,7 @@ from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.identity import common as identity_common
 
 
 def _get_columns(item):
@@ -32,7 +33,7 @@ _formatters = {
 }
 
 
-def _get_attrs(parsed_args):
+def _get_attrs(client_manager, parsed_args):
     attrs = {}
     if parsed_args.name is not None:
         attrs['name'] = str(parsed_args.name)
@@ -44,6 +45,16 @@ def _get_attrs(parsed_args):
         attrs['min_prefixlen'] = parsed_args.min_prefix_length
     if parsed_args.max_prefix_length is not None:
         attrs['max_prefixlen'] = parsed_args.max_prefix_length
+
+    # "subnet pool set" command doesn't support setting project.
+    if 'project' in parsed_args and parsed_args.project is not None:
+        identity_client = client_manager.identity
+        project_id = identity_common.find_project(
+            identity_client,
+            parsed_args.project,
+            parsed_args.project_domain,
+        ).id
+        attrs['tenant_id'] = project_id
 
     return attrs
 
@@ -84,16 +95,22 @@ class CreateSubnetPool(command.ShowOne):
         parser = super(CreateSubnetPool, self).get_parser(prog_name)
         parser.add_argument(
             'name',
-            metavar="<name>",
+            metavar='<name>',
             help='Name of the new subnet pool'
         )
         _add_prefix_options(parser)
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help="Owner's project (name or ID)",
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
 
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        attrs = _get_attrs(parsed_args)
+        attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_subnet_pool(**attrs)
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
@@ -192,7 +209,7 @@ class SetSubnetPool(command.Command):
         obj = client.find_subnet_pool(parsed_args.subnet_pool,
                                       ignore_missing=False)
 
-        attrs = _get_attrs(parsed_args)
+        attrs = _get_attrs(self.app.client_manager, parsed_args)
         if attrs == {}:
             msg = "Nothing specified to be set"
             raise exceptions.CommandError(msg)
