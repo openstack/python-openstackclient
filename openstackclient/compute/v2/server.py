@@ -1738,7 +1738,7 @@ class UnsetServer(command.Command):
             action='append',
             default=[],
             help=_('Property key to remove from server '
-                   '(repeat to unset multiple values)'),
+                   '(repeat to remove multiple values)'),
         )
         return parser
 
