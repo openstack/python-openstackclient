@@ -764,7 +764,7 @@ Unset server properties
 
 .. option:: --property <key>
 
-    Property key to remove from server (repeat to set multiple values)
+    Property key to remove from server (repeat to remove multiple values)
 
 .. describe:: <server>
 
