@@ -55,8 +55,8 @@ class ShowLimits(command.Lister):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain that owns --project (name or ID)'
-                 '  [only valid with --absolute]',
+            help='Domain the project belongs to (name or ID)'
+                 ' [only valid with --absolute]',
         )
         return parser
 

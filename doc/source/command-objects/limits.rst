@@ -37,4 +37,4 @@ Show compute and block storage limits
 
 .. option:: --domain <domain>
 
-    Domain that owns --project (name or ID) [only valid with --absolute]
+    Domain the project belongs to (name or ID) [only valid with --absolute]
