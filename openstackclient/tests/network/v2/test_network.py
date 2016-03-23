@@ -116,8 +116,8 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         ]
         verifylist = [
             ('name', self._network.name),
-            ('admin_state', True),
-            ('shared', None),
+            ('enable', True),
+            ('share', None),
             ('project', None),
         ]
 
@@ -141,8 +141,8 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             self._network.name,
         ]
         verifylist = [
-            ('admin_state', False),
-            ('shared', True),
+            ('disable', True),
+            ('share', True),
             ('project', identity_fakes_v3.project_name),
             ('project_domain', identity_fakes_v3.domain_name),
             ('availability_zone_hints', ["nova"]),
@@ -169,8 +169,8 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             self._network.name,
         ]
         verifylist = [
-            ('admin_state', True),
-            ('shared', False),
+            ('enable', True),
+            ('no_share', True),
             ('name', self._network.name),
         ]
 
@@ -249,8 +249,8 @@ class TestCreateNetworkIdentityV2(TestNetwork):
             self._network.name,
         ]
         verifylist = [
-            ('admin_state', True),
-            ('shared', None),
+            ('enable', True),
+            ('share', None),
             ('name', self._network.name),
             ('project', identity_fakes_v2.project_name),
         ]
@@ -273,8 +273,8 @@ class TestCreateNetworkIdentityV2(TestNetwork):
             self._network.name,
         ]
         verifylist = [
-            ('admin_state', True),
-            ('shared', None),
+            ('enable', True),
+            ('share', None),
             ('project', identity_fakes_v3.project_name),
             ('project_domain', identity_fakes_v3.domain_name),
             ('name', self._network.name),
@@ -455,9 +455,9 @@ class TestSetNetwork(TestNetwork):
         ]
         verifylist = [
             ('network', self._network.name),
-            ('admin_state', True),
+            ('enable', True),
             ('name', 'noob'),
-            ('shared', True),
+            ('share', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -480,8 +480,8 @@ class TestSetNetwork(TestNetwork):
         ]
         verifylist = [
             ('network', self._network.name),
-            ('admin_state', False),
-            ('shared', False),
+            ('disable', True),
+            ('no_share', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

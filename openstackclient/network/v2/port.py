@@ -86,8 +86,10 @@ def _get_attrs(client_manager, parsed_args):
         attrs['device_id'] = parsed_args.device
     if parsed_args.device_owner is not None:
         attrs['device_owner'] = parsed_args.device_owner
-    if parsed_args.admin_state is not None:
-        attrs['admin_state_up'] = parsed_args.admin_state
+    if parsed_args.enable:
+        attrs['admin_state_up'] = True
+    if parsed_args.disable:
+        attrs['admin_state_up'] = False
     if parsed_args.binding_profile is not None:
         attrs['binding:profile'] = parsed_args.binding_profile
     if parsed_args.vnic_type is not None:
@@ -217,15 +219,13 @@ class CreatePort(command.ShowOne):
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
-            dest='admin_state',
             action='store_true',
             default=True,
             help='Enable port (default)',
         )
         admin_group.add_argument(
             '--disable',
-            dest='admin_state',
-            action='store_false',
+            action='store_true',
             help='Disable port',
         )
         parser.add_argument(
@@ -333,15 +333,13 @@ class SetPort(command.Command):
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
-            dest='admin_state',
             action='store_true',
             default=None,
             help='Enable port',
         )
         admin_group.add_argument(
             '--disable',
-            dest='admin_state',
-            action='store_false',
+            action='store_true',
             help='Disable port',
         )
         parser.add_argument(

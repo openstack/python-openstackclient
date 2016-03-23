@@ -53,10 +53,15 @@ def _get_attrs(client_manager, parsed_args):
     attrs = {}
     if parsed_args.name is not None:
         attrs['name'] = str(parsed_args.name)
-    if parsed_args.admin_state_up is not None:
-        attrs['admin_state_up'] = parsed_args.admin_state_up
-    if parsed_args.distributed is not None:
-        attrs['distributed'] = parsed_args.distributed
+    if parsed_args.enable:
+        attrs['admin_state_up'] = True
+    if parsed_args.disable:
+        attrs['admin_state_up'] = False
+    # centralized is available only for SetRouter and not for CreateRouter
+    if 'centralized' in parsed_args and parsed_args.centralized:
+        attrs['distributed'] = False
+    if parsed_args.distributed:
+        attrs['distributed'] = True
     if ('availability_zone_hints' in parsed_args
             and parsed_args.availability_zone_hints is not None):
         attrs['availability_zone_hints'] = parsed_args.availability_zone_hints
@@ -95,15 +100,13 @@ class CreateRouter(command.ShowOne):
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
-            dest='admin_state_up',
             action='store_true',
             default=True,
             help="Enable router (default)",
         )
         admin_group.add_argument(
             '--disable',
-            dest='admin_state_up',
-            action='store_false',
+            action='store_true',
             help="Disable router",
         )
         parser.add_argument(
@@ -235,29 +238,24 @@ class SetRouter(command.Command):
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
-            dest='admin_state_up',
             action='store_true',
             default=None,
             help='Enable router',
         )
         admin_group.add_argument(
             '--disable',
-            dest='admin_state_up',
-            action='store_false',
+            action='store_true',
             help='Disable router',
         )
         distribute_group = parser.add_mutually_exclusive_group()
         distribute_group.add_argument(
             '--distributed',
-            dest='distributed',
             action='store_true',
-            default=None,
             help="Set router to distributed mode (disabled router only)",
         )
         distribute_group.add_argument(
             '--centralized',
-            dest='distributed',
-            action='store_false',
+            action='store_true',
             help="Set router to centralized mode (disabled router only)",
         )
         routes_group = parser.add_mutually_exclusive_group()
@@ -275,7 +273,6 @@ class SetRouter(command.Command):
         )
         routes_group.add_argument(
             '--clear-routes',
-            dest='clear_routes',
             action='store_true',
             help="Clear routes associated with the router",
         )

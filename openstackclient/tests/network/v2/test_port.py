@@ -103,7 +103,7 @@ class TestCreatePort(TestPort):
         ]
         verifylist = [
             ('network', self._port.network_id,),
-            ('admin_state', True),
+            ('enable', True),
             ('name', 'test-port'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -143,7 +143,7 @@ class TestCreatePort(TestPort):
             ),
             ('device', 'deviceid'),
             ('device_owner', 'fakeowner'),
-            ('admin_state', False),
+            ('disable', True),
             ('vnic_type', 'macvtap'),
             ('binding_profile', {'foo': 'bar', 'foo2': 'bar2'}),
             ('network', self._port.network_id),
@@ -301,7 +301,7 @@ class TestSetPort(TestPort):
             self._port.name,
         ]
         verifylist = [
-            ('admin_state', False),
+            ('disable', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -322,7 +322,7 @@ class TestSetPort(TestPort):
             self._port.name,
         ]
         verifylist = [
-            ('admin_state', True),
+            ('enable', True),
             ('vnic_type', 'macvtap'),
             ('binding_profile', {'foo': 'bar'}),
             ('host', 'binding-host-id-xxxx'),

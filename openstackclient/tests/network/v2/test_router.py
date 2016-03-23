@@ -73,7 +73,7 @@ class TestCreateRouter(TestRouter):
         ]
         verifylist = [
             ('name', self.new_router.name),
-            ('admin_state_up', True),
+            ('enable', True),
             ('distributed', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -83,7 +83,6 @@ class TestCreateRouter(TestRouter):
         self.network.create_router.assert_called_once_with(**{
             'admin_state_up': True,
             'name': self.new_router.name,
-            'distributed': False,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -97,7 +96,7 @@ class TestCreateRouter(TestRouter):
         verifylist = [
             ('name', self.new_router.name),
             ('availability_zone_hints', ['fake-az', 'fake-az2']),
-            ('admin_state_up', True),
+            ('enable', True),
             ('distributed', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -106,7 +105,6 @@ class TestCreateRouter(TestRouter):
         self.network.create_router.assert_called_once_with(**{
             'admin_state_up': True,
             'name': self.new_router.name,
-            'distributed': False,
             'availability_zone_hints': ['fake-az', 'fake-az2'],
         })
 
@@ -252,7 +250,7 @@ class TestSetRouter(TestRouter):
         ]
         verifylist = [
             ('router', self._router.name),
-            ('admin_state_up', True),
+            ('enable', True),
             ('distributed', True),
             ('name', 'noob'),
         ]
@@ -277,8 +275,8 @@ class TestSetRouter(TestRouter):
         ]
         verifylist = [
             ('router', self._router.name),
-            ('admin_state_up', False),
-            ('distributed', False),
+            ('disable', True),
+            ('centralized', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
