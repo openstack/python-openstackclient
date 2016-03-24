@@ -11,41 +11,84 @@
 #    under the License.
 
 import tempfile
-import uuid
 
 from functional.common import test
 
-
-PUBLIC_KEY = (
-    'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWNGczJxNaFUrJJVhta4dWsZY6bU'
-    '5HUMPbyfSMu713ca3mYtG848W4dfDCB98KmSQx2Bl0D6Q2nrOszOXEQWAXNdfMadnW'
-    'c4mNwhZcPBVohIFoC1KZJC8kcBTvFZcoz3mdIijxJtywZNpGNh34VRJlZeHyYjg8/D'
-    'esHzdoBVd5c/4R36emQSIV9ukY6PHeZ3scAH4B3K9PxItJBwiFtouSRphQG0bJgOv/'
-    'gjAjMElAvg5oku98cb4QiHZ8T8WY68id804raHR6pJxpVVJN4TYJmlUs+NOVM+pPKb'
-    'KJttqrIBTkawGK9pLHNfn7z6v1syvUo/4enc1l0Q/Qn2kWiz67 fake@openstack'
-)
+from tempest_lib.common.utils import data_utils
+from tempest_lib import exceptions
 
 
-class KeypairTests(test.TestCase):
-    """Functional tests for compute keypairs. """
-    NAME = uuid.uuid4().hex
-    HEADERS = ['Name']
-    FIELDS = ['name']
+class KeypairBase(test.TestCase):
+    """Methods for functional tests."""
 
-    @classmethod
-    def setUpClass(cls):
-        private_key = cls.openstack('keypair create ' + cls.NAME)
-        cls.assertInOutput('-----BEGIN RSA PRIVATE KEY-----', private_key)
-        cls.assertInOutput('-----END RSA PRIVATE KEY-----', private_key)
+    def keypair_create(self, name=data_utils.rand_uuid()):
+        """Create keypair and add cleanup."""
+        raw_output = self.openstack('keypair create ' + name)
+        self.addCleanup(self.keypair_delete, name, True)
+        if not raw_output:
+            self.fail('Keypair has not been created!')
 
-    @classmethod
-    def tearDownClass(cls):
-        raw_output = cls.openstack('keypair delete ' + cls.NAME)
-        cls.assertOutput('', raw_output)
+    def keypair_list(self, params=''):
+        """Return dictionary with list of keypairs."""
+        raw_output = self.openstack('keypair list')
+        keypairs = self.parse_show_as_object(raw_output)
+        return keypairs
 
-    def test_keypair_create(self):
+    def keypair_delete(self, name, ignore_exceptions=False):
+        """Try to delete keypair by name."""
+        try:
+            self.openstack('keypair delete ' + name)
+        except exceptions.CommandFailed:
+            if not ignore_exceptions:
+                raise
+
+
+class KeypairTests(KeypairBase):
+    """Functional tests for compute keypairs."""
+
+    PUBLIC_KEY = (
+        'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWNGczJxNaFUrJJVhta4dWsZY6bU'
+        '5HUMPbyfSMu713ca3mYtG848W4dfDCB98KmSQx2Bl0D6Q2nrOszOXEQWAXNdfMadnW'
+        'c4mNwhZcPBVohIFoC1KZJC8kcBTvFZcoz3mdIijxJtywZNpGNh34VRJlZeHyYjg8/D'
+        'esHzdoBVd5c/4R36emQSIV9ukY6PHeZ3scAH4B3K9PxItJBwiFtouSRphQG0bJgOv/'
+        'gjAjMElAvg5oku98cb4QiHZ8T8WY68id804raHR6pJxpVVJN4TYJmlUs+NOVM+pPKb'
+        'KJttqrIBTkawGK9pLHNfn7z6v1syvUo/4enc1l0Q/Qn2kWiz67 fake@openstack'
+    )
+
+    def setUp(self):
+        """Create keypair with randomized name for tests."""
+        super(KeypairTests, self).setUp()
+        self.KPName = data_utils.rand_name('TestKeyPair')
+        self.keypair = self.keypair_create(self.KPName)
+
+    def test_keypair_create_duplicate(self):
+        """Try to create duplicate name keypair.
+
+        Test steps:
+        1) Create keypair in setUp
+        2) Try to create duplicate keypair with the same name
+        """
+        self.assertRaises(exceptions.CommandFailed,
+                          self.openstack, 'keypair create ' + self.KPName)
+
+    def test_keypair_create_noname(self):
+        """Try to create keypair without name.
+
+        Test steps:
+        1) Try to create keypair without a name
+        """
+        self.assertRaises(exceptions.CommandFailed,
+                          self.openstack, 'keypair create')
+
+    def test_keypair_create_public_key(self):
+        """Test for create keypair with --public-key option.
+
+        Test steps:
+        1) Create keypair with given public key
+        2) Delete keypair
+        """
         with tempfile.NamedTemporaryFile() as f:
-            f.write(PUBLIC_KEY)
+            f.write(self.PUBLIC_KEY)
             f.flush()
 
             raw_output = self.openstack(
@@ -57,12 +100,69 @@ class KeypairTests(test.TestCase):
             )
             self.assertIn('tmpkey', raw_output)
 
+    def test_keypair_create(self):
+        """Test keypair create command.
+
+        Test steps:
+        1) Create keypair in setUp
+        2) Check RSA private key in output
+        3) Check for new keypair in keypairs list
+        """
+        NewName = data_utils.rand_name('TestKeyPairCreated')
+        raw_output = self.openstack('keypair create ' + NewName)
+        self.addCleanup(self.openstack, 'keypair delete ' + NewName)
+        self.assertInOutput('-----BEGIN RSA PRIVATE KEY-----', raw_output)
+        self.assertRegex(raw_output, "[0-9A-Za-z+/]+[=]{0,3}\n")
+        self.assertInOutput('-----END RSA PRIVATE KEY-----', raw_output)
+        self.assertIn(NewName, self.keypair_list())
+
+    def test_keypair_delete_not_existing(self):
+        """Try to delete keypair with not existing name.
+
+        Test steps:
+        1) Create keypair in setUp
+        2) Try to delete not existing keypair
+        """
+        self.assertRaises(exceptions.CommandFailed,
+                          self.openstack, 'keypair delete not_existing')
+
+    def test_keypair_delete(self):
+        """Test keypair delete command.
+
+        Test steps:
+        1) Create keypair in setUp
+        2) Delete keypair
+        3) Check that keypair not in keypairs list
+        """
+        self.openstack('keypair delete ' + self.KPName)
+        self.assertNotIn(self.KPName, self.keypair_list())
+
     def test_keypair_list(self):
-        opts = self.get_list_opts(self.HEADERS)
-        raw_output = self.openstack('keypair list' + opts)
-        self.assertIn(self.NAME, raw_output)
+        """Test keypair list command.
+
+        Test steps:
+        1) Create keypair in setUp
+        2) List keypairs
+        3) Check output table structure
+        4) Check keypair name in output
+        """
+        HEADERS = ['Name', 'Fingerprint']
+        raw_output = self.openstack('keypair list')
+        items = self.parse_listing(raw_output)
+        self.assert_table_structure(items, HEADERS)
+        self.assertIn(self.KPName, raw_output)
 
     def test_keypair_show(self):
-        opts = self.get_show_opts(self.FIELDS)
-        raw_output = self.openstack('keypair show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + "\n", raw_output)
+        """Test keypair show command.
+
+        Test steps:
+        1) Create keypair in setUp
+        2) Show keypair
+        3) Check output table structure
+        4) Check keypair name in output
+        """
+        HEADERS = ['Field', 'Value']
+        raw_output = self.openstack('keypair show ' + self.KPName)
+        items = self.parse_listing(raw_output)
+        self.assert_table_structure(items, HEADERS)
+        self.assertInOutput(self.KPName, raw_output)
