@@ -71,6 +71,43 @@ class TestNetworkV2(utils.TestCommand):
         )
 
 
+class FakeAddressScope(object):
+    """Fake one or more address scopes."""
+
+    @staticmethod
+    def create_one_address_scope(attrs=None):
+        """Create a fake address scope.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with name, id, etc.
+        """
+        if attrs is None:
+            attrs = {}
+
+        # Set default attributes.
+        address_scope_attrs = {
+            'name': 'address-scope-name-' + uuid.uuid4().hex,
+            'id': 'address-scope-id-' + uuid.uuid4().hex,
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'shared': False,
+            'ip_version': 4,
+        }
+
+        # Overwrite default attributes.
+        address_scope_attrs.update(attrs)
+
+        address_scope = fakes.FakeResource(
+            info=copy.deepcopy(address_scope_attrs),
+            loaded=True)
+
+        # Set attributes with special mapping in OpenStack SDK.
+        address_scope.project_id = address_scope_attrs['tenant_id']
+
+        return address_scope
+
+
 class FakeAvailabilityZone(object):
     """Fake one or more network availability zones (AZs)."""
 

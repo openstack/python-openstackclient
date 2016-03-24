@@ -38,6 +38,8 @@ class TestCreateSubnetPool(TestSubnetPool):
     # The new subnet pool to create.
     _subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
 
+    _address_scope = network_fakes.FakeAddressScope.create_one_address_scope()
+
     columns = (
         'address_scope_id',
         'default_prefixlen',
@@ -75,6 +77,9 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         # Get the command object to test
         self.cmd = subnet_pool.CreateSubnetPool(self.app, self.namespace)
+
+        self.network.find_address_scope = mock.Mock(
+            return_value=self._address_scope)
 
         # Set identity client. And get a shortcut to Identity client.
         identity_client = identity_fakes_v3.FakeIdentityv3Client(
@@ -193,6 +198,29 @@ class TestCreateSubnetPool(TestSubnetPool):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def test_create_address_scope_option(self):
+        arglist = [
+            '--pool-prefix', '10.0.10.0/24',
+            '--address-scope', self._address_scope.id,
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('prefixes', ['10.0.10.0/24']),
+            ('address_scope', self._address_scope.id),
+            ('name', self._subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_subnet_pool.assert_called_once_with(**{
+            'prefixes': ['10.0.10.0/24'],
+            'address_scope_id': self._address_scope.id,
+            'name': self._subnet_pool.name,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
 
 class TestDeleteSubnetPool(TestSubnetPool):
 
@@ -301,6 +329,8 @@ class TestSetSubnetPool(TestSubnetPool):
     # The subnet_pool to set.
     _subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
 
+    _address_scope = network_fakes.FakeAddressScope.create_one_address_scope()
+
     def setUp(self):
         super(TestSetSubnetPool, self).setUp()
 
@@ -309,21 +339,24 @@ class TestSetSubnetPool(TestSubnetPool):
         self.network.find_subnet_pool = mock.Mock(
             return_value=self._subnet_pool)
 
+        self.network.find_address_scope = mock.Mock(
+            return_value=self._address_scope)
+
         # Get the command object to test
         self.cmd = subnet_pool.SetSubnetPool(self.app, self.namespace)
 
     def test_set_this(self):
         arglist = [
-            self._subnet_pool.name,
             '--name', 'noob',
             '--default-prefix-length', '8',
             '--min-prefix-length', '8',
+            self._subnet_pool.name,
         ]
         verifylist = [
-            ('subnet_pool', self._subnet_pool.name),
             ('name', 'noob'),
             ('default_prefix_length', '8'),
             ('min_prefix_length', '8'),
+            ('subnet_pool', self._subnet_pool.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -340,15 +373,15 @@ class TestSetSubnetPool(TestSubnetPool):
 
     def test_set_that(self):
         arglist = [
-            self._subnet_pool.name,
             '--pool-prefix', '10.0.1.0/24',
             '--pool-prefix', '10.0.2.0/24',
             '--max-prefix-length', '16',
+            self._subnet_pool.name,
         ]
         verifylist = [
-            ('subnet_pool', self._subnet_pool.name),
             ('prefixes', ['10.0.1.0/24', '10.0.2.0/24']),
             ('max_prefix_length', '16'),
+            ('subnet_pool', self._subnet_pool.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -374,15 +407,71 @@ class TestSetSubnetPool(TestSubnetPool):
 
     def test_set_len_negative(self):
         arglist = [
-            self._subnet_pool.name,
             '--max-prefix-length', '-16',
+            self._subnet_pool.name,
         ]
         verifylist = [
-            ('subnet_pool', self._subnet_pool.name),
             ('max_prefix_length', '-16'),
+            ('subnet_pool', self._subnet_pool.name),
         ]
 
         self.assertRaises(argparse.ArgumentTypeError, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_set_address_scope(self):
+        arglist = [
+            '--address-scope', self._address_scope.id,
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('address_scope', self._address_scope.id),
+            ('subnet_pool', self._subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'address_scope_id': self._address_scope.id,
+        }
+        self.network.update_subnet_pool.assert_called_once_with(
+            self._subnet_pool, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_no_address_scope(self):
+        arglist = [
+            '--no-address-scope',
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('no_address_scope', True),
+            ('subnet_pool', self._subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'address_scope_id': None,
+        }
+        self.network.update_subnet_pool.assert_called_once_with(
+            self._subnet_pool, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_no_address_scope_conflict(self):
+        arglist = [
+            '--address-scope', self._address_scope.id,
+            '--no-address-scope',
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('address_scope', self._address_scope.id),
+            ('no_address_scope', True),
+            ('subnet_pool', self._subnet_pool.name),
+        ]
+
+        # Exclusive arguments will conflict here.
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
 
