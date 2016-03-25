@@ -21,7 +21,7 @@ Delete a subnet
     Subnet to delete (name or ID)
 
 subnet create
---------------
+-------------
 
 Create new subnet
 
@@ -142,6 +142,65 @@ List subnets
 .. option:: --long
 
     List additional fields in output
+
+subnet set
+----------
+
+Set subnet properties
+
+.. program:: subnet set
+.. code:: bash
+
+    os subnet set
+        [--allocation-pool start=<ip-address>,end=<ip-address>]
+        [--dhcp | --no-dhcp]
+        [--dns-nameserver <dns-nameserver>]
+        [--gateway <gateway-ip>]
+        [--host-route destination=<subnet>,gateway=<ip-address>]
+        [--name <new-name>]
+        <subnet>
+
+.. option:: --allocation-pool start=<ip-address>,end=<ip-address>
+
+    Allocation pool IP addresses for this subnet e.g.:
+        start=192.168.199.2,end=192.168.199.254 (This option can be repeated)
+
+.. option:: --dhcp
+
+     Enable DHCP
+
+.. option:: --no-dhcp
+
+     Disable DHCP
+
+.. option:: --dns-nameserver <dns-nameserver>
+
+     DNS name server for this subnet (This option can be repeated)
+
+.. option:: --gateway <gateway>
+
+     Specify a gateway for the subnet. The options are:
+         <ip-address>: Specific IP address to use as the gateway
+         'none':       This subnet will not use a gateway
+         e.g.: --gateway 192.168.9.1, --gateway none
+
+.. option:: --host-route destination=<subnet>,gateway=<ip-address>
+
+     Additional route for this subnet e.g.:
+         destination=10.10.0.0/16,gateway=192.168.71.254
+         destination: destination subnet (in CIDR notation)
+         gateway: nexthop IP address
+         (This option can be repeated)
+
+.. option:: --name
+
+     Updated name of the subnet
+
+.. _subnet_set-subnet:
+.. describe:: <subnet>
+
+    Subnet to modify (name or ID)
+
 
 subnet show
 -----------

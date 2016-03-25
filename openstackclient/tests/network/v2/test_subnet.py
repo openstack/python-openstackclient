@@ -14,6 +14,7 @@
 import copy
 import mock
 
+from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.network.v2 import subnet as subnet_v2
 from openstackclient.tests import fakes
@@ -203,9 +204,9 @@ class TestCreateSubnet(TestSubnet):
         self.network.find_network = mock.Mock(return_value=self._network)
 
         arglist = [
-            self._subnet.name,
             "--subnet-range", self._subnet.cidr,
             "--network", self._subnet.network_id,
+            self._subnet.name,
         ]
         verifylist = [
             ('name', self._subnet.name),
@@ -266,7 +267,7 @@ class TestCreateSubnet(TestSubnet):
             ('ip_version', self._subnet_from_pool.ip_version),
             ('gateway', self._subnet_from_pool.gateway_ip),
             ('dns_nameservers', self._subnet_from_pool.dns_nameservers),
-            ('enable_dhcp', self._subnet_from_pool.enable_dhcp),
+            ('dhcp', self._subnet_from_pool.enable_dhcp),
             ('host_routes', subnet_v2.convert_entries_to_gateway(
                 self._subnet_from_pool.host_routes)),
             ('subnet_pool', self._subnet_from_pool.subnetpool_id),
@@ -332,7 +333,7 @@ class TestCreateSubnet(TestSubnet):
             ('ipv6_address_mode', self._subnet_ipv6.ipv6_address_mode),
             ('gateway', self._subnet_ipv6.gateway_ip),
             ('dns_nameservers', self._subnet_ipv6.dns_nameservers),
-            ('enable_dhcp', self._subnet_ipv6.enable_dhcp),
+            ('dhcp', self._subnet_ipv6.enable_dhcp),
             ('host_routes', subnet_v2.convert_entries_to_gateway(
                 self._subnet_ipv6.host_routes)),
             ('allocation_pools', self._subnet_ipv6.allocation_pools),
@@ -467,6 +468,73 @@ class TestListSubnet(TestSubnet):
         self.network.subnets.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
+
+
+class TestSetSubnet(TestSubnet):
+
+    _subnet = network_fakes.FakeSubnet.create_one_subnet()
+
+    def setUp(self):
+        super(TestSetSubnet, self).setUp()
+        self.network.update_subnet = mock.Mock(return_value=None)
+        self.network.find_subnet = mock.Mock(return_value=self._subnet)
+        self.cmd = subnet_v2.SetSubnet(self.app, self.namespace)
+
+    def test_set_this(self):
+        arglist = [
+            "--name", "new_subnet",
+            "--dhcp",
+            "--gateway", self._subnet.gateway_ip,
+            self._subnet.name,
+        ]
+        verifylist = [
+            ('name', "new_subnet"),
+            ('dhcp', True),
+            ('gateway', self._subnet.gateway_ip),
+            ('subnet', self._subnet.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        attrs = {
+            'enable_dhcp': True,
+            'gateway_ip': self._subnet.gateway_ip,
+            'name': "new_subnet",
+        }
+        self.network.update_subnet.assert_called_with(self._subnet, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_that(self):
+        arglist = [
+            "--name", "new_subnet",
+            "--no-dhcp",
+            "--gateway", "none",
+            self._subnet.name,
+        ]
+        verifylist = [
+            ('name', "new_subnet"),
+            ('no_dhcp', True),
+            ('gateway', "none"),
+            ('subnet', self._subnet.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        attrs = {
+            'enable_dhcp': False,
+            'gateway_ip': None,
+            'name': "new_subnet",
+        }
+        self.network.update_subnet.assert_called_with(self._subnet, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_nothing(self):
+        arglist = [self._subnet.name, ]
+        verifylist = [('subnet', self._subnet.name)]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
 
 
 class TestShowSubnet(TestSubnet):

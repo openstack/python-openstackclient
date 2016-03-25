@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``subnet set`` command.
+    [Bug `1542363 <https://bugs.launchpad.net/bugs/1542363>`_]
