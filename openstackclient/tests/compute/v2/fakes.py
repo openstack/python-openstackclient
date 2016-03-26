@@ -177,6 +177,9 @@ class FakeComputev2Client(object):
         self.hosts = mock.Mock()
         self.hosts.resource_class = fakes.FakeResource(None, {})
 
+        self.server_groups = mock.Mock()
+        self.server_groups.resource_class = fakes.FakeResource(None, {})
+
         self.auth_token = kwargs['token']
 
         self.management_url = kwargs['endpoint']
@@ -899,3 +902,34 @@ class FakeHost(object):
             info=copy.deepcopy(host_info),
             loaded=True)
         return host
+
+
+class FakeServerGroup(object):
+    """Fake one server group"""
+
+    @staticmethod
+    def create_one_server_group(attrs=None):
+        """Create a fake server group
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id and other attributes
+        """
+        if attrs is None:
+            attrs = {}
+
+        server_group_info = {
+            'id': 'server-group-id-' + uuid.uuid4().hex,
+            'members': [],
+            'metadata': {},
+            'name': 'server-group-name-' + uuid.uuid4().hex,
+            'policies': [],
+            'project_id': 'server-group-project-id-' + uuid.uuid4().hex,
+            'user_id': 'server-group-user-id-' + uuid.uuid4().hex,
+        }
+        server_group_info.update(attrs)
+        server_group = fakes.FakeResource(
+            info=copy.deepcopy(server_group_info),
+            loaded=True)
+        return server_group
