@@ -393,13 +393,13 @@ class FakeSecurityGroupRule(object):
 
         # Set default attributes.
         security_group_rule_attrs = {
-            'from_port': -1,
+            'from_port': 0,
             'group': {},
             'id': 'security-group-rule-id-' + uuid.uuid4().hex,
-            'ip_protocol': 'icmp',
+            'ip_protocol': 'tcp',
             'ip_range': {'cidr': '0.0.0.0/0'},
             'parent_group_id': 'security-group-id-' + uuid.uuid4().hex,
-            'to_port': -1,
+            'to_port': 0,
         }
 
         # Overwrite default attributes.

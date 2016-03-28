@@ -32,7 +32,8 @@ Create a new security group rule
 
 .. option:: --dst-port <port-range>
 
-    Destination port, may be a range: 137:139 (default: 0; only required for proto tcp and udp)
+    Destination port, may be a single port or port range: 137:139
+    (only required for IP protocols tcp and udp)
 
 .. describe:: <group>
 
