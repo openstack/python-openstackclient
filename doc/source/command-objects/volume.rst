@@ -14,32 +14,45 @@ Create new volume
 
     os volume create
         --size <size>
-        [--snapshot <snapshot>]
-        [--description <description>]
         [--type <volume-type>]
+        [--image <image>]
+        [--snapshot <snapshot>]
+        [--source <volume>]
+        [--description <description>]
         [--user <user>]
         [--project <project>]
         [--availability-zone <availability-zone>]
-        [--image <image>]
-        [--source <volume>]
         [--property <key=value> [...] ]
         <name>
 
 .. option:: --size <size> (required)
 
-    New volume size in GB
-
-.. option:: --snapshot <snapshot>
-
-    Use <snapshot> as source of new volume
-
-.. option:: --description <description>
-
-    New volume description
+    Volume size in GB
 
 .. option:: --type <volume-type>
 
-    Use <volume-type> as the new volume type
+    Set the type of volume
+
+    Select :option:`\<volume-type\>` from the available types as shown
+    by ``volume type list``.
+
+.. option:: --image <image>
+
+    Use :option:`\<image\>` as source of volume (name or ID)
+
+    This is commonly used to create a boot volume for a server.
+
+.. option:: --snapshot <snapshot>
+
+    Use :option:`\<snapshot\>` as source of volume (name or ID)
+
+.. option:: --source <source>
+
+    Volume to clone (name or ID)
+
+.. option:: --description <description>
+
+    Volume description
 
 .. option:: --user <user>
 
@@ -51,23 +64,16 @@ Create new volume
 
 .. option:: --availability-zone <availability-zone>
 
-    Create new volume in <availability-zone>
-
-.. option:: --image <image>
-
-    Use <image> as source of new volume (name or ID)
-
-.. option:: --source <source>
-
-    Volume to clone (name or ID)
+    Create volume in :option:`\<availability-zone\>`
 
 .. option:: --property <key=value>
 
     Set a property on this volume (repeat option to set multiple properties)
 
+.. _volume_create-name:
 .. describe:: <name>
 
-    New volume name
+    Volume name
 
 The :option:`--project` and :option:`--user`  options are typically only
 useful for admin users, but may be allowed for other users depending on
@@ -83,12 +89,13 @@ Delete volume(s)
 
     os volume delete
         [--force]
-         <volume> [<volume> ...]
+        <volume> [<volume> ...]
 
 .. option:: --force
 
     Attempt forced removal of volume(s), regardless of state (defaults to False)
 
+.. _volume_delete-volume:
 .. describe:: <volume>
 
     Volume(s) to delete (name or ID)
@@ -102,35 +109,37 @@ List volumes
 .. code:: bash
 
     os volume list
-        [--all-projects]
         [--project <project> [--project-domain <project-domain>]]
         [--user <user> [--user-domain <user-domain>]]
         [--name <name>]
         [--status <status>]
+        [--all-projects]
         [--long]
 
 .. option:: --project <project>
 
-    Filter results by project (name or ID) (admin only)
+    Filter results by :option:`\<project\>` (name or ID) (admin only)
 
     *Volume version 2 only*
 
 .. option:: --project-domain <project-domain>
 
     Domain the project belongs to (name or ID).
+
     This can be used in case collisions between project names exist.
 
     *Volume version 2 only*
 
 .. option:: --user <user>
 
-    Filter results by user (name or ID) (admin only)
+    Filter results by :option:`\<user\>` (name or ID) (admin only)
 
     *Volume version 2 only*
 
 .. option:: --user-domain <user-domain>
 
     Domain the user belongs to (name or ID).
+
     This can be used in case collisions between user names exist.
 
     *Volume version 2 only*
@@ -161,8 +170,8 @@ Set volume properties
 
     os volume set
         [--name <name>]
-        [--description <description>]
         [--size <size>]
+        [--description <description>]
         [--property <key=value> [...] ]
         [--image-property <key=value> [...] ]
         <volume>
@@ -171,25 +180,30 @@ Set volume properties
 
     New volume name
 
-.. option:: --description <description>
-
-    New volume description
-
 .. option:: --size <size>
 
     Extend volume size in GB
 
+.. option:: --description <description>
+
+    New volume description
+
 .. option:: --property <key=value>
 
-    Property to add or modify for this volume (repeat option to set multiple properties)
+    Set a property on this volume (repeat option to set multiple properties)
 
 .. option:: --image-property <key=value>
 
-    To add or modify image properties for this volume.
+    Set an image property on this volume
     (repeat option to set multiple image properties)
+
+    Image properties are copied along with the image when creating a volume
+    using :option:`--image`.  Note that these properties are immutable on the
+    image itself, this option updates the copy attached to this volume.
 
     *Volume version 2 only*
 
+.. _volume_set-volume:
 .. describe:: <volume>
 
     Volume to modify (name or ID)
@@ -205,6 +219,7 @@ Show volume details
     os volume show
         <volume>
 
+.. _volume_show-volume:
 .. describe:: <volume>
 
     Volume to display (name or ID)
@@ -224,13 +239,16 @@ Unset volume properties
 
 .. option:: --property <key>
 
-    Property to remove from volume (repeat option to remove multiple properties)
+    Remove a property from volume (repeat option to remove multiple properties)
 
 .. option:: --image-property <key>
 
-    To remove image properties from volume
+    Remove an image property from volume
     (repeat option to remove multiple image properties)
 
+    *Volume version 2 only*
+
+.. _volume_unset-volume:
 .. describe:: <volume>
 
     Volume to modify (name or ID)
