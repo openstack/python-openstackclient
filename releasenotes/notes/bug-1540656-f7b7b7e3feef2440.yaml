@@ -1,0 +1,5 @@
+---
+features:
+  - The ``security group rule create`` command now supports a security
+    group name for the ``--src-group`` option.
+    [Bug `1540656 <https://bugs.launchpad.net/bugs/1540656>`_]

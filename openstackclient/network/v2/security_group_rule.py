@@ -69,7 +69,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         source_group.add_argument(
             "--src-group",
             metavar="<group>",
-            help="Source security group (ID only)",
+            help="Source security group (name or ID)",
         )
         parser.add_argument(
             "--dst-port",
@@ -103,7 +103,10 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             attrs['port_range_max'] = parsed_args.dst_port[1]
         attrs['protocol'] = parsed_args.proto
         if parsed_args.src_group is not None:
-            attrs['remote_group_id'] = parsed_args.src_group
+            attrs['remote_group_id'] = client.find_security_group(
+                parsed_args.src_group,
+                ignore_missing=False
+            ).id
         else:
             attrs['remote_ip_prefix'] = parsed_args.src_ip
         attrs['security_group_id'] = security_group_id
@@ -123,6 +126,11 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             from_port, to_port = -1, -1
         else:
             from_port, to_port = parsed_args.dst_port
+        if parsed_args.src_group is not None:
+            parsed_args.src_group = utils.find_resource(
+                client.security_groups,
+                parsed_args.src_group,
+            ).id
         obj = client.security_group_rules.create(
             group.id,
             parsed_args.proto,

@@ -149,13 +149,13 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         })
         arglist = [
             '--dst-port', str(self._security_group_rule.port_range_min),
-            '--src-group', self._security_group.id,
+            '--src-group', self._security_group.name,
             self._security_group.id,
         ]
         verifylist = [
             ('dst_port', (self._security_group_rule.port_range_min,
                           self._security_group_rule.port_range_max)),
-            ('src_group', self._security_group.id),
+            ('src_group', self._security_group.name),
             ('group', self._security_group.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -289,17 +289,17 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         expected_columns, expected_data = self._setup_security_group_rule({
             'from_port': 22,
             'to_port': 22,
-            'group': {'name': self._security_group.id},
+            'group': {'name': self._security_group.name},
         })
         arglist = [
             '--dst-port', str(self._security_group_rule.from_port),
-            '--src-group', self._security_group.id,
+            '--src-group', self._security_group.name,
             self._security_group.id,
         ]
         verifylist = [
             ('dst_port', (self._security_group_rule.from_port,
                           self._security_group_rule.to_port)),
-            ('src_group', self._security_group.id),
+            ('src_group', self._security_group.name),
             ('group', self._security_group.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
