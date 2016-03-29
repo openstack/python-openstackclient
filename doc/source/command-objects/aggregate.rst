@@ -2,7 +2,7 @@
 aggregate
 =========
 
-Server aggregates provide a mechanism to group servers according to certain
+Host aggregates provide a mechanism to group hosts according to certain
 criteria.
 
 Compute v2
