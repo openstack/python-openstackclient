@@ -27,3 +27,19 @@ Create a new server group
 .. describe:: <name>
 
     New server group name
+
+server group delete
+-------------------
+
+Delete an existing server group
+
+.. program:: server group delete
+.. code-block:: bash
+
+    os server group delete
+        <server-group> [<server-group> ...]
+
+.. describe:: <server-group>
+
+    Server group(s) to delete (name or ID)
+    (repeat to delete multiple server groups)

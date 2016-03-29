@@ -16,6 +16,7 @@
 """Compute v2 Server Group action implementations"""
 
 from openstackclient.common import command
+from openstackclient.common import exceptions
 from openstackclient.common import utils
 
 
@@ -66,3 +67,35 @@ class CreateServerGroup(command.ShowOne):
         data = utils.get_dict_properties(info, columns,
                                          formatters=_formatters)
         return columns, data
+
+
+class DeleteServerGroup(command.Command):
+    """Delete an existing server group."""
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteServerGroup, self).get_parser(prog_name)
+        parser.add_argument(
+            'server_group',
+            metavar='<server-group>',
+            nargs='+',
+            help='server group(s) to delete (name or ID)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+        result = 0
+        for group in parsed_args.server_group:
+            try:
+                group_obj = utils.find_resource(compute_client.server_groups,
+                                                group)
+                compute_client.server_groups.delete(group_obj.id)
+            # Catch all exceptions in order to avoid to block the next deleting
+            except Exception as e:
+                result += 1
+                self.app.log.error(e)
+
+        if result > 0:
+            total = len(parsed_args.server_group)
+            msg = "%s of %s server groups failed to delete." % (result, total)
+            raise exceptions.CommandError(msg)

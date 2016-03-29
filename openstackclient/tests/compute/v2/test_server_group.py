@@ -13,6 +13,9 @@
 #   under the License.
 #
 
+import mock
+
+from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.compute.v2 import server_group
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
@@ -106,3 +109,84 @@ class TestServerGroupCreate(TestServerGroup):
                           self.cmd,
                           arglist,
                           verifylist)
+
+
+class TestServerGroupDelete(TestServerGroup):
+
+    def setUp(self):
+        super(TestServerGroupDelete, self).setUp()
+
+        self.server_groups_mock.get.return_value = self.fake_server_group
+        self.cmd = server_group.DeleteServerGroup(self.app, None)
+
+    def test_server_group_delete(self):
+        arglist = [
+            'affinity_group',
+        ]
+        verifylist = [
+            ('server_group', ['affinity_group']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.server_groups_mock.get.assert_called_once_with('affinity_group')
+        self.server_groups_mock.delete.assert_called_once_with(
+            self.fake_server_group.id
+        )
+        self.assertIsNone(result)
+
+    def test_server_group_multiple_delete(self):
+        arglist = [
+            'affinity_group',
+            'anti_affinity_group'
+        ]
+        verifylist = [
+            ('server_group', ['affinity_group', 'anti_affinity_group']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.server_groups_mock.get.assert_any_call('affinity_group')
+        self.server_groups_mock.get.assert_any_call('anti_affinity_group')
+        self.server_groups_mock.delete.assert_called_with(
+            self.fake_server_group.id
+        )
+        self.assertEqual(2, self.server_groups_mock.get.call_count)
+        self.assertEqual(2, self.server_groups_mock.delete.call_count)
+        self.assertIsNone(result)
+
+    def test_server_group_delete_no_input(self):
+        arglist = []
+        verifylist = None
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser,
+                          self.cmd,
+                          arglist,
+                          verifylist)
+
+    def test_server_group_multiple_delete_with_exception(self):
+        arglist = [
+            'affinity_group',
+            'anti_affinity_group'
+        ]
+        verifylist = [
+            ('server_group', ['affinity_group', 'anti_affinity_group']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        find_mock_result = [self.fake_server_group, exceptions.CommandError]
+        with mock.patch.object(utils, 'find_resource',
+                               side_effect=find_mock_result) as find_mock:
+            try:
+                self.cmd.take_action(parsed_args)
+                self.fail('CommandError should be raised.')
+            except exceptions.CommandError as e:
+                self.assertEqual('1 of 2 server groups failed to delete.',
+                                 str(e))
+
+            find_mock.assert_any_call(self.server_groups_mock,
+                                      'affinity_group')
+            find_mock.assert_any_call(self.server_groups_mock,
+                                      'anti_affinity_group')
+
+            self.assertEqual(2, find_mock.call_count)
+            self.server_groups_mock.delete.assert_called_once_with(
+                self.fake_server_group.id
+            )
