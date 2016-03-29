@@ -29,12 +29,12 @@ class CreateVolumeType(command.ShowOne):
         parser.add_argument(
             "name",
             metavar="<name>",
-            help="New volume type name"
+            help="Volume type name",
         )
         parser.add_argument(
             "--description",
             metavar="<description>",
-            help="New volume type description",
+            help="Volume type description",
         )
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
@@ -55,7 +55,7 @@ class CreateVolumeType(command.ShowOne):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Property to add for this volume type'
+            help='Set a property on this volume type'
                  '(repeat option to set multiple properties)',
         )
         return parser
@@ -153,7 +153,7 @@ class SetVolumeType(command.Command):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Property to add or modify for this volume type '
+            help='Set a property on this volume type '
                  '(repeat option to set multiple properties)',
         )
         return parser
@@ -221,7 +221,7 @@ class UnsetVolumeType(command.Command):
             metavar='<key>',
             default=[],
             required=True,
-            help='Property to remove from volume type '
+            help='Remove a property from this volume type '
                  '(repeat option to remove multiple properties)',
         )
         return parser
