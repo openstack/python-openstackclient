@@ -39,11 +39,11 @@ def _get_attrs(parsed_args):
     if parsed_args.prefixes is not None:
         attrs['prefixes'] = parsed_args.prefixes
     if parsed_args.default_prefix_length is not None:
-        attrs['default_prefix_length'] = parsed_args.default_prefix_length
+        attrs['default_prefixlen'] = parsed_args.default_prefix_length
     if parsed_args.min_prefix_length is not None:
-        attrs['min_prefix_length'] = parsed_args.min_prefix_length
+        attrs['min_prefixlen'] = parsed_args.min_prefix_length
     if parsed_args.max_prefix_length is not None:
-        attrs['max_prefix_length'] = parsed_args.max_prefix_length
+        attrs['max_prefixlen'] = parsed_args.max_prefix_length
 
     return attrs
 

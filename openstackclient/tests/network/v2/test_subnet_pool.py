@@ -119,9 +119,9 @@ class TestCreateSubnetPool(TestSubnetPool):
         columns, data = (self.cmd.take_action(parsed_args))
 
         self.network.create_subnet_pool.assert_called_once_with(**{
-            'default_prefix_length': self._subnet_pool.default_prefixlen,
-            'max_prefix_length': self._subnet_pool.max_prefixlen,
-            'min_prefix_length': self._subnet_pool.min_prefixlen,
+            'default_prefixlen': self._subnet_pool.default_prefixlen,
+            'max_prefixlen': self._subnet_pool.max_prefixlen,
+            'min_prefixlen': self._subnet_pool.min_prefixlen,
             'name': self._subnet_pool.name,
         })
         self.assertEqual(self.columns, columns)
@@ -278,8 +278,8 @@ class TestSetSubnetPool(TestSubnetPool):
 
         attrs = {
             'name': 'noob',
-            'default_prefix_length': '8',
-            'min_prefix_length': '8',
+            'default_prefixlen': '8',
+            'min_prefixlen': '8',
         }
         self.network.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs)
@@ -305,7 +305,7 @@ class TestSetSubnetPool(TestSubnetPool):
         prefixes.extend(self._subnet_pool.prefixes)
         attrs = {
             'prefixes': prefixes,
-            'max_prefix_length': '16',
+            'max_prefixlen': '16',
         }
         self.network.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs)
