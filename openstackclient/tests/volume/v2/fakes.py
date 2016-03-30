@@ -232,6 +232,97 @@ EXTENSION = {
 }
 
 
+class FakeServiceClient(object):
+
+    def __init__(self, **kwargs):
+        self.services = mock.Mock()
+        self.services.resource_class = fakes.FakeResource(None, {})
+
+
+class TestService(utils.TestCommand):
+
+    def setUp(self):
+        super(TestService, self).setUp()
+
+        self.app.client_manager.volume = FakeServiceClient(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN
+        )
+
+
+class FakeService(object):
+    """Fake one or more Services."""
+
+    @staticmethod
+    def create_one_service(attrs=None):
+        """Create a fake service.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes of service
+        :retrun:
+            A FakeResource object with host, status, etc.
+        """
+        # Set default attribute
+        service_info = {
+            'host': 'host_test',
+            'binary': 'cinder_test',
+            'status': 'enabled',
+            'disabled_reason': 'LongHoliday-GoldenWeek',
+            'zone': 'fake_zone',
+            'updated_at': 'fake_date',
+            'state': 'fake_state',
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        if attrs is None:
+            attrs = {}
+        service_info.update(attrs)
+
+        service = fakes.FakeResource(
+            None,
+            service_info,
+            loaded=True)
+
+        return service
+
+    @staticmethod
+    def create_services(attrs=None, count=2):
+        """Create multiple fake services.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes of service
+        :param Integer count:
+            The number of services to be faked
+        :return:
+            A list of FakeResource objects
+        """
+        services = []
+        for n in range(0, count):
+            services.append(FakeService.create_one_service(attrs))
+
+        return services
+
+    @staticmethod
+    def get_services(services=None, count=2):
+        """Get an iterable MagicMock object with a list of faked services.
+
+        If services list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List services:
+            A list of FakeResource objects faking services
+        :param Integer count:
+            The number of services to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            services
+        """
+        if services is None:
+            services = FakeService.create_services(count)
+
+        return mock.MagicMock(side_effect=services)
+
+
 class FakeVolumeClient(object):
 
     def __init__(self, **kwargs):
@@ -243,6 +334,8 @@ class FakeVolumeClient(object):
         self.backups.resource_class = fakes.FakeResource(None, {})
         self.volume_types = mock.Mock()
         self.volume_types.resource_class = fakes.FakeResource(None, {})
+        self.volume_type_access = mock.Mock()
+        self.volume_type_access.resource_class = fakes.FakeResource(None, {})
         self.restores = mock.Mock()
         self.restores.resource_class = fakes.FakeResource(None, {})
         self.qos_specs = mock.Mock()
@@ -279,7 +372,7 @@ class FakeVolume(object):
     """
 
     @staticmethod
-    def create_one_volume(attrs={}):
+    def create_one_volume(attrs=None):
         """Create a fake volume.
 
         :param Dictionary attrs:
@@ -287,6 +380,8 @@ class FakeVolume(object):
         :retrun:
             A FakeResource object with id, name, status, etc.
         """
+        attrs = attrs or {}
+
         # Set default attribute
         volume_info = {
             'id': 'volume-id' + uuid.uuid4().hex,
@@ -318,7 +413,7 @@ class FakeVolume(object):
         return volume
 
     @staticmethod
-    def create_volumes(attrs={}, count=2):
+    def create_volumes(attrs=None, count=2):
         """Create multiple fake volumes.
 
         :param Dictionary attrs:
@@ -359,16 +454,16 @@ class FakeAvailabilityZone(object):
     """Fake one or more volume availability zones (AZs)."""
 
     @staticmethod
-    def create_one_availability_zone(attrs={}, methods={}):
+    def create_one_availability_zone(attrs=None):
         """Create a fake AZ.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :return:
             A FakeResource object with zoneName, zoneState, etc.
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         availability_zone = {
             'zoneName': uuid.uuid4().hex,
@@ -380,18 +475,15 @@ class FakeAvailabilityZone(object):
 
         availability_zone = fakes.FakeResource(
             info=copy.deepcopy(availability_zone),
-            methods=methods,
             loaded=True)
         return availability_zone
 
     @staticmethod
-    def create_availability_zones(attrs={}, methods={}, count=2):
+    def create_availability_zones(attrs=None, count=2):
         """Create multiple fake AZs.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :param int count:
             The number of AZs to fake
         :return:
@@ -400,8 +492,7 @@ class FakeAvailabilityZone(object):
         availability_zones = []
         for i in range(0, count):
             availability_zone = \
-                FakeAvailabilityZone.create_one_availability_zone(
-                    attrs, methods)
+                FakeAvailabilityZone.create_one_availability_zone(attrs)
             availability_zones.append(availability_zone)
 
         return availability_zones

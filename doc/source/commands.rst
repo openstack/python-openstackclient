@@ -127,6 +127,7 @@ referring to both Compute and Volume quotas.
 * ``user role``: (**Identity**) roles assigned to a user
 * ``volume``: (**Volume**) block volumes
 * ``volume type``: (**Volume**) deployment-specific types of volumes available
+* ``volume service``: (**Volume**) services to manage block storage operations
 
 
 Plugin Objects
