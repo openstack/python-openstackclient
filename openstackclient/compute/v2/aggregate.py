@@ -290,3 +290,34 @@ class ShowAggregate(command.ShowOne):
         info = {}
         info.update(data._info)
         return zip(*sorted(six.iteritems(info)))
+
+
+class UnsetAggregate(command.Command):
+    """Unset aggregate properties"""
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetAggregate, self).get_parser(prog_name)
+        parser.add_argument(
+            "aggregate",
+            metavar="<aggregate>",
+            help="Aggregate to modify (name or ID)",
+        )
+        parser.add_argument(
+            "--property",
+            metavar="<key>",
+            action='append',
+            help='Property to remove from aggregate '
+                 '(repeat option to remove multiple properties)',
+            required=True,
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+        aggregate = utils.find_resource(
+            compute_client.aggregates,
+            parsed_args.aggregate)
+
+        unset_property = {key: None for key in parsed_args.property}
+        compute_client.aggregates.set_metadata(aggregate,
+                                               unset_property)
