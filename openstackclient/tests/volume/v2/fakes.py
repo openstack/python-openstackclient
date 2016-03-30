@@ -243,6 +243,8 @@ class FakeVolumeClient(object):
         self.backups.resource_class = fakes.FakeResource(None, {})
         self.volume_types = mock.Mock()
         self.volume_types.resource_class = fakes.FakeResource(None, {})
+        self.volume_type_access = mock.Mock()
+        self.volume_type_access.resource_class = fakes.FakeResource(None, {})
         self.restores = mock.Mock()
         self.restores.resource_class = fakes.FakeResource(None, {})
         self.qos_specs = mock.Mock()
