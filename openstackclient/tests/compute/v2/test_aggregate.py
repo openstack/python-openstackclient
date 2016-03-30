@@ -20,6 +20,24 @@ from openstackclient.tests import utils as tests_utils
 
 class TestAggregate(compute_fakes.TestComputev2):
 
+    fake_ag = compute_fakes.FakeAggregate.create_one_aggregate()
+
+    columns = (
+        'availability_zone',
+        'hosts',
+        'id',
+        'metadata',
+        'name',
+    )
+
+    data = (
+        fake_ag.availability_zone,
+        fake_ag.hosts,
+        fake_ag.id,
+        fake_ag.metadata,
+        fake_ag.name,
+    )
+
     def setUp(self):
         super(TestAggregate, self).setUp()
 
@@ -28,9 +46,317 @@ class TestAggregate(compute_fakes.TestComputev2):
         self.aggregate_mock.reset_mock()
 
 
-class TestAggregateUnset(TestAggregate):
+class TestAggregateAddHost(TestAggregate):
 
-    fake_ag = compute_fakes.FakeAggregate.create_one_aggregate()
+    def setUp(self):
+        super(TestAggregateAddHost, self).setUp()
+
+        self.aggregate_mock.get.return_value = self.fake_ag
+        self.aggregate_mock.add_host.return_value = self.fake_ag
+        self.cmd = aggregate.AddAggregateHost(self.app, None)
+
+    def test_aggregate_add_host(self):
+        arglist = [
+            'ag1',
+            'host1',
+        ]
+        verifylist = [
+            ('aggregate', 'ag1'),
+            ('host', 'host1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
+        self.aggregate_mock.add_host.assert_called_once_with(self.fake_ag,
+                                                             parsed_args.host)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+
+class TestAggregateCreate(TestAggregate):
+
+    def setUp(self):
+        super(TestAggregateCreate, self).setUp()
+
+        self.aggregate_mock.create.return_value = self.fake_ag
+        self.aggregate_mock.set_metadata.return_value = self.fake_ag
+        self.cmd = aggregate.CreateAggregate(self.app, None)
+
+    def test_aggregate_create(self):
+        arglist = [
+            'ag1',
+        ]
+        verifylist = [
+            ('name', 'ag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.aggregate_mock.create.assert_called_once_with(parsed_args.name,
+                                                           None)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_aggregate_create_with_zone(self):
+        arglist = [
+            '--zone', 'zone1',
+            'ag1',
+        ]
+        verifylist = [
+            ('zone', 'zone1'),
+            ('name', 'ag1'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.aggregate_mock.create.assert_called_once_with(parsed_args.name,
+                                                           parsed_args.zone)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_aggregate_create_with_property(self):
+        arglist = [
+            '--property', 'key1=value1',
+            '--property', 'key2=value2',
+            'ag1',
+        ]
+        verifylist = [
+            ('property', {'key1': 'value1', 'key2': 'value2'}),
+            ('name', 'ag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.aggregate_mock.create.assert_called_once_with(parsed_args.name,
+                                                           None)
+        self.aggregate_mock.set_metadata.assert_called_once_with(
+            self.fake_ag, parsed_args.property)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+
+class TestAggregateDelete(TestAggregate):
+
+    def setUp(self):
+        super(TestAggregateDelete, self).setUp()
+
+        self.aggregate_mock.get.return_value = self.fake_ag
+        self.cmd = aggregate.DeleteAggregate(self.app, None)
+
+    def test_aggregate_delete(self):
+        arglist = [
+            'ag1',
+        ]
+        verifylist = [
+            ('aggregate', 'ag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
+        self.aggregate_mock.delete.assert_called_once_with(self.fake_ag.id)
+        self.assertIsNone(result)
+
+
+class TestAggregateList(TestAggregate):
+
+    list_columns = (
+        "ID",
+        "Name",
+        "Availability Zone",
+    )
+
+    list_columns_long = (
+        "ID",
+        "Name",
+        "Availability Zone",
+        "Properties",
+    )
+
+    list_data = ((
+        TestAggregate.fake_ag.id,
+        TestAggregate.fake_ag.name,
+        TestAggregate.fake_ag.availability_zone,
+    ), )
+
+    list_data_long = ((
+        TestAggregate.fake_ag.id,
+        TestAggregate.fake_ag.name,
+        TestAggregate.fake_ag.availability_zone,
+        {},
+    ), )
+
+    def setUp(self):
+        super(TestAggregateList, self).setUp()
+
+        self.aggregate_mock.list.return_value = [self.fake_ag]
+        self.cmd = aggregate.ListAggregate(self.app, None)
+
+    def test_aggregate_list(self):
+
+        parsed_args = self.check_parser(self.cmd, [], [])
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.list_columns, columns)
+        self.assertEqual(self.list_data, tuple(data))
+
+    def test_aggregate_list_with_long(self):
+        arglist = [
+            '--long',
+        ]
+        vertifylist = [
+            ('long', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, vertifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.list_columns_long, columns)
+        self.assertEqual(self.list_data_long, tuple(data))
+
+
+class TestAggregateRemoveHost(TestAggregate):
+
+    def setUp(self):
+        super(TestAggregateRemoveHost, self).setUp()
+
+        self.aggregate_mock.get.return_value = self.fake_ag
+        self.aggregate_mock.remove_host.return_value = self.fake_ag
+        self.cmd = aggregate.RemoveAggregateHost(self.app, None)
+
+    def test_aggregate_add_host(self):
+        arglist = [
+            'ag1',
+            'host1',
+        ]
+        verifylist = [
+            ('aggregate', 'ag1'),
+            ('host', 'host1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
+        self.aggregate_mock.remove_host.assert_called_once_with(
+            self.fake_ag, parsed_args.host)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+
+class TestAggregateSet(TestAggregate):
+
+    def setUp(self):
+        super(TestAggregateSet, self).setUp()
+
+        self.aggregate_mock.get.return_value = self.fake_ag
+        self.cmd = aggregate.SetAggregate(self.app, None)
+
+    def test_aggregate_set_no_option(self):
+        arglist = [
+            'ag1',
+        ]
+        verifylist = [
+            ('aggregate', 'ag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
+        self.assertNotCalled(self.aggregate_mock.update)
+        self.assertNotCalled(self.aggregate_mock.set_metadata)
+        self.assertIsNone(result)
+
+    def test_aggregate_set_with_name(self):
+        arglist = [
+            '--name', 'new_name',
+            'ag1',
+        ]
+        verifylist = [
+            ('name', 'new_name'),
+            ('aggregate', 'ag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
+        self.aggregate_mock.update.assert_called_once_with(
+            self.fake_ag, {'name': parsed_args.name})
+        self.assertNotCalled(self.aggregate_mock.set_metadata)
+        self.assertIsNone(result)
+
+    def test_aggregate_set_with_zone(self):
+        arglist = [
+            '--zone', 'new_zone',
+            'ag1',
+        ]
+        verifylist = [
+            ('zone', 'new_zone'),
+            ('aggregate', 'ag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
+        self.aggregate_mock.update.assert_called_once_with(
+            self.fake_ag, {'availability_zone': parsed_args.zone})
+        self.assertNotCalled(self.aggregate_mock.set_metadata)
+        self.assertIsNone(result)
+
+    def test_aggregate_set_with_property(self):
+        arglist = [
+            '--property', 'key1=value1',
+            '--property', 'key2=value2',
+            'ag1',
+        ]
+        verifylist = [
+            ('property', {'key1': 'value1', 'key2': 'value2'}),
+            ('aggregate', 'ag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
+        self.assertNotCalled(self.aggregate_mock.update)
+        self.aggregate_mock.set_metadata.assert_called_once_with(
+            self.fake_ag, parsed_args.property)
+        self.assertIsNone(result)
+
+
+class TestAggregateShow(TestAggregate):
+
+    columns = (
+        'availability_zone',
+        'hosts',
+        'id',
+        'name',
+        'properties',
+    )
+
+    data = (
+        TestAggregate.fake_ag.availability_zone,
+        TestAggregate.fake_ag.hosts,
+        TestAggregate.fake_ag.id,
+        TestAggregate.fake_ag.name,
+        '',
+    )
+
+    def setUp(self):
+        super(TestAggregateShow, self).setUp()
+
+        self.aggregate_mock.get.return_value = self.fake_ag
+        self.cmd = aggregate.ShowAggregate(self.app, None)
+
+    def test_aggregate_show(self):
+        arglist = [
+            'ag1',
+        ]
+        verifylist = [
+            ('aggregate', 'ag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+
+class TestAggregateUnset(TestAggregate):
 
     def setUp(self):
         super(TestAggregateUnset, self).setUp()
@@ -41,11 +367,11 @@ class TestAggregateUnset(TestAggregate):
     def test_aggregate_unset(self):
         arglist = [
             '--property', 'unset_key',
-            'ag1'
+            'ag1',
         ]
         verifylist = [
             ('property', ['unset_key']),
-            ('aggregate', 'ag1')
+            ('aggregate', 'ag1'),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -56,7 +382,7 @@ class TestAggregateUnset(TestAggregate):
 
     def test_aggregate_unset_no_property(self):
         arglist = [
-            'ag1'
+            'ag1',
         ]
         verifylist = None
         self.assertRaises(tests_utils.ParserException,
