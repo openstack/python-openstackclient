@@ -44,11 +44,11 @@ class ListService(command.Lister):
         parser.add_argument(
             "--host",
             metavar="<host>",
-            help="Name of host")
+            help="List services on specified host (name only)")
         parser.add_argument(
             "--service",
             metavar="<service>",
-            help="Name of service")
+            help="List only specified service (name only)")
         parser.add_argument(
             "--long",
             action="store_true",

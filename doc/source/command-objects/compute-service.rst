@@ -34,15 +34,15 @@ List service command
         [--long]
 
 .. _compute-service-list:
-.. describe:: --host <host>
+.. option:: --host <host>
 
-    Name of host
+    List services on specified host (name only) 
 
-.. describe:: --service <service>
+.. option:: --service <service>
 
-    Name of service
+    List only specified service (name only)
 
-.. describe:: --long
+.. option:: --long
 
     List additional fields in output
 
