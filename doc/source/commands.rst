@@ -71,7 +71,7 @@ referring to both Compute and Volume quotas.
 
 * ``access token``: (**Identity**) long-lived OAuth-based token
 * ``availability zone``: (**Compute**, **Network**, **Volume**) a logical partition of hosts or block storage or network services
-* ``aggregate``: (**Compute**) a grouping of servers
+* ``aggregate``: (**Compute**) a grouping of compute hosts
 * ``backup``: (**Volume**) a volume copy
 * ``catalog``: (**Identity**) service catalog
 * ``command``: (**Internal**) installed commands in the OSC process
