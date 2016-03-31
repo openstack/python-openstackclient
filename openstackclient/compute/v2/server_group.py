@@ -156,3 +156,27 @@ class ListServerGroup(command.Lister):
                         'Members': utils.format_list,
                     }
                 ) for s in data))
+
+
+class ShowServerGroup(command.ShowOne):
+    """Display server group details."""
+
+    def get_parser(self, prog_name):
+        parser = super(ShowServerGroup, self).get_parser(prog_name)
+        parser.add_argument(
+            'server_group',
+            metavar='<server-group>',
+            help='server group to display (name or ID)',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+        group = utils.find_resource(compute_client.server_groups,
+                                    parsed_args.server_group)
+        info = {}
+        info.update(group._info)
+        columns = _get_columns(info)
+        data = utils.get_dict_properties(info, columns,
+                                         formatters=_formatters)
+        return columns, data
