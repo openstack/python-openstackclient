@@ -16,6 +16,8 @@ Create a new security group rule
         [--proto <proto>]
         [--src-ip <ip-address> | --src-group <group>]
         [--dst-port <port-range>]
+        [--ingress | --egress]
+        [--ethertype <ethertype>]
         <group>
 
 .. option:: --proto <proto>
@@ -24,7 +26,8 @@ Create a new security group rule
 
 .. option:: --src-ip <ip-address>
 
-    Source IP address block (may use CIDR notation; default: 0.0.0.0/0)
+    Source IP address block
+    (may use CIDR notation; default for IPv4 rule: 0.0.0.0/0)
 
 .. option:: --src-group <group>
 
@@ -34,6 +37,24 @@ Create a new security group rule
 
     Destination port, may be a single port or port range: 137:139
     (only required for IP protocols tcp and udp)
+
+.. option:: --ingress
+
+    Rule applies to incoming network traffic (default)
+
+    *Network version 2 only*
+
+.. option:: --egress
+
+    Rule applies to outgoing network traffic
+
+    *Network version 2 only*
+
+.. option:: --ethertype <ethertype>
+
+    Ethertype of network traffic (IPv4, IPv6; default: IPv4)
+
+    *Network version 2 only*
 
 .. describe:: <group>
 

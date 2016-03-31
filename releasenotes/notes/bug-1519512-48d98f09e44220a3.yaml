@@ -1,0 +1,6 @@
+---
+features:
+  - Add ``--ingress``, ``--egress``, and ``--ethertype`` options to the
+    ``security group rule create`` command for Network v2 only. These
+    options enable ``egress`` and ``IPv6`` security group rules.
+    [Bug `1519512 <https://bugs.launchpad.net/bugs/1519512>`_]

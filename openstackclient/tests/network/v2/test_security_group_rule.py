@@ -97,7 +97,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertRaises(tests_utils.ParserException,
                           self.check_parser, self.cmd, [], [])
 
-    def test_create_source_group_and_ip(self):
+    def test_create_all_source_options(self):
         arglist = [
             '--src-ip', '10.10.0.0/24',
             '--src-group', self._security_group.id,
@@ -114,6 +114,14 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertRaises(tests_utils.ParserException,
                           self.check_parser, self.cmd, arglist, [])
 
+    def test_create_bad_ethertype(self):
+        arglist = [
+            '--ethertype', 'foo',
+            self._security_group.id,
+        ]
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser, self.cmd, arglist, [])
+
     def test_create_default_rule(self):
         self._setup_security_group_rule({
             'port_range_max': 443,
@@ -124,6 +132,8 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             self._security_group.id,
         ]
         verifylist = [
+            ('dst_port', (self._security_group_rule.port_range_min,
+                          self._security_group_rule.port_range_max)),
             ('group', self._security_group.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -150,12 +160,14 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         })
         arglist = [
             '--dst-port', str(self._security_group_rule.port_range_min),
+            '--ingress',
             '--src-group', self._security_group.name,
             self._security_group.id,
         ]
         verifylist = [
             ('dst_port', (self._security_group_rule.port_range_min,
                           self._security_group_rule.port_range_max)),
+            ('ingress', True),
             ('src_group', self._security_group.name),
             ('group', self._security_group.id),
         ]
@@ -206,6 +218,43 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertEqual(tuple(self.expected_columns), columns)
         self.assertEqual(self.expected_data, data)
 
+    def test_create_network_options(self):
+        self._setup_security_group_rule({
+            'direction': 'egress',
+            'ethertype': 'IPv6',
+            'port_range_max': 443,
+            'port_range_min': 443,
+            'remote_group_id': None,
+            'remote_ip_prefix': None,
+        })
+        arglist = [
+            '--dst-port', str(self._security_group_rule.port_range_min),
+            '--egress',
+            '--ethertype', self._security_group_rule.ethertype,
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('dst_port', (self._security_group_rule.port_range_min,
+                          self._security_group_rule.port_range_max)),
+            ('egress', True),
+            ('ethertype', self._security_group_rule.ethertype),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_security_group_rule.assert_called_once_with(**{
+            'direction': self._security_group_rule.direction,
+            'ethertype': self._security_group_rule.ethertype,
+            'port_range_max': self._security_group_rule.port_range_max,
+            'port_range_min': self._security_group_rule.port_range_min,
+            'protocol': self._security_group_rule.protocol,
+            'security_group_id': self._security_group.id,
+        })
+        self.assertEqual(tuple(self.expected_columns), columns)
+        self.assertEqual(self.expected_data, data)
+
 
 class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
@@ -241,7 +290,7 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         self.assertRaises(tests_utils.ParserException,
                           self.check_parser, self.cmd, [], [])
 
-    def test_create_source_group_and_ip(self):
+    def test_create_all_source_options(self):
         arglist = [
             '--src-ip', '10.10.0.0/24',
             '--src-group', self._security_group.id,
