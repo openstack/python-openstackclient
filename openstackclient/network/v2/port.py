@@ -30,6 +30,7 @@ LOG = logging.getLogger(__name__)
 def _format_admin_state(state):
     return 'UP' if state else 'DOWN'
 
+
 _formatters = {
     'admin_state_up': _format_admin_state,
     'allowed_address_pairs': utils.format_list_of_dicts,
@@ -383,17 +384,24 @@ class SetPort(command.Command):
 
         _prepare_fixed_ips(self.app.client_manager, parsed_args)
         attrs = _get_attrs(self.app.client_manager, parsed_args)
-
-        if parsed_args.no_fixed_ip:
-            attrs['fixed_ips'] = []
-        if parsed_args.no_binding_profile:
+        obj = client.find_port(parsed_args.port, ignore_missing=False)
+        if 'binding:profile' in attrs:
+            attrs['binding:profile'].update(obj.binding_profile)
+        elif parsed_args.no_binding_profile:
             attrs['binding:profile'] = {}
+        if 'fixed_ips' in attrs:
+            # When user unsets the fixed_ips, obj.fixed_ips = [{}].
+            # Adding the obj.fixed_ips list to attrs['fixed_ips']
+            # would therefore add an empty dictionary, while we need
+            # to append the attrs['fixed_ips'] iff there is some info
+            # in the obj.fixed_ips. Therefore I have opted for this `for` loop
+            attrs['fixed_ips'] += [ip for ip in obj.fixed_ips if ip]
+        elif parsed_args.no_fixed_ip:
+            attrs['fixed_ips'] = []
 
         if attrs == {}:
             msg = "Nothing specified to be set"
             raise exceptions.CommandError(msg)
-
-        obj = client.find_port(parsed_args.port, ignore_missing=False)
         client.update_port(obj, **attrs)
 
 
