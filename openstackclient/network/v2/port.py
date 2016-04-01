@@ -97,10 +97,11 @@ def _get_attrs(client_manager, parsed_args):
     if parsed_args.host:
         attrs['binding:host_id'] = parsed_args.host
 
+    # It is possible that name is not updated during 'port set'
+    if parsed_args.name is not None:
+        attrs['name'] = str(parsed_args.name)
     # The remaining options do not support 'port set' command, so they require
     # additional check
-    if 'name' in parsed_args and parsed_args.name is not None:
-        attrs['name'] = str(parsed_args.name)
     if 'mac_address' in parsed_args and parsed_args.mac_address is not None:
         attrs['mac_address'] = parsed_args.mac_address
     if 'network' in parsed_args and parsed_args.network is not None:
@@ -342,6 +343,10 @@ class SetPort(command.Command):
             action='store_true',
             help='Disable port',
         )
+        parser.add_argument(
+            '--name',
+            metavar="<name>",
+            help=('Set port name'))
         parser.add_argument(
             'port',
             metavar="<port>",

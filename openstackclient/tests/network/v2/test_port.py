@@ -319,6 +319,7 @@ class TestSetPort(TestPort):
             '--vnic-type', 'macvtap',
             '--binding-profile', 'foo=bar',
             '--host', 'binding-host-id-xxxx',
+            '--name', 'newName',
             self._port.name,
         ]
         verifylist = [
@@ -326,6 +327,7 @@ class TestSetPort(TestPort):
             ('vnic_type', 'macvtap'),
             ('binding_profile', {'foo': 'bar'}),
             ('host', 'binding-host-id-xxxx'),
+            ('name', 'newName')
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -336,6 +338,7 @@ class TestSetPort(TestPort):
             'binding:vnic_type': 'macvtap',
             'binding:profile': {'foo': 'bar'},
             'binding:host_id': 'binding-host-id-xxxx',
+            'name': 'newName',
         }
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)

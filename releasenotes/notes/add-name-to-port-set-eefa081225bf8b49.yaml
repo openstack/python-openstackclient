@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Port name can now be updated using ``port set``
