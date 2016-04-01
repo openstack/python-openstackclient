@@ -111,6 +111,9 @@ class CreateSubnetPool(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+        # NeutronServer expects prefixes to be a List
+        if "prefixes" not in attrs:
+            attrs['prefixes'] = []
         obj = client.create_subnet_pool(**attrs)
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)

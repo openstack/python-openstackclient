@@ -149,6 +149,7 @@ class TestCreateSubnetPool(TestSubnetPool):
             'default_prefixlen': self._subnet_pool.default_prefixlen,
             'max_prefixlen': self._subnet_pool.max_prefixlen,
             'min_prefixlen': self._subnet_pool.min_prefixlen,
+            'prefixes': [],
             'name': self._subnet_pool.name,
         })
         self.assertEqual(self.columns, columns)
