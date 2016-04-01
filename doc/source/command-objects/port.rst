@@ -123,11 +123,11 @@ Set port properties
 .. code:: bash
 
     os port set
-        [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]
+        [--fixed-ip subnet=<subnet>,ip-address=<ip-address> | --no-fixed-ip]
         [--device-id <device-id>]
         [--device-owner <device-owner>]
         [--vnic-type <vnic-type>]
-        [--binding-profile <binding-profile>]
+        [--binding-profile <binding-profile> | --no-binding-profile]
         [--host-id <host-id>]
         [--enable | --disable]
         [--name <name>]
@@ -138,6 +138,10 @@ Set port properties
     Desired IP and/or subnet for this port:
     subnet=<subnet>,ip-address=<ip-address>
     (you can repeat this option)
+
+.. option:: --no-fixed-ip
+
+    Clear existing information of fixed-ips
 
 .. option:: --device-id <device-id>
 
@@ -156,6 +160,10 @@ Set port properties
 
     Custom data to be passed as binding:profile: <key>=<value>
     (this option can be repeated)
+
+.. option:: --no-binding-profile
+
+    Clear existing information of binding:profile
 
 .. option:: --host-id <host-id>
 

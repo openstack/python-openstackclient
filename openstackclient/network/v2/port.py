@@ -151,14 +151,6 @@ def _prepare_fixed_ips(client_manager, parsed_args):
 
 
 def _add_updatable_args(parser):
-        parser.add_argument(
-            '--fixed-ip',
-            metavar='subnet=<subnet>,ip-address=<ip-address>',
-            action=parseractions.MultiKeyValueAction,
-            optional_keys=['subnet', 'ip-address'],
-            help='Desired IP and/or subnet (name or ID) for this port: '
-                 'subnet=<subnet>,ip-address=<ip-address> '
-                 '(this option can be repeated)')
         # NOTE(dtroyer): --device-id is deprecated in Mar 2016.  Do not
         #                remove before 3.x release or Mar 2017.
         device_group = parser.add_mutually_exclusive_group()
@@ -184,12 +176,6 @@ def _add_updatable_args(parser):
             help="VNIC type for this port (direct | direct-physical |"
                  " macvtap | normal | baremetal). If unspecified during"
                  " port creation, default value will be 'normal'.")
-        parser.add_argument(
-            '--binding-profile',
-            metavar='<binding-profile>',
-            action=parseractions.KeyValueAction,
-            help='Custom data to be passed as binding:profile: <key>=<value> '
-                 '(this option can be repeated)')
         # NOTE(dtroyer): --host-id is deprecated in Mar 2016.  Do not
         #                remove before 3.x release or Mar 2017.
         host_group = parser.add_mutually_exclusive_group()
@@ -217,6 +203,20 @@ class CreatePort(command.ShowOne):
             required=True,
             help='Network this port belongs to (name or ID)')
         _add_updatable_args(parser)
+        parser.add_argument(
+            '--fixed-ip',
+            metavar='subnet=<subnet>,ip-address=<ip-address>',
+            action=parseractions.MultiKeyValueAction,
+            optional_keys=['subnet', 'ip-address'],
+            help='Desired IP and/or subnet (name or ID) for this port: '
+                 'subnet=<subnet>,ip-address=<ip-address> '
+                 '(this option can be repeated)')
+        parser.add_argument(
+            '--binding-profile',
+            metavar='<binding-profile>',
+            action=parseractions.KeyValueAction,
+            help='Custom data to be passed as binding:profile: <key>=<value> '
+                 '(this option can be repeated)')
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
@@ -352,7 +352,30 @@ class SetPort(command.Command):
             metavar="<port>",
             help=("Port to modify (name or ID)")
         )
-
+        fixed_ip = parser.add_mutually_exclusive_group()
+        fixed_ip.add_argument(
+            '--fixed-ip',
+            metavar='subnet=<subnet>,ip-address=<ip-address>',
+            action=parseractions.MultiKeyValueAction,
+            optional_keys=['subnet', 'ip-address'],
+            help='Desired IP and/or subnet (name or ID) for this port: '
+                 'subnet=<subnet>,ip-address=<ip-address> '
+                 '(this option can be repeated)')
+        fixed_ip.add_argument(
+            '--no-fixed-ip',
+            action='store_true',
+            help='Clear existing information of fixed-ips')
+        binding_profile = parser.add_mutually_exclusive_group()
+        binding_profile.add_argument(
+            '--binding-profile',
+            metavar='<binding-profile>',
+            action=parseractions.KeyValueAction,
+            help='Custom data to be passed as binding:profile: <key>=<value> '
+                 '(this option can be repeated)')
+        binding_profile.add_argument(
+            '--no-binding-profile',
+            action='store_true',
+            help='Clear existing information of binding:profile')
         return parser
 
     def take_action(self, parsed_args):
@@ -360,6 +383,11 @@ class SetPort(command.Command):
 
         _prepare_fixed_ips(self.app.client_manager, parsed_args)
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+
+        if parsed_args.no_fixed_ip:
+            attrs['fixed_ips'] = []
+        if parsed_args.no_binding_profile:
+            attrs['binding:profile'] = {}
 
         if attrs == {}:
             msg = "Nothing specified to be set"

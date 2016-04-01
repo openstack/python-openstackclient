@@ -298,10 +298,14 @@ class TestSetPort(TestPort):
     def test_set_this(self):
         arglist = [
             '--disable',
+            '--no-fixed-ip',
+            '--no-binding-profile',
             self._port.name,
         ]
         verifylist = [
             ('disable', True),
+            ('no_binding_profile', True),
+            ('no_fixed_ip', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -309,6 +313,8 @@ class TestSetPort(TestPort):
 
         attrs = {
             'admin_state_up': False,
+            'binding:profile': {},
+            'fixed_ips': [],
         }
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
