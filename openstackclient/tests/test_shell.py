@@ -79,6 +79,8 @@ CLOUD_2 = {
             'region_name': 'occ-cloud,krikkit,occ-env',
             'log_file': '/tmp/test_log_file',
             'log_level': 'debug',
+            'cert': 'mycert',
+            'key': 'mickey',
         }
     }
 }
@@ -567,6 +569,24 @@ class TestShellCli(TestShell):
         self.assertEqual('foo', _shell.options.cacert)
         self.assertFalse(_shell.verify)
 
+    def test_shell_args_cert_options(self):
+        _shell = make_shell()
+
+        # Default
+        fake_execute(_shell, "list user")
+        self.assertEqual('', _shell.options.cert)
+        self.assertEqual('', _shell.options.key)
+
+        # --os-cert
+        fake_execute(_shell, "--os-cert mycert list user")
+        self.assertEqual('mycert', _shell.options.cert)
+        self.assertEqual('', _shell.options.key)
+
+        # --os-key
+        fake_execute(_shell, "--os-key mickey list user")
+        self.assertEqual('', _shell.options.cert)
+        self.assertEqual('mickey', _shell.options.key)
+
     def test_default_env(self):
         flag = ""
         kwargs = {
@@ -669,6 +689,9 @@ class TestShellCli(TestShell):
             'occ-cloud',
             _shell.cloud.config['region_name'],
         )
+
+        self.assertEqual('mycert', _shell.cloud.config['cert'])
+        self.assertEqual('mickey', _shell.cloud.config['key'])
 
     @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
     @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
