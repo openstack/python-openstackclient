@@ -52,10 +52,14 @@ def _get_attrs(client_manager, parsed_args):
     attrs = {}
     if parsed_args.name is not None:
         attrs['name'] = str(parsed_args.name)
-    if parsed_args.admin_state is not None:
-        attrs['admin_state_up'] = parsed_args.admin_state
-    if parsed_args.shared is not None:
-        attrs['shared'] = parsed_args.shared
+    if parsed_args.enable:
+        attrs['admin_state_up'] = True
+    if parsed_args.disable:
+        attrs['admin_state_up'] = False
+    if parsed_args.share:
+        attrs['shared'] = True
+    if parsed_args.no_share:
+        attrs['shared'] = False
 
     # "network set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
@@ -79,8 +83,10 @@ def _get_attrs_compute(client_manager, parsed_args):
     attrs = {}
     if parsed_args.name is not None:
         attrs['label'] = str(parsed_args.name)
-    if parsed_args.shared is not None:
-        attrs['share_address'] = parsed_args.shared
+    if parsed_args.share:
+        attrs['share_address'] = True
+    if parsed_args.no_share:
+        attrs['share_address'] = False
     if parsed_args.subnet is not None:
         attrs['cidr'] = parsed_args.subnet
 
@@ -99,15 +105,13 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
         share_group = parser.add_mutually_exclusive_group()
         share_group.add_argument(
             '--share',
-            dest='shared',
             action='store_true',
             default=None,
             help='Share the network between projects',
         )
         share_group.add_argument(
             '--no-share',
-            dest='shared',
-            action='store_false',
+            action='store_true',
             help='Do not share the network between projects',
         )
         return parser
@@ -116,15 +120,13 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
-            dest='admin_state',
             action='store_true',
             default=True,
             help='Enable network (default)',
         )
         admin_group.add_argument(
             '--disable',
-            dest='admin_state',
-            action='store_false',
+            action='store_true',
             help='Disable network',
         )
         parser.add_argument(
@@ -301,29 +303,25 @@ class SetNetwork(command.Command):
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
-            dest='admin_state',
             action='store_true',
             default=None,
             help='Enable network',
         )
         admin_group.add_argument(
             '--disable',
-            dest='admin_state',
-            action='store_false',
+            action='store_true',
             help='Disable network',
         )
         share_group = parser.add_mutually_exclusive_group()
         share_group.add_argument(
             '--share',
-            dest='shared',
             action='store_true',
             default=None,
             help='Share the network between projects',
         )
         share_group.add_argument(
             '--no-share',
-            dest='shared',
-            action='store_false',
+            action='store_true',
             help='Do not share the network between projects',
         )
         return parser
