@@ -197,7 +197,7 @@ class CreateSubnet(command.ShowOne):
         parser.add_argument(
             '--prefix-length',
             metavar='<prefix-length>',
-            help='Prefix length for subnet allocation from subnetpool',
+            help='Prefix length for subnet allocation from subnet pool',
         )
         parser.add_argument(
             '--subnet-range',
@@ -223,12 +223,11 @@ class CreateSubnet(command.ShowOne):
             metavar='<gateway>',
             default='auto',
             help="Specify a gateway for the subnet.  The three options are: "
-                 "  <ip-address>: Specific IP address to use as the gateway "
-                 "  'auto':       Gateway address should automatically be "
-                 "                chosen from within the subnet itself "
-                 "  'none':       This subnet will not use a gateway "
-                 "e.g.: --gateway 192.168.9.1, --gateway auto, --gateway none"
-                 "(default is 'auto')",
+                 "<ip-address>: Specific IP address to use as the gateway, "
+                 "'auto': Gateway address should automatically be chosen from "
+                 "within the subnet itself, 'none': This subnet will not use "
+                 "a gateway, e.g.: --gateway 192.168.9.1, --gateway auto, "
+                 "--gateway none (default is 'auto')",
         )
         parser.add_argument(
             '--ip-version',
@@ -351,8 +350,8 @@ class SetSubnet(command.Command):
             '--gateway',
             metavar='<gateway>',
             help="Specify a gateway for the subnet. The options are: "
-                 "  <ip-address>: Specific IP address to use as the gateway "
-                 "  'none':       This subnet will not use a gateway "
+                 "<ip-address>: Specific IP address to use as the gateway, "
+                 "'none': This subnet will not use a gateway, "
                  "e.g.: --gateway 192.168.9.1, --gateway none"
         )
         _get_common_parse_arguments(parser)
