@@ -18,6 +18,9 @@ Create new network
         [--share | --no-share]
         [--availability-zone-hint <availability-zone>]
         [--external [--default | --no-default] | --internal]
+        [--provider-network-type <provider-network-type>]
+        [--provider-physical-network <provider-physical-network>]
+        [--provider-segmentation-id <provider-segmentation-id>]
         <name>
 
 .. option:: --project <project>
@@ -81,6 +84,22 @@ Create new network
 
     Do not use the network as the default external network.
     By default, no network is set as an external network.
+    (Network v2 only)
+
+.. option:: --provider-network-type <provider-network-type>
+
+    The physical mechanism by which the virtual network is implemented.
+    The supported options are: flat, gre, local, vlan, vxlan
+    (Network v2 only)
+
+.. option:: --provider-physical-network <provider-physical-network>
+
+    Name of the physical network over which the virtual network is implemented
+    (Network v2 only)
+
+.. option:: --provider-segmentation-id <provider-segmentation-id>
+
+    VLAN ID for VLAN networks or tunnel-id for GRE/VXLAN networks
     (Network v2 only)
 
 .. _network_create-name:

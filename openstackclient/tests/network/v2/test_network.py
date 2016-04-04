@@ -142,6 +142,9 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             "--project-domain", identity_fakes_v3.domain_name,
             "--availability-zone-hint", "nova",
             "--external", "--default",
+            "--provider-network-type", "vlan",
+            "--provider-physical-network", "physnet1",
+            "--provider-segmentation-id", "400",
             self._network.name,
         ]
         verifylist = [
@@ -152,6 +155,9 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('availability_zone_hints', ["nova"]),
             ('external', True),
             ('default', True),
+            ('provider_network_type', 'vlan'),
+            ('physical_network', 'physnet1'),
+            ('segmentation_id', '400'),
             ('name', self._network.name),
         ]
 
@@ -166,6 +172,9 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'tenant_id': identity_fakes_v3.project_id,
             'is_default': True,
             'router:external': True,
+            'provider:network_type': 'vlan',
+            'provider:physical_network': 'physnet1',
+            'provider:segmentation_id': '400',
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

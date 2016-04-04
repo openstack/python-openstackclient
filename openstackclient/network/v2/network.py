@@ -165,6 +165,26 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             action='store_true',
             help='Do not use the network as the default external network.'
                  'By default, no network is set as an external network.')
+        parser.add_argument(
+            '--provider-network-type',
+            metavar='<provider-network-type>',
+            choices=['flat', 'gre', 'local',
+                     'vlan', 'vxlan'],
+            help='The physical mechanism by which the virtual network '
+                 'is implemented. The supported options are: '
+                 'flat, gre, local, vlan, vxlan')
+        parser.add_argument(
+            '--provider-physical-network',
+            metavar='<provider-physical-network>',
+            dest='physical_network',
+            help='Name of the physical network over which the virtual '
+                 'network is implemented')
+        parser.add_argument(
+            '--provider-segmentation-id',
+            metavar='<provider-segmentation-id>',
+            dest='segmentation_id',
+            help='VLAN ID for VLAN networks or tunnel-id for GRE/VXLAN '
+                 'networks')
         return parser
 
     def update_parser_compute(self, parser):
@@ -185,6 +205,12 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
                 attrs['is_default'] = False
             if parsed_args.default:
                 attrs['is_default'] = True
+        if parsed_args.provider_network_type:
+            attrs['provider:network_type'] = parsed_args.provider_network_type
+        if parsed_args.physical_network:
+            attrs['provider:physical_network'] = parsed_args.physical_network
+        if parsed_args.segmentation_id:
+            attrs['provider:segmentation_id'] = parsed_args.segmentation_id
         obj = client.create_network(**attrs)
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
