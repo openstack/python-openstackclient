@@ -76,10 +76,10 @@ class CreateFlavor(command.ShowOne):
         )
         parser.add_argument(
             "--rxtx-factor",
-            type=int,
+            type=float,
             metavar="<factor>",
-            default=1,
-            help="RX/TX factor (default 1)",
+            default=1.0,
+            help="RX/TX factor (default 1.0)",
         )
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(

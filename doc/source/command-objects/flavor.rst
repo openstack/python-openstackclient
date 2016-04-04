@@ -49,7 +49,7 @@ Create new flavor
 
 .. option:: --rxtx-factor <factor>
 
-    RX/TX factor (default 1)
+    RX/TX factor (default 1.0)
 
 .. option:: --public
 
