@@ -18,6 +18,7 @@ from openstackclient.network import utils as network_utils
 from openstackclient.network.v2 import security_group_rule
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests import fakes
+from openstackclient.tests.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.network.v2 import fakes as network_fakes
 from openstackclient.tests import utils as tests_utils
 
@@ -88,6 +89,30 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.find_security_group = mock.Mock(
             return_value=self._security_group)
+
+        # Set identity client v3. And get a shortcut to Identity client.
+        identity_client = identity_fakes.FakeIdentityv3Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+        self.app.client_manager.identity = identity_client
+        self.identity = self.app.client_manager.identity
+
+        # Get a shortcut to the ProjectManager Mock
+        self.projects_mock = self.identity.projects
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
+        # Get a shortcut to the DomainManager Mock
+        self.domains_mock = self.identity.domains
+        self.domains_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.DOMAIN),
+            loaded=True,
+        )
 
         # Get the command object to test
         self.cmd = security_group_rule.CreateSecurityGroupRule(
@@ -231,6 +256,8 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             '--dst-port', str(self._security_group_rule.port_range_min),
             '--egress',
             '--ethertype', self._security_group_rule.ethertype,
+            '--project', identity_fakes.project_name,
+            '--project-domain', identity_fakes.domain_name,
             self._security_group.id,
         ]
         verifylist = [
@@ -238,6 +265,8 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
                           self._security_group_rule.port_range_max)),
             ('egress', True),
             ('ethertype', self._security_group_rule.ethertype),
+            ('project', identity_fakes.project_name),
+            ('project_domain', identity_fakes.domain_name),
             ('group', self._security_group.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -251,6 +280,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'port_range_min': self._security_group_rule.port_range_min,
             'protocol': self._security_group_rule.protocol,
             'security_group_id': self._security_group.id,
+            'tenant_id': identity_fakes.project_id,
         })
         self.assertEqual(tuple(self.expected_columns), columns)
         self.assertEqual(self.expected_data, data)
@@ -302,6 +332,17 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
     def test_create_bad_protocol(self):
         arglist = [
             '--protocol', 'foo',
+            self._security_group.id,
+        ]
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser, self.cmd, arglist, [])
+
+    def test_create_network_options(self):
+        arglist = [
+            '--ingress',
+            '--ethertype', 'IPv4',
+            '--project', identity_fakes.project_name,
+            '--project-domain', identity_fakes.domain_name,
             self._security_group.id,
         ]
         self.assertRaises(tests_utils.ParserException,
