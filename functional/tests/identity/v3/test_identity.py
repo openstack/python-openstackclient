@@ -115,25 +115,25 @@ class IdentityTests(test.TestCase):
                           'password': password,
                           'description': description,
                           'name': username})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.USER_FIELDS)
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
                 'user delete %s' % self.parse_show_as_object(raw_output)['id'])
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.USER_FIELDS)
         return username
 
     def _create_dummy_role(self, add_clean_up=True):
         role_name = data_utils.rand_name('TestRole')
         raw_output = self.openstack('role create %s' % role_name)
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.ROLE_FIELDS)
         role = self.parse_show_as_object(raw_output)
-        self.assertEqual(role_name, role['name'])
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
                 'role delete %s' % role['id'])
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.ROLE_FIELDS)
+        self.assertEqual(role_name, role['name'])
         return role_name
 
     def _create_dummy_group(self, add_clean_up=True):
@@ -146,8 +146,6 @@ class IdentityTests(test.TestCase):
             '%(name)s' % {'domain': self.domain_name,
                           'description': description,
                           'name': group_name})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.GROUP_FIELDS)
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
@@ -155,6 +153,8 @@ class IdentityTests(test.TestCase):
                 '--domain %(domain)s '
                 '%(name)s' % {'domain': self.domain_name,
                               'name': group_name})
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.GROUP_FIELDS)
         return group_name
 
     def _create_dummy_domain(self, add_clean_up=True):
@@ -208,11 +208,11 @@ class IdentityTests(test.TestCase):
             '%(id)s' % {'parent_region_arg': parent_region_arg,
                         'description': description,
                         'id': region_id})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.REGION_FIELDS)
         if add_clean_up:
             self.addCleanup(self.openstack,
                             'region delete %s' % region_id)
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.REGION_FIELDS)
         return region_id
 
     def _create_dummy_service(self, add_clean_up=True):
@@ -227,12 +227,12 @@ class IdentityTests(test.TestCase):
             '%(type)s' % {'name': service_name,
                           'description': description,
                           'type': type_name})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.SERVICE_FIELDS)
         if add_clean_up:
             service = self.parse_show_as_object(raw_output)
             self.addCleanup(self.openstack,
                             'service delete %s' % service['id'])
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.SERVICE_FIELDS)
         return service_name
 
     def _create_dummy_endpoint(self, interface='public', add_clean_up=True):
@@ -249,13 +249,13 @@ class IdentityTests(test.TestCase):
                          'service': service_name,
                          'interface': interface,
                          'url': endpoint_url})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.ENDPOINT_FIELDS)
         endpoint = self.parse_show_as_object(raw_output)
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
                 'endpoint delete %s' % endpoint['id'])
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.ENDPOINT_FIELDS)
         return endpoint['id']
 
     def _create_dummy_idp(self, add_clean_up=True):
@@ -267,12 +267,12 @@ class IdentityTests(test.TestCase):
             '--description %(description)s '
             '--enable ' % {'name': identity_provider,
                            'description': description})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.IDENTITY_PROVIDER_FIELDS)
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
                 'identity provider delete %s' % identity_provider)
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.IDENTITY_PROVIDER_FIELDS)
         return identity_provider
 
     def _create_dummy_sp(self, add_clean_up=True):
@@ -286,10 +286,10 @@ class IdentityTests(test.TestCase):
             '--service-provider-url https://sp.example.com:5000 '
             '--enable ' % {'name': service_provider,
                            'description': description})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.SERVICE_PROVIDER_FIELDS)
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
                 'service provider delete %s' % service_provider)
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.SERVICE_PROVIDER_FIELDS)
         return service_provider

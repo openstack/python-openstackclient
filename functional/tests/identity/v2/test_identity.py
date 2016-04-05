@@ -67,13 +67,13 @@ class IdentityTests(test.TestCase):
             '--description %(description)s '
             '--enable %(name)s' % {'description': project_description,
                                    'name': project_name})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.PROJECT_FIELDS)
         project = self.parse_show_as_object(raw_output)
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
                 'project delete %s' % project['id'])
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.PROJECT_FIELDS)
         return project_name
 
     def _create_dummy_user(self, add_clean_up=True):
@@ -90,47 +90,47 @@ class IdentityTests(test.TestCase):
                           'email': email,
                           'password': password,
                           'name': username})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.USER_FIELDS)
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
                 'user delete %s' % self.parse_show_as_object(raw_output)['id'])
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.USER_FIELDS)
         return username
 
     def _create_dummy_role(self, add_clean_up=True):
         role_name = data_utils.rand_name('TestRole')
         raw_output = self.openstack('role create %s' % role_name)
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.ROLE_FIELDS)
         role = self.parse_show_as_object(raw_output)
-        self.assertEqual(role_name, role['name'])
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
                 'role delete %s' % role['id'])
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.ROLE_FIELDS)
+        self.assertEqual(role_name, role['name'])
         return role_name
 
     def _create_dummy_ec2_credentials(self, add_clean_up=True):
         raw_output = self.openstack('ec2 credentials create')
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.EC2_CREDENTIALS_FIELDS)
         ec2_credentials = self.parse_show_as_object(raw_output)
         access_key = ec2_credentials['access']
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
                 'ec2 credentials delete %s' % access_key)
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.EC2_CREDENTIALS_FIELDS)
         return access_key
 
     def _create_dummy_token(self, add_clean_up=True):
         raw_output = self.openstack('token issue')
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.TOKEN_FIELDS)
         token = self.parse_show_as_object(raw_output)
         if add_clean_up:
             self.addCleanup(self.openstack,
                             'token revoke %s' % token['id'])
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.TOKEN_FIELDS)
         return token['id']
 
     def _create_dummy_service(self, add_clean_up=True):
@@ -144,12 +144,12 @@ class IdentityTests(test.TestCase):
             '%(type)s' % {'name': service_name,
                           'description': description,
                           'type': type_name})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.SERVICE_FIELDS)
         if add_clean_up:
             service = self.parse_show_as_object(raw_output)
             self.addCleanup(self.openstack,
                             'service delete %s' % service['id'])
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.SERVICE_FIELDS)
         return service_name
 
     def _create_dummy_endpoint(self, add_clean_up=True):
@@ -169,11 +169,11 @@ class IdentityTests(test.TestCase):
                              'internalurl': internal_url,
                              'region': region_id,
                              'service': service_name})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.ENDPOINT_FIELDS)
         endpoint = self.parse_show_as_object(raw_output)
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
                 'endpoint delete %s' % endpoint['id'])
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.ENDPOINT_FIELDS)
         return endpoint['id']
