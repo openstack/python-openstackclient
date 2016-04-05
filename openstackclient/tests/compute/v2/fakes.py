@@ -280,7 +280,7 @@ class FakeHypervisor(object):
         return hypervisors
 
 
-class FakehypervisorStats(object):
+class FakeHypervisorStats(object):
     """Fake one or more hypervisor stats."""
 
     @staticmethod
@@ -333,7 +333,7 @@ class FakehypervisorStats(object):
         hypervisors = []
         for i in range(0, count):
             hypervisors.append(
-                FakehypervisorStats.create_one_hypervisor_stats(attrs))
+                FakeHypervisorStats.create_one_hypervisor_stats(attrs))
 
         return hypervisors
 

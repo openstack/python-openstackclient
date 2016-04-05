@@ -33,7 +33,7 @@ class TestHypervisorStatsShow(TestHypervisorStats):
         super(TestHypervisorStatsShow, self).setUp()
 
         self.hypervisor_stats = \
-            compute_fakes.FakehypervisorStats.create_one_hypervisor_stats()
+            compute_fakes.FakeHypervisorStats.create_one_hypervisor_stats()
 
         self.hypervisors_mock.statistics.return_value =\
             self.hypervisor_stats
