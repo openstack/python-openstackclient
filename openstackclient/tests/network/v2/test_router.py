@@ -138,7 +138,7 @@ class TestCreateRouter(TestRouter):
         new_router.id,
         new_router.name,
         new_router.tenant_id,
-        new_router.routes,
+        router._format_routes(new_router.routes),
         new_router.status,
     )
 
@@ -268,7 +268,7 @@ class TestListRouter(TestRouter):
         r = routers[i]
         data_long.append(
             data[i] + (
-                r.routes,
+                router._format_routes(r.routes),
                 router._format_external_gateway_info(r.external_gateway_info),
                 osc_utils.format_list(r.availability_zones),
             )
@@ -399,7 +399,10 @@ class TestRemoveSubnetFromRouter(TestRouter):
 class TestSetRouter(TestRouter):
 
     # The router to set.
-    _router = network_fakes.FakeRouter.create_one_router()
+    _default_route = {'destination': '10.20.20.0/24', 'nexthop': '10.20.30.1'}
+    _router = network_fakes.FakeRouter.create_one_router(
+        attrs={'routes': [_default_route]}
+    )
 
     def setUp(self):
         super(TestSetRouter, self).setUp()
@@ -491,8 +494,8 @@ class TestSetRouter(TestRouter):
         result = self.cmd.take_action(parsed_args)
 
         attrs = {
-            'routes': [{'destination': '10.20.30.0/24',
-                        'gateway': '10.20.30.1'}],
+            'routes': self._router.routes + [{'destination': '10.20.30.0/24',
+                                             'nexthop': '10.20.30.1'}],
         }
         self.network.update_router.assert_called_once_with(
             self._router, **attrs)
@@ -572,7 +575,7 @@ class TestShowRouter(TestRouter):
         _router.id,
         _router.name,
         _router.tenant_id,
-        _router.routes,
+        router._format_routes(_router.routes),
         _router.status,
     )
 

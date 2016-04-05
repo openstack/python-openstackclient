@@ -1,0 +1,9 @@
+---
+fixes:
+  - Fixed the ``--route`` option on the ``router set`` command
+    which did not properly format the new routes to set resulting
+    in a ``Bad Request`` error. In addition, the ``router create``,
+    ``router list`` and ``router show`` command output for routes
+    was fixed to improve readability and to align with the
+    ``--route`` option on the ``router set`` command.
+    [Bug `1564460 <https://bugs.launchpad.net/bugs/1564460>`_]

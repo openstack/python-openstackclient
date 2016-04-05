@@ -34,11 +34,20 @@ def _format_external_gateway_info(info):
         return ''
 
 
+def _format_routes(routes):
+    # Map the route keys to match --route option.
+    for route in routes:
+        if 'nexthop' in route:
+            route['gateway'] = route.pop('nexthop')
+    return utils.format_list_of_dicts(routes)
+
+
 _formatters = {
     'admin_state_up': _format_admin_state,
     'external_gateway_info': _format_external_gateway_info,
     'availability_zones': utils.format_list,
     'availability_zone_hints': utils.format_list,
+    'routes': _format_routes,
 }
 
 
@@ -66,11 +75,6 @@ def _get_attrs(client_manager, parsed_args):
     if ('availability_zone_hints' in parsed_args
             and parsed_args.availability_zone_hints is not None):
         attrs['availability_zone_hints'] = parsed_args.availability_zone_hints
-
-    if 'clear_routes' in parsed_args and parsed_args.clear_routes:
-        attrs['routes'] = []
-    elif 'routes' in parsed_args and parsed_args.routes is not None:
-        attrs['routes'] = parsed_args.routes
 
     # "router set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
@@ -393,7 +397,19 @@ class SetRouter(command.Command):
         client = self.app.client_manager.network
         obj = client.find_router(parsed_args.router, ignore_missing=False)
 
+        # Get the common attributes.
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+
+        # Get the route attributes.
+        if parsed_args.clear_routes:
+            attrs['routes'] = []
+        elif parsed_args.routes is not None:
+            # Map the route keys and append to the current routes.
+            # The REST API will handle route validation and duplicates.
+            for route in parsed_args.routes:
+                route['nexthop'] = route.pop('gateway')
+            attrs['routes'] = obj.routes + parsed_args.routes
+
         if attrs == {}:
             msg = "Nothing specified to be set"
             raise exceptions.CommandError(msg)

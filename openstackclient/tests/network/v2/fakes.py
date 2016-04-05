@@ -328,7 +328,7 @@ class FakeRouter(object):
     """Fake one or more routers."""
 
     @staticmethod
-    def create_one_router(attrs={}):
+    def create_one_router(attrs=None):
         """Create a fake router.
 
         :param Dictionary attrs:
@@ -337,6 +337,8 @@ class FakeRouter(object):
             A FakeResource object, with id, name, admin_state_up,
             status, tenant_id
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         router_attrs = {
             'id': 'router-id-' + uuid.uuid4().hex,
@@ -364,7 +366,7 @@ class FakeRouter(object):
         return router
 
     @staticmethod
-    def create_routers(attrs={}, count=2):
+    def create_routers(attrs=None, count=2):
         """Create multiple fake routers.
 
         :param Dictionary attrs:
