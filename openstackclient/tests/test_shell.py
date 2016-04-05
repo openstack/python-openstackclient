@@ -14,6 +14,7 @@
 #
 
 import copy
+import fixtures
 import mock
 import os
 import testtools
@@ -161,6 +162,23 @@ def fake_execute(shell, cmd):
     return shell.run(cmd.split())
 
 
+class EnvFixture(fixtures.Fixture):
+    """Environment Fixture.
+
+    This fixture replaces os.environ with provided env or an empty env.
+    """
+
+    def __init__(self, env=None):
+        self.new_env = env or {}
+
+    def _setUp(self):
+        self.orig_env, os.environ = os.environ, self.new_env
+        self.addCleanup(self.revert)
+
+    def revert(self):
+        os.environ = self.orig_env
+
+
 class TestShell(utils.TestCase):
 
     def setUp(self):
@@ -168,11 +186,8 @@ class TestShell(utils.TestCase):
         patch = "openstackclient.shell.OpenStackShell.run_subcommand"
         self.cmd_patch = mock.patch(patch)
         self.cmd_save = self.cmd_patch.start()
+        self.addCleanup(self.cmd_patch.stop)
         self.app = mock.Mock("Test Shell")
-
-    def tearDown(self):
-        super(TestShell, self).tearDown()
-        self.cmd_patch.stop()
 
     def _assert_initialize_app_arg(self, cmd_options, default_args):
         """Check the args passed to initialize_app()
@@ -285,11 +300,7 @@ class TestShellHelp(TestShell):
 
     def setUp(self):
         super(TestShellHelp, self).setUp()
-        self.orig_env, os.environ = os.environ, {}
-
-    def tearDown(self):
-        super(TestShellHelp, self).tearDown()
-        os.environ = self.orig_env
+        self.useFixture(EnvFixture())
 
     @testtools.skip("skip until bug 1444983 is resolved")
     def test_help_options(self):
@@ -310,11 +321,7 @@ class TestShellOptions(TestShell):
 
     def setUp(self):
         super(TestShellOptions, self).setUp()
-        self.orig_env, os.environ = os.environ, {}
-
-    def tearDown(self):
-        super(TestShellOptions, self).tearDown()
-        os.environ = self.orig_env
+        self.useFixture(EnvFixture())
 
     def _test_options_init_app(self, test_opts):
         for opt in test_opts.keys():
@@ -402,11 +409,7 @@ class TestShellTokenAuthEnv(TestShell):
             "OS_TOKEN": DEFAULT_TOKEN,
             "OS_AUTH_URL": DEFAULT_AUTH_URL,
         }
-        self.orig_env, os.environ = os.environ, env.copy()
-
-    def tearDown(self):
-        super(TestShellTokenAuthEnv, self).tearDown()
-        os.environ = self.orig_env
+        self.useFixture(EnvFixture(env.copy()))
 
     def test_env(self):
         flag = ""
@@ -450,11 +453,7 @@ class TestShellTokenEndpointAuthEnv(TestShell):
             "OS_TOKEN": DEFAULT_TOKEN,
             "OS_URL": DEFAULT_SERVICE_URL,
         }
-        self.orig_env, os.environ = os.environ, env.copy()
-
-    def tearDown(self):
-        super(TestShellTokenEndpointAuthEnv, self).tearDown()
-        os.environ = self.orig_env
+        self.useFixture(EnvFixture(env.copy()))
 
     def test_env(self):
         flag = ""
@@ -501,11 +500,7 @@ class TestShellCli(TestShell):
             "OS_VOLUME_API_VERSION": DEFAULT_VOLUME_API_VERSION,
             "OS_NETWORK_API_VERSION": DEFAULT_NETWORK_API_VERSION,
         }
-        self.orig_env, os.environ = os.environ, env.copy()
-
-    def tearDown(self):
-        super(TestShellCli, self).tearDown()
-        os.environ = self.orig_env
+        self.useFixture(EnvFixture(env.copy()))
 
     def test_shell_args_no_options(self):
         _shell = make_shell()
@@ -719,11 +714,7 @@ class TestShellCliEnv(TestShell):
         env = {
             'OS_REGION_NAME': 'occ-env',
         }
-        self.orig_env, os.environ = os.environ, env.copy()
-
-    def tearDown(self):
-        super(TestShellCliEnv, self).tearDown()
-        os.environ = self.orig_env
+        self.useFixture(EnvFixture(env.copy()))
 
     @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
     @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
