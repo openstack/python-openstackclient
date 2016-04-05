@@ -10,7 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
+import tempfile
 import uuid
 
 from functional.common import test
@@ -44,19 +44,18 @@ class KeypairTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_keypair_create(self):
-        TMP_FILE = uuid.uuid4().hex
-        self.addCleanup(os.remove, TMP_FILE)
-        with open(TMP_FILE, 'w') as f:
+        with tempfile.NamedTemporaryFile() as f:
             f.write(PUBLIC_KEY)
+            f.flush()
 
-        raw_output = self.openstack(
-            'keypair create --public-key ' + TMP_FILE + ' tmpkey',
-        )
-        self.addCleanup(
-            self.openstack,
-            'keypair delete tmpkey',
-        )
-        self.assertIn('tmpkey', raw_output)
+            raw_output = self.openstack(
+                'keypair create --public-key %s tmpkey' % f.name,
+            )
+            self.addCleanup(
+                self.openstack,
+                'keypair delete tmpkey',
+            )
+            self.assertIn('tmpkey', raw_output)
 
     def test_keypair_list(self):
         opts = self.get_list_opts(self.HEADERS)
