@@ -25,7 +25,7 @@ class GroupTests(test_identity.IdentityTests):
         raw_output = self.openstack('group list')
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, test_identity.BASIC_LIST_HEADERS)
-        self.assertInOutput(group_name, raw_output)
+        self.assertIn(group_name, raw_output)
 
     def test_group_list_with_domain(self):
         group_name = self._create_dummy_group()
@@ -33,7 +33,7 @@ class GroupTests(test_identity.IdentityTests):
             'group list --domain %s' % self.domain_name)
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, test_identity.BASIC_LIST_HEADERS)
-        self.assertInOutput(group_name, raw_output)
+        self.assertIn(group_name, raw_output)
 
     def test_group_delete(self):
         group_name = self._create_dummy_group(add_clean_up=False)
@@ -102,7 +102,7 @@ class GroupTests(test_identity.IdentityTests):
                                     'user_domain': self.domain_name,
                                     'group': group_name,
                                     'user': username})
-        self.assertOutput(
+        self.assertEqual(
             '%(user)s added to group %(group)s\n' % {'user': username,
                                                      'group': group_name},
             raw_output
@@ -128,7 +128,7 @@ class GroupTests(test_identity.IdentityTests):
                                     'user_domain': self.domain_name,
                                     'group': group_name,
                                     'user': username})
-        self.assertOutput(
+        self.assertEqual(
             '%(user)s added to group %(group)s\n' % {'user': username,
                                                      'group': group_name},
             raw_output
@@ -141,7 +141,7 @@ class GroupTests(test_identity.IdentityTests):
                                     'user_domain': self.domain_name,
                                     'group': group_name,
                                     'user': username})
-        self.assertOutput(
+        self.assertEqual(
             '%(user)s in group %(group)s\n' % {'user': username,
                                                'group': group_name},
             raw_output)
@@ -165,12 +165,12 @@ class GroupTests(test_identity.IdentityTests):
                                     'user_domain': self.domain_name,
                                     'group': group_name,
                                     'user': username})
-        self.assertOutput(
+        self.assertEqual(
             '%(user)s added to group %(group)s\n' % {'user': username,
                                                      'group': group_name},
             add_raw_output
         )
-        self.assertOutput(
+        self.assertEqual(
             '%(user)s removed from '
             'group %(group)s\n' % {'user': username,
                                    'group': group_name},
