@@ -50,6 +50,9 @@ The following is a list of projects that are not an OpenStackClient plugin.
 Implementation
 ==============
 
+Client module
+-------------
+
 Plugins are discovered by enumerating the entry points
 found under :py:mod:`openstack.cli.extension` and initializing the specified
 client module.
@@ -65,7 +68,9 @@ The client module must define the following top-level variables:
 * ``API_NAME`` - A string containing the plugin API name; this is
   the name of the entry point declaring the plugin client module
   (``oscplugin = ...`` in the example above) and the group name for
-  the plugin commands (``openstack.oscplugin.v1 =`` in the example below)
+  the plugin commands (``openstack.oscplugin.v1 =`` in the example below).
+  OSC reserves the following API names: ``compute``, ``identity``,
+  ``image``, ``network``, ``object_store`` and ``volume``.
 * ``API_VERSION_OPTION`` (optional) - If set, the name of the API
   version attribute; this must be a valid Python identifier and
   match the destination set in ``build_option_parser()``.
@@ -89,6 +94,9 @@ Note that OSC defines the group name as :py:mod:`openstack.<api-name>.v<version>
 so the version should not contain the leading 'v' character.
 
 .. code-block:: python
+
+    from openstackclient.common import utils
+
 
     DEFAULT_API_VERSION = '1'
 
@@ -134,6 +142,60 @@ so the version should not contain the leading 'v' character.
                  DEFAULT_API_VERSION +
                  ' (Env: OS_OSCPLUGIN_API_VERSION)')
         return parser
+
+Client usage of OSC interfaces
+------------------------------
+
+OSC provides the following interfaces that may be used to implement
+the plugin commands:
+
+.. code-block:: python
+
+    # OSC common interfaces available to plugins:
+    from openstackclient.common import command
+    from openstackclient.common import exceptions
+    from openstackclient.common import parseractions
+    from openstackclient.common import logs
+    from openstackclient.common import utils
+
+
+    class DeleteMypluginobject(command.Command):
+        """Delete mypluginobject"""
+
+        ...
+
+        def take_action(self, parsed_args):
+            # Client manager interfaces are availble to plugins.
+            # This includes the OSC clients created.
+            client_manager = self.app.client_manager
+
+            ...
+
+            return
+
+OSC provides the following interfaces that may be used to implement
+unit tests for the plugin commands:
+
+.. code-block:: python
+
+    # OSC unit test interfaces available to plugins:
+    from openstackclient.tests import fakes
+    from openstackclient.tests import utils
+
+    ...
+
+Requirements
+------------
+
+OSC must be included in ``requirements.txt`` or ``test-requirements.txt``
+for the plugin project. Update ``requirements.txt`` if the plugin project
+considers the CLI a required feature. Update ``test-requirements.txt`` if
+the plugin project can be installed as a library with the CLI being an
+optional feature (available when OSC is also installed).
+
+.. code-block:: ini
+
+    python-openstackclient>=X.Y.Z # Apache-2.0
 
 Checklist for adding new OpenStack plugins
 ==========================================
