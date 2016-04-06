@@ -114,6 +114,12 @@ OPTIONS
 :option:`--verify` | :option:`--insecure`
     Verify or ignore server certificate (default: verify)
 
+:option:`--os-cert` <certificate-file>
+    Client certificate bundle file
+
+:option:`--os-key` <key-file>
+    Client certificate key file
+
 :option:`--os-identity-api-version` <identity-api-version>
     Identity API version (Default: 2.0)
 
@@ -366,6 +372,12 @@ The following environment variables can be set to alter the behaviour of :progra
 
 :envvar:`OS_CACERT`
     CA certificate bundle file
+
+:envvar:`OS_CERT`
+    Client certificate bundle file
+
+:envvar:`OS_KEY`
+    Client certificate key file
 
 :envvar:`OS_IDENTITY_API_VERSION`
     Identity API version (Default: 2.0)

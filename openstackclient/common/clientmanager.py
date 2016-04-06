@@ -110,6 +110,15 @@ class ClientManager(object):
             self._cacert = verify
             self._insecure = False
 
+        # Set up client certificate and key
+        # NOTE(cbrandily): This converts client certificate/key to requests
+        #                  cert argument: None (no client certificate), a path
+        #                  to client certificate or a tuple with client
+        #                  certificate/key paths.
+        self._cert = self._cli_options.cert
+        if self._cert and self._cli_options.key:
+            self._cert = self._cert, self._cli_options.key
+
         # Get logging from root logger
         root_logger = logging.getLogger('')
         LOG.setLevel(root_logger.getEffectiveLevel())
@@ -194,6 +203,7 @@ class ClientManager(object):
             auth=self.auth,
             session=request_session,
             verify=self._verify,
+            cert=self._cert,
             user_agent=USER_AGENT,
         )
 

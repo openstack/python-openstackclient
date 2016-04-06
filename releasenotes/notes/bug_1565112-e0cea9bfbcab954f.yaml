@@ -1,0 +1,6 @@
+---
+features:
+  - Support client certificate/key. Client certificate/key can be provided
+    using --os-cert/--os-key options, $OS_CERT/$OS_KEY environment
+    variables or os-client-config config.
+    [Bug `1565112 <https://bugs.launchpad.net/bugs/1565112>`_]

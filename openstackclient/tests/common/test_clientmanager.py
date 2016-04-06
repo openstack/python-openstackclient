@@ -58,6 +58,8 @@ class FakeOptions(object):
         self.interface = None
         self.url = None
         self.auth = {}
+        self.cert = None
+        self.key = None
         self.default_domain = 'default'
         self.__dict__.update(kwargs)
 
@@ -267,6 +269,21 @@ class TestClientManager(utils.TestCase):
         self.assertTrue(client_manager._verify)
         self.assertEqual('cafile', client_manager._cacert)
         self.assertTrue(client_manager.is_network_endpoint_enabled())
+
+    def test_client_manager_password_no_cert(self):
+        client_manager = clientmanager.ClientManager(
+            cli_options=FakeOptions())
+        self.assertIsNone(client_manager._cert)
+
+    def test_client_manager_password_client_cert(self):
+        client_manager = clientmanager.ClientManager(
+            cli_options=FakeOptions(cert='cert'))
+        self.assertEqual('cert', client_manager._cert)
+
+    def test_client_manager_password_client_cert_and_key(self):
+        client_manager = clientmanager.ClientManager(
+            cli_options=FakeOptions(cert='cert', key='key'))
+        self.assertEqual(('cert', 'key'), client_manager._cert)
 
     def _select_auth_plugin(self, auth_params, api_version, auth_plugin_name):
         auth_params['auth_type'] = auth_plugin_name
