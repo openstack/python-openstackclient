@@ -95,7 +95,7 @@ def convert_entries_to_nexthop(entries):
 
 
 def convert_entries_to_gateway(entries):
-    # Change 'nexhop' entry to 'gateway'
+    # Change 'nexthop' entry to 'gateway'
     changed_entries = copy.deepcopy(entries)
     for entry in changed_entries:
         entry['gateway'] = entry['nexthop']
