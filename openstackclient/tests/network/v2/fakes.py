@@ -152,6 +152,7 @@ class FakeNetwork(object):
             'router_external': True,
             'availability_zones': [],
             'availability_zone_hints': [],
+            'is_default': False,
         }
 
         # Overwrite default attributes.
@@ -161,7 +162,7 @@ class FakeNetwork(object):
         network_methods = {
             'keys': ['id', 'name', 'admin_state_up', 'router_external',
                      'status', 'subnets', 'tenant_id', 'availability_zones',
-                     'availability_zone_hints'],
+                     'availability_zone_hints', 'is_default'],
         }
 
         # Overwrite default methods.

@@ -51,6 +51,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         'availability_zone_hints',
         'availability_zones',
         'id',
+        'is_default',
         'name',
         'project_id',
         'router_external',
@@ -63,6 +64,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         utils.format_list(_network.availability_zone_hints),
         utils.format_list(_network.availability_zones),
         _network.id,
+        _network.is_default,
         _network.name,
         _network.project_id,
         network._format_router_external(_network.router_external),
@@ -119,6 +121,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('enable', True),
             ('share', None),
             ('project', None),
+            ('external', False),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -138,6 +141,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             "--project", identity_fakes_v3.project_name,
             "--project-domain", identity_fakes_v3.domain_name,
             "--availability-zone-hint", "nova",
+            "--external", "--default",
             self._network.name,
         ]
         verifylist = [
@@ -146,6 +150,8 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('project', identity_fakes_v3.project_name),
             ('project_domain', identity_fakes_v3.domain_name),
             ('availability_zone_hints', ["nova"]),
+            ('external', True),
+            ('default', True),
             ('name', self._network.name),
         ]
 
@@ -158,6 +164,8 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'name': self._network.name,
             'shared': True,
             'tenant_id': identity_fakes_v3.project_id,
+            'is_default': True,
+            'router:external': True,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -172,6 +180,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('enable', True),
             ('no_share', True),
             ('name', self._network.name),
+            ('external', False),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -198,6 +207,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         'availability_zone_hints',
         'availability_zones',
         'id',
+        'is_default',
         'name',
         'project_id',
         'router_external',
@@ -210,6 +220,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         utils.format_list(_network.availability_zone_hints),
         utils.format_list(_network.availability_zones),
         _network.id,
+        _network.is_default,
         _network.name,
         _network.project_id,
         network._format_router_external(_network.router_external),
@@ -253,6 +264,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
             ('share', None),
             ('name', self._network.name),
             ('project', identity_fakes_v2.project_name),
+            ('external', False),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -278,6 +290,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
             ('project', identity_fakes_v3.project_name),
             ('project_domain', identity_fakes_v3.domain_name),
             ('name', self._network.name),
+            ('external', False),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -514,6 +527,7 @@ class TestShowNetwork(TestNetwork):
         'availability_zone_hints',
         'availability_zones',
         'id',
+        'is_default',
         'name',
         'project_id',
         'router_external',
@@ -526,6 +540,7 @@ class TestShowNetwork(TestNetwork):
         utils.format_list(_network.availability_zone_hints),
         utils.format_list(_network.availability_zones),
         _network.id,
+        _network.is_default,
         _network.name,
         _network.project_id,
         network._format_router_external(_network.router_external),

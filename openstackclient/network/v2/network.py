@@ -144,6 +144,27 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
                  '(requires the Network Availability Zone extension, '
                  'this option can be repeated).',
         )
+        external_router_grp = parser.add_mutually_exclusive_group()
+        external_router_grp.add_argument(
+            '--external',
+            action='store_true',
+            help='Set this network as an external network. '
+                 'Requires the "external-net" extension to be enabled.')
+        external_router_grp.add_argument(
+            '--internal',
+            action='store_true',
+            help='Set this network as an internal network (default)')
+        default_router_grp = parser.add_mutually_exclusive_group()
+        default_router_grp.add_argument(
+            '--default',
+            action='store_true',
+            help='Specify if this network should be used as '
+                 'the default external network')
+        default_router_grp.add_argument(
+            '--no-default',
+            action='store_true',
+            help='Do not use the network as the default external network.'
+                 'By default, no network is set as an external network.')
         return parser
 
     def update_parser_compute(self, parser):
@@ -156,6 +177,14 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
 
     def take_action_network(self, client, parsed_args):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+        if parsed_args.internal:
+            attrs['router:external'] = False
+        if parsed_args.external:
+            attrs['router:external'] = True
+            if parsed_args.no_default:
+                attrs['is_default'] = False
+            if parsed_args.default:
+                attrs['is_default'] = True
         obj = client.create_network(**attrs)
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
