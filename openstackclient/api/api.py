@@ -331,7 +331,7 @@ class BaseAPI(KeystoneSession):
 
         :param string path:
             The API-specific portion of the URL path
-        :param string search:
+        :param string value:
             search expression
         :param string attr:
             name of attribute for secondary search
