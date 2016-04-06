@@ -76,13 +76,6 @@ class TestCase(testtools.TestCase):
         if expected not in actual:
             raise Exception(expected + ' not in ' + actual)
 
-    @classmethod
-    def cleanup_tmpfile(cls, filename):
-        try:
-            os.remove(filename)
-        except OSError:
-            pass
-
     def assert_table_structure(self, items, field_names):
         """Verify that all items have keys listed in field_names."""
         for item in items:
