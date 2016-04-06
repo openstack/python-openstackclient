@@ -11,6 +11,7 @@
 #    under the License.
 
 import os
+import tempfile
 import uuid
 
 from functional.common import test
@@ -24,17 +25,14 @@ class ObjectTests(test.TestCase):
     """Functional tests for Object commands. """
 
     CONTAINER_NAME = uuid.uuid4().hex
-    OBJECT_NAME = uuid.uuid4().hex
-    TMP_FILE = 'tmp.txt'
-
-    def setUp(self):
-        super(ObjectTests, self).setUp()
-        self.addCleanup(os.remove, self.OBJECT_NAME)
-        self.addCleanup(os.remove, self.TMP_FILE)
-        with open(self.OBJECT_NAME, 'w') as f:
-            f.write('test content')
 
     def test_object(self):
+        with tempfile.NamedTemporaryFile() as f:
+            f.write('test content')
+            f.flush()
+            self._test_object(f.name)
+
+    def _test_object(self, object_file):
         raw_output = self.openstack('container create ' + self.CONTAINER_NAME)
         items = self.parse_listing(raw_output)
         self.assert_show_fields(items, CONTAINER_FIELDS)
@@ -50,7 +48,7 @@ class ObjectTests(test.TestCase):
         # TODO(stevemar): Assert returned fields
 
         raw_output = self.openstack('object create ' + self.CONTAINER_NAME
-                                    + ' ' + self.OBJECT_NAME)
+                                    + ' ' + object_file)
         items = self.parse_listing(raw_output)
         self.assert_show_fields(items, OBJECT_FIELDS)
 
@@ -59,23 +57,25 @@ class ObjectTests(test.TestCase):
         self.assert_table_structure(items, BASIC_LIST_HEADERS)
 
         self.openstack('object save ' + self.CONTAINER_NAME
-                       + ' ' + self.OBJECT_NAME)
+                       + ' ' + object_file)
         # TODO(stevemar): Assert returned fields
 
+        tmp_file = 'tmp.txt'
+        self.addCleanup(os.remove, tmp_file)
         self.openstack('object save ' + self.CONTAINER_NAME
-                       + ' ' + self.OBJECT_NAME + ' --file ' + self.TMP_FILE)
+                       + ' ' + object_file + ' --file ' + tmp_file)
         # TODO(stevemar): Assert returned fields
 
         self.openstack('object show ' + self.CONTAINER_NAME
-                       + ' ' + self.OBJECT_NAME)
+                       + ' ' + object_file)
         # TODO(stevemar): Assert returned fields
 
         raw_output = self.openstack('object delete ' + self.CONTAINER_NAME
-                                    + ' ' + self.OBJECT_NAME)
+                                    + ' ' + object_file)
         self.assertEqual(0, len(raw_output))
 
         self.openstack('object create ' + self.CONTAINER_NAME
-                       + ' ' + self.OBJECT_NAME)
+                       + ' ' + object_file)
         raw_output = self.openstack('container delete -r ' +
                                     self.CONTAINER_NAME)
         self.assertEqual(0, len(raw_output))
