@@ -130,6 +130,7 @@ Set port properties
         [--binding-profile <binding-profile>]
         [--host-id <host-id>]
         [--enable | --disable]
+        [--name <name>]
         <port>
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
@@ -167,6 +168,10 @@ Set port properties
 .. option:: --disable
 
     Disable port
+
+.. option:: --name
+
+    Set port name
 
 .. _port_set-port:
 .. describe:: <port>
