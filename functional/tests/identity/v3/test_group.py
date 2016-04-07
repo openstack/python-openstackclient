@@ -93,11 +93,6 @@ class GroupTests(test_identity.IdentityTests):
                                     'user_domain': self.domain_name,
                                     'group': group_name,
                                     'user': username})
-        self.assertOutput(
-            '%(user)s added to group %(group)s\n' % {'user': username,
-                                                     'group': group_name},
-            raw_output
-        )
         self.addCleanup(
             self.openstack,
             'group remove user '
@@ -107,12 +102,26 @@ class GroupTests(test_identity.IdentityTests):
                                     'user_domain': self.domain_name,
                                     'group': group_name,
                                     'user': username})
+        self.assertOutput(
+            '%(user)s added to group %(group)s\n' % {'user': username,
+                                                     'group': group_name},
+            raw_output
+        )
 
     def test_group_contains_user(self):
         group_name = self._create_dummy_group()
         username = self._create_dummy_user()
         raw_output = self.openstack(
             'group add user '
+            '--group-domain %(group_domain)s '
+            '--user-domain %(user_domain)s '
+            '%(group)s %(user)s' % {'group_domain': self.domain_name,
+                                    'user_domain': self.domain_name,
+                                    'group': group_name,
+                                    'user': username})
+        self.addCleanup(
+            self.openstack,
+            'group remove user '
             '--group-domain %(group_domain)s '
             '--user-domain %(user_domain)s '
             '%(group)s %(user)s' % {'group_domain': self.domain_name,
@@ -136,21 +145,20 @@ class GroupTests(test_identity.IdentityTests):
             '%(user)s in group %(group)s\n' % {'user': username,
                                                'group': group_name},
             raw_output)
-        self.addCleanup(
-            self.openstack,
-            'group remove user '
+
+    def test_group_remove_user(self):
+        group_name = self._create_dummy_group()
+        username = self._create_dummy_user()
+        add_raw_output = self.openstack(
+            'group add user '
             '--group-domain %(group_domain)s '
             '--user-domain %(user_domain)s '
             '%(group)s %(user)s' % {'group_domain': self.domain_name,
                                     'user_domain': self.domain_name,
                                     'group': group_name,
                                     'user': username})
-
-    def test_group_remove_user(self):
-        group_name = self._create_dummy_group()
-        username = self._create_dummy_user()
-        raw_output = self.openstack(
-            'group add user '
+        remove_raw_output = self.openstack(
+            'group remove user '
             '--group-domain %(group_domain)s '
             '--user-domain %(user_domain)s '
             '%(group)s %(user)s' % {'group_domain': self.domain_name,
@@ -160,19 +168,11 @@ class GroupTests(test_identity.IdentityTests):
         self.assertOutput(
             '%(user)s added to group %(group)s\n' % {'user': username,
                                                      'group': group_name},
-            raw_output
+            add_raw_output
         )
-        raw_output = self.openstack(
-            'group remove user '
-            '--group-domain %(group_domain)s '
-            '--user-domain %(user_domain)s '
-            '%(group)s %(user)s' % {'group_domain': self.domain_name,
-                                    'user_domain': self.domain_name,
-                                    'group': group_name,
-                                    'user': username})
         self.assertOutput(
             '%(user)s removed from '
             'group %(group)s\n' % {'user': username,
                                    'group': group_name},
-            raw_output
+            remove_raw_output
         )

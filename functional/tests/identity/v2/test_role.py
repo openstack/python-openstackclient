@@ -40,8 +40,17 @@ class RoleTests(test_identity.IdentityTests):
             '%(role)s' % {'project': project_name,
                           'user': username,
                           'role': role_name})
+        self.addCleanup(
+            self.openstack,
+            'role remove '
+            '--project %(project)s '
+            '--user %(user)s '
+            '%(role)s' % {'project': project_name,
+                          'user': username,
+                          'role': role_name})
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.ROLE_FIELDS)
+
         raw_output = self.openstack(
             'role list '
             '--project %(project)s '
@@ -51,14 +60,6 @@ class RoleTests(test_identity.IdentityTests):
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, test_identity.BASIC_LIST_HEADERS)
         self.assertEqual(1, len(items))
-        self.addCleanup(
-            self.openstack,
-            'role remove '
-            '--project %(project)s '
-            '--user %(user)s '
-            '%(role)s' % {'project': project_name,
-                          'user': username,
-                          'role': role_name})
 
     def test_role_show(self):
         role_name = self._create_dummy_role()
@@ -76,8 +77,6 @@ class RoleTests(test_identity.IdentityTests):
             '%(role)s' % {'project': self.project_name,
                           'user': username,
                           'role': role_name})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.ROLE_FIELDS)
         self.addCleanup(
             self.openstack,
             'role remove '
@@ -86,24 +85,26 @@ class RoleTests(test_identity.IdentityTests):
             '%(role)s' % {'project': self.project_name,
                           'user': username,
                           'role': role_name})
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.ROLE_FIELDS)
 
     def test_role_remove(self):
         role_name = self._create_dummy_role()
         username = self._create_dummy_user()
-        raw_output = self.openstack(
+        add_raw_output = self.openstack(
             'role add '
             '--project %(project)s '
             '--user %(user)s '
             '%(role)s' % {'project': self.project_name,
                           'user': username,
                           'role': role_name})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.ROLE_FIELDS)
-        raw_output = self.openstack(
+        del_raw_output = self.openstack(
             'role remove '
             '--project %(project)s '
             '--user %(user)s '
             '%(role)s' % {'project': self.project_name,
                           'user': username,
                           'role': role_name})
-        self.assertEqual(0, len(raw_output))
+        items = self.parse_show(add_raw_output)
+        self.assert_show_fields(items, self.ROLE_FIELDS)
+        self.assertEqual(0, len(del_raw_output))

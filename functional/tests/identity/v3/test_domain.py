@@ -21,13 +21,13 @@ class DomainTests(test_identity.IdentityTests):
     def test_domain_create(self):
         domain_name = data_utils.rand_name('TestDomain')
         raw_output = self.openstack('domain create %s' % domain_name)
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.DOMAIN_FIELDS)
         # disable domain first before deleting it
         self.addCleanup(self.openstack,
                         'domain delete %s' % domain_name)
         self.addCleanup(self.openstack,
                         'domain set --disable %s' % domain_name)
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.DOMAIN_FIELDS)
 
     def test_domain_list(self):
         self._create_dummy_domain()
