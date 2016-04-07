@@ -1,0 +1,7 @@
+---
+fixes:
+  - Fixed SSL/TLS verification for Network v2 commands. The commands
+    were ignoring the ``--insecure`` and ``--os-cacert`` options and
+    the ``OS_CACERT`` environment variable which caused them to fail
+    with ``An SSL error occurred.`` when authenticating using SSL/TLS.
+    [Bug `1560157 <https://bugs.launchpad.net/python-openstackclient/+bug/1560157>`_]
