@@ -14,6 +14,7 @@
 """Port action implementations"""
 
 import argparse
+import copy
 import json
 import logging
 
@@ -485,3 +486,61 @@ class ShowPort(command.ShowOne):
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (columns, data)
+
+
+class UnsetPort(command.Command):
+    """Unset port properties"""
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetPort, self).get_parser(prog_name)
+        parser.add_argument(
+            '--fixed-ip',
+            metavar='subnet=<subnet>,ip-address=<ip-address>',
+            action=parseractions.MultiKeyValueAction,
+            optional_keys=['subnet', 'ip-address'],
+            help=_("Desired IP and/or subnet (name or ID) which should be "
+                   "removed from this port: subnet=<subnet>,"
+                   "ip-address=<ip-address> (repeat option to unset multiple "
+                   "fixed IP addresses)"))
+
+        parser.add_argument(
+            '--binding-profile',
+            metavar='<binding-profile-key>',
+            action='append',
+            help=_("Desired key which should be removed from binding:profile"
+                   "(repeat option to unset multiple binding:profile data)"))
+        parser.add_argument(
+            'port',
+            metavar="<port>",
+            help=_("Port to modify (name or ID)")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        obj = client.find_port(parsed_args.port, ignore_missing=False)
+        # SDK ignores update() if it recieves a modified obj and attrs
+        # To handle the same tmp_obj is created in all take_action of
+        # Unset* classes
+        tmp_fixed_ips = copy.deepcopy(obj.fixed_ips)
+        tmp_binding_profile = copy.deepcopy(obj.binding_profile)
+        _prepare_fixed_ips(self.app.client_manager, parsed_args)
+        attrs = {}
+        if parsed_args.fixed_ip:
+            try:
+                for ip in parsed_args.fixed_ip:
+                    tmp_fixed_ips.remove(ip)
+            except ValueError:
+                msg = _("Port does not contain fixed-ip %s") % ip
+                raise exceptions.CommandError(msg)
+            attrs['fixed_ips'] = tmp_fixed_ips
+        if parsed_args.binding_profile:
+            try:
+                for key in parsed_args.binding_profile:
+                    del tmp_binding_profile[key]
+            except KeyError:
+                msg = _("Port does not contain binding-profile %s") % key
+                raise exceptions.CommandError(msg)
+            attrs['binding:profile'] = tmp_binding_profile
+        if attrs:
+            client.update_port(obj, **attrs)
