@@ -174,6 +174,36 @@ def _show_progress(progress):
         sys.stdout.flush()
 
 
+class AddFixedIP(command.Command):
+    """Add fixed IP address to server"""
+
+    def get_parser(self, prog_name):
+        parser = super(AddFixedIP, self).get_parser(prog_name)
+        parser.add_argument(
+            "server",
+            metavar="<server>",
+            help=_("Server (name or ID) to receive the fixed IP address"),
+        )
+        parser.add_argument(
+            "network",
+            metavar="<network>",
+            help=_("Network (name or ID) to allocate "
+                   "the fixed IP address from"),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+
+        server = utils.find_resource(
+            compute_client.servers, parsed_args.server)
+
+        network = utils.find_resource(
+            compute_client.networks, parsed_args.network)
+
+        server.add_fixed_ip(network.id)
+
+
 class AddFloatingIP(command.Command):
     """Add floating IP address to server"""
 
@@ -1106,6 +1136,33 @@ class RebuildServer(command.ShowOne):
 
         details = _prep_server_detail(compute_client, server)
         return zip(*sorted(six.iteritems(details)))
+
+
+class RemoveFixedIP(command.Command):
+    """Remove fixed IP address from server"""
+
+    def get_parser(self, prog_name):
+        parser = super(RemoveFixedIP, self).get_parser(prog_name)
+        parser.add_argument(
+            "server",
+            metavar="<server>",
+            help=_("Server (name or ID) to remove the fixed IP address from"),
+        )
+        parser.add_argument(
+            "ip_address",
+            metavar="<ip-address>",
+            help=_("Fixed IP address (IP address only) to remove from the "
+                   "server"),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+
+        server = utils.find_resource(
+            compute_client.servers, parsed_args.server)
+
+        server.remove_fixed_ip(parsed_args.ip_address)
 
 
 class RemoveFloatingIP(command.Command):
