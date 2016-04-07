@@ -1,6 +1,7 @@
 ---
 features:
-  - The ``security group create`` command now uses Network v2 when
+  - The ``security group create``, ``security group set`` and
+    ``security group show`` commands now uses Network v2 when
     enabled which results in a more detailed output for network
     security group rules.
     [Bug `1519511 <https://bugs.launchpad.net/bugs/1519511>`_]

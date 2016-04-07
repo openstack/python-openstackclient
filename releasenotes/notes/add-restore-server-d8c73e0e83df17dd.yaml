@@ -1,4 +1,4 @@
 ---
 features:
   - |
-    Add support for the ``server restore`` command.
+    Add ``server restore`` command
