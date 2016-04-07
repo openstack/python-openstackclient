@@ -1,5 +1,0 @@
----
-features:
-  - Fixed-IP information and binding profile information
-    in ports can now be cleared using ``--no-fixed-ip``
-    and ``--no-binding-profile`` with ``port set``

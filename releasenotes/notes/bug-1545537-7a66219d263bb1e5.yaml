@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add external network options ``--external|--internal`` and ``--external``
+    suboptions ``--default|--no-default`` to the ``network create`` command.
+    These options are available for Networkv2 only.
+    [Bug `1545537 <https://bugs.launchpad.net/bugs/1545537>`_]

@@ -1,4 +1,4 @@
 ---
 features:
   - |
-    Add support for the ``--disable-reason`` of ``service set`` command
+    Add ``--disable-reason`` option to the ``service set`` command

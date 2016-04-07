@@ -1,0 +1,6 @@
+---
+features:
+  - Add global options ``os-cert`` and --os-key`` to support client
+    certificate/key.  Environment variables OS_CERT and OS_KEY, as well
+    as the ``cert`` and ``key`` values in clouds.yaml may also be used
+    [Bug `1565112 <https://bugs.launchpad.net/bugs/1565112>`_]

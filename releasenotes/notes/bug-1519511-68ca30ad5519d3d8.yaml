@@ -1,6 +1,0 @@
----
-features:
-  - The ``security group show`` command now uses Network v2 when
-    enabled which results in a more detailed output for network
-    security group rules.
-    [Bug `1519511 <https://bugs.launchpad.net/bugs/1519511>`_]
