@@ -77,6 +77,30 @@ class TestBackupCreate(TestBackup):
         self.assertEqual(columns, volume_fakes.BACKUP_columns)
         self.assertEqual(data, volume_fakes.BACKUP_data)
 
+    def test_backup_create_without_name(self):
+        arglist = [
+            volume_fakes.volume_id,
+            "--description", volume_fakes.backup_description,
+            "--container", volume_fakes.backup_name
+        ]
+        verifylist = [
+            ("volume", volume_fakes.volume_id),
+            ("description", volume_fakes.backup_description),
+            ("container", volume_fakes.backup_name)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.backups_mock.create.assert_called_with(
+            volume_fakes.volume_id,
+            container=volume_fakes.backup_name,
+            name=None,
+            description=volume_fakes.backup_description
+        )
+        self.assertEqual(columns, volume_fakes.BACKUP_columns)
+        self.assertEqual(data, volume_fakes.BACKUP_data)
+
 
 class TestBackupDelete(TestBackup):
 

@@ -41,7 +41,6 @@ class CreateBackup(command.ShowOne):
         parser.add_argument(
             '--name',
             metavar='<name>',
-            required=False,
             help='Name of the backup',
         )
         parser.add_argument(
