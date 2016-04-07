@@ -135,9 +135,9 @@ Set port properties
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
 
-    Desired IP and/or subnet for this port:
+    Desired IP and/or subnet (name or ID) for this port:
     subnet=<subnet>,ip-address=<ip-address>
-    (you can repeat this option)
+    (this option can be repeated)
 
 .. option:: --no-fixed-ip
 
