@@ -8,6 +8,7 @@ ip floating add
 ---------------
 
 Add floating IP address to server
+(Deprecated, please use ``server add floating ip`` instead)
 
 .. program:: ip floating add
 .. code:: bash
@@ -92,6 +93,7 @@ ip floating remove
 ------------------
 
 Remove floating IP address from server
+(Deprecated, please use ``server remove floating ip`` instead)
 
 .. program:: ip floating remove
 .. code:: bash

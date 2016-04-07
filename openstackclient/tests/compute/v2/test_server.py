@@ -88,6 +88,41 @@ class TestServer(compute_fakes.TestComputev2):
         self.assertIsNone(result)
 
 
+class TestServerAddFloatingIP(TestServer):
+
+    def setUp(self):
+        super(TestServerAddFloatingIP, self).setUp()
+
+        # Get a shortcut to the compute client ServerManager Mock
+        self.networks_mock = self.app.client_manager.compute.networks
+
+        # Get the command object to test
+        self.cmd = server.AddFloatingIP(self.app, None)
+
+        # Set add_floating_ip method to be tested.
+        self.methods = {
+            'add_floating_ip': None,
+        }
+
+    def test_server_add_floating_ip(self):
+        servers = self.setup_servers_mock(count=1)
+
+        arglist = [
+            servers[0].id,
+            '1.2.3.4',
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('ip_address', '1.2.3.4'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        servers[0].add_floating_ip.assert_called_once_with('1.2.3.4')
+        self.assertIsNone(result)
+
+
 class TestServerCreate(TestServer):
 
     columns = (
@@ -841,6 +876,38 @@ class TestServerRebuild(TestServer):
         self.servers_mock.get.assert_called_with(self.server.id)
         self.cimages_mock.get.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
+
+
+class TestServerRemoveFloatingIP(TestServer):
+
+    def setUp(self):
+        super(TestServerRemoveFloatingIP, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.RemoveFloatingIP(self.app, None)
+
+        # Set unshelve method to be tested.
+        self.methods = {
+            'remove_floating_ip': None,
+        }
+
+    def test_server_remove_floating_ip(self):
+        servers = self.setup_servers_mock(count=1)
+
+        arglist = [
+            servers[0].id,
+            '1.2.3.4',
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('ip_address', '1.2.3.4'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        servers[0].remove_floating_ip.assert_called_once_with('1.2.3.4')
+        self.assertIsNone(result)
 
 
 class TestServerResize(TestServer):
