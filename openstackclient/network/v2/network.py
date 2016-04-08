@@ -76,6 +76,16 @@ def _get_attrs(client_manager, parsed_args):
        parsed_args.availability_zone_hints is not None:
         attrs['availability_zone_hints'] = parsed_args.availability_zone_hints
 
+    # update_external_network_options
+    if parsed_args.internal:
+        attrs['router:external'] = False
+    if parsed_args.external:
+        attrs['router:external'] = True
+        if parsed_args.no_default:
+            attrs['is_default'] = False
+        if parsed_args.default:
+            attrs['is_default'] = True
+
     return attrs
 
 
@@ -197,14 +207,6 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
 
     def take_action_network(self, client, parsed_args):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
-        if parsed_args.internal:
-            attrs['router:external'] = False
-        if parsed_args.external:
-            attrs['router:external'] = True
-            if parsed_args.no_default:
-                attrs['is_default'] = False
-            if parsed_args.default:
-                attrs['is_default'] = True
         if parsed_args.provider_network_type:
             attrs['provider:network_type'] = parsed_args.provider_network_type
         if parsed_args.physical_network:
@@ -379,6 +381,26 @@ class SetNetwork(command.Command):
             action='store_true',
             help='Do not share the network between projects',
         )
+        external_router_grp = parser.add_mutually_exclusive_group()
+        external_router_grp.add_argument(
+            '--external',
+            action='store_true',
+            help='Set this network as an external network. '
+                 'Requires the "external-net" extension to be enabled.')
+        external_router_grp.add_argument(
+            '--internal',
+            action='store_true',
+            help='Set this network as an internal network')
+        default_router_grp = parser.add_mutually_exclusive_group()
+        default_router_grp.add_argument(
+            '--default',
+            action='store_true',
+            help='Specify if this network should be used as '
+                 'the default external network')
+        default_router_grp.add_argument(
+            '--no-default',
+            action='store_true',
+            help='Do not use the network as the default external network.')
         return parser
 
     def take_action(self, parsed_args):
