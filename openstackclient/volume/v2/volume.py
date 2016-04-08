@@ -110,7 +110,7 @@ class CreateVolume(command.ShowOne):
         snapshot = None
         if parsed_args.snapshot:
             snapshot = utils.find_resource(
-                volume_client.snapshots,
+                volume_client.volume_snapshots,
                 parsed_args.snapshot).id
 
         project = None
