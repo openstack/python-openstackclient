@@ -180,10 +180,10 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             help='Name of the physical network over which the virtual '
                  'network is implemented')
         parser.add_argument(
-            '--provider-segmentation-id',
-            metavar='<provider-segmentation-id>',
+            '--provider-segment',
+            metavar='<provider-segment>',
             dest='segmentation_id',
-            help='VLAN ID for VLAN networks or tunnel-id for GRE/VXLAN '
+            help='VLAN ID for VLAN networks or Tunnel ID for GRE/VXLAN '
                  'networks')
         return parser
 

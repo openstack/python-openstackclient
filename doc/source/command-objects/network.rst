@@ -20,7 +20,7 @@ Create new network
         [--external [--default | --no-default] | --internal]
         [--provider-network-type <provider-network-type>]
         [--provider-physical-network <provider-physical-network>]
-        [--provider-segmentation-id <provider-segmentation-id>]
+        [--provider-segment <provider-segment>]
         <name>
 
 .. option:: --project <project>
@@ -97,9 +97,9 @@ Create new network
     Name of the physical network over which the virtual network is implemented
     (Network v2 only)
 
-.. option:: --provider-segmentation-id <provider-segmentation-id>
+.. option:: --provider-segment <provider-segment>
 
-    VLAN ID for VLAN networks or tunnel-id for GRE/VXLAN networks
+    VLAN ID for VLAN networks or Tunnel ID for GRE/VXLAN networks
     (Network v2 only)
 
 .. _network_create-name:

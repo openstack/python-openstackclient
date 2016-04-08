@@ -144,7 +144,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             "--external", "--default",
             "--provider-network-type", "vlan",
             "--provider-physical-network", "physnet1",
-            "--provider-segmentation-id", "400",
+            "--provider-segment", "400",
             self._network.name,
         ]
         verifylist = [
