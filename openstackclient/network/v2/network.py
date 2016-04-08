@@ -86,8 +86,38 @@ def _get_attrs(client_manager, parsed_args):
             attrs['is_default'] = False
         if parsed_args.default:
             attrs['is_default'] = True
-
+    # Update Provider network options
+    if parsed_args.provider_network_type:
+        attrs['provider:network_type'] = parsed_args.provider_network_type
+    if parsed_args.physical_network:
+        attrs['provider:physical_network'] = parsed_args.physical_network
+    if parsed_args.segmentation_id:
+        attrs['provider:segmentation_id'] = parsed_args.segmentation_id
     return attrs
+
+
+def _add_provider_network_options(parser):
+    # Add provider network options
+    parser.add_argument(
+        '--provider-network-type',
+        metavar='<provider-network-type>',
+        choices=['flat', 'gre', 'local',
+                 'vlan', 'vxlan'],
+        help=_("The physical mechanism by which the virtual network "
+               "is implemented. The supported options are: "
+               "flat, gre, local, vlan, vxlan"))
+    parser.add_argument(
+        '--provider-physical-network',
+        metavar='<provider-physical-network>',
+        dest='physical_network',
+        help=_("Name of the physical network over which the virtual "
+               "network is implemented"))
+    parser.add_argument(
+        '--provider-segment',
+        metavar='<provider-segment>',
+        dest='segmentation_id',
+        help=_("VLAN ID for VLAN networks or Tunnel ID for GRE/VXLAN "
+               "networks"))
 
 
 def _get_attrs_compute(client_manager, parsed_args):
@@ -100,7 +130,6 @@ def _get_attrs_compute(client_manager, parsed_args):
         attrs['share_address'] = False
     if parsed_args.subnet is not None:
         attrs['cidr'] = parsed_args.subnet
-
     return attrs
 
 
@@ -180,29 +209,7 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             help=_("Do not use the network as the default external network. "
                    "(default)")
         )
-        parser.add_argument(
-            '--provider-network-type',
-            metavar='<provider-network-type>',
-            choices=['flat', 'gre', 'local',
-                     'vlan', 'vxlan'],
-            help=_("The physical mechanism by which the virtual network "
-                   "is implemented. The supported options are: "
-                   "flat, gre, local, vlan, vxlan")
-        )
-        parser.add_argument(
-            '--provider-physical-network',
-            metavar='<provider-physical-network>',
-            dest='physical_network',
-            help=_("Name of the physical network over which the virtual "
-                   "network is implemented")
-        )
-        parser.add_argument(
-            '--provider-segment',
-            metavar='<provider-segment>',
-            dest='segmentation_id',
-            help=_("VLAN ID for VLAN networks or Tunnel ID for GRE/VXLAN "
-                   "networks")
-        )
+        _add_provider_network_options(parser)
         return parser
 
     def update_parser_compute(self, parser):
@@ -215,12 +222,6 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
 
     def take_action_network(self, client, parsed_args):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
-        if parsed_args.provider_network_type:
-            attrs['provider:network_type'] = parsed_args.provider_network_type
-        if parsed_args.physical_network:
-            attrs['provider:physical_network'] = parsed_args.physical_network
-        if parsed_args.segmentation_id:
-            attrs['provider:segmentation_id'] = parsed_args.segmentation_id
         obj = client.create_network(**attrs)
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
@@ -412,6 +413,7 @@ class SetNetwork(command.Command):
             action='store_true',
             help=_("Do not use the network as the default external network")
         )
+        _add_provider_network_options(parser)
         return parser
 
     def take_action(self, parsed_args):

@@ -172,6 +172,9 @@ Set network properties
         [--enable | --disable]
         [--share | --no-share]
         [--external [--default | --no-default] | --internal]
+        [--provider-network-type <provider-network-type>]
+        [--provider-physical-network <provider-physical-network>]
+        [--provider-segment <provider-segment>]
         <network>
 
 .. option:: --name <name>
@@ -210,6 +213,19 @@ Set network properties
 .. option:: --no-default
 
     Do not use the network as the default external network.
+
+.. option:: --provider-network-type <provider-network-type>
+
+    The physical mechanism by which the virtual network is implemented.
+    The supported options are: flat, gre, local, vlan, vxlan
+
+.. option:: --provider-physical-network <provider-physical-network>
+
+    Name of the physical network over which the virtual network is implemented
+
+.. option:: --provider-segment <provider-segment>
+
+    VLAN ID for VLAN networks or Tunnel ID for GRE/VXLAN networks
 
 .. _network_set-network:
 .. describe:: <network>
