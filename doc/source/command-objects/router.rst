@@ -4,6 +4,27 @@ router
 
 Network v2
 
+router add port
+---------------
+Add a port to a router
+
+.. program:: router add port
+.. code:: bash
+
+    os router add port
+        <router>
+        <port>
+
+.. _router_add_port:
+
+.. describe:: <router>
+
+    Router to which port will be added (name or ID)
+
+.. describe:: <port>
+
+    Port to be added (name or ID)
+
 router create
 -------------
 
@@ -16,7 +37,7 @@ Create new router
         [--project <project> [--project-domain <project-domain>]]
         [--enable | --disable]
         [--distributed]
-	[--availability-zone-hint <availability-zone>]
+        [--availability-zone-hint <availability-zone>]
         <name>
 
 .. option:: --project <project>
