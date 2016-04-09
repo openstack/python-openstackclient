@@ -6,6 +6,7 @@ Network v2
 
 router add port
 ---------------
+
 Add a port to a router
 
 .. program:: router add port
@@ -101,6 +102,29 @@ List routers
 .. option:: --long
 
     List additional fields in output
+
+router remove port
+------------------
+
+Remove a port from a router
+
+.. program:: router remove port
+.. code:: bash
+
+    os router remove port
+        <router>
+        <port>
+
+.. _router_remove_port:
+
+.. describe:: <router>
+
+    Router from which port will be removed (name or ID)
+
+.. describe:: <port>
+
+    Port to be removed (name or ID)
+
 
 router set
 ----------

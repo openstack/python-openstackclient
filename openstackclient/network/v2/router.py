@@ -244,6 +244,30 @@ class ListRouter(command.Lister):
                 ) for s in data))
 
 
+class RemovePortFromRouter(command.Command):
+    """Remove a port from a router"""
+
+    def get_parser(self, prog_name):
+        parser = super(RemovePortFromRouter, self).get_parser(prog_name)
+        parser.add_argument(
+            'router',
+            metavar='<router>',
+            help="Router from which port will be removed (name or ID)",
+        )
+        parser.add_argument(
+            'port',
+            metavar='<port>',
+            help="Port to be removed (name or ID).",
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        port = client.find_port(parsed_args.port, ignore_missing=False)
+        client.router_remove_interface(client.find_router(
+            parsed_args.router, ignore_missing=False), port_id=port.id)
+
+
 class SetRouter(command.Command):
     """Set router properties"""
 
