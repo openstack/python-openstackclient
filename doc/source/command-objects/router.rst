@@ -26,6 +26,28 @@ Add a port to a router
 
     Port to be added (name or ID)
 
+router add subnet
+-----------------
+
+Add a subnet to a router
+
+.. program:: router add subnet
+.. code:: bash
+
+    os router add subnet
+        <router>
+        <subnet>
+
+.. _router_add_subnet:
+
+.. describe:: <router>
+
+    Router to which subnet will be added (name or ID)
+
+.. describe:: <subnet>
+
+    Subnet to be added (name or ID)
+
 router create
 -------------
 
@@ -125,6 +147,27 @@ Remove a port from a router
 
     Port to be removed (name or ID)
 
+router remove subnet
+--------------------
+
+Remove a subnet from a router
+
+.. program:: router remove subnet
+.. code:: bash
+
+    os router remove subnet
+        <router>
+        <subnet>
+
+.. _router_remove_subnet:
+
+.. describe:: <router>
+
+    Router from which subnet will be removed (name or ID)
+
+.. describe:: <subnet>
+
+    Subnet to be removed (name or ID)
 
 router set
 ----------

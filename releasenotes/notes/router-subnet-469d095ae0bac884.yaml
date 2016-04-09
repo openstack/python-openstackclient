@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add ``router add subnet`` command
+    [Bug `1546849 <https://bugs.launchpad.net/bugs/1546849>`_]
+  - |
+    Add ``router remove subnet`` command
+    [Bug `1546849 <https://bugs.launchpad.net/bugs/1546849>`_]

@@ -111,6 +111,33 @@ class AddPortToRouter(command.Command):
             parsed_args.router, ignore_missing=False), port_id=port.id)
 
 
+class AddSubnetToRouter(command.Command):
+    """Add a subnet to a router"""
+
+    def get_parser(self, prog_name):
+        parser = super(AddSubnetToRouter, self).get_parser(prog_name)
+        parser.add_argument(
+            'router',
+            metavar='<router>',
+            help="Router to which subnet will be added (name or ID)",
+        )
+        parser.add_argument(
+            'subnet',
+            metavar='<subnet>',
+            help="Subnet to be added (name or ID)",
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        subnet = client.find_subnet(parsed_args.subnet,
+                                    ignore_missing=False)
+        client.router_add_interface(
+            client.find_router(parsed_args.router,
+                               ignore_missing=False),
+            subnet_id=subnet.id)
+
+
 class CreateRouter(command.ShowOne):
     """Create a new router"""
 
@@ -266,6 +293,33 @@ class RemovePortFromRouter(command.Command):
         port = client.find_port(parsed_args.port, ignore_missing=False)
         client.router_remove_interface(client.find_router(
             parsed_args.router, ignore_missing=False), port_id=port.id)
+
+
+class RemoveSubnetFromRouter(command.Command):
+    """Remove a subnet from a router"""
+
+    def get_parser(self, prog_name):
+        parser = super(RemoveSubnetFromRouter, self).get_parser(prog_name)
+        parser.add_argument(
+            'router',
+            metavar='<router>',
+            help="Router from which the subnet will be removed (name or ID)",
+        )
+        parser.add_argument(
+            'subnet',
+            metavar='<subnet>',
+            help="Subnet to be removed (name or ID)",
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        subnet = client.find_subnet(parsed_args.subnet,
+                                    ignore_missing=False)
+        client.router_remove_interface(
+            client.find_router(parsed_args.router,
+                               ignore_missing=False),
+            subnet_id=subnet.id)
 
 
 class SetRouter(command.Command):
