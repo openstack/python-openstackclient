@@ -26,23 +26,27 @@ Create new network
 .. option:: --project <project>
 
     Owner's project (name or ID)
-    (Network v2 only)
+
+    *Network version 2 only*
 
 .. option:: --project-domain <project-domain>
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
-    (Network v2 only)
+
+    *Network version 2 only*
 
 .. option:: --enable
 
     Enable network (default)
-    (Network v2 only)
+
+    *Network version 2 only*
 
 .. option:: --disable
 
     Disable network
-    (Network v2 only)
+
+    *Network version 2 only*
 
 .. option:: --share
 
@@ -56,51 +60,60 @@ Create new network
 
     Availability Zone in which to create this network (requires the Network
     Availability Zone extension, this option can be repeated).
-    (Network v2 only)
+
+    *Network version 2 only*
 
 .. option:: --subnet <subnet>
 
     IPv4 subnet for fixed IPs (in CIDR notation)
-    (Compute v2 network only)
+
+    *Compute version 2 only*
 
 .. option:: --external
 
     Set this network as an external network.
     Requires the "external-net" extension to be enabled.
-    (Network v2 only)
+
+    *Network version 2 only*
 
 .. option:: --internal
 
     Set this network as an internal network (default)
-    (Network v2 only)
+
+    *Network version 2 only*
 
 .. option:: --default
 
     Specify if this network should be used as
     the default external network
-    (Network v2 only)
+
+    *Network version 2 only*
 
 .. option:: --no-default
 
     Do not use the network as the default external network.
     By default, no network is set as an external network.
-    (Network v2 only)
+
+    *Network version 2 only*
 
 .. option:: --provider-network-type <provider-network-type>
 
     The physical mechanism by which the virtual network is implemented.
     The supported options are: flat, gre, local, vlan, vxlan
-    (Network v2 only)
+
+    *Network version 2 only*
 
 .. option:: --provider-physical-network <provider-physical-network>
 
     Name of the physical network over which the virtual network is implemented
-    (Network v2 only)
+
+    *Network version 2 only*
 
 .. option:: --provider-segment <provider-segment>
 
     VLAN ID for VLAN networks or Tunnel ID for GRE/VXLAN networks
-    (Network v2 only)
+
+    *Network version 2 only*
 
 .. _network_create-name:
 .. describe:: <name>
@@ -147,6 +160,8 @@ network set
 -----------
 
 Set network properties
+
+*Network version 2 only*
 
 .. program:: network set
 .. code:: bash

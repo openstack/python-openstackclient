@@ -42,7 +42,7 @@ Create new subnet
 
 .. option:: --use-default-subnet-pool
 
-    Use default subnet pool for --ip-version
+    Use default subnet pool for ``--ip-version``
 
 .. option:: --prefix-length <prefix-length>
 
@@ -51,12 +51,12 @@ Create new subnet
 .. option:: --subnet-range <subnet-range>
 
     Subnet range in CIDR notation
-        (required if --subnet-pool is not specified, optional otherwise)
+    (required if ``--subnet-pool`` is not specified, optional otherwise)
 
 .. option:: --allocation-pool start=<ip-address>,end=<ip-address>
 
     Allocation pool IP addresses for this subnet e.g.:
-        start=192.168.199.2,end=192.168.199.254 (This option can be repeated)
+    ``start=192.168.199.2,end=192.168.199.254`` (This option can be repeated)
 
 .. option:: --dhcp
 
@@ -73,31 +73,30 @@ Create new subnet
 .. option:: --gateway <gateway>
 
      Specify a gateway for the subnet.  The three options are:
-         <ip-address>: Specific IP address to use as the gateway
-         'auto':       Gateway address should automatically be chosen from
-                       within the subnet itself
-         'none':       This subnet will not use a gateway
-       e.g.: --gateway 192.168.9.1, --gateway auto, --gateway none
-       (default is 'auto')
+     <ip-address>: Specific IP address to use as the gateway,
+     'auto': Gateway address should automatically be chosen from
+     within the subnet itself, 'none': This subnet will not use
+     a gateway, e.g.: ``--gateway 192.168.9.1``, ``--gateway auto``,
+     ``--gateway none`` (default is 'auto')
 
 .. option:: --host-route destination=<subnet>,gateway=<ip-address>
 
      Additional route for this subnet e.g.:
-         destination=10.10.0.0/16,gateway=192.168.71.254
-         destination: destination subnet (in CIDR notation)
-         gateway: nexthop IP address
-         (This option can be repeated)
+     ``destination=10.10.0.0/16,gateway=192.168.71.254``
+     destination: destination subnet (in CIDR notation)
+     gateway: nexthop IP address
+     (This option can be repeated)
 
 .. option:: --ip-version {4,6}
 
      IP version (default is 4).  Note that when subnet pool is specified,
-         IP version is determined from the subnet pool and this option
-         is ignored.
+     IP version is determined from the subnet pool and this option
+     is ignored.
 
 .. option:: --ipv6-ra-mode {dhcpv6-stateful,dhcpv6-stateless,slaac}
 
      IPv6 RA (Router Advertisement) mode,
-         valid modes: [dhcpv6-stateful, dhcpv6-stateless, slaac]
+     valid modes: [dhcpv6-stateful, dhcpv6-stateless, slaac]
 
 .. option:: --ipv6-address-mode {dhcpv6-stateful,dhcpv6-stateless,slaac}
 
@@ -163,7 +162,7 @@ Set subnet properties
 .. option:: --allocation-pool start=<ip-address>,end=<ip-address>
 
     Allocation pool IP addresses for this subnet e.g.:
-        start=192.168.199.2,end=192.168.199.254 (This option can be repeated)
+    ``start=192.168.199.2,end=192.168.199.254`` (This option can be repeated)
 
 .. option:: --dhcp
 
@@ -180,17 +179,17 @@ Set subnet properties
 .. option:: --gateway <gateway>
 
      Specify a gateway for the subnet. The options are:
-         <ip-address>: Specific IP address to use as the gateway
-         'none':       This subnet will not use a gateway
-         e.g.: --gateway 192.168.9.1, --gateway none
+     <ip-address>: Specific IP address to use as the gateway,
+     'none': This subnet will not use a gateway,
+     e.g.: ``--gateway 192.168.9.1``, ``--gateway none``
 
 .. option:: --host-route destination=<subnet>,gateway=<ip-address>
 
      Additional route for this subnet e.g.:
-         destination=10.10.0.0/16,gateway=192.168.71.254
-         destination: destination subnet (in CIDR notation)
-         gateway: nexthop IP address
-         (This option can be repeated)
+     ``destination=10.10.0.0/16,gateway=192.168.71.254``
+     destination: destination subnet (in CIDR notation)
+     gateway: nexthop IP address
+     (This option can be repeated)
 
 .. option:: --name
 

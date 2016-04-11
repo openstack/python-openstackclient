@@ -47,7 +47,7 @@ Create subnet pool
     collisions between project names exist.
 
 .. _subnet_pool_create-name:
-      .. describe:: <name>
+.. describe:: <name>
 
     Name of the new subnet pool
 
@@ -120,7 +120,7 @@ Set subnet pool properties
     Set subnet pool maximum prefix length
 
 .. _subnet_pool_set-subnet-pool:
-   .. describe:: <subnet-pool>
+.. describe:: <subnet-pool>
 
     Subnet pool to modify (name or ID)
 

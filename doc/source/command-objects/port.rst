@@ -124,11 +124,11 @@ Set port properties
 
     os port set
         [--fixed-ip subnet=<subnet>,ip-address=<ip-address> | --no-fixed-ip]
-        [--device-id <device-id>]
+        [--device <device-id>]
         [--device-owner <device-owner>]
         [--vnic-type <vnic-type>]
         [--binding-profile <binding-profile> | --no-binding-profile]
-        [--host-id <host-id>]
+        [--host <host-id>]
         [--enable | --disable]
         [--name <name>]
         <port>
@@ -143,9 +143,9 @@ Set port properties
 
     Clear existing information of fixed-ips
 
-.. option:: --device-id <device-id>
+.. option:: --device <device-id>
 
-    Device ID of this port
+    Port device ID
 
 .. option:: --device-owner <device-owner>
 
@@ -165,9 +165,9 @@ Set port properties
 
     Clear existing information of binding:profile
 
-.. option:: --host-id <host-id>
+.. option:: --host <host-id>
 
-    The ID of the host where the port is allocated
+    Allocate port on host ``<host-id>`` (ID only)
 
 .. option:: --enable
 
