@@ -54,7 +54,9 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         'is_default',
         'name',
         'project_id',
+        'provider_network_type',
         'router_external',
+        'shared',
         'status',
         'subnets',
     )
@@ -67,7 +69,9 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         _network.is_default,
         _network.name,
         _network.project_id,
+        _network.provider_network_type,
         network._format_router_external(_network.router_external),
+        _network.shared,
         _network.status,
         utils.format_list(_network.subnets),
     )
@@ -219,7 +223,9 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         'is_default',
         'name',
         'project_id',
+        'provider_network_type',
         'router_external',
+        'shared',
         'status',
         'subnets',
     )
@@ -232,7 +238,9 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         _network.is_default,
         _network.name,
         _network.project_id,
+        _network.provider_network_type,
         network._format_router_external(_network.router_external),
+        _network.shared,
         _network.status,
         utils.format_list(_network.subnets),
     )
@@ -539,7 +547,9 @@ class TestShowNetwork(TestNetwork):
         'is_default',
         'name',
         'project_id',
+        'provider_network_type',
         'router_external',
+        'shared',
         'status',
         'subnets',
     )
@@ -552,7 +562,9 @@ class TestShowNetwork(TestNetwork):
         _network.is_default,
         _network.name,
         _network.project_id,
+        _network.provider_network_type,
         network._format_router_external(_network.router_external),
+        _network.shared,
         _network.status,
         utils.format_list(_network.subnets),
     )

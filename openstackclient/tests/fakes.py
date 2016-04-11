@@ -183,6 +183,9 @@ class FakeResource(object):
         info = ", ".join("%s=%s" % (k, getattr(self, k)) for k in reprkeys)
         return "<%s %s>" % (self.__class__.__name__, info)
 
+    def keys(self):
+        return self._info.keys()
+
 
 class FakeResponse(requests.Response):
 
