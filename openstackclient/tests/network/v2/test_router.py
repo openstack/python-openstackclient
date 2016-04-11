@@ -117,19 +117,29 @@ class TestCreateRouter(TestRouter):
 
     columns = (
         'admin_state_up',
+        'availability_zone_hints',
+        'availability_zones',
         'distributed',
+        'external_gateway_info',
         'ha',
         'id',
         'name',
         'project_id',
+        'routes',
+        'status',
     )
     data = (
         router._format_admin_state(new_router.admin_state_up),
+        osc_utils.format_list(new_router.availability_zone_hints),
+        osc_utils.format_list(new_router.availability_zones),
         new_router.distributed,
+        router._format_external_gateway_info(new_router.external_gateway_info),
         new_router.ha,
         new_router.id,
         new_router.name,
         new_router.tenant_id,
+        new_router.routes,
+        new_router.status,
     )
 
     def setUp(self):
@@ -541,20 +551,29 @@ class TestShowRouter(TestRouter):
 
     columns = (
         'admin_state_up',
+        'availability_zone_hints',
+        'availability_zones',
         'distributed',
+        'external_gateway_info',
         'ha',
         'id',
         'name',
         'project_id',
+        'routes',
+        'status',
     )
-
     data = (
         router._format_admin_state(_router.admin_state_up),
+        osc_utils.format_list(_router.availability_zone_hints),
+        osc_utils.format_list(_router.availability_zones),
         _router.distributed,
+        router._format_external_gateway_info(_router.external_gateway_info),
         _router.ha,
         _router.id,
         _router.name,
-        _router.project_id,
+        _router.tenant_id,
+        _router.routes,
+        _router.status,
     )
 
     def setUp(self):
