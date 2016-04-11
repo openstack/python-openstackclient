@@ -1,0 +1,12 @@
+---
+features:
+  - The ``security group rule list`` command now uses Network v2
+    when enabled which results in ``egress`` security group rules
+    being displayed. In addition, security group rules for all
+    projects will be displayed when the ``group`` argument is not
+    specified (admin only).
+    [Bug `1519512 <https://bugs.launchpad.net/bugs/1519512>`_]
+fixes:
+  - The ``security group rule list`` command no longer ignores
+    the ``group`` argument when it is set to an empty value.
+    [Bug `1519512 <https://bugs.launchpad.net/bugs/1519512>`_]
