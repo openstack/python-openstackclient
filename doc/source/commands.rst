@@ -70,11 +70,13 @@ the API resources will be merged, as in the ``quota`` object that has options
 referring to both Compute and Volume quotas.
 
 * ``access token``: (**Identity**) long-lived OAuth-based token
-* ``availability zone``: (**Compute**, **Network**, **Volume**) a logical partition of hosts or block storage or network services
 * ``aggregate``: (**Compute**) a grouping of compute hosts
+* ``availability zone``: (**Compute**, **Network**, **Volume**) a logical partition of hosts or block storage or network services
 * ``backup``: (**Volume**) a volume copy
 * ``catalog``: (**Identity**) service catalog
 * ``command``: (**Internal**) installed commands in the OSC process
+* ``compute agent``: (**Compute**) a cloud Compute agent available to a hypervisor
+* ``compute service``: (**Compute**) a cloud Compute process running on a host
 * ``configuration``: (**Internal**) openstack client configuration
 * ``console log``: (**Compute**) server console text dump
 * ``console url``: (**Compute**) server remote console URL
@@ -88,7 +90,7 @@ referring to both Compute and Volume quotas.
 * ``federation protocol``: (**Identity**) the underlying protocol used while federating identities
 * ``flavor``: (**Compute**) predefined server configurations: ram, root disk, etc
 * ``group``: (**Identity**) a grouping of users
-* ``host``: (**Compute**) - the physical computer running a hypervisor
+* ``host``: (**Compute**) - the physical computer running compute services
 * ``hypervisor``: (**Compute**) the virtual machine manager
 * ``hypervisor stats``: (**Compute**) hypervisor statistics over all compute nodes
 * ``identity provider``: (**Identity**) a source of users and authentication
@@ -102,6 +104,7 @@ referring to both Compute and Volume quotas.
 * ``module``: (**Internal**) - installed Python modules in the OSC process
 * ``network``: (**Compute**, **Network**) - a virtual network for connecting servers and other resources
 * ``object``: (**Object Storage**) a single file in the Object Storage
+* ``object store account``: (**Object Storage**) owns a group of Object Storage resources
 * ``policy``: (**Identity**) determines authorization
 * ``port``: (**Network**) - a virtual port for connecting servers and other resources to a network
 * ``project``: (**Identity**) owns a group of resources
@@ -122,10 +125,12 @@ referring to both Compute and Volume quotas.
 * ``subnet``: (**Network**) - a contiguous range of IP addresses assigned to a network
 * ``subnet pool``: (**Network**) - a pool of subnets
 * ``token``: (**Identity**) a bearer token managed by Identity service
+* ``trust``: (**Identity**) project-specific role delegation between users, with optional impersonation
 * ``usage``: (**Compute**) display host resources being consumed
 * ``user``: (**Identity**) individual cloud resources users
 * ``user role``: (**Identity**) roles assigned to a user
 * ``volume``: (**Volume**) block volumes
+* ``volume qos``: (**Volume**) quality-of-service (QoS) specification for volumes
 * ``volume type``: (**Volume**) deployment-specific types of volumes available
 
 
