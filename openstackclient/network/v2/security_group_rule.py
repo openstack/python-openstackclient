@@ -13,6 +13,7 @@
 
 """Security Group Rule action implementations"""
 
+import argparse
 import six
 
 try:
@@ -242,14 +243,50 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         )
         return parser
 
+    def update_parser_network(self, parser):
+        # Accept but hide the argument for consistency with compute.
+        # Network will always return all projects for an admin.
+        parser.add_argument(
+            '--all-projects',
+            action='store_true',
+            default=False,
+            help=argparse.SUPPRESS
+        )
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help=_("List additional fields in output")
+        )
+        return parser
+
+    def update_parser_compute(self, parser):
+        parser.add_argument(
+            '--all-projects',
+            action='store_true',
+            default=False,
+            help=_("Display information from all projects (admin only)")
+        )
+        # Accept but hide the argument for consistency with network.
+        # There are no additional fields to display at this time.
+        parser.add_argument(
+            '--long',
+            action='store_false',
+            default=False,
+            help=argparse.SUPPRESS
+        )
+        return parser
+
     def _get_column_headers(self, parsed_args):
         column_headers = (
             'ID',
             'IP Protocol',
             'IP Range',
             'Port Range',
-            'Remote Security Group',
         )
+        if parsed_args.long:
+            column_headers = column_headers + ('Direction', 'Ethertype',)
+        column_headers = column_headers + ('Remote Security Group',)
         if parsed_args.group is None:
             column_headers = column_headers + ('Security Group',)
         return column_headers
@@ -261,8 +298,10 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             'protocol',
             'remote_ip_prefix',
             'port_range_min',
-            'remote_group_id',
         )
+        if parsed_args.long:
+            columns = columns + ('direction', 'ethertype',)
+        columns = columns + ('remote_group_id',)
 
         # Get the security group rules using the requested query.
         query = {}
@@ -309,7 +348,8 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             rules_to_list = group.rules
         else:
             columns = columns + ('parent_group_id',)
-            for group in client.security_groups.list():
+            search = {'all_tenants': parsed_args.all_projects}
+            for group in client.security_groups.list(search_opts=search):
                 rules_to_list.extend(group.rules)
 
         # NOTE(rtheis): Turn the raw rules into resources.

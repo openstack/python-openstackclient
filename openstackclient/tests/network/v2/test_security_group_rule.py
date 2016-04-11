@@ -532,31 +532,46 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     _security_group_rules = [_security_group_rule_tcp,
                              _security_group_rule_icmp]
 
-    expected_columns_with_group = (
+    expected_columns_with_group_and_long = (
+        'ID',
+        'IP Protocol',
+        'IP Range',
+        'Port Range',
+        'Direction',
+        'Ethertype',
+        'Remote Security Group',
+    )
+    expected_columns_no_group = (
         'ID',
         'IP Protocol',
         'IP Range',
         'Port Range',
         'Remote Security Group',
+        'Security Group',
     )
-    expected_columns_no_group = \
-        expected_columns_with_group + ('Security Group',)
 
-    expected_data_with_group = []
+    expected_data_with_group_and_long = []
     expected_data_no_group = []
     for _security_group_rule in _security_group_rules:
-        expected_rule_with_group = (
+        expected_data_with_group_and_long.append((
+            _security_group_rule.id,
+            _security_group_rule.protocol,
+            _security_group_rule.remote_ip_prefix,
+            security_group_rule._format_network_port_range(
+                _security_group_rule),
+            _security_group_rule.direction,
+            _security_group_rule.ethertype,
+            _security_group_rule.remote_group_id,
+        ))
+        expected_data_no_group.append((
             _security_group_rule.id,
             _security_group_rule.protocol,
             _security_group_rule.remote_ip_prefix,
             security_group_rule._format_network_port_range(
                 _security_group_rule),
             _security_group_rule.remote_group_id,
-        )
-        expected_rule_no_group = expected_rule_with_group + \
-            (_security_group_rule.security_group_id,)
-        expected_data_with_group.append(expected_rule_with_group)
-        expected_data_no_group.append(expected_rule_no_group)
+            _security_group_rule.security_group_id,
+        ))
 
     def setUp(self):
         super(TestListSecurityGroupRuleNetwork, self).setUp()
@@ -570,7 +585,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.cmd = security_group_rule.ListSecurityGroupRule(
             self.app, self.namespace)
 
-    def test_list_no_group(self):
+    def test_list_default(self):
         self._security_group_rule_tcp.port_range_min = 80
         parsed_args = self.check_parser(self.cmd, [], [])
 
@@ -580,12 +595,14 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertEqual(self.expected_columns_no_group, columns)
         self.assertEqual(self.expected_data_no_group, list(data))
 
-    def test_list_with_group(self):
+    def test_list_with_group_and_long(self):
         self._security_group_rule_tcp.port_range_min = 80
         arglist = [
+            '--long',
             self._security_group.id,
         ]
         verifylist = [
+            ('long', True),
             ('group', self._security_group.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -595,8 +612,24 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.network.security_group_rules.assert_called_once_with(**{
             'security_group_id': self._security_group.id,
         })
-        self.assertEqual(self.expected_columns_with_group, columns)
-        self.assertEqual(self.expected_data_with_group, list(data))
+        self.assertEqual(self.expected_columns_with_group_and_long, columns)
+        self.assertEqual(self.expected_data_with_group_and_long, list(data))
+
+    def test_list_with_ignored_options(self):
+        self._security_group_rule_tcp.port_range_min = 80
+        arglist = [
+            '--all-projects',
+        ]
+        verifylist = [
+            ('all_projects', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.security_group_rules.assert_called_once_with(**{})
+        self.assertEqual(self.expected_columns_no_group, columns)
+        self.assertEqual(self.expected_data_no_group, list(data))
 
 
 class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
@@ -665,11 +698,13 @@ class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         # Get the command object to test
         self.cmd = security_group_rule.ListSecurityGroupRule(self.app, None)
 
-    def test_list_no_group(self):
+    def test_list_default(self):
         parsed_args = self.check_parser(self.cmd, [], [])
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute.security_groups.list.assert_called_once_with()
+        self.compute.security_groups.list.assert_called_once_with(
+            search_opts={'all_tenants': False}
+        )
         self.assertEqual(self.expected_columns_no_group, columns)
         self.assertEqual(self.expected_data_no_group, list(data))
 
@@ -688,6 +723,38 @@ class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         )
         self.assertEqual(self.expected_columns_with_group, columns)
         self.assertEqual(self.expected_data_with_group, list(data))
+
+    def test_list_all_projects(self):
+        arglist = [
+            '--all-projects',
+        ]
+        verifylist = [
+            ('all_projects', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.compute.security_groups.list.assert_called_once_with(
+            search_opts={'all_tenants': True}
+        )
+        self.assertEqual(self.expected_columns_no_group, columns)
+        self.assertEqual(self.expected_data_no_group, list(data))
+
+    def test_list_with_ignored_options(self):
+        arglist = [
+            '--long',
+        ]
+        verifylist = [
+            ('long', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.compute.security_groups.list.assert_called_once_with(
+            search_opts={'all_tenants': False}
+        )
+        self.assertEqual(self.expected_columns_no_group, columns)
+        self.assertEqual(self.expected_data_no_group, list(data))
 
 
 class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):

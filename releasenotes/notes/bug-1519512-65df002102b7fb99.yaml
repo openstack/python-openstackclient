@@ -2,9 +2,13 @@
 features:
   - The ``security group rule list`` command now uses Network v2
     when enabled which results in ``egress`` security group rules
-    being displayed. In addition, security group rules for all
-    projects will be displayed when the ``group`` argument is not
-    specified (admin only).
+    being displayed. The ``--long`` option was also added for
+    Network v2 to display direction and ethertype information.
+    In addition, security group rules for all projects will be
+    displayed when the ``group`` argument is not specified
+    (admin only). This is done by default when using Network v2,
+    but requires the new ``--all-projects`` option when using
+    Compute v2.
     [Bug `1519512 <https://bugs.launchpad.net/bugs/1519512>`_]
 fixes:
   - The ``security group rule list`` command no longer ignores

@@ -98,7 +98,22 @@ List security group rules
 .. code:: bash
 
     os security group rule list
+        [--all-projects]
+        [--long]
         [<group>]
+
+.. option:: --all-projects
+
+    Display information from all projects (admin only)
+
+    *Network version 2 ignores this option and will always display information*
+    *for all projects (admin only).*
+
+.. option:: --long
+
+    List additional fields in output
+
+    *Compute version 2 does not have additional fields to display.*
 
 .. describe:: <group>
 
