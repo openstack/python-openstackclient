@@ -14,6 +14,7 @@
 
 import copy
 
+import mock
 from mock import call
 
 from openstackclient.common import utils
@@ -39,6 +40,9 @@ class TestVolume(volume_fakes.TestVolume):
 
         self.images_mock = self.app.client_manager.image.images
         self.images_mock.reset_mock()
+
+        self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
+        self.snapshots_mock.reset_mock()
 
     def setup_volumes_mock(self, count):
         volumes = volume_fakes.FakeVolume.create_volumes(count=count)
@@ -370,6 +374,45 @@ class TestVolumeCreate(TestVolume):
             availability_zone=None,
             metadata=None,
             imageRef=volume_fakes.image_id,
+            source_volid=None
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_volume_create_with_snapshot(self):
+        arglist = [
+            '--size', str(self.new_volume.size),
+            '--snapshot', volume_fakes.snapshot_id,
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('size', self.new_volume.size),
+            ('snapshot', volume_fakes.snapshot_id),
+            ('name', self.new_volume.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        fake_snapshot = mock.Mock()
+        fake_snapshot.id = volume_fakes.snapshot_id
+        self.snapshots_mock.get.return_value = fake_snapshot
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.create.assert_called_once_with(
+            size=self.new_volume.size,
+            snapshot_id=fake_snapshot.id,
+            name=self.new_volume.name,
+            description=None,
+            volume_type=None,
+            user_id=None,
+            project_id=None,
+            availability_zone=None,
+            metadata=None,
+            imageRef=None,
             source_volid=None
         )
 

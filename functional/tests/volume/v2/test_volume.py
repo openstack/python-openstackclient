@@ -11,6 +11,7 @@
 #    under the License.
 
 import os
+import time
 import uuid
 
 from functional.common import test
@@ -20,6 +21,8 @@ class VolumeTests(test.TestCase):
     """Functional tests for volume. """
 
     NAME = uuid.uuid4().hex
+    SNAPSHOT_NAME = uuid.uuid4().hex
+    VOLUME_FROM_SNAPSHOT_NAME = uuid.uuid4().hex
     OTHER_NAME = uuid.uuid4().hex
     HEADERS = ['"Display Name"']
     FIELDS = ['name']
@@ -28,17 +31,20 @@ class VolumeTests(test.TestCase):
     def setUpClass(cls):
         os.environ['OS_VOLUME_API_VERSION'] = '2'
         opts = cls.get_show_opts(cls.FIELDS)
+
+        # Create test volume
         raw_output = cls.openstack('volume create --size 1 ' + cls.NAME + opts)
         expected = cls.NAME + '\n'
         cls.assertOutput(expected, raw_output)
 
     @classmethod
     def tearDownClass(cls):
-        # Rename test
+        # Rename test volume
         raw_output = cls.openstack(
             'volume set --name ' + cls.OTHER_NAME + ' ' + cls.NAME)
         cls.assertOutput('', raw_output)
-        # Delete test
+
+        # Delete test volume
         raw_output = cls.openstack('volume delete ' + cls.OTHER_NAME)
         cls.assertOutput('', raw_output)
 
@@ -78,3 +84,47 @@ class VolumeTests(test.TestCase):
         opts = self.get_show_opts(["name", "size"])
         raw_output = self.openstack('volume show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n2\n", raw_output)
+
+    def test_volume_snapshot(self):
+        opts = self.get_show_opts(self.FIELDS)
+
+        # Create snapshot from test volume
+        raw_output = self.openstack('snapshot create ' + self.NAME +
+                                    ' --name ' + self.SNAPSHOT_NAME + opts)
+        expected = self.SNAPSHOT_NAME + '\n'
+        self.assertOutput(expected, raw_output)
+        self.wait_for("snapshot", self.SNAPSHOT_NAME, "available")
+
+        # Create volume from snapshot
+        raw_output = self.openstack('volume create --size 2 --snapshot ' +
+                                    self.SNAPSHOT_NAME + ' ' +
+                                    self.VOLUME_FROM_SNAPSHOT_NAME + opts)
+        expected = self.VOLUME_FROM_SNAPSHOT_NAME + '\n'
+        self.assertOutput(expected, raw_output)
+        self.wait_for("volume", self.VOLUME_FROM_SNAPSHOT_NAME, "available")
+
+        # Delete volume that create from snapshot
+        raw_output = self.openstack('volume delete ' +
+                                    self.VOLUME_FROM_SNAPSHOT_NAME)
+        self.assertOutput('', raw_output)
+
+        # Delete test snapshot
+        raw_output = self.openstack('snapshot delete ' + self.SNAPSHOT_NAME)
+        self.assertOutput('', raw_output)
+
+    def wait_for(self, check_type, check_name, desired_status, wait=120,
+                 interval=5, failures=['ERROR']):
+        status = "notset"
+        total_sleep = 0
+        opts = self.get_show_opts(['status'])
+        while total_sleep < wait:
+            status = self.openstack(check_type + ' show ' + check_name + opts)
+            status = status.rstrip()
+            print('Checking {} {} Waiting for {} current status: {}'
+                  .format(check_type, check_name, desired_status, status))
+            if status == desired_status:
+                break
+            self.assertNotIn(status, failures)
+            time.sleep(interval)
+            total_sleep += interval
+        self.assertEqual(desired_status, status)
