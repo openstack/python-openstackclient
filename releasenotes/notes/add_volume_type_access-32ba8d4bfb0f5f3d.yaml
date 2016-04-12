@@ -1,0 +1,18 @@
+---
+features:
+  - |
+    Added support for setting volume type access to project.
+
+    By default, volumes types are public.
+    To create a private volume type, user needs to set is_public boolean
+    field to false at volume type creation time.
+    To control access to a private volume type, user needs to add access
+    of a private volume type to project.
+
+    So, this feature enables user to add private volume type access to a
+    project using below command
+
+    ``volume type set --project <project> <volume_type>``.
+
+    [Bug 1554889 'https://bugs.launchpad.net/python-openstackclient/+bug/1554889'_]
+

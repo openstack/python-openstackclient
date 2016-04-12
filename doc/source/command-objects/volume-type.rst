@@ -88,6 +88,8 @@ Set volume type properties
         [--name <name>]
         [--description <description>]
         [--property <key=value> [...] ]
+        [--project <project>]
+        [--project-domain <project-domain>]
         <volume-type>
 
 .. option:: --name <name>
@@ -101,6 +103,17 @@ Set volume type properties
     Set volume type description
 
     .. versionadded:: 2
+
+.. option:: --project <project>
+
+    Set volume type access to project (name or ID) (admin only)
+
+    *Volume version 2 only*
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 .. option:: --property <key=value>
 

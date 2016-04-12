@@ -15,6 +15,8 @@
 import copy
 
 from openstackclient.tests import fakes
+from openstackclient.tests.identity.v3 import fakes as identity_fakes
+from openstackclient.tests import utils as tests_utils
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import volume_type
 
@@ -40,6 +42,13 @@ class TestType(volume_fakes.TestVolume):
 
         self.types_mock = self.app.client_manager.volume.volume_types
         self.types_mock.reset_mock()
+
+        self.types_access_mock = (
+            self.app.client_manager.volume.volume_type_access)
+        self.types_access_mock.reset_mock()
+
+        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock.reset_mock()
 
 
 class TestTypeCreate(TestType):
@@ -211,6 +220,13 @@ class TestTypeSet(TestType):
             loaded=True,
         )
 
+        # Return a project
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
         # Get the command object to test
         self.cmd = volume_type.SetVolumeType(self.app, None)
 
@@ -285,6 +301,56 @@ class TestTypeSet(TestType):
         result = self.types_mock.get.return_value._keys
         self.assertIn('myprop', result)
         self.assertEqual('myvalue', result['myprop'])
+
+    def test_type_set_not_called_without_project_argument(self):
+        arglist = [
+            '--project', '',
+            volume_fakes.type_id,
+        ]
+        verifylist = [
+            ('project', ''),
+            ('volume_type', volume_fakes.type_id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.assertFalse(self.types_access_mock.add_project_access.called)
+
+    def test_type_set_failed_with_missing_volume_type_argument(self):
+        arglist = [
+            '--project', 'identity_fakes.project_id',
+        ]
+        verifylist = [
+            ('project', 'identity_fakes.project_id'),
+        ]
+
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser,
+                          self.cmd,
+                          arglist,
+                          verifylist)
+
+    def test_type_set_project_access(self):
+        arglist = [
+            '--project', identity_fakes.project_id,
+            volume_fakes.type_id,
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_id),
+            ('volume_type', volume_fakes.type_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.types_access_mock.add_project_access.assert_called_with(
+            volume_fakes.type_id,
+            identity_fakes.project_id,
+        )
 
 
 class TestTypeShow(TestType):

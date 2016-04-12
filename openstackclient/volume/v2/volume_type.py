@@ -17,8 +17,10 @@
 import six
 
 from openstackclient.common import command
+from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.identity import common as identity_common
 
 
 class CreateVolumeType(command.ShowOne):
@@ -156,19 +158,30 @@ class SetVolumeType(command.Command):
             help='Set a property on this volume type '
                  '(repeat option to set multiple properties)',
         )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help='Set volume type access to project (name or ID) (admin only)',
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
+
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
+        identity_client = self.app.client_manager.identity
+
         volume_type = utils.find_resource(
             volume_client.volume_types, parsed_args.volume_type)
 
         if (not parsed_args.name
                 and not parsed_args.description
-                and not parsed_args.property):
+                and not parsed_args.property
+                and not parsed_args.project):
             self.app.log.error("No changes requested\n")
             return
 
+        result = 0
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
@@ -176,13 +189,42 @@ class SetVolumeType(command.Command):
             kwargs['description'] = parsed_args.description
 
         if kwargs:
-            volume_client.volume_types.update(
-                volume_type.id,
-                **kwargs
-            )
+            try:
+                volume_client.volume_types.update(
+                    volume_type.id,
+                    **kwargs
+                )
+            except Exception as e:
+                self.app.log.error("Failed to update volume type name or"
+                                   " description: " + str(e))
+                result += 1
 
         if parsed_args.property:
-            volume_type.set_keys(parsed_args.property)
+            try:
+                volume_type.set_keys(parsed_args.property)
+            except Exception as e:
+                self.app.log.error("Failed to set volume type property: " +
+                                   str(e))
+                result += 1
+
+        if parsed_args.project:
+            project_info = None
+            try:
+                project_info = identity_common.find_project(
+                    identity_client,
+                    parsed_args.project,
+                    parsed_args.project_domain)
+
+                volume_client.volume_type_access.add_project_access(
+                    volume_type.id, project_info.id)
+            except Exception as e:
+                self.app.log.error("Failed to set volume type access to"
+                                   " project: " + str(e))
+                result += 1
+
+        if result > 0:
+            raise exceptions.CommandError("Command Failed: One or more of the"
+                                          " operations failed")
 
 
 class ShowVolumeType(command.ShowOne):
