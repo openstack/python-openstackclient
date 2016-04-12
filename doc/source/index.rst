@@ -47,6 +47,7 @@ Developer Documentation
    :maxdepth: 1
 
    developing
+   command-beta
    command-options
    command-wrappers
    command-errors
