@@ -184,7 +184,7 @@ class ListSubnetPool(command.Lister):
         return (headers,
                 (utils.get_item_properties(
                     s, columns,
-                    formatters={},
+                    formatters=_formatters,
                 ) for s in data))
 
 

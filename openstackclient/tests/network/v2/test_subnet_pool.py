@@ -246,7 +246,7 @@ class TestListSubnetPool(TestSubnetPool):
         data.append((
             pool.id,
             pool.name,
-            pool.prefixes,
+            utils.format_list(pool.prefixes),
         ))
 
     data_long = []
@@ -254,7 +254,7 @@ class TestListSubnetPool(TestSubnetPool):
         data_long.append((
             pool.id,
             pool.name,
-            pool.prefixes,
+            utils.format_list(pool.prefixes),
             pool.default_prefixlen,
             pool.address_scope_id,
         ))
