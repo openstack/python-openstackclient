@@ -25,6 +25,7 @@ language to describe operations in OpenStack.
 * `Source`_
 * `Developer` - getting started as a developer
 * `Contributing` - contributing code
+* `Testing` - testing code
 * IRC: #openstack-sdks on Freenode (irc.freenode.net)
 * License: Apache 2.0
 
@@ -34,8 +35,9 @@ language to describe operations in OpenStack.
 .. _Blueprints: https://blueprints.launchpad.net/python-openstackclient
 .. _Bugs: https://bugs.launchpad.net/python-openstackclient
 .. _Source: https://git.openstack.org/cgit/openstack/python-openstackclient
-.. _Developer: http://docs.openstack.org/infra/manual/python.html
+.. _Developer: http://docs.openstack.org/project-team-guide/project-setup/python.html
 .. _Contributing: http://docs.openstack.org/infra/manual/developers.html
+.. _Testing: http://docs.openstack.org/developer/python-openstackclient/developing.html#testing
 
 Getting Started
 ===============
