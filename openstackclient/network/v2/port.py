@@ -210,13 +210,13 @@ class CreatePort(command.ShowOne):
             optional_keys=['subnet', 'ip-address'],
             help='Desired IP and/or subnet (name or ID) for this port: '
                  'subnet=<subnet>,ip-address=<ip-address> '
-                 '(this option can be repeated)')
+                 '(repeat option to set multiple fixed IP addresses)')
         parser.add_argument(
             '--binding-profile',
             metavar='<binding-profile>',
             action=parseractions.KeyValueAction,
             help='Custom data to be passed as binding:profile: <key>=<value> '
-                 '(this option can be repeated)')
+                 '(repeat option to set multiple binding:profile data)')
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
@@ -360,7 +360,7 @@ class SetPort(command.Command):
             optional_keys=['subnet', 'ip-address'],
             help='Desired IP and/or subnet (name or ID) for this port: '
                  'subnet=<subnet>,ip-address=<ip-address> '
-                 '(this option can be repeated)')
+                 '(repeat option to set multiple fixed IP addresses)')
         fixed_ip.add_argument(
             '--no-fixed-ip',
             action='store_true',
@@ -371,7 +371,7 @@ class SetPort(command.Command):
             metavar='<binding-profile>',
             action=parseractions.KeyValueAction,
             help='Custom data to be passed as binding:profile: <key>=<value> '
-                 '(this option can be repeated)')
+                 '(repeat option to set multiple binding:profile data)')
         binding_profile.add_argument(
             '--no-binding-profile',
             action='store_true',

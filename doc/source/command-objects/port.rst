@@ -33,7 +33,7 @@ Create new port
 
     Desired IP and/or subnet (name or ID) for this port:
     subnet=<subnet>,ip-address=<ip-address>
-    (this option can be repeated)
+    (repeat option to set multiple fixed IP addresses)
 
 .. option:: --device <device-id>
 
@@ -51,7 +51,7 @@ Create new port
 .. option:: --binding-profile <binding-profile>
 
     Custom data to be passed as binding:profile: <key>=<value>
-    (this option can be repeated)
+    (repeat option to set multiple binding:profile data)
 
 .. option:: --host <host-id>
 
@@ -137,7 +137,7 @@ Set port properties
 
     Desired IP and/or subnet (name or ID) for this port:
     subnet=<subnet>,ip-address=<ip-address>
-    (this option can be repeated)
+    (repeat option to set multiple fixed IP addresses)
 
 .. option:: --no-fixed-ip
 
@@ -159,7 +159,7 @@ Set port properties
 .. option:: --binding-profile <binding-profile>
 
     Custom data to be passed as binding:profile: <key>=<value>
-    (this option can be repeated)
+    (repeat option to set multiple binding:profile data)
 
 .. option:: --no-binding-profile
 

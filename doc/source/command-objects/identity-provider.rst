@@ -22,8 +22,8 @@ Create new identity provider
 
 .. option:: --remote-id <remote-id>
 
-    Remote IDs to associate with the Identity Provider (repeat to provide
-    multiple values)
+    Remote IDs to associate with the Identity Provider
+    (repeat option to provide multiple values)
 
 .. option:: --remote-id-file <file-name>
 
@@ -87,8 +87,8 @@ Set identity provider properties
 
 .. option:: --remote-id <remote-id>
 
-    Remote IDs to associate with the Identity Provider (repeat to provide
-    multiple values)
+    Remote IDs to associate with the Identity Provider
+    (repeat option to provide multiple values)
 
 .. option:: --remote-id-file <file-name>
 

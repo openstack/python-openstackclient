@@ -142,7 +142,7 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             metavar='<availability-zone>',
             help='Availability Zone in which to create this network '
                  '(requires the Network Availability Zone extension, '
-                 'this option can be repeated).',
+                 'repeat option to set multiple availability zones)',
         )
         external_router_grp = parser.add_mutually_exclusive_group()
         external_router_grp.add_argument(
