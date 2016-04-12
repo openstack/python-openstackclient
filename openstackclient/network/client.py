@@ -36,7 +36,9 @@ def make_client(instance):
     prof.set_region(API_NAME, instance._region_name)
     prof.set_version(API_NAME, instance._api_version[API_NAME])
     conn = connection.Connection(authenticator=instance.session.auth,
-                                 verify=instance.session.verify, profile=prof)
+                                 verify=instance.session.verify,
+                                 cert=instance.session.cert,
+                                 profile=prof)
     LOG.debug('Connection: %s', conn)
     LOG.debug('Network client initialized using OpenStack SDK: %s',
               conn.network)
