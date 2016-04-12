@@ -1,0 +1,7 @@
+---
+fixes:
+  - Fixed ``subnet pool list`` command to properly disply the
+    list of subnet pool prefixes in the ``Prefixes`` column.
+    This fix is consistent with the ``subnet pool create`` and
+    ``subnet pool show`` command output.
+    [Bug `1569480 <https://bugs.launchpad.net/bugs/1569480>`_]
