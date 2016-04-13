@@ -18,7 +18,7 @@ import testtools
 
 import six
 
-from functional.common import exceptions
+from tempest_lib import exceptions
 
 COMMON_DIR = os.path.dirname(os.path.abspath(__file__))
 FUNCTIONAL_DIR = os.path.normpath(os.path.join(COMMON_DIR, '..'))

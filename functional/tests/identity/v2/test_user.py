@@ -11,8 +11,8 @@
 #    under the License.
 
 from tempest_lib.common.utils import data_utils
+from tempest_lib import exceptions
 
-from functional.common import exceptions
 from functional.tests.identity.v2 import test_identity
 
 
