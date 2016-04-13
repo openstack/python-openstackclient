@@ -15,8 +15,8 @@ import uuid
 
 import testtools
 
-from functional.common import exceptions
 from functional.common import test
+from tempest_lib import exceptions
 
 
 class ServerTests(test.TestCase):
