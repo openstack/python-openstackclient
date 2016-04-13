@@ -536,6 +536,26 @@ class TestSetSubnet(TestSubnet):
         self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                           parsed_args)
 
+    def test_append_options(self):
+        _testsubnet = network_fakes.FakeSubnet.create_one_subnet(
+            {'dns_nameservers': ["10.0.0.1"]})
+        self.network.find_subnet = mock.Mock(return_value=_testsubnet)
+        arglist = [
+            '--dns-nameserver', '10.0.0.2',
+            _testsubnet.name,
+        ]
+        verifylist = [
+            ('dns_nameservers', ['10.0.0.2']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        attrs = {
+            'dns_nameservers': ['10.0.0.2', '10.0.0.1'],
+        }
+        self.network.update_subnet.assert_called_once_with(
+            _testsubnet, **attrs)
+        self.assertIsNone(result)
+
 
 class TestShowSubnet(TestSubnet):
     # The subnets to be shown

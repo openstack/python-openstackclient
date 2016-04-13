@@ -365,6 +365,12 @@ class SetSubnet(command.Command):
         if not attrs:
             msg = "Nothing specified to be set"
             raise exceptions.CommandError(msg)
+        if 'dns_nameservers' in attrs:
+            attrs['dns_nameservers'] += obj.dns_nameservers
+        if 'host_routes' in attrs:
+            attrs['host_routes'] += obj.host_routes
+        if 'allocation_pools' in attrs:
+            attrs['allocation_pools'] += obj.allocation_pools
         client.update_subnet(obj, **attrs)
         return
 
