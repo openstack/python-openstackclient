@@ -73,8 +73,8 @@ def _add_prefix_options(parser):
         metavar='<pool-prefix>',
         dest='prefixes',
         action='append',
-        help='Set subnet pool prefixes (in CIDR notation). '
-             'Repeat this option to set multiple prefixes.',
+        help='Set subnet pool prefixes (in CIDR notation) '
+             '(repeat option to set multiple prefixes)',
     )
     parser.add_argument(
         '--default-prefix-length',

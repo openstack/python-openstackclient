@@ -29,7 +29,7 @@ Create new trust
 
 .. option:: --role <role>
 
-    Roles to authorize (name or ID) (repeat to set multiple values) (required)
+    Roles to authorize (name or ID) (repeat option to set multiple values, required)
 
 .. option:: --impersonate
 

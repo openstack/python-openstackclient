@@ -86,8 +86,9 @@ Create new router
 
 .. option:: --availability-zone-hint <availability-zone>
 
-    Availability Zone in which to create this router (requires the Router
-    Availability Zone extension, this option can be repeated).
+    Availability Zone in which to create this router
+    (requires the Router Availability Zone extension,
+    repeat option to set multiple availability zones)
 
 .. _router_create-name:
 .. describe:: <name>
@@ -206,10 +207,10 @@ Set router properties
 
 .. option:: --route destination=<subnet>,gateway=<ip-address>
 
-    Routes associated with the router.
-    Repeat this option to set multiple routes.
-    destination: destination subnet (in CIDR notation).
-    gateway: nexthop IP address.
+    Routes associated with the router
+    destination: destination subnet (in CIDR notation)
+    gateway: nexthop IP address
+    (repeat option to set multiple routes)
 
 .. option:: --clear-routes
 

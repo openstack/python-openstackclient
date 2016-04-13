@@ -90,7 +90,7 @@ Create a new server
 .. option:: --security-group <security-group-name>
 
     Security group to assign to this server (name or ID)
-    (repeat for multiple groups)
+    (repeat option to set multiple groups)
 
 .. option:: --key-name <key-name>
 
@@ -98,11 +98,13 @@ Create a new server
 
 .. option:: --property <key=value>
 
-    Set a property on this server (repeat for multiple values)
+    Set a property on this server
+    (repeat option to set multiple values)
 
 .. option:: --file <dest-filename=source-filename>
 
-    File to inject into image before boot (repeat for multiple files)
+    File to inject into image before boot
+    (repeat option to set multiple files)
 
 .. option:: --user-data <user-data>
 
@@ -569,8 +571,8 @@ Set server properties
 
 .. option:: --property <key=value>
 
-    Property to add/change for this server (repeat option to set
-    multiple properties)
+    Property to add/change for this server
+    (repeat option to set multiple properties)
 
 .. describe:: <server>
 
@@ -764,7 +766,8 @@ Unset server properties
 
 .. option:: --property <key>
 
-    Property key to remove from server (repeat to remove multiple values)
+    Property key to remove from server
+    (repeat option to remove multiple values)
 
 .. describe:: <server>
 

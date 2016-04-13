@@ -40,7 +40,7 @@ class AuthorizeRequestToken(command.ShowOne):
             action='append',
             default=[],
             help='Roles to authorize (name or ID) '
-                 '(repeat to set multiple values) (required)',
+                 '(repeat option to set multiple values, required)',
             required=True
         )
         return parser

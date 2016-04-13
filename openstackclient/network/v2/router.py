@@ -179,7 +179,7 @@ class CreateRouter(command.ShowOne):
             dest='availability_zone_hints',
             help='Availability Zone in which to create this router '
                  '(requires the Router Availability Zone extension, '
-                 'this option can be repeated).',
+                 'repeat option to set multiple availability zones)',
         )
 
         identity_common.add_project_domain_option_to_parser(parser)
@@ -368,10 +368,10 @@ class SetRouter(command.Command):
             dest='routes',
             default=None,
             required_keys=['destination', 'gateway'],
-            help="Routes associated with the router. "
-                 "Repeat this option to set multiple routes. "
-                 "destination: destination subnet (in CIDR notation). "
-                 "gateway: nexthop IP address.",
+            help="Routes associated with the router "
+                 "destination: destination subnet (in CIDR notation) "
+                 "gateway: nexthop IP address "
+                 "(repeat option to set multiple routes)",
         )
         routes_group.add_argument(
             '--clear-routes',

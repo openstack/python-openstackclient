@@ -58,8 +58,9 @@ Create new network
 
 .. option:: --availability-zone-hint <availability-zone>
 
-    Availability Zone in which to create this network (requires the Network
-    Availability Zone extension, this option can be repeated).
+    Availability Zone in which to create this network
+    (requires the Network Availability Zone extension,
+    repeat option to set multiple availability zones)
 
     *Network version 2 only*
 

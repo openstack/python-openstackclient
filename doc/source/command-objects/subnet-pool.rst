@@ -23,8 +23,8 @@ Create subnet pool
 
 .. option:: --pool-prefix <pool-prefix>
 
-    Set subnet pool prefixes (in CIDR notation).
-    Repeat this option to set multiple prefixes.
+    Set subnet pool prefixes (in CIDR notation)
+    (repeat option to set multiple prefixes)
 
 .. option:: --default-prefix-length <default-prefix-length>
 
@@ -111,8 +111,8 @@ Set subnet pool properties
 
 .. option:: --pool-prefix <pool-prefix>
 
-    Set subnet pool prefixes (in CIDR notation).
-    Repeat this option to set multiple prefixes.
+    Set subnet pool prefixes (in CIDR notation)
+    (repeat option to set multiple prefixes)
 
 .. option:: --default-prefix-length <default-prefix-length>
 

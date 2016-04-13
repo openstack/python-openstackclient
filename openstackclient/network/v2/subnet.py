@@ -52,15 +52,15 @@ def _get_common_parse_arguments(parser):
         required_keys=['start', 'end'],
         help='Allocation pool IP addresses for this subnet '
              'e.g.: start=192.168.199.2,end=192.168.199.254 '
-             '(This option can be repeated)',
+             '(repeat option to add multiple IP addresses)',
     )
     parser.add_argument(
         '--dns-nameserver',
         metavar='<dns-nameserver>',
         action='append',
         dest='dns_nameservers',
-        help='DNS name server for this subnet '
-             '(This option can be repeated)',
+        help='DNS server for this subnet '
+             '(repeat option to set multiple DNS servers)',
     )
     parser.add_argument(
         '--host-route',
@@ -72,7 +72,7 @@ def _get_common_parse_arguments(parser):
              'e.g.: destination=10.10.0.0/16,gateway=192.168.71.254 '
              'destination: destination subnet (in CIDR notation) '
              'gateway: nexthop IP address '
-             '(This option can be repeated)',
+             '(repeat option to add multiple routes)',
     )
 
 

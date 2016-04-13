@@ -293,7 +293,7 @@ class CreateServer(command.ShowOne):
             action='append',
             default=[],
             help=_('Security group to assign to this server (name or ID) '
-                   '(repeat for multiple groups)'),
+                   '(repeat option to set multiple groups)'),
         )
         parser.add_argument(
             '--key-name',
@@ -305,7 +305,7 @@ class CreateServer(command.ShowOne):
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
             help=_('Set a property on this server '
-                   '(repeat for multiple values)'),
+                   '(repeat option to set multiple values)'),
         )
         parser.add_argument(
             '--file',
@@ -313,7 +313,7 @@ class CreateServer(command.ShowOne):
             action='append',
             default=[],
             help=_('File to inject into image before boot '
-                   '(repeat for multiple files)'),
+                   '(repeat option to set multiple files)'),
         )
         parser.add_argument(
             '--user-data',
@@ -1738,7 +1738,7 @@ class UnsetServer(command.Command):
             action='append',
             default=[],
             help=_('Property key to remove from server '
-                   '(repeat to remove multiple values)'),
+                   '(repeat option to remove multiple values)'),
         )
         return parser
 

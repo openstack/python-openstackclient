@@ -56,7 +56,8 @@ Create new subnet
 .. option:: --allocation-pool start=<ip-address>,end=<ip-address>
 
     Allocation pool IP addresses for this subnet e.g.:
-    ``start=192.168.199.2,end=192.168.199.254`` (This option can be repeated)
+    ``start=192.168.199.2,end=192.168.199.254``
+    (repeat option to add multiple IP addresses)
 
 .. option:: --dhcp
 
@@ -68,7 +69,7 @@ Create new subnet
 
 .. option:: --dns-nameserver <dns-nameserver>
 
-     DNS name server for this subnet (This option can be repeated)
+     DNS server for this subnet (repeat option to set multiple DNS servers)
 
 .. option:: --gateway <gateway>
 
@@ -85,7 +86,7 @@ Create new subnet
      ``destination=10.10.0.0/16,gateway=192.168.71.254``
      destination: destination subnet (in CIDR notation)
      gateway: nexthop IP address
-     (This option can be repeated)
+     (repeat option to add multiple routes)
 
 .. option:: --ip-version {4,6}
 
@@ -162,7 +163,8 @@ Set subnet properties
 .. option:: --allocation-pool start=<ip-address>,end=<ip-address>
 
     Allocation pool IP addresses for this subnet e.g.:
-    ``start=192.168.199.2,end=192.168.199.254`` (This option can be repeated)
+    ``start=192.168.199.2,end=192.168.199.254``
+    (repeat option to add multiple IP addresses)
 
 .. option:: --dhcp
 
@@ -174,7 +176,7 @@ Set subnet properties
 
 .. option:: --dns-nameserver <dns-nameserver>
 
-     DNS name server for this subnet (This option can be repeated)
+     DNS server for this subnet (repeat option to set multiple DNS servers)
 
 .. option:: --gateway <gateway>
 
@@ -189,7 +191,7 @@ Set subnet properties
      ``destination=10.10.0.0/16,gateway=192.168.71.254``
      destination: destination subnet (in CIDR notation)
      gateway: nexthop IP address
-     (This option can be repeated)
+     (repeat option to add multiple routes)
 
 .. option:: --name
 

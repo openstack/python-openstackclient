@@ -35,7 +35,7 @@ class CreateIdentityProvider(command.ShowOne):
             metavar='<remote-id>',
             action='append',
             help='Remote IDs to associate with the Identity Provider '
-                 '(repeat to provide multiple values)'
+                 '(repeat option to provide multiple values)'
         )
         identity_remote_id_provider.add_argument(
             '--remote-id-file',
@@ -139,7 +139,7 @@ class SetIdentityProvider(command.Command):
             metavar='<remote-id>',
             action='append',
             help='Remote IDs to associate with the Identity Provider '
-                 '(repeat to provide multiple values)'
+                 '(repeat option to provide multiple values)'
         )
         identity_remote_id_provider.add_argument(
             '--remote-id-file',
