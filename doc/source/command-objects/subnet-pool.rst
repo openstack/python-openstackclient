@@ -18,6 +18,7 @@ Create subnet pool
         [--min-prefix-length <min-prefix-length>]
         [--max-prefix-length <max-prefix-length>]
         [--project <project> [--project-domain <project-domain>]]
+        [--address-scope <address-scope>]
         <name>
 
 .. option:: --pool-prefix <pool-prefix>
@@ -45,6 +46,11 @@ Create subnet pool
 
     Domain the project belongs to (name or ID). This can be used in case
     collisions between project names exist.
+
+.. option:: --address-scope <address-scope>
+
+    Set address scope associated with the subnet pool (name or ID).
+    Prefixes must be unique across address scopes.
 
 .. _subnet_pool_create-name:
 .. describe:: <name>
@@ -96,6 +102,7 @@ Set subnet pool properties
         [--default-prefix-length <default-prefix-length>]
         [--min-prefix-length <min-prefix-length>]
         [--max-prefix-length <max-prefix-length>]
+        [--address-scope <address-scope> | --no-address-scope]
         <subnet-pool>
 
 .. option:: --name <name>
@@ -118,6 +125,15 @@ Set subnet pool properties
 .. option:: --max-prefix-length <max-prefix-length>
 
     Set subnet pool maximum prefix length
+
+.. option:: --address-scope <address-scope>
+
+    Set address scope associated with the subnet pool (name or ID).
+    Prefixes must be unique across address scopes.
+
+.. option:: --no-address-scope
+
+    Remove address scope associated with the subnet pool
 
 .. _subnet_pool_set-subnet-pool:
 .. describe:: <subnet-pool>

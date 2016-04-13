@@ -35,6 +35,8 @@ _formatters = {
 
 def _get_attrs(client_manager, parsed_args):
     attrs = {}
+    network_client = client_manager.network
+
     if parsed_args.name is not None:
         attrs['name'] = str(parsed_args.name)
     if parsed_args.prefixes is not None:
@@ -45,6 +47,12 @@ def _get_attrs(client_manager, parsed_args):
         attrs['min_prefixlen'] = parsed_args.min_prefix_length
     if parsed_args.max_prefix_length is not None:
         attrs['max_prefixlen'] = parsed_args.max_prefix_length
+
+    if parsed_args.address_scope is not None:
+        attrs['address_scope_id'] = network_client.find_address_scope(
+            parsed_args.address_scope, ignore_missing=False).id
+    if 'no_address_scope' in parsed_args and parsed_args.no_address_scope:
+        attrs['address_scope_id'] = None
 
     # "subnet pool set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
@@ -105,7 +113,13 @@ class CreateSubnetPool(command.ShowOne):
             help="Owner's project (name or ID)",
         )
         identity_common.add_project_domain_option_to_parser(parser)
-
+        parser.add_argument(
+            '--address-scope',
+            metavar='<address-scope>',
+            help="Set address scope associated with the subnet pool "
+                 "(name or ID). Prefixes must be unique across address "
+                 "scopes.",
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -204,7 +218,19 @@ class SetSubnetPool(command.Command):
             help='Set subnet pool name',
         )
         _add_prefix_options(parser)
-
+        address_scope_group = parser.add_mutually_exclusive_group()
+        address_scope_group.add_argument(
+            '--address-scope',
+            metavar='<address-scope>',
+            help="Set address scope associated with the subnet pool "
+                 "(name or ID). Prefixes must be unique across address "
+                 "scopes.",
+        )
+        address_scope_group.add_argument(
+            '--no-address-scope',
+            action='store_true',
+            help="Remove address scope associated with the subnet pool",
+        )
         return parser
 
     def take_action(self, parsed_args):
