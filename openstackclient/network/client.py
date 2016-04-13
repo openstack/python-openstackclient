@@ -31,7 +31,8 @@ API_VERSIONS = {
 
 def make_client(instance):
     """Returns a network proxy"""
-    conn = connection.Connection(authenticator=instance.session.auth)
+    conn = connection.Connection(authenticator=instance.session.auth,
+                                 verify=instance.session.verify)
     LOG.debug('Connection: %s', conn)
     LOG.debug('Network client initialized using OpenStack SDK: %s',
               conn.network)
