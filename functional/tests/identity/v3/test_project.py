@@ -65,7 +65,7 @@ class ProjectTests(test_identity.IdentityTests):
             'project list --domain %s' % self.domain_name)
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, test_identity.BASIC_LIST_HEADERS)
-        self.assertInOutput(project_name, raw_output)
+        self.assertIn(project_name, raw_output)
         self.assertTrue(len(items) > 0)
 
     def test_project_set(self):
