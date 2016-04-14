@@ -23,6 +23,7 @@ except ImportError:
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 from openstackclient.network import utils as network_utils
 
@@ -120,6 +121,12 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             help='Ethertype of network traffic '
                  '(IPv4, IPv6; default: IPv4)',
         )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help="Owner's project (name or ID)"
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
     def take_action_network(self, client, parsed_args):
@@ -159,6 +166,14 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         elif attrs['ethertype'] == 'IPv4':
             attrs['remote_ip_prefix'] = '0.0.0.0/0'
         attrs['security_group_id'] = security_group_id
+        if parsed_args.project is not None:
+            identity_client = self.app.client_manager.identity
+            project_id = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
+            attrs['tenant_id'] = project_id
 
         # Create and show the security group rule.
         obj = client.create_security_group_rule(**attrs)

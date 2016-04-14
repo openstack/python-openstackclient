@@ -18,6 +18,7 @@ Create a new security group rule
         [--dst-port <port-range>]
         [--ingress | --egress]
         [--ethertype <ethertype>]
+        [--project <project> [--project-domain <project-domain>]]
         <group>
 
 .. option:: --proto <proto>
@@ -53,6 +54,19 @@ Create a new security group rule
 .. option:: --ethertype <ethertype>
 
     Ethertype of network traffic (IPv4, IPv6; default: IPv4)
+
+    *Network version 2 only*
+
+.. option:: --project <project>
+
+    Owner's project (name or ID)
+
+    *Network version 2 only*
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
     *Network version 2 only*
 
