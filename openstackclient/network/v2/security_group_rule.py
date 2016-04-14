@@ -68,7 +68,9 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             help='Create rule in this security group (name or ID)',
         )
         # TODO(rtheis): Add support for additional protocols for network.
-        # Until then, continue enforcing the compute choices.
+        # Until then, continue enforcing the compute choices. When additional
+        # protocols are added, the default ethertype must be determined
+        # based on the protocol.
         parser.add_argument(
             "--proto",
             metavar="<proto>",
@@ -81,9 +83,8 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         source_group.add_argument(
             "--src-ip",
             metavar="<ip-address>",
-            default="0.0.0.0/0",
-            help="Source IP address block (may use CIDR notation; default: "
-                 "0.0.0.0/0)",
+            help="Source IP address block (may use CIDR notation; "
+                 "default for IPv4 rule: 0.0.0.0/0)",
         )
         source_group.add_argument(
             "--src-group",
@@ -100,6 +101,27 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         )
         return parser
 
+    def update_parser_network(self, parser):
+        direction_group = parser.add_mutually_exclusive_group()
+        direction_group.add_argument(
+            '--ingress',
+            action='store_true',
+            help='Rule applies to incoming network traffic (default)',
+        )
+        direction_group.add_argument(
+            '--egress',
+            action='store_true',
+            help='Rule applies to outgoing network traffic',
+        )
+        parser.add_argument(
+            '--ethertype',
+            metavar='<ethertype>',
+            choices=['IPv4', 'IPv6'],
+            help='Ethertype of network traffic '
+                 '(IPv4, IPv6; default: IPv4)',
+        )
+        return parser
+
     def take_action_network(self, client, parsed_args):
         # Get the security group ID to hold the rule.
         security_group_id = client.find_security_group(
@@ -109,12 +131,18 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
 
         # Build the create attributes.
         attrs = {}
-        # TODO(rtheis): Add --direction option. Until then, continue
-        # with the default of 'ingress'.
-        attrs['direction'] = 'ingress'
-        # TODO(rtheis): Add --ethertype option. Until then, continue
-        # with the default of 'IPv4'
-        attrs['ethertype'] = 'IPv4'
+        # NOTE(rtheis): A direction must be specified and ingress
+        # is the default.
+        if parsed_args.ingress or not parsed_args.egress:
+            attrs['direction'] = 'ingress'
+        if parsed_args.egress:
+            attrs['direction'] = 'egress'
+        if parsed_args.ethertype:
+            attrs['ethertype'] = parsed_args.ethertype
+        else:
+            # NOTE(rtheis): Default based on protocol is IPv4 for now.
+            # Once IPv6 protocols are added, this will need to be updated.
+            attrs['ethertype'] = 'IPv4'
         # TODO(rtheis): Add port range support (type and code) for icmp
         # protocol. Until then, continue ignoring the port range.
         if parsed_args.proto != 'icmp':
@@ -126,8 +154,10 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
                 parsed_args.src_group,
                 ignore_missing=False
             ).id
-        else:
+        elif parsed_args.src_ip is not None:
             attrs['remote_ip_prefix'] = parsed_args.src_ip
+        elif attrs['ethertype'] == 'IPv4':
+            attrs['remote_ip_prefix'] = '0.0.0.0/0'
         attrs['security_group_id'] = security_group_id
 
         # Create and show the security group rule.
@@ -145,17 +175,22 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             from_port, to_port = -1, -1
         else:
             from_port, to_port = parsed_args.dst_port
+        src_ip = None
         if parsed_args.src_group is not None:
             parsed_args.src_group = utils.find_resource(
                 client.security_groups,
                 parsed_args.src_group,
             ).id
+        if parsed_args.src_ip is not None:
+            src_ip = parsed_args.src_ip
+        else:
+            src_ip = '0.0.0.0/0'
         obj = client.security_group_rules.create(
             group.id,
             parsed_args.proto,
             from_port,
             to_port,
-            parsed_args.src_ip,
+            src_ip,
             parsed_args.src_group,
         )
         return _format_security_group_rule_show(obj._info)
