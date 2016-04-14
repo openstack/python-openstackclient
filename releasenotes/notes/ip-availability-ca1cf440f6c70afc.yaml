@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support for the ``ip availability list`` and  ``ip availability show`` commands.
+    [Blueprint `neutron-ip-capacity <https://blueprints.launchpad.net/python-openstackclient/+spec/neutron-ip-capacity>`_]

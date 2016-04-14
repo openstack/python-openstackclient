@@ -24,12 +24,12 @@ number of allocated IP addresses from that pool.
 
 .. option:: --ip-version {4,6}
 
-    List IP availability for specific version
+    List IP availability of given IP version networks
     (Default is 4)
 
 .. option:: --project <project>
 
-    List IP availability for specific project
+    List IP availability of given project
     (name or ID)
 
 ip availability show
@@ -57,5 +57,4 @@ subnet within the network as well.
 .. _ip_availability_show-network
 .. describe:: <network>
 
-    Show network IP availability for specific
-    network (name or ID)
+    Show IP availability for a specific network (name or ID)
