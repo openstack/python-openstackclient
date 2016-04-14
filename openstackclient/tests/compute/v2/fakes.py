@@ -342,20 +342,16 @@ class FakeSecurityGroup(object):
     """Fake one or more security groups."""
 
     @staticmethod
-    def create_one_security_group(attrs=None, methods=None):
+    def create_one_security_group(attrs=None):
         """Create a fake security group.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :return:
             A FakeResource object, with id, name, etc.
         """
         if attrs is None:
             attrs = {}
-        if methods is None:
-            methods = {}
 
         # Set default attributes.
         security_group_attrs = {
@@ -369,28 +365,17 @@ class FakeSecurityGroup(object):
         # Overwrite default attributes.
         security_group_attrs.update(attrs)
 
-        # Set default methods.
-        security_group_methods = {
-            'keys': ['id', 'name', 'description', 'tenant_id', 'rules'],
-        }
-
-        # Overwrite default methods.
-        security_group_methods.update(methods)
-
         security_group = fakes.FakeResource(
             info=copy.deepcopy(security_group_attrs),
-            methods=copy.deepcopy(security_group_methods),
             loaded=True)
         return security_group
 
     @staticmethod
-    def create_security_groups(attrs=None, methods=None, count=2):
+    def create_security_groups(attrs=None, count=2):
         """Create multiple fake security groups.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :param int count:
             The number of security groups to fake
         :return:
@@ -399,7 +384,7 @@ class FakeSecurityGroup(object):
         security_groups = []
         for i in range(0, count):
             security_groups.append(
-                FakeSecurityGroup.create_one_security_group(attrs, methods))
+                FakeSecurityGroup.create_one_security_group(attrs))
 
         return security_groups
 
@@ -408,20 +393,16 @@ class FakeSecurityGroupRule(object):
     """Fake one or more security group rules."""
 
     @staticmethod
-    def create_one_security_group_rule(attrs=None, methods=None):
+    def create_one_security_group_rule(attrs=None):
         """Create a fake security group rule.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :return:
             A FakeResource object, with id, etc.
         """
         if attrs is None:
             attrs = {}
-        if methods is None:
-            methods = {}
 
         # Set default attributes.
         security_group_rule_attrs = {
@@ -437,26 +418,17 @@ class FakeSecurityGroupRule(object):
         # Overwrite default attributes.
         security_group_rule_attrs.update(attrs)
 
-        # Set default methods.
-        security_group_rule_methods = {}
-
-        # Overwrite default methods.
-        security_group_rule_methods.update(methods)
-
         security_group_rule = fakes.FakeResource(
             info=copy.deepcopy(security_group_rule_attrs),
-            methods=copy.deepcopy(security_group_rule_methods),
             loaded=True)
         return security_group_rule
 
     @staticmethod
-    def create_security_group_rules(attrs=None, methods=None, count=2):
+    def create_security_group_rules(attrs=None, count=2):
         """Create multiple fake security group rules.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :param int count:
             The number of security group rules to fake
         :return:
@@ -465,8 +437,7 @@ class FakeSecurityGroupRule(object):
         security_group_rules = []
         for i in range(0, count):
             security_group_rules.append(
-                FakeSecurityGroupRule.create_one_security_group_rule(
-                    attrs, methods))
+                FakeSecurityGroupRule.create_one_security_group_rule(attrs))
 
         return security_group_rules
 
@@ -688,13 +659,11 @@ class FakeAvailabilityZone(object):
     """Fake one or more compute availability zones (AZs)."""
 
     @staticmethod
-    def create_one_availability_zone(attrs={}, methods={}):
+    def create_one_availability_zone(attrs={}):
         """Create a fake AZ.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :return:
             A FakeResource object with zoneName, zoneState, etc.
         """
@@ -717,18 +686,15 @@ class FakeAvailabilityZone(object):
 
         availability_zone = fakes.FakeResource(
             info=copy.deepcopy(availability_zone),
-            methods=methods,
             loaded=True)
         return availability_zone
 
     @staticmethod
-    def create_availability_zones(attrs={}, methods={}, count=2):
+    def create_availability_zones(attrs={}, count=2):
         """Create multiple fake AZs.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :param int count:
             The number of AZs to fake
         :return:
@@ -737,8 +703,7 @@ class FakeAvailabilityZone(object):
         availability_zones = []
         for i in range(0, count):
             availability_zone = \
-                FakeAvailabilityZone.create_one_availability_zone(
-                    attrs, methods)
+                FakeAvailabilityZone.create_one_availability_zone(attrs)
             availability_zones.append(availability_zone)
 
         return availability_zones
@@ -748,13 +713,11 @@ class FakeFloatingIP(object):
     """Fake one or more floating ip."""
 
     @staticmethod
-    def create_one_floating_ip(attrs={}, methods={}):
+    def create_one_floating_ip(attrs={}):
         """Create a fake floating ip.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :return:
             A FakeResource object, with id, ip, and so on
         """
@@ -770,27 +733,18 @@ class FakeFloatingIP(object):
         # Overwrite default attributes.
         floating_ip_attrs.update(attrs)
 
-        # Set default methods.
-        floating_ip_methods = {}
-
-        # Overwrite default methods.
-        floating_ip_methods.update(methods)
-
         floating_ip = fakes.FakeResource(
             info=copy.deepcopy(floating_ip_attrs),
-            methods=copy.deepcopy(floating_ip_methods),
             loaded=True)
 
         return floating_ip
 
     @staticmethod
-    def create_floating_ips(attrs={}, methods={}, count=2):
+    def create_floating_ips(attrs={}, count=2):
         """Create multiple fake floating ips.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :param int count:
             The number of floating ips to fake
         :return:
@@ -798,10 +752,7 @@ class FakeFloatingIP(object):
         """
         floating_ips = []
         for i in range(0, count):
-            floating_ips.append(FakeFloatingIP.create_one_floating_ip(
-                attrs,
-                methods
-            ))
+            floating_ips.append(FakeFloatingIP.create_one_floating_ip(attrs))
         return floating_ips
 
     @staticmethod
@@ -828,13 +779,11 @@ class FakeNetwork(object):
     """Fake one or more networks."""
 
     @staticmethod
-    def create_one_network(attrs={}, methods={}):
+    def create_one_network(attrs={}):
         """Create a fake network.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :return:
             A FakeResource object, with id, label, cidr and so on
         """
@@ -877,28 +826,17 @@ class FakeNetwork(object):
         # Overwrite default attributes.
         network_attrs.update(attrs)
 
-        # Set default methods.
-        network_methods = {
-            'keys': ['id', 'label', 'cidr'],
-        }
-
-        # Overwrite default methods.
-        network_methods.update(methods)
-
         network = fakes.FakeResource(info=copy.deepcopy(network_attrs),
-                                     methods=copy.deepcopy(network_methods),
                                      loaded=True)
 
         return network
 
     @staticmethod
-    def create_networks(attrs={}, methods={}, count=2):
+    def create_networks(attrs={}, count=2):
         """Create multiple fake networks.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :param int count:
             The number of networks to fake
         :return:
@@ -906,7 +844,7 @@ class FakeNetwork(object):
         """
         networks = []
         for i in range(0, count):
-            networks.append(FakeNetwork.create_one_network(attrs, methods))
+            networks.append(FakeNetwork.create_one_network(attrs))
 
         return networks
 
