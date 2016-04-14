@@ -57,7 +57,7 @@ class CreateVolumeType(command.ShowOne):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Set a property on this volume type'
+            help='Set a property on this volume type '
                  '(repeat option to set multiple properties)',
         )
         return parser

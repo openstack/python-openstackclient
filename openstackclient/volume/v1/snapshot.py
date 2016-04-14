@@ -249,7 +249,7 @@ class UnsetSnapshot(command.Command):
             action='append',
             default=[],
             help='Property to remove from snapshot '
-                 '(repeat option to remove multiple values)',
+                 '(repeat option to remove multiple properties)',
             required=True,
         )
         return parser
