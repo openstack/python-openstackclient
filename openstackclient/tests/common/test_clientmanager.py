@@ -41,6 +41,7 @@ auth.get_options_list()
 
 class Container(object):
     attr = clientmanager.ClientCache(lambda x: object())
+    buggy_attr = clientmanager.ClientCache(lambda x: x.foo)
 
     def __init__(self):
         pass
@@ -71,6 +72,13 @@ class TestClientCache(utils.TestCase):
         # the factory one time and always returns the same value after that.
         c = Container()
         self.assertEqual(c.attr, c.attr)
+
+    def test_attribute_error_propagates(self):
+        c = Container()
+        err = self.assertRaises(exc.PluginAttributeError,
+                                getattr, c, 'buggy_attr')
+        self.assertNotIsInstance(err, AttributeError)
+        self.assertEqual("'Container' object has no attribute 'foo'", str(err))
 
 
 class TestClientManager(utils.TestCase):
