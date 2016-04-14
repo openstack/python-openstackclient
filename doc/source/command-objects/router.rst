@@ -240,3 +240,27 @@ Display router details
 .. describe:: <router>
 
     Router to display (name or ID)
+
+router unset
+------------
+
+Unset router properties
+
+.. program:: router unset
+.. code:: bash
+
+    os router unset
+        [--route destination=<subnet>,gateway=<ip-address>]
+        <router>
+
+.. option:: --route destination=<subnet>,gateway=<ip-address>
+
+    Routes to be removed from the router
+    destination: destination subnet (in CIDR notation)
+    gateway: nexthop IP address
+    (repeat option to unset multiple routes)
+
+.. _router_unset-router:
+.. describe:: <router>
+
+    Router to modify (name or ID)

@@ -698,3 +698,54 @@ class TestShowRouter(TestRouter):
             self._router.name, ignore_missing=False)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+
+class TestUnsetRouter(TestRouter):
+
+    def setUp(self):
+        super(TestUnsetRouter, self).setUp()
+        self._testrouter = network_fakes.FakeRouter.create_one_router(
+            {'routes': [{"destination": "192.168.101.1/24",
+                         "gateway": "172.24.4.3"},
+                        {"destination": "192.168.101.2/24",
+                         "gateway": "172.24.4.3"}], })
+        self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet()
+        self.network.find_router = mock.Mock(return_value=self._testrouter)
+        self.network.update_router = mock.Mock(return_value=None)
+        # Get the command object to test
+        self.cmd = router.UnsetRouter(self.app, self.namespace)
+
+    def test_unset_router_params(self):
+        arglist = [
+            '--route', 'destination=192.168.101.1/24,gateway=172.24.4.3',
+            self._testrouter.name,
+        ]
+        verifylist = [
+            ('routes', [
+                {"destination": "192.168.101.1/24", "gateway": "172.24.4.3"}]),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'routes': [{"destination": "192.168.101.2/24",
+                        "nexthop": "172.24.4.3"}],
+        }
+        self.network.update_router.assert_called_once_with(
+            self._testrouter, **attrs)
+        self.assertIsNone(result)
+
+    def test_unset_router_wrong_routes(self):
+        arglist = [
+            '--route', 'destination=192.168.101.1/24,gateway=172.24.4.2',
+            self._testrouter.name,
+        ]
+        verifylist = [
+            ('routes', [
+                {"destination": "192.168.101.1/24", "gateway": "172.24.4.2"}]),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
