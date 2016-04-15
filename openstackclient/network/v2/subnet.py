@@ -28,6 +28,11 @@ from openstackclient.identity import common as identity_common
 LOG = logging.getLogger(__name__)
 
 
+def _update_arguments(obj_list, parsed_args_list):
+    for item in parsed_args_list:
+        obj_list.remove(item)
+
+
 def _format_allocation_pools(data):
     pool_formatted = ['%s-%s' % (pool.get('start', ''), pool.get('end', ''))
                       for pool in data]
@@ -433,3 +438,81 @@ class ShowSubnet(command.ShowOne):
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (columns, data)
+
+
+class UnsetSubnet(command.Command):
+    """Unset subnet properties"""
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetSubnet, self).get_parser(prog_name)
+        parser.add_argument(
+            '--allocation-pool',
+            metavar='start=<ip-address>,end=<ip-address>',
+            dest='allocation_pools',
+            action=parseractions.MultiKeyValueAction,
+            required_keys=['start', 'end'],
+            help=_('Allocation pool to be removed from this subnet '
+                   'e.g.: start=192.168.199.2,end=192.168.199.254 '
+                   '(repeat option to unset multiple Allocation pools)')
+        )
+        parser.add_argument(
+            '--dns-nameserver',
+            metavar='<dns-nameserver>',
+            action='append',
+            dest='dns_nameservers',
+            help=_('DNS server to be removed from this subnet '
+                   '(repeat option to set multiple DNS servers)')
+        )
+        parser.add_argument(
+            '--host-route',
+            metavar='destination=<subnet>,gateway=<ip-address>',
+            dest='host_routes',
+            action=parseractions.MultiKeyValueAction,
+            required_keys=['destination', 'gateway'],
+            help=_('Route to be removed from this subnet '
+                   'e.g.: destination=10.10.0.0/16,gateway=192.168.71.254 '
+                   'destination: destination subnet (in CIDR notation) '
+                   'gateway: nexthop IP address '
+                   '(repeat option to unset multiple host routes)')
+        )
+        parser.add_argument(
+            'subnet',
+            metavar="<subnet>",
+            help=_("Subnet to modify (name or ID)")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        obj = client.find_subnet(parsed_args.subnet, ignore_missing=False)
+        tmp_obj = copy.deepcopy(obj)
+        attrs = {}
+        if parsed_args.dns_nameservers:
+            try:
+                _update_arguments(tmp_obj.dns_nameservers,
+                                  parsed_args.dns_nameservers)
+            except ValueError as error:
+                msg = (_("%s not in dns-nameservers") % str(error))
+                raise exceptions.CommandError(msg)
+            attrs['dns_nameservers'] = tmp_obj.dns_nameservers
+        if parsed_args.host_routes:
+            try:
+                _update_arguments(
+                    tmp_obj.host_routes,
+                    convert_entries_to_nexthop(parsed_args.host_routes))
+            except ValueError as error:
+                msg = (_("Subnet does not have %s in host-routes") %
+                       str(error))
+                raise exceptions.CommandError(msg)
+            attrs['host_routes'] = tmp_obj.host_routes
+        if parsed_args.allocation_pools:
+            try:
+                _update_arguments(tmp_obj.allocation_pools,
+                                  parsed_args.allocation_pools)
+            except ValueError as error:
+                msg = (_("Subnet does not have %s in allocation-pools") %
+                       str(error))
+                raise exceptions.CommandError(msg)
+            attrs['allocation_pools'] = tmp_obj.allocation_pools
+        if attrs:
+            client.update_subnet(obj, **attrs)
