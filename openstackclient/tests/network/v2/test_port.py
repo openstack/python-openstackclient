@@ -268,7 +268,6 @@ class TestSetPort(TestPort):
 
     def setUp(self):
         super(TestSetPort, self).setUp()
-
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet()
         self.network.find_subnet = mock.Mock(return_value=self.fake_subnet)
         self.network.find_port = mock.Mock(return_value=self._port)
@@ -293,6 +292,26 @@ class TestSetPort(TestPort):
             'fixed_ips': [{'ip_address': '10.0.0.11'}],
         }
         self.network.update_port.assert_called_once_with(self._port, **attrs)
+        self.assertIsNone(result)
+
+    def test_append_fixed_ip(self):
+        _testport = network_fakes.FakePort.create_one_port(
+            {'fixed_ips': [{'ip_address': '0.0.0.1'}]})
+        self.network.find_port = mock.Mock(return_value=_testport)
+        arglist = [
+            '--fixed-ip', 'ip-address=10.0.0.12',
+            _testport.name,
+        ]
+        verifylist = [
+            ('fixed_ip', [{'ip-address': '10.0.0.12'}]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        attrs = {
+            'fixed_ips': [
+                {'ip_address': '10.0.0.12'}, {'ip_address': '0.0.0.1'}],
+        }
+        self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
 
     def test_set_this(self):
