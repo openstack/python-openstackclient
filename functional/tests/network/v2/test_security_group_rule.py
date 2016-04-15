@@ -37,7 +37,7 @@ class SecurityGroupRuleTests(test.TestCase):
         opts = cls.get_show_opts(cls.ID_FIELD)
         raw_output = cls.openstack('security group rule create ' +
                                    cls.SECURITY_GROUP_NAME +
-                                   ' --proto tcp --dst-port 80:80' +
+                                   ' --protocol tcp --dst-port 80:80' +
                                    ' --ingress --ethertype IPv4' +
                                    opts)
         cls.SECURITY_GROUP_RULE_ID = raw_output.strip('\n')

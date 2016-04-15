@@ -16,17 +16,13 @@ Create a new security group rule
 .. code:: bash
 
     os security group rule create
-        [--proto <proto>]
         [--src-ip <ip-address> | --src-group <group>]
-        [--dst-port <port-range>]
+        [--dst-port <port-range> | [--icmp-type <icmp-type> [--icmp-code <icmp-code>]]]
+        [--protocol <protocol>]
         [--ingress | --egress]
         [--ethertype <ethertype>]
         [--project <project> [--project-domain <project-domain>]]
         <group>
-
-.. option:: --proto <proto>
-
-    IP protocol (icmp, tcp, udp; default: tcp)
 
 .. option:: --src-ip <ip-address>
 
@@ -39,8 +35,35 @@ Create a new security group rule
 
 .. option:: --dst-port <port-range>
 
-    Destination port, may be a single port or port range: 137:139
-    (only required for IP protocols tcp and udp)
+    Destination port, may be a single port or a starting and
+    ending port range: 137:139. Required for IP protocols TCP
+    and UDP. Ignored for ICMP IP protocols.
+
+.. option:: --icmp-type <icmp-type>
+
+    ICMP type for ICMP IP protocols
+
+    *Network version 2 only*
+
+.. option:: --icmp-code <icmp-code>
+
+    ICMP code for ICMP IP protocols
+
+    *Network version 2 only*
+
+.. option:: --protocol <protocol>
+
+    IP protocol (icmp, tcp, udp; default: tcp)
+
+    *Compute version 2*
+
+    IP protocol (ah, dccp, egp, esp, gre, icmp, igmp,
+    ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt,
+    ipv6-opts, ipv6-route, ospf, pgm, rsvp, sctp, tcp,
+    udp, udplite, vrrp and integer representations [0-255];
+    default: tcp)
+
+    *Network version 2*
 
 .. option:: --ingress
 
@@ -56,7 +79,8 @@ Create a new security group rule
 
 .. option:: --ethertype <ethertype>
 
-    Ethertype of network traffic (IPv4, IPv6; default: IPv4)
+    Ethertype of network traffic
+    (IPv4, IPv6; default: based on IP protocol)
 
     *Network version 2 only*
 

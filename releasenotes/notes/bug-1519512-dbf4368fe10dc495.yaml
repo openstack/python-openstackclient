@@ -1,0 +1,24 @@
+---
+features:
+  - Add ``--icmp-type`` and ``--icmp-code`` options to the
+    ``security group rule create`` command for Network v2 only.
+    These options can be used to set ICMP type and code for
+    ICMP IP protocols.
+    [Bug `1519512 <https://bugs.launchpad.net/bugs/1519512>`_]
+  - The following Network v2 IP protocols are supported by the
+    ``security group rule create`` command ``--protocol`` option,
+    ``ah``, ``dccp``, ``egp``, ``esp``, ``gre``, ``igmp``,
+    ``ipv6-encap``, ``ipv6-frag``, ``ipv6-icmp``, ``ipv6-nonxt``,
+    ``ipv6-opts``, ``ipv6-route``, ``ospf``, ``pgm``, ``rsvp``, ``sctp``,
+    ``udplite``, ``vrrp`` and integer representations [0-255].
+    [Bug `1519512 <https://bugs.launchpad.net/bugs/1519512>`_]
+  - The ``security group rule list`` command supports displaying
+    the ICMP type and code for security group rules with the
+    ICMP IP protocols.
+    [Bug `1519512 <https://bugs.launchpad.net/bugs/1519512>`_]
+upgrade:
+  - Changed the ``security group rule create`` command ``--proto``
+    option to ``--protocol``. Using the ``--proto`` option is still
+    supported, but is no longer documented and may be deprecated in
+    a future release.
+    [Bug `1519512 <https://bugs.launchpad.net/bugs/1519512>`_]
