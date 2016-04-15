@@ -185,3 +185,25 @@ Display subnet pool details
 .. describe:: <subnet-pool>
 
     Subnet pool to display (name or ID)
+
+subnet pool unset
+-----------------
+
+Unset subnet pool properties
+
+.. program:: subnet pool unset
+.. code:: bash
+
+    os subnet pool unset
+        [--pool-prefix <pool-prefix> [...]]
+        <subnet-pool>
+
+.. option:: --pool-prefix <pool-prefix>
+
+    Remove subnet pool prefixes (in CIDR notation).
+    (repeat option to unset multiple prefixes).
+
+.. _subnet_pool_unset-subnet-pool:
+.. describe:: <subnet-pool>
+
+    Subnet pool to modify (name or ID)

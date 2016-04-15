@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add a new command ``subnet pool unset`` to clear the information
+    of pool-prefixes from the subnet pools.
+    [ Blueprint `network-property-unset <https://blueprints.launchpad.net/python-openstackclient/+spec/network-property-unset>`_]
