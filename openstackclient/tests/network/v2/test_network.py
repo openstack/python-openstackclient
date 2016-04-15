@@ -482,12 +482,16 @@ class TestSetNetwork(TestNetwork):
             '--enable',
             '--name', 'noob',
             '--share',
+            '--external',
+            '--default',
         ]
         verifylist = [
             ('network', self._network.name),
             ('enable', True),
             ('name', 'noob'),
             ('share', True),
+            ('external', True),
+            ('default', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -497,6 +501,8 @@ class TestSetNetwork(TestNetwork):
             'name': 'noob',
             'admin_state_up': True,
             'shared': True,
+            'router:external': True,
+            'is_default': True,
         }
         self.network.update_network.assert_called_once_with(
             self._network, **attrs)
@@ -507,11 +513,13 @@ class TestSetNetwork(TestNetwork):
             self._network.name,
             '--disable',
             '--no-share',
+            '--internal',
         ]
         verifylist = [
             ('network', self._network.name),
             ('disable', True),
             ('no_share', True),
+            ('internal', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -520,6 +528,7 @@ class TestSetNetwork(TestNetwork):
         attrs = {
             'admin_state_up': False,
             'shared': False,
+            'router:external': False,
         }
         self.network.update_network.assert_called_once_with(
             self._network, **attrs)

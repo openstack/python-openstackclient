@@ -171,6 +171,7 @@ Set network properties
         [--name <name>]
         [--enable | --disable]
         [--share | --no-share]
+        [--external [--default | --no-default] | --internal]
         <network>
 
 .. option:: --name <name>
@@ -192,6 +193,24 @@ Set network properties
 .. option:: --no-share
 
     Do not share the network between projects
+
+.. option:: --external
+
+    Set this network as an external network.
+    Requires the "external-net" extension to be enabled.
+
+.. option:: --internal
+
+    Set this network as an internal network
+
+.. option:: --default
+
+    Specify if this network should be used as
+    the default external network
+
+.. option:: --no-default
+
+    Do not use the network as the default external network.
 
 .. _network_set-network:
 .. describe:: <network>
