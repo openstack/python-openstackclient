@@ -100,8 +100,7 @@ class FakeAggregate(object):
         :return:
             A FakeResource object, with id and other attributes
         """
-        if attrs is None:
-            attrs = {}
+        attrs = attrs or {}
 
         # Set default attribute
         aggregate_info = {
@@ -217,7 +216,7 @@ class FakeHypervisor(object):
     """Fake one or more hypervisor."""
 
     @staticmethod
-    def create_one_hypervisor(attrs={}):
+    def create_one_hypervisor(attrs=None):
         """Create a fake hypervisor.
 
         :param Dictionary attrs:
@@ -225,6 +224,8 @@ class FakeHypervisor(object):
         :return:
             A FakeResource object, with id, hypervisor_hostname, and so on
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         hypervisor_info = {
             'id': 'hypervisor-id-' + uuid.uuid4().hex,
@@ -263,7 +264,7 @@ class FakeHypervisor(object):
         return hypervisor
 
     @staticmethod
-    def create_hypervisors(attrs={}, count=2):
+    def create_hypervisors(attrs=None, count=2):
         """Create multiple fake hypervisors.
 
         :param Dictionary attrs:
@@ -284,7 +285,7 @@ class FakeHypervisorStats(object):
     """Fake one or more hypervisor stats."""
 
     @staticmethod
-    def create_one_hypervisor_stats(attrs={}):
+    def create_one_hypervisor_stats(attrs=None):
         """Create a fake hypervisor stats.
 
         :param Dictionary attrs:
@@ -292,6 +293,8 @@ class FakeHypervisorStats(object):
         :return:
             A FakeResource object, with id, hypervisor_hostname, and so on
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         stats_info = {
             'count': 2,
@@ -319,7 +322,7 @@ class FakeHypervisorStats(object):
         return hypervisor_stats
 
     @staticmethod
-    def create_hypervisors_stats(attrs={}, count=2):
+    def create_hypervisors_stats(attrs=None, count=2):
         """Create multiple fake hypervisors stats.
 
         :param Dictionary attrs:
@@ -349,8 +352,7 @@ class FakeSecurityGroup(object):
         :return:
             A FakeResource object, with id, name, etc.
         """
-        if attrs is None:
-            attrs = {}
+        attrs = attrs or {}
 
         # Set default attributes.
         security_group_attrs = {
@@ -400,8 +402,7 @@ class FakeSecurityGroupRule(object):
         :return:
             A FakeResource object, with id, etc.
         """
-        if attrs is None:
-            attrs = {}
+        attrs = attrs or {}
 
         # Set default attributes.
         security_group_rule_attrs = {
@@ -445,7 +446,7 @@ class FakeServer(object):
     """Fake one or more compute servers."""
 
     @staticmethod
-    def create_one_server(attrs={}, methods={}):
+    def create_one_server(attrs=None, methods=None):
         """Create a fake server.
 
         :param Dictionary attrs:
@@ -455,6 +456,9 @@ class FakeServer(object):
         :return:
             A FakeResource object, with id, name, metadata
         """
+        attrs = attrs or {}
+        methods = methods or {}
+
         # Set default attributes.
         server_info = {
             'id': 'server-id-' + uuid.uuid4().hex,
@@ -477,7 +481,7 @@ class FakeServer(object):
         return server
 
     @staticmethod
-    def create_servers(attrs={}, methods={}, count=2):
+    def create_servers(attrs=None, methods=None, count=2):
         """Create multiple fake servers.
 
         :param Dictionary attrs:
@@ -527,8 +531,7 @@ class FakeFlavor(object):
         :return:
             A FakeResource object, with id, name, ram, vcpus, properties
         """
-        if attrs is None:
-            attrs = {}
+        attrs = attrs or {}
 
         # Set default attributes.
         flavor_info = {
@@ -566,7 +569,7 @@ class FakeFlavor(object):
         return flavor
 
     @staticmethod
-    def create_flavors(attrs={}, count=2):
+    def create_flavors(attrs=None, count=2):
         """Create multiple fake flavors.
 
         :param Dictionary attrs:
@@ -614,10 +617,9 @@ class FakeKeypair(object):
         :return:
             A FakeResource
         """
-        # Set default attributes.
-        if attrs is None:
-            attrs = {}
+        attrs = attrs or {}
 
+        # Set default attributes.
         keypair_info = {
             'name': 'keypair-name-' + uuid.uuid4().hex,
             'fingerprint': 'dummy',
@@ -658,7 +660,7 @@ class FakeAvailabilityZone(object):
     """Fake one or more compute availability zones (AZs)."""
 
     @staticmethod
-    def create_one_availability_zone(attrs={}):
+    def create_one_availability_zone(attrs=None):
         """Create a fake AZ.
 
         :param Dictionary attrs:
@@ -666,6 +668,8 @@ class FakeAvailabilityZone(object):
         :return:
             A FakeResource object with zoneName, zoneState, etc.
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         host_name = uuid.uuid4().hex
         service_name = uuid.uuid4().hex
@@ -689,7 +693,7 @@ class FakeAvailabilityZone(object):
         return availability_zone
 
     @staticmethod
-    def create_availability_zones(attrs={}, count=2):
+    def create_availability_zones(attrs=None, count=2):
         """Create multiple fake AZs.
 
         :param Dictionary attrs:
@@ -712,7 +716,7 @@ class FakeFloatingIP(object):
     """Fake one or more floating ip."""
 
     @staticmethod
-    def create_one_floating_ip(attrs={}):
+    def create_one_floating_ip(attrs=None):
         """Create a fake floating ip.
 
         :param Dictionary attrs:
@@ -720,6 +724,8 @@ class FakeFloatingIP(object):
         :return:
             A FakeResource object, with id, ip, and so on
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         floating_ip_attrs = {
             'id': 'floating-ip-id-' + uuid.uuid4().hex,
@@ -739,7 +745,7 @@ class FakeFloatingIP(object):
         return floating_ip
 
     @staticmethod
-    def create_floating_ips(attrs={}, count=2):
+    def create_floating_ips(attrs=None, count=2):
         """Create multiple fake floating ips.
 
         :param Dictionary attrs:
@@ -778,7 +784,7 @@ class FakeNetwork(object):
     """Fake one or more networks."""
 
     @staticmethod
-    def create_one_network(attrs={}):
+    def create_one_network(attrs=None):
         """Create a fake network.
 
         :param Dictionary attrs:
@@ -786,6 +792,8 @@ class FakeNetwork(object):
         :return:
             A FakeResource object, with id, label, cidr and so on
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         network_attrs = {
             'bridge': 'br100',
@@ -831,7 +839,7 @@ class FakeNetwork(object):
         return network
 
     @staticmethod
-    def create_networks(attrs={}, count=2):
+    def create_networks(attrs=None, count=2):
         """Create multiple fake networks.
 
         :param Dictionary attrs:
@@ -860,8 +868,7 @@ class FakeHost(object):
         :return:
             A FakeResource object, with id and other attributes
         """
-        if attrs is None:
-            attrs = {}
+        attrs = attrs or {}
 
         # Set default attributes.
         host_info = {

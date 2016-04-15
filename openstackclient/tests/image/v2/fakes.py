@@ -181,7 +181,7 @@ class FakeImage(object):
     """
 
     @staticmethod
-    def create_one_image(attrs={}):
+    def create_one_image(attrs=None):
         """Create a fake image.
 
         :param Dictionary attrs:
@@ -190,6 +190,8 @@ class FakeImage(object):
             A FakeResource object with id, name, owner, protected,
             visibility and tags attrs
         """
+        attrs = attrs or {}
+
         # Set default attribute
         image_info = {
             'id': 'image-id' + uuid.uuid4().hex,
@@ -210,7 +212,7 @@ class FakeImage(object):
         return image
 
     @staticmethod
-    def create_images(attrs={}, count=2):
+    def create_images(attrs=None, count=2):
         """Create multiple fake images.
 
         :param Dictionary attrs:

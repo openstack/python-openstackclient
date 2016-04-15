@@ -83,8 +83,7 @@ class FakeAddressScope(object):
         :return:
             A FakeResource object with name, id, etc.
         """
-        if attrs is None:
-            attrs = {}
+        attrs = attrs or {}
 
         # Set default attributes.
         address_scope_attrs = {
@@ -112,7 +111,7 @@ class FakeAvailabilityZone(object):
     """Fake one or more network availability zones (AZs)."""
 
     @staticmethod
-    def create_one_availability_zone(attrs={}):
+    def create_one_availability_zone(attrs=None):
         """Create a fake AZ.
 
         :param Dictionary attrs:
@@ -120,6 +119,8 @@ class FakeAvailabilityZone(object):
         :return:
             A FakeResource object with name, state, etc.
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         availability_zone = {
             'name': uuid.uuid4().hex,
@@ -136,7 +137,7 @@ class FakeAvailabilityZone(object):
         return availability_zone
 
     @staticmethod
-    def create_availability_zones(attrs={}, count=2):
+    def create_availability_zones(attrs=None, count=2):
         """Create multiple fake AZs.
 
         :param Dictionary attrs:
@@ -159,7 +160,7 @@ class FakeNetwork(object):
     """Fake one or more networks."""
 
     @staticmethod
-    def create_one_network(attrs={}):
+    def create_one_network(attrs=None):
         """Create a fake network.
 
         :param Dictionary attrs:
@@ -168,6 +169,8 @@ class FakeNetwork(object):
             A FakeResource object, with id, name, admin_state_up,
             router_external, status, subnets, tenant_id
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         network_attrs = {
             'id': 'network-id-' + uuid.uuid4().hex,
@@ -196,7 +199,7 @@ class FakeNetwork(object):
         return network
 
     @staticmethod
-    def create_networks(attrs={}, count=2):
+    def create_networks(attrs=None, count=2):
         """Create multiple fake networks.
 
         :param Dictionary attrs:
@@ -236,16 +239,16 @@ class FakePort(object):
     """Fake one or more ports."""
 
     @staticmethod
-    def create_one_port(attrs={}):
+    def create_one_port(attrs=None):
         """Create a fake port.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :return:
             A FakeResource object, with id, name, etc.
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         port_attrs = {
             'admin_state_up': True,
@@ -288,7 +291,7 @@ class FakePort(object):
         return port
 
     @staticmethod
-    def create_ports(attrs={}, count=2):
+    def create_ports(attrs=None, count=2):
         """Create multiple fake ports.
 
         :param Dictionary attrs:
@@ -328,7 +331,7 @@ class FakeRouter(object):
     """Fake one or more routers."""
 
     @staticmethod
-    def create_one_router(attrs={}):
+    def create_one_router(attrs=None):
         """Create a fake router.
 
         :param Dictionary attrs:
@@ -337,6 +340,8 @@ class FakeRouter(object):
             A FakeResource object, with id, name, admin_state_up,
             status, tenant_id
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         router_attrs = {
             'id': 'router-id-' + uuid.uuid4().hex,
@@ -364,7 +369,7 @@ class FakeRouter(object):
         return router
 
     @staticmethod
-    def create_routers(attrs={}, count=2):
+    def create_routers(attrs=None, count=2):
         """Create multiple fake routers.
 
         :param Dictionary attrs:
@@ -412,8 +417,7 @@ class FakeSecurityGroup(object):
         :return:
             A FakeResource object, with id, name, etc.
         """
-        if attrs is None:
-            attrs = {}
+        attrs = attrs or {}
 
         # Set default attributes.
         security_group_attrs = {
@@ -467,8 +471,7 @@ class FakeSecurityGroupRule(object):
         :return:
             A FakeResource object, with id, etc.
         """
-        if attrs is None:
-            attrs = {}
+        attrs = attrs or {}
 
         # Set default attributes.
         security_group_rule_attrs = {
@@ -519,7 +522,7 @@ class FakeSubnet(object):
     """Fake one or more subnets."""
 
     @staticmethod
-    def create_one_subnet(attrs={}):
+    def create_one_subnet(attrs=None):
         """Create a fake subnet.
 
         :param Dictionary attrs:
@@ -527,6 +530,8 @@ class FakeSubnet(object):
         :return:
             A FakeResource object faking the subnet
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         project_id = 'project-id-' + uuid.uuid4().hex
         subnet_attrs = {
@@ -551,13 +556,14 @@ class FakeSubnet(object):
 
         subnet = fakes.FakeResource(info=copy.deepcopy(subnet_attrs),
                                     loaded=True)
+
         # Set attributes with special mappings in OpenStack SDK.
         subnet.project_id = subnet_attrs['tenant_id']
 
         return subnet
 
     @staticmethod
-    def create_subnets(attrs={}, count=2):
+    def create_subnets(attrs=None, count=2):
         """Create multiple fake subnets.
 
         :param Dictionary attrs:
@@ -578,7 +584,7 @@ class FakeFloatingIP(object):
     """Fake one or more floating ip."""
 
     @staticmethod
-    def create_one_floating_ip(attrs={}):
+    def create_one_floating_ip(attrs=None):
         """Create a fake floating ip.
 
         :param Dictionary attrs:
@@ -586,6 +592,8 @@ class FakeFloatingIP(object):
         :return:
             A FakeResource object, with id, ip, and so on
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         floating_ip_attrs = {
             'id': 'floating-ip-id-' + uuid.uuid4().hex,
@@ -614,7 +622,7 @@ class FakeFloatingIP(object):
         return floating_ip
 
     @staticmethod
-    def create_floating_ips(attrs={}, count=2):
+    def create_floating_ips(attrs=None, count=2):
         """Create multiple fake floating ips.
 
         :param Dictionary attrs:
@@ -653,7 +661,7 @@ class FakeSubnetPool(object):
     """Fake one or more subnet pools."""
 
     @staticmethod
-    def create_one_subnet_pool(attrs={}):
+    def create_one_subnet_pool(attrs=None):
         """Create a fake subnet pool.
 
         :param Dictionary attrs:
@@ -661,6 +669,8 @@ class FakeSubnetPool(object):
         :return:
             A FakeResource object faking the subnet pool
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         subnet_pool_attrs = {
             'id': 'subnet-pool-id-' + uuid.uuid4().hex,
@@ -691,7 +701,7 @@ class FakeSubnetPool(object):
         return subnet_pool
 
     @staticmethod
-    def create_subnet_pools(attrs={}, count=2):
+    def create_subnet_pools(attrs=None, count=2):
         """Create multiple fake subnet pools.
 
         :param Dictionary attrs:
