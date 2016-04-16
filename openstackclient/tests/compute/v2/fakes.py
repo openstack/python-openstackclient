@@ -284,7 +284,7 @@ class FakeHypervisorStats(object):
     """Fake one or more hypervisor stats."""
 
     @staticmethod
-    def create_one_hypervisor_stats(attrs={}, methods={}):
+    def create_one_hypervisor_stats(attrs={}):
         """Create a fake hypervisor stats.
 
         :param Dictionary attrs:
@@ -311,7 +311,6 @@ class FakeHypervisorStats(object):
 
         # Set default method.
         hypervisor_stats_method = {'to_dict': stats_info}
-        hypervisor_stats_method.update(methods)
 
         hypervisor_stats = fakes.FakeResource(
             info=copy.deepcopy(stats_info),
