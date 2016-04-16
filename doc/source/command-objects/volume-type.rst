@@ -151,11 +151,24 @@ Unset volume type properties
 
     os volume type unset
         [--property <key>]
+        [--project <project>]
+        [--project-domain <project-domain>]
         <volume-type>
 
 .. option:: --property <key>
 
     Property to remove from volume type (repeat option to remove multiple properties)
+
+.. option:: --project <project>
+
+    Removes volume type access from project (name or ID) (admin only)
+
+    *Volume version 2 only*
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 .. _volume_type_unset-volume-type:
 .. describe:: <volume-type>

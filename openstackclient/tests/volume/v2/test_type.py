@@ -394,6 +394,14 @@ class TestTypeUnset(TestType):
             loaded=True
         )
 
+        # Return a project
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
+        # Get the command object to test
         self.cmd = volume_type.UnsetVolumeType(self.app, None)
 
     def test_type_unset(self):
@@ -413,3 +421,53 @@ class TestTypeUnset(TestType):
 
         result = self.types_mock.get.return_value._keys
         self.assertNotIn('property', result)
+
+    def test_type_unset_project_access(self):
+        arglist = [
+            '--project', identity_fakes.project_id,
+            volume_fakes.type_id,
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_id),
+            ('volume_type', volume_fakes.type_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.types_access_mock.remove_project_access.assert_called_with(
+            volume_fakes.type_id,
+            identity_fakes.project_id,
+        )
+
+    def test_type_unset_not_called_without_project_argument(self):
+        arglist = [
+            '--project', '',
+            volume_fakes.type_id,
+        ]
+        verifylist = [
+            ('project', ''),
+            ('volume_type', volume_fakes.type_id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.assertFalse(self.types_access_mock.remove_project_access.called)
+
+    def test_type_unset_failed_with_missing_volume_type_argument(self):
+        arglist = [
+            '--project', 'identity_fakes.project_id',
+        ]
+        verifylist = [
+            ('project', 'identity_fakes.project_id'),
+        ]
+
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser,
+                          self.cmd,
+                          arglist,
+                          verifylist)

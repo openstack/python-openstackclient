@@ -261,17 +261,57 @@ class UnsetVolumeType(command.Command):
         parser.add_argument(
             '--property',
             metavar='<key>',
-            default=[],
-            required=True,
             help='Remove a property from this volume type '
                  '(repeat option to remove multiple properties)',
         )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help='Removes volume type access to project (name or ID) '
+                 ' (admin only)',
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
+
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
+        identity_client = self.app.client_manager.identity
+
         volume_type = utils.find_resource(
             volume_client.volume_types,
             parsed_args.volume_type,
         )
-        volume_type.unset_keys(parsed_args.property)
+
+        if (not parsed_args.property
+                and not parsed_args.project):
+            self.app.log.error("No changes requested\n")
+            return
+
+        result = 0
+        if parsed_args.property:
+            try:
+                volume_type.unset_keys(parsed_args.property)
+            except Exception as e:
+                self.app.log.error("Failed to unset volume type property: " +
+                                   str(e))
+                result += 1
+
+        if parsed_args.project:
+            project_info = None
+            try:
+                project_info = identity_common.find_project(
+                    identity_client,
+                    parsed_args.project,
+                    parsed_args.project_domain)
+
+                volume_client.volume_type_access.remove_project_access(
+                    volume_type.id, project_info.id)
+            except Exception as e:
+                self.app.log.error("Failed to remove volume type access from"
+                                   " project: " + str(e))
+                result += 1
+
+        if result > 0:
+            raise exceptions.CommandError("Command Failed: One or more of the"
+                                          " operations failed")
