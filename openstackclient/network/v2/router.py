@@ -19,6 +19,7 @@ from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
 
@@ -95,12 +96,12 @@ class AddPortToRouter(command.Command):
         parser.add_argument(
             'router',
             metavar='<router>',
-            help="Router to which port will be added (name or ID)",
+            help=_("Router to which port will be added (name or ID)")
         )
         parser.add_argument(
             'port',
             metavar='<port>',
-            help="Port to be added (name or ID)",
+            help=_("Port to be added (name or ID)")
         )
         return parser
 
@@ -119,12 +120,12 @@ class AddSubnetToRouter(command.Command):
         parser.add_argument(
             'router',
             metavar='<router>',
-            help="Router to which subnet will be added (name or ID)",
+            help=_("Router to which subnet will be added (name or ID)")
         )
         parser.add_argument(
             'subnet',
             metavar='<subnet>',
-            help="Subnet to be added (name or ID)",
+            help=_("Subnet to be added (name or ID)")
         )
         return parser
 
@@ -146,43 +147,43 @@ class CreateRouter(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<name>',
-            help="New router name",
+            help=_("New router name")
         )
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
             action='store_true',
             default=True,
-            help="Enable router (default)",
+            help=_("Enable router (default)")
         )
         admin_group.add_argument(
             '--disable',
             action='store_true',
-            help="Disable router",
+            help=_("Disable router")
         )
         parser.add_argument(
             '--distributed',
             dest='distributed',
             action='store_true',
             default=False,
-            help="Create a distributed router",
+            help=_("Create a distributed router")
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help="Owner's project (name or ID)",
+            help=_("Owner's project (name or ID)")
         )
+        identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--availability-zone-hint',
             metavar='<availability-zone>',
             action='append',
             dest='availability_zone_hints',
-            help='Availability Zone in which to create this router '
-                 '(requires the Router Availability Zone extension, '
-                 'repeat option to set multiple availability zones)',
+            help=_("Availability Zone in which to create this router "
+                   "(Router Availability Zone extension required, "
+                   "repeat option to set multiple availability zones)")
         )
 
-        identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -206,7 +207,7 @@ class DeleteRouter(command.Command):
             'router',
             metavar="<router>",
             nargs="+",
-            help=("Router(s) to delete (name or ID)")
+            help=_("Router(s) to delete (name or ID)")
         )
         return parser
 
@@ -226,7 +227,7 @@ class ListRouter(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_("List additional fields in output")
         )
         return parser
 
@@ -279,12 +280,12 @@ class RemovePortFromRouter(command.Command):
         parser.add_argument(
             'router',
             metavar='<router>',
-            help="Router from which port will be removed (name or ID)",
+            help=_("Router from which port will be removed (name or ID)")
         )
         parser.add_argument(
             'port',
             metavar='<port>',
-            help="Port to be removed (name or ID).",
+            help=_("Port to be removed (name or ID)")
         )
         return parser
 
@@ -303,12 +304,12 @@ class RemoveSubnetFromRouter(command.Command):
         parser.add_argument(
             'router',
             metavar='<router>',
-            help="Router from which the subnet will be removed (name or ID)",
+            help=_("Router from which the subnet will be removed (name or ID)")
         )
         parser.add_argument(
             'subnet',
             metavar='<subnet>',
-            help="Subnet to be removed (name or ID)",
+            help=_("Subnet to be removed (name or ID)")
         )
         return parser
 
@@ -330,35 +331,35 @@ class SetRouter(command.Command):
         parser.add_argument(
             'router',
             metavar="<router>",
-            help=("Router to modify (name or ID)")
+            help=_("Router to modify (name or ID)")
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='Set router name',
+            help=_("Set router name")
         )
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
             action='store_true',
             default=None,
-            help='Enable router',
+            help=_("Enable router")
         )
         admin_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable router',
+            help=_("Disable router")
         )
         distribute_group = parser.add_mutually_exclusive_group()
         distribute_group.add_argument(
             '--distributed',
             action='store_true',
-            help="Set router to distributed mode (disabled router only)",
+            help=_("Set router to distributed mode (disabled router only)")
         )
         distribute_group.add_argument(
             '--centralized',
             action='store_true',
-            help="Set router to centralized mode (disabled router only)",
+            help=_("Set router to centralized mode (disabled router only)")
         )
         routes_group = parser.add_mutually_exclusive_group()
         routes_group.add_argument(
@@ -368,15 +369,15 @@ class SetRouter(command.Command):
             dest='routes',
             default=None,
             required_keys=['destination', 'gateway'],
-            help="Routes associated with the router "
-                 "destination: destination subnet (in CIDR notation) "
-                 "gateway: nexthop IP address "
-                 "(repeat option to set multiple routes)",
+            help=_("Routes associated with the router "
+                   "destination: destination subnet (in CIDR notation) "
+                   "gateway: nexthop IP address "
+                   "(repeat option to set multiple routes)")
         )
         routes_group.add_argument(
             '--clear-routes',
             action='store_true',
-            help="Clear routes associated with the router",
+            help=_("Clear routes associated with the router")
         )
 
         # TODO(tangchen): Support setting 'ha' property in 'router set'
@@ -408,7 +409,7 @@ class ShowRouter(command.ShowOne):
         parser.add_argument(
             'router',
             metavar="<router>",
-            help="Router to display (name or ID)"
+            help=_("Router to display (name or ID)")
         )
         return parser
 

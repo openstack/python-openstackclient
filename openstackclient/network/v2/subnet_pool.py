@@ -17,6 +17,7 @@ from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
 
@@ -73,26 +74,26 @@ def _add_prefix_options(parser):
         metavar='<pool-prefix>',
         dest='prefixes',
         action='append',
-        help='Set subnet pool prefixes (in CIDR notation) '
-             '(repeat option to set multiple prefixes)',
+        help=_("Set subnet pool prefixes (in CIDR notation) "
+               "(repeat option to set multiple prefixes)")
     )
     parser.add_argument(
         '--default-prefix-length',
         metavar='<default-prefix-length>',
         action=parseractions.NonNegativeAction,
-        help='Set subnet pool default prefix length',
+        help=_("Set subnet pool default prefix length")
     )
     parser.add_argument(
         '--min-prefix-length',
         metavar='<min-prefix-length>',
         action=parseractions.NonNegativeAction,
-        help='Set subnet pool minimum prefix length',
+        help=_("Set subnet pool minimum prefix length")
     )
     parser.add_argument(
         '--max-prefix-length',
         metavar='<max-prefix-length>',
         action=parseractions.NonNegativeAction,
-        help='Set subnet pool maximum prefix length',
+        help=_("Set subnet pool maximum prefix length")
     )
 
 
@@ -104,21 +105,21 @@ class CreateSubnetPool(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<name>',
-            help='Name of the new subnet pool'
+            help=_("Name of the new subnet pool")
         )
         _add_prefix_options(parser)
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help="Owner's project (name or ID)",
+            help=_("Owner's project (name or ID)")
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--address-scope',
             metavar='<address-scope>',
-            help="Set address scope associated with the subnet pool "
-                 "(name or ID). Prefixes must be unique across address "
-                 "scopes.",
+            help=_("Set address scope associated with the subnet pool "
+                   "(name or ID), prefixes must be unique across address "
+                   "scopes")
         )
         return parser
 
@@ -142,7 +143,7 @@ class DeleteSubnetPool(command.Command):
         parser.add_argument(
             'subnet_pool',
             metavar='<subnet-pool>',
-            help='Subnet pool to delete (name or ID)'
+            help=_("Subnet pool to delete (name or ID)")
         )
         return parser
 
@@ -161,7 +162,7 @@ class ListSubnetPool(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_("List additional fields in output")
         )
         return parser
 
@@ -210,26 +211,26 @@ class SetSubnetPool(command.Command):
         parser.add_argument(
             'subnet_pool',
             metavar='<subnet-pool>',
-            help='Subnet pool to modify (name or ID)'
+            help=_("Subnet pool to modify (name or ID)")
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='Set subnet pool name',
+            help=_("Set subnet pool name")
         )
         _add_prefix_options(parser)
         address_scope_group = parser.add_mutually_exclusive_group()
         address_scope_group.add_argument(
             '--address-scope',
             metavar='<address-scope>',
-            help="Set address scope associated with the subnet pool "
-                 "(name or ID). Prefixes must be unique across address "
-                 "scopes.",
+            help=_("Set address scope associated with the subnet pool "
+                   "(name or ID), prefixes must be unique across address "
+                   "scopes")
         )
         address_scope_group.add_argument(
             '--no-address-scope',
             action='store_true',
-            help="Remove address scope associated with the subnet pool",
+            help=_("Remove address scope associated with the subnet pool")
         )
         return parser
 
@@ -258,7 +259,7 @@ class ShowSubnetPool(command.ShowOne):
         parser.add_argument(
             'subnet_pool',
             metavar='<subnet-pool>',
-            help='Subnet pool to display (name or ID)'
+            help=_("Subnet pool to display (name or ID)")
         )
         return parser
 

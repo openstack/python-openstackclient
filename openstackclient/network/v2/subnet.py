@@ -20,6 +20,7 @@ from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
 
@@ -50,17 +51,17 @@ def _get_common_parse_arguments(parser):
         dest='allocation_pools',
         action=parseractions.MultiKeyValueAction,
         required_keys=['start', 'end'],
-        help='Allocation pool IP addresses for this subnet '
-             'e.g.: start=192.168.199.2,end=192.168.199.254 '
-             '(repeat option to add multiple IP addresses)',
+        help=_("Allocation pool IP addresses for this subnet "
+               "e.g.: start=192.168.199.2,end=192.168.199.254 "
+               "(repeat option to add multiple IP addresses)")
     )
     parser.add_argument(
         '--dns-nameserver',
         metavar='<dns-nameserver>',
         action='append',
         dest='dns_nameservers',
-        help='DNS server for this subnet '
-             '(repeat option to set multiple DNS servers)',
+        help=_("DNS server for this subnet "
+               "(repeat option to set multiple DNS servers)")
     )
     parser.add_argument(
         '--host-route',
@@ -68,11 +69,11 @@ def _get_common_parse_arguments(parser):
         dest='host_routes',
         action=parseractions.MultiKeyValueAction,
         required_keys=['destination', 'gateway'],
-        help='Additional route for this subnet '
-             'e.g.: destination=10.10.0.0/16,gateway=192.168.71.254 '
-             'destination: destination subnet (in CIDR notation) '
-             'gateway: nexthop IP address '
-             '(repeat option to add multiple routes)',
+        help=_("Additional route for this subnet "
+               "e.g.: destination=10.10.0.0/16,gateway=192.168.71.254 "
+               "destination: destination subnet (in CIDR notation) "
+               "gateway: nexthop IP address "
+               "(repeat option to add multiple routes)")
     )
 
 
@@ -174,87 +175,87 @@ class CreateSubnet(command.ShowOne):
         parser = super(CreateSubnet, self).get_parser(prog_name)
         parser.add_argument(
             'name',
-            help='New subnet name',
+            help=_("New subnet name")
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help="Owner's project (name or ID)",
+            help=_("Owner's project (name or ID)")
         )
         identity_common.add_project_domain_option_to_parser(parser)
         subnet_pool_group = parser.add_mutually_exclusive_group()
         subnet_pool_group.add_argument(
             '--subnet-pool',
             metavar='<subnet-pool>',
-            help='Subnet pool from which this subnet will obtain a CIDR '
-                 '(Name or ID)',
+            help=_("Subnet pool from which this subnet will obtain a CIDR "
+                   "(Name or ID)")
         )
         subnet_pool_group.add_argument(
             '--use-default-subnet-pool',
             action='store_true',
-            help='Use default subnet pool for --ip-version',
+            help=_("Use default subnet pool for --ip-version")
         )
         parser.add_argument(
             '--prefix-length',
             metavar='<prefix-length>',
-            help='Prefix length for subnet allocation from subnet pool',
+            help=_("Prefix length for subnet allocation from subnet pool")
         )
         parser.add_argument(
             '--subnet-range',
             metavar='<subnet-range>',
-            help='Subnet range in CIDR notation '
-                 '(required if --subnet-pool is not specified, '
-                 'optional otherwise)',
+            help=_("Subnet range in CIDR notation "
+                   "(required if --subnet-pool is not specified, "
+                   "optional otherwise)")
         )
         dhcp_enable_group = parser.add_mutually_exclusive_group()
         dhcp_enable_group.add_argument(
             '--dhcp',
             action='store_true',
             default=True,
-            help='Enable DHCP (default)',
+            help=_("Enable DHCP (default)")
         )
         dhcp_enable_group.add_argument(
             '--no-dhcp',
             action='store_true',
-            help='Disable DHCP',
+            help=_("Disable DHCP")
         )
         parser.add_argument(
             '--gateway',
             metavar='<gateway>',
             default='auto',
-            help="Specify a gateway for the subnet.  The three options are: "
-                 "<ip-address>: Specific IP address to use as the gateway, "
-                 "'auto': Gateway address should automatically be chosen from "
-                 "within the subnet itself, 'none': This subnet will not use "
-                 "a gateway, e.g.: --gateway 192.168.9.1, --gateway auto, "
-                 "--gateway none (default is 'auto')",
+            help=_("Specify a gateway for the subnet.  The three options are: "
+                   "<ip-address>: Specific IP address to use as the gateway, "
+                   "'auto': Gateway address should automatically be chosen "
+                   "from within the subnet itself, 'none': This subnet will "
+                   "not use a gateway, e.g.: --gateway 192.168.9.1, "
+                   "--gateway auto, --gateway none (default is 'auto')")
         )
         parser.add_argument(
             '--ip-version',
             type=int,
             default=4,
             choices=[4, 6],
-            help='IP version (default is 4).  Note that when subnet pool is '
-                 'specified, IP version is determined from the subnet pool '
-                 'and this option is ignored.',
+            help=_("IP version (default is 4).  Note that when subnet pool is "
+                   "specified, IP version is determined from the subnet pool "
+                   "and this option is ignored")
         )
         parser.add_argument(
             '--ipv6-ra-mode',
             choices=['dhcpv6-stateful', 'dhcpv6-stateless', 'slaac'],
-            help='IPv6 RA (Router Advertisement) mode, '
-                 'valid modes: [dhcpv6-stateful, dhcpv6-stateless, slaac]',
+            help=_("IPv6 RA (Router Advertisement) mode, "
+                   "valid modes: [dhcpv6-stateful, dhcpv6-stateless, slaac]")
         )
         parser.add_argument(
             '--ipv6-address-mode',
             choices=['dhcpv6-stateful', 'dhcpv6-stateless', 'slaac'],
-            help='IPv6 address mode, '
-                 'valid modes: [dhcpv6-stateful, dhcpv6-stateless, slaac]',
+            help=_("IPv6 address mode, "
+                   "valid modes: [dhcpv6-stateful, dhcpv6-stateless, slaac]")
         )
         parser.add_argument(
             '--network',
             required=True,
             metavar='<network>',
-            help='Network this subnet belongs to (name or ID)',
+            help=_("Network this subnet belongs to (name or ID)")
         )
         _get_common_parse_arguments(parser)
         return parser
@@ -276,7 +277,7 @@ class DeleteSubnet(command.Command):
         parser.add_argument(
             'subnet',
             metavar="<subnet>",
-            help="Subnet to delete (name or ID)",
+            help=_("Subnet to delete (name or ID)")
         )
         return parser
 
@@ -295,7 +296,7 @@ class ListSubnet(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_("List additional fields in output")
         )
         return parser
 
@@ -327,32 +328,32 @@ class SetSubnet(command.Command):
         parser.add_argument(
             'subnet',
             metavar="<subnet>",
-            help=("Subnet to modify (name or ID)")
+            help=_("Subnet to modify (name or ID)")
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='Updated name of the subnet',
+            help=_("Updated name of the subnet")
         )
         dhcp_enable_group = parser.add_mutually_exclusive_group()
         dhcp_enable_group.add_argument(
             '--dhcp',
             action='store_true',
             default=None,
-            help='Enable DHCP',
+            help=_("Enable DHCP")
         )
         dhcp_enable_group.add_argument(
             '--no-dhcp',
             action='store_true',
-            help='Disable DHCP',
+            help=_("Disable DHCP")
         )
         parser.add_argument(
             '--gateway',
             metavar='<gateway>',
-            help="Specify a gateway for the subnet. The options are: "
-                 "<ip-address>: Specific IP address to use as the gateway, "
-                 "'none': This subnet will not use a gateway, "
-                 "e.g.: --gateway 192.168.9.1, --gateway none"
+            help=_("Specify a gateway for the subnet. The options are: "
+                   "<ip-address>: Specific IP address to use as the gateway, "
+                   "'none': This subnet will not use a gateway, "
+                   "e.g.: --gateway 192.168.9.1, --gateway none")
         )
         _get_common_parse_arguments(parser)
         return parser
@@ -376,14 +377,14 @@ class SetSubnet(command.Command):
 
 
 class ShowSubnet(command.ShowOne):
-    """Show subnet details"""
+    """Display subnet details"""
 
     def get_parser(self, prog_name):
         parser = super(ShowSubnet, self).get_parser(prog_name)
         parser.add_argument(
             'subnet',
             metavar="<subnet>",
-            help="Subnet to show (name or ID)",
+            help=_("Subnet to display (name or ID)")
         )
         return parser
 

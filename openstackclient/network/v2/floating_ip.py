@@ -14,6 +14,7 @@
 """IP Floating action implementations"""
 
 from openstackclient.common import utils
+from openstackclient.i18n import _
 from openstackclient.network import common
 
 
@@ -63,7 +64,7 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
         parser.add_argument(
             'network',
             metavar='<network>',
-            help='Network to allocate floating IP from (name or ID)',
+            help=_("Network to allocate floating IP from (name or ID)")
         )
         return parser
 
@@ -71,26 +72,26 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
         parser.add_argument(
             '--subnet',
             metavar='<subnet>',
-            help="Subnet on which you want to create the floating IP "
-                 "(name or ID)"
+            help=_("Subnet on which you want to create the floating IP "
+                   "(name or ID)")
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
-            help="Port to be associated with the floating IP "
-                 "(name or ID)"
+            help=_("Port to be associated with the floating IP "
+                   "(name or ID)")
         )
         parser.add_argument(
             '--floating-ip-address',
             metavar='<floating-ip-address>',
             dest='floating_ip_address',
-            help="Floating IP address"
+            help=_("Floating IP address")
         )
         parser.add_argument(
             '--fixed-ip-address',
             metavar='<fixed-ip-address>',
             dest='fixed_ip_address',
-            help="Fixed IP address mapped to the floating IP"
+            help=_("Fixed IP address mapped to the floating IP")
         )
         return parser
 
@@ -115,7 +116,7 @@ class DeleteFloatingIP(common.NetworkAndComputeCommand):
         parser.add_argument(
             'floating_ip',
             metavar="<floating-ip>",
-            help=("Floating IP to delete (IP address or ID)")
+            help=_("Floating IP to delete (IP address or ID)")
         )
         return parser
 
@@ -189,7 +190,7 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
         parser.add_argument(
             'floating_ip',
             metavar="<floating-ip>",
-            help=("Floating IP to display (IP address or ID)")
+            help=_("Floating IP to display (IP address or ID)")
         )
         return parser
 

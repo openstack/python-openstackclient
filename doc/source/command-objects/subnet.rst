@@ -206,7 +206,7 @@ Set subnet properties
 subnet show
 -----------
 
-Show subnet details
+Display subnet details
 
 .. program:: subnet show
 .. code:: bash
@@ -217,4 +217,4 @@ Show subnet details
 .. _subnet_show-subnet:
 .. describe:: <subnet>
 
-    Subnet to show (name or ID)
+    Subnet to display (name or ID)

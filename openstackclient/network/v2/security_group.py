@@ -17,6 +17,7 @@ import argparse
 import six
 
 from openstackclient.common import utils
+from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 from openstackclient.network import utils as network_utils
@@ -99,12 +100,12 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
         parser.add_argument(
             "name",
             metavar="<name>",
-            help="New security group name",
+            help=_("New security group name")
         )
         parser.add_argument(
             "--description",
             metavar="<description>",
-            help="Security group description",
+            help=_("Security group description")
         )
         return parser
 
@@ -112,7 +113,7 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help="Owner's project (name or ID)"
+            help=_("Owner's project (name or ID)")
         )
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
@@ -169,7 +170,7 @@ class DeleteSecurityGroup(common.NetworkAndComputeCommand):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Security group to delete (name or ID)',
+            help=_("Security group to delete (name or ID)")
         )
         return parser
 
@@ -204,7 +205,7 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             '--all-projects',
             action='store_true',
             default=False,
-            help='Display information from all projects (admin only)',
+            help=_("Display information from all projects (admin only)")
         )
         return parser
 
@@ -240,17 +241,17 @@ class SetSecurityGroup(common.NetworkAndComputeCommand):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Security group to modify (name or ID)',
+            help=_("Security group to modify (name or ID)")
         )
         parser.add_argument(
             '--name',
             metavar='<new-name>',
-            help='New security group name',
+            help=_("New security group name")
         )
         parser.add_argument(
             "--description",
             metavar="<description>",
-            help="New security group description",
+            help=_("New security group description")
         )
         return parser
 
@@ -295,7 +296,7 @@ class ShowSecurityGroup(common.NetworkAndComputeShowOne):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Security group to display (name or ID)',
+            help=_("Security group to display (name or ID)")
         )
         return parser
 

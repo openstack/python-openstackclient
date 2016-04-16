@@ -59,7 +59,7 @@ Create new network
 .. option:: --availability-zone-hint <availability-zone>
 
     Availability Zone in which to create this network
-    (requires the Network Availability Zone extension,
+    (Network Availability Zone extension required,
     repeat option to set multiple availability zones)
 
     *Network version 2 only*
@@ -72,8 +72,8 @@ Create new network
 
 .. option:: --external
 
-    Set this network as an external network.
-    Requires the "external-net" extension to be enabled.
+    Set this network as an external network
+    (external-net extension required)
 
     *Network version 2 only*
 
@@ -92,8 +92,8 @@ Create new network
 
 .. option:: --no-default
 
-    Do not use the network as the default external network.
-    By default, no network is set as an external network.
+    Do not use the network as the default external network
+    (default)
 
     *Network version 2 only*
 
@@ -197,7 +197,7 @@ Set network properties
 .. option:: --external
 
     Set this network as an external network.
-    Requires the "external-net" extension to be enabled.
+    (external-net extension required)
 
 .. option:: --internal
 
@@ -205,8 +205,7 @@ Set network properties
 
 .. option:: --default
 
-    Specify if this network should be used as
-    the default external network
+    Set the network as the default external network
 
 .. option:: --no-default
 

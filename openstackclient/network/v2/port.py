@@ -158,7 +158,7 @@ def _add_updatable_args(parser):
         device_group.add_argument(
             '--device',
             metavar='<device-id>',
-            help='Port device ID',
+            help=_("Port device ID")
         )
         device_group.add_argument(
             '--device-id',
@@ -168,22 +168,23 @@ def _add_updatable_args(parser):
         parser.add_argument(
             '--device-owner',
             metavar='<device-owner>',
-            help='Device owner of this port')
+            help=_("Device owner of this port")
+        )
         parser.add_argument(
             '--vnic-type',
             metavar='<vnic-type>',
             choices=['direct', 'direct-physical', 'macvtap',
                      'normal', 'baremetal'],
-            help="VNIC type for this port (direct | direct-physical |"
-                 " macvtap | normal | baremetal). If unspecified during"
-                 " port creation, default value will be 'normal'.")
+            help=_("VNIC type for this port (direct | direct-physical | "
+                   "macvtap | normal | baremetal, default: normal)")
+        )
         # NOTE(dtroyer): --host-id is deprecated in Mar 2016.  Do not
         #                remove before 3.x release or Mar 2017.
         host_group = parser.add_mutually_exclusive_group()
         host_group.add_argument(
             '--host',
             metavar='<host-id>',
-            help='Allocate port on host <host-id> (ID only)',
+            help=_("Allocate port on host <host-id> (ID only)")
         )
         host_group.add_argument(
             '--host-id',
@@ -202,47 +203,53 @@ class CreatePort(command.ShowOne):
             '--network',
             metavar='<network>',
             required=True,
-            help='Network this port belongs to (name or ID)')
+            help=_("Network this port belongs to (name or ID)")
+        )
         _add_updatable_args(parser)
         parser.add_argument(
             '--fixed-ip',
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
-            help='Desired IP and/or subnet (name or ID) for this port: '
-                 'subnet=<subnet>,ip-address=<ip-address> '
-                 '(repeat option to set multiple fixed IP addresses)')
+            help=_("Desired IP and/or subnet (name or ID) for this port: "
+                   "subnet=<subnet>,ip-address=<ip-address> "
+                   "(repeat option to set multiple fixed IP addresses)")
+        )
         parser.add_argument(
             '--binding-profile',
             metavar='<binding-profile>',
             action=parseractions.KeyValueAction,
-            help='Custom data to be passed as binding:profile: <key>=<value> '
-                 '(repeat option to set multiple binding:profile data)')
+            help=_("Custom data to be passed as binding:profile: "
+                   "<key>=<value> "
+                   "(repeat option to set multiple binding:profile data)")
+        )
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
             action='store_true',
             default=True,
-            help='Enable port (default)',
+            help=_("Enable port (default)")
         )
         admin_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable port',
+            help=_("Disable port")
         )
         parser.add_argument(
             '--mac-address',
             metavar='<mac-address>',
-            help='MAC address of this port')
+            help=_("MAC address of this port")
+        )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help="Owner's project (name or ID)")
+            help=_("Owner's project (name or ID)")
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             'name',
             metavar='<name>',
             help='Name of this port')
-        identity_common.add_project_domain_option_to_parser(parser)
         # TODO(singhj): Add support for extended options:
         # qos,security groups,dhcp, address pairs
         return parser
@@ -270,7 +277,7 @@ class DeletePort(command.Command):
             'port',
             metavar="<port>",
             nargs="+",
-            help=("Port(s) to delete (name or ID)")
+            help=_("Port(s) to delete (name or ID)")
         )
         return parser
 
@@ -291,7 +298,7 @@ class ListPort(command.Lister):
             '--router',
             metavar='<router>',
             dest='router',
-            help='List only ports attached to this router (name or ID)',
+            help=_("List only ports attached to this router (name or ID)")
         )
         return parser
 
@@ -337,21 +344,17 @@ class SetPort(command.Command):
             '--enable',
             action='store_true',
             default=None,
-            help='Enable port',
+            help=_("Enable port")
         )
         admin_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable port',
+            help=_("Disable port")
         )
         parser.add_argument(
             '--name',
             metavar="<name>",
-            help=('Set port name'))
-        parser.add_argument(
-            'port',
-            metavar="<port>",
-            help=("Port to modify (name or ID)")
+            help=_("Set port name")
         )
         fixed_ip = parser.add_mutually_exclusive_group()
         fixed_ip.add_argument(
@@ -359,24 +362,34 @@ class SetPort(command.Command):
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
-            help='Desired IP and/or subnet (name or ID) for this port: '
-                 'subnet=<subnet>,ip-address=<ip-address> '
-                 '(repeat option to set multiple fixed IP addresses)')
+            help=_("Desired IP and/or subnet (name or ID) for this port: "
+                   "subnet=<subnet>,ip-address=<ip-address> "
+                   "(repeat option to set multiple fixed IP addresses)")
+        )
         fixed_ip.add_argument(
             '--no-fixed-ip',
             action='store_true',
-            help='Clear existing information of fixed-ips')
+            help=_("Clear existing information of fixed IP addresses")
+        )
         binding_profile = parser.add_mutually_exclusive_group()
         binding_profile.add_argument(
             '--binding-profile',
             metavar='<binding-profile>',
             action=parseractions.KeyValueAction,
-            help='Custom data to be passed as binding:profile: <key>=<value> '
-                 '(repeat option to set multiple binding:profile data)')
+            help=_("Custom data to be passed as binding:profile: "
+                   "<key>=<value> "
+                   "(repeat option to set multiple binding:profile data)")
+        )
         binding_profile.add_argument(
             '--no-binding-profile',
             action='store_true',
-            help='Clear existing information of binding:profile')
+            help=_("Clear existing information of binding:profile")
+        )
+        parser.add_argument(
+            'port',
+            metavar="<port>",
+            help=_("Port to modify (name or ID)")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -413,7 +426,7 @@ class ShowPort(command.ShowOne):
         parser.add_argument(
             'port',
             metavar="<port>",
-            help="Port to display (name or ID)"
+            help=_("Port to display (name or ID)")
         )
         return parser
 

@@ -16,6 +16,7 @@
 from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
+from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 
@@ -110,19 +111,19 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
         parser.add_argument(
             'name',
             metavar='<name>',
-            help='New network name',
+            help=_("New network name")
         )
         share_group = parser.add_mutually_exclusive_group()
         share_group.add_argument(
             '--share',
             action='store_true',
             default=None,
-            help='Share the network between projects',
+            help=_("Share the network between projects")
         )
         share_group.add_argument(
             '--no-share',
             action='store_true',
-            help='Do not share the network between projects',
+            help=_("Do not share the network between projects")
         )
         return parser
 
@@ -132,17 +133,17 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             '--enable',
             action='store_true',
             default=True,
-            help='Enable network (default)',
+            help=_("Enable network (default)")
         )
         admin_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable network',
+            help=_("Disable network")
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help="Owner's project (name or ID)"
+            help=_("Owner's project (name or ID)")
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
@@ -150,58 +151,65 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             action='append',
             dest='availability_zone_hints',
             metavar='<availability-zone>',
-            help='Availability Zone in which to create this network '
-                 '(requires the Network Availability Zone extension, '
-                 'repeat option to set multiple availability zones)',
+            help=_("Availability Zone in which to create this network "
+                   "(Network Availability Zone extension required, "
+                   "repeat option to set multiple availability zones)")
         )
         external_router_grp = parser.add_mutually_exclusive_group()
         external_router_grp.add_argument(
             '--external',
             action='store_true',
-            help='Set this network as an external network. '
-                 'Requires the "external-net" extension to be enabled.')
+            help=_("Set this network as an external network "
+                   "(external-net extension required)")
+        )
         external_router_grp.add_argument(
             '--internal',
             action='store_true',
-            help='Set this network as an internal network (default)')
+            help=_("Set this network as an internal network (default)")
+        )
         default_router_grp = parser.add_mutually_exclusive_group()
         default_router_grp.add_argument(
             '--default',
             action='store_true',
-            help='Specify if this network should be used as '
-                 'the default external network')
+            help=_("Specify if this network should be used as "
+                   "the default external network")
+        )
         default_router_grp.add_argument(
             '--no-default',
             action='store_true',
-            help='Do not use the network as the default external network.'
-                 'By default, no network is set as an external network.')
+            help=_("Do not use the network as the default external network. "
+                   "(default)")
+        )
         parser.add_argument(
             '--provider-network-type',
             metavar='<provider-network-type>',
             choices=['flat', 'gre', 'local',
                      'vlan', 'vxlan'],
-            help='The physical mechanism by which the virtual network '
-                 'is implemented. The supported options are: '
-                 'flat, gre, local, vlan, vxlan')
+            help=_("The physical mechanism by which the virtual network "
+                   "is implemented. The supported options are: "
+                   "flat, gre, local, vlan, vxlan")
+        )
         parser.add_argument(
             '--provider-physical-network',
             metavar='<provider-physical-network>',
             dest='physical_network',
-            help='Name of the physical network over which the virtual '
-                 'network is implemented')
+            help=_("Name of the physical network over which the virtual "
+                   "network is implemented")
+        )
         parser.add_argument(
             '--provider-segment',
             metavar='<provider-segment>',
             dest='segmentation_id',
-            help='VLAN ID for VLAN networks or Tunnel ID for GRE/VXLAN '
-                 'networks')
+            help=_("VLAN ID for VLAN networks or Tunnel ID for GRE/VXLAN "
+                   "networks")
+        )
         return parser
 
     def update_parser_compute(self, parser):
         parser.add_argument(
             '--subnet',
             metavar='<subnet>',
-            help="IPv4 subnet for fixed IPs (in CIDR notation)"
+            help=_("IPv4 subnet for fixed IPs (in CIDR notation)")
         )
         return parser
 
@@ -350,57 +358,60 @@ class SetNetwork(command.Command):
         parser.add_argument(
             'network',
             metavar="<network>",
-            help=("Network to modify (name or ID)")
+            help=_("Network to modify (name or ID)")
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='Set network name',
+            help=_("Set network name")
         )
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
             action='store_true',
             default=None,
-            help='Enable network',
+            help=_("Enable network")
         )
         admin_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable network',
+            help=_("Disable network")
         )
         share_group = parser.add_mutually_exclusive_group()
         share_group.add_argument(
             '--share',
             action='store_true',
             default=None,
-            help='Share the network between projects',
+            help=_("Share the network between projects")
         )
         share_group.add_argument(
             '--no-share',
             action='store_true',
-            help='Do not share the network between projects',
+            help=_("Do not share the network between projects")
         )
         external_router_grp = parser.add_mutually_exclusive_group()
         external_router_grp.add_argument(
             '--external',
             action='store_true',
-            help='Set this network as an external network. '
-                 'Requires the "external-net" extension to be enabled.')
+            help=_("Set this network as an external network "
+                   "(external-net extension required)")
+        )
         external_router_grp.add_argument(
             '--internal',
             action='store_true',
-            help='Set this network as an internal network')
+            help=_("Set this network as an internal network")
+        )
         default_router_grp = parser.add_mutually_exclusive_group()
         default_router_grp.add_argument(
             '--default',
             action='store_true',
-            help='Specify if this network should be used as '
-                 'the default external network')
+            help=_("Set the network as the default external network")
+        )
         default_router_grp.add_argument(
             '--no-default',
             action='store_true',
-            help='Do not use the network as the default external network.')
+            help=_("Do not use the network as the default external network")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -422,7 +433,7 @@ class ShowNetwork(common.NetworkAndComputeShowOne):
         parser.add_argument(
             'network',
             metavar="<network>",
-            help=("Network to display (name or ID)")
+            help=_("Network to display (name or ID)")
         )
         return parser
 

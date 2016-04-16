@@ -87,7 +87,7 @@ Create new router
 .. option:: --availability-zone-hint <availability-zone>
 
     Availability Zone in which to create this router
-    (requires the Router Availability Zone extension,
+    (Router Availability Zone extension required,
     repeat option to set multiple availability zones)
 
 .. _router_create-name:

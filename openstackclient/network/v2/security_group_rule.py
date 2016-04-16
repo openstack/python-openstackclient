@@ -23,6 +23,7 @@ except ImportError:
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 from openstackclient.network import utils as network_utils
@@ -78,27 +79,27 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             default="tcp",
             choices=['icmp', 'tcp', 'udp'],
             type=_convert_to_lowercase,
-            help="IP protocol (icmp, tcp, udp; default: tcp)",
+            help=_("IP protocol (icmp, tcp, udp; default: tcp)")
         )
         source_group = parser.add_mutually_exclusive_group()
         source_group.add_argument(
             "--src-ip",
             metavar="<ip-address>",
-            help="Source IP address block (may use CIDR notation; "
-                 "default for IPv4 rule: 0.0.0.0/0)",
+            help=_("Source IP address block (may use CIDR notation; "
+                   "default for IPv4 rule: 0.0.0.0/0)")
         )
         source_group.add_argument(
             "--src-group",
             metavar="<group>",
-            help="Source security group (name or ID)",
+            help=_("Source security group (name or ID)")
         )
         parser.add_argument(
             "--dst-port",
             metavar="<port-range>",
             default=(0, 0),
             action=parseractions.RangeAction,
-            help="Destination port, may be a single port or port range: "
-                 "137:139 (only required for IP protocols tcp and udp)",
+            help=_("Destination port, may be a single port or port range: "
+                   "137:139 (only required for IP protocols tcp and udp)")
         )
         return parser
 
@@ -107,24 +108,23 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         direction_group.add_argument(
             '--ingress',
             action='store_true',
-            help='Rule applies to incoming network traffic (default)',
+            help=_("Rule applies to incoming network traffic (default)")
         )
         direction_group.add_argument(
             '--egress',
             action='store_true',
-            help='Rule applies to outgoing network traffic',
+            help=_("Rule applies to outgoing network traffic")
         )
         parser.add_argument(
             '--ethertype',
             metavar='<ethertype>',
             choices=['IPv4', 'IPv6'],
-            help='Ethertype of network traffic '
-                 '(IPv4, IPv6; default: IPv4)',
+            help=_("Ethertype of network traffic (IPv4, IPv6; default: IPv4)")
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help="Owner's project (name or ID)"
+            help=_("Owner's project (name or ID)")
         )
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
@@ -218,7 +218,7 @@ class DeleteSecurityGroupRule(common.NetworkAndComputeCommand):
         parser.add_argument(
             'rule',
             metavar='<rule>',
-            help='Security group rule to delete (ID only)',
+            help=_("Security group rule to delete (ID only)")
         )
         return parser
 
@@ -238,7 +238,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             'group',
             metavar='<group>',
             nargs='?',
-            help='List all rules in this security group (name or ID)',
+            help=_("List all rules in this security group (name or ID)")
         )
         return parser
 
@@ -333,7 +333,7 @@ class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
         parser.add_argument(
             'rule',
             metavar="<rule>",
-            help="Security group rule to display (ID only)"
+            help=_("Security group rule to display (ID only)")
         )
         return parser
 

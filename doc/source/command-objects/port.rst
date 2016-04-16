@@ -45,8 +45,8 @@ Create new port
 
 .. option:: --vnic-type <vnic-type>
 
-    VNIC type for this port (direct | direct-physical | macvtap | normal | baremetal).
-    If unspecified during port creation, default value will be 'normal'.
+    VNIC type for this port (direct | direct-physical | macvtap | normal | baremetal,
+    default: normal)
 
 .. option:: --binding-profile <binding-profile>
 
@@ -141,7 +141,7 @@ Set port properties
 
 .. option:: --no-fixed-ip
 
-    Clear existing information of fixed-ips
+    Clear existing information of fixed IP addresses
 
 .. option:: --device <device-id>
 
@@ -153,8 +153,8 @@ Set port properties
 
 .. option:: --vnic-type <vnic-type>
 
-    VNIC type for this port (direct | direct-physical | macvtap | normal | baremetal).
-    If unspecified during port creation, default value will be 'normal'.
+    VNIC type for this port (direct | direct-physical | macvtap | normal | baremetal,
+    default: normal)
 
 .. option:: --binding-profile <binding-profile>
 

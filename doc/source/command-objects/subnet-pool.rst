@@ -49,8 +49,8 @@ Create subnet pool
 
 .. option:: --address-scope <address-scope>
 
-    Set address scope associated with the subnet pool (name or ID).
-    Prefixes must be unique across address scopes.
+    Set address scope associated with the subnet pool (name or ID),
+    prefixes must be unique across address scopes
 
 .. _subnet_pool_create-name:
 .. describe:: <name>
@@ -128,8 +128,8 @@ Set subnet pool properties
 
 .. option:: --address-scope <address-scope>
 
-    Set address scope associated with the subnet pool (name or ID).
-    Prefixes must be unique across address scopes.
+    Set address scope associated with the subnet pool (name or ID),
+    prefixes must be unique across address scopes
 
 .. option:: --no-address-scope
 
