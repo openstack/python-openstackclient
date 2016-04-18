@@ -24,6 +24,13 @@ class AuthorizationFailure(Exception):
     pass
 
 
+class PluginAttributeError(Exception):
+    """A plugin threw an AttributeError while being lazily loaded."""
+    # This *must not* inherit from AttributeError;
+    # that would defeat the whole purpose.
+    pass
+
+
 class NoTokenLookupException(Exception):
     """This does not support looking up endpoints from an existing token."""
     pass

@@ -22,8 +22,10 @@ import sys
 
 from oslo_utils import strutils
 import requests
+import six
 
 from openstackclient.api import auth
+from openstackclient.common import exceptions
 from openstackclient.common import session as osc_session
 from openstackclient.identity import client as identity_client
 
@@ -45,7 +47,13 @@ class ClientCache(object):
     def __get__(self, instance, owner):
         # Tell the ClientManager to login to keystone
         if self._handle is None:
-            self._handle = self.factory(instance)
+            try:
+                self._handle = self.factory(instance)
+            except AttributeError as err:
+                # Make sure the failure propagates. Otherwise, the plugin just
+                # quietly isn't there.
+                new_err = exceptions.PluginAttributeError(err)
+                six.reraise(new_err.__class__, new_err, sys.exc_info()[2])
         return self._handle
 
 
