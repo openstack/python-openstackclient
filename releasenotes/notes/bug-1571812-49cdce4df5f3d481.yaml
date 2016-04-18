@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    Deprecate global option ``--profile`` in favor of ``--os-profile``.
+
+    ``--profile`` interferes with existing command options with the same name.
+    Unfortunately it appeared in a release so we must follow the deprecation
+    process and wait one year (April 2017) before removing it.
+
+    [Bug `1571812 <https://bugs.launchpad.net/python-openstackclient/+bug/1571812>`_]
