@@ -13,6 +13,7 @@ User Documentation
 .. toctree::
    :maxdepth: 1
 
+   Manual Page <man/openstack>
    command-list
    commands
    configuration
@@ -22,7 +23,6 @@ User Documentation
    interactive
    humaninterfaceguide
    backwards-incompatible
-   man/openstack
 
 Getting Started
 ---------------

@@ -1,14 +1,11 @@
 ---
 features:
   - |
-    Added ``--image-property`` option to ``volume set`` command
+    Add ``--image-property`` option to ``volume set`` and ``volume unset`` commands
 
-    Image properties are copied from image when volume is created.
-    But since a volume is mutable, user sometime wants to update
-    image properties for volume.
+    Image properties are copied when a volume is created from an image.
+    The properties are immutable on the image itself but may be updated
+    or removed from the volume created from that image.
 
-    So, this fix enables user to update image properties of volume
-    using below command:
-    ``volume set --image-property <key=value> <volume>``.
-
-    [Bug '1554877 <https://bugs.launchpad.net/python-openstackclient/+bug/1554877>'_]
+    [Bug `1554877 <https://bugs.launchpad.net/python-openstackclient/+bug/1554877>`_]
+    [Bug `1554879 <https://bugs.launchpad.net/python-openstackclient/+bug/1554879>`_]
