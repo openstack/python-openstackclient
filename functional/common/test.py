@@ -17,8 +17,9 @@ import subprocess
 import testtools
 
 import six
-
+from tempest_lib.cli import output_parser
 from tempest_lib import exceptions
+
 
 COMMON_DIR = os.path.dirname(os.path.abspath(__file__))
 FUNCTIONAL_DIR = os.path.normpath(os.path.join(COMMON_DIR, '..'))
@@ -112,7 +113,7 @@ class TestCase(testtools.TestCase):
         """Return list of dicts with item values parsed from cli output."""
 
         items = []
-        table_ = self.table(raw_output)
+        table_ = output_parser.table(raw_output)
         for row in table_['values']:
             item = {}
             item[row[0]] = row[1]
@@ -121,60 +122,4 @@ class TestCase(testtools.TestCase):
 
     def parse_listing(self, raw_output):
         """Return list of dicts with basic item parsed from cli output."""
-
-        items = []
-        table_ = self.table(raw_output)
-        for row in table_['values']:
-            item = {}
-            for col_idx, col_key in enumerate(table_['headers']):
-                item[col_key] = row[col_idx]
-            items.append(item)
-        return items
-
-    def table(self, output_lines):
-        """Parse single table from cli output.
-
-        Return dict with list of column names in 'headers' key and
-        rows in 'values' key.
-        """
-        table_ = {'headers': [], 'values': []}
-        columns = None
-
-        if not isinstance(output_lines, list):
-            output_lines = output_lines.split('\n')
-
-        if not output_lines[-1]:
-            # skip last line if empty (just newline at the end)
-            output_lines = output_lines[:-1]
-
-        for line in output_lines:
-            if self.delimiter_line.match(line):
-                columns = self._table_columns(line)
-                continue
-            if '|' not in line:
-                continue
-            row = []
-            for col in columns:
-                row.append(line[col[0]:col[1]].strip())
-            if table_['headers']:
-                table_['values'].append(row)
-            else:
-                table_['headers'] = row
-
-        return table_
-
-    def _table_columns(self, first_table_row):
-        """Find column ranges in output line.
-
-        Return list of tuples (start,end) for each column
-        detected by plus (+) characters in delimiter line.
-        """
-        positions = []
-        start = 1  # there is '+' at 0
-        while start < len(first_table_row):
-            end = first_table_row.find('+', start)
-            if end == -1:
-                break
-            positions.append((start, end))
-            start = end + 1
-        return positions
+        return output_parser.listing(raw_output)
