@@ -361,13 +361,11 @@ class FakeAvailabilityZone(object):
     """Fake one or more volume availability zones (AZs)."""
 
     @staticmethod
-    def create_one_availability_zone(attrs={}, methods={}):
+    def create_one_availability_zone(attrs={}):
         """Create a fake AZ.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :return:
             A FakeResource object with zoneName, zoneState, etc.
         """
@@ -382,18 +380,15 @@ class FakeAvailabilityZone(object):
 
         availability_zone = fakes.FakeResource(
             info=copy.deepcopy(availability_zone),
-            methods=methods,
             loaded=True)
         return availability_zone
 
     @staticmethod
-    def create_availability_zones(attrs={}, methods={}, count=2):
+    def create_availability_zones(attrs={}, count=2):
         """Create multiple fake AZs.
 
         :param Dictionary attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
-            A dictionary with all methods
         :param int count:
             The number of AZs to fake
         :return:
@@ -402,8 +397,7 @@ class FakeAvailabilityZone(object):
         availability_zones = []
         for i in range(0, count):
             availability_zone = \
-                FakeAvailabilityZone.create_one_availability_zone(
-                    attrs, methods)
+                FakeAvailabilityZone.create_one_availability_zone(attrs)
             availability_zones.append(availability_zone)
 
         return availability_zones
