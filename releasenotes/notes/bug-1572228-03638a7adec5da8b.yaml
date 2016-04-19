@@ -1,0 +1,6 @@
+---
+fixes:
+  - Fixed ``network create``, ``network show`` and ``network list``
+    commands to correctly display the router type in the
+    ``router:external`` and ``Router Type`` columns.
+    [Bug `1572228 <https://bugs.launchpad.net/bugs/1572228>`_]

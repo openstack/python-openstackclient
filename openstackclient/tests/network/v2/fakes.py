@@ -166,8 +166,7 @@ class FakeNetwork(object):
         :param Dictionary attrs:
             A dictionary with all attributes
         :return:
-            A FakeResource object, with id, name, admin_state_up,
-            router_external, status, subnets, tenant_id
+            A FakeResource object, with id, name, etc.
         """
         attrs = attrs or {}
 
@@ -181,7 +180,7 @@ class FakeNetwork(object):
             'shared': False,
             'subnets': ['a', 'b'],
             'provider_network_type': 'vlan',
-            'router_external': True,
+            'router:external': True,
             'availability_zones': [],
             'availability_zone_hints': [],
             'is_default': False,
@@ -195,6 +194,7 @@ class FakeNetwork(object):
 
         # Set attributes with special mapping in OpenStack SDK.
         network.project_id = network_attrs['tenant_id']
+        network.is_router_external = network_attrs['router:external']
 
         return network
 
