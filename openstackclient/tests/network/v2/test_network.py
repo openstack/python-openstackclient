@@ -484,6 +484,9 @@ class TestSetNetwork(TestNetwork):
             '--share',
             '--external',
             '--default',
+            '--provider-network-type', 'vlan',
+            '--provider-physical-network', 'physnet1',
+            '--provider-segment', '400',
         ]
         verifylist = [
             ('network', self._network.name),
@@ -492,6 +495,9 @@ class TestSetNetwork(TestNetwork):
             ('share', True),
             ('external', True),
             ('default', True),
+            ('provider_network_type', 'vlan'),
+            ('physical_network', 'physnet1'),
+            ('segmentation_id', '400'),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -503,6 +509,9 @@ class TestSetNetwork(TestNetwork):
             'shared': True,
             'router:external': True,
             'is_default': True,
+            'provider:network_type': 'vlan',
+            'provider:physical_network': 'physnet1',
+            'provider:segmentation_id': '400',
         }
         self.network.update_network.assert_called_once_with(
             self._network, **attrs)
