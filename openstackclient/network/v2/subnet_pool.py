@@ -55,6 +55,16 @@ def _get_attrs(client_manager, parsed_args):
     if 'no_address_scope' in parsed_args and parsed_args.no_address_scope:
         attrs['address_scope_id'] = None
 
+    if parsed_args.default:
+        attrs['is_default'] = True
+    if parsed_args.no_default:
+        attrs['is_default'] = False
+
+    if 'share' in parsed_args and parsed_args.share:
+        attrs['shared'] = True
+    if 'no_share' in parsed_args and parsed_args.no_share:
+        attrs['shared'] = False
+
     # "subnet pool set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
         identity_client = client_manager.identity
@@ -97,6 +107,20 @@ def _add_prefix_options(parser):
     )
 
 
+def _add_default_options(parser):
+    default_group = parser.add_mutually_exclusive_group()
+    default_group.add_argument(
+        '--default',
+        action='store_true',
+        help=_("Set this as a default subnet pool"),
+    )
+    default_group.add_argument(
+        '--no-default',
+        action='store_true',
+        help=_("Set this as a non-default subnet pool"),
+    )
+
+
 class CreateSubnetPool(command.ShowOne):
     """Create subnet pool"""
 
@@ -120,6 +144,18 @@ class CreateSubnetPool(command.ShowOne):
             help=_("Set address scope associated with the subnet pool "
                    "(name or ID), prefixes must be unique across address "
                    "scopes")
+        )
+        _add_default_options(parser)
+        shared_group = parser.add_mutually_exclusive_group()
+        shared_group.add_argument(
+            '--share',
+            action='store_true',
+            help=_("Set this subnet pool as shared"),
+        )
+        shared_group.add_argument(
+            '--no-share',
+            action='store_true',
+            help=_("Set this subnet pool as not shared"),
         )
         return parser
 
@@ -176,6 +212,8 @@ class ListSubnetPool(command.Lister):
                 'Prefixes',
                 'Default Prefix Length',
                 'Address Scope',
+                'Default Subnet Pool',
+                'Shared',
             )
             columns = (
                 'id',
@@ -183,6 +221,8 @@ class ListSubnetPool(command.Lister):
                 'prefixes',
                 'default_prefixlen',
                 'address_scope_id',
+                'is_default',
+                'shared',
             )
         else:
             headers = (
@@ -232,6 +272,8 @@ class SetSubnetPool(command.Command):
             action='store_true',
             help=_("Remove address scope associated with the subnet pool")
         )
+        _add_default_options(parser)
+
         return parser
 
     def take_action(self, parsed_args):
