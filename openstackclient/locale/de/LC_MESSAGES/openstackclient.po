@@ -5,13 +5,12 @@
 #
 # Translators:
 # Ettore Atalan <atalanttore@googlemail.com>, 2014-2015
-# Andreas Jaeger <jaegerandi@gmail.com>, 2015. #zanata
-# OpenStack Infra <zanata@openstack.org>, 2015. #zanata
+# Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: python-openstackclient 2.0.1.dev168\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-01-19 02:20+0000\n"
+"Project-Id-Version: python-openstackclient 2.2.1.dev235\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
+"POT-Creation-Date: 2016-04-19 05:02+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -167,10 +166,6 @@ msgid "Endpoint ID to display"
 msgstr "Anzuzeigende Endpunktkennung"
 
 #, python-format
-msgid "Error creating server snapshot: %s"
-msgstr "Fehler beim Erstellen der Server-Schattenkopie: %s"
-
-#, python-format
 msgid "Error creating server: %s"
 msgstr "Fehler beim Erstellen des Servers: %s"
 
@@ -180,11 +175,6 @@ msgstr "Fehler beim Löschen des Servers: %s"
 
 msgid "Error retrieving diagnostics data"
 msgstr "Fehler beim Abrufen der Diagnosedaten"
-
-msgid "File to inject into image before boot (repeat for multiple files)"
-msgstr ""
-"Vor dem Start auf diesem Abbild einzufügende Datei (für mehrere Dateien "
-"wiederholen)"
 
 msgid "Filter by parent region ID"
 msgstr "Nach übergeordneter Regionskennung filtern"
@@ -338,11 +328,6 @@ msgstr "Zu löschende(s) Projekt(e) (Name oder Kennung)"
 msgid "Prompt interactively for password"
 msgstr "Interaktiv nach dem Passwort abfragen"
 
-msgid "Property key to remove from server (repeat to unset multiple values)"
-msgstr ""
-"Vom Server zu entfernender Eigenschaftsschlüssel (zum Aufheben von mehreren "
-"Werten wiederholen)"
-
 msgid ""
 "Property to add/change for this server (repeat option to set multiple "
 "properties)"
@@ -445,11 +430,6 @@ msgid "Set a project property (repeat option to set multiple properties)"
 msgstr ""
 "Legen Sie eine Projekteigenschaft fest (wiederholen Sie die Option, um "
 "mehrere Eigenschaften festzulegen)"
-
-msgid "Set a property on this server (repeat for multiple values)"
-msgstr ""
-"Legen Sie eine Eigenschaft auf diesem Server fest (für mehrere Werte "
-"wiederholen)"
 
 msgid ""
 "Set a scope, such as a project or domain, set a project scope with --os-"
