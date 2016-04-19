@@ -21,6 +21,7 @@ Create new network
         [--provider-network-type <provider-network-type>]
         [--provider-physical-network <provider-physical-network>]
         [--provider-segment <provider-segment>]
+        [--transparent-vlan | --no-transparent-vlan]
         <name>
 
 .. option:: --project <project>
@@ -116,6 +117,18 @@ Create new network
 
     *Network version 2 only*
 
+.. option:: --transparent-vlan
+
+    Make the network VLAN transparent
+
+    *Network version 2 only*
+
+.. option:: --no-transparent-vlan
+
+    Do not make the network VLAN transparent
+
+    *Network version 2 only*
+
 .. _network_create-name:
 .. describe:: <name>
 
@@ -175,6 +188,7 @@ Set network properties
         [--provider-network-type <provider-network-type>]
         [--provider-physical-network <provider-physical-network>]
         [--provider-segment <provider-segment>]
+        [--transparent-vlan | --no-transparent-vlan]
         <network>
 
 .. option:: --name <name>
@@ -226,6 +240,14 @@ Set network properties
 .. option:: --provider-segment <provider-segment>
 
     VLAN ID for VLAN networks or Tunnel ID for GRE/VXLAN networks
+
+.. option:: --transparent-vlan
+
+    Make the network VLAN transparent
+
+.. option:: --no-transparent-vlan
+
+    Do not make the network VLAN transparent
 
 .. _network_set-network:
 .. describe:: <network>
