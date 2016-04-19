@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    Add ``--project`` and ``--project-domain`` options to ``volume type set``
+    and ``volume type unset`` commands
+
+    Use the ``--project`` option to restrict a volume type to a specific project.
+    Volume types are public by default, restricted volume types should be made
+    private with the ``--private`` option to the ``volume create`` command.
+
+    [Bug `1554889 <https://bugs.launchpad.net/python-openstackclient/+bug/1554889>`_]
+    [Bug `1554890 <https://bugs.launchpad.net/python-openstackclient/+bug/1554890>`_]

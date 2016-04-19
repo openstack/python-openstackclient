@@ -1,4 +1,4 @@
 ---
 features:
-  - Command ``host set`` is now available for compute
+  - Add ``host set`` command
     [Bug `1556929 <https://bugs.launchpad.net/python-openstackclient/+bug/1556929>`_]
