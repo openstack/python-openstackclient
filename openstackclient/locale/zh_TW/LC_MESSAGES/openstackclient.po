@@ -4,12 +4,12 @@
 # python-openstackclient project.
 #
 # Translators:
-# OpenStack Infra <zanata@openstack.org>, 2015. #zanata
+# Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: python-openstackclient 2.0.1.dev168\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-01-19 02:20+0000\n"
+"Project-Id-Version: python-openstackclient 2.2.1.dev235\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
+"POT-Creation-Date: 2016-04-19 05:02+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -126,18 +126,11 @@ msgid "Endpoint ID to display"
 msgstr "要顯示的端點識別號"
 
 #, python-format
-msgid "Error creating server snapshot: %s"
-msgstr "新增雲實例即時存檔時出錯：%s"
-
-#, python-format
 msgid "Error creating server: %s"
 msgstr "新增雲實例時出錯：%s"
 
 msgid "Error retrieving diagnostics data"
 msgstr "獲得診斷資料時出錯"
-
-msgid "File to inject into image before boot (repeat for multiple files)"
-msgstr "在開機前要注入映像檔的檔案（為多個檔案重復指定）"
 
 msgid "Filter by parent region ID"
 msgstr "以父地區識別號來篩選"
@@ -287,9 +280,6 @@ msgstr "要刪除的專案（名稱或識別號）"
 msgid "Prompt interactively for password"
 msgstr "為密碼互動提示"
 
-msgid "Property key to remove from server (repeat to unset multiple values)"
-msgstr "要從雲實例上移除的屬性鍵（重復來取消選擇多個值）"
-
 msgid ""
 "Property to add/change for this server (repeat option to set multiple "
 "properties)"
@@ -384,9 +374,6 @@ msgstr "要顯示的伺服器（類型、名稱或識別號）"
 
 msgid "Set a project property (repeat option to set multiple properties)"
 msgstr "設定專案屬性（重復這選項來設定多個屬性）"
-
-msgid "Set a property on this server (repeat for multiple values)"
-msgstr "為此伺服器設定屬性（為多個值重複設定）"
 
 msgid "Set default project (name or ID)"
 msgstr "設定預設專案（名稱或識別號）"
