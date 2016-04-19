@@ -69,7 +69,7 @@ List security groups
     Display information from all projects (admin only)
 
     *Network version 2 ignores this option and will always display information*
-    *for all projects.*
+    *for all projects (admin only).*
 
 security group set
 ------------------
