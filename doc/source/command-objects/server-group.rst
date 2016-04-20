@@ -43,3 +43,23 @@ Delete an existing server group
 
     Server group(s) to delete (name or ID)
     (repeat to delete multiple server groups)
+
+server group list
+-----------------
+
+List all server groups
+
+.. program:: server group list
+.. code-block:: bash
+
+    os server group list
+        [--all-projects]
+        [--long]
+
+.. option:: --all-projects
+
+    Display information from all projects (admin only)
+
+.. option:: --long
+
+    List additional fields in output

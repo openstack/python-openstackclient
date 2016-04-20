@@ -190,3 +190,71 @@ class TestServerGroupDelete(TestServerGroup):
             self.server_groups_mock.delete.assert_called_once_with(
                 self.fake_server_group.id
             )
+
+
+class TestServerGroupList(TestServerGroup):
+
+    list_columns = (
+        'ID',
+        'Name',
+        'Policies',
+    )
+
+    list_columns_long = (
+        'ID',
+        'Name',
+        'Policies',
+        'Members',
+        'Project Id',
+        'User Id',
+    )
+
+    list_data = ((
+        TestServerGroup.fake_server_group.id,
+        TestServerGroup.fake_server_group.name,
+        utils.format_list(TestServerGroup.fake_server_group.policies),
+    ),)
+
+    list_data_long = ((
+        TestServerGroup.fake_server_group.id,
+        TestServerGroup.fake_server_group.name,
+        utils.format_list(TestServerGroup.fake_server_group.policies),
+        utils.format_list(TestServerGroup.fake_server_group.members),
+        TestServerGroup.fake_server_group.project_id,
+        TestServerGroup.fake_server_group.user_id,
+    ),)
+
+    def setUp(self):
+        super(TestServerGroupList, self).setUp()
+
+        self.server_groups_mock.list.return_value = [self.fake_server_group]
+        self.cmd = server_group.ListServerGroup(self.app, None)
+
+    def test_server_group_list(self):
+        arglist = []
+        verifylist = [
+            ('all_projects', False),
+            ('long', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.server_groups_mock.list.assert_called_once_with(False)
+
+        self.assertEqual(self.list_columns, columns)
+        self.assertEqual(self.list_data, tuple(data))
+
+    def test_server_group_list_with_all_projects_and_long(self):
+        arglist = [
+            '--all-projects',
+            '--long',
+        ]
+        verifylist = [
+            ('all_projects', True),
+            ('long', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.server_groups_mock.list.assert_called_once_with(True)
+
+        self.assertEqual(self.list_columns_long, columns)
+        self.assertEqual(self.list_data_long, tuple(data))

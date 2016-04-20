@@ -99,3 +99,60 @@ class DeleteServerGroup(command.Command):
             total = len(parsed_args.server_group)
             msg = "%s of %s server groups failed to delete." % (result, total)
             raise exceptions.CommandError(msg)
+
+
+class ListServerGroup(command.Lister):
+    """List all server groups."""
+
+    def get_parser(self, prog_name):
+        parser = super(ListServerGroup, self).get_parser(prog_name)
+        parser.add_argument(
+            '--all-projects',
+            action='store_true',
+            default=False,
+            help='Display information from all projects (admin only)',
+        )
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help='List additional fields in output',
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+        data = compute_client.server_groups.list(parsed_args.all_projects)
+
+        if parsed_args.long:
+            column_headers = (
+                'ID',
+                'Name',
+                'Policies',
+                'Members',
+                'Project Id',
+                'User Id',
+            )
+            columns = (
+                'ID',
+                'Name',
+                'Policies',
+                'Members',
+                'Project Id',
+                'User Id',
+            )
+        else:
+            column_headers = columns = (
+                'ID',
+                'Name',
+                'Policies',
+            )
+
+        return (column_headers,
+                (utils.get_item_properties(
+                    s, columns,
+                    formatters={
+                        'Policies': utils.format_list,
+                        'Members': utils.format_list,
+                    }
+                ) for s in data))
