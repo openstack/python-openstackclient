@@ -249,7 +249,8 @@ class CreatePort(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<name>',
-            help='Name of this port')
+            help=_("Name of this port")
+        )
         # TODO(singhj): Add support for extended options:
         # qos,security groups,dhcp, address pairs
         return parser
