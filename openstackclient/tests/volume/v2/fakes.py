@@ -281,7 +281,7 @@ class FakeVolume(object):
     """
 
     @staticmethod
-    def create_one_volume(attrs={}):
+    def create_one_volume(attrs=None):
         """Create a fake volume.
 
         :param Dictionary attrs:
@@ -289,6 +289,8 @@ class FakeVolume(object):
         :retrun:
             A FakeResource object with id, name, status, etc.
         """
+        attrs = attrs or {}
+
         # Set default attribute
         volume_info = {
             'id': 'volume-id' + uuid.uuid4().hex,
@@ -320,7 +322,7 @@ class FakeVolume(object):
         return volume
 
     @staticmethod
-    def create_volumes(attrs={}, count=2):
+    def create_volumes(attrs=None, count=2):
         """Create multiple fake volumes.
 
         :param Dictionary attrs:
@@ -361,7 +363,7 @@ class FakeAvailabilityZone(object):
     """Fake one or more volume availability zones (AZs)."""
 
     @staticmethod
-    def create_one_availability_zone(attrs={}):
+    def create_one_availability_zone(attrs=None):
         """Create a fake AZ.
 
         :param Dictionary attrs:
@@ -369,6 +371,8 @@ class FakeAvailabilityZone(object):
         :return:
             A FakeResource object with zoneName, zoneState, etc.
         """
+        attrs = attrs or {}
+
         # Set default attributes.
         availability_zone = {
             'zoneName': uuid.uuid4().hex,
@@ -384,7 +388,7 @@ class FakeAvailabilityZone(object):
         return availability_zone
 
     @staticmethod
-    def create_availability_zones(attrs={}, count=2):
+    def create_availability_zones(attrs=None, count=2):
         """Create multiple fake AZs.
 
         :param Dictionary attrs:
