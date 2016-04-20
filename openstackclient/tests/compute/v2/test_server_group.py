@@ -258,3 +258,26 @@ class TestServerGroupList(TestServerGroup):
 
         self.assertEqual(self.list_columns_long, columns)
         self.assertEqual(self.list_data_long, tuple(data))
+
+
+class TestServerGroupShow(TestServerGroup):
+
+    def setUp(self):
+        super(TestServerGroupShow, self).setUp()
+
+        self.server_groups_mock.get.return_value = self.fake_server_group
+        self.cmd = server_group.ShowServerGroup(self.app, None)
+
+    def test_server_group_show(self):
+        arglist = [
+            'affinity_group',
+        ]
+        verifylist = [
+            ('server_group', 'affinity_group'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)

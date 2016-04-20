@@ -63,3 +63,18 @@ List all server groups
 .. option:: --long
 
     List additional fields in output
+
+server group show
+-----------------
+
+Display server group details
+
+.. program:: server group show
+.. code-block:: bash
+
+    os server group show
+        <server-group>
+
+.. describe:: <server-group>
+
+        Server group to display (name or ID)
