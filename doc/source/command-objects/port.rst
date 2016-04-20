@@ -135,11 +135,13 @@ Set port properties
 .. code:: bash
 
     os port set
-        [--fixed-ip subnet=<subnet>,ip-address=<ip-address> | --no-fixed-ip]
+        [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]
+        [--no-fixed-ip]
         [--device <device-id>]
         [--device-owner <device-owner>]
         [--vnic-type <vnic-type>]
-        [--binding-profile <binding-profile> | --no-binding-profile]
+        [--binding-profile <binding-profile>]
+        [--no-binding-profile]
         [--host <host-id>]
         [--enable | --disable]
         [--name <name>]
@@ -153,7 +155,9 @@ Set port properties
 
 .. option:: --no-fixed-ip
 
-    Clear existing information of fixed IP addresses
+    Clear existing information of fixed IP addresses.
+    Specify both --fixed-ip and --no-fixed-ip
+    to overwrite the current fixed IP addresses.
 
 .. option:: --device <device-id>
 
@@ -177,7 +181,9 @@ Set port properties
 
 .. option:: --no-binding-profile
 
-    Clear existing information of binding:profile
+    Clear existing information of binding:profile.
+    Specify both --binding-profile and --no-binding-profile
+    to overwrite the current binding:profile information.
 
 .. option:: --host <host-id>
 

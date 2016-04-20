@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    ``port set`` command now allows the user to overwrite fixed-ips or binding-profile
+    of a port.
+    [ Blueprint  `allow-overwrite-set-options <https://blueprints.launchpad.net/python-openstackclient/+spec/allow-overwrite-set-options>` _]

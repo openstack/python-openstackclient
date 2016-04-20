@@ -465,6 +465,50 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
 
+    def test_overwrite_binding_profile(self):
+        _testport = network_fakes.FakePort.create_one_port(
+            {'binding_profile': {'lok_i': 'visi_on'}})
+        self.network.find_port = mock.Mock(return_value=_testport)
+        arglist = [
+            '--binding-profile', 'lok_i=than_os',
+            '--no-binding-profile',
+            _testport.name,
+        ]
+        verifylist = [
+            ('binding_profile', {'lok_i': 'than_os'}),
+            ('no_binding_profile', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        attrs = {
+            'binding:profile':
+                {'lok_i': 'than_os'},
+        }
+        self.network.update_port.assert_called_once_with(_testport, **attrs)
+        self.assertIsNone(result)
+
+    def test_overwrite_fixed_ip(self):
+        _testport = network_fakes.FakePort.create_one_port(
+            {'fixed_ips': [{'ip_address': '0.0.0.1'}]})
+        self.network.find_port = mock.Mock(return_value=_testport)
+        arglist = [
+            '--fixed-ip', 'ip-address=10.0.0.12',
+            '--no-fixed-ip',
+            _testport.name,
+        ]
+        verifylist = [
+            ('fixed_ip', [{'ip-address': '10.0.0.12'}]),
+            ('no_fixed_ip', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        attrs = {
+            'fixed_ips': [
+                {'ip_address': '10.0.0.12'}],
+        }
+        self.network.update_port.assert_called_once_with(_testport, **attrs)
+        self.assertIsNone(result)
+
     def test_set_this(self):
         arglist = [
             '--disable',
