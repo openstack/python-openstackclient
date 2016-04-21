@@ -2,7 +2,7 @@
 server group
 ============
 
-Server group provide a mechanism to group servers according to certain policy.
+Server group provides a mechanism to group servers according to certain policy.
 
 Compute v2
 
@@ -77,4 +77,4 @@ Display server group details
 
 .. describe:: <server-group>
 
-        Server group to display (name or ID)
+    Server group to display (name or ID)
