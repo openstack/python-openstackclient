@@ -14,8 +14,6 @@
 """Subnet action implementations"""
 import copy
 
-from json.encoder import JSONEncoder
-
 from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
@@ -31,10 +29,8 @@ def _format_allocation_pools(data):
 
 
 def _format_host_routes(data):
-    try:
-        return '\n'.join([JSONEncoder().encode(route) for route in data])
-    except (TypeError, KeyError):
-        return ''
+    # Map the host route keys to match --host-route option.
+    return utils.format_list_of_dicts(convert_entries_to_gateway(data))
 
 
 _formatters = {
@@ -89,8 +85,9 @@ def convert_entries_to_nexthop(entries):
     # Change 'gateway' entry to 'nexthop'
     changed_entries = copy.deepcopy(entries)
     for entry in changed_entries:
-        entry['nexthop'] = entry['gateway']
-        del entry['gateway']
+        if 'gateway' in entry:
+            entry['nexthop'] = entry['gateway']
+            del entry['gateway']
 
     return changed_entries
 
@@ -99,8 +96,9 @@ def convert_entries_to_gateway(entries):
     # Change 'nexthop' entry to 'gateway'
     changed_entries = copy.deepcopy(entries)
     for entry in changed_entries:
-        entry['gateway'] = entry['nexthop']
-        del entry['nexthop']
+        if 'nexthop' in entry:
+            entry['gateway'] = entry['nexthop']
+            del entry['nexthop']
 
     return changed_entries
 
