@@ -1,0 +1,6 @@
+---
+features:
+  - Add ``--share`` and ``--default`` options to ``subnet pool create``
+    and ``--default`` option to ``subnet pool set``
+    [Bug `1544586 <https://bugs.launchpad.net/python-openstackclient/+bug/1544586>`_]
+    [Bug `1544591 <https://bugs.launchpad.net/python-openstackclient/+bug/1544591>`_]

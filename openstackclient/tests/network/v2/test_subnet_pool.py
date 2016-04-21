@@ -221,6 +221,32 @@ class TestCreateSubnetPool(TestSubnetPool):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def test_create_default_and_shared_options(self):
+        arglist = [
+            '--pool-prefix', '10.0.10.0/24',
+            '--default',
+            '--share',
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('prefixes', ['10.0.10.0/24']),
+            ('default', True),
+            ('share', True),
+            ('name', self._subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_subnet_pool.assert_called_once_with(**{
+            'is_default': True,
+            'name': self._subnet_pool.name,
+            'prefixes': ['10.0.10.0/24'],
+            'shared': True,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
 
 class TestDeleteSubnetPool(TestSubnetPool):
 
@@ -267,6 +293,8 @@ class TestListSubnetPool(TestSubnetPool):
     columns_long = columns + (
         'Default Prefix Length',
         'Address Scope',
+        'Default Subnet Pool',
+        'Shared',
     )
 
     data = []
@@ -285,6 +313,8 @@ class TestListSubnetPool(TestSubnetPool):
             utils.format_list(pool.prefixes),
             pool.default_prefixlen,
             pool.address_scope_id,
+            pool.is_default,
+            pool.shared,
         ))
 
     def setUp(self):
@@ -467,6 +497,62 @@ class TestSetSubnetPool(TestSubnetPool):
         verifylist = [
             ('address_scope', self._address_scope.id),
             ('no_address_scope', True),
+            ('subnet_pool', self._subnet_pool.name),
+        ]
+
+        # Exclusive arguments will conflict here.
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_set_default(self):
+        arglist = [
+            '--default',
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('default', True),
+            ('subnet_pool', self._subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'is_default': True
+        }
+        self.network.update_subnet_pool.assert_called_once_with(
+            self._subnet_pool, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_no_default(self):
+        arglist = [
+            '--no-default',
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('no_default', True),
+            ('subnet_pool', self._subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'is_default': False,
+        }
+        self.network.update_subnet_pool.assert_called_once_with(
+            self._subnet_pool, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_no_default_conflict(self):
+        arglist = [
+            '--default',
+            '--no-default',
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('default', True),
+            ('no_default', True),
             ('subnet_pool', self._subnet_pool.name),
         ]
 
