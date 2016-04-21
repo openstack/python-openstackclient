@@ -145,6 +145,17 @@ list check out :doc:`plugin-commands`.
 * ``action definition``: (**Workflow Engine (Mistral)**)
 * ``action execution``: (**Workflow Engine (Mistral)**)
 * ``baremetal``: (**Baremetal (Ironic)**)
+* ``cluster``: (**Clustering (Senlin)**)
+* ``cluster action``: (**Clustering (Senlin)**)
+* ``cluster event``: (**Clustering (Senlin)**)
+* ``cluster members``: (**Clustering (Senlin)**)
+* ``cluster node``: (**Clustering (Senlin)**)
+* ``cluster policy``: (**CLustering (Senlin)**)
+* ``cluster policy binding``: (**Clustering (Senlin)**)
+* ``cluster policy type``: (**Clustering (Senlin)**)
+* ``cluster profile``: (**Clustering (Senlin)**)
+* ``cluster profile type``: (**Clustering (Senlin)**)
+* ``cluster receiver``: (**Clustering (Senlin)**)
 * ``congress datasource``: (**Policy (Congress)**)
 * ``congress driver``: (**Policy (Congress)**)
 * ``congress policy``: (**Policy (Congress)**)
@@ -196,6 +207,7 @@ Those actions with an opposite action are noted in parens if applicable.
   the positional arguments appear in the same order
 * ``create`` (``delete``) - create a new occurrence of the specified object
 * ``delete`` (``create``) - delete specific occurrences of the specified objects
+* ``expand`` (``shrink``) - increase the capacity of a cluster
 * ``issue`` (``revoke``) - issue a token
 * ``list`` - display summary information about multiple objects
 * ``lock`` (``unlock``) - lock one or more servers so that non-admin user won't be able to execute actions
@@ -206,7 +218,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``rebuild`` - rebuild a server using (most of) the same arguments as in the original create
 * ``remove`` (``add``) - remove an object from a group of objects
 * ``rescue`` (``unrescue``) - reboot a server in a special rescue mode allowing access to the original disks
-* ``resize`` - change a server's flavor
+* ``resize`` - change a server's flavor or a cluster's capacity
 * ``restore`` - restore a heat stack snapshot or restore a server in soft-deleted state
 * ``resume`` (``suspend``) - return one or more suspended servers to running state
 * ``revoke`` (``issue``) - revoke a token
@@ -214,6 +226,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``set`` (``unset``) - set a property on the object, formerly called metadata
 * ``shelve`` (``unshelve``) - shelve one or more servers
 * ``show`` - display detailed information about the specific object
+* ``shrink`` (``expand``) - reduce the capacity of a cluster
 * ``start`` (``stop``) - start one or more servers
 * ``stop`` (``start``) - stop one or more servers
 * ``suspend`` (``resume``) - stop one or more servers and save to disk freeing memory
