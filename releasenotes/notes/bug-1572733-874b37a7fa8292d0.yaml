@@ -1,0 +1,6 @@
+---
+fixes:
+  - The ``quota show`` command ``<project/class>`` argument is now
+    optional. If not specified, the user's current project is used.
+    This allows non-admin users to show quotas for their current project.
+    [Bug `1572733 <https://bugs.launchpad.net/bugs/1572733>`_]

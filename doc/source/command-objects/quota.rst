@@ -4,7 +4,7 @@ quota
 
 Resource quotas appear in multiple APIs, OpenStackClient presents them as a single object with multiple properties.
 
-Compute v2, Block Storage v1
+Block Storage v1, Compute v2, Network v2
 
 quota set
 ---------
@@ -129,14 +129,14 @@ Set quotas for class
 quota show
 ----------
 
-Show quotas for project
+Show quotas for project or class
 
 .. program:: quota show
 .. code:: bash
 
     os quota show
         [--default]
-        <project>
+        [<project>]
 
 
 .. option:: --default
@@ -146,13 +146,13 @@ Show quotas for project
 .. _quota_show-project:
 .. describe:: <project>
 
-    Show quotas for class
+    Show quotas for this project (name or ID)
 
 .. code:: bash
 
     os quota show
         --class
-        <class>
+        [<class>]
 
 .. option:: --class
 
@@ -161,4 +161,4 @@ Show quotas for project
 .. _quota_show-class:
 .. describe:: <class>
 
-    Class to show
+    Show quotas for this class (name or ID)
