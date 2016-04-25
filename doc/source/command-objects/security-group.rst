@@ -2,6 +2,10 @@
 security group
 ==============
 
+A **security group** acts as a virtual firewall for servers and other
+resources on a network. It is a container for security group rules
+which specify the network access rules.
+
 Compute v2, Network v2
 
 security group create

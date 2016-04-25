@@ -2,6 +2,9 @@
 subnet pool
 ===========
 
+A **subnet pool** contains a collection of prefixes in CIDR notation
+that are available for IP address allocation.
+
 Network v2
 
 subnet pool create

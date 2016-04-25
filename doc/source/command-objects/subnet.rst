@@ -2,6 +2,10 @@
 subnet
 ======
 
+A **subnet** is a block of IP addresses and associated configuration state.
+Subnets are used to allocate IP addresses when new ports are created on a
+network.
+
 Network v2
 
 subnet create
