@@ -78,12 +78,13 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
-def _add_prefix_options(parser):
+def _add_prefix_options(parser, for_create=False):
     parser.add_argument(
         '--pool-prefix',
         metavar='<pool-prefix>',
         dest='prefixes',
         action='append',
+        required=for_create,
         help=_("Set subnet pool prefixes (in CIDR notation) "
                "(repeat option to set multiple prefixes)")
     )
@@ -131,7 +132,7 @@ class CreateSubnetPool(command.ShowOne):
             metavar='<name>',
             help=_("Name of the new subnet pool")
         )
-        _add_prefix_options(parser)
+        _add_prefix_options(parser, for_create=True)
         parser.add_argument(
             '--project',
             metavar='<project>',
