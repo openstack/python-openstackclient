@@ -36,3 +36,8 @@ class QuotaTests(test.TestCase):
         raw_output = self.openstack('quota show ' + self.PROJECT_NAME)
         for expected_field in self.EXPECTED_FIELDS:
             self.assertIn(expected_field, raw_output)
+
+    def test_quota_show_default_project(self):
+        raw_output = self.openstack('quota show')
+        for expected_field in self.EXPECTED_FIELDS:
+            self.assertIn(expected_field, raw_output)

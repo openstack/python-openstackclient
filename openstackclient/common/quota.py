@@ -145,7 +145,8 @@ class ShowQuota(command.ShowOne):
         parser.add_argument(
             'project',
             metavar='<project/class>',
-            help='Show this project or class (name/ID)',
+            nargs='?',
+            help='Show quotas for this project or class (name or ID)',
         )
         type_group = parser.add_mutually_exclusive_group()
         type_group.add_argument(
@@ -164,12 +165,22 @@ class ShowQuota(command.ShowOne):
         )
         return parser
 
+    def _get_project(self, parsed_args):
+        if parsed_args.project is not None:
+            identity_client = self.app.client_manager.identity
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+            ).id
+        elif self.app.client_manager.auth_ref:
+            # Get the project from the current auth
+            project = self.app.client_manager.auth_ref.project_id
+        else:
+            project = None
+        return project
+
     def get_compute_volume_quota(self, client, parsed_args):
-        identity_client = self.app.client_manager.identity
-        project = utils.find_resource(
-            identity_client.projects,
-            parsed_args.project,
-        ).id
+        project = self._get_project(parsed_args)
 
         try:
             if parsed_args.quota_class:
@@ -189,11 +200,7 @@ class ShowQuota(command.ShowOne):
         if parsed_args.quota_class or parsed_args.default:
             return {}
         if self.app.client_manager.is_network_endpoint_enabled():
-            identity_client = self.app.client_manager.identity
-            project = utils.find_resource(
-                identity_client.projects,
-                parsed_args.project,
-            ).id
+            project = self._get_project(parsed_args)
             return self.app.client_manager.network.get_quota(project)
         else:
             return {}

@@ -59,6 +59,7 @@ class TestQuota(compute_fakes.TestComputev2):
         self.service_catalog_mock = \
             self.app.client_manager.auth_ref.service_catalog
         self.service_catalog_mock.reset_mock()
+        self.app.client_manager.auth_ref.project_id = identity_fakes.project_id
 
 
 class TestQuotaSet(TestQuota):
@@ -304,3 +305,13 @@ class TestQuotaShow(TestQuota):
             identity_fakes.project_id)
         self.volume_quotas_class_mock.get.assert_called_with(
             identity_fakes.project_id)
+
+    def test_quota_show_no_project(self):
+        parsed_args = self.check_parser(self.cmd, [], [])
+
+        self.cmd.take_action(parsed_args)
+
+        self.quotas_mock.get.assert_called_with(identity_fakes.project_id)
+        self.volume_quotas_mock.get.assert_called_with(
+            identity_fakes.project_id)
+        self.network.get_quota.assert_called_with(identity_fakes.project_id)
