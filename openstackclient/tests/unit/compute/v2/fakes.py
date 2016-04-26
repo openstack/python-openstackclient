@@ -83,6 +83,7 @@ class FakeAggregate(object):
             "id": "aggregate-id-" + uuid.uuid4().hex,
             "metadata": {
                 "availability_zone": "ag_zone",
+                "key1": "value1",
             }
         }
 
