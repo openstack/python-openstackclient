@@ -142,14 +142,14 @@ def check_valid_auth_options(options, auth_plugin_name, required_scope=True):
 
     """
 
-    msg = ''
+    msgs = []
     if auth_plugin_name.endswith('password'):
         if not options.auth.get('username'):
-            msg += _('Set a username with --os-username, OS_USERNAME,'
-                     ' or auth.username\n')
+            msgs.append(_('Set a username with --os-username, OS_USERNAME,'
+                          ' or auth.username'))
         if not options.auth.get('auth_url'):
-            msg += _('Set an authentication URL, with --os-auth-url,'
-                     ' OS_AUTH_URL or auth.auth_url\n')
+            msgs.append(_('Set an authentication URL, with --os-auth-url,'
+                          ' OS_AUTH_URL or auth.auth_url'))
         if (required_scope and not
                 options.auth.get('project_id') and not
                 options.auth.get('domain_id') and not
@@ -157,24 +157,28 @@ def check_valid_auth_options(options, auth_plugin_name, required_scope=True):
                 options.auth.get('project_name') and not
                 options.auth.get('tenant_id') and not
                 options.auth.get('tenant_name')):
-            msg += _('Set a scope, such as a project or domain, set a '
-                     'project scope with --os-project-name, OS_PROJECT_NAME '
-                     'or auth.project_name, set a domain scope with '
-                     '--os-domain-name, OS_DOMAIN_NAME or auth.domain_name')
+            msgs.append(_('Set a scope, such as a project or domain, set a '
+                          'project scope with --os-project-name, '
+                          'OS_PROJECT_NAME or auth.project_name, set a domain '
+                          'scope with --os-domain-name, OS_DOMAIN_NAME or '
+                          'auth.domain_name'))
     elif auth_plugin_name.endswith('token'):
         if not options.auth.get('token'):
-            msg += _('Set a token with --os-token, OS_TOKEN or auth.token\n')
+            msgs.append(_('Set a token with --os-token, OS_TOKEN or '
+                          'auth.token'))
         if not options.auth.get('auth_url'):
-            msg += _('Set a service AUTH_URL, with --os-auth-url, '
-                     'OS_AUTH_URL or auth.auth_url\n')
+            msgs.append(_('Set a service AUTH_URL, with --os-auth-url, '
+                          'OS_AUTH_URL or auth.auth_url'))
     elif auth_plugin_name == 'token_endpoint':
         if not options.auth.get('token'):
-            msg += _('Set a token with --os-token, OS_TOKEN or auth.token\n')
+            msgs.append(_('Set a token with --os-token, OS_TOKEN or '
+                          'auth.token'))
         if not options.auth.get('url'):
-            msg += _('Set a service URL, with --os-url, OS_URL or auth.url\n')
+            msgs.append(_('Set a service URL, with --os-url, OS_URL or '
+                          'auth.url'))
 
-    if msg:
-        raise exc.CommandError('Missing parameter(s): \n%s' % msg)
+    if msgs:
+        raise exc.CommandError('Missing parameter(s): \n%s' % '\n'.join(msgs))
 
 
 def build_auth_plugins_option_parser(parser):
