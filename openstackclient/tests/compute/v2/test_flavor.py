@@ -288,8 +288,10 @@ class TestFlavorSet(TestFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-
-        self.flavors_mock.find.assert_called_with(name='baremetal')
+        try:
+            self.flavors_mock.find.assert_called_with(name=parsed_args.flavor)
+        except Exception:
+            self.flavors_mock.get.assert_called_with(parsed_args.flavor)
         self.assertIsNone(result)
 
 
@@ -382,6 +384,8 @@ class TestFlavorUnset(TestFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-
-        self.flavors_mock.find.assert_called_with(name='baremetal')
+        try:
+            self.flavors_mock.find.assert_called_with(name=parsed_args.flavor)
+        except Exception:
+            self.flavors_mock.get.assert_called_with(parsed_args.flavor)
         self.assertIsNone(result)
