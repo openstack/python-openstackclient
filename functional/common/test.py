@@ -17,8 +17,8 @@ import subprocess
 import testtools
 
 import six
-from tempest_lib.cli import output_parser
-from tempest_lib import exceptions
+from tempest.lib.cli import output_parser
+from tempest.lib import exceptions
 
 
 COMMON_DIR = os.path.dirname(os.path.abspath(__file__))

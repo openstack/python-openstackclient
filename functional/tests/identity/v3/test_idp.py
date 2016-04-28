@@ -11,7 +11,7 @@
 #    under the License.
 
 from functional.tests.identity.v3 import test_identity
-from tempest_lib.common.utils import data_utils
+from tempest.lib.common.utils import data_utils
 
 
 class IdentityProviderTests(test_identity.IdentityTests):
