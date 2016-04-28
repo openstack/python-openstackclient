@@ -2,6 +2,9 @@
 security group rule
 ===================
 
+A **security group rule** specifies the network access rules for servers
+and other resources on the network.
+
 Compute v2, Network v2
 
 security group rule create
