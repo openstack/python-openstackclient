@@ -1,0 +1,5 @@
+---
+fixes:
+  - Fixed ``flavor set/unset`` command to properly find a
+    flavor to be set/unset by flavor id.
+    [Bug `1575624 <https://bugs.launchpad.net/bugs/1575624>`_]

@@ -239,7 +239,8 @@ class SetFlavor(command.Command):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        flavor = compute_client.flavors.find(name=parsed_args.flavor)
+        flavor = utils.find_resource(compute_client.flavors,
+                                     parsed_args.flavor)
         flavor.set_keys(parsed_args.property)
 
 
@@ -289,5 +290,6 @@ class UnsetFlavor(command.Command):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        flavor = compute_client.flavors.find(name=parsed_args.flavor)
+        flavor = utils.find_resource(compute_client.flavors,
+                                     parsed_args.flavor)
         flavor.unset_keys(parsed_args.property)
