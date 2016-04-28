@@ -153,9 +153,10 @@ class TestCreateSubnetPool(TestSubnetPool):
             self._subnet_pool.name,
         ]
         verifylist = [
-            ('default_prefix_length', self._subnet_pool.default_prefixlen),
-            ('max_prefix_length', self._subnet_pool.max_prefixlen),
-            ('min_prefix_length', self._subnet_pool.min_prefixlen),
+            ('default_prefix_length',
+                int(self._subnet_pool.default_prefixlen)),
+            ('max_prefix_length', int(self._subnet_pool.max_prefixlen)),
+            ('min_prefix_length', int(self._subnet_pool.min_prefixlen)),
             ('name', self._subnet_pool.name),
             ('prefixes', ['10.0.10.0/24']),
         ]
@@ -164,9 +165,9 @@ class TestCreateSubnetPool(TestSubnetPool):
         columns, data = (self.cmd.take_action(parsed_args))
 
         self.network.create_subnet_pool.assert_called_once_with(**{
-            'default_prefixlen': self._subnet_pool.default_prefixlen,
-            'max_prefixlen': self._subnet_pool.max_prefixlen,
-            'min_prefixlen': self._subnet_pool.min_prefixlen,
+            'default_prefixlen': int(self._subnet_pool.default_prefixlen),
+            'max_prefixlen': int(self._subnet_pool.max_prefixlen),
+            'min_prefixlen': int(self._subnet_pool.min_prefixlen),
             'prefixes': ['10.0.10.0/24'],
             'name': self._subnet_pool.name,
         })
@@ -397,8 +398,8 @@ class TestSetSubnetPool(TestSubnetPool):
         ]
         verifylist = [
             ('name', 'noob'),
-            ('default_prefix_length', '8'),
-            ('min_prefix_length', '8'),
+            ('default_prefix_length', 8),
+            ('min_prefix_length', 8),
             ('subnet_pool', self._subnet_pool.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -407,8 +408,8 @@ class TestSetSubnetPool(TestSubnetPool):
 
         attrs = {
             'name': 'noob',
-            'default_prefixlen': '8',
-            'min_prefixlen': '8',
+            'default_prefixlen': 8,
+            'min_prefixlen': 8,
         }
         self.network.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs)
@@ -423,7 +424,7 @@ class TestSetSubnetPool(TestSubnetPool):
         ]
         verifylist = [
             ('prefixes', ['10.0.1.0/24', '10.0.2.0/24']),
-            ('max_prefix_length', '16'),
+            ('max_prefix_length', 16),
             ('subnet_pool', self._subnet_pool.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -434,7 +435,7 @@ class TestSetSubnetPool(TestSubnetPool):
         prefixes.extend(self._subnet_pool.prefixes)
         attrs = {
             'prefixes': prefixes,
-            'max_prefixlen': '16',
+            'max_prefixlen': 16,
         }
         self.network.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs)

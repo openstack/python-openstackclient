@@ -91,6 +91,7 @@ def _add_prefix_options(parser, for_create=False):
     parser.add_argument(
         '--default-prefix-length',
         metavar='<default-prefix-length>',
+        type=int,
         action=parseractions.NonNegativeAction,
         help=_("Set subnet pool default prefix length")
     )
@@ -98,11 +99,13 @@ def _add_prefix_options(parser, for_create=False):
         '--min-prefix-length',
         metavar='<min-prefix-length>',
         action=parseractions.NonNegativeAction,
+        type=int,
         help=_("Set subnet pool minimum prefix length")
     )
     parser.add_argument(
         '--max-prefix-length',
         metavar='<max-prefix-length>',
+        type=int,
         action=parseractions.NonNegativeAction,
         help=_("Set subnet pool maximum prefix length")
     )

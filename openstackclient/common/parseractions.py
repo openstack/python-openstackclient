@@ -155,9 +155,8 @@ class NonNegativeAction(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
-        try:
-            assert(int(values) >= 0)
+        if int(values) >= 0:
             setattr(namespace, self.dest, values)
-        except Exception:
+        else:
             msg = "%s expected a non-negative integer" % (str(option_string))
             raise argparse.ArgumentTypeError(msg)
