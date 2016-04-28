@@ -129,6 +129,97 @@ QOS_WITH_ASSOCIATIONS = {
 }
 
 
+class FakeServiceClient(object):
+
+    def __init__(self, **kwargs):
+        self.services = mock.Mock()
+        self.services.resource_class = fakes.FakeResource(None, {})
+
+
+class TestService(utils.TestCommand):
+
+    def setUp(self):
+        super(TestService, self).setUp()
+
+        self.app.client_manager.volume = FakeServiceClient(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN
+        )
+
+
+class FakeService(object):
+    """Fake one or more Services."""
+
+    @staticmethod
+    def create_one_service(attrs=None):
+        """Create a fake service.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes of service
+        :retrun:
+            A FakeResource object with host, status, etc.
+        """
+        # Set default attribute
+        service_info = {
+            'host': 'host_test',
+            'binary': 'cinder_test',
+            'status': 'enabled',
+            'disabled_reason': 'LongHoliday-GoldenWeek',
+            'zone': 'fake_zone',
+            'updated_at': 'fake_date',
+            'state': 'fake_state',
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        if attrs is None:
+            attrs = {}
+        service_info.update(attrs)
+
+        service = fakes.FakeResource(
+            None,
+            service_info,
+            loaded=True)
+
+        return service
+
+    @staticmethod
+    def create_services(attrs=None, count=2):
+        """Create multiple fake services.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes of service
+        :param Integer count:
+            The number of services to be faked
+        :return:
+            A list of FakeResource objects
+        """
+        services = []
+        for n in range(0, count):
+            services.append(FakeService.create_one_service(attrs))
+
+        return services
+
+    @staticmethod
+    def get_services(services=None, count=2):
+        """Get an iterable MagicMock object with a list of faked services.
+
+        If services list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List services:
+            A list of FakeResource objects faking services
+        :param Integer count:
+            The number of services to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            services
+        """
+        if services is None:
+            services = FakeService.create_services(count)
+
+        return mock.MagicMock(side_effect=services)
+
+
 class FakeImagev1Client(object):
 
     def __init__(self, **kwargs):
