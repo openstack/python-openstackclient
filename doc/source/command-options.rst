@@ -112,8 +112,26 @@ Some options can be repeated to build a collection of values for a property.
 Adding a value to the collection must be provided via the ``set`` action.
 Removing a value from the collection must be provided via an ``unset`` action.
 As a convenience, removing all values from the collection may be provided via a
-``--no`` option on the ``set`` and ``unset`` actions. The ``--no`` option must
-be part of a mutually exclusive group with the related property option.
+``--no`` option on the ``set`` and ``unset`` actions. If both ``--no`` option
+and option are specified, the values specified on the command would overwrite
+the collection property instead of appending on the ``set`` action. The
+``--no`` option must be part of a mutually exclusive group with the related
+property option on the ``unset`` action, overwrite case don't exist in
+``unset`` action.
+
+An example behavior for ``set`` action:
+
+Append:
+
+.. code-block:: bash
+
+    object set --example-property xxx
+
+Overwrite:
+
+.. code-block:: bash
+
+    object set --no-example-property --example-property xxx
 
 The example below assumes a property that contains a list of unique values.
 However, this example can also be applied to other collections using the
@@ -129,8 +147,7 @@ An example parser declaration for `set` action:
 
 .. code-block:: python
 
-        example_property_group = parser.add_mutually_exclusive_group()
-        example_property_group.add_argument(
+        parser.add_argument(
             '--example-property',
             metavar='<example-property>',
             dest='example_property',
@@ -138,7 +155,7 @@ An example parser declaration for `set` action:
             help=_('Example property for this <resource> '
                    '(repeat option to set multiple properties)'),
         )
-        example_property_group.add_argument(
+        parser.add_argument(
             '--no-example-property',
             dest='no_example_property',
             action='store_true',
@@ -149,10 +166,12 @@ An example handler in `take_action()` for `set` action:
 
 .. code-block:: python
 
-        if parsed_args.example_property:
+        if parsed_args.example_property and parsed_args.no_example_property:
+            kwargs['example_property'] = parsed_args.example_property
+        elif parsed_args.example_property:
             kwargs['example_property'] = \
                 resource_example_property + parsed_args.example_property
-        if parsed_args.no_example_property:
+        elif parsed_args.no_example_property:
             kwargs['example_property'] = []
 
 An example parser declaration for `unset` action:
