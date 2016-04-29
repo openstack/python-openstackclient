@@ -24,6 +24,7 @@ from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+from openstackclient.identity import common
 
 
 LOG = logging.getLogger(__name__)
@@ -187,8 +188,12 @@ class ShowDomain(command.ShowOne):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
+
+        domain_str = common._get_token_resource(identity_client, 'domain',
+                                                parsed_args.domain)
+
         domain = utils.find_resource(identity_client.domains,
-                                     parsed_args.domain)
+                                     domain_str)
 
         domain._info.pop('links')
         return zip(*sorted(six.iteritems(domain._info)))

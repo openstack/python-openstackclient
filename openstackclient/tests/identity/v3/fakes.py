@@ -502,6 +502,9 @@ class FakeIdentityv3Client(object):
         self.role_assignments.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
+        self.auth = FakeAuth()
+        self.auth.client = mock.Mock()
+        self.auth.client.resource_class = fakes.FakeResource(None, {})
 
 
 class FakeFederationManager(object):

@@ -389,6 +389,16 @@ class TestDomainShow(TestDomain):
             ('domain', identity_fakes.domain_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.identity.tokens.get_token_data.return_value = \
+            {'token':
+             {'project':
+              {'domain':
+               {'id': 'd1',
+                'name': 'd1'
+                }
+               }
+              }
+             }
 
         # In base command class ShowOne in cliff, abstract method take_action()
         # returns a two-part tuple with a tuple of column names and a tuple of

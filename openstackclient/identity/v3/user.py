@@ -444,14 +444,16 @@ class ShowUser(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
+        user_str = common._get_token_resource(identity_client, 'user',
+                                              parsed_args.user)
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
             user = utils.find_resource(identity_client.users,
-                                       parsed_args.user,
+                                       user_str,
                                        domain_id=domain.id)
         else:
             user = utils.find_resource(identity_client.users,
-                                       parsed_args.user)
+                                       user_str)
 
         user._info.pop('links')
         return zip(*sorted(six.iteritems(user._info)))

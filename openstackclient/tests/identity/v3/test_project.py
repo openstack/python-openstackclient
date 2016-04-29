@@ -749,6 +749,7 @@ class TestProjectShow(TestProject):
         self.cmd = project.ShowProject(self.app, None)
 
     def test_project_show(self):
+
         arglist = [
             identity_fakes.project_id,
         ]
@@ -756,6 +757,16 @@ class TestProjectShow(TestProject):
             ('project', identity_fakes.project_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.app.client_manager.identity.tokens.get_token_data.return_value = \
+            {'token':
+             {'project':
+              {'domain': {},
+               'name': parsed_args.project,
+               'id': parsed_args.project
+               }
+              }
+             }
 
         # In base command class ShowOne in cliff, abstract method take_action()
         # returns a two-part tuple with a tuple of column names and a tuple of
@@ -797,6 +808,15 @@ class TestProjectShow(TestProject):
             ('children', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.identity.tokens.get_token_data.return_value = \
+            {'token':
+             {'project':
+              {'domain': {},
+               'name': parsed_args.project,
+               'id': parsed_args.project
+               }
+              }
+             }
 
         columns, data = self.cmd.take_action(parsed_args)
         self.projects_mock.get.assert_called_with(
@@ -845,6 +865,15 @@ class TestProjectShow(TestProject):
             ('children', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.identity.tokens.get_token_data.return_value = \
+            {'token':
+             {'project':
+              {'domain': {},
+               'name': parsed_args.project,
+               'id': parsed_args.project
+               }
+              }
+             }
 
         columns, data = self.cmd.take_action(parsed_args)
         self.projects_mock.get.assert_called_with(
@@ -895,6 +924,15 @@ class TestProjectShow(TestProject):
             ('children', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.identity.tokens.get_token_data.return_value = \
+            {'token':
+             {'project':
+              {'domain': {},
+               'name': parsed_args.project,
+               'id': parsed_args.project
+               }
+              }
+             }
 
         columns, data = self.cmd.take_action(parsed_args)
         self.projects_mock.get.assert_called_with(
