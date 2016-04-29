@@ -50,6 +50,11 @@ ROLE = {
     'name': role_name,
 }
 
+ROLE_2 = {
+    'id': '2',
+    'name': 'bigboss',
+}
+
 service_id = '1925-10-11'
 service_name = 'elmore'
 service_description = 'Leonard, Elmore, rip'

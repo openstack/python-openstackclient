@@ -67,6 +67,19 @@ class ListRoleAssignment(command.Lister):
         )
         common.add_project_domain_option_to_parser(parser)
         common.add_inherited_option_to_parser(parser)
+        parser.add_argument(
+            '--auth-user',
+            action="store_true",
+            dest='authuser',
+            help='Only list assignments for the authenticated user',
+        )
+        parser.add_argument(
+            '--auth-project',
+            action="store_true",
+            dest='authproject',
+            help='Only list assignments for the project to which the '
+                 'authenticated user\'s token is scoped',
+        )
         return parser
 
     def _as_tuple(self, assignment):
@@ -75,6 +88,7 @@ class ListRoleAssignment(command.Lister):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
+        auth_ref = self.app.client_manager.auth_ref
 
         role = None
         if parsed_args.role:
@@ -90,6 +104,12 @@ class ListRoleAssignment(command.Lister):
                 parsed_args.user,
                 parsed_args.user_domain,
             )
+        elif parsed_args.authuser:
+            if auth_ref:
+                user = common.find_user(
+                    identity_client,
+                    auth_ref.user_id
+                )
 
         domain = None
         if parsed_args.domain:
@@ -105,6 +125,12 @@ class ListRoleAssignment(command.Lister):
                 parsed_args.project,
                 parsed_args.project_domain,
             )
+        elif parsed_args.authproject:
+            if auth_ref:
+                project = common.find_project(
+                    identity_client,
+                    auth_ref.project_id
+                )
 
         group = None
         if parsed_args.group:

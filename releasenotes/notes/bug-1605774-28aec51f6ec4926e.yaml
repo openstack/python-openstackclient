@@ -1,0 +1,4 @@
+---
+features:
+  - Deprecate ``role list`` arguments in favor of ``role assignment`` command.
+    [Bug `1605774 <https://bugs.launchpad.net/python-openstackclient/+bug/1605774>`_]

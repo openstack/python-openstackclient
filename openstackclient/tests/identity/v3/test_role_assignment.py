@@ -12,6 +12,7 @@
 #
 
 import copy
+import mock
 
 from openstackclient.identity.v3 import role_assignment
 from openstackclient.tests import fakes
@@ -372,6 +373,65 @@ class TestRoleAssignmentList(TestRoleAssignment):
             '',
             False
             ),)
+        self.assertEqual(datalist, tuple(data))
+
+    def test_role_assignment_list_def_creds(self):
+
+        auth_ref = self.app.client_manager.auth_ref = mock.MagicMock()
+        auth_ref.project_id.return_value = identity_fakes.project_id
+        auth_ref.user_id.return_value = identity_fakes.user_id
+
+        self.role_assignments_mock.list.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(
+                    identity_fakes.ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID),
+                loaded=True,
+            ),
+        ]
+
+        arglist = [
+            '--auth-user',
+            '--auth-project',
+        ]
+        verifylist = [
+            ('user', None),
+            ('group', None),
+            ('domain', None),
+            ('project', None),
+            ('role', None),
+            ('effective', False),
+            ('inherited', False),
+            ('names', False),
+            ('authuser', True),
+            ('authproject', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.role_assignments_mock.list.assert_called_with(
+            domain=None,
+            user=self.users_mock.get(),
+            group=None,
+            project=self.projects_mock.get(),
+            role=None,
+            effective=False,
+            os_inherit_extension_inherited_to=None,
+            include_names=False)
+
+        self.assertEqual(self.columns, columns)
+        datalist = ((
+            identity_fakes.role_id,
+            identity_fakes.user_id,
+            '',
+            identity_fakes.project_id,
+            '',
+            False
+        ),)
         self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_effective(self):

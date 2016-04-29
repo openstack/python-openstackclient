@@ -7,7 +7,7 @@ Identity v2, v3
 role add
 --------
 
-Add role to a user or group in a project or domain
+Add role assignment to a user or group in a project or domain
 
 .. program:: role add
 .. code:: bash
@@ -123,30 +123,32 @@ List roles
 
     Filter roles by <domain> (name or ID)
 
-    .. versionadded:: 3
+    (Deprecated, please use ``role assignment list`` instead)
 
 .. option:: --project <project>
 
     Filter roles by <project> (name or ID)
 
-    .. versionadded:: 3
+    (Deprecated, please use ``role assignment list`` instead)
 
 .. option:: --user <user>
 
     Filter roles by <user> (name or ID)
 
-    .. versionadded:: 3
+    (Deprecated, please use ``role assignment list`` instead)
 
 .. option:: --group <group>
 
     Filter roles by <group> (name or ID)
 
-    .. versionadded:: 3
+    (Deprecated, please use ``role assignment list`` instead)
 
 .. option:: --user-domain <user-domain>
 
     Domain the user belongs to (name or ID).
     This can be used in case collisions between user names exist.
+
+    (Deprecated, please use ``role assignment list`` instead)
 
     .. versionadded:: 3
 
@@ -155,6 +157,8 @@ List roles
     Domain the group belongs to (name or ID).
     This can be used in case collisions between group names exist.
 
+    (Deprecated, please use ``role assignment list`` instead)
+
     .. versionadded:: 3
 
 .. option:: --project-domain <project-domain>
@@ -162,18 +166,22 @@ List roles
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
 
+    (Deprecated, please use ``role assignment list`` instead)
+
     .. versionadded:: 3
 
 .. option:: --inherited
 
     Specifies if the role grant is inheritable to the sub projects.
 
+    (Deprecated, please use ``role assignment list`` instead)
+
     .. versionadded:: 3
 
 role remove
 -----------
 
-Remove role from domain/project : user/group
+Remove role assignment from domain/project : user/group
 
 .. program:: role remove
 .. code:: bash

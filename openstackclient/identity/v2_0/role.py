@@ -150,6 +150,15 @@ class ListRole(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
+
+        def _deprecated():
+            # NOTE(henry-nash): Deprecated as of Newton, so we should remove
+            # this in the 'P' release.
+            self.log.warning(_('Listing assignments using role list is '
+                               'deprecated as of the Newton release. Use role '
+                               'assignment list --user <user-name> --project '
+                               '<project-name> --names instead.'))
+
         identity_client = self.app.client_manager.identity
         auth_ref = self.app.client_manager.auth_ref
 
@@ -166,6 +175,7 @@ class ListRole(command.Lister):
                 identity_client.projects,
                 parsed_args.project,
             )
+            _deprecated()
             data = identity_client.roles.roles_for_user(user.id, project.id)
 
         elif parsed_args.user:
@@ -181,6 +191,7 @@ class ListRole(command.Lister):
             else:
                 msg = _("Project must be specified")
                 raise exceptions.CommandError(msg)
+            _deprecated()
             data = identity_client.roles.roles_for_user(user.id, project.id)
         elif parsed_args.project:
             project = utils.find_resource(
@@ -195,6 +206,7 @@ class ListRole(command.Lister):
             else:
                 msg = _("User must be specified")
                 raise exceptions.CommandError(msg)
+            _deprecated()
             data = identity_client.roles.roles_for_user(user.id, project.id)
 
         if parsed_args.user or parsed_args.project:
@@ -249,6 +261,10 @@ class ListUserRole(command.Lister):
             msg = _("User must be specified")
             raise exceptions.CommandError(msg)
 
+        self.log.warning(_('Listing assignments using user role list is '
+                           'deprecated as of the Newton release. Use role '
+                           'assignment list --user <user-name> --project '
+                           '<project-name> --names instead.'))
         project = utils.find_resource(
             identity_client.tenants,
             parsed_args.project,
