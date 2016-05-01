@@ -129,6 +129,57 @@ QOS_WITH_ASSOCIATIONS = {
 }
 
 
+class FakeTransferClient(object):
+
+    def __init__(self, **kwargs):
+
+        self.transfers = mock.Mock()
+        self.transfers.resource_class = fakes.FakeResource(None, {})
+
+
+class TestTransfer(utils.TestCommand):
+
+    def setUp(self):
+        super(TestTransfer, self).setUp()
+
+        self.app.client_manager.volume = FakeTransferClient(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN
+        )
+
+
+class FakeTransfer(object):
+    """Fake one or more Transfer."""
+
+    @staticmethod
+    def create_one_transfer(attrs=None):
+        """Create a fake transfer.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes of Transfer Request
+        :retrun:
+            A FakeResource object with volume_id, name, id.
+        """
+        # Set default attribute
+        transfer_info = {
+            'volume_id': 'ce26708d-a7f8-4b4b-9861-4a80256615a7',
+            'name': 'fake_transfer_name',
+            'id': '731a7f53-aa92-4fbd-9de3-6f7d729c926b'
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        attrs = attrs or {}
+
+        transfer_info.update(attrs)
+
+        transfer = fakes.FakeResource(
+            None,
+            transfer_info,
+            loaded=True)
+
+        return transfer
+
+
 class FakeServiceClient(object):
 
     def __init__(self, **kwargs):
@@ -171,8 +222,8 @@ class FakeService(object):
         }
 
         # Overwrite default attributes if there are some attributes set
-        if attrs is None:
-            attrs = {}
+        attrs = attrs or {}
+
         service_info.update(attrs)
 
         service = fakes.FakeResource(

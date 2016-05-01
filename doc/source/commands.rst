@@ -134,6 +134,7 @@ referring to both Compute and Volume quotas.
 * ``volume qos``: (**Volume**) quality-of-service (QoS) specification for volumes
 * ``volume type``: (**Volume**) deployment-specific types of volumes available
 * ``volume service``: (**Volume**) services to manage block storage operations
+* ``volume transfer request``: (**Volume**) volume owner transfer request
 
 
 Plugin Objects
