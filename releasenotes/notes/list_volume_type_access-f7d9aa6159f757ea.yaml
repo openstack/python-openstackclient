@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Show project access details for private volume type.
+
+    An user can list projects which have access to
+    a specific private volume type by using
+    ``volume type show <volume-type>``
+
+    [Bug `1554891 <https://bugs.launchpad.net/python-openstackclient/+bug/1554891>`_]

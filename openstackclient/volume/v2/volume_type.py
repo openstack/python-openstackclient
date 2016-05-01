@@ -282,8 +282,24 @@ class ShowVolumeType(command.ShowOne):
         volume_client = self.app.client_manager.volume
         volume_type = utils.find_resource(
             volume_client.volume_types, parsed_args.volume_type)
-        properties = utils.format_dict(volume_type._info.pop('extra_specs'))
+        properties = utils.format_dict(
+            volume_type._info.pop('extra_specs', {}))
         volume_type._info.update({'properties': properties})
+        access_project_ids = None
+        if not volume_type.is_public:
+            try:
+                volume_type_access = volume_client.volume_type_access.list(
+                    volume_type.id)
+                project_ids = [utils.get_field(item, 'project_id')
+                               for item in volume_type_access]
+                # TODO(Rui Chen): This format list case can be removed after
+                # patch https://review.openstack.org/#/c/330223/ merged.
+                access_project_ids = utils.format_list(project_ids)
+            except Exception as e:
+                msg = _('Failed to get access project list for volume type '
+                        '%(type)s: %(e)s')
+                LOG.error(msg % {'type': volume_type.id, 'e': e})
+        volume_type._info.update({'access_project_ids': access_project_ids})
         return zip(*sorted(six.iteritems(volume_type._info)))
 
 

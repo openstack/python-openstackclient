@@ -76,6 +76,38 @@ class FakeTransfer(object):
         return transfer
 
 
+class FakeTypeAccess(object):
+    """Fake one or more volume type access."""
+
+    @staticmethod
+    def create_one_type_access(attrs=None):
+        """Create a fake volume type access for project.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with  Volume_type_ID and Project_ID.
+        """
+        if attrs is None:
+            attrs = {}
+
+        # Set default attributes.
+        type_access_attrs = {
+            'volume_type_id': 'volume-type-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        type_access_attrs.update(attrs)
+
+        type_access = fakes.FakeResource(
+            None,
+            type_access_attrs,
+            loaded=True)
+
+        return type_access
+
+
 class FakeServiceClient(object):
 
     def __init__(self, **kwargs):
@@ -666,6 +698,7 @@ class FakeType(object):
             "name": 'type-name-' + uuid.uuid4().hex,
             "description": 'type-description-' + uuid.uuid4().hex,
             "extra_specs": {"foo": "bar"},
+            "is_public": True,
         }
 
         # Overwrite default attributes.

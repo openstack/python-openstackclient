@@ -145,7 +145,6 @@ volume type show
 
 Display volume type details
 
-
 .. program:: volume type show
 .. code:: bash
 
