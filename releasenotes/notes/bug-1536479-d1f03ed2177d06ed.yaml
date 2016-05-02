@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    ``--pool-prefix`` option made required for ``subnet pool create``
+    [Bug `1536479 <https://bugs.launchpad.net/bugs/1536479>`_]

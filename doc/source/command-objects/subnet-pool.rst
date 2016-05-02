@@ -16,7 +16,6 @@ Create subnet pool
 .. code:: bash
 
     os subnet pool create
-        [--pool-prefix <pool-prefix> [...]]
         [--default-prefix-length <default-prefix-length>]
         [--min-prefix-length <min-prefix-length>]
         [--max-prefix-length <max-prefix-length>]
@@ -24,12 +23,8 @@ Create subnet pool
         [--address-scope <address-scope>]
         [--default | --no-default]
         [--share | --no-share]
+        --pool-prefix <pool-prefix> [...]
         <name>
-
-.. option:: --pool-prefix <pool-prefix>
-
-    Set subnet pool prefixes (in CIDR notation)
-    (repeat option to set multiple prefixes)
 
 .. option:: --default-prefix-length <default-prefix-length>
 
@@ -72,6 +67,11 @@ Create subnet pool
 .. option:: --no-share
 
     Set this subnet pool as not shared
+
+.. describe:: --pool-prefix <pool-prefix>
+
+    Set subnet pool prefixes (in CIDR notation)
+    (repeat option to set multiple prefixes)
 
 .. _subnet_pool_create-name:
 .. describe:: <name>

@@ -113,6 +113,17 @@ class TestCreateSubnetPool(TestSubnetPool):
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
+    def test_create_no_pool_prefix(self):
+        """Make sure --pool-prefix is a required argument"""
+        arglist = [
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('name', self._subnet_pool.name),
+        ]
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
     def test_create_default_options(self):
         arglist = [
             '--pool-prefix', '10.0.10.0/24',
@@ -138,6 +149,7 @@ class TestCreateSubnetPool(TestSubnetPool):
             '--default-prefix-length', self._subnet_pool.default_prefixlen,
             '--max-prefix-length', self._subnet_pool.max_prefixlen,
             '--min-prefix-length', self._subnet_pool.min_prefixlen,
+            '--pool-prefix', '10.0.10.0/24',
             self._subnet_pool.name,
         ]
         verifylist = [
@@ -145,6 +157,7 @@ class TestCreateSubnetPool(TestSubnetPool):
             ('max_prefix_length', self._subnet_pool.max_prefixlen),
             ('min_prefix_length', self._subnet_pool.min_prefixlen),
             ('name', self._subnet_pool.name),
+            ('prefixes', ['10.0.10.0/24']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -154,7 +167,7 @@ class TestCreateSubnetPool(TestSubnetPool):
             'default_prefixlen': self._subnet_pool.default_prefixlen,
             'max_prefixlen': self._subnet_pool.max_prefixlen,
             'min_prefixlen': self._subnet_pool.min_prefixlen,
-            'prefixes': [],
+            'prefixes': ['10.0.10.0/24'],
             'name': self._subnet_pool.name,
         })
         self.assertEqual(self.columns, columns)
