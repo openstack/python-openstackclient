@@ -1,0 +1,5 @@
+---
+fixes:
+  - Fixed ``flavor show/delete/set/unset`` command to properly
+    find a private flavor by flavor name.
+    [Bug `1575478 <https://bugs.launchpad.net/bugs/1575478>`_]

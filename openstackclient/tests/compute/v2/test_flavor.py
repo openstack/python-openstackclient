@@ -273,7 +273,7 @@ class TestFlavorSet(TestFlavor):
         super(TestFlavorSet, self).setUp()
 
         self.flavors_mock.find.return_value = self.flavor
-
+        self.flavors_mock.get.side_effect = exceptions.NotFound(None)
         self.cmd = flavor.SetFlavor(self.app, None)
 
     def test_flavor_set(self):
@@ -288,10 +288,8 @@ class TestFlavorSet(TestFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        try:
-            self.flavors_mock.find.assert_called_with(name=parsed_args.flavor)
-        except Exception:
-            self.flavors_mock.get.assert_called_with(parsed_args.flavor)
+        self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
+                                                  is_public=None)
         self.assertIsNone(result)
 
 
@@ -331,9 +329,9 @@ class TestFlavorShow(TestFlavor):
     def setUp(self):
         super(TestFlavorShow, self).setUp()
 
-        # Return value of utils.find_resource()
-        self.flavors_mock.get.return_value = self.flavor
-
+        # Return value of _find_resource()
+        self.flavors_mock.find.return_value = self.flavor
+        self.flavors_mock.get.side_effect = exceptions.NotFound(None)
         self.cmd = flavor.ShowFlavor(self.app, None)
 
     def test_show_no_options(self):
@@ -369,7 +367,7 @@ class TestFlavorUnset(TestFlavor):
         super(TestFlavorUnset, self).setUp()
 
         self.flavors_mock.find.return_value = self.flavor
-
+        self.flavors_mock.get.side_effect = exceptions.NotFound(None)
         self.cmd = flavor.UnsetFlavor(self.app, None)
 
     def test_flavor_unset(self):
@@ -384,8 +382,6 @@ class TestFlavorUnset(TestFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        try:
-            self.flavors_mock.find.assert_called_with(name=parsed_args.flavor)
-        except Exception:
-            self.flavors_mock.get.assert_called_with(parsed_args.flavor)
+        self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
+                                                  is_public=None)
         self.assertIsNone(result)
