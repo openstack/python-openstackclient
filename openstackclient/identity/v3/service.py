@@ -82,7 +82,7 @@ class DeleteService(command.Command):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Service to delete (type or ID)',
+            help='Service to delete (type, name or ID)',
         )
         return parser
 
