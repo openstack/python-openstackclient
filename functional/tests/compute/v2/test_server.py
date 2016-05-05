@@ -268,7 +268,7 @@ class ServerTests(test.TestCase):
         self.assertEqual("", raw_output)
         self.wait_for_status("ACTIVE")
 
-    def wait_for_status(self, expected_status='ACTIVE', wait=600, interval=30):
+    def wait_for_status(self, expected_status='ACTIVE', wait=900, interval=30):
         """Wait until server reaches expected status."""
         # TODO(thowe): Add a server wait command to osc
         failures = ['ERROR']
