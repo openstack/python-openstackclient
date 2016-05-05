@@ -114,7 +114,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
             'description': self._security_group.name,
             'name': self._security_group.name,
         })
-        self.assertEqual(tuple(self.columns), columns)
+        self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_all_options(self):
@@ -139,7 +139,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
             'name': self._security_group.name,
             'tenant_id': identity_fakes.project_id,
         })
-        self.assertEqual(tuple(self.columns), columns)
+        self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
@@ -296,28 +296,30 @@ class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
 class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
     # The security group to be listed.
-    _security_group = \
-        network_fakes.FakeSecurityGroup.create_one_security_group()
+    _security_groups = \
+        network_fakes.FakeSecurityGroup.create_security_groups(count=3)
 
-    expected_columns = (
+    columns = (
         'ID',
         'Name',
         'Description',
         'Project',
     )
 
-    expected_data = ((
-        _security_group.id,
-        _security_group.name,
-        _security_group.description,
-        _security_group.tenant_id,
-    ),)
+    data = []
+    for grp in _security_groups:
+        data.append((
+            grp.id,
+            grp.name,
+            grp.description,
+            grp.tenant_id,
+        ))
 
     def setUp(self):
         super(TestListSecurityGroupNetwork, self).setUp()
 
         self.network.security_groups = mock.Mock(
-            return_value=[self._security_group])
+            return_value=self._security_groups)
 
         # Get the command object to test
         self.cmd = security_group.ListSecurityGroup(self.app, self.namespace)
@@ -332,8 +334,8 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.security_groups.assert_called_once_with()
-        self.assertEqual(self.expected_columns, columns)
-        self.assertEqual(self.expected_data, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
     def test_security_group_list_all_projects(self):
         arglist = [
@@ -347,45 +349,49 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.security_groups.assert_called_once_with()
-        self.assertEqual(self.expected_columns, columns)
-        self.assertEqual(self.expected_data, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
 
 class TestListSecurityGroupCompute(TestSecurityGroupCompute):
 
     # The security group to be listed.
-    _security_group = \
-        compute_fakes.FakeSecurityGroup.create_one_security_group()
+    _security_groups = \
+        compute_fakes.FakeSecurityGroup.create_security_groups(count=3)
 
-    expected_columns = (
+    columns = (
         'ID',
         'Name',
         'Description',
     )
-    expected_columns_all_projects = (
+    columns_all_projects = (
         'ID',
         'Name',
         'Description',
         'Project',
     )
 
-    expected_data = ((
-        _security_group.id,
-        _security_group.name,
-        _security_group.description,
-    ),)
-    expected_data_all_projects = ((
-        _security_group.id,
-        _security_group.name,
-        _security_group.description,
-        _security_group.tenant_id,
-    ),)
+    data = []
+    for grp in _security_groups:
+        data.append((
+            grp.id,
+            grp.name,
+            grp.description,
+        ))
+    data_all_projects = []
+    for grp in _security_groups:
+        data_all_projects.append((
+            grp.id,
+            grp.name,
+            grp.description,
+            grp.tenant_id,
+        ))
 
     def setUp(self):
         super(TestListSecurityGroupCompute, self).setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
-        self.compute.security_groups.list.return_value = [self._security_group]
+        self.compute.security_groups.list.return_value = self._security_groups
 
         # Get the command object to test
         self.cmd = security_group.ListSecurityGroup(self.app, None)
@@ -401,8 +407,8 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
 
         kwargs = {'search_opts': {'all_tenants': False}}
         self.compute.security_groups.list.assert_called_once_with(**kwargs)
-        self.assertEqual(self.expected_columns, columns)
-        self.assertEqual(self.expected_data, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
     def test_security_group_list_all_projects(self):
         arglist = [
@@ -417,8 +423,8 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
 
         kwargs = {'search_opts': {'all_tenants': True}}
         self.compute.security_groups.list.assert_called_once_with(**kwargs)
-        self.assertEqual(self.expected_columns_all_projects, columns)
-        self.assertEqual(self.expected_data_all_projects, tuple(data))
+        self.assertEqual(self.columns_all_projects, columns)
+        self.assertEqual(self.data_all_projects, list(data))
 
 
 class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):

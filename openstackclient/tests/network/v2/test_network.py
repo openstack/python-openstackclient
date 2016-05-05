@@ -617,8 +617,8 @@ class TestShowNetwork(TestNetwork):
         self.network.find_network.assert_called_once_with(
             self._network.name, ignore_missing=False)
 
-        self.assertEqual(tuple(self.columns), columns)
-        self.assertEqual(list(self.data), list(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
 
 # Tests for Nova network
@@ -931,5 +931,5 @@ class TestShowNetworkCompute(TestNetworkCompute):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.assertEqual(self.columns, tuple(columns))
+        self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

@@ -627,4 +627,4 @@ class TestShowSubnet(TestSubnet):
             self._subnet.name, ignore_missing=False)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(list(self.data), list(data))
+        self.assertEqual(self.data, data)

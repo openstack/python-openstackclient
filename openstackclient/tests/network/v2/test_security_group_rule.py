@@ -174,7 +174,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
             'security_group_id': self._security_group.id,
         })
-        self.assertEqual(tuple(self.expected_columns), columns)
+        self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, data)
 
     def test_create_source_group(self):
@@ -209,7 +209,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'remote_group_id': self._security_group_rule.remote_group_id,
             'security_group_id': self._security_group.id,
         })
-        self.assertEqual(tuple(self.expected_columns), columns)
+        self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, data)
 
     def test_create_source_ip(self):
@@ -240,7 +240,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
             'security_group_id': self._security_group.id,
         })
-        self.assertEqual(tuple(self.expected_columns), columns)
+        self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, data)
 
     def test_create_network_options(self):
@@ -282,7 +282,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'security_group_id': self._security_group.id,
             'tenant_id': identity_fakes.project_id,
         })
-        self.assertEqual(tuple(self.expected_columns), columns)
+        self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, data)
 
 
@@ -816,7 +816,7 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.find_security_group_rule.assert_called_once_with(
             self._security_group_rule.id, ignore_missing=False)
-        self.assertEqual(tuple(self.columns), columns)
+        self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 

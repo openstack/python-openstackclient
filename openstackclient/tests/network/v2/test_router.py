@@ -608,5 +608,5 @@ class TestShowRouter(TestRouter):
 
         self.network.find_router.assert_called_once_with(
             self._router.name, ignore_missing=False)
-        self.assertEqual(tuple(self.columns), columns)
+        self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
