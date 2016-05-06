@@ -18,8 +18,27 @@
 import six
 
 from openstackclient.common import command
+from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+
+
+def _find_flavor(compute_client, flavor):
+    try:
+        return compute_client.flavors.get(flavor)
+    except Exception as ex:
+        if type(ex).__name__ == 'NotFound':
+            pass
+        else:
+            raise
+    try:
+        return compute_client.flavors.find(name=flavor, is_public=None)
+    except Exception as ex:
+        if type(ex).__name__ == 'NotFound':
+            msg = "No flavor with a name or ID of '%s' exists." % flavor
+            raise exceptions.CommandError(msg)
+        else:
+            raise
 
 
 class CreateFlavor(command.ShowOne):
@@ -132,8 +151,7 @@ class DeleteFlavor(command.Command):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        flavor = utils.find_resource(compute_client.flavors,
-                                     parsed_args.flavor)
+        flavor = _find_flavor(compute_client, parsed_args.flavor)
         compute_client.flavors.delete(flavor.id)
 
 
@@ -239,8 +257,7 @@ class SetFlavor(command.Command):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        flavor = utils.find_resource(compute_client.flavors,
-                                     parsed_args.flavor)
+        flavor = _find_flavor(compute_client, parsed_args.flavor)
         flavor.set_keys(parsed_args.property)
 
 
@@ -258,8 +275,7 @@ class ShowFlavor(command.ShowOne):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        resource_flavor = utils.find_resource(compute_client.flavors,
-                                              parsed_args.flavor)
+        resource_flavor = _find_flavor(compute_client, parsed_args.flavor)
         flavor = resource_flavor._info.copy()
         flavor.pop("links", None)
 
@@ -290,6 +306,5 @@ class UnsetFlavor(command.Command):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        flavor = utils.find_resource(compute_client.flavors,
-                                     parsed_args.flavor)
+        flavor = _find_flavor(compute_client, parsed_args.flavor)
         flavor.unset_keys(parsed_args.property)
