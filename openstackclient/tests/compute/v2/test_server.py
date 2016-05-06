@@ -1233,6 +1233,101 @@ class TestServerShelve(TestServer):
         self.run_method_with_servers('shelve', 3)
 
 
+class TestServerShow(TestServer):
+
+    def setUp(self):
+        super(TestServerShow, self).setUp()
+
+        self.image = image_fakes.FakeImage.create_one_image()
+        self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
+        server_info = {
+            'image': {'id': self.image.id},
+            'flavor': {'id': self.flavor.id},
+            'tenant_id': 'tenant-id-xxx',
+            'networks': {'public': ['10.20.30.40', '2001:db8::f']},
+        }
+        # Fake the server.diagnostics() method. The return value contains http
+        # response and data. The data is a dict. Sincce this method itself is
+        # faked, we don't need to fake everything of the return value exactly.
+        resp = mock.Mock()
+        resp.status_code = 200
+        server_method = {
+            'diagnostics': (resp, {'test': 'test'}),
+        }
+        self.server = compute_fakes.FakeServer.create_one_server(
+            attrs=server_info, methods=server_method)
+
+        # This is the return value for utils.find_resource()
+        self.servers_mock.get.return_value = self.server
+        self.cimages_mock.get.return_value = self.image
+        self.flavors_mock.get.return_value = self.flavor
+
+        # Get the command object to test
+        self.cmd = server.ShowServer(self.app, None)
+
+        self.columns = (
+            'OS-EXT-STS:power_state',
+            'addresses',
+            'flavor',
+            'id',
+            'image',
+            'name',
+            'networks',
+            'project_id',
+            'properties',
+        )
+
+        self.data = (
+            'Running',
+            'public=10.20.30.40, 2001:db8::f',
+            self.flavor.name + " (" + self.flavor.id + ")",
+            self.server.id,
+            self.image.name + " (" + self.image.id + ")",
+            self.server.name,
+            {'public': ['10.20.30.40', '2001:db8::f']},
+            'tenant-id-xxx',
+            '',
+        )
+
+    def test_show_no_options(self):
+        arglist = []
+        verifylist = []
+
+        self.assertRaises(utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_show(self):
+        arglist = [
+            self.server.name,
+        ]
+        verifylist = [
+            ('diagnostics', False),
+            ('server', self.server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_show_diagnostics(self):
+        arglist = [
+            '--diagnostics',
+            self.server.name,
+        ]
+        verifylist = [
+            ('diagnostics', True),
+            ('server', self.server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(('test',), columns)
+        self.assertEqual(('test',), data)
+
+
 class TestServerStart(TestServer):
 
     def setUp(self):
