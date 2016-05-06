@@ -47,7 +47,6 @@ class TestAddPortToRouter(TestRouter):
         arglist = []
         verifylist = []
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
@@ -88,7 +87,6 @@ class TestAddSubnetToRouter(TestRouter):
         arglist = []
         verifylist = []
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
@@ -154,7 +152,6 @@ class TestCreateRouter(TestRouter):
         arglist = []
         verifylist = []
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
@@ -335,7 +332,6 @@ class TestRemovePortFromRouter(TestRouter):
         arglist = []
         verifylist = []
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
@@ -375,7 +371,6 @@ class TestRemoveSubnetFromRouter(TestRouter):
         arglist = []
         verifylist = []
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
@@ -475,7 +470,6 @@ class TestSetRouter(TestRouter):
             ('distributed', False),
         ]
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
@@ -534,7 +528,6 @@ class TestSetRouter(TestRouter):
             ('clear_routes', True),
         ]
 
-        # Argument parse failing should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
@@ -591,7 +584,6 @@ class TestShowRouter(TestRouter):
         arglist = []
         verifylist = []
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
