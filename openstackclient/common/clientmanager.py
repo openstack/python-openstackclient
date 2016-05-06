@@ -195,6 +195,18 @@ class ClientManager(object):
                 not self._auth_params.get('user_domain_name')):
             self._auth_params['user_domain_id'] = default_domain
 
+        # NOTE(hieulq): If USER_DOMAIN_NAME, USER_DOMAIN_ID, PROJECT_DOMAIN_ID
+        # or PROJECT_DOMAIN_NAME is present and API_VERSION is 2.0, then
+        # ignore all domain related configs.
+        if (self._api_version.get('identity') == '2.0' and
+                self.auth_plugin_name.endswith('password')):
+            LOG.warning("Ignoring domain related configs "
+                        "because identity API version is 2.0")
+            domain_props = ['project_domain_name', 'project_domain_id',
+                            'user_domain_name', 'user_domain_id']
+            for prop in domain_props:
+                self._auth_params.pop(prop, None)
+
         # For compatibility until all clients can be updated
         if 'project_name' in self._auth_params:
             self._project_name = self._auth_params['project_name']
