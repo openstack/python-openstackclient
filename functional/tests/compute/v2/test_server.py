@@ -24,14 +24,16 @@ class ServerTests(test.TestCase):
 
     @classmethod
     def get_flavor(cls):
-        raw_output = cls.openstack('flavor list -f value -c ID')
-        ray = raw_output.split('\n')
-        idx = int(len(ray) / 2)
-        return ray[idx]
+        # NOTE(rtheis): Get m1.tiny flavor since functional tests may
+        # create other flavors.
+        raw_output = cls.openstack('flavor show m1.tiny -c id -f value')
+        return raw_output.strip('\n')
 
     @classmethod
     def get_image(cls):
-        raw_output = cls.openstack('image list -f value -c ID')
+        # NOTE(rtheis): Get public images since functional tests may
+        # create private images.
+        raw_output = cls.openstack('image list --public -f value -c ID')
         ray = raw_output.split('\n')
         idx = int(len(ray) / 2)
         return ray[idx]
@@ -39,12 +41,12 @@ class ServerTests(test.TestCase):
     @classmethod
     def get_network(cls):
         try:
-            raw_output = cls.openstack('network list -f value -c ID')
+            # NOTE(rtheis): Get private network since functional tests may
+            # create other networks.
+            raw_output = cls.openstack('network show private -c id -f value')
         except exceptions.CommandFailed:
             return ''
-        ray = raw_output.split('\n')
-        idx = int(len(ray) / 2)
-        return ' --nic net-id=' + ray[idx]
+        return ' --nic net-id=' + raw_output.strip('\n')
 
     def server_create(self, name=None):
         """Create server. Add cleanup."""
