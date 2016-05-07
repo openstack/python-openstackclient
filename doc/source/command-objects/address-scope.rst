@@ -72,3 +72,19 @@ List address scopes
 .. code:: bash
 
     os address scope list
+
+address scope show
+------------------
+
+Display address scope details
+
+.. program:: address scope show
+.. code:: bash
+
+    os address scope show
+        <address-scope>
+
+.. _address_scope_show-address-scope:
+.. describe:: <address-scope>
+
+    Address scope to display (name or ID)

@@ -140,3 +140,27 @@ class ListAddressScope(command.Lister):
                 (utils.get_item_properties(
                     s, columns, formatters={},
                 ) for s in data))
+
+
+class ShowAddressScope(command.ShowOne):
+    """Display address scope details"""
+
+    def get_parser(self, prog_name):
+        parser = super(ShowAddressScope, self).get_parser(prog_name)
+        parser.add_argument(
+            'address_scope',
+            metavar="<address-scope>",
+            help=_("Address scope to display (name or ID)")
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        obj = client.find_address_scope(
+            parsed_args.address_scope,
+            ignore_missing=False)
+        columns = _get_columns(obj)
+        data = utils.get_item_properties(obj, columns, formatters={})
+
+        return columns, data
