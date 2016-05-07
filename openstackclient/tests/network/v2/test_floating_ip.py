@@ -88,7 +88,6 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         arglist = []
         verifylist = []
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
@@ -314,7 +313,6 @@ class TestCreateFloatingIPCompute(TestFloatingIPCompute):
         arglist = []
         verifylist = []
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 

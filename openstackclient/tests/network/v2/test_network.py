@@ -112,7 +112,6 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         arglist = []
         verifylist = []
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
@@ -599,7 +598,6 @@ class TestShowNetwork(TestNetwork):
         arglist = []
         verifylist = []
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
@@ -916,7 +914,6 @@ class TestShowNetworkCompute(TestNetworkCompute):
         arglist = []
         verifylist = []
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 

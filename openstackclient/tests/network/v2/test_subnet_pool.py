@@ -109,7 +109,6 @@ class TestCreateSubnetPool(TestSubnetPool):
         arglist = []
         verifylist = []
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
@@ -624,7 +623,6 @@ class TestShowSubnetPool(TestSubnetPool):
         arglist = []
         verifylist = []
 
-        # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 

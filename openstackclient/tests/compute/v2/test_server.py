@@ -146,7 +146,6 @@ class TestServerCreate(TestServer):
             ('server_name', self.new_server.name),
         ]
 
-        # Missing required args should bail here
         self.assertRaises(utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
