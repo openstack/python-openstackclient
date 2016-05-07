@@ -89,6 +89,7 @@ class TestServer(compute_fakes.TestComputev2):
 class TestServerCreate(TestServer):
 
     columns = (
+        'OS-EXT-STS:power_state',
         'addresses',
         'flavor',
         'id',
@@ -100,6 +101,8 @@ class TestServerCreate(TestServer):
 
     def datalist(self):
         datalist = (
+            server._format_servers_list_power_state(
+                getattr(self.new_server, 'OS-EXT-STS:power_state')),
             '',
             self.flavor.name + ' (' + self.new_server.flavor.get('id') + ')',
             self.new_server.id,
@@ -1476,6 +1479,8 @@ class TestServerGeneral(TestServer):
             'image': u'%s (%s)' % (_image.name, _image.id),
             'project_id': u'tenant-id-xxx',
             'properties': '',
+            'OS-EXT-STS:power_state': server._format_servers_list_power_state(
+                getattr(_server, 'OS-EXT-STS:power_state')),
         }
 
         # Call _prep_server_detail().

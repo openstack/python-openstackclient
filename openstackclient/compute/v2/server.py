@@ -155,6 +155,11 @@ def _prep_server_detail(compute_client, server):
     if 'tenant_id' in info:
         info['project_id'] = info.pop('tenant_id')
 
+    # Map power state num to meanful string
+    if 'OS-EXT-STS:power_state' in info:
+        info['OS-EXT-STS:power_state'] = _format_servers_list_power_state(
+            info['OS-EXT-STS:power_state'])
+
     # Remove values that are long and not too useful
     info.pop('links', None)
 
