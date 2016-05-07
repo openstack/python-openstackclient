@@ -46,3 +46,19 @@ Create new address scope
 .. describe:: <name>
 
      New address scope name
+
+address scope delete
+--------------------
+
+Delete an address scope
+
+.. program:: address scope delete
+.. code:: bash
+
+    os address scope delete
+        <address-scope>
+
+.. _address_scope_delete-address-scope:
+.. describe:: <address-scope>
+
+    Address scope to delete (name or ID)

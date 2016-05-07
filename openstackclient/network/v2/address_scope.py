@@ -94,3 +94,22 @@ class CreateAddressScope(command.ShowOne):
         data = utils.get_item_properties(obj, columns, formatters={})
 
         return columns, data
+
+
+class DeleteAddressScope(command.Command):
+    """Delete an address scope"""
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteAddressScope, self).get_parser(prog_name)
+        parser.add_argument(
+            'address_scope',
+            metavar="<address-scope>",
+            help=_("Address scope to delete (name or ID)")
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        obj = client.find_address_scope(parsed_args.address_scope)
+        client.delete_address_scope(obj)
