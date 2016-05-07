@@ -1,0 +1,5 @@
+---
+features:
+  - Add ``address scope create``,``address scope delete``,``address scope list``,
+    ``address scope set`` and ``address scope show`` commands.
+    [Bug `1566269 <https://bugs.launchpad.net/python-openstackclient/+bug/1566269>`_]

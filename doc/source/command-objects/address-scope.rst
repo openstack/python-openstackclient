@@ -45,7 +45,7 @@ Create new address scope
 .. _address_scope_create-name:
 .. describe:: <name>
 
-     New address scope name
+    New address scope name
 
 address scope delete
 --------------------
@@ -72,6 +72,36 @@ List address scopes
 .. code:: bash
 
     os address scope list
+
+address scope set
+-----------------
+
+Set address scope properties
+
+.. program:: address scope set
+.. code:: bash
+
+    os address scope set
+        [--name <name>]
+        [--share | --no-share]
+        <address-scope>
+
+.. option:: --name <name>
+
+    Set address scope name
+
+.. option:: --share
+
+    Share the address scope between projects
+
+.. option:: --no-share
+
+    Do not share the address scope between projects
+
+.. _address_scope_set-address-scope:
+.. describe:: <address-scope>
+
+    Address scope to modify (name or ID)
 
 address scope show
 ------------------
