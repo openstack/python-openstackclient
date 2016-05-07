@@ -193,3 +193,45 @@ class TestDeleteAddressScope(TestAddressScope):
         self.network.delete_address_scope.assert_called_once_with(
             self._address_scope)
         self.assertIsNone(result)
+
+
+class TestListAddressScope(TestAddressScope):
+
+    # The address scopes to list up.
+    address_scopes = (
+        network_fakes.FakeAddressScope.create_address_scopes(count=3))
+    columns = (
+        'ID',
+        'Name',
+        'IP Version',
+        'Shared',
+        'Project',
+    )
+    data = []
+    for scope in address_scopes:
+        data.append((
+            scope.id,
+            scope.name,
+            scope.ip_version,
+            scope.shared,
+            scope.project_id,
+        ))
+
+    def setUp(self):
+        super(TestListAddressScope, self).setUp()
+        self.network.address_scopes = mock.Mock(
+            return_value=self.address_scopes)
+
+        # Get the command object to test
+        self.cmd = address_scope.ListAddressScope(self.app, self.namespace)
+
+    def test_address_scope_list(self):
+        arglist = []
+        verifylist = []
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.address_scopes.assert_called_once_with(**{})
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))

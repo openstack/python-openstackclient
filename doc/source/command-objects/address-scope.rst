@@ -62,3 +62,13 @@ Delete an address scope
 .. describe:: <address-scope>
 
     Address scope to delete (name or ID)
+
+address scope list
+------------------
+
+List address scopes
+
+.. program:: address scope list
+.. code:: bash
+
+    os address scope list
