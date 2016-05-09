@@ -200,12 +200,12 @@ class ClientManager(object):
         # ignore all domain related configs.
         if (self._api_version.get('identity') == '2.0' and
                 self.auth_plugin_name.endswith('password')):
-            LOG.warning("Ignoring domain related configs "
-                        "because identity API version is 2.0")
             domain_props = ['project_domain_name', 'project_domain_id',
                             'user_domain_name', 'user_domain_id']
             for prop in domain_props:
-                self._auth_params.pop(prop, None)
+                if self._auth_params.pop(prop, None) is not None:
+                    LOG.warning("Ignoring domain related configs " +
+                                prop + " because identity API version is 2.0")
 
         # For compatibility until all clients can be updated
         if 'project_name' in self._auth_params:
