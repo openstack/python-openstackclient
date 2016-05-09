@@ -472,7 +472,8 @@ class FakeServer(object):
             },
             'flavor': {
                 'id': 'flavor-id-' + uuid.uuid4().hex,
-            }
+            },
+            'OS-EXT-STS:power_state': 1,
         }
 
         # Overwrite default attributes.
