@@ -8,9 +8,9 @@ Communication
 Meetings
 =========
 The OpenStackClient team meets regularly on every Thursday.  For details
-please refer to the `wiki`_.
+please refer to the `OpenStack IRC meetings`_ page.
 
-.. _`wiki`: https://wiki.openstack.org/wiki/Meetings/OpenStackClient
+.. _`OpenStack IRC meetings`: http://eavesdrop.openstack.org/#OpenStackClient_Team_Meeting
 
 Testing
 -------
