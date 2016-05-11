@@ -162,3 +162,34 @@ class TestCreateAddressScope(TestAddressScope):
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+
+class TestDeleteAddressScope(TestAddressScope):
+
+    # The address scope to delete.
+    _address_scope = (
+        network_fakes.FakeAddressScope.create_one_address_scope())
+
+    def setUp(self):
+        super(TestDeleteAddressScope, self).setUp()
+        self.network.delete_address_scope = mock.Mock(return_value=None)
+        self.network.find_address_scope = mock.Mock(
+            return_value=self._address_scope)
+
+        # Get the command object to test
+        self.cmd = address_scope.DeleteAddressScope(self.app, self.namespace)
+
+    def test_delete(self):
+        arglist = [
+            self._address_scope.name,
+        ]
+        verifylist = [
+            ('address_scope', self._address_scope.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.network.delete_address_scope.assert_called_once_with(
+            self._address_scope)
+        self.assertIsNone(result)
