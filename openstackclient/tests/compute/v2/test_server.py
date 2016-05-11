@@ -1451,14 +1451,12 @@ class TestServerGeneral(TestServer):
     @mock.patch('openstackclient.common.utils.find_resource')
     def test_prep_server_detail(self, find_resource):
         # Setup mock method return value. utils.find_resource() will be called
-        # twice in _prep_server_detail():
-        # - The first time, return image info.
-        # - The second time, return flavor info.
+        # three times in _prep_server_detail():
+        # - The first time, return server info.
+        # - The second time, return image info.
+        # - The third time, return flavor info.
         _image = image_fakes.FakeImage.create_one_image()
         _flavor = compute_fakes.FakeFlavor.create_one_flavor()
-        find_resource.side_effect = [_image, _flavor]
-
-        # compute_client.servers.get() will be called once, return server info.
         server_info = {
             'image': {u'id': _image.id},
             'flavor': {u'id': _flavor.id},
@@ -1467,7 +1465,7 @@ class TestServerGeneral(TestServer):
             'links': u'http://xxx.yyy.com',
         }
         _server = compute_fakes.FakeServer.create_one_server(attrs=server_info)
-        self.servers_mock.get.return_value = _server
+        find_resource.side_effect = [_server, _image, _flavor]
 
         # Prepare result data.
         info = {

@@ -117,10 +117,7 @@ def _prep_server_detail(compute_client, server):
     """
     info = server._info.copy()
 
-    # Call .get() to retrieve all of the server information
-    # as findall(name=blah) and REST /details are not the same
-    # and do not return flavor and image information.
-    server = compute_client.servers.get(info['id'])
+    server = utils.find_resource(compute_client.servers, info['id'])
     info.update(server._info)
 
     # Convert the image blob to a name
