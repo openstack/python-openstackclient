@@ -13,7 +13,6 @@
 import time
 
 from tempest.lib.common.utils import data_utils
-import testtools
 
 from functional.common import test
 from tempest.lib import exceptions
@@ -218,7 +217,6 @@ class ServerTests(test.TestCase):
         self.assertEqual("", raw_output)
         self.wait_for_status("ACTIVE")
 
-    @testtools.skip('this test needs to be re-worked completely')
     def test_server_attach_detach_floating_ip(self):
         """Test commands to attach and detach floating IP for server.
 
@@ -234,12 +232,11 @@ class ServerTests(test.TestCase):
         """
         self.wait_for_status("ACTIVE")
         # attach ip
-        opts = self.get_show_opts(["id", "ip"])
-        raw_output = self.openstack('ip floating create '
-                                    '--debug ' +
+        opts = self.get_show_opts(["id", "floating_ip_address"])
+        raw_output = self.openstack('ip floating create ' +
                                     self.IP_POOL +
                                     opts)
-        ipid, ip, rol = tuple(raw_output.split('\n'))
+        ip, ipid, rol = tuple(raw_output.split('\n'))
         self.assertNotEqual("", ipid)
         self.assertNotEqual("", ip)
         raw_output = self.openstack('ip floating add ' + ip + ' ' + self.NAME)
