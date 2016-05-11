@@ -113,3 +113,30 @@ class DeleteAddressScope(command.Command):
         client = self.app.client_manager.network
         obj = client.find_address_scope(parsed_args.address_scope)
         client.delete_address_scope(obj)
+
+
+class ListAddressScope(command.Lister):
+    """List address scopes"""
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        columns = (
+            'id',
+            'name',
+            'ip_version',
+            'shared',
+            'tenant_id',
+        )
+        column_headers = (
+            'ID',
+            'Name',
+            'IP Version',
+            'Shared',
+            'Project',
+        )
+        data = client.address_scopes()
+
+        return (column_headers,
+                (utils.get_item_properties(
+                    s, columns, formatters={},
+                ) for s in data))

@@ -106,6 +106,24 @@ class FakeAddressScope(object):
 
         return address_scope
 
+    @staticmethod
+    def create_address_scopes(attrs=None, count=2):
+        """Create multiple fake address scopes.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of address scopes to fake
+        :return:
+            A list of FakeResource objects faking the address scopes
+        """
+        address_scopes = []
+        for i in range(0, count):
+            address_scopes.append(
+                FakeAddressScope.create_one_address_scope(attrs))
+
+        return address_scopes
+
 
 class FakeAvailabilityZone(object):
     """Fake one or more network availability zones (AZs)."""
