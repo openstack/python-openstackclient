@@ -189,6 +189,10 @@ class FakeResource(object):
     def keys(self):
         return self._info.keys()
 
+    @property
+    def info(self):
+        return self._info
+
 
 class FakeResponse(requests.Response):
 
