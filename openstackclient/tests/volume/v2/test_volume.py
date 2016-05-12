@@ -58,6 +58,7 @@ class TestVolumeCreate(TestVolume):
     columns = (
         'attachments',
         'availability_zone',
+        'bootable',
         'description',
         'id',
         'name',
@@ -77,6 +78,7 @@ class TestVolumeCreate(TestVolume):
         self.datalist = (
             self.new_volume.attachments,
             self.new_volume.availability_zone,
+            self.new_volume.bootable,
             self.new_volume.description,
             self.new_volume.id,
             self.new_volume.name,
@@ -475,13 +477,8 @@ class TestVolumeList(TestVolume):
     def setUp(self):
         super(TestVolumeList, self).setUp()
 
-        self.volumes_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(volume_fakes.VOLUME),
-                loaded=True,
-            ),
-        ]
+        self.mock_volume = volume_fakes.FakeVolume.create_one_volume()
+        self.volumes_mock.list.return_value = [self.mock_volume]
 
         self.users_mock.get.return_value = [
             fakes.FakeResource(
@@ -516,14 +513,14 @@ class TestVolumeList(TestVolume):
 
         self.assertEqual(self.columns, columns)
 
-        server = volume_fakes.volume_attachment_server['server_id']
-        device = volume_fakes.volume_attachment_server['device']
+        server = self.mock_volume.attachments[0]['server_id']
+        device = self.mock_volume.attachments[0]['device']
         msg = 'Attached to %s on %s ' % (server, device)
         datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
+            self.mock_volume.id,
+            self.mock_volume.name,
+            self.mock_volume.status,
+            self.mock_volume.size,
             msg,
         ), )
         self.assertEqual(datalist, tuple(data))
@@ -544,14 +541,14 @@ class TestVolumeList(TestVolume):
 
         self.assertEqual(self.columns, columns)
 
-        server = volume_fakes.volume_attachment_server['server_id']
-        device = volume_fakes.volume_attachment_server['device']
+        server = self.mock_volume.attachments[0]['server_id']
+        device = self.mock_volume.attachments[0]['device']
         msg = 'Attached to %s on %s ' % (server, device)
         datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
+            self.mock_volume.id,
+            self.mock_volume.name,
+            self.mock_volume.status,
+            self.mock_volume.size,
             msg,
         ), )
         self.assertEqual(datalist, tuple(data))
@@ -574,14 +571,14 @@ class TestVolumeList(TestVolume):
 
         self.assertEqual(self.columns, columns)
 
-        server = volume_fakes.volume_attachment_server['server_id']
-        device = volume_fakes.volume_attachment_server['device']
+        server = self.mock_volume.attachments[0]['server_id']
+        device = self.mock_volume.attachments[0]['device']
         msg = 'Attached to %s on %s ' % (server, device)
         datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
+            self.mock_volume.id,
+            self.mock_volume.name,
+            self.mock_volume.status,
+            self.mock_volume.size,
             msg,
         ), )
         self.assertEqual(datalist, tuple(data))
@@ -601,14 +598,14 @@ class TestVolumeList(TestVolume):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        server = volume_fakes.volume_attachment_server['server_id']
-        device = volume_fakes.volume_attachment_server['device']
+        server = self.mock_volume.attachments[0]['server_id']
+        device = self.mock_volume.attachments[0]['device']
         msg = 'Attached to %s on %s ' % (server, device)
         datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
+            self.mock_volume.id,
+            self.mock_volume.name,
+            self.mock_volume.status,
+            self.mock_volume.size,
             msg,
         ), )
         self.assertEqual(datalist, tuple(data))
@@ -631,14 +628,14 @@ class TestVolumeList(TestVolume):
 
         self.assertEqual(self.columns, columns)
 
-        server = volume_fakes.volume_attachment_server['server_id']
-        device = volume_fakes.volume_attachment_server['device']
+        server = self.mock_volume.attachments[0]['server_id']
+        device = self.mock_volume.attachments[0]['device']
         msg = 'Attached to %s on %s ' % (server, device)
         datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
+            self.mock_volume.id,
+            self.mock_volume.name,
+            self.mock_volume.status,
+            self.mock_volume.size,
             msg,
         ), )
         self.assertEqual(datalist, tuple(data))
@@ -659,14 +656,14 @@ class TestVolumeList(TestVolume):
 
         self.assertEqual(self.columns, columns)
 
-        server = volume_fakes.volume_attachment_server['server_id']
-        device = volume_fakes.volume_attachment_server['device']
+        server = self.mock_volume.attachments[0]['server_id']
+        device = self.mock_volume.attachments[0]['device']
         msg = 'Attached to %s on %s ' % (server, device)
         datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
+            self.mock_volume.id,
+            self.mock_volume.name,
+            self.mock_volume.status,
+            self.mock_volume.size,
             msg,
         ), )
         self.assertEqual(datalist, tuple(data))
@@ -687,14 +684,14 @@ class TestVolumeList(TestVolume):
 
         self.assertEqual(self.columns, columns)
 
-        server = volume_fakes.volume_attachment_server['server_id']
-        device = volume_fakes.volume_attachment_server['device']
+        server = self.mock_volume.attachments[0]['server_id']
+        device = self.mock_volume.attachments[0]['device']
         msg = 'Attached to %s on %s ' % (server, device)
         datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
+            self.mock_volume.id,
+            self.mock_volume.name,
+            self.mock_volume.status,
+            self.mock_volume.size,
             msg,
         ), )
         self.assertEqual(datalist, tuple(data))
@@ -715,14 +712,14 @@ class TestVolumeList(TestVolume):
 
         self.assertEqual(self.columns, columns)
 
-        server = volume_fakes.volume_attachment_server['server_id']
-        device = volume_fakes.volume_attachment_server['device']
+        server = self.mock_volume.attachments[0]['server_id']
+        device = self.mock_volume.attachments[0]['device']
         msg = 'Attached to %s on %s ' % (server, device)
         datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
+            self.mock_volume.id,
+            self.mock_volume.name,
+            self.mock_volume.status,
+            self.mock_volume.size,
             msg,
         ), )
         self.assertEqual(datalist, tuple(data))
@@ -754,18 +751,18 @@ class TestVolumeList(TestVolume):
         ]
         self.assertEqual(collist, columns)
 
-        server = volume_fakes.volume_attachment_server['server_id']
-        device = volume_fakes.volume_attachment_server['device']
+        server = self.mock_volume.attachments[0]['server_id']
+        device = self.mock_volume.attachments[0]['device']
         msg = 'Attached to %s on %s ' % (server, device)
         datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
-            volume_fakes.volume_type,
-            '',
+            self.mock_volume.id,
+            self.mock_volume.name,
+            self.mock_volume.status,
+            self.mock_volume.size,
+            self.mock_volume.volume_type,
+            self.mock_volume.bootable,
             msg,
-            "Alpha='a', Beta='b', Gamma='g'",
+            utils.format_dict(self.mock_volume.metadata),
         ), )
         self.assertEqual(datalist, tuple(data))
 

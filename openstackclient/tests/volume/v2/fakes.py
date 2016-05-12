@@ -391,6 +391,8 @@ class FakeVolume(object):
             'size': random.randint(1, 20),
             'volume_type':
                 random.choice(['fake_lvmdriver-1', 'fake_lvmdriver-2']),
+            'bootable':
+                random.randint(0, 1),
             'metadata': {
                 'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
                 'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
