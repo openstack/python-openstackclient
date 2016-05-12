@@ -296,10 +296,22 @@ class ListSubnet(command.Lister):
             default=False,
             help=_("List additional fields in output")
         )
+        parser.add_argument(
+            '--ip-version',
+            type=int,
+            choices=[4, 6],
+            metavar='<ip-version>',
+            dest='ip_version',
+            help=_("List only subnets of given IP version in output"
+                   "Allowed values for IP version are 4 and 6."),
+        )
         return parser
 
     def take_action(self, parsed_args):
-        data = self.app.client_manager.network.subnets()
+        filters = {}
+        if parsed_args.ip_version:
+            filters['ip_version'] = parsed_args.ip_version
+        data = self.app.client_manager.network.subnets(**filters)
 
         headers = ('ID', 'Name', 'Network', 'Subnet')
         columns = ('id', 'name', 'network_id', 'cidr')
