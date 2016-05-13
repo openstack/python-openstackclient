@@ -16,10 +16,10 @@
 import copy
 
 from osc_lib import exceptions
+from osc_lib import utils
 
 from openstackclient.common import command
 from openstackclient.common import parseractions
-from openstackclient.common import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 

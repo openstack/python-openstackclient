@@ -15,7 +15,8 @@
 
 import copy
 
-from openstackclient.common import utils
+from osc_lib import utils
+
 from openstackclient.tests import fakes
 from openstackclient.tests.volume.v1 import fakes as volume_fakes
 from openstackclient.volume.v1 import qos_specs

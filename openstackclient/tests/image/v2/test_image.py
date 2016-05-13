@@ -20,8 +20,8 @@ import warlock
 
 from glanceclient.v2 import schemas
 from osc_lib import exceptions
+from osc_lib import utils as common_utils
 
-from openstackclient.common import utils as common_utils
 from openstackclient.image.v2 import image
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
@@ -661,7 +661,7 @@ class TestImageList(TestImage):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
-    @mock.patch('openstackclient.common.utils.sort_items')
+    @mock.patch('osc_lib.utils.sort_items')
     def test_image_list_sort_option(self, si_mock):
         si_mock.return_value = [copy.deepcopy(self._image)]
 
@@ -698,7 +698,7 @@ class TestImageList(TestImage):
         self.assertEqual(self.columns, columns)
         self.assertEqual(len(self.datalist), len(tuple(data)))
 
-    @mock.patch('openstackclient.common.utils.find_resource')
+    @mock.patch('osc_lib.utils.find_resource')
     def test_image_list_marker_option(self, fr_mock):
         # tangchen: Since image_fakes.IMAGE is a dict, it cannot offer a .id
         #           operation. Will fix this by using FakeImage class instead

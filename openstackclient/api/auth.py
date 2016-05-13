@@ -18,8 +18,8 @@ import logging
 
 from keystoneauth1.loading import base
 from osc_lib import exceptions as exc
+from osc_lib import utils
 
-from openstackclient.common import utils
 from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)

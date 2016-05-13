@@ -16,7 +16,8 @@ import copy
 
 from mock import call
 
-from openstackclient.common import utils
+from osc_lib import utils
+
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes

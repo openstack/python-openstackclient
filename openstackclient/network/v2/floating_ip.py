@@ -13,7 +13,8 @@
 
 """IP Floating action implementations"""
 
-from openstackclient.common import utils
+from osc_lib import utils
+
 from openstackclient.i18n import _
 from openstackclient.network import common
 

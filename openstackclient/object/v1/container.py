@@ -16,11 +16,11 @@
 """Container v1 action implementations"""
 
 
+from osc_lib import utils
 import six
 
 from openstackclient.common import command
 from openstackclient.common import parseractions
-from openstackclient.common import utils
 
 
 class CreateContainer(command.Lister):

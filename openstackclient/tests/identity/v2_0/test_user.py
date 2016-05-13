@@ -152,7 +152,7 @@ class TestUserCreate(TestUser):
         # data to be shown.
         mocker = mock.Mock()
         mocker.return_value = 'abc123'
-        with mock.patch("openstackclient.common.utils.get_password", mocker):
+        with mock.patch("osc_lib.utils.get_password", mocker):
             columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
@@ -638,7 +638,7 @@ class TestUserSet(TestUser):
 
         mocker = mock.Mock()
         mocker.return_value = 'abc123'
-        with mock.patch("openstackclient.common.utils.get_password", mocker):
+        with mock.patch("osc_lib.utils.get_password", mocker):
             result = self.cmd.take_action(parsed_args)
 
         # UserManager.update_password(user, password)

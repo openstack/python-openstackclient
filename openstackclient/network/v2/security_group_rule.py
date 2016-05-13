@@ -21,10 +21,10 @@ except ImportError:
     from novaclient.v1_1 import security_group_rules as compute_secgroup_rules
 
 from osc_lib import exceptions
+from osc_lib import utils
 import six
 
 from openstackclient.common import parseractions
-from openstackclient.common import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common

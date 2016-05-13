@@ -16,15 +16,15 @@
 """Image V2 Action Implementations"""
 
 import argparse
-import six
 
 from glanceclient.common import utils as gc_utils
 from osc_lib import exceptions
+from osc_lib import utils
+import six
 
 from openstackclient.api import utils as api_utils
 from openstackclient.common import command
 from openstackclient.common import parseractions
-from openstackclient.common import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common
 

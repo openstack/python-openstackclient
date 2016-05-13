@@ -19,13 +19,12 @@ import random
 import uuid
 
 from glanceclient.v2 import schemas
+from osc_lib import utils as common_utils
 import warlock
 
-from openstackclient.common import utils as common_utils
 from openstackclient.tests import fakes
-from openstackclient.tests import utils
-
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
+from openstackclient.tests import utils
 
 image_id = '0f41529e-7c12-4de8-be2d-181abb825b3c'
 image_name = 'graven'

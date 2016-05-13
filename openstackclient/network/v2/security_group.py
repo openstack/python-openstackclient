@@ -14,9 +14,10 @@
 """Security Group action implementations"""
 
 import argparse
+
+from osc_lib import utils
 import six
 
-from openstackclient.common import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common

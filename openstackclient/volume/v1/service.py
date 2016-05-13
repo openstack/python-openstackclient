@@ -14,8 +14,9 @@
 
 """Service action implementations"""
 
+from osc_lib import utils
+
 from openstackclient.common import command
-from openstackclient.common import utils
 from openstackclient.i18n import _
 
 

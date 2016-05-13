@@ -21,8 +21,7 @@ from keystoneclient.v3 import groups
 from keystoneclient.v3 import projects
 from keystoneclient.v3 import users
 from osc_lib import exceptions
-
-from openstackclient.common import utils
+from osc_lib import utils
 
 
 def find_service(identity_client, name_type_or_id):

@@ -15,11 +15,12 @@
 
 """Identity v3 Service action implementations"""
 
-import six
 import sys
 
+from osc_lib import utils
+import six
+
 from openstackclient.common import command
-from openstackclient.common import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common
 

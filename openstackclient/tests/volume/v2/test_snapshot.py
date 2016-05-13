@@ -12,7 +12,8 @@
 #   under the License.
 #
 
-from openstackclient.common import utils
+from osc_lib import utils
+
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import snapshot
 

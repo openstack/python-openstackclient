@@ -27,6 +27,7 @@ from cliff import command
 from cliff import complete
 from cliff import help
 from osc_lib import exceptions as exc
+from osc_lib import utils
 from oslo_utils import importutils
 from oslo_utils import strutils
 
@@ -35,7 +36,6 @@ from openstackclient.common import clientmanager
 from openstackclient.common import commandmanager
 from openstackclient.common import logs
 from openstackclient.common import timing
-from openstackclient.common import utils
 
 from os_client_config import config as cloud_config
 

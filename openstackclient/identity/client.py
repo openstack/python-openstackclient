@@ -16,8 +16,9 @@
 import logging
 
 from keystoneclient.v2_0 import client as identity_client_v2
+from osc_lib import utils
+
 from openstackclient.api import auth
-from openstackclient.common import utils
 
 LOG = logging.getLogger(__name__)
 

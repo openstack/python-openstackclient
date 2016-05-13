@@ -417,7 +417,7 @@ class TestImageList(TestImage):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
-    @mock.patch('openstackclient.common.utils.sort_items')
+    @mock.patch('osc_lib.utils.sort_items')
     def test_image_list_sort_option(self, si_mock):
         si_mock.side_effect = [
             [copy.deepcopy(image_fakes.IMAGE)], [],

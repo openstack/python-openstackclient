@@ -15,8 +15,9 @@
 
 """Object client"""
 
+from osc_lib import utils
+
 from openstackclient.api import object_store_v1
-from openstackclient.common import utils
 
 DEFAULT_API_VERSION = '1'
 API_VERSION_OPTION = 'os_object_api_version'

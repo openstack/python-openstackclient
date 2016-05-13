@@ -14,7 +14,8 @@
 import copy
 import mock
 
-from openstackclient.common import utils as osc_utils
+from osc_lib import utils as common_utils
+
 from openstackclient.network.v2 import ip_availability
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
@@ -140,7 +141,7 @@ class TestShowIPAvailability(TestIPAvailability):
         _ip_availability.network_id,
         _ip_availability.network_name,
         _ip_availability.tenant_id,
-        osc_utils.format_list(
+        common_utils.format_list(
             _ip_availability.subnet_ip_availability),
         _ip_availability.total_ips,
         _ip_availability.used_ips,

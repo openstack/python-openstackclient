@@ -15,7 +15,8 @@
 
 import logging
 
-from openstackclient.common import utils
+from osc_lib import utils
+
 from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)

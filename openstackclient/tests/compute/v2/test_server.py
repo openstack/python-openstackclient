@@ -17,8 +17,8 @@ import mock
 from mock import call
 
 from osc_lib import exceptions
+from osc_lib import utils as common_utils
 
-from openstackclient.common import utils as common_utils
 from openstackclient.compute.v2 import server
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
@@ -1692,7 +1692,7 @@ class TestServerGeneral(TestServer):
                (data_1, data_2, networks_format))
         self.assertIn(networks_format, (data_1, data_2), msg)
 
-    @mock.patch('openstackclient.common.utils.find_resource')
+    @mock.patch('osc_lib.utils.find_resource')
     def test_prep_server_detail(self, find_resource):
         # Setup mock method return value. utils.find_resource() will be called
         # three times in _prep_server_detail():

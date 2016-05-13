@@ -20,8 +20,9 @@ import os
 import six
 from six.moves import urllib
 
+from osc_lib import utils
+
 from openstackclient.api import api
-from openstackclient.common import utils
 
 
 class APIv1(api.BaseAPI):

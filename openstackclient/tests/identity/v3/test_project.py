@@ -202,7 +202,7 @@ class TestProjectCreate(TestProject):
         mocker = mock.Mock()
         mocker.return_value = None
 
-        with mock.patch("openstackclient.common.utils.find_resource", mocker):
+        with mock.patch("osc_lib.utils.find_resource", mocker):
             columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
@@ -549,7 +549,7 @@ class TestProjectList(TestProject):
         mocker = mock.Mock()
         mocker.return_value = None
 
-        with mock.patch("openstackclient.common.utils.find_resource", mocker):
+        with mock.patch("osc_lib.utils.find_resource", mocker):
             columns, data = self.cmd.take_action(parsed_args)
 
         self.projects_mock.list.assert_called_with(

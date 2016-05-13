@@ -15,8 +15,8 @@ import logging
 
 from openstack import connection
 from openstack import profile
+from osc_lib import utils
 
-from openstackclient.common import utils
 from openstackclient.i18n import _
 
 

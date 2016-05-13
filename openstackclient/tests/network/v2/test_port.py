@@ -15,8 +15,8 @@ import mock
 
 from mock import call
 from osc_lib import exceptions
+from osc_lib import utils
 
-from openstackclient.common import utils
 from openstackclient.network.v2 import port
 from openstackclient.tests.network.v2 import fakes as network_fakes
 from openstackclient.tests import utils as tests_utils

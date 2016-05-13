@@ -20,10 +20,10 @@ import os
 import sys
 
 from osc_lib import exceptions
+from osc_lib import utils
 import six
 
 from openstackclient.common import command
-from openstackclient.common import utils
 from openstackclient.i18n import _
 
 
