@@ -18,7 +18,6 @@
 import argparse
 import io
 import os
-import six
 import sys
 
 if os.name == "nt":
@@ -27,11 +26,12 @@ else:
     msvcrt = None
 
 from glanceclient.common import utils as gc_utils
+from osc_lib.cli import parseractions
 from osc_lib import utils
+import six
 
 from openstackclient.api import utils as api_utils
 from openstackclient.common import command
-from openstackclient.common import parseractions
 from openstackclient.i18n import _
 
 
