@@ -17,7 +17,7 @@ import six
 
 from openstackclient.common import command
 from openstackclient.common import utils
-from openstackclient.i18n import _  # noqa
+from openstackclient.i18n import _
 
 
 class CreateRegion(command.ShowOne):
