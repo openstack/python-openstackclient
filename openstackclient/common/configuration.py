@@ -13,9 +13,9 @@
 
 """Configuration action implementations"""
 
+from osc_lib.command import command
 import six
 
-from openstackclient.common import command
 from openstackclient.i18n import _
 
 REDACTED = "<redacted>"

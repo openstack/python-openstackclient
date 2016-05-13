@@ -13,10 +13,10 @@
 
 import abc
 
+from osc_lib.command import command
 from osc_lib import exceptions
 import six
 
-from openstackclient.common import command
 from openstackclient.i18n import _
 
 

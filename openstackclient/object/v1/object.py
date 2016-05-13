@@ -17,10 +17,9 @@
 
 
 from osc_lib.cli import parseractions
+from osc_lib.command import command
 from osc_lib import utils
 import six
-
-from openstackclient.common import command
 
 
 class CreateObject(command.Lister):

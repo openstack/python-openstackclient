@@ -16,10 +16,10 @@
 import copy
 
 from novaclient import exceptions as nova_exceptions
+from osc_lib.command import command
 from osc_lib import utils
 import six
 
-from openstackclient.common import command
 from openstackclient.i18n import _
 
 

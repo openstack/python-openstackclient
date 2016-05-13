@@ -15,9 +15,8 @@
 
 """Floating IP Pool action implementations"""
 
+from osc_lib.command import command
 from osc_lib import utils
-
-from openstackclient.common import command
 
 
 class ListFloatingIPPool(command.Lister):
