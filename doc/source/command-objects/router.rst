@@ -186,7 +186,7 @@ Set router properties
         [--name <name>]
         [--enable | --disable]
         [--distributed | --centralized]
-        [--route destination=<subnet>,gateway=<ip-address> | --clear-routes]
+        [--route destination=<subnet>,gateway=<ip-address> | --no-route]
         <router>
 
 .. option:: --name <name>
@@ -216,7 +216,7 @@ Set router properties
     gateway: nexthop IP address
     (repeat option to set multiple routes)
 
-.. option:: --clear-routes
+.. option:: --no-route
 
     Clear routes associated with the router
 

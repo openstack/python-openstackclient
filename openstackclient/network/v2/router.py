@@ -13,7 +13,9 @@
 
 """Router action implementations"""
 
+import argparse
 import json
+import logging
 
 from openstackclient.common import command
 from openstackclient.common import exceptions
@@ -21,6 +23,9 @@ from openstackclient.common import parseractions
 from openstackclient.common import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _format_admin_state(state):
@@ -379,9 +384,14 @@ class SetRouter(command.Command):
                    "(repeat option to set multiple routes)")
         )
         routes_group.add_argument(
-            '--clear-routes',
+            '--no-route',
             action='store_true',
             help=_("Clear routes associated with the router")
+        )
+        routes_group.add_argument(
+            '--clear-routes',
+            action='store_true',
+            help=argparse.SUPPRESS,
         )
 
         # TODO(tangchen): Support setting 'ha' property in 'router set'
@@ -401,8 +411,14 @@ class SetRouter(command.Command):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
 
         # Get the route attributes.
-        if parsed_args.clear_routes:
+        if parsed_args.no_route:
             attrs['routes'] = []
+        elif parsed_args.clear_routes:
+            attrs['routes'] = []
+            LOG.warning(_(
+                'The --clear-routes option is deprecated, '
+                'please use --no-route instead.'
+            ))
         elif parsed_args.routes is not None:
             # Map the route keys and append to the current routes.
             # The REST API will handle route validation and duplicates.
