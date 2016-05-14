@@ -83,7 +83,7 @@ referring to both Compute and Volume quotas.
 * ``console url``: (**Compute**) server remote console URL
 * ``consumer``: (**Identity**) OAuth-based delegatee
 * ``container``: (**Object Storage**) a grouping of objects
-* ``credentials``: (**Identity**) specific to identity providers
+* ``credential``: (**Identity**) specific to identity providers
 * ``domain``: (**Identity**) a grouping of projects
 * ``ec2 credentials``: (**Identity**) AWS EC2-compatible credentials
 * ``endpoint``: (**Identity**) the base URL used to contact a specific service

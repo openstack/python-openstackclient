@@ -1,27 +1,27 @@
 ===========
-credentials
+credential
 ===========
 
 Identity v3
 
-credentials create
+credential create
 ------------------
 
 .. ''[consider rolling the ec2 creds into this too]''
 
 .. code:: bash
 
-    os credentials create
+    os credential create
         --x509
         [<private-key-file>]
         [<certificate-file>]
 
-credentials show
+credential show
 ----------------
 
 .. code:: bash
 
-    os credentials show
+    os credential show
         [--token]
         [--user]
         [--x509 [--root]]
