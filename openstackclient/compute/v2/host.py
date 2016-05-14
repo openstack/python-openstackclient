@@ -17,6 +17,7 @@
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class ListHost(command.Lister):
@@ -27,7 +28,8 @@ class ListHost(command.Lister):
         parser.add_argument(
             "--zone",
             metavar="<zone>",
-            help="Only return hosts in the availability zone.")
+            help=_("Only return hosts in the availability zone")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -51,29 +53,29 @@ class SetHost(command.Command):
         parser.add_argument(
             "host",
             metavar="<host>",
-            help="The host to modify (name or ID)"
+            help=_("The host to modify (name or ID)")
         )
         status = parser.add_mutually_exclusive_group()
         status.add_argument(
             '--enable',
             action='store_true',
-            help='Enable the host'
+            help=_("Enable the host")
         )
         status.add_argument(
             '--disable',
             action='store_true',
-            help='Disable the host'
+            help=_("Disable the host")
         )
         maintenance = parser.add_mutually_exclusive_group()
         maintenance.add_argument(
             '--enable-maintenance',
             action='store_true',
-            help='Enable maintenance mode for the host'
+            help=_("Enable maintenance mode for the host")
         )
         maintenance.add_argument(
             '--disable-maintenance',
             action='store_true',
-            help='Disable maintenance mode for the host',
+            help=_("Disable maintenance mode for the host")
         )
         return parser
 
@@ -109,7 +111,8 @@ class ShowHost(command.Lister):
         parser.add_argument(
             "host",
             metavar="<host>",
-            help="Name of host")
+            help=_("Name of host")
+        )
         return parser
 
     def take_action(self, parsed_args):

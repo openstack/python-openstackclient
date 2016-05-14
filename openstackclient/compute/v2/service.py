@@ -28,7 +28,8 @@ class DeleteService(command.Command):
         parser.add_argument(
             "service",
             metavar="<service>",
-            help="Compute service to delete (ID only)")
+            help=_("Compute service to delete (ID only)")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -45,16 +46,18 @@ class ListService(command.Lister):
         parser.add_argument(
             "--host",
             metavar="<host>",
-            help="List services on specified host (name only)")
+            help=_("List services on specified host (name only)")
+        )
         parser.add_argument(
             "--service",
             metavar="<service>",
-            help="List only specified service (name only)")
+            help=_("List only specified service (name only)")
+        )
         parser.add_argument(
             "--long",
             action="store_true",
             default=False,
-            help="List additional fields in output"
+            help=_("List additional fields in output")
         )
         return parser
 
@@ -97,29 +100,34 @@ class SetService(command.Command):
         parser.add_argument(
             "host",
             metavar="<host>",
-            help="Name of host")
+            help=_("Name of host")
+        )
         parser.add_argument(
             "service",
             metavar="<service>",
-            help="Name of service")
+            help=_("Name of service")
+        )
         enabled_group = parser.add_mutually_exclusive_group()
         enabled_group.add_argument(
             "--enable",
             dest="enabled",
             default=True,
-            help="Enable a service (default)",
-            action="store_true")
+            action="store_true",
+            help=_("Enable a service (default)")
+        )
         enabled_group.add_argument(
             "--disable",
             dest="enabled",
-            help="Disable a service",
-            action="store_false")
+            action="store_false",
+            help=_("Disable a service")
+        )
         parser.add_argument(
             "--disable-reason",
             default=None,
             metavar="<reason>",
-            help="Reason for disabling the service (in quotas).  Note that "
-                 "when the service is enabled, this option is ignored.")
+            help=_("Reason for disabling the service (in quotas).  Note that "
+                   "when the service is enabled, this option is ignored.")
+        )
         return parser
 
     def take_action(self, parsed_args):

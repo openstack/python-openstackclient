@@ -20,6 +20,7 @@ import six
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class ListHypervisor(command.Lister):
@@ -30,7 +31,7 @@ class ListHypervisor(command.Lister):
         parser.add_argument(
             "--matching",
             metavar="<hostname>",
-            help="Filter hypervisors using <hostname> substring",
+            help=_("Filter hypervisors using <hostname> substring")
         )
         return parser
 
@@ -60,7 +61,8 @@ class ShowHypervisor(command.ShowOne):
         parser.add_argument(
             "hypervisor",
             metavar="<hypervisor>",
-            help="Hypervisor to display (name or ID)")
+            help=_("Hypervisor to display (name or ID)")
+        )
         return parser
 
     def take_action(self, parsed_args):
