@@ -141,9 +141,9 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
         gateway = parsed_args.gateway.lower()
 
         if not is_create and gateway == 'auto':
-            raise exceptions.CommandError("Auto option is not available"
-                                          " for Subnet Set. Valid options are"
-                                          " <ip-address> or none")
+            msg = _("Auto option is not available for Subnet Set. "
+                    "Valid options are <ip-address> or none")
+            raise exceptions.CommandError(msg)
         elif gateway != 'auto':
             if gateway == 'none':
                 attrs['gateway_ip'] = None

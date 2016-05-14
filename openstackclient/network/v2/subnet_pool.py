@@ -287,7 +287,7 @@ class SetSubnetPool(command.Command):
 
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         if attrs == {}:
-            msg = "Nothing specified to be set"
+            msg = _("Nothing specified to be set")
             raise exceptions.CommandError(msg)
 
         # Existing prefixes must be a subset of the new prefixes.

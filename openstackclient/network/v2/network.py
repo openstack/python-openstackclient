@@ -206,7 +206,7 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
         default_router_grp.add_argument(
             '--no-default',
             action='store_true',
-            help=_("Do not use the network as the default external network. "
+            help=_("Do not use the network as the default external network "
                    "(default)")
         )
         _add_provider_network_options(parser)
@@ -243,7 +243,7 @@ class DeleteNetwork(common.NetworkAndComputeCommand):
             'network',
             metavar="<network>",
             nargs="+",
-            help=("Network(s) to delete (name or ID)")
+            help=_("Network(s) to delete (name or ID)")
         )
         return parser
 
@@ -269,13 +269,13 @@ class ListNetwork(common.NetworkAndComputeLister):
             '--external',
             action='store_true',
             default=False,
-            help='List external networks',
+            help=_("List external networks")
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_("List additional fields in output")
         )
         return parser
 
@@ -422,7 +422,7 @@ class SetNetwork(command.Command):
 
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         if attrs == {}:
-            msg = "Nothing specified to be set"
+            msg = _("Nothing specified to be set")
             raise exceptions.CommandError(msg)
 
         client.update_network(obj, **attrs)

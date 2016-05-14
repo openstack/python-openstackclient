@@ -414,7 +414,7 @@ class SetPort(command.Command):
             attrs['fixed_ips'] = []
 
         if attrs == {}:
-            msg = "Nothing specified to be set"
+            msg = _("Nothing specified to be set")
             raise exceptions.CommandError(msg)
         client.update_port(obj, **attrs)
 
