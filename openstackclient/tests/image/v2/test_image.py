@@ -20,6 +20,7 @@ import warlock
 
 from glanceclient.v2 import schemas
 from openstackclient.common import exceptions
+from openstackclient.common import utils as common_utils
 from openstackclient.image.v2 import image
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
@@ -472,25 +473,26 @@ class TestImageDelete(TestImage):
 
 class TestImageList(TestImage):
 
+    _image = image_fakes.FakeImage.create_one_image()
+
     columns = (
         'ID',
         'Name',
         'Status',
     )
+
     datalist = (
-        (
-            image_fakes.image_id,
-            image_fakes.image_name,
-            '',
-        ),
-    )
+        _image.id,
+        _image.name,
+        '',
+    ),
 
     def setUp(self):
         super(TestImageList, self).setUp()
 
         self.api_mock = mock.Mock()
         self.api_mock.image_list.side_effect = [
-            [copy.deepcopy(image_fakes.IMAGE)], [],
+            [image_fakes.FakeImage.get_image_info(self._image)], [],
         ]
         self.app.client_manager.image.api = self.api_mock
 
@@ -615,23 +617,24 @@ class TestImageList(TestImage):
 
         self.assertEqual(collist, columns)
         datalist = ((
-            image_fakes.image_id,
-            image_fakes.image_name,
+            self._image.id,
+            self._image.name,
             '',
             '',
             '',
             '',
-            'public',
-            False,
-            image_fakes.image_owner,
-            '',
+            self._image.visibility,
+            self._image.protected,
+            self._image.owner,
+            common_utils.format_list(self._image.tags),
         ), )
         self.assertEqual(datalist, tuple(data))
 
     @mock.patch('openstackclient.api.utils.simple_filter')
     def test_image_list_property_option(self, sf_mock):
         sf_mock.return_value = [
-            copy.deepcopy(image_fakes.IMAGE),
+            copy.deepcopy(
+                image_fakes.FakeImage.get_image_info(self._image)),
         ]
 
         arglist = [
@@ -648,7 +651,7 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with()
         sf_mock.assert_called_with(
-            [image_fakes.IMAGE],
+            [image_fakes.FakeImage.get_image_info(self._image)],
             attr='a',
             value='1',
             property_field='properties',
@@ -660,7 +663,8 @@ class TestImageList(TestImage):
     @mock.patch('openstackclient.common.utils.sort_items')
     def test_image_list_sort_option(self, si_mock):
         si_mock.return_value = [
-            copy.deepcopy(image_fakes.IMAGE)
+            copy.deepcopy(
+                image_fakes.FakeImage.get_image_info(self._image))
         ]
 
         arglist = ['--sort', 'name:asc']
@@ -673,10 +677,9 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with()
         si_mock.assert_called_with(
-            [image_fakes.IMAGE],
+            [image_fakes.FakeImage.get_image_info(self._image)],
             'name:asc'
         )
-
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
