@@ -1,0 +1,6 @@
+---
+features:
+  - Support X.latest format for OS_COMPUTE_API_VERSION in order to talk with
+    the latest nova microversion API, that is very helpful shortcut usage to
+    use new nova side features.
+    [Bug `1561838 <https://bugs.launchpad.net/python-openstackclient/+bug/1561838>`_]

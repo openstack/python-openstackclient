@@ -41,8 +41,18 @@ def make_client(instance):
         version = _compute_api_version
     else:
         version = instance._api_version[API_NAME]
+        from novaclient import api_versions
+        # convert to APIVersion object
+        version = api_versions.get_api_version(version)
 
-    LOG.debug('Instantiating compute client for V%s', version)
+    if version.is_latest():
+        import novaclient
+        # NOTE(RuiChen): executing version discovery make sense, but that need
+        #                an initialized REST client, it's not available now,
+        #                fallback to use the max version of novaclient side.
+        version = novaclient.API_MAX_VERSION
+
+    LOG.debug('Instantiating compute client for %s', version)
 
     # Set client http_log_debug to True if verbosity level is high enough
     http_log_debug = utils.get_effective_log_level() <= logging.DEBUG
@@ -91,30 +101,27 @@ def check_api_version(check_version):
     """
 
     # Defer client imports until we actually need them
-    try:
-        from novaclient import api_versions
-    except ImportError:
-        # Retain previous behaviour
-        return False
-
     import novaclient
+    from novaclient import api_versions
 
     global _compute_api_version
 
-    # Copy some logic from novaclient 2.27.0 for basic version detection
+    # Copy some logic from novaclient 3.3.0 for basic version detection
     # NOTE(dtroyer): This is only enough to resume operations using API
     #                version 2.0 or any valid version supplied by the user.
     _compute_api_version = api_versions.get_api_version(check_version)
 
-    if _compute_api_version > api_versions.APIVersion("2.0"):
-        if not _compute_api_version.matches(
-            novaclient.API_MIN_VERSION,
-            novaclient.API_MAX_VERSION,
-        ):
-            raise exceptions.CommandError(
-                "versions supported by client: %s - %s" % (
-                    novaclient.API_MIN_VERSION.get_string(),
-                    novaclient.API_MAX_VERSION.get_string(),
-                ),
-            )
+    # Bypass X.latest format microversion
+    if not _compute_api_version.is_latest():
+        if _compute_api_version > api_versions.APIVersion("2.0"):
+            if not _compute_api_version.matches(
+                novaclient.API_MIN_VERSION,
+                novaclient.API_MAX_VERSION,
+            ):
+                raise exceptions.CommandError(
+                    "versions supported by client: %s - %s" % (
+                        novaclient.API_MIN_VERSION.get_string(),
+                        novaclient.API_MAX_VERSION.get_string(),
+                    ),
+                )
     return True
