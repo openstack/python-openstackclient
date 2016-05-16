@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    ``network create`` and ``network set`` now support
+    ``--transparent-vlan`` and ``--no-transparent-vlan``
+    options to add/remove VLAN transparency attributes
+    from networks.
+    This option is available in Network V2 only.
+    [Bug `1545537 <https://bugs.launchpad.net/bugs/1545537>`_]

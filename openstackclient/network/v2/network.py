@@ -90,11 +90,17 @@ def _get_attrs(client_manager, parsed_args):
         attrs['provider:physical_network'] = parsed_args.physical_network
     if parsed_args.segmentation_id:
         attrs['provider:segmentation_id'] = parsed_args.segmentation_id
+    # Update VLAN Transparency for networks
+    if parsed_args.transparent_vlan:
+        attrs['vlan_transparent'] = True
+    if parsed_args.no_transparent_vlan:
+        attrs['vlan_transparent'] = False
     return attrs
 
 
-def _add_provider_network_options(parser):
-    # Add provider network options
+def _add_additional_network_options(parser):
+    # Add additional network options
+
     parser.add_argument(
         '--provider-network-type',
         metavar='<provider-network-type>',
@@ -115,6 +121,16 @@ def _add_provider_network_options(parser):
         dest='segmentation_id',
         help=_("VLAN ID for VLAN networks or Tunnel ID for GRE/VXLAN "
                "networks"))
+
+    vlan_transparent_grp = parser.add_mutually_exclusive_group()
+    vlan_transparent_grp.add_argument(
+        '--transparent-vlan',
+        action='store_true',
+        help=_("Make the network VLAN transparent"))
+    vlan_transparent_grp.add_argument(
+        '--no-transparent-vlan',
+        action='store_true',
+        help=_("Do not make the network VLAN transparent"))
 
 
 def _get_attrs_compute(client_manager, parsed_args):
@@ -206,7 +222,7 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             help=_("Do not use the network as the default external network. "
                    "(default)")
         )
-        _add_provider_network_options(parser)
+        _add_additional_network_options(parser)
         return parser
 
     def update_parser_compute(self, parser):
@@ -410,7 +426,7 @@ class SetNetwork(command.Command):
             action='store_true',
             help=_("Do not use the network as the default external network")
         )
-        _add_provider_network_options(parser)
+        _add_additional_network_options(parser)
         return parser
 
     def take_action(self, parsed_args):

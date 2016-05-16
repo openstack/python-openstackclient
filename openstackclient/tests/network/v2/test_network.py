@@ -148,6 +148,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             "--provider-network-type", "vlan",
             "--provider-physical-network", "physnet1",
             "--provider-segment", "400",
+            "--transparent-vlan",
             self._network.name,
         ]
         verifylist = [
@@ -161,6 +162,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('provider_network_type', 'vlan'),
             ('physical_network', 'physnet1'),
             ('segmentation_id', '400'),
+            ('transparent_vlan', True),
             ('name', self._network.name),
         ]
 
@@ -178,6 +180,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'provider:network_type': 'vlan',
             'provider:physical_network': 'physnet1',
             'provider:segmentation_id': '400',
+            'vlan_transparent': True,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -486,6 +489,7 @@ class TestSetNetwork(TestNetwork):
             '--provider-network-type', 'vlan',
             '--provider-physical-network', 'physnet1',
             '--provider-segment', '400',
+            '--no-transparent-vlan',
         ]
         verifylist = [
             ('network', self._network.name),
@@ -497,6 +501,7 @@ class TestSetNetwork(TestNetwork):
             ('provider_network_type', 'vlan'),
             ('physical_network', 'physnet1'),
             ('segmentation_id', '400'),
+            ('no_transparent_vlan', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -511,6 +516,7 @@ class TestSetNetwork(TestNetwork):
             'provider:network_type': 'vlan',
             'provider:physical_network': 'physnet1',
             'provider:segmentation_id': '400',
+            'vlan_transparent': False,
         }
         self.network.update_network.assert_called_once_with(
             self._network, **attrs)
