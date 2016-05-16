@@ -427,7 +427,7 @@ class SetRouter(command.Command):
             attrs['routes'] = obj.routes + parsed_args.routes
 
         if attrs == {}:
-            msg = "Nothing specified to be set"
+            msg = _("Nothing specified to be set")
             raise exceptions.CommandError(msg)
 
         client.update_router(obj, **attrs)
