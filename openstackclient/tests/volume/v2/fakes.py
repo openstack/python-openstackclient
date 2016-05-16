@@ -498,3 +498,57 @@ class FakeAvailabilityZone(object):
             availability_zones.append(availability_zone)
 
         return availability_zones
+
+
+class FakeBackup(object):
+    """Fake one or more backup."""
+
+    @staticmethod
+    def create_one_backup(attrs=None):
+        """Create a fake backup.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with id, name, volume_id, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        backup_info = {
+            "id": 'backup-id-' + uuid.uuid4().hex,
+            "name": 'backup-name-' + uuid.uuid4().hex,
+            "volume_id": 'volume-id-' + uuid.uuid4().hex,
+            "description": 'description-' + uuid.uuid4().hex,
+            "object_count": None,
+            "container": 'container-' + uuid.uuid4().hex,
+            "size": random.randint(1, 20),
+            "status": "error",
+            "availability_zone": 'zone' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        backup_info.update(attrs)
+
+        backup = fakes.FakeResource(
+            info=copy.deepcopy(backup_info),
+            loaded=True)
+        return backup
+
+    @staticmethod
+    def create_backups(attrs=None, count=2):
+        """Create multiple fake backups.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of backups to fake
+        :return:
+            A list of FakeResource objects faking the backups
+        """
+        backups = []
+        for i in range(0, count):
+            backup = FakeBackup.create_one_backup(attrs)
+            backups.append(backup)
+
+        return backups
