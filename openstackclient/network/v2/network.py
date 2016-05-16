@@ -32,7 +32,7 @@ def _format_router_external(item):
 _formatters = {
     'subnets': utils.format_list,
     'admin_state_up': _format_admin_state,
-    'router_external': _format_router_external,
+    'router:external': _format_router_external,
     'availability_zones': utils.format_list,
     'availability_zone_hints': utils.format_list,
 }
@@ -43,9 +43,6 @@ def _get_columns(item):
     if 'tenant_id' in columns:
         columns.remove('tenant_id')
         columns.append('project_id')
-    if 'router:external' in columns:
-        columns.remove('router:external')
-        columns.append('router_external')
     return tuple(sorted(columns))
 
 
@@ -290,7 +287,7 @@ class ListNetwork(common.NetworkAndComputeLister):
                 'shared',
                 'subnets',
                 'provider_network_type',
-                'router_external',
+                'router:external',
                 'availability_zones',
             )
             column_headers = (
