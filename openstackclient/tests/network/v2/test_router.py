@@ -495,6 +495,42 @@ class TestSetRouter(TestRouter):
             self._router, **attrs)
         self.assertIsNone(result)
 
+    def test_set_no_route(self):
+        arglist = [
+            self._router.name,
+            '--no-route',
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('no_route', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'routes': [],
+        }
+        self.network.update_router.assert_called_once_with(
+            self._router, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_route_no_route(self):
+        arglist = [
+            self._router.name,
+            '--route', 'destination=10.20.30.0/24,gateway=10.20.30.1',
+            '--no-route',
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('routes', [{'destination': '10.20.30.0/24',
+                         'gateway': '10.20.30.1'}]),
+            ('no_route', True),
+        ]
+
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
     def test_set_clear_routes(self):
         arglist = [
             self._router.name,

@@ -1,0 +1,5 @@
+---
+fixes:
+  - Added ``--no-route`` to the ``router set`` command.
+    Deprecated ``--clear-routes``.
+    [Bug `1565034 <https://bugs.launchpad.net/bugs/1565034>`_]
