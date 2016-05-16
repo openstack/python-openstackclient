@@ -36,9 +36,21 @@ def _format_security_group_rule_show(obj):
 
 
 def _format_network_port_range(rule):
+    # Display port range or ICMP type and code. For example:
+    # - ICMP type: 'type=3'
+    # - ICMP type and code: 'type=3:code=0'
+    # - ICMP code: Not supported
+    # - Matching port range: '443:443'
+    # - Different port range: '22:24'
+    # - Single port: '80:80'
+    # - No port range: ''
     port_range = ''
-    if (rule.protocol != 'icmp' and
-            (rule.port_range_min or rule.port_range_max)):
+    if _is_icmp_protocol(rule.protocol):
+        if rule.port_range_min:
+            port_range += 'type=' + str(rule.port_range_min)
+        if rule.port_range_max:
+            port_range += ':code=' + str(rule.port_range_max)
+    elif rule.port_range_min or rule.port_range_max:
         port_range_min = str(rule.port_range_min)
         port_range_max = str(rule.port_range_max)
         if rule.port_range_min is None:
@@ -61,6 +73,17 @@ def _convert_to_lowercase(string):
     return string.lower()
 
 
+def _is_icmp_protocol(protocol):
+    # NOTE(rtheis): Neutron has deprecated protocol icmpv6.
+    # However, while the OSC CLI doesn't document the protocol,
+    # the code must still handle it. In addition, handle both
+    # protocol names and numbers.
+    if protocol in ['icmp', 'icmpv6', 'ipv6-icmp', '1', '58']:
+        return True
+    else:
+        return False
+
+
 class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
     """Create a new security group rule"""
 
@@ -68,19 +91,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Create rule in this security group (name or ID)',
-        )
-        # TODO(rtheis): Add support for additional protocols for network.
-        # Until then, continue enforcing the compute choices. When additional
-        # protocols are added, the default ethertype must be determined
-        # based on the protocol.
-        parser.add_argument(
-            "--proto",
-            metavar="<proto>",
-            default="tcp",
-            choices=['icmp', 'tcp', 'udp'],
-            type=_convert_to_lowercase,
-            help=_("IP protocol (icmp, tcp, udp; default: tcp)")
+            help=_("Create rule in this security group (name or ID)")
         )
         source_group = parser.add_mutually_exclusive_group()
         source_group.add_argument(
@@ -94,17 +105,49 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             metavar="<group>",
             help=_("Source security group (name or ID)")
         )
-        parser.add_argument(
-            "--dst-port",
-            metavar="<port-range>",
-            default=(0, 0),
-            action=parseractions.RangeAction,
-            help=_("Destination port, may be a single port or port range: "
-                   "137:139 (only required for IP protocols tcp and udp)")
-        )
         return parser
 
     def update_parser_network(self, parser):
+        parser.add_argument(
+            '--dst-port',
+            metavar='<port-range>',
+            action=parseractions.RangeAction,
+            help=_("Destination port, may be a single port or a starting and "
+                   "ending port range: 137:139. Required for IP protocols TCP "
+                   "and UDP. Ignored for ICMP IP protocols.")
+        )
+        parser.add_argument(
+            '--icmp-type',
+            metavar='<icmp-type>',
+            type=int,
+            help=_("ICMP type for ICMP IP protocols")
+        )
+        parser.add_argument(
+            '--icmp-code',
+            metavar='<icmp-code>',
+            type=int,
+            help=_("ICMP code for ICMP IP protocols")
+        )
+        # NOTE(rtheis): Support either protocol option name for now.
+        # However, consider deprecating and then removing --proto in
+        # a future release.
+        protocol_group = parser.add_mutually_exclusive_group()
+        protocol_group.add_argument(
+            '--protocol',
+            metavar='<protocol>',
+            type=_convert_to_lowercase,
+            help=_("IP protocol (ah, dccp, egp, esp, gre, icmp, igmp, "
+                   "ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt, "
+                   "ipv6-opts, ipv6-route, ospf, pgm, rsvp, sctp, tcp, "
+                   "udp, udplite, vrrp and integer representations [0-255]; "
+                   "default: tcp)")
+        )
+        protocol_group.add_argument(
+            '--proto',
+            metavar='<proto>',
+            type=_convert_to_lowercase,
+            help=argparse.SUPPRESS
+        )
         direction_group = parser.add_mutually_exclusive_group()
         direction_group.add_argument(
             '--ingress',
@@ -120,7 +163,8 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             '--ethertype',
             metavar='<ethertype>',
             choices=['IPv4', 'IPv6'],
-            help=_("Ethertype of network traffic (IPv4, IPv6; default: IPv4)")
+            help=_("Ethertype of network traffic "
+                   "(IPv4, IPv6; default: based on IP protocol)")
         )
         parser.add_argument(
             '--project',
@@ -129,6 +173,55 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         )
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
+
+    def update_parser_compute(self, parser):
+        parser.add_argument(
+            '--dst-port',
+            metavar='<port-range>',
+            default=(0, 0),
+            action=parseractions.RangeAction,
+            help=_("Destination port, may be a single port or a starting and "
+                   "ending port range: 137:139. Required for IP protocols TCP "
+                   "and UDP. Ignored for ICMP IP protocols.")
+        )
+        # NOTE(rtheis): Support either protocol option name for now.
+        # However, consider deprecating and then removing --proto in
+        # a future release.
+        protocol_group = parser.add_mutually_exclusive_group()
+        protocol_group.add_argument(
+            '--protocol',
+            metavar='<protocol>',
+            choices=['icmp', 'tcp', 'udp'],
+            type=_convert_to_lowercase,
+            help=_("IP protocol (icmp, tcp, udp; default: tcp)")
+        )
+        protocol_group.add_argument(
+            '--proto',
+            metavar='<proto>',
+            choices=['icmp', 'tcp', 'udp'],
+            type=_convert_to_lowercase,
+            help=argparse.SUPPRESS
+        )
+        return parser
+
+    def _get_protocol(self, parsed_args):
+        protocol = 'tcp'
+        if parsed_args.protocol is not None:
+            protocol = parsed_args.protocol
+        if parsed_args.proto is not None:
+            protocol = parsed_args.proto
+        return protocol
+
+    def _is_ipv6_protocol(self, protocol):
+        # NOTE(rtheis): Neutron has deprecated protocol icmpv6.
+        # However, while the OSC CLI doesn't document the protocol,
+        # the code must still handle it. In addition, handle both
+        # protocol names and numbers.
+        if (protocol.startswith('ipv6-') or
+                protocol in ['icmpv6', '41', '43', '44', '58', '59', '60']):
+            return True
+        else:
+            return False
 
     def take_action_network(self, client, parsed_args):
         # Get the security group ID to hold the rule.
@@ -139,24 +232,50 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
 
         # Build the create attributes.
         attrs = {}
+        attrs['protocol'] = self._get_protocol(parsed_args)
+
         # NOTE(rtheis): A direction must be specified and ingress
         # is the default.
         if parsed_args.ingress or not parsed_args.egress:
             attrs['direction'] = 'ingress'
         if parsed_args.egress:
             attrs['direction'] = 'egress'
+
+        # NOTE(rtheis): Use ethertype specified else default based
+        # on IP protocol.
         if parsed_args.ethertype:
             attrs['ethertype'] = parsed_args.ethertype
+        elif self._is_ipv6_protocol(attrs['protocol']):
+            attrs['ethertype'] = 'IPv6'
         else:
-            # NOTE(rtheis): Default based on protocol is IPv4 for now.
-            # Once IPv6 protocols are added, this will need to be updated.
             attrs['ethertype'] = 'IPv4'
-        # TODO(rtheis): Add port range support (type and code) for icmp
-        # protocol. Until then, continue ignoring the port range.
-        if parsed_args.proto != 'icmp':
+
+        # NOTE(rtheis): Validate the port range and ICMP type and code.
+        # It would be ideal if argparse could do this.
+        if parsed_args.dst_port and (parsed_args.icmp_type or
+                                     parsed_args.icmp_code):
+            msg = _('Argument --dst-port not allowed with arguments '
+                    '--icmp-type and --icmp-code')
+            raise exceptions.CommandError(msg)
+        if parsed_args.icmp_type is None and parsed_args.icmp_code is not None:
+            msg = _('Argument --icmp-type required with argument --icmp-code')
+            raise exceptions.CommandError(msg)
+        is_icmp_protocol = _is_icmp_protocol(attrs['protocol'])
+        if not is_icmp_protocol and (parsed_args.icmp_type or
+                                     parsed_args.icmp_code):
+            msg = _('ICMP IP protocol required with arguments '
+                    '--icmp-type and --icmp-code')
+            raise exceptions.CommandError(msg)
+        # NOTE(rtheis): For backwards compatibility, continue ignoring
+        # the destination port range when an ICMP IP protocol is specified.
+        if parsed_args.dst_port and not is_icmp_protocol:
             attrs['port_range_min'] = parsed_args.dst_port[0]
             attrs['port_range_max'] = parsed_args.dst_port[1]
-        attrs['protocol'] = parsed_args.proto
+        if parsed_args.icmp_type:
+            attrs['port_range_min'] = parsed_args.icmp_type
+        if parsed_args.icmp_code:
+            attrs['port_range_max'] = parsed_args.icmp_code
+
         if parsed_args.src_group is not None:
             attrs['remote_group_id'] = client.find_security_group(
                 parsed_args.src_group,
@@ -187,7 +306,8 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             client.security_groups,
             parsed_args.group,
         )
-        if parsed_args.proto == 'icmp':
+        protocol = self._get_protocol(parsed_args)
+        if protocol == 'icmp':
             from_port, to_port = -1, -1
         else:
             from_port, to_port = parsed_args.dst_port
@@ -203,7 +323,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             src_ip = '0.0.0.0/0'
         obj = client.security_group_rules.create(
             group.id,
-            parsed_args.proto,
+            protocol,
             from_port,
             to_port,
             src_ip,
