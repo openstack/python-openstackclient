@@ -727,12 +727,10 @@ class TestRemoveProjectImage(TestImage):
     def setUp(self):
         super(TestRemoveProjectImage, self).setUp()
 
+        self._image = image_fakes.FakeImage.create_one_image()
         # This is the return value for utils.find_resource()
-        self.images_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(image_fakes.IMAGE),
-            loaded=True,
-        )
+        self.images_mock.get.return_value = self._image
+
         self.project_mock.get.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.PROJECT),
@@ -749,11 +747,11 @@ class TestRemoveProjectImage(TestImage):
 
     def test_remove_project_image_no_options(self):
         arglist = [
-            image_fakes.image_id,
+            self._image.id,
             identity_fakes.project_id,
         ]
         verifylist = [
-            ('image', image_fakes.image_id),
+            ('image', self._image.id),
             ('project', identity_fakes.project_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -761,19 +759,19 @@ class TestRemoveProjectImage(TestImage):
         result = self.cmd.take_action(parsed_args)
 
         self.image_members_mock.delete.assert_called_with(
-            image_fakes.image_id,
+            self._image.id,
             identity_fakes.project_id,
         )
         self.assertIsNone(result)
 
     def test_remove_project_image_with_options(self):
         arglist = [
-            image_fakes.image_id,
+            self._image.id,
             identity_fakes.project_id,
             '--project-domain', identity_fakes.domain_id,
         ]
         verifylist = [
-            ('image', image_fakes.image_id),
+            ('image', self._image.id),
             ('project', identity_fakes.project_id),
             ('project_domain', identity_fakes.domain_id),
         ]
@@ -782,7 +780,7 @@ class TestRemoveProjectImage(TestImage):
         result = self.cmd.take_action(parsed_args)
 
         self.image_members_mock.delete.assert_called_with(
-            image_fakes.image_id,
+            self._image.id,
             identity_fakes.project_id,
         )
         self.assertIsNone(result)
