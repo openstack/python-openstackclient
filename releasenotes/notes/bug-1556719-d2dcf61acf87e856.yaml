@@ -1,0 +1,6 @@
+---
+fixes:
+  - Command ``network delete`` will delete as many networks as possible, log
+    and report failures in the end.
+    [Bug `1556719 <https://bugs.launchpad.net/python-openstackclient/+bug/1556719>`_]
+    [Bug `1537856 <https://bugs.launchpad.net/python-openstackclient/+bug/1537856>`_]

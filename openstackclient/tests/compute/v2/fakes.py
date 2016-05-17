@@ -859,6 +859,25 @@ class FakeNetwork(object):
 
         return networks
 
+    @staticmethod
+    def get_networks(networks=None, count=2):
+        """Get an iterable MagicMock object with a list of faked networks.
+
+        If networks list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List networks:
+            A list of FakeResource objects faking networks
+        :param int count:
+            The number of networks to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            networks
+        """
+        if networks is None:
+            networks = FakeNetwork.create_networks(count=count)
+        return mock.Mock(side_effect=networks)
+
 
 class FakeHost(object):
     """Fake one host."""

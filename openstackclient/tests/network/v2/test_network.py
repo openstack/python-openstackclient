@@ -14,6 +14,7 @@
 import copy
 import mock
 
+from mock import call
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.network.v2 import network
@@ -323,32 +324,87 @@ class TestCreateNetworkIdentityV2(TestNetwork):
 
 class TestDeleteNetwork(TestNetwork):
 
-    # The network to delete.
-    _network = network_fakes.FakeNetwork.create_one_network()
-
     def setUp(self):
         super(TestDeleteNetwork, self).setUp()
 
+        # The networks to delete
+        self._networks = network_fakes.FakeNetwork.create_networks(count=3)
+
         self.network.delete_network = mock.Mock(return_value=None)
 
-        self.network.find_network = mock.Mock(return_value=self._network)
+        self.network.find_network = network_fakes.FakeNetwork.get_networks(
+            networks=self._networks)
 
         # Get the command object to test
         self.cmd = network.DeleteNetwork(self.app, self.namespace)
 
-    def test_delete(self):
+    def test_delete_one_network(self):
         arglist = [
-            self._network.name,
+            self._networks[0].name,
         ]
         verifylist = [
-            ('network', [self._network.name]),
+            ('network', [self._networks[0].name]),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_network.assert_called_once_with(self._network)
+        self.network.delete_network.assert_called_once_with(self._networks[0])
         self.assertIsNone(result)
+
+    def test_delete_multiple_networks(self):
+        arglist = []
+        for n in self._networks:
+            arglist.append(n.id)
+        verifylist = [
+            ('network', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for n in self._networks:
+            calls.append(call(n))
+        self.network.delete_network.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_delete_multiple_networks_exception(self):
+        arglist = [
+            self._networks[0].id,
+            'xxxx-yyyy-zzzz',
+            self._networks[1].id,
+        ]
+        verifylist = [
+            ('network', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Fake exception in find_network()
+        ret_find = [
+            self._networks[0],
+            exceptions.NotFound('404'),
+            self._networks[1],
+        ]
+        self.network.find_network = mock.Mock(side_effect=ret_find)
+
+        # Fake exception in delete_network()
+        ret_delete = [
+            None,
+            exceptions.NotFound('404'),
+        ]
+        self.network.delete_network = mock.Mock(side_effect=ret_delete)
+
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+        # The second call of find_network() should fail. So delete_network()
+        # was only called twice.
+        calls = [
+            call(self._networks[0]),
+            call(self._networks[1]),
+        ]
+        self.network.delete_network.assert_has_calls(calls)
 
 
 class TestListNetwork(TestNetwork):
@@ -752,35 +808,96 @@ class TestCreateNetworkCompute(TestNetworkCompute):
 
 class TestDeleteNetworkCompute(TestNetworkCompute):
 
-    # The network to delete.
-    _network = compute_fakes.FakeNetwork.create_one_network()
-
     def setUp(self):
         super(TestDeleteNetworkCompute, self).setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
+        # The networks to delete
+        self._networks = compute_fakes.FakeNetwork.create_networks(count=3)
+
         self.compute.networks.delete.return_value = None
 
         # Return value of utils.find_resource()
-        self.compute.networks.get.return_value = self._network
+        self.compute.networks.get = \
+            compute_fakes.FakeNetwork.get_networks(networks=self._networks)
 
         # Get the command object to test
         self.cmd = network.DeleteNetwork(self.app, None)
 
-    def test_network_delete(self):
+    def test_delete_one_network(self):
         arglist = [
-            self._network.label,
+            self._networks[0].label,
         ]
         verifylist = [
-            ('network', [self._network.label]),
+            ('network', [self._networks[0].label]),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
         result = self.cmd.take_action(parsed_args)
 
-        self.compute.networks.delete.assert_called_once_with(self._network.id)
+        self.compute.networks.delete.assert_called_once_with(
+            self._networks[0].id)
         self.assertIsNone(result)
+
+    def test_delete_multiple_networks(self):
+        arglist = []
+        for n in self._networks:
+            arglist.append(n.label)
+        verifylist = [
+            ('network', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for n in self._networks:
+            calls.append(call(n.id))
+        self.compute.networks.delete.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_delete_multiple_networks_exception(self):
+        arglist = [
+            self._networks[0].id,
+            'xxxx-yyyy-zzzz',
+            self._networks[1].id,
+        ]
+        verifylist = [
+            ('network', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Fake exception in utils.find_resource()
+        # In compute v2, we use utils.find_resource() to find a network.
+        # It calls get() several times, but find() only one time. So we
+        # choose to fake get() always raise exception, then pass through.
+        # And fake find() to find the real network or not.
+        self.compute.networks.get.side_effect = Exception()
+        ret_find = [
+            self._networks[0],
+            Exception(),
+            self._networks[1],
+        ]
+        self.compute.networks.find.side_effect = ret_find
+
+        # Fake exception in delete()
+        ret_delete = [
+            None,
+            Exception(),
+        ]
+        self.compute.networks.delete = mock.Mock(side_effect=ret_delete)
+
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+        # The second call of utils.find_resource() should fail. So delete()
+        # was only called twice.
+        calls = [
+            call(self._networks[0].id),
+            call(self._networks[1].id),
+        ]
+        self.compute.networks.delete.assert_has_calls(calls)
 
 
 class TestListNetworkCompute(TestNetworkCompute):
