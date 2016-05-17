@@ -147,6 +147,10 @@ List subnets
 
     List additional fields in output
 
+.. option:: --ip-version {4, 6}
+
+    List only subnets of given IP version in output
+
 subnet set
 ----------
 

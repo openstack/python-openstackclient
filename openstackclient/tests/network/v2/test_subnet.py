@@ -469,6 +469,22 @@ class TestListSubnet(TestSubnet):
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
+    def test_subnet_list_ip_version(self):
+        arglist = [
+            '--ip-version', str(4),
+        ]
+        verifylist = [
+            ('ip_version', 4),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'ip_version': 4}
+
+        self.network.subnets.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
 
 class TestSetSubnet(TestSubnet):
 
