@@ -2,7 +2,7 @@
 snapshot
 ========
 
-Block Storage v1
+Block Storage v1, v2
 
 snapshot create
 ---------------
@@ -82,6 +82,7 @@ Set snapshot properties
         [--name <name>]
         [--description <description>]
         [--property <key=value> [...] ]
+        [--state <state>]
         <snapshot>
 
 .. _snapshot_restore-snapshot:
@@ -96,6 +97,14 @@ Set snapshot properties
 .. option:: --property <key=value>
 
     Property to add or modify for this snapshot (repeat option to set multiple properties)
+
+.. option:: --state <state>
+
+    New snapshot state.
+    Valid values are "available", "error", "creating",
+    "deleting", and "error_deleting".
+
+    *Volume version 2 only*
 
 .. describe:: <snapshot>
 

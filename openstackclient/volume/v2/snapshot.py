@@ -179,6 +179,14 @@ class SetSnapshot(command.Command):
             help='Property to add/change for this snapshot '
                  '(repeat option to set multiple properties)',
         )
+        parser.add_argument(
+            '--state',
+            metavar='<state>',
+            choices=['available', 'error', 'creating', 'deleting',
+                     'error-deleting'],
+            help='New snapshot state. Valid values are available, '
+                 'error, creating, deleting, and error-deleting.',
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -192,13 +200,17 @@ class SetSnapshot(command.Command):
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
 
-        if not kwargs and not parsed_args.property:
+        if (not kwargs and not parsed_args.property and not
+                parsed_args.state):
             self.app.log.error("No changes requested\n")
             return
 
         if parsed_args.property:
             volume_client.volume_snapshots.set_metadata(snapshot.id,
                                                         parsed_args.property)
+        if parsed_args.state:
+            volume_client.volume_snapshots.reset_state(snapshot.id,
+                                                       parsed_args.state)
         volume_client.volume_snapshots.update(snapshot.id, **kwargs)
 
 

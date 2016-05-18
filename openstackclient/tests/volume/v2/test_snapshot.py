@@ -229,7 +229,6 @@ class TestSnapshotList(TestSnapshot):
 
 
 class TestSnapshotSet(TestSnapshot):
-
     def setUp(self):
         super(TestSnapshotSet, self).setUp()
 
@@ -270,6 +269,23 @@ class TestSnapshotSet(TestSnapshot):
         )
         self.assertIsNone(result)
 
+    def test_snapshot_set_state_to_error(self):
+        arglist = [
+            "--state", "error",
+            volume_fakes.snapshot_id
+        ]
+        verifylist = [
+            ("state", "error"),
+            ("snapshot", volume_fakes.snapshot_id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.reset_state.assert_called_with(
+            volume_fakes.snapshot_id, "error")
+        self.assertIsNone(result)
+
 
 class TestSnapshotShow(TestSnapshot):
 
@@ -300,7 +316,6 @@ class TestSnapshotShow(TestSnapshot):
 
 
 class TestSnapshotUnset(TestSnapshot):
-
     def setUp(self):
         super(TestSnapshotUnset, self).setUp()
 
@@ -322,6 +337,7 @@ class TestSnapshotUnset(TestSnapshot):
             ("snapshot", volume_fakes.snapshot_id),
             ("property", ["foo"])
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
