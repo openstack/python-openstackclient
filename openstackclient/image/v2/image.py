@@ -25,7 +25,7 @@ from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
-from openstackclient.i18n import _  # noqa
+from openstackclient.i18n import _
 from openstackclient.identity import common
 
 
@@ -72,12 +72,12 @@ class AddProjectToImage(command.ShowOne):
         parser.add_argument(
             "image",
             metavar="<image>",
-            help="Image to share (name or ID)",
+            help=_("Image to share (name or ID)"),
         )
         parser.add_argument(
             "project",
             metavar="<project>",
-            help="Project to associate with image (name or ID)",
+            help=_("Project to associate with image (name or ID)"),
         )
         common.add_project_domain_option_to_parser(parser)
         return parser
@@ -119,94 +119,94 @@ class CreateImage(command.ShowOne):
         parser.add_argument(
             "name",
             metavar="<image-name>",
-            help="New image name",
+            help=_("New image name"),
         )
         parser.add_argument(
             "--id",
             metavar="<id>",
-            help="Image ID to reserve",
+            help=_("Image ID to reserve"),
         )
         parser.add_argument(
             "--container-format",
             default=DEFAULT_CONTAINER_FORMAT,
             metavar="<container-format>",
-            help="Image container format "
-                 "(default: %s)" % DEFAULT_CONTAINER_FORMAT,
+            help=_("Image container format "
+                   "(default: %s)") % DEFAULT_CONTAINER_FORMAT,
         )
         parser.add_argument(
             "--disk-format",
             default=DEFAULT_DISK_FORMAT,
             metavar="<disk-format>",
-            help="Image disk format "
-                 "(default: %s)" % DEFAULT_DISK_FORMAT,
+            help=_("Image disk format "
+                   "(default: %s)") % DEFAULT_DISK_FORMAT,
         )
         parser.add_argument(
             "--min-disk",
             metavar="<disk-gb>",
             type=int,
-            help="Minimum disk size needed to boot image, in gigabytes",
+            help=_("Minimum disk size needed to boot image, in gigabytes"),
         )
         parser.add_argument(
             "--min-ram",
             metavar="<ram-mb>",
             type=int,
-            help="Minimum RAM size needed to boot image, in megabytes",
+            help=_("Minimum RAM size needed to boot image, in megabytes"),
         )
         parser.add_argument(
             "--file",
             metavar="<file>",
-            help="Upload image from local file",
+            help=_("Upload image from local file"),
         )
         parser.add_argument(
             "--volume",
             metavar="<volume>",
-            help="Create image from a volume",
+            help=_("Create image from a volume"),
         )
         parser.add_argument(
             "--force",
             dest='force',
             action='store_true',
             default=False,
-            help="Force image creation if volume is in use "
-            "(only meaningful with --volume)",
+            help=_("Force image creation if volume is in use "
+                   "(only meaningful with --volume)"),
         )
         protected_group = parser.add_mutually_exclusive_group()
         protected_group.add_argument(
             "--protected",
             action="store_true",
-            help="Prevent image from being deleted",
+            help=_("Prevent image from being deleted"),
         )
         protected_group.add_argument(
             "--unprotected",
             action="store_true",
-            help="Allow image to be deleted (default)",
+            help=_("Allow image to be deleted (default)"),
         )
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
             "--public",
             action="store_true",
-            help="Image is accessible to the public",
+            help=_("Image is accessible to the public"),
         )
         public_group.add_argument(
             "--private",
             action="store_true",
-            help="Image is inaccessible to the public (default)",
+            help=_("Image is inaccessible to the public (default)"),
         )
         parser.add_argument(
             "--property",
             dest="properties",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
-            help="Set a property on this image "
-                 "(repeat option to set multiple properties)",
+            help=_("Set a property on this image "
+                   "(repeat option to set multiple properties)"),
         )
         parser.add_argument(
             "--tag",
             dest="tags",
             metavar="<tag>",
             action='append',
-            help="Set a tag on this image "
-                 "(repeat option to set multiple tags)",
+            help=_("Set a tag on this image "
+                   "(repeat option to set multiple tags)"),
         )
         # NOTE(dtroyer): --owner is deprecated in Jan 2016 in an early
         #                2.x release.  Do not remove before Jan 2017
@@ -215,7 +215,7 @@ class CreateImage(command.ShowOne):
         project_group.add_argument(
             "--project",
             metavar="<project>",
-            help="Set an alternate project on this image (name or ID)",
+            help=_("Set an alternate project on this image (name or ID)"),
         )
         project_group.add_argument(
             "--owner",
@@ -239,8 +239,8 @@ class CreateImage(command.ShowOne):
         for deadopt in self.deadopts:
             if getattr(parsed_args, deadopt.replace('-', '_'), None):
                 raise exceptions.CommandError(
-                    "ERROR: --%s was given, which is an Image v1 option"
-                    " that is no longer supported in Image v2" % deadopt)
+                    _("ERROR: --%s was given, which is an Image v1 option"
+                      " that is no longer supported in Image v2") % deadopt)
 
         # Build an attribute dict from the parsed args, only include
         # attributes that were actually set on the command line
@@ -296,11 +296,12 @@ class CreateImage(command.ShowOne):
         fp = gc_utils.get_data_file(parsed_args)
         info = {}
         if fp is not None and parsed_args.volume:
-            raise exceptions.CommandError("Uploading data and using container "
-                                          "are not allowed at the same time")
+            raise exceptions.CommandError(_("Uploading data and using "
+                                            "container are not allowed at "
+                                            "the same time"))
 
         if fp is None and parsed_args.file:
-            self.log.warning("Failed to get an image file.")
+            self.log.warning(_("Failed to get an image file."))
             return {}, {}
 
         if parsed_args.owner:
@@ -366,7 +367,7 @@ class DeleteImage(command.Command):
             "images",
             metavar="<image>",
             nargs="+",
-            help="Image(s) to delete (name or ID)",
+            help=_("Image(s) to delete (name or ID)"),
         )
         return parser
 
@@ -391,33 +392,33 @@ class ListImage(command.Lister):
             dest="public",
             action="store_true",
             default=False,
-            help="List only public images",
+            help=_("List only public images"),
         )
         public_group.add_argument(
             "--private",
             dest="private",
             action="store_true",
             default=False,
-            help="List only private images",
+            help=_("List only private images"),
         )
         public_group.add_argument(
             "--shared",
             dest="shared",
             action="store_true",
             default=False,
-            help="List only shared images",
+            help=_("List only shared images"),
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Filter output based on property',
+            help=_('Filter output based on property'),
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_('List additional fields in output'),
         )
 
         # --page-size has never worked, leave here for silent compatibility
@@ -430,23 +431,23 @@ class ListImage(command.Lister):
         parser.add_argument(
             '--sort',
             metavar="<key>[:<direction>]",
-            help="Sort output by selected keys and directions(asc or desc) "
-                 "(default: asc), multiple keys and directions can be "
-                 "specified separated by comma",
+            help=_("Sort output by selected keys and directions(asc or desc) "
+                   "(default: asc), multiple keys and directions can be "
+                   "specified separated by comma"),
         )
         parser.add_argument(
             "--limit",
             metavar="<limit>",
             type=int,
-            help="Maximum number of images to display.",
+            help=_("Maximum number of images to display."),
         )
         parser.add_argument(
             '--marker',
             metavar='<marker>',
             default=None,
-            help="The last image (name or ID) of the previous page. Display "
-                 "list of images after marker. Display all images if not "
-                 "specified."
+            help=_("The last image (name or ID) of the previous page. Display "
+                   "list of images after marker. Display all images if not "
+                   "specified."),
         )
         return parser
 
@@ -530,12 +531,12 @@ class RemoveProjectImage(command.Command):
         parser.add_argument(
             "image",
             metavar="<image>",
-            help="Image to unshare (name or ID)",
+            help=_("Image to unshare (name or ID)"),
         )
         parser.add_argument(
             "project",
             metavar="<project>",
-            help="Project to disassociate with image (name or ID)",
+            help=_("Project to disassociate with image (name or ID)"),
         )
         common.add_project_domain_option_to_parser(parser)
         return parser
@@ -563,12 +564,12 @@ class SaveImage(command.Command):
         parser.add_argument(
             "--file",
             metavar="<filename>",
-            help="Downloaded image save filename (default: stdout)",
+            help=_("Downloaded image save filename (default: stdout)"),
         )
         parser.add_argument(
             "image",
             metavar="<image>",
-            help="Image to save (name or ID)",
+            help=_("Image to save (name or ID)"),
         )
         return parser
 
@@ -603,66 +604,66 @@ class SetImage(command.Command):
         parser.add_argument(
             "image",
             metavar="<image>",
-            help="Image to modify (name or ID)"
+            help=_("Image to modify (name or ID)")
         )
         parser.add_argument(
             "--name",
             metavar="<name>",
-            help="New image name"
+            help=_("New image name")
         )
         parser.add_argument(
             "--min-disk",
             type=int,
             metavar="<disk-gb>",
-            help="Minimum disk size needed to boot image, in gigabytes"
+            help=_("Minimum disk size needed to boot image, in gigabytes")
         )
         parser.add_argument(
             "--min-ram",
             type=int,
             metavar="<ram-mb>",
-            help="Minimum RAM size needed to boot image, in megabytes",
+            help=_("Minimum RAM size needed to boot image, in megabytes"),
         )
         parser.add_argument(
             "--container-format",
             metavar="<container-format>",
-            help="Image container format "
-                 "(default: %s)" % DEFAULT_CONTAINER_FORMAT,
+            help=_("Image container format "
+                   "(default: %s)") % DEFAULT_CONTAINER_FORMAT,
         )
         parser.add_argument(
             "--disk-format",
             metavar="<disk-format>",
-            help="Image disk format "
-                 "(default: %s)" % DEFAULT_DISK_FORMAT,
+            help=_("Image disk format "
+                   "(default: %s)") % DEFAULT_DISK_FORMAT,
         )
         protected_group = parser.add_mutually_exclusive_group()
         protected_group.add_argument(
             "--protected",
             action="store_true",
-            help="Prevent image from being deleted",
+            help=_("Prevent image from being deleted"),
         )
         protected_group.add_argument(
             "--unprotected",
             action="store_true",
-            help="Allow image to be deleted (default)",
+            help=_("Allow image to be deleted (default)"),
         )
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
             "--public",
             action="store_true",
-            help="Image is accessible to the public",
+            help=_("Image is accessible to the public"),
         )
         public_group.add_argument(
             "--private",
             action="store_true",
-            help="Image is inaccessible to the public (default)",
+            help=_("Image is inaccessible to the public (default)"),
         )
         parser.add_argument(
             "--property",
             dest="properties",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
-            help="Set a property on this image "
-                 "(repeat option to set multiple properties)",
+            help=_("Set a property on this image "
+                   "(repeat option to set multiple properties)"),
         )
         parser.add_argument(
             "--tag",
@@ -670,18 +671,18 @@ class SetImage(command.Command):
             metavar="<tag>",
             default=[],
             action='append',
-            help="Set a tag on this image "
-                 "(repeat option to set multiple tags)",
+            help=_("Set a tag on this image "
+                   "(repeat option to set multiple tags)"),
         )
         parser.add_argument(
             "--architecture",
             metavar="<architecture>",
-            help="Operating system architecture",
+            help=_("Operating system architecture"),
         )
         parser.add_argument(
             "--instance-id",
             metavar="<instance-id>",
-            help="ID of server instance used to create this image",
+            help=_("ID of server instance used to create this image"),
         )
         parser.add_argument(
             "--instance-uuid",
@@ -692,33 +693,33 @@ class SetImage(command.Command):
         parser.add_argument(
             "--kernel-id",
             metavar="<kernel-id>",
-            help="ID of kernel image used to boot this disk image",
+            help=_("ID of kernel image used to boot this disk image"),
         )
         parser.add_argument(
             "--os-distro",
             metavar="<os-distro>",
-            help="Operating system distribution name",
+            help=_("Operating system distribution name"),
         )
         parser.add_argument(
             "--os-version",
             metavar="<os-version>",
-            help="Operating system distribution version",
+            help=_("Operating system distribution version"),
         )
         parser.add_argument(
             "--ramdisk-id",
             metavar="<ramdisk-id>",
-            help="ID of ramdisk image used to boot this disk image",
+            help=_("ID of ramdisk image used to boot this disk image"),
         )
         deactivate_group = parser.add_mutually_exclusive_group()
         deactivate_group.add_argument(
             "--deactivate",
             action="store_true",
-            help="Deactivate the image",
+            help=_("Deactivate the image"),
         )
         deactivate_group.add_argument(
             "--activate",
             action="store_true",
-            help="Activate the image",
+            help=_("Activate the image"),
         )
         # NOTE(dtroyer): --owner is deprecated in Jan 2016 in an early
         #                2.x release.  Do not remove before Jan 2017
@@ -727,7 +728,7 @@ class SetImage(command.Command):
         project_group.add_argument(
             "--project",
             metavar="<project>",
-            help="Set an alternate project on this image (name or ID)",
+            help=_("Set an alternate project on this image (name or ID)"),
         )
         project_group.add_argument(
             "--owner",
@@ -751,8 +752,8 @@ class SetImage(command.Command):
         for deadopt in self.deadopts:
             if getattr(parsed_args, deadopt.replace('-', '_'), None):
                 raise exceptions.CommandError(
-                    "ERROR: --%s was given, which is an Image v1 option"
-                    " that is no longer supported in Image v2" % deadopt)
+                    _("ERROR: --%s was given, which is an Image v1 option"
+                      " that is no longer supported in Image v2") % deadopt)
 
         kwargs = {}
         copy_attrs = ('architecture', 'container_format', 'disk_format',
@@ -804,7 +805,7 @@ class SetImage(command.Command):
 
         # Checks if anything that requires getting the image
         if not (kwargs or parsed_args.deactivate or parsed_args.activate):
-            self.log.warning("No arguments specified")
+            self.log.warning(_("No arguments specified"))
             return {}, {}
 
         image = utils.find_resource(
@@ -842,7 +843,7 @@ class ShowImage(command.ShowOne):
         parser.add_argument(
             "image",
             metavar="<image>",
-            help="Image to display (name or ID)",
+            help=_("Image to display (name or ID)"),
         )
         return parser
 
