@@ -164,23 +164,6 @@ def _prep_server_detail(compute_client, server):
     return info
 
 
-def _prep_image_detail(image_client, image_id):
-    """Prepare the detailed image dict for printing
-
-    :param image_client: an image client instance
-    :param image_id: id of image created
-    :rtype: a dict of image details
-    """
-
-    info = utils.find_resource(
-        image_client.images,
-        image_id,
-    )
-    # Glance client V2 doesn't have _info attribute
-    # The following condition deals with it.
-    return getattr(info, "_info", info)
-
-
 def _show_progress(progress):
     if progress:
         sys.stdout.write('\rProgress: %s' % progress)
@@ -595,63 +578,6 @@ class CreateServerDump(command.Command):
                 compute_client.servers,
                 server,
             ).trigger_crash_dump()
-
-
-class CreateServerImage(command.ShowOne):
-    """Create a new disk image from a running server"""
-
-    def get_parser(self, prog_name):
-        parser = super(CreateServerImage, self).get_parser(prog_name)
-        parser.add_argument(
-            'server',
-            metavar='<server>',
-            help=_('Server (name or ID)'),
-        )
-        parser.add_argument(
-            '--name',
-            metavar='<image-name>',
-            help=_('Name of new image (default is server name)'),
-        )
-        parser.add_argument(
-            '--wait',
-            action='store_true',
-            help=_('Wait for image create to complete'),
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        image_client = self.app.client_manager.image
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
-        )
-        if parsed_args.name:
-            name = parsed_args.name
-        else:
-            name = server.name
-
-        image_id = compute_client.servers.create_image(
-            server,
-            name,
-        )
-
-        if parsed_args.wait:
-            if utils.wait_for_status(
-                image_client.images.get,
-                image_id,
-                callback=_show_progress,
-            ):
-                sys.stdout.write('\n')
-            else:
-                self.log.error(_('Error creating snapshot of server: %s'),
-                               parsed_args.server)
-                sys.stdout.write(_('Error creating server snapshot\n'))
-                raise SystemExit
-
-        image = _prep_image_detail(image_client, image_id)
-
-        return zip(*sorted(six.iteritems(image)))
 
 
 class DeleteServer(command.Command):

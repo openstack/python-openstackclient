@@ -10,7 +10,7 @@ Compute v2
 server image create
 -------------------
 
-Create a new disk image from a running server
+Create a new server disk image from an existing server
 
 .. program:: server image create
 .. code:: bash
@@ -22,12 +22,12 @@ Create a new disk image from a running server
 
 .. option:: --name <image-name>
 
-    Name of new image (default is server name)
+    Name of new disk image (default: server name)
 
 .. option:: --wait
 
-    Wait for image create to complete
+    Wait for operation to complete
 
 .. describe:: <server>
 
-    Server (name or ID)
+    Server to create image (name or ID)
