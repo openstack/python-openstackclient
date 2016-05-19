@@ -20,7 +20,7 @@ import six
 
 from openstackclient.common import command
 from openstackclient.common import utils
-from openstackclient.i18n import _  # noqa
+from openstackclient.i18n import _
 
 
 def _xform_common_availability_zone(az, zone_info):

@@ -31,7 +31,7 @@ from openstackclient.api import utils as api_utils
 from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
-from openstackclient.i18n import _  # noqa
+from openstackclient.i18n import _
 
 
 DEFAULT_CONTAINER_FORMAT = 'bare'
