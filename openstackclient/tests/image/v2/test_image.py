@@ -75,7 +75,8 @@ class TestImageCreate(TestImage):
 
         # This is the return value for utils.find_resource()
         self.images_mock.get.return_value = copy.deepcopy(
-            image_fakes.FakeImage.get_image_info(self.new_image))
+            self.new_image
+        )
         self.images_mock.update.return_value = self.new_image
 
         # Get the command object to test
@@ -492,7 +493,7 @@ class TestImageList(TestImage):
 
         self.api_mock = mock.Mock()
         self.api_mock.image_list.side_effect = [
-            [image_fakes.FakeImage.get_image_info(self._image)], [],
+            [self._image], [],
         ]
         self.app.client_manager.image.api = self.api_mock
 
@@ -632,10 +633,7 @@ class TestImageList(TestImage):
 
     @mock.patch('openstackclient.api.utils.simple_filter')
     def test_image_list_property_option(self, sf_mock):
-        sf_mock.return_value = [
-            copy.deepcopy(
-                image_fakes.FakeImage.get_image_info(self._image)),
-        ]
+        sf_mock.return_value = [copy.deepcopy(self._image)]
 
         arglist = [
             '--property', 'a=1',
@@ -651,7 +649,7 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with()
         sf_mock.assert_called_with(
-            [image_fakes.FakeImage.get_image_info(self._image)],
+            [self._image],
             attr='a',
             value='1',
             property_field='properties',
@@ -662,10 +660,7 @@ class TestImageList(TestImage):
 
     @mock.patch('openstackclient.common.utils.sort_items')
     def test_image_list_sort_option(self, si_mock):
-        si_mock.return_value = [
-            copy.deepcopy(
-                image_fakes.FakeImage.get_image_info(self._image))
-        ]
+        si_mock.return_value = [copy.deepcopy(self._image)]
 
         arglist = ['--sort', 'name:asc']
         verifylist = [('sort', 'name:asc')]
@@ -677,7 +672,7 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with()
         si_mock.assert_called_with(
-            [image_fakes.FakeImage.get_image_info(self._image)],
+            [self._image],
             'name:asc'
         )
         self.assertEqual(self.columns, columns)

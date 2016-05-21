@@ -18,6 +18,9 @@ import mock
 import random
 import uuid
 
+from glanceclient.v2 import schemas
+import warlock
+
 from openstackclient.common import utils as common_utils
 from openstackclient.tests import fakes
 from openstackclient.tests import utils
@@ -194,7 +197,7 @@ class FakeImage(object):
 
         # Set default attribute
         image_info = {
-            'id': 'image-id' + uuid.uuid4().hex,
+            'id': str(uuid.uuid4()),
             'name': 'image-name' + uuid.uuid4().hex,
             'owner': 'image-owner' + uuid.uuid4().hex,
             'protected': bool(random.choice([0, 1])),
@@ -205,11 +208,13 @@ class FakeImage(object):
         # Overwrite default attributes if there are some attributes set
         image_info.update(attrs)
 
-        image = fakes.FakeResource(
-            None,
-            image_info,
-            loaded=True)
-        return image
+        # Set up the schema
+        model = warlock.model_factory(
+            IMAGE_schema,
+            schemas.SchemaBasedModel,
+        )
+
+        return model(**image_info)
 
     @staticmethod
     def create_images(attrs=None, count=2):
@@ -249,27 +254,6 @@ class FakeImage(object):
         return mock.MagicMock(side_effect=images)
 
     @staticmethod
-    def get_image_info(image=None):
-        """Get the image info from a faked image object.
-
-        :param image:
-            A FakeResource objects faking image
-        :return
-            A dictionary which includes the faked image info as follows:
-            {
-                'id': image_id,
-                'name': image_name,
-                'owner': image_owner,
-                'protected': image_protected,
-                'visibility': image_visibility,
-                'tags': image_tags
-            }
-        """
-        if image is not None:
-            return image._info
-        return {}
-
-    @staticmethod
     def get_image_columns(image=None):
         """Get the image columns from a faked image object.
 
@@ -280,9 +264,8 @@ class FakeImage(object):
             ('id', 'name', 'owner', 'protected', 'visibility', 'tags')
         """
         if image is not None:
-            return tuple(k for k in sorted(
-                FakeImage.get_image_info(image).keys()))
-        return tuple([])
+            return tuple(sorted(image))
+        return IMAGE_columns
 
     @staticmethod
     def get_image_data(image=None):
@@ -296,7 +279,7 @@ class FakeImage(object):
         """
         data_list = []
         if image is not None:
-            for x in sorted(FakeImage.get_image_info(image).keys()):
+            for x in sorted(image.keys()):
                 if x == 'tags':
                     # The 'tags' should be format_list
                     data_list.append(
