@@ -97,6 +97,9 @@ class TestQuotaSet(TestQuota):
             loaded=True,
         )
 
+        self.network_mock = self.app.client_manager.network
+        self.network_mock.update_quota = mock.Mock()
+
         self.cmd = quota.SetQuota(self.app, None)
 
     def test_quota_set(self):
@@ -132,6 +135,7 @@ class TestQuotaSet(TestQuota):
             ('project', identity_fakes.project_name),
         ]
 
+        self.app.client_manager.network_endpoint_enabled = False
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.cmd.take_action(parsed_args)
@@ -181,6 +185,61 @@ class TestQuotaSet(TestQuota):
         }
 
         self.volume_quotas_mock.update.assert_called_with(
+            identity_fakes.project_id,
+            **kwargs
+        )
+
+    def test_quota_set_network(self):
+        arglist = [
+            '--subnets', str(network_fakes.QUOTA['subnet']),
+            '--networks', str(network_fakes.QUOTA['network']),
+            '--floating-ips', str(network_fakes.QUOTA['floatingip']),
+            '--subnetpools', str(network_fakes.QUOTA['subnetpool']),
+            '--secgroup-rules',
+            str(network_fakes.QUOTA['security_group_rule']),
+            '--secgroups', str(network_fakes.QUOTA['security_group']),
+            '--routers', str(network_fakes.QUOTA['router']),
+            '--rbac-policies', str(network_fakes.QUOTA['rbac_policy']),
+            '--ports', str(network_fakes.QUOTA['port']),
+            '--vips', str(network_fakes.QUOTA['vip']),
+            '--members', str(network_fakes.QUOTA['member']),
+            '--health-monitors', str(network_fakes.QUOTA['health_monitor']),
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('subnet', network_fakes.QUOTA['subnet']),
+            ('network', network_fakes.QUOTA['network']),
+            ('floatingip', network_fakes.QUOTA['floatingip']),
+            ('subnetpool', network_fakes.QUOTA['subnetpool']),
+            ('security_group_rule',
+             network_fakes.QUOTA['security_group_rule']),
+            ('security_group', network_fakes.QUOTA['security_group']),
+            ('router', network_fakes.QUOTA['router']),
+            ('rbac_policy', network_fakes.QUOTA['rbac_policy']),
+            ('port', network_fakes.QUOTA['port']),
+            ('vip', network_fakes.QUOTA['vip']),
+            ('member', network_fakes.QUOTA['member']),
+            ('health_monitor', network_fakes.QUOTA['health_monitor']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+        kwargs = {
+            'subnet': network_fakes.QUOTA['subnet'],
+            'network': network_fakes.QUOTA['network'],
+            'floatingip': network_fakes.QUOTA['floatingip'],
+            'subnetpool': network_fakes.QUOTA['subnetpool'],
+            'security_group_rule':
+                network_fakes.QUOTA['security_group_rule'],
+            'security_group': network_fakes.QUOTA['security_group'],
+            'router': network_fakes.QUOTA['router'],
+            'rbac_policy': network_fakes.QUOTA['rbac_policy'],
+            'port': network_fakes.QUOTA['port'],
+            'vip': network_fakes.QUOTA['vip'],
+            'member': network_fakes.QUOTA['member'],
+            'health_monitor': network_fakes.QUOTA['health_monitor'],
+        }
+        self.network_mock.update_quota.assert_called_with(
             identity_fakes.project_id,
             **kwargs
         )

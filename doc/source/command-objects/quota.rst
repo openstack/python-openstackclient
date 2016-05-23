@@ -32,6 +32,20 @@ Set quotas for project
         [--volumes <new-volumes>]
         [--volume-type <volume-type>]
 
+        # Network settings
+        [--floating-ips <num-floatingips>]
+        [--secgroup-rules <num-security-group-rules>]
+        [--secgroups <num-security-groups>]
+        [--networks <num-networks>]
+        [--subnets <num-subnets>]
+        [--ports <num-ports>]
+        [--routers <num-routers>]
+        [--rbac-policies <num-rbac-policies>]
+        [--vips <num-vips>]
+        [--subnetpools <num-subnetpools>]
+        [--members <num-members>]
+        [--health-monitors <num-health-monitors>]
+
         <project>
 
 Set quotas for class
@@ -125,6 +139,42 @@ Set quotas for class
 .. option:: --volume-type <volume-type>
 
     Set quotas for a specific <volume-type>
+
+.. option:: --networks <num-networks>
+
+    New value for the networks quota
+
+.. option:: --subnets <num-subnets>
+
+    New value for the subnets quota
+
+.. option:: --ports <num-ports>
+
+    New value for the ports quota
+
+.. option:: --routers <num-routers>
+
+    New value for the routers quota
+
+.. option:: --rbac-policies <num-rbac-policies>
+
+    New value for the rbac-policies quota
+
+.. option:: --vips <num-vips>
+
+    New value for the vips quota
+
+.. option:: --subnetpools <num-subnetpools>
+
+    New value for the subnetpools quota
+
+.. option:: --members <num-members>
+
+    New value for the members quota
+
+.. option:: --health-monitors <num-health-monitors>
+
+    New value for the health-monitors quota
 
 quota show
 ----------

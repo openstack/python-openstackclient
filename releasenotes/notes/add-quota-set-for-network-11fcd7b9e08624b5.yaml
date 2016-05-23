@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Add network support for ``quota set`` command. Options added includes
+    ``--networks --subnets --subnetpools --ports --routers --rbac-policies``
+    ``--vips --members --health-monitors``.
+    Options ``--floating-ips --secgroup-rules --secgroups`` now support
+    both network and compute API.
+    [Bug `1489441 <https://bugs.launchpad.net/bugs/1489441>`_]

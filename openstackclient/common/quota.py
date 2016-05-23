@@ -29,7 +29,6 @@ from openstackclient.common import utils
 COMPUTE_QUOTAS = {
     'cores': 'cores',
     'fixed_ips': 'fixed-ips',
-    'floating_ips': 'floating-ips',
     'injected_file_content_bytes': 'injected-file-size',
     'injected_file_path_bytes': 'injected-path-size',
     'injected_files': 'injected-files',
@@ -37,8 +36,6 @@ COMPUTE_QUOTAS = {
     'key_pairs': 'key-pairs',
     'metadata_items': 'properties',
     'ram': 'ram',
-    'security_group_rules': 'secgroup-rules',
-    'security_groups': 'secgroups',
 }
 
 VOLUME_QUOTAS = {
@@ -47,15 +44,40 @@ VOLUME_QUOTAS = {
     'volumes': 'volumes',
 }
 
+NOVA_NETWORK_QUOTAS = {
+    'floating_ips': 'floating-ips',
+    'security_group_rules': 'secgroup-rules',
+    'security_groups': 'secgroups',
+}
+
 NETWORK_QUOTAS = {
     'floatingip': 'floating-ips',
     'security_group_rule': 'secgroup-rules',
     'security_group': 'secgroups',
+    'network': 'networks',
+    'subnet': 'subnets',
+    'port': 'ports',
+    'router': 'routers',
+    'rbac_policy': 'rbac-policies',
+    'vip': 'vips',
+    'subnetpool': 'subnetpools',
+    'member': 'members',
+    'health_monitor': 'health-monitors',
 }
 
 
 class SetQuota(command.Command):
     """Set quotas for project or class"""
+
+    def _build_options_list(self):
+        if self.app.client_manager.is_network_endpoint_enabled():
+            return itertools.chain(COMPUTE_QUOTAS.items(),
+                                   VOLUME_QUOTAS.items(),
+                                   NETWORK_QUOTAS.items())
+        else:
+            return itertools.chain(COMPUTE_QUOTAS.items(),
+                                   VOLUME_QUOTAS.items(),
+                                   NOVA_NETWORK_QUOTAS.items())
 
     def get_parser(self, prog_name):
         parser = super(SetQuota, self).get_parser(prog_name)
@@ -71,8 +93,7 @@ class SetQuota(command.Command):
             default=False,
             help='Set quotas for <class>',
         )
-        for k, v in itertools.chain(
-                COMPUTE_QUOTAS.items(), VOLUME_QUOTAS.items()):
+        for k, v in self._build_options_list():
             parser.add_argument(
                 '--%s' % v,
                 metavar='<%s>' % v,
@@ -92,7 +113,7 @@ class SetQuota(command.Command):
         identity_client = self.app.client_manager.identity
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
-
+        network_client = self.app.client_manager.network
         compute_kwargs = {}
         for k, v in COMPUTE_QUOTAS.items():
             value = getattr(parsed_args, k, None)
@@ -107,7 +128,20 @@ class SetQuota(command.Command):
                     k = k + '_%s' % parsed_args.volume_type
                 volume_kwargs[k] = value
 
-        if compute_kwargs == {} and volume_kwargs == {}:
+        network_kwargs = {}
+        if self.app.client_manager.is_network_endpoint_enabled():
+            for k, v in NETWORK_QUOTAS.items():
+                value = getattr(parsed_args, k, None)
+                if value is not None:
+                    network_kwargs[k] = value
+        else:
+            for k, v in NOVA_NETWORK_QUOTAS.items():
+                value = getattr(parsed_args, k, None)
+                if value is not None:
+                    compute_kwargs[k] = value
+
+        if (compute_kwargs == {} and volume_kwargs == {}
+                and network_kwargs == {}):
             sys.stderr.write("No quotas updated")
             return
 
@@ -126,6 +160,9 @@ class SetQuota(command.Command):
                 volume_client.quota_classes.update(
                     project.id,
                     **volume_kwargs)
+            if network_kwargs:
+                sys.stderr.write("Network quotas are ignored since quota class"
+                                 "is not supported.")
         else:
             if compute_kwargs:
                 compute_client.quotas.update(
@@ -135,6 +172,10 @@ class SetQuota(command.Command):
                 volume_client.quotas.update(
                     project.id,
                     **volume_kwargs)
+            if network_kwargs:
+                network_client.update_quota(
+                    project.id,
+                    **network_kwargs)
 
 
 class ShowQuota(command.ShowOne):
@@ -232,8 +273,8 @@ class ShowQuota(command.ShowOne):
         # neutron is enabled, quotas of these three resources
         # in nova will be replaced by neutron's.
         for k, v in itertools.chain(
-                COMPUTE_QUOTAS.items(), VOLUME_QUOTAS.items(),
-                NETWORK_QUOTAS.items()):
+                COMPUTE_QUOTAS.items(), NOVA_NETWORK_QUOTAS.items(),
+                VOLUME_QUOTAS.items(), NETWORK_QUOTAS.items()):
             if not k == v and info.get(k):
                 info[v] = info[k]
                 info.pop(k)
