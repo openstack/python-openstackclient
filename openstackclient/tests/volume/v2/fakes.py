@@ -552,3 +552,56 @@ class FakeBackup(object):
             backups.append(backup)
 
         return backups
+
+
+class FakeSnapshot(object):
+    """Fake one or more snapshot."""
+
+    @staticmethod
+    def create_one_snapshot(attrs=None):
+        """Create a fake snapshot.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with id, name, description, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        snapshot_info = {
+            "id": 'snapshot-id-' + uuid.uuid4().hex,
+            "name": 'snapshot-name-' + uuid.uuid4().hex,
+            "description": 'snapshot-description-' + uuid.uuid4().hex,
+            "size": 10,
+            "status": "available",
+            "metadata": {"foo": "bar"},
+            "created_at": "2015-06-03T18:49:19.000000",
+            "volume_id": 'vloume-id-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        snapshot_info.update(attrs)
+
+        snapshot = fakes.FakeResource(
+            info=copy.deepcopy(snapshot_info),
+            loaded=True)
+        return snapshot
+
+    @staticmethod
+    def create_snapshots(attrs=None, count=2):
+        """Create multiple fake snapshots.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of snapshots to fake
+        :return:
+            A list of FakeResource objects faking the snapshots
+        """
+        snapshots = []
+        for i in range(0, count):
+            snapshot = FakeSnapshot.create_one_snapshot(attrs)
+            snapshots.append(snapshot)
+
+        return snapshots
