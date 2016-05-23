@@ -605,3 +605,56 @@ class FakeSnapshot(object):
             snapshots.append(snapshot)
 
         return snapshots
+
+
+class FakeType(object):
+    """Fake one or more type."""
+
+    @staticmethod
+    def create_one_type(attrs=None, methods=None):
+        """Create a fake type.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object with id, name, description, etc.
+        """
+        attrs = attrs or {}
+        methods = methods or {}
+
+        # Set default attributes.
+        type_info = {
+            "id": 'type-id-' + uuid.uuid4().hex,
+            "name": 'type-name-' + uuid.uuid4().hex,
+            "description": 'type-description-' + uuid.uuid4().hex,
+            "extra_specs": {"foo": "bar"},
+        }
+
+        # Overwrite default attributes.
+        type_info.update(attrs)
+
+        volume_type = fakes.FakeResource(
+            info=copy.deepcopy(type_info),
+            methods=methods,
+            loaded=True)
+        return volume_type
+
+    @staticmethod
+    def create_types(attrs=None, count=2):
+        """Create multiple fake types.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of types to fake
+        :return:
+            A list of FakeResource objects faking the types
+        """
+        volume_types = []
+        for i in range(0, count):
+            volume_type = FakeType.create_one_type(attrs)
+            volume_types.append(volume_type)
+
+        return volume_types

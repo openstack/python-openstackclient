@@ -14,25 +14,12 @@
 
 import copy
 
+from openstackclient.common import utils
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 from openstackclient.tests import utils as tests_utils
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import volume_type
-
-
-class FakeTypeResource(fakes.FakeResource):
-
-    _keys = {'property': 'value'}
-
-    def set_keys(self, args):
-        self._keys.update(args)
-
-    def unset_keys(self, key):
-        self._keys.pop(key, None)
-
-    def get_keys(self):
-        return self._keys
 
 
 class TestType(volume_fakes.TestVolume):
@@ -58,82 +45,78 @@ class TestTypeCreate(TestType):
         'id',
         'name',
     )
-    datalist = (
-        volume_fakes.type_description,
-        volume_fakes.type_id,
-        volume_fakes.type_name,
-    )
 
     def setUp(self):
         super(TestTypeCreate, self).setUp()
 
-        self.types_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.TYPE),
-            loaded=True
+        self.new_volume_type = volume_fakes.FakeType.create_one_type()
+        self.data = (
+            self.new_volume_type.description,
+            self.new_volume_type.id,
+            self.new_volume_type.name,
         )
+
+        self.types_mock.create.return_value = self.new_volume_type
         # Get the command object to test
         self.cmd = volume_type.CreateVolumeType(self.app, None)
 
     def test_type_create_public(self):
         arglist = [
-            volume_fakes.type_name,
-            "--description", volume_fakes.type_description,
-            "--public"
+            "--description", self.new_volume_type.description,
+            "--public",
+            self.new_volume_type.name,
         ]
         verifylist = [
-            ("name", volume_fakes.type_name),
-            ("description", volume_fakes.type_description),
+            ("description", self.new_volume_type.description),
             ("public", True),
             ("private", False),
+            ("name", self.new_volume_type.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
         self.types_mock.create.assert_called_with(
-            volume_fakes.type_name,
-            description=volume_fakes.type_description,
+            self.new_volume_type.name,
+            description=self.new_volume_type.description,
             is_public=True,
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertEqual(self.data, data)
 
     def test_type_create_private(self):
         arglist = [
-            volume_fakes.type_name,
-            "--description", volume_fakes.type_description,
+            "--description", self.new_volume_type.description,
             "--private",
+            self.new_volume_type.name,
         ]
         verifylist = [
-            ("name", volume_fakes.type_name),
-            ("description", volume_fakes.type_description),
+            ("description", self.new_volume_type.description),
             ("public", False),
             ("private", True),
+            ("name", self.new_volume_type.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
         self.types_mock.create.assert_called_with(
-            volume_fakes.type_name,
-            description=volume_fakes.type_description,
+            self.new_volume_type.name,
+            description=self.new_volume_type.description,
             is_public=False,
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertEqual(self.data, data)
 
 
 class TestTypeDelete(TestType):
 
+    volume_type = volume_fakes.FakeType.create_one_type()
+
     def setUp(self):
         super(TestTypeDelete, self).setUp()
 
-        self.types_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.TYPE),
-            loaded=True
-        )
+        self.types_mock.get.return_value = self.volume_type
         self.types_mock.delete.return_value = None
 
         # Get the command object to mock
@@ -141,36 +124,51 @@ class TestTypeDelete(TestType):
 
     def test_type_delete(self):
         arglist = [
-            volume_fakes.type_id
+            self.volume_type.id
         ]
         verifylist = [
-            ("volume_type", volume_fakes.type_id)
+            ("volume_type", self.volume_type.id)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.types_mock.delete.assert_called_with(volume_fakes.type_id)
+        self.types_mock.delete.assert_called_with(self.volume_type.id)
         self.assertIsNone(result)
 
 
 class TestTypeList(TestType):
 
+    volume_types = volume_fakes.FakeType.create_types()
+
     columns = [
         "ID",
         "Name"
     ]
+    columns_long = columns + [
+        "Description",
+        "Properties"
+    ]
+
+    data = []
+    for t in volume_types:
+        data.append((
+            t.id,
+            t.name,
+        ))
+    data_long = []
+    for t in volume_types:
+        data_long.append((
+            t.id,
+            t.name,
+            t.description,
+            utils.format_dict(t.extra_specs),
+        ))
 
     def setUp(self):
         super(TestTypeList, self).setUp()
 
-        self.types_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(volume_fakes.TYPE),
-                loaded=True
-            )
-        ]
+        self.types_mock.list.return_value = self.volume_types
         # get the command to test
         self.cmd = volume_type.ListVolumeType(self.app, None)
 
@@ -183,11 +181,7 @@ class TestTypeList(TestType):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.assertEqual(self.columns, columns)
-        datalist = ((
-            volume_fakes.type_id,
-            volume_fakes.type_name,
-        ),)
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.data, list(data))
 
     def test_type_list_with_options(self):
         arglist = ["--long"]
@@ -195,30 +189,19 @@ class TestTypeList(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        columns = self.columns + [
-            "Description",
-            "Properties"
-        ]
-        self.assertEqual(columns, columns)
-        datalist = ((
-            volume_fakes.type_id,
-            volume_fakes.type_name,
-            volume_fakes.type_description,
-            "foo='bar'"
-        ),)
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns_long, columns)
+        self.assertEqual(self.data_long, list(data))
 
 
 class TestTypeSet(TestType):
 
+    volume_type = volume_fakes.FakeType.create_one_type(
+        methods={'set_keys': None})
+
     def setUp(self):
         super(TestTypeSet, self).setUp()
 
-        self.types_mock.get.return_value = FakeTypeResource(
-            None,
-            copy.deepcopy(volume_fakes.TYPE),
-            loaded=True,
-        )
+        self.types_mock.get.return_value = self.volume_type
 
         # Return a project
         self.projects_mock.get.return_value = fakes.FakeResource(
@@ -226,7 +209,6 @@ class TestTypeSet(TestType):
             copy.deepcopy(identity_fakes.PROJECT),
             loaded=True,
         )
-
         # Get the command object to test
         self.cmd = volume_type.SetVolumeType(self.app, None)
 
@@ -234,13 +216,13 @@ class TestTypeSet(TestType):
         new_name = 'new_name'
         arglist = [
             '--name', new_name,
-            volume_fakes.type_id,
+            self.volume_type.id,
         ]
         verifylist = [
             ('name', new_name),
             ('description', None),
             ('property', None),
-            ('volume_type', volume_fakes.type_id),
+            ('volume_type', self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -251,7 +233,7 @@ class TestTypeSet(TestType):
             'name': new_name,
         }
         self.types_mock.update.assert_called_with(
-            volume_fakes.type_id,
+            self.volume_type.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -260,13 +242,13 @@ class TestTypeSet(TestType):
         new_desc = 'new_desc'
         arglist = [
             '--description', new_desc,
-            volume_fakes.type_id,
+            self.volume_type.id,
         ]
         verifylist = [
             ('name', None),
             ('description', new_desc),
             ('property', None),
-            ('volume_type', volume_fakes.type_id),
+            ('volume_type', self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -277,7 +259,7 @@ class TestTypeSet(TestType):
             'description': new_desc,
         }
         self.types_mock.update.assert_called_with(
-            volume_fakes.type_id,
+            self.volume_type.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -285,31 +267,29 @@ class TestTypeSet(TestType):
     def test_type_set_property(self):
         arglist = [
             '--property', 'myprop=myvalue',
-            volume_fakes.type_id,
+            self.volume_type.id,
         ]
         verifylist = [
             ('name', None),
             ('description', None),
             ('property', {'myprop': 'myvalue'}),
-            ('volume_type', volume_fakes.type_id),
+            ('volume_type', self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
+        self.volume_type.set_keys.assert_called_once_with(
+            {'myprop': 'myvalue'})
         self.assertIsNone(result)
-
-        result = self.types_mock.get.return_value._keys
-        self.assertIn('myprop', result)
-        self.assertEqual('myvalue', result['myprop'])
 
     def test_type_set_not_called_without_project_argument(self):
         arglist = [
             '--project', '',
-            volume_fakes.type_id,
+            self.volume_type.id,
         ]
         verifylist = [
             ('project', ''),
-            ('volume_type', volume_fakes.type_id),
+            ('volume_type', self.volume_type.id),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -336,11 +316,11 @@ class TestTypeSet(TestType):
     def test_type_set_project_access(self):
         arglist = [
             '--project', identity_fakes.project_id,
-            volume_fakes.type_id,
+            self.volume_type.id,
         ]
         verifylist = [
             ('project', identity_fakes.project_id),
-            ('volume_type', volume_fakes.type_id),
+            ('volume_type', self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -348,51 +328,61 @@ class TestTypeSet(TestType):
         self.assertIsNone(result)
 
         self.types_access_mock.add_project_access.assert_called_with(
-            volume_fakes.type_id,
+            self.volume_type.id,
             identity_fakes.project_id,
         )
 
 
 class TestTypeShow(TestType):
 
+    columns = (
+        'description',
+        'id',
+        'name',
+        'properties',
+    )
+
     def setUp(self):
         super(TestTypeShow, self).setUp()
 
-        self.types_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.TYPE),
-            loaded=True
+        self.volume_type = volume_fakes.FakeType.create_one_type()
+        self.data = (
+            self.volume_type.description,
+            self.volume_type.id,
+            self.volume_type.name,
+            utils.format_dict(self.volume_type.extra_specs)
         )
+
+        self.types_mock.get.return_value = self.volume_type
 
         # Get the command object to test
         self.cmd = volume_type.ShowVolumeType(self.app, None)
 
     def test_type_show(self):
         arglist = [
-            volume_fakes.type_id
+            self.volume_type.id
         ]
         verifylist = [
-            ("volume_type", volume_fakes.type_id)
+            ("volume_type", self.volume_type.id)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.types_mock.get.assert_called_with(volume_fakes.type_id)
+        self.types_mock.get.assert_called_with(self.volume_type.id)
 
-        self.assertEqual(volume_fakes.TYPE_FORMATTED_columns, columns)
-        self.assertEqual(volume_fakes.TYPE_FORMATTED_data, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
 
 class TestTypeUnset(TestType):
 
+    volume_type = volume_fakes.FakeType.create_one_type(
+        methods={'unset_keys': None})
+
     def setUp(self):
         super(TestTypeUnset, self).setUp()
 
-        self.types_mock.get.return_value = FakeTypeResource(
-            None,
-            copy.deepcopy(volume_fakes.TYPE),
-            loaded=True
-        )
+        self.types_mock.get.return_value = self.volume_type
 
         # Return a project
         self.projects_mock.get.return_value = fakes.FakeResource(
@@ -407,29 +397,27 @@ class TestTypeUnset(TestType):
     def test_type_unset(self):
         arglist = [
             '--property', 'property',
-            volume_fakes.type_id,
+            self.volume_type.id,
         ]
         verifylist = [
             ('property', 'property'),
-            ('volume_type', volume_fakes.type_id),
+            ('volume_type', self.volume_type.id),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
+        self.volume_type.unset_keys.assert_called_once_with('property')
         self.assertIsNone(result)
-
-        result = self.types_mock.get.return_value._keys
-        self.assertNotIn('property', result)
 
     def test_type_unset_project_access(self):
         arglist = [
             '--project', identity_fakes.project_id,
-            volume_fakes.type_id,
+            self.volume_type.id,
         ]
         verifylist = [
             ('project', identity_fakes.project_id),
-            ('volume_type', volume_fakes.type_id),
+            ('volume_type', self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -437,18 +425,18 @@ class TestTypeUnset(TestType):
         self.assertIsNone(result)
 
         self.types_access_mock.remove_project_access.assert_called_with(
-            volume_fakes.type_id,
+            self.volume_type.id,
             identity_fakes.project_id,
         )
 
     def test_type_unset_not_called_without_project_argument(self):
         arglist = [
             '--project', '',
-            volume_fakes.type_id,
+            self.volume_type.id,
         ]
         verifylist = [
             ('project', ''),
-            ('volume_type', volume_fakes.type_id),
+            ('volume_type', self.volume_type.id),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
