@@ -129,6 +129,8 @@ class ServerTests(test.TestCase):
         1) Boot server in setUp
         2) Set properties for server
         3) Check server properties in server show output
+        4) Unset properties for server
+        5) Check server properties in server show output
         """
         self.wait_for_status("ACTIVE")
         # metadata
@@ -137,6 +139,12 @@ class ServerTests(test.TestCase):
         opts = self.get_show_opts(["name", "properties"])
         raw_output = self.openstack('server show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\na='b', c='d'\n", raw_output)
+
+        raw_output = self.openstack(
+            'server unset --property a ' + self.NAME)
+        opts = self.get_show_opts(["name", "properties"])
+        raw_output = self.openstack('server show ' + self.NAME + opts)
+        self.assertEqual(self.NAME + "\nc='d'\n", raw_output)
 
     def test_server_suspend_resume(self):
         """Test server suspend and resume commands.
