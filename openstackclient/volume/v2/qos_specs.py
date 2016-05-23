@@ -20,6 +20,7 @@ import six
 from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class AssociateQos(command.Command):
@@ -30,12 +31,12 @@ class AssociateQos(command.Command):
         parser.add_argument(
             'qos_spec',
             metavar='<qos-spec>',
-            help='QoS specification to modify (name or ID)',
+            help=_('QoS specification to modify (name or ID)'),
         )
         parser.add_argument(
             'volume_type',
             metavar='<volume-type>',
-            help='Volume type to associate the QoS (name or ID)',
+            help=_('Volume type to associate the QoS (name or ID)'),
         )
         return parser
 
@@ -57,7 +58,7 @@ class CreateQos(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<name>',
-            help='New QoS specification name',
+            help=_('New QoS specification name'),
         )
         consumer_choices = ['front-end', 'back-end', 'both']
         parser.add_argument(
@@ -65,15 +66,16 @@ class CreateQos(command.ShowOne):
             metavar='<consumer>',
             choices=consumer_choices,
             default='both',
-            help='Consumer of the QoS. Valid consumers: %s '
-                 "(defaults to 'both')" % utils.format_list(consumer_choices)
+            help=(_('Consumer of the QoS. Valid consumers: %s '
+                  "(defaults to 'both')") %
+                  utils.format_list(consumer_choices))
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Set a QoS specification property '
-                 '(repeat option to set multiple properties)',
+            help=_('Set a QoS specification property '
+                   '(repeat option to set multiple properties)'),
         )
         return parser
 
@@ -99,7 +101,7 @@ class DeleteQos(command.Command):
             'qos_specs',
             metavar='<qos-spec>',
             nargs="+",
-            help='QoS specification(s) to delete (name or ID)',
+            help=_('QoS specification(s) to delete (name or ID)'),
         )
         return parser
 
@@ -118,19 +120,19 @@ class DisassociateQos(command.Command):
         parser.add_argument(
             'qos_spec',
             metavar='<qos-spec>',
-            help='QoS specification to modify (name or ID)',
+            help=_('QoS specification to modify (name or ID)'),
         )
         volume_type_group = parser.add_mutually_exclusive_group()
         volume_type_group.add_argument(
             '--volume-type',
             metavar='<volume-type>',
-            help='Volume type to disassociate the QoS from (name or ID)',
+            help=_('Volume type to disassociate the QoS from (name or ID)'),
         )
         volume_type_group.add_argument(
             '--all',
             action='store_true',
             default=False,
-            help='Disassociate the QoS from every volume type',
+            help=_('Disassociate the QoS from every volume type'),
         )
 
         return parser
@@ -181,14 +183,14 @@ class SetQos(command.Command):
         parser.add_argument(
             'qos_spec',
             metavar='<qos-spec>',
-            help='QoS specification to modify (name or ID)',
+            help=_('QoS specification to modify (name or ID)'),
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Property to add or modify for this QoS specification '
-                 '(repeat option to set multiple properties)',
+            help=_('Property to add or modify for this QoS specification '
+                   '(repeat option to set multiple properties)'),
         )
         return parser
 
@@ -201,7 +203,7 @@ class SetQos(command.Command):
             volume_client.qos_specs.set_keys(qos_spec.id,
                                              parsed_args.property)
         else:
-            self.app.log.error("No changes requested\n")
+            self.app.log.error(_("No changes requested\n"))
 
 
 class ShowQos(command.ShowOne):
@@ -212,7 +214,7 @@ class ShowQos(command.ShowOne):
         parser.add_argument(
             'qos_spec',
             metavar='<qos-spec>',
-            help='QoS specification to display (name or ID)',
+            help=_('QoS specification to display (name or ID)'),
         )
         return parser
 
@@ -241,15 +243,15 @@ class UnsetQos(command.Command):
         parser.add_argument(
             'qos_spec',
             metavar='<qos-spec>',
-            help='QoS specification to modify (name or ID)',
+            help=_('QoS specification to modify (name or ID)'),
         )
         parser.add_argument(
             '--property',
             metavar='<key>',
             action='append',
             default=[],
-            help='Property to remove from the QoS specification. '
-                 '(repeat option to unset multiple properties)',
+            help=('Property to remove from the QoS specification. '
+                  '(repeat option to unset multiple properties)'),
         )
         return parser
 
@@ -262,4 +264,4 @@ class UnsetQos(command.Command):
             volume_client.qos_specs.unset_keys(qos_spec.id,
                                                parsed_args.property)
         else:
-            self.app.log.error("No changes requested\n")
+            self.app.log.error(_("No changes requested\n"))
