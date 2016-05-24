@@ -19,6 +19,7 @@ import six
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class CreateAgent(command.ShowOne):
@@ -29,28 +30,34 @@ class CreateAgent(command.ShowOne):
         parser.add_argument(
             "os",
             metavar="<os>",
-            help="Type of OS")
+            help=_("Type of OS")
+        )
         parser.add_argument(
             "architecture",
             metavar="<architecture>",
-            help="Type of architecture")
+            help=_("Type of architecture")
+        )
         parser.add_argument(
             "version",
             metavar="<version>",
-            help="Version")
+            help=_("Version")
+        )
         parser.add_argument(
             "url",
             metavar="<url>",
-            help="URL")
+            help=_("URL")
+        )
         parser.add_argument(
             "md5hash",
             metavar="<md5hash>",
-            help="MD5 hash")
+            help=_("MD5 hash")
+        )
         parser.add_argument(
             "hypervisor",
             metavar="<hypervisor>",
-            help="Type of hypervisor",
-            default="xen")
+            default="xen",
+            help=_("Type of hypervisor")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -75,7 +82,8 @@ class DeleteAgent(command.Command):
         parser.add_argument(
             "id",
             metavar="<id>",
-            help="ID of agent to delete")
+            help=_("ID of agent to delete")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -91,7 +99,8 @@ class ListAgent(command.Lister):
         parser.add_argument(
             "--hypervisor",
             metavar="<hypervisor>",
-            help="Type of hypervisor")
+            help=_("Type of hypervisor")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -120,19 +129,23 @@ class SetAgent(command.Command):
         parser.add_argument(
             "id",
             metavar="<id>",
-            help="ID of the agent")
+            help=_("ID of the agent")
+        )
         parser.add_argument(
             "version",
             metavar="<version>",
-            help="Version of the agent")
+            help=_("Version of the agent")
+        )
         parser.add_argument(
             "url",
             metavar="<url>",
-            help="URL")
+            help=_("URL")
+        )
         parser.add_argument(
             "md5hash",
             metavar="<md5hash>",
-            help="MD5 hash")
+            help=_("MD5 hash")
+        )
         return parser
 
     def take_action(self, parsed_args):

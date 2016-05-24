@@ -23,6 +23,7 @@ import sys
 from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class CreateKeypair(command.ShowOne):
@@ -33,12 +34,12 @@ class CreateKeypair(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<name>',
-            help='New public key name',
+            help=_("New public key name")
         )
         parser.add_argument(
             '--public-key',
             metavar='<file>',
-            help='Filename for public key to add',
+            help=_("Filename for public key to add")
         )
         return parser
 
@@ -51,9 +52,11 @@ class CreateKeypair(command.ShowOne):
                 with io.open(os.path.expanduser(parsed_args.public_key)) as p:
                     public_key = p.read()
             except IOError as e:
-                msg = "Key file %s not found: %s"
-                raise exceptions.CommandError(msg
-                                              % (parsed_args.public_key, e))
+                msg = _("Key file %(public_key)s not found: %(exception)s")
+                raise exceptions.CommandError(
+                    msg % {"public_key": parsed_args.public_key,
+                           "exception": e}
+                )
 
         keypair = compute_client.keypairs.create(
             parsed_args.name,
@@ -81,7 +84,7 @@ class DeleteKeypair(command.Command):
         parser.add_argument(
             'name',
             metavar='<key>',
-            help='Public key to delete',
+            help=_("Public key to delete")
         )
         return parser
 
@@ -115,13 +118,13 @@ class ShowKeypair(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<key>',
-            help='Public key to display',
+            help=_("Public key to display")
         )
         parser.add_argument(
             '--public-key',
             action='store_true',
             default=False,
-            help='Show only bare public key',
+            help=_("Show only bare public key")
         )
         return parser
 

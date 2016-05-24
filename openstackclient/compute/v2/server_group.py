@@ -18,6 +18,7 @@
 from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 _formatters = {
@@ -43,15 +44,15 @@ class CreateServerGroup(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<name>',
-            help='New server group name',
+            help=_("New server group name")
         )
         parser.add_argument(
             '--policy',
             metavar='<policy>',
             action='append',
             required=True,
-            help='Add a policy to <name> '
-                 '(repeat option to add multiple policies)',
+            help=_("Add a policy to <name> "
+                   "(repeat option to add multiple policies)")
         )
         return parser
 
@@ -78,7 +79,7 @@ class DeleteServerGroup(command.Command):
             'server_group',
             metavar='<server-group>',
             nargs='+',
-            help='server group(s) to delete (name or ID)',
+            help=_("server group(s) to delete (name or ID)")
         )
         return parser
 
@@ -97,8 +98,11 @@ class DeleteServerGroup(command.Command):
 
         if result > 0:
             total = len(parsed_args.server_group)
-            msg = "%s of %s server groups failed to delete." % (result, total)
-            raise exceptions.CommandError(msg)
+            msg = _("%(result)s of %(total)s server groups failed to delete.")
+            raise exceptions.CommandError(
+                msg % {"result": result,
+                       "total": total}
+            )
 
 
 class ListServerGroup(command.Lister):
@@ -110,13 +114,13 @@ class ListServerGroup(command.Lister):
             '--all-projects',
             action='store_true',
             default=False,
-            help='Display information from all projects (admin only)',
+            help=_("Display information from all projects (admin only)")
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_("List additional fields in output")
         )
         return parser
 
@@ -166,7 +170,7 @@ class ShowServerGroup(command.ShowOne):
         parser.add_argument(
             'server_group',
             metavar='<server-group>',
-            help='server group to display (name or ID)',
+            help=_("server group to display (name or ID)")
         )
         return parser
 

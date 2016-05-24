@@ -22,6 +22,7 @@ import six
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class ListUsage(command.Lister):
@@ -33,14 +34,14 @@ class ListUsage(command.Lister):
             "--start",
             metavar="<start>",
             default=None,
-            help="Usage range start date, ex 2012-01-20"
-                 " (default: 4 weeks ago)"
+            help=_("Usage range start date, ex 2012-01-20"
+                   " (default: 4 weeks ago)")
         )
         parser.add_argument(
             "--end",
             metavar="<end>",
             default=None,
-            help="Usage range end date, ex 2012-01-20 (default: tomorrow)"
+            help=_("Usage range end date, ex 2012-01-20 (default: tomorrow)")
         )
         return parser
 
@@ -95,10 +96,10 @@ class ListUsage(command.Lister):
             pass
 
         if parsed_args.formatter == 'table' and len(usage_list) > 0:
-            sys.stdout.write("Usage from %s to %s: \n" % (
-                start.strftime(dateformat),
-                end.strftime(dateformat),
-            ))
+            sys.stdout.write(_("Usage from %(start)s to %(end)s: \n") % {
+                "start": start.strftime(dateformat),
+                "end": end.strftime(dateformat),
+            })
 
         return (column_headers,
                 (utils.get_item_properties(
@@ -122,20 +123,20 @@ class ShowUsage(command.ShowOne):
             "--project",
             metavar="<project>",
             default=None,
-            help="Name or ID of project to show usage for"
+            help=_("Name or ID of project to show usage for")
         )
         parser.add_argument(
             "--start",
             metavar="<start>",
             default=None,
-            help="Usage range start date, ex 2012-01-20"
-                 " (default: 4 weeks ago)"
+            help=_("Usage range start date, ex 2012-01-20"
+                   " (default: 4 weeks ago)")
         )
         parser.add_argument(
             "--end",
             metavar="<end>",
             default=None,
-            help="Usage range end date, ex 2012-01-20 (default: tomorrow)"
+            help=_("Usage range end date, ex 2012-01-20 (default: tomorrow)")
         )
         return parser
 
@@ -167,11 +168,12 @@ class ShowUsage(command.ShowOne):
         usage = compute_client.usage.get(project, start, end)
 
         if parsed_args.formatter == 'table':
-            sys.stdout.write("Usage from %s to %s on project %s: \n" % (
-                start.strftime(dateformat),
-                end.strftime(dateformat),
-                project
-            ))
+            sys.stdout.write(_("Usage from %(start)s to %(end)s on "
+                               "project %(project)s: \n") % {
+                "start": start.strftime(dateformat),
+                "end": end.strftime(dateformat),
+                "project": project,
+            })
 
         info = {}
         info['Servers'] = (

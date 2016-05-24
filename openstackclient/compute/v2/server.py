@@ -102,9 +102,10 @@ def _get_ip_address(addresses, address_type, ip_address_family):
                 if addy['OS-EXT-IPS:type'] == new_address_type:
                     if int(addy['version']) in ip_address_family:
                         return addy['addr']
+        msg = _("ERROR: No %(type)s IP version %(family)s address found")
         raise exceptions.CommandError(
-            "ERROR: No %s IP version %s address found" %
-            (address_type, ip_address_family)
+            msg % {"type": address_type,
+                   "family": ip_address_family}
         )
 
 
@@ -417,7 +418,11 @@ class CreateServer(command.ShowOne):
             try:
                 files[dst] = io.open(src, 'rb')
             except IOError as e:
-                raise exceptions.CommandError("Can't open '%s': %s" % (src, e))
+                msg = _("Can't open '%(source)s': %(exception)s")
+                raise exceptions.CommandError(
+                    msg % {"source": src,
+                           "exception": e}
+                )
 
         if parsed_args.min > parsed_args.max:
             msg = _("min instances should be <= max instances")
@@ -434,8 +439,11 @@ class CreateServer(command.ShowOne):
             try:
                 userdata = io.open(parsed_args.user_data)
             except IOError as e:
-                msg = "Can't open '%s': %s"
-                raise exceptions.CommandError(msg % (parsed_args.user_data, e))
+                msg = _("Can't open '%(data)s': %(exception)s")
+                raise exceptions.CommandError(
+                    msg % {"data": parsed_args.user_data,
+                           "exception": e}
+                )
 
         block_device_mapping = {}
         if volume:
@@ -744,7 +752,8 @@ class ListServer(command.Lister):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help="Search by project (admin only) (name or ID)")
+            help=_("Search by project (admin only) (name or ID)")
+        )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--user',
@@ -762,19 +771,19 @@ class ListServer(command.Lister):
             '--marker',
             metavar='<marker>',
             default=None,
-            help=('The last server (name or ID) of the previous page. Display'
-                  ' list of servers after marker. Display all servers if not'
-                  ' specified.')
+            help=_('The last server (name or ID) of the previous page. Display'
+                   ' list of servers after marker. Display all servers if not'
+                   ' specified.')
         )
         parser.add_argument(
             '--limit',
             metavar='<limit>',
             type=int,
             default=None,
-            help=("Maximum number of servers to display. If limit equals -1,"
-                  " all servers will be displayed. If limit is greater than"
-                  " 'osapi_max_limit' option of Nova API,"
-                  " 'osapi_max_limit' will be used instead."),
+            help=_("Maximum number of servers to display. If limit equals -1,"
+                   " all servers will be displayed. If limit is greater than"
+                   " 'osapi_max_limit' option of Nova API,"
+                   " 'osapi_max_limit' will be used instead."),
         )
         return parser
 
@@ -1101,7 +1110,7 @@ class RebuildServer(command.ShowOne):
         parser.add_argument(
             '--password',
             metavar='<password>',
-            help="Set the password on the rebuilt instance",
+            help=_("Set the password on the rebuilt instance"),
         )
         parser.add_argument(
             '--wait',

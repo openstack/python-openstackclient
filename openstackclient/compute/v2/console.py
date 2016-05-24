@@ -21,6 +21,7 @@ import sys
 from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class ShowConsoleLog(command.Command):
@@ -31,7 +32,7 @@ class ShowConsoleLog(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server to show console log (name or ID)',
+            help=_("Server to show console log (name or ID)")
         )
         parser.add_argument(
             '--lines',
@@ -39,8 +40,8 @@ class ShowConsoleLog(command.Command):
             type=int,
             default=None,
             action=parseractions.NonNegativeAction,
-            help='Number of lines to display from the end of the log '
-                 '(default=all)',
+            help=_("Number of lines to display from the end of the log "
+                   "(default=all)")
         )
         return parser
 
@@ -69,7 +70,7 @@ class ShowConsoleURL(command.ShowOne):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help='Server to show URL (name or ID)',
+            help=_("Server to show URL (name or ID)")
         )
         type_group = parser.add_mutually_exclusive_group()
         type_group.add_argument(
@@ -78,21 +79,21 @@ class ShowConsoleURL(command.ShowOne):
             action='store_const',
             const='novnc',
             default='novnc',
-            help='Show noVNC console URL (default)',
+            help=_("Show noVNC console URL (default)")
         )
         type_group.add_argument(
             '--xvpvnc',
             dest='url_type',
             action='store_const',
             const='xvpvnc',
-            help='Show xpvnc console URL',
+            help=_("Show xpvnc console URL")
         )
         type_group.add_argument(
             '--spice',
             dest='url_type',
             action='store_const',
             const='spice',
-            help='Show SPICE console URL',
+            help=_("Show SPICE console URL")
         )
         return parser
 
