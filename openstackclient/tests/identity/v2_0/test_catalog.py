@@ -36,6 +36,12 @@ class TestCatalog(utils.TestCommand):
                 'internalURL': 'https://internal.two.example.com',
                 'adminURL': 'https://admin.two.example.com',
             },
+            {
+                'region': None,
+                'publicURL': 'https://public.none.example.com',
+                'internalURL': 'https://internal.none.example.com',
+                'adminURL': 'https://admin.none.example.com',
+            },
         ],
     }
 
@@ -87,7 +93,10 @@ class TestCatalogList(TestCatalog):
             'adminURL: https://admin.one.example.com\n'
             'two\n  publicURL: https://public.two.example.com\n  '
             'internalURL: https://internal.two.example.com\n  '
-            'adminURL: https://admin.two.example.com\n',
+            'adminURL: https://admin.two.example.com\n'
+            '<none>\n  publicURL: https://public.none.example.com\n  '
+            'internalURL: https://internal.none.example.com\n  '
+            'adminURL: https://admin.none.example.com\n',
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -164,7 +173,10 @@ class TestCatalogShow(TestCatalog):
             'adminURL: https://admin.one.example.com\n'
             'two\n  publicURL: https://public.two.example.com\n  '
             'internalURL: https://internal.two.example.com\n  '
-            'adminURL: https://admin.two.example.com\n',
+            'adminURL: https://admin.two.example.com\n'
+            '<none>\n  publicURL: https://public.none.example.com\n  '
+            'internalURL: https://internal.none.example.com\n  '
+            'adminURL: https://admin.none.example.com\n',
             'qwertyuiop',
             'supernova',
             'compute',
