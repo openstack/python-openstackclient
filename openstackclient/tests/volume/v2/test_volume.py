@@ -772,27 +772,30 @@ class TestVolumeShow(TestVolume):
     def setUp(self):
         super(TestVolumeShow, self).setUp()
 
-        self.volumes_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.VOLUME),
-            loaded=True)
+        self._volume = volume_fakes.FakeVolume.create_one_volume()
+        self.volumes_mock.get.return_value = self._volume
         # Get the command object to test
         self.cmd = volume.ShowVolume(self.app, None)
 
     def test_volume_show(self):
         arglist = [
-            volume_fakes.volume_id
+            self._volume.id
         ]
         verifylist = [
-            ("volume", volume_fakes.volume_id)
+            ("volume", self._volume.id)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volumes_mock.get.assert_called_with(volume_fakes.volume_id)
+        self.volumes_mock.get.assert_called_with(self._volume.id)
 
-        self.assertEqual(volume_fakes.VOLUME_columns, columns)
-        self.assertEqual(volume_fakes.VOLUME_data, data)
+        self.assertEqual(
+            volume_fakes.FakeVolume.get_volume_columns(self._volume),
+            columns)
+
+        self.assertEqual(
+            volume_fakes.FakeVolume.get_volume_data(self._volume),
+            data)
 
 
 class TestVolumeSet(TestVolume):

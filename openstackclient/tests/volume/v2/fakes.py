@@ -451,6 +451,44 @@ class FakeVolume(object):
 
         return mock.MagicMock(side_effect=volumes)
 
+    @staticmethod
+    def get_volume_columns(volume=None):
+        """Get the volume columns from a faked volume object.
+
+        :param volume:
+            A FakeResource objects faking volume
+        :return
+            A tuple which may include the following keys:
+            ('id', 'name', 'description', 'status', 'size', 'volume_type',
+             'metadata', 'snapshot', 'availability_zone', 'attachments')
+        """
+        if volume is not None:
+            return tuple(k for k in sorted(volume.keys()))
+        return tuple([])
+
+    @staticmethod
+    def get_volume_data(volume=None):
+        """Get the volume data from a faked volume object.
+
+        :param volume:
+            A FakeResource objects faking volume
+        :return
+            A tuple which may include the following values:
+            ('ce26708d', 'fake_volume', 'fake description', 'available',
+             20, 'fake_lvmdriver-1', "Alpha='a', Beta='b', Gamma='g'",
+             1, 'nova', [{'device': '/dev/ice', 'server_id': '1233'}])
+        """
+        data_list = []
+        if volume is not None:
+            for x in sorted(volume.keys()):
+                if x == 'tags':
+                    # The 'tags' should be format_list
+                    data_list.append(
+                        common_utils.format_list(volume.info.get(x)))
+                else:
+                    data_list.append(volume.info.get(x))
+        return tuple(data_list)
+
 
 class FakeAvailabilityZone(object):
     """Fake one or more volume availability zones (AZs)."""
