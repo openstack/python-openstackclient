@@ -16,6 +16,7 @@
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class ListService(command.Lister):
@@ -26,16 +27,18 @@ class ListService(command.Lister):
         parser.add_argument(
             "--host",
             metavar="<host>",
-            help="List services on specified host (name only)")
+            help=_("List services on specified host (name only)")
+        )
         parser.add_argument(
             "--service",
             metavar="<service>",
-            help="List only specified service (name only)")
+            help=_("List only specified service (name only)")
+        )
         parser.add_argument(
             "--long",
             action="store_true",
             default=False,
-            help="List additional fields in output"
+            help=_("List additional fields in output")
         )
         return parser
 

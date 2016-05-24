@@ -20,6 +20,7 @@ import six
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class CreateBackup(command.ShowOne):
@@ -30,23 +31,23 @@ class CreateBackup(command.ShowOne):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='Volume to backup (name or ID)',
+            help=_('Volume to backup (name or ID)'),
         )
         parser.add_argument(
             '--container',
             metavar='<container>',
             required=False,
-            help='Optional backup container name',
+            help=_('Optional backup container name'),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='Name of the backup',
+            help=_('Name of the backup'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='Description of the backup',
+            help=_('Description of the backup'),
         )
         return parser
 
@@ -74,7 +75,7 @@ class DeleteBackup(command.Command):
             'backups',
             metavar='<backup>',
             nargs="+",
-            help='Backup(s) to delete (ID only)',
+            help=_('Backup(s) to delete (ID only)'),
         )
         return parser
 
@@ -95,7 +96,7 @@ class ListBackup(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_('List additional fields in output'),
         )
         return parser
 
@@ -148,11 +149,13 @@ class RestoreBackup(command.Command):
         parser.add_argument(
             'backup',
             metavar='<backup>',
-            help='Backup to restore (ID only)')
+            help=_('Backup to restore (ID only)')
+        )
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help='Volume to restore to (name or ID)')
+            help=_('Volume to restore to (name or ID)')
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -173,7 +176,8 @@ class ShowBackup(command.ShowOne):
         parser.add_argument(
             'backup',
             metavar='<backup>',
-            help='Backup to display (ID only)')
+            help=_('Backup to display (ID only)')
+        )
         return parser
 
     def take_action(self, parsed_args):
