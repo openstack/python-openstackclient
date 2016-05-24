@@ -616,6 +616,7 @@ class TestIdentityProviderShow(TestIdentityProvider):
 
         self.identity_providers_mock.get.assert_called_with(
             identity_fakes.idp_id,
+            id='test_idp'
         )
 
         collist = ('description', 'enabled', 'id', 'remote_ids')

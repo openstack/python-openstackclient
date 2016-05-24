@@ -214,7 +214,8 @@ class ShowIdentityProvider(command.ShowOne):
         identity_client = self.app.client_manager.identity
         idp = utils.find_resource(
             identity_client.federation.identity_providers,
-            parsed_args.identity_provider)
+            parsed_args.identity_provider,
+            id=parsed_args.identity_provider)
 
         idp._info.pop('links', None)
         remote_ids = utils.format_list(idp._info.pop('remote_ids', []))
