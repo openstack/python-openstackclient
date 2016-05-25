@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Adds ``volume service list`` command.
+    [Bug `1550999 <https://bugs.launchpad.net/python-openstackclient/+bug/1550999>`_]

@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Add support for compute v2 ``server group`` related commands, include:
-    create, delete, list and show.
+    Add ``server group create``, ``server group delete``,
+    ``server group list``, ``server group show`` commands.
     [Bug `1542171 <https://bugs.launchpad.net/python-openstackclient/+bug/1542171>`_]
     [Blueprint `nova-server-group-support <https://blueprints.launchpad.net/python-openstackclient/+spec/nova-server-group-support>`_]
