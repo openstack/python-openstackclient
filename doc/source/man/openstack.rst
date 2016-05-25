@@ -147,6 +147,9 @@ OPTIONS
 :option:`--debug`
     show tracebacks on errors and set verbosity to debug
 
+:option:`--enable-beta-commands`
+    Enable beta commands which are subject to change
+
 COMMANDS
 ========
 
