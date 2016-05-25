@@ -25,7 +25,7 @@ def _format_endpoints(eps=None):
         return ""
     ret = ''
     for ep in eps:
-        region = ep.get('region_id') or ep.get('region', '<none>')
+        region = ep.get('region_id') or ep.get('region') or '<none>'
         ret += region + '\n'
         ret += "  %s: %s\n" % (ep['interface'], ep['url'])
     return ret

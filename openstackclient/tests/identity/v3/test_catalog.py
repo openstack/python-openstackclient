@@ -38,6 +38,11 @@ class TestCatalog(utils.TestCommand):
                 'url': 'https://internal.example.com',
                 'interface': 'internal',
             },
+            {
+                'region': None,
+                'url': 'https://none.example.com',
+                'interface': 'none',
+            },
         ],
     }
 
@@ -81,7 +86,8 @@ class TestCatalogList(TestCatalog):
             'compute',
             'onlyone\n  public: https://public.example.com\n'
             'onlyone\n  admin: https://admin.example.com\n'
-            '<none>\n  internal: https://internal.example.com\n',
+            '<none>\n  internal: https://internal.example.com\n'
+            '<none>\n  none: https://none.example.com\n',
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -114,7 +120,8 @@ class TestCatalogShow(TestCatalog):
         datalist = (
             'onlyone\n  public: https://public.example.com\nonlyone\n'
             '  admin: https://admin.example.com\n'
-            '<none>\n  internal: https://internal.example.com\n',
+            '<none>\n  internal: https://internal.example.com\n'
+            '<none>\n  none: https://none.example.com\n',
             'qwertyuiop',
             'supernova',
             'compute',

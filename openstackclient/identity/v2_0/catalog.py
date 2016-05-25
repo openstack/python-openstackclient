@@ -25,7 +25,9 @@ def _format_endpoints(eps=None):
         return ""
     ret = ''
     for index, ep in enumerate(eps):
-        region = eps[index].get('region', '<none>')
+        region = eps[index].get('region')
+        if region is None:
+            region = '<none>'
         ret += region + '\n'
         for endpoint_type in ['publicURL', 'internalURL', 'adminURL']:
             url = eps[index].get(endpoint_type)
