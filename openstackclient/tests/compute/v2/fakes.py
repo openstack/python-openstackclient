@@ -76,17 +76,6 @@ QUOTA = {
 QUOTA_columns = tuple(sorted(QUOTA))
 QUOTA_data = tuple(QUOTA[x] for x in sorted(QUOTA))
 
-service_host = 'host_test'
-service_binary = 'compute_test'
-service_status = 'enabled'
-service_disabled_reason = 'earthquake'
-SERVICE = {
-    'host': service_host,
-    'binary': service_binary,
-    'status': service_status,
-    'disabled_reason': service_disabled_reason,
-}
-
 
 class FakeAggregate(object):
     """Fake one aggregate."""
@@ -521,6 +510,54 @@ class FakeServer(object):
         if servers is None:
             servers = FakeServer.create_servers(count)
         return mock.MagicMock(side_effect=servers)
+
+
+class FakeService(object):
+    """Fake one or more services."""
+
+    @staticmethod
+    def create_one_service(attrs=None):
+        """Create a fake service.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, name, ram, vcpus, properties
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        service_info = {
+            'host': 'host-' + uuid.uuid4().hex,
+            'binary': 'binary-' + uuid.uuid4().hex,
+            'status': 'enabled',
+            'disabled_reason': 'earthquake',
+        }
+
+        # Overwrite default attributes.
+        service_info.update(attrs)
+
+        service = fakes.FakeResource(info=copy.deepcopy(service_info),
+                                     loaded=True)
+
+        return service
+
+    @staticmethod
+    def create_services(attrs=None, count=2):
+        """Create multiple fake services.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of services to fake
+        :return:
+            A list of FakeResource objects faking the services
+        """
+        services = []
+        for i in range(0, count):
+            services.append(FakeService.create_one_service(attrs))
+
+        return services
 
 
 class FakeFlavor(object):
