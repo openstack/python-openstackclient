@@ -63,7 +63,7 @@ Set service command
 .. _compute-service-set:
 .. option:: --enable
 
-    Enable service (default)
+    Enable service
 
 .. option:: --disable
 
@@ -71,8 +71,7 @@ Set service command
 
 .. option:: --disable-reason <reason>
 
-    Reason for disabling the service (in quotes).  Note that when the service
-    is enabled, this option is ignored.
+    Reason for disabling the service (in quotes). Should be used with --disable option.
 
 .. describe:: <host>
 
