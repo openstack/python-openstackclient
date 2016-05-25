@@ -408,6 +408,7 @@ class TestServiceProviderShow(TestServiceProvider):
 
         self.service_providers_mock.get.assert_called_with(
             service_fakes.sp_id,
+            id='BETA'
         )
 
         collist = ('auth_url', 'description', 'enabled', 'id', 'sp_url')
