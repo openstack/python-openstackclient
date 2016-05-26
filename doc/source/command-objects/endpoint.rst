@@ -188,9 +188,9 @@ Display endpoint details
 .. code:: bash
 
     os endpoint show
-        <endpoint-id>
+        <endpoint>
 
 .. _endpoint_show-endpoint:
-.. describe:: <endpoint-id>
+.. describe:: <endpoint>
 
-    Endpoint ID to display
+    Endpoint to display (endpoint ID, service ID, service name, service type)
