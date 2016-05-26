@@ -480,6 +480,57 @@ class FakePort(object):
         return mock.MagicMock(side_effect=ports)
 
 
+class FakeNetworkRBAC(object):
+    """Fake one or more network rbac policies."""
+
+    @staticmethod
+    def create_one_network_rbac(attrs=None):
+        """Create a fake network rbac
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, action, target_tenant,
+            tenant_id, type
+        """
+        attrs = attrs or {}
+
+        # Set default attributes
+        rbac_attrs = {
+            'id': 'rbac-id-' + uuid.uuid4().hex,
+            'object_type': 'network',
+            'object_id': 'object-id-' + uuid.uuid4().hex,
+            'action': 'access_as_shared',
+            'target_tenant': 'target-tenant-' + uuid.uuid4().hex,
+            'tenant_id': 'tenant-id-' + uuid.uuid4().hex,
+        }
+        rbac_attrs.update(attrs)
+        rbac = fakes.FakeResource(info=copy.deepcopy(rbac_attrs),
+                                  loaded=True)
+        # Set attributes with special mapping in OpenStack SDK.
+        rbac.project_id = rbac_attrs['tenant_id']
+        rbac.target_project = rbac_attrs['target_tenant']
+        return rbac
+
+    @staticmethod
+    def create_network_rbacs(attrs=None, count=2):
+        """Create multiple fake network rbac policies.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of rbac policies to fake
+        :return:
+            A list of FakeResource objects faking the rbac policies
+        """
+        rbac_policies = []
+        for i in range(0, count):
+            rbac_policies.append(FakeNetworkRBAC.
+                                 create_one_network_rbac(attrs))
+
+        return rbac_policies
+
+
 class FakeRouter(object):
     """Fake one or more routers."""
 

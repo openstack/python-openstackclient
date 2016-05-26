@@ -1,0 +1,4 @@
+---
+features:
+  - Add ``network rbac list`` and ``network rbac show`` commands.
+    [Blueprint `neutron-client-rbac <https://blueprints.launchpad.net/python-openstackclient/+spec/neutron-client-rbac>`_]
