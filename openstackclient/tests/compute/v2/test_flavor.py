@@ -13,10 +13,14 @@
 #   under the License.
 #
 
+import copy
+
 from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.compute.v2 import flavor
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
+from openstackclient.tests import fakes
+from openstackclient.tests.identity.v3 import fakes as identity_fakes
 from openstackclient.tests import utils as tests_utils
 
 
@@ -28,6 +32,13 @@ class TestFlavor(compute_fakes.TestComputev2):
         # Get a shortcut to the FlavorManager Mock
         self.flavors_mock = self.app.client_manager.compute.flavors
         self.flavors_mock.reset_mock()
+
+        # Get a shortcut to the FlavorAccessManager Mock
+        self.flavor_access_mock = self.app.client_manager.compute.flavor_access
+        self.flavor_access_mock.reset_mock()
+
+        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock.reset_mock()
 
 
 class TestFlavorCreate(TestFlavor):
@@ -427,16 +438,23 @@ class TestFlavorList(TestFlavor):
 class TestFlavorSet(TestFlavor):
 
     # Return value of self.flavors_mock.find().
-    flavor = compute_fakes.FakeFlavor.create_one_flavor()
+    flavor = compute_fakes.FakeFlavor.create_one_flavor(
+        attrs={'os-flavor-access:is_public': False})
 
     def setUp(self):
         super(TestFlavorSet, self).setUp()
 
         self.flavors_mock.find.return_value = self.flavor
         self.flavors_mock.get.side_effect = exceptions.NotFound(None)
+        # Return a project
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
         self.cmd = flavor.SetFlavor(self.app, None)
 
-    def test_flavor_set(self):
+    def test_flavor_set_property(self):
         arglist = [
             '--property', 'FOO="B A R"',
             'baremetal'
@@ -451,6 +469,83 @@ class TestFlavorSet(TestFlavor):
         self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
                                                   is_public=None)
         self.assertIsNone(result)
+
+    def test_flavor_set_project(self):
+        arglist = [
+            '--project', identity_fakes.project_id,
+            self.flavor.id,
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_id),
+            ('flavor', self.flavor.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.flavor_access_mock.add_tenant_access.assert_called_with(
+            self.flavor.id,
+            identity_fakes.project_id,
+        )
+
+    def test_flavor_set_no_project(self):
+        arglist = [
+            '--project', '',
+            self.flavor.id,
+        ]
+        verifylist = [
+            ('project', ''),
+            ('flavor', self.flavor.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+    def test_flavor_set_no_flavor(self):
+        arglist = [
+            '--project', identity_fakes.project_id,
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_id),
+        ]
+
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser,
+                          self.cmd,
+                          arglist,
+                          verifylist)
+
+    def test_flavor_set_with_unexist_flavor(self):
+        self.flavors_mock.get.side_effect = exceptions.NotFound(None)
+        self.flavors_mock.find.side_effect = exceptions.NotFound(None)
+
+        arglist = [
+            '--project', identity_fakes.project_id,
+            'unexist_flavor',
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_id),
+            ('flavor', 'unexist_flavor'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)
+
+    def test_flavor_set_nothing(self):
+        arglist = [
+            self.flavor.id,
+        ]
+        verifylist = [
+            ('flavor', self.flavor.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
 
 
 class TestFlavorShow(TestFlavor):
