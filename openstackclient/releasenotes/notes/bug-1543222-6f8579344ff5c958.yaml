@@ -1,0 +1,6 @@
+---
+fixes:
+  - Keystone V3 `user password set` is a self-service operation. It should
+    not required a scoped token as it is not considered a `scoped operation`.
+    [Bug `1543222 <https://bugs.launchpad.net/bugs/1543222>`_]
+
