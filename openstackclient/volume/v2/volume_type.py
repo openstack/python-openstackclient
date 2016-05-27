@@ -311,7 +311,7 @@ class UnsetVolumeType(command.Command):
                     volume_type.id, project_info.id)
             except Exception as e:
                 self.app.log.error(_("Failed to remove volume type access from"
-                                   " project: ") + str(e))
+                                   " project: %s") % str(e))
                 result += 1
 
         if result > 0:
