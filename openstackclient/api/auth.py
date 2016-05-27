@@ -105,10 +105,12 @@ def select_auth_plugin(options):
 
 def build_auth_params(auth_plugin_name, cmd_options):
 
-    auth_params = dict(cmd_options.auth)
     if auth_plugin_name:
         LOG.debug('auth_type: %s', auth_plugin_name)
         auth_plugin_loader = base.get_plugin_loader(auth_plugin_name)
+        auth_params = {opt.dest: opt.default
+                       for opt in base.get_plugin_options(auth_plugin_name)}
+        auth_params.update(dict(cmd_options.auth))
         # grab tenant from project for v2.0 API compatibility
         if auth_plugin_name.startswith("v2"):
             if 'project_id' in auth_params:
@@ -121,6 +123,7 @@ def build_auth_params(auth_plugin_name, cmd_options):
         LOG.debug('no auth_type')
         # delay the plugin choice, grab every option
         auth_plugin_loader = None
+        auth_params = dict(cmd_options.auth)
         plugin_options = set([o.replace('-', '_') for o in get_options_list()])
         for option in plugin_options:
             LOG.debug('fetching option %s', option)

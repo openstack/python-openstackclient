@@ -1,0 +1,5 @@
+---
+fixes:
+  - Fix setting defaults for some scope parameters, that were putting invalid
+    scope parameters for some auth plugins.
+    [Bug `1582774 <https://bugs.launchpad.net/bugs/1582774>`_]
