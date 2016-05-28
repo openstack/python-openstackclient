@@ -50,18 +50,18 @@ Create new address scope
 address scope delete
 --------------------
 
-Delete an address scope
+Delete address scope(s)
 
 .. program:: address scope delete
 .. code:: bash
 
     os address scope delete
-        <address-scope>
+        <address-scope> [<address-scope> ...]
 
 .. _address_scope_delete-address-scope:
 .. describe:: <address-scope>
 
-    Address scope to delete (name or ID)
+    Address scope(s) to delete (name or ID)
 
 address scope list
 ------------------

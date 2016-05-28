@@ -98,22 +98,38 @@ class CreateAddressScope(command.ShowOne):
 
 
 class DeleteAddressScope(command.Command):
-    """Delete an address scope"""
+    """Delete address scope(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteAddressScope, self).get_parser(prog_name)
         parser.add_argument(
             'address_scope',
             metavar="<address-scope>",
-            help=_("Address scope to delete (name or ID)")
+            nargs='+',
+            help=_("Address scope(s) to delete (name or ID)")
         )
 
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_address_scope(parsed_args.address_scope)
-        client.delete_address_scope(obj)
+        result = 0
+
+        for scope in parsed_args.address_scope:
+            try:
+                obj = client.find_address_scope(scope, ignore_missing=False)
+                client.delete_address_scope(obj)
+            except Exception as e:
+                result += 1
+                self.app.log.error(_("Failed to delete address scope with "
+                                   "name or ID '%(scope)s': %(e)s")
+                                   % {'scope': scope, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.address_scope)
+            msg = (_("%(result)s of %(total)s address scopes failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListAddressScope(command.Lister):

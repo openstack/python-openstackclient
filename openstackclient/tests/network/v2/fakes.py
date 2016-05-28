@@ -127,6 +127,25 @@ class FakeAddressScope(object):
 
         return address_scopes
 
+    @staticmethod
+    def get_address_scopes(address_scopes=None, count=2):
+        """Get an iterable MagicMock object with a list of faked address scopes.
+
+        If address scopes list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List address scopes:
+            A list of FakeResource objects faking address scopes
+        :param int count:
+            The number of address scopes to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            address scopes
+        """
+        if address_scopes is None:
+            address_scopes = FakeAddressScope.create_address_scopes(count)
+        return mock.MagicMock(side_effect=address_scopes)
+
 
 class FakeAvailabilityZone(object):
     """Fake one or more network availability zones (AZs)."""
