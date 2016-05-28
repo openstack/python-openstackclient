@@ -1,6 +1,6 @@
-=============
-Release Notes
-=============
+=================
+Previous Releases
+=================
 
 As of release 2.0 the release notes can be found on the OpenStack `Release Notes site`_.
 
@@ -364,8 +364,7 @@ As of release 2.0 the release notes can be found on the OpenStack `Release Notes
 * Fix ``backup create`` to correctly use the ``--container`` value if supplied.
   Bug `1446751 <https://bugs.launchpad.net/bugs/1446751>`_
 
-* Document the backward-compatibility-breaking changes in
-  :doc:`backwards-incompatible`.
+* Document the backward-compatibility-breaking changes.
   Bug `1406470 <https://bugs.launchpad.net/bugs/1406470>`_
 
 * Add `--parent`` option to `projct create` command.
@@ -375,7 +374,6 @@ As of release 2.0 the release notes can be found on the OpenStack `Release Notes
 ===================
 
 * Add global ``--os-cloud`` option to select from a list of cloud configurations.
-  See :doc:`configuration` for more details.
 
 * Fix global ``--timing`` option operation.
   Bug `1402577 <https://bugs.launchpad.net/bugs/1402577>`_
@@ -463,8 +461,8 @@ As of release 2.0 the release notes can be found on the OpenStack `Release Notes
 ===================
 
 * The OpenStackClient content from the OpenStack Wiki has been migrated into
-  the OSC source repo.  This includes the :doc:`commands`, :doc:`command-list`
-  and :doc:`humaninterfaceguide` documents.
+  the OSC source repo.  This includes the `commands`, `command-list`
+  and `humaninterfaceguide` documents.
 
 * Set a default domain ID when both ``OS_USER_DOMAIN_ID`` and
   ``OS_USER_DOMAIN_NAME`` are not set.  This is also done for

@@ -37,7 +37,7 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
-   releases
+   Release Notes <http://docs.openstack.org/releasenotes/python-openstackclient>
    history
 
 Developer Documentation
