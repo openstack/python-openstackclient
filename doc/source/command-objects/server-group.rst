@@ -31,7 +31,7 @@ Create a new server group
 server group delete
 -------------------
 
-Delete an existing server group
+Delete existing server group(s)
 
 .. program:: server group delete
 .. code-block:: bash

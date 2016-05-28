@@ -71,7 +71,7 @@ class CreateServerGroup(command.ShowOne):
 
 
 class DeleteServerGroup(command.Command):
-    """Delete an existing server group."""
+    """Delete existing server group(s)."""
 
     def get_parser(self, prog_name):
         parser = super(DeleteServerGroup, self).get_parser(prog_name)
