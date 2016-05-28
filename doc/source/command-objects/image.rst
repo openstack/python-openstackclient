@@ -499,3 +499,30 @@ Display image details
 .. describe:: <image>
 
     Image to display (name or ID)
+
+image unset
+-----------
+
+*Only supported for Image v2*
+
+Unset image tags or properties
+
+.. program:: image unset
+.. code:: bash
+
+    os image set
+        [--tag <tag>]
+        [--property <property>]
+        <image>
+
+.. option:: --tag <tag>
+
+    Unset a tag on this image (repeat option to unset multiple tags)
+
+.. option:: --property <property>
+
+    Unset a property on this image (repeat option to unset multiple properties)
+
+.. describe:: <image>
+
+    Image to modify (name or ID)

@@ -37,6 +37,8 @@ class TestImage(image_fakes.TestImagev2):
         self.images_mock.reset_mock()
         self.image_members_mock = self.app.client_manager.image.image_members
         self.image_members_mock.reset_mock()
+        self.image_tags_mock = self.app.client_manager.image.image_tags
+        self.image_tags_mock.reset_mock()
 
         # Get shortcut to the Mocks in identity client
         self.project_mock = self.app.client_manager.identity.projects
@@ -1184,3 +1186,94 @@ class TestImageShow(TestImage):
 
         self.assertEqual(image_fakes.IMAGE_columns, columns)
         self.assertEqual(image_fakes.IMAGE_SHOW_data, data)
+
+
+class TestImageUnset(TestImage):
+
+    attrs = {}
+    attrs['tags'] = ['test']
+    attrs['prop'] = 'test'
+    image = image_fakes.FakeImage.create_one_image(attrs)
+
+    def setUp(self):
+        super(TestImageUnset, self).setUp()
+
+        # Set up the schema
+        self.model = warlock.model_factory(
+            image_fakes.IMAGE_schema,
+            schemas.SchemaBasedModel,
+        )
+
+        self.images_mock.get.return_value = self.image
+        self.image_tags_mock.delete.return_value = self.image
+
+        # Get the command object to test
+        self.cmd = image.UnsetImage(self.app, None)
+
+    def test_image_unset_tag_option(self):
+
+        arglist = [
+            '--tag', 'test',
+            self.image.id,
+        ]
+
+        verifylist = [
+            ('tags', ['test']),
+            ('image', self.image.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.image_tags_mock.delete.assert_called_with(
+            self.image.id, 'test'
+        )
+        self.assertIsNone(result)
+
+    def test_image_unset_property_option(self):
+
+        arglist = [
+            '--property', 'prop',
+            self.image.id,
+        ]
+
+        verifylist = [
+            ('properties', ['prop']),
+            ('image', self.image.id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        kwargs = {}
+        self.images_mock.update.assert_called_with(
+            self.image.id,
+            parsed_args.properties,
+            **kwargs)
+
+        self.assertIsNone(result)
+
+    def test_image_unset_mixed_option(self):
+
+        arglist = [
+            '--tag', 'test',
+            '--property', 'prop',
+            self.image.id,
+        ]
+
+        verifylist = [
+            ('tags', ['test']),
+            ('properties', ['prop']),
+            ('image', self.image.id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        kwargs = {}
+        self.images_mock.update.assert_called_with(
+            self.image.id,
+            parsed_args.properties,
+            **kwargs)
+
+        self.image_tags_mock.delete.assert_called_with(
+            self.image.id, 'test'
+        )
+        self.assertIsNone(result)
