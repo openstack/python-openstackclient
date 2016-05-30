@@ -592,6 +592,81 @@ class FakeBackup(object):
         return backups
 
 
+class FakeQos(object):
+    """Fake one or more Qos specification."""
+
+    @staticmethod
+    def create_one_qos(attrs=None):
+        """Create a fake Qos specification.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with id, name, consumer, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        qos_info = {
+            "id": 'qos-id-' + uuid.uuid4().hex,
+            "name": 'qos-name-' + uuid.uuid4().hex,
+            "consumer": 'front-end',
+            "specs": {"foo": "bar", "iops": "9001"},
+        }
+
+        # Overwrite default attributes.
+        qos_info.update(attrs)
+
+        qos = fakes.FakeResource(
+            info=copy.deepcopy(qos_info),
+            loaded=True)
+        return qos
+
+    @staticmethod
+    def create_one_qos_association(attrs=None):
+        """Create a fake Qos specification association.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with id, name, association_type, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        qos_association_info = {
+            "id": 'type-id-' + uuid.uuid4().hex,
+            "name": 'type-name-' + uuid.uuid4().hex,
+            "association_type": 'volume_type',
+        }
+
+        # Overwrite default attributes.
+        qos_association_info.update(attrs)
+
+        qos_association = fakes.FakeResource(
+            info=copy.deepcopy(qos_association_info),
+            loaded=True)
+        return qos_association
+
+    @staticmethod
+    def create_qoses(attrs=None, count=2):
+        """Create multiple fake Qos specifications.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of Qos specifications to fake
+        :return:
+            A list of FakeResource objects faking the Qos specifications
+        """
+        qoses = []
+        for i in range(0, count):
+            qos = FakeQos.create_one_qos(attrs)
+            qoses.append(qos)
+
+        return qoses
+
+
 class FakeSnapshot(object):
     """Fake one or more snapshot."""
 
