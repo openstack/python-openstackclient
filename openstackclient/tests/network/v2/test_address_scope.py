@@ -14,6 +14,7 @@
 import copy
 import mock
 
+from mock import call
 from openstackclient.common import exceptions
 from openstackclient.network.v2 import address_scope
 from openstackclient.tests import fakes
@@ -168,32 +169,85 @@ class TestCreateAddressScope(TestAddressScope):
 class TestDeleteAddressScope(TestAddressScope):
 
     # The address scope to delete.
-    _address_scope = (
-        network_fakes.FakeAddressScope.create_one_address_scope())
+    _address_scopes = (
+        network_fakes.FakeAddressScope.create_address_scopes(count=2))
 
     def setUp(self):
         super(TestDeleteAddressScope, self).setUp()
         self.network.delete_address_scope = mock.Mock(return_value=None)
-        self.network.find_address_scope = mock.Mock(
-            return_value=self._address_scope)
+        self.network.find_address_scope = (
+            network_fakes.FakeAddressScope.get_address_scopes(
+                address_scopes=self._address_scopes)
+        )
 
         # Get the command object to test
         self.cmd = address_scope.DeleteAddressScope(self.app, self.namespace)
 
-    def test_delete(self):
+    def test_address_scope_delete(self):
         arglist = [
-            self._address_scope.name,
+            self._address_scopes[0].name,
         ]
         verifylist = [
-            ('address_scope', self._address_scope.name),
+            ('address_scope', [self._address_scopes[0].name]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
+        self.network.find_address_scope.assert_called_once_with(
+            self._address_scopes[0].name, ignore_missing=False)
         self.network.delete_address_scope.assert_called_once_with(
-            self._address_scope)
+            self._address_scopes[0])
         self.assertIsNone(result)
+
+    def test_multi_address_scopes_delete(self):
+        arglist = []
+        verifylist = []
+
+        for a in self._address_scopes:
+            arglist.append(a.name)
+        verifylist = [
+            ('address_scope', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for a in self._address_scopes:
+            calls.append(call(a))
+        self.network.delete_address_scope.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_multi_address_scopes_delete_with_exception(self):
+        arglist = [
+            self._address_scopes[0].name,
+            'unexist_address_scope',
+        ]
+        verifylist = [
+            ('address_scope',
+             [self._address_scopes[0].name, 'unexist_address_scope']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        find_mock_result = [self._address_scopes[0], exceptions.CommandError]
+        self.network.find_address_scope = (
+            mock.MagicMock(side_effect=find_mock_result)
+        )
+
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('1 of 2 address scopes failed to delete.', str(e))
+
+        self.network.find_address_scope.assert_any_call(
+            self._address_scopes[0].name, ignore_missing=False)
+        self.network.find_address_scope.assert_any_call(
+            'unexist_address_scope', ignore_missing=False)
+        self.network.delete_address_scope.assert_called_once_with(
+            self._address_scopes[0]
+        )
 
 
 class TestListAddressScope(TestAddressScope):
