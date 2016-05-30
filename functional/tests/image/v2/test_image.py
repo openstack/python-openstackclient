@@ -65,3 +65,12 @@ class ImageTests(test.TestCase):
         self.openstack('image set --property a=b --property c=d ' + self.NAME)
         raw_output = self.openstack('image show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\na='b', c='d'\n", raw_output)
+
+    def test_image_unset(self):
+        opts = self.get_show_opts(["name", "tags", "properties"])
+        self.openstack('image set --tag 01 ' + self.NAME)
+        self.openstack('image unset --tag 01 ' + self.NAME)
+        # test_image_metadata has set image properties "a" and "c"
+        self.openstack('image unset --property a --property c ' + self.NAME)
+        raw_output = self.openstack('image show ' + self.NAME + opts)
+        self.assertEqual(self.NAME + "\n\n", raw_output)

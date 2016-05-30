@@ -157,6 +157,8 @@ class FakeImagev2Client(object):
         self.images.resource_class = fakes.FakeResource(None, {})
         self.image_members = mock.Mock()
         self.image_members.resource_class = fakes.FakeResource(None, {})
+        self.image_tags = mock.Mock()
+        self.image_tags.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 

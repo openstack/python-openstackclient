@@ -805,8 +805,8 @@ class SetImage(command.Command):
 
         # Checks if anything that requires getting the image
         if not (kwargs or parsed_args.deactivate or parsed_args.activate):
-            self.log.warning(_("No arguments specified"))
-            return {}, {}
+            msg = _("No arguments specified")
+            raise exceptions.CommandError(msg)
 
         image = utils.find_resource(
             image_client.images, parsed_args.image)
@@ -856,3 +856,88 @@ class ShowImage(command.ShowOne):
 
         info = _format_image(image)
         return zip(*sorted(six.iteritems(info)))
+
+
+class UnsetImage(command.Command):
+    """Unset image tags and properties"""
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetImage, self).get_parser(prog_name)
+        parser.add_argument(
+            "image",
+            metavar="<image>",
+            help=_("Image to modify (name or ID)"),
+        )
+        parser.add_argument(
+            "--tag",
+            dest="tags",
+            metavar="<tag>",
+            default=[],
+            action='append',
+            help=_("Unset a tag on this image "
+                   "(repeat option to set multiple tags)"),
+        )
+        parser.add_argument(
+            "--property",
+            dest="properties",
+            metavar="<property_key>",
+            default=[],
+            action='append',
+            help=_("Unset a property on this image "
+                   "(repeat option to set multiple properties)"),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        image_client = self.app.client_manager.image
+        image = utils.find_resource(
+            image_client.images,
+            parsed_args.image,
+        )
+
+        if not (parsed_args.tags or parsed_args.properties):
+            msg = _("No arguments specified")
+            raise exceptions.CommandError(msg)
+
+        kwargs = {}
+        tagret = 0
+        propret = 0
+        if parsed_args.tags:
+            for k in parsed_args.tags:
+                try:
+                    image_client.image_tags.delete(image.id, k)
+                except Exception:
+                    self.log.error(_("tag unset failed,"
+                                   " '%s' is a nonexistent tag ") % k)
+                    tagret += 1
+
+        if parsed_args.properties:
+            for k in parsed_args.properties:
+                try:
+                    assert(k in image.keys())
+                except AssertionError:
+                    self.log.error(_("property unset failed,"
+                                   " '%s' is a nonexistent property ") % k)
+                    propret += 1
+            image_client.images.update(
+                image.id,
+                parsed_args.properties,
+                **kwargs)
+
+        tagtotal = len(parsed_args.tags)
+        proptotal = len(parsed_args.properties)
+        if (tagret > 0 and propret > 0):
+            msg = (_("Failed to unset %(tagret)s of %(tagtotal)s tags,"
+                   "Failed to unset %(propret)s of %(proptotal)s properties.")
+                   % {'tagret': tagret, 'tagtotal': tagtotal,
+                      'propret': propret, 'proptotal': proptotal})
+            raise exceptions.CommandError(msg)
+        elif tagret > 0:
+            msg = (_("Failed to unset %(target)s of %(tagtotal)s tags.")
+                   % {'tagret': tagret, 'tagtotal': tagtotal})
+            raise exceptions.CommandError(msg)
+        elif propret > 0:
+            msg = (_("Failed to unset %(propret)s of %(proptotal)s"
+                   " properties.")
+                   % {'propret': propret, 'proptotal': proptotal})
+            raise exceptions.CommandError(msg)
