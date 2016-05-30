@@ -250,8 +250,8 @@ class UnsetQos(command.Command):
             metavar='<key>',
             action='append',
             default=[],
-            help=('Property to remove from the QoS specification. '
-                  '(repeat option to unset multiple properties)'),
+            help=_('Property to remove from the QoS specification. '
+                   '(repeat option to unset multiple properties)'),
         )
         return parser
 

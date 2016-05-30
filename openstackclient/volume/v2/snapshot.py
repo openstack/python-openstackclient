@@ -37,7 +37,7 @@ class CreateSnapshot(command.ShowOne):
         parser.add_argument(
             "--name",
             metavar="<name>",
-            help=("Name of the snapshot")
+            help=_("Name of the snapshot")
         )
         parser.add_argument(
             "--description",

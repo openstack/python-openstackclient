@@ -225,8 +225,8 @@ class SetVolumeType(command.Command):
                 result += 1
 
         if result > 0:
-            raise exceptions.CommandError("Command Failed: One or more of the"
-                                          " operations failed")
+            raise exceptions.CommandError(_("Command Failed: One or more of"
+                                          " the operations failed"))
 
 
 class ShowVolumeType(command.ShowOne):
@@ -315,5 +315,5 @@ class UnsetVolumeType(command.Command):
                 result += 1
 
         if result > 0:
-            raise exceptions.CommandError("Command Failed: One or more of the"
-                                          " operations failed")
+            raise exceptions.CommandError(_("Command Failed: One or more of"
+                                          " the operations failed"))
