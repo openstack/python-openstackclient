@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added support for setting flavor access to project by using below command
+    ``flavor set <flavor> --project <project>``
+    [Bug `1575461 <https://bugs.launchpad.net/python-openstackclient/+bug/1575461>`_]

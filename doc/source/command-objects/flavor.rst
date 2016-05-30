@@ -128,11 +128,22 @@ Set flavor properties
 
     os flavor set
         [--property <key=value> [...] ]
+        [--project <project>]
+        [--project-domain <project-domain>]
         <flavor>
 
 .. option:: --property <key=value>
 
     Property to add or modify for this flavor (repeat option to set multiple properties)
+
+.. option:: --project <project>
+
+    Set flavor access to project (name or ID) (admin only)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 .. describe:: <flavor>
 
