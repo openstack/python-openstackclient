@@ -118,6 +118,7 @@ referring to both Compute and Volume quotas.
 * ``security group``: (**Compute**, **Network**) - groups of network access rules
 * ``security group rule``: (**Compute**, **Network**) - the individual rules that define protocol/IP/port access
 * ``server``: (**Compute**) virtual machine instance
+* ``server backup``: (**Compute**) backup server disk image by using snapshot method
 * ``server dump``: (**Compute**) a dump file of a server created by features like kdump
 * ``server group``: (**Compute**) a grouping of servers
 * ``server image``: (**Compute**) saved server disk image
