@@ -60,6 +60,7 @@ class TestCommand(TestCase):
         self.fake_log = fakes.FakeLog()
         self.app = fakes.FakeApp(self.fake_stdout, self.fake_log)
         self.app.client_manager = fakes.FakeClientManager()
+        self.app.options = fakes.FakeOptions()
 
     def check_parser(self, cmd, args, verify_args):
         cmd_parser = cmd.get_parser('check_parser')

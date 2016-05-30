@@ -275,6 +275,58 @@ class FakeNetwork(object):
         return mock.MagicMock(side_effect=networks)
 
 
+class FakeNetworkSegment(object):
+    """Fake one or more network segments."""
+
+    @staticmethod
+    def create_one_network_segment(attrs=None):
+        """Create a fake network segment.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object faking the network segment
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        network_segment_attrs = {
+            'id': 'segment-id-' + uuid.uuid4().hex,
+            'network_id': 'network-id-' + uuid.uuid4().hex,
+            'network_type': 'vlan',
+            'physical_network': 'physical-network-name-' + uuid.uuid4().hex,
+            'segmentation_id': 1024,
+        }
+
+        # Overwrite default attributes.
+        network_segment_attrs.update(attrs)
+
+        network_segment = fakes.FakeResource(
+            info=copy.deepcopy(network_segment_attrs),
+            loaded=True
+        )
+
+        return network_segment
+
+    @staticmethod
+    def create_network_segments(attrs=None, count=2):
+        """Create multiple fake network segments.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of network segments to fake
+        :return:
+            A list of FakeResource objects faking the network segments
+        """
+        network_segments = []
+        for i in range(0, count):
+            network_segments.append(
+                FakeNetworkSegment.create_one_network_segment(attrs)
+            )
+        return network_segments
+
+
 class FakePort(object):
     """Fake one or more ports."""
 
