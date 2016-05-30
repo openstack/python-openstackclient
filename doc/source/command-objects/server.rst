@@ -559,6 +559,7 @@ Set server properties
         --property <key=value>
         [--property <key=value>] ...
         --root-password
+        --state <state>
         <server>
 
 .. option:: --name <new-name>
@@ -573,6 +574,10 @@ Set server properties
 
     Property to add/change for this server
     (repeat option to set multiple properties)
+
+.. option:: --state <state>
+
+    New server state (valid value: active, error)
 
 .. describe:: <server>
 

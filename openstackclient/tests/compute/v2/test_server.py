@@ -1213,6 +1213,67 @@ class TestServerResume(TestServer):
         self.run_method_with_servers('resume', 3)
 
 
+class TestServerSet(TestServer):
+
+    def setUp(self):
+        super(TestServerSet, self).setUp()
+
+        self.methods = {
+            'update': None,
+            'reset_state': None,
+            'change_password': None,
+        }
+
+        self.fake_servers = self.setup_servers_mock(2)
+
+        # Get the command object to test
+        self.cmd = server.SetServer(self.app, None)
+
+    def test_server_set_no_option(self):
+        arglist = [
+            'foo_vm'
+        ]
+        verifylist = [
+            ('server', 'foo_vm')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.assertNotCalled(self.fake_servers[0].update)
+        self.assertNotCalled(self.fake_servers[0].reset_state)
+        self.assertNotCalled(self.fake_servers[0].change_password)
+        self.assertNotCalled(self.servers_mock.set_meta)
+        self.assertIsNone(result)
+
+    def test_server_set_with_state(self):
+        for index, state in enumerate(['active', 'error']):
+            arglist = [
+                '--state', state,
+                'foo_vm',
+            ]
+            verifylist = [
+                ('state', state),
+                ('server', 'foo_vm'),
+            ]
+            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+            result = self.cmd.take_action(parsed_args)
+            self.fake_servers[index].reset_state.assert_called_once_with(
+                state=state)
+            self.assertIsNone(result)
+
+    def test_server_set_with_invalid_state(self):
+        arglist = [
+            '--state', 'foo_state',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('state', 'foo_state'),
+            ('server', 'foo_vm'),
+        ]
+        self.assertRaises(utils.ParserException,
+                          self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+
 class TestServerShelve(TestServer):
 
     def setUp(self):

@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--state`` option to ``server set`` command to set the server to
+    active or error state.
+    [Blueprint `server-reset-state <https://blueprints.launchpad.net/python-openstackclient/+spec/server-reset-state>`_]

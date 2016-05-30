@@ -1370,6 +1370,12 @@ class SetServer(command.Command):
             help=_('Property to add/change for this server '
                    '(repeat option to set multiple properties)'),
         )
+        parser.add_argument(
+            '--state',
+            metavar='<state>',
+            choices=['active', 'error'],
+            help=_('New server state (valid value: active, error)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -1388,6 +1394,9 @@ class SetServer(command.Command):
                 server,
                 parsed_args.property,
             )
+
+        if parsed_args.state:
+            server.reset_state(state=parsed_args.state)
 
         if parsed_args.root_password:
             p1 = getpass.getpass(_('New password: '))
