@@ -17,6 +17,7 @@ from openstack import connection
 from openstack import profile
 
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 LOG = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ def build_option_parser(parser):
         '--os-network-api-version',
         metavar='<network-api-version>',
         default=utils.env('OS_NETWORK_API_VERSION'),
-        help='Network API version, default=' +
-             DEFAULT_API_VERSION +
-             ' (Env: OS_NETWORK_API_VERSION)')
+        help=_("Network API version, default=%s "
+               "(Env: OS_NETWORK_API_VERSION)") % DEFAULT_API_VERSION
+    )
     return parser
