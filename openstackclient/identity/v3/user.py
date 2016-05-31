@@ -369,6 +369,8 @@ class SetUser(command.Command):
 class SetPasswordUser(command.Command):
     """Change current user password"""
 
+    required_scope = False
+
     def get_parser(self, prog_name):
         parser = super(SetPasswordUser, self).get_parser(prog_name)
         parser.add_argument(
