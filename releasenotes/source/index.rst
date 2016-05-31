@@ -7,3 +7,4 @@ OpenStackClient Release Notes
 
    unreleased
    mitaka
+   previous_releases
