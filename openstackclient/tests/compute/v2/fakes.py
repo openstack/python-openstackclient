@@ -111,6 +111,9 @@ class FakeAggregate(object):
 class FakeComputev2Client(object):
 
     def __init__(self, **kwargs):
+        self.agents = mock.Mock()
+        self.agents.resource_class = fakes.FakeResource(None, {})
+
         self.aggregates = mock.Mock()
         self.aggregates.resource_class = fakes.FakeResource(None, {})
 
@@ -205,6 +208,55 @@ class TestComputev2(utils.TestCommand):
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+
+
+class FakeAgent(object):
+    """Fake one or more agent."""
+
+    @staticmethod
+    def create_one_agent(attrs=None):
+        """Create a fake agent.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with agent_id, os, and so on
+        """
+
+        attrs = attrs or {}
+
+        # set default attributes.
+        agent_info = {
+            'agent_id': 'agent-id-' + uuid.uuid4().hex,
+            'os': 'agent-os-' + uuid.uuid4().hex,
+            'architecture': 'agent-architecture',
+            'version': '8.0',
+            'url': 'http://127.0.0.1',
+            'md5hash': 'agent-md5hash',
+            'hypervisor': 'hypervisor',
+        }
+        agent_info.update(attrs)
+
+        agent = fakes.FakeResource(info=copy.deepcopy(agent_info),
+                                   loaded=True)
+        return agent
+
+    @staticmethod
+    def create_agents(attrs=None, count=2):
+        """Create multiple fake agents.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of agents to fake
+        :return:
+            A list of FakeResource objects faking the agents
+        """
+        agents = []
+        for i in range(0, count):
+            agents.append(FakeAgent.create_one_agent(attrs))
+
+        return agents
 
 
 class FakeHypervisor(object):
