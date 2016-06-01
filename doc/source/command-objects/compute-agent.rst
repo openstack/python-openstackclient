@@ -44,17 +44,17 @@ Create compute agent
 compute agent delete
 --------------------
 
-Delete compute agent command
+Delete compute agent(s)
 
 .. program:: compute agent delete
 .. code:: bash
 
-    os compute agent delete <id>
+    os compute agent delete <id> [<id> ...]
 
 .. _compute_agent-delete:
 .. describe:: <id>
 
-    ID of agent to delete
+    ID of agent(s) to delete
 
 compute agent list
 ------------------

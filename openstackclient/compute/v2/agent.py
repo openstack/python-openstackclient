@@ -18,6 +18,7 @@
 import six
 
 from openstackclient.common import command
+from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.i18n import _
 
@@ -75,20 +76,35 @@ class CreateAgent(command.ShowOne):
 
 
 class DeleteAgent(command.Command):
-    """Delete compute agent command"""
+    """Delete compute agent(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteAgent, self).get_parser(prog_name)
         parser.add_argument(
             "id",
             metavar="<id>",
-            help=_("ID of agent to delete")
+            nargs='+',
+            help=_("ID of agent(s) to delete")
         )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        compute_client.agents.delete(parsed_args.id)
+        result = 0
+        for id in parsed_args.id:
+            try:
+                compute_client.agents.delete(id)
+            except Exception as e:
+                result += 1
+                self.app.log.error(_("Failed to delete agent with "
+                                   "ID '%(id)s': %(e)s")
+                                   % {'id': id, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.id)
+            msg = (_("%(result)s of %(total)s agents failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListAgent(command.Lister):
