@@ -175,11 +175,22 @@ Unset flavor properties
 
     os flavor unset
         [--property <key> [...] ]
+        [--project <project>]
+        [--project-domain <project-domain>]
         <flavor>
 
 .. option:: --property <key>
 
     Property to remove from flavor (repeat option to remove multiple properties)
+
+.. option:: --project <project>
+
+    Remove flavor access from project (name or ID) (admin only)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 .. describe:: <flavor>
 

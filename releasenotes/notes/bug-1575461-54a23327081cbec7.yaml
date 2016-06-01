@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added support for removing flavor access from project by using below command
+    ``flavor unset <flavor> --project <project> --project-domain <project-domain>``
+    [Bug `1575461 <https://bugs.launchpad.net/python-openstackclient/+bug/1575461>`_]
