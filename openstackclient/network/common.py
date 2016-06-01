@@ -16,6 +16,7 @@ import six
 
 from openstackclient.common import command
 from openstackclient.common import exceptions
+from openstackclient.i18n import _
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -94,14 +95,22 @@ class NetworkAndComputeDelete(NetworkAndComputeCommand):
                     self.take_action_compute(self.app.client_manager.compute,
                                              parsed_args)
             except Exception as e:
-                self.app.log.error("Failed to delete %s with name or ID "
-                                   "'%s': %s" % (self.resource, r, e))
+                msg = _("Failed to delete %(resource)s with name or ID "
+                        "'%(name_or_id)s': %(e)s") % {
+                            "resource": self.resource,
+                            "name_or_id": r,
+                            "e": e,
+                }
+                self.app.log.error(msg)
                 ret += 1
 
         if ret:
             total = len(resources)
-            msg = "%s of %s %ss failed to delete." % (ret, total,
-                                                      self.resource)
+            msg = _("%(num)s of %(total)s %(resource)s failed to delete.") % {
+                "num": ret,
+                "total": total,
+                "resource": self.resource,
+            }
             raise exceptions.CommandError(msg)
 
 
