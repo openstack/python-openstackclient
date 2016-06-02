@@ -150,7 +150,7 @@ Remove a port from a router
 
 .. describe:: <port>
 
-    Port to be removed (name or ID)
+    Port to be removed and deleted (name or ID)
 
 router remove subnet
 --------------------
