@@ -338,21 +338,63 @@ class UnsetFlavor(command.Command):
     def get_parser(self, prog_name):
         parser = super(UnsetFlavor, self).get_parser(prog_name)
         parser.add_argument(
-            "--property",
-            metavar="<key>",
-            action='append',
-            required=True,
-            help=_("Property to remove from flavor "
-                   "(repeat option to unset multiple properties)")
-        )
-        parser.add_argument(
             "flavor",
             metavar="<flavor>",
             help=_("Flavor to modify (name or ID)")
         )
+        parser.add_argument(
+            "--property",
+            metavar="<key>",
+            action='append',
+            help=_("Property to remove from flavor "
+                   "(repeat option to unset multiple properties)")
+        )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_('Remove flavor access from project (name or ID) '
+                   '(admin only)'),
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
+
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
+        identity_client = self.app.client_manager.identity
+
         flavor = _find_flavor(compute_client, parsed_args.flavor)
-        flavor.unset_keys(parsed_args.property)
+
+        if not parsed_args.property and not parsed_args.project:
+            raise exceptions.CommandError(_("Nothing specified to be unset."))
+
+        result = 0
+        if parsed_args.property:
+            try:
+                flavor.unset_keys(parsed_args.property)
+            except Exception as e:
+                self.app.log.error(
+                    _("Failed to unset flavor property: %s") % str(e))
+                result += 1
+
+        if parsed_args.project:
+            try:
+                if flavor.is_public:
+                    msg = _("Cannot remove access for a public flavor")
+                    raise exceptions.CommandError(msg)
+                else:
+                    project_id = identity_common.find_project(
+                        identity_client,
+                        parsed_args.project,
+                        parsed_args.project_domain,
+                    ).id
+                    compute_client.flavor_access.remove_tenant_access(
+                        flavor.id, project_id)
+            except Exception as e:
+                self.app.log.error(_("Failed to remove flavor access from"
+                                     " project: %s") % str(e))
+                result += 1
+
+        if result > 0:
+            raise exceptions.CommandError(_("Command Failed: One or more of"
+                                          " the operations failed"))
