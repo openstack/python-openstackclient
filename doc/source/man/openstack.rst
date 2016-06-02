@@ -96,9 +96,6 @@ OPTIONS
 :option:`--os-user-domain-name` <auth-user-domain-name> | :option:`--os-user-domain-id` <auth-user-domain-id>
     Domain name or ID containing user
 
-:option:`--os-user-domain-name` <auth-user-domain-name> | :option:`--os-user-domain-id` <auth-user-domain-id>
-    Domain name or ID containing user
-
 :option:`--os-trust-id` <trust-id>
     ID of the trust to use as a trustee user
 
