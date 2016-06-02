@@ -243,8 +243,9 @@ class ShowEndpoint(command.ShowOne):
         parser = super(ShowEndpoint, self).get_parser(prog_name)
         parser.add_argument(
             'endpoint',
-            metavar='<endpoint-id>',
-            help='Endpoint ID to display',
+            metavar='<endpoint>',
+            help='Endpoint to display (endpoint ID, service ID,'
+                 ' service name, service type)',
         )
         return parser
 
