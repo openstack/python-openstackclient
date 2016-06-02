@@ -15,17 +15,40 @@ please refer to the `OpenStack IRC meetings`_ page.
 Testing
 -------
 
-Using ``tox``
-=============
+Tox prerequisites and installation
+===================================
 
-Before running tests, you should have ``tox`` installed and available in your
-environment:
+Install the prerequisites for Tox:
+
+* On Ubuntu or Debian:
+
+  .. code-block:: bash
+
+    $ apt-get install gcc gettext python-dev libxml2-dev libxslt1-dev \
+      zlib1g-dev
+
+  You may need to use pip install for some packages.
+
+
+* On RHEL or CentOS including Fefora:
+
+  .. code-block:: bash
+
+    $ yum install gcc python-devel libxml2-devel libxslt-devel
+
+* On openSUSE or SUSE linux Enterprise:
+
+  .. code-block:: bash
+
+    $ zypper install gcc python-devel libxml2-devel libxslt-devel
+
+Install python-tox:
 
 .. code-block:: bash
 
     $ pip install tox
 
-To execute the full suite of tests maintained within OpenStackClient, run:
+To run the full suite of tests maintained within OpenStackClient.
 
 .. code-block:: bash
 
@@ -37,9 +60,9 @@ To execute the full suite of tests maintained within OpenStackClient, run:
     virtualenvs. You can later use the ``-r`` option with ``tox`` to rebuild
     your virtualenv in a similar manner.
 
-To run tests for one or more specific test environments (for example, the most
-common configuration of Python 2.7 and PEP-8), list the environments with the
-``-e`` option, separated by spaces:
+
+To run tests for one or more specific test environments(for example, the most common configuration of
+Python 2.7 and PEP-8), list the environments with the ``-e`` option, separated by spaces:
 
 .. code-block:: bash
 
@@ -53,7 +76,7 @@ Running functional tests
 OpenStackClient also maintains a set of functional tests that are optimally
 designed to be run against OpenStack's gate. Optionally, a developer may
 choose to run these tests against any OpenStack deployment, however depending
-on the services available, results will vary.
+on the services available, results vary.
 
 To run the entire suite of functional tests:
 
@@ -70,33 +93,34 @@ To run a specific functional test:
 Running with PDB
 ================
 
-Using PDB breakpoints with ``tox`` and ``testr`` normally doesn't work since
+Using PDB breakpoints with ``tox`` and ``testr`` normally does not work since
 the tests fail with a `BdbQuit` exception rather than stopping at the
 breakpoint.
 
 To run with PDB breakpoints during testing, use the `debug` ``tox`` environment
-rather than ``py27``. Here's an example, passing the name of a test since
-you'll normally only want to run the test that hits your breakpoint:
+rather than ``py27``. For example, passing a test name since you will normally
+only want to run the test that hits your breakpoint:
 
 .. code-block:: bash
 
     $ tox -e debug opentackclient.tests.identity.v3.test_group
 
-For reference, the `debug` ``tox`` environment implements the instructions
-here: https://wiki.openstack.org/wiki/Testr#Debugging_.28pdb.29_Tests
+For reference, the `debug`_ ``tox`` environment implements the instructions
+
+.. _`debug`: https://wiki.openstack.org/wiki/Testr#Debugging_.28pdb.29_Tests
 
 
 Building the Documentation
 --------------------------
 
 The documentation is generated with Sphinx using the ``tox`` command. To
-create HTML docs, run the following:
+create HTML docs, run the commands:
 
 .. code-block:: bash
 
     $ tox -e docs
 
-The resultant HTML will be the ``doc/build/html`` directory.
+The resultant HTML will be in the ``doc/build/html`` directory.
 
 Release Notes
 -------------
@@ -115,7 +139,7 @@ If any of the following applies to the patch, a release note is required:
 * Current behavior is changed
 * A security bug is fixed
 
-Reno is used to generate release notes. Please read the docs for details. In summary, use
+Reno is used to generate release notes. Use the commands:
 
 .. code-block:: bash
 
@@ -123,7 +147,7 @@ Reno is used to generate release notes. Please read the docs for details. In sum
 
 Then edit the sample file that was created and push it with your change.
 
-To see the results:
+To run the commands and see results:
 
 .. code-block:: bash
 
@@ -131,7 +155,7 @@ To see the results:
 
     $ tox -e releasenotes
 
-Then look at the generated release notes files in releasenotes/build/html in your favorite browser.
+At last, look at the generated release notes files in ``releasenotes/build/html`` in your browser.
 
 Testing new code
 ----------------
