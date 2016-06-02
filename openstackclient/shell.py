@@ -251,7 +251,7 @@ class OpenStackShell(app.App):
             help="Print API call timing info",
         )
         parser.add_argument(
-            '--enable-beta-commands',
+            '--os-beta-command',
             action='store_true',
             help="Enable beta commands which are subject to change",
         )

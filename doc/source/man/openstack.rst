@@ -132,6 +132,9 @@ OPTIONS
     This key should be the value of one of the HMAC keys defined in the
     configuration files of OpenStack services to be traced.
 
+:option:`--os-beta-command`
+    Enable beta commands which are subject to change
+
 :option:`--log-file` <LOGFILE>
     Specify a file to log output. Disabled by default.
 
@@ -143,9 +146,6 @@ OPTIONS
 
 :option:`--debug`
     Show tracebacks on errors and set verbosity to debug
-
-:option:`--enable-beta-commands`
-    Enable beta commands which are subject to change
 
 COMMANDS
 ========

@@ -1,0 +1,7 @@
+---
+fixes:
+  - Fix the ``--enable`` option on all commands by changing the
+    ``--enable-beta-commands`` global option to ``--os-beta-command``.
+    There are no upgrade impacts for the global option rename since
+    the old name isn't used.
+    [Bug `1588384 <https://bugs.launchpad.net/python-openstackclient/+bug/1588384>`_]

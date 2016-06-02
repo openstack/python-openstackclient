@@ -33,7 +33,7 @@ example list
 List examples
 
 .. caution:: This is a beta command and subject to change.
-             Use global option ``--enable-beta-commands`` to
+             Use global option ``--os-beta-command`` to
              enable this command.
 
 .. program:: example list
@@ -52,7 +52,7 @@ The command help must label the command as a beta.
         """Display example details
 
            (Caution: This is a beta command and subject to change.
-            Use global option --enable-beta-commands to enable
+            Use global option --os-beta-command to enable
             this command)
         """
 
@@ -60,13 +60,9 @@ Implementation
 --------------
 
 The command must raise a ``CommandError`` exception if beta commands
-are not enabled via ``--enable-beta-commands`` global option.
+are not enabled via ``--os-beta-command`` global option.
 
 .. code-block:: python
 
     def take_action(self, parsed_args):
-        if not self.app.options.enable_beta_commands:
-            msg = _('Caution: This is a beta command and subject to '
-                    'change. Use global option --enable-beta-commands '
-                    'to enable this command.')
-            raise exceptions.CommandError(msg)
+        self.validate_os_beta_command_enabled()

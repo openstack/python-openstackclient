@@ -99,7 +99,7 @@ class FakeApp(object):
 
 class FakeOptions(object):
     def __init__(self, **kwargs):
-        self.enable_beta_commands = False
+        self.os_beta_command = False
 
 
 class FakeClient(object):

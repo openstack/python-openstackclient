@@ -25,7 +25,7 @@ class TestNetworkSegment(network_fakes.TestNetworkV2):
         super(TestNetworkSegment, self).setUp()
 
         # Enable beta commands.
-        self.app.options.enable_beta_commands = True
+        self.app.options.os_beta_command = True
 
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
@@ -89,7 +89,7 @@ class TestListNetworkSegment(TestNetworkSegment):
         self.assertEqual(self.data, list(data))
 
     def test_list_no_beta_commands(self):
-        self.app.options.enable_beta_commands = False
+        self.app.options.os_beta_command = False
         parsed_args = self.check_parser(self.cmd, [], [])
         self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                           parsed_args)
@@ -174,7 +174,7 @@ class TestShowNetworkSegment(TestNetworkSegment):
         verifylist = [
             ('network_segment', self._network_segment.id),
         ]
-        self.app.options.enable_beta_commands = False
+        self.app.options.os_beta_command = False
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                           parsed_args)

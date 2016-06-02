@@ -15,7 +15,7 @@ network segment list
 List network segments
 
 .. caution:: This is a beta command and subject to change.
-             Use global option ``--enable-beta-commands`` to
+             Use global option ``--os-beta-command`` to
              enable this command.
 
 .. program:: network segment list
@@ -39,7 +39,7 @@ network segment show
 Display network segment details
 
 .. caution:: This is a beta command and subject to change.
-             Use global option ``--enable-beta-commands`` to
+             Use global option ``--os-beta-command`` to
              enable this command.
 
 .. program:: network segment show
