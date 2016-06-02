@@ -13,10 +13,7 @@
 #   under the License.
 #
 
-import copy
-
 from openstackclient.common import utils
-from openstackclient.tests import fakes
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import qos_specs
 
@@ -35,275 +32,228 @@ class TestQos(volume_fakes.TestVolume):
 
 class TestQosAssociate(TestQos):
 
+    volume_type = volume_fakes.FakeType.create_one_type()
+    qos_spec = volume_fakes.FakeQos.create_one_qos()
+
     def setUp(self):
         super(TestQosAssociate, self).setUp()
 
+        self.qos_mock.get.return_value = self.qos_spec
+        self.types_mock.get.return_value = self.volume_type
         # Get the command object to test
         self.cmd = qos_specs.AssociateQos(self.app, None)
 
     def test_qos_associate(self):
-        self.qos_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS),
-            loaded=True
-        )
-        self.types_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.TYPE),
-            loaded=True
-        )
         arglist = [
-            volume_fakes.qos_id,
-            volume_fakes.type_id
+            self.qos_spec.id,
+            self.volume_type.id
         ]
         verifylist = [
-            ('qos_spec', volume_fakes.qos_id),
-            ('volume_type', volume_fakes.type_id)
+            ('qos_spec', self.qos_spec.id),
+            ('volume_type', self.volume_type.id)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.qos_mock.associate.assert_called_with(
-            volume_fakes.qos_id,
-            volume_fakes.type_id
+            self.qos_spec.id,
+            self.volume_type.id
         )
         self.assertIsNone(result)
 
 
 class TestQosCreate(TestQos):
 
+    new_qos_spec = volume_fakes.FakeQos.create_one_qos()
     columns = (
         'consumer',
         'id',
-        'name'
+        'name',
+        'specs'
     )
-    datalist = (
-        volume_fakes.qos_consumer,
-        volume_fakes.qos_id,
-        volume_fakes.qos_name
+    data = (
+        new_qos_spec.consumer,
+        new_qos_spec.id,
+        new_qos_spec.name,
+        new_qos_spec.specs
     )
 
     def setUp(self):
         super(TestQosCreate, self).setUp()
 
+        self.qos_mock.create.return_value = self.new_qos_spec
         # Get the command object to test
         self.cmd = qos_specs.CreateQos(self.app, None)
 
     def test_qos_create_without_properties(self):
-        self.qos_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS_DEFAULT_CONSUMER),
-            loaded=True
-        )
-
         arglist = [
-            volume_fakes.qos_name,
+            self.new_qos_spec.name,
         ]
         verifylist = [
-            ('name', volume_fakes.qos_name),
+            ('name', self.new_qos_spec.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
         self.qos_mock.create.assert_called_with(
-            volume_fakes.qos_name,
-            {'consumer': volume_fakes.qos_default_consumer}
+            self.new_qos_spec.name,
+            {'consumer': 'both'}
         )
 
         self.assertEqual(self.columns, columns)
-        datalist = (
-            volume_fakes.qos_default_consumer,
-            volume_fakes.qos_id,
-            volume_fakes.qos_name
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.data, data)
 
     def test_qos_create_with_consumer(self):
-        self.qos_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS),
-            loaded=True
-        )
-
         arglist = [
-            volume_fakes.qos_name,
-            '--consumer', volume_fakes.qos_consumer
+            '--consumer', self.new_qos_spec.consumer,
+            self.new_qos_spec.name,
         ]
         verifylist = [
-            ('name', volume_fakes.qos_name),
-            ('consumer', volume_fakes.qos_consumer)
+            ('consumer', self.new_qos_spec.consumer),
+            ('name', self.new_qos_spec.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
         self.qos_mock.create.assert_called_with(
-            volume_fakes.qos_name,
-            {'consumer': volume_fakes.qos_consumer}
+            self.new_qos_spec.name,
+            {'consumer': self.new_qos_spec.consumer}
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertEqual(self.data, data)
 
     def test_qos_create_with_properties(self):
-        self.qos_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS_WITH_SPECS),
-            loaded=True
-        )
-
         arglist = [
-            volume_fakes.qos_name,
-            '--consumer', volume_fakes.qos_consumer,
+            '--consumer', self.new_qos_spec.consumer,
             '--property', 'foo=bar',
-            '--property', 'iops=9001'
+            '--property', 'iops=9001',
+            self.new_qos_spec.name,
         ]
         verifylist = [
-            ('name', volume_fakes.qos_name),
-            ('consumer', volume_fakes.qos_consumer),
-            ('property', volume_fakes.qos_specs)
+            ('consumer', self.new_qos_spec.consumer),
+            ('property', self.new_qos_spec.specs),
+            ('name', self.new_qos_spec.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        specs = volume_fakes.qos_specs.copy()
-        specs.update({'consumer': volume_fakes.qos_consumer})
+        self.new_qos_spec.specs.update(
+            {'consumer': self.new_qos_spec.consumer})
         self.qos_mock.create.assert_called_with(
-            volume_fakes.qos_name,
-            specs
+            self.new_qos_spec.name,
+            self.new_qos_spec.specs
         )
 
-        columns = self.columns + (
-            'specs',
-        )
-        self.assertEqual(columns, columns)
-        datalist = self.datalist + (
-            volume_fakes.qos_specs,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
 
 class TestQosDelete(TestQos):
 
+    qos_spec = volume_fakes.FakeQos.create_one_qos()
+
     def setUp(self):
         super(TestQosDelete, self).setUp()
 
-        self.qos_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS),
-            loaded=True,
-        )
-
+        self.qos_mock.get.return_value = self.qos_spec
         # Get the command object to test
         self.cmd = qos_specs.DeleteQos(self.app, None)
 
-    def test_qos_delete_with_id(self):
+    def test_qos_delete(self):
         arglist = [
-            volume_fakes.qos_id
+            self.qos_spec.id
         ]
         verifylist = [
-            ('qos_specs', [volume_fakes.qos_id])
+            ('qos_specs', [self.qos_spec.id])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.delete.assert_called_with(volume_fakes.qos_id)
-        self.assertIsNone(result)
-
-    def test_qos_delete_with_name(self):
-        arglist = [
-            volume_fakes.qos_name
-        ]
-        verifylist = [
-            ('qos_specs', [volume_fakes.qos_name])
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        result = self.cmd.take_action(parsed_args)
-
-        self.qos_mock.delete.assert_called_with(volume_fakes.qos_id)
+        self.qos_mock.delete.assert_called_with(self.qos_spec.id)
         self.assertIsNone(result)
 
 
 class TestQosDisassociate(TestQos):
 
+    volume_type = volume_fakes.FakeType.create_one_type()
+    qos_spec = volume_fakes.FakeQos.create_one_qos()
+
     def setUp(self):
         super(TestQosDisassociate, self).setUp()
 
+        self.qos_mock.get.return_value = self.qos_spec
+        self.types_mock.get.return_value = self.volume_type
         # Get the command object to test
         self.cmd = qos_specs.DisassociateQos(self.app, None)
 
     def test_qos_disassociate_with_volume_type(self):
-        self.qos_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS),
-            loaded=True
-        )
-        self.types_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.TYPE),
-            loaded=True
-        )
         arglist = [
-            volume_fakes.qos_id,
-            '--volume-type', volume_fakes.type_id
+            '--volume-type', self.volume_type.id,
+            self.qos_spec.id,
         ]
         verifylist = [
-            ('qos_spec', volume_fakes.qos_id),
-            ('volume_type', volume_fakes.type_id)
+            ('volume_type', self.volume_type.id),
+            ('qos_spec', self.qos_spec.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.qos_mock.disassociate.assert_called_with(
-            volume_fakes.qos_id,
-            volume_fakes.type_id
+            self.qos_spec.id,
+            self.volume_type.id
         )
         self.assertIsNone(result)
 
     def test_qos_disassociate_with_all_volume_types(self):
-        self.qos_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS),
-            loaded=True
-        )
-
         arglist = [
-            volume_fakes.qos_id,
-            '--all'
+            '--all',
+            self.qos_spec.id,
         ]
         verifylist = [
-            ('qos_spec', volume_fakes.qos_id)
+            ('qos_spec', self.qos_spec.id)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.disassociate_all.assert_called_with(volume_fakes.qos_id)
+        self.qos_mock.disassociate_all.assert_called_with(self.qos_spec.id)
         self.assertIsNone(result)
 
 
 class TestQosList(TestQos):
 
+    qos_specs = volume_fakes.FakeQos.create_qoses(count=2)
+    qos_association = volume_fakes.FakeQos.create_one_qos_association()
+
+    columns = (
+        'ID',
+        'Name',
+        'Consumer',
+        'Associations',
+        'Specs',
+    )
+    data = []
+    for q in qos_specs:
+        data.append((
+            q.id,
+            q.name,
+            q.consumer,
+            qos_association.name,
+            utils.format_dict(q.specs),
+        ))
+
     def setUp(self):
         super(TestQosList, self).setUp()
 
-        self.qos_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS_WITH_ASSOCIATIONS),
-            loaded=True,
-        )
-        self.qos_mock.list.return_value = [self.qos_mock.get.return_value]
-        self.qos_mock.get_associations.return_value = [fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.qos_association),
-            loaded=True,
-        )]
+        self.qos_mock.list.return_value = self.qos_specs
+        self.qos_mock.get_associations.return_value = [self.qos_association]
 
         # Get the command object to test
         self.cmd = qos_specs.ListQos(self.app, None)
@@ -317,139 +267,117 @@ class TestQosList(TestQos):
         columns, data = self.cmd.take_action(parsed_args)
         self.qos_mock.list.assert_called_with()
 
-        collist = (
-            'ID',
-            'Name',
-            'Consumer',
-            'Associations',
-            'Specs',
-        )
-        self.assertEqual(collist, columns)
-        datalist = ((
-            volume_fakes.qos_id,
-            volume_fakes.qos_name,
-            volume_fakes.qos_consumer,
-            volume_fakes.type_name,
-            utils.format_dict(volume_fakes.qos_specs),
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
 
 class TestQosSet(TestQos):
 
+    qos_spec = volume_fakes.FakeQos.create_one_qos()
+
     def setUp(self):
         super(TestQosSet, self).setUp()
 
+        self.qos_mock.get.return_value = self.qos_spec
         # Get the command object to test
         self.cmd = qos_specs.SetQos(self.app, None)
 
     def test_qos_set_with_properties_with_id(self):
-        self.qos_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS_WITH_SPECS),
-            loaded=True
-        )
         arglist = [
-            volume_fakes.qos_id,
             '--property', 'foo=bar',
-            '--property', 'iops=9001'
+            '--property', 'iops=9001',
+            self.qos_spec.id,
         ]
         verifylist = [
-            ('qos_spec', volume_fakes.qos_id),
-            ('property', volume_fakes.qos_specs)
+            ('property', self.qos_spec.specs),
+            ('qos_spec', self.qos_spec.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.qos_mock.set_keys.assert_called_with(
-            volume_fakes.qos_id,
-            volume_fakes.qos_specs
+            self.qos_spec.id,
+            self.qos_spec.specs
         )
         self.assertIsNone(result)
 
 
 class TestQosShow(TestQos):
 
+    qos_spec = volume_fakes.FakeQos.create_one_qos()
+    qos_association = volume_fakes.FakeQos.create_one_qos_association()
+
+    columns = (
+        'associations',
+        'consumer',
+        'id',
+        'name',
+        'specs'
+    )
+    data = (
+        qos_association.name,
+        qos_spec.consumer,
+        qos_spec.id,
+        qos_spec.name,
+        utils.format_dict(qos_spec.specs),
+    )
+
     def setUp(self):
         super(TestQosShow, self).setUp()
 
-        self.qos_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS_WITH_ASSOCIATIONS),
-            loaded=True,
-        )
-        self.qos_mock.get_associations.return_value = [fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.qos_association),
-            loaded=True,
-        )]
+        self.qos_mock.get.return_value = self.qos_spec
+        self.qos_mock.get_associations.return_value = [self.qos_association]
 
         # Get the command object to test
         self.cmd = qos_specs.ShowQos(self.app, None)
 
     def test_qos_show(self):
         arglist = [
-            volume_fakes.qos_id
+            self.qos_spec.id
         ]
         verifylist = [
-            ('qos_spec', volume_fakes.qos_id)
+            ('qos_spec', self.qos_spec.id)
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
         self.qos_mock.get.assert_called_with(
-            volume_fakes.qos_id
+            self.qos_spec.id
         )
 
-        collist = (
-            'associations',
-            'consumer',
-            'id',
-            'name',
-            'specs'
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            volume_fakes.type_name,
-            volume_fakes.qos_consumer,
-            volume_fakes.qos_id,
-            volume_fakes.qos_name,
-            utils.format_dict(volume_fakes.qos_specs),
-        )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, tuple(data))
 
 
 class TestQosUnset(TestQos):
 
+    qos_spec = volume_fakes.FakeQos.create_one_qos()
+
     def setUp(self):
         super(TestQosUnset, self).setUp()
 
+        self.qos_mock.get.return_value = self.qos_spec
         # Get the command object to test
         self.cmd = qos_specs.UnsetQos(self.app, None)
 
     def test_qos_unset_with_properties(self):
-        self.qos_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.QOS),
-            loaded=True
-        )
         arglist = [
-            volume_fakes.qos_id,
             '--property', 'iops',
-            '--property', 'foo'
+            '--property', 'foo',
+            self.qos_spec.id,
         ]
         verifylist = [
-            ('qos_spec', volume_fakes.qos_id),
-            ('property', ['iops', 'foo'])
+            ('property', ['iops', 'foo']),
+            ('qos_spec', self.qos_spec.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.qos_mock.unset_keys.assert_called_with(
-            volume_fakes.qos_id,
+            self.qos_spec.id,
             ['iops', 'foo']
         )
         self.assertIsNone(result)
