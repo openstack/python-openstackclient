@@ -8,10 +8,11 @@ Commands take the form::
 
     openstack [<global-options>] <object-1> <action> [<object-2>] [<command-arguments>]
 
-* All long options names begin with two dashes (``--``) and use a single dash
+.. NOTE::
+
+  All long options names begin with two dashes (``--``) and use a single dash
   (``-``) internally between words (``--like-this``).  Underscores (``_``) are
   not used in option names.
-
 
 Global Options
 --------------
@@ -78,7 +79,7 @@ referring to both Compute and Volume quotas.
 * ``command``: (**Internal**) installed commands in the OSC process
 * ``compute agent``: (**Compute**) a cloud Compute agent available to a hypervisor
 * ``compute service``: (**Compute**) a cloud Compute process running on a host
-* ``configuration``: (**Internal**) openstack client configuration
+* ``configuration``: (**Internal**) OpenStack client configuration
 * ``console log``: (**Compute**) server console text dump
 * ``console url``: (**Compute**) server remote console URL
 * ``consumer``: (**Identity**) OAuth-based delegatee
@@ -89,7 +90,7 @@ referring to both Compute and Volume quotas.
 * ``endpoint``: (**Identity**) the base URL used to contact a specific service
 * ``extension``: (**Compute**, **Identity**, **Network**, **Volume**) OpenStack server API extensions
 * ``federation protocol``: (**Identity**) the underlying protocol used while federating identities
-* ``flavor``: (**Compute**) predefined server configurations: ram, root disk, etc
+* ``flavor``: (**Compute**) predefined server configurations: ram, root disk and so on
 * ``group``: (**Identity**) a grouping of users
 * ``host``: (**Compute**) - the physical computer running compute services
 * ``hypervisor``: (**Compute**) the virtual machine manager

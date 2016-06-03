@@ -124,7 +124,7 @@ Releases Before 3.0
 
 8. `region` commands no longer support `url`
 
-  The Keystone team removed support for thr `url` attribute from the client
+  The Keystone team removed support for the `url` attribute from the client
   and server side. Changes to the `create`, `set` and `list` commands for
   regions have been affected.
 
@@ -184,27 +184,41 @@ Releases Before 3.0
 
 14. Output of `ip floating list` command has changed.
 
-  When using Compute v2, the original output of `ip floating list` command is:
-  +----+--------+------------+----------+-------------+
-  | ID | Pool   | IP         | Fixed IP | Instance ID |
-  +----+--------+-----------------------+-------------+
-  |  1 | public | 172.24.4.1 | None     | None        |
-  +----+--------+------------+----------+-------------+
+  When using Compute v2, the original output is:
+
+  .. code-block:: bash
+
+      # ip floating list
+
+      +----+--------+------------+----------+-------------+
+      | ID | Pool   | IP         | Fixed IP | Instance ID |
+      +----+--------+-----------------------+-------------+
+      |  1 | public | 172.24.4.1 | None     | None        |
+      +----+--------+------------+----------+-------------+
 
   Now it changes to:
-  +----+---------------------+------------------+-----------+--------+
-  | ID | Floating IP Address | Fixed IP Address | Server ID | Pool   |
-  +----+---------------------+------------------+-----------+--------+
-  |  1 | 172.24.4.1          | None             | None      | public |
-  +----+---------------------+------------------+-----------+--------+
 
-  When using Network v2, the output of `ip floating list` command is:
-  +--------------------------------------+---------------------+------------------+------+
-  | ID                                   | Floating IP Address | Fixed IP Address | Port |
-  +--------------------------------------+---------------------+------------------+------+
-  | 1976df86-e66a-4f96-81bd-c6ffee6407f1 | 172.24.4.3          | None             | None |
-  +--------------------------------------+---------------------+------------------+------+
-  which is different from Compute v2.
+  .. code-block:: bash
+
+      # ip floating list
+
+      +----+---------------------+------------------+-----------+--------+
+      | ID | Floating IP Address | Fixed IP Address | Server ID | Pool   |
+      +----+---------------------+------------------+-----------+--------+
+      |  1 | 172.24.4.1          | None             | None      | public |
+      +----+---------------------+------------------+-----------+--------+
+
+  When using Network v2, which is different from Compute v2. The output is:
+
+  .. code-block:: bash
+
+      # ip floating list
+
+      +--------------------------------------+---------------------+------------------+------+
+      | ID                                   | Floating IP Address | Fixed IP Address | Port |
+      +--------------------------------------+---------------------+------------------+------+
+      | 1976df86-e66a-4f96-81bd-c6ffee6407f1 | 172.24.4.3          | None             | None |
+      +--------------------------------------+---------------------+------------------+------+
 
   * In favor of: Use `ip floating list` command
   * As of: NA
