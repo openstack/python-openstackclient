@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    ``address scope delete`` command now accepts multiple address scopes
+    in a single command

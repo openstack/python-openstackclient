@@ -1,6 +1,10 @@
 ---
 features:
   - |
-    Added support for setting flavor access to project by using below command
-    ``flavor set <flavor> --project <project>``
-    [Bug `1575461 <https://bugs.launchpad.net/python-openstackclient/+bug/1575461>`_]
+    Add ``--project`` option to ``flavor set`` command to set project access
+    to a flavor
+    [:lpbug:`1575461`]
+  - |
+    Add ``--project`` option to ``flavor unset`` command to remove project access
+    to a flavor
+    [:lpbug:`1575461`]
