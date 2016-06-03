@@ -426,6 +426,21 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
+    def test_set_nothing(self):
+        arglist = [
+            self._port.name,
+        ]
+        verifylist = [
+            ('port', self._port.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {}
+        self.network.update_port.assert_called_once_with(self._port, **attrs)
+        self.assertIsNone(result)
+
 
 class TestShowPort(TestPort):
 

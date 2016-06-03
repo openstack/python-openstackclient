@@ -18,7 +18,6 @@ import json
 import logging
 
 from openstackclient.common import command
-from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 from openstackclient.i18n import _
@@ -425,10 +424,6 @@ class SetRouter(command.Command):
             for route in parsed_args.routes:
                 route['nexthop'] = route.pop('gateway')
             attrs['routes'] = obj.routes + parsed_args.routes
-
-        if attrs == {}:
-            msg = _("Nothing specified to be set")
-            raise exceptions.CommandError(msg)
 
         client.update_router(obj, **attrs)
 

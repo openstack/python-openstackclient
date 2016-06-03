@@ -373,9 +373,6 @@ class SetSubnet(command.Command):
         obj = client.find_subnet(parsed_args.subnet, ignore_missing=False)
         attrs = _get_attrs(self.app.client_manager, parsed_args,
                            is_create=False)
-        if not attrs:
-            msg = "Nothing specified to be set"
-            raise exceptions.CommandError(msg)
         if 'dns_nameservers' in attrs:
             attrs['dns_nameservers'] += obj.dns_nameservers
         if 'host_routes' in attrs:

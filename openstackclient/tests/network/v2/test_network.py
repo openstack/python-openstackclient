@@ -609,8 +609,12 @@ class TestSetNetwork(TestNetwork):
         verifylist = [('network', self._network.name), ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {}
+        self.network.update_network.assert_called_once_with(
+            self._network, **attrs)
+        self.assertIsNone(result)
 
 
 class TestShowNetwork(TestNetwork):

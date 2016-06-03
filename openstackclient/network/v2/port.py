@@ -426,9 +426,6 @@ class SetPort(command.Command):
         elif parsed_args.no_fixed_ip:
             attrs['fixed_ips'] = []
 
-        if attrs == {}:
-            msg = _("Nothing specified to be set")
-            raise exceptions.CommandError(msg)
         client.update_port(obj, **attrs)
 
 
