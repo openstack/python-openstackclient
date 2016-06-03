@@ -40,7 +40,27 @@
 extensions = [
     'oslosphinx',
     'reno.sphinxext',
+    'sphinx.ext.extlinks',
 ]
+
+# Set aliases for extlinks
+# * lpbug - generic Launchpad bug        :lpbug:`123456`
+# * oscbp - OSC blueprints               :oscbp:`Blue Print <bp-name>`
+# * oscdoc - OSC Docs                    :oscdoc:`Comamnd List <command-list>`
+extlinks = {
+    'lpbug': (
+        'https://bugs.launchpad.net/bugs/%s',
+        'Bug ',
+    ),
+    'oscbp': (
+        'https://blueprints.launchpad.net/python-openstackclient/+spec/%s',
+        '',
+    ),
+    'oscdoc': (
+        'http://docs.openstack.org/developer/python-openstackclient/%s.html',
+        '',
+    ),
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
