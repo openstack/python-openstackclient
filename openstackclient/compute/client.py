@@ -17,6 +17,7 @@ import logging
 
 from openstackclient.common import exceptions
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
 
@@ -82,9 +83,9 @@ def build_option_parser(parser):
         '--os-compute-api-version',
         metavar='<compute-api-version>',
         default=utils.env('OS_COMPUTE_API_VERSION'),
-        help='Compute API version, default=' +
-             DEFAULT_API_VERSION +
-             ' (Env: OS_COMPUTE_API_VERSION)')
+        help=_("Compute API version, default=%s "
+               "(Env: OS_COMPUTE_API_VERSION)") % DEFAULT_API_VERSION
+    )
     return parser
 
 
@@ -118,10 +119,9 @@ def check_api_version(check_version):
                 novaclient.API_MIN_VERSION,
                 novaclient.API_MAX_VERSION,
             ):
-                raise exceptions.CommandError(
-                    "versions supported by client: %s - %s" % (
-                        novaclient.API_MIN_VERSION.get_string(),
-                        novaclient.API_MAX_VERSION.get_string(),
-                    ),
-                )
+                msg = _("versions supported by client: %(min)s - %(max)s") % {
+                    "min": novaclient.API_MIN_VERSION.get_string(),
+                    "max": novaclient.API_MAX_VERSION.get_string(),
+                }
+                raise exceptions.CommandError(msg)
     return True
