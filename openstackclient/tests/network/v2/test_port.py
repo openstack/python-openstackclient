@@ -283,6 +283,7 @@ class TestSetPort(TestPort):
         ]
         verifylist = [
             ('fixed_ip', [{'ip-address': '10.0.0.11'}]),
+            ('port', self._port.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -304,6 +305,7 @@ class TestSetPort(TestPort):
         ]
         verifylist = [
             ('fixed_ip', [{'ip-address': '10.0.0.12'}]),
+            ('port', _testport.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
@@ -325,6 +327,7 @@ class TestSetPort(TestPort):
             ('disable', True),
             ('no_binding_profile', True),
             ('no_fixed_ip', True),
+            ('port', self._port.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -352,7 +355,8 @@ class TestSetPort(TestPort):
             ('vnic_type', 'macvtap'),
             ('binding_profile', {'foo': 'bar'}),
             ('host', 'binding-host-id-xxxx'),
-            ('name', 'newName')
+            ('name', 'newName'),
+            ('port', self._port.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
