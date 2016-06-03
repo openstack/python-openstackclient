@@ -205,8 +205,8 @@ class SetVolumeType(command.Command):
             try:
                 volume_type.set_keys(parsed_args.property)
             except Exception as e:
-                self.app.log.error(_("Failed to set volume type property: ") +
-                                   str(e))
+                self.app.log.error(_("Failed to set volume type"
+                                     " property: %s") % str(e))
                 result += 1
 
         if parsed_args.project:
