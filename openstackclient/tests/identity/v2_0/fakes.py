@@ -13,7 +13,9 @@
 #   under the License.
 #
 
+import copy
 import mock
+import uuid
 
 from openstackclient.tests import fakes
 from openstackclient.tests import utils
@@ -106,26 +108,6 @@ ENDPOINT = {
     'service_id': endpoint_service_id,
 }
 
-extension_name = 'OpenStack Keystone User CRUD'
-extension_namespace = 'http://docs.openstack.org/identity/'\
-    'api/ext/OS-KSCRUD/v1.0'
-extension_description = 'OpenStack extensions to Keystone v2.0 API'\
-    ' enabling User Operations.'
-extension_updated = '2013-07-07T12:00:0-00:00'
-extension_alias = 'OS-KSCRUD'
-extension_links = '[{"href":'\
-    '"https://github.com/openstack/identity-api", "type":'\
-    ' "text/html", "rel": "describedby"}]'
-
-EXTENSION = {
-    'name': extension_name,
-    'namespace': extension_namespace,
-    'description': extension_description,
-    'updated': extension_updated,
-    'alias': extension_alias,
-    'links': extension_links,
-}
-
 
 class FakeIdentityv2Client(object):
 
@@ -166,3 +148,39 @@ class TestIdentityv2(utils.TestCommand):
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+
+
+class FakeExtension(object):
+    """Fake one or more extension."""
+
+    @staticmethod
+    def create_one_extension(attrs=None):
+        """Create a fake extension.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with name, namespace, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        extension_info = {
+            'name': 'name-' + uuid.uuid4().hex,
+            'namespace': ('http://docs.openstack.org/identity/'
+                          'api/ext/OS-KSCRUD/v1.0'),
+            'description': 'description-' + uuid.uuid4().hex,
+            'updated': '2013-07-07T12:00:0-00:00',
+            'alias': 'OS-KSCRUD',
+            'links': ('[{"href":'
+                      '"https://github.com/openstack/identity-api", "type":'
+                      ' "text/html", "rel": "describedby"}]')
+        }
+
+        # Overwrite default attributes.
+        extension_info.update(attrs)
+
+        extension = fakes.FakeResource(
+            info=copy.deepcopy(extension_info),
+            loaded=True)
+        return extension
