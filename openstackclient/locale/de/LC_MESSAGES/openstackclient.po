@@ -8,82 +8,19 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: python-openstackclient 2.2.1.dev235\n"
+"Project-Id-Version: python-openstackclient 2.5.1.dev51\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-04-19 05:02+0000\n"
+"POT-Creation-Date: 2016-06-03 19:37+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2015-09-19 07:10+0000\n"
+"PO-Revision-Date: 2016-06-02 01:43+0000\n"
 "Last-Translator: Andreas Jaeger <jaegerandi@gmail.com>\n"
 "Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.0\n"
 "X-Generator: Zanata 3.7.3\n"
 "Language-Team: German\n"
-
-msgid ""
-"\n"
-"Complete\n"
-msgstr ""
-"\n"
-"Fertig\n"
-
-msgid ""
-"\n"
-"Error creating server"
-msgstr ""
-"\n"
-"Fehler beim Erstellen des Servers"
-
-msgid ""
-"\n"
-"Error creating server snapshot"
-msgstr ""
-"\n"
-"Fehler beim Erstellen der Server-Schattenkopie"
-
-msgid ""
-"\n"
-"Error deleting server"
-msgstr ""
-"\n"
-"Fehler beim Löschen des Servers"
-
-msgid ""
-"\n"
-"Error migrating server"
-msgstr ""
-"\n"
-"Fehler beim Migrieren des Servers"
-
-msgid ""
-"\n"
-"Error rebooting server\n"
-msgstr ""
-"\n"
-"Fehler beim Neustarten des Servers\n"
-
-msgid ""
-"\n"
-"Error rebuilding server"
-msgstr ""
-"\n"
-"Fehler bei der Wiederherstellung des Servers"
-
-msgid ""
-"\n"
-"Error resizing server"
-msgstr ""
-"\n"
-"Fehler bei der Größenänderung des Servers"
-
-msgid ""
-"\n"
-"Reboot complete\n"
-msgstr ""
-"\n"
-"Neustart abgeschlossen\n"
 
 msgid "Add a property to <name> (repeat option to set multiple properties)"
 msgstr ""
@@ -92,6 +29,9 @@ msgstr ""
 
 msgid "Allow disk over-commit on the destination host"
 msgstr "Festplattenüberladung auf dem Zielhost erlauben"
+
+msgid "Availability zone name"
+msgstr "Name der Verfügbarkeitszone"
 
 msgid "Complete\n"
 msgstr "Fertig\n"
@@ -138,6 +78,9 @@ msgstr "Anmeldedaten für Benutzer löschen (name or ID)"
 msgid "Destination port (ssh -p option)"
 msgstr "Zielport (ssh -p Option)"
 
+msgid "Disable a service"
+msgstr "Dienst deaktivieren"
+
 msgid "Disable project"
 msgstr "Projekt deaktivieren"
 
@@ -162,12 +105,18 @@ msgstr "Benutzer aktivieren (Standardeinstellung)"
 msgid "Endpoint ID to delete"
 msgstr "Zu löschende Endpunktkennung"
 
-msgid "Endpoint ID to display"
-msgstr "Anzuzeigende Endpunktkennung"
+msgid "Error creating server\n"
+msgstr "Fehler beim Erstellen des Servers\n"
+
+msgid "Error creating server snapshot\n"
+msgstr "Fehler beim Erstellen der Server-Schattenkopie\n"
 
 #, python-format
 msgid "Error creating server: %s"
 msgstr "Fehler beim Erstellen des Servers: %s"
+
+msgid "Error deleting server\n"
+msgstr "Fehler beim Löschen des Servers\n"
 
 #, python-format
 msgid "Error deleting server: %s"
@@ -187,6 +136,9 @@ msgstr "Benutzer nach <project> filtern (Name oder Kennung)"
 
 msgid "Filter users by project (name or ID)"
 msgstr "Benutzer nach Projekt filtern (Name oder Kennung)"
+
+msgid "Floating IP address"
+msgstr "Bewegliche IP-Adresse"
 
 msgid "Hints for the scheduler (optional extension)"
 msgstr "Hinweise für den Planer (optionale Erweiterung)"
@@ -208,6 +160,9 @@ msgstr "Zusätzliche Felder in der Ausgabe auflisten"
 
 msgid "Login name (ssh -l option)"
 msgstr "Anmeldename (ssh -l Option)"
+
+msgid "MD5 hash"
+msgstr "MD5-Hashwert"
 
 msgid ""
 "Map block devices; map is <id>:<type>:<size(GB)>:<delete_on_terminate> "
@@ -442,27 +397,27 @@ msgstr ""
 "OS_DOMAIN_NAME oder auth.domain_name."
 
 msgid ""
-"Set a service AUTH_URL, with --os-auth-url, OS_AUTH_URL or auth.auth_url\n"
+"Set a service AUTH_URL, with --os-auth-url, OS_AUTH_URL or auth.auth_url"
 msgstr ""
 "Legen Sie eine Dienst-AUTH_URL mit --os-auth-url, OS_AUTH_URL oder auth."
-"auth_url fest\n"
+"auth_url fest"
 
-msgid "Set a service URL, with --os-url, OS_URL or auth.url\n"
-msgstr "Legen Sie eine Dienst-URL mit --os-url, OS_URL oder auth.url fest\n"
+msgid "Set a service URL, with --os-url, OS_URL or auth.url"
+msgstr "Legen Sie eine Dienst-URL mit --os-url, OS_URL oder auth.url fest"
 
-msgid "Set a token with --os-token, OS_TOKEN or auth.token\n"
-msgstr "Legen Sie einen Token mit --os-token, OS_TOKEN oder auth.token fest\n"
+msgid "Set a token with --os-token, OS_TOKEN or auth.token"
+msgstr "Legen Sie einen Token mit --os-token, OS_TOKEN oder auth.token fest"
 
-msgid "Set a username with --os-username, OS_USERNAME, or auth.username\n"
+msgid "Set a username with --os-username, OS_USERNAME, or auth.username"
 msgstr ""
 "Legen Sie einen Benutzernamen mit --os-username, OS_USERNAME oder auth."
-"username fest\n"
+"username fest"
 
 msgid ""
-"Set an authentication URL, with --os-auth-url, OS_AUTH_URL or auth.auth_url\n"
+"Set an authentication URL, with --os-auth-url, OS_AUTH_URL or auth.auth_url"
 msgstr ""
 "Legen Sie eine Authentifizierungs-URL mit --os-auth-url, OS_AUTH_URL oder "
-"auth.auth_url fest\n"
+"auth.auth_url fest"
 
 msgid "Set default project (name or ID)"
 msgstr "Standardprojekt festlegen (Name oder Kennung)"
@@ -504,6 +459,9 @@ msgstr ""
 msgid "Token to be deleted"
 msgstr "Zu löschender Token"
 
+msgid "URL"
+msgstr "URL"
+
 msgid "Use only IPv4 addresses"
 msgstr "Nur IPv4-Adressen verwenden"
 
@@ -542,6 +500,9 @@ msgstr "Aufzulistender Benutzer (Name oder Kennung)"
 
 msgid "User(s) to delete (name or ID)"
 msgstr "Zu löschende(r) Benutzer (Name oder Kennung)"
+
+msgid "Version"
+msgstr "Version"
 
 msgid "Volume to add (name or ID)"
 msgstr "Zu hinzufügender Datenträger (Name oder Kennung)"
