@@ -16,7 +16,6 @@
 # TODO(rtheis): Add description and name properties when support is available.
 
 from openstackclient.common import command
-from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.i18n import _
 
@@ -25,7 +24,7 @@ class ListNetworkSegment(command.Lister):
     """List network segments
 
        (Caution: This is a beta command and subject to change.
-        Use global option --enable-beta-commands to enable
+        Use global option --os-beta-command to enable
         this command)
     """
 
@@ -46,11 +45,7 @@ class ListNetworkSegment(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        if not self.app.options.enable_beta_commands:
-            msg = _('Caution: This is a beta command and subject to '
-                    'change. Use global option --enable-beta-commands '
-                    'to enable this command.')
-            raise exceptions.CommandError(msg)
+        self.validate_os_beta_command_enabled()
 
         network_client = self.app.client_manager.network
 
@@ -94,7 +89,7 @@ class ShowNetworkSegment(command.ShowOne):
     """Display network segment details
 
        (Caution: This is a beta command and subject to change.
-        Use global option --enable-beta-commands to enable
+        Use global option --os-beta-command to enable
         this command)
     """
 
@@ -108,11 +103,7 @@ class ShowNetworkSegment(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        if not self.app.options.enable_beta_commands:
-            msg = _('Caution: This is a beta command and subject to '
-                    'change. Use global option --enable-beta-commands '
-                    'to enable this command.')
-            raise exceptions.CommandError(msg)
+        self.validate_os_beta_command_enabled()
 
         client = self.app.client_manager.network
         obj = client.find_segment(

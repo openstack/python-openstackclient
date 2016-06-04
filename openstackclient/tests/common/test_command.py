@@ -15,6 +15,8 @@
 import mock
 
 from openstackclient.common import command
+from openstackclient.common import exceptions
+from openstackclient.tests import fakes as test_fakes
 from openstackclient.tests import utils as test_utils
 
 
@@ -31,3 +33,16 @@ class TestCommand(test_utils.TestCase):
         self.assertTrue(hasattr(cmd, 'log'))
         self.assertEqual('openstackclient.tests.common.test_command.'
                          'FakeCommand', cmd.log.name)
+
+    def test_validate_os_beta_command_enabled(self):
+        cmd = FakeCommand(mock.Mock(), mock.Mock())
+        cmd.app = mock.Mock()
+        cmd.app.options = test_fakes.FakeOptions()
+
+        # No exception is raised when enabled.
+        cmd.app.options.os_beta_command = True
+        cmd.validate_os_beta_command_enabled()
+
+        cmd.app.options.os_beta_command = False
+        self.assertRaises(exceptions.CommandError,
+                          cmd.validate_os_beta_command_enabled)

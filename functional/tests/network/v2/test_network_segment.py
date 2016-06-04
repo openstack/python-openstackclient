@@ -34,7 +34,7 @@ class NetworkSegmentTests(test.TestCase):
 
         # Get the segment for the network.
         opts = cls.get_show_opts(['ID', 'Network'])
-        raw_output = cls.openstack('--enable-beta-commands '
+        raw_output = cls.openstack('--os-beta-command '
                                    'network segment list '
                                    ' --network ' + cls.NETWORK_NAME +
                                    ' ' + opts)
@@ -48,13 +48,13 @@ class NetworkSegmentTests(test.TestCase):
 
     def test_network_segment_list(self):
         opts = self.get_list_opts(['ID'])
-        raw_output = self.openstack('--enable-beta-commands '
+        raw_output = self.openstack('--os-beta-command '
                                     'network segment list' + opts)
         self.assertIn(self.NETWORK_SEGMENT_ID, raw_output)
 
     def test_network_segment_show(self):
         opts = self.get_show_opts(['network_id'])
-        raw_output = self.openstack('--enable-beta-commands '
+        raw_output = self.openstack('--os-beta-command '
                                     'network segment show ' +
                                     self.NETWORK_SEGMENT_ID + opts)
         self.assertEqual(self.NETWORK_ID + "\n", raw_output)

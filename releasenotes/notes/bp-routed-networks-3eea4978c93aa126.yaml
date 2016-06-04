@@ -3,5 +3,5 @@ features:
   - Add support for the ``network segment`` command object via the
     ``network segment list`` and ``network segment show`` commands.
     These are beta commands and subject to change. Use global option
-    ``--enable-beta-commands`` to enable these commands.
+    ``--os-beta-command`` to enable these commands.
     [Blueprint `routed-networks <https://blueprints.launchpad.net/neutron/+spec/routed-networks>`_]

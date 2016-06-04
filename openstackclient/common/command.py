@@ -20,6 +20,9 @@ from cliff import lister
 from cliff import show
 import six
 
+from openstackclient.common import exceptions
+from openstackclient.i18n import _
+
 
 class CommandMeta(abc.ABCMeta):
 
@@ -36,6 +39,13 @@ class Command(command.Command):
     def run(self, parsed_args):
         self.log.debug('run(%s)', parsed_args)
         return super(Command, self).run(parsed_args)
+
+    def validate_os_beta_command_enabled(self):
+        if not self.app.options.os_beta_command:
+            msg = _('Caution: This is a beta command and subject to '
+                    'change. Use global option --os-beta-command '
+                    'to enable this command.')
+            raise exceptions.CommandError(msg)
 
 
 class Lister(Command, lister.Lister):
