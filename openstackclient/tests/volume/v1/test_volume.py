@@ -578,9 +578,6 @@ class TestVolumeSet(TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-
-        self.assertEqual("No changes requested\n",
-                         self.app.log.messages.get('error'))
         self.assertIsNone(result)
 
     def test_volume_set_name(self):

@@ -208,10 +208,6 @@ class SetSnapshot(command.Command):
         if parsed_args.description:
             kwargs['display_description'] = parsed_args.description
 
-        if not kwargs and not parsed_args.property:
-            self.app.log.error(_("No changes requested\n"))
-            return
-
         snapshot.update(**kwargs)
 
 
@@ -270,5 +266,3 @@ class UnsetSnapshot(command.Command):
                 snapshot.id,
                 parsed_args.property,
             )
-        else:
-            self.app.log.error(_("No changes requested\n"))

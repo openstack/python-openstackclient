@@ -181,5 +181,3 @@ class UnsetVolumeType(command.Command):
 
         if parsed_args.property:
             volume_type.unset_keys(parsed_args.property)
-        else:
-            self.app.log.error(_("No changes requested\n"))
