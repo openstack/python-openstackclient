@@ -491,17 +491,15 @@ class TestFlavorSet(TestFlavor):
 
     def test_flavor_set_no_project(self):
         arglist = [
-            '--project', '',
+            '--project',
             self.flavor.id,
         ]
         verifylist = [
             ('project', ''),
             ('flavor', self.flavor.id),
         ]
-
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
     def test_flavor_set_no_flavor(self):
         arglist = [
