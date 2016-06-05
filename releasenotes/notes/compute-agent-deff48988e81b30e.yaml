@@ -1,0 +1,3 @@
+---
+upgrade:
+  - Command ``compute agent delete`` now supports deleting multiple agents.
