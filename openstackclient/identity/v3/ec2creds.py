@@ -56,18 +56,14 @@ class CreateEC2Creds(command.ShowOne):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_(
-                'Create credentials in project '
-                '(name or ID; default: current authenticated project)'
-            ),
+            help=_('Create credentials in project '
+                   '(name or ID; default: current authenticated project)'),
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help=_(
-                'Create credentials for user '
-                '(name or ID; default: current authenticated user)'
-            ),
+            help=_('Create credentials for user '
+                   '(name or ID; default: current authenticated user)'),
         )
         common.add_user_domain_option_to_parser(parser)
         common.add_project_domain_option_to_parser(parser)

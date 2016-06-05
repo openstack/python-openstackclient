@@ -18,6 +18,7 @@ import sys
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class CreateServiceProvider(command.ShowOne):
@@ -28,26 +29,26 @@ class CreateServiceProvider(command.ShowOne):
         parser.add_argument(
             'service_provider_id',
             metavar='<name>',
-            help='New service provider name (must be unique)'
+            help=_('New service provider name (must be unique)'),
         )
         parser.add_argument(
             '--auth-url',
             metavar='<auth-url>',
             required=True,
-            help='Authentication URL of remote federated service provider '
-                 '(required)',
+            help=_('Authentication URL of remote federated service provider '
+                   '(required)'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='New service provider description',
+            help=_('New service provider description'),
         )
         parser.add_argument(
             '--service-provider-url',
             metavar='<sp-url>',
             required=True,
-            help='A service URL where SAML assertions are being sent '
-                 '(required)',
+            help=_('A service URL where SAML assertions are being sent '
+                   '(required)'),
         )
 
         enable_service_provider = parser.add_mutually_exclusive_group()
@@ -56,13 +57,13 @@ class CreateServiceProvider(command.ShowOne):
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable the service provider (default)',
+            help=_('Enable the service provider (default)'),
         )
         enable_service_provider.add_argument(
             '--disable',
             dest='enabled',
             action='store_false',
-            help='Disable the service provider',
+            help=_('Disable the service provider'),
         )
 
         return parser
@@ -88,7 +89,7 @@ class DeleteServiceProvider(command.Command):
         parser.add_argument(
             'service_provider',
             metavar='<service-provider>',
-            help='Service provider to delete',
+            help=_('Service provider to delete'),
         )
         return parser
 
@@ -121,34 +122,35 @@ class SetServiceProvider(command.Command):
         parser.add_argument(
             'service_provider',
             metavar='<service-provider>',
-            help='Service provider to modify',
+            help=_('Service provider to modify'),
         )
         parser.add_argument(
             '--auth-url',
             metavar='<auth-url>',
-            help='New Authentication URL of remote federated service provider',
+            help=_('New Authentication URL of remote '
+                   'federated service provider'),
         )
 
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='New service provider description',
+            help=_('New service provider description'),
         )
         parser.add_argument(
             '--service-provider-url',
             metavar='<sp-url>',
-            help='New service provider URL, where SAML assertions are sent',
+            help=_('New service provider URL, where SAML assertions are sent'),
         )
         enable_service_provider = parser.add_mutually_exclusive_group()
         enable_service_provider.add_argument(
             '--enable',
             action='store_true',
-            help='Enable the service provider',
+            help=_('Enable the service provider'),
         )
         enable_service_provider.add_argument(
             '--disable',
             action='store_true',
-            help='Disable the service provider',
+            help=_('Disable the service provider'),
         )
         return parser
 
@@ -164,8 +166,8 @@ class SetServiceProvider(command.Command):
         if not any((enabled is not None, parsed_args.description,
                     parsed_args.service_provider_url,
                     parsed_args.auth_url)):
-            sys.stdout.write("Service Provider not updated, no arguments "
-                             "present\n")
+            sys.stdout.write(_("Service Provider not updated, no arguments "
+                               "present\n"))
             return (None, None)
 
         service_provider = federation_client.service_providers.update(
@@ -184,7 +186,7 @@ class ShowServiceProvider(command.ShowOne):
         parser.add_argument(
             'service_provider',
             metavar='<service-provider>',
-            help='Service provider to display',
+            help=_('Service provider to display'),
         )
         return parser
 

@@ -20,6 +20,7 @@ import sys
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 from openstackclient.identity import common
 
 
@@ -38,23 +39,23 @@ class CreateEndpoint(command.ShowOne):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='New endpoint service (name or ID)',
+            help=_('New endpoint service (name or ID)'),
         )
         parser.add_argument(
             'interface',
             metavar='<interface>',
             choices=['admin', 'public', 'internal'],
-            help='New endpoint interface type (admin, public or internal)',
+            help=_('New endpoint interface type (admin, public or internal)'),
         )
         parser.add_argument(
             'url',
             metavar='<url>',
-            help='New endpoint URL',
+            help=_('New endpoint URL'),
         )
         parser.add_argument(
             '--region',
             metavar='<region-id>',
-            help='New endpoint region ID',
+            help=_('New endpoint region ID'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
@@ -62,13 +63,13 @@ class CreateEndpoint(command.ShowOne):
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable endpoint (default)',
+            help=_('Enable endpoint (default)'),
         )
         enable_group.add_argument(
             '--disable',
             dest='enabled',
             action='store_false',
-            help='Disable endpoint',
+            help=_('Disable endpoint'),
         )
         return parser
 
@@ -100,7 +101,7 @@ class DeleteEndpoint(command.Command):
         parser.add_argument(
             'endpoint',
             metavar='<endpoint-id>',
-            help='Endpoint ID to delete',
+            help=_('Endpoint ID to delete'),
         )
         return parser
 
@@ -119,18 +120,18 @@ class ListEndpoint(command.Lister):
         parser.add_argument(
             '--service',
             metavar='<service>',
-            help='Filter by service',
+            help=_('Filter by service'),
         )
         parser.add_argument(
             '--interface',
             metavar='<interface>',
             choices=['admin', 'public', 'internal'],
-            help='Filter by interface type (admin, public or internal)',
+            help=_('Filter by interface type (admin, public or internal)'),
         )
         parser.add_argument(
             '--region',
             metavar='<region-id>',
-            help='Filter by region ID',
+            help=_('Filter by region ID'),
         )
         return parser
 
@@ -167,41 +168,41 @@ class SetEndpoint(command.Command):
         parser.add_argument(
             'endpoint',
             metavar='<endpoint-id>',
-            help='Endpoint ID to modify',
+            help=_('Endpoint ID to modify'),
         )
         parser.add_argument(
             '--region',
             metavar='<region-id>',
-            help='New endpoint region ID',
+            help=_('New endpoint region ID'),
         )
         parser.add_argument(
             '--interface',
             metavar='<interface>',
             choices=['admin', 'public', 'internal'],
-            help='New endpoint interface type (admin, public or internal)',
+            help=_('New endpoint interface type (admin, public or internal)'),
         )
         parser.add_argument(
             '--url',
             metavar='<url>',
-            help='New endpoint URL',
+            help=_('New endpoint URL'),
         )
         parser.add_argument(
             '--service',
             metavar='<service>',
-            help='New endpoint service (name or ID)',
+            help=_('New endpoint service (name or ID)'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             dest='enabled',
             action='store_true',
-            help='Enable endpoint',
+            help=_('Enable endpoint'),
         )
         enable_group.add_argument(
             '--disable',
             dest='disabled',
             action='store_true',
-            help='Disable endpoint',
+            help=_('Disable endpoint'),
         )
         return parser
 
@@ -213,7 +214,7 @@ class SetEndpoint(command.Command):
         if (not parsed_args.interface and not parsed_args.url
                 and not parsed_args.service and not parsed_args.region
                 and not parsed_args.enabled and not parsed_args.disabled):
-            sys.stdout.write("Endpoint not updated, no arguments present\n")
+            sys.stdout.write(_("Endpoint not updated, no arguments present\n"))
             return
 
         service_id = None
@@ -244,8 +245,8 @@ class ShowEndpoint(command.ShowOne):
         parser.add_argument(
             'endpoint',
             metavar='<endpoint>',
-            help='Endpoint to display (endpoint ID, service ID,'
-                 ' service name, service type)',
+            help=_('Endpoint to display (endpoint ID, service ID,'
+                   ' service name, service type)'),
         )
         return parser
 

@@ -35,50 +35,50 @@ class CreateUser(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<name>',
-            help='New user name',
+            help=_('New user name'),
         )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Default domain (name or ID)',
+            help=_('Default domain (name or ID)'),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='Default project (name or ID)',
+            help=_('Default project (name or ID)'),
         )
         common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--password',
             metavar='<password>',
-            help='Set user password',
+            help=_('Set user password'),
         )
         parser.add_argument(
             '--password-prompt',
             dest="password_prompt",
             action="store_true",
-            help='Prompt interactively for password',
+            help=_('Prompt interactively for password'),
         )
         parser.add_argument(
             '--email',
             metavar='<email-address>',
-            help='Set user email address',
+            help=_('Set user email address'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='User description',
+            help=_('User description'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable user (default)',
+            help=_('Enable user (default)'),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable user',
+            help=_('Disable user'),
         )
         parser.add_argument(
             '--or-show',
@@ -122,7 +122,7 @@ class CreateUser(command.ShowOne):
                 user = utils.find_resource(identity_client.users,
                                            parsed_args.name,
                                            domain_id=domain_id)
-                self.log.info('Returning existing user %s', user.name)
+                self.log.info(_('Returning existing user %s'), user.name)
             else:
                 raise e
 
@@ -139,12 +139,12 @@ class DeleteUser(command.Command):
             'users',
             metavar='<user>',
             nargs="+",
-            help='User(s) to delete (name or ID)',
+            help=_('User(s) to delete (name or ID)'),
         )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain owning <user> (name or ID)',
+            help=_('Domain owning <user> (name or ID)'),
         )
         return parser
 
@@ -173,24 +173,24 @@ class ListUser(command.Lister):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Filter users by <domain> (name or ID)',
+            help=_('Filter users by <domain> (name or ID)'),
         )
         project_or_group = parser.add_mutually_exclusive_group()
         project_or_group.add_argument(
             '--group',
             metavar='<group>',
-            help='Filter users by <group> membership (name or ID)',
+            help=_('Filter users by <group> membership (name or ID)'),
         )
         project_or_group.add_argument(
             '--project',
             metavar='<project>',
-            help='Filter users by <project> (name or ID)',
+            help=_('Filter users by <project> (name or ID)'),
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_('List additional fields in output'),
         )
         return parser
 
@@ -273,50 +273,50 @@ class SetUser(command.Command):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='User to change (name or ID)',
+            help=_('User to change (name or ID)'),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='Set user name',
+            help=_('Set user name'),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='Set default project (name or ID)',
+            help=_('Set default project (name or ID)'),
         )
         common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--password',
             metavar='<password>',
-            help='Set user password',
+            help=_('Set user password'),
         )
         parser.add_argument(
             '--password-prompt',
             dest="password_prompt",
             action="store_true",
-            help='Prompt interactively for password',
+            help=_('Prompt interactively for password'),
         )
         parser.add_argument(
             '--email',
             metavar='<email-address>',
-            help='Set user email address',
+            help=_('Set user email address'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='Set user description',
+            help=_('Set user description'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable user (default)',
+            help=_('Enable user (default)'),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable user',
+            help=_('Disable user'),
         )
         return parser
 
@@ -334,9 +334,8 @@ class SetUser(command.Command):
                 and not parsed_args.description
                 and not parsed_args.enable
                 and not parsed_args.disable):
-            sys.stderr.write("Incorrect set of arguments "
-                             "provided. See openstack --help for more "
-                             "details\n")
+            sys.stderr.write(_("Incorrect set of arguments provided. "
+                               "See openstack --help for more details\n"))
             return
 
         user = utils.find_resource(
@@ -376,12 +375,12 @@ class SetPasswordUser(command.Command):
         parser.add_argument(
             '--password',
             metavar='<new-password>',
-            help='New user password'
+            help=_('New user password'),
         )
         parser.add_argument(
             '--original-password',
             metavar='<original-password>',
-            help='Original user password'
+            help=_('Original user password'),
         )
         return parser
 
@@ -429,12 +428,12 @@ class ShowUser(command.ShowOne):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='User to display (name or ID)',
+            help=_('User to display (name or ID)'),
         )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain owning <user> (name or ID)',
+            help=_('Domain owning <user> (name or ID)'),
         )
         return parser
 

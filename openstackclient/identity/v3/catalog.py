@@ -84,7 +84,7 @@ class ShowCatalog(command.ShowOne):
                 break
 
         if not data:
-            self.app.log.error('service %s not found\n' %
+            self.app.log.error(_('service %s not found\n') %
                                parsed_args.service)
             return ([], [])
 

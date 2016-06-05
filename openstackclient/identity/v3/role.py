@@ -31,23 +31,23 @@ def _add_identity_and_resource_options_to_parser(parser):
     domain_or_project.add_argument(
         '--domain',
         metavar='<domain>',
-        help='Include <domain> (name or ID)',
+        help=_('Include <domain> (name or ID)'),
     )
     domain_or_project.add_argument(
         '--project',
         metavar='<project>',
-        help='Include <project> (name or ID)',
+        help=_('Include <project> (name or ID)'),
     )
     user_or_group = parser.add_mutually_exclusive_group()
     user_or_group.add_argument(
         '--user',
         metavar='<user>',
-        help='Include <user> (name or ID)',
+        help=_('Include <user> (name or ID)'),
     )
     user_or_group.add_argument(
         '--group',
         metavar='<group>',
-        help='Include <group> (name or ID)',
+        help=_('Include <group> (name or ID)'),
     )
     common.add_group_domain_option_to_parser(parser)
     common.add_project_domain_option_to_parser(parser)
@@ -112,7 +112,7 @@ class AddRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Role to add to <user> (name or ID)',
+            help=_('Role to add to <user> (name or ID)'),
         )
         _add_identity_and_resource_options_to_parser(parser)
         return parser
@@ -131,9 +131,9 @@ class AddRole(command.Command):
         kwargs = _process_identity_and_resource_options(
             parsed_args, self.app.client_manager.identity)
         if not kwargs:
-            sys.stderr.write("Role not added, incorrect set of arguments "
-                             "provided. See openstack --help for more "
-                             "details\n")
+            sys.stderr.write(_("Role not added, incorrect set of arguments "
+                               "provided. See openstack --help for more "
+                               "details\n"))
             return
 
         identity_client.roles.grant(role.id, **kwargs)
@@ -147,7 +147,7 @@ class CreateRole(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<role-name>',
-            help='New role name',
+            help=_('New role name'),
         )
         parser.add_argument(
             '--or-show',
@@ -165,7 +165,7 @@ class CreateRole(command.ShowOne):
             if parsed_args.or_show:
                 role = utils.find_resource(identity_client.roles,
                                            parsed_args.name)
-                self.log.info('Returning existing role %s', role.name)
+                self.log.info(_('Returning existing role %s'), role.name)
             else:
                 raise e
 
@@ -182,7 +182,7 @@ class DeleteRole(command.Command):
             'roles',
             metavar='<role>',
             nargs="+",
-            help='Role(s) to delete (name or ID)',
+            help=_('Role(s) to delete (name or ID)'),
         )
         return parser
 
@@ -285,9 +285,9 @@ class ListRole(command.Lister):
                 group_role.group = group.name
                 group_role.project = project.name
         else:
-            sys.stderr.write("Error: If a user or group is specified, either "
-                             "--domain or --project must also be specified to "
-                             "list role grants.\n")
+            sys.stderr.write(_("Error: If a user or group is specified, "
+                               "either --domain or --project must also be "
+                               "specified to list role grants.\n"))
             return ([], [])
 
         return (columns,
@@ -305,7 +305,7 @@ class RemoveRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Role to remove (name or ID)',
+            help=_('Role to remove (name or ID)'),
         )
         _add_identity_and_resource_options_to_parser(parser)
         return parser
@@ -315,9 +315,8 @@ class RemoveRole(command.Command):
 
         if (not parsed_args.user and not parsed_args.domain
                 and not parsed_args.group and not parsed_args.project):
-            sys.stderr.write("Incorrect set of arguments "
-                             "provided. See openstack --help for more "
-                             "details\n")
+            sys.stderr.write(_("Incorrect set of arguments provided. "
+                               "See openstack --help for more details\n"))
             return
         role = utils.find_resource(
             identity_client.roles,
@@ -327,8 +326,9 @@ class RemoveRole(command.Command):
         kwargs = _process_identity_and_resource_options(
             parsed_args, self.app.client_manager.identity)
         if not kwargs:
-            sys.stderr.write("Role not removed, incorrect set of arguments \
-            provided. See openstack --help for more details\n")
+            sys.stderr.write(_("Role not removed, incorrect set of arguments "
+                               "provided. See openstack --help for more "
+                               "details\n"))
             return
         identity_client.roles.revoke(role.id, **kwargs)
 
@@ -341,12 +341,12 @@ class SetRole(command.Command):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Role to modify (name or ID)',
+            help=_('Role to modify (name or ID)'),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='Set role name',
+            help=_('Set role name'),
         )
         return parser
 
@@ -354,9 +354,8 @@ class SetRole(command.Command):
         identity_client = self.app.client_manager.identity
 
         if not parsed_args.name:
-            sys.stderr.write("Incorrect set of arguments "
-                             "provided. See openstack --help for more "
-                             "details\n")
+            sys.stderr.write(_("Incorrect set of arguments provided. "
+                               "See openstack --help for more details\n"))
             return
         role = utils.find_resource(
             identity_client.roles,
@@ -374,7 +373,7 @@ class ShowRole(command.ShowOne):
         parser.add_argument(
             'role',
             metavar='<role>',
-            help='Role to display (name or ID)',
+            help=_('Role to display (name or ID)'),
         )
         return parser
 

@@ -34,12 +34,12 @@ class AddUserToGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Group to contain <user> (name or ID)',
+            help=_('Group to contain <user> (name or ID)'),
         )
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='User to add to <group> (name or ID)',
+            help=_('User to add to <group> (name or ID)'),
         )
         common.add_group_domain_option_to_parser(parser)
         common.add_user_domain_option_to_parser(parser)
@@ -58,11 +58,17 @@ class AddUserToGroup(command.Command):
         try:
             identity_client.users.add_to_group(user_id, group_id)
         except Exception:
-            sys.stderr.write("%s not added to group %s\n" %
-                             (parsed_args.user, parsed_args.group))
+            msg = _("%(user)s not added to group %(group)s\n") % {
+                'user': parsed_args.user,
+                'group': parsed_args.group,
+            }
+            sys.stderr.write(msg)
         else:
-            sys.stdout.write("%s added to group %s\n" %
-                             (parsed_args.user, parsed_args.group))
+            msg = _("%(user)s added to group %(group)s\n") % {
+                'user': parsed_args.user,
+                'group': parsed_args.group,
+            }
+            sys.stdout.write(msg)
 
 
 class CheckUserInGroup(command.Command):
@@ -73,12 +79,12 @@ class CheckUserInGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Group to check (name or ID)',
+            help=_('Group to check (name or ID)'),
         )
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='User to check (name or ID)',
+            help=_('User to check (name or ID)'),
         )
         common.add_group_domain_option_to_parser(parser)
         common.add_user_domain_option_to_parser(parser)
@@ -97,11 +103,17 @@ class CheckUserInGroup(command.Command):
         try:
             identity_client.users.check_in_group(user_id, group_id)
         except Exception:
-            sys.stderr.write("%s not in group %s\n" %
-                             (parsed_args.user, parsed_args.group))
+            msg = _("%(user)s not in group %(group)s\n") % {
+                'user': parsed_args.user,
+                'group': parsed_args.group,
+            }
+            sys.stderr.write(msg)
         else:
-            sys.stdout.write("%s in group %s\n" %
-                             (parsed_args.user, parsed_args.group))
+            msg = _("%(user)s in group %(group)s\n") % {
+                'user': parsed_args.user,
+                'group': parsed_args.group,
+            }
+            sys.stdout.write(msg)
 
 
 class CreateGroup(command.ShowOne):
@@ -112,17 +124,17 @@ class CreateGroup(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<group-name>',
-            help='New group name',
+            help=_('New group name'),
         )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain to contain new group (name or ID)',
+            help=_('Domain to contain new group (name or ID)'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='New group description',
+            help=_('New group description'),
         )
         parser.add_argument(
             '--or-show',
@@ -149,7 +161,7 @@ class CreateGroup(command.ShowOne):
                 group = utils.find_resource(identity_client.groups,
                                             parsed_args.name,
                                             domain_id=domain)
-                self.log.info('Returning existing group %s', group.name)
+                self.log.info(_('Returning existing group %s'), group.name)
             else:
                 raise e
 
@@ -166,11 +178,12 @@ class DeleteGroup(command.Command):
             'groups',
             metavar='<group>',
             nargs="+",
-            help='Group(s) to delete (name or ID)')
+            help=_('Group(s) to delete (name or ID)'),
+        )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain containing group(s) (name or ID)',
+            help=_('Domain containing group(s) (name or ID)'),
         )
         return parser
 
@@ -192,19 +205,19 @@ class ListGroup(command.Lister):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Filter group list by <domain> (name or ID)',
+            help=_('Filter group list by <domain> (name or ID)'),
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help='Filter group list by <user> (name or ID)',
+            help=_('Filter group list by <user> (name or ID)'),
         )
         common.add_user_domain_option_to_parser(parser)
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_('List additional fields in output'),
         )
         return parser
 
@@ -252,12 +265,12 @@ class RemoveUserFromGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Group containing <user> (name or ID)',
+            help=_('Group containing <user> (name or ID)'),
         )
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='User to remove from <group> (name or ID)',
+            help=_('User to remove from <group> (name or ID)'),
         )
         common.add_group_domain_option_to_parser(parser)
         common.add_user_domain_option_to_parser(parser)
@@ -276,11 +289,17 @@ class RemoveUserFromGroup(command.Command):
         try:
             identity_client.users.remove_from_group(user_id, group_id)
         except Exception:
-            sys.stderr.write("%s not removed from group %s\n" %
-                             (parsed_args.user, parsed_args.group))
+            msg = _("%(user)s not removed from group %(group)s\n") % {
+                'user': parsed_args.user,
+                'group': parsed_args.group,
+            }
+            sys.stderr.write(msg)
         else:
-            sys.stdout.write("%s removed from group %s\n" %
-                             (parsed_args.user, parsed_args.group))
+            msg = _("%(user)s removed from group %(group)s\n") % {
+                'user': parsed_args.user,
+                'group': parsed_args.group,
+            }
+            sys.stdout.write(msg)
 
 
 class SetGroup(command.Command):
@@ -291,20 +310,23 @@ class SetGroup(command.Command):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Group to modify (name or ID)')
+            help=_('Group to modify (name or ID)'),
+        )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain containing <group> (name or ID)',
+            help=_('Domain containing <group> (name or ID)'),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='New group name')
+            help=_('New group name'),
+        )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='New group description')
+            help=_('New group description'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -331,12 +353,12 @@ class ShowGroup(command.ShowOne):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help='Group to display (name or ID)',
+            help=_('Group to display (name or ID)'),
         )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain containing <group> (name or ID)',
+            help=_('Domain containing <group> (name or ID)'),
         )
         return parser
 

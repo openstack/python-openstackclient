@@ -15,6 +15,7 @@
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 from openstackclient.identity import common
 
 
@@ -27,41 +28,41 @@ class ListRoleAssignment(command.Lister):
             '--effective',
             action="store_true",
             default=False,
-            help='Returns only effective role assignments',
+            help=_('Returns only effective role assignments'),
         )
         parser.add_argument(
             '--role',
             metavar='<role>',
-            help='Role to filter (name or ID)',
+            help=_('Role to filter (name or ID)'),
         )
         parser.add_argument(
             '--names',
             action="store_true",
-            help='Display names instead of IDs',
+            help=_('Display names instead of IDs'),
         )
         user_or_group = parser.add_mutually_exclusive_group()
         user_or_group.add_argument(
             '--user',
             metavar='<user>',
-            help='User to filter (name or ID)',
+            help=_('User to filter (name or ID)'),
         )
         common.add_user_domain_option_to_parser(parser)
         user_or_group.add_argument(
             '--group',
             metavar='<group>',
-            help='Group to filter (name or ID)',
+            help=_('Group to filter (name or ID)'),
         )
         common.add_group_domain_option_to_parser(parser)
         domain_or_project = parser.add_mutually_exclusive_group()
         domain_or_project.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain to filter (name or ID)',
+            help=_('Domain to filter (name or ID)'),
         )
         domain_or_project.add_argument(
             '--project',
             metavar='<project>',
-            help='Project to filter (name or ID)',
+            help=_('Project to filter (name or ID)'),
         )
         common.add_project_domain_option_to_parser(parser)
         common.add_inherited_option_to_parser(parser)

@@ -95,7 +95,7 @@ class CreateRole(command.ShowOne):
                     identity_client.roles,
                     parsed_args.role_name,
                 )
-                self.log.info('Returning existing role %s', role.name)
+                self.log.info(_('Returning existing role %s'), role.name)
             else:
                 raise e
 
@@ -136,12 +136,12 @@ class ListRole(command.Lister):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='Filter roles by <project> (name or ID)',
+            help=_('Filter roles by <project> (name or ID)'),
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help='Filter roles by <user> (name or ID)',
+            help=_('Filter roles by <user> (name or ID)'),
         )
         return parser
 

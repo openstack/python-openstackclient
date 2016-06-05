@@ -17,6 +17,7 @@ import six
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class CreateIdentityProvider(command.ShowOne):
@@ -27,26 +28,26 @@ class CreateIdentityProvider(command.ShowOne):
         parser.add_argument(
             'identity_provider_id',
             metavar='<name>',
-            help='New identity provider name (must be unique)'
+            help=_('New identity provider name (must be unique)'),
         )
         identity_remote_id_provider = parser.add_mutually_exclusive_group()
         identity_remote_id_provider.add_argument(
             '--remote-id',
             metavar='<remote-id>',
             action='append',
-            help='Remote IDs to associate with the Identity Provider '
-                 '(repeat option to provide multiple values)'
+            help=_('Remote IDs to associate with the Identity Provider '
+                   '(repeat option to provide multiple values)'),
         )
         identity_remote_id_provider.add_argument(
             '--remote-id-file',
             metavar='<file-name>',
-            help='Name of a file that contains many remote IDs to associate '
-                 'with the identity provider, one per line'
+            help=_('Name of a file that contains many remote IDs to associate '
+                   'with the identity provider, one per line'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='New identity provider description',
+            help=_('New identity provider description'),
         )
         enable_identity_provider = parser.add_mutually_exclusive_group()
         enable_identity_provider.add_argument(
@@ -54,13 +55,13 @@ class CreateIdentityProvider(command.ShowOne):
             dest='enabled',
             action='store_true',
             default=True,
-            help='Enable identity provider (default)',
+            help=_('Enable identity provider (default)'),
         )
         enable_identity_provider.add_argument(
             '--disable',
             dest='enabled',
             action='store_false',
-            help='Disable the identity provider',
+            help=_('Disable the identity provider'),
         )
         return parser
 
@@ -94,7 +95,7 @@ class DeleteIdentityProvider(command.Command):
         parser.add_argument(
             'identity_provider',
             metavar='<identity-provider>',
-            help='Identity provider to delete',
+            help=_('Identity provider to delete'),
         )
         return parser
 
@@ -126,37 +127,37 @@ class SetIdentityProvider(command.Command):
         parser.add_argument(
             'identity_provider',
             metavar='<identity-provider>',
-            help='Identity provider to modify',
+            help=_('Identity provider to modify'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='Set identity provider description',
+            help=_('Set identity provider description'),
         )
         identity_remote_id_provider = parser.add_mutually_exclusive_group()
         identity_remote_id_provider.add_argument(
             '--remote-id',
             metavar='<remote-id>',
             action='append',
-            help='Remote IDs to associate with the Identity Provider '
-                 '(repeat option to provide multiple values)'
+            help=_('Remote IDs to associate with the Identity Provider '
+                   '(repeat option to provide multiple values)'),
         )
         identity_remote_id_provider.add_argument(
             '--remote-id-file',
             metavar='<file-name>',
-            help='Name of a file that contains many remote IDs to associate '
-                 'with the identity provider, one per line'
+            help=_('Name of a file that contains many remote IDs to associate '
+                   'with the identity provider, one per line'),
         )
         enable_identity_provider = parser.add_mutually_exclusive_group()
         enable_identity_provider.add_argument(
             '--enable',
             action='store_true',
-            help='Enable the identity provider',
+            help=_('Enable the identity provider'),
         )
         enable_identity_provider.add_argument(
             '--disable',
             action='store_true',
-            help='Disable the identity provider',
+            help=_('Disable the identity provider'),
         )
         return parser
 
@@ -168,7 +169,7 @@ class SetIdentityProvider(command.Command):
                 not parsed_args.remote_id and
                 not parsed_args.remote_id_file and
                 not parsed_args.description):
-            self.log.error('No changes requested')
+            self.log.error(_('No changes requested'))
             return (None, None)
 
         # Always set remote_ids if either is passed in
@@ -206,7 +207,7 @@ class ShowIdentityProvider(command.ShowOne):
         parser.add_argument(
             'identity_provider',
             metavar='<identity-provider>',
-            help='Identity provider to display',
+            help=_('Identity provider to display'),
         )
         return parser
 

@@ -34,40 +34,40 @@ class CreateProject(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<project-name>',
-            help='New project name',
+            help=_('New project name'),
         )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain owning the project (name or ID)',
+            help=_('Domain owning the project (name or ID)'),
         )
         parser.add_argument(
             '--parent',
             metavar='<project>',
-            help='Parent of the project (name or ID)',
+            help=_('Parent of the project (name or ID)'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='Project description',
+            help=_('Project description'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable project',
+            help=_('Enable project'),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable project',
+            help=_('Disable project'),
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Add a property to <name> '
-                 '(repeat option to set multiple properties)',
+            help=_('Add a property to <name> '
+                   '(repeat option to set multiple properties)'),
         )
         parser.add_argument(
             '--or-show',
@@ -112,7 +112,7 @@ class CreateProject(command.ShowOne):
                 project = utils.find_resource(identity_client.projects,
                                               parsed_args.name,
                                               domain_id=domain)
-                self.log.info('Returning existing project %s', project.name)
+                self.log.info(_('Returning existing project %s'), project.name)
             else:
                 raise e
 
@@ -129,12 +129,12 @@ class DeleteProject(command.Command):
             'projects',
             metavar='<project>',
             nargs="+",
-            help='Project(s) to delete (name or ID)',
+            help=_('Project(s) to delete (name or ID)'),
         )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain owning <project> (name or ID)',
+            help=_('Domain owning <project> (name or ID)'),
         )
         return parser
 
@@ -163,18 +163,18 @@ class ListProject(command.Lister):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Filter projects by <domain> (name or ID)',
+            help=_('Filter projects by <domain> (name or ID)'),
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help='Filter projects by <user> (name or ID)',
+            help=_('Filter projects by <user> (name or ID)'),
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_('List additional fields in output'),
         )
         return parser
 
@@ -219,40 +219,40 @@ class SetProject(command.Command):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help='Project to modify (name or ID)',
+            help=_('Project to modify (name or ID)'),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='Set project name',
+            help=_('Set project name'),
         )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain owning <project> (name or ID)',
+            help=_('Domain owning <project> (name or ID)'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='Set project description',
+            help=_('Set project description'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable project',
+            help=_('Enable project'),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable project',
+            help=_('Disable project'),
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help='Set a property on <project> '
-                 '(repeat option to set multiple properties)',
+            help=_('Set a property on <project> '
+                   '(repeat option to set multiple properties)'),
         )
         return parser
 
@@ -293,24 +293,24 @@ class ShowProject(command.ShowOne):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help='Project to display (name or ID)',
+            help=_('Project to display (name or ID)'),
         )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain owning <project> (name or ID)',
+            help=_('Domain owning <project> (name or ID)'),
         )
         parser.add_argument(
             '--parents',
             action='store_true',
             default=False,
-            help='Show the project\'s parents as a list',
+            help=_('Show the project\'s parents as a list'),
         )
         parser.add_argument(
             '--children',
             action='store_true',
             default=False,
-            help='Show project\'s subtree (children) as a list',
+            help=_('Show project\'s subtree (children) as a list'),
         )
         return parser
 

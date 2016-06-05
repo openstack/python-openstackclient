@@ -20,6 +20,7 @@ import sys
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class CreatePolicy(command.ShowOne):
@@ -31,13 +32,13 @@ class CreatePolicy(command.ShowOne):
             '--type',
             metavar='<type>',
             default="application/json",
-            help='New MIME type of the policy rules file '
-                 '(defaults to application/json)',
+            help=_('New MIME type of the policy rules file '
+                   '(defaults to application/json)'),
         )
         parser.add_argument(
             'rules',
             metavar='<filename>',
-            help='New serialized policy rules file',
+            help=_('New serialized policy rules file'),
         )
         return parser
 
@@ -62,7 +63,7 @@ class DeletePolicy(command.Command):
         parser.add_argument(
             'policy',
             metavar='<policy>',
-            help='Policy to delete',
+            help=_('Policy to delete'),
         )
         return parser
 
@@ -80,7 +81,7 @@ class ListPolicy(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_('List additional fields in output'),
         )
         return parser
 
@@ -107,17 +108,17 @@ class SetPolicy(command.Command):
         parser.add_argument(
             'policy',
             metavar='<policy>',
-            help='Policy to modify',
+            help=_('Policy to modify'),
         )
         parser.add_argument(
             '--type',
             metavar='<type>',
-            help='New MIME type of the policy rules file',
+            help=_('New MIME type of the policy rules file'),
         )
         parser.add_argument(
             '--rules',
             metavar='<filename>',
-            help='New serialized policy rules file',
+            help=_('New serialized policy rules file'),
         )
         return parser
 
@@ -135,7 +136,7 @@ class SetPolicy(command.Command):
             kwargs['type'] = parsed_args.type
 
         if not kwargs:
-            sys.stdout.write('Policy not updated, no arguments present \n')
+            sys.stdout.write(_('Policy not updated, no arguments present\n'))
             return
         identity_client.policies.update(parsed_args.policy, **kwargs)
 
@@ -148,7 +149,7 @@ class ShowPolicy(command.ShowOne):
         parser.add_argument(
             'policy',
             metavar='<policy>',
-            help='Policy to display',
+            help=_('Policy to display'),
         )
         return parser
 

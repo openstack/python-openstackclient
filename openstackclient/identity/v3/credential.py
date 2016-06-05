@@ -19,6 +19,7 @@ import six
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class CreateCredential(command.ShowOne):
@@ -29,24 +30,25 @@ class CreateCredential(command.ShowOne):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help='Name or ID of user that owns the credential',
+            help=_('Name or ID of user that owns the credential'),
         )
         parser.add_argument(
             '--type',
             default="cert",
             metavar='<type>',
             choices=['ec2', 'cert'],
-            help='New credential type',
+            help=_('New credential type'),
         )
         parser.add_argument(
             'data',
             metavar='<data>',
-            help='New credential data',
+            help=_('New credential data'),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='Project name or ID which limits the scope of the credential',
+            help=_('Project name or ID which limits the '
+                   'scope of the credential'),
         )
         return parser
 
@@ -77,7 +79,7 @@ class DeleteCredential(command.Command):
         parser.add_argument(
             'credential',
             metavar='<credential-id>',
-            help='ID of credential to delete',
+            help=_('ID of credential to delete'),
         )
         return parser
 
@@ -108,31 +110,32 @@ class SetCredential(command.Command):
         parser.add_argument(
             'credential',
             metavar='<credential-id>',
-            help='ID of credential to change',
+            help=_('ID of credential to change'),
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
             required=True,
-            help='Name or ID of user that owns the credential',
+            help=_('Name or ID of user that owns the credential'),
         )
         parser.add_argument(
             '--type',
             metavar='<type>',
             choices=['ec2', 'cert'],
             required=True,
-            help='New credential type',
+            help=_('New credential type'),
         )
         parser.add_argument(
             '--data',
             metavar='<data>',
             required=True,
-            help='New credential data',
+            help=_('New credential data'),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='Project name or ID which limits the scope of the credential',
+            help=_('Project name or ID which limits the '
+                   'scope of the credential'),
         )
         return parser
 
@@ -163,7 +166,7 @@ class ShowCredential(command.ShowOne):
         parser.add_argument(
             'credential',
             metavar='<credential-id>',
-            help='ID of credential to display',
+            help=_('ID of credential to display'),
         )
         return parser
 

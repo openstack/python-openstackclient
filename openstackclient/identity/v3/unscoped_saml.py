@@ -20,6 +20,7 @@ a scoped token."""
 from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 UNSCOPED_AUTH_PLUGINS = ['v3unscopedsaml', 'v3unscopedadfs', 'v3oidc']
@@ -33,10 +34,10 @@ def auth_with_unscoped_saml(func):
         if auth_plugin_name in UNSCOPED_AUTH_PLUGINS:
             return func(self, parsed_args)
         else:
-            msg = ('This command requires the use of an unscoped SAML '
-                   'authentication plugin. Please use argument '
-                   '--os-auth-type with one of the following '
-                   'plugins: ' + ', '.join(UNSCOPED_AUTH_PLUGINS))
+            msg = (_('This command requires the use of an unscoped SAML '
+                     'authentication plugin. Please use argument '
+                     '--os-auth-type with one of the following '
+                     'plugins: %s') % ', '.join(UNSCOPED_AUTH_PLUGINS))
             raise exceptions.CommandError(msg)
     return _decorated
 

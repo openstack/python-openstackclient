@@ -20,6 +20,7 @@ import six
 from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
+from openstackclient.i18n import _
 from openstackclient.identity import common
 
 
@@ -31,17 +32,17 @@ class AuthorizeRequestToken(command.ShowOne):
         parser.add_argument(
             '--request-key',
             metavar='<request-key>',
-            help='Request token to authorize (ID only) (required)',
-            required=True
+            required=True,
+            help=_('Request token to authorize (ID only) (required)'),
         )
         parser.add_argument(
             '--role',
             metavar='<role>',
             action='append',
             default=[],
-            help='Roles to authorize (name or ID) '
-                 '(repeat option to set multiple values, required)',
-            required=True
+            required=True,
+            help=_('Roles to authorize (name or ID) '
+                   '(repeat option to set multiple values, required)'),
         )
         return parser
 
@@ -72,31 +73,31 @@ class CreateAccessToken(command.ShowOne):
         parser.add_argument(
             '--consumer-key',
             metavar='<consumer-key>',
-            help='Consumer key (required)',
+            help=_('Consumer key (required)'),
             required=True
         )
         parser.add_argument(
             '--consumer-secret',
             metavar='<consumer-secret>',
-            help='Consumer secret (required)',
+            help=_('Consumer secret (required)'),
             required=True
         )
         parser.add_argument(
             '--request-key',
             metavar='<request-key>',
-            help='Request token to exchange for access token (required)',
+            help=_('Request token to exchange for access token (required)'),
             required=True
         )
         parser.add_argument(
             '--request-secret',
             metavar='<request-secret>',
-            help='Secret associated with <request-key> (required)',
+            help=_('Secret associated with <request-key> (required)'),
             required=True
         )
         parser.add_argument(
             '--verifier',
             metavar='<verifier>',
-            help='Verifier associated with <request-key> (required)',
+            help=_('Verifier associated with <request-key> (required)'),
             required=True
         )
         return parser
@@ -118,26 +119,26 @@ class CreateRequestToken(command.ShowOne):
         parser.add_argument(
             '--consumer-key',
             metavar='<consumer-key>',
-            help='Consumer key (required)',
+            help=_('Consumer key (required)'),
             required=True
         )
         parser.add_argument(
             '--consumer-secret',
             metavar='<consumer-secret>',
-            help='Consumer secret (required)',
+            help=_('Consumer secret (required)'),
             required=True
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='Project that consumer wants to access (name or ID)'
-                 ' (required)',
+            help=_('Project that consumer wants to access (name or ID)'
+                   ' (required)'),
             required=True
         )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain owning <project> (name or ID)',
+            help=_('Domain owning <project> (name or ID)'),
         )
         return parser
 
@@ -175,7 +176,7 @@ class IssueToken(command.ShowOne):
     def take_action(self, parsed_args):
         if not self.app.client_manager.auth_ref:
             raise exceptions.AuthorizationFailure(
-                "Only an authorized user may issue a new token.")
+                _("Only an authorized user may issue a new token."))
         token = self.app.client_manager.auth_ref.service_catalog.get_token()
         if 'tenant_id' in token:
             token['project_id'] = token.pop('tenant_id')
@@ -190,7 +191,7 @@ class RevokeToken(command.Command):
         parser.add_argument(
             'token',
             metavar='<token>',
-            help='Token to be deleted',
+            help=_('Token to be deleted'),
         )
         return parser
 

@@ -33,23 +33,23 @@ class CreateDomain(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<domain-name>',
-            help='New domain name',
+            help=_('New domain name'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='New domain description',
+            help=_('New domain description'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable domain (default)',
+            help=_('Enable domain (default)'),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable domain',
+            help=_('Disable domain'),
         )
         parser.add_argument(
             '--or-show',
@@ -75,7 +75,7 @@ class CreateDomain(command.ShowOne):
             if parsed_args.or_show:
                 domain = utils.find_resource(identity_client.domains,
                                              parsed_args.name)
-                self.log.info('Returning existing domain %s', domain.name)
+                self.log.info(_('Returning existing domain %s'), domain.name)
             else:
                 raise e
 
@@ -91,7 +91,7 @@ class DeleteDomain(command.Command):
         parser.add_argument(
             'domain',
             metavar='<domain>',
-            help='Domain to delete (name or ID)',
+            help=_('Domain to delete (name or ID)'),
         )
         return parser
 
@@ -123,28 +123,28 @@ class SetDomain(command.Command):
         parser.add_argument(
             'domain',
             metavar='<domain>',
-            help='Domain to modify (name or ID)',
+            help=_('Domain to modify (name or ID)'),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='New domain name',
+            help=_('New domain name'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='New domain description',
+            help=_('New domain description'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable domain',
+            help=_('Enable domain'),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable domain',
+            help=_('Disable domain'),
         )
         return parser
 
@@ -164,7 +164,7 @@ class SetDomain(command.Command):
             kwargs['enabled'] = False
 
         if not kwargs:
-            sys.stdout.write("Domain not updated, no arguments present\n")
+            sys.stdout.write(_("Domain not updated, no arguments present\n"))
             return
         identity_client.domains.update(domain.id, **kwargs)
 
@@ -177,7 +177,7 @@ class ShowDomain(command.ShowOne):
         parser.add_argument(
             'domain',
             metavar='<domain>',
-            help='Domain to display (name or ID)',
+            help=_('Domain to display (name or ID)'),
         )
         return parser
 

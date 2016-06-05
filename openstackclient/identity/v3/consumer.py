@@ -20,6 +20,7 @@ import sys
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class CreateConsumer(command.ShowOne):
@@ -30,7 +31,7 @@ class CreateConsumer(command.ShowOne):
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='New consumer description',
+            help=_('New consumer description'),
         )
         return parser
 
@@ -51,7 +52,7 @@ class DeleteConsumer(command.Command):
         parser.add_argument(
             'consumer',
             metavar='<consumer>',
-            help='Consumer to delete',
+            help=_('Consumer to delete'),
         )
         return parser
 
@@ -83,12 +84,12 @@ class SetConsumer(command.Command):
         parser.add_argument(
             'consumer',
             metavar='<consumer>',
-            help='Consumer to modify',
+            help=_('Consumer to modify'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='New consumer description',
+            help=_('New consumer description'),
         )
         return parser
 
@@ -101,7 +102,7 @@ class SetConsumer(command.Command):
             kwargs['description'] = parsed_args.description
 
         if not len(kwargs):
-            sys.stdout.write('Consumer not updated, no arguments present\n')
+            sys.stdout.write(_('Consumer not updated, no arguments present\n'))
             return
 
         consumer = identity_client.oauth1.consumers.update(
@@ -116,7 +117,7 @@ class ShowConsumer(command.ShowOne):
         parser.add_argument(
             'consumer',
             metavar='<consumer>',
-            help='Consumer to display',
+            help=_('Consumer to display'),
         )
         return parser
 

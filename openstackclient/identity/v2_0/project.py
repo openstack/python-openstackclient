@@ -88,7 +88,7 @@ class CreateProject(command.ShowOne):
                     identity_client.tenants,
                     parsed_args.name,
                 )
-                self.log.info('Returning existing project %s', project.name)
+                self.log.info(_('Returning existing project %s'), project.name)
             else:
                 raise e
 
@@ -231,7 +231,8 @@ class ShowProject(command.ShowOne):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help=_('Project to display (name or ID)'))
+            help=_('Project to display (name or ID)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -295,9 +296,9 @@ class UnsetProject(command.Command):
             metavar='<key>',
             action='append',
             default=[],
+            required=True,
             help=_('Unset a project property '
                    '(repeat option to unset multiple properties)'),
-            required=True,
         )
         return parser
 
@@ -308,7 +309,7 @@ class UnsetProject(command.Command):
             parsed_args.project,
         )
         if not parsed_args.property:
-            self.app.log.error("No changes requested\n")
+            self.app.log.error(_("No changes requested\n"))
         else:
             kwargs = project._info
             for key in parsed_args.property:

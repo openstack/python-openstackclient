@@ -81,7 +81,8 @@ class DeleteEndpoint(command.Command):
         parser.add_argument(
             'endpoint',
             metavar='<endpoint-id>',
-            help=_('Endpoint ID to delete'))
+            help=_('Endpoint ID to delete'),
+        )
         return parser
 
     def take_action(self, parsed_args):

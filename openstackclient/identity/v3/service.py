@@ -20,6 +20,7 @@ import sys
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 from openstackclient.identity import common
 
 
@@ -31,28 +32,28 @@ class CreateService(command.ShowOne):
         parser.add_argument(
             'type',
             metavar='<type>',
-            help='New service type (compute, image, identity, volume, etc)',
+            help=_('New service type (compute, image, identity, volume, etc)'),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='New service name',
+            help=_('New service name'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='New service description',
+            help=_('New service description'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable service (default)',
+            help=_('Enable service (default)'),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable service',
+            help=_('Disable service'),
         )
         return parser
 
@@ -82,7 +83,7 @@ class DeleteService(command.Command):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Service to delete (type, name or ID)',
+            help=_('Service to delete (type, name or ID)'),
         )
         return parser
 
@@ -103,7 +104,7 @@ class ListService(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_('List additional fields in output'),
         )
         return parser
 
@@ -128,33 +129,33 @@ class SetService(command.Command):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Service to update (type, name or ID)',
+            help=_('Service to update (type, name or ID)'),
         )
         parser.add_argument(
             '--type',
             metavar='<type>',
-            help='New service type (compute, image, identity, volume, etc)',
+            help=_('New service type (compute, image, identity, volume, etc)'),
         )
         parser.add_argument(
             '--name',
             metavar='<service-name>',
-            help='New service name',
+            help=_('New service name'),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help='New service description',
+            help=_('New service description'),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help='Enable service',
+            help=_('Enable service'),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help='Disable service',
+            help=_('Disable service'),
         )
         return parser
 
@@ -166,9 +167,8 @@ class SetService(command.Command):
                 and not parsed_args.description
                 and not parsed_args.enable
                 and not parsed_args.disable):
-            sys.stderr.write("Incorrect set of arguments "
-                             "provided. See openstack --help for more "
-                             "details\n")
+            sys.stderr.write(_("Incorrect set of arguments provided. "
+                               "See openstack --help for more details\n"))
             return
         service = common.find_service(identity_client,
                                       parsed_args.service)
@@ -198,7 +198,7 @@ class ShowService(command.ShowOne):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help='Service to display (type, name or ID)',
+            help=_('Service to display (type, name or ID)'),
         )
         return parser
 

@@ -104,7 +104,7 @@ class CreateUser(command.ShowOne):
                     identity_client.users,
                     parsed_args.name,
                 )
-                self.log.info('Returning existing user %s', user.name)
+                self.log.info(_('Returning existing user %s'), user.name)
             else:
                 raise e
 
@@ -159,7 +159,8 @@ class ListUser(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help=_('List additional fields in output'))
+            help=_('List additional fields in output'),
+        )
         return parser
 
     def take_action(self, parsed_args):

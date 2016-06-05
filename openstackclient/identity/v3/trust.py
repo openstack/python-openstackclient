@@ -18,6 +18,7 @@ import six
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 from openstackclient.identity import common
 
 
@@ -29,26 +30,26 @@ class CreateTrust(command.ShowOne):
         parser.add_argument(
             'trustor',
             metavar='<trustor-user>',
-            help='User that is delegating authorization (name or ID)',
+            help=_('User that is delegating authorization (name or ID)'),
         )
         parser.add_argument(
             'trustee',
             metavar='<trustee-user>',
-            help='User that is assuming authorization (name or ID)',
+            help=_('User that is assuming authorization (name or ID)'),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
             required=True,
-            help='Project being delegated (name or ID) (required)',
+            help=_('Project being delegated (name or ID) (required)'),
         )
         parser.add_argument(
             '--role',
             metavar='<role>',
             action='append',
             default=[],
-            help='Roles to authorize (name or ID) '
-                 '(repeat option to set multiple values, required)',
+            help=_('Roles to authorize (name or ID) '
+                   '(repeat option to set multiple values, required)'),
             required=True
         )
         parser.add_argument(
@@ -56,25 +57,25 @@ class CreateTrust(command.ShowOne):
             dest='impersonate',
             action='store_true',
             default=False,
-            help='Tokens generated from the trust will represent <trustor>'
-                 ' (defaults to False)',
+            help=_('Tokens generated from the trust will represent <trustor>'
+                   ' (defaults to False)'),
         )
         parser.add_argument(
             '--expiration',
             metavar='<expiration>',
-            help='Sets an expiration date for the trust'
-                 ' (format of YYYY-mm-ddTHH:MM:SS)',
+            help=_('Sets an expiration date for the trust'
+                   ' (format of YYYY-mm-ddTHH:MM:SS)'),
         )
         common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--trustor-domain',
             metavar='<trustor-domain>',
-            help='Domain that contains <trustor> (name or ID)',
+            help=_('Domain that contains <trustor> (name or ID)'),
         )
         parser.add_argument(
             '--trustee-domain',
             metavar='<trustee-domain>',
-            help='Domain that contains <trustee> (name or ID)',
+            help=_('Domain that contains <trustee> (name or ID)'),
         )
         return parser
 
@@ -136,8 +137,8 @@ class DeleteTrust(command.Command):
         parser.add_argument(
             'trust',
             metavar='<trust>',
-            help='Trust(s) to delete',
             nargs="+",
+            help=_('Trust(s) to delete'),
         )
         return parser
 
@@ -170,7 +171,7 @@ class ShowTrust(command.ShowOne):
         parser.add_argument(
             'trust',
             metavar='<trust>',
-            help='Trust to display',
+            help=_('Trust to display'),
         )
         return parser
 

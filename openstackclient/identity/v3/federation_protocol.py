@@ -18,6 +18,7 @@ import six
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class CreateProtocol(command.ShowOne):
@@ -28,19 +29,22 @@ class CreateProtocol(command.ShowOne):
         parser.add_argument(
             'federation_protocol',
             metavar='<name>',
-            help='New federation protocol name (must be unique per identity '
-                 ' provider)')
+            help=_('New federation protocol name (must be unique '
+                   'per identity provider)'),
+        )
         parser.add_argument(
             '--identity-provider',
             metavar='<identity-provider>',
             required=True,
-            help='Identity provider that will support the new federation '
-                 ' protocol (name or ID) (required)')
+            help=_('Identity provider that will support the new federation '
+                   ' protocol (name or ID) (required)'),
+        )
         parser.add_argument(
             '--mapping',
             metavar='<mapping>',
             required=True,
-            help='Mapping that is to be used (name or ID) (required)')
+            help=_('Mapping that is to be used (name or ID) (required)'),
+        )
 
         return parser
 
@@ -69,13 +73,15 @@ class DeleteProtocol(command.Command):
         parser.add_argument(
             'federation_protocol',
             metavar='<federation-protocol>',
-            help='Federation protocol to delete (name or ID)')
+            help=_('Federation protocol to delete (name or ID)'),
+        )
         parser.add_argument(
             '--identity-provider',
             metavar='<identity-provider>',
             required=True,
-            help='Identity provider that supports <federation-protocol> '
-                 '(name or ID) (required)')
+            help=_('Identity provider that supports <federation-protocol> '
+                   '(name or ID) (required)'),
+        )
 
         return parser
 
@@ -94,7 +100,8 @@ class ListProtocols(command.Lister):
             '--identity-provider',
             metavar='<identity-provider>',
             required=True,
-            help='Identity provider to list (name or ID) (required)')
+            help=_('Identity provider to list (name or ID) (required)'),
+        )
 
         return parser
 
@@ -118,24 +125,27 @@ class SetProtocol(command.Command):
         parser.add_argument(
             'federation_protocol',
             metavar='<name>',
-            help='Federation protocol to modify (name or ID)')
+            help=_('Federation protocol to modify (name or ID)'),
+        )
         parser.add_argument(
             '--identity-provider',
             metavar='<identity-provider>',
             required=True,
-            help='Identity provider that supports <federation-protocol> '
-                 '(name or ID) (required)')
+            help=_('Identity provider that supports <federation-protocol> '
+                   '(name or ID) (required)'),
+        )
         parser.add_argument(
             '--mapping',
             metavar='<mapping>',
-            help='Mapping that is to be used (name or ID)')
+            help=_('Mapping that is to be used (name or ID)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
         if not parsed_args.mapping:
-            self.app.log.error("No changes requested")
+            self.app.log.error(_("No changes requested"))
             return
 
         protocol = identity_client.federation.protocols.update(
@@ -159,13 +169,15 @@ class ShowProtocol(command.ShowOne):
         parser.add_argument(
             'federation_protocol',
             metavar='<federation-protocol>',
-            help='Federation protocol to display (name or ID)')
+            help=_('Federation protocol to display (name or ID)'),
+        )
         parser.add_argument(
             '--identity-provider',
             metavar='<identity-provider>',
             required=True,
-            help=('Identity provider that supports <federation-protocol> '
-                  '(name or ID) (required)'))
+            help=_('Identity provider that supports <federation-protocol> '
+                   '(name or ID) (required)'),
+        )
         return parser
 
     def take_action(self, parsed_args):

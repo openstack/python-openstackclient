@@ -22,6 +22,7 @@ import six
 from openstackclient.common import command
 from openstackclient.common import exceptions
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class _RulesReader(object):
@@ -69,9 +70,9 @@ class _RulesReader(object):
         try:
             rules = json.loads(blob)
         except ValueError as e:
-            raise exceptions.CommandError(
-                'An error occurred when reading '
-                'rules from file %s: %s' % (path, e))
+            msg = _("An error occurred when reading rules from file "
+                    "%(path)s: %(error)s") % {"path": path, "error": e}
+            raise exceptions.CommandError(msg)
         else:
             return rules
 
@@ -84,12 +85,12 @@ class CreateMapping(command.ShowOne, _RulesReader):
         parser.add_argument(
             'mapping',
             metavar='<name>',
-            help='New mapping name (must be unique)',
+            help=_('New mapping name (must be unique)'),
         )
         parser.add_argument(
             '--rules',
             metavar='<filename>', required=True,
-            help='Filename that contains a set of mapping rules (required)',
+            help=_('Filename that contains a set of mapping rules (required)'),
         )
         return parser
 
@@ -113,7 +114,7 @@ class DeleteMapping(command.Command):
         parser.add_argument(
             'mapping',
             metavar='<mapping>',
-            help='Mapping to delete',
+            help=_('Mapping to delete'),
         )
         return parser
 
@@ -145,12 +146,12 @@ class SetMapping(command.Command, _RulesReader):
         parser.add_argument(
             'mapping',
             metavar='<name>',
-            help='Mapping to modify',
+            help=_('Mapping to modify'),
         )
         parser.add_argument(
             '--rules',
             metavar='<filename>',
-            help='Filename that contains a new set of mapping rules',
+            help=_('Filename that contains a new set of mapping rules'),
         )
         return parser
 
@@ -158,7 +159,7 @@ class SetMapping(command.Command, _RulesReader):
         identity_client = self.app.client_manager.identity
 
         if not parsed_args.rules:
-            self.app.log.error("No changes requested")
+            self.app.log.error(_("No changes requested"))
             return
 
         rules = self._read_rules(parsed_args.rules)
@@ -179,7 +180,7 @@ class ShowMapping(command.ShowOne):
         parser.add_argument(
             'mapping',
             metavar='<mapping>',
-            help='Mapping to display',
+            help=_('Mapping to display'),
         )
         return parser
 
