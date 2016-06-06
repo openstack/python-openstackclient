@@ -165,7 +165,7 @@ class SetServiceProvider(command.Command):
                     parsed_args.service_provider_url,
                     parsed_args.auth_url)):
             sys.stdout.write("Service Provider not updated, no arguments "
-                             "present")
+                             "present\n")
             return (None, None)
 
         service_provider = federation_client.service_providers.update(

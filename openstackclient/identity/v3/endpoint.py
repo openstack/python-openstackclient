@@ -213,7 +213,7 @@ class SetEndpoint(command.Command):
         if (not parsed_args.interface and not parsed_args.url
                 and not parsed_args.service and not parsed_args.region
                 and not parsed_args.enabled and not parsed_args.disabled):
-            sys.stdout.write("Endpoint not updated, no arguments present")
+            sys.stdout.write("Endpoint not updated, no arguments present\n")
             return
 
         service_id = None

@@ -164,7 +164,7 @@ class SetDomain(command.Command):
             kwargs['enabled'] = False
 
         if not kwargs:
-            sys.stdout.write("Domain not updated, no arguments present")
+            sys.stdout.write("Domain not updated, no arguments present\n")
             return
         identity_client.domains.update(domain.id, **kwargs)
 

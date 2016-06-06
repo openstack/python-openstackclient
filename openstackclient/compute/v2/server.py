@@ -1464,7 +1464,7 @@ class ShowServer(command.ShowOne):
         if parsed_args.diagnostics:
             (resp, data) = server.diagnostics()
             if not resp.status_code == 200:
-                sys.stderr.write(_("Error retrieving diagnostics data"))
+                sys.stderr.write(_("Error retrieving diagnostics data\n"))
                 return ({}, {})
         else:
             data = _prep_server_detail(compute_client, server)

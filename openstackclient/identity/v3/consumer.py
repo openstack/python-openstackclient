@@ -101,7 +101,7 @@ class SetConsumer(command.Command):
             kwargs['description'] = parsed_args.description
 
         if not len(kwargs):
-            sys.stdout.write('Consumer not updated, no arguments present')
+            sys.stdout.write('Consumer not updated, no arguments present\n')
             return
 
         consumer = identity_client.oauth1.consumers.update(
