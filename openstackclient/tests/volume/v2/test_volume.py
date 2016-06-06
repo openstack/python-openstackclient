@@ -420,13 +420,16 @@ class TestVolumeDelete(TestVolume):
             volumes[0].id
         ]
         verifylist = [
-            ("volumes", [volumes[0].id])
+            ("force", False),
+            ("purge", False),
+            ("volumes", [volumes[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volumes_mock.delete.assert_called_with(volumes[0].id)
+        self.volumes_mock.delete.assert_called_once_with(
+            volumes[0].id, cascade=False)
         self.assertIsNone(result)
 
     def test_volume_delete_multi_volumes(self):
@@ -434,13 +437,15 @@ class TestVolumeDelete(TestVolume):
 
         arglist = [v.id for v in volumes]
         verifylist = [
+            ('force', False),
+            ('purge', False),
             ('volumes', arglist),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        calls = [call(v.id) for v in volumes]
+        calls = [call(v.id, cascade=False) for v in volumes]
         self.volumes_mock.delete.assert_has_calls(calls)
         self.assertIsNone(result)
 
@@ -452,6 +457,8 @@ class TestVolumeDelete(TestVolume):
             'unexist_volume',
         ]
         verifylist = [
+            ('force', False),
+            ('purge', False),
             ('volumes', arglist),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -471,8 +478,46 @@ class TestVolumeDelete(TestVolume):
 
             self.assertEqual(2, find_mock.call_count)
             self.volumes_mock.delete.assert_called_once_with(
-                volumes[0].id
-            )
+                volumes[0].id, cascade=False)
+
+    def test_volume_delete_with_purge(self):
+        volumes = self.setup_volumes_mock(count=1)
+
+        arglist = [
+            '--purge',
+            volumes[0].id,
+        ]
+        verifylist = [
+            ('force', False),
+            ('purge', True),
+            ('volumes', [volumes[0].id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.delete.assert_called_once_with(
+            volumes[0].id, cascade=True)
+        self.assertIsNone(result)
+
+    def test_volume_delete_with_force(self):
+        volumes = self.setup_volumes_mock(count=1)
+
+        arglist = [
+            '--force',
+            volumes[0].id,
+        ]
+        verifylist = [
+            ('force', True),
+            ('purge', False),
+            ('volumes', [volumes[0].id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.force_delete.assert_called_once_with(volumes[0].id)
+        self.assertIsNone(result)
 
 
 class TestVolumeList(TestVolume):

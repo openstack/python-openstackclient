@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``--purge`` option to ``volume delete`` command (Volume v2 only) in
+    order to removing any snapshots along with volume automatically when user
+    delete the volume.
+    [Bug `1589332 <https://bugs.launchpad.net/python-openstackclient/+bug/1589332>`_]

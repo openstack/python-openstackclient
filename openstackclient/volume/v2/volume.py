@@ -166,11 +166,17 @@ class DeleteVolume(command.Command):
             nargs="+",
             help=_("Volume(s) to delete (name or ID)")
         )
-        parser.add_argument(
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
             "--force",
             action="store_true",
-            default=False,
             help=_("Attempt forced removal of volume(s), regardless of state "
+                   "(defaults to False)")
+        )
+        group.add_argument(
+            "--purge",
+            action="store_true",
+            help=_("Remove any snapshots along with volume(s) "
                    "(defaults to False)")
         )
         return parser
@@ -186,12 +192,13 @@ class DeleteVolume(command.Command):
                 if parsed_args.force:
                     volume_client.volumes.force_delete(volume_obj.id)
                 else:
-                    volume_client.volumes.delete(volume_obj.id)
+                    volume_client.volumes.delete(volume_obj.id,
+                                                 cascade=parsed_args.purge)
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete volume with "
-                            "name or ID '%(volume)s': %(e)s")
-                          % {'volume': i, 'e': e})
+                            "name or ID '%(volume)s': %(e)s"),
+                          {'volume': i, 'e': e})
 
         if result > 0:
             total = len(parsed_args.volumes)
