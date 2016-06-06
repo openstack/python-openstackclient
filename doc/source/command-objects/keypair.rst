@@ -40,7 +40,7 @@ Delete public key
 
 .. describe:: <key>
 
-    Public key to delete
+    Public key to delete (name only)
 
 keypair list
 ------------
@@ -66,7 +66,7 @@ Display public key details
 
 .. option:: --public-key
 
-    Show only bare public key
+    Show only bare public key (name only)
 
 .. describe:: <key>
 
