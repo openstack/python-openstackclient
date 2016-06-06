@@ -58,6 +58,7 @@ Set service command
     os compute service set
         [--enable | --disable]
         [--disable-reason <reason>]
+        [--up | --down]
         <host> <service>
 
 .. _compute-service-set:
@@ -72,6 +73,14 @@ Set service command
 .. option:: --disable-reason <reason>
 
     Reason for disabling the service (in quotes). Should be used with --disable option.
+
+.. option:: --up
+
+    Force up service
+
+.. option:: --down
+
+    Force down service
 
 .. describe:: <host>
 

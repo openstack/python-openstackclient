@@ -20,6 +20,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
+from openstackclient.i18n import _LE
 
 
 class DeleteService(command.Command):
@@ -127,6 +128,17 @@ class SetService(command.Command):
             help=_("Reason for disabling the service (in quotas). "
                    "Should be used with --disable option.")
         )
+        up_down_group = parser.add_mutually_exclusive_group()
+        up_down_group.add_argument(
+            '--up',
+            action='store_true',
+            help=_('Force up service'),
+        )
+        up_down_group.add_argument(
+            '--down',
+            action='store_true',
+            help=_('Force down service'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -139,20 +151,45 @@ class SetService(command.Command):
                     "--disable specified.")
             raise exceptions.CommandError(msg)
 
+        result = 0
         enabled = None
-        if parsed_args.enable:
-            enabled = True
-        if parsed_args.disable:
-            enabled = False
+        try:
+            if parsed_args.enable:
+                enabled = True
+            if parsed_args.disable:
+                enabled = False
 
-        if enabled is None:
-            return
-        elif enabled:
-            cs.enable(parsed_args.host, parsed_args.service)
-        else:
-            if parsed_args.disable_reason:
-                cs.disable_log_reason(parsed_args.host,
-                                      parsed_args.service,
-                                      parsed_args.disable_reason)
-            else:
-                cs.disable(parsed_args.host, parsed_args.service)
+            if enabled is not None:
+                if enabled:
+                    cs.enable(parsed_args.host, parsed_args.service)
+                else:
+                    if parsed_args.disable_reason:
+                        cs.disable_log_reason(parsed_args.host,
+                                              parsed_args.service,
+                                              parsed_args.disable_reason)
+                    else:
+                        cs.disable(parsed_args.host, parsed_args.service)
+        except Exception:
+            status = "enabled" if enabled else "disabled"
+            self.log.error(_LE("Failed to set service status to %s"), status)
+            result += 1
+
+        force_down = None
+        try:
+            if parsed_args.down:
+                force_down = True
+            if parsed_args.up:
+                force_down = False
+            if force_down is not None:
+                cs.force_down(parsed_args.host, parsed_args.service,
+                              force_down=force_down)
+        except Exception:
+            state = "down" if force_down else "up"
+            self.log.error(_LE("Failed to set service state to %s"), state)
+            result += 1
+
+        if result > 0:
+            msg = _("Compute service %(service)s of host %(host)s failed to "
+                    "set.") % {"service": parsed_args.service,
+                               "host": parsed_args.host}
+            raise exceptions.CommandError(msg)

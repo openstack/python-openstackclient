@@ -1,0 +1,5 @@
+---
+features:
+  - Add options ``--up`` and ``--down`` for compute v2 ``compute service set``
+    command to support force up/down compute service.
+    [Bug `1589348 <https://bugs.launchpad.net/python-openstackclient/+bug/1589348>`_]
