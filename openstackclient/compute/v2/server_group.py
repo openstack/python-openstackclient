@@ -129,15 +129,7 @@ class ListServerGroup(command.Lister):
         data = compute_client.server_groups.list(parsed_args.all_projects)
 
         if parsed_args.long:
-            column_headers = (
-                'ID',
-                'Name',
-                'Policies',
-                'Members',
-                'Project Id',
-                'User Id',
-            )
-            columns = (
+            column_headers = columns = (
                 'ID',
                 'Name',
                 'Policies',
