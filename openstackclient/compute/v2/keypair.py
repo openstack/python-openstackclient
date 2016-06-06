@@ -84,7 +84,7 @@ class DeleteKeypair(command.Command):
         parser.add_argument(
             'name',
             metavar='<key>',
-            help=_("Public key to delete")
+            help=_("Public key to delete (name only)")
         )
         return parser
 
@@ -118,7 +118,7 @@ class ShowKeypair(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<key>',
-            help=_("Public key to display")
+            help=_("Public key to display (name only)")
         )
         parser.add_argument(
             '--public-key',
