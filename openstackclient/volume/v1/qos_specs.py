@@ -202,8 +202,6 @@ class SetQos(command.Command):
         if parsed_args.property:
             volume_client.qos_specs.set_keys(qos_spec.id,
                                              parsed_args.property)
-        else:
-            self.app.log.error(_("No changes requested\n"))
 
 
 class ShowQos(command.ShowOne):
@@ -263,5 +261,3 @@ class UnsetQos(command.Command):
         if parsed_args.property:
             volume_client.qos_specs.unset_keys(qos_spec.id,
                                                parsed_args.property)
-        else:
-            self.app.log.error(_("No changes requested\n"))

@@ -363,9 +363,6 @@ class SetVolume(command.Command):
         if kwargs:
             volume_client.volumes.update(volume.id, **kwargs)
 
-        if not kwargs and not parsed_args.property and not parsed_args.size:
-            self.app.log.error(_("No changes requested\n"))
-
 
 class ShowVolume(command.ShowOne):
     """Show volume details"""
@@ -428,5 +425,3 @@ class UnsetVolume(command.Command):
                 volume.id,
                 parsed_args.property,
             )
-        else:
-            self.app.log.error(_("No changes requested\n"))

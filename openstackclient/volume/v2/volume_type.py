@@ -176,13 +176,6 @@ class SetVolumeType(command.Command):
         volume_type = utils.find_resource(
             volume_client.volume_types, parsed_args.volume_type)
 
-        if (not parsed_args.name
-                and not parsed_args.description
-                and not parsed_args.property
-                and not parsed_args.project):
-            self.app.log.error(_("No changes requested\n"))
-            return
-
         result = 0
         kwargs = {}
         if parsed_args.name:
@@ -284,11 +277,6 @@ class UnsetVolumeType(command.Command):
             volume_client.volume_types,
             parsed_args.volume_type,
         )
-
-        if (not parsed_args.property
-                and not parsed_args.project):
-            self.app.log.error(_("No changes requested\n"))
-            return
 
         result = 0
         if parsed_args.property:
