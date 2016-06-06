@@ -196,6 +196,50 @@ class FakeAvailabilityZone(object):
         return availability_zones
 
 
+class FakeIPAvailability(object):
+    """Fake one or more network ip availabilities."""
+
+    @staticmethod
+    def create_one_ip_availability():
+        """Create a fake list with ip availability stats of a network.
+
+        :return:
+            A FakeResource object with network_name, network_id, etc.
+        """
+
+        # Set default attributes.
+        network_ip_availability = {
+            'network_id': 'network-id-' + uuid.uuid4().hex,
+            'network_name': 'network-name-' + uuid.uuid4().hex,
+            'tenant_id': '',
+            'subnet_ip_availability': [],
+            'total_ips': 254,
+            'used_ips': 6,
+        }
+
+        network_ip_availability = fakes.FakeResource(
+            info=copy.deepcopy(network_ip_availability),
+            loaded=True)
+        return network_ip_availability
+
+    @staticmethod
+    def create_ip_availability(count=2):
+        """Create fake list of ip availability stats of multiple networks.
+
+        :param int count:
+            The number of networks to fake
+        :return:
+            A list of FakeResource objects faking network ip availability stats
+        """
+        network_ip_availabilities = []
+        for i in range(0, count):
+            network_ip_availability = \
+                FakeIPAvailability.create_one_ip_availability()
+            network_ip_availabilities.append(network_ip_availability)
+
+        return network_ip_availabilities
+
+
 class FakeNetwork(object):
     """Fake one or more networks."""
 
