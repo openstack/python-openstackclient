@@ -933,7 +933,7 @@ class UnsetImage(command.Command):
                       'propret': propret, 'proptotal': proptotal})
             raise exceptions.CommandError(msg)
         elif tagret > 0:
-            msg = (_("Failed to unset %(target)s of %(tagtotal)s tags.")
+            msg = (_("Failed to unset %(tagret)s of %(tagtotal)s tags.")
                    % {'tagret': tagret, 'tagtotal': tagtotal})
             raise exceptions.CommandError(msg)
         elif propret > 0:
