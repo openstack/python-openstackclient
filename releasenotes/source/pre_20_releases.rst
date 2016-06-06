@@ -1,16 +1,12 @@
-=================
-Previous Releases
-=================
-
-As of release 2.0 the release notes can be found on the OpenStack `Release Notes site`_.
-
-.. _`Release Notes site`: http://docs.openstack.org/releasenotes/python-openstackclient
+================
+Pre-2.0 Releases
+================
 
 1.9.0 (17 Nov 2015)
 ===================
 
 * Several updates to `openstack server`
-  Blueprint `servers <https://blueprints.launchpad.net/python-openstackclient/+spec/cmd-with-multi-servers>`_
+  Blueprint :oscbp:`servers <cmd-with-multi-servers>`
 
   * `openstack server start`
   * `openstack server stop`
@@ -364,16 +360,18 @@ As of release 2.0 the release notes can be found on the OpenStack `Release Notes
 * Fix ``backup create`` to correctly use the ``--container`` value if supplied.
   Bug `1446751 <https://bugs.launchpad.net/bugs/1446751>`_
 
-* Document the backward-compatibility-breaking changes.
-  Bug `1406470 <https://bugs.launchpad.net/bugs/1406470>`_
+* Document the backward-compatibility-breaking changes in
+  :oscdoc:`Backwards Incompatible Changes <backwards-incompatible>`.
+  :lpbug:`1406470`
 
-* Add `--parent`` option to `projct create` command.
+* Add ``--parent`` option to ``project create`` command
 
 
 1.1.0 (21 Apr 2015)
 ===================
 
 * Add global ``--os-cloud`` option to select from a list of cloud configurations.
+  See :oscdoc:`Configuration <configuration>` for more details.
 
 * Fix global ``--timing`` option operation.
   Bug `1402577 <https://bugs.launchpad.net/bugs/1402577>`_
@@ -461,8 +459,9 @@ As of release 2.0 the release notes can be found on the OpenStack `Release Notes
 ===================
 
 * The OpenStackClient content from the OpenStack Wiki has been migrated into
-  the OSC source repo.  This includes the `commands`, `command-list`
-  and `humaninterfaceguide` documents.
+  the OSC source repo.  This includes the :oscdoc:`Command Structure <commands>`,
+  :oscdoc:`Command List <command-list>` and
+  :oscdoc:`Human Interface Guide <humaninterfaceguide>` documents.
 
 * Set a default domain ID when both ``OS_USER_DOMAIN_ID`` and
   ``OS_USER_DOMAIN_NAME`` are not set.  This is also done for
