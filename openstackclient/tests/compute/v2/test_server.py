@@ -12,6 +12,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
+import getpass
 import mock
 
 from mock import call
@@ -1273,6 +1274,53 @@ class TestServerSet(TestServer):
                           self.check_parser,
                           self.cmd, arglist, verifylist)
 
+    def test_server_set_with_name(self):
+        arglist = [
+            '--name', 'foo_name',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('name', 'foo_name'),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.fake_servers[0].update.assert_called_once_with(name='foo_name')
+        self.assertIsNone(result)
+
+    def test_server_set_with_property(self):
+        arglist = [
+            '--property', 'key1=value1',
+            '--property', 'key2=value2',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('property', {'key1': 'value1', 'key2': 'value2'}),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.servers_mock.set_meta.assert_called_once_with(
+            self.fake_servers[0], parsed_args.property)
+        self.assertIsNone(result)
+
+    @mock.patch.object(getpass, 'getpass',
+                       return_value=mock.sentinel.fake_pass)
+    def test_server_set_with_root_password(self, mock_getpass):
+        arglist = [
+            '--root-password',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('root_password', True),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.fake_servers[0].change_password.assert_called_once_with(
+            mock.sentinel.fake_pass)
+        self.assertIsNone(result)
+
 
 class TestServerShelve(TestServer):
 
@@ -1487,6 +1535,45 @@ class TestServerUnpause(TestServer):
 
     def test_server_unpause_multi_servers(self):
         self.run_method_with_servers('unpause', 3)
+
+
+class TestServerUnset(TestServer):
+
+    def setUp(self):
+        super(TestServerUnset, self).setUp()
+
+        self.fake_server = self.setup_servers_mock(1)[0]
+
+        # Get the command object to test
+        self.cmd = server.UnsetServer(self.app, None)
+
+    def test_server_unset_no_option(self):
+        arglist = [
+            'foo_vm',
+        ]
+        verifylist = [
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.assertNotCalled(self.servers_mock.delete_meta)
+        self.assertIsNone(result)
+
+    def test_server_unset_with_property(self):
+        arglist = [
+            '--property', 'key1',
+            '--property', 'key2',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('property', ['key1', 'key2']),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.servers_mock.delete_meta.assert_called_once_with(
+            self.fake_server, ['key1', 'key2'])
+        self.assertIsNone(result)
 
 
 class TestServerUnshelve(TestServer):
