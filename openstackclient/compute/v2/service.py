@@ -16,6 +16,7 @@
 """Service action implementations"""
 
 from openstackclient.common import command
+from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.i18n import _
 
@@ -110,23 +111,20 @@ class SetService(command.Command):
         enabled_group = parser.add_mutually_exclusive_group()
         enabled_group.add_argument(
             "--enable",
-            dest="enabled",
-            default=True,
             action="store_true",
-            help=_("Enable a service (default)")
+            help=_("Enable service")
         )
         enabled_group.add_argument(
             "--disable",
-            dest="enabled",
-            action="store_false",
-            help=_("Disable a service")
+            action="store_true",
+            help=_("Disable service")
         )
         parser.add_argument(
             "--disable-reason",
             default=None,
             metavar="<reason>",
-            help=_("Reason for disabling the service (in quotas).  Note that "
-                   "when the service is enabled, this option is ignored.")
+            help=_("Reason for disabling the service (in quotas). "
+                   "Should be used with --disable option.")
         )
         return parser
 
@@ -134,16 +132,26 @@ class SetService(command.Command):
         compute_client = self.app.client_manager.compute
         cs = compute_client.services
 
-        if not parsed_args.enabled:
+        if (parsed_args.enable or not parsed_args.disable) and \
+                parsed_args.disable_reason:
+            msg = _("Cannot specify option --disable-reason without "
+                    "--disable specified.")
+            raise exceptions.CommandError(msg)
+
+        enabled = None
+        if parsed_args.enable:
+            enabled = True
+        if parsed_args.disable:
+            enabled = False
+
+        if enabled is None:
+            return
+        elif enabled:
+            cs.enable(parsed_args.host, parsed_args.service)
+        else:
             if parsed_args.disable_reason:
                 cs.disable_log_reason(parsed_args.host,
                                       parsed_args.service,
                                       parsed_args.disable_reason)
             else:
                 cs.disable(parsed_args.host, parsed_args.service)
-        else:
-            if parsed_args.disable_reason:
-                msg = _("argument --disable-reason has been ignored")
-                self.log.info(msg)
-
-            cs.enable(parsed_args.host, parsed_args.service)

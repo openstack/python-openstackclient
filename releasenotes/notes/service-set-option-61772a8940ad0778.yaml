@@ -1,0 +1,6 @@
+---
+upgrade:
+   - An exception is not raised by command ``service set`` when nothing
+     specified. Instead, the service is not enabled by default. And if
+     ``--disable-resion`` is specified but not ``--disable``, an
+     exception will be raised.

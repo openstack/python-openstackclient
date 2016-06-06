@@ -13,8 +13,7 @@
 #   under the License.
 #
 
-import mock
-
+from openstackclient.common import exceptions
 from openstackclient.compute.v2 import service
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 
@@ -128,6 +127,23 @@ class TestServiceSet(TestService):
 
         self.cmd = service.SetService(self.app, None)
 
+    def test_set_nothing(self):
+        arglist = [
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.service_mock.enable.assert_not_called()
+        self.service_mock.disable.assert_not_called()
+        self.service_mock.disable_log_reason.assert_not_called()
+        self.assertIsNone(result)
+
     def test_service_set_enable(self):
         arglist = [
             '--enable',
@@ -135,7 +151,7 @@ class TestServiceSet(TestService):
             self.service.binary,
         ]
         verifylist = [
-            ('enabled', True),
+            ('enable', True),
             ('host', self.service.host),
             ('service', self.service.binary),
         ]
@@ -156,7 +172,7 @@ class TestServiceSet(TestService):
             self.service.binary,
         ]
         verifylist = [
-            ('enabled', False),
+            ('disable', True),
             ('host', self.service.host),
             ('service', self.service.binary),
         ]
@@ -179,7 +195,7 @@ class TestServiceSet(TestService):
             self.service.binary,
         ]
         verifylist = [
-            ('enabled', False),
+            ('disable', True),
             ('disable_reason', reason),
             ('host', self.service.host),
             ('service', self.service.binary),
@@ -203,24 +219,13 @@ class TestServiceSet(TestService):
             self.service.binary,
         ]
         verifylist = [
-            ('enabled', True),
             ('disable_reason', reason),
             ('host', self.service.host),
             ('service', self.service.binary),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        with mock.patch.object(self.cmd.log, 'info') as mock_log:
-            result = self.cmd.take_action(parsed_args)
-
-            msg = "argument --disable-reason has been ignored"
-            mock_log.assert_called_once_with(msg)
-
-        self.service_mock.enable.assert_called_with(
-            self.service.host,
-            self.service.binary
-        )
-        self.assertIsNone(result)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
 
     def test_service_set_enable_with_disable_reason(self):
         reason = 'earthquake'
@@ -231,21 +236,11 @@ class TestServiceSet(TestService):
             self.service.binary,
         ]
         verifylist = [
-            ('enabled', True),
+            ('enable', True),
             ('disable_reason', reason),
             ('host', self.service.host),
             ('service', self.service.binary),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        with mock.patch.object(self.cmd.log, 'info') as mock_log:
-            result = self.cmd.take_action(parsed_args)
-
-            msg = "argument --disable-reason has been ignored"
-            mock_log.assert_called_once_with(msg)
-
-        self.service_mock.enable.assert_called_with(
-            self.service.host,
-            self.service.binary
-        )
-        self.assertIsNone(result)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
