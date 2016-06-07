@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``volume transfer request list`` command
+    [:lpbug:`1554886`]

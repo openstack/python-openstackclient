@@ -1,9 +1,0 @@
----
-features:
-  - |
-    Adds support for volume transfer request.
-
-    An user can list available volume transfer requests using
-    ``volume transfer request list``
-
-    [Bug `1554886 <https://bugs.launchpad.net/bugs/1554886>`_]

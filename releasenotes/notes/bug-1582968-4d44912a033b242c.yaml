@@ -1,4 +1,4 @@
 ---
 features:
-  - Add "image unset" command.
-    [Bug '1582968 <https://bugs.launchpad.net/python-openstackclient/+bug/1582968>'] 
+  - Add ``image unset`` command
+    [:lpbug:`1582968`]

@@ -1,4 +1,3 @@
 ---
 features:
-  - |
-    Add support for the ``server backup create`` command
+  - Add ``server backup create`` command
