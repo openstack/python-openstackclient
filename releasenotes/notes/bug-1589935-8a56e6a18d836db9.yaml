@@ -1,0 +1,5 @@
+---
+fixes:
+  - Raise ``ArgumentTypeError`` if the input arguments do not match the type
+    ``key=value`` when we set properties.
+    [Bug `1589935 <https://bugs.launchpad.net/bugs/1589935>`_]

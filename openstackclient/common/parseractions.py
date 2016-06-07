@@ -35,7 +35,9 @@ class KeyValueAction(argparse.Action):
         if '=' in values:
             getattr(namespace, self.dest, {}).update([values.split('=', 1)])
         else:
-            getattr(namespace, self.dest, {}).pop(values, None)
+            msg = _("Expected 'key=value' type, "
+                    "but got: %s") % (str(values))
+            raise argparse.ArgumentTypeError(msg)
 
 
 class MultiKeyValueAction(argparse.Action):
