@@ -19,6 +19,7 @@ import itertools
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class ListExtension(command.Lister):
@@ -30,27 +31,32 @@ class ListExtension(command.Lister):
             '--compute',
             action='store_true',
             default=False,
-            help='List extensions for the Compute API')
+            help=_('List extensions for the Compute API'),
+        )
         parser.add_argument(
             '--identity',
             action='store_true',
             default=False,
-            help='List extensions for the Identity API')
+            help=_('List extensions for the Identity API'),
+        )
         parser.add_argument(
             '--network',
             action='store_true',
             default=False,
-            help='List extensions for the Network API')
+            help=_('List extensions for the Network API'),
+        )
         parser.add_argument(
             '--volume',
             action='store_true',
             default=False,
-            help='List extensions for the Block Storage API')
+            help=_('List extensions for the Block Storage API'),
+        )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output')
+            help=_('List additional fields in output'),
+        )
         return parser
 
     def take_action(self, parsed_args):

@@ -87,8 +87,8 @@ class MultiKeyValueAction(argparse.Action):
             if '=' in kv:
                 params.update([kv.split('=', 1)])
             else:
-                msg = ("Expected key=value pairs separated by comma, "
-                       "but got: %s" % (str(kv)))
+                msg = _("Expected key=value pairs separated by comma, "
+                        "but got: %s") % (str(kv))
                 raise argparse.ArgumentTypeError(msg)
 
         # Check key validation
@@ -139,12 +139,13 @@ class RangeAction(argparse.Action):
             if int(range[0]) <= int(range[1]):
                 setattr(namespace, self.dest, (int(range[0]), int(range[1])))
             else:
-                msg = "Invalid range, %s is not less than %s" % \
-                    (range[0], range[1])
+                msg = (_("Invalid range, %(range0)s is not "
+                         "less than %(range1)s")
+                       % {'range0': range[0], 'range1': range[1]})
                 raise argparse.ArgumentError(self, msg)
         else:
             # Too many values
-            msg = "Invalid range, too many values"
+            msg = _("Invalid range, too many values")
             raise argparse.ArgumentError(self, msg)
 
 
@@ -158,5 +159,6 @@ class NonNegativeAction(argparse.Action):
         if int(values) >= 0:
             setattr(namespace, self.dest, values)
         else:
-            msg = "%s expected a non-negative integer" % (str(option_string))
+            msg = (_("%s expected a non-negative integer")
+                   % (str(option_string)))
             raise argparse.ArgumentTypeError(msg)

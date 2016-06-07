@@ -92,17 +92,20 @@ class ListAvailabilityZone(command.Lister):
             '--compute',
             action='store_true',
             default=False,
-            help='List compute availability zones')
+            help=_('List compute availability zones'),
+        )
         parser.add_argument(
             '--network',
             action='store_true',
             default=False,
-            help='List network availability zones')
+            help=_('List network availability zones'),
+        )
         parser.add_argument(
             '--volume',
             action='store_true',
             default=False,
-            help='List volume availability zones')
+            help=_('List volume availability zones'),
+        )
         parser.add_argument(
             '--long',
             action='store_true',
