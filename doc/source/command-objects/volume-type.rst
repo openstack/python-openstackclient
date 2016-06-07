@@ -150,7 +150,7 @@ Unset volume type properties
 .. code:: bash
 
     os volume type unset
-        [--property <key>]
+        [--property <key> [...] ]
         [--project <project>]
         [--project-domain <project-domain>]
         <volume-type>

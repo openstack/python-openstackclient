@@ -397,17 +397,19 @@ class TestTypeUnset(TestType):
     def test_type_unset(self):
         arglist = [
             '--property', 'property',
+            '--property', 'multi_property',
             self.volume_type.id,
         ]
         verifylist = [
-            ('property', 'property'),
+            ('property', ['property', 'multi_property']),
             ('volume_type', self.volume_type.id),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.volume_type.unset_keys.assert_called_once_with('property')
+        self.volume_type.unset_keys.assert_called_once_with(
+            ['property', 'multi_property'])
         self.assertIsNone(result)
 
     def test_type_unset_project_access(self):
