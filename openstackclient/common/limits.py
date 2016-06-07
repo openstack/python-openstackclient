@@ -19,6 +19,7 @@ import itertools
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
 
@@ -33,30 +34,33 @@ class ShowLimits(command.Lister):
             dest="is_absolute",
             action="store_true",
             default=False,
-            help="Show absolute limits")
+            help=_("Show absolute limits"),
+        )
         type_group.add_argument(
             "--rate",
             dest="is_rate",
             action="store_true",
             default=False,
-            help="Show rate limits")
+            help=_("Show rate limits"),
+        )
         parser.add_argument(
             "--reserved",
             dest="is_reserved",
             action="store_true",
             default=False,
-            help="Include reservations count [only valid with --absolute]")
+            help=_("Include reservations count [only valid with --absolute]"),
+        )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help='Show limits for a specific project (name or ID)'
-                 ' [only valid with --absolute]',
+            help=_('Show limits for a specific project (name or ID)'
+                   ' [only valid with --absolute]'),
         )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help='Domain the project belongs to (name or ID)'
-                 ' [only valid with --absolute]',
+            help=_('Domain the project belongs to (name or ID)'
+                   ' [only valid with --absolute]'),
         )
         return parser
 

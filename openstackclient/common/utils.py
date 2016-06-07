@@ -24,6 +24,7 @@ import time
 from oslo_utils import importutils
 
 from openstackclient.common import exceptions
+from openstackclient.i18n import _
 
 
 def find_resource(manager, name_or_id, **kwargs):
@@ -90,13 +91,19 @@ def find_resource(manager, name_or_id, **kwargs):
     #                 of client exceptions.
     except Exception as ex:
         if type(ex).__name__ == 'NotFound':
-            msg = "No %s with a name or ID of '%s' exists." % \
-                (manager.resource_class.__name__.lower(), name_or_id)
-            raise exceptions.CommandError(msg)
+            msg = _("No %(resource)s with a name or ID "
+                    "of '%(name_or_id)s' exists.")
+            raise exceptions.CommandError(
+                msg % {'resource': manager.resource_class.__name__.lower(),
+                       'name_or_id': name_or_id}
+            )
         if type(ex).__name__ == 'NoUniqueMatch':
-            msg = "More than one %s exists with the name '%s'." % \
-                (manager.resource_class.__name__.lower(), name_or_id)
-            raise exceptions.CommandError(msg)
+            msg = _("More than one %(resource)s exists with "
+                    "the name '%(name_or_id)s'.")
+            raise exceptions.CommandError(
+                msg % {'resource': manager.resource_class.__name__.lower(),
+                       'name_or_id': name_or_id}
+            )
         else:
             pass
 
@@ -107,7 +114,7 @@ def find_resource(manager, name_or_id, **kwargs):
             return resource
     else:
         # we found no match, report back this error:
-        msg = "Could not find resource %s" % name_or_id
+        msg = _("Could not find resource %s") % name_or_id
         raise exceptions.CommandError(msg)
 
 
@@ -152,7 +159,7 @@ def get_field(item, field):
         else:
             return getattr(item, field)
     except Exception:
-        msg = "Resource doesn't have field %s" % field
+        msg = _("Resource doesn't have field %s") % field
         raise exceptions.CommandError(msg)
 
 
@@ -234,14 +241,17 @@ def sort_items(items, sort_str):
         if ':' in sort_key:
             sort_key, direction = sort_key.split(':', 1)
             if not sort_key:
-                msg = "empty string is not a valid sort key"
+                msg = _("empty string is not a valid sort key")
                 raise exceptions.CommandError(msg)
             if direction not in ['asc', 'desc']:
                 if not direction:
                     direction = "empty string"
-                msg = ("%s is not a valid sort direction for sort key %s, "
-                       "use asc or desc instead" % (direction, sort_key))
-                raise exceptions.CommandError(msg)
+                msg = _("%(direction)s is not a valid sort direction for "
+                        "sort key %(sort_key)s, use asc or desc instead")
+                raise exceptions.CommandError(
+                    msg % {'direction': direction,
+                           'sort_key': sort_key}
+                )
             if direction == 'desc':
                 reverse = True
         items.sort(key=lambda item: get_field(item, sort_key),
@@ -273,9 +283,13 @@ def get_client_class(api_name, version, version_map):
     try:
         client_path = version_map[str(version)]
     except (KeyError, ValueError):
-        msg = "Invalid %s client version '%s'. must be one of: %s" % (
-              (api_name, version, ', '.join(list(version_map.keys()))))
-        raise exceptions.UnsupportedVersion(msg)
+        msg = _("Invalid %(api_name)s client version '%(version)s'. "
+                "must be one of: %(version_map)s")
+        raise exceptions.UnsupportedVersion(
+            msg % {'api_name': api_name,
+                   'version': version,
+                   'version_map': ', '.join(list(version_map.keys()))}
+        )
 
     return importutils.import_class(client_path)
 
@@ -391,9 +405,10 @@ def get_password(stdin, prompt=None, confirm=True):
                     return first_pass
                 print("The passwords entered were not the same")
         except EOFError:  # Ctl-D
-            raise exceptions.CommandError("Error reading password.")
-    raise exceptions.CommandError("There was a request to be prompted for a"
-                                  " password and a terminal was not detected.")
+            raise exceptions.CommandError(_("Error reading password."))
+    raise exceptions.CommandError(_("There was a request to be prompted "
+                                    "for a password and a terminal was "
+                                    "not detected."))
 
 
 def read_blob_file_contents(blob_file):
@@ -402,7 +417,7 @@ def read_blob_file_contents(blob_file):
             blob = file.read().strip()
         return blob
     except IOError:
-        msg = "Error occurred trying to read from file %s"
+        msg = _("Error occurred trying to read from file %s")
         raise exceptions.CommandError(msg % blob_file)
 
 

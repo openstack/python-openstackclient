@@ -20,6 +20,7 @@ import sys
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 class ListCommand(command.Lister):
@@ -61,7 +62,7 @@ class ListModule(command.ShowOne):
             '--all',
             action='store_true',
             default=False,
-            help='Show all modules that have version information',
+            help=_('Show all modules that have version information'),
         )
         return parser
 

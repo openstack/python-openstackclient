@@ -21,6 +21,7 @@ import sys
 
 from openstackclient.common import command
 from openstackclient.common import utils
+from openstackclient.i18n import _
 
 
 # List the quota items, map the internal argument name to the option
@@ -84,14 +85,14 @@ class SetQuota(command.Command):
         parser.add_argument(
             'project',
             metavar='<project/class>',
-            help='Set quotas for this project or class (name/ID)',
+            help=_('Set quotas for this project or class (name/ID)'),
         )
         parser.add_argument(
             '--class',
             dest='quota_class',
             action='store_true',
             default=False,
-            help='Set quotas for <class>',
+            help=_('Set quotas for <class>'),
         )
         for k, v in self._build_options_list():
             parser.add_argument(
@@ -99,12 +100,12 @@ class SetQuota(command.Command):
                 metavar='<%s>' % v,
                 dest=k,
                 type=int,
-                help='New value for the %s quota' % v,
+                help=_('New value for the %s quota') % v,
             )
         parser.add_argument(
             '--volume-type',
             metavar='<volume-type>',
-            help='Set quotas for a specific <volume-type>',
+            help=_('Set quotas for a specific <volume-type>'),
         )
         return parser
 
@@ -187,7 +188,7 @@ class ShowQuota(command.ShowOne):
             'project',
             metavar='<project/class>',
             nargs='?',
-            help='Show quotas for this project or class (name or ID)',
+            help=_('Show quotas for this project or class (name or ID)'),
         )
         type_group = parser.add_mutually_exclusive_group()
         type_group.add_argument(
@@ -195,14 +196,14 @@ class ShowQuota(command.ShowOne):
             dest='quota_class',
             action='store_true',
             default=False,
-            help='Show quotas for <class>',
+            help=_('Show quotas for <class>'),
         )
         type_group.add_argument(
             '--default',
             dest='default',
             action='store_true',
             default=False,
-            help='Show default quotas for <project>'
+            help=_('Show default quotas for <project>')
         )
         return parser
 

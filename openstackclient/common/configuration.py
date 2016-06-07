@@ -16,6 +16,7 @@
 import six
 
 from openstackclient.common import command
+from openstackclient.i18n import _
 
 REDACTED = "<redacted>"
 
@@ -31,13 +32,13 @@ class ShowConfiguration(command.ShowOne):
             dest="mask",
             action="store_true",
             default=True,
-            help="Attempt to mask passwords (default)",
+            help=_("Attempt to mask passwords (default)"),
         )
         mask_group.add_argument(
             "--unmask",
             dest="mask",
             action="store_false",
-            help="Show password in clear text",
+            help=_("Show password in clear text"),
         )
         return parser
 
