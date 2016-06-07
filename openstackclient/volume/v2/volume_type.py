@@ -14,6 +14,8 @@
 
 """Volume v2 Type action implementations"""
 
+import logging
+
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -22,6 +24,9 @@ import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateVolumeType(command.ShowOne):
@@ -190,16 +195,15 @@ class SetVolumeType(command.Command):
                     **kwargs
                 )
             except Exception as e:
-                self.app.log.error(_("Failed to update volume type name or"
-                                     " description: %s") % str(e))
+                LOG.error(_("Failed to update volume type name or"
+                            " description: %s"), e)
                 result += 1
 
         if parsed_args.property:
             try:
                 volume_type.set_keys(parsed_args.property)
             except Exception as e:
-                self.app.log.error(_("Failed to set volume type"
-                                     " property: %s") % str(e))
+                LOG.error(_("Failed to set volume type property: %s"), e)
                 result += 1
 
         if parsed_args.project:
@@ -213,13 +217,13 @@ class SetVolumeType(command.Command):
                 volume_client.volume_type_access.add_project_access(
                     volume_type.id, project_info.id)
             except Exception as e:
-                self.app.log.error(_("Failed to set volume type access to"
-                                     " project: %s") % str(e))
+                LOG.error(_("Failed to set volume type access to "
+                            "project: %s"), e)
                 result += 1
 
         if result > 0:
             raise exceptions.CommandError(_("Command Failed: One or more of"
-                                          " the operations failed"))
+                                            " the operations failed"))
 
 
 class ShowVolumeType(command.ShowOne):
@@ -284,8 +288,7 @@ class UnsetVolumeType(command.Command):
             try:
                 volume_type.unset_keys(parsed_args.property)
             except Exception as e:
-                self.app.log.error(_("Failed to unset volume type property: %s"
-                                     ) % str(e))
+                LOG.error(_("Failed to unset volume type property: %s"), e)
                 result += 1
 
         if parsed_args.project:
@@ -299,8 +302,8 @@ class UnsetVolumeType(command.Command):
                 volume_client.volume_type_access.remove_project_access(
                     volume_type.id, project_info.id)
             except Exception as e:
-                self.app.log.error(_("Failed to remove volume type access from"
-                                   " project: %s") % str(e))
+                LOG.error(_("Failed to remove volume type access from "
+                            "project: %s"), e)
                 result += 1
 
         if result > 0:

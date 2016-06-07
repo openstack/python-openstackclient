@@ -15,6 +15,7 @@
 """Volume V2 Volume action implementations"""
 
 import copy
+import logging
 
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -23,6 +24,9 @@ import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateVolume(command.ShowOne):
@@ -361,13 +365,12 @@ class SetVolume(command.Command):
 
         if parsed_args.size:
             if volume.status != 'available':
-                self.app.log.error(_("Volume is in %s state, it must be "
-                                   "available before size can be extended") %
-                                   volume.status)
+                LOG.error(_("Volume is in %s state, it must be available "
+                            "before size can be extended"), volume.status)
                 return
             if parsed_args.size <= volume.size:
-                self.app.log.error(_("New size must be greater than %s GB") %
-                                   volume.size)
+                LOG.error(_("New size must be greater than %s GB"),
+                          volume.size)
                 return
             volume_client.volumes.extend(volume.id, parsed_args.size)
 
@@ -456,4 +459,4 @@ class UnsetVolume(command.Command):
                 volume.id, parsed_args.image_property)
 
         if (not parsed_args.image_property and not parsed_args.property):
-            self.app.log.error(_("No changes requested\n"))
+            LOG.error(_("No changes requested"))
