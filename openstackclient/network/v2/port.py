@@ -284,10 +284,23 @@ class DeletePort(command.Command):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
+        result = 0
 
         for port in parsed_args.port:
-            res = client.find_port(port)
-            client.delete_port(res)
+            try:
+                obj = client.find_port(port, ignore_missing=False)
+                client.delete_port(obj)
+            except Exception as e:
+                result += 1
+                self.app.log.error(_("Failed to delete port with "
+                                   "name or ID '%(port)s': %(e)s")
+                                   % {'port': port, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.port)
+            msg = (_("%(result)s of %(total)s ports failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListPort(command.Lister):
