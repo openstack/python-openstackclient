@@ -49,16 +49,13 @@ class TestKeyValueAction(utils.TestCase):
         self.assertDictEqual(expect, actual)
 
     def test_error_values(self):
-        results = self.parser.parse_args([
-            '--property', 'red',
-            '--property', 'green=100%',
-            '--property', 'blue',
-        ])
-
-        actual = getattr(results, 'property', {})
-        # There should be no red or blue
-        expect = {'green': '100%', 'format': '#rgb'}
-        self.assertDictEqual(expect, actual)
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.parser.parse_args,
+            [
+                '--property', 'red',
+            ]
+        )
 
 
 class TestMultiKeyValueAction(utils.TestCase):
