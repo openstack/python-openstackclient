@@ -173,8 +173,6 @@ class LogConfigurator(object):
         if log_file:
             if not self.file_logger:
                 self.file_logger = logging.FileHandler(filename=log_file)
-            formatter = _FileFormatter(cloud_config=cloud_config)
-            self.file_logger.setFormatter(formatter)
             self.file_logger.setFormatter(_FileFormatter(config=cloud_config))
             self.file_logger.setLevel(log_level)
             self.root_logger.addHandler(self.file_logger)
