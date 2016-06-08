@@ -13,8 +13,9 @@
 
 """Base API Library Tests"""
 
+from osc_lib import exceptions
+
 from openstackclient.api import api
-from openstackclient.common import exceptions
 from openstackclient.tests.api import fakes as api_fakes
 
 

@@ -17,8 +17,8 @@ import copy
 import mock
 
 from keystoneauth1 import exceptions as ks_exc
+from osc_lib import exceptions
 
-from openstackclient.common import exceptions
 from openstackclient.identity.v2_0 import role
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes

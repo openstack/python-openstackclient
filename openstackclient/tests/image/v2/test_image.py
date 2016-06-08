@@ -19,7 +19,8 @@ import mock
 import warlock
 
 from glanceclient.v2 import schemas
-from openstackclient.common import exceptions
+from osc_lib import exceptions
+
 from openstackclient.common import utils as common_utils
 from openstackclient.image.v2 import image
 from openstackclient.tests import fakes

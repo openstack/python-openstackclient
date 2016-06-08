@@ -17,8 +17,8 @@ import mock
 
 from cinderclient.v1 import volume_snapshots
 from cinderclient.v1 import volumes
+from osc_lib import exceptions
 
-from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.tests import utils as test_utils
 from openstackclient.volume import client  # noqa

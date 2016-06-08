@@ -14,14 +14,15 @@
 """Security Group Rule action implementations"""
 
 import argparse
-import six
 
 try:
     from novaclient.v2 import security_group_rules as compute_secgroup_rules
 except ImportError:
     from novaclient.v1_1 import security_group_rules as compute_secgroup_rules
 
-from openstackclient.common import exceptions
+from osc_lib import exceptions
+import six
+
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 from openstackclient.i18n import _

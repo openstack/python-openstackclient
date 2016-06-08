@@ -15,7 +15,8 @@
 
 import copy
 
-from openstackclient.common import exceptions
+from osc_lib import exceptions
+
 from openstackclient.common import utils
 from openstackclient.compute.v2 import flavor
 from openstackclient.tests.compute.v2 import fakes as compute_fakes

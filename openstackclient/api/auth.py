@@ -17,8 +17,8 @@ import argparse
 import logging
 
 from keystoneauth1.loading import base
+from osc_lib import exceptions as exc
 
-from openstackclient.common import exceptions as exc
 from openstackclient.common import utils
 from openstackclient.i18n import _
 

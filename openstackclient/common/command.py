@@ -18,9 +18,9 @@ import logging
 from cliff import command
 from cliff import lister
 from cliff import show
+from osc_lib import exceptions
 import six
 
-from openstackclient.common import exceptions
 from openstackclient.i18n import _
 
 

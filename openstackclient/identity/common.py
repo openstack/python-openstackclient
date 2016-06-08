@@ -20,8 +20,8 @@ from keystoneclient.v3 import domains
 from keystoneclient.v3 import groups
 from keystoneclient.v3 import projects
 from keystoneclient.v3 import users
+from osc_lib import exceptions
 
-from openstackclient.common import exceptions
 from openstackclient.common import utils
 
 

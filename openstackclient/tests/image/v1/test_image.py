@@ -16,7 +16,8 @@
 import copy
 import mock
 
-from openstackclient.common import exceptions
+from osc_lib import exceptions
+
 from openstackclient.image.v1 import image
 from openstackclient.tests import fakes
 from openstackclient.tests.image.v1 import fakes as image_fakes

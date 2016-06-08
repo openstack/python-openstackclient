@@ -12,7 +12,8 @@
 
 import copy
 
-from openstackclient.common import exceptions
+from osc_lib import exceptions
+
 from openstackclient.identity.v3 import unscoped_saml
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes

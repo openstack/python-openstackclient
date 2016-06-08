@@ -16,7 +16,8 @@
 import mock
 
 from mock import call
-from openstackclient.common import exceptions
+from osc_lib import exceptions
+
 from openstackclient.compute.v2 import agent
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 

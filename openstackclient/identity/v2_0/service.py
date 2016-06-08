@@ -16,10 +16,11 @@
 """Service action implementations"""
 
 import argparse
+
+from osc_lib import exceptions
 import six
 
 from openstackclient.common import command
-from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common

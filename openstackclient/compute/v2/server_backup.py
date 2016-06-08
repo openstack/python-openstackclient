@@ -17,11 +17,11 @@
 
 import sys
 
+from osc_lib import exceptions
 from oslo_utils import importutils
 import six
 
 from openstackclient.common import command
-from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.i18n import _
 

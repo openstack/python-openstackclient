@@ -13,9 +13,10 @@
 
 import copy
 import mock
-
 from mock import call
-from openstackclient.common import exceptions
+
+from osc_lib import exceptions
+
 from openstackclient.common import utils
 from openstackclient.network.v2 import network
 from openstackclient.tests.compute.v2 import fakes as compute_fakes

@@ -15,15 +15,15 @@
 
 import json as jsonutils
 import mock
-from requests_mock.contrib import fixture
 
 from keystoneauth1.access import service_catalog
 from keystoneauth1.identity import v2 as auth_v2
 from keystoneauth1 import token_endpoint
+from osc_lib import exceptions as exc
+from requests_mock.contrib import fixture
 
 from openstackclient.api import auth
 from openstackclient.common import clientmanager
-from openstackclient.common import exceptions as exc
 from openstackclient.tests import fakes
 from openstackclient.tests import utils
 

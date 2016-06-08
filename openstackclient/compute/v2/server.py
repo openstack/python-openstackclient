@@ -19,17 +19,17 @@ import argparse
 import getpass
 import io
 import os
-import six
 import sys
 
-from openstackclient.common import command
+from osc_lib import exceptions
+import six
 
 try:
     from novaclient.v2 import servers
 except ImportError:
     from novaclient.v1_1 import servers
 
-from openstackclient.common import exceptions
+from openstackclient.common import command
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 from openstackclient.i18n import _

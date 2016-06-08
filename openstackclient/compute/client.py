@@ -15,7 +15,8 @@
 
 import logging
 
-from openstackclient.common import exceptions
+from osc_lib import exceptions
+
 from openstackclient.common import utils
 from openstackclient.i18n import _
 
