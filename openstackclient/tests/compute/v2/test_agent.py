@@ -19,6 +19,7 @@ from mock import call
 from openstackclient.common import exceptions
 from openstackclient.compute.v2 import agent
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
+from openstackclient.tests import utils as tests_utils
 
 
 class TestAgent(compute_fakes.TestComputev2):
@@ -159,6 +160,15 @@ class TestAgentDelete(TestAgent):
             call(self.fake_agents[1].agent_id),
         ]
         self.agents_mock.delete.assert_has_calls(calls)
+
+    def test_agent_delete_no_input(self):
+        arglist = []
+        verifylist = None
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser,
+                          self.cmd,
+                          arglist,
+                          verifylist)
 
 
 class TestAgentList(TestAgent):
