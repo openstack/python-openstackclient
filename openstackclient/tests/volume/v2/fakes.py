@@ -211,26 +211,6 @@ IMAGE = {
     'name': image_name
 }
 
-extension_name = 'SchedulerHints'
-extension_namespace = 'http://docs.openstack.org/'\
-    'block-service/ext/scheduler-hints/api/v2'
-extension_description = 'Pass arbitrary key/value'\
-    'pairs to the scheduler.'
-extension_updated = '2013-04-18T00:00:00+00:00'
-extension_alias = 'OS-SCH-HNT'
-extension_links = '[{"href":'\
-    '"https://github.com/openstack/block-api", "type":'\
-    ' "text/html", "rel": "describedby"}]'
-
-EXTENSION = {
-    'name': extension_name,
-    'namespace': extension_namespace,
-    'description': extension_description,
-    'updated': extension_updated,
-    'alias': extension_alias,
-    'links': extension_links,
-}
-
 
 class FakeTransferClient(object):
 
@@ -379,6 +359,8 @@ class FakeVolumeClient(object):
     def __init__(self, **kwargs):
         self.volumes = mock.Mock()
         self.volumes.resource_class = fakes.FakeResource(None, {})
+        self.extensions = mock.Mock()
+        self.extensions.resource_class = fakes.FakeResource(None, {})
         self.volume_snapshots = mock.Mock()
         self.volume_snapshots.resource_class = fakes.FakeResource(None, {})
         self.backups = mock.Mock()
@@ -641,6 +623,42 @@ class FakeBackup(object):
             backups.append(backup)
 
         return backups
+
+
+class FakeExtension(object):
+    """Fake one or more extension."""
+
+    @staticmethod
+    def create_one_extension(attrs=None):
+        """Create a fake extension.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with name, namespace, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        extension_info = {
+            'name': 'name-' + uuid.uuid4().hex,
+            'namespace': ('http://docs.openstack.org/'
+                          'block-service/ext/scheduler-hints/api/v2'),
+            'description': 'description-' + uuid.uuid4().hex,
+            'updated': '2013-04-18T00:00:00+00:00',
+            'alias': 'OS-SCH-HNT',
+            'links': ('[{"href":'
+                      '"https://github.com/openstack/block-api", "type":'
+                      ' "text/html", "rel": "describedby"}]'),
+        }
+
+        # Overwrite default attributes.
+        extension_info.update(attrs)
+
+        extension = fakes.FakeResource(
+            info=copy.deepcopy(extension_info),
+            loaded=True)
+        return extension
 
 
 class FakeQos(object):

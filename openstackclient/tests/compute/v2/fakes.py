@@ -24,26 +24,6 @@ from openstackclient.tests.network.v2 import fakes as network_fakes
 from openstackclient.tests import utils
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
 
-
-extension_name = 'Multinic'
-extension_namespace = 'http://docs.openstack.org/compute/ext/'\
-    'multinic/api/v1.1'
-extension_description = 'Multiple network support'
-extension_updated = '2014-01-07T12:00:0-00:00'
-extension_alias = 'NMN'
-extension_links = '[{"href":'\
-    '"https://github.com/openstack/compute-api", "type":'\
-    ' "text/html", "rel": "describedby"}]'
-
-EXTENSION = {
-    'name': extension_name,
-    'namespace': extension_namespace,
-    'description': extension_description,
-    'updated': extension_updated,
-    'alias': extension_alias,
-    'links': extension_links,
-}
-
 floating_ip_num = 100
 fix_ip_num = 100
 injected_file_num = 100
@@ -257,6 +237,42 @@ class FakeAgent(object):
             agents.append(FakeAgent.create_one_agent(attrs))
 
         return agents
+
+
+class FakeExtension(object):
+    """Fake one or more extension."""
+
+    @staticmethod
+    def create_one_extension(attrs=None):
+        """Create a fake extension.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with name, namespace, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        extension_info = {
+            'name': 'name-' + uuid.uuid4().hex,
+            'namespace': (
+                'http://docs.openstack.org/compute/ext/multinic/api/v1.1'),
+            'description': 'description-' + uuid.uuid4().hex,
+            'updated': '2014-01-07T12:00:0-00:00',
+            'alias': 'NMN',
+            'links': ('[{"href":'
+                      '"https://github.com/openstack/compute-api", "type":'
+                      ' "text/html", "rel": "describedby"}]')
+        }
+
+        # Overwrite default attributes.
+        extension_info.update(attrs)
+
+        extension = fakes.FakeResource(
+            info=copy.deepcopy(extension_info),
+            loaded=True)
+        return extension
 
 
 class FakeHypervisor(object):

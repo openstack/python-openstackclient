@@ -19,12 +19,6 @@ import uuid
 from openstackclient.tests import fakes
 from openstackclient.tests import utils
 
-extension_name = 'Matrix'
-extension_namespace = 'http://docs.openstack.org/network/'
-extension_description = 'Simulated reality'
-extension_updated = '2013-07-09T12:00:0-00:00'
-extension_alias = 'Dystopian'
-extension_links = '[{"href":''"https://github.com/os/network", "type"}]'
 
 QUOTA = {
     "subnet": 10,
@@ -42,21 +36,11 @@ QUOTA = {
 }
 
 
-def create_extension():
-    extension = mock.Mock()
-    extension.name = extension_name
-    extension.namespace = extension_namespace
-    extension.description = extension_description
-    extension.updated = extension_updated
-    extension.alias = extension_alias
-    extension.links = extension_links
-    return extension
-
-
 class FakeNetworkV2Client(object):
 
     def __init__(self, **kwargs):
-        self.extensions = mock.Mock(return_value=[create_extension()])
+        self.extensions = mock.Mock()
+        self.extensions.resource_class = fakes.FakeResource(None, {})
 
 
 class TestNetworkV2(utils.TestCommand):
@@ -238,6 +222,39 @@ class FakeIPAvailability(object):
             network_ip_availabilities.append(network_ip_availability)
 
         return network_ip_availabilities
+
+
+class FakeExtension(object):
+    """Fake one or more extension."""
+
+    @staticmethod
+    def create_one_extension(attrs=None):
+        """Create a fake extension.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with name, namespace, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        extension_info = {
+            'name': 'name-' + uuid.uuid4().hex,
+            'namespace': 'http://docs.openstack.org/network/',
+            'description': 'description-' + uuid.uuid4().hex,
+            'updated': '2013-07-09T12:00:0-00:00',
+            'alias': 'Dystopian',
+            'links': '[{"href":''"https://github.com/os/network", "type"}]',
+        }
+
+        # Overwrite default attributes.
+        extension_info.update(attrs)
+
+        extension = fakes.FakeResource(
+            info=copy.deepcopy(extension_info),
+            loaded=True)
+        return extension
 
 
 class FakeNetwork(object):

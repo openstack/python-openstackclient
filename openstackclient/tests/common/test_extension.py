@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-import copy
 import mock
 
 from openstackclient.common import extension
@@ -29,26 +28,38 @@ class TestExtension(utils.TestCommand):
     def setUp(self):
         super(TestExtension, self).setUp()
 
-        self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
+        identity_client = identity_fakes.FakeIdentityv2Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
-        self.identity_extensions_mock = (
-            self.app.client_manager.identity.extensions)
+        self.app.client_manager.identity = identity_client
+        self.identity_extensions_mock = identity_client.extensions
         self.identity_extensions_mock.reset_mock()
 
-        self.app.client_manager.compute = compute_fakes.FakeComputev2Client(
+        compute_client = compute_fakes.FakeComputev2Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+        self.app.client_manager.compute = compute_client
+        compute_client.list_extensions = mock.Mock()
+        self.compute_extensions_mock = compute_client.list_extensions
+        self.compute_extensions_mock.reset_mock()
 
-        self.app.client_manager.volume = volume_fakes.FakeVolumeClient(
+        volume_client = volume_fakes.FakeVolumeClient(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+        self.app.client_manager.volume = volume_client
+        volume_client.list_extensions = mock.Mock()
+        self.volume_extensions_mock = volume_client.list_extensions
+        self.volume_extensions_mock.reset_mock()
 
-        network_client = network_fakes.FakeNetworkV2Client()
+        network_client = network_fakes.FakeNetworkV2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
         self.app.client_manager.network = network_client
+        network_client.extensions = mock.Mock()
         self.network_extensions_mock = network_client.extensions
         self.network_extensions_mock.reset_mock()
 
@@ -59,38 +70,21 @@ class TestExtensionList(TestExtension):
     long_columns = ('Name', 'Namespace', 'Description', 'Alias', 'Updated',
                     'Links')
 
+    volume_extension = volume_fakes.FakeExtension.create_one_extension()
+    identity_extension = identity_fakes.FakeExtension.create_one_extension()
+    compute_extension = compute_fakes.FakeExtension.create_one_extension()
+    network_extension = network_fakes.FakeExtension.create_one_extension()
+
     def setUp(self):
         super(TestExtensionList, self).setUp()
 
         self.identity_extensions_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.EXTENSION),
-                loaded=True,
-            ),
-        ]
-
-        self.app.client_manager.compute.list_extensions = mock.Mock()
-        self.compute_extensions_mock = (
-            self.app.client_manager.compute.list_extensions)
+            self.identity_extension]
         self.compute_extensions_mock.show_all.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(compute_fakes.EXTENSION),
-                loaded=True,
-            ),
-        ]
-
-        self.app.client_manager.volume.list_extensions = mock.Mock()
-        self.volume_extensions_mock = (
-            self.app.client_manager.volume.list_extensions)
+            self.compute_extension]
         self.volume_extensions_mock.show_all.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(volume_fakes.EXTENSION),
-                loaded=True,
-            ),
-        ]
+            self.volume_extension]
+        self.network_extensions_mock.return_value = [self.network_extension]
 
         # Get the command object to test
         self.cmd = extension.ListExtension(self.app, None)
@@ -115,24 +109,24 @@ class TestExtensionList(TestExtension):
         verifylist = []
         datalist = (
             (
-                identity_fakes.extension_name,
-                identity_fakes.extension_alias,
-                identity_fakes.extension_description,
+                self.identity_extension.name,
+                self.identity_extension.alias,
+                self.identity_extension.description,
             ),
             (
-                compute_fakes.extension_name,
-                compute_fakes.extension_alias,
-                compute_fakes.extension_description,
+                self.compute_extension.name,
+                self.compute_extension.alias,
+                self.compute_extension.description,
             ),
             (
-                volume_fakes.extension_name,
-                volume_fakes.extension_alias,
-                volume_fakes.extension_description,
+                self.volume_extension.name,
+                self.volume_extension.alias,
+                self.volume_extension.description,
             ),
             (
-                network_fakes.extension_name,
-                network_fakes.extension_alias,
-                network_fakes.extension_description,
+                self.network_extension.name,
+                self.network_extension.alias,
+                self.network_extension.description,
             ),
         )
         self._test_extension_list_helper(arglist, verifylist, datalist)
@@ -150,36 +144,36 @@ class TestExtensionList(TestExtension):
         ]
         datalist = (
             (
-                identity_fakes.extension_name,
-                identity_fakes.extension_namespace,
-                identity_fakes.extension_description,
-                identity_fakes.extension_alias,
-                identity_fakes.extension_updated,
-                identity_fakes.extension_links,
+                self.identity_extension.name,
+                self.identity_extension.namespace,
+                self.identity_extension.description,
+                self.identity_extension.alias,
+                self.identity_extension.updated,
+                self.identity_extension.links,
             ),
             (
-                compute_fakes.extension_name,
-                compute_fakes.extension_namespace,
-                compute_fakes.extension_description,
-                compute_fakes.extension_alias,
-                compute_fakes.extension_updated,
-                compute_fakes.extension_links,
+                self.compute_extension.name,
+                self.compute_extension.namespace,
+                self.compute_extension.description,
+                self.compute_extension.alias,
+                self.compute_extension.updated,
+                self.compute_extension.links,
             ),
             (
-                volume_fakes.extension_name,
-                volume_fakes.extension_namespace,
-                volume_fakes.extension_description,
-                volume_fakes.extension_alias,
-                volume_fakes.extension_updated,
-                volume_fakes.extension_links,
+                self.volume_extension.name,
+                self.volume_extension.namespace,
+                self.volume_extension.description,
+                self.volume_extension.alias,
+                self.volume_extension.updated,
+                self.volume_extension.links,
             ),
             (
-                network_fakes.extension_name,
-                network_fakes.extension_namespace,
-                network_fakes.extension_description,
-                network_fakes.extension_alias,
-                network_fakes.extension_updated,
-                network_fakes.extension_links,
+                self.network_extension.name,
+                self.network_extension.namespace,
+                self.network_extension.description,
+                self.network_extension.alias,
+                self.network_extension.updated,
+                self.network_extension.links,
             ),
         )
         self._test_extension_list_helper(arglist, verifylist, datalist, True)
@@ -196,9 +190,9 @@ class TestExtensionList(TestExtension):
             ('identity', True),
         ]
         datalist = ((
-            identity_fakes.extension_name,
-            identity_fakes.extension_alias,
-            identity_fakes.extension_description,
+            self.identity_extension.name,
+            self.identity_extension.alias,
+            self.identity_extension.description,
         ), )
         self._test_extension_list_helper(arglist, verifylist, datalist)
         self.identity_extensions_mock.list.assert_called_with()
@@ -212,9 +206,9 @@ class TestExtensionList(TestExtension):
         ]
         datalist = (
             (
-                network_fakes.extension_name,
-                network_fakes.extension_alias,
-                network_fakes.extension_description,
+                self.network_extension.name,
+                self.network_extension.alias,
+                self.network_extension.description,
             ),
         )
         self._test_extension_list_helper(arglist, verifylist, datalist)
@@ -228,9 +222,9 @@ class TestExtensionList(TestExtension):
             ('compute', True),
         ]
         datalist = ((
-            compute_fakes.extension_name,
-            compute_fakes.extension_alias,
-            compute_fakes.extension_description,
+            self.compute_extension.name,
+            self.compute_extension.alias,
+            self.compute_extension.description,
         ), )
         self._test_extension_list_helper(arglist, verifylist, datalist)
         self.compute_extensions_mock.show_all.assert_called_with()
@@ -243,9 +237,9 @@ class TestExtensionList(TestExtension):
             ('volume', True),
         ]
         datalist = ((
-            volume_fakes.extension_name,
-            volume_fakes.extension_alias,
-            volume_fakes.extension_description,
+            self.volume_extension.name,
+            self.volume_extension.alias,
+            self.volume_extension.description,
         ), )
         self._test_extension_list_helper(arglist, verifylist, datalist)
         self.volume_extensions_mock.show_all.assert_called_with()
