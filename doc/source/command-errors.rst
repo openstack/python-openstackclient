@@ -51,7 +51,7 @@ raised that includes the name of the file that was attempted to be opened.
                     ) as p:
                         public_key = p.read()
                 except IOError as e:
-                    msg = "Key file %s not found: %s"
+                    msg = _("Key file %s not found: %s")
                     raise exceptions.CommandError(
                         msg % (parsed_args.public_key, e),
                     )
@@ -135,7 +135,7 @@ remaining arguments are set using the ``update()`` method.
                     parsed_args.property,
                 )
             except SomeException:      # Need to define the exceptions to catch here
-                self.app.log.error("Property set failed")
+                LOG.error(_("Property set failed"))
                 result += 1
 
         if parsed_args.state:
@@ -145,7 +145,7 @@ remaining arguments are set using the ``update()`` method.
                     parsed_args.state,
                 )
             except SomeException:      # Need to define the exceptions to catch here
-                self.app.log.error("State set failed")
+                LOG.error(_("State set failed"))
                 result += 1
 
         try:
@@ -154,7 +154,7 @@ remaining arguments are set using the ``update()`` method.
                 **kwargs
             )
         except SomeException:      # Need to define the exceptions to catch here
-            self.app.log.error("Update failed")
+            LOG.error(_("Update failed"))
             result += 1
 
         # NOTE(dtroyer): We need to signal the error, and a non-zero return code,
@@ -166,8 +166,8 @@ Example 2
 ~~~~~~~~~
 
 This example is taken from the ``network delete`` command which takes multiple
-networks to delete. All networks will be delete in a loop, which makes multiple
-``delete_network()`` calls.
+networks to delete. All networks will be deleted in a loop, which makes
+multiple ``delete_network()`` calls.
 
 .. code-block:: python
 
@@ -179,7 +179,7 @@ networks to delete. All networks will be delete in a loop, which makes multiple
                 'network',
                 metavar="<network>",
                 nargs="+",
-                help=("Network(s) to delete (name or ID)")
+                help=_("Network(s) to delete (name or ID)")
             )
             return parser
 
@@ -191,11 +191,15 @@ networks to delete. All networks will be delete in a loop, which makes multiple
                     obj = client.find_network(network, ignore_missing=False)
                     client.delete_network(obj)
                 except Exception:
-                    self.app.log.error("Failed to delete network with name "
-                                       "or ID %s." % network)
+                    LOG.error(_("Failed to delete network with name "
+                                "or ID %s."), network)
                     ret += 1
 
             if ret > 0:
                 total = len(parsed_args.network)
-                msg = "Failed to delete %s of %s networks." % (ret, total)
+                msg = _("Failed to delete %(ret)s of %(total)s networks.") %
+                    {
+                        "ret": ret,
+                        "total": total,
+                    }
                 raise exceptions.CommandError(msg)
