@@ -79,5 +79,5 @@ Set service command
 
 .. describe:: <service>
 
-    Name of service
+    Name of service (Binary name)
 

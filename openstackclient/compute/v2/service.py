@@ -106,7 +106,7 @@ class SetService(command.Command):
         parser.add_argument(
             "service",
             metavar="<service>",
-            help=_("Name of service")
+            help=_("Name of service (Binary name)")
         )
         enabled_group = parser.add_mutually_exclusive_group()
         enabled_group.add_argument(
