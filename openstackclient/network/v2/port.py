@@ -266,7 +266,7 @@ class CreatePort(command.ShowOne):
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
 
-        return columns, data
+        return (columns, data)
 
 
 class DeletePort(command.Command):
@@ -449,4 +449,4 @@ class ShowPort(command.ShowOne):
         obj = client.find_port(parsed_args.port, ignore_missing=False)
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return columns, data
+        return (columns, data)
