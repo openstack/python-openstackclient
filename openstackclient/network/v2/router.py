@@ -204,7 +204,7 @@ class CreateRouter(command.ShowOne):
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
 
-        return columns, data
+        return (columns, data)
 
 
 class DeleteRouter(command.Command):
@@ -450,4 +450,4 @@ class ShowRouter(command.ShowOne):
         obj = client.find_router(parsed_args.router, ignore_missing=False)
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return columns, data
+        return (columns, data)

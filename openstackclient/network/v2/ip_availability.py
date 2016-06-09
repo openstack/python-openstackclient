@@ -106,4 +106,4 @@ class ShowIPAvailability(command.ShowOne):
                                                   ignore_missing=False)
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return columns, data
+        return (columns, data)

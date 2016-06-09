@@ -94,7 +94,7 @@ class CreateAddressScope(command.ShowOne):
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters={})
 
-        return columns, data
+        return (columns, data)
 
 
 class DeleteAddressScope(command.Command):
@@ -227,4 +227,4 @@ class ShowAddressScope(command.ShowOne):
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters={})
 
-        return columns, data
+        return (columns, data)
