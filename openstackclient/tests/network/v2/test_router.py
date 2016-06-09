@@ -13,7 +13,6 @@
 
 import mock
 
-from openstackclient.common import exceptions
 from openstackclient.common import utils as osc_utils
 from openstackclient.network.v2 import router
 from openstackclient.tests.network.v2 import fakes as network_fakes
@@ -568,12 +567,20 @@ class TestSetRouter(TestRouter):
                           self.cmd, arglist, verifylist)
 
     def test_set_nothing(self):
-        arglist = [self._router.name, ]
-        verifylist = [('router', self._router.name), ]
+        arglist = [
+            self._router.name,
+        ]
+        verifylist = [
+            ('router', self._router.name),
+        ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {}
+        self.network.update_router.assert_called_once_with(
+            self._router, **attrs)
+        self.assertIsNone(result)
 
 
 class TestShowRouter(TestRouter):

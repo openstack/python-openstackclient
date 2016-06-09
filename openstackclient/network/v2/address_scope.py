@@ -200,9 +200,6 @@ class SetAddressScope(command.Command):
             attrs['shared'] = True
         if parsed_args.no_share:
             attrs['shared'] = False
-        if attrs == {}:
-            msg = _("Nothing specified to be set.")
-            raise exceptions.CommandError(msg)
         client.update_address_scope(obj, **attrs)
 
 

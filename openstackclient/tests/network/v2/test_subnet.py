@@ -14,7 +14,6 @@
 import copy
 import mock
 
-from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.network.v2 import subnet as subnet_v2
 from openstackclient.tests import fakes
@@ -549,8 +548,11 @@ class TestSetSubnet(TestSubnet):
         verifylist = [('subnet', self._subnet.name)]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {}
+        self.network.update_subnet.assert_called_with(self._subnet, **attrs)
+        self.assertIsNone(result)
 
     def test_append_options(self):
         _testsubnet = network_fakes.FakeSubnet.create_one_subnet(

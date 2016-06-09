@@ -15,7 +15,6 @@ import argparse
 import copy
 import mock
 
-from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.network.v2 import subnet_pool
 from openstackclient.tests import fakes
@@ -443,10 +442,14 @@ class TestSetSubnetPool(TestSubnetPool):
     def test_set_nothing(self):
         arglist = [self._subnet_pool.name, ]
         verifylist = [('subnet_pool', self._subnet_pool.name), ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {}
+        self.network.update_subnet_pool.assert_called_once_with(
+            self._subnet_pool, **attrs)
+        self.assertIsNone(result)
 
     def test_set_len_negative(self):
         arglist = [

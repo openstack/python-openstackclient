@@ -14,7 +14,6 @@
 """Subnet pool action implementations"""
 
 from openstackclient.common import command
-from openstackclient.common import exceptions
 from openstackclient.common import parseractions
 from openstackclient.common import utils
 from openstackclient.i18n import _
@@ -286,9 +285,6 @@ class SetSubnetPool(command.Command):
                                       ignore_missing=False)
 
         attrs = _get_attrs(self.app.client_manager, parsed_args)
-        if attrs == {}:
-            msg = _("Nothing specified to be set")
-            raise exceptions.CommandError(msg)
 
         # Existing prefixes must be a subset of the new prefixes.
         if 'prefixes' in attrs:

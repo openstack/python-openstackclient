@@ -14,7 +14,6 @@
 """Network action implementations"""
 
 from openstackclient.common import command
-from openstackclient.common import exceptions
 from openstackclient.common import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -434,10 +433,6 @@ class SetNetwork(command.Command):
         obj = client.find_network(parsed_args.network, ignore_missing=False)
 
         attrs = _get_attrs(self.app.client_manager, parsed_args)
-        if attrs == {}:
-            msg = _("Nothing specified to be set")
-            raise exceptions.CommandError(msg)
-
         client.update_network(obj, **attrs)
 
 

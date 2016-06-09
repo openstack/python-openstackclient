@@ -313,8 +313,12 @@ class TestSetAddressScope(TestAddressScope):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {}
+        self.network.update_address_scope.assert_called_with(
+            self._address_scope, **attrs)
+        self.assertIsNone(result)
 
     def test_set_name_and_share(self):
         arglist = [
