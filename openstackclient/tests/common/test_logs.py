@@ -11,6 +11,9 @@
 #   under the License.
 #
 
+# NOTE(dtroyer): This file is deprecated in Jun 2016, remove after 4.x release
+#                or Jun 2017.
+
 import logging
 import mock
 
@@ -121,7 +124,7 @@ class TestLogConfigurator(utils.TestCase):
 
     @mock.patch('logging.StreamHandler')
     @mock.patch('logging.getLogger')
-    @mock.patch('openstackclient.common.logs.set_warning_filter')
+    @mock.patch('osc_lib.logs.set_warning_filter')
     def test_init(self, warning_filter, getLogger, handle):
         getLogger.side_effect = self.loggers
         console_logger = mock.Mock()
@@ -142,7 +145,7 @@ class TestLogConfigurator(utils.TestCase):
         self.assertFalse(configurator.dump_trace)
 
     @mock.patch('logging.getLogger')
-    @mock.patch('openstackclient.common.logs.set_warning_filter')
+    @mock.patch('osc_lib.logs.set_warning_filter')
     def test_init_no_debug(self, warning_filter, getLogger):
         getLogger.side_effect = self.loggers
         self.options.debug = True
@@ -155,8 +158,8 @@ class TestLogConfigurator(utils.TestCase):
 
     @mock.patch('logging.FileHandler')
     @mock.patch('logging.getLogger')
-    @mock.patch('openstackclient.common.logs.set_warning_filter')
-    @mock.patch('openstackclient.common.logs._FileFormatter')
+    @mock.patch('osc_lib.logs.set_warning_filter')
+    @mock.patch('osc_lib.logs._FileFormatter')
     def test_init_log_file(self, formatter, warning_filter, getLogger, handle):
         getLogger.side_effect = self.loggers
         self.options.log_file = '/tmp/log_file'
@@ -176,8 +179,8 @@ class TestLogConfigurator(utils.TestCase):
 
     @mock.patch('logging.FileHandler')
     @mock.patch('logging.getLogger')
-    @mock.patch('openstackclient.common.logs.set_warning_filter')
-    @mock.patch('openstackclient.common.logs._FileFormatter')
+    @mock.patch('osc_lib.logs.set_warning_filter')
+    @mock.patch('osc_lib.logs._FileFormatter')
     def test_configure(self, formatter, warning_filter, getLogger, handle):
         getLogger.side_effect = self.loggers
         configurator = logs.LogConfigurator(self.options)
