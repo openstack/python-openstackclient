@@ -88,6 +88,14 @@ class TestCreateSubnet(TestSubnet):
         }
     )
 
+    # The network segment to be returned from find_segment
+    _network_segment = \
+        network_fakes.FakeNetworkSegment.create_one_network_segment(
+            attrs={
+                'network_id': _subnet.network_id,
+            }
+        )
+
     columns = (
         'allocation_pools',
         'cidr',
@@ -102,6 +110,7 @@ class TestCreateSubnet(TestSubnet):
         'name',
         'network_id',
         'project_id',
+        'segment_id',
         'subnetpool_id',
     )
 
@@ -119,6 +128,7 @@ class TestCreateSubnet(TestSubnet):
         _subnet.name,
         _subnet.network_id,
         _subnet.project_id,
+        _subnet.segment_id,
         _subnet.subnetpool_id,
     )
 
@@ -136,6 +146,7 @@ class TestCreateSubnet(TestSubnet):
         _subnet_from_pool.name,
         _subnet_from_pool.network_id,
         _subnet_from_pool.project_id,
+        _subnet_from_pool.segment_id,
         _subnet_from_pool.subnetpool_id,
     )
 
@@ -153,6 +164,7 @@ class TestCreateSubnet(TestSubnet):
         _subnet_ipv6.name,
         _subnet_ipv6.network_id,
         _subnet_ipv6.project_id,
+        _subnet_ipv6.segment_id,
         _subnet_ipv6.subnetpool_id,
     )
 
@@ -186,6 +198,15 @@ class TestCreateSubnet(TestSubnet):
             loaded=True,
         )
 
+        # Mock SDK calls for all tests.
+        self.network.find_network = mock.Mock(return_value=self._network)
+        self.network.find_segment = mock.Mock(
+            return_value=self._network_segment
+        )
+        self.network.find_subnet_pool = mock.Mock(
+            return_value=self._subnet_pool
+        )
+
     def test_create_no_options(self):
         arglist = []
         verifylist = []
@@ -196,11 +217,9 @@ class TestCreateSubnet(TestSubnet):
                           self.check_parser, self.cmd, arglist, verifylist)
 
     def test_create_default_options(self):
-        # Mock create_subnet and find_network sdk calls to return the
-        # values we want for this test
+        # Mock SDK calls for this test.
         self.network.create_subnet = mock.Mock(return_value=self._subnet)
         self._network.id = self._subnet.network_id
-        self.network.find_network = mock.Mock(return_value=self._network)
 
         arglist = [
             "--subnet-range", self._subnet.cidr,
@@ -230,14 +249,10 @@ class TestCreateSubnet(TestSubnet):
         self.assertEqual(self.data, data)
 
     def test_create_from_subnet_pool_options(self):
-        # Mock create_subnet, find_subnet_pool, and find_network sdk calls
-        # to return the values we want for this test
+        # Mock SDK calls for this test.
         self.network.create_subnet = \
             mock.Mock(return_value=self._subnet_from_pool)
         self._network.id = self._subnet_from_pool.network_id
-        self.network.find_network = mock.Mock(return_value=self._network)
-        self.network.find_subnet_pool = \
-            mock.Mock(return_value=self._subnet_pool)
 
         arglist = [
             self._subnet_from_pool.name,
@@ -290,11 +305,9 @@ class TestCreateSubnet(TestSubnet):
         self.assertEqual(self.data_subnet_pool, data)
 
     def test_create_options_subnet_range_ipv6(self):
-        # Mock create_subnet and find_network sdk calls to return the
-        # values we want for this test
+        # Mock SDK calls for this test.
         self.network.create_subnet = mock.Mock(return_value=self._subnet_ipv6)
         self._network.id = self._subnet_ipv6.network_id
-        self.network.find_network = mock.Mock(return_value=self._network)
 
         arglist = [
             self._subnet_ipv6.name,
@@ -356,6 +369,59 @@ class TestCreateSubnet(TestSubnet):
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data_ipv6, data)
+
+    def test_create_no_beta_command_options(self):
+        arglist = [
+            "--subnet-range", self._subnet.cidr,
+            "--network-segment", self._network_segment.id,
+            "--network", self._subnet.network_id,
+            self._subnet.name,
+        ]
+        verifylist = [
+            ('name', self._subnet.name),
+            ('subnet_range', self._subnet.cidr),
+            ('network-segment', self._network_segment.id),
+            ('network', self._subnet.network_id),
+        ]
+        self.app.options.os_beta_command = False
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser, self.cmd, arglist, verifylist)
+
+    def test_create_with_network_segment(self):
+        # Mock SDK calls for this test.
+        self.network.create_subnet = mock.Mock(return_value=self._subnet)
+        self._network.id = self._subnet.network_id
+
+        arglist = [
+            "--subnet-range", self._subnet.cidr,
+            "--network-segment", self._network_segment.id,
+            "--network", self._subnet.network_id,
+            self._subnet.name,
+        ]
+        verifylist = [
+            ('name', self._subnet.name),
+            ('subnet_range', self._subnet.cidr),
+            ('network_segment', self._network_segment.id),
+            ('network', self._subnet.network_id),
+            ('ip_version', self._subnet.ip_version),
+            ('gateway', 'auto'),
+
+        ]
+
+        self.app.options.os_beta_command = True
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_subnet.assert_called_once_with(**{
+            'cidr': self._subnet.cidr,
+            'enable_dhcp': self._subnet.enable_dhcp,
+            'ip_version': self._subnet.ip_version,
+            'name': self._subnet.name,
+            'network_id': self._subnet.network_id,
+            'segment_id': self._network_segment.id,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
 
 class TestDeleteSubnet(TestSubnet):
@@ -593,6 +659,7 @@ class TestShowSubnet(TestSubnet):
         'name',
         'network_id',
         'project_id',
+        'segment_id',
         'subnetpool_id',
     )
 
@@ -610,6 +677,7 @@ class TestShowSubnet(TestSubnet):
         _subnet.name,
         _subnet.network_id,
         _subnet.tenant_id,
+        _subnet.segment_id,
         _subnet.subnetpool_id,
     )
 

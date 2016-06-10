@@ -352,7 +352,7 @@ class FakeNetworkSegment(object):
 
         # Set default attributes.
         network_segment_attrs = {
-            'id': 'segment-id-' + uuid.uuid4().hex,
+            'id': 'network-segment-id-' + uuid.uuid4().hex,
             'network_id': 'network-id-' + uuid.uuid4().hex,
             'network_type': 'vlan',
             'physical_network': 'physical-network-name-' + uuid.uuid4().hex,
@@ -699,9 +699,10 @@ class FakeSubnet(object):
             'host_routes': [],
             'ip_version': 4,
             'gateway_ip': '10.10.10.1',
-            'ipv6_address_mode': 'None',
-            'ipv6_ra_mode': 'None',
-            'subnetpool_id': 'None',
+            'ipv6_address_mode': None,
+            'ipv6_ra_mode': None,
+            'segment_id': None,
+            'subnetpool_id': None,
         }
 
         # Overwrite default attributes.
