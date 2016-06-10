@@ -1,0 +1,5 @@
+---
+features:
+  - Add ``geneve`` choice to the  ``network create`` command
+    ``--provider-network-type`` option.
+    [Blueprint :oscbp:`neutron-client`]

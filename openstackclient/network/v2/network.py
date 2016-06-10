@@ -103,11 +103,11 @@ def _add_additional_network_options(parser):
     parser.add_argument(
         '--provider-network-type',
         metavar='<provider-network-type>',
-        choices=['flat', 'gre', 'local',
+        choices=['flat', 'geneve', 'gre', 'local',
                  'vlan', 'vxlan'],
         help=_("The physical mechanism by which the virtual network "
                "is implemented. The supported options are: "
-               "flat, gre, local, vlan, vxlan"))
+               "flat, geneve, gre, local, vlan, vxlan"))
     parser.add_argument(
         '--provider-physical-network',
         metavar='<provider-physical-network>',
@@ -118,8 +118,8 @@ def _add_additional_network_options(parser):
         '--provider-segment',
         metavar='<provider-segment>',
         dest='segmentation_id',
-        help=_("VLAN ID for VLAN networks or Tunnel ID for GRE/VXLAN "
-               "networks"))
+        help=_("VLAN ID for VLAN networks or Tunnel ID for "
+               "GENEVE/GRE/VXLAN networks"))
 
     vlan_transparent_grp = parser.add_mutually_exclusive_group()
     vlan_transparent_grp.add_argument(
