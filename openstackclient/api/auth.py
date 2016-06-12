@@ -171,7 +171,8 @@ def check_valid_auth_options(options, auth_plugin_name, required_scope=True):
                           'auth.url'))
 
     if msgs:
-        raise exc.CommandError('Missing parameter(s): \n%s' % '\n'.join(msgs))
+        raise exc.CommandError(
+            _('Missing parameter(s): \n%s') % '\n'.join(msgs))
 
 
 def build_auth_plugins_option_parser(parser):
@@ -187,10 +188,9 @@ def build_auth_plugins_option_parser(parser):
         metavar='<auth-type>',
         dest='auth_type',
         default=utils.env('OS_AUTH_TYPE'),
-        help='Select an authentication type. Available types: ' +
-             ', '.join(available_plugins) +
-             '. Default: selected based on --os-username/--os-token' +
-             ' (Env: OS_AUTH_TYPE)',
+        help=_('Select an authentication type. Available types: %s.'
+               ' Default: selected based on --os-username/--os-token'
+               ' (Env: OS_AUTH_TYPE)') % ', '.join(available_plugins),
         choices=available_plugins
     )
     # Maintain compatibility with old tenant env vars
@@ -215,10 +215,10 @@ def build_auth_plugins_option_parser(parser):
                     OPTIONS_LIST[o]['env'],
                     utils.env(OPTIONS_LIST[o]['env']),
                 ),
-                help='%s\n(Env: %s)' % (
-                    OPTIONS_LIST[o]['help'],
-                    OPTIONS_LIST[o]['env'],
-                ),
+                help=_('%(help)s\n(Env: %(env)s)') % {
+                    'help': OPTIONS_LIST[o]['help'],
+                    'env': OPTIONS_LIST[o]['env'],
+                },
             )
     # add tenant-related options for compatibility
     # this is deprecated but still used in some tempest tests...

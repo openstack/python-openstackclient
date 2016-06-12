@@ -21,6 +21,8 @@ from six.moves.urllib import parse as urlparse
 from keystoneauth1.loading._plugins import admin_token as token_endpoint
 from keystoneauth1.loading._plugins.identity import generic as ksa_password
 
+from openstackclient.i18n import _
+
 LOG = logging.getLogger(__name__)
 
 
@@ -51,10 +53,10 @@ class TokenEndpoint(token_endpoint.AdminToken):
         options.extend([
             # Maintain name 'url' for compatibility
             cfg.StrOpt('url',
-                       help='Specific service endpoint to use'),
+                       help=_('Specific service endpoint to use')),
             cfg.StrOpt('token',
                        secret=True,
-                       help='Authentication token to use'),
+                       help=_('Authentication token to use')),
         ])
 
         return options
