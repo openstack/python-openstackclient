@@ -452,6 +452,25 @@ class FakeSecurityGroup(object):
 
         return security_groups
 
+    @staticmethod
+    def get_security_groups(security_groups=None, count=2):
+        """Get an iterable MagicMock object with a list of faked security groups.
+
+        If security groups list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List security groups:
+            A list of FakeResource objects faking security groups
+        :param int count:
+            The number of security groups to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            security groups
+        """
+        if security_groups is None:
+            security_groups = FakeSecurityGroup.create_security_groups(count)
+        return mock.MagicMock(side_effect=security_groups)
+
 
 class FakeSecurityGroupRule(object):
     """Fake one or more security group rules."""

@@ -110,26 +110,28 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
         return (columns, data)
 
 
-class DeleteFloatingIP(common.NetworkAndComputeCommand):
-    """Delete floating IP"""
+class DeleteFloatingIP(common.NetworkAndComputeDelete):
+    """Delete floating IP(s)"""
+
+    # Used by base class to find resources in parsed_args.
+    resource = 'floating_ip'
+    r = None
 
     def update_parser_common(self, parser):
         parser.add_argument(
             'floating_ip',
             metavar="<floating-ip>",
-            help=_("Floating IP to delete (IP address or ID)")
+            nargs="+",
+            help=_("Floating IP(s) to delete (IP address or ID)")
         )
         return parser
 
     def take_action_network(self, client, parsed_args):
-        obj = client.find_ip(parsed_args.floating_ip)
+        obj = client.find_ip(self.r, ignore_missing=False)
         client.delete_ip(obj)
 
     def take_action_compute(self, client, parsed_args):
-        obj = utils.find_resource(
-            client.floating_ips,
-            parsed_args.floating_ip,
-        )
+        obj = utils.find_resource(client.floating_ips, self.r)
         client.floating_ips.delete(obj.id)
 
 

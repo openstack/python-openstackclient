@@ -164,26 +164,28 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
         return (display_columns, data)
 
 
-class DeleteSecurityGroup(common.NetworkAndComputeCommand):
-    """Delete a security group"""
+class DeleteSecurityGroup(common.NetworkAndComputeDelete):
+    """Delete security group(s)"""
+
+    # Used by base class to find resources in parsed_args.
+    resource = 'group'
+    r = None
 
     def update_parser_common(self, parser):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help=_("Security group to delete (name or ID)")
+            nargs="+",
+            help=_("Security group(s) to delete (name or ID)"),
         )
         return parser
 
     def take_action_network(self, client, parsed_args):
-        obj = client.find_security_group(parsed_args.group)
+        obj = client.find_security_group(self.r, ignore_missing=False)
         client.delete_security_group(obj)
 
     def take_action_compute(self, client, parsed_args):
-        data = utils.find_resource(
-            client.security_groups,
-            parsed_args.group,
-        )
+        data = utils.find_resource(client.security_groups, self.r)
         client.security_groups.delete(data.id)
 
 

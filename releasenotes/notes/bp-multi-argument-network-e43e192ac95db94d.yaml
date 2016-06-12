@@ -1,0 +1,5 @@
+---
+features:
+  - Support bulk deletion for ``floating ip delete``, ``security group delete``,
+    and ``security group rule delete`` commands in networkv2.
+    [Blueprint `multi-argument-network <https://blueprints.launchpad.net/python-openstackclient/+spec/multi-argument-network>`_]

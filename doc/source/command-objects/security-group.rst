@@ -45,17 +45,17 @@ Create a new security group
 security group delete
 ---------------------
 
-Delete a security group
+Delete security group(s)
 
 .. program:: security group delete
 .. code:: bash
 
     os security group delete
-        <group>
+        <group> [<group> ...]
 
 .. describe:: <group>
 
-    Security group to delete (name or ID)
+    Security group(s) to delete (name or ID)
 
 security group list
 -------------------
