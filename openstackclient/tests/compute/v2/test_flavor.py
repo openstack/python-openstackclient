@@ -644,6 +644,8 @@ class TestFlavorUnset(TestFlavor):
         result = self.cmd.take_action(parsed_args)
         self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
                                                   is_public=None)
+        self.flavor.unset_keys.assert_called_with(['property'])
+        self.flavor_access_mock.remove_tenant_access.assert_not_called()
         self.assertIsNone(result)
 
     def test_flavor_unset_project(self):
@@ -660,24 +662,14 @@ class TestFlavorUnset(TestFlavor):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
+        self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
+                                                  is_public=None)
         self.flavor_access_mock.remove_tenant_access.assert_called_with(
             self.flavor.id,
             identity_fakes.project_id,
         )
-
-    def test_flavor_unset_no_project(self):
-        arglist = [
-            '--project', '',
-            self.flavor.id,
-        ]
-        verifylist = [
-            ('project', ''),
-            ('flavor', self.flavor.id),
-        ]
-
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        self.flavor.unset_keys.assert_not_called()
+        self.assertIsNone(result)
 
     def test_flavor_unset_no_flavor(self):
         arglist = [
@@ -686,12 +678,8 @@ class TestFlavorUnset(TestFlavor):
         verifylist = [
             ('project', identity_fakes.project_id),
         ]
-
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser,
-                          self.cmd,
-                          arglist,
-                          verifylist)
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
     def test_flavor_unset_with_unexist_flavor(self):
         self.flavors_mock.get.side_effect = exceptions.NotFound(None)
@@ -706,9 +694,7 @@ class TestFlavorUnset(TestFlavor):
             ('flavor', 'unexist_flavor'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action,
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                           parsed_args)
 
     def test_flavor_unset_nothing(self):
@@ -718,7 +704,6 @@ class TestFlavorUnset(TestFlavor):
         verifylist = [
             ('flavor', self.flavor.id),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                           parsed_args)
