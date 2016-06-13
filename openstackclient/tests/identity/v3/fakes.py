@@ -13,7 +13,11 @@
 #   under the License.
 #
 
+import copy
 import mock
+
+from keystoneauth1 import access
+from keystoneauth1 import fixture
 
 from openstackclient.tests import fakes
 from openstackclient.tests import utils
@@ -417,6 +421,36 @@ oauth_verifier_pin = '6d74XaDS'
 OAUTH_VERIFIER = {
     'oauth_verifier': oauth_verifier_pin
 }
+
+
+def fake_auth_ref(fake_token, fake_service=None):
+    """Create an auth_ref using keystoneauth's fixtures"""
+    token_copy = copy.deepcopy(fake_token)
+    token_id = token_copy.pop('id')
+    token = fixture.V3Token(**token_copy)
+    # An auth_ref is actually an access info object
+    auth_ref = access.create(
+        body=token,
+        auth_token=token_id,
+    )
+
+    # Create a service catalog
+    if fake_service:
+        service = token.add_service(
+            fake_service['type'],
+            fake_service['name'],
+        )
+        # TODO(dtroyer): Add an 'id' element to KSA's _Service fixure
+        service['id'] = fake_service['id']
+        for e in fake_service['endpoints']:
+            region = e.get('region_id') or e.get('region', '<none>')
+            service.add_endpoint(
+                e['interface'],
+                e['url'],
+                region=region,
+            )
+
+    return auth_ref
 
 
 class FakeAuth(object):

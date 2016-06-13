@@ -17,11 +17,11 @@ import json as jsonutils
 import mock
 from requests_mock.contrib import fixture
 
-from keystoneclient.auth.identity import v2 as auth_v2
-from keystoneclient import service_catalog
+from keystoneauth1.access import service_catalog
+from keystoneauth1.identity import v2 as auth_v2
+from keystoneauth1 import token_endpoint
 
 from openstackclient.api import auth
-from openstackclient.api import auth_plugin
 from openstackclient.common import clientmanager
 from openstackclient.common import exceptions as exc
 from openstackclient.tests import fakes
@@ -29,7 +29,6 @@ from openstackclient.tests import utils
 
 
 API_VERSION = {"identity": "2.0"}
-
 AUTH_REF = {'version': 'v2.0'}
 AUTH_REF.update(fakes.TEST_RESPONSE_DICT['access'])
 SERVICE_CATALOG = service_catalog.ServiceCatalogV2(AUTH_REF)
@@ -126,7 +125,7 @@ class TestClientManager(utils.TestCase):
         )
         self.assertIsInstance(
             client_manager.auth,
-            auth_plugin.TokenEndpoint,
+            token_endpoint.Token,
         )
         self.assertFalse(client_manager._insecure)
         self.assertTrue(client_manager._verify)
@@ -205,11 +204,14 @@ class TestClientManager(utils.TestCase):
         )
         self.assertTrue(client_manager._insecure)
         self.assertFalse(client_manager._verify)
-
         # These need to stick around until the old-style clients are gone
         self.assertEqual(
-            AUTH_REF,
-            client_manager.auth_ref,
+            AUTH_REF.pop('version'),
+            client_manager.auth_ref.version,
+        )
+        self.assertEqual(
+            fakes.to_unicode_dict(AUTH_REF),
+            client_manager.auth_ref._data['access'],
         )
         self.assertEqual(
             dir(SERVICE_CATALOG),
@@ -296,9 +298,10 @@ class TestClientManager(utils.TestCase):
     def _select_auth_plugin(self, auth_params, api_version, auth_plugin_name):
         auth_params['auth_type'] = auth_plugin_name
         auth_params['identity_api_version'] = api_version
+
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(**auth_params),
-            api_version=API_VERSION,
+            api_version={"identity": api_version},
             verify=True
         )
         client_manager.setup_auth()

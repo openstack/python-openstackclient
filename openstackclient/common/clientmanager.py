@@ -269,7 +269,7 @@ class ClientManager(object):
             endpoint = self.auth_ref.service_catalog.url_for(
                 service_type=service_type,
                 region_name=region_name,
-                endpoint_type=interface,
+                interface=interface,
             )
         else:
             # Get the passed endpoint directly from the auth plugin

@@ -26,6 +26,13 @@ from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
 
 class TestRole(identity_fakes.TestIdentityv2):
 
+    fake_service = copy.deepcopy(identity_fakes.SERVICE)
+    fake_service['endpoints'] = [
+        {
+            'publicURL': identity_fakes.ENDPOINT['publicurl'],
+        },
+    ]
+
     def setUp(self):
         super(TestRole, self).setUp()
 
@@ -40,6 +47,13 @@ class TestRole(identity_fakes.TestIdentityv2):
         # Get a shortcut to the RoleManager Mock
         self.roles_mock = self.app.client_manager.identity.roles
         self.roles_mock.reset_mock()
+
+        auth_ref = identity_fakes.fake_auth_ref(
+            identity_fakes.TOKEN,
+            fake_service=self.fake_service,
+        )
+        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
+        type(self.app.client_manager).auth_ref = self.ar_mock
 
 
 class TestRoleAdd(TestRole):
@@ -320,7 +334,14 @@ class TestUserRoleList(TestRole):
         # Get the command object to test
         self.cmd = role.ListUserRole(self.app, None)
 
-    def test_user_role_list_no_options(self):
+    def test_user_role_list_no_options_unscoped_token(self):
+        auth_ref = identity_fakes.fake_auth_ref(
+            identity_fakes.UNSCOPED_TOKEN,
+            fake_service=self.fake_service,
+        )
+        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
+        type(self.app.client_manager).auth_ref = self.ar_mock
+
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -332,11 +353,7 @@ class TestUserRoleList(TestRole):
             parsed_args,
         )
 
-    def test_user_role_list_no_options_def_creds(self):
-        auth_ref = self.app.client_manager.auth_ref = mock.MagicMock()
-        auth_ref.project_id.return_value = identity_fakes.project_id
-        auth_ref.user_id.return_value = identity_fakes.user_id
-
+    def test_user_role_list_no_options_scoped_token(self):
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -361,7 +378,14 @@ class TestUserRoleList(TestRole):
         ), )
         self.assertEqual(datalist, tuple(data))
 
-    def test_user_role_list_project(self):
+    def test_user_role_list_project_unscoped_token(self):
+        auth_ref = identity_fakes.fake_auth_ref(
+            identity_fakes.UNSCOPED_TOKEN,
+            fake_service=self.fake_service,
+        )
+        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
+        type(self.app.client_manager).auth_ref = self.ar_mock
+
         self.projects_mock.get.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.PROJECT_2),
@@ -375,18 +399,26 @@ class TestUserRoleList(TestRole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # This argument combination should raise a CommandError
-        self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args,
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.roles_mock.roles_for_user.assert_called_with(
+            identity_fakes.user_id,
+            identity_fakes.PROJECT_2['id'],
         )
 
-    def test_user_role_list_project_def_creds(self):
-        auth_ref = self.app.client_manager.auth_ref = mock.MagicMock()
-        auth_ref.project_id.return_value = identity_fakes.project_id
-        auth_ref.user_id.return_value = identity_fakes.user_id
+        self.assertEqual(columns, columns)
+        datalist = ((
+            identity_fakes.role_id,
+            identity_fakes.role_name,
+            identity_fakes.PROJECT_2['name'],
+            identity_fakes.user_name,
+        ), )
+        self.assertEqual(datalist, tuple(data))
 
+    def test_user_role_list_project_scoped_token(self):
         self.projects_mock.get.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.PROJECT_2),

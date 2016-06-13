@@ -231,18 +231,19 @@ class ListUserRole(command.Lister):
         # Project and user are required, if not included in command args
         # default to the values used for authentication.  For token-flow
         # authentication they must be included on the command line.
+        if (not parsed_args.project and
+                self.app.client_manager.auth_ref.project_id):
+            parsed_args.project = auth_ref.project_id
         if not parsed_args.project:
-            if self.app.client_manager.auth_ref:
-                parsed_args.project = auth_ref.project_id
-            else:
-                msg = _("Project must be specified")
-                raise exceptions.CommandError(msg)
+            msg = _("Project must be specified")
+            raise exceptions.CommandError(msg)
+
+        if (not parsed_args.user and
+                self.app.client_manager.auth_ref.user_id):
+            parsed_args.user = auth_ref.user_id
         if not parsed_args.user:
-            if self.app.client_manager.auth_ref:
-                parsed_args.user = auth_ref.user_id
-            else:
-                msg = _("User must be specified")
-                raise exceptions.CommandError(msg)
+            msg = _("User must be specified")
+            raise exceptions.CommandError(msg)
 
         project = utils.find_resource(
             identity_client.tenants,

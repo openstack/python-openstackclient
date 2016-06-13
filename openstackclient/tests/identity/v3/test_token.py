@@ -24,10 +24,9 @@ class TestToken(identity_fakes.TestIdentityv3):
     def setUp(self):
         super(TestToken, self).setUp()
 
-        # Get a shortcut to the Service Catalog Mock
-        self.sc_mock = mock.Mock()
-        self.app.client_manager.auth_ref = mock.Mock()
-        self.app.client_manager.auth_ref.service_catalog = self.sc_mock
+        # Get a shortcut to the Auth Ref Mock
+        self.ar_mock = mock.PropertyMock()
+        type(self.app.client_manager).auth_ref = self.ar_mock
 
 
 class TestTokenIssue(TestToken):
@@ -38,23 +37,25 @@ class TestTokenIssue(TestToken):
         self.cmd = token.IssueToken(self.app, None)
 
     def test_token_issue_with_project_id(self):
+        auth_ref = identity_fakes.fake_auth_ref(
+            identity_fakes.TOKEN_WITH_PROJECT_ID,
+        )
+        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
+        type(self.app.client_manager).auth_ref = self.ar_mock
+
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.sc_mock.get_token.return_value = \
-            identity_fakes.TOKEN_WITH_PROJECT_ID
 
         # In base command class ShowOne in cliff, abstract method take_action()
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sc_mock.get_token.assert_called_with()
-
         collist = ('expires', 'id', 'project_id', 'user_id')
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.token_expires,
+            auth_ref.expires,
             identity_fakes.token_id,
             identity_fakes.project_id,
             identity_fakes.user_id,
@@ -62,45 +63,53 @@ class TestTokenIssue(TestToken):
         self.assertEqual(datalist, data)
 
     def test_token_issue_with_domain_id(self):
+        auth_ref = identity_fakes.fake_auth_ref(
+            identity_fakes.TOKEN_WITH_DOMAIN_ID,
+        )
+        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
+        type(self.app.client_manager).auth_ref = self.ar_mock
+
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.sc_mock.get_token.return_value = \
-            identity_fakes.TOKEN_WITH_DOMAIN_ID
 
         # In base command class ShowOne in cliff, abstract method take_action()
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sc_mock.get_token.assert_called_with()
-
         collist = ('domain_id', 'expires', 'id', 'user_id')
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.domain_id,
-            identity_fakes.token_expires,
+            auth_ref.expires,
             identity_fakes.token_id,
             identity_fakes.user_id,
         )
         self.assertEqual(datalist, data)
 
     def test_token_issue_with_unscoped(self):
+        auth_ref = identity_fakes.fake_auth_ref(
+            identity_fakes.UNSCOPED_TOKEN,
+        )
+        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
+        type(self.app.client_manager).auth_ref = self.ar_mock
+
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.sc_mock.get_token.return_value = \
-            identity_fakes.UNSCOPED_TOKEN
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sc_mock.get_token.assert_called_with()
-
-        collist = ('expires', 'id', 'user_id')
+        collist = (
+            'expires',
+            'id',
+            'user_id',
+        )
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.token_expires,
+            auth_ref.expires,
             identity_fakes.token_id,
             identity_fakes.user_id,
         )

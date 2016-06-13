@@ -14,6 +14,7 @@
 import mock
 
 from openstackclient.identity.v2_0 import catalog
+from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests import utils
 
 
@@ -49,7 +50,7 @@ class TestCatalog(utils.TestCommand):
         super(TestCatalog, self).setUp()
 
         self.sc_mock = mock.MagicMock()
-        self.sc_mock.service_catalog.get_data.return_value = [
+        self.sc_mock.service_catalog.catalog.return_value = [
             self.fake_service,
         ]
 
@@ -74,6 +75,13 @@ class TestCatalogList(TestCatalog):
         self.cmd = catalog.ListCatalog(self.app, None)
 
     def test_catalog_list(self):
+        auth_ref = identity_fakes.fake_auth_ref(
+            identity_fakes.TOKEN,
+            fake_service=self.fake_service,
+        )
+        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
+        type(self.app.client_manager).auth_ref = self.ar_mock
+
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -82,7 +90,6 @@ class TestCatalogList(TestCatalog):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.sc_mock.service_catalog.get_data.assert_called_with()
 
         self.assertEqual(self.columns, columns)
         datalist = ((
@@ -117,9 +124,12 @@ class TestCatalogList(TestCatalog):
                 },
             ],
         }
-        self.sc_mock.service_catalog.get_data.return_value = [
-            fake_service,
-        ]
+        auth_ref = identity_fakes.fake_auth_ref(
+            identity_fakes.TOKEN,
+            fake_service=fake_service,
+        )
+        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
+        type(self.app.client_manager).auth_ref = self.ar_mock
 
         arglist = []
         verifylist = []
@@ -129,7 +139,6 @@ class TestCatalogList(TestCatalog):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.sc_mock.service_catalog.get_data.assert_called_with()
 
         self.assertEqual(self.columns, columns)
         datalist = ((
@@ -151,6 +160,13 @@ class TestCatalogShow(TestCatalog):
         self.cmd = catalog.ShowCatalog(self.app, None)
 
     def test_catalog_show(self):
+        auth_ref = identity_fakes.fake_auth_ref(
+            identity_fakes.UNSCOPED_TOKEN,
+            fake_service=self.fake_service,
+        )
+        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
+        type(self.app.client_manager).auth_ref = self.ar_mock
+
         arglist = [
             'compute',
         ]
@@ -163,7 +179,6 @@ class TestCatalogShow(TestCatalog):
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
-        self.sc_mock.service_catalog.get_data.assert_called_with()
 
         collist = ('endpoints', 'id', 'name', 'type')
         self.assertEqual(collist, columns)
