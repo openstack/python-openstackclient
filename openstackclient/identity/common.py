@@ -23,6 +23,8 @@ from keystoneclient.v3 import users
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.i18n import _
+
 
 def find_service(identity_client, name_type_or_id):
     """Find a service by id, name or type."""
@@ -37,14 +39,12 @@ def find_service(identity_client, name_type_or_id):
         # FIXME(dtroyer): This exception should eventually come from
         #                 common client exceptions
         except identity_exc.NotFound:
-            msg = ("No service with a type, name or ID of '%s' exists."
-                   % name_type_or_id)
-            raise exceptions.CommandError(msg)
+            msg = _("No service with a type, name or ID of '%s' exists.")
+            raise exceptions.CommandError(msg % name_type_or_id)
         except identity_exc.NoUniqueMatch:
-            msg = ("Multiple service matches found for '%s', "
-                   "use an ID to be more specific."
-                   % name_type_or_id)
-            raise exceptions.CommandError(msg)
+            msg = _("Multiple service matches found for '%s', "
+                    "use an ID to be more specific.")
+            raise exceptions.CommandError(msg % name_type_or_id)
 
 
 def _get_domain_id_if_requested(identity_client, domain_name_or_id):
@@ -131,9 +131,9 @@ def add_user_domain_option_to_parser(parser):
     parser.add_argument(
         '--user-domain',
         metavar='<user-domain>',
-        help=('Domain the user belongs to (name or ID). '
-              'This can be used in case collisions between user names '
-              'exist.')
+        help=_('Domain the user belongs to (name or ID). '
+               'This can be used in case collisions between user names '
+               'exist.'),
     )
 
 
@@ -141,9 +141,9 @@ def add_group_domain_option_to_parser(parser):
     parser.add_argument(
         '--group-domain',
         metavar='<group-domain>',
-        help=('Domain the group belongs to (name or ID). '
-              'This can be used in case collisions between group names '
-              'exist.')
+        help=_('Domain the group belongs to (name or ID). '
+               'This can be used in case collisions between group names '
+               'exist.'),
     )
 
 
@@ -151,9 +151,9 @@ def add_project_domain_option_to_parser(parser):
     parser.add_argument(
         '--project-domain',
         metavar='<project-domain>',
-        help=('Domain the project belongs to (name or ID). '
-              'This can be used in case collisions between project names '
-              'exist.')
+        help=_('Domain the project belongs to (name or ID). '
+               'This can be used in case collisions between project names '
+               'exist.'),
     )
 
 
@@ -162,5 +162,6 @@ def add_inherited_option_to_parser(parser):
         '--inherited',
         action='store_true',
         default=False,
-        help=('Specifies if the role grant is inheritable to the sub projects')
+        help=_('Specifies if the role grant is inheritable to the sub '
+               'projects'),
     )
