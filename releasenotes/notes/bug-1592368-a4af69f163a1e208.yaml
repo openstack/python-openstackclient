@@ -1,0 +1,6 @@
+---
+fixes:
+  - Fix for network OS_ENDPOINT_TYPE/--os-interface.
+    Previously these were being ignored for network commands
+    which resulted in the public endpoint always being used.
+    [Bug `1592368 <https://bugs.launchpad.net/bugs/1592368>`_]
