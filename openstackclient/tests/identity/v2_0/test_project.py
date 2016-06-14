@@ -16,6 +16,7 @@
 import copy
 
 from keystoneauth1 import exceptions as ks_exc
+from osc_lib import exceptions
 
 from openstackclient.identity.v2_0 import project
 from openstackclient.tests import fakes
@@ -410,6 +411,26 @@ class TestProjectSet(TestProject):
 
         self.assertIsNone(result)
 
+    def test_project_set_unexist_project(self):
+        arglist = [
+            "unexist-project",
+        ]
+        verifylist = [
+            ('project', "unexist-project"),
+            ('name', None),
+            ('description', None),
+            ('enable', False),
+            ('disable', False),
+            ('property', None),
+        ]
+        self.projects_mock.get.side_effect = exceptions.NotFound(None)
+        self.projects_mock.find.side_effect = exceptions.NotFound(None)
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args)
+
     def test_project_set_name(self):
         arglist = [
             '--name', 'qwerty',
@@ -603,6 +624,19 @@ class TestProjectUnset(TestProject):
 
         # Get the command object to test
         self.cmd = project.UnsetProject(self.app, None)
+
+    def test_project_unset_no_options(self):
+        arglist = [
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
 
     def test_project_unset_key(self):
         arglist = [

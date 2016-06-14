@@ -287,15 +287,6 @@ class SetUser(command.Command):
         if parsed_args.password_prompt:
             parsed_args.password = utils.get_password(self.app.stdin)
 
-        if (not parsed_args.name
-                and not parsed_args.name
-                and not parsed_args.password
-                and not parsed_args.email
-                and not parsed_args.project
-                and not parsed_args.enable
-                and not parsed_args.disable):
-            return
-
         user = utils.find_resource(
             identity_client.users,
             parsed_args.user,

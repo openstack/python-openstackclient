@@ -189,13 +189,6 @@ class SetProject(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        if (not parsed_args.name
-                and not parsed_args.description
-                and not parsed_args.enable
-                and not parsed_args.property
-                and not parsed_args.disable):
-            return
-
         project = utils.find_resource(
             identity_client.tenants,
             parsed_args.project,
@@ -295,7 +288,6 @@ class UnsetProject(command.Command):
             metavar='<key>',
             action='append',
             default=[],
-            required=True,
             help=_('Unset a project property '
                    '(repeat option to unset multiple properties)'),
         )
@@ -307,11 +299,8 @@ class UnsetProject(command.Command):
             identity_client.tenants,
             parsed_args.project,
         )
-        if not parsed_args.property:
-            self.app.log.error(_("No changes requested\n"))
-        else:
-            kwargs = project._info
-            for key in parsed_args.property:
-                if key in kwargs:
-                    kwargs[key] = None
-            identity_client.tenants.update(project.id, **kwargs)
+        kwargs = project._info
+        for key in parsed_args.property:
+            if key in kwargs:
+                kwargs[key] = None
+        identity_client.tenants.update(project.id, **kwargs)
