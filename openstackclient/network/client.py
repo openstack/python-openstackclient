@@ -36,6 +36,7 @@ def make_client(instance):
     prof = profile.Profile()
     prof.set_region(API_NAME, instance._region_name)
     prof.set_version(API_NAME, instance._api_version[API_NAME])
+    prof.set_interface(API_NAME, instance._interface)
     conn = connection.Connection(authenticator=instance.session.auth,
                                  verify=instance.session.verify,
                                  cert=instance.session.cert,
