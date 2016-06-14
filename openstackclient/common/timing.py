@@ -13,7 +13,7 @@
 
 """Timing Implementation"""
 
-from openstackclient.common import command
+from osc_lib.command import command
 
 
 class Timing(command.Lister):

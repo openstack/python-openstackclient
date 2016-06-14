@@ -15,10 +15,10 @@
 
 """Identity v2 Token action implementations"""
 
+from osc_lib.command import command
+from osc_lib import exceptions
 import six
 
-from openstackclient.common import command
-from openstackclient.common import exceptions
 from openstackclient.i18n import _
 
 
