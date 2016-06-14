@@ -152,13 +152,13 @@ the plugin commands:
 .. code-block:: python
 
     # osc-lib interfaces available to plugins:
+    from osc_lib.cli import parseractions
     from osc_lib import exceptions
     from osc_lib import logs
     from osc_lib import utils
 
     # OSC common interfaces available to plugins:
     from openstackclient.common import command
-    from openstackclient.common import parseractions
 
 
     class DeleteMypluginobject(command.Command):

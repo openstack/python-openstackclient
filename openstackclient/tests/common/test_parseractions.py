@@ -13,6 +13,9 @@
 #   under the License.
 #
 
+# NOTE(dtroyer): This file is deprecated in Jun 2016, remove after 4.x release
+#                or Jun 2017.
+
 import argparse
 
 from openstackclient.common import parseractions

@@ -21,6 +21,7 @@ import io
 import os
 import sys
 
+from osc_lib.cli import parseractions
 from osc_lib import exceptions
 from osc_lib import utils
 import six
@@ -31,7 +32,6 @@ except ImportError:
     from novaclient.v1_1 import servers
 
 from openstackclient.common import command
-from openstackclient.common import parseractions
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 

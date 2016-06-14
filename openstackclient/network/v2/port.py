@@ -16,11 +16,11 @@
 import argparse
 import logging
 
+from osc_lib.cli import parseractions
 from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.common import command
-from openstackclient.common import parseractions
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
