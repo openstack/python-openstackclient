@@ -474,6 +474,37 @@ class TestImageDelete(TestImage):
         self.images_mock.delete.assert_has_calls(calls)
         self.assertIsNone(result)
 
+    def test_image_delete_multi_images_exception(self):
+
+        images = image_fakes.FakeImage.create_images(count=2)
+        arglist = [
+            images[0].id,
+            images[1].id,
+            'x-y-x',
+        ]
+        verifylist = [
+            ('images', arglist)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Fake exception in utils.find_resource()
+        # In image v2, we use utils.find_resource() to find a network.
+        # It calls get() several times, but find() only one time. So we
+        # choose to fake get() always raise exception, then pass through.
+        # And fake find() to find the real network or not.
+        ret_find = [
+            images[0],
+            images[1],
+            exceptions.NotFound('404'),
+        ]
+
+        self.images_mock.get = Exception()
+        self.images_mock.find.side_effect = ret_find
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+        calls = [mock.call(i.id) for i in images]
+        self.images_mock.delete.assert_has_calls(calls)
+
 
 class TestImageList(TestImage):
 

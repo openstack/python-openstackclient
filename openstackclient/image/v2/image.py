@@ -372,13 +372,27 @@ class DeleteImage(command.Command):
         return parser
 
     def take_action(self, parsed_args):
+
+        del_result = 0
         image_client = self.app.client_manager.image
         for image in parsed_args.images:
-            image_obj = utils.find_resource(
-                image_client.images,
-                image,
-            )
-            image_client.images.delete(image_obj.id)
+            try:
+                image_obj = utils.find_resource(
+                    image_client.images,
+                    image,
+                )
+                image_client.images.delete(image_obj.id)
+            except Exception as e:
+                del_result += 1
+                self.app.log.error(_("Failed to delete image with "
+                                   "name or ID '%(image)s': %(e)s")
+                                   % {'image': image, 'e': e})
+
+        total = len(parsed_args.images)
+        if (del_result > 0):
+            msg = (_("Failed to delete %(dresult)s of %(total)s images.")
+                   % {'dresult': del_result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListImage(command.Lister):

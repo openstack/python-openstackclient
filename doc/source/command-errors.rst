@@ -197,9 +197,6 @@ multiple ``delete_network()`` calls.
 
             if ret > 0:
                 total = len(parsed_args.network)
-                msg = _("Failed to delete %(ret)s of %(total)s networks.") %
-                    {
-                        "ret": ret,
-                        "total": total,
-                    }
+                msg = (_("Failed to delete %(ret)s of %(total)s networks.")
+                       % {"ret": ret, "total": total})
                 raise exceptions.CommandError(msg)
