@@ -469,6 +469,7 @@ class TestFlavorSet(TestFlavor):
         result = self.cmd.take_action(parsed_args)
         self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
                                                   is_public=None)
+        self.flavor.set_keys.assert_called_with({'FOO': '"B A R"'})
         self.assertIsNone(result)
 
     def test_flavor_set_project(self):
@@ -483,12 +484,15 @@ class TestFlavorSet(TestFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.assertIsNone(result)
 
+        self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
+                                                  is_public=None)
         self.flavor_access_mock.add_tenant_access.assert_called_with(
             self.flavor.id,
             identity_fakes.project_id,
         )
+        self.flavor.set_keys.assert_not_called()
+        self.assertIsNone(result)
 
     def test_flavor_set_no_project(self):
         arglist = [
@@ -496,7 +500,7 @@ class TestFlavorSet(TestFlavor):
             self.flavor.id,
         ]
         verifylist = [
-            ('project', ''),
+            ('project', None),
             ('flavor', self.flavor.id),
         ]
         self.assertRaises(tests_utils.ParserException, self.check_parser,
@@ -509,12 +513,8 @@ class TestFlavorSet(TestFlavor):
         verifylist = [
             ('project', identity_fakes.project_id),
         ]
-
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser,
-                          self.cmd,
-                          arglist,
-                          verifylist)
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
     def test_flavor_set_with_unexist_flavor(self):
         self.flavors_mock.get.side_effect = exceptions.NotFound(None)
@@ -541,7 +541,6 @@ class TestFlavorSet(TestFlavor):
         verifylist = [
             ('flavor', self.flavor.id),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                           parsed_args)
@@ -671,6 +670,18 @@ class TestFlavorUnset(TestFlavor):
         )
         self.flavor.unset_keys.assert_not_called()
         self.assertIsNone(result)
+
+    def test_flavor_unset_no_project(self):
+        arglist = [
+            '--project',
+            self.flavor.id,
+        ]
+        verifylist = [
+            ('project', None),
+            ('flavor', self.flavor.id),
+        ]
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
     def test_flavor_unset_no_flavor(self):
         arglist = [
