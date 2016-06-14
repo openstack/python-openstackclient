@@ -11,31 +11,15 @@
 #   under the License.
 #
 
-"""Timing Implementation"""
+# NOTE(dtroyer): This file is deprecated in Jun 2016, remove after 4.x release
+#                or Jun 2017.
 
-from osc_lib.command import command
+import sys
+
+from osc_lib.command.timing import *  # noqa
 
 
-class Timing(command.Lister):
-    """Show timing data"""
-
-    def take_action(self, parsed_args):
-        column_headers = (
-            'URL',
-            'Seconds',
-        )
-
-        results = []
-        total = 0.0
-        for url, td in self.app.timing_data:
-            # NOTE(dtroyer): Take the long way here because total_seconds()
-            #                was added in py27.
-            sec = (td.microseconds + (td.seconds + td.days *
-                                      86400) * 1e6) / 1e6
-            total += sec
-            results.append((url, sec))
-        results.append(('Total', total))
-        return (
-            column_headers,
-            results,
-        )
+sys.stderr.write(
+    "WARNING: %s is deprecated and will be removed after Jun 2017. "
+    "Please use osc_lib.command.timing\n" % __name__
+)
