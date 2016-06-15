@@ -15,7 +15,7 @@ import uuid
 from functional.tests.volume.v1 import common
 
 
-class VolumeTests(common.BaseVolumeTests):
+class QosTests(common.BaseVolumeTests):
     """Functional tests for volume qos. """
 
     NAME = uuid.uuid4().hex
@@ -25,6 +25,7 @@ class VolumeTests(common.BaseVolumeTests):
 
     @classmethod
     def setUpClass(cls):
+        super(QosTests, cls).setUpClass()
         opts = cls.get_show_opts(cls.FIELDS)
         raw_output = cls.openstack('volume qos create ' + cls.NAME + opts)
         cls.ID, name, rol = raw_output.split('\n')
