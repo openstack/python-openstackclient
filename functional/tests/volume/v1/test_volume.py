@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
 import uuid
 
 from functional.tests.volume.v1 import common
@@ -26,7 +25,7 @@ class VolumeTests(common.BaseVolumeTests):
 
     @classmethod
     def setUpClass(cls):
-        os.environ['OS_VOLUME_API_VERSION'] = '1'
+        super(VolumeTests, cls).setUpClass()
         opts = cls.get_show_opts(cls.FIELDS)
         raw_output = cls.openstack('volume create --size 1 ' + cls.NAME + opts)
         expected = cls.NAME + '\n'

@@ -13,10 +13,10 @@
 import time
 import uuid
 
-from functional.common import test
+from functional.tests.volume.v2 import common
 
 
-class SnapshotTests(test.TestCase):
+class SnapshotTests(common.BaseVolumeTests):
     """Functional tests for snapshot. """
 
     VOLLY = uuid.uuid4().hex
@@ -36,6 +36,7 @@ class SnapshotTests(test.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(SnapshotTests, cls).setUpClass()
         cls.openstack('volume create --size 1 ' + cls.VOLLY)
         cls.wait_for_status('volume show ' + cls.VOLLY, 'available\n', 3)
         opts = cls.get_show_opts(['status'])

@@ -10,14 +10,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
 import time
 import uuid
 
-from functional.common import test
+from functional.tests.volume.v2 import common
 
 
-class VolumeTests(test.TestCase):
+class VolumeTests(common.BaseVolumeTests):
     """Functional tests for volume. """
 
     NAME = uuid.uuid4().hex
@@ -29,7 +28,7 @@ class VolumeTests(test.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        os.environ['OS_VOLUME_API_VERSION'] = '2'
+        super(VolumeTests, cls).setUpClass()
         opts = cls.get_show_opts(cls.FIELDS)
 
         # Create test volume
@@ -111,6 +110,7 @@ class VolumeTests(test.TestCase):
         # Delete test snapshot
         raw_output = self.openstack('snapshot delete ' + self.SNAPSHOT_NAME)
         self.assertOutput('', raw_output)
+        self.wait_for("volume", self.NAME, "available")
 
     def wait_for(self, check_type, check_name, desired_status, wait=120,
                  interval=5, failures=['ERROR']):

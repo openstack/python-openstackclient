@@ -24,6 +24,7 @@ class VolumeTypeTests(common.BaseVolumeTests):
 
     @classmethod
     def setUpClass(cls):
+        super(VolumeTypeTests, cls).setUpClass()
         opts = cls.get_show_opts(cls.FIELDS)
         raw_output = cls.openstack('volume type create ' + cls.NAME + opts)
         expected = cls.NAME + '\n'

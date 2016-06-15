@@ -12,10 +12,10 @@
 
 import uuid
 
-from functional.common import test
+from functional.tests.volume.v2 import common
 
 
-class VolumeTypeTests(test.TestCase):
+class VolumeTypeTests(common.BaseVolumeTests):
     """Functional tests for volume type. """
 
     NAME = uuid.uuid4().hex
@@ -24,6 +24,7 @@ class VolumeTypeTests(test.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(VolumeTypeTests, cls).setUpClass()
         opts = cls.get_show_opts(cls.FIELDS)
         raw_output = cls.openstack(
             'volume type create --private ' + cls.NAME + opts)
