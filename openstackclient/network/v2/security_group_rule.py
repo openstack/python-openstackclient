@@ -333,23 +333,29 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         return _format_security_group_rule_show(obj._info)
 
 
-class DeleteSecurityGroupRule(common.NetworkAndComputeCommand):
-    """Delete a security group rule"""
+class DeleteSecurityGroupRule(common.NetworkAndComputeDelete):
+    """Delete security group rule(s)"""
+
+    # Used by base class to find resources in parsed_args.
+    resource = 'rule'
+    r = None
 
     def update_parser_common(self, parser):
         parser.add_argument(
             'rule',
             metavar='<rule>',
-            help=_("Security group rule to delete (ID only)")
+            nargs="+",
+            help=_("Security group rule(s) to delete (ID only)")
         )
         return parser
 
     def take_action_network(self, client, parsed_args):
-        obj = client.find_security_group_rule(parsed_args.rule)
+        obj = client.find_security_group_rule(
+            self.r, ignore_missing=False)
         client.delete_security_group_rule(obj)
 
     def take_action_compute(self, client, parsed_args):
-        client.security_group_rules.delete(parsed_args.rule)
+        client.security_group_rules.delete(self.r)
 
 
 class ListSecurityGroupRule(common.NetworkAndComputeLister):

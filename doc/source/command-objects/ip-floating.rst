@@ -66,16 +66,17 @@ Create new floating IP address
 ip floating delete
 ------------------
 
-Delete floating IP
+Delete floating IP(s)
 
 .. program:: ip floating delete
 .. code:: bash
 
-    os ip floating delete <floating-ip>
+    os ip floating delete
+        <floating-ip> [<floating-ip> ...]
 
 .. describe:: <floating-ip>
 
-    Floating IP to delete (IP address or ID)
+    Floating IP(s) to delete (IP address or ID)
 
 ip floating list
 ----------------

@@ -104,17 +104,17 @@ Create a new security group rule
 security group rule delete
 --------------------------
 
-Delete a security group rule
+Delete security group rule(s)
 
 .. program:: security group rule delete
 .. code:: bash
 
     os security group rule delete
-        <rule>
+        <rule> [<rule> ...]
 
 .. describe:: <rule>
 
-    Security group rule to delete (ID only)
+    Security group rule(s) to delete (ID only)
 
 security group rule list
 ------------------------

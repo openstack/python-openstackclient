@@ -13,6 +13,7 @@
 
 import copy
 import mock
+from mock import call
 
 from osc_lib import exceptions
 
@@ -668,17 +669,20 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
 class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
-    # The security group rule to be deleted.
-    _security_group_rule = \
-        network_fakes.FakeSecurityGroupRule.create_one_security_group_rule()
+    # The security group rules to be deleted.
+    _security_group_rules = \
+        network_fakes.FakeSecurityGroupRule.create_security_group_rules(
+            count=2)
 
     def setUp(self):
         super(TestDeleteSecurityGroupRuleNetwork, self).setUp()
 
         self.network.delete_security_group_rule = mock.Mock(return_value=None)
 
-        self.network.find_security_group_rule = mock.Mock(
-            return_value=self._security_group_rule)
+        self.network.find_security_group_rule = (
+            network_fakes.FakeSecurityGroupRule.get_security_group_rules(
+                self._security_group_rules)
+        )
 
         # Get the command object to test
         self.cmd = security_group_rule.DeleteSecurityGroupRule(
@@ -686,25 +690,76 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
     def test_security_group_rule_delete(self):
         arglist = [
-            self._security_group_rule.id,
+            self._security_group_rules[0].id,
         ]
         verifylist = [
-            ('rule', self._security_group_rule.id),
+            ('rule', [self._security_group_rules[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.network.delete_security_group_rule.assert_called_once_with(
-            self._security_group_rule)
+            self._security_group_rules[0])
         self.assertIsNone(result)
+
+    def test_multi_security_group_rules_delete(self):
+        arglist = []
+        verifylist = []
+
+        for s in self._security_group_rules:
+            arglist.append(s.id)
+        verifylist = [
+            ('rule', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for s in self._security_group_rules:
+            calls.append(call(s))
+        self.network.delete_security_group_rule.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_multi_security_group_rules_delete_with_exception(self):
+        arglist = [
+            self._security_group_rules[0].id,
+            'unexist_rule',
+        ]
+        verifylist = [
+            ('rule',
+             [self._security_group_rules[0].id, 'unexist_rule']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        find_mock_result = [
+            self._security_group_rules[0], exceptions.CommandError]
+        self.network.find_security_group_rule = (
+            mock.MagicMock(side_effect=find_mock_result)
+        )
+
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('1 of 2 rule failed to delete.', str(e))
+
+        self.network.find_security_group_rule.assert_any_call(
+            self._security_group_rules[0].id, ignore_missing=False)
+        self.network.find_security_group_rule.assert_any_call(
+            'unexist_rule', ignore_missing=False)
+        self.network.delete_security_group_rule.assert_called_once_with(
+            self._security_group_rules[0]
+        )
 
 
 class TestDeleteSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
     # The security group rule to be deleted.
-    _security_group_rule = \
-        compute_fakes.FakeSecurityGroupRule.create_one_security_group_rule()
+    _security_group_rules = \
+        compute_fakes.FakeSecurityGroupRule.create_security_group_rules(
+            count=2)
 
     def setUp(self):
         super(TestDeleteSecurityGroupRuleCompute, self).setUp()
@@ -716,18 +771,64 @@ class TestDeleteSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
     def test_security_group_rule_delete(self):
         arglist = [
-            self._security_group_rule.id,
+            self._security_group_rules[0].id,
         ]
         verifylist = [
-            ('rule', self._security_group_rule.id),
+            ('rule', [self._security_group_rules[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.compute.security_group_rules.delete.assert_called_once_with(
-            self._security_group_rule.id)
+            self._security_group_rules[0].id)
         self.assertIsNone(result)
+
+    def test_multi_security_group_rules_delete(self):
+        arglist = []
+        verifylist = []
+
+        for s in self._security_group_rules:
+            arglist.append(s.id)
+        verifylist = [
+            ('rule', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for s in self._security_group_rules:
+            calls.append(call(s.id))
+        self.compute.security_group_rules.delete.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_multi_security_group_rules_delete_with_exception(self):
+        arglist = [
+            self._security_group_rules[0].id,
+            'unexist_rule',
+        ]
+        verifylist = [
+            ('rule',
+             [self._security_group_rules[0].id, 'unexist_rule']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        find_mock_result = [None, exceptions.CommandError]
+        self.compute.security_group_rules.delete = (
+            mock.MagicMock(side_effect=find_mock_result)
+        )
+
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('1 of 2 rule failed to delete.', str(e))
+
+        self.compute.security_group_rules.delete.assert_any_call(
+            self._security_group_rules[0].id)
+        self.compute.security_group_rules.delete.assert_any_call(
+            'unexist_rule')
 
 
 class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
