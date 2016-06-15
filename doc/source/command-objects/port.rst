@@ -45,7 +45,8 @@ Create new port
 
 .. option:: --device-owner <device-owner>
 
-    Device owner of this port
+    Device owner of this port. This is the entity that uses
+    the port (for example, network:dhcp).
 
 .. option:: --vnic-type <vnic-type>
 
@@ -112,7 +113,13 @@ List ports
 .. code:: bash
 
     os port list
+        [--device-owner <device-owner>]
         [--router <router>]
+
+.. option:: --device-owner <device-owner>
+
+    List only ports with the specified device owner. This is
+    the entity that uses the port (for example, network:dhcp).
 
 .. option:: --router <router>
 
@@ -153,7 +160,8 @@ Set port properties
 
 .. option:: --device-owner <device-owner>
 
-    Device owner of this port
+    Device owner of this port. This is the entity that uses
+    the port (for example, network:dhcp).
 
 .. option:: --vnic-type <vnic-type>
 

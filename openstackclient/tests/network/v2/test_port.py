@@ -316,6 +316,47 @@ class TestListPort(TestPort):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_port_list_device_owner_opt(self):
+        arglist = [
+            '--device-owner', self._ports[0].device_owner,
+        ]
+
+        verifylist = [
+            ('device_owner', self._ports[0].device_owner)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ports.assert_called_once_with(**{
+            'device_owner': self._ports[0].device_owner
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_port_list_all_opt(self):
+        arglist = [
+            '--device-owner', self._ports[0].device_owner,
+            '--router', 'fake-router-name',
+        ]
+
+        verifylist = [
+            ('device_owner', self._ports[0].device_owner),
+            ('router', 'fake-router-name')
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ports.assert_called_once_with(**{
+            'device_owner': self._ports[0].device_owner,
+            'device_id': 'fake-router-id'
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
 
 class TestSetPort(TestPort):
 

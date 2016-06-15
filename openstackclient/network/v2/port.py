@@ -169,7 +169,8 @@ def _add_updatable_args(parser):
         parser.add_argument(
             '--device-owner',
             metavar='<device-owner>',
-            help=_("Device owner of this port")
+            help=_("Device owner of this port. This is the entity that uses "
+                   "the port (for example, network:dhcp).")
         )
         parser.add_argument(
             '--vnic-type',
@@ -310,6 +311,13 @@ class ListPort(command.Lister):
     def get_parser(self, prog_name):
         parser = super(ListPort, self).get_parser(prog_name)
         parser.add_argument(
+            '--device-owner',
+            metavar='<device-owner>',
+            help=_("List only ports with the specified device owner. "
+                   "This is the entity that uses the port (for example, "
+                   "network:dhcp).")
+        )
+        parser.add_argument(
             '--router',
             metavar='<router>',
             dest='router',
@@ -334,10 +342,12 @@ class ListPort(command.Lister):
         )
 
         filters = {}
+        if parsed_args.device_owner is not None:
+            filters['device_owner'] = parsed_args.device_owner
         if parsed_args.router:
             _router = client.find_router(parsed_args.router,
                                          ignore_missing=False)
-            filters = {'device_id': _router.id}
+            filters['device_id'] = _router.id
 
         data = client.ports(**filters)
 

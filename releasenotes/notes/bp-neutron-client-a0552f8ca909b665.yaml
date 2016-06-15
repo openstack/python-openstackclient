@@ -3,3 +3,6 @@ features:
   - Add ``geneve`` choice to the  ``network create`` command
     ``--provider-network-type`` option.
     [Blueprint :oscbp:`neutron-client`]
+  - Add ``--device-owner`` option to the ``port list`` command
+    to enable listing ports based on device owner.
+    [Blueprint :oscbp:`neutron-client`]
