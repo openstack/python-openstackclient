@@ -51,6 +51,7 @@ Developer Documentation
    command-options
    command-wrappers
    command-errors
+   command-logs
    specs/commands
 
 Project Goals
