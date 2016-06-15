@@ -25,7 +25,7 @@ number of allocated IP addresses from that pool.
 .. option:: --ip-version {4,6}
 
     List IP availability of given IP version networks
-    (Default is 4)
+    (default is 4)
 
 .. option:: --project <project>
 

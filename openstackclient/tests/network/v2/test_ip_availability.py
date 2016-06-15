@@ -82,8 +82,10 @@ class TestListIPAvailability(TestIPAvailability):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
+        filters = {'ip_version': 4}
 
-        self.network.network_ip_availabilities.assert_called_once_with()
+        self.network.network_ip_availabilities.assert_called_once_with(
+            **filters)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -116,7 +118,8 @@ class TestListIPAvailability(TestIPAvailability):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': identity_fakes.project_id}
+        filters = {'tenant_id': identity_fakes.project_id,
+                   'ip_version': 4}
 
         self.network.network_ip_availabilities.assert_called_once_with(
             **filters)

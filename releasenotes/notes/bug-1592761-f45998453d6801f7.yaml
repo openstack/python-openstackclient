@@ -1,0 +1,5 @@
+---
+fixes:
+  - Add default IP version in ``ip availability list`` command and make
+    this command work properly without ``--ip-version`` option.
+    [Bug `1592761 <https://bugs.launchpad.net/bugs/1592761>`_]
