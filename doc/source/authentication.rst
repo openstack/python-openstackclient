@@ -130,7 +130,7 @@ If using a domain as authorization scope, set either it's name or ID.
   * ``--os-domain-id`` or ``OS_DOMAIN_ID``
 
 Note that if the user and project share the same domain, then simply setting
-``os-default-domain`` or ``OS_DEFAULT_DOMAIN`` is sufficient.
+``--os-default-domain`` or ``OS_DEFAULT_DOMAIN`` to the domain ID is sufficient.
 
 Thus, a minimal set of environment variables would be:
 
