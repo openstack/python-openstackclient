@@ -14,6 +14,7 @@
 #
 
 import copy
+import mock
 
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
@@ -656,7 +657,8 @@ class TestVolumeSet(TestVolume):
         )
         self.assertIsNone(result)
 
-    def test_volume_set_size_smaller(self):
+    @mock.patch.object(volume.LOG, 'error')
+    def test_volume_set_size_smaller(self, mock_log_error):
         arglist = [
             '--size', '100',
             volume_fakes.volume_name,
@@ -672,12 +674,13 @@ class TestVolumeSet(TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.assertEqual("New size must be greater than %s GB" %
-                         volume_fakes.volume_size,
-                         self.app.log.messages.get('error'))
+        mock_log_error.assert_called_with("New size must be greater "
+                                          "than %s GB",
+                                          volume_fakes.volume_size)
         self.assertIsNone(result)
 
-    def test_volume_set_size_not_available(self):
+    @mock.patch.object(volume.LOG, 'error')
+    def test_volume_set_size_not_available(self, mock_log_error):
         self.volumes_mock.get.return_value.status = 'error'
         arglist = [
             '--size', '130',
@@ -694,9 +697,9 @@ class TestVolumeSet(TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.assertEqual("Volume is in %s state, it must be available before "
-                         "size can be extended" % 'error',
-                         self.app.log.messages.get('error'))
+        mock_log_error.assert_called_with("Volume is in %s state, it must be "
+                                          "available before size can be "
+                                          "extended", 'error')
         self.assertIsNone(result)
 
     def test_volume_set_property(self):
