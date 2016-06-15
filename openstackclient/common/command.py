@@ -12,45 +12,15 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import abc
-import logging
+# NOTE(dtroyer): This file is deprecated in Jun 2016, remove after 4.x release
+#                or Jun 2017.
 
-from cliff import command
-from cliff import lister
-from cliff import show
-from osc_lib import exceptions
-import six
+import sys
 
-from openstackclient.i18n import _
+from osc_lib.command import *  # noqa
 
 
-class CommandMeta(abc.ABCMeta):
-
-    def __new__(mcs, name, bases, cls_dict):
-        if 'log' not in cls_dict:
-            cls_dict['log'] = logging.getLogger(
-                cls_dict['__module__'] + '.' + name)
-        return super(CommandMeta, mcs).__new__(mcs, name, bases, cls_dict)
-
-
-@six.add_metaclass(CommandMeta)
-class Command(command.Command):
-
-    def run(self, parsed_args):
-        self.log.debug('run(%s)', parsed_args)
-        return super(Command, self).run(parsed_args)
-
-    def validate_os_beta_command_enabled(self):
-        if not self.app.options.os_beta_command:
-            msg = _('Caution: This is a beta command and subject to '
-                    'change. Use global option --os-beta-command '
-                    'to enable this command.')
-            raise exceptions.CommandError(msg)
-
-
-class Lister(Command, lister.Lister):
-    pass
-
-
-class ShowOne(Command, show.ShowOne):
-    pass
+sys.stderr.write(
+    "WARNING: %s is deprecated and will be removed after Jun 2017. "
+    "Please use osc_lib.command\n" % __name__
+)
