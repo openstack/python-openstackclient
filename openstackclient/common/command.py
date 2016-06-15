@@ -17,10 +17,10 @@
 
 import sys
 
-from osc_lib.command import *  # noqa
+from osc_lib.command.command import *  # noqa
 
 
 sys.stderr.write(
     "WARNING: %s is deprecated and will be removed after Jun 2017. "
-    "Please use osc_lib.command\n" % __name__
+    "Please use osc_lib.command.command\n" % __name__
 )

@@ -14,9 +14,9 @@
 
 import mock
 
-from osc_lib.command import command
 from osc_lib import exceptions
 
+from openstackclient.common import command
 from openstackclient.tests import fakes as test_fakes
 from openstackclient.tests import utils as test_utils
 
