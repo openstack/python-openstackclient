@@ -108,7 +108,7 @@ Create new network
 .. option:: --provider-network-type <provider-network-type>
 
     The physical mechanism by which the virtual network is implemented.
-    The supported options are: flat, gre, local, vlan, vxlan
+    The supported options are: flat, geneve, gre, local, vlan, vxlan
 
     *Network version 2 only*
 
@@ -120,7 +120,7 @@ Create new network
 
 .. option:: --provider-segment <provider-segment>
 
-    VLAN ID for VLAN networks or Tunnel ID for GRE/VXLAN networks
+    VLAN ID for VLAN networks or Tunnel ID for GENEVE/GRE/VXLAN networks
 
     *Network version 2 only*
 
