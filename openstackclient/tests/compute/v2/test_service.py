@@ -13,6 +13,8 @@
 #   under the License.
 #
 
+import mock
+
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import service
@@ -225,8 +227,12 @@ class TestServiceSet(TestService):
             ('service', self.service.binary),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail("CommandError should be raised.")
+        except exceptions.CommandError as e:
+            self.assertEqual("Cannot specify option --disable-reason without "
+                             "--disable specified.", str(e))
 
     def test_service_set_enable_with_disable_reason(self):
         reason = 'earthquake'
@@ -243,5 +249,93 @@ class TestServiceSet(TestService):
             ('service', self.service.binary),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail("CommandError should be raised.")
+        except exceptions.CommandError as e:
+            self.assertEqual("Cannot specify option --disable-reason without "
+                             "--disable specified.", str(e))
+
+    def test_service_set_state_up(self):
+        arglist = [
+            '--up',
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('up', True),
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.service_mock.force_down.assert_called_once_with(
+            self.service.host, self.service.binary, force_down=False)
+        self.assertNotCalled(self.service_mock.enable)
+        self.assertNotCalled(self.service_mock.disable)
+        self.assertIsNone(result)
+
+    def test_service_set_state_down(self):
+        arglist = [
+            '--down',
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('down', True),
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.service_mock.force_down.assert_called_once_with(
+            self.service.host, self.service.binary, force_down=True)
+        self.assertNotCalled(self.service_mock.enable)
+        self.assertNotCalled(self.service_mock.disable)
+        self.assertIsNone(result)
+
+    def test_service_set_enable_and_state_down(self):
+        arglist = [
+            '--enable',
+            '--down',
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('enable', True),
+            ('down', True),
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.service_mock.enable.assert_called_once_with(
+            self.service.host, self.service.binary)
+        self.service_mock.force_down.assert_called_once_with(
+            self.service.host, self.service.binary, force_down=True)
+        self.assertIsNone(result)
+
+    def test_service_set_enable_and_state_down_with_exception(self):
+        arglist = [
+            '--enable',
+            '--down',
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('enable', True),
+            ('down', True),
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(self.cmd.log, 'error') as mock_log:
+            with mock.patch.object(self.service_mock, 'enable',
+                                   side_effect=Exception()):
+                self.assertRaises(exceptions.CommandError,
+                                  self.cmd.take_action, parsed_args)
+                mock_log.assert_called_once_with(
+                    "Failed to set service status to %s", "enabled")
+                self.service_mock.force_down.assert_called_once_with(
+                    self.service.host, self.service.binary, force_down=True)
