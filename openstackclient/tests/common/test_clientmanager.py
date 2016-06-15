@@ -356,8 +356,8 @@ class TestClientManager(utils.TestCase):
             client_manager.setup_auth,
         )
 
-    @mock.patch('openstackclient.api.auth.check_valid_auth_options')
-    def test_client_manager_auth_setup_once(self, check_auth_options_func):
+    @mock.patch('openstackclient.api.auth.check_valid_authentication_options')
+    def test_client_manager_auth_setup_once(self, check_authn_options_func):
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(
                 auth=dict(
@@ -372,11 +372,11 @@ class TestClientManager(utils.TestCase):
         )
         self.assertFalse(client_manager._auth_setup_completed)
         client_manager.setup_auth()
-        self.assertTrue(check_auth_options_func.called)
+        self.assertTrue(check_authn_options_func.called)
         self.assertTrue(client_manager._auth_setup_completed)
 
         # now make sure we don't do auth setup the second time around
         # by checking whether check_valid_auth_options() gets called again
-        check_auth_options_func.reset_mock()
+        check_authn_options_func.reset_mock()
         client_manager.auth_ref
-        check_auth_options_func.assert_not_called()
+        check_authn_options_func.assert_not_called()
