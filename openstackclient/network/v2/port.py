@@ -14,6 +14,7 @@
 """Port action implementations"""
 
 import argparse
+import json
 import logging
 
 from osc_lib.cli import parseractions
@@ -61,6 +62,32 @@ def _get_columns(item):
             columns.remove(binding_column)
             columns.append(binding_column.replace('binding:', 'binding_', 1))
     return tuple(sorted(columns))
+
+
+class JSONKeyValueAction(argparse.Action):
+    """A custom action to parse arguments as JSON or key=value pairs
+
+    Ensures that ``dest`` is a dict
+    """
+
+    def __call__(self, parser, namespace, values, option_string=None):
+
+        # Make sure we have an empty dict rather than None
+        if getattr(namespace, self.dest, None) is None:
+            setattr(namespace, self.dest, {})
+
+        # Try to load JSON first before falling back to <key>=<value>.
+        current_dest = getattr(namespace, self.dest)
+        try:
+            current_dest.update(json.loads(values))
+        except ValueError as e:
+            if '=' in values:
+                current_dest.update([values.split('=', 1)])
+            else:
+                msg = _("Expected '<key>=<value>' or JSON data for option "
+                        "%(option)s, but encountered JSON parsing error: "
+                        "%(error)s") % {"option": option_string, "error": e}
+                raise argparse.ArgumentTypeError(msg)
 
 
 def _get_attrs(client_manager, parsed_args):
@@ -219,9 +246,9 @@ class CreatePort(command.ShowOne):
         parser.add_argument(
             '--binding-profile',
             metavar='<binding-profile>',
-            action=parseractions.KeyValueAction,
-            help=_("Custom data to be passed as binding:profile: "
-                   "<key>=<value> "
+            action=JSONKeyValueAction,
+            help=_("Custom data to be passed as binding:profile. Data may "
+                   "be passed as <key>=<value> or JSON. "
                    "(repeat option to set multiple binding:profile data)")
         )
         admin_group = parser.add_mutually_exclusive_group()
@@ -390,9 +417,9 @@ class SetPort(command.Command):
         binding_profile.add_argument(
             '--binding-profile',
             metavar='<binding-profile>',
-            action=parseractions.KeyValueAction,
-            help=_("Custom data to be passed as binding:profile: "
-                   "<key>=<value> "
+            action=JSONKeyValueAction,
+            help=_("Custom data to be passed as binding:profile. Data may "
+                   "be passed as <key>=<value> or JSON. "
                    "(repeat option to set multiple binding:profile data)")
         )
         binding_profile.add_argument(
