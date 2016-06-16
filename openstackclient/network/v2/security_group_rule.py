@@ -526,8 +526,8 @@ class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
                 break
 
         if obj is None:
-            msg = _("Could not find security group rule with ID ") + \
-                parsed_args.rule
+            msg = _("Could not find security group rule "
+                    "with ID '%s'") % parsed_args.rule
             raise exceptions.CommandError(msg)
 
         # NOTE(rtheis): Format security group rule
