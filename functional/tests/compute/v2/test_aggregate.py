@@ -57,3 +57,11 @@ class AggregateTests(test.TestCase):
 
         raw_output = self.openstack('aggregate show ' + self.NAME + opts)
         self.assertIn("a='b', c='d'\n", raw_output)
+
+        raw_output = self.openstack(
+            'aggregate unset --property a ' + self.NAME
+        )
+        self.assertEqual('', raw_output)
+
+        raw_output = self.openstack('aggregate show ' + self.NAME + opts)
+        self.assertIn("c='d'\n", raw_output)
