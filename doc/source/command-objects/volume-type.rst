@@ -48,18 +48,18 @@ Create new volume type
 volume type delete
 ------------------
 
-Delete volume type
+Delete volume type(s)
 
 .. program:: volume type delete
 .. code:: bash
 
     os volume type delete
-        <volume-type>
+        <volume-type> [<volume-type> ...]
 
 .. _volume_type_delete-volume-type:
 .. describe:: <volume-type>
 
-    Volume type to delete (name or ID)
+    Volume type(s) to delete (name or ID)
 
 volume type list
 ----------------
