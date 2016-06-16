@@ -14,6 +14,7 @@
 """Subnet action implementations"""
 
 import copy
+import logging
 
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -22,6 +23,9 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _format_allocation_pools(data):
@@ -270,21 +274,37 @@ class CreateSubnet(command.ShowOne):
 
 
 class DeleteSubnet(command.Command):
-    """Delete subnet"""
+    """Delete subnet(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteSubnet, self).get_parser(prog_name)
         parser.add_argument(
             'subnet',
             metavar="<subnet>",
-            help=_("Subnet to delete (name or ID)")
+            nargs='+',
+            help=_("Subnet(s) to delete (name or ID)")
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        client.delete_subnet(
-            client.find_subnet(parsed_args.subnet))
+        result = 0
+
+        for subnet in parsed_args.subnet:
+            try:
+                obj = client.find_subnet(subnet, ignore_missing=False)
+                client.delete_subnet(obj)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete subnet with "
+                          "name or ID '%(subnet)s': %(e)s")
+                          % {'subnet': subnet, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.subnet)
+            msg = (_("%(result)s of %(total)s subnets failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListSubnet(command.Lister):

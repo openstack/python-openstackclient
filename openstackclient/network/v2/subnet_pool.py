@@ -13,12 +13,18 @@
 
 """Subnet pool action implementations"""
 
+import logging
+
 from osc_lib.cli import parseractions
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _get_columns(item):
@@ -176,21 +182,37 @@ class CreateSubnetPool(command.ShowOne):
 
 
 class DeleteSubnetPool(command.Command):
-    """Delete subnet pool"""
+    """Delete subnet pool(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteSubnetPool, self).get_parser(prog_name)
         parser.add_argument(
             'subnet_pool',
             metavar='<subnet-pool>',
-            help=_("Subnet pool to delete (name or ID)")
+            nargs='+',
+            help=_("Subnet pool(s) to delete (name or ID)")
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_subnet_pool(parsed_args.subnet_pool)
-        client.delete_subnet_pool(obj)
+        result = 0
+
+        for pool in parsed_args.subnet_pool:
+            try:
+                obj = client.find_subnet_pool(pool, ignore_missing=False)
+                client.delete_subnet_pool(obj)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete subnet pool with "
+                          "name or ID '%(pool)s': %(e)s")
+                          % {'pool': pool, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.subnet_pool)
+            msg = (_("%(result)s of %(total)s subnet pools failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListSubnetPool(command.Lister):
