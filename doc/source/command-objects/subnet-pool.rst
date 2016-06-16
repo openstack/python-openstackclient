@@ -81,18 +81,18 @@ Create subnet pool
 subnet pool delete
 ------------------
 
-Delete subnet pool
+Delete subnet pool(s)
 
 .. program:: subnet pool delete
 .. code:: bash
 
     os subnet pool delete
-        <subnet-pool>
+        <subnet-pool> [<subnet-pool> ...]
 
 .. _subnet_pool_delete-subnet-pool:
 .. describe:: <subnet-pool>
 
-    Subnet pool to delete (name or ID)
+    Subnet pool(s) to delete (name or ID)
 
 subnet pool list
 ----------------

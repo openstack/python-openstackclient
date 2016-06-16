@@ -771,6 +771,25 @@ class FakeSubnet(object):
 
         return subnets
 
+    @staticmethod
+    def get_subnets(subnets=None, count=2):
+        """Get an iterable MagicMock object with a list of faked subnets.
+
+        If subnets list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List subnets:
+            A list of FakeResource objects faking subnets
+        :param int count:
+            The number of subnets to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            subnets
+        """
+        if subnets is None:
+            subnets = FakeSubnet.create_subnets(count)
+        return mock.MagicMock(side_effect=subnets)
+
 
 class FakeFloatingIP(object):
     """Fake one or more floating ip."""
@@ -910,3 +929,22 @@ class FakeSubnetPool(object):
             )
 
         return subnet_pools
+
+    @staticmethod
+    def get_subnet_pools(subnet_pools=None, count=2):
+        """Get an iterable MagicMock object with a list of faked subnet pools.
+
+        If subnet_pools list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List subnet pools:
+            A list of FakeResource objects faking subnet pools
+        :param int count:
+            The number of subnet pools to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            subnet pools
+        """
+        if subnet_pools is None:
+            subnet_pools = FakeSubnetPool.create_subnet_pools(count)
+        return mock.MagicMock(side_effect=subnet_pools)

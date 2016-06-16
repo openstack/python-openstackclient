@@ -13,7 +13,9 @@
 
 import copy
 import mock
+from mock import call
 
+from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.network.v2 import subnet as subnet_v2
@@ -361,31 +363,81 @@ class TestCreateSubnet(TestSubnet):
 
 class TestDeleteSubnet(TestSubnet):
 
-    # The subnet to delete.
-    _subnet = network_fakes.FakeSubnet.create_one_subnet()
+    # The subnets to delete.
+    _subnets = network_fakes.FakeSubnet.create_subnets(count=2)
 
     def setUp(self):
         super(TestDeleteSubnet, self).setUp()
 
         self.network.delete_subnet = mock.Mock(return_value=None)
 
-        self.network.find_subnet = mock.Mock(return_value=self._subnet)
+        self.network.find_subnet = (
+            network_fakes.FakeSubnet.get_subnets(self._subnets))
 
         # Get the command object to test
         self.cmd = subnet_v2.DeleteSubnet(self.app, self.namespace)
 
-    def test_delete(self):
+    def test_subnet_delete(self):
         arglist = [
-            self._subnet.name,
+            self._subnets[0].name,
         ]
         verifylist = [
-            ('subnet', self._subnet.name),
+            ('subnet', [self._subnets[0].name]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.delete_subnet.assert_called_once_with(self._subnet)
+        self.network.delete_subnet.assert_called_once_with(self._subnets[0])
         self.assertIsNone(result)
+
+    def test_multi_subnets_delete(self):
+        arglist = []
+        verifylist = []
+
+        for s in self._subnets:
+            arglist.append(s.name)
+        verifylist = [
+            ('subnet', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for s in self._subnets:
+            calls.append(call(s))
+        self.network.delete_subnet.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_multi_subnets_delete_with_exception(self):
+        arglist = [
+            self._subnets[0].name,
+            'unexist_subnet',
+        ]
+        verifylist = [
+            ('subnet',
+             [self._subnets[0].name, 'unexist_subnet']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        find_mock_result = [self._subnets[0], exceptions.CommandError]
+        self.network.find_subnet = (
+            mock.MagicMock(side_effect=find_mock_result)
+        )
+
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('1 of 2 subnets failed to delete.', str(e))
+
+        self.network.find_subnet.assert_any_call(
+            self._subnets[0].name, ignore_missing=False)
+        self.network.find_subnet.assert_any_call(
+            'unexist_subnet', ignore_missing=False)
+        self.network.delete_subnet.assert_called_once_with(
+            self._subnets[0]
+        )
 
 
 class TestListSubnet(TestSubnet):

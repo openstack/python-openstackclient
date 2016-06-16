@@ -14,7 +14,9 @@
 import argparse
 import copy
 import mock
+from mock import call
 
+from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.network.v2 import subnet_pool
@@ -263,35 +265,84 @@ class TestCreateSubnetPool(TestSubnetPool):
 
 class TestDeleteSubnetPool(TestSubnetPool):
 
-    # The subnet pool to delete.
-    _subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
+    # The subnet pools to delete.
+    _subnet_pools = network_fakes.FakeSubnetPool.create_subnet_pools(count=2)
 
     def setUp(self):
         super(TestDeleteSubnetPool, self).setUp()
 
         self.network.delete_subnet_pool = mock.Mock(return_value=None)
 
-        self.network.find_subnet_pool = mock.Mock(
-            return_value=self._subnet_pool
+        self.network.find_subnet_pool = (
+            network_fakes.FakeSubnetPool.get_subnet_pools(self._subnet_pools)
         )
 
         # Get the command object to test
         self.cmd = subnet_pool.DeleteSubnetPool(self.app, self.namespace)
 
-    def test_delete(self):
+    def test_subnet_pool_delete(self):
         arglist = [
-            self._subnet_pool.name,
+            self._subnet_pools[0].name,
         ]
         verifylist = [
-            ('subnet_pool', self._subnet_pool.name),
+            ('subnet_pool', [self._subnet_pools[0].name]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.network.delete_subnet_pool.assert_called_once_with(
-            self._subnet_pool)
+            self._subnet_pools[0])
         self.assertIsNone(result)
+
+    def test_multi_subnet_pools_delete(self):
+        arglist = []
+        verifylist = []
+
+        for s in self._subnet_pools:
+            arglist.append(s.name)
+        verifylist = [
+            ('subnet_pool', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for s in self._subnet_pools:
+            calls.append(call(s))
+        self.network.delete_subnet_pool.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_multi_subnet_pools_delete_with_exception(self):
+        arglist = [
+            self._subnet_pools[0].name,
+            'unexist_subnet_pool',
+        ]
+        verifylist = [
+            ('subnet_pool',
+             [self._subnet_pools[0].name, 'unexist_subnet_pool']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        find_mock_result = [self._subnet_pools[0], exceptions.CommandError]
+        self.network.find_subnet_pool = (
+            mock.MagicMock(side_effect=find_mock_result)
+        )
+
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('1 of 2 subnet pools failed to delete.', str(e))
+
+        self.network.find_subnet_pool.assert_any_call(
+            self._subnet_pools[0].name, ignore_missing=False)
+        self.network.find_subnet_pool.assert_any_call(
+            'unexist_subnet_pool', ignore_missing=False)
+        self.network.delete_subnet_pool.assert_called_once_with(
+            self._subnet_pools[0]
+        )
 
 
 class TestListSubnetPool(TestSubnetPool):

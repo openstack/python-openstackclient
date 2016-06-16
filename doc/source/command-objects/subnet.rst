@@ -119,18 +119,18 @@ Create new subnet
 subnet delete
 -------------
 
-Delete a subnet
+Delete subnet(s)
 
 .. program:: subnet delete
 .. code:: bash
 
     os subnet delete
-        <subnet>
+        <subnet> [<subnet> ...]
 
 .. _subnet_delete-subnet:
 .. describe:: <subnet>
 
-    Subnet to delete (name or ID)
+    Subnet(s) to delete (name or ID)
 
 subnet list
 -----------
