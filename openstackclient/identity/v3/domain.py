@@ -15,6 +15,7 @@
 
 """Identity v3 Domain action implementations"""
 
+import logging
 import sys
 
 from keystoneauth1 import exceptions as ks_exc
@@ -23,6 +24,9 @@ from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateDomain(command.ShowOne):
@@ -75,7 +79,7 @@ class CreateDomain(command.ShowOne):
             if parsed_args.or_show:
                 domain = utils.find_resource(identity_client.domains,
                                              parsed_args.name)
-                self.log.info(_('Returning existing domain %s'), domain.name)
+                LOG.info(_('Returning existing domain %s'), domain.name)
             else:
                 raise e
 

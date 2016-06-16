@@ -17,6 +17,7 @@
 
 import argparse
 import io
+import logging
 import os
 import sys
 
@@ -37,6 +38,9 @@ from openstackclient.i18n import _
 
 DEFAULT_CONTAINER_FORMAT = 'bare'
 DEFAULT_DISK_FORMAT = 'raw'
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _format_visibility(data):
@@ -189,10 +193,8 @@ class CreateImage(command.ShowOne):
         image_client = self.app.client_manager.image
 
         if getattr(parsed_args, 'owner', None) is not None:
-            self.log.warning(_(
-                'The --owner option is deprecated, '
-                'please use --project instead.'
-            ))
+            LOG.warning(_('The --owner option is deprecated, '
+                          'please use --project instead.'))
 
         # Build an attribute dict from the parsed args, only include
         # attributes that were actually set on the command line
@@ -608,10 +610,8 @@ class SetImage(command.Command):
         image_client = self.app.client_manager.image
 
         if getattr(parsed_args, 'owner', None) is not None:
-            self.log.warning(_(
-                'The --owner option is deprecated, '
-                'please use --project instead.'
-            ))
+            LOG.warning(_('The --owner option is deprecated, '
+                          'please use --project instead.'))
 
         kwargs = {}
         copy_attrs = ('name', 'owner', 'min_disk', 'min_ram', 'properties',
@@ -684,16 +684,15 @@ class SetImage(command.Command):
                             # will do a chunked transfer
                             kwargs["data"] = sys.stdin
                         else:
-                            self.log.warning(_('Use --stdin to enable read '
-                                               'image data from standard '
-                                               'input'))
+                            LOG.warning(_('Use --stdin to enable read image '
+                                          'data from standard input'))
 
             if image.properties and parsed_args.properties:
                 image.properties.update(kwargs['properties'])
                 kwargs['properties'] = image.properties
 
             if not kwargs:
-                self.log.warning('no arguments specified')
+                LOG.warning(_('no arguments specified'))
                 return
 
             image = image_client.images.update(image.id, **kwargs)

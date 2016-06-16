@@ -16,6 +16,7 @@
 """Identity v3 User action implementations"""
 
 import copy
+import logging
 import sys
 
 from keystoneauth1 import exceptions as ks_exc
@@ -25,6 +26,9 @@ import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateUser(command.ShowOne):
@@ -122,7 +126,7 @@ class CreateUser(command.ShowOne):
                 user = utils.find_resource(identity_client.users,
                                            parsed_args.name,
                                            domain_id=domain_id)
-                self.log.info(_('Returning existing user %s'), user.name)
+                LOG.info(_('Returning existing user %s'), user.name)
             else:
                 raise e
 

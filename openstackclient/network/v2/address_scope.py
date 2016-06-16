@@ -13,12 +13,17 @@
 
 """Address scope action implementations"""
 
+import logging
+
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _get_columns(item):
@@ -122,9 +127,9 @@ class DeleteAddressScope(command.Command):
                 client.delete_address_scope(obj)
             except Exception as e:
                 result += 1
-                self.app.log.error(_("Failed to delete address scope with "
-                                   "name or ID '%(scope)s': %(e)s")
-                                   % {'scope': scope, 'e': e})
+                LOG.error(_("Failed to delete address scope with "
+                            "name or ID '%(scope)s': %(e)s"),
+                          {'scope': scope, 'e': e})
 
         if result > 0:
             total = len(parsed_args.address_scope)

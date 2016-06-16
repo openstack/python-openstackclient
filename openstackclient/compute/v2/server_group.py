@@ -15,11 +15,16 @@
 
 """Compute v2 Server Group action implementations"""
 
+import logging
+
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 _formatters = {
@@ -95,7 +100,7 @@ class DeleteServerGroup(command.Command):
             # Catch all exceptions in order to avoid to block the next deleting
             except Exception as e:
                 result += 1
-                self.app.log.error(e)
+                LOG.error(e)
 
         if result > 0:
             total = len(parsed_args.server_group)

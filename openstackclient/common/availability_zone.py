@@ -14,6 +14,7 @@
 """Availability Zone action implementations"""
 
 import copy
+import logging
 
 from novaclient import exceptions as nova_exceptions
 from osc_lib.command import command
@@ -21,6 +22,9 @@ from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _xform_common_availability_zone(az, zone_info):
@@ -136,11 +140,11 @@ class ListAvailabilityZone(command.Lister):
         try:
             data = volume_client.availability_zones.list()
         except Exception as e:
-            self.log.debug('Volume availability zone exception: ' + str(e))
+            LOG.debug('Volume availability zone exception: %s', e)
             if parsed_args.volume:
-                message = "Availability zones list not supported by " \
-                          "Block Storage API"
-                self.log.warning(message)
+                message = _("Availability zones list not supported by "
+                            "Block Storage API")
+                LOG.warning(message)
 
         result = []
         for zone in data:
@@ -154,11 +158,11 @@ class ListAvailabilityZone(command.Lister):
             network_client.find_extension('Availability Zone',
                                           ignore_missing=False)
         except Exception as e:
-            self.log.debug('Network availability zone exception: ' + str(e))
+            LOG.debug('Network availability zone exception: ', e)
             if parsed_args.network:
-                message = "Availability zones list not supported by " \
-                          "Network API"
-                self.log.warning(message)
+                message = _("Availability zones list not supported by "
+                            "Network API")
+                LOG.warning(message)
             return []
 
         result = []

@@ -14,11 +14,16 @@
 
 """Identity v3 Protocols actions implementations"""
 
+import logging
+
 from osc_lib.command import command
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateProtocol(command.ShowOne):
@@ -145,7 +150,7 @@ class SetProtocol(command.Command):
         identity_client = self.app.client_manager.identity
 
         if not parsed_args.mapping:
-            self.app.log.error(_("No changes requested"))
+            LOG.error(_("No changes requested"))
             return
 
         protocol = identity_client.federation.protocols.update(

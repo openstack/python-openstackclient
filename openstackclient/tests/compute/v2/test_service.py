@@ -330,12 +330,9 @@ class TestServiceSet(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch.object(self.cmd.log, 'error') as mock_log:
-            with mock.patch.object(self.service_mock, 'enable',
-                                   side_effect=Exception()):
-                self.assertRaises(exceptions.CommandError,
-                                  self.cmd.take_action, parsed_args)
-                mock_log.assert_called_once_with(
-                    "Failed to set service status to %s", "enabled")
-                self.service_mock.force_down.assert_called_once_with(
-                    self.service.host, self.service.binary, force_down=True)
+        with mock.patch.object(self.service_mock, 'enable',
+                               side_effect=Exception()):
+            self.assertRaises(exceptions.CommandError,
+                              self.cmd.take_action, parsed_args)
+            self.service_mock.force_down.assert_called_once_with(
+                self.service.host, self.service.binary, force_down=True)

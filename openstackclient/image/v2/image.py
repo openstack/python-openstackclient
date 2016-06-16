@@ -16,6 +16,7 @@
 """Image V2 Action Implementations"""
 
 import argparse
+import logging
 
 from glanceclient.common import utils as gc_utils
 from osc_lib.cli import parseractions
@@ -31,6 +32,9 @@ from openstackclient.identity import common
 
 DEFAULT_CONTAINER_FORMAT = 'bare'
 DEFAULT_DISK_FORMAT = 'raw'
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _format_image(image):
@@ -280,10 +284,8 @@ class CreateImage(command.ShowOne):
         project_arg = parsed_args.project
         if parsed_args.owner:
             project_arg = parsed_args.owner
-            self.log.warning(_(
-                'The --owner option is deprecated, '
-                'please use --project instead.'
-            ))
+            LOG.warning(_('The --owner option is deprecated, '
+                          'please use --project instead.'))
         if project_arg:
             kwargs['owner'] = common.find_project(
                 identity_client,
@@ -301,7 +303,7 @@ class CreateImage(command.ShowOne):
                                             "the same time"))
 
         if fp is None and parsed_args.file:
-            self.log.warning(_("Failed to get an image file."))
+            LOG.warning(_("Failed to get an image file."))
             return {}, {}
 
         if parsed_args.owner:
@@ -384,9 +386,9 @@ class DeleteImage(command.Command):
                 image_client.images.delete(image_obj.id)
             except Exception as e:
                 del_result += 1
-                self.app.log.error(_("Failed to delete image with "
-                                   "name or ID '%(image)s': %(e)s")
-                                   % {'image': image, 'e': e})
+                LOG.error(_("Failed to delete image with name or "
+                            "ID '%(image)s': %(e)s"),
+                          {'image': image, 'e': e})
 
         total = len(parsed_args.images)
         if (del_result > 0):
@@ -806,10 +808,8 @@ class SetImage(command.Command):
         project_arg = parsed_args.project
         if parsed_args.owner:
             project_arg = parsed_args.owner
-            self.log.warning(_(
-                'The --owner option is deprecated, '
-                'please use --project instead.'
-            ))
+            LOG.warning(_('The --owner option is deprecated, '
+                          'please use --project instead.'))
         if project_arg:
             kwargs['owner'] = common.find_project(
                 identity_client,
@@ -908,8 +908,8 @@ class UnsetImage(command.Command):
                 try:
                     image_client.image_tags.delete(image.id, k)
                 except Exception:
-                    self.log.error(_("tag unset failed,"
-                                   " '%s' is a nonexistent tag ") % k)
+                    LOG.error(_("tag unset failed, '%s' is a "
+                                "nonexistent tag "), k)
                     tagret += 1
 
         if parsed_args.properties:
@@ -917,8 +917,8 @@ class UnsetImage(command.Command):
                 try:
                     assert(k in image.keys())
                 except AssertionError:
-                    self.log.error(_("property unset failed,"
-                                   " '%s' is a nonexistent property ") % k)
+                    LOG.error(_("property unset failed, '%s' is a "
+                                "nonexistent property "), k)
                     propret += 1
             image_client.images.update(
                 image.id,
