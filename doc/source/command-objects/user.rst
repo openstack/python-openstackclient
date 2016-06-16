@@ -143,6 +143,7 @@ Set user properties
         [--name <name>]
         [--project <project> [--project-domain <project-domain>]]
         [--password <password>]
+        [--password-prompt]
         [--email <email-address>]
         [--description <description>]
         [--enable|--disable]
