@@ -19,11 +19,12 @@ class HelpTests(test.TestCase):
     SERVER_COMMANDS = [
         ('server add security group', 'Add security group to server'),
         ('server add volume', 'Add volume to server'),
+        ('server backup create', 'Create a server backup image'),
         ('server create', 'Create a new server'),
         ('server delete', 'Delete server(s)'),
         ('server dump create', 'Create a dump file in server(s)'),
         ('server image create',
-         'Create a new disk image from a running server'),
+         'Create a new server disk image from an existing server'),
         ('server list', 'List servers'),
         ('server lock',
          'Lock server(s). '
