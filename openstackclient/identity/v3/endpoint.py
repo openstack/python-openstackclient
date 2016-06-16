@@ -40,7 +40,7 @@ class CreateEndpoint(command.ShowOne):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help=_('New endpoint service (name or ID)'),
+            help=_('Service to be associated with new endpoint (name or ID)'),
         )
         parser.add_argument(
             'interface',
@@ -102,7 +102,7 @@ class DeleteEndpoint(command.Command):
         parser.add_argument(
             'endpoint',
             metavar='<endpoint-id>',
-            help=_('Endpoint ID to delete'),
+            help=_('Endpoint to delete (ID only)'),
         )
         return parser
 
@@ -121,7 +121,7 @@ class ListEndpoint(command.Lister):
         parser.add_argument(
             '--service',
             metavar='<service>',
-            help=_('Filter by service'),
+            help=_('Filter by service (name or ID)'),
         )
         parser.add_argument(
             '--interface',
@@ -169,7 +169,7 @@ class SetEndpoint(command.Command):
         parser.add_argument(
             'endpoint',
             metavar='<endpoint-id>',
-            help=_('Endpoint ID to modify'),
+            help=_('Endpoint to modify (ID only)'),
         )
         parser.add_argument(
             '--region',
