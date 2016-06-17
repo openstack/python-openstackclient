@@ -443,12 +443,12 @@ class OpenStackShell(app.App):
             cmd.__class__.__name__,
         )
         if cmd.auth_required:
-            if hasattr(cmd, 'required_scope'):
+            self.client_manager.setup_auth()
+            if hasattr(cmd, 'required_scope') and cmd.required_scope:
                 # let the command decide whether we need a scoped token
-                self.client_manager.setup_auth(cmd.required_scope)
+                self.client_manager.validate_scope()
             # Trigger the Identity client to initialize
             self.client_manager.auth_ref
-        return
 
     def clean_up(self, cmd, result, err):
         self.log.debug('clean_up %s: %s', cmd.__class__.__name__, err or '')

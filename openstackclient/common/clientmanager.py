@@ -140,10 +140,8 @@ class ClientManager(object):
         # prior to dereferrencing auth_ref.
         self._auth_setup_completed = False
 
-    def setup_auth(self, required_scope=True):
-        """Set up authentication
-
-        :param required_scope: indicate whether a scoped token is required
+    def setup_auth(self):
+        """Set up authentication.
 
         This is deferred until authentication is actually attempted because
         it gets in the way of things that do not require auth.
@@ -157,9 +155,8 @@ class ClientManager(object):
         self.auth_plugin_name = auth.select_auth_plugin(self._cli_options)
 
         # Basic option checking to avoid unhelpful error messages
-        auth.check_valid_auth_options(self._cli_options,
-                                      self.auth_plugin_name,
-                                      required_scope=required_scope)
+        auth.check_valid_authentication_options(self._cli_options,
+                                                self.auth_plugin_name)
 
         # Horrible hack alert...must handle prompt for null password if
         # password auth is requested.
@@ -228,6 +225,20 @@ class ClientManager(object):
         )
 
         self._auth_setup_completed = True
+
+    def validate_scope(self):
+        if self._auth_ref.project_id is not None:
+            # We already have a project scope.
+            return
+        if self._auth_ref.domain_id is not None:
+            # We already have a domain scope.
+            return
+
+        # We do not have a scoped token (and the user's default project scope
+        # was not implied), so the client needs to be explicitly configured
+        # with a scope.
+        auth.check_valid_authorization_options(self._cli_options,
+                                               self.auth_plugin_name)
 
     @property
     def auth_ref(self):

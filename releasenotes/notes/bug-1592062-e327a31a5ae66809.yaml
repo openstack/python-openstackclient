@@ -1,0 +1,5 @@
+---
+fixes:
+  - Scope options are now validated after authentication occurs, and only if
+    the user does not have a default project scope.
+    [Bug `1592062 <https://bugs.launchpad.net/bugs/1592062>`_]
