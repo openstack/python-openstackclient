@@ -817,11 +817,6 @@ class SetImage(command.Command):
                 parsed_args.project_domain,
             ).id
 
-        # Checks if anything that requires getting the image
-        if not (kwargs or parsed_args.deactivate or parsed_args.activate):
-            msg = _("No arguments specified")
-            raise exceptions.CommandError(msg)
-
         image = utils.find_resource(
             image_client.images, parsed_args.image)
 
@@ -832,10 +827,6 @@ class SetImage(command.Command):
         if parsed_args.activate:
             image_client.images.reactivate(image.id)
             activation_status = "activated"
-
-        # Check if need to do the actual update
-        if not kwargs:
-            return {}, {}
 
         if parsed_args.tags:
             # Tags should be extended, but duplicates removed
@@ -908,10 +899,6 @@ class UnsetImage(command.Command):
             image_client.images,
             parsed_args.image,
         )
-
-        if not (parsed_args.tags or parsed_args.properties):
-            msg = _("No arguments specified")
-            raise exceptions.CommandError(msg)
 
         kwargs = {}
         tagret = 0

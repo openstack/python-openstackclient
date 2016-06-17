@@ -842,6 +842,19 @@ class TestImageSet(TestImage):
         # Get the command object to test
         self.cmd = image.SetImage(self.app, None)
 
+    def test_image_set_no_options(self):
+        arglist = [
+            image_fakes.image_id,
+        ]
+        verifylist = [
+            ('image', image_fakes.image_id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+
     def test_image_set_options(self):
         arglist = [
             '--name', 'new-name',
@@ -1241,6 +1254,19 @@ class TestImageUnset(TestImage):
 
         # Get the command object to test
         self.cmd = image.UnsetImage(self.app, None)
+
+    def test_image_unset_no_options(self):
+        arglist = [
+            image_fakes.image_id,
+        ]
+        verifylist = [
+            ('image', image_fakes.image_id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
 
     def test_image_unset_tag_option(self):
 
