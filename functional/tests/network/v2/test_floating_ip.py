@@ -35,12 +35,12 @@ class FloatingIpTests(test.TestCase):
         )
         opts = cls.get_opts(cls.FIELDS)
         raw_output = cls.openstack(
-            'ip floating create ' + cls.NETWORK_NAME + opts)
+            'floating ip create ' + cls.NETWORK_NAME + opts)
         cls.ID = raw_output.strip('\n')
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack('ip floating delete ' + cls.ID)
+        raw_output = cls.openstack('floating ip delete ' + cls.ID)
         cls.assertOutput('', raw_output)
         raw_output = cls.openstack('subnet delete ' + cls.SUBNET_NAME)
         cls.assertOutput('', raw_output)
@@ -49,10 +49,10 @@ class FloatingIpTests(test.TestCase):
 
     def test_floating_ip_list(self):
         opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('ip floating list' + opts)
+        raw_output = self.openstack('floating ip list' + opts)
         self.assertIn(self.ID, raw_output)
 
     def test_floating_ip_show(self):
         opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack('ip floating show ' + self.ID + opts)
+        raw_output = self.openstack('floating ip show ' + self.ID + opts)
         self.assertEqual(self.ID + "\n", raw_output)
