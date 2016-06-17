@@ -95,7 +95,7 @@ Delete user(s)
 .. _user_delete-user:
 .. describe:: <user>
 
-    User to delete (name or ID)
+    User(s) to delete (name or ID)
 
 user list
 ---------

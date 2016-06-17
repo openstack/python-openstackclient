@@ -130,7 +130,7 @@ class SetService(command.Command):
         parser.add_argument(
             'service',
             metavar='<service>',
-            help=_('Service to update (type, name or ID)'),
+            help=_('Service to modify (type, name or ID)'),
         )
         parser.add_argument(
             '--type',

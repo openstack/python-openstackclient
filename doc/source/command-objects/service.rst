@@ -117,7 +117,7 @@ Set service properties
 .. _service_set-service:
 .. describe:: <service>
 
-    Service to update (type, name or ID)
+    Service to modify (type, name or ID)
 
 service show
 ------------
