@@ -91,6 +91,7 @@ referring to both Compute and Volume quotas.
 * ``extension``: (**Compute**, **Identity**, **Network**, **Volume**) OpenStack server API extensions
 * ``federation protocol``: (**Identity**) the underlying protocol used while federating identities
 * ``flavor``: (**Compute**) predefined server configurations: ram, root disk and so on
+* ``floating ip pool``: (**Compute**, **Network**) - a pool of public IP addresses
 * ``group``: (**Identity**) a grouping of users
 * ``host``: (**Compute**) - the physical computer running compute services
 * ``hypervisor``: (**Compute**) the virtual machine manager

@@ -1,0 +1,9 @@
+---
+features:
+  - Add new command ``floating ip pool list`` to list up all floating ip
+    pools. This command is used to replace the old command
+    ``ip floating pool list``.
+    [Blueprint rework-ip-commands `<https://blueprints.launchpad.net/python-openstackclient/+spec/rework-ip-commands>`_]
+deprecations:
+  - Deprecate command ``ip floating pool list``.
+    [Blueprint rework-ip-commands `<https://blueprints.launchpad.net/python-openstackclient/+spec/rework-ip-commands>`_]
