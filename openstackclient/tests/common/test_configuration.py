@@ -11,6 +11,8 @@
 #   under the License.
 #
 
+import mock
+
 from openstackclient.common import configuration
 from openstackclient.tests import fakes
 from openstackclient.tests import utils
@@ -33,7 +35,12 @@ class TestConfiguration(utils.TestCommand):
         fakes.REGION_NAME,
     )
 
-    def test_show(self):
+    opts = [mock.Mock(secret=True, dest="password"),
+            mock.Mock(secret=True, dest="token")]
+
+    @mock.patch("keystoneauth1.loading.base.get_plugin_options",
+                return_value=opts)
+    def test_show(self, m_get_plugin_opts):
         arglist = []
         verifylist = [('mask', True)]
         cmd = configuration.ShowConfiguration(self.app, None)
@@ -44,7 +51,9 @@ class TestConfiguration(utils.TestCommand):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
-    def test_show_unmask(self):
+    @mock.patch("keystoneauth1.loading.base.get_plugin_options",
+                return_value=opts)
+    def test_show_unmask(self, m_get_plugin_opts):
         arglist = ['--unmask']
         verifylist = [('mask', False)]
         cmd = configuration.ShowConfiguration(self.app, None)
@@ -62,7 +71,9 @@ class TestConfiguration(utils.TestCommand):
         )
         self.assertEqual(datalist, data)
 
-    def test_show_mask(self):
+    @mock.patch("keystoneauth1.loading.base.get_plugin_options",
+                return_value=opts)
+    def test_show_mask(self, m_get_plugin_opts):
         arglist = ['--mask']
         verifylist = [('mask', True)]
         cmd = configuration.ShowConfiguration(self.app, None)
