@@ -16,12 +16,18 @@
 
 """Compute v2 Aggregate action implementations"""
 
+import logging
+
 from osc_lib.cli import parseractions
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class AddAggregateHost(command.ShowOne):
@@ -99,25 +105,37 @@ class CreateAggregate(command.ShowOne):
 
 
 class DeleteAggregate(command.Command):
-    """Delete an existing aggregate"""
+    """Delete existing aggregate(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteAggregate, self).get_parser(prog_name)
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
-            help=_("Aggregate to delete (name or ID)")
+            nargs='+',
+            help=_("Aggregate(s) to delete (name or ID)")
         )
         return parser
 
     def take_action(self, parsed_args):
-
         compute_client = self.app.client_manager.compute
-        data = utils.find_resource(
-            compute_client.aggregates,
-            parsed_args.aggregate,
-        )
-        compute_client.aggregates.delete(data.id)
+        result = 0
+        for a in parsed_args.aggregate:
+            try:
+                data = utils.find_resource(
+                    compute_client.aggregates, a)
+                compute_client.aggregates.delete(data.id)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete aggregate with name or "
+                          "ID '%(aggregate)s': %(e)s")
+                          % {'aggregate': a, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.aggregate)
+            msg = (_("%(result)s of %(total)s aggregates failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListAggregate(command.Lister):

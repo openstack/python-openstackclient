@@ -87,6 +87,42 @@ class FakeAggregate(object):
             loaded=True)
         return aggregate
 
+    @staticmethod
+    def create_aggregates(attrs=None, count=2):
+        """Create multiple fake aggregates.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of aggregates to fake
+        :return:
+            A list of FakeResource objects faking the aggregates
+        """
+        aggregates = []
+        for i in range(0, count):
+            aggregates.append(FakeAggregate.create_one_aggregate(attrs))
+
+        return aggregates
+
+    @staticmethod
+    def get_aggregates(aggregates=None, count=2):
+        """Get an iterable MagicMock object with a list of faked aggregates.
+
+        If aggregates list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List aggregates:
+            A list of FakeResource objects faking aggregates
+        :param int count:
+            The number of aggregates to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            aggregates
+        """
+        if aggregates is None:
+            aggregates = FakeAggregate.create_aggregates(count)
+        return mock.MagicMock(side_effect=aggregates)
+
 
 class FakeComputev2Client(object):
 
@@ -732,7 +768,7 @@ class FakeFlavor(object):
             flavors
         """
         if flavors is None:
-            flavors = FakeServer.create_flavors(count)
+            flavors = FakeFlavor.create_flavors(count)
         return mock.MagicMock(side_effect=flavors)
 
 

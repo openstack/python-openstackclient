@@ -56,17 +56,17 @@ Create a new aggregate
 aggregate delete
 ----------------
 
-Delete an existing aggregate
+Delete existing aggregate(s)
 
 .. program:: aggregate delete
 .. code:: bash
 
     os aggregate delete
-        <aggregate>
+        <aggregate> [<aggregate> ...]
 
 .. describe:: <aggregate>
 
-    Aggregate to delete (name or ID)
+    Aggregate(s) to delete (name or ID)
 
 aggregate list
 --------------
