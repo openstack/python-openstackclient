@@ -28,6 +28,7 @@ Create new subnet
         [--ip-version {4,6}]
         [--ipv6-ra-mode {dhcpv6-stateful,dhcpv6-stateless,slaac}]
         [--ipv6-address-mode {dhcpv6-stateful,dhcpv6-stateless,slaac}]
+        [--network-segment <network-segment>]
         --network <network>
         <name>
 
@@ -106,6 +107,14 @@ Create new subnet
 .. option:: --ipv6-address-mode {dhcpv6-stateful,dhcpv6-stateless,slaac}
 
      IPv6 address mode, valid modes: [dhcpv6-stateful, dhcpv6-stateless, slaac]
+
+.. option:: --network-segment <network-segment>
+
+     Network segment to associate with this subnet (ID only)
+
+     .. caution:: This is a beta command option and subject
+                  to change. Use global option ``--os-beta-command``
+                  to enable this command option.
 
 .. option:: --network <network>
 
