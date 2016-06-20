@@ -15,6 +15,7 @@
 
 """Compute v2 Server action implementations"""
 
+import logging
 import sys
 
 from osc_lib.command import command
@@ -24,6 +25,9 @@ from oslo_utils import importutils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _show_progress(progress):
@@ -90,10 +94,8 @@ class CreateServerImage(command.ShowOne):
             ):
                 sys.stdout.write('\n')
             else:
-                self.log.error(
-                    _('Error creating server image: %s') %
-                    parsed_args.server,
-                )
+                LOG.error(_('Error creating server image: %s'),
+                          parsed_args.server)
                 raise exceptions.CommandError
 
         if self.app.client_manager._api_version['image'] == '1':

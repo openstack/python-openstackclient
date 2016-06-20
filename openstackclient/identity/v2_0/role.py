@@ -15,6 +15,8 @@
 
 """Identity v2 Role action implementations"""
 
+import logging
+
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -22,6 +24,9 @@ from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class AddRole(command.ShowOne):
@@ -94,7 +99,7 @@ class CreateRole(command.ShowOne):
                     identity_client.roles,
                     parsed_args.role_name,
                 )
-                self.log.info(_('Returning existing role %s'), role.name)
+                LOG.info(_('Returning existing role %s'), role.name)
             else:
                 raise e
 

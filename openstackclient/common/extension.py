@@ -16,11 +16,15 @@
 """Extension action implementations"""
 
 import itertools
+import logging
 
 from osc_lib.command import command
 from osc_lib import utils
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class ListExtension(command.Lister):
@@ -80,24 +84,25 @@ class ListExtension(command.Lister):
             try:
                 data += identity_client.extensions.list()
             except Exception:
-                message = "Extensions list not supported by Identity API"
-                self.log.warning(message)
+                message = _("Extensions list not supported by Identity API")
+                LOG.warning(message)
 
         if parsed_args.compute or show_all:
             compute_client = self.app.client_manager.compute
             try:
                 data += compute_client.list_extensions.show_all()
             except Exception:
-                message = "Extensions list not supported by Compute API"
-                self.log.warning(message)
+                message = _("Extensions list not supported by Compute API")
+                LOG.warning(message)
 
         if parsed_args.volume or show_all:
             volume_client = self.app.client_manager.volume
             try:
                 data += volume_client.list_extensions.show_all()
             except Exception:
-                message = "Extensions list not supported by Block Storage API"
-                self.log.warning(message)
+                message = _("Extensions list not supported by "
+                            "Block Storage API")
+                LOG.warning(message)
 
         # Resource classes for the above
         extension_tuples = (
@@ -125,7 +130,7 @@ class ListExtension(command.Lister):
                     dict_tuples
                 )
             except Exception:
-                message = "Extensions list not supported by Network API"
-                self.log.warning(message)
+                message = _("Extensions list not supported by Network API")
+                LOG.warning(message)
 
         return (columns, extension_tuples)

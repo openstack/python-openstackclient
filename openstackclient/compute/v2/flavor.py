@@ -15,6 +15,8 @@
 
 """Flavor action implementations"""
 
+import logging
+
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -23,6 +25,9 @@ import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _find_flavor(compute_client, flavor):
@@ -282,8 +287,7 @@ class SetFlavor(command.Command):
             try:
                 flavor.set_keys(parsed_args.property)
             except Exception as e:
-                self.app.log.error(
-                    _("Failed to set flavor property: %s") % str(e))
+                LOG.error(_("Failed to set flavor property: %s"), e)
                 result += 1
 
         if parsed_args.project:
@@ -300,13 +304,12 @@ class SetFlavor(command.Command):
                     compute_client.flavor_access.add_tenant_access(
                         flavor.id, project_id)
             except Exception as e:
-                self.app.log.error(_("Failed to set flavor access to"
-                                     " project: %s") % str(e))
+                LOG.error(_("Failed to set flavor access to project: %s"), e)
                 result += 1
 
         if result > 0:
             raise exceptions.CommandError(_("Command Failed: One or more of"
-                                          " the operations failed"))
+                                            " the operations failed"))
 
 
 class ShowFlavor(command.ShowOne):
@@ -373,8 +376,7 @@ class UnsetFlavor(command.Command):
             try:
                 flavor.unset_keys(parsed_args.property)
             except Exception as e:
-                self.app.log.error(
-                    _("Failed to unset flavor property: %s") % str(e))
+                LOG.error(_("Failed to unset flavor property: %s"), e)
                 result += 1
 
         if parsed_args.project:
@@ -391,10 +393,10 @@ class UnsetFlavor(command.Command):
                     compute_client.flavor_access.remove_tenant_access(
                         flavor.id, project_id)
             except Exception as e:
-                self.app.log.error(_("Failed to remove flavor access from"
-                                     " project: %s") % str(e))
+                LOG.error(_("Failed to remove flavor access from project: %s"),
+                          e)
                 result += 1
 
         if result > 0:
             raise exceptions.CommandError(_("Command Failed: One or more of"
-                                          " the operations failed"))
+                                            " the operations failed"))

@@ -15,6 +15,7 @@
 
 """Identity v3 Role action implementations"""
 
+import logging
 import sys
 
 from keystoneauth1 import exceptions as ks_exc
@@ -24,6 +25,9 @@ import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _add_identity_and_resource_options_to_parser(parser):
@@ -165,7 +169,7 @@ class CreateRole(command.ShowOne):
             if parsed_args.or_show:
                 role = utils.find_resource(identity_client.roles,
                                            parsed_args.name)
-                self.log.info(_('Returning existing role %s'), role.name)
+                LOG.info(_('Returning existing role %s'), role.name)
             else:
                 raise e
 

@@ -293,9 +293,9 @@ class DeletePort(command.Command):
                 client.delete_port(obj)
             except Exception as e:
                 result += 1
-                self.app.log.error(_("Failed to delete port with "
-                                   "name or ID '%(port)s': %(e)s")
-                                   % {'port': port, 'e': e})
+                LOG.error(_("Failed to delete port with "
+                            "name or ID '%(port)s': %(e)s"),
+                          {'port': port, 'e': e})
 
         if result > 0:
             total = len(parsed_args.port)

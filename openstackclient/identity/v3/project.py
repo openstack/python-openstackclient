@@ -15,6 +15,8 @@
 
 """Project action implementations"""
 
+import logging
+
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -23,6 +25,9 @@ import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateProject(command.ShowOne):
@@ -111,7 +116,7 @@ class CreateProject(command.ShowOne):
                 project = utils.find_resource(identity_client.projects,
                                               parsed_args.name,
                                               domain_id=domain)
-                self.log.info(_('Returning existing project %s'), project.name)
+                LOG.info(_('Returning existing project %s'), project.name)
             else:
                 raise e
 

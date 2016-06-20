@@ -15,6 +15,7 @@
 
 """Group action implementations"""
 
+import logging
 import sys
 
 from keystoneauth1 import exceptions as ks_exc
@@ -24,6 +25,9 @@ import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
+
+
+LOG = logging.getLogger(__name__)
 
 
 class AddUserToGroup(command.Command):
@@ -161,7 +165,7 @@ class CreateGroup(command.ShowOne):
                 group = utils.find_resource(identity_client.groups,
                                             parsed_args.name,
                                             domain_id=domain)
-                self.log.info(_('Returning existing group %s'), group.name)
+                LOG.info(_('Returning existing group %s'), group.name)
             else:
                 raise e
 

@@ -18,6 +18,7 @@
 import argparse
 import getpass
 import io
+import logging
 import os
 import sys
 
@@ -34,6 +35,9 @@ except ImportError:
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _format_servers_list_networks(networks):
@@ -521,8 +525,8 @@ class CreateServer(command.ShowOne):
             scheduler_hints=hints,
             config_drive=config_drive)
 
-        self.log.debug('boot_args: %s', boot_args)
-        self.log.debug('boot_kwargs: %s', boot_kwargs)
+        LOG.debug('boot_args: %s', boot_args)
+        LOG.debug('boot_kwargs: %s', boot_kwargs)
 
         # Wrap the call to catch exceptions in order to close files
         try:
@@ -543,8 +547,8 @@ class CreateServer(command.ShowOne):
             ):
                 sys.stdout.write('\n')
             else:
-                self.log.error(_('Error creating server: %s'),
-                               parsed_args.server_name)
+                LOG.error(_('Error creating server: %s'),
+                          parsed_args.server_name)
                 sys.stdout.write(_('Error creating server\n'))
                 raise SystemExit
 
@@ -612,8 +616,8 @@ class DeleteServer(command.Command):
                 ):
                     sys.stdout.write('\n')
                 else:
-                    self.log.error(_('Error deleting server: %s'),
-                                   server_obj.id)
+                    LOG.error(_('Error deleting server: %s'),
+                              server_obj.id)
                     sys.stdout.write(_('Error deleting server\n'))
                     raise SystemExit
 
@@ -762,7 +766,7 @@ class ListServer(command.Lister):
             'all_tenants': parsed_args.all_projects,
             'user_id': user_id,
         }
-        self.log.debug('search options: %s', search_opts)
+        LOG.debug('search options: %s', search_opts)
 
         if parsed_args.long:
             columns = (
@@ -939,8 +943,8 @@ class MigrateServer(command.Command):
             ):
                 sys.stdout.write(_('Complete\n'))
             else:
-                self.log.error(_('Error migrating server: %s'),
-                               server.id)
+                LOG.error(_('Error migrating server: %s'),
+                          server.id)
                 sys.stdout.write(_('Error migrating server\n'))
                 raise SystemExit
 
@@ -1015,8 +1019,8 @@ class RebootServer(command.Command):
             ):
                 sys.stdout.write(_('Complete\n'))
             else:
-                self.log.error(_('Error rebooting server: %s'),
-                               server.id)
+                LOG.error(_('Error rebooting server: %s'),
+                          server.id)
                 sys.stdout.write(_('Error rebooting server\n'))
                 raise SystemExit
 
@@ -1068,8 +1072,8 @@ class RebuildServer(command.ShowOne):
             ):
                 sys.stdout.write(_('Complete\n'))
             else:
-                self.log.error(_('Error rebuilding server: %s'),
-                               server.id)
+                LOG.error(_('Error rebuilding server: %s'),
+                          server.id)
                 sys.stdout.write(_('Error rebuilding server\n'))
                 raise SystemExit
 
@@ -1222,8 +1226,8 @@ class ResizeServer(command.Command):
                 ):
                     sys.stdout.write(_('Complete\n'))
                 else:
-                    self.log.error(_('Error resizing server: %s'),
-                                   server.id)
+                    LOG.error(_('Error resizing server: %s'),
+                              server.id)
                     sys.stdout.write(_('Error resizing server\n'))
                     raise SystemExit
         elif parsed_args.confirm:
@@ -1538,7 +1542,7 @@ class SshServer(command.Command):
         ip_address = _get_ip_address(server.addresses,
                                      parsed_args.address_type,
                                      ip_address_family)
-        self.log.debug("ssh command: %s", (cmd % (login, ip_address)))
+        LOG.debug("ssh command: %s", (cmd % (login, ip_address)))
         os.system(cmd % (login, ip_address))
 
 

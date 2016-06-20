@@ -16,6 +16,7 @@
 """Service action implementations"""
 
 import argparse
+import logging
 
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -24,6 +25,9 @@ import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateService(command.ShowOne):
@@ -69,8 +73,8 @@ class CreateService(command.ShowOne):
         # display deprecation message.
         elif type:
             name = type_or_name
-            self.log.warning(_('The argument --type is deprecated, use service'
-                               ' create --name <service-name> type instead.'))
+            LOG.warning(_('The argument --type is deprecated, use service'
+                          ' create --name <service-name> type instead.'))
         # If --name option is present the positional is handled as <type>.
         # Making --type optional is new, but back-compatible
         elif name:

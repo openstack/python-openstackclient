@@ -15,12 +15,17 @@
 
 """Service action implementations"""
 
+import logging
+
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.i18n import _LE
+
+
+LOG = logging.getLogger(__name__)
 
 
 class DeleteService(command.Command):
@@ -171,7 +176,7 @@ class SetService(command.Command):
                         cs.disable(parsed_args.host, parsed_args.service)
         except Exception:
             status = "enabled" if enabled else "disabled"
-            self.log.error(_LE("Failed to set service status to %s"), status)
+            LOG.error(_LE("Failed to set service status to %s"), status)
             result += 1
 
         force_down = None
@@ -185,7 +190,7 @@ class SetService(command.Command):
                               force_down=force_down)
         except Exception:
             state = "down" if force_down else "up"
-            self.log.error(_LE("Failed to set service state to %s"), state)
+            LOG.error(_LE("Failed to set service state to %s"), state)
             result += 1
 
         if result > 0:

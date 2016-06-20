@@ -15,12 +15,17 @@
 
 """Agent action implementations"""
 
+import logging
+
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateAgent(command.ShowOne):
@@ -96,14 +101,13 @@ class DeleteAgent(command.Command):
                 compute_client.agents.delete(id)
             except Exception as e:
                 result += 1
-                self.app.log.error(_("Failed to delete agent with "
-                                   "ID '%(id)s': %(e)s")
-                                   % {'id': id, 'e': e})
+                LOG.error(_("Failed to delete agent with ID '%(id)s': %(e)s"),
+                          {'id': id, 'e': e})
 
         if result > 0:
             total = len(parsed_args.id)
             msg = (_("%(result)s of %(total)s agents failed "
-                   "to delete.") % {'result': result, 'total': total})
+                     "to delete.") % {'result': result, 'total': total})
             raise exceptions.CommandError(msg)
 
 
