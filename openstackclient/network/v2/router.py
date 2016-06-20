@@ -19,6 +19,7 @@ import logging
 
 from osc_lib.cli import parseractions
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
@@ -222,9 +223,23 @@ class DeleteRouter(command.Command):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
+        result = 0
+
         for router in parsed_args.router:
-            obj = client.find_router(router)
-            client.delete_router(obj)
+            try:
+                obj = client.find_router(router, ignore_missing=False)
+                client.delete_router(obj)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete router with "
+                          "name or ID '%(router)s': %(e)s")
+                          % {'router': router, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.router)
+            msg = (_("%(result)s of %(total)s routers failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListRouter(command.Lister):
