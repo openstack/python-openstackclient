@@ -12,10 +12,10 @@
 
 from tempest.lib.common.utils import data_utils
 
-from functional.tests.identity.v2 import test_identity
+from functional.tests.identity.v2 import common
 
 
-class ProjectTests(test_identity.IdentityTests):
+class ProjectTests(common.IdentityTests):
 
     def test_project_create(self):
         project_name = data_utils.rand_name('TestProject')
@@ -49,7 +49,7 @@ class ProjectTests(test_identity.IdentityTests):
     def test_project_list(self):
         raw_output = self.openstack('project list')
         items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, test_identity.BASIC_LIST_HEADERS)
+        self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
 
     def test_project_set(self):
         project_name = self._create_dummy_project()

@@ -10,11 +10,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from functional.tests.identity.v3 import test_identity
+from functional.tests.identity.v3 import common
 from tempest.lib.common.utils import data_utils
 
 
-class IdentityProviderTests(test_identity.IdentityTests):
+class IdentityProviderTests(common.IdentityTests):
     # Introduce functional test case for command 'Identity Provider'
 
     def test_idp_create(self):

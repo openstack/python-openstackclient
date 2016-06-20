@@ -10,10 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from functional.tests.identity.v2 import test_identity
+from functional.tests.identity.v2 import common
 
 
-class CatalogTests(test_identity.IdentityTests):
+class CatalogTests(common.IdentityTests):
 
     def test_catalog_list(self):
         raw_output = self.openstack('catalog list')

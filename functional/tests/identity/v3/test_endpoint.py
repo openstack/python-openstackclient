@@ -12,10 +12,10 @@
 
 from tempest.lib.common.utils import data_utils
 
-from functional.tests.identity.v3 import test_identity
+from functional.tests.identity.v3 import common
 
 
-class EndpointTests(test_identity.IdentityTests):
+class EndpointTests(common.IdentityTests):
 
     def test_endpoint_create(self):
         self._create_dummy_endpoint(interface='public')
