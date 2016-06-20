@@ -93,7 +93,7 @@ class ShowConsoleURL(command.ShowOne):
             '--spice',
             dest='url_type',
             action='store_const',
-            const='spice',
+            const='spice-html5',
             help=_("Show SPICE console URL")
         )
         return parser
@@ -105,14 +105,20 @@ class ShowConsoleURL(command.ShowOne):
             parsed_args.server,
         )
 
+        data = None
         if parsed_args.url_type in ['novnc', 'xvpvnc']:
             data = server.get_vnc_console(parsed_args.url_type)
-        if parsed_args.url_type in ['spice']:
+        if parsed_args.url_type in ['spice-html5']:
             data = server.get_spice_console(parsed_args.url_type)
 
         if not data:
             return ({}, {})
 
         info = {}
-        info.update(data['console'])
+        # NOTE(Rui Chen): Return 'remote_console' in compute microversion API
+        #                 2.6 and later, return 'console' in compute
+        #                 microversion API from 2.0 to 2.5, do compatibility
+        #                 handle for different microversion API.
+        console_data = data.get('remote_console', data.get('console'))
+        info.update(console_data)
         return zip(*sorted(six.iteritems(info)))
