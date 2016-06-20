@@ -240,7 +240,7 @@ class SetUser(command.Command):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help=_('User to change (name or ID)'),
+            help=_('User to modify (name or ID)'),
         )
         parser.add_argument(
             '--name',
