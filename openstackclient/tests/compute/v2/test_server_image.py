@@ -12,8 +12,9 @@
 #
 import mock
 
-from openstackclient.common import exceptions
-from openstackclient.common import utils as common_utils
+from osc_lib import exceptions
+from osc_lib import utils as common_utils
+
 from openstackclient.compute.v2 import server_image
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
