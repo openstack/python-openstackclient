@@ -836,7 +836,8 @@ class SetImage(command.Command):
             image = image_client.images.update(image.id, **kwargs)
         except Exception as e:
             if activation_status is not None:
-                print("Image %s was %s." % (image.id, activation_status))
+                LOG.info(_("Image %(id)s was %(status)s."),
+                         {'id': image.id, 'status': activation_status})
             raise e
 
 
