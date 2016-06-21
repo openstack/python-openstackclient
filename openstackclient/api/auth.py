@@ -147,29 +147,28 @@ def check_valid_authorization_options(options, auth_plugin_name):
 def check_valid_authentication_options(options, auth_plugin_name):
     """Validate authentication options, and provide helpful error messages."""
 
-    msgs = []
-    if auth_plugin_name.endswith('password'):
-        if not options.auth.get('username'):
-            msgs.append(_('Set a username with --os-username, OS_USERNAME,'
-                          ' or auth.username'))
-        if not options.auth.get('auth_url'):
-            msgs.append(_('Set an authentication URL, with --os-auth-url,'
-                          ' OS_AUTH_URL or auth.auth_url'))
-    elif auth_plugin_name.endswith('token'):
-        if not options.auth.get('token'):
-            msgs.append(_('Set a token with --os-token, OS_TOKEN or '
-                          'auth.token'))
-        if not options.auth.get('auth_url'):
-            msgs.append(_('Set a service AUTH_URL, with --os-auth-url, '
-                          'OS_AUTH_URL or auth.auth_url'))
-    elif auth_plugin_name == 'token_endpoint':
-        if not options.auth.get('token'):
-            msgs.append(_('Set a token with --os-token, OS_TOKEN or '
-                          'auth.token'))
-        if not options.auth.get('url'):
-            msgs.append(_('Set a service URL, with --os-url, OS_URL or '
-                          'auth.url'))
+    # Get all the options defined within the plugin.
+    plugin_opts = base.get_plugin_options(auth_plugin_name)
+    plugin_opts = {opt.dest: opt for opt in plugin_opts}
 
+    # NOTE(aloga): this is an horrible hack. We need a way to specify the
+    # required options in the plugins. Using the "required" argument for
+    # the oslo_config.cfg.Opt does not work, as it is not possible to load the
+    # plugin if the option is not defined, so the error will simply be:
+    # "NoMatchingPlugin: The plugin foobar could not be found"
+    msgs = []
+    if 'password' in plugin_opts and not options.auth.get('username'):
+        msgs.append(_('Set a username with --os-username, OS_USERNAME,'
+                      ' or auth.username'))
+    if 'auth_url' in plugin_opts and not options.auth.get('auth_url'):
+        msgs.append(_('Set a service AUTH_URL, with --os-auth-url, '
+                      'OS_AUTH_URL or auth.auth_url'))
+    if 'url' in plugin_opts and not options.auth.get('url'):
+        msgs.append(_('Set a service URL, with --os-url, '
+                      'OS_URL or auth.url'))
+    if 'token' in plugin_opts and not options.auth.get('token'):
+            msgs.append(_('Set a token with --os-token, '
+                          'OS_TOKEN or auth.token'))
     if msgs:
         raise exc.CommandError(
             _('Missing parameter(s): \n%s') % '\n'.join(msgs))
