@@ -38,7 +38,7 @@ class TokenEndpoint(token_endpoint.AdminToken):
     is for bootstrapping the Keystone database.
     """
 
-    def load_from_options(self, url, token):
+    def load_from_options(self, url, token, **kwargs):
         """A plugin for static authentication with an existing token
 
         :param string url: Service endpoint
