@@ -75,6 +75,12 @@ class TestFlavorCreate(TestFlavor):
     def setUp(self):
         super(TestFlavorCreate, self).setUp()
 
+        # Return a project
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
         self.flavors_mock.create.return_value = self.flavor
         self.cmd = flavor.CreateFlavor(self.app, None)
 
@@ -161,6 +167,7 @@ class TestFlavorCreate(TestFlavor):
             '--vcpus', str(self.flavor.vcpus),
             '--rxtx-factor', str(self.flavor.rxtx_factor),
             '--private',
+            '--project', identity_fakes.project_id,
         ]
         verifylist = [
             ('name', self.flavor.name),
@@ -172,6 +179,7 @@ class TestFlavorCreate(TestFlavor):
             ('vcpus', self.flavor.vcpus),
             ('rxtx_factor', self.flavor.rxtx_factor),
             ('public', False),
+            ('project', identity_fakes.project_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -188,9 +196,27 @@ class TestFlavorCreate(TestFlavor):
         )
         columns, data = self.cmd.take_action(parsed_args)
         self.flavors_mock.create.assert_called_once_with(*args)
-
+        self.flavor_access_mock.add_tenant_access.assert_called_with(
+            self.flavor.id,
+            identity_fakes.project_id,
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+    def test_public_flavor_create_with_project(self):
+        arglist = [
+            '--project', identity_fakes.project_id,
+            self.flavor.name,
+        ]
+        verifylist = [
+            ('project', identity_fakes.project_id),
+            ('name', self.flavor.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)
 
     def test_flavor_create_no_options(self):
         arglist = []

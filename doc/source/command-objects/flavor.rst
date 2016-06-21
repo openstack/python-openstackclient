@@ -21,6 +21,8 @@ Create new flavor
         [--vcpus <num-cpu>]
         [--rxtx-factor <factor>]
         [--public | --private]
+        [--project <project>]
+        [--project-domain <project-domain>]
         <flavor-name>
 
 .. option:: --id <id>
@@ -58,6 +60,16 @@ Create new flavor
 .. option:: --private
 
     Flavor is not available to other projects
+
+.. option:: --project <project>
+
+    Allow <project> to access private flavor (name or ID)
+    (Must be used with :option:`--private` option)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 .. _flavor_create-flavor-name:
 .. describe:: <flavor-name>
