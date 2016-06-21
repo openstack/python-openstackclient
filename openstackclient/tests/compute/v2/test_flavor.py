@@ -542,8 +542,12 @@ class TestFlavorSet(TestFlavor):
             ('flavor', self.flavor.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        result = self.cmd.take_action(parsed_args)
+
+        self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
+                                                  is_public=None)
+        self.flavor_access_mock.add_tenant_access.assert_not_called()
+        self.assertIsNone(result)
 
 
 class TestFlavorShow(TestFlavor):
@@ -717,5 +721,8 @@ class TestFlavorUnset(TestFlavor):
             ('flavor', self.flavor.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.flavor_access_mock.remove_tenant_access.assert_not_called()

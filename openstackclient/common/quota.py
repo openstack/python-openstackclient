@@ -142,11 +142,6 @@ class SetQuota(command.Command):
                 if value is not None:
                     compute_kwargs[k] = value
 
-        if (compute_kwargs == {} and volume_kwargs == {}
-                and network_kwargs == {}):
-            sys.stderr.write("No quotas updated\n")
-            return
-
         if parsed_args.project:
             project = utils.find_resource(
                 identity_client.projects,

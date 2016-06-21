@@ -279,9 +279,6 @@ class SetFlavor(command.Command):
 
         flavor = _find_flavor(compute_client, parsed_args.flavor)
 
-        if not parsed_args.property and not parsed_args.project:
-            raise exceptions.CommandError(_("Nothing specified to be set."))
-
         result = 0
         if parsed_args.property:
             try:
@@ -367,9 +364,6 @@ class UnsetFlavor(command.Command):
         identity_client = self.app.client_manager.identity
 
         flavor = _find_flavor(compute_client, parsed_args.flavor)
-
-        if not parsed_args.property and not parsed_args.project:
-            raise exceptions.CommandError(_("Nothing specified to be unset."))
 
         result = 0
         if parsed_args.property:

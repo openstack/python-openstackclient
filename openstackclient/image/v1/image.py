@@ -691,10 +691,6 @@ class SetImage(command.Command):
                 image.properties.update(kwargs['properties'])
                 kwargs['properties'] = image.properties
 
-            if not kwargs:
-                LOG.warning(_('no arguments specified'))
-                return
-
             image = image_client.images.update(image.id, **kwargs)
         finally:
             # Clean up open files - make sure data isn't a string
