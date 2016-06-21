@@ -83,7 +83,7 @@ Create new subnet
      'auto': Gateway address should automatically be chosen from
      within the subnet itself, 'none': This subnet will not use
      a gateway, e.g.: ``--gateway 192.168.9.1``, ``--gateway auto``,
-     ``--gateway none`` (default is 'auto')
+     ``--gateway none`` (default is 'auto').
 
 .. option:: --host-route destination=<subnet>,gateway=<ip-address>
 
@@ -158,7 +158,8 @@ List subnets
 
 .. option:: --ip-version {4, 6}
 
-    List only subnets of given IP version in output
+    List only subnets of given IP version in output.
+    Allowed values for IP version are 4 and 6.
 
 subnet set
 ----------
@@ -200,7 +201,7 @@ Set subnet properties
      Specify a gateway for the subnet. The options are:
      <ip-address>: Specific IP address to use as the gateway,
      'none': This subnet will not use a gateway,
-     e.g.: ``--gateway 192.168.9.1``, ``--gateway none``
+     e.g.: ``--gateway 192.168.9.1``, ``--gateway none``.
 
 .. option:: --host-route destination=<subnet>,gateway=<ip-address>
 

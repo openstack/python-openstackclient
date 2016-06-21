@@ -108,7 +108,7 @@ Create new network
 .. option:: --provider-network-type <provider-network-type>
 
     The physical mechanism by which the virtual network is implemented.
-    The supported options are: flat, geneve, gre, local, vlan, vxlan
+    The supported options are: flat, geneve, gre, local, vlan, vxlan.
 
     *Network version 2 only*
 
@@ -238,7 +238,7 @@ Set network properties
 .. option:: --provider-network-type <provider-network-type>
 
     The physical mechanism by which the virtual network is implemented.
-    The supported options are: flat, gre, local, vlan, vxlan
+    The supported options are: flat, gre, local, vlan, vxlan.
 
 .. option:: --provider-physical-network <provider-physical-network>
 
