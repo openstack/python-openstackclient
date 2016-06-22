@@ -62,10 +62,34 @@ class TestServiceDelete(TestService):
 
 class TestServiceList(TestService):
 
+    service = compute_fakes.FakeService.create_one_service()
+
+    columns = (
+        'ID',
+        'Binary',
+        'Host',
+        'Zone',
+        'Status',
+        'State',
+        'Updated At',
+    )
+    columns_long = columns + (
+        'Disabled Reason',
+    )
+
+    data = [(
+        service.id,
+        service.binary,
+        service.host,
+        service.zone,
+        service.status,
+        service.state,
+        service.updated_at,
+    )]
+    data_long = [data[0] + (service.disabled_reason, )]
+
     def setUp(self):
         super(TestServiceList, self).setUp()
-
-        self.service = compute_fakes.FakeService.create_one_service()
 
         self.service_mock.list.return_value = [self.service]
 
@@ -93,8 +117,8 @@ class TestServiceList(TestService):
             self.service.binary,
         )
 
-        self.assertNotIn("Disabled Reason", columns)
-        self.assertNotIn(self.service.disabled_reason, list(data)[0])
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
     def test_service_list_with_long_option(self):
         arglist = [
@@ -114,8 +138,13 @@ class TestServiceList(TestService):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.assertIn("Disabled Reason", columns)
-        self.assertIn(self.service.disabled_reason, list(data)[0])
+        self.service_mock.list.assert_called_with(
+            self.service.host,
+            self.service.binary,
+        )
+
+        self.assertEqual(self.columns_long, columns)
+        self.assertEqual(self.data_long, list(data))
 
 
 class TestServiceSet(TestService):
