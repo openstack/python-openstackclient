@@ -26,12 +26,14 @@ from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
 
 class TestRole(identity_fakes.TestIdentityv2):
 
-    fake_service = copy.deepcopy(identity_fakes.SERVICE)
-    fake_service['endpoints'] = [
+    attr = {}
+    attr['endpoints'] = [
         {
             'publicURL': identity_fakes.ENDPOINT['publicurl'],
         },
     ]
+    fake_service = identity_fakes.FakeService.create_one_service(attr)
+    fake_role = identity_fakes.FakeRole.create_one_role()
 
     def setUp(self):
         super(TestRole, self).setUp()
@@ -508,21 +510,17 @@ class TestRoleShow(TestRole):
     def setUp(self):
         super(TestRoleShow, self).setUp()
 
-        self.roles_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ROLE),
-            loaded=True,
-        )
+        self.roles_mock.get.return_value = self.fake_role
 
         # Get the command object to test
         self.cmd = role.ShowRole(self.app, None)
 
     def test_service_show(self):
         arglist = [
-            identity_fakes.role_name,
+            self.fake_role.name,
         ]
         verifylist = [
-            ('role', identity_fakes.role_name),
+            ('role', self.fake_role.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -533,13 +531,13 @@ class TestRoleShow(TestRole):
 
         # RoleManager.get(role)
         self.roles_mock.get.assert_called_with(
-            identity_fakes.role_name,
+            self.fake_role.name,
         )
 
         collist = ('id', 'name')
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.role_id,
-            identity_fakes.role_name,
+            self.fake_role.id,
+            self.fake_role.name,
         )
         self.assertEqual(datalist, data)
