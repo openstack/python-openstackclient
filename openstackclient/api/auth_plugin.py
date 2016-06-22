@@ -15,28 +15,28 @@
 
 import logging
 
-from oslo_config import cfg
-from six.moves.urllib import parse as urlparse
-
-from keystoneauth1.loading._plugins import admin_token as token_endpoint
+from keystoneauth1 import loading
 from keystoneauth1.loading._plugins.identity import generic as ksa_password
+from keystoneauth1 import token_endpoint
+from six.moves.urllib import parse as urlparse
 
 from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
 
 
-class TokenEndpoint(token_endpoint.AdminToken):
+class TokenEndpoint(loading.BaseLoader):
     """Auth plugin to handle traditional token/endpoint usage
 
-    Implements the methods required to handle token authentication
-    with a user-specified token and service endpoint; no Identity calls
-    are made for re-scoping, service catalog lookups or the like.
-
-    The purpose of this plugin is to get rid of the special-case paths
-    in the code to handle this authentication format. Its primary use
-    is for bootstrapping the Keystone database.
+    Keystoneauth contains a Token plugin class that now correctly
+    handles the token/endpoint auth compatible with OSC.  However,
+    the AdminToken loader deprecates the 'url' argument, which breaks
+    OSC compatibility, so make one that works.
     """
+
+    @property
+    def plugin_class(self):
+        return token_endpoint.Token
 
     def load_from_options(self, url, token, **kwargs):
         """A plugin for static authentication with an existing token
@@ -44,21 +44,26 @@ class TokenEndpoint(token_endpoint.AdminToken):
         :param string url: Service endpoint
         :param string token: Existing token
         """
-        return super(TokenEndpoint, self).load_from_options(endpoint=url,
-                                                            token=token)
+
+        return super(TokenEndpoint, self).load_from_options(
+            endpoint=url,
+            token=token,
+        )
 
     def get_options(self):
-        options = super(TokenEndpoint, self).get_options()
+        """Return the legacy options"""
 
-        options.extend([
-            # Maintain name 'url' for compatibility
-            cfg.StrOpt('url',
-                       help=_('Specific service endpoint to use')),
-            cfg.StrOpt('token',
-                       secret=True,
-                       help=_('Authentication token to use')),
-        ])
-
+        options = [
+            loading.Opt(
+                'url',
+                help=_('Specific service endpoint to use'),
+            ),
+            loading.Opt(
+                'token',
+                secret=True,
+                help=_('Authentication token to use'),
+            ),
+        ]
         return options
 
 
