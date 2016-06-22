@@ -13,8 +13,25 @@ deprecation warnings that indicate the new commands (or options) to use.
 Commands labeled as a beta according to :doc:`command-beta` are exempt from
 this backwards incompatible change handling.
 
-List of Backwards Incompatible Changes
-======================================
+Backwards Incompatible Changes
+==============================
+
+Release 3.0
+-----------
+
+1. Remove the ``osc_password`` authentication plugin.
+
+  This was the 'last-resort' plugin default that worked around an old default
+  Keystone configuration for the ``admin_endpoint`` and ``public_endpoint``.
+
+  * In favor of: ``password``
+  * As of: 3.0
+  * Removed in: n/a
+  * Bug: n/a
+  * Commit: https://review.openstack.org/332938
+
+Releases Before 3.0
+-------------------
 
 1. Rename command `openstack project usage list`
 

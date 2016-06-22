@@ -86,7 +86,7 @@ def select_auth_plugin(options):
             auth_plugin_name = 'v2password'
         else:
             # let keystoneclient figure it out itself
-            auth_plugin_name = 'osc_password'
+            auth_plugin_name = 'password'
     elif options.auth.get('token'):
         if options.identity_api_version == '3':
             auth_plugin_name = 'v3token'
@@ -98,7 +98,7 @@ def select_auth_plugin(options):
     else:
         # The ultimate default is similar to the original behaviour,
         # but this time with version discovery
-        auth_plugin_name = 'osc_password'
+        auth_plugin_name = 'password'
     LOG.debug("Auth plugin %s selected", auth_plugin_name)
     return auth_plugin_name
 
