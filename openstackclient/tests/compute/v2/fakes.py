@@ -1088,7 +1088,13 @@ class FakeHost(object):
             "stats": "",
             "numa_topology": "",
             "ram_allocation_ratio": 1.0,
-            "cpu_allocation_ratio": 1.0
+            "cpu_allocation_ratio": 1.0,
+            "zone": 'zone-' + uuid.uuid4().hex,
+            "host_name": 'name-' + uuid.uuid4().hex,
+            "service": 'service-' + uuid.uuid4().hex,
+            "cpu": 4,
+            "disk_gb": 100,
+            'project': 'project-' + uuid.uuid4().hex,
         }
         host_info.update(attrs)
         host = fakes.FakeResource(
