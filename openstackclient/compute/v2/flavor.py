@@ -171,21 +171,36 @@ class CreateFlavor(command.ShowOne):
 
 
 class DeleteFlavor(command.Command):
-    """Delete flavor"""
+    """Delete flavor(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteFlavor, self).get_parser(prog_name)
         parser.add_argument(
             "flavor",
             metavar="<flavor>",
-            help=_("Flavor to delete (name or ID)")
+            nargs='+',
+            help=_("Flavor(s) to delete (name or ID)")
         )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        flavor = _find_flavor(compute_client, parsed_args.flavor)
-        compute_client.flavors.delete(flavor.id)
+        result = 0
+        for f in parsed_args.flavor:
+            try:
+                flavor = _find_flavor(compute_client, f)
+                compute_client.flavors.delete(flavor.id)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete flavor with name or "
+                          "ID '%(flavor)s': %(e)s")
+                          % {'flavor': f, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.flavor)
+            msg = (_("%(result)s of %(total)s flavors failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListFlavor(command.Lister):

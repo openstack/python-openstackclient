@@ -13,6 +13,12 @@
 #   under the License.
 #
 
+import mock
+from mock import call
+
+from osc_lib import exceptions
+from osc_lib import utils
+
 from openstackclient.compute.v2 import aggregate
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
 from openstackclient.tests import utils as tests_utils
@@ -135,24 +141,73 @@ class TestAggregateCreate(TestAggregate):
 
 class TestAggregateDelete(TestAggregate):
 
+    fake_ags = compute_fakes.FakeAggregate.create_aggregates(count=2)
+
     def setUp(self):
         super(TestAggregateDelete, self).setUp()
 
-        self.aggregate_mock.get.return_value = self.fake_ag
+        self.aggregate_mock.get = (
+            compute_fakes.FakeAggregate.get_aggregates(self.fake_ags))
         self.cmd = aggregate.DeleteAggregate(self.app, None)
 
     def test_aggregate_delete(self):
         arglist = [
-            'ag1',
+            self.fake_ags[0].id
         ]
         verifylist = [
-            ('aggregate', 'ag1'),
+            ('aggregate', [self.fake_ags[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
-        self.aggregate_mock.delete.assert_called_once_with(self.fake_ag.id)
+        self.aggregate_mock.get.assert_called_once_with(self.fake_ags[0].id)
+        self.aggregate_mock.delete.assert_called_once_with(self.fake_ags[0].id)
         self.assertIsNone(result)
+
+    def test_delete_multiple_aggregates(self):
+        arglist = []
+        for a in self.fake_ags:
+            arglist.append(a.id)
+        verifylist = [
+            ('aggregate', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for a in self.fake_ags:
+            calls.append(call(a.id))
+        self.aggregate_mock.delete.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_delete_multiple_agggregates_with_exception(self):
+        arglist = [
+            self.fake_ags[0].id,
+            'unexist_aggregate',
+        ]
+        verifylist = [
+            ('aggregate', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        find_mock_result = [self.fake_ags[0], exceptions.CommandError]
+        with mock.patch.object(utils, 'find_resource',
+                               side_effect=find_mock_result) as find_mock:
+            try:
+                self.cmd.take_action(parsed_args)
+                self.fail('CommandError should be raised.')
+            except exceptions.CommandError as e:
+                self.assertEqual('1 of 2 aggregates failed to delete.',
+                                 str(e))
+
+            find_mock.assert_any_call(self.aggregate_mock, self.fake_ags[0].id)
+            find_mock.assert_any_call(self.aggregate_mock, 'unexist_aggregate')
+
+            self.assertEqual(2, find_mock.call_count)
+            self.aggregate_mock.delete.assert_called_once_with(
+                self.fake_ags[0].id
+            )
 
 
 class TestAggregateList(TestAggregate):

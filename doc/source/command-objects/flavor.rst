@@ -79,18 +79,18 @@ Create new flavor
 flavor delete
 -------------
 
-Delete flavor
+Delete flavor(s)
 
 .. program:: flavor delete
 .. code:: bash
 
     os flavor delete
-        <flavor>
+        <flavor> [<flavor> ...]
 
 .. _flavor_delete-flavor:
 .. describe:: <flavor>
 
-    Flavor to delete (name or ID)
+    Flavor(s) to delete (name or ID)
 
 flavor list
 -----------
