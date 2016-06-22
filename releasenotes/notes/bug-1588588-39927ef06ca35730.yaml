@@ -1,6 +1,6 @@
 ---
 upgrade:
-  - All ``set`` and ``unset`` commands in network, identity, image, and volume now
-    return normally when nothing specified to modify. This will become the default
-    behavior of OSC ``set`` and ``unset`` commands.
+  - All ``set`` and ``unset`` commands now return normally when nothing
+    specified to modify. This will become the default behavior of OSC
+    ``set`` and ``unset`` commands.
     [Bug `1588588 <https://bugs.launchpad.net/python-openstackclient/+bug/1588588>`_]

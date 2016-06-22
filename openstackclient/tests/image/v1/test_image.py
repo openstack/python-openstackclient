@@ -475,8 +475,8 @@ class TestImageSet(TestImage):
 
         result = self.cmd.take_action(parsed_args)
 
-        # Verify update() was not called, if it was show the args
-        self.assertEqual(self.images_mock.update.call_args_list, [])
+        self.images_mock.update.assert_called_with(image_fakes.image_id,
+                                                   **{})
         self.assertIsNone(result)
 
     def test_image_set_options(self):
