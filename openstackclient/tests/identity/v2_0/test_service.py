@@ -190,7 +190,7 @@ class TestServiceDelete(TestService):
             identity_fakes.service_name,
         ]
         verifylist = [
-            ('service', identity_fakes.service_name),
+            ('services', [identity_fakes.service_name]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

@@ -81,18 +81,18 @@ Create new endpoint
 endpoint delete
 ---------------
 
-Delete endpoint
+Delete endpoint(s)
 
 .. program:: endpoint delete
 .. code:: bash
 
     os endpoint delete
-        <endpoint-id>
+        <endpoint-id> [<endpoint-id> ...]
 
 .. _endpoint_delete-endpoint:
 .. describe:: <endpoint-id>
 
-    Endpoint to delete (ID only)
+    Endpoint(s) to delete (ID only)
 
 endpoint list
 -------------

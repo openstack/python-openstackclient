@@ -112,7 +112,7 @@ class TestEndpointDelete(TestEndpoint):
             self.fake_endpoint.id,
         ]
         verifylist = [
-            ('endpoint', self.fake_endpoint.id),
+            ('endpoints', [self.fake_endpoint.id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

@@ -55,7 +55,7 @@ Delete EC2 credentials
     os ec2 credentials delete
         [--user <user>]
         [--user-domain <user-domain>]
-        <access-key>
+        <access-key> [<access-key> ...]
 
 .. option:: --user <user>
 
@@ -71,7 +71,7 @@ Delete EC2 credentials
 .. _ec2_credentials_delete-access-key:
 .. describe:: access-key
 
-    Credentials access key
+    Credentials access key(s)
 
 The :option:`--user` option is typically only useful for admin users, but
 may be allowed for other users depending on the policy of the cloud and
