@@ -25,12 +25,10 @@ import logging
 import sys
 
 import common
-
+from os_client_config import config as cloud_config
 
 from openstackclient.api import object_store_v1 as object_store
 from openstackclient.identity import client as identity_client
-
-from os_client_config import config as cloud_config
 
 
 LOG = logging.getLogger('')

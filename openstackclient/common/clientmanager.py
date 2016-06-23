@@ -20,12 +20,12 @@ import logging
 import pkg_resources
 import sys
 
+from osc_lib.api import auth
 from osc_lib import exceptions
 from oslo_utils import strutils
 import requests
 import six
 
-from openstackclient.api import auth
 from openstackclient.common import session as osc_session
 from openstackclient.identity import client as identity_client
 
