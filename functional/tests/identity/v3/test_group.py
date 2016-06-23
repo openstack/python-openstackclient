@@ -12,10 +12,10 @@
 
 from tempest.lib.common.utils import data_utils
 
-from functional.tests.identity.v3 import test_identity
+from functional.tests.identity.v3 import common
 
 
-class GroupTests(test_identity.IdentityTests):
+class GroupTests(common.IdentityTests):
 
     def test_group_create(self):
         self._create_dummy_group()
@@ -24,7 +24,7 @@ class GroupTests(test_identity.IdentityTests):
         group_name = self._create_dummy_group()
         raw_output = self.openstack('group list')
         items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, test_identity.BASIC_LIST_HEADERS)
+        self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
         self.assertIn(group_name, raw_output)
 
     def test_group_list_with_domain(self):
@@ -32,7 +32,7 @@ class GroupTests(test_identity.IdentityTests):
         raw_output = self.openstack(
             'group list --domain %s' % self.domain_name)
         items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, test_identity.BASIC_LIST_HEADERS)
+        self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
         self.assertIn(group_name, raw_output)
 
     def test_group_delete(self):

@@ -10,10 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from functional.tests.identity.v2 import test_identity
+from functional.tests.identity.v2 import common
 
 
-class ServiceTests(test_identity.IdentityTests):
+class ServiceTests(common.IdentityTests):
 
     def test_service_create(self):
         self._create_dummy_service()
@@ -27,7 +27,7 @@ class ServiceTests(test_identity.IdentityTests):
         self._create_dummy_service()
         raw_output = self.openstack('service list')
         items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, test_identity.BASIC_LIST_HEADERS)
+        self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
 
     def test_service_show(self):
         service_name = self._create_dummy_service()

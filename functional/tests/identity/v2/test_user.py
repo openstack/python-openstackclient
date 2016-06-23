@@ -13,10 +13,10 @@
 from tempest.lib.common.utils import data_utils
 from tempest.lib import exceptions
 
-from functional.tests.identity.v2 import test_identity
+from functional.tests.identity.v2 import common
 
 
-class UserTests(test_identity.IdentityTests):
+class UserTests(common.IdentityTests):
 
     def test_user_create(self):
         self._create_dummy_user()
@@ -29,7 +29,7 @@ class UserTests(test_identity.IdentityTests):
     def test_user_list(self):
         raw_output = self.openstack('user list')
         items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, test_identity.BASIC_LIST_HEADERS)
+        self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
 
     def test_user_set(self):
         username = self._create_dummy_user()

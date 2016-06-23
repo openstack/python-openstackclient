@@ -10,10 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from functional.tests.identity.v2 import test_identity
+from functional.tests.identity.v2 import common
 
 
-class RoleTests(test_identity.IdentityTests):
+class RoleTests(common.IdentityTests):
 
     def test_role_create(self):
         self._create_dummy_role()
@@ -27,7 +27,7 @@ class RoleTests(test_identity.IdentityTests):
         self._create_dummy_role()
         raw_output = self.openstack('role list')
         items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, test_identity.BASIC_LIST_HEADERS)
+        self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
 
     def test_role_list_with_user_project(self):
         project_name = self._create_dummy_project()
@@ -58,7 +58,7 @@ class RoleTests(test_identity.IdentityTests):
             '' % {'project': project_name,
                   'user': username})
         items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, test_identity.BASIC_LIST_HEADERS)
+        self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
         self.assertEqual(1, len(items))
 
     def test_role_show(self):

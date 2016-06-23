@@ -10,10 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from functional.tests.identity.v2 import test_identity
+from functional.tests.identity.v2 import common
 
 
-class EndpointTests(test_identity.IdentityTests):
+class EndpointTests(common.IdentityTests):
 
     def test_endpoint_create(self):
         self._create_dummy_endpoint()

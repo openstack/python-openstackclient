@@ -10,10 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from functional.tests.identity.v2 import test_identity
+from functional.tests.identity.v2 import common
 
 
-class TokenTests(test_identity.IdentityTests):
+class TokenTests(common.IdentityTests):
 
     def test_token_issue(self):
         self._create_dummy_token()

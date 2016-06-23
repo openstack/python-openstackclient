@@ -10,10 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from functional.tests.identity.v3 import test_identity
+from functional.tests.identity.v3 import common
 
 
-class RegionTests(test_identity.IdentityTests):
+class RegionTests(common.IdentityTests):
 
     def test_region_create(self):
         self._create_dummy_region()

@@ -10,10 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from functional.tests.identity.v2 import test_identity
+from functional.tests.identity.v2 import common
 
 
-class EC2CredentialsTests(test_identity.IdentityTests):
+class EC2CredentialsTests(common.IdentityTests):
 
     def test_ec2_credentials_create(self):
         self._create_dummy_ec2_credentials()
