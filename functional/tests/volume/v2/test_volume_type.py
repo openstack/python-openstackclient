@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import time
 import uuid
 
 from functional.tests.volume.v2 import common
@@ -69,3 +70,15 @@ class VolumeTypeTests(common.BaseVolumeTests):
         raw_output = self.openstack(
             'volume type unset --project admin ' + self.NAME)
         self.assertEqual("", raw_output)
+
+    def test_multi_delete(self):
+        vol_type1 = uuid.uuid4().hex
+        vol_type2 = uuid.uuid4().hex
+        self.openstack('volume type create ' + vol_type1)
+        time.sleep(5)
+        self.openstack('volume type create ' + vol_type2)
+        time.sleep(5)
+        cmd = 'volume type delete %s %s' % (vol_type1, vol_type2)
+        time.sleep(5)
+        raw_output = self.openstack(cmd)
+        self.assertOutput('', raw_output)
