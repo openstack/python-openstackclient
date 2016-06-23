@@ -1,5 +1,9 @@
 ---
 features:
+  - Update ``--binding-profile`` option on the ``port create`` and
+    ``port set`` commands to support JSON input for more advanced
+    binding profile data.
+    [Blueprint :oscbp:`neutron-client`]
   - Add ``geneve`` choice to the  ``network create`` command
     ``--provider-network-type`` option.
     [Blueprint :oscbp:`neutron-client`]

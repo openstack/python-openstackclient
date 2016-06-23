@@ -11,6 +11,7 @@
 #   under the License.
 #
 
+import argparse
 import mock
 
 from mock import call
@@ -167,6 +168,58 @@ class TestCreatePort(TestPort):
             'binding:vnic_type': 'macvtap',
             'binding:profile': {'foo': 'bar', 'foo2': 'bar2'},
             'network_id': self._port.network_id,
+            'name': 'test-port',
+        })
+
+        ref_columns, ref_data = self._get_common_cols_data(self._port)
+        self.assertEqual(ref_columns, columns)
+        self.assertEqual(ref_data, data)
+
+    def test_create_invalid_json_binding_profile(self):
+        arglist = [
+            '--network', self._port.network_id,
+            '--binding-profile', '{"parent_name":"fake_parent"',
+            'test-port',
+        ]
+        self.assertRaises(argparse.ArgumentTypeError,
+                          self.check_parser,
+                          self.cmd,
+                          arglist,
+                          None)
+
+    def test_create_invalid_key_value_binding_profile(self):
+        arglist = [
+            '--network', self._port.network_id,
+            '--binding-profile', 'key',
+            'test-port',
+        ]
+        self.assertRaises(argparse.ArgumentTypeError,
+                          self.check_parser,
+                          self.cmd,
+                          arglist,
+                          None)
+
+    def test_create_json_binding_profile(self):
+        arglist = [
+            '--network', self._port.network_id,
+            '--binding-profile', '{"parent_name":"fake_parent"}',
+            '--binding-profile', '{"tag":42}',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id,),
+            ('enable', True),
+            ('binding_profile', {'parent_name': 'fake_parent', 'tag': 42}),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_port.assert_called_once_with(**{
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'binding:profile': {'parent_name': 'fake_parent', 'tag': 42},
             'name': 'test-port',
         })
 
@@ -439,6 +492,48 @@ class TestSetPort(TestPort):
         result = self.cmd.take_action(parsed_args)
 
         attrs = {}
+        self.network.update_port.assert_called_once_with(self._port, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_invalid_json_binding_profile(self):
+        arglist = [
+            '--binding-profile', '{"parent_name"}',
+            'test-port',
+        ]
+        self.assertRaises(argparse.ArgumentTypeError,
+                          self.check_parser,
+                          self.cmd,
+                          arglist,
+                          None)
+
+    def test_set_invalid_key_value_binding_profile(self):
+        arglist = [
+            '--binding-profile', 'key',
+            'test-port',
+        ]
+        self.assertRaises(argparse.ArgumentTypeError,
+                          self.check_parser,
+                          self.cmd,
+                          arglist,
+                          None)
+
+    def test_set_mixed_binding_profile(self):
+        arglist = [
+            '--binding-profile', 'foo=bar',
+            '--binding-profile', '{"foo2": "bar2"}',
+            self._port.name,
+        ]
+        verifylist = [
+            ('binding_profile', {'foo': 'bar', 'foo2': 'bar2'}),
+            ('port', self._port.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'binding:profile': {'foo': 'bar', 'foo2': 'bar2'},
+        }
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 

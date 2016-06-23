@@ -54,7 +54,8 @@ Create new port
 
 .. option:: --binding-profile <binding-profile>
 
-    Custom data to be passed as binding:profile: <key>=<value>
+    Custom data to be passed as binding:profile. Data may
+    be passed as <key>=<value> or JSON.
     (repeat option to set multiple binding:profile data)
 
 .. option:: --host <host-id>
@@ -162,7 +163,8 @@ Set port properties
 
 .. option:: --binding-profile <binding-profile>
 
-    Custom data to be passed as binding:profile: <key>=<value>
+    Custom data to be passed as binding:profile. Data may
+    be passed as <key>=<value> or JSON.
     (repeat option to set multiple binding:profile data)
 
 .. option:: --no-binding-profile
