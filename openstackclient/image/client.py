@@ -47,15 +47,15 @@ def make_client(instance):
 
     endpoint = instance.get_endpoint_for_service_type(
         API_NAME,
-        region_name=instance._region_name,
-        interface=instance._interface,
+        region_name=instance.region_name,
+        interface=instance.interface,
     )
 
     client = image_client(
         endpoint,
         token=instance.auth.get_token(instance.session),
-        cacert=instance._cacert,
-        insecure=instance._insecure,
+        cacert=instance.cacert,
+        insecure=not instance.verify,
     )
 
     # Create the low-level API
@@ -70,8 +70,8 @@ def make_client(instance):
         session=instance.session,
         endpoint=instance.get_endpoint_for_service_type(
             IMAGE_API_TYPE,
-            region_name=instance._region_name,
-            interface=instance._interface,
+            region_name=instance.region_name,
+            interface=instance.interface,
         )
     )
 

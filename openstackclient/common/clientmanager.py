@@ -86,7 +86,7 @@ def get_plugin_modules(group):
 
         # Add the plugin to the ClientManager
         setattr(
-            ClientManager,
+            clientmanager.ClientManager,
             module.API_NAME,
             clientmanager.ClientCache(
                 getattr(sys.modules[ep.module_name], 'make_client', None)
