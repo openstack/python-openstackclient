@@ -1094,6 +1094,17 @@ class TestUserShow(TestUser):
 
         # Get the command object to test
         self.cmd = user.ShowUser(self.app, None)
+        self.app.client_manager.identity.auth.client.get_user_id.\
+            return_value = 'bbbbbbb-aaaa-aaaa-aaaa-bbbbbbbaaaa'
+        self.app.client_manager.identity.tokens.get_token_data.return_value = \
+            {'token':
+             {'user':
+              {'domain': {},
+               'id': 'bbbbbbb-aaaa-aaaa-aaaa-bbbbbbbaaaa',
+               'name': 'bbbbbbb-aaaa-aaaa-aaaa-bbbbbbbaaaa'
+               }
+              }
+             }
 
     def test_user_show(self):
         arglist = [

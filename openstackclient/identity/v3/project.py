@@ -321,18 +321,21 @@ class ShowProject(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
+        project_str = common._get_token_resource(identity_client, 'project',
+                                                 parsed_args.project)
+
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
             project = utils.find_resource(
                 identity_client.projects,
-                parsed_args.project,
+                project_str,
                 domain_id=domain.id,
                 parents_as_list=parsed_args.parents,
                 subtree_as_list=parsed_args.children)
         else:
             project = utils.find_resource(
                 identity_client.projects,
-                parsed_args.project,
+                project_str,
                 parents_as_list=parsed_args.parents,
                 subtree_as_list=parsed_args.children)
 

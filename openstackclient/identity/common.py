@@ -47,6 +47,39 @@ def find_service(identity_client, name_type_or_id):
             raise exceptions.CommandError(msg % name_type_or_id)
 
 
+def _get_token_resource(client, resource, parsed_name):
+    """Peek into the user's auth token to get resource IDs
+
+    Look into a user's token to try and find the ID of a domain, project or
+    user, when given the name. Typically non-admin users will interact with
+    the CLI using names. However, by default, keystone does not allow look up
+    by name since it would involve listing all entities. Instead opt to use
+    the correct ID (from the token) instead.
+    :param client: An identity client
+    :param resource: A resource to look at in the token, this may be `domain`,
+                     `project_domain`, `user_domain`, `project`, or `user`.
+    :param parsed_name: This is input from parsed_args that the user is hoping
+                        to find in the token.
+
+    :returns: The ID of the resource from the token, or the original value from
+              parsed_args if it does not match.
+    """
+
+    try:
+        token = client.auth.client.get_token()
+        token_data = client.tokens.get_token_data(token)
+        token_dict = token_data['token']
+
+        # NOTE(stevemar): If domain is passed, just look at the project domain.
+        if resource == 'domain':
+            token_dict = token_dict['project']
+        obj = token_dict[resource]
+        return obj['id'] if obj['name'] == parsed_name else parsed_name
+    # diaper defense in case parsing the token fails
+    except Exception:  # noqa
+        return parsed_name
+
+
 def _get_domain_id_if_requested(identity_client, domain_name_or_id):
     if not domain_name_or_id:
         return None

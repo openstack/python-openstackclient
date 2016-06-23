@@ -1,0 +1,7 @@
+---
+fixes:
+  - When performing ``domain show``, ``project show`` or ``user show``, peek
+    into the user token to determine the ID or the resource (if supplied with
+    only a name). This should make finding information about the user and
+    their project easier for non-admin users.
+    [Bug `1561599 <https://bugs.launchpad.net/bugs/1561599>`_]
