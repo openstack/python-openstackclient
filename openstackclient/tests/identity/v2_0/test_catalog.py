@@ -20,38 +20,14 @@ from openstackclient.tests import utils
 
 class TestCatalog(utils.TestCommand):
 
-    fake_service = {
-        'id': 'qwertyuiop',
-        'type': 'compute',
-        'name': 'supernova',
-        'endpoints': [
-            {
-                'region': 'one',
-                'publicURL': 'https://public.one.example.com',
-                'internalURL': 'https://internal.one.example.com',
-                'adminURL': 'https://admin.one.example.com',
-            },
-            {
-                'region': 'two',
-                'publicURL': 'https://public.two.example.com',
-                'internalURL': 'https://internal.two.example.com',
-                'adminURL': 'https://admin.two.example.com',
-            },
-            {
-                'region': None,
-                'publicURL': 'https://public.none.example.com',
-                'internalURL': 'https://internal.none.example.com',
-                'adminURL': 'https://admin.none.example.com',
-            },
-        ],
-    }
+    service_catalog = identity_fakes.FakeCatalog.create_catalog()
 
     def setUp(self):
         super(TestCatalog, self).setUp()
 
         self.sc_mock = mock.MagicMock()
         self.sc_mock.service_catalog.catalog.return_value = [
-            self.fake_service,
+            self.service_catalog,
         ]
 
         self.auth_mock = mock.MagicMock()
@@ -77,7 +53,7 @@ class TestCatalogList(TestCatalog):
     def test_catalog_list(self):
         auth_ref = identity_fakes.fake_auth_ref(
             identity_fakes.TOKEN,
-            fake_service=self.fake_service,
+            fake_service=self.service_catalog,
         )
         self.ar_mock = mock.PropertyMock(return_value=auth_ref)
         type(self.app.client_manager).auth_ref = self.ar_mock
@@ -108,7 +84,7 @@ class TestCatalogList(TestCatalog):
         self.assertEqual(datalist, tuple(data))
 
     def test_catalog_list_with_endpoint_url(self):
-        fake_service = {
+        attr = {
             'id': 'qwertyuiop',
             'type': 'compute',
             'name': 'supernova',
@@ -124,9 +100,10 @@ class TestCatalogList(TestCatalog):
                 },
             ],
         }
+        service_catalog = identity_fakes.FakeCatalog.create_catalog(attr)
         auth_ref = identity_fakes.fake_auth_ref(
             identity_fakes.TOKEN,
-            fake_service=fake_service,
+            fake_service=service_catalog,
         )
         self.ar_mock = mock.PropertyMock(return_value=auth_ref)
         type(self.app.client_manager).auth_ref = self.ar_mock
@@ -162,7 +139,7 @@ class TestCatalogShow(TestCatalog):
     def test_catalog_show(self):
         auth_ref = identity_fakes.fake_auth_ref(
             identity_fakes.UNSCOPED_TOKEN,
-            fake_service=self.fake_service,
+            fake_service=self.service_catalog,
         )
         self.ar_mock = mock.PropertyMock(return_value=auth_ref)
         type(self.app.client_manager).auth_ref = self.ar_mock
@@ -192,7 +169,7 @@ class TestCatalogShow(TestCatalog):
             '<none>\n  publicURL: https://public.none.example.com\n  '
             'internalURL: https://internal.none.example.com\n  '
             'adminURL: https://admin.none.example.com\n',
-            'qwertyuiop',
+            self.service_catalog.id,
             'supernova',
             'compute',
         )

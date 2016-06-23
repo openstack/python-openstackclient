@@ -110,6 +110,8 @@ ENDPOINT = {
     'publicurl': endpoint_publicurl,
     'service_id': endpoint_service_id,
 }
+SERVICE_NAME = 'service-name-' + uuid.uuid4().hex
+SERVICE_ID = 'service-id-' + uuid.uuid4().hex
 
 
 def fake_auth_ref(fake_token, fake_service=None):
@@ -123,12 +125,12 @@ def fake_auth_ref(fake_token, fake_service=None):
     # Create a service catalog
     if fake_service:
         service = token.add_service(
-            fake_service['type'],
-            fake_service['name'],
+            fake_service.type,
+            fake_service.name,
         )
         # TODO(dtroyer): Add an 'id' element to KSA's _Service fixure
-        service['id'] = fake_service['id']
-        for e in fake_service['endpoints']:
+        service['id'] = fake_service.id
+        for e in fake_service.endpoints:
             # KSA's _Service fixture copies publicURL to internalURL and
             # adminURL if they do not exist.  Soooo helpful...
             internal = e.get('internalURL', None)
@@ -224,3 +226,241 @@ class FakeExtension(object):
             info=copy.deepcopy(extension_info),
             loaded=True)
         return extension
+
+
+class FakeCatalog(object):
+    """Fake one or more catalog."""
+
+    @staticmethod
+    def create_catalog(attrs=None):
+        """Create a fake catalog.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with id, name, type and so on.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        catalog_info = {
+            'id': SERVICE_ID,
+            'type': 'compute',
+            'name': 'supernova',
+            'endpoints': [
+                {
+                    'region': 'one',
+                    'publicURL': 'https://public.one.example.com',
+                    'internalURL': 'https://internal.one.example.com',
+                    'adminURL': 'https://admin.one.example.com',
+                },
+                {
+                    'region': 'two',
+                    'publicURL': 'https://public.two.example.com',
+                    'internalURL': 'https://internal.two.example.com',
+                    'adminURL': 'https://admin.two.example.com',
+                },
+                {
+                    'region': None,
+                    'publicURL': 'https://public.none.example.com',
+                    'internalURL': 'https://internal.none.example.com',
+                    'adminURL': 'https://admin.none.example.com',
+                },
+            ],
+        }
+        # Overwrite default attributes.
+        catalog_info.update(attrs)
+
+        catalog = fakes.FakeResource(
+            info=copy.deepcopy(catalog_info),
+            loaded=True)
+
+        return catalog
+
+
+class FakeProject(object):
+    """Fake one or more project."""
+
+    @staticmethod
+    def create_one_project(attrs=None):
+        """Create a fake project.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, name, and so on
+        """
+
+        attrs = attrs or {}
+
+        # set default attributes.
+        project_info = {
+            'id': 'project-id' + uuid.uuid4().hex,
+            'name': 'project-name' + uuid.uuid4().hex,
+            'description': 'project_description',
+            'enabled': True,
+        }
+        project_info.update(attrs)
+
+        project = fakes.FakeResource(info=copy.deepcopy(project_info),
+                                     loaded=True)
+        return project
+
+    @staticmethod
+    def create_projects(attrs=None, count=2):
+        """Create multiple fake projects.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of projects to fake
+        :return:
+            A list of FakeResource objects faking the projects
+        """
+        projects = []
+        for i in range(0, count):
+            projects.append(FakeProject.create_one_project(attrs))
+
+        return projects
+
+
+class FakeEndpoint(object):
+    """Fake one or more endpoint."""
+
+    @staticmethod
+    def create_one_endpoint(attrs=None):
+        """Create a fake agent.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, name, region, and so on
+        """
+
+        attrs = attrs or {}
+
+        # set default attributes.
+        endpoint_info = {
+            'service_name': SERVICE_NAME,
+            'adminurl': 'http://endpoint_adminurl',
+            'region': 'endpoint_region',
+            'internalurl': 'http://endpoint_internalurl',
+            'service_type': 'service_type',
+            'id': 'endpoint-id-' + uuid.uuid4().hex,
+            'publicurl': 'http://endpoint_publicurl',
+            'service_id': SERVICE_ID,
+
+        }
+        endpoint_info.update(attrs)
+
+        endpoint = fakes.FakeResource(info=copy.deepcopy(endpoint_info),
+                                      loaded=True)
+        return endpoint
+
+    @staticmethod
+    def create_endpoints(attrs=None, count=2):
+        """Create multiple fake endpoints.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of endpoints to fake
+        :return:
+            A list of FakeResource objects faking the endpoints
+        """
+        endpoints = []
+        for i in range(0, count):
+            endpoints.append(FakeEndpoint.create_one_endpoint(attrs))
+
+        return endpoints
+
+
+class FakeService(object):
+    """Fake one or more service."""
+
+    @staticmethod
+    def create_one_service(attrs=None):
+        """Create a fake service.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, name, type, and so on
+        """
+
+        attrs = attrs or {}
+
+        # set default attributes.
+        service_info = {
+            'id': SERVICE_ID,
+            'name': SERVICE_NAME,
+            'description': 'service_description',
+            'type': 'service_type',
+
+        }
+        service_info.update(attrs)
+
+        service = fakes.FakeResource(info=copy.deepcopy(service_info),
+                                     loaded=True)
+        return service
+
+    @staticmethod
+    def create_services(attrs=None, count=2):
+        """Create multiple fake services.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of services to fake
+        :return:
+            A list of FakeResource objects faking the services
+        """
+        services = []
+        for i in range(0, count):
+            services.append(FakeService.create_one_service(attrs))
+
+        return services
+
+
+class FakeRole(object):
+    """Fake one or more role."""
+
+    @staticmethod
+    def create_one_role(attrs=None):
+        """Create a fake role.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, name, and so on
+        """
+
+        attrs = attrs or {}
+
+        # set default attributes.
+        role_info = {
+            'id': 'role-id' + uuid.uuid4().hex,
+            'name': 'role-name' + uuid.uuid4().hex,
+        }
+        role_info.update(attrs)
+
+        role = fakes.FakeResource(info=copy.deepcopy(role_info),
+                                  loaded=True)
+        return role
+
+    @staticmethod
+    def create_roles(attrs=None, count=2):
+        """Create multiple fake roles.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of roles to fake
+        :return:
+            A list of FakeResource objects faking the roles
+        """
+        roles = []
+        for i in range(0, count):
+            roles.append(FakeRole.create_one_role(attrs))
+
+        return roles
