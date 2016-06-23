@@ -13,12 +13,17 @@
 
 """Identity v3 Service Catalog action implementations"""
 
+import logging
+
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _format_endpoints(eps=None):
@@ -87,8 +92,7 @@ class ShowCatalog(command.ShowOne):
                 break
 
         if not data:
-            self.app.log.error(_('service %s not found\n') %
-                               parsed_args.service)
+            LOG.error(_('service %s not found\n'), parsed_args.service)
             return ((), ())
 
         return zip(*sorted(six.iteritems(data)))
