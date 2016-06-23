@@ -73,7 +73,7 @@ class ListService(command.Lister):
         compute_client = self.app.client_manager.compute
         if parsed_args.long:
             columns = (
-                "Id",
+                "ID",
                 "Binary",
                 "Host",
                 "Zone",
@@ -84,7 +84,7 @@ class ListService(command.Lister):
             )
         else:
             columns = (
-                "Id",
+                "ID",
                 "Binary",
                 "Host",
                 "Zone",

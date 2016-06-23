@@ -648,15 +648,19 @@ class FakeService(object):
         :param Dictionary attrs:
             A dictionary with all attributes
         :return:
-            A FakeResource object, with id, name, ram, vcpus, properties
+            A FakeResource object, with id, host, binary
         """
         attrs = attrs or {}
 
         # Set default attributes.
         service_info = {
+            'id': 'id-' + uuid.uuid4().hex,
             'host': 'host-' + uuid.uuid4().hex,
             'binary': 'binary-' + uuid.uuid4().hex,
             'status': 'enabled',
+            'zone': 'zone-' + uuid.uuid4().hex,
+            'state': 'state-' + uuid.uuid4().hex,
+            'updated_at': 'time-' + uuid.uuid4().hex,
             'disabled_reason': 'earthquake',
         }
 
