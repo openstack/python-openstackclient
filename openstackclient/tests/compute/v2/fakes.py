@@ -1062,7 +1062,6 @@ class FakeHost(object):
 
         # Set default attributes.
         host_info = {
-            "id": 1,
             "service_id": 1,
             "host": "host1",
             "uuid": 'host-id-' + uuid.uuid4().hex,

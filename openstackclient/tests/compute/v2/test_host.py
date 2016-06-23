@@ -40,10 +40,10 @@ class TestHostSet(TestHost):
 
     def test_host_set_no_option(self):
         arglist = [
-            str(self.host.id)
+            self.host.host
         ]
         verifylist = [
-            ('host', str(self.host.id))
+            ('host', self.host.host)
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -52,18 +52,18 @@ class TestHostSet(TestHost):
         self.assertIsNone(result)
 
         body = {}
-        self.host_mock.update.assert_called_with(self.host.id, body)
+        self.host_mock.update.assert_called_with(self.host.host, body)
 
     def test_host_set(self):
         arglist = [
             '--enable',
             '--disable-maintenance',
-            str(self.host.id)
+            self.host.host
         ]
         verifylist = [
             ('enable', True),
             ('enable_maintenance', False),
-            ('host', str(self.host.id))
+            ('host', self.host.host)
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -71,5 +71,5 @@ class TestHostSet(TestHost):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        body = {'status': True, 'maintenance_mode': False}
-        self.host_mock.update.assert_called_with(self.host.id, body)
+        body = {'status': 'enable', 'maintenance_mode': 'disable'}
+        self.host_mock.update.assert_called_with(self.host.host, body)

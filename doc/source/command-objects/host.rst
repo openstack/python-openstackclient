@@ -54,7 +54,7 @@ Set host command
 
 .. describe:: <host>
 
-    The host (name or ID)
+    Host to modify (name only)
 
 host show
 ---------
