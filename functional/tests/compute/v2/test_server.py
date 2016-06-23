@@ -23,19 +23,27 @@ class ServerTests(test.TestCase):
 
     @classmethod
     def get_flavor(cls):
-        # NOTE(rtheis): Get m1.tiny flavor since functional tests may
-        # create other flavors.
-        raw_output = cls.openstack('flavor show m1.tiny -c id -f value')
-        return raw_output.strip('\n')
+        # NOTE(rtheis): Get cirros256 or m1.tiny flavors since functional
+        # tests may create other flavors.
+        flavors = cls.openstack('flavor list -c Name -f value').split('\n')
+        server_flavor = None
+        for flavor in flavors:
+            if flavor in ['m1.tiny', 'cirros256']:
+                server_flavor = flavor
+                break
+        return server_flavor
 
     @classmethod
     def get_image(cls):
-        # NOTE(rtheis): Get public images since functional tests may
-        # create private images.
-        raw_output = cls.openstack('image list --public -f value -c ID')
-        ray = raw_output.split('\n')
-        idx = int(len(ray) / 2)
-        return ray[idx]
+        # NOTE(rtheis): Get cirros image since functional tests may
+        # create other images.
+        images = cls.openstack('image list -c Name -f value').split('\n')
+        server_image = None
+        for image in images:
+            if image.startswith('cirros-') and image.endswith('-uec'):
+                server_image = image
+                break
+        return server_image
 
     @classmethod
     def get_network(cls):
