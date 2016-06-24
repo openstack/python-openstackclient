@@ -103,9 +103,6 @@ class TestEndpointDelete(TestEndpoint):
         super(TestEndpointDelete, self).setUp()
 
         self.endpoints_mock.get.return_value = self.fake_endpoint
-
-        self.services_mock.get.return_value = self.fake_service
-
         self.endpoints_mock.delete.return_value = None
 
         # Get the command object to test

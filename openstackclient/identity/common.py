@@ -30,21 +30,32 @@ def find_service(identity_client, name_type_or_id):
     """Find a service by id, name or type."""
 
     try:
-        # search for the usual ID or name
-        return utils.find_resource(identity_client.services, name_type_or_id)
-    except exceptions.CommandError:
-        try:
-            # search for service type
-            return identity_client.services.find(type=name_type_or_id)
-        # FIXME(dtroyer): This exception should eventually come from
-        #                 common client exceptions
-        except identity_exc.NotFound:
-            msg = _("No service with a type, name or ID of '%s' exists.")
-            raise exceptions.CommandError(msg % name_type_or_id)
-        except identity_exc.NoUniqueMatch:
-            msg = _("Multiple service matches found for '%s', "
-                    "use an ID to be more specific.")
-            raise exceptions.CommandError(msg % name_type_or_id)
+        # search for service id
+        return identity_client.services.get(name_type_or_id)
+    except identity_exc.NotFound:
+        # ignore NotFound exception, raise others
+        pass
+
+    try:
+        # search for service name
+        return identity_client.services.find(name=name_type_or_id)
+    except identity_exc.NotFound:
+        pass
+    except identity_exc.NoUniqueMatch:
+        msg = _("Multiple service matches found for '%s', "
+                "use an ID to be more specific.")
+        raise exceptions.CommandError(msg % name_type_or_id)
+
+    try:
+        # search for service type
+        return identity_client.services.find(type=name_type_or_id)
+    except identity_exc.NotFound:
+        msg = _("No service with a type, name or ID of '%s' exists.")
+        raise exceptions.CommandError(msg % name_type_or_id)
+    except identity_exc.NoUniqueMatch:
+        msg = _("Multiple service matches found for '%s', "
+                "use an ID to be more specific.")
+        raise exceptions.CommandError(msg % name_type_or_id)
 
 
 def _get_token_resource(client, resource, parsed_name):
