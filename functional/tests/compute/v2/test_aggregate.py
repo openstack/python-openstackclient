@@ -16,7 +16,7 @@ from functional.common import test
 
 
 class AggregateTests(test.TestCase):
-    """Functional tests for aggregate. """
+    """Functional tests for aggregate."""
 
     NAME = uuid.uuid4().hex
     HEADERS = ['Name']
