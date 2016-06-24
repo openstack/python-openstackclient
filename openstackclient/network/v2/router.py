@@ -309,7 +309,7 @@ class RemovePortFromRouter(command.Command):
         parser.add_argument(
             'port',
             metavar='<port>',
-            help=_("Port to be removed (name or ID)")
+            help=_("Port to be removed and deleted (name or ID)")
         )
         return parser
 
