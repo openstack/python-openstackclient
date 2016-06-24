@@ -61,9 +61,6 @@ class IdentityTests(test.TestCase):
     def tearDownClass(cls):
         cls.openstack('project delete %s' % cls.project_name)
 
-        if hasattr(super(IdentityTests, cls), 'tearDownClass'):
-            super(IdentityTests, cls).tearDownClass()
-
     def _create_dummy_project(self, add_clean_up=True):
         project_name = data_utils.rand_name('TestProject')
         project_description = data_utils.rand_name('description')

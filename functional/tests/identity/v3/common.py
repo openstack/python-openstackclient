@@ -87,9 +87,6 @@ class IdentityTests(test.TestCase):
         cls.openstack('domain set --disable %s' % cls.domain_name)
         cls.openstack('domain delete %s' % cls.domain_name)
 
-        if hasattr(super(IdentityTests, cls), 'tearDownClass'):
-            super(IdentityTests, cls).tearDownClass()
-
     def _create_dummy_user(self, add_clean_up=True):
         username = data_utils.rand_name('TestUser')
         password = data_utils.rand_name('password')
