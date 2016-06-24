@@ -16,7 +16,7 @@ from functional.common import test
 
 
 class ServerGroupTests(test.TestCase):
-    """Functional tests for servergroup. """
+    """Functional tests for servergroup."""
 
     NAME = uuid.uuid4().hex
     HEADERS = ['Name']

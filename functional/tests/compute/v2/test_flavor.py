@@ -16,7 +16,7 @@ from functional.common import test
 
 
 class FlavorTests(test.TestCase):
-    """Functional tests for flavor. """
+    """Functional tests for flavor."""
 
     NAME = uuid.uuid4().hex
     HEADERS = ['Name']
