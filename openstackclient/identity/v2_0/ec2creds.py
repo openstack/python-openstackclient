@@ -16,11 +16,17 @@
 
 """Identity v2 EC2 Credentials action implementations"""
 
+import logging
+
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateEC2Creds(command.ShowOne):
@@ -85,9 +91,10 @@ class DeleteEC2Creds(command.Command):
     def get_parser(self, prog_name):
         parser = super(DeleteEC2Creds, self).get_parser(prog_name)
         parser.add_argument(
-            'access_key',
+            'access_keys',
             metavar='<access-key>',
-            help=_('Credentials access key'),
+            nargs='+',
+            help=_('Credentials access keys'),
         )
         parser.add_argument(
             '--user',
@@ -108,7 +115,21 @@ class DeleteEC2Creds(command.Command):
             # Get the user from the current auth
             user = self.app.client_manager.auth_ref.user_id
 
-        identity_client.ec2.delete(user, parsed_args.access_key)
+        result = 0
+        for access_key in parsed_args.access_keys:
+            try:
+                identity_client.ec2.delete(user, access_key)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete EC2 keys with "
+                          "access key '%(access_key)s': %(e)s")
+                          % {'access_key': access_key, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.access_keys)
+            msg = (_("%(result)s of %(total)s EC2 keys failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListEC2Creds(command.Lister):

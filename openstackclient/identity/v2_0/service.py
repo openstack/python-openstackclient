@@ -91,21 +91,37 @@ class CreateService(command.ShowOne):
 
 
 class DeleteService(command.Command):
-    """Delete service"""
+    """Delete service(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteService, self).get_parser(prog_name)
         parser.add_argument(
-            'service',
+            'services',
             metavar='<service>',
-            help=_('Service to delete (type, name or ID)'),
+            nargs='+',
+            help=_('Service(s) to delete (type, name or ID)'),
         )
         return parser
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        service = common.find_service(identity_client, parsed_args.service)
-        identity_client.services.delete(service.id)
+
+        result = 0
+        for service in parsed_args.services:
+            try:
+                service = common.find_service(identity_client, service)
+                identity_client.services.delete(service.id)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete service with "
+                          "name or ID '%(service)s': %(e)s")
+                          % {'service': service, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.services)
+            msg = (_("%(result)s of %(total)s services failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListService(command.Lister):

@@ -15,12 +15,18 @@
 
 """Endpoint action implementations"""
 
+import logging
+
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateEndpoint(command.ShowOne):
@@ -74,20 +80,36 @@ class CreateEndpoint(command.ShowOne):
 
 
 class DeleteEndpoint(command.Command):
-    """Delete endpoint"""
+    """Delete endpoint(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteEndpoint, self).get_parser(prog_name)
         parser.add_argument(
-            'endpoint',
+            'endpoints',
             metavar='<endpoint-id>',
-            help=_('Endpoint to delete (ID only)'),
+            nargs='+',
+            help=_('Endpoint(s) to delete (ID only)'),
         )
         return parser
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        identity_client.endpoints.delete(parsed_args.endpoint)
+
+        result = 0
+        for endpoint in parsed_args.endpoints:
+            try:
+                identity_client.endpoints.delete(endpoint)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete endpoint with "
+                          "ID '%(endpoint)s': %(e)s")
+                          % {'endpoint': endpoint, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.endpoints)
+            msg = (_("%(result)s of %(total)s endpoints failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListEndpoint(command.Lister):
