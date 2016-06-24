@@ -21,6 +21,9 @@ from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
 
 class TestToken(identity_fakes.TestIdentityv2):
 
+    fake_user = identity_fakes.FakeUser.create_one_user()
+    fake_project = identity_fakes.FakeProject.create_one_project()
+
     def setUp(self):
         super(TestToken, self).setUp()
 
@@ -57,8 +60,8 @@ class TestTokenIssue(TestToken):
         datalist = (
             auth_ref.expires,
             identity_fakes.token_id,
-            identity_fakes.project_id,
-            identity_fakes.user_id,
+            'project-id',
+            'user-id',
         )
         self.assertEqual(datalist, data)
 
@@ -85,7 +88,7 @@ class TestTokenIssue(TestToken):
         datalist = (
             auth_ref.expires,
             identity_fakes.token_id,
-            identity_fakes.user_id,
+            'user-id',
         )
         self.assertEqual(datalist, data)
 
