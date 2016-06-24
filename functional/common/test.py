@@ -63,9 +63,7 @@ class TestCase(testtools.TestCase):
 
     @classmethod
     def get_list_opts(cls, headers=[]):
-        opts = ' -f csv '
-        opts = opts + ' '.join(['-c ' + it for it in headers])
-        return opts
+        return ' -f csv ' + ' '.join(['-c ' + it for it in headers])
 
     @classmethod
     def assertOutput(cls, expected, actual):
