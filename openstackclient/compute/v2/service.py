@@ -29,21 +29,35 @@ LOG = logging.getLogger(__name__)
 
 
 class DeleteService(command.Command):
-    """Delete service command"""
+    """Delete compute service(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteService, self).get_parser(prog_name)
         parser.add_argument(
             "service",
             metavar="<service>",
-            help=_("Compute service to delete (ID only)")
+            nargs='+',
+            help=_("Compute service(s) to delete (ID only)")
         )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
+        result = 0
+        for s in parsed_args.service:
+            try:
+                compute_client.services.delete(s)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete compute service with "
+                          "ID '%(service)s': %(e)s")
+                          % {'service': s, 'e': e})
 
-        compute_client.services.delete(parsed_args.service)
+        if result > 0:
+            total = len(parsed_args.service)
+            msg = (_("%(result)s of %(total)s compute services failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListService(command.Lister):

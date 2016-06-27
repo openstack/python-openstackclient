@@ -7,18 +7,18 @@ Compute v2
 compute service delete
 ----------------------
 
-Delete service command
+Delete compute service(s)
 
 .. program:: compute service delete
 .. code:: bash
 
     os compute service delete
-        <service>
+        <service> [<service> ...]
 
 .. _compute-service-delete:
 .. describe:: <service>
 
-    Compute service to delete (ID only)
+    Compute service(s) to delete (ID only)
 
 compute service list
 --------------------

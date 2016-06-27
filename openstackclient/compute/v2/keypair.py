@@ -16,6 +16,7 @@
 """Keypair action implementations"""
 
 import io
+import logging
 import os
 import sys
 
@@ -25,6 +26,9 @@ from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateKeypair(command.ShowOne):
@@ -78,20 +82,37 @@ class CreateKeypair(command.ShowOne):
 
 
 class DeleteKeypair(command.Command):
-    """Delete public key"""
+    """Delete public key(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteKeypair, self).get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<key>',
-            help=_("Public key to delete (name only)")
+            nargs='+',
+            help=_("Public key(s) to delete (name only)")
         )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        compute_client.keypairs.delete(parsed_args.name)
+        result = 0
+        for n in parsed_args.name:
+            try:
+                data = utils.find_resource(
+                    compute_client.keypairs, n)
+                compute_client.keypairs.delete(data.name)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete public key with name "
+                          "'%(name)s': %(e)s")
+                          % {'name': n, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.name)
+            msg = (_("%(result)s of %(total)s public keys failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListKeypair(command.Lister):

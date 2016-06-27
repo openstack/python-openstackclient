@@ -14,6 +14,7 @@
 #
 
 import mock
+from mock import call
 
 from osc_lib import exceptions
 
@@ -33,31 +34,73 @@ class TestService(compute_fakes.TestComputev2):
 
 class TestServiceDelete(TestService):
 
+    services = compute_fakes.FakeService.create_services(count=2)
+
     def setUp(self):
         super(TestServiceDelete, self).setUp()
-
-        self.service = compute_fakes.FakeService.create_one_service()
 
         self.service_mock.delete.return_value = None
 
         # Get the command object to test
         self.cmd = service.DeleteService(self.app, None)
 
-    def test_service_delete_no_options(self):
+    def test_service_delete(self):
         arglist = [
-            self.service.binary,
+            self.services[0].binary,
         ]
         verifylist = [
-            ('service', self.service.binary),
+            ('service', [self.services[0].binary]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.service_mock.delete.assert_called_with(
-            self.service.binary,
+            self.services[0].binary,
         )
         self.assertIsNone(result)
+
+    def test_multi_services_delete(self):
+        arglist = []
+        for s in self.services:
+            arglist.append(s.binary)
+        verifylist = [
+            ('service', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for s in self.services:
+            calls.append(call(s.binary))
+        self.service_mock.delete.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_multi_services_delete_with_exception(self):
+        arglist = [
+            self.services[0].binary,
+            'unexist_service',
+        ]
+        verifylist = [
+            ('service', arglist)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        delete_mock_result = [None, exceptions.CommandError]
+        self.service_mock.delete = (
+            mock.MagicMock(side_effect=delete_mock_result)
+        )
+
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual(
+                '1 of 2 compute services failed to delete.', str(e))
+
+        self.service_mock.delete.assert_any_call(self.services[0].binary)
+        self.service_mock.delete.assert_any_call('unexist_service')
 
 
 class TestServiceList(TestService):
