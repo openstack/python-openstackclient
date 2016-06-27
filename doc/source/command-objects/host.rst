@@ -9,7 +9,7 @@ The physical computer running a hypervisor.
 host list
 ---------
 
-List all hosts
+List hosts
 
 .. program:: host list
 .. code:: bash
@@ -24,7 +24,7 @@ List all hosts
 host set
 --------
 
-Set host command
+Set host properties
 
 .. program:: host set
 .. code:: bash

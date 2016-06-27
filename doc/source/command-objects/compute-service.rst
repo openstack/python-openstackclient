@@ -7,7 +7,7 @@ Compute v2
 compute service delete
 ----------------------
 
-Delete service command
+Delete compute service(s)
 
 .. program:: compute service delete
 .. code:: bash
@@ -23,7 +23,7 @@ Delete service command
 compute service list
 --------------------
 
-List service command
+List compute services
 
 .. program:: compute service list
 .. code:: bash
@@ -50,7 +50,7 @@ List service command
 compute service set
 -------------------
 
-Set service command
+Set compute service properties
 
 .. program:: compute service set
 .. code:: bash
