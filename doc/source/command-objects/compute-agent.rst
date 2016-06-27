@@ -59,7 +59,7 @@ Delete compute agent(s)
 compute agent list
 ------------------
 
-List compute agent command
+List compute agents
 
 .. program:: compute agent list
 .. code:: bash
@@ -74,7 +74,7 @@ List compute agent command
 compute agent set
 -----------------
 
-Set compute agent command
+Set compute agent properties
 
 .. program:: agent set
 .. code:: bash
