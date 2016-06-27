@@ -13,14 +13,12 @@
 #   under the License.
 #
 
-import copy
 import mock
 
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib import exceptions
 
 from openstackclient.identity.v2_0 import role
-from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
 
 
@@ -34,6 +32,12 @@ class TestRole(identity_fakes.TestIdentityv2):
     ]
     fake_service = identity_fakes.FakeService.create_one_service(attr)
     fake_role = identity_fakes.FakeRole.create_one_role()
+    fake_project = identity_fakes.FakeProject.create_one_project()
+    attr = {}
+    attr = {
+        'tenantId': fake_project.id,
+    }
+    fake_user = identity_fakes.FakeUser.create_one_user(attr)
 
     def setUp(self):
         super(TestRole, self).setUp()
@@ -63,42 +67,26 @@ class TestRoleAdd(TestRole):
     def setUp(self):
         super(TestRoleAdd, self).setUp()
 
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.fake_project
 
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
+        self.users_mock.get.return_value = self.fake_user
 
-        self.roles_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ROLE),
-            loaded=True,
-        )
-        self.roles_mock.add_user_role.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ROLE),
-            loaded=True,
-        )
+        self.roles_mock.get.return_value = self.fake_role
+        self.roles_mock.add_user_role.return_value = self.fake_role
 
         # Get the command object to test
         self.cmd = role.AddRole(self.app, None)
 
     def test_role_add(self):
         arglist = [
-            '--project', identity_fakes.project_name,
-            '--user', identity_fakes.user_name,
-            identity_fakes.role_name,
+            '--project', self.fake_project.name,
+            '--user', self.fake_user.name,
+            self.fake_role.name,
         ]
         verifylist = [
-            ('project', identity_fakes.project_name),
-            ('user', identity_fakes.user_name),
-            ('role', identity_fakes.role_name),
+            ('project', self.fake_project.name),
+            ('user', self.fake_user.name),
+            ('role', self.fake_role.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -109,49 +97,46 @@ class TestRoleAdd(TestRole):
 
         # RoleManager.add_user_role(user, role, tenant=None)
         self.roles_mock.add_user_role.assert_called_with(
-            identity_fakes.user_id,
-            identity_fakes.role_id,
-            identity_fakes.project_id,
+            self.fake_user.id,
+            self.fake_role.id,
+            self.fake_project.id,
         )
 
         collist = ('id', 'name')
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.role_id,
-            identity_fakes.role_name,
+            self.fake_role.id,
+            self.fake_role.name,
         )
         self.assertEqual(datalist, data)
 
 
 class TestRoleCreate(TestRole):
 
+    fake_role_c = identity_fakes.FakeRole.create_one_role()
     columns = (
         'id',
         'name'
     )
     datalist = (
-        identity_fakes.role_id,
-        identity_fakes.role_name,
+        fake_role_c.id,
+        fake_role_c.name,
     )
 
     def setUp(self):
         super(TestRoleCreate, self).setUp()
 
-        self.roles_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ROLE),
-            loaded=True,
-        )
+        self.roles_mock.create.return_value = self.fake_role_c
 
         # Get the command object to test
         self.cmd = role.CreateRole(self.app, None)
 
     def test_role_create_no_options(self):
         arglist = [
-            identity_fakes.role_name,
+            self.fake_role_c.name,
         ]
         verifylist = [
-            ('role_name', identity_fakes.role_name),
+            ('role_name', self.fake_role_c.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -162,7 +147,7 @@ class TestRoleCreate(TestRole):
 
         # RoleManager.create(name)
         self.roles_mock.create.assert_called_with(
-            identity_fakes.role_name,
+            self.fake_role_c.name,
         )
 
         self.assertEqual(self.columns, columns)
@@ -175,18 +160,14 @@ class TestRoleCreate(TestRole):
         # need to make this throw an exception...
         self.roles_mock.create.side_effect = _raise_conflict
 
-        self.roles_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ROLE),
-            loaded=True,
-        )
+        self.roles_mock.get.return_value = self.fake_role_c
 
         arglist = [
             '--or-show',
-            identity_fakes.role_name,
+            self.fake_role_c.name,
         ]
         verifylist = [
-            ('role_name', identity_fakes.role_name),
+            ('role_name', self.fake_role_c.name),
             ('or_show', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -197,11 +178,11 @@ class TestRoleCreate(TestRole):
         columns, data = self.cmd.take_action(parsed_args)
 
         # RoleManager.get(name, description, enabled)
-        self.roles_mock.get.assert_called_with(identity_fakes.role_name)
+        self.roles_mock.get.assert_called_with(self.fake_role_c.name)
 
         # RoleManager.create(name)
         self.roles_mock.create.assert_called_with(
-            identity_fakes.role_name,
+            self.fake_role_c.name,
         )
 
         self.assertEqual(self.columns, columns)
@@ -210,10 +191,10 @@ class TestRoleCreate(TestRole):
     def test_role_create_or_show_not_exists(self):
         arglist = [
             '--or-show',
-            identity_fakes.role_name,
+            self.fake_role_c.name,
         ]
         verifylist = [
-            ('role_name', identity_fakes.role_name),
+            ('role_name', self.fake_role_c.name),
             ('or_show', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -225,7 +206,7 @@ class TestRoleCreate(TestRole):
 
         # RoleManager.create(name)
         self.roles_mock.create.assert_called_with(
-            identity_fakes.role_name,
+            self.fake_role_c.name,
         )
 
         self.assertEqual(self.columns, columns)
@@ -237,11 +218,7 @@ class TestRoleDelete(TestRole):
     def setUp(self):
         super(TestRoleDelete, self).setUp()
 
-        self.roles_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ROLE),
-            loaded=True,
-        )
+        self.roles_mock.get.return_value = self.fake_role
         self.roles_mock.delete.return_value = None
 
         # Get the command object to test
@@ -249,17 +226,17 @@ class TestRoleDelete(TestRole):
 
     def test_role_delete_no_options(self):
         arglist = [
-            identity_fakes.role_name,
+            self.fake_role.name,
         ]
         verifylist = [
-            ('roles', [identity_fakes.role_name]),
+            ('roles', [self.fake_role.name]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.roles_mock.delete.assert_called_with(
-            identity_fakes.role_id,
+            self.fake_role.id,
         )
         self.assertIsNone(result)
 
@@ -269,13 +246,7 @@ class TestRoleList(TestRole):
     def setUp(self):
         super(TestRoleList, self).setUp()
 
-        self.roles_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.ROLE),
-                loaded=True,
-            ),
-        ]
+        self.roles_mock.list.return_value = [self.fake_role]
 
         # Get the command object to test
         self.cmd = role.ListRole(self.app, None)
@@ -295,8 +266,8 @@ class TestRoleList(TestRole):
         collist = ('ID', 'Name')
         self.assertEqual(collist, columns)
         datalist = ((
-            identity_fakes.role_id,
-            identity_fakes.role_name,
+            self.fake_role.id,
+            self.fake_role.name,
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -313,25 +284,11 @@ class TestUserRoleList(TestRole):
     def setUp(self):
         super(TestUserRoleList, self).setUp()
 
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.fake_project
 
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
+        self.users_mock.get.return_value = self.fake_user
 
-        self.roles_mock.roles_for_user.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.ROLE),
-                loaded=True,
-            ),
-        ]
+        self.roles_mock.roles_for_user.return_value = [self.fake_role]
 
         # Get the command object to test
         self.cmd = role.ListUserRole(self.app, None)
@@ -366,17 +323,17 @@ class TestUserRoleList(TestRole):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.roles_mock.roles_for_user.assert_called_with(
-            identity_fakes.user_id,
-            identity_fakes.project_id,
+            self.fake_user.id,
+            self.fake_project.id,
         )
 
         collist = ('ID', 'Name', 'Project', 'User')
         self.assertEqual(collist, columns)
         datalist = ((
-            identity_fakes.role_id,
-            identity_fakes.role_name,
-            identity_fakes.project_name,
-            identity_fakes.user_name,
+            self.fake_role.id,
+            self.fake_role.name,
+            self.fake_project.name,
+            self.fake_user.name,
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -388,16 +345,12 @@ class TestUserRoleList(TestRole):
         self.ar_mock = mock.PropertyMock(return_value=auth_ref)
         type(self.app.client_manager).auth_ref = self.ar_mock
 
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT_2),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.fake_project
         arglist = [
-            '--project', identity_fakes.PROJECT_2['name'],
+            '--project', self.fake_project.name,
         ]
         verifylist = [
-            ('project', identity_fakes.PROJECT_2['name']),
+            ('project', self.fake_project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -407,30 +360,26 @@ class TestUserRoleList(TestRole):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.roles_mock.roles_for_user.assert_called_with(
-            identity_fakes.user_id,
-            identity_fakes.PROJECT_2['id'],
+            self.fake_user.id,
+            self.fake_project.id,
         )
 
         self.assertEqual(columns, columns)
         datalist = ((
-            identity_fakes.role_id,
-            identity_fakes.role_name,
-            identity_fakes.PROJECT_2['name'],
-            identity_fakes.user_name,
+            self.fake_role.id,
+            self.fake_role.name,
+            self.fake_project.name,
+            self.fake_user.name,
         ), )
         self.assertEqual(datalist, tuple(data))
 
     def test_user_role_list_project_scoped_token(self):
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT_2),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.fake_project
         arglist = [
-            '--project', identity_fakes.PROJECT_2['name'],
+            '--project', self.fake_project.name,
         ]
         verifylist = [
-            ('project', identity_fakes.PROJECT_2['name']),
+            ('project', self.fake_project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -440,16 +389,16 @@ class TestUserRoleList(TestRole):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.roles_mock.roles_for_user.assert_called_with(
-            identity_fakes.user_id,
-            identity_fakes.PROJECT_2['id'],
+            self.fake_user.id,
+            self.fake_project.id,
         )
 
         self.assertEqual(columns, columns)
         datalist = ((
-            identity_fakes.role_id,
-            identity_fakes.role_name,
-            identity_fakes.PROJECT_2['name'],
-            identity_fakes.user_name,
+            self.fake_role.id,
+            self.fake_role.name,
+            self.fake_project.name,
+            self.fake_user.name,
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -459,23 +408,11 @@ class TestRoleRemove(TestRole):
     def setUp(self):
         super(TestRoleRemove, self).setUp()
 
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.fake_project
 
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
+        self.users_mock.get.return_value = self.fake_user
 
-        self.roles_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ROLE),
-            loaded=True,
-        )
+        self.roles_mock.get.return_value = self.fake_role
         self.roles_mock.remove_user_role.return_value = None
 
         # Get the command object to test
@@ -483,14 +420,14 @@ class TestRoleRemove(TestRole):
 
     def test_role_remove(self):
         arglist = [
-            '--project', identity_fakes.project_name,
-            '--user', identity_fakes.user_name,
-            identity_fakes.role_name,
+            '--project', self.fake_project.name,
+            '--user', self.fake_user.name,
+            self.fake_role.name,
         ]
         verifylist = [
-            ('role', identity_fakes.role_name),
-            ('project', identity_fakes.project_name),
-            ('user', identity_fakes.user_name),
+            ('role', self.fake_role.name),
+            ('project', self.fake_project.name),
+            ('user', self.fake_user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -498,9 +435,9 @@ class TestRoleRemove(TestRole):
 
         # RoleManager.remove_user_role(user, role, tenant=None)
         self.roles_mock.remove_user_role.assert_called_with(
-            identity_fakes.user_id,
-            identity_fakes.role_id,
-            identity_fakes.project_id,
+            self.fake_user.id,
+            self.fake_role.id,
+            self.fake_project.id,
         )
         self.assertIsNone(result)
 

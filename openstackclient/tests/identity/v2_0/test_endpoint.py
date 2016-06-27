@@ -17,8 +17,12 @@ from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
 
 class TestEndpoint(identity_fakes.TestIdentityv2):
 
-    fake_endpoint = identity_fakes.FakeEndpoint.create_one_endpoint()
     fake_service = identity_fakes.FakeService.create_one_service()
+    attr = {
+        'service_name': fake_service.name,
+        'service_id': fake_service.id,
+    }
+    fake_endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(attr)
 
     def setUp(self):
         super(TestEndpoint, self).setUp()

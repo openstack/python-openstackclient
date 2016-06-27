@@ -76,19 +76,19 @@ USER = {
 }
 
 token_expires = '2014-01-01T00:00:00Z'
-token_id = 'tttttttt-tttt-tttt-tttt-tttttttttttt'
+token_id = 'token-id-' + uuid.uuid4().hex
 
 TOKEN = {
     'expires': token_expires,
     'id': token_id,
-    'tenant_id': project_id,
-    'user_id': user_id,
+    'tenant_id': 'project-id',
+    'user_id': 'user-id',
 }
 
 UNSCOPED_TOKEN = {
     'expires': token_expires,
     'id': token_id,
-    'user_id': user_id,
+    'user_id': 'user-id',
 }
 
 endpoint_name = service_name
@@ -110,8 +110,6 @@ ENDPOINT = {
     'publicurl': endpoint_publicurl,
     'service_id': endpoint_service_id,
 }
-SERVICE_NAME = 'service-name-' + uuid.uuid4().hex
-SERVICE_ID = 'service-id-' + uuid.uuid4().hex
 
 
 def fake_auth_ref(fake_token, fake_service=None):
@@ -244,7 +242,7 @@ class FakeCatalog(object):
 
         # Set default attributes.
         catalog_info = {
-            'id': SERVICE_ID,
+            'id': 'service-id-' + uuid.uuid4().hex,
             'type': 'compute',
             'name': 'supernova',
             'endpoints': [
@@ -295,8 +293,8 @@ class FakeProject(object):
 
         # set default attributes.
         project_info = {
-            'id': 'project-id' + uuid.uuid4().hex,
-            'name': 'project-name' + uuid.uuid4().hex,
+            'id': 'project-id-' + uuid.uuid4().hex,
+            'name': 'project-name-' + uuid.uuid4().hex,
             'description': 'project_description',
             'enabled': True,
         }
@@ -341,14 +339,14 @@ class FakeEndpoint(object):
 
         # set default attributes.
         endpoint_info = {
-            'service_name': SERVICE_NAME,
+            'service_name': 'service-name-' + uuid.uuid4().hex,
             'adminurl': 'http://endpoint_adminurl',
             'region': 'endpoint_region',
             'internalurl': 'http://endpoint_internalurl',
             'service_type': 'service_type',
             'id': 'endpoint-id-' + uuid.uuid4().hex,
             'publicurl': 'http://endpoint_publicurl',
-            'service_id': SERVICE_ID,
+            'service_id': 'service-name-' + uuid.uuid4().hex,
 
         }
         endpoint_info.update(attrs)
@@ -392,8 +390,8 @@ class FakeService(object):
 
         # set default attributes.
         service_info = {
-            'id': SERVICE_ID,
-            'name': SERVICE_NAME,
+            'id': 'service-id-' + uuid.uuid4().hex,
+            'name': 'service-name-' + uuid.uuid4().hex,
             'description': 'service_description',
             'type': 'service_type',
 
@@ -464,3 +462,49 @@ class FakeRole(object):
             roles.append(FakeRole.create_one_role(attrs))
 
         return roles
+
+
+class FakeUser(object):
+    """Fake one or more user."""
+
+    @staticmethod
+    def create_one_user(attrs=None):
+        """Create a fake user.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, name, and so on
+        """
+        attrs = attrs or {}
+
+        # set default attributes.
+        user_info = {
+            'id': 'user-id-' + uuid.uuid4().hex,
+            'name': 'user-name-' + uuid.uuid4().hex,
+            'tenantId': 'project-id-' + uuid.uuid4().hex,
+            'email': 'admin@openstack.org',
+            'enabled': True,
+        }
+        user_info.update(attrs)
+
+        user = fakes.FakeResource(info=copy.deepcopy(user_info),
+                                  loaded=True)
+        return user
+
+    @staticmethod
+    def create_users(attrs=None, count=2):
+        """Create multiple fake users.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of users to fake
+        :return:
+            A list of FakeResource objects faking the users
+        """
+        users = []
+        for i in range(0, count):
+            users.append(FakeUser.create_one_user(attrs))
+
+        return users
