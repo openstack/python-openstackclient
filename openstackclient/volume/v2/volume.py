@@ -457,6 +457,3 @@ class UnsetVolume(command.Command):
         if parsed_args.image_property:
             volume_client.volumes.delete_image_metadata(
                 volume.id, parsed_args.image_property)
-
-        if (not parsed_args.image_property and not parsed_args.property):
-            LOG.error(_("No changes requested"))
