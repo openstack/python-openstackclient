@@ -85,7 +85,7 @@ Simplicity
 To best support new users and create straight forward interactions, designs
 should be as simple as possible. When crafting new commands, designs should
 minimize the amount of noise present in output: large amounts of
-nonessential data, overabundance of possible actions, etc. Designs should
+nonessential data, overabundance of possible actions and so on. Designs should
 focus on the intent of the command, requiring only the necessary components
 and either removing superfluous elements or making
 them accessible through optional arguments. An example of this principle occurs
