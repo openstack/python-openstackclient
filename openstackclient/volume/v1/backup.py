@@ -76,7 +76,7 @@ class DeleteBackup(command.Command):
             'backups',
             metavar='<backup>',
             nargs="+",
-            help=_('Backup(s) to delete (ID only)'),
+            help=_('Backup(s) to delete (name or ID)'),
         )
         return parser
 
@@ -150,7 +150,7 @@ class RestoreBackup(command.Command):
         parser.add_argument(
             'backup',
             metavar='<backup>',
-            help=_('Backup to restore (ID only)')
+            help=_('Backup to restore (name or ID)')
         )
         parser.add_argument(
             'volume',
@@ -177,7 +177,7 @@ class ShowBackup(command.ShowOne):
         parser.add_argument(
             'backup',
             metavar='<backup>',
-            help=_('Backup to display (ID only)')
+            help=_('Backup to display (name or ID)')
         )
         return parser
 

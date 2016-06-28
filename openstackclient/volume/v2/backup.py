@@ -147,7 +147,7 @@ class RestoreBackup(command.ShowOne):
         parser.add_argument(
             "backup",
             metavar="<backup>",
-            help=_("Backup to restore (ID only)")
+            help=_("Backup to restore (name or ID)")
         )
         parser.add_argument(
             "volume",

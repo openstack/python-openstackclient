@@ -49,7 +49,7 @@ Delete backup(s)
 .. _backup_delete-backup:
 .. describe:: <backup>
 
-    Backup(s) to delete (ID only)
+    Backup(s) to delete (name or ID)
 
 backup list
 -----------
@@ -81,7 +81,7 @@ Restore backup
 .. _backup_restore-backup:
 .. describe:: <backup>
 
-    Backup to restore (ID only)
+    Backup to restore (name or ID)
 
 .. describe:: <volume>
 
@@ -101,4 +101,4 @@ Display backup details
 .. _backup_show-backup:
 .. describe:: <backup>
 
-    Backup to display (ID only)
+    Backup to display (name or ID)
