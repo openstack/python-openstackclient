@@ -14,6 +14,10 @@
 #
 
 import mock
+from mock import call
+
+from osc_lib import exceptions
+from osc_lib import utils
 
 from openstackclient.compute.v2 import keypair
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
@@ -114,22 +118,23 @@ class TestKeypairCreate(TestKeypair):
 
 class TestKeypairDelete(TestKeypair):
 
-    keypair = compute_fakes.FakeKeypair.create_one_keypair()
+    keypairs = compute_fakes.FakeKeypair.create_keypairs(count=2)
 
     def setUp(self):
         super(TestKeypairDelete, self).setUp()
 
-        self.keypairs_mock.get.return_value = self.keypair
+        self.keypairs_mock.get = compute_fakes.FakeKeypair.get_keypairs(
+            self.keypairs)
         self.keypairs_mock.delete.return_value = None
 
         self.cmd = keypair.DeleteKeypair(self.app, None)
 
     def test_keypair_delete(self):
         arglist = [
-            self.keypair.name
+            self.keypairs[0].name
         ]
         verifylist = [
-            ('name', self.keypair.name),
+            ('name', [self.keypairs[0].name]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -137,7 +142,54 @@ class TestKeypairDelete(TestKeypair):
         ret = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(ret)
-        self.keypairs_mock.delete.assert_called_with(self.keypair.name)
+        self.keypairs_mock.delete.assert_called_with(self.keypairs[0].name)
+
+    def test_delete_multiple_keypairs(self):
+        arglist = []
+        for k in self.keypairs:
+            arglist.append(k.name)
+        verifylist = [
+            ('name', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for k in self.keypairs:
+            calls.append(call(k.name))
+        self.keypairs_mock.delete.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_delete_multiple_keypairs_with_exception(self):
+        arglist = [
+            self.keypairs[0].name,
+            'unexist_keypair',
+        ]
+        verifylist = [
+            ('name', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        find_mock_result = [self.keypairs[0], exceptions.CommandError]
+        with mock.patch.object(utils, 'find_resource',
+                               side_effect=find_mock_result) as find_mock:
+            try:
+                self.cmd.take_action(parsed_args)
+                self.fail('CommandError should be raised.')
+            except exceptions.CommandError as e:
+                self.assertEqual('1 of 2 public keys failed to delete.',
+                                 str(e))
+
+            find_mock.assert_any_call(
+                self.keypairs_mock, self.keypairs[0].name)
+            find_mock.assert_any_call(self.keypairs_mock, 'unexist_keypair')
+
+            self.assertEqual(2, find_mock.call_count)
+            self.keypairs_mock.delete.assert_called_once_with(
+                self.keypairs[0].name
+            )
 
 
 class TestKeypairList(TestKeypair):

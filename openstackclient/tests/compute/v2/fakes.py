@@ -826,6 +826,25 @@ class FakeKeypair(object):
 
         return keypairs
 
+    @staticmethod
+    def get_keypairs(keypairs=None, count=2):
+        """Get an iterable MagicMock object with a list of faked keypairs.
+
+        If keypairs list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List keypairs:
+            A list of FakeResource objects faking keypairs
+        :param int count:
+            The number of keypairs to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            keypairs
+        """
+        if keypairs is None:
+            keypairs = FakeKeypair.create_keypairs(count)
+        return mock.MagicMock(side_effect=keypairs)
+
 
 class FakeAvailabilityZone(object):
     """Fake one or more compute availability zones (AZs)."""

@@ -30,17 +30,17 @@ Create new public key
 keypair delete
 --------------
 
-Delete public key
+Delete public key(s)
 
 .. program:: keypair delete
 .. code:: bash
 
     os keypair delete
-        <key>
+        <key> [<key> ...]
 
 .. describe:: <key>
 
-    Public key to delete (name only)
+    Public key(s) to delete (name only)
 
 keypair list
 ------------

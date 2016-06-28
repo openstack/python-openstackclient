@@ -13,12 +13,12 @@ Delete compute service(s)
 .. code:: bash
 
     os compute service delete
-        <service>
+        <service> [<service> ...]
 
 .. _compute-service-delete:
 .. describe:: <service>
 
-    Compute service to delete (ID only)
+    Compute service(s) to delete (ID only)
 
 compute service list
 --------------------
