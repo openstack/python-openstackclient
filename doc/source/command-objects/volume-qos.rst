@@ -58,7 +58,12 @@ Delete QoS specification
 .. code:: bash
 
     os volume qos delete
+         [--force]
          <qos-spec> [<qos-spec> ...]
+
+.. option:: --force
+
+    Allow to delete in-use QoS specification(s)
 
 .. describe:: <qos-spec>
 

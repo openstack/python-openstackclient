@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--force`` option to ``volume qos delete`` command to allow users to
+    delete in-use QoS specification(s).
+    [Bug `1596821 <https://bugs.launchpad.net/bugs/1596821>`_]
