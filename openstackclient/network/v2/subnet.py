@@ -235,7 +235,7 @@ class CreateSubnet(command.ShowOne):
                    "'auto': Gateway address should automatically be chosen "
                    "from within the subnet itself, 'none': This subnet will "
                    "not use a gateway, e.g.: --gateway 192.168.9.1, "
-                   "--gateway auto, --gateway none (default is 'auto')")
+                   "--gateway auto, --gateway none (default is 'auto').")
         )
         parser.add_argument(
             '--ip-version',
@@ -244,7 +244,7 @@ class CreateSubnet(command.ShowOne):
             choices=[4, 6],
             help=_("IP version (default is 4).  Note that when subnet pool is "
                    "specified, IP version is determined from the subnet pool "
-                   "and this option is ignored")
+                   "and this option is ignored.")
         )
         parser.add_argument(
             '--ipv6-ra-mode',
@@ -334,7 +334,7 @@ class ListSubnet(command.Lister):
             choices=[4, 6],
             metavar='<ip-version>',
             dest='ip_version',
-            help=_("List only subnets of given IP version in output"
+            help=_("List only subnets of given IP version in output."
                    "Allowed values for IP version are 4 and 6."),
         )
         return parser
@@ -395,7 +395,7 @@ class SetSubnet(command.Command):
             help=_("Specify a gateway for the subnet. The options are: "
                    "<ip-address>: Specific IP address to use as the gateway, "
                    "'none': This subnet will not use a gateway, "
-                   "e.g.: --gateway 192.168.9.1, --gateway none")
+                   "e.g.: --gateway 192.168.9.1, --gateway none.")
         )
         _get_common_parse_arguments(parser)
         return parser
