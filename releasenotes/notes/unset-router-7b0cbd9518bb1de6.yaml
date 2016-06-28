@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add a new command ``router unset`` to clear the information
+    of routes from the router.
+    [ Blueprint `network-property-unset <https://blueprints.launchpad.net/python-openstackclient/+spec/network-property-unset>`_]
+

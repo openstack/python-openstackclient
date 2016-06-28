@@ -14,6 +14,7 @@
 """Router action implementations"""
 
 import argparse
+import copy
 import json
 import logging
 
@@ -462,3 +463,45 @@ class ShowRouter(command.ShowOne):
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (columns, data)
+
+
+class UnsetRouter(command.Command):
+    """Unset router properties"""
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetRouter, self).get_parser(prog_name)
+        parser.add_argument(
+            '--route',
+            metavar='destination=<subnet>,gateway=<ip-address>',
+            action=parseractions.MultiKeyValueAction,
+            dest='routes',
+            default=None,
+            required_keys=['destination', 'gateway'],
+            help=_("Routes to be removed from the router "
+                   "destination: destination subnet (in CIDR notation) "
+                   "gateway: nexthop IP address "
+                   "(repeat option to unset multiple routes)"))
+        parser.add_argument(
+            'router',
+            metavar="<router>",
+            help=_("Router to modify (name or ID)")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        obj = client.find_router(parsed_args.router, ignore_missing=False)
+        tmp_routes = copy.deepcopy(obj.routes)
+        attrs = {}
+        if parsed_args.routes:
+            try:
+                for route in parsed_args.routes:
+                    tmp_routes.remove(route)
+            except ValueError:
+                msg = (_("Router does not contain route %s") % route)
+                raise exceptions.CommandError(msg)
+            for route in tmp_routes:
+                route['nexthop'] = route.pop('gateway')
+            attrs['routes'] = tmp_routes
+        if attrs:
+            client.update_router(obj, **attrs)
