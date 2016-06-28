@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--force`` option to ``backup create`` command to allow users to
+    back up an in-use volume.
+    [Bug `1596443 <https://bugs.launchpad.net/bugs/1596443>`_]

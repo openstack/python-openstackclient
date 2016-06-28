@@ -48,6 +48,12 @@ class CreateBackup(command.ShowOne):
             metavar="<container>",
             help=_("Optional backup container name")
         )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            default=False,
+            help=_("Allow to back up an in-use volume")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -58,7 +64,8 @@ class CreateBackup(command.ShowOne):
             volume_id,
             container=parsed_args.container,
             name=parsed_args.name,
-            description=parsed_args.description
+            description=parsed_args.description,
+            force=parsed_args.force,
         )
         backup._info.pop("links", None)
         return zip(*sorted(six.iteritems(backup._info)))

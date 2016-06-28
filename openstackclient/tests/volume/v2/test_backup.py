@@ -72,12 +72,14 @@ class TestBackupCreate(TestBackup):
             "--name", self.new_backup.name,
             "--description", self.new_backup.description,
             "--container", self.new_backup.container,
+            "--force",
             self.new_backup.volume_id,
         ]
         verifylist = [
             ("name", self.new_backup.name),
             ("description", self.new_backup.description),
             ("container", self.new_backup.container),
+            ("force", True),
             ("volume", self.new_backup.volume_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -88,7 +90,8 @@ class TestBackupCreate(TestBackup):
             self.new_backup.volume_id,
             container=self.new_backup.container,
             name=self.new_backup.name,
-            description=self.new_backup.description
+            description=self.new_backup.description,
+            force=True,
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -112,7 +115,8 @@ class TestBackupCreate(TestBackup):
             self.new_backup.volume_id,
             container=self.new_backup.container,
             name=None,
-            description=self.new_backup.description
+            description=self.new_backup.description,
+            force=False,
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

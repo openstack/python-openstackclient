@@ -16,6 +16,7 @@ Create new backup
         [--container <container>]
         [--name <name>]
         [--description <description>]
+        [--force]
         <volume>
 
 .. option:: --container <container>
@@ -29,6 +30,10 @@ Create new backup
 .. option:: --description <description>
 
     Description of the backup
+
+.. option:: --force
+
+    Allow to back up an in-use volume
 
 .. _backup_create-backup:
 .. describe:: <volume>
