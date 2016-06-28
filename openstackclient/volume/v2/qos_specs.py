@@ -103,13 +103,19 @@ class DeleteQos(command.Command):
             nargs="+",
             help=_('QoS specification(s) to delete (name or ID)'),
         )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            default=False,
+            help=_("Allow to delete in-use QoS specification(s)")
+        )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         for qos in parsed_args.qos_specs:
             qos_spec = utils.find_resource(volume_client.qos_specs, qos)
-            volume_client.qos_specs.delete(qos_spec.id)
+            volume_client.qos_specs.delete(qos_spec.id, parsed_args.force)
 
 
 class DisassociateQos(command.Command):

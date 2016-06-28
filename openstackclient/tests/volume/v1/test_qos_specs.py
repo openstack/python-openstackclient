@@ -211,7 +211,7 @@ class TestQosDelete(TestQos):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.delete.assert_called_with(volume_fakes.qos_id)
+        self.qos_mock.delete.assert_called_with(volume_fakes.qos_id, False)
         self.assertIsNone(result)
 
     def test_qos_delete_with_name(self):
@@ -225,7 +225,23 @@ class TestQosDelete(TestQos):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.delete.assert_called_with(volume_fakes.qos_id)
+        self.qos_mock.delete.assert_called_with(volume_fakes.qos_id, False)
+        self.assertIsNone(result)
+
+    def test_qos_delete_with_force(self):
+        arglist = [
+            '--force',
+            volume_fakes.qos_id
+        ]
+        verifylist = [
+            ('force', True),
+            ('qos_specs', [volume_fakes.qos_id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.qos_mock.delete.assert_called_with(volume_fakes.qos_id, True)
         self.assertIsNone(result)
 
 
