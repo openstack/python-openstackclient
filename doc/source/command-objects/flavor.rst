@@ -21,6 +21,7 @@ Create new flavor
         [--vcpus <num-cpu>]
         [--rxtx-factor <factor>]
         [--public | --private]
+        [--property <key=value> [...] ]
         [--project <project>]
         [--project-domain <project-domain>]
         <flavor-name>
@@ -60,6 +61,10 @@ Create new flavor
 .. option:: --private
 
     Flavor is not available to other projects
+
+.. option:: --property <key=value>
+
+    Property to add for this flavor (repeat option to set multiple properties)
 
 .. option:: --project <project>
 

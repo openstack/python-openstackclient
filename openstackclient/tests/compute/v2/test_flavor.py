@@ -56,6 +56,7 @@ class TestFlavorCreate(TestFlavor):
         'id',
         'name',
         'os-flavor-access:is_public',
+        'properties',
         'ram',
         'rxtx_factor',
         'swap',
@@ -68,6 +69,7 @@ class TestFlavorCreate(TestFlavor):
         flavor.id,
         flavor.name,
         flavor.is_public,
+        utils.format_dict(flavor.properties),
         flavor.ram,
         flavor.rxtx_factor,
         flavor.swap,
@@ -116,7 +118,6 @@ class TestFlavorCreate(TestFlavor):
     def test_flavor_create_all_options(self):
 
         arglist = [
-            self.flavor.name,
             '--id', self.flavor.id,
             '--ram', str(self.flavor.ram),
             '--disk', str(self.flavor.disk),
@@ -125,9 +126,10 @@ class TestFlavorCreate(TestFlavor):
             '--vcpus', str(self.flavor.vcpus),
             '--rxtx-factor', str(self.flavor.rxtx_factor),
             '--public',
+            '--property', 'property=value',
+            self.flavor.name,
         ]
         verifylist = [
-            ('name', self.flavor.name),
             ('id', self.flavor.id),
             ('ram', self.flavor.ram),
             ('disk', self.flavor.disk),
@@ -136,6 +138,8 @@ class TestFlavorCreate(TestFlavor):
             ('vcpus', self.flavor.vcpus),
             ('rxtx_factor', self.flavor.rxtx_factor),
             ('public', True),
+            ('property', {'property': 'value'}),
+            ('name', self.flavor.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -152,6 +156,8 @@ class TestFlavorCreate(TestFlavor):
         )
         columns, data = self.cmd.take_action(parsed_args)
         self.flavors_mock.create.assert_called_once_with(*args)
+        self.flavor.set_keys.assert_called_once_with({'property': 'value'})
+        self.flavor.get_keys.assert_called_once_with()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -160,7 +166,6 @@ class TestFlavorCreate(TestFlavor):
 
         self.flavor.is_public = False
         arglist = [
-            self.flavor.name,
             '--id', self.flavor.id,
             '--ram', str(self.flavor.ram),
             '--disk', str(self.flavor.disk),
@@ -170,9 +175,11 @@ class TestFlavorCreate(TestFlavor):
             '--rxtx-factor', str(self.flavor.rxtx_factor),
             '--private',
             '--project', identity_fakes.project_id,
+            '--property', 'key1=value1',
+            '--property', 'key2=value2',
+            self.flavor.name,
         ]
         verifylist = [
-            ('name', self.flavor.name),
             ('id', self.flavor.id),
             ('ram', self.flavor.ram),
             ('disk', self.flavor.disk),
@@ -182,6 +189,8 @@ class TestFlavorCreate(TestFlavor):
             ('rxtx_factor', self.flavor.rxtx_factor),
             ('public', False),
             ('project', identity_fakes.project_id),
+            ('property', {'key1': 'value1', 'key2': 'value2'}),
+            ('name', self.flavor.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -202,6 +211,9 @@ class TestFlavorCreate(TestFlavor):
             self.flavor.id,
             identity_fakes.project_id,
         )
+        self.flavor.set_keys.assert_called_with(
+            {'key1': 'value1', 'key2': 'value2'})
+        self.flavor.get_keys.assert_called_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
