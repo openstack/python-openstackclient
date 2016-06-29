@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add a new command ``subnet unset`` to clear the information
+    of allocation-pools, host-routes or DNS servers from the subnet.
+    [ Blueprint `network-property-unset <https://blueprints.launchpad.net/python-openstackclient/+spec/network-property-unset>`_]

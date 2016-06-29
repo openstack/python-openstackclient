@@ -236,3 +236,41 @@ Display subnet details
 .. describe:: <subnet>
 
     Subnet to display (name or ID)
+
+subnet unset
+------------
+
+Unset subnet properties
+
+.. program:: subnet unset
+.. code:: bash
+
+    os subnet unset
+        [--allocation-pool start=<ip-address>,end=<ip-address> [...]]
+        [--dns-nameserver <dns-nameserver> [...]]
+        [--host-route destination=<subnet>,gateway=<ip-address> [...]]
+        <subnet>
+
+.. option:: --dns-nameserver <dns-nameserver>
+
+     DNS server to be removed from this subnet
+     (repeat option to unset multiple DNS servers)
+
+.. option:: --allocation-pool start=<ip-address>,end=<ip-address>
+
+    Allocation pool to be removed from this subnet e.g.:
+    ``start=192.168.199.2,end=192.168.199.254``
+    (repeat option to unset multiple Allocation pools)
+
+.. option:: --host-route destination=<subnet>,gateway=<ip-address>
+
+     Route to be removed from this subnet e.g.:
+     ``destination=10.10.0.0/16,gateway=192.168.71.254``
+     destination: destination subnet (in CIDR notation)
+     gateway: nexthop IP address
+     (repeat option to unset multiple host routes)
+
+.. _subnet_unset-subnet:
+.. describe:: <subnet>
+
+    subnet to modify (name or ID)
