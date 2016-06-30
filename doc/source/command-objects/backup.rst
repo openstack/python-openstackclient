@@ -31,6 +31,10 @@ Create new backup
 
     Description of the backup
 
+.. option:: --snapshot <snapshot>
+
+    Snapshot to backup (name or ID)
+
 .. option:: --force
 
     Allow to back up an in-use volume
