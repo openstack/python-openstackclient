@@ -25,7 +25,8 @@ class FlavorTests(test.TestCase):
     @classmethod
     def setUpClass(cls):
         opts = cls.get_show_opts(cls.FIELDS)
-        raw_output = cls.openstack('flavor create ' + cls.NAME + opts)
+        raw_output = cls.openstack(
+            'flavor create --property a=b --property c=d ' + cls.NAME + opts)
         expected = cls.NAME + '\n'
         cls.assertOutput(expected, raw_output)
 
@@ -47,19 +48,22 @@ class FlavorTests(test.TestCase):
 
     def test_flavor_properties(self):
         opts = self.get_show_opts(['properties'])
-
-        raw_output = self.openstack(
-            'flavor set --property a=b --property c=d ' + self.NAME
-        )
-        self.assertEqual('', raw_output)
-
+        # check the properties we added in create command.
         raw_output = self.openstack('flavor show ' + self.NAME + opts)
         self.assertEqual("a='b', c='d'\n", raw_output)
 
         raw_output = self.openstack(
-            'flavor unset --property a ' + self.NAME
+            'flavor set --property e=f --property g=h ' + self.NAME
         )
         self.assertEqual('', raw_output)
 
         raw_output = self.openstack('flavor show ' + self.NAME + opts)
-        self.assertEqual("c='d'\n", raw_output)
+        self.assertEqual("a='b', c='d', e='f', g='h'\n", raw_output)
+
+        raw_output = self.openstack(
+            'flavor unset --property a --property c ' + self.NAME
+        )
+        self.assertEqual('', raw_output)
+
+        raw_output = self.openstack('flavor show ' + self.NAME + opts)
+        self.assertEqual("e='f', g='h'\n", raw_output)

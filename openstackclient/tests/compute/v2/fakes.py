@@ -716,6 +716,7 @@ class FakeFlavor(object):
             'OS-FLV-DISABLED:disabled': False,
             'os-flavor-access:is_public': True,
             'OS-FLV-EXT-DATA:ephemeral': 0,
+            'properties': {'property': 'value'},
         }
 
         # Overwrite default attributes.

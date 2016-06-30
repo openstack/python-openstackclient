@@ -122,6 +122,13 @@ class CreateFlavor(command.ShowOne):
             help=_("Flavor is not available to other projects")
         )
         parser.add_argument(
+            "--property",
+            metavar="<key=value>",
+            action=parseractions.KeyValueAction,
+            help=_("Property to add for this flavor "
+                   "(repeat option to set multiple properties)")
+        )
+        parser.add_argument(
             '--project',
             metavar='<project>',
             help=_("Allow <project> to access private flavor (name or ID) "
@@ -150,8 +157,7 @@ class CreateFlavor(command.ShowOne):
             parsed_args.public
         )
 
-        flavor = compute_client.flavors.create(*args)._info.copy()
-        flavor.pop("links")
+        flavor = compute_client.flavors.create(*args)
 
         if parsed_args.project:
             try:
@@ -166,8 +172,17 @@ class CreateFlavor(command.ShowOne):
                 msg = _("Failed to add project %(project)s access to "
                         "flavor: %(e)s")
                 LOG.error(msg % {'project': parsed_args.project, 'e': e})
+        if parsed_args.property:
+            try:
+                flavor.set_keys(parsed_args.property)
+            except Exception as e:
+                LOG.error(_("Failed to set flavor property: %s"), e)
 
-        return zip(*sorted(six.iteritems(flavor)))
+        flavor_info = flavor._info.copy()
+        flavor_info.pop("links")
+        flavor_info['properties'] = utils.format_dict(flavor.get_keys())
+
+        return zip(*sorted(six.iteritems(flavor_info)))
 
 
 class DeleteFlavor(command.Command):
