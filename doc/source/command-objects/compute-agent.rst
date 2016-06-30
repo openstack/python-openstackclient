@@ -66,10 +66,9 @@ List compute agents
 
     os compute agent list [--hypervisor <hypervisor>]
 
-.. _compute_agent-list:
-.. describe:: --hypervisor <hypervisor>
+.. option:: --hypervisor <hypervisor>
 
-    Optional type of hypervisor
+    Type of hypervisor
 
 compute agent set
 -----------------
