@@ -12,6 +12,7 @@
 #
 
 """Subnet pool action implementations"""
+import copy
 
 import logging
 
@@ -337,3 +338,43 @@ class ShowSubnetPool(command.ShowOne):
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (columns, data)
+
+
+class UnsetSubnetPool(command.Command):
+    """Unset subnet pool properties"""
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetSubnetPool, self).get_parser(prog_name)
+        parser.add_argument(
+            '--pool-prefix',
+            metavar='<pool-prefix>',
+            action='append',
+            dest='prefixes',
+            help=_('Remove subnet pool prefixes (in CIDR notation). '
+                   '(repeat option to unset multiple prefixes).'),
+        )
+        parser.add_argument(
+            'subnet_pool',
+            metavar="<subnet-pool>",
+            help=_("Subnet pool to modify (name or ID)")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        obj = client.find_subnet_pool(
+            parsed_args.subnet_pool, ignore_missing=False)
+        tmp_prefixes = copy.deepcopy(obj.prefixes)
+        attrs = {}
+        if parsed_args.prefixes:
+            for prefix in parsed_args.prefixes:
+                try:
+                    tmp_prefixes.remove(prefix)
+                except ValueError:
+                    msg = _(
+                        "Subnet pool does not "
+                        "contain prefix %s") % prefix
+                    raise exceptions.CommandError(msg)
+            attrs['prefixes'] = tmp_prefixes
+        if attrs:
+            client.update_subnet_pool(obj, **attrs)
