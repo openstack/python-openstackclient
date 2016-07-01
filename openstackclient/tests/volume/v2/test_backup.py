@@ -25,6 +25,8 @@ class TestBackup(volume_fakes.TestVolume):
         self.backups_mock.reset_mock()
         self.volumes_mock = self.app.client_manager.volume.volumes
         self.volumes_mock.reset_mock()
+        self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
+        self.snapshots_mock.reset_mock()
         self.restores_mock = self.app.client_manager.volume.restores
         self.restores_mock.reset_mock()
 
@@ -32,8 +34,9 @@ class TestBackup(volume_fakes.TestVolume):
 class TestBackupCreate(TestBackup):
 
     volume = volume_fakes.FakeVolume.create_one_volume()
+    snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
     new_backup = volume_fakes.FakeBackup.create_one_backup(
-        attrs={'volume_id': volume.id})
+        attrs={'volume_id': volume.id, 'snapshot_id': snapshot.id})
 
     columns = (
         'availability_zone',
@@ -43,6 +46,7 @@ class TestBackupCreate(TestBackup):
         'name',
         'object_count',
         'size',
+        'snapshot_id',
         'status',
         'volume_id',
     )
@@ -54,6 +58,7 @@ class TestBackupCreate(TestBackup):
         new_backup.name,
         new_backup.object_count,
         new_backup.size,
+        new_backup.snapshot_id,
         new_backup.status,
         new_backup.volume_id,
     )
@@ -62,6 +67,7 @@ class TestBackupCreate(TestBackup):
         super(TestBackupCreate, self).setUp()
 
         self.volumes_mock.get.return_value = self.volume
+        self.snapshots_mock.get.return_value = self.snapshot
         self.backups_mock.create.return_value = self.new_backup
 
         # Get the command object to test
@@ -73,6 +79,7 @@ class TestBackupCreate(TestBackup):
             "--description", self.new_backup.description,
             "--container", self.new_backup.container,
             "--force",
+            "--snapshot", self.new_backup.snapshot_id,
             self.new_backup.volume_id,
         ]
         verifylist = [
@@ -80,6 +87,7 @@ class TestBackupCreate(TestBackup):
             ("description", self.new_backup.description),
             ("container", self.new_backup.container),
             ("force", True),
+            ("snapshot", self.new_backup.snapshot_id),
             ("volume", self.new_backup.volume_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -92,6 +100,7 @@ class TestBackupCreate(TestBackup):
             name=self.new_backup.name,
             description=self.new_backup.description,
             force=True,
+            snapshot_id=self.new_backup.snapshot_id,
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -117,6 +126,7 @@ class TestBackupCreate(TestBackup):
             name=None,
             description=self.new_backup.description,
             force=False,
+            snapshot_id=None,
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -264,6 +274,7 @@ class TestBackupShow(TestBackup):
         'name',
         'object_count',
         'size',
+        'snapshot_id',
         'status',
         'volume_id',
     )
@@ -275,6 +286,7 @@ class TestBackupShow(TestBackup):
         backup.name,
         backup.object_count,
         backup.size,
+        backup.snapshot_id,
         backup.status,
         backup.volume_id,
     )

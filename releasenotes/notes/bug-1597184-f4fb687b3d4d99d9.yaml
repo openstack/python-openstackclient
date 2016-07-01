@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--snapshot`` option to ``backup create`` command.
+    [Bug `1597184 <https://bugs.launchpad.net/bugs/1597184>`_]

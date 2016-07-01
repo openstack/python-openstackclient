@@ -49,6 +49,11 @@ class CreateBackup(command.ShowOne):
             help=_("Optional backup container name")
         )
         parser.add_argument(
+            "--snapshot",
+            metavar="<snapshot>",
+            help=_("Snapshot to backup (name or ID)")
+        )
+        parser.add_argument(
             '--force',
             action='store_true',
             default=False,
@@ -60,12 +65,17 @@ class CreateBackup(command.ShowOne):
         volume_client = self.app.client_manager.volume
         volume_id = utils.find_resource(
             volume_client.volumes, parsed_args.volume).id
+        snapshot_id = None
+        if parsed_args.snapshot:
+            snapshot_id = utils.find_resource(
+                volume_client.volume_snapshots, parsed_args.snapshot).id
         backup = volume_client.backups.create(
             volume_id,
             container=parsed_args.container,
             name=parsed_args.name,
             description=parsed_args.description,
             force=parsed_args.force,
+            snapshot_id=snapshot_id,
         )
         backup._info.pop("links", None)
         return zip(*sorted(six.iteritems(backup._info)))

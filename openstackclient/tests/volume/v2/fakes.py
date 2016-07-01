@@ -403,6 +403,7 @@ class FakeBackup(object):
             "id": 'backup-id-' + uuid.uuid4().hex,
             "name": 'backup-name-' + uuid.uuid4().hex,
             "volume_id": 'volume-id-' + uuid.uuid4().hex,
+            "snapshot_id": 'snapshot-id' + uuid.uuid4().hex,
             "description": 'description-' + uuid.uuid4().hex,
             "object_count": None,
             "container": 'container-' + uuid.uuid4().hex,
