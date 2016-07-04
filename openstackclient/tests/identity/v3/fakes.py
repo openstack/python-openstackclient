@@ -15,6 +15,7 @@
 
 import copy
 import mock
+import uuid
 
 from keystoneauth1 import access
 from keystoneauth1 import fixture
@@ -575,3 +576,66 @@ class TestOAuth1(utils.TestCommand):
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN
         )
+
+
+class FakeProject(object):
+    """Fake one or more project."""
+
+    @staticmethod
+    def create_one_project(attrs=None):
+        """Create a fake project.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, name, and so on
+        """
+
+        attrs = attrs or {}
+
+        # set default attributes.
+        project_info = {
+            'id': 'project-id-' + uuid.uuid4().hex,
+            'name': 'project-name-' + uuid.uuid4().hex,
+            'description': 'project-description-' + uuid.uuid4().hex,
+            'enabled': True,
+            'is_domain': False,
+            'domain_id': 'domain-id-' + uuid.uuid4().hex,
+            'parent_id': 'parent-id-' + uuid.uuid4().hex,
+            'links': 'links-' + uuid.uuid4().hex,
+        }
+        project_info.update(attrs)
+
+        project = fakes.FakeResource(info=copy.deepcopy(project_info),
+                                     loaded=True)
+        return project
+
+
+class FakeDomain(object):
+    """Fake one or more domain."""
+
+    @staticmethod
+    def create_one_domain(attrs=None):
+        """Create a fake domain.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, name, and so on
+        """
+
+        attrs = attrs or {}
+
+        # set default attributes.
+        domain_info = {
+            'id': 'domain-id-' + uuid.uuid4().hex,
+            'name': 'domain-name-' + uuid.uuid4().hex,
+            'description': 'domain-description-' + uuid.uuid4().hex,
+            'enabled': True,
+            'links': 'links-' + uuid.uuid4().hex,
+        }
+        domain_info.update(attrs)
+
+        domain = fakes.FakeResource(info=copy.deepcopy(domain_info),
+                                    loaded=True)
+        return domain

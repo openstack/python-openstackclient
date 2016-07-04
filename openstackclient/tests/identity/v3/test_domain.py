@@ -10,10 +10,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import copy
-
 from openstackclient.identity.v3 import domain
-from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 
 
@@ -35,20 +32,17 @@ class TestDomainCreate(TestDomain):
         'id',
         'name',
     )
-    datalist = (
-        identity_fakes.domain_description,
-        True,
-        identity_fakes.domain_id,
-        identity_fakes.domain_name,
-    )
 
     def setUp(self):
         super(TestDomainCreate, self).setUp()
 
-        self.domains_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.DOMAIN),
-            loaded=True,
+        self.domain = identity_fakes.FakeDomain.create_one_domain()
+        self.domains_mock.create.return_value = self.domain
+        self.datalist = (
+            self.domain.description,
+            True,
+            self.domain.id,
+            self.domain.name,
         )
 
         # Get the command object to test
@@ -56,10 +50,10 @@ class TestDomainCreate(TestDomain):
 
     def test_domain_create_no_options(self):
         arglist = [
-            identity_fakes.domain_name,
+            self.domain.name,
         ]
         verifylist = [
-            ('name', identity_fakes.domain_name),
+            ('name', self.domain.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -70,7 +64,7 @@ class TestDomainCreate(TestDomain):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.domain_name,
+            'name': self.domain.name,
             'description': None,
             'enabled': True,
         }
@@ -84,11 +78,11 @@ class TestDomainCreate(TestDomain):
     def test_domain_create_description(self):
         arglist = [
             '--description', 'new desc',
-            identity_fakes.domain_name,
+            self.domain.name,
         ]
         verifylist = [
             ('description', 'new desc'),
-            ('name', identity_fakes.domain_name),
+            ('name', self.domain.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -99,7 +93,7 @@ class TestDomainCreate(TestDomain):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.domain_name,
+            'name': self.domain.name,
             'description': 'new desc',
             'enabled': True,
         }
@@ -113,11 +107,11 @@ class TestDomainCreate(TestDomain):
     def test_domain_create_enable(self):
         arglist = [
             '--enable',
-            identity_fakes.domain_name,
+            self.domain.name,
         ]
         verifylist = [
             ('enable', True),
-            ('name', identity_fakes.domain_name),
+            ('name', self.domain.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -128,7 +122,7 @@ class TestDomainCreate(TestDomain):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.domain_name,
+            'name': self.domain.name,
             'description': None,
             'enabled': True,
         }
@@ -142,11 +136,11 @@ class TestDomainCreate(TestDomain):
     def test_domain_create_disable(self):
         arglist = [
             '--disable',
-            identity_fakes.domain_name,
+            self.domain.name,
         ]
         verifylist = [
             ('disable', True),
-            ('name', identity_fakes.domain_name),
+            ('name', self.domain.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -157,7 +151,7 @@ class TestDomainCreate(TestDomain):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.domain_name,
+            'name': self.domain.name,
             'description': None,
             'enabled': False,
         }
@@ -171,15 +165,13 @@ class TestDomainCreate(TestDomain):
 
 class TestDomainDelete(TestDomain):
 
+    domain = identity_fakes.FakeDomain.create_one_domain()
+
     def setUp(self):
         super(TestDomainDelete, self).setUp()
 
         # This is the return value for utils.find_resource()
-        self.domains_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.DOMAIN),
-            loaded=True,
-        )
+        self.domains_mock.get.return_value = self.domain
         self.domains_mock.delete.return_value = None
 
         # Get the command object to test
@@ -187,33 +179,29 @@ class TestDomainDelete(TestDomain):
 
     def test_domain_delete(self):
         arglist = [
-            identity_fakes.domain_id,
+            self.domain.id,
         ]
         verifylist = [
-            ('domain', identity_fakes.domain_id),
+            ('domain', self.domain.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.domains_mock.delete.assert_called_with(
-            identity_fakes.domain_id,
+            self.domain.id,
         )
         self.assertIsNone(result)
 
 
 class TestDomainList(TestDomain):
 
+    domain = identity_fakes.FakeDomain.create_one_domain()
+
     def setUp(self):
         super(TestDomainList, self).setUp()
 
-        self.domains_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.DOMAIN),
-                loaded=True,
-            ),
-        ]
+        self.domains_mock.list.return_value = [self.domain]
 
         # Get the command object to test
         self.cmd = domain.ListDomain(self.app, None)
@@ -232,40 +220,34 @@ class TestDomainList(TestDomain):
         collist = ('ID', 'Name', 'Enabled', 'Description')
         self.assertEqual(collist, columns)
         datalist = ((
-            identity_fakes.domain_id,
-            identity_fakes.domain_name,
+            self.domain.id,
+            self.domain.name,
             True,
-            identity_fakes.domain_description,
+            self.domain.description,
         ), )
         self.assertEqual(datalist, tuple(data))
 
 
 class TestDomainSet(TestDomain):
 
+    domain = identity_fakes.FakeDomain.create_one_domain()
+
     def setUp(self):
         super(TestDomainSet, self).setUp()
 
-        self.domains_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.DOMAIN),
-            loaded=True,
-        )
+        self.domains_mock.get.return_value = self.domain
 
-        self.domains_mock.update.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.DOMAIN),
-            loaded=True,
-        )
+        self.domains_mock.update.return_value = self.domain
 
         # Get the command object to test
         self.cmd = domain.SetDomain(self.app, None)
 
     def test_domain_set_no_options(self):
         arglist = [
-            identity_fakes.domain_name,
+            self.domain.name,
         ]
         verifylist = [
-            ('domain', identity_fakes.domain_name),
+            ('domain', self.domain.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -277,11 +259,11 @@ class TestDomainSet(TestDomain):
     def test_domain_set_name(self):
         arglist = [
             '--name', 'qwerty',
-            identity_fakes.domain_id,
+            self.domain.id,
         ]
         verifylist = [
             ('name', 'qwerty'),
-            ('domain', identity_fakes.domain_id),
+            ('domain', self.domain.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -292,7 +274,7 @@ class TestDomainSet(TestDomain):
             'name': 'qwerty',
         }
         self.domains_mock.update.assert_called_with(
-            identity_fakes.domain_id,
+            self.domain.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -300,11 +282,11 @@ class TestDomainSet(TestDomain):
     def test_domain_set_description(self):
         arglist = [
             '--description', 'new desc',
-            identity_fakes.domain_id,
+            self.domain.id,
         ]
         verifylist = [
             ('description', 'new desc'),
-            ('domain', identity_fakes.domain_id),
+            ('domain', self.domain.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -315,7 +297,7 @@ class TestDomainSet(TestDomain):
             'description': 'new desc',
         }
         self.domains_mock.update.assert_called_with(
-            identity_fakes.domain_id,
+            self.domain.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -323,11 +305,11 @@ class TestDomainSet(TestDomain):
     def test_domain_set_enable(self):
         arglist = [
             '--enable',
-            identity_fakes.domain_id,
+            self.domain.id,
         ]
         verifylist = [
             ('enable', True),
-            ('domain', identity_fakes.domain_id),
+            ('domain', self.domain.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -338,7 +320,7 @@ class TestDomainSet(TestDomain):
             'enabled': True,
         }
         self.domains_mock.update.assert_called_with(
-            identity_fakes.domain_id,
+            self.domain.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -346,11 +328,11 @@ class TestDomainSet(TestDomain):
     def test_domain_set_disable(self):
         arglist = [
             '--disable',
-            identity_fakes.domain_id,
+            self.domain.id,
         ]
         verifylist = [
             ('disable', True),
-            ('domain', identity_fakes.domain_id),
+            ('domain', self.domain.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -361,7 +343,7 @@ class TestDomainSet(TestDomain):
             'enabled': False,
         }
         self.domains_mock.update.assert_called_with(
-            identity_fakes.domain_id,
+            self.domain.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -372,21 +354,17 @@ class TestDomainShow(TestDomain):
     def setUp(self):
         super(TestDomainShow, self).setUp()
 
-        self.domains_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.DOMAIN),
-            loaded=True,
-        )
-
+        self.domain = identity_fakes.FakeDomain.create_one_domain()
+        self.domains_mock.get.return_value = self.domain
         # Get the command object to test
         self.cmd = domain.ShowDomain(self.app, None)
 
     def test_domain_show(self):
         arglist = [
-            identity_fakes.domain_id,
+            self.domain.id,
         ]
         verifylist = [
-            ('domain', identity_fakes.domain_id),
+            ('domain', self.domain.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.app.client_manager.identity.tokens.get_token_data.return_value = \
@@ -405,15 +383,15 @@ class TestDomainShow(TestDomain):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
         self.domains_mock.get.assert_called_with(
-            identity_fakes.domain_id,
+            self.domain.id,
         )
 
         collist = ('description', 'enabled', 'id', 'name')
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.domain_description,
+            self.domain.description,
             True,
-            identity_fakes.domain_id,
-            identity_fakes.domain_name,
+            self.domain.id,
+            self.domain.name,
         )
         self.assertEqual(datalist, data)
