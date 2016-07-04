@@ -46,7 +46,6 @@ class CreateSnapshot(command.ShowOne):
         )
         parser.add_argument(
             "--force",
-            dest="force",
             action="store_true",
             default=False,
             help=_("Create a snapshot attached to an instance. "
