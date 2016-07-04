@@ -190,7 +190,7 @@ class FakeImage(object):
 
         :param Dictionary attrs:
             A dictionary with all attrbutes of image
-        :retrun:
+        :return:
             A FakeResource object with id, name, owner, protected,
             visibility and tags attrs
         """

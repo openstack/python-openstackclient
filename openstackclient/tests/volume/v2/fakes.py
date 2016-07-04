@@ -53,7 +53,7 @@ class FakeTransfer(object):
 
         :param Dictionary attrs:
             A dictionary with all attributes of Transfer Request
-        :retrun:
+        :return:
             A FakeResource object with volume_id, name, id.
         """
         # Set default attribute
@@ -103,7 +103,7 @@ class FakeService(object):
 
         :param Dictionary attrs:
             A dictionary with all attributes of service
-        :retrun:
+        :return:
             A FakeResource object with host, status, etc.
         """
         # Set default attribute
@@ -223,7 +223,7 @@ class FakeVolume(object):
 
         :param Dictionary attrs:
             A dictionary with all attributes of volume
-        :retrun:
+        :return:
             A FakeResource object with id, name, status, etc.
         """
         attrs = attrs or {}
