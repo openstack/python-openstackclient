@@ -146,7 +146,7 @@ class ShowKeypair(command.ShowOne):
             '--public-key',
             action='store_true',
             default=False,
-            help=_("Show only bare public key")
+            help=_("Show only bare public key (name only)")
         )
         return parser
 

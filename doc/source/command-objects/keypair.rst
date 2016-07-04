@@ -70,4 +70,4 @@ Display public key details
 
 .. describe:: <key>
 
-    Public key to display
+    Public key to display (name only)
