@@ -51,10 +51,10 @@ class TestServer(compute_fakes.TestComputev2):
         self.volumes_mock = self.app.client_manager.volume.volumes
         self.volumes_mock.reset_mock()
 
-        # Set object attributes to be tested. Could be overwriten in subclass.
+        # Set object attributes to be tested. Could be overwritten in subclass.
         self.attrs = {}
 
-        # Set object methods to be tested. Could be overwriten in subclass.
+        # Set object methods to be tested. Could be overwritten in subclass.
         self.methods = {}
 
     def setup_servers_mock(self, count):

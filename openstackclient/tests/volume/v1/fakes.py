@@ -157,7 +157,7 @@ class FakeTransfer(object):
 
         :param Dictionary attrs:
             A dictionary with all attributes of Transfer Request
-        :retrun:
+        :return:
             A FakeResource object with volume_id, name, id.
         """
         # Set default attribute
@@ -207,7 +207,7 @@ class FakeService(object):
 
         :param Dictionary attrs:
             A dictionary with all attributes of service
-        :retrun:
+        :return:
             A FakeResource object with host, status, etc.
         """
         # Set default attribute

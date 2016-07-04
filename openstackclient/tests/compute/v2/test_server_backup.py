@@ -34,10 +34,10 @@ class TestServerBackup(compute_fakes.TestComputev2):
         self.images_mock = self.app.client_manager.image.images
         self.images_mock.reset_mock()
 
-        # Set object attributes to be tested. Could be overwriten in subclass.
+        # Set object attributes to be tested. Could be overwritten in subclass.
         self.attrs = {}
 
-        # Set object methods to be tested. Could be overwriten in subclass.
+        # Set object methods to be tested. Could be overwritten in subclass.
         self.methods = {}
 
     def setup_servers_mock(self, count):
