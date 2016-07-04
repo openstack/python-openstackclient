@@ -179,7 +179,24 @@ class TestSnapshotDelete(TestSnapshot):
         result = self.cmd.take_action(parsed_args)
 
         self.snapshots_mock.delete.assert_called_with(
-            self.snapshots[0].id)
+            self.snapshots[0].id, False)
+        self.assertIsNone(result)
+
+    def test_snapshot_delete_with_force(self):
+        arglist = [
+            '--force',
+            self.snapshots[0].id
+        ]
+        verifylist = [
+            ('force', True),
+            ("snapshots", [self.snapshots[0].id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.delete.assert_called_with(
+            self.snapshots[0].id, True)
         self.assertIsNone(result)
 
     def test_delete_multiple_snapshots(self):
@@ -195,7 +212,7 @@ class TestSnapshotDelete(TestSnapshot):
 
         calls = []
         for s in self.snapshots:
-            calls.append(call(s.id))
+            calls.append(call(s.id, False))
         self.snapshots_mock.delete.assert_has_calls(calls)
         self.assertIsNone(result)
 
@@ -226,7 +243,7 @@ class TestSnapshotDelete(TestSnapshot):
 
             self.assertEqual(2, find_mock.call_count)
             self.snapshots_mock.delete.assert_called_once_with(
-                self.snapshots[0].id
+                self.snapshots[0].id, False
             )
 
 
