@@ -20,6 +20,6 @@ class AvailabilityZoneTests(test.TestCase):
     DEFAULT_AZ_NAME = 'nova'
 
     def test_availability_zone_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('availability zone list' + opts)
         self.assertIn(self.DEFAULT_AZ_NAME, raw_output)

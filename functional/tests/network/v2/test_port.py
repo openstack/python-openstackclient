@@ -26,7 +26,7 @@ class PortTests(test.TestCase):
     def setUpClass(cls):
         # Create a network for the subnet.
         cls.openstack('network create ' + cls.NETWORK_NAME)
-        opts = cls.get_show_opts(cls.FIELDS)
+        opts = cls.get_opts(cls.FIELDS)
         raw_output = cls.openstack(
             'port create --network ' + cls.NETWORK_NAME + ' ' +
             cls.NAME + opts
@@ -42,17 +42,17 @@ class PortTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_port_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('port list' + opts)
         self.assertIn(self.NAME, raw_output)
 
     def test_port_set(self):
         self.openstack('port set --disable ' + self.NAME)
-        opts = self.get_show_opts(['name', 'admin_state_up'])
+        opts = self.get_opts(['name', 'admin_state_up'])
         raw_output = self.openstack('port show ' + self.NAME + opts)
         self.assertEqual("DOWN\n" + self.NAME + "\n", raw_output)
 
     def test_port_show(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('port show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)

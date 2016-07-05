@@ -25,7 +25,7 @@ class SubnetPoolTests(test.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        opts = cls.get_show_opts(cls.FIELDS)
+        opts = cls.get_opts(cls.FIELDS)
         raw_output = cls.openstack('subnet pool create --pool-prefix ' +
                                    cls.CREATE_POOL_PREFIX + ' ' +
                                    cls.NAME + opts)
@@ -37,19 +37,19 @@ class SubnetPoolTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_subnet_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('subnet pool list' + opts)
         self.assertIn(self.NAME, raw_output)
 
     def test_subnet_set(self):
         self.openstack('subnet pool set --pool-prefix ' +
                        self.SET_POOL_PREFIX + ' ' + self.NAME)
-        opts = self.get_show_opts(['prefixes', 'name'])
+        opts = self.get_opts(['prefixes', 'name'])
         raw_output = self.openstack('subnet pool show ' + self.NAME + opts)
         self.assertEqual(self.NAME + '\n' + self.SET_POOL_PREFIX + '\n',
                          raw_output)
 
     def test_subnet_show(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('subnet pool show ' + self.NAME + opts)
         self.assertEqual(self.NAME + '\n', raw_output)

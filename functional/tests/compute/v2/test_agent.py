@@ -31,7 +31,7 @@ class ComputeAgentTests(test.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        opts = cls.get_show_opts(cls.HEADERS)
+        opts = cls.get_opts(cls.HEADERS)
         raw_output = cls.openstack('compute agent create ' +
                                    cls.OS + ' ' + cls.ARCH + ' ' +
                                    cls.VER + ' ' + cls.URL + ' ' +

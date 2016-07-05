@@ -24,7 +24,7 @@ class SecurityGroupTests(test.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        opts = cls.get_show_opts(cls.FIELDS)
+        opts = cls.get_opts(cls.FIELDS)
         raw_output = cls.openstack('security group create ' + cls.NAME + opts)
         expected = cls.NAME + '\n'
         cls.assertOutput(expected, raw_output)
@@ -40,7 +40,7 @@ class SecurityGroupTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_security_group_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('security group list' + opts)
         self.assertIn(self.NAME, raw_output)
 
@@ -50,11 +50,11 @@ class SecurityGroupTests(test.TestCase):
         )
         self.assertEqual('', raw_output)
 
-        opts = self.get_show_opts(['description'])
+        opts = self.get_opts(['description'])
         raw_output = self.openstack('security group show ' + self.NAME + opts)
         self.assertEqual("NSA\n", raw_output)
 
     def test_security_group_show(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('security group show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)

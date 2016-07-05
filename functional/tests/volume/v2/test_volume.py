@@ -29,7 +29,7 @@ class VolumeTests(common.BaseVolumeTests):
     @classmethod
     def setUpClass(cls):
         super(VolumeTests, cls).setUpClass()
-        opts = cls.get_show_opts(cls.FIELDS)
+        opts = cls.get_opts(cls.FIELDS)
 
         # Create test volume
         raw_output = cls.openstack('volume create --size 1 ' + cls.NAME + opts)
@@ -48,12 +48,12 @@ class VolumeTests(common.BaseVolumeTests):
         cls.assertOutput('', raw_output)
 
     def test_volume_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('volume list' + opts)
         self.assertIn(self.NAME, raw_output)
 
     def test_volume_show(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('volume show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)
 
@@ -61,7 +61,7 @@ class VolumeTests(common.BaseVolumeTests):
         raw_output = self.openstack(
             'volume set --property a=b --property c=d ' + self.NAME)
         self.assertEqual("", raw_output)
-        opts = self.get_show_opts(["properties"])
+        opts = self.get_opts(["properties"])
         raw_output = self.openstack('volume show ' + self.NAME + opts)
         self.assertEqual("a='b', c='d'\n", raw_output)
 
@@ -74,18 +74,18 @@ class VolumeTests(common.BaseVolumeTests):
         discription = uuid.uuid4().hex
         self.openstack('volume set --description ' + discription + ' ' +
                        self.NAME)
-        opts = self.get_show_opts(["description", "name"])
+        opts = self.get_opts(["description", "name"])
         raw_output = self.openstack('volume show ' + self.NAME + opts)
         self.assertEqual(discription + "\n" + self.NAME + "\n", raw_output)
 
     def test_volume_set_size(self):
         self.openstack('volume set --size 2 ' + self.NAME)
-        opts = self.get_show_opts(["name", "size"])
+        opts = self.get_opts(["name", "size"])
         raw_output = self.openstack('volume show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n2\n", raw_output)
 
     def test_volume_snapshot(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
 
         # Create snapshot from test volume
         raw_output = self.openstack('snapshot create ' + self.NAME +
@@ -116,7 +116,7 @@ class VolumeTests(common.BaseVolumeTests):
                  interval=5, failures=['ERROR']):
         status = "notset"
         total_sleep = 0
-        opts = self.get_show_opts(['status'])
+        opts = self.get_opts(['status'])
         while total_sleep < wait:
             status = self.openstack(check_type + ' show ' + check_name + opts)
             status = status.rstrip()

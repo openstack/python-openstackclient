@@ -26,7 +26,7 @@ class SnapshotTests(common.BaseVolumeTests):
 
     @classmethod
     def wait_for_status(cls, command, status, tries):
-        opts = cls.get_show_opts(['status'])
+        opts = cls.get_opts(['status'])
         for attempt in range(tries):
             time.sleep(1)
             raw_output = cls.openstack(command + opts)
@@ -39,7 +39,7 @@ class SnapshotTests(common.BaseVolumeTests):
         super(SnapshotTests, cls).setUpClass()
         cls.openstack('volume create --size 1 ' + cls.VOLLY)
         cls.wait_for_status('volume show ' + cls.VOLLY, 'available\n', 3)
-        opts = cls.get_show_opts(['status'])
+        opts = cls.get_opts(['status'])
         raw_output = cls.openstack('snapshot create --name ' + cls.NAME +
                                    ' ' + cls.VOLLY + opts)
         cls.assertOutput('creating\n', raw_output)
@@ -57,7 +57,7 @@ class SnapshotTests(common.BaseVolumeTests):
         cls.openstack('volume delete --force ' + cls.VOLLY, fail_ok=True)
 
     def test_snapshot_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('snapshot list' + opts)
         self.assertIn(self.NAME, raw_output)
 
@@ -65,7 +65,7 @@ class SnapshotTests(common.BaseVolumeTests):
         raw_output = self.openstack(
             'snapshot set --property a=b --property c=d ' + self.NAME)
         self.assertEqual("", raw_output)
-        opts = self.get_show_opts(["properties"])
+        opts = self.get_opts(["properties"])
         raw_output = self.openstack('snapshot show ' + self.NAME + opts)
         self.assertEqual("a='b', c='d'\n", raw_output)
 
@@ -78,6 +78,6 @@ class SnapshotTests(common.BaseVolumeTests):
         raw_output = self.openstack(
             'snapshot set --description backup ' + self.NAME)
         self.assertEqual("", raw_output)
-        opts = self.get_show_opts(["description", "name"])
+        opts = self.get_opts(["description", "name"])
         raw_output = self.openstack('snapshot show ' + self.NAME + opts)
         self.assertEqual("backup\n" + self.NAME + "\n", raw_output)

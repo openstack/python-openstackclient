@@ -27,7 +27,7 @@ class QuotaTests(test.TestCase):
     def test_quota_set(self):
         self.openstack('quota set --instances 11 --volumes 11 --networks 11 '
                        + self.PROJECT_NAME)
-        opts = self.get_show_opts(self.EXPECTED_FIELDS)
+        opts = self.get_opts(self.EXPECTED_FIELDS)
         raw_output = self.openstack('quota show ' + self.PROJECT_NAME + opts)
         self.assertEqual("11\n11\n11\n", raw_output)
 

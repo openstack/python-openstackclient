@@ -54,16 +54,12 @@ class TestCase(testtools.TestCase):
 
     @classmethod
     def get_openstack_configuration_value(cls, configuration):
-        opts = cls.get_show_opts([configuration])
+        opts = cls.get_opts([configuration])
         return cls.openstack('configuration show ' + opts)
 
     @classmethod
-    def get_show_opts(cls, fields=[]):
+    def get_opts(cls, fields):
         return ' -f value ' + ' '.join(['-c ' + it for it in fields])
-
-    @classmethod
-    def get_list_opts(cls, headers=[]):
-        return ' -f csv ' + ' '.join(['-c ' + it for it in headers])
 
     @classmethod
     def assertOutput(cls, expected, actual):

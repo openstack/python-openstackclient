@@ -26,7 +26,7 @@ class SecurityGroupRuleTests(test.TestCase):
     @classmethod
     def setUpClass(cls):
         # Create the security group to hold the rule.
-        opts = cls.get_show_opts(cls.NAME_FIELD)
+        opts = cls.get_opts(cls.NAME_FIELD)
         raw_output = cls.openstack('security group create ' +
                                    cls.SECURITY_GROUP_NAME +
                                    opts)
@@ -34,7 +34,7 @@ class SecurityGroupRuleTests(test.TestCase):
         cls.assertOutput(expected, raw_output)
 
         # Create the security group rule.
-        opts = cls.get_show_opts(cls.ID_FIELD)
+        opts = cls.get_opts(cls.ID_FIELD)
         raw_output = cls.openstack('security group rule create ' +
                                    cls.SECURITY_GROUP_NAME +
                                    ' --protocol tcp --dst-port 80:80' +
@@ -53,14 +53,14 @@ class SecurityGroupRuleTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_security_group_rule_list(self):
-        opts = self.get_list_opts(self.ID_HEADER)
+        opts = self.get_opts(self.ID_HEADER)
         raw_output = self.openstack('security group rule list ' +
                                     self.SECURITY_GROUP_NAME +
                                     opts)
         self.assertIn(self.SECURITY_GROUP_RULE_ID, raw_output)
 
     def test_security_group_rule_show(self):
-        opts = self.get_show_opts(self.ID_FIELD)
+        opts = self.get_opts(self.ID_FIELD)
         raw_output = self.openstack('security group rule show ' +
                                     self.SECURITY_GROUP_RULE_ID +
                                     opts)

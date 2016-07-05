@@ -25,7 +25,7 @@ class IPAvailabilityTests(test.TestCase):
     def setUpClass(cls):
         # Create a network for the subnet.
         cls.openstack('network create ' + cls.NETWORK_NAME)
-        opts = cls.get_show_opts(['name'])
+        opts = cls.get_opts(['name'])
         raw_output = cls.openstack(
             'subnet create --network ' + cls.NETWORK_NAME +
             ' --subnet-range 10.10.10.0/24 ' +
@@ -47,7 +47,7 @@ class IPAvailabilityTests(test.TestCase):
         self.assertIn(self.NETWORK_NAME, raw_output)
 
     def test_ip_availability_show(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack(
             'ip availability show ' + self.NETWORK_NAME + opts)
         self.assertEqual(self.NETWORK_NAME + "\n", raw_output)

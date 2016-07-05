@@ -21,10 +21,9 @@ class ContainerTests(test.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        opts = cls.get_list_opts(['container'])
+        opts = cls.get_opts(['container'])
         raw_output = cls.openstack('container create ' + cls.NAME + opts)
-        expected = '"container"\n"' + cls.NAME + '"\n'
-        cls.assertOutput(expected, raw_output)
+        cls.assertOutput(cls.NAME + '\n', raw_output)
 
     @classmethod
     def tearDownClass(cls):
@@ -32,11 +31,11 @@ class ContainerTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_container_list(self):
-        opts = self.get_list_opts(['Name'])
+        opts = self.get_opts(['Name'])
         raw_output = self.openstack('container list' + opts)
         self.assertIn(self.NAME, raw_output)
 
     def test_container_show(self):
-        opts = self.get_show_opts(['container'])
+        opts = self.get_opts(['container'])
         raw_output = self.openstack('container show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)

@@ -58,7 +58,7 @@ class ServerTests(test.TestCase):
     def server_create(self, name=None):
         """Create server. Add cleanup."""
         name = name or data_utils.rand_uuid()
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         flavor = self.get_flavor()
         image = self.get_image()
         network = self.get_network()
@@ -72,7 +72,7 @@ class ServerTests(test.TestCase):
 
     def server_list(self, params=[]):
         """List servers."""
-        opts = self.get_list_opts(params)
+        opts = self.get_opts(params)
         return self.openstack('server list' + opts)
 
     def server_delete(self, name):
@@ -114,7 +114,7 @@ class ServerTests(test.TestCase):
         2) List servers
         3) Check output
         """
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('server list' + opts)
         self.assertIn(self.NAME, raw_output)
 
@@ -126,7 +126,7 @@ class ServerTests(test.TestCase):
         2) Show server
         3) Check output
         """
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('server show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)
 
@@ -144,13 +144,13 @@ class ServerTests(test.TestCase):
         # metadata
         raw_output = self.openstack(
             'server set --property a=b --property c=d ' + self.NAME)
-        opts = self.get_show_opts(["name", "properties"])
+        opts = self.get_opts(["name", "properties"])
         raw_output = self.openstack('server show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\na='b', c='d'\n", raw_output)
 
         raw_output = self.openstack(
             'server unset --property a ' + self.NAME)
-        opts = self.get_show_opts(["name", "properties"])
+        opts = self.get_opts(["name", "properties"])
         raw_output = self.openstack('server show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\nc='d'\n", raw_output)
 
@@ -224,7 +224,7 @@ class ServerTests(test.TestCase):
         """
         self.wait_for_status("ACTIVE")
         # rescue
-        opts = self.get_show_opts(["adminPass"])
+        opts = self.get_opts(["adminPass"])
         raw_output = self.openstack('server rescue ' + self.NAME + opts)
         self.assertNotEqual("", raw_output)
         self.wait_for_status("RESCUE")
@@ -248,7 +248,7 @@ class ServerTests(test.TestCase):
         """
         self.wait_for_status("ACTIVE")
         # attach ip
-        opts = self.get_show_opts(["id", "floating_ip_address"])
+        opts = self.get_opts(["id", "floating_ip_address"])
         raw_output = self.openstack('ip floating create ' +
                                     self.IP_POOL +
                                     opts)
@@ -288,7 +288,7 @@ class ServerTests(test.TestCase):
         # TODO(thowe): Add a server wait command to osc
         failures = ['ERROR']
         total_sleep = 0
-        opts = self.get_show_opts(['status'])
+        opts = self.get_opts(['status'])
         while total_sleep < wait:
             status = self.openstack('server show ' + self.NAME + opts)
             status = status.rstrip()
