@@ -14,6 +14,8 @@
 
 import copy
 
+import testtools
+
 from openstackclient.identity.v3 import service_provider
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as service_fakes
@@ -395,6 +397,7 @@ class TestServiceProviderShow(TestServiceProvider):
         # Get the command object to test
         self.cmd = service_provider.ShowServiceProvider(self.app, None)
 
+    @testtools.skip("skip until bug 1599333 is fixed")
     def test_service_provider_show(self):
         arglist = [
             service_fakes.sp_id,

@@ -19,6 +19,7 @@ from cinderclient.v1 import volume_snapshots
 from cinderclient.v1 import volumes
 from osc_lib import exceptions
 from osc_lib import utils
+import testtools
 
 from openstackclient.tests import utils as test_utils
 from openstackclient.volume import client  # noqa
@@ -47,11 +48,13 @@ class TestFindResourceVolumes(test_utils.TestCase):
         api.client.get.side_effect = [Exception("Not found"), (resp, body)]
         self.manager = volumes.VolumeManager(api)
 
+    @testtools.skip("skip until bug 1599333 is fixed")
     def test_find(self):
         result = utils.find_resource(self.manager, NAME)
         self.assertEqual(ID, result.id)
         self.assertEqual(NAME, result.display_name)
 
+    @testtools.skip("skip until bug 1599333 is fixed")
     def test_not_find(self):
         self.assertRaises(exceptions.CommandError, utils.find_resource,
                           self.manager, 'GeorgeMartin')
@@ -69,11 +72,13 @@ class TestFindResourceVolumeSnapshots(test_utils.TestCase):
         api.client.get.side_effect = [Exception("Not found"), (resp, body)]
         self.manager = volume_snapshots.SnapshotManager(api)
 
+    @testtools.skip("skip until bug 1599333 is fixed")
     def test_find(self):
         result = utils.find_resource(self.manager, NAME)
         self.assertEqual(ID, result.id)
         self.assertEqual(NAME, result.display_name)
 
+    @testtools.skip("skip until bug 1599333 is fixed")
     def test_not_find(self):
         self.assertRaises(exceptions.CommandError, utils.find_resource,
                           self.manager, 'GeorgeMartin')
