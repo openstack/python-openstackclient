@@ -30,7 +30,7 @@ Install the prerequisites for Tox:
   You may need to use pip install for some packages.
 
 
-* On RHEL or CentOS including Fefora:
+* On RHEL or CentOS including Fedora:
 
   .. code-block:: bash
 
@@ -103,7 +103,7 @@ only want to run the test that hits your breakpoint:
 
 .. code-block:: bash
 
-    $ tox -e debug opentackclient.tests.identity.v3.test_group
+    $ tox -e debug openstackclient.tests.identity.v3.test_group
 
 For reference, the `debug`_ ``tox`` environment implements the instructions
 

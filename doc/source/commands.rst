@@ -191,7 +191,7 @@ list check out :doc:`plugin-commands`.
 * ``stack resource``: (**Orchestration (Heat)**)
 * ``stack snapshot``: (**Orchestration (Heat)**)
 * ``stack template``: (**Orchestration (Heat)**)
-* ``task exeuction``: (**Workflow Engine (Mistral)**)
+* ``task execution``: (**Workflow Engine (Mistral)**)
 * ``tld``: (**DNS (Designate)**)
 * ``workbook``: (**Workflow Engine (Mistral)**)
 * ``workflow``: (**Workflow Engine (Mistral)**)
