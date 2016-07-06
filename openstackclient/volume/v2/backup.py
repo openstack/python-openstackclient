@@ -92,6 +92,12 @@ class DeleteBackup(command.Command):
             nargs="+",
             help=_("Backup(s) to delete (name or ID)")
         )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            default=False,
+            help=_("Allow delete in state other than error or available")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -99,7 +105,7 @@ class DeleteBackup(command.Command):
         for backup in parsed_args.backups:
             backup_id = utils.find_resource(
                 volume_client.backups, backup).id
-            volume_client.backups.delete(backup_id)
+            volume_client.backups.delete(backup_id, parsed_args.force)
 
 
 class ListBackup(command.Lister):

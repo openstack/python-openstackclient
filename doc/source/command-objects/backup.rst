@@ -2,7 +2,7 @@
 backup
 ======
 
-Block Storage v1
+Block Storage v1, v2
 
 backup create
 -------------
@@ -53,7 +53,14 @@ Delete backup(s)
 .. code:: bash
 
     os backup delete
+        [--force]
         <backup> [<backup> ...]
+
+.. option:: --force
+
+    Allow delete in state other than error or available
+
+    *Volume version 2 only*
 
 .. _backup_delete-backup:
 .. describe:: <backup>

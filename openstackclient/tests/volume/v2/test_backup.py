@@ -156,7 +156,23 @@ class TestBackupDelete(TestBackup):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.backups_mock.delete.assert_called_with(self.backup.id)
+        self.backups_mock.delete.assert_called_with(self.backup.id, False)
+        self.assertIsNone(result)
+
+    def test_backup_delete_with_force(self):
+        arglist = [
+            '--force',
+            self.backup.id,
+        ]
+        verifylist = [
+            ('force', True),
+            ("backups", [self.backup.id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.backups_mock.delete.assert_called_with(self.backup.id, True)
         self.assertIsNone(result)
 
 
