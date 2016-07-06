@@ -70,12 +70,15 @@ class TestSnapshotCreate(TestSnapshot):
             "--name", self.new_snapshot.name,
             "--description", self.new_snapshot.description,
             "--force",
+            '--property', 'Alpha=a',
+            '--property', 'Beta=b',
             self.new_snapshot.volume_id,
         ]
         verifylist = [
             ("name", self.new_snapshot.name),
             ("description", self.new_snapshot.description),
             ("force", True),
+            ('property', {'Alpha': 'a', 'Beta': 'b'}),
             ("volume", self.new_snapshot.volume_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -86,7 +89,8 @@ class TestSnapshotCreate(TestSnapshot):
             self.new_snapshot.volume_id,
             force=True,
             name=self.new_snapshot.name,
-            description=self.new_snapshot.description
+            description=self.new_snapshot.description,
+            metadata={'Alpha': 'a', 'Beta': 'b'},
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -110,7 +114,8 @@ class TestSnapshotCreate(TestSnapshot):
             self.new_snapshot.volume_id,
             force=True,
             name=None,
-            description=self.new_snapshot.description
+            description=self.new_snapshot.description,
+            metadata=None,
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

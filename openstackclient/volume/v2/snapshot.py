@@ -51,6 +51,13 @@ class CreateSnapshot(command.ShowOne):
             help=_("Create a snapshot attached to an instance. "
                    "Default is False")
         )
+        parser.add_argument(
+            "--property",
+            metavar="<key=value>",
+            action=parseractions.KeyValueAction,
+            help=_("Set a property to this snapshot "
+                   "(repeat option to set multiple properties)"),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -61,7 +68,8 @@ class CreateSnapshot(command.ShowOne):
             volume_id,
             force=parsed_args.force,
             name=parsed_args.name,
-            description=parsed_args.description
+            description=parsed_args.description,
+            metadata=parsed_args.property,
         )
         snapshot._info.update(
             {'properties': utils.format_dict(snapshot._info.pop('metadata'))}
