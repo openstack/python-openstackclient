@@ -178,6 +178,9 @@ class FakeComputev2Client(object):
         self.floating_ips = mock.Mock()
         self.floating_ips.resource_class = fakes.FakeResource(None, {})
 
+        self.floating_ip_pools = mock.Mock()
+        self.floating_ip_pools.resource_class = fakes.FakeResource(None, {})
+
         self.networks = mock.Mock()
         self.networks.resource_class = fakes.FakeResource(None, {})
 
@@ -969,6 +972,54 @@ class FakeFloatingIP(object):
         if floating_ips is None:
             floating_ips = FakeFloatingIP.create_floating_ips(count)
         return mock.MagicMock(side_effect=floating_ips)
+
+
+class FakeFloatingIPPool(object):
+    """Fake one or more floating ip pools."""
+
+    @staticmethod
+    def create_one_floating_ip_pool(attrs=None):
+        """Create a fake floating ip pool.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, etc
+        """
+        if attrs is None:
+            attrs = {}
+
+        # Set default attributes.
+        floating_ip_pool_attrs = {
+            'name': 'floating-ip-pool-name-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        floating_ip_pool_attrs.update(attrs)
+
+        floating_ip_pool = fakes.FakeResource(
+            info=copy.deepcopy(floating_ip_pool_attrs),
+            loaded=True)
+
+        return floating_ip_pool
+
+    @staticmethod
+    def create_floating_ip_pools(attrs=None, count=2):
+        """Create multiple fake floating ip pools.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of floating ip pools to fake
+        :return:
+            A list of FakeResource objects faking the floating ip pools
+        """
+        floating_ip_pools = []
+        for i in range(0, count):
+            floating_ip_pools.append(
+                FakeFloatingIPPool.create_one_floating_ip_pool(attrs)
+            )
+        return floating_ip_pools
 
 
 class FakeNetwork(object):
