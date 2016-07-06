@@ -616,3 +616,81 @@ class TestShowPort(TestPort):
         ref_columns, ref_data = self._get_common_cols_data(self._port)
         self.assertEqual(ref_columns, columns)
         self.assertEqual(ref_data, data)
+
+
+class TestUnsetPort(TestPort):
+
+    def setUp(self):
+        super(TestUnsetPort, self).setUp()
+        self._testport = network_fakes.FakePort.create_one_port(
+            {'fixed_ips': [{'subnet_id': '042eb10a-3a18-4658-ab-cf47c8d03152',
+                            'ip_address': '0.0.0.1'},
+                           {'subnet_id': '042eb10a-3a18-4658-ab-cf47c8d03152',
+                            'ip_address': '1.0.0.0'}],
+             'binding:profile': {'batman': 'Joker', 'Superman': 'LexLuthor'}})
+        self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet(
+            {'id': '042eb10a-3a18-4658-ab-cf47c8d03152'})
+        self.network.find_subnet = mock.Mock(return_value=self.fake_subnet)
+        self.network.find_port = mock.Mock(return_value=self._testport)
+        self.network.update_port = mock.Mock(return_value=None)
+        # Get the command object to test
+        self.cmd = port.UnsetPort(self.app, self.namespace)
+
+    def test_unset_port_parameters(self):
+        arglist = [
+            '--fixed-ip',
+            'subnet=042eb10a-3a18-4658-ab-cf47c8d03152,ip-address=1.0.0.0',
+            '--binding-profile', 'Superman',
+            self._testport.name,
+        ]
+        verifylist = [
+            ('fixed_ip', [{
+                'subnet': '042eb10a-3a18-4658-ab-cf47c8d03152',
+                'ip-address': '1.0.0.0'}]),
+            ('binding_profile', ['Superman']),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'fixed_ips': [{
+                'subnet_id': '042eb10a-3a18-4658-ab-cf47c8d03152',
+                'ip_address': '0.0.0.1'}],
+            'binding:profile': {'batman': 'Joker'}
+        }
+        self.network.update_port.assert_called_once_with(
+            self._testport, **attrs)
+        self.assertIsNone(result)
+
+    def test_unset_port_fixed_ip_not_existent(self):
+        arglist = [
+            '--fixed-ip', 'ip-address=1.0.0.1',
+            '--binding-profile', 'Superman',
+            self._testport.name,
+        ]
+        verifylist = [
+            ('fixed_ip', [{'ip-address': '1.0.0.1'}]),
+            ('binding_profile', ['Superman']),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)
+
+    def test_unset_port_binding_profile_not_existent(self):
+        arglist = [
+            '--fixed-ip', 'ip-address=1.0.0.0',
+            '--binding-profile', 'Neo',
+            self._testport.name,
+        ]
+        verifylist = [
+            ('fixed_ip', [{'ip-address': '1.0.0.0'}]),
+            ('binding_profile', ['Neo']),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)

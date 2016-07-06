@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add a new command ``port unset`` to clear the information
+    of fixed-ip and binding-profile from the port.
+    [ Blueprint `network-property-unset <https://blueprints.launchpad.net/python-openstackclient/+spec/network-property-unset>`_]

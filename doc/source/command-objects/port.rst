@@ -215,3 +215,32 @@ Display port details
 .. describe:: <port>
 
     Port to display (name or ID)
+
+port unset
+----------
+
+Unset port properties
+
+.. program:: port unset
+.. code:: bash
+
+    os port unset
+        [--fixed-ip subnet=<subnet>,ip-address=<ip-address> [...]]
+        [--binding-profile <binding-profile-key> [...]]
+        <port>
+
+.. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
+
+    Desired IP and/or subnet (name or ID) which should be removed
+    from this port: subnet=<subnet>,ip-address=<ip-address>
+    (repeat option to unset multiple fixed IP addresses)
+
+.. option:: --binding-profile <binding-profile-key>
+
+    Desired key which should be removed from binding-profile
+    (repeat option to unset multiple binding:profile data)
+
+.. _port_unset-port:
+.. describe:: <port>
+
+    Port to modify (name or ID)
