@@ -29,7 +29,7 @@ class ImageTests(test.TestCase):
     @classmethod
     def setUpClass(cls):
         os.environ['OS_IMAGE_API_VERSION'] = '2'
-        opts = cls.get_show_opts(cls.FIELDS)
+        opts = cls.get_opts(cls.FIELDS)
         raw_output = cls.openstack('image create ' + cls.NAME + opts)
         expected = cls.NAME + '\n'
         cls.assertOutput(expected, raw_output)
@@ -45,17 +45,17 @@ class ImageTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_image_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('image list' + opts)
         self.assertIn(self.NAME, raw_output)
 
     def test_image_show(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('image show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)
 
     def test_image_set(self):
-        opts = self.get_show_opts([
+        opts = self.get_opts([
             "disk_format", "visibility", "min_disk", "min_ram", "name"])
         self.openstack('image set --min-disk 4 --min-ram 5 ' +
                        '--public ' + self.NAME)
@@ -63,14 +63,14 @@ class ImageTests(test.TestCase):
         self.assertEqual("raw\n4\n5\n" + self.NAME + '\npublic\n', raw_output)
 
     def test_image_metadata(self):
-        opts = self.get_show_opts(["name", "properties"])
+        opts = self.get_opts(["name", "properties"])
         self.openstack('image set --property a=b --property c=d ' + self.NAME)
         raw_output = self.openstack('image show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\na='b', c='d'\n", raw_output)
 
     @testtools.skip("skip until bug 1596573 is resolved")
     def test_image_unset(self):
-        opts = self.get_show_opts(["name", "tags", "properties"])
+        opts = self.get_opts(["name", "tags", "properties"])
         self.openstack('image set --tag 01 ' + self.NAME)
         self.openstack('image unset --tag 01 ' + self.NAME)
         # test_image_metadata has set image properties "a" and "c"

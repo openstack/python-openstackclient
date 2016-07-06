@@ -24,7 +24,7 @@ class AggregateTests(test.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        opts = cls.get_show_opts(cls.FIELDS)
+        opts = cls.get_opts(cls.FIELDS)
         # Use the default 'nova' availability zone for the aggregate.
         raw_output = cls.openstack(
             'aggregate create --zone nova ' + cls.NAME + opts
@@ -38,17 +38,17 @@ class AggregateTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_aggregate_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('aggregate list' + opts)
         self.assertIn(self.NAME, raw_output)
 
     def test_aggregate_show(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('aggregate show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)
 
     def test_aggregate_properties(self):
-        opts = self.get_show_opts(['properties'])
+        opts = self.get_opts(['properties'])
 
         raw_output = self.openstack(
             'aggregate set --property a=b --property c=d ' + self.NAME

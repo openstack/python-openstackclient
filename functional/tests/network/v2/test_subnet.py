@@ -26,7 +26,7 @@ class SubnetTests(test.TestCase):
     def setUpClass(cls):
         # Create a network for the subnet.
         cls.openstack('network create ' + cls.NETWORK_NAME)
-        opts = cls.get_show_opts(cls.FIELDS)
+        opts = cls.get_opts(cls.FIELDS)
         raw_output = cls.openstack(
             'subnet create --network ' + cls.NETWORK_NAME +
             ' --subnet-range 10.10.10.0/24 ' +
@@ -43,17 +43,17 @@ class SubnetTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_subnet_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('subnet list' + opts)
         self.assertIn(self.NAME, raw_output)
 
     def test_subnet_set(self):
         self.openstack('subnet set --no-dhcp ' + self.NAME)
-        opts = self.get_show_opts(['name', 'enable_dhcp'])
+        opts = self.get_opts(['name', 'enable_dhcp'])
         raw_output = self.openstack('subnet show ' + self.NAME + opts)
         self.assertEqual("False\n" + self.NAME + "\n", raw_output)
 
     def test_subnet_show(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('subnet show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)

@@ -33,7 +33,7 @@ class FloatingIpTests(test.TestCase):
             ' --subnet-range 10.10.10.0/24 ' +
             cls.SUBNET_NAME
         )
-        opts = cls.get_show_opts(cls.FIELDS)
+        opts = cls.get_opts(cls.FIELDS)
         raw_output = cls.openstack(
             'ip floating create ' + cls.NETWORK_NAME + opts)
         cls.ID = raw_output.strip('\n')
@@ -48,11 +48,11 @@ class FloatingIpTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_floating_ip_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('ip floating list' + opts)
         self.assertIn(self.ID, raw_output)
 
     def test_floating_ip_show(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('ip floating show ' + self.ID + opts)
         self.assertEqual(self.ID + "\n", raw_output)

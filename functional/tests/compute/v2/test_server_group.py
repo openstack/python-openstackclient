@@ -24,7 +24,7 @@ class ServerGroupTests(test.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        opts = cls.get_show_opts(cls.FIELDS)
+        opts = cls.get_opts(cls.FIELDS)
         raw_output = cls.openstack('server group create --policy affinity ' +
                                    cls.NAME + opts)
         expected = cls.NAME + '\n'
@@ -36,11 +36,11 @@ class ServerGroupTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_server_group_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('server group list' + opts)
         self.assertIn(self.NAME, raw_output)
 
     def test_server_group_show(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('server group show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)

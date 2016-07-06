@@ -23,7 +23,7 @@ class AddressScopeTests(test.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        opts = cls.get_show_opts(cls.FIELDS)
+        opts = cls.get_opts(cls.FIELDS)
         raw_output = cls.openstack('address scope create ' + cls.NAME + opts)
         cls.assertOutput(cls.NAME + "\n", raw_output)
 
@@ -33,17 +33,17 @@ class AddressScopeTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_address_scope_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('address scope list' + opts)
         self.assertIn(self.NAME, raw_output)
 
     def test_address_scope_show(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('address scope show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)
 
     def test_address_scope_set(self):
         self.openstack('address scope set --share ' + self.NAME)
-        opts = self.get_show_opts(['shared'])
+        opts = self.get_opts(['shared'])
         raw_output = self.openstack('address scope show ' + self.NAME + opts)
         self.assertEqual("True\n", raw_output)

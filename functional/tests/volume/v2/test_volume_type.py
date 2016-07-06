@@ -26,7 +26,7 @@ class VolumeTypeTests(common.BaseVolumeTests):
     @classmethod
     def setUpClass(cls):
         super(VolumeTypeTests, cls).setUpClass()
-        opts = cls.get_show_opts(cls.FIELDS)
+        opts = cls.get_opts(cls.FIELDS)
         raw_output = cls.openstack(
             'volume type create --private ' + cls.NAME + opts)
         expected = cls.NAME + '\n'
@@ -38,12 +38,12 @@ class VolumeTypeTests(common.BaseVolumeTests):
         cls.assertOutput('', raw_output)
 
     def test_volume_type_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('volume type list' + opts)
         self.assertIn(self.NAME, raw_output)
 
     def test_volume_type_show(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('volume type show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)
 
@@ -52,7 +52,7 @@ class VolumeTypeTests(common.BaseVolumeTests):
             'volume type set --property a=b --property c=d ' + self.NAME)
         self.assertEqual("", raw_output)
 
-        opts = self.get_show_opts(["properties"])
+        opts = self.get_opts(["properties"])
         raw_output = self.openstack('volume type show ' + self.NAME + opts)
         self.assertEqual("a='b', c='d'\n", raw_output)
 

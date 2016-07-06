@@ -28,12 +28,12 @@ class NetworkSegmentTests(test.TestCase):
     @classmethod
     def setUpClass(cls):
         # Create a network for the segment.
-        opts = cls.get_show_opts(['id'])
+        opts = cls.get_opts(['id'])
         raw_output = cls.openstack('network create ' + cls.NETWORK_NAME + opts)
         cls.NETWORK_ID = raw_output.strip('\n')
 
         # Get the segment for the network.
-        opts = cls.get_show_opts(['ID', 'Network'])
+        opts = cls.get_opts(['ID', 'Network'])
         raw_output = cls.openstack('--os-beta-command '
                                    'network segment list '
                                    ' --network ' + cls.NETWORK_NAME +
@@ -47,13 +47,13 @@ class NetworkSegmentTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_network_segment_list(self):
-        opts = self.get_list_opts(['ID'])
+        opts = self.get_opts(['ID'])
         raw_output = self.openstack('--os-beta-command '
                                     'network segment list' + opts)
         self.assertIn(self.NETWORK_SEGMENT_ID, raw_output)
 
     def test_network_segment_show(self):
-        opts = self.get_show_opts(['network_id'])
+        opts = self.get_opts(['network_id'])
         raw_output = self.openstack('--os-beta-command '
                                     'network segment show ' +
                                     self.NETWORK_SEGMENT_ID + opts)

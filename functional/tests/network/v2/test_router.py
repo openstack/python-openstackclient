@@ -23,7 +23,7 @@ class RouterTests(test.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        opts = cls.get_show_opts(cls.FIELDS)
+        opts = cls.get_opts(cls.FIELDS)
         raw_output = cls.openstack('router create ' + cls.NAME + opts)
         expected = cls.NAME + '\n'
         cls.assertOutput(expected, raw_output)
@@ -34,17 +34,17 @@ class RouterTests(test.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_router_list(self):
-        opts = self.get_list_opts(self.HEADERS)
+        opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('router list' + opts)
         self.assertIn(self.NAME, raw_output)
 
     def test_router_set(self):
         self.openstack('router set --disable ' + self.NAME)
-        opts = self.get_show_opts(['name', 'admin_state_up'])
+        opts = self.get_opts(['name', 'admin_state_up'])
         raw_output = self.openstack('router show ' + self.NAME + opts)
         self.assertEqual("DOWN\n" + self.NAME + "\n", raw_output)
 
     def test_router_show(self):
-        opts = self.get_show_opts(self.FIELDS)
+        opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('router show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n", raw_output)
