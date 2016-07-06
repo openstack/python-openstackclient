@@ -174,6 +174,33 @@ def _show_progress(progress):
         sys.stdout.flush()
 
 
+class AddFloatingIP(command.Command):
+    """Add floating IP address to server"""
+
+    def get_parser(self, prog_name):
+        parser = super(AddFloatingIP, self).get_parser(prog_name)
+        parser.add_argument(
+            "server",
+            metavar="<server>",
+            help=_("Server (name or ID) to receive the floating IP address"),
+        )
+        parser.add_argument(
+            "ip_address",
+            metavar="<ip-address>",
+            help=_("Floating IP address (IP address only) to assign "
+                   "to server"),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+
+        server = utils.find_resource(
+            compute_client.servers, parsed_args.server)
+
+        server.add_floating_ip(parsed_args.ip_address)
+
+
 class AddServerSecurityGroup(command.Command):
     """Add security group to server"""
 
@@ -1079,6 +1106,34 @@ class RebuildServer(command.ShowOne):
 
         details = _prep_server_detail(compute_client, server)
         return zip(*sorted(six.iteritems(details)))
+
+
+class RemoveFloatingIP(command.Command):
+    """Remove floating IP address from server"""
+
+    def get_parser(self, prog_name):
+        parser = super(RemoveFloatingIP, self).get_parser(prog_name)
+        parser.add_argument(
+            "server",
+            metavar="<server>",
+            help=_("Server (name or ID) to remove the "
+                   "floating IP address from"),
+        )
+        parser.add_argument(
+            "ip_address",
+            metavar="<ip-address>",
+            help=_("Floating IP address (IP address only) "
+                   "to remove from server"),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+
+        server = utils.find_resource(
+            compute_client.servers, parsed_args.server)
+
+        server.remove_floating_ip(parsed_args.ip_address)
 
 
 class RemoveServerSecurityGroup(command.Command):

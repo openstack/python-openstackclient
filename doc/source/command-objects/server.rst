@@ -4,6 +4,26 @@ server
 
 Compute v2
 
+server add floating ip
+----------------------
+
+Add floating IP address to server
+
+.. program:: server add floating ip
+.. code:: bash
+
+    os server add floating ip
+        <server>
+        <ip-address>
+
+.. describe:: <server>
+
+    Server (name or ID) to receive the floating IP address
+
+.. describe:: <ip-address>
+
+    Floating IP address (IP address only) to assign to server
+
 server add security group
 -------------------------
 
@@ -417,6 +437,26 @@ Rebuild server
 .. describe:: <server>
 
     Server (name or ID)
+
+server remove floating ip
+-------------------------
+
+Remove floating IP address from server
+
+.. program:: server remove floating ip
+.. code:: bash
+
+    os server remove floating ip
+        <server>
+        <ip-address>
+
+.. describe:: <server>
+
+    Server (name or ID) to remove the floating IP address from
+
+.. describe:: <ip-address>
+
+    Floating IP address (IP address only) to remove from server
 
 server remove security group
 ----------------------------
