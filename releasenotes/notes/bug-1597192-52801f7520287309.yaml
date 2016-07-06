@@ -1,0 +1,4 @@
+---
+features:
+  - Add ``--property`` option to ``snapshot create`` command.
+    [Bug `1597192 <https://bugs.launchpad.net/bugs/1597192>`_]

@@ -16,6 +16,7 @@ Create new snapshot
         [--name <name>]
         [--description <description>]
         [--force]
+        [--property <key=value> [...] ]
         <volume>
 
 .. option:: --name <name>
@@ -29,6 +30,12 @@ Create new snapshot
 .. option:: --force
 
     Create a snapshot attached to an instance. Default is False
+
+.. option:: --property <key=value>
+
+    Set a property to this snapshot (repeat option to set multiple properties)
+
+    *Volume version 2 only*
 
 .. _snapshot_create-snapshot:
 .. describe:: <volume>
