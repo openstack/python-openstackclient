@@ -4,6 +4,26 @@ server
 
 Compute v2
 
+server add fixed ip
+-------------------
+
+Add fixed IP address to server
+
+.. program:: server add fixed ip
+.. code:: bash
+
+    os server add fixed ip
+        <server>
+        <network>
+
+.. describe:: <server>
+
+    Server (name or ID) to receive the fixed IP address
+
+.. describe:: <network>
+
+    Network (name or ID) to allocate the fixed IP address from
+
 server add floating ip
 ----------------------
 
@@ -437,6 +457,26 @@ Rebuild server
 .. describe:: <server>
 
     Server (name or ID)
+
+server remove fixed ip
+----------------------
+
+Remove fixed IP address from server
+
+.. program:: server remove fixed ip
+.. code:: bash
+
+    os server remove fixed ip
+        <server>
+        <ip-address>
+
+.. describe:: <server>
+
+    Server (name or ID) to remove the fixed IP address from
+
+.. describe:: <ip-address>
+
+    Fixed IP address (IP address only) to remove from the server
 
 server remove floating ip
 -------------------------

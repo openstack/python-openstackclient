@@ -8,6 +8,7 @@ ip fixed add
 ------------
 
 Add fixed IP address to server
+(Deprecated, please use ``server add fixed ip`` instead)
 
 .. program:: ip fixed add
 .. code:: bash
@@ -28,6 +29,7 @@ ip fixed remove
 ---------------
 
 Remove fixed IP address from server
+(Deprecated, please use ``server remove fixed ip`` instead)
 
 .. program:: ip fixed remove
 .. code:: bash
