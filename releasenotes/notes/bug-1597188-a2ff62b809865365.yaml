@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--force`` option to ``backup delete`` command to allow delete
+    in state other than error or available.
+    [Bug `1597188 <https://bugs.launchpad.net/bugs/1597188>`_]
