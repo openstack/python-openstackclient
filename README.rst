@@ -57,6 +57,15 @@ command::
     openstack help
     openstack help server create
 
+If you want to make changes to the OpenStackClient for testing and contribution,
+make any changes and then run::
+
+    python setup.py develop
+
+or::
+
+    pip install -e .
+
 Configuration
 =============
 
