@@ -231,7 +231,7 @@ class ShowQuota(command.ShowOne):
             if type(e).__name__ == 'EndpointNotFound':
                 return {}
             else:
-                raise e
+                raise
         return quota._info
 
     def get_network_quota(self, parsed_args):

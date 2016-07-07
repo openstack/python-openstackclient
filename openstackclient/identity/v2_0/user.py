@@ -102,7 +102,7 @@ class CreateUser(command.ShowOne):
                 tenant_id=project_id,
                 enabled=enabled,
             )
-        except ks_exc.Conflict as e:
+        except ks_exc.Conflict:
             if parsed_args.or_show:
                 user = utils.find_resource(
                     identity_client.users,
@@ -110,7 +110,7 @@ class CreateUser(command.ShowOne):
                 )
                 LOG.info(_('Returning existing user %s'), user.name)
             else:
-                raise e
+                raise
 
         # NOTE(dtroyer): The users.create() method wants 'tenant_id' but
         #                the returned resource has 'tenantId'.  Sigh.
@@ -349,7 +349,7 @@ class ShowUser(command.ShowOne):
                 parsed_args.user,
             )
             info.update(user._info)
-        except ks_exc.Forbidden as e:
+        except ks_exc.Forbidden:
             auth_ref = self.app.client_manager.auth_ref
             if (
                 parsed_args.user == auth_ref.user_id or
@@ -364,7 +364,7 @@ class ShowUser(command.ShowOne):
                     'enabled': True,
                 }
             else:
-                raise e
+                raise
 
         if 'tenantId' in info:
             info.update(

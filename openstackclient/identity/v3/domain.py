@@ -76,13 +76,13 @@ class CreateDomain(command.ShowOne):
                 description=parsed_args.description,
                 enabled=enabled,
             )
-        except ks_exc.Conflict as e:
+        except ks_exc.Conflict:
             if parsed_args.or_show:
                 domain = utils.find_resource(identity_client.domains,
                                              parsed_args.name)
                 LOG.info(_('Returning existing domain %s'), domain.name)
             else:
-                raise e
+                raise
 
         domain._info.pop('links')
         return zip(*sorted(six.iteritems(domain._info)))

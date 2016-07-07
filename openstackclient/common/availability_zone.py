@@ -122,11 +122,11 @@ class ListAvailabilityZone(command.Lister):
         compute_client = self.app.client_manager.compute
         try:
             data = compute_client.availability_zones.list()
-        except nova_exceptions.Forbidden as e:  # policy doesn't allow
+        except nova_exceptions.Forbidden:  # policy doesn't allow
             try:
                 data = compute_client.availability_zones.list(detailed=False)
             except Exception:
-                raise e
+                raise
 
         # Argh, the availability zones are not iterable...
         result = []
