@@ -38,8 +38,7 @@ import sys
 import traceback
 
 from keystoneauth1 import session as ks_session
-
-from openstackclient.api import auth
+from osc_lib.api import auth
 
 
 CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(name)s %(message)s'

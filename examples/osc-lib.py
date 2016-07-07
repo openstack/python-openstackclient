@@ -26,10 +26,9 @@ import logging
 import sys
 
 import common
+from os_client_config import config as cloud_config
 
 from openstackclient.common import clientmanager
-
-from os_client_config import config as cloud_config
 
 
 LOG = logging.getLogger('')
