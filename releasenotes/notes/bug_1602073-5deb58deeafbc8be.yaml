@@ -1,0 +1,4 @@
+---
+features:
+  - Add "Checksum" column to output of "image list --long"
+    [Bug `1602073 <https://bugs.launchpad.net/bugs/1602073>`_]

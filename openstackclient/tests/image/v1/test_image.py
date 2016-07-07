@@ -363,6 +363,7 @@ class TestImageList(TestImage):
             'Disk Format',
             'Container Format',
             'Size',
+            'Checksum',
             'Status',
             'Visibility',
             'Protected',
@@ -374,6 +375,7 @@ class TestImageList(TestImage):
         datalist = ((
             image_fakes.image_id,
             image_fakes.image_name,
+            '',
             '',
             '',
             '',
