@@ -24,7 +24,7 @@ Show server's remote console URL
 
 .. option:: --xvpvnc
 
-    Show xpvnc console URL
+    Show xvpvnc console URL
 
 .. option:: --spice
 

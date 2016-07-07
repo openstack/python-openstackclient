@@ -87,7 +87,7 @@ class ShowConsoleURL(command.ShowOne):
             dest='url_type',
             action='store_const',
             const='xvpvnc',
-            help=_("Show xpvnc console URL")
+            help=_("Show xvpvnc console URL")
         )
         type_group.add_argument(
             '--spice',

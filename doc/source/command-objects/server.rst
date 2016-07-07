@@ -543,7 +543,7 @@ server rescue
 
 Put server in rescue mode
 
-.. program:: server rescure
+.. program:: server rescue
 .. code:: bash
 
     os server rescue
