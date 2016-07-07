@@ -393,7 +393,7 @@ class FakeHypervisorStats(object):
         :param Dictionary attrs:
             A dictionary with all attributes
         :return:
-            A FakeResource object, with id, hypervisor_hostname, and so on
+            A FakeResource object, with count, current_workload, and so on
         """
         attrs = attrs or {}
 
