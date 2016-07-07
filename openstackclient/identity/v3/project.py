@@ -111,14 +111,14 @@ class CreateProject(command.ShowOne):
                 enabled=enabled,
                 **kwargs
             )
-        except ks_exc.Conflict as e:
+        except ks_exc.Conflict:
             if parsed_args.or_show:
                 project = utils.find_resource(identity_client.projects,
                                               parsed_args.name,
                                               domain_id=domain)
                 LOG.info(_('Returning existing project %s'), project.name)
             else:
-                raise e
+                raise
 
         project._info.pop('links')
         return zip(*sorted(six.iteritems(project._info)))

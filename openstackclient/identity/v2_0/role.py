@@ -93,7 +93,7 @@ class CreateRole(command.ShowOne):
         identity_client = self.app.client_manager.identity
         try:
             role = identity_client.roles.create(parsed_args.role_name)
-        except ks_exc.Conflict as e:
+        except ks_exc.Conflict:
             if parsed_args.or_show:
                 role = utils.find_resource(
                     identity_client.roles,
@@ -101,7 +101,7 @@ class CreateRole(command.ShowOne):
                 )
                 LOG.info(_('Returning existing role %s'), role.name)
             else:
-                raise e
+                raise
 
         info = {}
         info.update(role._info)

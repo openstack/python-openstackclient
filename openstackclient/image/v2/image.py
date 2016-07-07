@@ -339,7 +339,7 @@ class CreateImage(command.ShowOne):
             with fp:
                 try:
                     image_client.images.upload(image.id, fp)
-                except Exception as e:
+                except Exception:
                     # If the upload fails for some reason attempt to remove the
                     # dangling queued image made by the create() call above but
                     # only if the user did not specify an id which indicates
@@ -349,7 +349,7 @@ class CreateImage(command.ShowOne):
                             image_client.images.delete(image.id)
                     except Exception:
                         pass  # we don't care about this one
-                    raise e  # now, throw the upload exception again
+                    raise  # now, throw the upload exception again
 
                 # update the image after the data has been uploaded
                 image = image_client.images.get(image.id)
@@ -834,11 +834,11 @@ class SetImage(command.Command):
 
         try:
             image = image_client.images.update(image.id, **kwargs)
-        except Exception as e:
+        except Exception:
             if activation_status is not None:
                 LOG.info(_("Image %(id)s was %(status)s."),
                          {'id': image.id, 'status': activation_status})
-            raise e
+            raise
 
 
 class ShowImage(command.ShowOne):

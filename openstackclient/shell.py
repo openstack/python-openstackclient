@@ -331,10 +331,10 @@ class OpenStackShell(app.App):
                     'auth_type': auth_type,
                 },
             )
-        except (IOError, OSError) as e:
+        except (IOError, OSError):
             self.log.critical("Could not read clouds.yaml configuration file")
             self.print_help_if_requested()
-            raise e
+            raise
 
         # TODO(thowe): Change cliff so the default value for debug
         # can be set to None.

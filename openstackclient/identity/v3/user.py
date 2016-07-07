@@ -121,14 +121,14 @@ class CreateUser(command.ShowOne):
                 description=parsed_args.description,
                 enabled=enabled
             )
-        except ks_exc.Conflict as e:
+        except ks_exc.Conflict:
             if parsed_args.or_show:
                 user = utils.find_resource(identity_client.users,
                                            parsed_args.name,
                                            domain_id=domain_id)
                 LOG.info(_('Returning existing user %s'), user.name)
             else:
-                raise e
+                raise
 
         user._info.pop('links')
         return zip(*sorted(six.iteritems(user._info)))

@@ -160,14 +160,14 @@ class CreateGroup(command.ShowOne):
                 name=parsed_args.name,
                 domain=domain,
                 description=parsed_args.description)
-        except ks_exc.Conflict as e:
+        except ks_exc.Conflict:
             if parsed_args.or_show:
                 group = utils.find_resource(identity_client.groups,
                                             parsed_args.name,
                                             domain_id=domain)
                 LOG.info(_('Returning existing group %s'), group.name)
             else:
-                raise e
+                raise
 
         group._info.pop('links')
         return zip(*sorted(six.iteritems(group._info)))

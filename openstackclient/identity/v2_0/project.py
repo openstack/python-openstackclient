@@ -86,7 +86,7 @@ class CreateProject(command.ShowOne):
                 enabled=enabled,
                 **kwargs
             )
-        except ks_exc.Conflict as e:
+        except ks_exc.Conflict:
             if parsed_args.or_show:
                 project = utils.find_resource(
                     identity_client.tenants,
@@ -94,7 +94,7 @@ class CreateProject(command.ShowOne):
                 )
                 LOG.info(_('Returning existing project %s'), project.name)
             else:
-                raise e
+                raise
 
         # TODO(stevemar): Remove the line below when we support multitenancy
         project._info.pop('parent_id', None)
@@ -242,7 +242,7 @@ class ShowProject(command.ShowOne):
                 parsed_args.project,
             )
             info.update(project._info)
-        except ks_exc.Forbidden as e:
+        except ks_exc.Forbidden:
             auth_ref = self.app.client_manager.auth_ref
             if (
                 parsed_args.project == auth_ref.project_id or
@@ -256,7 +256,7 @@ class ShowProject(command.ShowOne):
                     'enabled': True,
                 }
             else:
-                raise e
+                raise
 
         # TODO(stevemar): Remove the line below when we support multitenancy
         info.pop('parent_id', None)

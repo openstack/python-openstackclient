@@ -165,13 +165,13 @@ class CreateRole(command.ShowOne):
 
         try:
             role = identity_client.roles.create(name=parsed_args.name)
-        except ks_exc.Conflict as e:
+        except ks_exc.Conflict:
             if parsed_args.or_show:
                 role = utils.find_resource(identity_client.roles,
                                            parsed_args.name)
                 LOG.info(_('Returning existing role %s'), role.name)
             else:
-                raise e
+                raise
 
         role._info.pop('links')
         return zip(*sorted(six.iteritems(role._info)))
