@@ -380,7 +380,27 @@ class ShowFlavor(command.ShowOne):
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         resource_flavor = _find_flavor(compute_client, parsed_args.flavor)
+
+        access_projects = None
+        # get access projects list of this flavor
+        if not resource_flavor.is_public:
+            try:
+                flavor_access = compute_client.flavor_access.list(
+                    flavor=resource_flavor.id)
+                projects = [utils.get_field(access, 'tenant_id')
+                            for access in flavor_access]
+                # TODO(Huanxuan Ao): This format case can be removed after
+                # patch https://review.openstack.org/#/c/330223/ merged.
+                access_projects = utils.format_list(projects)
+            except Exception as e:
+                msg = _("Failed to get access projects list "
+                        "for flavor '%(flavor)s': %(e)s")
+                LOG.error(msg % {'flavor': parsed_args.flavor, 'e': e})
+
         flavor = resource_flavor._info.copy()
+        flavor.update({
+            'access_project_ids': access_projects
+        })
         flavor.pop("links", None)
 
         flavor['properties'] = utils.format_dict(resource_flavor.get_keys())

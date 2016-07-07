@@ -787,6 +787,35 @@ class FakeFlavor(object):
         return mock.MagicMock(side_effect=flavors)
 
 
+class FakeFlavorAccess(object):
+    """Fake one or more flavor accesses."""
+
+    @staticmethod
+    def create_one_flavor_access(attrs=None):
+        """Create a fake flavor access.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with flavor_id, tenat_id
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        flavor_access_info = {
+            'flavor_id': 'flavor-id-' + uuid.uuid4().hex,
+            'tenant_id': 'tenant-id-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        flavor_access_info.update(attrs)
+
+        flavor_access = fakes.FakeResource(
+            info=copy.deepcopy(flavor_access_info), loaded=True)
+
+        return flavor_access
+
+
 class FakeKeypair(object):
     """Fake one or more keypairs."""
 
