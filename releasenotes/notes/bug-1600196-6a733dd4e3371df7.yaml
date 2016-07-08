@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--incremental`` option to ``backup create`` command to allow users to
+    create incremental backups.
+    [Bug `1600196 <https://bugs.launchpad.net/python-openstackclient/+bug/1600196>`_]
