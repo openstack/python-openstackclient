@@ -146,26 +146,6 @@ class FakeService(object):
 
         return services
 
-    @staticmethod
-    def get_services(services=None, count=2):
-        """Get an iterable MagicMock object with a list of faked services.
-
-        If services list is provided, then initialize the Mock object with the
-        list. Otherwise create one.
-
-        :param List services:
-            A list of FakeResource objects faking services
-        :param Integer count:
-            The number of services to be faked
-        :return
-            An iterable Mock object with side_effect set to a list of faked
-            services
-        """
-        if services is None:
-            services = FakeService.create_services(count)
-
-        return mock.MagicMock(side_effect=services)
-
 
 class FakeVolumeClient(object):
 
