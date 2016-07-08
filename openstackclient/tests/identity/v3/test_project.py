@@ -16,7 +16,6 @@
 import mock
 
 from osc_lib import exceptions
-import testtools
 
 from openstackclient.identity.v3 import project
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
@@ -731,13 +730,15 @@ class TestProjectShow(TestProject):
 
         self.project = identity_fakes.FakeProject.create_one_project(
             attrs={'domain_id': self.domain.id})
-        self.projects_mock.get.return_value = self.project
 
         # Get the command object to test
         self.cmd = project.ShowProject(self.app, None)
 
-    @testtools.skip("skip until bug 1599333 is fixed")
     def test_project_show(self):
+
+        self.projects_mock.get.side_effect = [Exception("Not found"),
+                                              self.project]
+        self.projects_mock.get.return_value = self.project
 
         arglist = [
             self.project.id,
@@ -761,6 +762,7 @@ class TestProjectShow(TestProject):
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
+
         self.projects_mock.get.assert_called_with(
             self.project.id,
             parents_as_list=False,
@@ -788,7 +790,6 @@ class TestProjectShow(TestProject):
         )
         self.assertEqual(datalist, data)
 
-    @testtools.skip("skip until bug 1599333 is fixed")
     def test_project_show_parents(self):
         self.project = identity_fakes.FakeProject.create_one_project(
             attrs={
@@ -796,6 +797,8 @@ class TestProjectShow(TestProject):
                 'parents': [{'project': {'id': self.project.parent_id}}]
             }
         )
+        self.projects_mock.get.side_effect = [Exception("Not found"),
+                                              self.project]
         self.projects_mock.get.return_value = self.project
 
         arglist = [
@@ -848,7 +851,6 @@ class TestProjectShow(TestProject):
         )
         self.assertEqual(data, datalist)
 
-    @testtools.skip("skip until bug 1599333 is fixed")
     def test_project_show_subtree(self):
         self.project = identity_fakes.FakeProject.create_one_project(
             attrs={
@@ -856,6 +858,8 @@ class TestProjectShow(TestProject):
                 'subtree': [{'project': {'id': 'children-id'}}]
             }
         )
+        self.projects_mock.get.side_effect = [Exception("Not found"),
+                                              self.project]
         self.projects_mock.get.return_value = self.project
 
         arglist = [
@@ -908,7 +912,6 @@ class TestProjectShow(TestProject):
         )
         self.assertEqual(data, datalist)
 
-    @testtools.skip("skip until bug 1599333 is fixed")
     def test_project_show_parents_and_children(self):
         self.project = identity_fakes.FakeProject.create_one_project(
             attrs={
@@ -917,6 +920,8 @@ class TestProjectShow(TestProject):
                 'subtree': [{'project': {'id': 'children-id'}}]
             }
         )
+        self.projects_mock.get.side_effect = [Exception("Not found"),
+                                              self.project]
         self.projects_mock.get.return_value = self.project
 
         arglist = [
