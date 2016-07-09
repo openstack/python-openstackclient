@@ -13,14 +13,10 @@
 
 """Authentication Plugin Library"""
 
-import logging
-
 from keystoneauth1 import loading
 from keystoneauth1 import token_endpoint
 
 from openstackclient.i18n import _
-
-LOG = logging.getLogger(__name__)
 
 
 class TokenEndpoint(loading.BaseLoader):
