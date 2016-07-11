@@ -15,7 +15,6 @@
 import copy
 
 import mock
-import testtools
 
 from openstackclient.identity.v3 import identity_provider
 from openstackclient.tests import fakes
@@ -600,11 +599,14 @@ class TestIdentityProviderShow(TestIdentityProvider):
             copy.deepcopy(identity_fakes.IDENTITY_PROVIDER),
             loaded=True,
         )
+
+        self.identity_providers_mock.get.side_effect = [Exception("Not found"),
+                                                        ret]
         self.identity_providers_mock.get.return_value = ret
+
         # Get the command object to test
         self.cmd = identity_provider.ShowIdentityProvider(self.app, None)
 
-    @testtools.skip("skip until bug 1599333 is fixed")
     def test_identity_provider_show(self):
         arglist = [
             identity_fakes.idp_id,
