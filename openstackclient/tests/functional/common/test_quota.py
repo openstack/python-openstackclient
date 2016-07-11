@@ -17,6 +17,7 @@ class QuotaTests(base.TestCase):
     """Functional tests for quota. """
     # Test quota information for compute, network and volume.
     EXPECTED_FIELDS = ['instances', 'networks', 'volumes']
+    EXPECTED_CLASS_FIELDS = ['instances', 'volumes']
     PROJECT_NAME = None
 
     @classmethod
@@ -39,4 +40,14 @@ class QuotaTests(base.TestCase):
     def test_quota_show_default_project(self):
         raw_output = self.openstack('quota show')
         for expected_field in self.EXPECTED_FIELDS:
+            self.assertIn(expected_field, raw_output)
+
+    def test_quota_show_with_default_option(self):
+        raw_output = self.openstack('quota show --default')
+        for expected_field in self.EXPECTED_FIELDS:
+            self.assertIn(expected_field, raw_output)
+
+    def test_quota_show_with_class_option(self):
+        raw_output = self.openstack('quota show --class')
+        for expected_field in self.EXPECTED_CLASS_FIELDS:
             self.assertIn(expected_field, raw_output)

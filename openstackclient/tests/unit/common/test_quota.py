@@ -383,6 +383,8 @@ class TestQuotaShow(TestQuota):
         )
         self.network = self.app.client_manager.network
         self.network.get_quota = mock.Mock(return_value=network_fakes.QUOTA)
+        self.network.get_quota_default = mock.Mock(
+            return_value=network_fakes.QUOTA)
 
         self.cmd = quota.ShowQuota(self.app, None)
 
@@ -403,6 +405,7 @@ class TestQuotaShow(TestQuota):
             identity_fakes.project_id)
         self.network.get_quota.assert_called_once_with(
             identity_fakes.project_id)
+        self.assertNotCalled(self.network.get_quota_default)
 
     def test_quota_show_with_default(self):
         arglist = [
@@ -422,6 +425,9 @@ class TestQuotaShow(TestQuota):
             identity_fakes.project_id)
         self.volume_quotas_mock.defaults.assert_called_once_with(
             identity_fakes.project_id)
+        self.network.get_quota_default.assert_called_once_with(
+            identity_fakes.project_id)
+        self.assertNotCalled(self.network.get_quota)
 
     def test_quota_show_with_class(self):
         arglist = [
@@ -441,6 +447,8 @@ class TestQuotaShow(TestQuota):
             identity_fakes.project_id)
         self.volume_quotas_class_mock.get.assert_called_once_with(
             identity_fakes.project_id)
+        self.assertNotCalled(self.network.get_quota)
+        self.assertNotCalled(self.network.get_quota_default)
 
     def test_quota_show_no_project(self):
         parsed_args = self.check_parser(self.cmd, [], [])
@@ -452,3 +460,4 @@ class TestQuotaShow(TestQuota):
             identity_fakes.project_id)
         self.network.get_quota.assert_called_once_with(
             identity_fakes.project_id)
+        self.assertNotCalled(self.network.get_quota_default)

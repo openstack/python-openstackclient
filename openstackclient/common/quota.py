@@ -247,11 +247,16 @@ class ShowQuota(command.ShowOne):
         return quota._info
 
     def get_network_quota(self, parsed_args):
-        if parsed_args.quota_class or parsed_args.default:
+        if parsed_args.quota_class:
             return {}
         if self.app.client_manager.is_network_endpoint_enabled():
             project = self._get_project(parsed_args)
-            return self.app.client_manager.network.get_quota(project)
+            client = self.app.client_manager.network
+            if parsed_args.default:
+                network_quota = client.get_quota_default(project)
+            else:
+                network_quota = client.get_quota(project)
+            return network_quota
         else:
             return {}
 

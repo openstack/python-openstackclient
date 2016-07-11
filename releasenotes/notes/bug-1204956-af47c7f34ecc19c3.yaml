@@ -1,0 +1,5 @@
+---
+features:
+  - Supported to fetch network project default quota with command
+    ``quota show --default``.
+    [Bug `1204956 <https://bugs.launchpad.net/neutron/+bug/1204956>`_]
