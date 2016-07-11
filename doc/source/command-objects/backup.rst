@@ -16,6 +16,7 @@ Create new backup
         [--container <container>]
         [--name <name>]
         [--description <description>]
+        [--snapshot <snapshot>]
         [--force]
         <volume>
 
@@ -35,9 +36,13 @@ Create new backup
 
     Snapshot to backup (name or ID)
 
+    *Volume version 2 only*
+
 .. option:: --force
 
     Allow to back up an in-use volume
+
+    *Volume version 2 only*
 
 .. _backup_create-backup:
 .. describe:: <volume>
