@@ -81,7 +81,10 @@ class FakeAggregate(object):
                 "availability_zone": "ag_zone",
             }
         }
+
+        # Overwrite default attributes.
         aggregate_info.update(attrs)
+
         aggregate = fakes.FakeResource(
             info=copy.deepcopy(aggregate_info),
             loaded=True)
@@ -254,6 +257,8 @@ class FakeAgent(object):
             'md5hash': 'agent-md5hash',
             'hypervisor': 'hypervisor',
         }
+
+        # Overwrite default attributes.
         agent_info.update(attrs)
 
         agent = fakes.FakeResource(info=copy.deepcopy(agent_info),
@@ -412,6 +417,8 @@ class FakeHypervisorStats(object):
             'vcpus': 8,
             'vcpus_used': 3,
         }
+
+        # Overwrite default attributes.
         stats_info.update(attrs)
 
         # Set default method.
@@ -575,7 +582,7 @@ class FakeServer(object):
         :param Dictionary methods:
             A dictionary with all methods
         :return:
-            A FakeResource object, with id, name, metadata
+            A FakeResource object, with id, name, metadata, and so on
         """
         attrs = attrs or {}
         methods = methods or {}
@@ -651,7 +658,7 @@ class FakeService(object):
         :param Dictionary attrs:
             A dictionary with all attributes
         :return:
-            A FakeResource object, with id, host, binary
+            A FakeResource object, with id, host, binary, and so on
         """
         attrs = attrs or {}
 
@@ -703,7 +710,7 @@ class FakeFlavor(object):
         :param Dictionary attrs:
             A dictionary with all attributes
         :return:
-            A FakeResource object, with id, name, ram, vcpus, properties
+            A FakeResource object, with id, name, ram, vcpus, and so on
         """
         attrs = attrs or {}
 
@@ -790,7 +797,7 @@ class FakeKeypair(object):
         :param Dictionary attrs:
             A dictionary with all attributes
         :return:
-            A FakeResource
+            A FakeResource object, name, fingerprint, and so on
         """
         attrs = attrs or {}
 
@@ -984,7 +991,7 @@ class FakeFloatingIPPool(object):
         :param Dictionary attrs:
             A dictionary with all attributes
         :return:
-            A FakeResource object, with id, etc
+            A FakeResource object, with name, etc
         """
         if attrs is None:
             attrs = {}
@@ -1127,7 +1134,7 @@ class FakeHost(object):
         :param Dictionary attrs:
             A dictionary with all attributes
         :return:
-            A FakeResource object, with id and other attributes
+            A FakeResource object, with uuid and other attributes
         """
         attrs = attrs or {}
 
@@ -1183,6 +1190,7 @@ class FakeServerGroup(object):
         if attrs is None:
             attrs = {}
 
+        # Set default attributes.
         server_group_info = {
             'id': 'server-group-id-' + uuid.uuid4().hex,
             'members': [],
@@ -1192,7 +1200,10 @@ class FakeServerGroup(object):
             'project_id': 'server-group-project-id-' + uuid.uuid4().hex,
             'user_id': 'server-group-user-id-' + uuid.uuid4().hex,
         }
+
+        # Overwrite default attributes.
         server_group_info.update(attrs)
+
         server_group = fakes.FakeResource(
             info=copy.deepcopy(server_group_info),
             loaded=True)
