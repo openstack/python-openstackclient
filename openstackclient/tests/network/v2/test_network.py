@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-import copy
 import mock
 from mock import call
 
@@ -40,10 +39,12 @@ class TestNetwork(network_fakes.TestNetworkV2):
 
 class TestCreateNetworkIdentityV3(TestNetwork):
 
+    project = identity_fakes_v3.FakeProject.create_one_project()
+    domain = identity_fakes_v3.FakeDomain.create_one_domain()
     # The new network created.
     _network = network_fakes.FakeNetwork.create_one_network(
         attrs={
-            'tenant_id': identity_fakes_v3.project_id,
+            'tenant_id': project.id,
             'availability_zone_hints': ["nova"],
         }
     )
@@ -96,19 +97,11 @@ class TestCreateNetworkIdentityV3(TestNetwork):
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity.projects
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes_v3.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
 
         # Get a shortcut to the DomainManager Mock
         self.domains_mock = self.identity.domains
-        self.domains_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes_v3.DOMAIN),
-            loaded=True,
-        )
+        self.domains_mock.get.return_value = self.domain
 
     def test_create_no_options(self):
         arglist = []
@@ -143,8 +136,8 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         arglist = [
             "--disable",
             "--share",
-            "--project", identity_fakes_v3.project_name,
-            "--project-domain", identity_fakes_v3.domain_name,
+            "--project", self.project.name,
+            "--project-domain", self.domain.name,
             "--availability-zone-hint", "nova",
             "--external", "--default",
             "--provider-network-type", "vlan",
@@ -156,8 +149,8 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         verifylist = [
             ('disable', True),
             ('share', True),
-            ('project', identity_fakes_v3.project_name),
-            ('project_domain', identity_fakes_v3.domain_name),
+            ('project', self.project.name),
+            ('project_domain', self.domain.name),
             ('availability_zone_hints', ["nova"]),
             ('external', True),
             ('default', True),
@@ -176,7 +169,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'availability_zone_hints': ["nova"],
             'name': self._network.name,
             'shared': True,
-            'tenant_id': identity_fakes_v3.project_id,
+            'tenant_id': self.project.id,
             'is_default': True,
             'router:external': True,
             'provider:network_type': 'vlan',
@@ -214,9 +207,10 @@ class TestCreateNetworkIdentityV3(TestNetwork):
 
 class TestCreateNetworkIdentityV2(TestNetwork):
 
+    project = identity_fakes_v2.FakeProject.create_one_project()
     # The new network created.
     _network = network_fakes.FakeNetwork.create_one_network(
-        attrs={'tenant_id': identity_fakes_v2.project_id}
+        attrs={'tenant_id': project.id}
     )
 
     columns = (
@@ -267,24 +261,20 @@ class TestCreateNetworkIdentityV2(TestNetwork):
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity.tenants
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes_v2.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
 
         # There is no DomainManager Mock in fake identity v2.
 
     def test_create_with_project_identityv2(self):
         arglist = [
-            "--project", identity_fakes_v2.project_name,
+            "--project", self.project.name,
             self._network.name,
         ]
         verifylist = [
             ('enable', True),
             ('share', None),
             ('name', self._network.name),
-            ('project', identity_fakes_v2.project_name),
+            ('project', self.project.name),
             ('external', False),
         ]
 
@@ -294,22 +284,22 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         self.network.create_network.assert_called_once_with(**{
             'admin_state_up': True,
             'name': self._network.name,
-            'tenant_id': identity_fakes_v2.project_id,
+            'tenant_id': self.project.id,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_with_domain_identityv2(self):
         arglist = [
-            "--project", identity_fakes_v3.project_name,
-            "--project-domain", identity_fakes_v3.domain_name,
+            "--project", self.project.name,
+            "--project-domain", "domain-name",
             self._network.name,
         ]
         verifylist = [
             ('enable', True),
             ('share', None),
-            ('project', identity_fakes_v3.project_name),
-            ('project_domain', identity_fakes_v3.domain_name),
+            ('project', self.project.name),
+            ('project_domain', "domain-name"),
             ('name', self._network.name),
             ('external', False),
         ]

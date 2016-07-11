@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-import copy
 import mock
 from mock import call
 
@@ -45,6 +44,8 @@ class TestSecurityGroupCompute(compute_fakes.TestComputev2):
 
 class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
 
+    project = identity_fakes.FakeProject.create_one_project()
+    domain = identity_fakes.FakeDomain.create_one_domain()
     # The security group to be created.
     _security_group = \
         network_fakes.FakeSecurityGroup.create_one_security_group()
@@ -81,19 +82,11 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity.projects
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
 
         # Get a shortcut to the DomainManager Mock
         self.domains_mock = self.identity.domains
-        self.domains_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.DOMAIN),
-            loaded=True,
-        )
+        self.domains_mock.get.return_value = self.domain
 
         # Get the command object to test
         self.cmd = security_group.CreateSecurityGroup(self.app, self.namespace)
@@ -123,15 +116,15 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
     def test_create_all_options(self):
         arglist = [
             '--description', self._security_group.description,
-            '--project', identity_fakes.project_name,
-            '--project-domain', identity_fakes.domain_name,
+            '--project', self.project.name,
+            '--project-domain', self.domain.name,
             self._security_group.name,
         ]
         verifylist = [
             ('description', self._security_group.description),
             ('name', self._security_group.name),
-            ('project', identity_fakes.project_name),
-            ('project_domain', identity_fakes.domain_name),
+            ('project', self.project.name),
+            ('project_domain', self.domain.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -140,7 +133,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.network.create_security_group.assert_called_once_with(**{
             'description': self._security_group.description,
             'name': self._security_group.name,
-            'tenant_id': identity_fakes.project_id,
+            'tenant_id': self.project.id,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -148,6 +141,8 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
 
 class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
 
+    project = identity_fakes.FakeProject.create_one_project()
+    domain = identity_fakes.FakeDomain.create_one_domain()
     # The security group to be shown.
     _security_group = \
         compute_fakes.FakeSecurityGroup.create_one_security_group()
@@ -184,8 +179,8 @@ class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
 
     def test_create_network_options(self):
         arglist = [
-            '--project', identity_fakes.project_name,
-            '--project-domain', identity_fakes.domain_name,
+            '--project', self.project.name,
+            '--project-domain', self.domain.name,
             self._security_group.name,
         ]
         self.assertRaises(tests_utils.ParserException,
