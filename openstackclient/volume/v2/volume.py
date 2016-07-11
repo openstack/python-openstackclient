@@ -167,7 +167,6 @@ class DeleteVolume(command.Command):
         )
         parser.add_argument(
             "--force",
-            dest="force",
             action="store_true",
             default=False,
             help=_("Attempt forced removal of volume(s), regardless of state "
