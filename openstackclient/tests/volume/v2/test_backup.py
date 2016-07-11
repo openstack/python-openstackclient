@@ -79,6 +79,7 @@ class TestBackupCreate(TestBackup):
             "--description", self.new_backup.description,
             "--container", self.new_backup.container,
             "--force",
+            "--incremental",
             "--snapshot", self.new_backup.snapshot_id,
             self.new_backup.volume_id,
         ]
@@ -87,6 +88,7 @@ class TestBackupCreate(TestBackup):
             ("description", self.new_backup.description),
             ("container", self.new_backup.container),
             ("force", True),
+            ("incremental", True),
             ("snapshot", self.new_backup.snapshot_id),
             ("volume", self.new_backup.volume_id),
         ]
@@ -100,6 +102,7 @@ class TestBackupCreate(TestBackup):
             name=self.new_backup.name,
             description=self.new_backup.description,
             force=True,
+            incremental=True,
             snapshot_id=self.new_backup.snapshot_id,
         )
         self.assertEqual(self.columns, columns)
@@ -126,6 +129,7 @@ class TestBackupCreate(TestBackup):
             name=None,
             description=self.new_backup.description,
             force=False,
+            incremental=False,
             snapshot_id=None,
         )
         self.assertEqual(self.columns, columns)

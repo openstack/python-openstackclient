@@ -59,6 +59,12 @@ class CreateBackup(command.ShowOne):
             default=False,
             help=_("Allow to back up an in-use volume")
         )
+        parser.add_argument(
+            '--incremental',
+            action='store_true',
+            default=False,
+            help=_("Perform an incremental backup")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -75,6 +81,7 @@ class CreateBackup(command.ShowOne):
             name=parsed_args.name,
             description=parsed_args.description,
             force=parsed_args.force,
+            incremental=parsed_args.incremental,
             snapshot_id=snapshot_id,
         )
         backup._info.pop("links", None)

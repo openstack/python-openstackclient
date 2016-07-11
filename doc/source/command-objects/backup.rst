@@ -18,6 +18,7 @@ Create new backup
         [--description <description>]
         [--snapshot <snapshot>]
         [--force]
+        [--incremental]
         <volume>
 
 .. option:: --container <container>
@@ -41,6 +42,12 @@ Create new backup
 .. option:: --force
 
     Allow to back up an in-use volume
+
+    *Volume version 2 only*
+
+.. option:: --incremental
+
+    Perform an incremental backup
 
     *Volume version 2 only*
 
