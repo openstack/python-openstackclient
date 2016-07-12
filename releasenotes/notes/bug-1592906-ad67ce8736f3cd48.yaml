@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Support bulk deletion for identity v3 commands: ``consumer``,
+    ``credential``, ``domain``, ``ec2creds``, ``endpoint``,
+    ``federation_protocol``, ``identity_provider``, ``mapping``,
+    ``policy``, ``region``, ``service_provider`` and ``service``.
+    [Bug `1592906 <https://bugs.launchpad.net/bugs/1592906>`_]

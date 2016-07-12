@@ -83,7 +83,7 @@ class TestConsumerDelete(TestOAuth1):
             identity_fakes.consumer_id,
         ]
         verifylist = [
-            ('consumer', identity_fakes.consumer_id),
+            ('consumer', [identity_fakes.consumer_id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

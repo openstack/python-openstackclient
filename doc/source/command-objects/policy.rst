@@ -27,17 +27,17 @@ Create new policy
 policy delete
 -------------
 
-Delete policy
+Delete policy(s)
 
 .. program:: policy delete
 .. code:: bash
 
     os policy delete
-        <policy>
+        <policy> [<policy> ...]
 
 .. describe:: <policy>
 
-    Policy to delete
+    Policy(s) to delete
 
 policy list
 -----------

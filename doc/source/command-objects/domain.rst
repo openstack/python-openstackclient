@@ -43,17 +43,17 @@ Create new domain
 domain delete
 -------------
 
-Delete domain
+Delete domain(s)
 
 .. program:: domain delete
 .. code:: bash
 
     os domain delete
-        <domain>
+        <domain> [<domain> ...]
 
 .. describe:: <domain>
 
-    Domain to delete (name or ID)
+    Domain(s) to delete (name or ID)
 
 domain list
 -----------

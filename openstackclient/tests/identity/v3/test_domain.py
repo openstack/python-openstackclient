@@ -182,7 +182,7 @@ class TestDomainDelete(TestDomain):
             self.domain.id,
         ]
         verifylist = [
-            ('domain', self.domain.id),
+            ('domain', [self.domain.id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

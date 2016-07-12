@@ -88,7 +88,7 @@ class TestProtocolDelete(TestProtocol):
             identity_fakes.protocol_id
         ]
         verifylist = [
-            ('federation_protocol', identity_fakes.protocol_id),
+            ('federation_protocol', [identity_fakes.protocol_id]),
             ('identity_provider', identity_fakes.idp_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

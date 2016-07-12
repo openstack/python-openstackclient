@@ -43,6 +43,18 @@ class DomainTests(common.IdentityTests):
         raw_output = self.openstack('domain delete %s' % domain_name)
         self.assertEqual(0, len(raw_output))
 
+    def test_domain_multi_delete(self):
+        domain_1 = self._create_dummy_domain(add_clean_up=False)
+        domain_2 = self._create_dummy_domain(add_clean_up=False)
+        # cannot delete enabled domain, disable it first
+        raw_output = self.openstack('domain set --disable %s' % domain_1)
+        self.assertEqual(0, len(raw_output))
+        raw_output = self.openstack('domain set --disable %s' % domain_2)
+        self.assertEqual(0, len(raw_output))
+        raw_output = self.openstack(
+            'domain delete %s %s' % (domain_1, domain_2))
+        self.assertEqual(0, len(raw_output))
+
     def test_domain_delete_failure(self):
         domain_name = self._create_dummy_domain()
         # cannot delete enabled domain

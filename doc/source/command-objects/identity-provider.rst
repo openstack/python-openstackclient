@@ -49,17 +49,17 @@ Create new identity provider
 identity provider delete
 ------------------------
 
-Delete identity provider
+Delete identity provider(s)
 
 .. program:: identity provider delete
 .. code:: bash
 
     os identity provider delete
-        <identity-provider>
+        <identity-provider> [<identity-provider> ...]
 
 .. describe:: <identity-provider>
 
-    Identity provider to delete
+    Identity provider(s) to delete
 
 identity provider list
 ----------------------

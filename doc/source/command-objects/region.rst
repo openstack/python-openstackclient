@@ -33,18 +33,18 @@ Create new region
 region delete
 -------------
 
-Delete region
+Delete region(s)
 
 .. program:: region delete
 .. code:: bash
 
     os region delete
-        <region-id>
+        <region-id> [<region-id> ...]
 
 .. _region_delete-region-id:
 .. describe:: <region-id>
 
-    Region ID to delete
+    Region ID(s) to delete
 
 region list
 -----------

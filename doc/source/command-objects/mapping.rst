@@ -30,18 +30,18 @@ Create new mapping
 mapping delete
 --------------
 
-Delete mapping
+Delete mapping(s)
 
 .. program:: mapping delete
 .. code:: bash
 
     os mapping delete
-        <mapping>
+        <mapping> [<mapping> ...]
 
 .. _mapping_delete-mapping:
 .. describe:: <mapping>
 
-    Mapping to delete
+    Mapping(s) to delete
 
 mapping list
 ------------

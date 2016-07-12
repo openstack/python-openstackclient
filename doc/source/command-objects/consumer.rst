@@ -24,17 +24,17 @@ Create new consumer
 consumer delete
 ---------------
 
-Delete consumer
+Delete consumer(s)
 
 .. program:: consumer delete
 .. code:: bash
 
     os consumer delete
-        <consumer>
+        <consumer> [<consumer> ...]
 
 .. describe:: <consumer>
 
-    Consumer to delete
+    Consumer(s) to delete
 
 consumer list
 -------------

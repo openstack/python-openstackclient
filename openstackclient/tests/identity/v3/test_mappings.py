@@ -91,7 +91,7 @@ class TestMappingDelete(TestMapping):
             identity_fakes.mapping_id
         ]
         verifylist = [
-            ('mapping', identity_fakes.mapping_id)
+            ('mapping', [identity_fakes.mapping_id])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

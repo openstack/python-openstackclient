@@ -34,14 +34,14 @@ Create new federation protocol
 federation protocol delete
 --------------------------
 
-Delete federation protocol
+Delete federation protocol(s)
 
 .. program:: federation protocol delete
 .. code:: bash
 
     os federation protocol delete
         --identity-provider <identity-provider>
-        <federation-protocol>
+        <federation-protocol> [<federation-protocol> ...]
 
 .. option:: --identity-provider <identity-provider>
 
@@ -49,7 +49,7 @@ Delete federation protocol
 
 .. describe:: <federation-protocol>
 
-    Federation protocol to delete (name or ID)
+    Federation protocol(s) to delete (name or ID)
 
 federation protocol list
 ------------------------

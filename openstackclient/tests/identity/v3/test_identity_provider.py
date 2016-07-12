@@ -255,7 +255,7 @@ class TestIdentityProviderDelete(TestIdentityProvider):
             identity_fakes.idp_id,
         ]
         verifylist = [
-            ('identity_provider', identity_fakes.idp_id),
+            ('identity_provider', [identity_fakes.idp_id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

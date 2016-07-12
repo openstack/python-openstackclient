@@ -15,11 +15,17 @@
 
 """Identity v3 Policy action implementations"""
 
+import logging
+
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreatePolicy(command.ShowOne):
@@ -55,20 +61,35 @@ class CreatePolicy(command.ShowOne):
 
 
 class DeletePolicy(command.Command):
-    """Delete policy"""
+    """Delete policy(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeletePolicy, self).get_parser(prog_name)
         parser.add_argument(
             'policy',
             metavar='<policy>',
-            help=_('Policy to delete'),
+            nargs='+',
+            help=_('Policy(s) to delete'),
         )
         return parser
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        identity_client.policies.delete(parsed_args.policy)
+        result = 0
+        for i in parsed_args.policy:
+            try:
+                identity_client.policies.delete(i)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete policy with name or "
+                          "ID '%(policy)s': %(e)s")
+                          % {'policy': i, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.policy)
+            msg = (_("%(result)s of %(total)s policys failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListPolicy(command.Lister):

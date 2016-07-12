@@ -15,12 +15,18 @@
 
 """Identity v3 Endpoint action implementations"""
 
+import logging
+
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
+
+
+LOG = logging.getLogger(__name__)
 
 
 def get_service_name(service):
@@ -93,22 +99,37 @@ class CreateEndpoint(command.ShowOne):
 
 
 class DeleteEndpoint(command.Command):
-    """Delete endpoint"""
+    """Delete endpoint(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteEndpoint, self).get_parser(prog_name)
         parser.add_argument(
             'endpoint',
             metavar='<endpoint-id>',
-            help=_('Endpoint to delete (ID only)'),
+            nargs='+',
+            help=_('Endpoint(s) to delete (ID only)'),
         )
         return parser
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        endpoint_id = utils.find_resource(identity_client.endpoints,
-                                          parsed_args.endpoint).id
-        identity_client.endpoints.delete(endpoint_id)
+        result = 0
+        for i in parsed_args.endpoint:
+            try:
+                endpoint_id = utils.find_resource(
+                    identity_client.endpoints, i).id
+                identity_client.endpoints.delete(endpoint_id)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete endpoint with "
+                          "ID '%(endpoint)s': %(e)s")
+                          % {'endpoint': i, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.endpoint)
+            msg = (_("%(result)s of %(total)s endpoints failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListEndpoint(command.Lister):

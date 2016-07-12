@@ -15,11 +15,17 @@
 
 """Identity v3 Credential action implementations"""
 
+import logging
+
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateCredential(command.ShowOne):
@@ -72,20 +78,35 @@ class CreateCredential(command.ShowOne):
 
 
 class DeleteCredential(command.Command):
-    """Delete credential command"""
+    """Delete credential(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteCredential, self).get_parser(prog_name)
         parser.add_argument(
             'credential',
             metavar='<credential-id>',
-            help=_('ID of credential to delete'),
+            nargs='+',
+            help=_('ID of credential(s) to delete'),
         )
         return parser
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        identity_client.credentials.delete(parsed_args.credential)
+        result = 0
+        for i in parsed_args.credential:
+            try:
+                identity_client.credentials.delete(i)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete credentials with "
+                          "ID '%(credential)s': %(e)s")
+                          % {'credential': i, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.credential)
+            msg = (_("%(result)s of %(total)s credential failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListCredential(command.Lister):

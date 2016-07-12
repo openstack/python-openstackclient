@@ -26,6 +26,13 @@ class ServiceProviderTests(common.IdentityTests):
                                     % service_provider)
         self.assertEqual(0, len(raw_output))
 
+    def test_sp_multi_delete(self):
+        sp1 = self._create_dummy_sp(add_clean_up=False)
+        sp2 = self._create_dummy_sp(add_clean_up=False)
+        raw_output = self.openstack(
+            'service provider delete %s %s' % (sp1, sp2))
+        self.assertEqual(0, len(raw_output))
+
     def test_sp_show(self):
         service_provider = self._create_dummy_sp(add_clean_up=True)
         raw_output = self.openstack('service provider show %s'

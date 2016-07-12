@@ -13,11 +13,17 @@
 
 """Service Provider action implementations"""
 
+import logging
+
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateServiceProvider(command.ShowOne):
@@ -81,21 +87,35 @@ class CreateServiceProvider(command.ShowOne):
 
 
 class DeleteServiceProvider(command.Command):
-    """Delete service provider"""
+    """Delete service provider(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteServiceProvider, self).get_parser(prog_name)
         parser.add_argument(
             'service_provider',
             metavar='<service-provider>',
-            help=_('Service provider to delete'),
+            nargs='+',
+            help=_('Service provider(s) to delete'),
         )
         return parser
 
     def take_action(self, parsed_args):
         service_client = self.app.client_manager.identity
-        service_client.federation.service_providers.delete(
-            parsed_args.service_provider)
+        result = 0
+        for i in parsed_args.service_provider:
+            try:
+                service_client.federation.service_providers.delete(i)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete service provider with "
+                          "name or ID '%(provider)s': %(e)s")
+                          % {'provider': i, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.service_provider)
+            msg = (_("%(result)s of %(total)s service providers failed"
+                   " to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListServiceProvider(command.Lister):

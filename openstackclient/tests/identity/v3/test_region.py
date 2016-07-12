@@ -153,7 +153,7 @@ class TestRegionDelete(TestRegion):
             identity_fakes.region_id,
         ]
         verifylist = [
-            ('region', identity_fakes.region_id),
+            ('region', [identity_fakes.region_id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

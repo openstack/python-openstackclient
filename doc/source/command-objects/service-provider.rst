@@ -48,17 +48,17 @@ Create new service provider
 service provider delete
 -----------------------
 
-Delete service provider
+Delete service provider(s)
 
 .. program:: service provider delete
 .. code:: bash
 
     os service provider delete
-        <service-provider>
+        <service-provider> [<service-provider> ...]
 
 .. describe:: <service-provider>
 
-    Service provider to delete
+    Service provider(s) to delete
 
 service provider list
 ---------------------

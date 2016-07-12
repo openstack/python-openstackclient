@@ -28,6 +28,13 @@ class EndpointTests(common.IdentityTests):
             'endpoint delete %s' % endpoint_id)
         self.assertEqual(0, len(raw_output))
 
+    def test_endpoint_multi_delete(self):
+        endpoint_1 = self._create_dummy_endpoint(add_clean_up=False)
+        endpoint_2 = self._create_dummy_endpoint(add_clean_up=False)
+        raw_output = self.openstack(
+            'endpoint delete %s %s' % (endpoint_1, endpoint_2))
+        self.assertEqual(0, len(raw_output))
+
     def test_endpoint_list(self):
         endpoint_id = self._create_dummy_endpoint()
         raw_output = self.openstack('endpoint list')
