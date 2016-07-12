@@ -25,6 +25,8 @@ Set quotas for project
         [--key-pairs <num-key-pairs>]
         [--properties <num-properties>]
         [--ram <ram-mb>]
+        [--server-groups <num-server-groups>]
+        [--server-group-members <num-server-group-members>]
 
         # Block Storage settings
         [--gigabytes <new-gigabytes>]
@@ -64,6 +66,8 @@ Set quotas for class
         [--key-pairs <num-key-pairs>]
         [--properties <num-properties>]
         [--ram <ram-mb>]
+        [--server-groups <num-server-groups>]
+        [--server-group-members <num-server-group-members>]
 
         # Block Storage settings
         [--gigabytes <new-gigabytes>]
@@ -107,6 +111,14 @@ Set quotas for class
 .. option:: --injected-file-size <new-injected-file-size>
 
     New value for the injected-file-size quota
+
+.. option:: --server-groups <new-server-groups>
+
+    New value for the server-groups quota
+
+.. option:: --server-group-members <new-server-group-members>
+
+    New value for the server-group-members quota
 
 .. option:: --floating-ips <new-floating-ips>
 

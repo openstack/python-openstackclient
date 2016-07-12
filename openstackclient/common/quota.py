@@ -38,6 +38,8 @@ COMPUTE_QUOTAS = {
     'key_pairs': 'key-pairs',
     'metadata_items': 'properties',
     'ram': 'ram',
+    'server_groups': 'server-groups',
+    'server_group_members': 'server-group-members',
 }
 
 VOLUME_QUOTAS = {

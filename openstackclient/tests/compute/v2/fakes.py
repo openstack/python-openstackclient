@@ -36,6 +36,8 @@ instance_num = 10
 property_num = 128
 secgroup_rule_num = 20
 secgroup_num = 10
+servgroup_num = 10
+servgroup_members_num = 10
 project_name = 'project_test'
 QUOTA = {
     'project': project_name,
@@ -51,6 +53,8 @@ QUOTA = {
     'properties': property_num,
     'secgroup_rules': secgroup_rule_num,
     'secgroups': secgroup_num,
+    'server-groups': servgroup_num,
+    'server-group-members': servgroup_members_num
 }
 
 QUOTA_columns = tuple(sorted(QUOTA))
