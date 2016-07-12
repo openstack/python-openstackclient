@@ -94,7 +94,7 @@ class DeleteEC2Creds(command.Command):
             'access_keys',
             metavar='<access-key>',
             nargs='+',
-            help=_('Credentials access keys'),
+            help=_('Credentials access key(s)'),
         )
         parser.add_argument(
             '--user',
@@ -121,7 +121,7 @@ class DeleteEC2Creds(command.Command):
                 identity_client.ec2.delete(user, access_key)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete EC2 keys with "
+                LOG.error(_("Failed to delete EC2 credentials with "
                           "access key '%(access_key)s': %(e)s")
                           % {'access_key': access_key, 'e': e})
 
