@@ -14,6 +14,7 @@
 
 import copy
 
+from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.tests import fakes
@@ -41,6 +42,7 @@ class TestType(volume_fakes.TestVolume):
 
 class TestTypeCreate(TestType):
 
+    project = identity_fakes.FakeProject.create_one_project()
     columns = (
         'description',
         'id',
@@ -58,6 +60,7 @@ class TestTypeCreate(TestType):
         )
 
         self.types_mock.create.return_value = self.new_volume_type
+        self.projects_mock.get.return_value = self.project
         # Get the command object to test
         self.cmd = volume_type.CreateVolumeType(self.app, None)
 
@@ -89,12 +92,14 @@ class TestTypeCreate(TestType):
         arglist = [
             "--description", self.new_volume_type.description,
             "--private",
+            "--project", self.project.id,
             self.new_volume_type.name,
         ]
         verifylist = [
             ("description", self.new_volume_type.description),
             ("public", False),
             ("private", True),
+            ("project", self.project.id),
             ("name", self.new_volume_type.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -108,6 +113,21 @@ class TestTypeCreate(TestType):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+    def test_public_type_create_with_project(self):
+        arglist = [
+            '--project', self.project.id,
+            self.new_volume_type.name,
+        ]
+        verifylist = [
+            ('project', self.project.id),
+            ('name', self.new_volume_type.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)
 
 
 class TestTypeDelete(TestType):
