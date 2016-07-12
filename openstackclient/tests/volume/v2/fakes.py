@@ -418,6 +418,26 @@ class FakeBackup(object):
 
         return backups
 
+    @staticmethod
+    def get_backups(backups=None, count=2):
+        """Get an iterable MagicMock object with a list of faked backups.
+
+        If backups list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List volumes:
+            A list of FakeResource objects faking backups
+        :param Integer count:
+            The number of backups to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            backups
+        """
+        if backups is None:
+            backups = FakeBackup.create_backups(count)
+
+        return mock.MagicMock(side_effect=backups)
+
 
 class FakeExtension(object):
     """Fake one or more extension."""
@@ -529,6 +549,26 @@ class FakeQos(object):
 
         return qoses
 
+    @staticmethod
+    def get_qoses(qoses=None, count=2):
+        """Get an iterable MagicMock object with a list of faked qoses.
+
+        If qoses list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List volumes:
+            A list of FakeResource objects faking qoses
+        :param Integer count:
+            The number of qoses to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            qoses
+        """
+        if qoses is None:
+            qoses = FakeQos.create_qoses(count)
+
+        return mock.MagicMock(side_effect=qoses)
+
 
 class FakeSnapshot(object):
     """Fake one or more snapshot."""
@@ -581,6 +621,26 @@ class FakeSnapshot(object):
             snapshots.append(snapshot)
 
         return snapshots
+
+    @staticmethod
+    def get_snapshots(snapshots=None, count=2):
+        """Get an iterable MagicMock object with a list of faked snapshots.
+
+        If snapshots list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List volumes:
+            A list of FakeResource objects faking snapshots
+        :param Integer count:
+            The number of snapshots to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            snapshots
+        """
+        if snapshots is None:
+            snapshots = FakeSnapshot.create_snapshots(count)
+
+        return mock.MagicMock(side_effect=snapshots)
 
 
 class FakeType(object):
