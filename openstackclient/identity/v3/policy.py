@@ -15,8 +15,6 @@
 
 """Identity v3 Policy action implementations"""
 
-import sys
-
 from osc_lib.command import command
 from osc_lib import utils
 import six
@@ -136,9 +134,6 @@ class SetPolicy(command.Command):
         if parsed_args.type:
             kwargs['type'] = parsed_args.type
 
-        if not kwargs:
-            sys.stdout.write(_('Policy not updated, no arguments present\n'))
-            return
         identity_client.policies.update(parsed_args.policy, **kwargs)
 
 

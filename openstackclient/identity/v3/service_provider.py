@@ -13,8 +13,6 @@
 
 """Service Provider action implementations"""
 
-import sys
-
 from osc_lib.command import command
 from osc_lib import utils
 import six
@@ -163,13 +161,6 @@ class SetServiceProvider(command.Command):
             enabled = True
         elif parsed_args.disable is True:
             enabled = False
-
-        if not any((enabled is not None, parsed_args.description,
-                    parsed_args.service_provider_url,
-                    parsed_args.auth_url)):
-            sys.stdout.write(_("Service Provider not updated, no arguments "
-                               "present\n"))
-            return (None, None)
 
         service_provider = federation_client.service_providers.update(
             parsed_args.service_provider, enabled=enabled,

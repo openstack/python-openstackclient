@@ -343,9 +343,6 @@ class SetGroup(command.Command):
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
 
-        if not len(kwargs):
-            sys.stderr.write("Group not updated, no arguments present\n")
-            return
         identity_client.groups.update(group.id, **kwargs)
 
 

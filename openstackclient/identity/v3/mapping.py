@@ -162,10 +162,6 @@ class SetMapping(command.Command, _RulesReader):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        if not parsed_args.rules:
-            LOG.error(_("No changes requested"))
-            return
-
         rules = self._read_rules(parsed_args.rules)
 
         mapping = identity_client.federation.mappings.update(

@@ -15,8 +15,6 @@
 
 """Identity v3 Consumer action implementations"""
 
-import sys
-
 from osc_lib.command import command
 from osc_lib import utils
 import six
@@ -101,10 +99,6 @@ class SetConsumer(command.Command):
         kwargs = {}
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
-
-        if not len(kwargs):
-            sys.stdout.write(_('Consumer not updated, no arguments present\n'))
-            return
 
         consumer = identity_client.oauth1.consumers.update(
             consumer.id, **kwargs)

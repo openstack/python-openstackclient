@@ -485,7 +485,17 @@ class TestEndpointSet(TestEndpoint):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.assertNotCalled(self.endpoints_mock.update)
+        kwargs = {
+            'enabled': None,
+            'interface': None,
+            'region': None,
+            'service': None,
+            'url': None,
+        }
+        self.endpoints_mock.update.assert_called_with(
+            identity_fakes.endpoint_id,
+            **kwargs
+        )
         self.assertIsNone(result)
 
     def test_endpoint_set_interface(self):

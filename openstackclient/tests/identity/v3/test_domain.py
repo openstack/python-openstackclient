@@ -253,7 +253,11 @@ class TestDomainSet(TestDomain):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.assertNotCalled(self.domains_mock.update)
+        kwargs = {}
+        self.domains_mock.update.assert_called_with(
+            self.domain.id,
+            **kwargs
+        )
         self.assertIsNone(result)
 
     def test_domain_set_name(self):

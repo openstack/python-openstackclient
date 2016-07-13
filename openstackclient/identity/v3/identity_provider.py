@@ -169,14 +169,6 @@ class SetIdentityProvider(command.Command):
     def take_action(self, parsed_args):
         federation_client = self.app.client_manager.identity.federation
 
-        # Basic argument checking
-        if (not parsed_args.enable and not parsed_args.disable and
-                not parsed_args.remote_id and
-                not parsed_args.remote_id_file and
-                not parsed_args.description):
-            LOG.error(_('No changes requested'))
-            return (None, None)
-
         # Always set remote_ids if either is passed in
         if parsed_args.remote_id_file:
             file_content = utils.read_blob_file_contents(

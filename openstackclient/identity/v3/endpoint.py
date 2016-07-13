@@ -15,8 +15,6 @@
 
 """Identity v3 Endpoint action implementations"""
 
-import sys
-
 from osc_lib.command import command
 from osc_lib import utils
 import six
@@ -211,12 +209,6 @@ class SetEndpoint(command.Command):
         identity_client = self.app.client_manager.identity
         endpoint = utils.find_resource(identity_client.endpoints,
                                        parsed_args.endpoint)
-
-        if (not parsed_args.interface and not parsed_args.url
-                and not parsed_args.service and not parsed_args.region
-                and not parsed_args.enabled and not parsed_args.disabled):
-            sys.stdout.write(_("Endpoint not updated, no arguments present\n"))
-            return
 
         service_id = None
         if parsed_args.service:

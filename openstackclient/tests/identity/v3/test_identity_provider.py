@@ -585,8 +585,8 @@ class TestIdentityProviderSet(TestIdentityProvider):
 
         # expect take_action() to return (None, None) as
         # neither --enable nor --disable was specified
-        self.assertIsNone(columns)
-        self.assertIsNone(data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
 
 class TestIdentityProviderShow(TestIdentityProvider):
