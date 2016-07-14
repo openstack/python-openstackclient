@@ -739,7 +739,7 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 rule failed to delete.', str(e))
+            self.assertEqual('1 of 2 rules failed to delete.', str(e))
 
         self.network.find_security_group_rule.assert_any_call(
             self._security_group_rules[0].id, ignore_missing=False)
@@ -819,7 +819,7 @@ class TestDeleteSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 rule failed to delete.', str(e))
+            self.assertEqual('1 of 2 rules failed to delete.', str(e))
 
         self.compute.security_group_rules.delete.assert_any_call(
             self._security_group_rules[0].id)

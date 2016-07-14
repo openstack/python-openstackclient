@@ -211,7 +211,7 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 floating_ip failed to delete.', str(e))
+            self.assertEqual('1 of 2 floating_ips failed to delete.', str(e))
 
         self.network.find_ip.assert_any_call(
             self.floating_ips[0].id, ignore_missing=False)
@@ -462,7 +462,7 @@ class TestDeleteFloatingIPCompute(TestFloatingIPCompute):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 floating_ip failed to delete.', str(e))
+            self.assertEqual('1 of 2 floating_ips failed to delete.', str(e))
 
         self.compute.floating_ips.get.assert_any_call(
             self.floating_ips[0].id)
