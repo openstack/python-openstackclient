@@ -13,9 +13,10 @@
 #   under the License.
 #
 
+from osc_lib import utils
+
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import qos_specs
-from osc_lib import utils
 
 
 class TestQos(volume_fakes.TestVolume):
