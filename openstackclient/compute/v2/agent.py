@@ -152,28 +152,48 @@ class SetAgent(command.Command):
             help=_("ID of the agent")
         )
         parser.add_argument(
-            "version",
+            "--agent-version",
+            dest="version",
             metavar="<version>",
             help=_("Version of the agent")
         )
         parser.add_argument(
-            "url",
+            "--url",
             metavar="<url>",
-            help=_("URL")
+            help=_("URL of the agent")
         )
         parser.add_argument(
-            "md5hash",
+            "--md5hash",
             metavar="<md5hash>",
-            help=_("MD5 hash")
+            help=_("MD5 hash of the agent")
         )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
+        data = compute_client.agents.list(hypervisor=None)
+        agent = {}
+
+        for s in data:
+            if s.agent_id == int(parsed_args.id):
+                agent['version'] = s.version
+                agent['url'] = s.url
+                agent['md5hash'] = s.md5hash
+        if agent == {}:
+            msg = _("No agent with a ID of '%(id)s' exists.")
+            raise exceptions.CommandError(msg % parsed_args.id)
+
+        if parsed_args.version:
+            agent['version'] = parsed_args.version
+        if parsed_args.url:
+            agent['url'] = parsed_args.url
+        if parsed_args.md5hash:
+            agent['md5hash'] = parsed_args.md5hash
+
         args = (
             parsed_args.id,
-            parsed_args.version,
-            parsed_args.url,
-            parsed_args.md5hash
+            agent['version'],
+            agent['url'],
+            agent['md5hash'],
         )
         compute_client.agents.update(*args)

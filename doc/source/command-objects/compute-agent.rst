@@ -79,21 +79,24 @@ Set compute agent properties
 .. code:: bash
 
     os compute agent set
-        <id> <version> <url> <md5hash>
+        [--agent-version <version>]
+        [--url <url]
+        [--md5hash <md5hash>]
+        <id>
 
 .. _compute_agent-set:
-.. describe:: <id>
-
-    ID of the agent
-
-.. describe:: <version>
+.. option:: --agent-version <version>
 
     Version of the agent
 
-.. describe:: <url>
+.. option:: --url <url>
 
-    URL
+    URL of the agent
 
-.. describe:: <md5hash>
+.. option:: --md5hash <md5hash>
 
-    MD5 hash
+    MD5 hash of the agent
+
+.. describe:: <id>
+
+    Agent to modify (ID only)

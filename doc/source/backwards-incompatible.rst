@@ -170,6 +170,19 @@ Releases Before 3.0
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1546065
   * Commit: https://review.openstack.org/#/c/281088/
 
+12. <version> <url> <md5hash> should be optional for command `openstack compute agent set`
+
+  Previously, the command was `openstack compute agent set <id> <version> <url> <md5hash>`,
+  whereas now it is: `openstack compute agent set <id> --version <version>
+                                                       --url <url>
+                                                       --md5hash <md5hash>`.
+
+  * In favor of: making <version> <url> <md5hash> optional.
+  * As of: NA
+  * Removed in: NA
+  * Bug: NA
+  * Commit: https://review.openstack.org/#/c/328819/
+
 13. `aggregate set` commands will no longer return the modified resource
 
   Previously, modifying an aggregate would result in the new aggregate being

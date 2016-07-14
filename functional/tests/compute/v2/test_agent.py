@@ -64,10 +64,11 @@ class ComputeAgentTests(test.TestCase):
         url = "http://openstack"
         md5hash = hashlib.md5().hexdigest()
 
-        raw_output = self.openstack('compute agent set ' +
-                                    self.ID + ' ' + ver + ' ' +
-                                    url + ' ' + md5hash)
-        self.assertEqual('', raw_output)
+        self.openstack('compute agent set '
+                       + self.ID
+                       + ' --agent-version ' + ver
+                       + ' --url ' + url
+                       + ' --md5hash ' + md5hash)
 
         raw_output = self.openstack('compute agent list')
         self.assertIn(self.ID, raw_output)

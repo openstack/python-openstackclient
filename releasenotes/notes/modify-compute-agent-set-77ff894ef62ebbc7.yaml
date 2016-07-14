@@ -1,0 +1,3 @@
+---
+upgrade:
+  - Migrate command ``compute agent set`` arguments to be optional.
