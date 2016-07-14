@@ -46,6 +46,8 @@ class TestSecurityGroupRuleCompute(compute_fakes.TestComputev2):
 
 class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
+    project = identity_fakes.FakeProject.create_one_project()
+    domain = identity_fakes.FakeDomain.create_one_domain()
     # The security group rule to be created.
     _security_group_rule = None
 
@@ -103,19 +105,11 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity.projects
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
 
         # Get a shortcut to the DomainManager Mock
         self.domains_mock = self.identity.domains
-        self.domains_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.DOMAIN),
-            loaded=True,
-        )
+        self.domains_mock.get.return_value = self.domain
 
         # Get the command object to test
         self.cmd = security_group_rule.CreateSecurityGroupRule(
@@ -306,8 +300,8 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             '--dst-port', str(self._security_group_rule.port_range_min),
             '--egress',
             '--ethertype', self._security_group_rule.ethertype,
-            '--project', identity_fakes.project_name,
-            '--project-domain', identity_fakes.domain_name,
+            '--project', self.project.name,
+            '--project-domain', self.domain.name,
             '--protocol', self._security_group_rule.protocol,
             self._security_group.id,
         ]
@@ -316,8 +310,8 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
                           self._security_group_rule.port_range_max)),
             ('egress', True),
             ('ethertype', self._security_group_rule.ethertype),
-            ('project', identity_fakes.project_name),
-            ('project_domain', identity_fakes.domain_name),
+            ('project', self.project.name),
+            ('project_domain', self.domain.name),
             ('protocol', self._security_group_rule.protocol),
             ('group', self._security_group.id),
         ]
@@ -332,7 +326,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'port_range_min': self._security_group_rule.port_range_min,
             'protocol': self._security_group_rule.protocol,
             'security_group_id': self._security_group.id,
-            'tenant_id': identity_fakes.project_id,
+            'tenant_id': self.project.id,
         })
         self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, data)
@@ -470,6 +464,8 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
 class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
+    project = identity_fakes.FakeProject.create_one_project()
+    domain = identity_fakes.FakeDomain.create_one_domain()
     # The security group rule to be created.
     _security_group_rule = None
 
@@ -534,8 +530,8 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
             '--ethertype', 'IPv4',
             '--icmp-type', '3',
             '--icmp-code', '11',
-            '--project', identity_fakes.project_name,
-            '--project-domain', identity_fakes.domain_name,
+            '--project', self.project.name,
+            '--project-domain', self.domain.name,
             self._security_group.id,
         ]
         self.assertRaises(tests_utils.ParserException,

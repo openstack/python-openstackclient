@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-import copy
 import mock
 
 from osc_lib import utils as common_utils
@@ -41,11 +40,8 @@ class TestIPAvailability(network_fakes.TestNetworkV2):
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity.projects
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        self.project = identity_fakes.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = self.project
 
 
 class TestListIPAvailability(TestIPAvailability):
@@ -109,16 +105,16 @@ class TestListIPAvailability(TestIPAvailability):
 
     def test_list_project(self):
         arglist = [
-            '--project', identity_fakes.project_name
+            '--project', self.project.name
         ]
         verifylist = [
-            ('project', identity_fakes.project_name)
+            ('project', self.project.name)
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': identity_fakes.project_id,
+        filters = {'tenant_id': self.project.id,
                    'ip_version': 4}
 
         self.network.network_ip_availabilities.assert_called_once_with(

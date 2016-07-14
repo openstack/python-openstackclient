@@ -12,7 +12,6 @@
 #
 
 import argparse
-import copy
 import mock
 from mock import call
 
@@ -37,6 +36,8 @@ class TestSubnetPool(network_fakes.TestNetworkV2):
 
 class TestCreateSubnetPool(TestSubnetPool):
 
+    project = identity_fakes_v3.FakeProject.create_one_project()
+    domain = identity_fakes_v3.FakeDomain.create_one_domain()
     # The new subnet pool to create.
     _subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
 
@@ -93,19 +94,11 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity.projects
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes_v3.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
 
         # Get a shortcut to the DomainManager Mock
         self.domains_mock = self.identity.domains
-        self.domains_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes_v3.DOMAIN),
-            loaded=True,
-        )
+        self.domains_mock.get.return_value = self.domain
 
     def test_create_no_options(self):
         arglist = []
@@ -191,14 +184,14 @@ class TestCreateSubnetPool(TestSubnetPool):
     def test_create_project_domain(self):
         arglist = [
             '--pool-prefix', '10.0.10.0/24',
-            "--project", identity_fakes_v3.project_name,
-            "--project-domain", identity_fakes_v3.domain_name,
+            "--project", self.project.name,
+            "--project-domain", self.domain.name,
             self._subnet_pool.name,
         ]
         verifylist = [
             ('prefixes', ['10.0.10.0/24']),
-            ('project', identity_fakes_v3.project_name),
-            ('project_domain', identity_fakes_v3.domain_name),
+            ('project', self.project.name),
+            ('project_domain', self.domain.name),
             ('name', self._subnet_pool.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -207,7 +200,7 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         self.network.create_subnet_pool.assert_called_once_with(**{
             'prefixes': ['10.0.10.0/24'],
-            'tenant_id': identity_fakes_v3.project_id,
+            'tenant_id': self.project.id,
             'name': self._subnet_pool.name,
         })
         self.assertEqual(self.columns, columns)

@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-import copy
 import mock
 from mock import call
 
@@ -36,10 +35,12 @@ class TestSubnet(network_fakes.TestNetworkV2):
 
 class TestCreateSubnet(TestSubnet):
 
+    project = identity_fakes_v3.FakeProject.create_one_project()
+    domain = identity_fakes_v3.FakeDomain.create_one_domain()
     # An IPv4 subnet to be created with mostly default values
     _subnet = network_fakes.FakeSubnet.create_one_subnet(
         attrs={
-            'tenant_id': identity_fakes_v3.project_id,
+            'tenant_id': project.id,
         }
     )
 
@@ -49,7 +50,7 @@ class TestCreateSubnet(TestSubnet):
     # An IPv4 subnet to be created using a specific subnet pool
     _subnet_from_pool = network_fakes.FakeSubnet.create_one_subnet(
         attrs={
-            'tenant_id': identity_fakes_v3.project_id,
+            'tenant_id': project.id,
             'subnetpool_id': _subnet_pool.id,
             'dns_nameservers': ['8.8.8.8',
                                 '8.8.4.4'],
@@ -63,7 +64,7 @@ class TestCreateSubnet(TestSubnet):
     # An IPv6 subnet to be created with most options specified
     _subnet_ipv6 = network_fakes.FakeSubnet.create_one_subnet(
         attrs={
-            'tenant_id': identity_fakes_v3.project_id,
+            'tenant_id': project.id,
             'cidr': 'fe80:0:0:a00a::/64',
             'enable_dhcp': True,
             'dns_nameservers': ['fe80:27ff:a00a:f00f::ffff',
@@ -187,19 +188,11 @@ class TestCreateSubnet(TestSubnet):
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity.projects
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes_v3.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
 
         # Get a shortcut to the DomainManager Mock
         self.domains_mock = self.identity.domains
-        self.domains_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes_v3.DOMAIN),
-            loaded=True,
-        )
+        self.domains_mock.get.return_value = self.domain
 
         # Mock SDK calls for all tests.
         self.network.find_network = mock.Mock(return_value=self._network)
