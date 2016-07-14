@@ -111,7 +111,7 @@ class NetworkAndComputeDelete(NetworkAndComputeCommand):
 
         if ret:
             total = len(resources)
-            msg = _("%(num)s of %(total)s %(resource)s failed to delete.") % {
+            msg = _("%(num)s of %(total)s %(resource)ss failed to delete.") % {
                 "num": ret,
                 "total": total,
                 "resource": self.resource,
