@@ -47,14 +47,12 @@ class CreateVolumeType(command.ShowOne):
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
             "--public",
-            dest="public",
             action="store_true",
             default=False,
             help=_("Volume type is accessible to the public"),
         )
         public_group.add_argument(
             "--private",
-            dest="private",
             action="store_true",
             default=False,
             help=_("Volume type is not accessible to the public"),
