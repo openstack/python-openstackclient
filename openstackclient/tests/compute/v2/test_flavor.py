@@ -13,7 +13,6 @@
 #   under the License.
 #
 
-import copy
 import mock
 from mock import call
 
@@ -22,7 +21,6 @@ from osc_lib import utils
 
 from openstackclient.compute.v2 import flavor
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
-from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 from openstackclient.tests import utils as tests_utils
 
@@ -48,7 +46,7 @@ class TestFlavorCreate(TestFlavor):
 
     flavor = compute_fakes.FakeFlavor.create_one_flavor(
         attrs={'links': 'flavor-links'})
-
+    project = identity_fakes.FakeProject.create_one_project()
     columns = (
         'OS-FLV-DISABLED:disabled',
         'OS-FLV-EXT-DATA:ephemeral',
@@ -80,11 +78,7 @@ class TestFlavorCreate(TestFlavor):
         super(TestFlavorCreate, self).setUp()
 
         # Return a project
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
         self.flavors_mock.create.return_value = self.flavor
         self.cmd = flavor.CreateFlavor(self.app, None)
 
@@ -174,7 +168,7 @@ class TestFlavorCreate(TestFlavor):
             '--vcpus', str(self.flavor.vcpus),
             '--rxtx-factor', str(self.flavor.rxtx_factor),
             '--private',
-            '--project', identity_fakes.project_id,
+            '--project', self.project.id,
             '--property', 'key1=value1',
             '--property', 'key2=value2',
             self.flavor.name,
@@ -188,7 +182,7 @@ class TestFlavorCreate(TestFlavor):
             ('vcpus', self.flavor.vcpus),
             ('rxtx_factor', self.flavor.rxtx_factor),
             ('public', False),
-            ('project', identity_fakes.project_id),
+            ('project', self.project.id),
             ('property', {'key1': 'value1', 'key2': 'value2'}),
             ('name', self.flavor.name),
         ]
@@ -209,7 +203,7 @@ class TestFlavorCreate(TestFlavor):
         self.flavors_mock.create.assert_called_once_with(*args)
         self.flavor_access_mock.add_tenant_access.assert_called_with(
             self.flavor.id,
-            identity_fakes.project_id,
+            self.project.id,
         )
         self.flavor.set_keys.assert_called_with(
             {'key1': 'value1', 'key2': 'value2'})
@@ -219,11 +213,11 @@ class TestFlavorCreate(TestFlavor):
 
     def test_public_flavor_create_with_project(self):
         arglist = [
-            '--project', identity_fakes.project_id,
+            '--project', self.project.id,
             self.flavor.name,
         ]
         verifylist = [
-            ('project', identity_fakes.project_id),
+            ('project', self.project.id),
             ('name', self.flavor.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -507,6 +501,7 @@ class TestFlavorSet(TestFlavor):
     # Return value of self.flavors_mock.find().
     flavor = compute_fakes.FakeFlavor.create_one_flavor(
         attrs={'os-flavor-access:is_public': False})
+    project = identity_fakes.FakeProject.create_one_project()
 
     def setUp(self):
         super(TestFlavorSet, self).setUp()
@@ -514,11 +509,7 @@ class TestFlavorSet(TestFlavor):
         self.flavors_mock.find.return_value = self.flavor
         self.flavors_mock.get.side_effect = exceptions.NotFound(None)
         # Return a project
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
         self.cmd = flavor.SetFlavor(self.app, None)
 
     def test_flavor_set_property(self):
@@ -540,11 +531,11 @@ class TestFlavorSet(TestFlavor):
 
     def test_flavor_set_project(self):
         arglist = [
-            '--project', identity_fakes.project_id,
+            '--project', self.project.id,
             self.flavor.id,
         ]
         verifylist = [
-            ('project', identity_fakes.project_id),
+            ('project', self.project.id),
             ('flavor', self.flavor.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -555,7 +546,7 @@ class TestFlavorSet(TestFlavor):
                                                   is_public=None)
         self.flavor_access_mock.add_tenant_access.assert_called_with(
             self.flavor.id,
-            identity_fakes.project_id,
+            self.project.id,
         )
         self.flavor.set_keys.assert_not_called()
         self.assertIsNone(result)
@@ -574,10 +565,10 @@ class TestFlavorSet(TestFlavor):
 
     def test_flavor_set_no_flavor(self):
         arglist = [
-            '--project', identity_fakes.project_id,
+            '--project', self.project.id,
         ]
         verifylist = [
-            ('project', identity_fakes.project_id),
+            ('project', self.project.id),
         ]
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
@@ -587,11 +578,11 @@ class TestFlavorSet(TestFlavor):
         self.flavors_mock.find.side_effect = exceptions.NotFound(None)
 
         arglist = [
-            '--project', identity_fakes.project_id,
+            '--project', self.project.id,
             'unexist_flavor',
         ]
         verifylist = [
-            ('project', identity_fakes.project_id),
+            ('project', self.project.id),
             ('flavor', 'unexist_flavor'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -729,6 +720,7 @@ class TestFlavorUnset(TestFlavor):
     # Return value of self.flavors_mock.find().
     flavor = compute_fakes.FakeFlavor.create_one_flavor(
         attrs={'os-flavor-access:is_public': False})
+    project = identity_fakes.FakeProject.create_one_project()
 
     def setUp(self):
         super(TestFlavorUnset, self).setUp()
@@ -736,11 +728,7 @@ class TestFlavorUnset(TestFlavor):
         self.flavors_mock.find.return_value = self.flavor
         self.flavors_mock.get.side_effect = exceptions.NotFound(None)
         # Return a project
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
         self.cmd = flavor.UnsetFlavor(self.app, None)
 
     def test_flavor_unset_property(self):
@@ -763,11 +751,11 @@ class TestFlavorUnset(TestFlavor):
 
     def test_flavor_unset_project(self):
         arglist = [
-            '--project', identity_fakes.project_id,
+            '--project', self.project.id,
             self.flavor.id,
         ]
         verifylist = [
-            ('project', identity_fakes.project_id),
+            ('project', self.project.id),
             ('flavor', self.flavor.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -779,7 +767,7 @@ class TestFlavorUnset(TestFlavor):
                                                   is_public=None)
         self.flavor_access_mock.remove_tenant_access.assert_called_with(
             self.flavor.id,
-            identity_fakes.project_id,
+            self.project.id,
         )
         self.flavor.unset_keys.assert_not_called()
         self.assertIsNone(result)
@@ -798,10 +786,10 @@ class TestFlavorUnset(TestFlavor):
 
     def test_flavor_unset_no_flavor(self):
         arglist = [
-            '--project', identity_fakes.project_id,
+            '--project', self.project.id,
         ]
         verifylist = [
-            ('project', identity_fakes.project_id),
+            ('project', self.project.id),
         ]
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
@@ -811,11 +799,11 @@ class TestFlavorUnset(TestFlavor):
         self.flavors_mock.find.side_effect = exceptions.NotFound(None)
 
         arglist = [
-            '--project', identity_fakes.project_id,
+            '--project', self.project.id,
             'unexist_flavor',
         ]
         verifylist = [
-            ('project', identity_fakes.project_id),
+            ('project', self.project.id),
             ('flavor', 'unexist_flavor'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

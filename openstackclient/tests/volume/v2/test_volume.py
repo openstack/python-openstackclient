@@ -12,14 +12,12 @@
 #   under the License.
 #
 
-import copy
 import mock
 from mock import call
 
 from osc_lib import exceptions
 from osc_lib import utils
 
-from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.image.v2 import fakes as image_fakes
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
@@ -56,6 +54,9 @@ class TestVolume(volume_fakes.TestVolume):
 
 
 class TestVolumeCreate(TestVolume):
+
+    project = identity_fakes.FakeProject.create_one_project()
+    user = identity_fakes.FakeUser.create_one_user()
 
     columns = (
         'attachments',
@@ -168,28 +169,20 @@ class TestVolumeCreate(TestVolume):
 
     def test_volume_create_user_project_id(self):
         # Return a project
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
         # Return a user
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
+        self.users_mock.get.return_value = self.user
 
         arglist = [
             '--size', str(self.new_volume.size),
-            '--project', identity_fakes.project_id,
-            '--user', identity_fakes.user_id,
+            '--project', self.project.id,
+            '--user', self.user.id,
             self.new_volume.name,
         ]
         verifylist = [
             ('size', self.new_volume.size),
-            ('project', identity_fakes.project_id),
-            ('user', identity_fakes.user_id),
+            ('project', self.project.id),
+            ('user', self.user.id),
             ('name', self.new_volume.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -205,8 +198,8 @@ class TestVolumeCreate(TestVolume):
             name=self.new_volume.name,
             description=None,
             volume_type=None,
-            user_id=identity_fakes.user_id,
-            project_id=identity_fakes.project_id,
+            user_id=self.user.id,
+            project_id=self.project.id,
             availability_zone=None,
             metadata=None,
             imageRef=None,
@@ -218,28 +211,20 @@ class TestVolumeCreate(TestVolume):
 
     def test_volume_create_user_project_name(self):
         # Return a project
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
         # Return a user
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
+        self.users_mock.get.return_value = self.user
 
         arglist = [
             '--size', str(self.new_volume.size),
-            '--project', identity_fakes.project_name,
-            '--user', identity_fakes.user_name,
+            '--project', self.project.name,
+            '--user', self.user.name,
             self.new_volume.name,
         ]
         verifylist = [
             ('size', self.new_volume.size),
-            ('project', identity_fakes.project_name),
-            ('user', identity_fakes.user_name),
+            ('project', self.project.name),
+            ('user', self.user.name),
             ('name', self.new_volume.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -255,8 +240,8 @@ class TestVolumeCreate(TestVolume):
             name=self.new_volume.name,
             description=None,
             volume_type=None,
-            user_id=identity_fakes.user_id,
-            project_id=identity_fakes.project_id,
+            user_id=self.user.id,
+            project_id=self.project.id,
             availability_zone=None,
             metadata=None,
             imageRef=None,
@@ -492,6 +477,9 @@ class TestVolumeDelete(TestVolume):
 
 class TestVolumeList(TestVolume):
 
+    project = identity_fakes.FakeProject.create_one_project()
+    user = identity_fakes.FakeUser.create_one_user()
+
     columns = [
         'ID',
         'Display Name',
@@ -506,21 +494,9 @@ class TestVolumeList(TestVolume):
         self.mock_volume = volume_fakes.FakeVolume.create_one_volume()
         self.volumes_mock.list.return_value = [self.mock_volume]
 
-        self.users_mock.get.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.USER),
-                loaded=True,
-            ),
-        ]
+        self.users_mock.get.return_value = self.user
 
-        self.projects_mock.get.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.PROJECT),
-                loaded=True,
-            ),
-        ]
+        self.projects_mock.get.return_value = self.project
 
         # Get the command object to test
         self.cmd = volume.ListVolume(self.app, None)
@@ -553,10 +529,10 @@ class TestVolumeList(TestVolume):
 
     def test_volume_list_project(self):
         arglist = [
-            '--project', identity_fakes.project_name,
+            '--project', self.project.name,
         ]
         verifylist = [
-            ('project', identity_fakes.project_name),
+            ('project', self.project.name),
             ('long', False),
             ('all_projects', False),
             ('status', None),
@@ -581,12 +557,12 @@ class TestVolumeList(TestVolume):
 
     def test_volume_list_project_domain(self):
         arglist = [
-            '--project', identity_fakes.project_name,
-            '--project-domain', identity_fakes.domain_name,
+            '--project', self.project.name,
+            '--project-domain', self.project.domain_id,
         ]
         verifylist = [
-            ('project', identity_fakes.project_name),
-            ('project_domain', identity_fakes.domain_name),
+            ('project', self.project.name),
+            ('project_domain', self.project.domain_id),
             ('long', False),
             ('all_projects', False),
             ('status', None),
@@ -611,10 +587,10 @@ class TestVolumeList(TestVolume):
 
     def test_volume_list_user(self):
         arglist = [
-            '--user', identity_fakes.user_name,
+            '--user', self.user.name,
         ]
         verifylist = [
-            ('user', identity_fakes.user_name),
+            ('user', self.user.name),
             ('long', False),
             ('all_projects', False),
             ('status', None),
@@ -638,12 +614,12 @@ class TestVolumeList(TestVolume):
 
     def test_volume_list_user_domain(self):
         arglist = [
-            '--user', identity_fakes.user_name,
-            '--user-domain', identity_fakes.domain_name,
+            '--user', self.user.name,
+            '--user-domain', self.user.domain_id,
         ]
         verifylist = [
-            ('user', identity_fakes.user_name),
-            ('user_domain', identity_fakes.domain_name),
+            ('user', self.user.name),
+            ('user_domain', self.user.domain_id),
             ('long', False),
             ('all_projects', False),
             ('status', None),

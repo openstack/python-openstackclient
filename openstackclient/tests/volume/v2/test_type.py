@@ -12,13 +12,11 @@
 #   under the License.
 #
 
-import copy
 import mock
 
 from osc_lib import exceptions
 from osc_lib import utils
 
-from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 from openstackclient.tests import utils as tests_utils
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
@@ -219,6 +217,7 @@ class TestTypeList(TestType):
 
 class TestTypeSet(TestType):
 
+    project = identity_fakes.FakeProject.create_one_project()
     volume_type = volume_fakes.FakeType.create_one_type(
         methods={'set_keys': None})
 
@@ -228,11 +227,7 @@ class TestTypeSet(TestType):
         self.types_mock.get.return_value = self.volume_type
 
         # Return a project
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
         # Get the command object to test
         self.cmd = volume_type.SetVolumeType(self.app, None)
 
@@ -339,11 +334,11 @@ class TestTypeSet(TestType):
 
     def test_type_set_project_access(self):
         arglist = [
-            '--project', identity_fakes.project_id,
+            '--project', self.project.id,
             self.volume_type.id,
         ]
         verifylist = [
-            ('project', identity_fakes.project_id),
+            ('project', self.project.id),
             ('volume_type', self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -353,7 +348,7 @@ class TestTypeSet(TestType):
 
         self.types_access_mock.add_project_access.assert_called_with(
             self.volume_type.id,
-            identity_fakes.project_id,
+            self.project.id,
         )
 
 
@@ -469,6 +464,7 @@ class TestTypeShow(TestType):
 
 class TestTypeUnset(TestType):
 
+    project = identity_fakes.FakeProject.create_one_project()
     volume_type = volume_fakes.FakeType.create_one_type(
         methods={'unset_keys': None})
 
@@ -478,11 +474,7 @@ class TestTypeUnset(TestType):
         self.types_mock.get.return_value = self.volume_type
 
         # Return a project
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
 
         # Get the command object to test
         self.cmd = volume_type.UnsetVolumeType(self.app, None)
@@ -507,11 +499,11 @@ class TestTypeUnset(TestType):
 
     def test_type_unset_project_access(self):
         arglist = [
-            '--project', identity_fakes.project_id,
+            '--project', self.project.id,
             self.volume_type.id,
         ]
         verifylist = [
-            ('project', identity_fakes.project_id),
+            ('project', self.project.id),
             ('volume_type', self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -521,7 +513,7 @@ class TestTypeUnset(TestType):
 
         self.types_access_mock.remove_project_access.assert_called_with(
             self.volume_type.id,
-            identity_fakes.project_id,
+            self.project.id,
         )
 
     def test_type_unset_not_called_without_project_argument(self):
