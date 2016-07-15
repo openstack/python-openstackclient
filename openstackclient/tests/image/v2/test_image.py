@@ -347,6 +347,10 @@ class TestImageCreate(TestImage):
 class TestAddProjectToImage(TestImage):
 
     _image = image_fakes.FakeImage.create_one_image()
+    new_member = image_fakes.FakeImage.create_one_image_member(
+        attrs={'image_id': _image.id,
+               'member_id': identity_fakes.project_id}
+    )
 
     columns = (
         'image_id',
@@ -357,7 +361,7 @@ class TestAddProjectToImage(TestImage):
     datalist = (
         _image.id,
         identity_fakes.project_id,
-        image_fakes.member_status
+        new_member.status
     )
 
     def setUp(self):
@@ -367,11 +371,7 @@ class TestAddProjectToImage(TestImage):
         self.images_mock.get.return_value = self._image
 
         # Update the image_id in the MEMBER dict
-        self.new_member = copy.deepcopy(image_fakes.MEMBER)
-        self.new_member['image_id'] = self._image.id
-        self.image_members_mock.create.return_value = fakes.FakeModel(
-            self.new_member,
-        )
+        self.image_members_mock.create.return_value = self.new_member
         self.project_mock.get.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.PROJECT),
