@@ -52,6 +52,10 @@ Note: To see the complete syntax for the plugin commands, see the `CLI_Ref`_
 .. list-plugins:: openstack.application_catalog.v1
    :detailed:
 
+# neutron
+.. list-plugins:: openstack.neutronclient.v2
+   :detailed:
+
 # sahara
 .. list-plugins:: openstack.data_processing.v1
    :detailed:

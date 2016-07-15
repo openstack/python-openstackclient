@@ -12,8 +12,8 @@ Adoption
 
 OpenStackClient promises to provide first class support for the following
 OpenStack services: Compute, Identity, Image, Object Storage, Block Storage
-and Network. These services are considered essential to any OpenStack
-deployment.
+and Network (core objects). These services are considered essential
+to any OpenStack deployment.
 
 Other OpenStack services, such as Orchestration or Telemetry may create an
 OpenStackClient plugin. The source code will not be hosted by
@@ -32,6 +32,7 @@ The following is a list of projects that are an OpenStackClient plugin.
 - python-ironic-inspector-client
 - python-mistralclient
 - python-muranoclient
+- python-neutronclient\*\*\*
 - python-saharaclient
 - python-searchlightclient
 - python-senlinclient
@@ -39,7 +40,9 @@ The following is a list of projects that are an OpenStackClient plugin.
 - python-watcherclient\*\*
 - python-zaqarclient
 
-\*\* Note that some clients are not listed in global-requirements
+\*\* Note that some clients are not listed in global-requirements.
+
+\*\*\* Project contains advanced network services.
 
 The following is a list of projects that are not an OpenStackClient plugin.
 
