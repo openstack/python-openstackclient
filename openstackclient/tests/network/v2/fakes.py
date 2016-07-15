@@ -889,6 +889,7 @@ class FakeSubnet(object):
             'ipv6_address_mode': None,
             'ipv6_ra_mode': None,
             'segment_id': None,
+            'service_types': [],
             'subnetpool_id': None,
         }
 

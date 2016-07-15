@@ -53,6 +53,13 @@ class SubnetTests(test.TestCase):
         raw_output = self.openstack('subnet show ' + self.NAME + opts)
         self.assertEqual("False\n" + self.NAME + "\n", raw_output)
 
+    def test_subnet_set_service_type(self):
+        TYPE = 'network:floatingip_agent_gateway'
+        self.openstack('subnet set --service-type ' + TYPE + ' ' + self.NAME)
+        opts = self.get_opts(['name', 'service_types'])
+        raw_output = self.openstack('subnet show ' + self.NAME + opts)
+        self.assertEqual(self.NAME + "\n" + TYPE + "\n", raw_output)
+
     def test_subnet_show(self):
         opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('subnet show ' + self.NAME + opts)

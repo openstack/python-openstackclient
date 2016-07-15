@@ -29,6 +29,7 @@ Create new subnet
         [--ipv6-ra-mode {dhcpv6-stateful,dhcpv6-stateless,slaac}]
         [--ipv6-address-mode {dhcpv6-stateful,dhcpv6-stateless,slaac}]
         [--network-segment <network-segment>]
+        [--service-type <service-type>]
         --network <network>
         <name>
 
@@ -116,6 +117,13 @@ Create new subnet
                   to change. Use global option ``--os-beta-command``
                   to enable this command option.
 
+.. option:: --service-type <service-type>
+
+     Service type for this subnet e.g.:
+     ``network:floatingip_agent_gateway``.
+     Must be a valid device owner value for a network port
+     (repeat option to set multiple service types)
+
 .. option:: --network <network>
 
      Network this subnet belongs to (name or ID)
@@ -171,6 +179,13 @@ List subnets
 
     List subnets which have DHCP disabled
 
+.. option:: --service-type <service-type>
+
+    List only subnets of a given service type in output
+    e.g.: ``network:floatingip_agent_gateway``.
+    Must be a valid device owner value for a network port
+    (repeat option to list multiple service types)
+
 subnet set
 ----------
 
@@ -185,6 +200,7 @@ Set subnet properties
         [--dns-nameserver <dns-nameserver>]
         [--gateway <gateway-ip>]
         [--host-route destination=<subnet>,gateway=<ip-address>]
+        [--service-type <service-type>]
         [--name <new-name>]
         <subnet>
 
@@ -220,6 +236,13 @@ Set subnet properties
      destination: destination subnet (in CIDR notation)
      gateway: nexthop IP address
      (repeat option to add multiple routes)
+
+.. option:: --service-type <service-type>
+
+     Service type for this subnet e.g.:
+     ``network:floatingip_agent_gateway``.
+     Must be a valid device owner value for a network port
+     (repeat option to set multiple service types)
 
 .. option:: --name
 
@@ -259,6 +282,7 @@ Unset subnet properties
         [--allocation-pool start=<ip-address>,end=<ip-address> [...]]
         [--dns-nameserver <dns-nameserver> [...]]
         [--host-route destination=<subnet>,gateway=<ip-address> [...]]
+        [--service-type <service-type>]
         <subnet>
 
 .. option:: --dns-nameserver <dns-nameserver>
@@ -279,6 +303,13 @@ Unset subnet properties
      destination: destination subnet (in CIDR notation)
      gateway: nexthop IP address
      (repeat option to unset multiple host routes)
+
+.. option:: --service-type <service-type>
+
+     Service type to be removed from this subnet e.g.:
+     ``network:floatingip_agent_gateway``.
+     Must be a valid device owner value for a network port
+     (repeat option to unset multiple service types)
 
 .. _subnet_unset-subnet:
 .. describe:: <subnet>
