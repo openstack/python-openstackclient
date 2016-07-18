@@ -1222,7 +1222,7 @@ class RemoveServerSecurityGroup(command.Command):
             parsed_args.group,
         )
 
-        server.remove_security_group(security_group)
+        server.remove_security_group(security_group.id)
 
 
 class RemoveServerVolume(command.Command):
