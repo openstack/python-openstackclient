@@ -12,6 +12,12 @@
 #   under the License.
 #
 
+import mock
+from mock import call
+
+from osc_lib import exceptions
+from osc_lib import utils
+
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import backup
 
@@ -138,12 +144,13 @@ class TestBackupCreate(TestBackup):
 
 class TestBackupDelete(TestBackup):
 
-    backup = volume_fakes.FakeBackup.create_one_backup()
+    backups = volume_fakes.FakeBackup.create_backups(count=2)
 
     def setUp(self):
         super(TestBackupDelete, self).setUp()
 
-        self.backups_mock.get.return_value = self.backup
+        self.backups_mock.get = (
+            volume_fakes.FakeBackup.get_backups(self.backups))
         self.backups_mock.delete.return_value = None
 
         # Get the command object to mock
@@ -151,33 +158,80 @@ class TestBackupDelete(TestBackup):
 
     def test_backup_delete(self):
         arglist = [
-            self.backup.id
+            self.backups[0].id
         ]
         verifylist = [
-            ("backups", [self.backup.id])
+            ("backups", [self.backups[0].id])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.backups_mock.delete.assert_called_with(self.backup.id, False)
+        self.backups_mock.delete.assert_called_with(
+            self.backups[0].id, False)
         self.assertIsNone(result)
 
     def test_backup_delete_with_force(self):
         arglist = [
             '--force',
-            self.backup.id,
+            self.backups[0].id,
         ]
         verifylist = [
             ('force', True),
-            ("backups", [self.backup.id])
+            ("backups", [self.backups[0].id])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.backups_mock.delete.assert_called_with(self.backup.id, True)
+        self.backups_mock.delete.assert_called_with(self.backups[0].id, True)
         self.assertIsNone(result)
+
+    def test_delete_multiple_backups(self):
+        arglist = []
+        for b in self.backups:
+            arglist.append(b.id)
+        verifylist = [
+            ('backups', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for b in self.backups:
+            calls.append(call(b.id, False))
+        self.backups_mock.delete.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_delete_multiple_backups_with_exception(self):
+        arglist = [
+            self.backups[0].id,
+            'unexist_backup',
+        ]
+        verifylist = [
+            ('backups', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        find_mock_result = [self.backups[0], exceptions.CommandError]
+        with mock.patch.object(utils, 'find_resource',
+                               side_effect=find_mock_result) as find_mock:
+            try:
+                self.cmd.take_action(parsed_args)
+                self.fail('CommandError should be raised.')
+            except exceptions.CommandError as e:
+                self.assertEqual('1 of 2 backups failed to delete.',
+                                 str(e))
+
+            find_mock.assert_any_call(self.backups_mock, self.backups[0].id)
+            find_mock.assert_any_call(self.backups_mock, 'unexist_backup')
+
+            self.assertEqual(2, find_mock.call_count)
+            self.backups_mock.delete.assert_called_once_with(
+                self.backups[0].id, False
+            )
 
 
 class TestBackupList(TestBackup):

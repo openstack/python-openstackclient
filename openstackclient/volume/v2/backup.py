@@ -15,12 +15,17 @@
 """Volume v2 Backup action implementations"""
 
 import copy
+import logging
 
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateBackup(command.ShowOne):
@@ -109,10 +114,24 @@ class DeleteBackup(command.Command):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        for backup in parsed_args.backups:
-            backup_id = utils.find_resource(
-                volume_client.backups, backup).id
-            volume_client.backups.delete(backup_id, parsed_args.force)
+        result = 0
+
+        for i in parsed_args.backups:
+            try:
+                backup_id = utils.find_resource(
+                    volume_client.backups, i).id
+                volume_client.backups.delete(backup_id, parsed_args.force)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete backup with "
+                            "name or ID '%(backup)s': %(e)s")
+                          % {'backup': i, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.backups)
+            msg = (_("%(result)s of %(total)s backups failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListBackup(command.Lister):

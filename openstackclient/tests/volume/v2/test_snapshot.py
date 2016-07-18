@@ -12,6 +12,10 @@
 #   under the License.
 #
 
+import mock
+from mock import call
+
+from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
@@ -123,12 +127,13 @@ class TestSnapshotCreate(TestSnapshot):
 
 class TestSnapshotDelete(TestSnapshot):
 
-    snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
+    snapshots = volume_fakes.FakeSnapshot.create_snapshots(count=2)
 
     def setUp(self):
         super(TestSnapshotDelete, self).setUp()
 
-        self.snapshots_mock.get.return_value = self.snapshot
+        self.snapshots_mock.get = (
+            volume_fakes.FakeSnapshot.get_snapshots(self.snapshots))
         self.snapshots_mock.delete.return_value = None
 
         # Get the command object to mock
@@ -136,17 +141,65 @@ class TestSnapshotDelete(TestSnapshot):
 
     def test_snapshot_delete(self):
         arglist = [
-            self.snapshot.id
+            self.snapshots[0].id
         ]
         verifylist = [
-            ("snapshots", [self.snapshot.id])
+            ("snapshots", [self.snapshots[0].id])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.snapshots_mock.delete.assert_called_with(self.snapshot.id)
+        self.snapshots_mock.delete.assert_called_with(
+            self.snapshots[0].id)
         self.assertIsNone(result)
+
+    def test_delete_multiple_snapshots(self):
+        arglist = []
+        for s in self.snapshots:
+            arglist.append(s.id)
+        verifylist = [
+            ('snapshots', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for s in self.snapshots:
+            calls.append(call(s.id))
+        self.snapshots_mock.delete.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_delete_multiple_snapshots_with_exception(self):
+        arglist = [
+            self.snapshots[0].id,
+            'unexist_snapshot',
+        ]
+        verifylist = [
+            ('snapshots', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        find_mock_result = [self.snapshots[0], exceptions.CommandError]
+        with mock.patch.object(utils, 'find_resource',
+                               side_effect=find_mock_result) as find_mock:
+            try:
+                self.cmd.take_action(parsed_args)
+                self.fail('CommandError should be raised.')
+            except exceptions.CommandError as e:
+                self.assertEqual('1 of 2 snapshots failed to delete.',
+                                 str(e))
+
+            find_mock.assert_any_call(
+                self.snapshots_mock, self.snapshots[0].id)
+            find_mock.assert_any_call(self.snapshots_mock, 'unexist_snapshot')
+
+            self.assertEqual(2, find_mock.call_count)
+            self.snapshots_mock.delete.assert_called_once_with(
+                self.snapshots[0].id
+            )
 
 
 class TestSnapshotList(TestSnapshot):
