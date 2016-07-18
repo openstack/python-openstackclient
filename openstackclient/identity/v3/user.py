@@ -17,7 +17,6 @@
 
 import copy
 import logging
-import sys
 
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib.command import command
@@ -329,18 +328,6 @@ class SetUser(command.Command):
 
         if parsed_args.password_prompt:
             parsed_args.password = utils.get_password(self.app.stdin)
-
-        if (not parsed_args.name
-                and not parsed_args.name
-                and not parsed_args.password
-                and not parsed_args.email
-                and not parsed_args.project
-                and not parsed_args.description
-                and not parsed_args.enable
-                and not parsed_args.disable):
-            sys.stderr.write(_("Incorrect set of arguments provided. "
-                               "See openstack --help for more details\n"))
-            return
 
         user = utils.find_resource(
             identity_client.users,

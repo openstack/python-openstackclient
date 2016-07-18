@@ -377,8 +377,15 @@ class TestServiceProviderSet(TestServiceProvider):
         # expect take_action() to return (None, None) as none of --disabled,
         # --enabled, --description, --service-provider-url, --auth_url option
         # was set.
-        self.assertIsNone(columns)
-        self.assertIsNone(data)
+        self.assertEqual(self.columns, columns)
+        datalist = (
+            service_fakes.sp_auth_url,
+            service_fakes.sp_description,
+            True,
+            service_fakes.sp_id,
+            service_fakes.service_provider_url
+        )
+        self.assertEqual(datalist, data)
 
 
 class TestServiceProviderShow(TestServiceProvider):

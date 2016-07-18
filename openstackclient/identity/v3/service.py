@@ -15,8 +15,6 @@
 
 """Identity v3 Service action implementations"""
 
-import sys
-
 from osc_lib.command import command
 from osc_lib import utils
 import six
@@ -163,14 +161,6 @@ class SetService(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        if (not parsed_args.name
-                and not parsed_args.type
-                and not parsed_args.description
-                and not parsed_args.enable
-                and not parsed_args.disable):
-            sys.stderr.write(_("Incorrect set of arguments provided. "
-                               "See openstack --help for more details\n"))
-            return
         service = common.find_service(identity_client,
                                       parsed_args.service)
         kwargs = {}

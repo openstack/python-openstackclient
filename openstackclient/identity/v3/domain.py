@@ -16,7 +16,6 @@
 """Identity v3 Domain action implementations"""
 
 import logging
-import sys
 
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib.command import command
@@ -168,9 +167,6 @@ class SetDomain(command.Command):
         if parsed_args.disable:
             kwargs['enabled'] = False
 
-        if not kwargs:
-            sys.stdout.write(_("Domain not updated, no arguments present\n"))
-            return
         identity_client.domains.update(domain.id, **kwargs)
 
 

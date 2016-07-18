@@ -149,10 +149,6 @@ class SetProtocol(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        if not parsed_args.mapping:
-            LOG.error(_("No changes requested"))
-            return
-
         protocol = identity_client.federation.protocols.update(
             parsed_args.identity_provider, parsed_args.federation_protocol,
             parsed_args.mapping)

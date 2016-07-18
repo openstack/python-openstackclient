@@ -263,13 +263,6 @@ class SetProject(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        if (not parsed_args.name
-                and not parsed_args.domain
-                and not parsed_args.description
-                and not parsed_args.enable
-                and not parsed_args.property
-                and not parsed_args.disable):
-            return
         project = common.find_project(identity_client,
                                       parsed_args.project,
                                       parsed_args.domain)

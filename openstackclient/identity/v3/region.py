@@ -132,8 +132,6 @@ class SetRegion(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        if not parsed_args.parent_region and not parsed_args.description:
-            return
         kwargs = {}
         if parsed_args.description:
             kwargs['description'] = parsed_args.description

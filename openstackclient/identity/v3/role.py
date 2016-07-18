@@ -357,10 +357,6 @@ class SetRole(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        if not parsed_args.name:
-            sys.stderr.write(_("Incorrect set of arguments provided. "
-                               "See openstack --help for more details\n"))
-            return
         role = utils.find_resource(
             identity_client.roles,
             parsed_args.role,
