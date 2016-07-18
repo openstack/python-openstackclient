@@ -13,8 +13,6 @@
 import os
 import uuid
 
-import testtools
-
 from functional.common import test
 
 
@@ -68,7 +66,6 @@ class ImageTests(test.TestCase):
         raw_output = self.openstack('image show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\na='b', c='d'\n", raw_output)
 
-    @testtools.skip("skip until bug 1596573 is resolved")
     def test_image_unset(self):
         opts = self.get_opts(["name", "tags", "properties"])
         self.openstack('image set --tag 01 ' + self.NAME)
