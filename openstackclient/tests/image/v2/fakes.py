@@ -49,13 +49,6 @@ IMAGE_SHOW = copy.copy(IMAGE)
 IMAGE_SHOW['tags'] = ''
 IMAGE_SHOW_data = tuple((IMAGE_SHOW[x] for x in sorted(IMAGE_SHOW)))
 
-member_status = 'pending'
-MEMBER = {
-    'member_id': identity_fakes.project_id,
-    'image_id': image_id,
-    'status': member_status,
-}
-
 # Just enough v2 schema to do some testing
 IMAGE_schema = {
     "additionalProperties": {
@@ -288,3 +281,29 @@ class FakeImage(object):
                 else:
                     data_list.append(getattr(image, x))
         return tuple(data_list)
+
+    @staticmethod
+    def create_one_image_member(attrs=None):
+        """Create a fake image member.
+
+        :param Dictionary attrs:
+            A dictionary with all attrbutes of image member
+        :return:
+            A FakeResource object with member_id, image_id and so on
+        """
+        attrs = attrs or {}
+
+        # Set default attribute
+        image_member_info = {
+            'member_id': 'member-id-' + uuid.uuid4().hex,
+            'image_id': 'image-id-' + uuid.uuid4().hex,
+            'status': 'pending',
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        image_member_info.update(attrs)
+
+        image_member = fakes.FakeModel(
+            copy.deepcopy(image_member_info))
+
+        return image_member
