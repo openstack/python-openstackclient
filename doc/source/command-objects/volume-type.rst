@@ -16,6 +16,8 @@ Create new volume type
         [--description <description>]
         [--public | --private]
         [--property <key=value> [...] ]
+        [--project <project>]
+        [--project-domain <project-domain>]
         <name>
 
 .. option:: --description <description>
@@ -39,6 +41,20 @@ Create new volume type
 .. option:: --property <key=value>
 
     Set a property on this volume type (repeat option to set multiple properties)
+
+.. option:: --project <project>
+
+    Allow <project> to access private type (name or ID)
+    (Must be used with :option:`--private` option)
+
+    *Volume version 2 only*
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+    *Volume version 2 only*
 
 .. _volume_type_create-name:
 .. describe:: <name>

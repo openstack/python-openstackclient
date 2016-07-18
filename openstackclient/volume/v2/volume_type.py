@@ -64,11 +64,22 @@ class CreateVolumeType(command.ShowOne):
             help=_('Set a property on this volume type '
                    '(repeat option to set multiple properties)'),
         )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_("Allow <project> to access private type (name or ID) "
+                   "(Must be used with --private option)"),
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
-
+        identity_client = self.app.client_manager.identity
         volume_client = self.app.client_manager.volume
+
+        if parsed_args.project and not parsed_args.private:
+            msg = _("--project is only allowed with --private")
+            raise exceptions.CommandError(msg)
 
         kwargs = {}
         if parsed_args.public:
@@ -82,6 +93,20 @@ class CreateVolumeType(command.ShowOne):
             **kwargs
         )
         volume_type._info.pop('extra_specs')
+
+        if parsed_args.project:
+            try:
+                project_id = identity_common.find_project(
+                    identity_client,
+                    parsed_args.project,
+                    parsed_args.project_domain,
+                ).id
+                volume_client.volume_type_access.add_project_access(
+                    volume_type.id, project_id)
+            except Exception as e:
+                msg = _("Failed to add project %(project)s access to "
+                        "type: %(e)s")
+                LOG.error(msg % {'project': parsed_args.project, 'e': e})
         if parsed_args.property:
             result = volume_type.set_keys(parsed_args.property)
             volume_type._info.update({'properties': utils.format_dict(result)})
