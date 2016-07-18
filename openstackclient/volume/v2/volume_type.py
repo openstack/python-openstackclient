@@ -135,6 +135,17 @@ class ListVolumeType(command.Lister):
             action='store_true',
             default=False,
             help=_('List additional fields in output'))
+        public_group = parser.add_mutually_exclusive_group()
+        public_group.add_argument(
+            "--public",
+            action="store_true",
+            help=_("List only public types")
+        )
+        public_group.add_argument(
+            "--private",
+            action="store_true",
+            help=_("List only private types (admin only)")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -144,7 +155,14 @@ class ListVolumeType(command.Lister):
         else:
             columns = ['ID', 'Name']
             column_headers = columns
-        data = self.app.client_manager.volume.volume_types.list()
+
+        is_public = None
+        if parsed_args.public:
+            is_public = True
+        if parsed_args.private:
+            is_public = False
+        data = self.app.client_manager.volume.volume_types.list(
+            is_public=is_public)
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,

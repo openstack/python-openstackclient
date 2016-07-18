@@ -176,22 +176,49 @@ class TestTypeList(TestType):
     def test_type_list_without_options(self):
         arglist = []
         verifylist = [
-            ("long", False)
+            ("long", False),
+            ("private", False),
+            ("public", False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
+        self.types_mock.list.assert_called_once_with(is_public=None)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
     def test_type_list_with_options(self):
-        arglist = ["--long"]
-        verifylist = [("long", True)]
+        arglist = [
+            "--long",
+            "--public",
+        ]
+        verifylist = [
+            ("long", True),
+            ("private", False),
+            ("public", True),
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
+        self.types_mock.list.assert_called_once_with(is_public=True)
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
+
+    def test_type_list_with_private_option(self):
+        arglist = [
+            "--private",
+        ]
+        verifylist = [
+            ("long", False),
+            ("private", True),
+            ("public", False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.types_mock.list.assert_called_once_with(is_public=False)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
 
 class TestTypeSet(TestType):
