@@ -236,7 +236,6 @@ class TestCreateSubnet(TestSubnet):
 
         self.network.create_subnet.assert_called_once_with(**{
             'cidr': self._subnet.cidr,
-            'enable_dhcp': self._subnet.enable_dhcp,
             'ip_version': self._subnet.ip_version,
             'name': self._subnet.name,
             'network_id': self._subnet.network_id,
@@ -410,7 +409,6 @@ class TestCreateSubnet(TestSubnet):
 
         self.network.create_subnet.assert_called_once_with(**{
             'cidr': self._subnet.cidr,
-            'enable_dhcp': self._subnet.enable_dhcp,
             'ip_version': self._subnet.ip_version,
             'name': self._subnet.name,
             'network_id': self._subnet.network_id,

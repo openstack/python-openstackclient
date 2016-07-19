@@ -168,7 +168,7 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
         attrs['allocation_pools'] = parsed_args.allocation_pools
     if parsed_args.dhcp:
         attrs['enable_dhcp'] = True
-    elif parsed_args.no_dhcp:
+    if parsed_args.no_dhcp:
         attrs['enable_dhcp'] = False
     if ('dns_nameservers' in parsed_args and
        parsed_args.dns_nameservers is not None):
@@ -223,7 +223,6 @@ class CreateSubnet(command.ShowOne):
         dhcp_enable_group.add_argument(
             '--dhcp',
             action='store_true',
-            default=True,
             help=_("Enable DHCP (default)")
         )
         dhcp_enable_group.add_argument(
