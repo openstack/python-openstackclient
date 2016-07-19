@@ -29,14 +29,14 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateCredential(command.ShowOne):
-    """Create credential command"""
+    """Create new credential"""
 
     def get_parser(self, prog_name):
         parser = super(CreateCredential, self).get_parser(prog_name)
         parser.add_argument(
             'user',
             metavar='<user>',
-            help=_('Name or ID of user that owns the credential'),
+            help=_('user that owns the credential (name or ID)'),
         )
         parser.add_argument(
             '--type',
@@ -53,8 +53,8 @@ class CreateCredential(command.ShowOne):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Project name or ID which limits the '
-                   'scope of the credential'),
+            help=_('Project which limits the scope of '
+                   'the credential (name or ID)'),
         )
         return parser
 
@@ -110,7 +110,7 @@ class DeleteCredential(command.Command):
 
 
 class ListCredential(command.Lister):
-    """List credential command"""
+    """List credentials"""
 
     def take_action(self, parsed_args):
         columns = ('ID', 'Type', 'User ID', 'Blob', 'Project ID')
@@ -124,7 +124,7 @@ class ListCredential(command.Lister):
 
 
 class SetCredential(command.Command):
-    """Set credential command"""
+    """Set credential properties"""
 
     def get_parser(self, prog_name):
         parser = super(SetCredential, self).get_parser(prog_name)
@@ -137,7 +137,7 @@ class SetCredential(command.Command):
             '--user',
             metavar='<user>',
             required=True,
-            help=_('Name or ID of user that owns the credential'),
+            help=_('User that owns the credential (name or ID)'),
         )
         parser.add_argument(
             '--type',
@@ -155,8 +155,8 @@ class SetCredential(command.Command):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Project name or ID which limits the '
-                   'scope of the credential'),
+            help=_('Project which limits the scope of '
+                   'the credential (name or ID)'),
         )
         return parser
 
@@ -180,7 +180,7 @@ class SetCredential(command.Command):
 
 
 class ShowCredential(command.ShowOne):
-    """Show credential command"""
+    """Display credential details"""
 
     def get_parser(self, prog_name):
         parser = super(ShowCredential, self).get_parser(prog_name)
