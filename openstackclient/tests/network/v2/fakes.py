@@ -17,6 +17,7 @@ import mock
 import uuid
 
 from openstackclient.tests import fakes
+from openstackclient.tests.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests import utils
 
 
@@ -55,6 +56,13 @@ class TestNetworkV2(utils.TestCommand):
         self.app.client_manager.network = FakeNetworkV2Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
+        )
+
+        self.app.client_manager.identity = (
+            identity_fakes_v3.FakeIdentityv3Client(
+                endpoint=fakes.AUTH_URL,
+                token=fakes.AUTH_TOKEN,
+            )
         )
 
 
