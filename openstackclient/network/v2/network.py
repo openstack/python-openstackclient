@@ -58,6 +58,10 @@ def _get_attrs(client_manager, parsed_args):
         attrs['shared'] = True
     if parsed_args.no_share:
         attrs['shared'] = False
+    if parsed_args.enable_port_security:
+        attrs['port_security_enabled'] = True
+    if parsed_args.disable_port_security:
+        attrs['port_security_enabled'] = False
 
     # "network set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
@@ -196,6 +200,19 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             help=_("Availability Zone in which to create this network "
                    "(Network Availability Zone extension required, "
                    "repeat option to set multiple availability zones)")
+        )
+        port_security_group = parser.add_mutually_exclusive_group()
+        port_security_group.add_argument(
+            '--enable-port-security',
+            action='store_true',
+            help=_("Enable port security by default for ports created on "
+                   "this network (default)")
+        )
+        port_security_group.add_argument(
+            '--disable-port-security',
+            action='store_true',
+            help=_("Disable port security by default for ports created on "
+                   "this network")
         )
         external_router_grp = parser.add_mutually_exclusive_group()
         external_router_grp.add_argument(
@@ -402,6 +419,19 @@ class SetNetwork(command.Command):
             '--no-share',
             action='store_true',
             help=_("Do not share the network between projects")
+        )
+        port_security_group = parser.add_mutually_exclusive_group()
+        port_security_group.add_argument(
+            '--enable-port-security',
+            action='store_true',
+            help=_("Enable port security by default for ports created on "
+                   "this network")
+        )
+        port_security_group.add_argument(
+            '--disable-port-security',
+            action='store_true',
+            help=_("Disable port security by default for ports created on "
+                   "this network")
         )
         external_router_grp = parser.add_mutually_exclusive_group()
         external_router_grp.add_argument(

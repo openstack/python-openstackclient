@@ -4,6 +4,11 @@ features:
     ``port set`` commands to support JSON input for more advanced
     binding profile data.
     [Blueprint :oscbp:`neutron-client`]
+  - Add ``--enable-port-security`` and ``--disable-port-security``
+    options on the ``network create`` and ``network set`` commands.
+    This supports setting the default port security for ports created
+    on a network.
+    [Blueprint :oscbp:`neutron-client`]
   - Add ``geneve`` choice to the  ``network create`` command
     ``--provider-network-type`` option.
     [Blueprint :oscbp:`neutron-client`]

@@ -24,6 +24,7 @@ Create new network
         [--enable | --disable]
         [--share | --no-share]
         [--availability-zone-hint <availability-zone>]
+        [--enable-port-security | --disable-port-security]
         [--external [--default | --no-default] | --internal]
         [--provider-network-type <provider-network-type>]
         [--provider-physical-network <provider-physical-network>]
@@ -69,6 +70,20 @@ Create new network
     Availability Zone in which to create this network
     (Network Availability Zone extension required,
     repeat option to set multiple availability zones)
+
+    *Network version 2 only*
+
+.. option:: --enable-port-security
+
+    Enable port security by default for ports created on
+    this network (default)
+
+    *Network version 2 only*
+
+.. option:: --disable-port-security
+
+    Disable port security by default for ports created on
+    this network
 
     *Network version 2 only*
 
@@ -191,6 +206,7 @@ Set network properties
         [--name <name>]
         [--enable | --disable]
         [--share | --no-share]
+        [--enable-port-security | --disable-port-security]
         [--external [--default | --no-default] | --internal]
         [--provider-network-type <provider-network-type>]
         [--provider-physical-network <provider-physical-network>]
@@ -217,6 +233,16 @@ Set network properties
 .. option:: --no-share
 
     Do not share the network between projects
+
+.. option:: --enable-port-security
+
+    Enable port security by default for ports created on
+    this network
+
+.. option:: --disable-port-security
+
+    Disable port security by default for ports created on
+    this network
 
 .. option:: --external
 

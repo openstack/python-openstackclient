@@ -56,6 +56,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         'id',
         'is_default',
         'name',
+        'port_security_enabled',
         'project_id',
         'provider_network_type',
         'router:external',
@@ -71,6 +72,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         _network.id,
         _network.is_default,
         _network.name,
+        _network.is_port_security_enabled,
         _network.project_id,
         _network.provider_network_type,
         network._format_router_external(_network.is_router_external),
@@ -144,6 +146,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             "--provider-physical-network", "physnet1",
             "--provider-segment", "400",
             "--transparent-vlan",
+            "--enable-port-security",
             self._network.name,
         ]
         verifylist = [
@@ -158,6 +161,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('physical_network', 'physnet1'),
             ('segmentation_id', '400'),
             ('transparent_vlan', True),
+            ('enable_port_security', True),
             ('name', self._network.name),
         ]
 
@@ -176,6 +180,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'provider:physical_network': 'physnet1',
             'provider:segmentation_id': '400',
             'vlan_transparent': True,
+            'port_security_enabled': True,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -184,6 +189,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         arglist = [
             "--enable",
             "--no-share",
+            "--disable-port-security",
             self._network.name,
         ]
         verifylist = [
@@ -191,6 +197,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('no_share', True),
             ('name', self._network.name),
             ('external', False),
+            ('disable_port_security', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -200,6 +207,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'admin_state_up': True,
             'name': self._network.name,
             'shared': False,
+            'port_security_enabled': False,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -220,6 +228,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         'id',
         'is_default',
         'name',
+        'port_security_enabled',
         'project_id',
         'provider_network_type',
         'router:external',
@@ -235,6 +244,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         _network.id,
         _network.is_default,
         _network.name,
+        _network.is_port_security_enabled,
         _network.project_id,
         _network.provider_network_type,
         network._format_router_external(_network.is_router_external),
@@ -537,6 +547,7 @@ class TestSetNetwork(TestNetwork):
             '--provider-physical-network', 'physnet1',
             '--provider-segment', '400',
             '--no-transparent-vlan',
+            '--enable-port-security',
         ]
         verifylist = [
             ('network', self._network.name),
@@ -549,6 +560,7 @@ class TestSetNetwork(TestNetwork):
             ('physical_network', 'physnet1'),
             ('segmentation_id', '400'),
             ('no_transparent_vlan', True),
+            ('enable_port_security', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -564,6 +576,7 @@ class TestSetNetwork(TestNetwork):
             'provider:physical_network': 'physnet1',
             'provider:segmentation_id': '400',
             'vlan_transparent': False,
+            'port_security_enabled': True,
         }
         self.network.update_network.assert_called_once_with(
             self._network, **attrs)
@@ -575,12 +588,14 @@ class TestSetNetwork(TestNetwork):
             '--disable',
             '--no-share',
             '--internal',
+            '--disable-port-security',
         ]
         verifylist = [
             ('network', self._network.name),
             ('disable', True),
             ('no_share', True),
             ('internal', True),
+            ('disable_port_security', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -590,6 +605,7 @@ class TestSetNetwork(TestNetwork):
             'admin_state_up': False,
             'shared': False,
             'router:external': False,
+            'port_security_enabled': False,
         }
         self.network.update_network.assert_called_once_with(
             self._network, **attrs)
@@ -620,6 +636,7 @@ class TestShowNetwork(TestNetwork):
         'id',
         'is_default',
         'name',
+        'port_security_enabled',
         'project_id',
         'provider_network_type',
         'router:external',
@@ -635,6 +652,7 @@ class TestShowNetwork(TestNetwork):
         _network.id,
         _network.is_default,
         _network.name,
+        _network.is_port_security_enabled,
         _network.project_id,
         _network.provider_network_type,
         network._format_router_external(_network.is_router_external),

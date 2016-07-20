@@ -285,6 +285,7 @@ class FakeNetwork(object):
             'availability_zones': [],
             'availability_zone_hints': [],
             'is_default': False,
+            'port_security_enabled': True,
         }
 
         # Overwrite default attributes.
@@ -296,6 +297,8 @@ class FakeNetwork(object):
         # Set attributes with special mapping in OpenStack SDK.
         network.project_id = network_attrs['tenant_id']
         network.is_router_external = network_attrs['router:external']
+        network.is_port_security_enabled = \
+            network_attrs['port_security_enabled']
 
         return network
 
