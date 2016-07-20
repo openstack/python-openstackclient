@@ -109,6 +109,7 @@ referring to both Compute and Volume quotas.
 * ``mapping``: (**Identity**) a definition to translate identity provider attributes to Identity concepts
 * ``module``: (**Internal**) - installed Python modules in the OSC process
 * ``network``: (**Compute**, **Network**) - a virtual network for connecting servers and other resources
+* ``network rbac``: (**Network**) - an RBAC policy for network resources
 * ``network segment``: (**Network**) - a segment of a virtual network
 * ``object``: (**Object Storage**) a single file in the Object Storage
 * ``object store account``: (**Object Storage**) owns a group of Object Storage resources
