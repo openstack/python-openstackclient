@@ -249,24 +249,25 @@ class ServerTests(test.TestCase):
         self.wait_for_status("ACTIVE")
         # attach ip
         opts = self.get_opts(["id", "floating_ip_address"])
-        raw_output = self.openstack('ip floating create ' +
+        raw_output = self.openstack('floating ip create ' +
                                     self.IP_POOL +
                                     opts)
         ip, ipid, rol = tuple(raw_output.split('\n'))
         self.assertNotEqual("", ipid)
         self.assertNotEqual("", ip)
-        raw_output = self.openstack('ip floating add ' + ip + ' ' + self.NAME)
+        raw_output = self.openstack('server add floating ip ' + self.NAME +
+                                    ' ' + ip)
         self.assertEqual("", raw_output)
         raw_output = self.openstack('server show ' + self.NAME)
         self.assertIn(ip, raw_output)
 
         # detach ip
-        raw_output = self.openstack('ip floating remove ' + ip + ' ' +
-                                    self.NAME)
+        raw_output = self.openstack('server remove floating ip ' + self.NAME +
+                                    ' ' + ip)
         self.assertEqual("", raw_output)
         raw_output = self.openstack('server show ' + self.NAME)
         self.assertNotIn(ip, raw_output)
-        raw_output = self.openstack('ip floating delete ' + ipid)
+        raw_output = self.openstack('floating ip delete ' + ipid)
         self.assertEqual("", raw_output)
 
     def test_server_reboot(self):

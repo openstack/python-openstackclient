@@ -13,6 +13,8 @@
 
 """IP Floating action implementations"""
 
+import logging
+
 from osc_lib import utils
 
 from openstackclient.i18n import _
@@ -31,25 +33,26 @@ def _get_attrs(client_manager, parsed_args):
     attrs = {}
     network_client = client_manager.network
 
+    # Name of a network could be empty string.
     if parsed_args.network is not None:
         network = network_client.find_network(parsed_args.network,
                                               ignore_missing=False)
         attrs['floating_network_id'] = network.id
 
-    if parsed_args.subnet is not None:
+    if parsed_args.subnet:
         subnet = network_client.find_subnet(parsed_args.subnet,
                                             ignore_missing=False)
         attrs['subnet_id'] = subnet.id
 
-    if parsed_args.port is not None:
+    if parsed_args.port:
         port = network_client.find_port(parsed_args.port,
                                         ignore_missing=False)
         attrs['port_id'] = port.id
 
-    if parsed_args.floating_ip_address is not None:
+    if parsed_args.floating_ip_address:
         attrs['floating_ip_address'] = parsed_args.floating_ip_address
 
-    if parsed_args.fixed_ip_address is not None:
+    if parsed_args.fixed_ip_address:
         attrs['fixed_ip_address'] = parsed_args.fixed_ip_address
 
     return attrs
@@ -110,6 +113,30 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
         return (columns, data)
 
 
+class CreateIPFloating(CreateFloatingIP):
+    """Create floating IP"""
+
+    # TODO(tangchen): Remove this class and ``ip floating create`` command
+    #                 two cycles after Mitaka.
+
+    # This notifies cliff to not display the help for this command
+    deprecated = True
+
+    log = logging.getLogger('deprecated')
+
+    def take_action_network(self, client, parsed_args):
+        self.log.warning(_('This command has been deprecated. '
+                           'Please use "floating ip create" instead.'))
+        return super(CreateIPFloating, self).take_action_network(
+            client, parsed_args)
+
+    def take_action_compute(self, client, parsed_args):
+        self.log.warning(_('This command has been deprecated. '
+                           'Please use "floating ip create" instead.'))
+        return super(CreateIPFloating, self).take_action_compute(
+            client, parsed_args)
+
+
 class DeleteFloatingIP(common.NetworkAndComputeDelete):
     """Delete floating IP(s)"""
 
@@ -133,6 +160,30 @@ class DeleteFloatingIP(common.NetworkAndComputeDelete):
     def take_action_compute(self, client, parsed_args):
         obj = utils.find_resource(client.floating_ips, self.r)
         client.floating_ips.delete(obj.id)
+
+
+class DeleteIPFloating(DeleteFloatingIP):
+    """Delete floating IP(s)"""
+
+    # TODO(tangchen): Remove this class and ``ip floating delete`` command
+    #                 two cycles after Mitaka.
+
+    # This notifies cliff to not display the help for this command
+    deprecated = True
+
+    log = logging.getLogger('deprecated')
+
+    def take_action_network(self, client, parsed_args):
+        self.log.warning(_('This command has been deprecated. '
+                           'Please use "floating ip delete" instead.'))
+        return super(DeleteIPFloating, self).take_action_network(
+            client, parsed_args)
+
+    def take_action_compute(self, client, parsed_args):
+        self.log.warning(_('This command has been deprecated. '
+                           'Please use "floating ip delete" instead.'))
+        return super(DeleteIPFloating, self).take_action_compute(
+            client, parsed_args)
 
 
 class ListFloatingIP(common.NetworkAndComputeLister):
@@ -186,8 +237,32 @@ class ListFloatingIP(common.NetworkAndComputeLister):
                 ) for s in data))
 
 
+class ListIPFloating(ListFloatingIP):
+    """List floating IP(s)"""
+
+    # TODO(tangchen): Remove this class and ``ip floating list`` command
+    #                 two cycles after Mitaka.
+
+    # This notifies cliff to not display the help for this command
+    deprecated = True
+
+    log = logging.getLogger('deprecated')
+
+    def take_action_network(self, client, parsed_args):
+        self.log.warning(_('This command has been deprecated. '
+                           'Please use "floating ip list" instead.'))
+        return super(ListIPFloating, self).take_action_network(
+            client, parsed_args)
+
+    def take_action_compute(self, client, parsed_args):
+        self.log.warning(_('This command has been deprecated. '
+                           'Please use "floating ip list" instead.'))
+        return super(ListIPFloating, self).take_action_compute(
+            client, parsed_args)
+
+
 class ShowFloatingIP(common.NetworkAndComputeShowOne):
-    """Show floating IP details"""
+    """Display floating IP details"""
 
     def update_parser_common(self, parser):
         parser.add_argument(
@@ -211,3 +286,27 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
         columns = _get_columns(obj._info)
         data = utils.get_dict_properties(obj._info, columns)
         return (columns, data)
+
+
+class ShowIPFloating(ShowFloatingIP):
+    """Display floating IP details"""
+
+    # TODO(tangchen): Remove this class and ``ip floating show`` command
+    #                 two cycles after Mitaka.
+
+    # This notifies cliff to not display the help for this command
+    deprecated = True
+
+    log = logging.getLogger('deprecated')
+
+    def take_action_network(self, client, parsed_args):
+        self.log.warning(_('This command has been deprecated. '
+                           'Please use "floating ip show" instead.'))
+        return super(ShowIPFloating, self).take_action_network(
+            client, parsed_args)
+
+    def take_action_compute(self, client, parsed_args):
+        self.log.warning(_('This command has been deprecated. '
+                           'Please use "floating ip show" instead.'))
+        return super(ShowIPFloating, self).take_action_compute(
+            client, parsed_args)

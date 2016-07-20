@@ -10,10 +10,15 @@ features:
   - Add new commands ``server add/remove fixed ip``. They are used to
     replace the old commands ``ip fixed add/remove``.
     [Blueprint rework-ip-commands `<https://blueprints.launchpad.net/python-openstackclient/+spec/rework-ip-commands>`_]
+  - Add new commands ``floating ip create/delete/list/show``. It is used to
+    replace the old commands ``ip floating create/delete/list/show``.
+    [Blueprint rework-ip-commands `<https://blueprints.launchpad.net/python-openstackclient/+spec/rework-ip-commands>`_]
 deprecations:
   - Deprecate command ``ip floating pool list``.
     [Blueprint rework-ip-commands `<https://blueprints.launchpad.net/python-openstackclient/+spec/rework-ip-commands>`_]
   - Deprecate commands ``ip floating add/remove``.
     [Blueprint rework-ip-commands `<https://blueprints.launchpad.net/python-openstackclient/+spec/rework-ip-commands>`_]
   - Deprecate commands ``ip fixed add/remove``.
+    [Blueprint rework-ip-commands `<https://blueprints.launchpad.net/python-openstackclient/+spec/rework-ip-commands>`_]
+  - Deprecate commands ``ip floating create/delete/list/show``.
     [Blueprint rework-ip-commands `<https://blueprints.launchpad.net/python-openstackclient/+spec/rework-ip-commands>`_]

@@ -29,6 +29,7 @@ ip floating create
 ------------------
 
 Create new floating IP address
+(Deprecated, please use ``floating ip create`` instead)
 
 .. program:: ip floating create
 .. code:: bash
@@ -68,6 +69,7 @@ ip floating delete
 ------------------
 
 Delete floating IP(s)
+(Deprecated, please use ``floating ip delete`` instead)
 
 .. program:: ip floating delete
 .. code:: bash
@@ -83,6 +85,7 @@ ip floating list
 ----------------
 
 List floating IP addresses
+(Deprecated, please use ``floating ip list`` instead)
 
 .. program:: ip floating list
 .. code:: bash
@@ -114,6 +117,7 @@ ip floating show
 ----------------
 
 Display floating IP details
+(Deprecated, please use ``floating ip show`` instead)
 
 .. program:: ip floating show
 .. code:: bash
