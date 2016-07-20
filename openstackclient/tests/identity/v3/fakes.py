@@ -198,8 +198,6 @@ SERVICE_WITHOUT_NAME = {
     'links': base_url + 'services/' + service_id,
 }
 
-credential_id = 'c-123'
-
 endpoint_id = 'e-123'
 endpoint_url = 'http://127.0.0.1:35357'
 endpoint_region = 'RegionOne'
@@ -639,3 +637,104 @@ class FakeDomain(object):
         domain = fakes.FakeResource(info=copy.deepcopy(domain_info),
                                     loaded=True)
         return domain
+
+
+class FakeCredential(object):
+    """Fake one or more credential."""
+
+    @staticmethod
+    def create_one_credential(attrs=None):
+        """Create a fake credential.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, type, and so on
+        """
+
+        attrs = attrs or {}
+
+        # set default attributes.
+        credential_info = {
+            'id': 'credential-id-' + uuid.uuid4().hex,
+            'type': 'cert',
+            'user_id': 'user-id-' + uuid.uuid4().hex,
+            'blob': 'credential-data-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
+            'links': 'links-' + uuid.uuid4().hex,
+        }
+        credential_info.update(attrs)
+
+        credential = fakes.FakeResource(
+            info=copy.deepcopy(credential_info), loaded=True)
+        return credential
+
+    @staticmethod
+    def create_credentials(attrs=None, count=2):
+        """Create multiple fake credentials.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of credentials to fake
+        :return:
+            A list of FakeResource objects faking the credentials
+        """
+        credentials = []
+        for i in range(0, count):
+            credential = FakeCredential.create_one_credential(attrs)
+            credentials.append(credential)
+
+        return credentials
+
+    @staticmethod
+    def get_credentials(credentials=None, count=2):
+        """Get an iterable MagicMock object with a list of faked credentials.
+
+        If credentials list is provided, then initialize the Mock object with
+        the list. Otherwise create one.
+
+        :param List credentials:
+            A list of FakeResource objects faking credentials
+        :param Integer count:
+            The number of credentials to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            credentials
+        """
+        if credentials is None:
+            credentials = FakeCredential.create_credentials(count)
+
+        return mock.MagicMock(side_effect=credentials)
+
+
+class FakeUser(object):
+    """Fake one or more user."""
+
+    @staticmethod
+    def create_one_user(attrs=None):
+        """Create a fake user.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, name, and so on
+        """
+
+        attrs = attrs or {}
+
+        # set default attributes.
+        user_info = {
+            'id': 'user-id-' + uuid.uuid4().hex,
+            'name': 'user-name-' + uuid.uuid4().hex,
+            'default_project_id': 'project-' + uuid.uuid4().hex,
+            'email': 'user-email-' + uuid.uuid4().hex,
+            'enabled': True,
+            'domain_id': 'domain-id' + uuid.uuid4().hex,
+            'links': 'links-' + uuid.uuid4().hex,
+        }
+        user_info.update(attrs)
+
+        user = fakes.FakeResource(info=copy.deepcopy(user_info),
+                                  loaded=True)
+        return user
