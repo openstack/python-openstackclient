@@ -14,8 +14,8 @@
 #
 
 import mock
-
 from mock import call
+
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import agent

@@ -15,7 +15,6 @@
 
 """Container v1 action implementations"""
 
-
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import utils

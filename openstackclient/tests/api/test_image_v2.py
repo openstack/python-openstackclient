@@ -13,9 +13,9 @@
 
 """Image v2 API Library Tests"""
 
+from keystoneauth1 import session
 from requests_mock.contrib import fixture
 
-from keystoneauth1 import session
 from openstackclient.api import image_v2
 from openstackclient.tests import utils
 

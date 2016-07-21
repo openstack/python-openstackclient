@@ -13,9 +13,9 @@
 
 """API Test Fakes"""
 
+from keystoneauth1 import session
 from requests_mock.contrib import fixture
 
-from keystoneauth1 import session
 from openstackclient.tests import utils
 
 

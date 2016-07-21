@@ -15,7 +15,6 @@
 
 import contextlib
 import copy
-
 import mock
 
 from openstackclient.identity.v3 import user

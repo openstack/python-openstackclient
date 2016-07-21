@@ -15,11 +15,11 @@
 
 import json
 import mock
-import six
 import sys
 
 from keystoneauth1 import fixture
 import requests
+import six
 
 
 AUTH_TOKEN = "foobar"
