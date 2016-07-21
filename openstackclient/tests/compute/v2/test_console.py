@@ -147,3 +147,50 @@ class TestConsoleUrlShow(TestConsole):
             old_fake_server.get_vnc_console.assert_called_once_with('novnc')
             self.assertEqual(old_columns, columns)
             self.assertEqual(old_data, data)
+
+    def test_console_url_show_with_rdp(self):
+        arglist = [
+            '--rdp',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('url_type', 'rdp-html5'),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.fake_server.get_rdp_console.assert_called_once_with(
+            'rdp-html5')
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_console_url_show_with_serial(self):
+        arglist = [
+            '--serial',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('url_type', 'serial'),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.fake_server.get_serial_console.assert_called_once_with(
+            'serial')
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_console_url_show_with_mks(self):
+        arglist = [
+            '--mks',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('url_type', 'webmks'),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.fake_server.get_mks_console.assert_called_once_with()
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)

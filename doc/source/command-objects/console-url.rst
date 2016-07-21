@@ -30,6 +30,18 @@ Show server's remote console URL
 
     Show SPICE console URL
 
+.. option:: --rdp
+
+    Show RDP console URL
+
+.. option:: --serial
+
+    Show serial console URL
+
+.. option:: --mks
+
+    Show WebMKS console URL
+
 .. describe:: <server>
 
     Server to show URL (name or ID)
