@@ -13,6 +13,7 @@
 #
 
 import copy
+import mock
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -46,6 +47,7 @@ class TestTypeCreate(TestType):
     columns = (
         'description',
         'id',
+        'is_public',
         'name',
     )
 
@@ -56,6 +58,7 @@ class TestTypeCreate(TestType):
         self.data = (
             self.new_volume_type.description,
             self.new_volume_type.id,
+            True,
             self.new_volume_type.name,
         )
 
@@ -357,8 +360,10 @@ class TestTypeSet(TestType):
 class TestTypeShow(TestType):
 
     columns = (
+        'access_project_ids',
         'description',
         'id',
+        'is_public',
         'name',
         'properties',
     )
@@ -368,8 +373,10 @@ class TestTypeShow(TestType):
 
         self.volume_type = volume_fakes.FakeType.create_one_type()
         self.data = (
+            None,
             self.volume_type.description,
             self.volume_type.id,
+            True,
             self.volume_type.name,
             utils.format_dict(self.volume_type.extra_specs)
         )
@@ -393,6 +400,71 @@ class TestTypeShow(TestType):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+    def test_type_show_with_access(self):
+        arglist = [
+            self.volume_type.id
+        ]
+        verifylist = [
+            ("volume_type", self.volume_type.id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        private_type = volume_fakes.FakeType.create_one_type(
+            attrs={'is_public': False})
+        type_access_list = volume_fakes.FakeTypeAccess.create_one_type_access()
+        with mock.patch.object(self.types_mock, 'get',
+                               return_value=private_type):
+            with mock.patch.object(self.types_access_mock, 'list',
+                                   return_value=[type_access_list]):
+                columns, data = self.cmd.take_action(parsed_args)
+                self.types_mock.get.assert_called_once_with(
+                    self.volume_type.id)
+                self.types_access_mock.list.assert_called_once_with(
+                    private_type.id)
+
+        self.assertEqual(self.columns, columns)
+        private_type_data = (
+            utils.format_list([type_access_list.project_id]),
+            private_type.description,
+            private_type.id,
+            private_type.is_public,
+            private_type.name,
+            utils.format_dict(private_type.extra_specs)
+        )
+        self.assertEqual(private_type_data, data)
+
+    def test_type_show_with_list_access_exec(self):
+        arglist = [
+            self.volume_type.id
+        ]
+        verifylist = [
+            ("volume_type", self.volume_type.id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        private_type = volume_fakes.FakeType.create_one_type(
+            attrs={'is_public': False})
+        with mock.patch.object(self.types_mock, 'get',
+                               return_value=private_type):
+            with mock.patch.object(self.types_access_mock, 'list',
+                                   side_effect=Exception()):
+                columns, data = self.cmd.take_action(parsed_args)
+                self.types_mock.get.assert_called_once_with(
+                    self.volume_type.id)
+                self.types_access_mock.list.assert_called_once_with(
+                    private_type.id)
+
+        self.assertEqual(self.columns, columns)
+        private_type_data = (
+            None,
+            private_type.description,
+            private_type.id,
+            private_type.is_public,
+            private_type.name,
+            utils.format_dict(private_type.extra_specs)
+        )
+        self.assertEqual(private_type_data, data)
 
 
 class TestTypeUnset(TestType):
