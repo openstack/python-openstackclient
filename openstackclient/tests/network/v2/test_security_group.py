@@ -18,7 +18,6 @@ from osc_lib import exceptions
 
 from openstackclient.network.v2 import security_group
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
-from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.network.v2 import fakes as network_fakes
 from openstackclient.tests import utils as tests_utils
@@ -31,6 +30,10 @@ class TestSecurityGroupNetwork(network_fakes.TestNetworkV2):
 
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
+        # Get a shortcut to the ProjectManager Mock
+        self.projects_mock = self.app.client_manager.identity.projects
+        # Get a shortcut to the DomainManager Mock
+        self.domains_mock = self.app.client_manager.identity.domains
 
 
 class TestSecurityGroupCompute(compute_fakes.TestComputev2):
@@ -72,20 +75,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.network.create_security_group = mock.Mock(
             return_value=self._security_group)
 
-        # Set identity client v3. And get a shortcut to Identity client.
-        identity_client = identity_fakes.FakeIdentityv3Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-        self.app.client_manager.identity = identity_client
-        self.identity = self.app.client_manager.identity
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity.projects
         self.projects_mock.get.return_value = self.project
-
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity.domains
         self.domains_mock.get.return_value = self.domain
 
         # Get the command object to test

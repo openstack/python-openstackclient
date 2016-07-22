@@ -19,7 +19,6 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.network.v2 import subnet_pool
-from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.network.v2 import fakes as network_fakes
 from openstackclient.tests import utils as tests_utils
@@ -32,6 +31,10 @@ class TestSubnetPool(network_fakes.TestNetworkV2):
 
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
+        # Get a shortcut to the ProjectManager Mock
+        self.projects_mock = self.app.client_manager.identity.projects
+        # Get a shortcut to the DomainManager Mock
+        self.domains_mock = self.app.client_manager.identity.domains
 
 
 class TestCreateSubnetPool(TestSubnetPool):
@@ -84,20 +87,7 @@ class TestCreateSubnetPool(TestSubnetPool):
         self.network.find_address_scope = mock.Mock(
             return_value=self._address_scope)
 
-        # Set identity client. And get a shortcut to Identity client.
-        identity_client = identity_fakes_v3.FakeIdentityv3Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-        self.app.client_manager.identity = identity_client
-        self.identity = self.app.client_manager.identity
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity.projects
         self.projects_mock.get.return_value = self.project
-
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity.domains
         self.domains_mock.get.return_value = self.domain
 
     def test_create_no_options(self):
