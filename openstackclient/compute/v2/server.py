@@ -833,6 +833,8 @@ class ListServer(command.Lister):
                 'OS-EXT-STS:task_state',
                 'OS-EXT-STS:power_state',
                 'Networks',
+                'Image Name',
+                'Image ID',
                 'OS-EXT-AZ:availability_zone',
                 'OS-EXT-SRV-ATTR:host',
                 'Metadata',
@@ -844,6 +846,8 @@ class ListServer(command.Lister):
                 'Task State',
                 'Power State',
                 'Networks',
+                'Image Name',
+                'Image ID',
                 'Availability Zone',
                 'Host',
                 'Properties',
@@ -860,12 +864,14 @@ class ListServer(command.Lister):
                 'Name',
                 'Status',
                 'Networks',
+                'Image Name',
             )
             column_headers = (
                 'ID',
                 'Name',
                 'Status',
                 'Networks',
+                'Image Name',
             )
             mixed_case_fields = []
 
@@ -877,17 +883,42 @@ class ListServer(command.Lister):
         data = compute_client.servers.list(search_opts=search_opts,
                                            marker=marker_id,
                                            limit=parsed_args.limit)
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                    mixed_case_fields=mixed_case_fields,
-                    formatters={
-                        'OS-EXT-STS:power_state':
-                            _format_servers_list_power_state,
-                        'Networks': _format_servers_list_networks,
-                        'Metadata': utils.format_dict,
-                    },
-                ) for s in data))
+
+        images = {}
+        # Create a dict that maps image_id to image object.
+        # Needed so that we can display the "Image Name" column.
+        # "Image Name" is not crucial, so we swallow any exceptions.
+        try:
+            images_list = self.app.client_manager.image.images.list()
+            for i in images_list:
+                images[i.id] = i
+        except Exception:
+            pass
+
+        # Populate image_name and image_id attributes of server objects
+        # so that we can display "Image Name" and "Image ID" columns.
+        for s in data:
+            if 'id' in s.image:
+                image = images.get(s.image['id'])
+                if image:
+                    s.image_name = image.name
+                s.image_id = s.image['id']
+            else:
+                s.image_name = ''
+                s.image_id = ''
+
+        table = (column_headers,
+                 (utils.get_item_properties(
+                     s, columns,
+                     mixed_case_fields=mixed_case_fields,
+                     formatters={
+                         'OS-EXT-STS:power_state':
+                             _format_servers_list_power_state,
+                         'Networks': _format_servers_list_networks,
+                         'Metadata': utils.format_dict,
+                     },
+                 ) for s in data))
+        return table
 
 
 class LockServer(command.Command):

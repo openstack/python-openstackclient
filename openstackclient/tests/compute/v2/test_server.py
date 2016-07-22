@@ -12,6 +12,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
+import collections
 import getpass
 import mock
 from mock import call
@@ -598,6 +599,7 @@ class TestServerList(TestServer):
         'Name',
         'Status',
         'Networks',
+        'Image Name',
     )
     columns_long = (
         'ID',
@@ -606,6 +608,8 @@ class TestServerList(TestServer):
         'Task State',
         'Power State',
         'Networks',
+        'Image Name',
+        'Image ID',
         'Availability Zone',
         'Host',
         'Properties',
@@ -668,12 +672,19 @@ class TestServerList(TestServer):
         self.data = []
         self.data_long = []
 
+        Image = collections.namedtuple('Image', 'id name')
+        self.images_mock.list.return_value = [
+            Image(id=s.image['id'], name=self.image.name)
+            for s in self.servers
+        ]
+
         for s in self.servers:
             self.data.append((
                 s.id,
                 s.name,
                 s.status,
                 server._format_servers_list_networks(s.networks),
+                self.image.name,
             ))
             self.data_long.append((
                 s.id,
@@ -684,6 +695,8 @@ class TestServerList(TestServer):
                     getattr(s, 'OS-EXT-STS:power_state')
                 ),
                 server._format_servers_list_networks(s.networks),
+                self.image.name,
+                s.image['id'],
                 getattr(s, 'OS-EXT-AZ:availability_zone'),
                 getattr(s, 'OS-EXT-SRV-ATTR:host'),
                 s.Metadata,
@@ -731,7 +744,7 @@ class TestServerList(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.cimages_mock.get.assert_called_with(self.image.id)
+        self.cimages_mock.get.assert_any_call(self.image.id)
 
         self.search_opts['image'] = self.image.id
         self.servers_mock.list.assert_called_with(**self.kwargs)
