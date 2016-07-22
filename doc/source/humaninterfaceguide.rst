@@ -183,14 +183,6 @@ Output formats:
 * user-friendly tables with headers, etc
 * machine-parsable delimited
 
-Notes:
-
-* All long options names shall begin with two dashes ('--') and use a single dash
-  ('-') internally between words (:code:`--like-this`).  Underscores ('_') shall not
-  be used in option names.
-* Authentication options conform to the common CLI authentication guidelines in
-  :doc:`authentication`.
-
 Global Options
 ~~~~~~~~~~~~~~
 
@@ -201,6 +193,16 @@ environment variable that may also be used to set the value.  If both are presen
 the command-line option takes priority.  The environment variable names are derived
 from the option name by dropping the leading dashes ('--'), converting each embedded
 dash ('-') to an underscore ('_'), and converting to upper case.
+
+* Global options shall always have a long option name, certain common options may
+  also have short names.  Short names should be reserved for global options to limit
+  the potential for duplication and multiple meanings between commands given the
+  limited set of available short names.
+* All long options names shall begin with two dashes ('--') and use a single dash
+  ('-') internally between words (:code:`--like-this`).  Underscores ('_') shall not
+  be used in option names.
+* Authentication options conform to the common CLI authentication guidelines in
+  :doc:`authentication`.
 
 For example, :code:`--os-username` can be set from the environment via
 :code:`OS_USERNAME`.
@@ -244,6 +246,10 @@ Command Arguments and Options
 Each command may have its own set of options distinct from the global options.
 They follow the same style as the global options and always appear between
 the command and any positional arguments the command requires.
+
+Command options shall only have long names.  The small range of available
+short names makes it hard for a single short option name to have a consistent
+meaning across multiple commands.
 
 Option Forms
 ++++++++++++
