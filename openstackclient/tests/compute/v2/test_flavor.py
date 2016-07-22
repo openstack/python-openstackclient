@@ -619,11 +619,13 @@ class TestFlavorSet(TestFlavor):
 class TestFlavorShow(TestFlavor):
 
     # Return value of self.flavors_mock.find().
+    flavor_access = compute_fakes.FakeFlavorAccess.create_one_flavor_access()
     flavor = compute_fakes.FakeFlavor.create_one_flavor()
 
     columns = (
         'OS-FLV-DISABLED:disabled',
         'OS-FLV-EXT-DATA:ephemeral',
+        'access_project_ids',
         'disk',
         'id',
         'name',
@@ -638,6 +640,7 @@ class TestFlavorShow(TestFlavor):
     data = (
         flavor.disabled,
         flavor.ephemeral,
+        None,
         flavor.disk,
         flavor.id,
         flavor.name,
@@ -655,6 +658,7 @@ class TestFlavorShow(TestFlavor):
         # Return value of _find_resource()
         self.flavors_mock.find.return_value = self.flavor
         self.flavors_mock.get.side_effect = exceptions.NotFound(None)
+        self.flavor_access_mock.list.return_value = [self.flavor_access]
         self.cmd = flavor.ShowFlavor(self.app, None)
 
     def test_show_no_options(self):
@@ -665,7 +669,7 @@ class TestFlavorShow(TestFlavor):
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
-    def test_flavor_show(self):
+    def test_public_flavor_show(self):
         arglist = [
             self.flavor.name,
         ]
@@ -679,6 +683,45 @@ class TestFlavorShow(TestFlavor):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+    def test_private_flavor_show(self):
+        private_flavor = compute_fakes.FakeFlavor.create_one_flavor(
+            attrs={
+                'os-flavor-access:is_public': False,
+            }
+        )
+        self.flavors_mock.find.return_value = private_flavor
+
+        arglist = [
+            private_flavor.name,
+        ]
+        verifylist = [
+            ('flavor', private_flavor.name),
+        ]
+
+        data_with_project = (
+            private_flavor.disabled,
+            private_flavor.ephemeral,
+            self.flavor_access.tenant_id,
+            private_flavor.disk,
+            private_flavor.id,
+            private_flavor.name,
+            private_flavor.is_public,
+            utils.format_dict(private_flavor.get_keys()),
+            private_flavor.ram,
+            private_flavor.rxtx_factor,
+            private_flavor.swap,
+            private_flavor.vcpus,
+        )
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.flavor_access_mock.list.assert_called_with(
+            flavor=private_flavor.id)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(data_with_project, data)
 
 
 class TestFlavorUnset(TestFlavor):
