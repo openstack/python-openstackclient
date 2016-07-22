@@ -96,6 +96,27 @@ class ShowConsoleURL(command.ShowOne):
             const='spice-html5',
             help=_("Show SPICE console URL")
         )
+        type_group.add_argument(
+            '--rdp',
+            dest='url_type',
+            action='store_const',
+            const='rdp-html5',
+            help=_("Show RDP console URL"),
+        )
+        type_group.add_argument(
+            '--serial',
+            dest='url_type',
+            action='store_const',
+            const='serial',
+            help=_("Show serial console URL"),
+        )
+        type_group.add_argument(
+            '--mks',
+            dest='url_type',
+            action='store_const',
+            const='webmks',
+            help=_("Show WebMKS console URL"),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -110,6 +131,12 @@ class ShowConsoleURL(command.ShowOne):
             data = server.get_vnc_console(parsed_args.url_type)
         if parsed_args.url_type in ['spice-html5']:
             data = server.get_spice_console(parsed_args.url_type)
+        if parsed_args.url_type in ['rdp-html5']:
+            data = server.get_rdp_console(parsed_args.url_type)
+        if parsed_args.url_type in ['serial']:
+            data = server.get_serial_console(parsed_args.url_type)
+        if parsed_args.url_type in ['webmks']:
+            data = server.get_mks_console()
 
         if not data:
             return ({}, {})

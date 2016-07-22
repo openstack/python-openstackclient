@@ -1,0 +1,4 @@
+---
+features:
+  - Support to get server ``rdp``, ``serial``, ``mks`` type console url.
+    [Bug `1605088 <https://bugs.launchpad.net/python-openstackclient/+bug/1605088>`_]
