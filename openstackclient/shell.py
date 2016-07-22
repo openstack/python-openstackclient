@@ -26,6 +26,7 @@ from cliff import app
 from cliff import command
 from cliff import complete
 from cliff import help
+from osc_lib.cli import client_config as cloud_config
 from osc_lib.command import timing
 from osc_lib import exceptions as exc
 from osc_lib import logs
@@ -37,8 +38,6 @@ import openstackclient
 from openstackclient.common import clientmanager
 from openstackclient.common import commandmanager
 from openstackclient.i18n import _
-
-from os_client_config import config as cloud_config
 
 osprofiler_profiler = importutils.try_import("osprofiler.profiler")
 
@@ -309,6 +308,9 @@ class OpenStackShell(app.App):
         tenant_id = getattr(self.options, 'tenant_id', None)
         tenant_name = getattr(self.options, 'tenant_name', None)
 
+        # Save default domain
+        self.default_domain = self.options.default_domain
+
         # handle some v2/v3 authentication inconsistencies by just acting like
         # both the project and tenant information are both present. This can
         # go away if we stop registering all the argparse options together.
@@ -325,7 +327,7 @@ class OpenStackShell(app.App):
         # Ignore the default value of interface. Only if it is set later
         # will it be used.
         try:
-            cc = cloud_config.OpenStackConfig(
+            cc = cloud_config.OSC_Config(
                 override_defaults={
                     'interface': None,
                     'auth_type': auth_type,
@@ -367,9 +369,6 @@ class OpenStackShell(app.App):
         #                was set.
         if self.verify and self.cloud.cacert:
             self.verify = self.cloud.cacert
-
-        # Save default domain
-        self.default_domain = self.options.default_domain
 
         # Loop through extensions to get API versions
         for mod in clientmanager.PLUGIN_MODULES:
@@ -429,7 +428,6 @@ class OpenStackShell(app.App):
 
         self.client_manager = clientmanager.ClientManager(
             cli_options=self.cloud,
-            verify=self.verify,
             api_version=self.api_version,
             pw_func=prompt_for_password,
         )
