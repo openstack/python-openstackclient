@@ -12,6 +12,7 @@
 #   under the License.
 #
 
+import argparse
 import mock
 from mock import call
 
@@ -260,16 +261,33 @@ class TestSnapshotList(TestSnapshot):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.list.assert_called_once_with(
+            limit=None, marker=None, search_opts={'all_tenants': False})
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
     def test_snapshot_list_with_options(self):
-        arglist = ["--long"]
-        verifylist = [("long", True), ('all_projects', False)]
+        arglist = [
+            "--long",
+            "--limit", "2",
+            "--marker", self.snapshots[0].id,
+        ]
+        verifylist = [
+            ("long", True),
+            ("limit", 2),
+            ("marker", self.snapshots[0].id),
+            ('all_projects', False),
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
+        self.snapshots_mock.list.assert_called_once_with(
+            limit=2,
+            marker=self.snapshots[0].id,
+            search_opts={'all_tenants': False}
+        )
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
@@ -285,8 +303,20 @@ class TestSnapshotList(TestSnapshot):
 
         columns, data = self.cmd.take_action(parsed_args)
 
+        self.snapshots_mock.list.assert_called_once_with(
+            limit=None, marker=None, search_opts={'all_tenants': True})
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
+
+    def test_snapshot_list_negative_limit(self):
+        arglist = [
+            "--limit", "-2",
+        ]
+        verifylist = [
+            ("limit", -2),
+        ]
+        self.assertRaises(argparse.ArgumentTypeError, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
 
 class TestSnapshotSet(TestSnapshot):

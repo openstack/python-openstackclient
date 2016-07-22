@@ -68,6 +68,9 @@ List snapshots
 
     os snapshot list
         [--all-projects]
+        [--long]
+        [--limit <limit>]
+        [--marker <marker>]
 
 .. option:: --all-projects
 
@@ -76,6 +79,18 @@ List snapshots
 .. option:: --long
 
     List additional fields in output
+
+.. option:: --limit <limit>
+
+    Maximum number of snapshots to display
+
+    *Volume version 2 only*
+
+.. option:: --marker <marker>
+
+    The last snapshot ID of the previous page
+
+    *Volume version 2 only*
 
 snapshot set
 ------------

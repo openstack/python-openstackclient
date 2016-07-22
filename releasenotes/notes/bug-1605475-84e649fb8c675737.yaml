@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--limit`` and ``--marker`` options to ``snapshot list`` command.
+    [Bug `1605475 <https://bugs.launchpad.net/bugs/1605475>`_]
