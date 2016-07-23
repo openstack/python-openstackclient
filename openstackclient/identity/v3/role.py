@@ -251,6 +251,10 @@ class ListRole(command.Lister):
             for user_role in data:
                 user_role.user = user.name
                 user_role.domain = domain.name
+            self.log.warning(_('Listing assignments using role list is '
+                               'deprecated. Use role assignment list --user '
+                               '<user-name> --domain <domain-name> --names '
+                               'instead.'))
         elif parsed_args.user and parsed_args.project:
             columns = ('ID', 'Name', 'Project', 'User')
             data = identity_client.roles.list(
@@ -261,6 +265,10 @@ class ListRole(command.Lister):
             for user_role in data:
                 user_role.user = user.name
                 user_role.project = project.name
+            self.log.warning(_('Listing assignments using role list is '
+                               'deprecated. Use role assignment list --user '
+                               '<user-name> --project <project-name> --names '
+                               'instead.'))
         elif parsed_args.user:
             columns = ('ID', 'Name')
             data = identity_client.roles.list(
@@ -268,6 +276,10 @@ class ListRole(command.Lister):
                 domain='default',
                 os_inherit_extension_inherited=parsed_args.inherited
             )
+            self.log.warning(_('Listing assignments using role list is '
+                               'deprecated. Use role assignment list --user '
+                               '<user-name> --domain default --names '
+                               'instead.'))
         elif parsed_args.group and parsed_args.domain:
             columns = ('ID', 'Name', 'Domain', 'Group')
             data = identity_client.roles.list(
@@ -278,6 +290,10 @@ class ListRole(command.Lister):
             for group_role in data:
                 group_role.group = group.name
                 group_role.domain = domain.name
+            self.log.warning(_('Listing assignments using role list is '
+                               'deprecated. Use role assignment list --group '
+                               '<group-name> --domain <domain-name> --names '
+                               'instead.'))
         elif parsed_args.group and parsed_args.project:
             columns = ('ID', 'Name', 'Project', 'Group')
             data = identity_client.roles.list(
@@ -288,6 +304,10 @@ class ListRole(command.Lister):
             for group_role in data:
                 group_role.group = group.name
                 group_role.project = project.name
+            self.log.warning(_('Listing assignments using role list is '
+                               'deprecated. Use role assignment list --group '
+                               '<group-name> --project <project-name> --names '
+                               'instead.'))
         else:
             sys.stderr.write(_("Error: If a user or group is specified, "
                                "either --domain or --project must also be "
