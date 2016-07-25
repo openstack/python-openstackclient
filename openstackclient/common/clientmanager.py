@@ -19,8 +19,6 @@ import logging
 import pkg_resources
 import sys
 
-from keystoneauth1.loading import base
-from osc_lib.api import auth
 from osc_lib import clientmanager
 
 
@@ -29,77 +27,6 @@ LOG = logging.getLogger(__name__)
 PLUGIN_MODULES = []
 
 USER_AGENT = 'python-openstackclient'
-
-
-# NOTE(dtroyer): Bringing back select_auth_plugin() and build_auth_params()
-#                temporarily because osc-lib 0.3.0 removed it a wee bit early
-def select_auth_plugin(options):
-    """Pick an auth plugin based on --os-auth-type or other options"""
-
-    auth_plugin_name = None
-
-    # Do the token/url check first as this must override the default
-    # 'password' set by os-client-config
-    # Also, url and token are not copied into o-c-c's auth dict (yet?)
-    if options.auth.get('url') and options.auth.get('token'):
-        # service token authentication
-        auth_plugin_name = 'token_endpoint'
-    elif options.auth_type in auth.PLUGIN_LIST:
-        # A direct plugin name was given, use it
-        auth_plugin_name = options.auth_type
-    elif options.auth.get('username'):
-        if options.identity_api_version == '3':
-            auth_plugin_name = 'v3password'
-        elif options.identity_api_version.startswith('2'):
-            auth_plugin_name = 'v2password'
-        else:
-            # let keystoneauth figure it out itself
-            auth_plugin_name = 'password'
-    elif options.auth.get('token'):
-        if options.identity_api_version == '3':
-            auth_plugin_name = 'v3token'
-        elif options.identity_api_version.startswith('2'):
-            auth_plugin_name = 'v2token'
-        else:
-            # let keystoneauth figure it out itself
-            auth_plugin_name = 'token'
-    else:
-        # The ultimate default is similar to the original behaviour,
-        # but this time with version discovery
-        auth_plugin_name = 'password'
-    LOG.debug("Auth plugin %s selected", auth_plugin_name)
-    return auth_plugin_name
-
-
-def build_auth_params(auth_plugin_name, cmd_options):
-    if auth_plugin_name:
-        LOG.debug('auth_type: %s', auth_plugin_name)
-        auth_plugin_loader = base.get_plugin_loader(auth_plugin_name)
-        auth_params = {
-            opt.dest: opt.default
-            for opt in base.get_plugin_options(auth_plugin_name)
-        }
-        auth_params.update(dict(cmd_options.auth))
-        # grab tenant from project for v2.0 API compatibility
-        if auth_plugin_name.startswith("v2"):
-            if 'project_id' in auth_params:
-                auth_params['tenant_id'] = auth_params['project_id']
-                del auth_params['project_id']
-            if 'project_name' in auth_params:
-                auth_params['tenant_name'] = auth_params['project_name']
-                del auth_params['project_name']
-    else:
-        LOG.debug('no auth_type')
-        # delay the plugin choice, grab every option
-        auth_plugin_loader = None
-        auth_params = dict(cmd_options.auth)
-        plugin_options = set(
-            [o.replace('-', '_') for o in auth.get_options_list()]
-        )
-        for option in plugin_options:
-            LOG.debug('fetching option %s', option)
-            auth_params[option] = getattr(cmd_options.auth, option, None)
-    return (auth_plugin_loader, auth_params)
 
 
 class ClientManager(clientmanager.ClientManager):
