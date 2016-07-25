@@ -49,7 +49,7 @@ class TestKeyValueAction(utils.TestCase):
         actual = getattr(results, 'property', {})
         # All should pass through unmolested
         expect = {'red': '', 'green': '100%', 'blue': '50%', 'format': '#rgb'}
-        self.assertDictEqual(expect, actual)
+        self.assertEqual(expect, actual)
 
     def test_error_values(self):
         self.assertRaises(

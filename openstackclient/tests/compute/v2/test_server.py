@@ -1793,4 +1793,4 @@ class TestServerGeneral(TestServer):
         server_detail.pop('networks')
 
         # Check the results.
-        self.assertDictEqual(info, server_detail)
+        self.assertEqual(info, server_detail)
