@@ -38,7 +38,7 @@ Delete example(s)
 
 .. describe:: <example>
 
-    Example to delete (name or ID)
+    Example(s) to delete (name or ID)
 
 example list
 ------------
