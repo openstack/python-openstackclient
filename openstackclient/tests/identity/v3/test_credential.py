@@ -10,7 +10,10 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import json
+import mock
+from mock import call
+
+from osc_lib import exceptions
 
 from openstackclient.identity.v3 import credential
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
@@ -18,16 +21,6 @@ from openstackclient.tests import utils
 
 
 class TestCredential(identity_fakes.TestIdentityv3):
-    data = {
-        "access": "abc123",
-        "secret": "hidden-message",
-        "trust_id": None
-    }
-
-    def __init__(self, *args):
-        super(TestCredential, self).__init__(*args)
-
-        self.json_data = json.dumps(self.data)
 
     def setUp(self):
         super(TestCredential, self).setUp()
@@ -45,7 +38,213 @@ class TestCredential(identity_fakes.TestIdentityv3):
         self.projects_mock.reset_mock()
 
 
+class TestCredentialCreate(TestCredential):
+
+    user = identity_fakes.FakeUser.create_one_user()
+    project = identity_fakes.FakeProject.create_one_project()
+    columns = (
+        'blob',
+        'id',
+        'project_id',
+        'type',
+        'user_id',
+    )
+
+    def setUp(self):
+        super(TestCredentialCreate, self).setUp()
+
+        self.credential = identity_fakes.FakeCredential.create_one_credential(
+            attrs={'user_id': self.user.id, 'project_id': self.project.id})
+        self.credentials_mock.create.return_value = self.credential
+        self.users_mock.get.return_value = self.user
+        self.projects_mock.get.return_value = self.project
+        self.data = (
+            self.credential.blob,
+            self.credential.id,
+            self.credential.project_id,
+            self.credential.type,
+            self.credential.user_id,
+        )
+
+        self.cmd = credential.CreateCredential(self.app, None)
+
+    def test_credential_create_no_options(self):
+        arglist = [
+            self.credential.user_id,
+            self.credential.blob,
+        ]
+        verifylist = [
+            ('user', self.credential.user_id),
+            ('data', self.credential.blob),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'user': self.credential.user_id,
+            'type': self.credential.type,
+            'blob': self.credential.blob,
+            'project': None,
+        }
+        self.credentials_mock.create.assert_called_once_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_credential_create_with_options(self):
+        arglist = [
+            self.credential.user_id,
+            self.credential.blob,
+            '--type', self.credential.type,
+            '--project', self.credential.project_id,
+        ]
+        verifylist = [
+            ('user', self.credential.user_id),
+            ('data', self.credential.blob),
+            ('type', self.credential.type),
+            ('project', self.credential.project_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'user': self.credential.user_id,
+            'type': self.credential.type,
+            'blob': self.credential.blob,
+            'project': self.credential.project_id,
+        }
+        self.credentials_mock.create.assert_called_once_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_credential_create_with_invalid_type(self):
+        arglist = [
+            self.credential.user_id,
+            self.credential.blob,
+            '--type', 'invalid_type',
+        ]
+        verifylist = [
+            ('user', self.credential.user_id),
+            ('data', self.credential.blob),
+            ('type', 'invalid_type'),
+        ]
+        self.assertRaises(utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+
+class TestCredentialDelete(TestCredential):
+
+    credentials = identity_fakes.FakeCredential.create_credentials(count=2)
+
+    def setUp(self):
+        super(TestCredentialDelete, self).setUp()
+
+        self.credentials_mock.delete.return_value = None
+
+        # Get the command object to test
+        self.cmd = credential.DeleteCredential(self.app, None)
+
+    def test_credential_delete(self):
+        arglist = [
+            self.credentials[0].id,
+        ]
+        verifylist = [
+            ('credential', [self.credentials[0].id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.credentials_mock.delete.assert_called_with(
+            self.credentials[0].id,
+        )
+        self.assertIsNone(result)
+
+    def test_credential_multi_delete(self):
+        arglist = []
+        for c in self.credentials:
+            arglist.append(c.id)
+        verifylist = [
+            ('credential', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for c in self.credentials:
+            calls.append(call(c.id))
+        self.credentials_mock.delete.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_credential_multi_delete_with_exception(self):
+        arglist = [
+            self.credentials[0].id,
+            'unexist_credential',
+        ]
+        verifylist = [
+            ('credential', [self.credentials[0].id, 'unexist_credential'])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        delete_mock_result = [None, exceptions.CommandError]
+        self.credentials_mock.delete = (
+            mock.MagicMock(side_effect=delete_mock_result)
+        )
+
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('1 of 2 credential failed to delete.', str(e))
+
+        self.credentials_mock.delete.assert_any_call(self.credentials[0].id)
+        self.credentials_mock.delete.assert_any_call('unexist_credential')
+
+
+class TestCredentialList(TestCredential):
+
+    credential = identity_fakes.FakeCredential.create_one_credential()
+
+    columns = ('ID', 'Type', 'User ID', 'Data', 'Project ID')
+    data = ((
+        credential.id,
+        credential.type,
+        credential.user_id,
+        credential.blob,
+        credential.project_id,
+    ), )
+
+    def setUp(self):
+        super(TestCredentialList, self).setUp()
+
+        self.credentials_mock.list.return_value = [self.credential]
+
+        # Get the command object to test
+        self.cmd = credential.ListCredential(self.app, None)
+
+    def test_domain_list_no_options(self):
+        arglist = []
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.credentials_mock.list.assert_called_with()
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, tuple(data))
+
+
 class TestCredentialSet(TestCredential):
+
+    credential = identity_fakes.FakeCredential.create_one_credential()
 
     def setUp(self):
         super(TestCredentialSet, self).setUp()
@@ -53,7 +252,7 @@ class TestCredentialSet(TestCredential):
 
     def test_credential_set_no_options(self):
         arglist = [
-            identity_fakes.credential_id,
+            self.credential.id,
         ]
 
         self.assertRaises(utils.ParserException,
@@ -62,8 +261,8 @@ class TestCredentialSet(TestCredential):
     def test_credential_set_missing_user(self):
         arglist = [
             '--type', 'ec2',
-            '--data', self.json_data,
-            identity_fakes.credential_id,
+            '--data', self.credential.blob,
+            self.credential.id,
         ]
 
         self.assertRaises(utils.ParserException,
@@ -71,9 +270,9 @@ class TestCredentialSet(TestCredential):
 
     def test_credential_set_missing_type(self):
         arglist = [
-            '--user', identity_fakes.user_name,
-            '--data', self.json_data,
-            identity_fakes.credential_id,
+            '--user', self.credential.user_id,
+            '--data', self.credential.blob,
+            self.credential.id,
         ]
 
         self.assertRaises(utils.ParserException,
@@ -81,9 +280,9 @@ class TestCredentialSet(TestCredential):
 
     def test_credential_set_missing_data(self):
         arglist = [
-            '--user', identity_fakes.user_name,
+            '--user', self.credential.user_id,
             '--type', 'ec2',
-            identity_fakes.credential_id,
+            self.credential.id,
         ]
 
         self.assertRaises(utils.ParserException,
@@ -91,10 +290,10 @@ class TestCredentialSet(TestCredential):
 
     def test_credential_set_valid(self):
         arglist = [
-            '--user', identity_fakes.user_name,
+            '--user', self.credential.user_id,
             '--type', 'ec2',
-            '--data', self.json_data,
-            identity_fakes.credential_id,
+            '--data', self.credential.blob,
+            self.credential.id,
         ]
         parsed_args = self.check_parser(self.cmd, arglist, [])
 
@@ -104,14 +303,55 @@ class TestCredentialSet(TestCredential):
 
     def test_credential_set_valid_with_project(self):
         arglist = [
-            '--user', identity_fakes.user_name,
+            '--user', self.credential.user_id,
             '--type', 'ec2',
-            '--data', self.json_data,
-            '--project', identity_fakes.project_name,
-            identity_fakes.credential_id,
+            '--data', self.credential.blob,
+            '--project', self.credential.project_id,
+            self.credential.id,
         ]
         parsed_args = self.check_parser(self.cmd, arglist, [])
 
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
+
+
+class TestCredentialShow(TestCredential):
+
+    columns = (
+        'blob',
+        'id',
+        'project_id',
+        'type',
+        'user_id',
+    )
+
+    def setUp(self):
+        super(TestCredentialShow, self).setUp()
+
+        self.credential = identity_fakes.FakeCredential.create_one_credential()
+        self.credentials_mock.get.return_value = self.credential
+        self.data = (
+            self.credential.blob,
+            self.credential.id,
+            self.credential.project_id,
+            self.credential.type,
+            self.credential.user_id,
+        )
+
+        self.cmd = credential.ShowCredential(self.app, None)
+
+    def test_credential_show(self):
+        arglist = [
+            self.credential.id,
+        ]
+        verifylist = [
+            ('credential', self.credential.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.credentials_mock.get.assert_called_once_with(self.credential.id)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
