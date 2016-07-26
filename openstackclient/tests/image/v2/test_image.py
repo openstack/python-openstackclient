@@ -16,11 +16,10 @@
 import copy
 import mock
 
-import warlock
-
 from glanceclient.v2 import schemas
 from osc_lib import exceptions
 from osc_lib import utils as common_utils
+import warlock
 
 from openstackclient.image.v2 import image
 from openstackclient.tests import fakes

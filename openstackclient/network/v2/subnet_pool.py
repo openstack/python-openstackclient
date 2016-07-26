@@ -13,7 +13,6 @@
 
 """Subnet pool action implementations"""
 import copy
-
 import logging
 
 from osc_lib.cli import parseractions

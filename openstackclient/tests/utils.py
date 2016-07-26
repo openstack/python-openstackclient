@@ -14,9 +14,8 @@
 #   under the License.
 #
 
-import os
-
 import fixtures
+import os
 import testtools
 
 from openstackclient.tests import fakes

@@ -173,3 +173,37 @@ or
 .. code-block:: bash
 
    $ pip install -e .
+
+Standardize Import Format
+=========================
+
+.. _`Import Order Guide`: http://docs.openstack.org/developer/hacking/#imports
+
+The import order shows below:
+
+* {{stdlib imports in human alphabetical order}}
+* \n
+* {{third-party lib imports in human alphabetical order}}
+* \n
+* {{project imports in human alphabetical order}}
+* \n
+* \n
+* {{begin your code}}
+
+Example
+~~~~~~~
+
+.. code-block:: python
+
+    import copy
+    import fixtures
+    import mock
+    import os
+
+    from osc_lib.api import auth
+    from osc_lib import utils
+    import six
+
+    from openstackclient import shell
+    from openstackclient.tests import utils
+

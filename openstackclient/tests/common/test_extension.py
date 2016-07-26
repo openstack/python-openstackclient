@@ -14,12 +14,11 @@
 import mock
 
 from openstackclient.common import extension
-from openstackclient.tests import fakes
-from openstackclient.tests import utils
-
 from openstackclient.tests.compute.v2 import fakes as compute_fakes
+from openstackclient.tests import fakes
 from openstackclient.tests.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.network.v2 import fakes as network_fakes
+from openstackclient.tests import utils
 from openstackclient.tests.volume.v2 import fakes as volume_fakes
 
 

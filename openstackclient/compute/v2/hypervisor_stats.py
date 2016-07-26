@@ -14,9 +14,8 @@
 
 """Hypervisor Stats action implementations"""
 
-import six
-
 from osc_lib.command import command
+import six
 
 
 class ShowHypervisorStats(command.ShowOne):

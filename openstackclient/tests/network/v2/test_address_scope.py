@@ -12,8 +12,8 @@
 #
 
 import mock
-
 from mock import call
+
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import address_scope

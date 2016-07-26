@@ -12,6 +12,7 @@
 #
 
 import mock
+
 import six
 
 from openstackclient.common import availability_zone

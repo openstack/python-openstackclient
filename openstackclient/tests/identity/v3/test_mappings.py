@@ -13,7 +13,6 @@
 #   under the License.
 
 import copy
-
 import mock
 
 from osc_lib import exceptions
