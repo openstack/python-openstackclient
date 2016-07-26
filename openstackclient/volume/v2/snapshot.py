@@ -134,6 +134,18 @@ class ListSnapshot(command.Lister):
             default=False,
             help=_('List additional fields in output'),
         )
+        parser.add_argument(
+            '--marker',
+            metavar='<marker>',
+            help=_('The last snapshot ID of the previous page'),
+        )
+        parser.add_argument(
+            '--limit',
+            type=int,
+            action=parseractions.NonNegativeAction,
+            metavar='<limit>',
+            help=_('Maximum number of snapshots to display'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -174,7 +186,10 @@ class ListSnapshot(command.Lister):
         }
 
         data = self.app.client_manager.volume.volume_snapshots.list(
-            search_opts=search_opts)
+            search_opts=search_opts,
+            marker=parsed_args.marker,
+            limit=parsed_args.limit,
+        )
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
