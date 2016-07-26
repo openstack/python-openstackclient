@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--public`` and ``--private`` options to ``volume type list`` command.
+    [Bug `1597198 <https://bugs.launchpad.net/bugs/1597198>`_]

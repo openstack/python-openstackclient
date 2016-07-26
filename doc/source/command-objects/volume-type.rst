@@ -87,10 +87,23 @@ List volume types
 
     os volume type list
         [--long]
+        [--public | --private]
 
 .. option:: --long
 
     List additional fields in output
+
+.. option:: --public
+
+    List only public types
+
+    *Volume version 2 only*
+
+.. option:: --private
+
+    List only private types (admin only)
+
+    *Volume version 2 only*
 
 volume type set
 ---------------
