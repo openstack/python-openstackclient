@@ -730,7 +730,7 @@ class FakeUser(object):
             'default_project_id': 'project-' + uuid.uuid4().hex,
             'email': 'user-email-' + uuid.uuid4().hex,
             'enabled': True,
-            'domain_id': 'domain-id' + uuid.uuid4().hex,
+            'domain_id': 'domain-id-' + uuid.uuid4().hex,
             'links': 'links-' + uuid.uuid4().hex,
         }
         user_info.update(attrs)
@@ -738,3 +738,125 @@ class FakeUser(object):
         user = fakes.FakeResource(info=copy.deepcopy(user_info),
                                   loaded=True)
         return user
+
+
+class FakeGroup(object):
+    """Fake one or more group."""
+
+    @staticmethod
+    def create_one_group(attrs=None):
+        """Create a fake group.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, name, and so on
+        """
+
+        attrs = attrs or {}
+
+        # set default attributes.
+        group_info = {
+            'id': 'group-id-' + uuid.uuid4().hex,
+            'name': 'group-name-' + uuid.uuid4().hex,
+            'links': 'links-' + uuid.uuid4().hex,
+            'domain_id': 'domain-id-' + uuid.uuid4().hex,
+            'description': 'group-description-' + uuid.uuid4().hex,
+        }
+        group_info.update(attrs)
+
+        group = fakes.FakeResource(info=copy.deepcopy(group_info),
+                                   loaded=True)
+        return group
+
+
+class FakeEndpoint(object):
+    """Fake one or more endpoint."""
+
+    @staticmethod
+    def create_one_endpoint(attrs=None):
+        """Create a fake endpoint.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, url, and so on
+        """
+
+        attrs = attrs or {}
+
+        # set default attributes.
+        endpoint_info = {
+            'id': 'endpoint-id-' + uuid.uuid4().hex,
+            'url': 'url-' + uuid.uuid4().hex,
+            'region': 'endpoint-region-' + uuid.uuid4().hex,
+            'interface': 'admin',
+            'service_id': 'service-id-' + uuid.uuid4().hex,
+            'enabled': True,
+            'links': 'links-' + uuid.uuid4().hex,
+        }
+        endpoint_info.update(attrs)
+
+        endpoint = fakes.FakeResource(info=copy.deepcopy(endpoint_info),
+                                      loaded=True)
+        return endpoint
+
+
+class FakeService(object):
+    """Fake one or more service."""
+
+    @staticmethod
+    def create_one_service(attrs=None):
+        """Create a fake service.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, name, and so on
+        """
+
+        attrs = attrs or {}
+
+        # set default attributes.
+        service_info = {
+            'id': 'service-id-' + uuid.uuid4().hex,
+            'name': 'service-name-' + uuid.uuid4().hex,
+            'type': 'service-type-' + uuid.uuid4().hex,
+            'description': 'service-description-' + uuid.uuid4().hex,
+            'enabled': True,
+            'links': 'links-' + uuid.uuid4().hex,
+        }
+        service_info.update(attrs)
+
+        service = fakes.FakeResource(info=copy.deepcopy(service_info),
+                                     loaded=True)
+        return service
+
+
+class FakeRoleAssignment(object):
+    """Fake one or more role assignment."""
+
+    @staticmethod
+    def create_one_role_assignment(attrs=None):
+        """Create a fake role assignment.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with scope, user, and so on
+        """
+
+        attrs = attrs or {}
+
+        # set default attributes.
+        role_assignment_info = {
+            'scope': {'project': {'id': 'project-id-' + uuid.uuid4().hex}},
+            'user': {'id': 'user-id-' + uuid.uuid4().hex},
+            'role': {'id': 'role-id-' + uuid.uuid4().hex},
+        }
+        role_assignment_info.update(attrs)
+
+        role_assignment = fakes.FakeResource(
+            info=copy.deepcopy(role_assignment_info), loaded=True)
+
+        return role_assignment

@@ -11,10 +11,7 @@
 #   under the License.
 #
 
-import copy
-
 from openstackclient.identity.v3 import group
-from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 
 
@@ -38,44 +35,30 @@ class TestGroup(identity_fakes.TestIdentityv3):
 
 class TestGroupList(TestGroup):
 
+    domain = identity_fakes.FakeDomain.create_one_domain()
+    group = identity_fakes.FakeGroup.create_one_group()
+    user = identity_fakes.FakeUser.create_one_user()
+
     columns = (
         'ID',
         'Name',
     )
     datalist = (
         (
-            identity_fakes.group_id,
-            identity_fakes.group_name,
+            group.id,
+            group.name,
         ),
     )
 
     def setUp(self):
         super(TestGroupList, self).setUp()
 
-        self.groups_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.GROUP),
-            loaded=True,
-        )
-        self.groups_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.GROUP),
-                loaded=True,
-            ),
-        ]
+        self.groups_mock.get.return_value = self.group
+        self.groups_mock.list.return_value = [self.group]
 
-        self.domains_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.DOMAIN),
-            loaded=True,
-        )
+        self.domains_mock.get.return_value = self.domain
 
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
+        self.users_mock.get.return_value = self.user
 
         # Get the command object to test
         self.cmd = group.ListGroup(self.app, None)
@@ -105,10 +88,10 @@ class TestGroupList(TestGroup):
 
     def test_group_list_domain(self):
         arglist = [
-            '--domain', identity_fakes.domain_id,
+            '--domain', self.domain.id,
         ]
         verifylist = [
-            ('domain', identity_fakes.domain_id),
+            ('domain', self.domain.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -119,7 +102,7 @@ class TestGroupList(TestGroup):
 
         # Set expected values
         kwargs = {
-            'domain': identity_fakes.domain_id,
+            'domain': self.domain.id,
             'user': None,
         }
 
@@ -132,10 +115,10 @@ class TestGroupList(TestGroup):
 
     def test_group_list_user(self):
         arglist = [
-            '--user', identity_fakes.user_name,
+            '--user', self.user.name,
         ]
         verifylist = [
-            ('user', identity_fakes.user_name),
+            ('user', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -147,7 +130,7 @@ class TestGroupList(TestGroup):
         # Set expected values
         kwargs = {
             'domain': None,
-            'user': identity_fakes.user_id,
+            'user': self.user.id,
         }
 
         self.groups_mock.list.assert_called_with(
@@ -186,10 +169,10 @@ class TestGroupList(TestGroup):
             'Description',
         )
         datalist = ((
-            identity_fakes.group_id,
-            identity_fakes.group_name,
-            '',
-            '',
+            self.group.id,
+            self.group.name,
+            self.group.domain_id,
+            self.group.description,
         ), )
         self.assertEqual(columns, columns)
         self.assertEqual(datalist, tuple(data))

@@ -13,13 +13,10 @@
 #   under the License.
 #
 
-import copy
-
 from keystoneclient import exceptions as identity_exc
 from osc_lib import exceptions
 
 from openstackclient.identity.v3 import service
-from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 
 
@@ -42,37 +39,34 @@ class TestServiceCreate(TestService):
         'name',
         'type',
     )
-    datalist = (
-        identity_fakes.service_description,
-        True,
-        identity_fakes.service_id,
-        identity_fakes.service_name,
-        identity_fakes.service_type,
-    )
 
     def setUp(self):
         super(TestServiceCreate, self).setUp()
 
-        self.services_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.SERVICE),
-            loaded=True,
+        self.service = identity_fakes.FakeService.create_one_service()
+        self.datalist = (
+            self.service.description,
+            True,
+            self.service.id,
+            self.service.name,
+            self.service.type,
         )
+        self.services_mock.create.return_value = self.service
 
         # Get the command object to test
         self.cmd = service.CreateService(self.app, None)
 
     def test_service_create_name(self):
         arglist = [
-            '--name', identity_fakes.service_name,
-            identity_fakes.service_type,
+            '--name', self.service.name,
+            self.service.type,
         ]
         verifylist = [
-            ('name', identity_fakes.service_name),
+            ('name', self.service.name),
             ('description', None),
             ('enable', False),
             ('disable', False),
-            ('type', identity_fakes.service_type),
+            ('type', self.service.type),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -83,8 +77,8 @@ class TestServiceCreate(TestService):
 
         # ServiceManager.create(name=, type=, enabled=, **kwargs)
         self.services_mock.create.assert_called_with(
-            name=identity_fakes.service_name,
-            type=identity_fakes.service_type,
+            name=self.service.name,
+            type=self.service.type,
             description=None,
             enabled=True,
         )
@@ -94,15 +88,15 @@ class TestServiceCreate(TestService):
 
     def test_service_create_description(self):
         arglist = [
-            '--description', identity_fakes.service_description,
-            identity_fakes.service_type,
+            '--description', self.service.description,
+            self.service.type,
         ]
         verifylist = [
             ('name', None),
-            ('description', identity_fakes.service_description),
+            ('description', self.service.description),
             ('enable', False),
             ('disable', False),
-            ('type', identity_fakes.service_type),
+            ('type', self.service.type),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -114,8 +108,8 @@ class TestServiceCreate(TestService):
         # ServiceManager.create(name=, type=, enabled=, **kwargs)
         self.services_mock.create.assert_called_with(
             name=None,
-            type=identity_fakes.service_type,
-            description=identity_fakes.service_description,
+            type=self.service.type,
+            description=self.service.description,
             enabled=True,
         )
 
@@ -125,14 +119,14 @@ class TestServiceCreate(TestService):
     def test_service_create_enable(self):
         arglist = [
             '--enable',
-            identity_fakes.service_type,
+            self.service.type,
         ]
         verifylist = [
             ('name', None),
             ('description', None),
             ('enable', True),
             ('disable', False),
-            ('type', identity_fakes.service_type),
+            ('type', self.service.type),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -144,7 +138,7 @@ class TestServiceCreate(TestService):
         # ServiceManager.create(name=, type=, enabled=, **kwargs)
         self.services_mock.create.assert_called_with(
             name=None,
-            type=identity_fakes.service_type,
+            type=self.service.type,
             description=None,
             enabled=True,
         )
@@ -155,14 +149,14 @@ class TestServiceCreate(TestService):
     def test_service_create_disable(self):
         arglist = [
             '--disable',
-            identity_fakes.service_type,
+            self.service.type,
         ]
         verifylist = [
             ('name', None),
             ('description', None),
             ('enable', False),
             ('disable', True),
-            ('type', identity_fakes.service_type),
+            ('type', self.service.type),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -174,7 +168,7 @@ class TestServiceCreate(TestService):
         # ServiceManager.create(name=, type=, enabled=, **kwargs)
         self.services_mock.create.assert_called_with(
             name=None,
-            type=identity_fakes.service_type,
+            type=self.service.type,
             description=None,
             enabled=False,
         )
@@ -185,15 +179,13 @@ class TestServiceCreate(TestService):
 
 class TestServiceDelete(TestService):
 
+    service = identity_fakes.FakeService.create_one_service()
+
     def setUp(self):
         super(TestServiceDelete, self).setUp()
 
         self.services_mock.get.side_effect = identity_exc.NotFound(None)
-        self.services_mock.find.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.SERVICE),
-            loaded=True,
-        )
+        self.services_mock.find.return_value = self.service
         self.services_mock.delete.return_value = None
 
         # Get the command object to test
@@ -201,33 +193,29 @@ class TestServiceDelete(TestService):
 
     def test_service_delete_no_options(self):
         arglist = [
-            identity_fakes.service_name,
+            self.service.name,
         ]
         verifylist = [
-            ('service', [identity_fakes.service_name]),
+            ('service', [self.service.name]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.services_mock.delete.assert_called_with(
-            identity_fakes.service_id,
+            self.service.id,
         )
         self.assertIsNone(result)
 
 
 class TestServiceList(TestService):
 
+    service = identity_fakes.FakeService.create_one_service()
+
     def setUp(self):
         super(TestServiceList, self).setUp()
 
-        self.services_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.SERVICE),
-                loaded=True,
-            ),
-        ]
+        self.services_mock.list.return_value = [self.service]
 
         # Get the command object to test
         self.cmd = service.ListService(self.app, None)
@@ -247,9 +235,9 @@ class TestServiceList(TestService):
         collist = ('ID', 'Name', 'Type')
         self.assertEqual(collist, columns)
         datalist = ((
-            identity_fakes.service_id,
-            identity_fakes.service_name,
-            identity_fakes.service_type,
+            self.service.id,
+            self.service.name,
+            self.service.type,
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -272,10 +260,10 @@ class TestServiceList(TestService):
         collist = ('ID', 'Name', 'Type', 'Description', 'Enabled')
         self.assertEqual(collist, columns)
         datalist = ((
-            identity_fakes.service_id,
-            identity_fakes.service_name,
-            identity_fakes.service_type,
-            identity_fakes.service_description,
+            self.service.id,
+            self.service.name,
+            self.service.type,
+            self.service.description,
             True,
         ), )
         self.assertEqual(datalist, tuple(data))
@@ -283,27 +271,21 @@ class TestServiceList(TestService):
 
 class TestServiceSet(TestService):
 
+    service = identity_fakes.FakeService.create_one_service()
+
     def setUp(self):
         super(TestServiceSet, self).setUp()
 
         self.services_mock.get.side_effect = identity_exc.NotFound(None)
-        self.services_mock.find.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.SERVICE),
-            loaded=True,
-        )
-        self.services_mock.update.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.SERVICE),
-            loaded=True,
-        )
+        self.services_mock.find.return_value = self.service
+        self.services_mock.update.return_value = self.service
 
         # Get the command object to test
         self.cmd = service.SetService(self.app, None)
 
     def test_service_set_no_options(self):
         arglist = [
-            identity_fakes.service_name,
+            self.service.name,
         ]
         verifylist = [
             ('type', None),
@@ -311,7 +293,7 @@ class TestServiceSet(TestService):
             ('description', None),
             ('enable', False),
             ('disable', False),
-            ('service', identity_fakes.service_name),
+            ('service', self.service.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -321,16 +303,16 @@ class TestServiceSet(TestService):
 
     def test_service_set_type(self):
         arglist = [
-            '--type', identity_fakes.service_type,
-            identity_fakes.service_name,
+            '--type', self.service.type,
+            self.service.name,
         ]
         verifylist = [
-            ('type', identity_fakes.service_type),
+            ('type', self.service.type),
             ('name', None),
             ('description', None),
             ('enable', False),
             ('disable', False),
-            ('service', identity_fakes.service_name),
+            ('service', self.service.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -338,27 +320,27 @@ class TestServiceSet(TestService):
 
         # Set expected values
         kwargs = {
-            'type': identity_fakes.service_type,
+            'type': self.service.type,
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
         self.services_mock.update.assert_called_with(
-            identity_fakes.service_id,
+            self.service.id,
             **kwargs
         )
         self.assertIsNone(result)
 
     def test_service_set_name(self):
         arglist = [
-            '--name', identity_fakes.service_name,
-            identity_fakes.service_name,
+            '--name', self.service.name,
+            self.service.name,
         ]
         verifylist = [
             ('type', None),
-            ('name', identity_fakes.service_name),
+            ('name', self.service.name),
             ('description', None),
             ('enable', False),
             ('disable', False),
-            ('service', identity_fakes.service_name),
+            ('service', self.service.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -366,27 +348,27 @@ class TestServiceSet(TestService):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.service_name,
+            'name': self.service.name,
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
         self.services_mock.update.assert_called_with(
-            identity_fakes.service_id,
+            self.service.id,
             **kwargs
         )
         self.assertIsNone(result)
 
     def test_service_set_description(self):
         arglist = [
-            '--description', identity_fakes.service_description,
-            identity_fakes.service_name,
+            '--description', self.service.description,
+            self.service.name,
         ]
         verifylist = [
             ('type', None),
             ('name', None),
-            ('description', identity_fakes.service_description),
+            ('description', self.service.description),
             ('enable', False),
             ('disable', False),
-            ('service', identity_fakes.service_name),
+            ('service', self.service.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -394,11 +376,11 @@ class TestServiceSet(TestService):
 
         # Set expected values
         kwargs = {
-            'description': identity_fakes.service_description,
+            'description': self.service.description,
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
         self.services_mock.update.assert_called_with(
-            identity_fakes.service_id,
+            self.service.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -406,7 +388,7 @@ class TestServiceSet(TestService):
     def test_service_set_enable(self):
         arglist = [
             '--enable',
-            identity_fakes.service_name,
+            self.service.name,
         ]
         verifylist = [
             ('type', None),
@@ -414,7 +396,7 @@ class TestServiceSet(TestService):
             ('description', None),
             ('enable', True),
             ('disable', False),
-            ('service', identity_fakes.service_name),
+            ('service', self.service.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -426,7 +408,7 @@ class TestServiceSet(TestService):
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
         self.services_mock.update.assert_called_with(
-            identity_fakes.service_id,
+            self.service.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -434,7 +416,7 @@ class TestServiceSet(TestService):
     def test_service_set_disable(self):
         arglist = [
             '--disable',
-            identity_fakes.service_name,
+            self.service.name,
         ]
         verifylist = [
             ('type', None),
@@ -442,7 +424,7 @@ class TestServiceSet(TestService):
             ('description', None),
             ('enable', False),
             ('disable', True),
-            ('service', identity_fakes.service_name),
+            ('service', self.service.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -454,7 +436,7 @@ class TestServiceSet(TestService):
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
         self.services_mock.update.assert_called_with(
-            identity_fakes.service_id,
+            self.service.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -462,25 +444,23 @@ class TestServiceSet(TestService):
 
 class TestServiceShow(TestService):
 
+    service = identity_fakes.FakeService.create_one_service()
+
     def setUp(self):
         super(TestServiceShow, self).setUp()
 
         self.services_mock.get.side_effect = identity_exc.NotFound(None)
-        self.services_mock.find.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.SERVICE),
-            loaded=True,
-        )
+        self.services_mock.find.return_value = self.service
 
         # Get the command object to test
         self.cmd = service.ShowService(self.app, None)
 
     def test_service_show(self):
         arglist = [
-            identity_fakes.service_name,
+            self.service.name,
         ]
         verifylist = [
-            ('service', identity_fakes.service_name),
+            ('service', self.service.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -491,17 +471,17 @@ class TestServiceShow(TestService):
 
         # ServiceManager.get(id)
         self.services_mock.find.assert_called_with(
-            name=identity_fakes.service_name
+            name=self.service.name
         )
 
         collist = ('description', 'enabled', 'id', 'name', 'type')
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.service_description,
+            self.service.description,
             True,
-            identity_fakes.service_id,
-            identity_fakes.service_name,
-            identity_fakes.service_type,
+            self.service.id,
+            self.service.name,
+            self.service.type,
         )
         self.assertEqual(datalist, data)
 

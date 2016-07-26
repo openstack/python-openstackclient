@@ -14,11 +14,9 @@
 #
 
 import contextlib
-import copy
 import mock
 
 from openstackclient.identity.v3 import user
-from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 
 
@@ -51,6 +49,9 @@ class TestUser(identity_fakes.TestIdentityv3):
 
 class TestUserCreate(TestUser):
 
+    domain = identity_fakes.FakeDomain.create_one_domain()
+    project = identity_fakes.FakeProject.create_one_project()
+
     columns = (
         'default_project_id',
         'domain_id',
@@ -59,47 +60,38 @@ class TestUserCreate(TestUser):
         'id',
         'name',
     )
-    datalist = (
-        identity_fakes.project_id,
-        identity_fakes.domain_id,
-        identity_fakes.user_email,
-        True,
-        identity_fakes.user_id,
-        identity_fakes.user_name,
-    )
 
     def setUp(self):
         super(TestUserCreate, self).setUp()
 
-        self.domains_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.DOMAIN),
-            loaded=True,
+        self.user = identity_fakes.FakeUser.create_one_user(
+            attrs={'domain_id': self.domain.id,
+                   'default_project_id': self.project.id}
+        )
+        self.datalist = (
+            self.project.id,
+            self.domain.id,
+            self.user.email,
+            True,
+            self.user.id,
+            self.user.name,
         )
 
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
-
-        self.users_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
+        self.domains_mock.get.return_value = self.domain
+        self.projects_mock.get.return_value = self.project
+        self.users_mock.create.return_value = self.user
 
         # Get the command object to test
         self.cmd = user.CreateUser(self.app, None)
 
     def test_user_create_no_options(self):
         arglist = [
-            identity_fakes.user_name,
+            self.user.name,
         ]
         verifylist = [
             ('enable', False),
             ('disable', False),
-            ('name', identity_fakes.user_name),
+            ('name', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -110,7 +102,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.user_name,
+            'name': self.user.name,
             'default_project': None,
             'description': None,
             'domain': None,
@@ -131,14 +123,14 @@ class TestUserCreate(TestUser):
     def test_user_create_password(self):
         arglist = [
             '--password', 'secret',
-            identity_fakes.user_name,
+            self.user.name,
         ]
         verifylist = [
             ('password', 'secret'),
             ('password_prompt', False),
             ('enable', False),
             ('disable', False),
-            ('name', identity_fakes.user_name),
+            ('name', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -149,7 +141,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.user_name,
+            'name': self.user.name,
             'default_project': None,
             'description': None,
             'domain': None,
@@ -168,14 +160,14 @@ class TestUserCreate(TestUser):
     def test_user_create_password_prompt(self):
         arglist = [
             '--password-prompt',
-            identity_fakes.user_name,
+            self.user.name,
         ]
         verifylist = [
             ('password', None),
             ('password_prompt', True),
             ('enable', False),
             ('disable', False),
-            ('name', identity_fakes.user_name),
+            ('name', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -189,7 +181,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.user_name,
+            'name': self.user.name,
             'default_project': None,
             'description': None,
             'domain': None,
@@ -209,13 +201,13 @@ class TestUserCreate(TestUser):
     def test_user_create_email(self):
         arglist = [
             '--email', 'barney@example.com',
-            identity_fakes.user_name,
+            self.user.name,
         ]
         verifylist = [
             ('email', 'barney@example.com'),
             ('enable', False),
             ('disable', False),
-            ('name', identity_fakes.user_name),
+            ('name', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -226,7 +218,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.user_name,
+            'name': self.user.name,
             'default_project': None,
             'description': None,
             'domain': None,
@@ -244,30 +236,15 @@ class TestUserCreate(TestUser):
         self.assertEqual(self.datalist, data)
 
     def test_user_create_project(self):
-        # Return the new project
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT_2),
-            loaded=True,
-        )
-        # Set up to return an updated user
-        USER_2 = copy.deepcopy(identity_fakes.USER)
-        USER_2['default_project_id'] = identity_fakes.PROJECT_2['id']
-        self.users_mock.create.return_value = fakes.FakeResource(
-            None,
-            USER_2,
-            loaded=True,
-        )
-
         arglist = [
-            '--project', identity_fakes.PROJECT_2['name'],
-            identity_fakes.user_name,
+            '--project', self.project.name,
+            self.user.name,
         ]
         verifylist = [
-            ('project', identity_fakes.PROJECT_2['name']),
+            ('project', self.project.name),
             ('enable', False),
             ('disable', False),
-            ('name', identity_fakes.user_name),
+            ('name', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -278,8 +255,8 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.user_name,
-            'default_project': identity_fakes.PROJECT_2['id'],
+            'name': self.user.name,
+            'default_project': self.project.id,
             'description': None,
             'domain': None,
             'email': None,
@@ -294,42 +271,27 @@ class TestUserCreate(TestUser):
 
         self.assertEqual(self.columns, columns)
         datalist = (
-            identity_fakes.PROJECT_2['id'],
-            identity_fakes.domain_id,
-            identity_fakes.user_email,
+            self.project.id,
+            self.domain.id,
+            self.user.email,
             True,
-            identity_fakes.user_id,
-            identity_fakes.user_name,
+            self.user.id,
+            self.user.name,
         )
         self.assertEqual(datalist, data)
 
     def test_user_create_project_domain(self):
-        # Return the new project
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT_2),
-            loaded=True,
-        )
-        # Set up to return an updated user
-        USER_2 = copy.deepcopy(identity_fakes.USER)
-        USER_2['default_project_id'] = identity_fakes.PROJECT_2['id']
-        self.users_mock.create.return_value = fakes.FakeResource(
-            None,
-            USER_2,
-            loaded=True,
-        )
-
         arglist = [
-            '--project', identity_fakes.PROJECT_2['name'],
-            '--project-domain', identity_fakes.PROJECT_2['domain_id'],
-            identity_fakes.user_name,
+            '--project', self.project.name,
+            '--project-domain', self.project.domain_id,
+            self.user.name,
         ]
         verifylist = [
-            ('project', identity_fakes.PROJECT_2['name']),
-            ('project_domain', identity_fakes.PROJECT_2['domain_id']),
+            ('project', self.project.name),
+            ('project_domain', self.project.domain_id),
             ('enable', False),
             ('disable', False),
-            ('name', identity_fakes.user_name),
+            ('name', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -340,8 +302,8 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.user_name,
-            'default_project': identity_fakes.PROJECT_2['id'],
+            'name': self.user.name,
+            'default_project': self.project.id,
             'description': None,
             'domain': None,
             'email': None,
@@ -356,25 +318,25 @@ class TestUserCreate(TestUser):
 
         self.assertEqual(self.columns, columns)
         datalist = (
-            identity_fakes.PROJECT_2['id'],
-            identity_fakes.domain_id,
-            identity_fakes.user_email,
+            self.project.id,
+            self.domain.id,
+            self.user.email,
             True,
-            identity_fakes.user_id,
-            identity_fakes.user_name,
+            self.user.id,
+            self.user.name,
         )
         self.assertEqual(datalist, data)
 
     def test_user_create_domain(self):
         arglist = [
-            '--domain', identity_fakes.domain_name,
-            identity_fakes.user_name,
+            '--domain', self.domain.name,
+            self.user.name,
         ]
         verifylist = [
-            ('domain', identity_fakes.domain_name),
+            ('domain', self.domain.name),
             ('enable', False),
             ('disable', False),
-            ('name', identity_fakes.user_name),
+            ('name', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -385,10 +347,10 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.user_name,
+            'name': self.user.name,
             'default_project': None,
             'description': None,
-            'domain': identity_fakes.domain_id,
+            'domain': self.domain.id,
             'email': None,
             'enabled': True,
             'password': None,
@@ -405,12 +367,12 @@ class TestUserCreate(TestUser):
     def test_user_create_enable(self):
         arglist = [
             '--enable',
-            identity_fakes.user_name,
+            self.user.name,
         ]
         verifylist = [
             ('enable', True),
             ('disable', False),
-            ('name', identity_fakes.user_name),
+            ('name', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -421,7 +383,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.user_name,
+            'name': self.user.name,
             'default_project': None,
             'description': None,
             'domain': None,
@@ -441,10 +403,10 @@ class TestUserCreate(TestUser):
     def test_user_create_disable(self):
         arglist = [
             '--disable',
-            identity_fakes.user_name,
+            self.user.name,
         ]
         verifylist = [
-            ('name', identity_fakes.user_name),
+            ('name', self.user.name),
             ('enable', False),
             ('disable', True),
         ]
@@ -457,7 +419,7 @@ class TestUserCreate(TestUser):
 
         # Set expected values
         kwargs = {
-            'name': identity_fakes.user_name,
+            'name': self.user.name,
             'default_project': None,
             'description': None,
             'domain': None,
@@ -475,15 +437,13 @@ class TestUserCreate(TestUser):
 
 class TestUserDelete(TestUser):
 
+    user = identity_fakes.FakeUser.create_one_user()
+
     def setUp(self):
         super(TestUserDelete, self).setUp()
 
         # This is the return value for utils.find_resource()
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
+        self.users_mock.get.return_value = self.user
         self.users_mock.delete.return_value = None
 
         # Get the command object to test
@@ -491,22 +451,33 @@ class TestUserDelete(TestUser):
 
     def test_user_delete_no_options(self):
         arglist = [
-            identity_fakes.user_id,
+            self.user.id,
         ]
         verifylist = [
-            ('users', [identity_fakes.user_id]),
+            ('users', [self.user.id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.users_mock.delete.assert_called_with(
-            identity_fakes.user_id,
+            self.user.id,
         )
         self.assertIsNone(result)
 
 
 class TestUserList(TestUser):
+
+    domain = identity_fakes.FakeDomain.create_one_domain()
+    project = identity_fakes.FakeProject.create_one_project()
+    user = identity_fakes.FakeUser.create_one_user(
+        attrs={'domain_id': domain.id,
+               'default_project_id': project.id}
+    )
+    group = identity_fakes.FakeGroup.create_one_group()
+    role_assignment = (
+        identity_fakes.FakeRoleAssignment.create_one_role_assignment(
+            attrs={'user': {'id': user.id}}))
 
     columns = [
         'ID',
@@ -514,53 +485,20 @@ class TestUserList(TestUser):
     ]
     datalist = (
         (
-            identity_fakes.user_id,
-            identity_fakes.user_name,
+            user.id,
+            user.name,
         ),
     )
 
     def setUp(self):
         super(TestUserList, self).setUp()
 
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
-        self.users_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.USER),
-                loaded=True,
-            ),
-        ]
-
-        self.domains_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.DOMAIN),
-            loaded=True,
-        )
-
-        self.groups_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.GROUP),
-            loaded=True,
-        )
-
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
-
-        self.role_assignments_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID),
-                loaded=True,
-            )
-        ]
+        self.users_mock.get.return_value = self.user
+        self.users_mock.list.return_value = [self.user]
+        self.domains_mock.get.return_value = self.domain
+        self.groups_mock.get.return_value = self.group
+        self.projects_mock.get.return_value = self.project
+        self.role_assignments_mock.list.return_value = [self.role_assignment]
 
         # Get the command object to test
         self.cmd = user.ListUser(self.app, None)
@@ -590,10 +528,10 @@ class TestUserList(TestUser):
 
     def test_user_list_domain(self):
         arglist = [
-            '--domain', identity_fakes.domain_id,
+            '--domain', self.domain.id,
         ]
         verifylist = [
-            ('domain', identity_fakes.domain_id),
+            ('domain', self.domain.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -604,7 +542,7 @@ class TestUserList(TestUser):
 
         # Set expected values
         kwargs = {
-            'domain': identity_fakes.domain_id,
+            'domain': self.domain.id,
             'group': None,
         }
 
@@ -617,10 +555,10 @@ class TestUserList(TestUser):
 
     def test_user_list_group(self):
         arglist = [
-            '--group', identity_fakes.group_name,
+            '--group', self.group.name,
         ]
         verifylist = [
-            ('group', identity_fakes.group_name),
+            ('group', self.group.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -632,7 +570,7 @@ class TestUserList(TestUser):
         # Set expected values
         kwargs = {
             'domain': None,
-            'group': identity_fakes.group_id,
+            'group': self.group.id,
         }
 
         self.users_mock.list.assert_called_with(
@@ -678,12 +616,12 @@ class TestUserList(TestUser):
         self.assertEqual(collist, columns)
         datalist = (
             (
-                identity_fakes.user_id,
-                identity_fakes.user_name,
-                identity_fakes.project_id,
-                identity_fakes.domain_id,
+                self.user.id,
+                self.user.name,
+                self.project.id,
+                self.domain.id,
                 '',
-                identity_fakes.user_email,
+                self.user.email,
                 True,
             ),
         )
@@ -691,10 +629,10 @@ class TestUserList(TestUser):
 
     def test_user_list_project(self):
         arglist = [
-            '--project', identity_fakes.project_name,
+            '--project', self.project.name,
         ]
         verifylist = [
-            ('project', identity_fakes.project_name),
+            ('project', self.project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -704,11 +642,11 @@ class TestUserList(TestUser):
         columns, data = self.cmd.take_action(parsed_args)
 
         kwargs = {
-            'project': identity_fakes.project_id,
+            'project': self.project.id,
         }
 
         self.role_assignments_mock.list.assert_called_with(**kwargs)
-        self.users_mock.get.assert_called_with(identity_fakes.user_id)
+        self.users_mock.get.assert_called_with(self.user.id)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
@@ -716,32 +654,24 @@ class TestUserList(TestUser):
 
 class TestUserSet(TestUser):
 
+    project = identity_fakes.FakeProject.create_one_project()
+    user = identity_fakes.FakeUser.create_one_user(
+        attrs={'default_project_id': project.id}
+    )
+
     def setUp(self):
         super(TestUserSet, self).setUp()
 
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
-
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
-        self.users_mock.update.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
+        self.projects_mock.get.return_value = self.project
+        self.users_mock.get.return_value = self.user
+        self.users_mock.update.return_value = self.user
 
         # Get the command object to test
         self.cmd = user.SetUser(self.app, None)
 
     def test_user_set_no_options(self):
         arglist = [
-            identity_fakes.user_name,
+            self.user.name,
         ]
         verifylist = [
             ('name', None),
@@ -750,7 +680,7 @@ class TestUserSet(TestUser):
             ('project', None),
             ('enable', False),
             ('disable', False),
-            ('user', identity_fakes.user_name),
+            ('user', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -761,7 +691,7 @@ class TestUserSet(TestUser):
     def test_user_set_name(self):
         arglist = [
             '--name', 'qwerty',
-            identity_fakes.user_name,
+            self.user.name,
         ]
         verifylist = [
             ('name', 'qwerty'),
@@ -770,7 +700,7 @@ class TestUserSet(TestUser):
             ('project', None),
             ('enable', False),
             ('disable', False),
-            ('user', identity_fakes.user_name),
+            ('user', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -784,7 +714,7 @@ class TestUserSet(TestUser):
         # UserManager.update(user, name=, domain=, project=, password=,
         #     email=, description=, enabled=, default_project=)
         self.users_mock.update.assert_called_with(
-            identity_fakes.user_id,
+            self.user.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -792,7 +722,7 @@ class TestUserSet(TestUser):
     def test_user_set_password(self):
         arglist = [
             '--password', 'secret',
-            identity_fakes.user_name,
+            self.user.name,
         ]
         verifylist = [
             ('name', None),
@@ -802,7 +732,7 @@ class TestUserSet(TestUser):
             ('project', None),
             ('enable', False),
             ('disable', False),
-            ('user', identity_fakes.user_name),
+            ('user', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -816,7 +746,7 @@ class TestUserSet(TestUser):
         # UserManager.update(user, name=, domain=, project=, password=,
         #     email=, description=, enabled=, default_project=)
         self.users_mock.update.assert_called_with(
-            identity_fakes.user_id,
+            self.user.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -824,7 +754,7 @@ class TestUserSet(TestUser):
     def test_user_set_password_prompt(self):
         arglist = [
             '--password-prompt',
-            identity_fakes.user_name,
+            self.user.name,
         ]
         verifylist = [
             ('name', None),
@@ -834,7 +764,7 @@ class TestUserSet(TestUser):
             ('project', None),
             ('enable', False),
             ('disable', False),
-            ('user', identity_fakes.user_name),
+            ('user', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -851,7 +781,7 @@ class TestUserSet(TestUser):
         # UserManager.update(user, name=, domain=, project=, password=,
         #     email=, description=, enabled=, default_project=)
         self.users_mock.update.assert_called_with(
-            identity_fakes.user_id,
+            self.user.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -859,7 +789,7 @@ class TestUserSet(TestUser):
     def test_user_set_email(self):
         arglist = [
             '--email', 'barney@example.com',
-            identity_fakes.user_name,
+            self.user.name,
         ]
         verifylist = [
             ('name', None),
@@ -868,7 +798,7 @@ class TestUserSet(TestUser):
             ('project', None),
             ('enable', False),
             ('disable', False),
-            ('user', identity_fakes.user_name),
+            ('user', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -882,24 +812,24 @@ class TestUserSet(TestUser):
         # UserManager.update(user, name=, domain=, project=, password=,
         #     email=, description=, enabled=, default_project=)
         self.users_mock.update.assert_called_with(
-            identity_fakes.user_id,
+            self.user.id,
             **kwargs
         )
         self.assertIsNone(result)
 
     def test_user_set_project(self):
         arglist = [
-            '--project', identity_fakes.project_id,
-            identity_fakes.user_name,
+            '--project', self.project.id,
+            self.user.name,
         ]
         verifylist = [
             ('name', None),
             ('password', None),
             ('email', None),
-            ('project', identity_fakes.project_id),
+            ('project', self.project.id),
             ('enable', False),
             ('disable', False),
-            ('user', identity_fakes.user_name),
+            ('user', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -908,31 +838,31 @@ class TestUserSet(TestUser):
         # Set expected values
         kwargs = {
             'enabled': True,
-            'default_project': identity_fakes.project_id,
+            'default_project': self.project.id,
         }
         # UserManager.update(user, name=, domain=, project=, password=,
         #     email=, description=, enabled=, default_project=)
         self.users_mock.update.assert_called_with(
-            identity_fakes.user_id,
+            self.user.id,
             **kwargs
         )
         self.assertIsNone(result)
 
     def test_user_set_project_domain(self):
         arglist = [
-            '--project', identity_fakes.project_id,
-            '--project-domain', identity_fakes.domain_id,
-            identity_fakes.user_name,
+            '--project', self.project.id,
+            '--project-domain', self.project.domain_id,
+            self.user.name,
         ]
         verifylist = [
             ('name', None),
             ('password', None),
             ('email', None),
-            ('project', identity_fakes.project_id),
-            ('project_domain', identity_fakes.domain_id),
+            ('project', self.project.id),
+            ('project_domain', self.project.domain_id),
             ('enable', False),
             ('disable', False),
-            ('user', identity_fakes.user_name),
+            ('user', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -941,12 +871,12 @@ class TestUserSet(TestUser):
         # Set expected values
         kwargs = {
             'enabled': True,
-            'default_project': identity_fakes.project_id,
+            'default_project': self.project.id,
         }
         # UserManager.update(user, name=, domain=, project=, password=,
         #     email=, description=, enabled=, default_project=)
         self.users_mock.update.assert_called_with(
-            identity_fakes.user_id,
+            self.user.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -954,7 +884,7 @@ class TestUserSet(TestUser):
     def test_user_set_enable(self):
         arglist = [
             '--enable',
-            identity_fakes.user_name,
+            self.user.name,
         ]
         verifylist = [
             ('name', None),
@@ -963,7 +893,7 @@ class TestUserSet(TestUser):
             ('project', None),
             ('enable', True),
             ('disable', False),
-            ('user', identity_fakes.user_name),
+            ('user', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -976,7 +906,7 @@ class TestUserSet(TestUser):
         # UserManager.update(user, name=, domain=, project=, password=,
         #     email=, description=, enabled=, default_project=)
         self.users_mock.update.assert_called_with(
-            identity_fakes.user_id,
+            self.user.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -984,7 +914,7 @@ class TestUserSet(TestUser):
     def test_user_set_disable(self):
         arglist = [
             '--disable',
-            identity_fakes.user_name,
+            self.user.name,
         ]
         verifylist = [
             ('name', None),
@@ -993,7 +923,7 @@ class TestUserSet(TestUser):
             ('project', None),
             ('enable', False),
             ('disable', True),
-            ('user', identity_fakes.user_name),
+            ('user', self.user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1006,7 +936,7 @@ class TestUserSet(TestUser):
         # UserManager.update(user, name=, domain=, project=, password=,
         #     email=, description=, enabled=, default_project=)
         self.users_mock.update.assert_called_with(
-            identity_fakes.user_id,
+            self.user.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -1082,35 +1012,33 @@ class TestUserSetPassword(TestUser):
 
 class TestUserShow(TestUser):
 
+    user = identity_fakes.FakeUser.create_one_user()
+
     def setUp(self):
         super(TestUserShow, self).setUp()
 
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
+        self.users_mock.get.return_value = self.user
 
         # Get the command object to test
         self.cmd = user.ShowUser(self.app, None)
         self.app.client_manager.identity.auth.client.get_user_id.\
-            return_value = 'bbbbbbb-aaaa-aaaa-aaaa-bbbbbbbaaaa'
+            return_value = self.user.id
         self.app.client_manager.identity.tokens.get_token_data.return_value = \
             {'token':
              {'user':
               {'domain': {},
-               'id': 'bbbbbbb-aaaa-aaaa-aaaa-bbbbbbbaaaa',
-               'name': 'bbbbbbb-aaaa-aaaa-aaaa-bbbbbbbaaaa'
+               'id': self.user.id,
+               'name': self.user.name,
                }
               }
              }
 
     def test_user_show(self):
         arglist = [
-            identity_fakes.user_id,
+            self.user.id,
         ]
         verifylist = [
-            ('user', identity_fakes.user_id),
+            ('user', self.user.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1119,17 +1047,17 @@ class TestUserShow(TestUser):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.users_mock.get.assert_called_with(identity_fakes.user_id)
+        self.users_mock.get.assert_called_with(self.user.id)
 
         collist = ('default_project_id', 'domain_id', 'email',
                    'enabled', 'id', 'name')
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.project_id,
-            identity_fakes.domain_id,
-            identity_fakes.user_email,
+            self.user.default_project_id,
+            self.user.domain_id,
+            self.user.email,
             True,
-            identity_fakes.user_id,
-            identity_fakes.user_name,
+            self.user.id,
+            self.user.name,
         )
         self.assertEqual(datalist, data)

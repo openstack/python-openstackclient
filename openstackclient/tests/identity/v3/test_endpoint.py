@@ -10,11 +10,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-
-import copy
-
 from openstackclient.identity.v3 import endpoint
-from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
 
 
@@ -31,11 +27,10 @@ class TestEndpoint(identity_fakes.TestIdentityv3):
         self.services_mock = self.app.client_manager.identity.services
         self.services_mock.reset_mock()
 
-    def get_fake_service_name(self):
-        return identity_fakes.service_name
-
 
 class TestEndpointCreate(TestEndpoint):
+
+    service = identity_fakes.FakeService.create_one_service()
 
     columns = (
         'enabled',
@@ -51,33 +46,27 @@ class TestEndpointCreate(TestEndpoint):
     def setUp(self):
         super(TestEndpointCreate, self).setUp()
 
-        self.endpoints_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ENDPOINT),
-            loaded=True,
-        )
+        self.endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
+            attrs={'service_id': self.service.id})
+        self.endpoints_mock.create.return_value = self.endpoint
 
         # This is the return value for common.find_resource(service)
-        self.services_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.SERVICE),
-            loaded=True,
-        )
+        self.services_mock.get.return_value = self.service
 
         # Get the command object to test
         self.cmd = endpoint.CreateEndpoint(self.app, None)
 
     def test_endpoint_create_no_options(self):
         arglist = [
-            identity_fakes.service_id,
-            identity_fakes.endpoint_interface,
-            identity_fakes.endpoint_url,
+            self.service.id,
+            self.endpoint.interface,
+            self.endpoint.url,
         ]
         verifylist = [
             ('enabled', True),
-            ('service', identity_fakes.service_id),
-            ('interface', identity_fakes.endpoint_interface),
-            ('url', identity_fakes.endpoint_url),
+            ('service', self.service.id),
+            ('interface', self.endpoint.interface),
+            ('url', self.endpoint.url),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -88,9 +77,9 @@ class TestEndpointCreate(TestEndpoint):
 
         # Set expected values
         kwargs = {
-            'service': identity_fakes.service_id,
-            'url': identity_fakes.endpoint_url,
-            'interface': identity_fakes.endpoint_interface,
+            'service': self.service.id,
+            'url': self.endpoint.url,
+            'interface': self.endpoint.interface,
             'enabled': True,
             'region': None,
         }
@@ -102,29 +91,29 @@ class TestEndpointCreate(TestEndpoint):
         self.assertEqual(self.columns, columns)
         datalist = (
             True,
-            identity_fakes.endpoint_id,
-            identity_fakes.endpoint_interface,
-            identity_fakes.endpoint_region,
-            identity_fakes.service_id,
-            self.get_fake_service_name(),
-            identity_fakes.service_type,
-            identity_fakes.endpoint_url,
+            self.endpoint.id,
+            self.endpoint.interface,
+            self.endpoint.region,
+            self.service.id,
+            self.service.name,
+            self.service.type,
+            self.endpoint.url,
         )
         self.assertEqual(datalist, data)
 
     def test_endpoint_create_region(self):
         arglist = [
-            identity_fakes.service_id,
-            identity_fakes.endpoint_interface,
-            identity_fakes.endpoint_url,
-            '--region', identity_fakes.endpoint_region,
+            self.service.id,
+            self.endpoint.interface,
+            self.endpoint.url,
+            '--region', self.endpoint.region,
         ]
         verifylist = [
             ('enabled', True),
-            ('service', identity_fakes.service_id),
-            ('interface', identity_fakes.endpoint_interface),
-            ('url', identity_fakes.endpoint_url),
-            ('region', identity_fakes.endpoint_region),
+            ('service', self.service.id),
+            ('interface', self.endpoint.interface),
+            ('url', self.endpoint.url),
+            ('region', self.endpoint.region),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -135,11 +124,11 @@ class TestEndpointCreate(TestEndpoint):
 
         # Set expected values
         kwargs = {
-            'service': identity_fakes.service_id,
-            'url': identity_fakes.endpoint_url,
-            'interface': identity_fakes.endpoint_interface,
+            'service': self.service.id,
+            'url': self.endpoint.url,
+            'interface': self.endpoint.interface,
             'enabled': True,
-            'region': identity_fakes.endpoint_region,
+            'region': self.endpoint.region,
         }
 
         self.endpoints_mock.create.assert_called_with(
@@ -149,28 +138,28 @@ class TestEndpointCreate(TestEndpoint):
         self.assertEqual(self.columns, columns)
         datalist = (
             True,
-            identity_fakes.endpoint_id,
-            identity_fakes.endpoint_interface,
-            identity_fakes.endpoint_region,
-            identity_fakes.service_id,
-            self.get_fake_service_name(),
-            identity_fakes.service_type,
-            identity_fakes.endpoint_url,
+            self.endpoint.id,
+            self.endpoint.interface,
+            self.endpoint.region,
+            self.service.id,
+            self.service.name,
+            self.service.type,
+            self.endpoint.url,
         )
         self.assertEqual(datalist, data)
 
     def test_endpoint_create_enable(self):
         arglist = [
-            identity_fakes.service_id,
-            identity_fakes.endpoint_interface,
-            identity_fakes.endpoint_url,
+            self.service.id,
+            self.endpoint.interface,
+            self.endpoint.url,
             '--enable'
         ]
         verifylist = [
             ('enabled', True),
-            ('service', identity_fakes.service_id),
-            ('interface', identity_fakes.endpoint_interface),
-            ('url', identity_fakes.endpoint_url),
+            ('service', self.service.id),
+            ('interface', self.endpoint.interface),
+            ('url', self.endpoint.url),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -181,9 +170,9 @@ class TestEndpointCreate(TestEndpoint):
 
         # Set expected values
         kwargs = {
-            'service': identity_fakes.service_id,
-            'url': identity_fakes.endpoint_url,
-            'interface': identity_fakes.endpoint_interface,
+            'service': self.service.id,
+            'url': self.endpoint.url,
+            'interface': self.endpoint.interface,
             'enabled': True,
             'region': None,
         }
@@ -195,28 +184,28 @@ class TestEndpointCreate(TestEndpoint):
         self.assertEqual(self.columns, columns)
         datalist = (
             True,
-            identity_fakes.endpoint_id,
-            identity_fakes.endpoint_interface,
-            identity_fakes.endpoint_region,
-            identity_fakes.service_id,
-            self.get_fake_service_name(),
-            identity_fakes.service_type,
-            identity_fakes.endpoint_url,
+            self.endpoint.id,
+            self.endpoint.interface,
+            self.endpoint.region,
+            self.service.id,
+            self.service.name,
+            self.service.type,
+            self.endpoint.url,
         )
         self.assertEqual(datalist, data)
 
     def test_endpoint_create_disable(self):
         arglist = [
-            identity_fakes.service_id,
-            identity_fakes.endpoint_interface,
-            identity_fakes.endpoint_url,
+            self.service.id,
+            self.endpoint.interface,
+            self.endpoint.url,
             '--disable',
         ]
         verifylist = [
             ('enabled', False),
-            ('service', identity_fakes.service_id),
-            ('interface', identity_fakes.endpoint_interface),
-            ('url', identity_fakes.endpoint_url),
+            ('service', self.service.id),
+            ('interface', self.endpoint.interface),
+            ('url', self.endpoint.url),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -227,9 +216,9 @@ class TestEndpointCreate(TestEndpoint):
 
         # Set expected values
         kwargs = {
-            'service': identity_fakes.service_id,
-            'url': identity_fakes.endpoint_url,
-            'interface': identity_fakes.endpoint_interface,
+            'service': self.service.id,
+            'url': self.endpoint.url,
+            'interface': self.endpoint.interface,
             'enabled': False,
             'region': None,
         }
@@ -241,28 +230,26 @@ class TestEndpointCreate(TestEndpoint):
         self.assertEqual(self.columns, columns)
         datalist = (
             True,
-            identity_fakes.endpoint_id,
-            identity_fakes.endpoint_interface,
-            identity_fakes.endpoint_region,
-            identity_fakes.service_id,
-            self.get_fake_service_name(),
-            identity_fakes.service_type,
-            identity_fakes.endpoint_url,
+            self.endpoint.id,
+            self.endpoint.interface,
+            self.endpoint.region,
+            self.service.id,
+            self.service.name,
+            self.service.type,
+            self.endpoint.url,
         )
         self.assertEqual(datalist, data)
 
 
 class TestEndpointDelete(TestEndpoint):
 
+    endpoint = identity_fakes.FakeEndpoint.create_one_endpoint()
+
     def setUp(self):
         super(TestEndpointDelete, self).setUp()
 
         # This is the return value for utils.find_resource(endpoint)
-        self.endpoints_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ENDPOINT),
-            loaded=True,
-        )
+        self.endpoints_mock.get.return_value = self.endpoint
         self.endpoints_mock.delete.return_value = None
 
         # Get the command object to test
@@ -270,22 +257,26 @@ class TestEndpointDelete(TestEndpoint):
 
     def test_endpoint_delete(self):
         arglist = [
-            identity_fakes.endpoint_id,
+            self.endpoint.id,
         ]
         verifylist = [
-            ('endpoint', [identity_fakes.endpoint_id]),
+            ('endpoint', [self.endpoint.id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.endpoints_mock.delete.assert_called_with(
-            identity_fakes.endpoint_id,
+            self.endpoint.id,
         )
         self.assertIsNone(result)
 
 
 class TestEndpointList(TestEndpoint):
+
+    service = identity_fakes.FakeService.create_one_service()
+    endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
+        attrs={'service_id': service.id})
 
     columns = (
         'ID',
@@ -300,20 +291,10 @@ class TestEndpointList(TestEndpoint):
     def setUp(self):
         super(TestEndpointList, self).setUp()
 
-        self.endpoints_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.ENDPOINT),
-                loaded=True,
-            ),
-        ]
+        self.endpoints_mock.list.return_value = [self.endpoint]
 
         # This is the return value for common.find_resource(service)
-        self.services_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.SERVICE),
-            loaded=True,
-        )
+        self.services_mock.get.return_value = self.service
 
         # Get the command object to test
         self.cmd = endpoint.ListEndpoint(self.app, None)
@@ -332,23 +313,23 @@ class TestEndpointList(TestEndpoint):
         self.assertEqual(self.columns, columns)
         datalist = (
             (
-                identity_fakes.endpoint_id,
-                identity_fakes.endpoint_region,
-                self.get_fake_service_name(),
-                identity_fakes.service_type,
+                self.endpoint.id,
+                self.endpoint.region,
+                self.service.name,
+                self.service.type,
                 True,
-                identity_fakes.endpoint_interface,
-                identity_fakes.endpoint_url,
+                self.endpoint.interface,
+                self.endpoint.url,
             ),
         )
         self.assertEqual(datalist, tuple(data))
 
     def test_endpoint_list_service(self):
         arglist = [
-            '--service', identity_fakes.service_id,
+            '--service', self.service.id,
         ]
         verifylist = [
-            ('service', identity_fakes.service_id),
+            ('service', self.service.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -359,30 +340,30 @@ class TestEndpointList(TestEndpoint):
 
         # Set expected values
         kwargs = {
-            'service': identity_fakes.service_id,
+            'service': self.service.id,
         }
         self.endpoints_mock.list.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         datalist = (
             (
-                identity_fakes.endpoint_id,
-                identity_fakes.endpoint_region,
-                self.get_fake_service_name(),
-                identity_fakes.service_type,
+                self.endpoint.id,
+                self.endpoint.region,
+                self.service.name,
+                self.service.type,
                 True,
-                identity_fakes.endpoint_interface,
-                identity_fakes.endpoint_url,
+                self.endpoint.interface,
+                self.endpoint.url,
             ),
         )
         self.assertEqual(datalist, tuple(data))
 
     def test_endpoint_list_interface(self):
         arglist = [
-            '--interface', identity_fakes.endpoint_interface,
+            '--interface', self.endpoint.interface,
         ]
         verifylist = [
-            ('interface', identity_fakes.endpoint_interface),
+            ('interface', self.endpoint.interface),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -393,30 +374,30 @@ class TestEndpointList(TestEndpoint):
 
         # Set expected values
         kwargs = {
-            'interface': identity_fakes.endpoint_interface,
+            'interface': self.endpoint.interface,
         }
         self.endpoints_mock.list.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         datalist = (
             (
-                identity_fakes.endpoint_id,
-                identity_fakes.endpoint_region,
-                self.get_fake_service_name(),
-                identity_fakes.service_type,
+                self.endpoint.id,
+                self.endpoint.region,
+                self.service.name,
+                self.service.type,
                 True,
-                identity_fakes.endpoint_interface,
-                identity_fakes.endpoint_url,
+                self.endpoint.interface,
+                self.endpoint.url,
             ),
         )
         self.assertEqual(datalist, tuple(data))
 
     def test_endpoint_list_region(self):
         arglist = [
-            '--region', identity_fakes.endpoint_region,
+            '--region', self.endpoint.region,
         ]
         verifylist = [
-            ('region', identity_fakes.endpoint_region),
+            ('region', self.endpoint.region),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -427,20 +408,20 @@ class TestEndpointList(TestEndpoint):
 
         # Set expected values
         kwargs = {
-            'region': identity_fakes.endpoint_region,
+            'region': self.endpoint.region,
         }
         self.endpoints_mock.list.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         datalist = (
             (
-                identity_fakes.endpoint_id,
-                identity_fakes.endpoint_region,
-                self.get_fake_service_name(),
-                identity_fakes.service_type,
+                self.endpoint.id,
+                self.endpoint.region,
+                self.service.name,
+                self.service.type,
                 True,
-                identity_fakes.endpoint_interface,
-                identity_fakes.endpoint_url,
+                self.endpoint.interface,
+                self.endpoint.url,
             ),
         )
         self.assertEqual(datalist, tuple(data))
@@ -448,38 +429,30 @@ class TestEndpointList(TestEndpoint):
 
 class TestEndpointSet(TestEndpoint):
 
+    service = identity_fakes.FakeService.create_one_service()
+    endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
+        attrs={'service_id': service.id})
+
     def setUp(self):
         super(TestEndpointSet, self).setUp()
 
         # This is the return value for utils.find_resource(endpoint)
-        self.endpoints_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ENDPOINT),
-            loaded=True,
-        )
+        self.endpoints_mock.get.return_value = self.endpoint
 
-        self.endpoints_mock.update.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ENDPOINT),
-            loaded=True,
-        )
+        self.endpoints_mock.update.return_value = self.endpoint
 
         # This is the return value for common.find_resource(service)
-        self.services_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.SERVICE),
-            loaded=True,
-        )
+        self.services_mock.get.return_value = self.service
 
         # Get the command object to test
         self.cmd = endpoint.SetEndpoint(self.app, None)
 
     def test_endpoint_set_no_options(self):
         arglist = [
-            identity_fakes.endpoint_id,
+            self.endpoint.id,
         ]
         verifylist = [
-            ('endpoint', identity_fakes.endpoint_id),
+            ('endpoint', self.endpoint.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -493,7 +466,7 @@ class TestEndpointSet(TestEndpoint):
             'url': None,
         }
         self.endpoints_mock.update.assert_called_with(
-            identity_fakes.endpoint_id,
+            self.endpoint.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -501,11 +474,11 @@ class TestEndpointSet(TestEndpoint):
     def test_endpoint_set_interface(self):
         arglist = [
             '--interface', 'public',
-            identity_fakes.endpoint_id
+            self.endpoint.id
         ]
         verifylist = [
             ('interface', 'public'),
-            ('endpoint', identity_fakes.endpoint_id),
+            ('endpoint', self.endpoint.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -520,7 +493,7 @@ class TestEndpointSet(TestEndpoint):
             'service': None,
         }
         self.endpoints_mock.update.assert_called_with(
-            identity_fakes.endpoint_id,
+            self.endpoint.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -528,11 +501,11 @@ class TestEndpointSet(TestEndpoint):
     def test_endpoint_set_url(self):
         arglist = [
             '--url', 'http://localhost:5000',
-            identity_fakes.endpoint_id
+            self.endpoint.id
         ]
         verifylist = [
             ('url', 'http://localhost:5000'),
-            ('endpoint', identity_fakes.endpoint_id),
+            ('endpoint', self.endpoint.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -547,19 +520,19 @@ class TestEndpointSet(TestEndpoint):
             'service': None,
         }
         self.endpoints_mock.update.assert_called_with(
-            identity_fakes.endpoint_id,
+            self.endpoint.id,
             **kwargs
         )
         self.assertIsNone(result)
 
     def test_endpoint_set_service(self):
         arglist = [
-            '--service', identity_fakes.service_id,
-            identity_fakes.endpoint_id
+            '--service', self.service.id,
+            self.endpoint.id
         ]
         verifylist = [
-            ('service', identity_fakes.service_id),
-            ('endpoint', identity_fakes.endpoint_id),
+            ('service', self.service.id),
+            ('endpoint', self.endpoint.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -571,10 +544,10 @@ class TestEndpointSet(TestEndpoint):
             'interface': None,
             'url': None,
             'region': None,
-            'service': identity_fakes.service_id,
+            'service': self.service.id,
         }
         self.endpoints_mock.update.assert_called_with(
-            identity_fakes.endpoint_id,
+            self.endpoint.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -582,11 +555,11 @@ class TestEndpointSet(TestEndpoint):
     def test_endpoint_set_region(self):
         arglist = [
             '--region', 'e-rzzz',
-            identity_fakes.endpoint_id
+            self.endpoint.id
         ]
         verifylist = [
             ('region', 'e-rzzz'),
-            ('endpoint', identity_fakes.endpoint_id),
+            ('endpoint', self.endpoint.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -601,7 +574,7 @@ class TestEndpointSet(TestEndpoint):
             'service': None,
         }
         self.endpoints_mock.update.assert_called_with(
-            identity_fakes.endpoint_id,
+            self.endpoint.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -609,11 +582,11 @@ class TestEndpointSet(TestEndpoint):
     def test_endpoint_set_enable(self):
         arglist = [
             '--enable',
-            identity_fakes.endpoint_id
+            self.endpoint.id
         ]
         verifylist = [
             ('enabled', True),
-            ('endpoint', identity_fakes.endpoint_id),
+            ('endpoint', self.endpoint.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -628,7 +601,7 @@ class TestEndpointSet(TestEndpoint):
             'service': None,
         }
         self.endpoints_mock.update.assert_called_with(
-            identity_fakes.endpoint_id,
+            self.endpoint.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -636,11 +609,11 @@ class TestEndpointSet(TestEndpoint):
     def test_endpoint_set_disable(self):
         arglist = [
             '--disable',
-            identity_fakes.endpoint_id
+            self.endpoint.id
         ]
         verifylist = [
             ('disabled', True),
-            ('endpoint', identity_fakes.endpoint_id),
+            ('endpoint', self.endpoint.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -655,7 +628,7 @@ class TestEndpointSet(TestEndpoint):
             'service': None,
         }
         self.endpoints_mock.update.assert_called_with(
-            identity_fakes.endpoint_id,
+            self.endpoint.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -663,31 +636,27 @@ class TestEndpointSet(TestEndpoint):
 
 class TestEndpointShow(TestEndpoint):
 
+    service = identity_fakes.FakeService.create_one_service()
+    endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
+        attrs={'service_id': service.id})
+
     def setUp(self):
         super(TestEndpointShow, self).setUp()
 
-        self.endpoints_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ENDPOINT),
-            loaded=True,
-        )
+        self.endpoints_mock.get.return_value = self.endpoint
 
         # This is the return value for common.find_resource(service)
-        self.services_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.SERVICE),
-            loaded=True,
-        )
+        self.services_mock.get.return_value = self.service
 
         # Get the command object to test
         self.cmd = endpoint.ShowEndpoint(self.app, None)
 
     def test_endpoint_show(self):
         arglist = [
-            identity_fakes.endpoint_id,
+            self.endpoint.id,
         ]
         verifylist = [
-            ('endpoint', identity_fakes.endpoint_id),
+            ('endpoint', self.endpoint.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -696,7 +665,7 @@ class TestEndpointShow(TestEndpoint):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
         self.endpoints_mock.get.assert_called_with(
-            identity_fakes.endpoint_id,
+            self.endpoint.id,
         )
 
         collist = (
@@ -712,89 +681,70 @@ class TestEndpointShow(TestEndpoint):
         self.assertEqual(collist, columns)
         datalist = (
             True,
-            identity_fakes.endpoint_id,
-            identity_fakes.endpoint_interface,
-            identity_fakes.endpoint_region,
-            identity_fakes.service_id,
-            self.get_fake_service_name(),
-            identity_fakes.service_type,
-            identity_fakes.endpoint_url,
+            self.endpoint.id,
+            self.endpoint.interface,
+            self.endpoint.region,
+            self.service.id,
+            self.service.name,
+            self.service.type,
+            self.endpoint.url,
         )
         self.assertEqual(datalist, data)
 
 
 class TestEndpointCreateServiceWithoutName(TestEndpointCreate):
 
+    service = identity_fakes.FakeService.create_one_service(
+        attrs={'service_name': ''})
+
     def setUp(self):
         super(TestEndpointCreate, self).setUp()
 
-        self.endpoints_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ENDPOINT),
-            loaded=True,
-        )
+        self.endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
+            attrs={'service_id': self.service.id})
+
+        self.endpoints_mock.create.return_value = self.endpoint
 
         # This is the return value for common.find_resource(service)
-        self.services_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.SERVICE_WITHOUT_NAME),
-            loaded=True,
-        )
+        self.services_mock.get.return_value = self.service
 
         # Get the command object to test
         self.cmd = endpoint.CreateEndpoint(self.app, None)
 
-    def get_fake_service_name(self):
-        return ''
-
 
 class TestEndpointListServiceWithoutName(TestEndpointList):
+
+    service = identity_fakes.FakeService.create_one_service(
+        attrs={'service_name': ''})
+    endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
+        attrs={'service_id': service.id})
 
     def setUp(self):
         super(TestEndpointList, self).setUp()
 
-        self.endpoints_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.ENDPOINT),
-                loaded=True,
-            ),
-        ]
+        self.endpoints_mock.list.return_value = [self.endpoint]
 
         # This is the return value for common.find_resource(service)
-        self.services_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.SERVICE_WITHOUT_NAME),
-            loaded=True,
-        )
+        self.services_mock.get.return_value = self.service
 
         # Get the command object to test
         self.cmd = endpoint.ListEndpoint(self.app, None)
 
-    def get_fake_service_name(self):
-        return ''
-
 
 class TestEndpointShowServiceWithoutName(TestEndpointShow):
+
+    service = identity_fakes.FakeService.create_one_service(
+        attrs={'service_name': ''})
+    endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
+        attrs={'service_id': service.id})
 
     def setUp(self):
         super(TestEndpointShow, self).setUp()
 
-        self.endpoints_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ENDPOINT),
-            loaded=True,
-        )
+        self.endpoints_mock.get.return_value = self.endpoint
 
         # This is the return value for common.find_resource(service)
-        self.services_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.SERVICE_WITHOUT_NAME),
-            loaded=True,
-        )
+        self.services_mock.get.return_value = self.service
 
         # Get the command object to test
         self.cmd = endpoint.ShowEndpoint(self.app, None)
-
-    def get_fake_service_name(self):
-        return ''
