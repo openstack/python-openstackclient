@@ -15,6 +15,9 @@
 
 import copy
 
+from keystoneclient import exceptions as identity_exc
+from osc_lib import exceptions
+
 from openstackclient.identity.v3 import service
 from openstackclient.tests import fakes
 from openstackclient.tests.identity.v3 import fakes as identity_fakes
@@ -185,7 +188,8 @@ class TestServiceDelete(TestService):
     def setUp(self):
         super(TestServiceDelete, self).setUp()
 
-        self.services_mock.get.return_value = fakes.FakeResource(
+        self.services_mock.get.side_effect = identity_exc.NotFound(None)
+        self.services_mock.find.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.SERVICE),
             loaded=True,
@@ -282,7 +286,8 @@ class TestServiceSet(TestService):
     def setUp(self):
         super(TestServiceSet, self).setUp()
 
-        self.services_mock.get.return_value = fakes.FakeResource(
+        self.services_mock.get.side_effect = identity_exc.NotFound(None)
+        self.services_mock.find.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.SERVICE),
             loaded=True,
@@ -460,7 +465,8 @@ class TestServiceShow(TestService):
     def setUp(self):
         super(TestServiceShow, self).setUp()
 
-        self.services_mock.get.return_value = fakes.FakeResource(
+        self.services_mock.get.side_effect = identity_exc.NotFound(None)
+        self.services_mock.find.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.SERVICE),
             loaded=True,
@@ -484,8 +490,8 @@ class TestServiceShow(TestService):
         columns, data = self.cmd.take_action(parsed_args)
 
         # ServiceManager.get(id)
-        self.services_mock.get.assert_called_with(
-            identity_fakes.service_name,
+        self.services_mock.find.assert_called_with(
+            name=identity_fakes.service_name
         )
 
         collist = ('description', 'enabled', 'id', 'name', 'type')
@@ -498,3 +504,21 @@ class TestServiceShow(TestService):
             identity_fakes.service_type,
         )
         self.assertEqual(datalist, data)
+
+    def test_service_show_nounique(self):
+        self.services_mock.find.side_effect = identity_exc.NoUniqueMatch(None)
+        arglist = [
+            'nounique_service',
+        ]
+        verifylist = [
+            ('service', 'nounique_service'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual(
+                "Multiple service matches found for 'nounique_service',"
+                " use an ID to be more specific.", str(e))
