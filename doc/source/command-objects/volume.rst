@@ -88,12 +88,18 @@ Delete volume(s)
 .. code:: bash
 
     os volume delete
-        [--force]
+        [--force | --purge]
         <volume> [<volume> ...]
 
 .. option:: --force
 
     Attempt forced removal of volume(s), regardless of state (defaults to False)
+
+.. option:: --purge
+
+    Remove any snapshots along with volume(s) (defaults to False)
+
+    *Volume version 2 only*
 
 .. _volume_delete-volume:
 .. describe:: <volume>
