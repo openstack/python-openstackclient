@@ -115,6 +115,8 @@ class TestQuotaSet(TestQuota):
             '--properties', str(compute_fakes.property_num),
             '--secgroup-rules', str(compute_fakes.secgroup_rule_num),
             '--secgroups', str(compute_fakes.secgroup_num),
+            '--server-groups', str(compute_fakes.servgroup_num),
+            '--server-group-members', str(compute_fakes.servgroup_members_num),
             identity_fakes.project_name,
         ]
         verifylist = [
@@ -131,6 +133,8 @@ class TestQuotaSet(TestQuota):
             ('metadata_items', compute_fakes.property_num),
             ('security_group_rules', compute_fakes.secgroup_rule_num),
             ('security_groups', compute_fakes.secgroup_num),
+            ('server_groups', compute_fakes.servgroup_num),
+            ('server_group_members', compute_fakes.servgroup_members_num),
             ('project', identity_fakes.project_name),
         ]
 
@@ -153,6 +157,8 @@ class TestQuotaSet(TestQuota):
             'metadata_items': compute_fakes.property_num,
             'security_group_rules': compute_fakes.secgroup_rule_num,
             'security_groups': compute_fakes.secgroup_num,
+            'server_groups': compute_fakes.servgroup_num,
+            'server_group_members': compute_fakes.servgroup_members_num,
         }
 
         self.quotas_mock.update.assert_called_with(
