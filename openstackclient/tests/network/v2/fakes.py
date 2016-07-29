@@ -541,6 +541,25 @@ class FakeNetworkRBAC(object):
 
         return rbac_policies
 
+    @staticmethod
+    def get_network_rbacs(rbac_policies=None, count=2):
+        """Get an iterable MagicMock object with a list of faked rbac policies.
+
+        If rbac policies list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List rbac_policies:
+            A list of FakeResource objects faking rbac policies
+        :param int count:
+            The number of rbac policies to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            rbac policies
+        """
+        if rbac_policies is None:
+            rbac_policies = FakeNetworkRBAC.create_network_rbacs(count)
+        return mock.MagicMock(side_effect=rbac_policies)
+
 
 class FakeRouter(object):
     """Fake one or more routers."""
