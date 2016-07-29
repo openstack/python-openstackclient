@@ -285,7 +285,7 @@ texinfo_documents = [(
     u'OpenStackclient Release Notes Documentation',
     u'OpenStackclient Developers',
     'OpenStackClientReleaseNotes',
-    'One line description of project.',
+    'A unified command-line client for OpenStack.',
     'Miscellaneous',
 )]
 
