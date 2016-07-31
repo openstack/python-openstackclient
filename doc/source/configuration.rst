@@ -214,3 +214,59 @@ The logging level for `--log-file` can be set by using following options.
 *  `-v, --verbose`
 *  `-q, --quiet`
 *  `--debug`
+
+Locale and Language Support
+---------------------------
+
+Full support for languages is included as of OpenStackClient 3.0.0. Here are a
+few tips to ensure you have a correct configuration.
+
+Verify preferred python encoding
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Please perform the following to diagnose ensure locale settings are correct.
+Run python interactively and print the preferred encoding value, e.g.:
+
+::
+
+  $ python -c "import locale; print locale.getpreferredencoding()"
+
+If the value is ``ascii`` or ``ANSI_X3.4-1968`` or any other equivalent name for
+ASCII the problem is in your environment. You most likely do not have your LANG
+environment variable set correctly.
+
+Check the LANG environment variable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``LANG`` should be of the form: `lang_code`_`[region_code]`.`encoding`.
+For example, it may look like: ``en_US.UTF-8``
+
+The critical part here is the `encoding` value of ``UTF-8``. Python will look
+up locale information and if it finds an encoding value, it will set the
+encoding property of stdin, stdout and stderr to the value found in your
+environment, if it's not defined in your environment it defaults to ASCII.
+
+Redirecting output
+~~~~~~~~~~~~~~~~~~
+
+The above only occurs if stdin, stdout and stderr are attached to a TTY. If
+redirecting data the encoding on these streams will default to the default
+encoding which is set in the `site.py` of your Python distribution, which
+defaults to ASCII. A workaround for this is to set ``PYTHONIOENCODING`` to UTF8.
+
+::
+
+  $ PYTHONIOENCODING=utf-8
+
+A final note about DevStack
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A common post devstack operation is to source the ``openrc`` file to set up
+environment variables. Doing so will unset the default ``LANG`` environment
+variable in your terminal, which will cause the preferred python encoding to
+be ``ascii``. We recommend either setting these environment variables
+independently or using the ``devstack`` or ``devstack-admin`` os-cloud profile.
+
+::
+
+  $ openstack project list --os-cloud devstack-admin
