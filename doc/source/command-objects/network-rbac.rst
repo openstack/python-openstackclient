@@ -80,6 +80,32 @@ List network RBAC policies
 
     os network rbac list
 
+network rbac set
+----------------
+
+Set network RBAC policy properties
+
+.. program:: network rbac set
+.. code:: bash
+
+    os network rbac set
+        [--target-project <target-project> [--target-project-domain <target-project-domain>]]
+        <rbac-policy>
+
+.. option:: --target-project <target-project>
+
+    The project to which the RBAC policy will be enforced (name or ID)
+
+.. option:: --target-project-domain <target-project-domain>
+
+    Domain the target project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+.. _network_rbac_set-rbac-policy:
+.. describe:: <rbac-policy>
+
+    RBAC policy to be modified (ID only)
+
 network rbac show
 -----------------
 
