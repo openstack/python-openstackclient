@@ -211,6 +211,36 @@ An example handler in `take_action()` for `unset` action:
         if parsed_args.no_example_property:
             kwargs['example_property'] = []
 
+Required Options
+----------------
+
+Some options have no default value and the API does not allow them to be
+`None`, then these options are always required when users use the command
+to which these options belong.
+
+Required options must be validated by the CLI to aviod omissions. The CLI
+validation may provide an error message for the user if a required option
+is not specified.
+(for example: ``error: argument --test is required``)
+
+.. option:: --test
+
+    Test option (required)
+
+Implementation
+~~~~~~~~~~~~~~
+
+The parser declaration should look like this:
+
+.. code-block:: python
+
+        parser.add_argument(
+            '--test',
+            metavar='<test>',
+            required=True,
+            help=_('Test option (required)'),
+        )
+
 List Command Options
 ====================
 
