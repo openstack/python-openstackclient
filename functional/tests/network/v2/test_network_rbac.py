@@ -12,12 +12,15 @@
 
 import uuid
 
+import testtools
+
 from functional.common import test
 
 
 class NetworkRBACTests(test.TestCase):
     """Functional tests for network rbac. """
     NET_NAME = uuid.uuid4().hex
+    PROJECT_NAME = uuid.uuid4().hex
     OBJECT_ID = None
     ID = None
     HEADERS = ['ID']
@@ -39,10 +42,10 @@ class NetworkRBACTests(test.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack('network rbac delete ' + cls.ID)
-        cls.assertOutput('', raw_output)
-        raw_output = cls.openstack('network delete ' + cls.OBJECT_ID)
-        cls.assertOutput('', raw_output)
+        raw_output_rbac = cls.openstack('network rbac delete ' + cls.ID)
+        raw_output_network = cls.openstack('network delete ' + cls.OBJECT_ID)
+        cls.assertOutput('', raw_output_rbac)
+        cls.assertOutput('', raw_output_network)
 
     def test_network_rbac_list(self):
         opts = self.get_opts(self.HEADERS)
@@ -53,3 +56,21 @@ class NetworkRBACTests(test.TestCase):
         opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('network rbac show ' + self.ID + opts)
         self.assertEqual(self.ID + "\n", raw_output)
+
+    # TODO(Huanxuan Ao): This test can pass after bug
+    # https://bugs.launchpad.net/python-openstackclient/+bug/1608903 fixed.
+    @testtools.skip(
+        'Skip because of the bug '
+        'https://bugs.launchpad.net/python-openstackclient/+bug/1608903')
+    def test_network_rbac_set(self):
+        opts = self.get_opts(self.FIELDS)
+        project_id = self.openstack(
+            'project create ' + self.PROJECT_NAME + opts)
+        self.openstack('network rbac set ' + self.ID +
+                       ' --target-project ' + self.PROJECT_NAME)
+        opts = self.get_opts(['target_project'])
+        raw_output_rbac = self.openstack('network rbac show ' + self.ID + opts)
+        raw_output_project = self.openstack(
+            'project delete ' + self.PROJECT_NAME)
+        self.assertEqual(project_id, raw_output_rbac)
+        self.assertOutput('', raw_output_project)

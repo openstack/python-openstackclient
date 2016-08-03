@@ -317,6 +317,62 @@ class TestListNetworkRABC(TestNetworkRBAC):
         self.assertEqual(self.data, list(data))
 
 
+class TestSetNetworkRBAC(TestNetworkRBAC):
+
+    project = identity_fakes_v3.FakeProject.create_one_project()
+    rbac_policy = network_fakes.FakeNetworkRBAC.create_one_network_rbac(
+        attrs={'target_tenant': project.id})
+
+    def setUp(self):
+        super(TestSetNetworkRBAC, self).setUp()
+
+        # Get the command object to test
+        self.cmd = network_rbac.SetNetworkRBAC(self.app, self.namespace)
+
+        self.network.find_rbac_policy = mock.Mock(
+            return_value=self.rbac_policy)
+        self.network.update_rbac_policy = mock.Mock(return_value=None)
+        self.projects_mock.get.return_value = self.project
+
+    def test_network_rbac_set_nothing(self):
+        arglist = [
+            self.rbac_policy.id,
+        ]
+        verifylist = [
+            ('rbac_policy', self.rbac_policy.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.network.find_rbac_policy.assert_called_once_with(
+            self.rbac_policy.id, ignore_missing=False
+        )
+        attrs = {}
+        self.network.update_rbac_policy.assert_called_once_with(
+            self.rbac_policy, **attrs)
+        self.assertIsNone(result)
+
+    def test_network_rbac_set(self):
+        arglist = [
+            '--target-project', self.project.id,
+            self.rbac_policy.id,
+        ]
+        verifylist = [
+            ('target_project', self.project.id),
+            ('rbac_policy', self.rbac_policy.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.network.find_rbac_policy.assert_called_once_with(
+            self.rbac_policy.id, ignore_missing=False
+        )
+        attrs = {'target_tenant': self.project.id}
+        self.network.update_rbac_policy.assert_called_once_with(
+            self.rbac_policy, **attrs)
+        self.assertIsNone(result)
+
+
 class TestShowNetworkRBAC(TestNetworkRBAC):
 
     rbac_policy = network_fakes.FakeNetworkRBAC.create_one_network_rbac()
