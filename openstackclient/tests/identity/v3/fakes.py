@@ -769,6 +769,44 @@ class FakeGroup(object):
                                    loaded=True)
         return group
 
+    @staticmethod
+    def create_groups(attrs=None, count=2):
+        """Create multiple fake groups.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of groups to fake
+        :return:
+            A list of FakeResource objects faking the groups
+        """
+        groups = []
+        for i in range(0, count):
+            group = FakeGroup.create_one_group(attrs)
+            groups.append(group)
+
+        return groups
+
+    @staticmethod
+    def get_groups(groups=None, count=2):
+        """Get an iterable MagicMock object with a list of faked groups.
+
+        If groups list is provided, then initialize the Mock object with
+        the list. Otherwise create one.
+
+        :param List groups:
+            A list of FakeResource objects faking groups
+        :param Integer count:
+            The number of groups to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            groups
+        """
+        if groups is None:
+            groups = FakeGroup.create_groups(count)
+
+        return mock.MagicMock(side_effect=groups)
+
 
 class FakeEndpoint(object):
     """Fake one or more endpoint."""
