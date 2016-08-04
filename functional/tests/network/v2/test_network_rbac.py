@@ -12,8 +12,6 @@
 
 import uuid
 
-import testtools
-
 from functional.common import test
 
 
@@ -57,18 +55,13 @@ class NetworkRBACTests(test.TestCase):
         raw_output = self.openstack('network rbac show ' + self.ID + opts)
         self.assertEqual(self.ID + "\n", raw_output)
 
-    # TODO(Huanxuan Ao): This test can pass after bug
-    # https://bugs.launchpad.net/python-openstackclient/+bug/1608903 fixed.
-    @testtools.skip(
-        'Skip because of the bug '
-        'https://bugs.launchpad.net/python-openstackclient/+bug/1608903')
     def test_network_rbac_set(self):
         opts = self.get_opts(self.FIELDS)
         project_id = self.openstack(
             'project create ' + self.PROJECT_NAME + opts)
         self.openstack('network rbac set ' + self.ID +
                        ' --target-project ' + self.PROJECT_NAME)
-        opts = self.get_opts(['target_project'])
+        opts = self.get_opts(['target_project_id'])
         raw_output_rbac = self.openstack('network rbac show ' + self.ID + opts)
         raw_output_project = self.openstack(
             'project delete ' + self.PROJECT_NAME)
