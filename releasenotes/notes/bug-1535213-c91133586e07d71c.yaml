@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Support a new ``--state`` option for ``volume set`` command that
+    changes the state of a volume.
+    [Bug `1535213 <https://bugs.launchpad.net/bugs/1535213>`_]

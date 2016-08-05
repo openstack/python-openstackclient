@@ -378,6 +378,16 @@ class SetVolume(command.Command):
             help=_('Set an image property on this volume '
                    '(repeat option to set multiple image properties)'),
         )
+        parser.add_argument(
+            "--state",
+            metavar="<state>",
+            choices=['available', 'error', 'creating', 'deleting',
+                     'in-use', 'attaching', 'detaching', 'error_deleting',
+                     'maintenance'],
+            help=_('New volume state ("available", "error", "creating", '
+                   '"deleting", "in-use", "attaching", "detaching", '
+                   '"error_deleting" or "maintenance")'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -400,6 +410,8 @@ class SetVolume(command.Command):
         if parsed_args.image_property:
             volume_client.volumes.set_image_metadata(
                 volume.id, parsed_args.image_property)
+        if parsed_args.state:
+            volume_client.volumes.reset_state(volume.id, parsed_args.state)
 
         kwargs = {}
         if parsed_args.name:
