@@ -178,6 +178,8 @@ list check out :doc:`plugin-commands`.
 * ``dataprocessing plugin``: (**Data Processing (Sahara)**)
 * ``message-broker cluster``: (**Message Broker (Cue)**)
 * ``message flavor``: (**Messaging (Zaqar)**)
+* ``network subport``: (**Networking (Neutron)**)
+* ``network trunk``: (**Networking (Neutron)**)
 * ``orchestration resource``: (**Orchestration (Heat)**)
 * ``orchestration template``: (**Orchestration (Heat)**)
 * ``pool``: (**Messaging (Zaqar)**)
