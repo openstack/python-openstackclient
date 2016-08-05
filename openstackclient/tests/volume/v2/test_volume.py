@@ -860,6 +860,27 @@ class TestVolumeSet(TestVolume):
             self.new_volume.id, 'error')
         self.assertIsNone(result)
 
+    def test_volume_set_state_failed(self):
+        self.volumes_mock.reset_state.side_effect = exceptions.CommandError()
+        arglist = [
+            '--state', 'error',
+            self.new_volume.id
+        ]
+        verifylist = [
+            ('state', 'error'),
+            ('volume', self.new_volume.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('One or more of the set operations failed',
+                             str(e))
+        self.volumes_mock.reset_state.assert_called_with(
+            self.new_volume.id, 'error')
+
 
 class TestVolumeShow(TestVolume):
 
