@@ -491,6 +491,73 @@ class FakePort(object):
         return mock.MagicMock(side_effect=ports)
 
 
+class FakeNetworkAgent(object):
+    """Fake one or more network agents."""
+
+    @staticmethod
+    def create_one_network_agent(attrs=None):
+        """Create a fake network agent
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, agent_type, and so on.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes
+        agent_attrs = {
+            'id': 'agent-id-' + uuid.uuid4().hex,
+            'agent_type': 'agent-type-' + uuid.uuid4().hex,
+            'host': 'host-' + uuid.uuid4().hex,
+            'availability_zone': 'zone-' + uuid.uuid4().hex,
+            'alive': True,
+            'admin_state_up': True,
+            'binary': 'binary-' + uuid.uuid4().hex,
+            'configurations': {'subnet': 2, 'networks': 1},
+        }
+        agent_attrs.update(attrs)
+        agent = fakes.FakeResource(info=copy.deepcopy(agent_attrs),
+                                   loaded=True)
+        return agent
+
+    @staticmethod
+    def create_network_agents(attrs=None, count=2):
+        """Create multiple fake network agents.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of network agents to fake
+        :return:
+            A list of FakeResource objects faking the network agents
+        """
+        agents = []
+        for i in range(0, count):
+            agents.append(FakeNetworkAgent.create_one_network_agent(attrs))
+
+        return agents
+
+    @staticmethod
+    def get_network_agents(agents=None, count=2):
+        """Get an iterable MagicMock object with a list of faked network agents.
+
+        If network agents list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List agents:
+            A list of FakeResource objects faking network agents
+        :param int count:
+            The number of network agents to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            network agents
+        """
+        if agents is None:
+            agents = FakeNetworkAgent.create_network_agents(count)
+        return mock.MagicMock(side_effect=agents)
+
+
 class FakeNetworkRBAC(object):
     """Fake one or more network rbac policies."""
 
