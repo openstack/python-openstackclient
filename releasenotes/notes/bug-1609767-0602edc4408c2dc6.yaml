@@ -1,0 +1,5 @@
+---
+features:
+  - Support to update ``per_volume_gigabytes``, ``backup_gigabytes`` and
+    ``backups`` quota in ``quota set`` command.
+    [Bug `1609767 <https://bugs.launchpad.net/python-openstackclient/+bug/1609767>`_]

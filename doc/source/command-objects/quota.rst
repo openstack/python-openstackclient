@@ -2,9 +2,10 @@
 quota
 =====
 
-Resource quotas appear in multiple APIs, OpenStackClient presents them as a single object with multiple properties.
+Resource quotas appear in multiple APIs, OpenStackClient presents them as a
+single object with multiple properties.
 
-Block Storage v1, Compute v2, Network v2
+Block Storage v1, v2, Compute v2, Network v2
 
 quota set
 ---------
@@ -29,7 +30,10 @@ Set quotas for project
         [--server-group-members <num-server-group-members>]
 
         # Block Storage settings
+        [--backups <new-backups>]
+        [--backup-gigabytes <new-backup-gigabytes>]
         [--gigabytes <new-gigabytes>]
+        [--per-volume-gigabytes <new-per-volume-gigabytes>]
         [--snapshots <new-snapshots>]
         [--volumes <new-volumes>]
         [--volume-type <volume-type>]
@@ -70,7 +74,10 @@ Set quotas for class
         [--server-group-members <num-server-group-members>]
 
         # Block Storage settings
+        [--backups <new-backups>]
+        [--backup-gigabytes <new-backup-gigabytes>]
         [--gigabytes <new-gigabytes>]
+        [--per-volume-gigabytes <new-per-volume-gigabytes>]
         [--snapshots <new-snapshots>]
         [--volumes <new-volumes>]
 
@@ -136,9 +143,21 @@ Set quotas for class
 
     New value for the injected-path-size quota
 
+.. option:: --backups <new-backups>
+
+    New value for the backups quota
+
+.. option:: --backup-gigabytes <new-backup-gigabytes>
+
+    New value for the backup gigabytes quota
+
 .. option:: --gigabytes <new-gigabytes>
 
     New value for the gigabytes quota
+
+.. option:: --per-volume-gigabytes <new-per-volume-gigabytes>
+
+    New value for the gigabytes quota of per volume
 
 .. option:: --volumes <new-volumes>
 
@@ -150,7 +169,8 @@ Set quotas for class
 
 .. option:: --volume-type <volume-type>
 
-    Set quotas for a specific <volume-type>
+    Set quotas for a specific <volume-type>. The supported quotas are:
+    gigabytes, snapshots, volumes.
 
 .. option:: --networks <num-networks>
 
