@@ -216,6 +216,12 @@ class FakeResource(object):
     def info(self):
         return self._info
 
+    def __getitem__(self, item):
+        return self._info.get(item)
+
+    def get(self, item, default=None):
+        return self._info.get(item, default)
+
 
 class FakeResponse(requests.Response):
 

@@ -77,6 +77,11 @@ class TestCase(testtools.TestCase):
         if expected not in actual:
             raise Exception(expected + ' not in ' + actual)
 
+    @classmethod
+    def assertsOutputNotNone(cls, observed):
+        if observed is None:
+            raise Exception('No output observed')
+
     def assert_table_structure(self, items, field_names):
         """Verify that all items have keys listed in field_names."""
         for item in items:

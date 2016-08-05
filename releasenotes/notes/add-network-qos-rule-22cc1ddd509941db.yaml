@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add support for Network QoS rule commands:
+    ``network qos rule create``, ``network qos rule delete``,
+    ``network qos rule list``, ``network qos rule show`` and
+    ``network qos rule set``
+    [Bug `1609472 <https://bugs.launchpad.net/bugs/1609472>`_]
