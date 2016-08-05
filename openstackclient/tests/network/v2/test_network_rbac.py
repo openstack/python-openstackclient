@@ -49,7 +49,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         'object_id',
         'object_type',
         'project_id',
-        'target_project',
+        'target_project_id',
     )
 
     data = [
@@ -383,7 +383,7 @@ class TestShowNetworkRBAC(TestNetworkRBAC):
         'object_id',
         'object_type',
         'project_id',
-        'target_project',
+        'target_project_id',
     )
 
     data = [

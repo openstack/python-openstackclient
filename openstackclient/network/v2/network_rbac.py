@@ -33,7 +33,7 @@ def _get_columns(item):
         columns.append('project_id')
     if 'target_tenant' in columns:
         columns.remove('target_tenant')
-        columns.append('target_project')
+        columns.append('target_project_id')
     return tuple(sorted(columns))
 
 

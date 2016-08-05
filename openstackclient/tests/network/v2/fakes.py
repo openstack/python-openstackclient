@@ -520,7 +520,7 @@ class FakeNetworkRBAC(object):
                                   loaded=True)
         # Set attributes with special mapping in OpenStack SDK.
         rbac.project_id = rbac_attrs['tenant_id']
-        rbac.target_project = rbac_attrs['target_tenant']
+        rbac.target_project_id = rbac_attrs['target_tenant']
         return rbac
 
     @staticmethod
