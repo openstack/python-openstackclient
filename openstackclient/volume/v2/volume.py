@@ -394,24 +394,42 @@ class SetVolume(command.Command):
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 
+        result = 0
         if parsed_args.size:
-            if volume.status != 'available':
-                LOG.error(_("Volume is in %s state, it must be available "
-                            "before size can be extended"), volume.status)
-                return
-            if parsed_args.size <= volume.size:
-                LOG.error(_("New size must be greater than %s GB"),
-                          volume.size)
-                return
-            volume_client.volumes.extend(volume.id, parsed_args.size)
+            try:
+                if volume.status != 'available':
+                    msg = (_("Volume is in %s state, it must be available "
+                           "before size can be extended"), volume.status)
+                    raise exceptions.CommandError(msg)
+                if parsed_args.size <= volume.size:
+                    msg = _("New size must be greater than %s GB"), volume.size
+                    raise exceptions.CommandError(msg)
+                volume_client.volumes.extend(volume.id, parsed_args.size)
+            except Exception as e:
+                LOG.error(_("Failed to set volume size: %s"), e)
+                result += 1
 
         if parsed_args.property:
-            volume_client.volumes.set_metadata(volume.id, parsed_args.property)
+            try:
+                volume_client.volumes.set_metadata(
+                    volume.id, parsed_args.property)
+            except Exception as e:
+                LOG.error(_("Failed to set volume property: %s"), e)
+                result += 1
         if parsed_args.image_property:
-            volume_client.volumes.set_image_metadata(
-                volume.id, parsed_args.image_property)
+            try:
+                volume_client.volumes.set_image_metadata(
+                    volume.id, parsed_args.image_property)
+            except Exception as e:
+                LOG.error(_("Failed to set image property: %s"), e)
+                result += 1
         if parsed_args.state:
-            volume_client.volumes.reset_state(volume.id, parsed_args.state)
+            try:
+                volume_client.volumes.reset_state(
+                    volume.id, parsed_args.state)
+            except Exception as e:
+                LOG.error(_("Failed to set volume state: %s"), e)
+                result += 1
 
         kwargs = {}
         if parsed_args.name:
@@ -419,7 +437,16 @@ class SetVolume(command.Command):
         if parsed_args.description:
             kwargs['display_description'] = parsed_args.description
         if kwargs:
-            volume_client.volumes.update(volume.id, **kwargs)
+            try:
+                volume_client.volumes.update(volume.id, **kwargs)
+            except Exception as e:
+                LOG.error(_("Failed to update volume display name "
+                          "or display description: %s"), e)
+                result += 1
+
+        if result > 0:
+            raise exceptions.CommandError(_("One or more of the "
+                                          "set operations failed"))
 
 
 class ShowVolume(command.ShowOne):
