@@ -64,7 +64,7 @@ def make_client(instance):
                   if ext.name == "list_extensions"]
 
     # Remember interface only if it is set
-    kwargs = utils.build_kwargs_dict('endpoint_type', instance._interface)
+    kwargs = utils.build_kwargs_dict('endpoint_type', instance.interface)
 
     client = nova_client.Client(
         version,
@@ -72,7 +72,7 @@ def make_client(instance):
         extensions=extensions,
         http_log_debug=http_log_debug,
         timings=instance.timing,
-        region_name=instance._region_name,
+        region_name=instance.region_name,
         **kwargs
     )
 
