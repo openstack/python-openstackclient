@@ -166,6 +166,43 @@ class FakeTransfer(object):
 
         return transfer
 
+    @staticmethod
+    def create_transfers(attrs=None, count=2):
+        """Create multiple fake transfers.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes of transfer
+        :param Integer count:
+            The number of transfers to be faked
+        :return:
+            A list of FakeResource objects
+        """
+        transfers = []
+        for n in range(0, count):
+            transfers.append(FakeTransfer.create_one_transfer(attrs))
+
+        return transfers
+
+    @staticmethod
+    def get_transfers(transfers=None, count=2):
+        """Get an iterable MagicMock object with a list of faked transfers.
+
+        If transfers list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List transfers:
+            A list of FakeResource objects faking transfers
+        :param Integer count:
+            The number of transfers to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            transfers
+        """
+        if transfers is None:
+            transfers = FakeTransfer.create_transfers(count)
+
+        return mock.MagicMock(side_effect=transfers)
+
 
 class FakeService(object):
     """Fake one or more Services."""

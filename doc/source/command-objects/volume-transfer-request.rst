@@ -25,6 +25,22 @@ Create volume transfer request
 
     Volume to transfer (name or ID)
 
+volume transfer request delete
+------------------------------
+
+Delete volume transfer request(s)
+
+.. program:: volume transfer request delete
+.. code:: bash
+
+    os volume transfer request delete
+        <transfer-request> [<transfer-request> ...]
+
+.. _volume_transfer_request_delete-transfer-request:
+.. describe:: <transfer-request>
+
+    Volume transfer request(s) to delete (name or ID)
+
 volume transfer request list
 ----------------------------
 
