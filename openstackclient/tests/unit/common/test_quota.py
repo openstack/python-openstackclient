@@ -18,6 +18,7 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
+from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 
 
 class FakeQuotaResource(fakes.FakeResource):
@@ -43,10 +44,7 @@ class TestQuota(compute_fakes.TestComputev2):
         self.quotas_mock.reset_mock()
         self.quotas_class_mock = self.app.client_manager.compute.quota_classes
         self.quotas_class_mock.reset_mock()
-        volume_mock = mock.Mock()
-        volume_mock.quotas = mock.Mock()
-        self.app.client_manager.volume = volume_mock
-        self.volume_quotas_mock = volume_mock.quotas
+        self.volume_quotas_mock = self.app.client_manager.volume.quotas
         self.volume_quotas_mock.reset_mock()
         self.volume_quotas_class_mock = \
             self.app.client_manager.volume.quota_classes
@@ -66,19 +64,7 @@ class TestQuotaSet(TestQuota):
     def setUp(self):
         super(TestQuotaSet, self).setUp()
 
-        self.quotas_mock.find.return_value = FakeQuotaResource(
-            None,
-            copy.deepcopy(compute_fakes.QUOTA),
-            loaded=True,
-        )
-
         self.quotas_mock.update.return_value = FakeQuotaResource(
-            None,
-            copy.deepcopy(compute_fakes.QUOTA),
-            loaded=True,
-        )
-
-        self.volume_quotas_mock.find.return_value = FakeQuotaResource(
             None,
             copy.deepcopy(compute_fakes.QUOTA),
             loaded=True,
@@ -141,7 +127,7 @@ class TestQuotaSet(TestQuota):
         self.app.client_manager.network_endpoint_enabled = False
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
             'floating_ips': compute_fakes.floating_ip_num,
@@ -161,38 +147,72 @@ class TestQuotaSet(TestQuota):
             'server_group_members': compute_fakes.servgroup_members_num,
         }
 
-        self.quotas_mock.update.assert_called_with(
+        self.quotas_mock.update.assert_called_once_with(
             identity_fakes.project_id,
             **kwargs
         )
+        self.assertIsNone(result)
 
     def test_quota_set_volume(self):
         arglist = [
-            '--gigabytes', str(compute_fakes.floating_ip_num),
-            '--snapshots', str(compute_fakes.fix_ip_num),
-            '--volumes', str(compute_fakes.injected_file_num),
+            '--gigabytes', str(volume_fakes.QUOTA['gigabytes']),
+            '--snapshots', str(volume_fakes.QUOTA['snapshots']),
+            '--volumes', str(volume_fakes.QUOTA['volumes']),
             identity_fakes.project_name,
         ]
         verifylist = [
-            ('gigabytes', compute_fakes.floating_ip_num),
-            ('snapshots', compute_fakes.fix_ip_num),
-            ('volumes', compute_fakes.injected_file_num),
+            ('gigabytes', volume_fakes.QUOTA['gigabytes']),
+            ('snapshots', volume_fakes.QUOTA['snapshots']),
+            ('volumes', volume_fakes.QUOTA['volumes']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         kwargs = {
-            'gigabytes': compute_fakes.floating_ip_num,
-            'snapshots': compute_fakes.fix_ip_num,
-            'volumes': compute_fakes.injected_file_num,
+            'gigabytes': volume_fakes.QUOTA['gigabytes'],
+            'snapshots': volume_fakes.QUOTA['snapshots'],
+            'volumes': volume_fakes.QUOTA['volumes'],
         }
 
-        self.volume_quotas_mock.update.assert_called_with(
+        self.volume_quotas_mock.update.assert_called_once_with(
             identity_fakes.project_id,
             **kwargs
         )
+
+        self.assertIsNone(result)
+
+    def test_quota_set_volume_with_volume_type(self):
+        arglist = [
+            '--gigabytes', str(volume_fakes.QUOTA['gigabytes']),
+            '--snapshots', str(volume_fakes.QUOTA['snapshots']),
+            '--volumes', str(volume_fakes.QUOTA['volumes']),
+            '--volume-type', 'volume_type_backend',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('gigabytes', volume_fakes.QUOTA['gigabytes']),
+            ('snapshots', volume_fakes.QUOTA['snapshots']),
+            ('volumes', volume_fakes.QUOTA['volumes']),
+            ('volume_type', 'volume_type_backend'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'gigabytes_volume_type_backend': volume_fakes.QUOTA['gigabytes'],
+            'snapshots_volume_type_backend': volume_fakes.QUOTA['snapshots'],
+            'volumes_volume_type_backend': volume_fakes.QUOTA['volumes'],
+        }
+
+        self.volume_quotas_mock.update.assert_called_once_with(
+            identity_fakes.project_id,
+            **kwargs
+        )
+        self.assertIsNone(result)
 
     def test_quota_set_network(self):
         arglist = [
@@ -228,7 +248,7 @@ class TestQuotaSet(TestQuota):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
         kwargs = {
             'subnet': network_fakes.QUOTA['subnet'],
             'network': network_fakes.QUOTA['network'],
@@ -244,10 +264,38 @@ class TestQuotaSet(TestQuota):
             'member': network_fakes.QUOTA['member'],
             'health_monitor': network_fakes.QUOTA['health_monitor'],
         }
-        self.network_mock.update_quota.assert_called_with(
+        self.network_mock.update_quota.assert_called_once_with(
             identity_fakes.project_id,
             **kwargs
         )
+        self.assertIsNone(result)
+
+    def test_quota_set_with_class(self):
+        arglist = [
+            '--instances', str(compute_fakes.instance_num),
+            '--volumes', str(volume_fakes.QUOTA['volumes']),
+            '--network', str(network_fakes.QUOTA['network']),
+            '--class',
+            identity_fakes.project_name,
+        ]
+        verifylist = [
+            ('instances', compute_fakes.instance_num),
+            ('volumes', volume_fakes.QUOTA['volumes']),
+            ('network', network_fakes.QUOTA['network']),
+            ('quota_class', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.quotas_class_mock.update.assert_called_once_with(
+            identity_fakes.project_id,
+            **{'instances': compute_fakes.instance_num}
+        )
+        self.volume_quotas_class_mock.update.assert_called_once_with(
+            identity_fakes.project_id,
+            **{'volumes': volume_fakes.QUOTA['volumes']}
+        )
+        self.assertNotCalled(self.network_mock.update_quota)
+        self.assertIsNone(result)
 
 
 class TestQuotaShow(TestQuota):
@@ -269,13 +317,13 @@ class TestQuotaShow(TestQuota):
 
         self.volume_quotas_mock.get.return_value = FakeQuotaResource(
             None,
-            copy.deepcopy(compute_fakes.QUOTA),
+            copy.deepcopy(volume_fakes.QUOTA),
             loaded=True,
         )
 
         self.volume_quotas_mock.defaults.return_value = FakeQuotaResource(
             None,
-            copy.deepcopy(compute_fakes.QUOTA),
+            copy.deepcopy(volume_fakes.QUOTA),
             loaded=True,
         )
 
@@ -297,7 +345,7 @@ class TestQuotaShow(TestQuota):
 
         self.volume_quotas_class_mock.get.return_value = FakeQuotaResource(
             None,
-            copy.deepcopy(compute_fakes.QUOTA),
+            copy.deepcopy(volume_fakes.QUOTA),
             loaded=True,
         )
 
@@ -328,10 +376,11 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.quotas_mock.get.assert_called_with(identity_fakes.project_id)
-        self.volume_quotas_mock.get.assert_called_with(
+        self.quotas_mock.get.assert_called_once_with(identity_fakes.project_id)
+        self.volume_quotas_mock.get.assert_called_once_with(
             identity_fakes.project_id)
-        self.network.get_quota.assert_called_with(identity_fakes.project_id)
+        self.network.get_quota.assert_called_once_with(
+            identity_fakes.project_id)
 
     def test_quota_show_with_default(self):
         arglist = [
@@ -347,8 +396,9 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.quotas_mock.defaults.assert_called_with(identity_fakes.project_id)
-        self.volume_quotas_mock.defaults.assert_called_with(
+        self.quotas_mock.defaults.assert_called_once_with(
+            identity_fakes.project_id)
+        self.volume_quotas_mock.defaults.assert_called_once_with(
             identity_fakes.project_id)
 
     def test_quota_show_with_class(self):
@@ -365,9 +415,9 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.quotas_class_mock.get.assert_called_with(
+        self.quotas_class_mock.get.assert_called_once_with(
             identity_fakes.project_id)
-        self.volume_quotas_class_mock.get.assert_called_with(
+        self.volume_quotas_class_mock.get.assert_called_once_with(
             identity_fakes.project_id)
 
     def test_quota_show_no_project(self):
@@ -375,7 +425,8 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.quotas_mock.get.assert_called_with(identity_fakes.project_id)
-        self.volume_quotas_mock.get.assert_called_with(
+        self.quotas_mock.get.assert_called_once_with(identity_fakes.project_id)
+        self.volume_quotas_mock.get.assert_called_once_with(
             identity_fakes.project_id)
-        self.network.get_quota.assert_called_with(identity_fakes.project_id)
+        self.network.get_quota.assert_called_once_with(
+            identity_fakes.project_id)
