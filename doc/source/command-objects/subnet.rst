@@ -151,6 +151,7 @@ List subnets
 
     os subnet list
         [--long]
+        [--ip-version {4,6}]
 
 .. option:: --long
 
