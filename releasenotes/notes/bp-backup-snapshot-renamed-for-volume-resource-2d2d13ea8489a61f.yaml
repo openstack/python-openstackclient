@@ -1,0 +1,8 @@
+---
+features:
+  - Add new commands ``volume backup create/delete/list/show/restore``. It is
+    used to replace the old commands ``backup create/delete/list/show/restore``.
+    [Blueprint `backup-snapshot-renamed-for-volume-resource <https://blueprints.launchpad.net/python-openstackclient/+spec/backup-snapshot-renamed-for-volume-resource>`_]
+deprecations:
+  - Deprecate commands ``backup create/delete/list/show/restore``.
+    [Blueprint `backup-snapshot-renamed-for-volume-resource <https://blueprints.launchpad.net/python-openstackclient/+spec/backup-snapshot-renamed-for-volume-resource>`_]

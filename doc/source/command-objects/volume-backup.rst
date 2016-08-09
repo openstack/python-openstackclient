@@ -1,19 +1,18 @@
-======
-backup
-======
+=============
+volume backup
+=============
 
 Block Storage v1, v2
 
-backup create
--------------
+volume backup create
+--------------------
 
-Create new backup
-(Deprecated, please use ``volume backup create`` instead)
+Create new volume backup
 
-.. program:: backup create
+.. program:: volume backup create
 .. code:: bash
 
-    os backup create
+    os volume backup create
         [--container <container>]
         [--name <name>]
         [--description <description>]
@@ -52,21 +51,20 @@ Create new backup
 
     *Volume version 2 only*
 
-.. _backup_create-backup:
+.. _volume_backup_create-backup:
 .. describe:: <volume>
 
     Volume to backup (name or ID)
 
-backup delete
--------------
+volume backup delete
+--------------------
 
-Delete backup(s)
-(Deprecated, please use ``volume backup delete`` instead)
+Delete volume backup(s)
 
-.. program:: backup delete
+.. program:: volume backup delete
 .. code:: bash
 
-    os backup delete
+    os volume backup delete
         [--force]
         <backup> [<backup> ...]
 
@@ -76,41 +74,39 @@ Delete backup(s)
 
     *Volume version 2 only*
 
-.. _backup_delete-backup:
+.. _volume_backup_delete-backup:
 .. describe:: <backup>
 
     Backup(s) to delete (name or ID)
 
-backup list
------------
+volume backup list
+------------------
 
-List backups
-(Deprecated, please use ``volume backup list`` instead)
+List volume backups
 
-.. program:: backup list
+.. program:: volume backup list
 .. code:: bash
 
-    os backup list
+    os volume backup list
 
-.. _backup_list-backup:
+.. _volume_backup_list-backup:
 .. option:: --long
 
     List additional fields in output
 
-backup restore
---------------
+volume backup restore
+---------------------
 
-Restore backup
-(Deprecated, please use ``volume backup restore`` instead)
+Restore volume backup
 
-.. program:: backup restore
+.. program:: volume backup restore
 .. code:: bash
 
-    os backup restore
+    os volume backup restore
         <backup>
         <volume>
 
-.. _backup_restore-backup:
+.. _volume_backup_restore-backup:
 .. describe:: <backup>
 
     Backup to restore (name or ID)
@@ -119,19 +115,18 @@ Restore backup
 
     Volume to restore to (name or ID)
 
-backup show
------------
+volume backup show
+------------------
 
-Display backup details
-(Deprecated, please use ``volume backup show`` instead)
+Display volume backup details
 
-.. program:: backup show
+.. program:: volume backup show
 .. code:: bash
 
-    os backup show
+    os volume backup show
         <backup>
 
-.. _backup_show-backup:
+.. _volume_backup_show-backup:
 .. describe:: <backup>
 
     Backup to display (name or ID)
