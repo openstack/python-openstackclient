@@ -166,6 +166,7 @@ class TestCreateRouter(TestRouter):
             ('name', self.new_router.name),
             ('enable', True),
             ('distributed', False),
+            ('ha', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -174,6 +175,29 @@ class TestCreateRouter(TestRouter):
         self.network.create_router.assert_called_once_with(**{
             'admin_state_up': True,
             'name': self.new_router.name,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_with_ha_option(self):
+        arglist = [
+            '--ha',
+            self.new_router.name,
+        ]
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable', True),
+            ('distributed', False),
+            ('ha', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_router.assert_called_once_with(**{
+            'admin_state_up': True,
+            'name': self.new_router.name,
+            'ha': True,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -189,6 +213,7 @@ class TestCreateRouter(TestRouter):
             ('availability_zone_hints', ['fake-az', 'fake-az2']),
             ('enable', True),
             ('distributed', False),
+            ('ha', False)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

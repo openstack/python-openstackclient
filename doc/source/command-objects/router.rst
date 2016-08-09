@@ -63,7 +63,7 @@ Create new router
     os router create
         [--project <project> [--project-domain <project-domain>]]
         [--enable | --disable]
-        [--distributed]
+        [--distributed] [--ha]
         [--description <description>]
         [--availability-zone-hint <availability-zone>]
         <name>
@@ -88,6 +88,10 @@ Create new router
 .. option:: --distributed
 
     Create a distributed router
+
+.. option:: --ha
+
+    Create a highly available router
 
 .. option:: --description <description>
 
