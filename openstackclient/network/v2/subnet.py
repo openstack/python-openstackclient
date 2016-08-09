@@ -341,12 +341,27 @@ class ListSubnet(command.Lister):
             help=_("List only subnets of given IP version in output."
                    "Allowed values for IP version are 4 and 6."),
         )
+        dhcp_enable_group = parser.add_mutually_exclusive_group()
+        dhcp_enable_group.add_argument(
+            '--dhcp',
+            action='store_true',
+            help=_("List subnets which have DHCP enabled")
+        )
+        dhcp_enable_group.add_argument(
+            '--no-dhcp',
+            action='store_true',
+            help=_("List subnets which have DHCP disabled")
+        )
         return parser
 
     def take_action(self, parsed_args):
         filters = {}
         if parsed_args.ip_version:
             filters['ip_version'] = parsed_args.ip_version
+        if parsed_args.dhcp:
+            filters['enable_dhcp'] = True
+        elif parsed_args.no_dhcp:
+            filters['enable_dhcp'] = False
         data = self.app.client_manager.network.subnets(**filters)
 
         headers = ('ID', 'Name', 'Network', 'Subnet')

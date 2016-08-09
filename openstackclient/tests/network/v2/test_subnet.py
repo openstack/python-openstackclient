@@ -584,6 +584,38 @@ class TestListSubnet(TestSubnet):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_subnet_list_dhcp(self):
+        arglist = [
+            '--dhcp',
+        ]
+        verifylist = [
+            ('dhcp', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'enable_dhcp': True}
+
+        self.network.subnets.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_list_no_dhcp(self):
+        arglist = [
+            '--no-dhcp',
+        ]
+        verifylist = [
+            ('no_dhcp', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'enable_dhcp': False}
+
+        self.network.subnets.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
 
 class TestSetSubnet(TestSubnet):
 
