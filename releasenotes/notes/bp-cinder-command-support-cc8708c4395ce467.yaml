@@ -1,0 +1,4 @@
+---
+features:
+  - Add ``volume transfer request create`` command in volume v1 and v2
+    [Blueprint `cinder-command-support <https://blueprints.launchpad.net/python-openstackclient/+spec/cinder-command-support>`_]

@@ -39,9 +39,12 @@ class FakeTransfer(object):
         """
         # Set default attribute
         transfer_info = {
-            'volume_id': 'ce26708d-a7f8-4b4b-9861-4a80256615a7',
+            'auth_key': 'key-' + uuid.uuid4().hex,
+            'created_at': 'time-' + uuid.uuid4().hex,
+            'volume_id': 'volume-id-' + uuid.uuid4().hex,
             'name': 'fake_transfer_name',
-            'id': '731a7f53-aa92-4fbd-9de3-6f7d729c926b'
+            'id': 'id-' + uuid.uuid4().hex,
+            'links': 'links-' + uuid.uuid4().hex,
         }
 
         # Overwrite default attributes if there are some attributes set

@@ -12,12 +12,42 @@
 #   under the License.
 #
 
-"""Volume v2 transfer action implementations"""
+"""Volume v1 transfer action implementations"""
 
 from osc_lib.command import command
 from osc_lib import utils
+import six
 
 from openstackclient.i18n import _
+
+
+class CreateTransferRequest(command.ShowOne):
+    """Create volume transfer request."""
+
+    def get_parser(self, prog_name):
+        parser = super(CreateTransferRequest, self).get_parser(prog_name)
+        parser.add_argument(
+            '--name',
+            metavar="<name>",
+            help=_('New transfer request name (default to None)')
+        )
+        parser.add_argument(
+            'volume',
+            metavar="<volume>",
+            help=_('Volume to transfer (name or ID)')
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        volume_client = self.app.client_manager.volume
+        volume_id = utils.find_resource(
+            volume_client.volumes, parsed_args.volume).id
+        volume_transfer_request = volume_client.transfers.create(
+            volume_id, parsed_args.name,
+        )
+        volume_transfer_request._info.pop("links", None)
+
+        return zip(*sorted(six.iteritems(volume_transfer_request._info)))
 
 
 class ListTransferRequests(command.Lister):

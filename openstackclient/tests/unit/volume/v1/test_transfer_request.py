@@ -12,7 +12,6 @@
 #   under the License.
 #
 
-
 from openstackclient.tests.unit.volume.v1 import fakes as transfer_fakes
 from openstackclient.volume.v1 import volume_transfer_request
 
@@ -25,6 +24,77 @@ class TestTransfer(transfer_fakes.TestVolumev1):
         # Get a shortcut to the TransferManager Mock
         self.transfer_mock = self.app.client_manager.volume.transfers
         self.transfer_mock.reset_mock()
+
+        # Get a shortcut to the VolumeManager Mock
+        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock.reset_mock()
+
+
+class TestTransferCreate(TestTransfer):
+
+    volume = transfer_fakes.FakeVolume.create_one_volume()
+
+    columns = (
+        'auth_key',
+        'created_at',
+        'id',
+        'name',
+        'volume_id',
+    )
+
+    def setUp(self):
+        super(TestTransferCreate, self).setUp()
+
+        self.volume_transfer = transfer_fakes.FakeTransfer.create_one_transfer(
+            attrs={'volume_id': self.volume.id})
+        self.data = (
+            self.volume_transfer.auth_key,
+            self.volume_transfer.created_at,
+            self.volume_transfer.id,
+            self.volume_transfer.name,
+            self.volume_transfer.volume_id,
+        )
+
+        self.transfer_mock.create.return_value = self.volume_transfer
+        self.volumes_mock.get.return_value = self.volume
+
+        # Get the command object to test
+        self.cmd = volume_transfer_request.CreateTransferRequest(
+            self.app, None)
+
+    def test_transfer_create_without_name(self):
+        arglist = [
+            self.volume.id,
+        ]
+        verifylist = [
+            ('volume', self.volume.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.transfer_mock.create.assert_called_once_with(
+            self.volume.id, None)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_transfer_create_with_name(self):
+        arglist = [
+            '--name', self.volume_transfer.name,
+            self.volume.id,
+        ]
+        verifylist = [
+            ('name', self.volume_transfer.name),
+            ('volume', self.volume.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.transfer_mock.create.assert_called_once_with(
+            self.volume.id, self.volume_transfer.name,)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
 
 class TestTransferList(TestTransfer):
