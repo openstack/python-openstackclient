@@ -99,6 +99,47 @@ class ListNetworkAgent(command.Lister):
                 ) for s in data))
 
 
+class SetNetworkAgent(command.Command):
+    """Set network agent properties"""
+
+    def get_parser(self, prog_name):
+        parser = super(SetNetworkAgent, self).get_parser(prog_name)
+        parser.add_argument(
+            'network_agent',
+            metavar="<network-agent>",
+            help=(_("Network agent to modify (ID only)"))
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_("Set network agent description")
+        )
+        admin_group = parser.add_mutually_exclusive_group()
+        admin_group.add_argument(
+            '--enable',
+            action='store_true',
+            help=_("Enable network agent")
+        )
+        admin_group.add_argument(
+            '--disable',
+            action='store_true',
+            help=_("Disable network agent")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        obj = client.get_agent(parsed_args.network_agent, ignore_missing=False)
+        attrs = {}
+        if parsed_args.description is not None:
+            attrs['description'] = str(parsed_args.description)
+        if parsed_args.enable:
+            attrs['admin_state_up'] = True
+        if parsed_args.disable:
+            attrs['admin_state_up'] = False
+        client.update_agent(obj, **attrs)
+
+
 class ShowNetworkAgent(command.ShowOne):
     """Display network agent details"""
 

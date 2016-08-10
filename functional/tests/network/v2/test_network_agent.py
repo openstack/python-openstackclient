@@ -30,3 +30,12 @@ class NetworkAgentTests(test.TestCase):
         opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('network agent show ' + self.IDs[0] + opts)
         self.assertEqual(self.IDs[0] + "\n", raw_output)
+
+    def test_network_agent_set(self):
+        opts = self.get_opts(['admin_state_up'])
+        self.openstack('network agent set --disable ' + self.IDs[0])
+        raw_output = self.openstack('network agent show ' + self.IDs[0] + opts)
+        self.assertEqual("DOWN\n", raw_output)
+        self.openstack('network agent set --enable ' + self.IDs[0])
+        raw_output = self.openstack('network agent show ' + self.IDs[0] + opts)
+        self.assertEqual("UP\n", raw_output)

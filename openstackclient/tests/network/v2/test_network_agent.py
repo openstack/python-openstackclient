@@ -160,6 +160,81 @@ class TestListNetworkAgent(TestNetworkAgent):
         self.assertEqual(self.data, list(data))
 
 
+class TestSetNetworkAgent(TestNetworkAgent):
+
+    _network_agent = (
+        network_fakes.FakeNetworkAgent.create_one_network_agent())
+
+    def setUp(self):
+        super(TestSetNetworkAgent, self).setUp()
+        self.network.update_agent = mock.Mock(return_value=None)
+        self.network.get_agent = mock.Mock(return_value=self._network_agent)
+
+        # Get the command object to test
+        self.cmd = network_agent.SetNetworkAgent(self.app, self.namespace)
+
+    def test_set_nothing(self):
+        arglist = [
+            self._network_agent.id,
+        ]
+        verifylist = [
+            ('network_agent', self._network_agent.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {}
+        self.network.update_agent.assert_called_once_with(
+            self._network_agent, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_all(self):
+        arglist = [
+            '--description', 'new_description',
+            '--enable',
+            self._network_agent.id,
+        ]
+        verifylist = [
+            ('description', 'new_description'),
+            ('enable', True),
+            ('disable', False),
+            ('network_agent', self._network_agent.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'description': 'new_description',
+            'admin_state_up': True,
+        }
+        self.network.update_agent.assert_called_once_with(
+            self._network_agent, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_with_disable(self):
+        arglist = [
+            '--disable',
+            self._network_agent.id,
+        ]
+        verifylist = [
+            ('enable', False),
+            ('disable', True),
+            ('network_agent', self._network_agent.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'admin_state_up': False,
+        }
+        self.network.update_agent.assert_called_once_with(
+            self._network_agent, **attrs)
+        self.assertIsNone(result)
+
+
 class TestShowNetworkAgent(TestNetworkAgent):
 
     _network_agent = (

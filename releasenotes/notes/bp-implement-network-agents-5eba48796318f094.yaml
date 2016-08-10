@@ -1,5 +1,5 @@
 ---
 features:
-  - Add ``network agent delete``, ``network agent list`` and
-    ``network agent show`` commands.
+  - Add ``network agent delete``, ``network agent list``, ``network agent show``
+    and ``network agent set`` commands.
     [Blueprint `implement-network-agents <https://blueprints.launchpad.net/python-openstackclient/+spec/implement-network-agents>`_]
