@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Make ``subnet list`` command supports listing up subnets with
+    dhcp enabled/disabled by adding ``--dhcp`` and ``--no-dhcp``
+    options to the command.
+    [Bug `1610883 <https://bugs.launchpad.net/bugs/1610883>`_]

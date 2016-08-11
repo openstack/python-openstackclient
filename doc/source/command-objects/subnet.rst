@@ -152,6 +152,7 @@ List subnets
     os subnet list
         [--long]
         [--ip-version {4,6}]
+        [--dhcp | --no-dhcp]
 
 .. option:: --long
 
@@ -161,6 +162,14 @@ List subnets
 
     List only subnets of given IP version in output.
     Allowed values for IP version are 4 and 6.
+
+.. option:: --dhcp
+
+    List subnets which have DHCP enabled
+
+.. option:: --no-dhcp
+
+    List subnets which have DHCP disabled
 
 subnet set
 ----------
