@@ -36,6 +36,36 @@ List network agents
 
     os network agent list
 
+network agent set
+-----------------
+
+Set network agent properties
+
+.. program:: network agent set
+.. code:: bash
+
+    os network agent set
+        [--description <description>]
+        [--enable | --disable]
+        <network-agent>
+
+.. option:: --description <discription>
+
+    Set network agent description
+
+.. option:: --enable
+
+    Enable network agent
+
+.. option:: --disable
+
+    Disable network agent
+
+.. _network_agent_set-network-agent:
+.. describe:: <network-agent>
+
+    Network agent to modify (ID only)
+
 network agent show
 ------------------
 
