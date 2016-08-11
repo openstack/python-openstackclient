@@ -15,6 +15,7 @@
 
 import copy
 
+from novaclient import exceptions as nova_exceptions
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import hypervisor
@@ -227,3 +228,72 @@ class TestHypervisorShow(TestHypervisor):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+    def test_hyprvisor_show_uptime_not_implemented(self):
+        arglist = [
+            self.hypervisor.hypervisor_hostname,
+        ]
+        verifylist = [
+            ('hypervisor', self.hypervisor.hypervisor_hostname),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.hypervisors_mock.uptime.side_effect = (
+            nova_exceptions.HTTPNotImplemented(501))
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        expected_columns = (
+            'aggregates',
+            'cpu_info',
+            'current_workload',
+            'disk_available_least',
+            'free_disk_gb',
+            'free_ram_mb',
+            'host_ip',
+            'hypervisor_hostname',
+            'hypervisor_type',
+            'hypervisor_version',
+            'id',
+            'local_gb',
+            'local_gb_used',
+            'memory_mb',
+            'memory_mb_used',
+            'running_vms',
+            'service_host',
+            'service_id',
+            'state',
+            'status',
+            'vcpus',
+            'vcpus_used',
+        )
+        expected_data = (
+            [],
+            {'aaa': 'aaa'},
+            0,
+            50,
+            50,
+            1024,
+            '192.168.0.10',
+            self.hypervisor.hypervisor_hostname,
+            'QEMU',
+            2004001,
+            self.hypervisor.id,
+            50,
+            0,
+            1024,
+            512,
+            0,
+            'aaa',
+            1,
+            'up',
+            'enabled',
+            4,
+            0,
+        )
+
+        self.assertEqual(expected_columns, columns)
+        self.assertEqual(expected_data, data)
