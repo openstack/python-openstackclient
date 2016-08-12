@@ -28,6 +28,7 @@ Create new port
         [--enable | --disable]
         [--mac-address <mac-address>]
         [--security-group <security-group> | --no-security-group]
+        [--dns-name <dns-name>]
         [--project <project> [--project-domain <project-domain>]]
         [--enable-port-security | --disable-port-security]
         <name>
@@ -90,6 +91,11 @@ Create new port
 .. option::  --no-security-group
 
     Associate no security groups with this port
+
+.. option:: --dns-name <dns-name>
+
+    Set DNS name to this port
+    (requires DNS integration extension)
 
 .. option:: --project <project>
 
@@ -192,6 +198,7 @@ Set port properties
         [--security-group <security-group>]
         [--no-security-group]
         [--enable-port-security | --disable-port-security]
+        [--dns-name <dns-name>]
         <port>
 
 .. option:: --description <description>
@@ -268,6 +275,11 @@ Set port properties
 .. option::  --disable-port-security
 
     Disable port security for this port
+
+.. option:: --dns-name <dns-name>
+
+    Set DNS name to this port
+    (requires DNS integration extension)
 
 .. _port_set-port:
 .. describe:: <port>

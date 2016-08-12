@@ -128,6 +128,8 @@ def _get_attrs(client_manager, parsed_args):
     if parsed_args.host:
         attrs['binding:host_id'] = parsed_args.host
 
+    if parsed_args.dns_name is not None:
+        attrs['dns_name'] = parsed_args.dns_name
     # It is possible that name is not updated during 'port set'
     if parsed_args.name is not None:
         attrs['name'] = str(parsed_args.name)
@@ -232,6 +234,12 @@ def _add_updatable_args(parser):
         '--host-id',
         metavar='<host-id>',
         help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        '--dns-name',
+        metavar='dns-name',
+        help=_("Set DNS name to this port "
+               "(requires DNS integration extension)")
     )
 
 
