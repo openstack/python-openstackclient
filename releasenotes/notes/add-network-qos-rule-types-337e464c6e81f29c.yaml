@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add support for Network QoS rule type commands:
+    ``network qos rule type list``,
+    [Bug `1612194 <https://bugs.launchpad.net/bugs/1612194>`_]
