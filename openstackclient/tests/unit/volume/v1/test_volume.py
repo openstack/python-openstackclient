@@ -13,6 +13,7 @@
 #   under the License.
 #
 
+import argparse
 import copy
 import mock
 
@@ -437,6 +438,7 @@ class TestVolumeList(TestVolume):
             ('all_projects', False),
             ('name', None),
             ('status', None),
+            ('limit', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -454,6 +456,7 @@ class TestVolumeList(TestVolume):
             ('all_projects', False),
             ('name', volume_fakes.volume_name),
             ('status', None),
+            ('limit', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -470,6 +473,7 @@ class TestVolumeList(TestVolume):
             ('all_projects', False),
             ('name', None),
             ('status', volume_fakes.volume_status),
+            ('limit', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -486,6 +490,7 @@ class TestVolumeList(TestVolume):
             ('all_projects', True),
             ('name', None),
             ('status', None),
+            ('limit', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -502,6 +507,7 @@ class TestVolumeList(TestVolume):
             ('all_projects', False),
             ('name', None),
             ('status', None),
+            ('limit', None),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -531,6 +537,41 @@ class TestVolumeList(TestVolume):
             "Alpha='a', Beta='b', Gamma='g'",
         ), )
         self.assertEqual(datalist, tuple(data))
+
+    def test_volume_list_with_limit(self):
+        arglist = [
+            '--limit', '2',
+        ]
+        verifylist = [
+            ('long', False),
+            ('all_projects', False),
+            ('name', None),
+            ('status', None),
+            ('limit', 2),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.list.assert_called_once_with(
+            limit=2,
+            search_opts={
+                'status': None,
+                'display_name': None,
+                'all_tenants': False, }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
+
+    def test_volume_list_negative_limit(self):
+        arglist = [
+            "--limit", "-2",
+        ]
+        verifylist = [
+            ("limit", -2),
+        ]
+        self.assertRaises(argparse.ArgumentTypeError, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
 
 class TestVolumeSet(TestVolume):

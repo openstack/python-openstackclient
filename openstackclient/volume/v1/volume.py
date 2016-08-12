@@ -220,6 +220,13 @@ class ListVolume(command.Lister):
             default=False,
             help=_('List additional fields in output'),
         )
+        parser.add_argument(
+            '--limit',
+            type=int,
+            action=parseractions.NonNegativeAction,
+            metavar='<limit>',
+            help=_('Maximum number of volumes to display'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -295,7 +302,10 @@ class ListVolume(command.Lister):
             'status': parsed_args.status,
         }
 
-        data = volume_client.volumes.list(search_opts=search_opts)
+        data = volume_client.volumes.list(
+            search_opts=search_opts,
+            limit=parsed_args.limit,
+        )
 
         return (column_headers,
                 (utils.get_item_properties(
