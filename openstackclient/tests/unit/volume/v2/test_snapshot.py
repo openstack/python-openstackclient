@@ -376,6 +376,55 @@ class TestSnapshotSet(TestSnapshot):
             self.snapshot.id, "error")
         self.assertIsNone(result)
 
+    def test_volume_set_state_failed(self):
+        self.snapshots_mock.reset_state.side_effect = exceptions.CommandError()
+        arglist = [
+            '--state', 'error',
+            self.snapshot.id
+        ]
+        verifylist = [
+            ('state', 'error'),
+            ('snapshot', self.snapshot.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('One or more of the set operations failed',
+                             str(e))
+        self.snapshots_mock.reset_state.assert_called_once_with(
+            self.snapshot.id, 'error')
+
+    def test_volume_set_name_and_state_failed(self):
+        self.snapshots_mock.reset_state.side_effect = exceptions.CommandError()
+        arglist = [
+            '--state', 'error',
+            "--name", "new_snapshot",
+            self.snapshot.id
+        ]
+        verifylist = [
+            ('state', 'error'),
+            ("name", "new_snapshot"),
+            ('snapshot', self.snapshot.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('One or more of the set operations failed',
+                             str(e))
+        kwargs = {
+            "name": "new_snapshot",
+        }
+        self.snapshots_mock.update.assert_called_once_with(
+            self.snapshot.id, **kwargs)
+        self.snapshots_mock.reset_state.assert_called_once_with(
+            self.snapshot.id, 'error')
+
 
 class TestSnapshotShow(TestSnapshot):
 

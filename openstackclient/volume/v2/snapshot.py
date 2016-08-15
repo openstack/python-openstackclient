@@ -240,19 +240,40 @@ class SetSnapshot(command.Command):
         snapshot = utils.find_resource(volume_client.volume_snapshots,
                                        parsed_args.snapshot)
 
+        result = 0
+        if parsed_args.property:
+            try:
+                volume_client.volume_snapshots.set_metadata(
+                    snapshot.id, parsed_args.property)
+            except Exception as e:
+                LOG.error(_("Failed to set snapshot property: %s"), e)
+                result += 1
+
+        if parsed_args.state:
+            try:
+                volume_client.volume_snapshots.reset_state(
+                    snapshot.id, parsed_args.state)
+            except Exception as e:
+                LOG.error(_("Failed to set snapshot state: %s"), e)
+                result += 1
+
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
+        if kwargs:
+            try:
+                volume_client.volume_snapshots.update(
+                    snapshot.id, **kwargs)
+            except Exception as e:
+                LOG.error(_("Failed to update snapshot name "
+                          "or description: %s"), e)
+                result += 1
 
-        if parsed_args.property:
-            volume_client.volume_snapshots.set_metadata(snapshot.id,
-                                                        parsed_args.property)
-        if parsed_args.state:
-            volume_client.volume_snapshots.reset_state(snapshot.id,
-                                                       parsed_args.state)
-        volume_client.volume_snapshots.update(snapshot.id, **kwargs)
+        if result > 0:
+            raise exceptions.CommandError(_("One or more of the "
+                                          "set operations failed"))
 
 
 class ShowSnapshot(command.ShowOne):
