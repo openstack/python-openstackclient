@@ -281,6 +281,65 @@ class RestoreBackup(RestoreVolumeBackup):
         return super(RestoreBackup, self).take_action(parsed_args)
 
 
+class SetVolumeBackup(command.Command):
+    """Set volume backup properties"""
+
+    def get_parser(self, prog_name):
+        parser = super(SetVolumeBackup, self).get_parser(prog_name)
+        parser.add_argument(
+            "backup",
+            metavar="<backup>",
+            help=_("Backup to modify (name or ID)")
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_('New backup name')
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('New backup description')
+        )
+        parser.add_argument(
+            '--state',
+            metavar='<state>',
+            choices=['available', 'error'],
+            help=_('New backup state ("available" or "error") (admin only)'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        volume_client = self.app.client_manager.volume
+        backup = utils.find_resource(volume_client.backups,
+                                     parsed_args.backup)
+        result = 0
+        if parsed_args.state:
+            try:
+                volume_client.backups.reset_state(
+                    backup.id, parsed_args.state)
+            except Exception as e:
+                LOG.error(_("Failed to set backup state: %s"), e)
+                result += 1
+
+        kwargs = {}
+        if parsed_args.name:
+            kwargs['name'] = parsed_args.name
+        if parsed_args.description:
+            kwargs['description'] = parsed_args.description
+        if kwargs:
+            try:
+                volume_client.backups.update(backup.id, **kwargs)
+            except Exception as e:
+                LOG.error(_("Failed to update backup name "
+                          "or description: %s"), e)
+                result += 1
+
+        if result > 0:
+            raise exceptions.CommandError(_("One or more of the "
+                                          "set operations failed"))
+
+
 class ShowVolumeBackup(command.ShowOne):
     """Display volume backup details"""
 

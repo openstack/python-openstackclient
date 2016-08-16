@@ -336,6 +336,75 @@ class TestBackupRestore(TestBackup):
         self.assertIsNone(result)
 
 
+class TestBackupSet(TestBackup):
+
+    backup = volume_fakes.FakeBackup.create_one_backup()
+
+    def setUp(self):
+        super(TestBackupSet, self).setUp()
+
+        self.backups_mock.get.return_value = self.backup
+
+        # Get the command object to test
+        self.cmd = backup.SetVolumeBackup(self.app, None)
+
+    def test_backup_set_name(self):
+        arglist = [
+            '--name', 'new_name',
+            self.backup.id,
+        ]
+        verifylist = [
+            ('name', 'new_name'),
+            ('backup', self.backup.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns nothing
+        result = self.cmd.take_action(parsed_args)
+        self.backups_mock.update.assert_called_once_with(
+            self.backup.id, **{'name': 'new_name'})
+        self.assertIsNone(result)
+
+    def test_backup_set_state(self):
+        arglist = [
+            '--state', 'error',
+            self.backup.id
+        ]
+        verifylist = [
+            ('state', 'error'),
+            ('backup', self.backup.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.backups_mock.reset_state.assert_called_once_with(
+            self.backup.id, 'error')
+        self.assertIsNone(result)
+
+    def test_backup_set_state_failed(self):
+        self.backups_mock.reset_state.side_effect = exceptions.CommandError()
+        arglist = [
+            '--state', 'error',
+            self.backup.id
+        ]
+        verifylist = [
+            ('state', 'error'),
+            ('backup', self.backup.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('One or more of the set operations failed',
+                             str(e))
+        self.backups_mock.reset_state.assert_called_with(
+            self.backup.id, 'error')
+
+
 class TestBackupShow(TestBackup):
 
     backup = volume_fakes.FakeBackup.create_one_backup()
