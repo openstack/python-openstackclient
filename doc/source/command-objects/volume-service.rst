@@ -29,3 +29,37 @@ List volume service
 .. option:: --long
 
     List additional fields in output
+
+volume service set
+------------------
+
+Set volume service properties
+
+.. program:: volume service set
+.. code:: bash
+
+    os volume service set
+        [--enable | --disable]
+        [--disable-reason <reason>]
+        <host> <service>
+
+.. option:: --enable
+
+    Enable volume service
+
+.. option:: --disable
+
+    Disable volume service
+
+.. option:: --disable-reason <reason>
+
+    Reason for disabling the service (should be used with --disable option)
+
+.. _volume-service-set:
+.. describe:: <host>
+
+    Name of host
+
+.. describe:: <service>
+
+    Name of service (Binary name)

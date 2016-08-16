@@ -1,0 +1,4 @@
+---
+features:
+  - Add ``volume service set`` commands in volume v1 and v2.
+    [Bug `1613597 <https://bugs.launchpad.net/python-openstackclient/+bug/1613597>`_]
