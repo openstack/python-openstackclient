@@ -26,6 +26,7 @@ Create new port
         [--host <host-id>]
         [--enable | --disable]
         [--mac-address <mac-address>]
+        [--security-group <security-group> | --no-security-group]
         [--project <project> [--project-domain <project-domain>]]
         <name>
 
@@ -74,6 +75,15 @@ Create new port
 .. option:: --mac-address <mac-address>
 
     MAC address of this port
+
+.. option:: --security-group <security-group>
+
+    Security group to associate with this port (name or ID)
+    (repeat option to set multiple security groups)
+
+.. option::  --no-security-group
+
+    Associate no security groups with this port
 
 .. option:: --project <project>
 
@@ -154,6 +164,8 @@ Set port properties
         [--host <host-id>]
         [--enable | --disable]
         [--name <name>]
+        [--security-group <security-group>]
+        [--no-security-group]
         <port>
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
@@ -210,6 +222,15 @@ Set port properties
 
     Set port name
 
+.. option:: --security-group <security-group>
+
+    Security group to associate with this port (name or ID)
+    (repeat option to set multiple security groups)
+
+.. option::  --no-security-group
+
+    Clear existing security groups associated with this port
+
 .. _port_set-port:
 .. describe:: <port>
 
@@ -242,6 +263,7 @@ Unset port properties
     os port unset
         [--fixed-ip subnet=<subnet>,ip-address=<ip-address> [...]]
         [--binding-profile <binding-profile-key> [...]]
+        [--security-group <security-group> [...]]
         <port>
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
@@ -254,6 +276,11 @@ Unset port properties
 
     Desired key which should be removed from binding-profile
     (repeat option to unset multiple binding:profile data)
+
+.. option:: --security-group <security-group>
+
+    Security group which should be removed from this port (name or ID)
+    (repeat option to unset multiple security groups)
 
 .. _port_unset-port:
 .. describe:: <port>

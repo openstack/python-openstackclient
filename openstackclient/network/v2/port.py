@@ -281,7 +281,23 @@ class CreatePort(command.ShowOne):
             help=_("Name of this port")
         )
         # TODO(singhj): Add support for extended options:
-        # qos,security groups,dhcp, address pairs
+        # qos,dhcp, address pairs
+        secgroups = parser.add_mutually_exclusive_group()
+        secgroups.add_argument(
+            '--security-group',
+            metavar='<security-group>',
+            action='append',
+            dest='security_groups',
+            help=_("Security group to associate with this port (name or ID) "
+                   "(repeat option to set multiple security groups)")
+        )
+        secgroups.add_argument(
+            '--no-security-group',
+            dest='no_security_group',
+            action='store_true',
+            help=_("Associate no security groups with this port")
+        )
+
         return parser
 
     def take_action(self, parsed_args):
@@ -291,6 +307,14 @@ class CreatePort(command.ShowOne):
         parsed_args.network = _network.id
         _prepare_fixed_ips(self.app.client_manager, parsed_args)
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+
+        if parsed_args.security_groups:
+            attrs['security_groups'] = [client.find_security_group(
+                                        sg, ignore_missing=False).id
+                                        for sg in parsed_args.security_groups]
+        if parsed_args.no_security_group:
+            attrs['security_groups'] = []
+
         obj = client.create_port(**attrs)
         columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
@@ -463,6 +487,21 @@ class SetPort(command.Command):
             metavar="<port>",
             help=_("Port to modify (name or ID)")
         )
+        parser.add_argument(
+            '--security-group',
+            metavar='<security-group>',
+            action='append',
+            dest='security_groups',
+            help=_("Security group to associate with this port (name or ID) "
+                   "(repeat option to set multiple security groups)")
+        )
+        parser.add_argument(
+            '--no-security-group',
+            dest='no_security_group',
+            action='store_true',
+            help=_("Clear existing security groups associated with this port")
+        )
+
         return parser
 
     def take_action(self, parsed_args):
@@ -490,6 +529,17 @@ class SetPort(command.Command):
                 attrs['fixed_ips'] += [ip for ip in obj.fixed_ips if ip]
         elif parsed_args.no_fixed_ip:
             attrs['fixed_ips'] = []
+        if parsed_args.security_groups and parsed_args.no_security_group:
+            attrs['security_groups'] = [client.find_security_group(sg,
+                                        ignore_missing=False).id
+                                        for sg in parsed_args.security_groups]
+        elif parsed_args.security_groups:
+            attrs['security_groups'] = obj.security_groups
+            for sg in parsed_args.security_groups:
+                sg_id = client.find_security_group(sg, ignore_missing=False).id
+                attrs['security_groups'].append(sg_id)
+        elif parsed_args.no_security_group:
+            attrs['security_groups'] = []
 
         client.update_port(obj, **attrs)
 
@@ -536,6 +586,15 @@ class UnsetPort(command.Command):
             help=_("Desired key which should be removed from binding:profile"
                    "(repeat option to unset multiple binding:profile data)"))
         parser.add_argument(
+            '--security-group',
+            metavar='<security-group>',
+            action='append',
+            dest='security_groups',
+            help=_("Security group which should be removed this port (name "
+                   "or ID) (repeat option to unset multiple security groups)")
+        )
+
+        parser.add_argument(
             'port',
             metavar="<port>",
             help=_("Port to modify (name or ID)")
@@ -550,6 +609,7 @@ class UnsetPort(command.Command):
         # Unset* classes
         tmp_fixed_ips = copy.deepcopy(obj.fixed_ips)
         tmp_binding_profile = copy.deepcopy(obj.binding_profile)
+        tmp_secgroups = copy.deepcopy(obj.security_groups)
         _prepare_fixed_ips(self.app.client_manager, parsed_args)
         attrs = {}
         if parsed_args.fixed_ip:
@@ -568,5 +628,16 @@ class UnsetPort(command.Command):
                 msg = _("Port does not contain binding-profile %s") % key
                 raise exceptions.CommandError(msg)
             attrs['binding:profile'] = tmp_binding_profile
+        if parsed_args.security_groups:
+            try:
+                for sg in parsed_args.security_groups:
+                    sg_id = client.find_security_group(
+                        sg, ignore_missing=False).id
+                    tmp_secgroups.remove(sg_id)
+            except ValueError:
+                msg = _("Port does not contain security group %s") % sg
+                raise exceptions.CommandError(msg)
+            attrs['security_groups'] = tmp_secgroups
+
         if attrs:
             client.update_port(obj, **attrs)
