@@ -137,6 +137,7 @@ List routers
         [--name <name>]
         [--enable | --disable]
         [--long]
+        [--project <project> [--project-domain <project-domain>]]
 
 .. option:: --long
 
@@ -153,6 +154,15 @@ List routers
 .. option:: --disable
 
     List disabled routers
+
+.. option:: --project <project>
+
+    List routers according to their project (name or ID)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 router remove port
 ------------------

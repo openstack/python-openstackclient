@@ -201,6 +201,13 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             default=False,
             help=argparse.SUPPRESS,
         )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_("List security groups according to the project "
+                   "(name or ID)")
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
     def update_parser_compute(self, parser):
@@ -228,7 +235,16 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
                 ) for s in data))
 
     def take_action_network(self, client, parsed_args):
-        return self._get_return_data(client.security_groups())
+        filters = {}
+        if parsed_args.project:
+            identity_client = self.app.client_manager.identity
+            project_id = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
+            filters['tenant_id'] = project_id
+        return self._get_return_data(client.security_groups(**filters))
 
     def take_action_compute(self, client, parsed_args):
         search = {'all_tenants': parsed_args.all_projects}

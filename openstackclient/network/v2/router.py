@@ -282,11 +282,17 @@ class ListRouter(command.Lister):
             default=False,
             help=_("List additional fields in output")
         )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_("List routers according to their project (name or ID)")
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
+        identity_client = self.app.client_manager.identity
         client = self.app.client_manager.network
-
         columns = (
             'id',
             'name',
@@ -316,6 +322,13 @@ class ListRouter(command.Lister):
         elif parsed_args.disable:
             args['admin_state_up'] = False
 
+        if parsed_args.project:
+            project_id = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
+            args['tenant_id'] = project_id
         if parsed_args.long:
             columns = columns + (
                 'routes',

@@ -67,6 +67,7 @@ List security groups
 
     os security group list
         [--all-projects]
+        [--project <project> [--project-domain <project-domain>]]
 
 .. option:: --all-projects
 
@@ -74,6 +75,19 @@ List security groups
 
     *Network version 2 ignores this option and will always display information*
     *for all projects (admin only).*
+
+.. option:: --project <project>
+
+    List security groups according to the project (name or ID)
+
+    *Network version 2 only*
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+    *Network version 2 only*
 
 security group set
 ------------------

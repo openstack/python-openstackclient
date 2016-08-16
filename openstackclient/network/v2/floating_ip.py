@@ -18,6 +18,7 @@ import logging
 from osc_lib import utils
 
 from openstackclient.i18n import _
+from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 from openstackclient.network import sdk_utils
 
@@ -66,6 +67,15 @@ def _get_attrs(client_manager, parsed_args):
     if parsed_args.description is not None:
         attrs['description'] = parsed_args.description
 
+    if parsed_args.project:
+        identity_client = client_manager.identity
+        project_id = identity_common.find_project(
+            identity_client,
+            parsed_args.project,
+            parsed_args.project_domain,
+        ).id
+        attrs['tenant_id'] = project_id
+
     return attrs
 
 
@@ -113,6 +123,12 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
             metavar='<description>',
             help=_('Set floating IP description')
         )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_("Owner's project (name or ID)")
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
     def take_action_network(self, client, parsed_args):

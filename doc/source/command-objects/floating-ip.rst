@@ -18,6 +18,7 @@ Create floating IP
         [--floating-ip-address <floating-ip-address>]
         [--fixed-ip-address <fixed-ip-address>]
         [--description <description>]
+        [--project <project> [--project-domain <project-domain>]]
         <network>
 
 .. option:: --subnet <subnet>
@@ -43,6 +44,19 @@ Create floating IP
 .. option:: --description <description>
 
     Set floating IP description
+    *Network version 2 only*
+
+.. option:: --project <project>
+
+    Owner's project (name or ID)
+
+    *Network version 2 only*
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
     *Network version 2 only*
 
 .. describe:: <network>
