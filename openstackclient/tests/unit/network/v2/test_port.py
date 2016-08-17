@@ -216,7 +216,7 @@ class TestCreatePort(TestPort):
             'test-port',
         ]
         verifylist = [
-            ('network', self._port.network_id,),
+            ('network', self._port.network_id),
             ('enable', True),
             ('binding_profile', {'parent_name': 'fake_parent', 'tag': 42}),
             ('name', 'test-port'),
@@ -344,6 +344,74 @@ class TestCreatePort(TestPort):
             'admin_state_up': True,
             'network_id': self._port.network_id,
             'security_groups': [],
+            'name': 'test-port',
+        })
+
+        ref_columns, ref_data = self._get_common_cols_data(self._port)
+        self.assertEqual(ref_columns, columns)
+        self.assertEqual(ref_data, data)
+
+    def test_create_port_with_allowed_address_pair_ipaddr(self):
+        pairs = [{'ip_address': '192.168.1.123'},
+                 {'ip_address': '192.168.1.45'}]
+        arglist = [
+            '--network', self._port.network_id,
+            '--allowed-address', 'ip-address=192.168.1.123',
+            '--allowed-address', 'ip-address=192.168.1.45',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id),
+            ('enable', True),
+            ('allowed_address_pairs', [{'ip-address': '192.168.1.123'},
+                                       {'ip-address': '192.168.1.45'}]),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_port.assert_called_once_with(**{
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'allowed_address_pairs': pairs,
+            'name': 'test-port',
+        })
+
+        ref_columns, ref_data = self._get_common_cols_data(self._port)
+        self.assertEqual(ref_columns, columns)
+        self.assertEqual(ref_data, data)
+
+    def test_create_port_with_allowed_address_pair(self):
+        pairs = [{'ip_address': '192.168.1.123',
+                  'mac_address': 'aa:aa:aa:aa:aa:aa'},
+                 {'ip_address': '192.168.1.45',
+                  'mac_address': 'aa:aa:aa:aa:aa:b1'}]
+        arglist = [
+            '--network', self._port.network_id,
+            '--allowed-address',
+            'ip-address=192.168.1.123,mac-address=aa:aa:aa:aa:aa:aa',
+            '--allowed-address',
+            'ip-address=192.168.1.45,mac-address=aa:aa:aa:aa:aa:b1',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id),
+            ('enable', True),
+            ('allowed_address_pairs', [{'ip-address': '192.168.1.123',
+                                        'mac-address': 'aa:aa:aa:aa:aa:aa'},
+                                       {'ip-address': '192.168.1.45',
+                                        'mac-address': 'aa:aa:aa:aa:aa:b1'}]),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_port.assert_called_once_with(**{
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'allowed_address_pairs': pairs,
             'name': 'test-port',
         })
 
@@ -996,6 +1064,91 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
 
+    def test_set_allowed_address_pair(self):
+        arglist = [
+            '--allowed-address', 'ip-address=192.168.1.123',
+            self._port.name,
+        ]
+        verifylist = [
+            ('allowed_address_pairs', [{'ip-address': '192.168.1.123'}]),
+            ('port', self._port.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'allowed_address_pairs': [{'ip_address': '192.168.1.123'}],
+        }
+        self.network.update_port.assert_called_once_with(self._port, **attrs)
+        self.assertIsNone(result)
+
+    def test_append_allowed_address_pair(self):
+        _testport = network_fakes.FakePort.create_one_port(
+            {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]})
+        self.network.find_port = mock.Mock(return_value=_testport)
+        arglist = [
+            '--allowed-address', 'ip-address=192.168.1.45',
+            _testport.name,
+        ]
+        verifylist = [
+            ('allowed_address_pairs', [{'ip-address': '192.168.1.45'}]),
+            ('port', _testport.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'allowed_address_pairs': [{'ip_address': '192.168.1.123'},
+                                      {'ip_address': '192.168.1.45'}],
+        }
+        self.network.update_port.assert_called_once_with(_testport, **attrs)
+        self.assertIsNone(result)
+
+    def test_overwrite_allowed_address_pair(self):
+        _testport = network_fakes.FakePort.create_one_port(
+            {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]})
+        self.network.find_port = mock.Mock(return_value=_testport)
+        arglist = [
+            '--allowed-address', 'ip-address=192.168.1.45',
+            '--no-allowed-address',
+            _testport.name,
+        ]
+        verifylist = [
+            ('allowed_address_pairs', [{'ip-address': '192.168.1.45'}]),
+            ('no_allowed_address_pair', True),
+            ('port', _testport.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'allowed_address_pairs': [{'ip_address': '192.168.1.45'}],
+        }
+        self.network.update_port.assert_called_once_with(_testport, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_no_allowed_address_pairs(self):
+        arglist = [
+            '--no-allowed-address',
+            self._port.name,
+        ]
+        verifylist = [
+            ('no_allowed_address_pair', True),
+            ('port', self._port.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'allowed_address_pairs': [],
+        }
+        self.network.update_port.assert_called_once_with(self._port, **attrs)
+        self.assertIsNone(result)
+
     def test_port_security_enabled(self):
         arglist = [
             '--enable-port-security',
@@ -1186,6 +1339,45 @@ class TestUnsetPort(TestPort):
         ]
         verifylist = [
             ('security_groups', [_fake_sg2.id]),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)
+
+    def test_unset_port_allowed_address_pair(self):
+        _fake_port = network_fakes.FakePort.create_one_port(
+            {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]})
+        self.network.find_port = mock.Mock(return_value=_fake_port)
+        arglist = [
+            '--allowed-address', 'ip-address=192.168.1.123',
+            _fake_port.name,
+        ]
+        verifylist = [
+            ('allowed_address_pairs', [{'ip-address': '192.168.1.123'}]),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'allowed_address_pairs': [],
+        }
+
+        self.network.update_port.assert_called_once_with(_fake_port, **attrs)
+        self.assertIsNone(result)
+
+    def test_unset_port_allowed_address_pair_not_existent(self):
+        _fake_port = network_fakes.FakePort.create_one_port(
+            {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]})
+        self.network.find_port = mock.Mock(return_value=_fake_port)
+        arglist = [
+            '--allowed-address', 'ip-address=192.168.1.45',
+            _fake_port.name,
+        ]
+        verifylist = [
+            ('allowed_address_pairs', [{'ip-address': '192.168.1.45'}]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

@@ -29,6 +29,7 @@ Create new port
         [--mac-address <mac-address>]
         [--security-group <security-group> | --no-security-group]
         [--dns-name <dns-name>]
+        [--allowed-address ip-address=<ip-address>[,mac-address=<mac-address>]]
         [--project <project> [--project-domain <project-domain>]]
         [--enable-port-security | --disable-port-security]
         <name>
@@ -96,6 +97,12 @@ Create new port
 
     Set DNS name to this port
     (requires DNS integration extension)
+
+.. option:: --allowed-address ip-address=<ip-address>[,mac-address=<mac-address>]
+
+    Add allowed-address pair associated with this port:
+    ip-address=<ip-address>[,mac-address=<mac-address>]
+    (repeat option to set multiple allowed-address pairs)
 
 .. option:: --project <project>
 
@@ -199,6 +206,8 @@ Set port properties
         [--no-security-group]
         [--enable-port-security | --disable-port-security]
         [--dns-name <dns-name>]
+        [--allowed-address ip-address=<ip-address>[,mac-address=<mac-address>]]
+        [--no-allowed-address]
         <port>
 
 .. option:: --description <description>
@@ -281,6 +290,19 @@ Set port properties
     Set DNS name to this port
     (requires DNS integration extension)
 
+.. option:: --allowed-address ip-address=<ip-address>[,mac-address=<mac-address>]
+
+    Add allowed-address pair associated with this port:
+    ip-address=<ip-address>[,mac-address=<mac-address>]
+    (repeat option to set multiple allowed-address pairs)
+
+.. option:: --no-allowed-address
+
+    Clear existing allowed-address pairs associated
+    with this port.
+    (Specify both --allowed-address and --no-allowed-address
+    to overwrite the current allowed-address pairs)
+
 .. _port_set-port:
 .. describe:: <port>
 
@@ -314,6 +336,7 @@ Unset port properties
         [--fixed-ip subnet=<subnet>,ip-address=<ip-address> [...]]
         [--binding-profile <binding-profile-key> [...]]
         [--security-group <security-group> [...]]
+        [--allowed-address ip-address=<ip-address>[,mac-address=<mac-address>] [...]]
         <port>
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
@@ -331,6 +354,12 @@ Unset port properties
 
     Security group which should be removed from this port (name or ID)
     (repeat option to unset multiple security groups)
+
+.. option:: --allowed-address ip-address=<ip-address>[,mac-address=<mac-address>]
+
+    Desired allowed-address pair which should be removed from this port:
+    ip-address=<ip-address>[,mac-address=<mac-address>]
+    (repeat option to unset multiple allowed-address pairs)
 
 .. _port_unset-port:
 .. describe:: <port>
