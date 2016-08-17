@@ -222,6 +222,8 @@ class FakeVolumeClient(object):
         self.quotas.resource_class = fakes.FakeResource(None, {})
         self.quota_classes = mock.Mock()
         self.quota_classes.resource_class = fakes.FakeResource(None, {})
+        self.consistencygroups = mock.Mock()
+        self.consistencygroups.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
@@ -491,6 +493,59 @@ class FakeBackup(object):
             backups = FakeBackup.create_backups(count)
 
         return mock.Mock(side_effect=backups)
+
+
+class FakeConsistencyGroup(object):
+    """Fake one or more consistency group."""
+
+    @staticmethod
+    def create_one_consistency_group(attrs=None):
+        """Create a fake consistency group.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with id, name, description, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        consistency_group_info = {
+            "id": 'backup-id-' + uuid.uuid4().hex,
+            "name": 'backup-name-' + uuid.uuid4().hex,
+            "description": 'description-' + uuid.uuid4().hex,
+            "status": "error",
+            "availability_zone": 'zone' + uuid.uuid4().hex,
+            "created_at": 'time-' + uuid.uuid4().hex,
+            "volume_types": ['volume-type1'],
+        }
+
+        # Overwrite default attributes.
+        consistency_group_info.update(attrs)
+
+        consistency_group = fakes.FakeResource(
+            info=copy.deepcopy(consistency_group_info),
+            loaded=True)
+        return consistency_group
+
+    @staticmethod
+    def create_consistency_groups(attrs=None, count=2):
+        """Create multiple fake consistency groups.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of consistency groups to fake
+        :return:
+            A list of FakeResource objects faking the consistency groups
+        """
+        consistency_groups = []
+        for i in range(0, count):
+            consistency_group = (
+                FakeConsistencyGroup.create_one_consistency_group(attrs))
+            consistency_groups.append(consistency_group)
+
+        return consistency_groups
 
 
 class FakeExtension(object):
