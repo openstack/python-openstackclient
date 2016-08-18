@@ -19,6 +19,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.network.v2 import port
+from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -337,6 +338,7 @@ class TestListPort(TestPort):
             'id': 'fake-router-id',
         })
         self.network.find_router = mock.Mock(return_value=fake_router)
+        self.app.client_manager.compute = mock.Mock()
 
     def test_port_list_no_options(self):
         arglist = []
@@ -366,6 +368,26 @@ class TestListPort(TestPort):
         self.network.ports.assert_called_once_with(**{
             'device_id': 'fake-router-id'
         })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_port_list_with_server_option(self, mock_find):
+        fake_server = compute_fakes.FakeServer.create_one_server()
+        mock_find.return_value = fake_server
+
+        arglist = [
+            '--server', 'fake-server-name',
+        ]
+        verifylist = [
+            ('server', 'fake-server-name'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.network.ports.assert_called_once_with(
+            device_id=fake_server.id)
+        mock_find.assert_called_once_with(mock.ANY, 'fake-server-name')
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 

@@ -1,0 +1,5 @@
+---
+features:
+  - Support listing the specified server's ports by new option ``--server`` of
+    ``port list`` command.
+    [Bug `1614385 <https://bugs.launchpad.net/python-openstackclient/+bug/1614385>`_]
