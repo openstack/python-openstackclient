@@ -173,7 +173,15 @@ role_name = 'roller'
 ROLE = {
     'id': role_id,
     'name': role_name,
+    'domain': None,
     'links': base_url + 'roles/' + role_id,
+}
+
+ROLE_2 = {
+    'id': 'r2',
+    'name': 'Rolls Royce',
+    'domain': domain_id,
+    'links': base_url + 'roles/' + 'r2',
 }
 
 service_id = 's-123'
@@ -356,6 +364,12 @@ ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID = {
     'scope': {'domain': {'id': domain_id}},
     'user': {'id': user_id},
     'role': {'id': role_id},
+}
+
+ASSIGNMENT_WITH_DOMAIN_ROLE = {
+    'scope': {'domain': {'id': domain_id}},
+    'user': {'id': user_id},
+    'role': {'id': ROLE_2['id']},
 }
 
 ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID_INCLUDE_NAMES = {

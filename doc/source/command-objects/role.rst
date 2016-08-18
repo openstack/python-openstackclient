@@ -15,6 +15,7 @@ Add role assignment to a user or group in a project or domain
     os role add
         --domain <domain> | --project <project> [--project-domain <project-domain>]
         --user <user> [--user-domain <user-domain>] | --group <group> [--group-domain <group-domain>]
+        --role-domain <role-domain>
         --inherited
         <role>
 
@@ -65,6 +66,13 @@ Add role assignment to a user or group in a project or domain
 
     .. versionadded:: 3
 
+.. option:: --role-domain <role-domain>
+
+    Domain the role belongs to (name or ID).
+    This must be specified when the name of a domain specific role is used.
+
+    .. versionadded:: 3
+
 .. describe:: <role>
 
     Role to add to <project>:<user> (name or ID)
@@ -79,7 +87,14 @@ Create new role
 
     os role create
         [--or-show]
+        [--domain <domain>]
         <name>
+
+.. option:: --domain <domain>
+
+    Domain the role belongs to (name or ID).
+
+    .. versionadded:: 3
 
 .. option:: --or-show
 
@@ -101,10 +116,17 @@ Delete role(s)
 
     os role delete
         <role> [<role> ...]
+        [--domain <domain>]
 
 .. describe:: <role>
 
     Role to delete (name or ID)
+
+.. option:: --domain <domain>
+
+    Domain the role belongs to (name or ID).
+
+    .. versionadded:: 3
 
 role list
 ---------
@@ -123,7 +145,8 @@ List roles
 
     Filter roles by <domain> (name or ID)
 
-    (Deprecated, please use ``role assignment list`` instead)
+    (Deprecated if being used to list assignments in conjunction with the
+    ``--user <user>``, option, please use ``role assignment list`` instead)
 
 .. option:: --project <project>
 
@@ -189,6 +212,7 @@ Remove role assignment from domain/project : user/group
     os role remove
         --domain <domain> | --project <project> [--project-domain <project-domain>]
         --user <user> [--user-domain <user-domain>] | --group <group> [--group-domain <group-domain>]
+        --role-domain <role-domain>
         --inherited
         <role>
 
@@ -239,6 +263,13 @@ Remove role assignment from domain/project : user/group
 
     .. versionadded:: 3
 
+.. option:: --role-domain <role-domain>
+
+    Domain the role belongs to (name or ID).
+    This must be specified when the name of a domain specific role is used.
+
+    .. versionadded:: 3
+
 .. describe:: <role>
 
     Role to remove (name or ID)
@@ -255,11 +286,18 @@ Set role properties
 
     os role set
         [--name <name>]
+        [--domain <domain>]
         <role>
 
 .. option:: --name <name>
 
     Set role name
+
+.. option:: --domain <domain>
+
+    Domain the role belongs to (name or ID).
+
+    .. versionadded:: 3
 
 .. describe:: <role>
 
@@ -274,7 +312,14 @@ Display role details
 .. code:: bash
 
     os role show
+        [--domain <domain>]
         <role>
+
+.. option:: --domain <domain>
+
+    Domain the role belongs to (name or ID).
+
+    .. versionadded:: 3
 
 .. describe:: <role>
 
