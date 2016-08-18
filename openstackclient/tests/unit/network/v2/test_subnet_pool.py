@@ -400,6 +400,144 @@ class TestListSubnetPool(TestSubnetPool):
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
+    def test_subnet_pool_list_no_share(self):
+        arglist = [
+            '--no-share',
+        ]
+        verifylist = [
+            ('share', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'shared': False}
+
+        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_pool_list_share(self):
+        arglist = [
+            '--share',
+        ]
+        verifylist = [
+            ('share', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'shared': True}
+
+        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_pool_list_no_default(self):
+        arglist = [
+            '--no-default',
+        ]
+        verifylist = [
+            ('default', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'is_default': False}
+
+        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_pool_list_default(self):
+        arglist = [
+            '--default',
+        ]
+        verifylist = [
+            ('default', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'is_default': True}
+
+        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_pool_list_project(self):
+        project = identity_fakes_v3.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+        ]
+        verifylist = [
+            ('project', project.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'tenant_id': project.id}
+
+        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_pool_list_project_domain(self):
+        project = identity_fakes_v3.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+            '--project-domain', project.domain_id,
+        ]
+        verifylist = [
+            ('project', project.id),
+            ('project_domain', project.domain_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'tenant_id': project.id}
+
+        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_pool_list_name(self):
+        subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
+        self.network.find_network = mock.Mock(return_value=subnet_pool)
+        arglist = [
+            '--name', subnet_pool.name,
+        ]
+        verifylist = [
+            ('name', subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'name': subnet_pool.name}
+
+        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_pool_list_address_scope(self):
+        addr_scope = network_fakes.FakeAddressScope.create_one_address_scope()
+        self.network.find_address_scope = mock.Mock(return_value=addr_scope)
+        arglist = [
+            '--address-scope', addr_scope.id,
+        ]
+        verifylist = [
+            ('address_scope', addr_scope.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'address_scope_id': addr_scope.id}
+
+        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
 
 class TestSetSubnetPool(TestSubnetPool):
 

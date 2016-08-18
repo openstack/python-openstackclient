@@ -104,10 +104,48 @@ List subnet pools
 
     os subnet pool list
         [--long]
+        [--share | --no-share]
+        [--default | --no-default]
+        [--project <project> [--project-domain <project-domain>]]
+        [--name <name>]
+        [--address-scope <address-scope>]
 
 .. option:: --long
 
     List additional fields in output
+
+.. option:: --share
+
+    List subnets shared between projects
+
+.. option:: --no-share
+
+    List subnets not shared between projects
+
+.. option:: --default
+
+    List subnets used as the default external subnet pool
+
+.. option:: --no-default
+
+    List subnets not used as the default external subnet pool
+
+.. option:: --project <project>
+
+    List subnets according to their project (name or ID)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+.. option:: --name <name>
+
+    List only subnets of given name in output
+
+.. option:: --address-scope <address-scope>
+
+    List only subnets of given address scope (name or ID) in output
 
 subnet pool set
 ---------------

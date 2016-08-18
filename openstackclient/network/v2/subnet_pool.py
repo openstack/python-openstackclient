@@ -226,41 +226,82 @@ class ListSubnetPool(command.Lister):
             default=False,
             help=_("List additional fields in output")
         )
+        shared_group = parser.add_mutually_exclusive_group()
+        shared_group.add_argument(
+            '--share',
+            action='store_true',
+            help=_("List subnets shared between projects"),
+        )
+        shared_group.add_argument(
+            '--no-share',
+            action='store_true',
+            help=_("List subnets not shared between projects"),
+        )
+        default_group = parser.add_mutually_exclusive_group()
+        default_group.add_argument(
+            '--default',
+            action='store_true',
+            help=_("List subnets used as the default external subnet pool"),
+        )
+        default_group.add_argument(
+            '--no-default',
+            action='store_true',
+            help=_("List subnets not used as the default external subnet pool")
+        )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_("List subnets according to their project (name or ID)")
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_("List only subnets of given name in output")
+        )
+        parser.add_argument(
+            '--address-scope',
+            metavar='<address-scope>',
+            help=_("List only subnets of given address scope (name or ID) "
+                   "in output")
+        )
         return parser
 
     def take_action(self, parsed_args):
-        data = self.app.client_manager.network.subnet_pools()
+        identity_client = self.app.client_manager.identity
+        network_client = self.app.client_manager.network
+        filters = {}
+        if parsed_args.share:
+            filters['shared'] = True
+        elif parsed_args.no_share:
+            filters['shared'] = False
+        if parsed_args.default:
+            filters['is_default'] = True
+        elif parsed_args.no_default:
+            filters['is_default'] = False
+        if parsed_args.project:
+            project_id = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
+            filters['tenant_id'] = project_id
+        if parsed_args.name is not None:
+            filters['name'] = parsed_args.name
+        if parsed_args.address_scope:
+            address_scope = network_client.find_address_scope(
+                parsed_args.address_scope,
+                ignore_missing=False)
+            filters['address_scope_id'] = address_scope.id
+        data = network_client.subnet_pools(**filters)
 
+        headers = ('ID', 'Name', 'Prefixes')
+        columns = ('id', 'name', 'prefixes')
         if parsed_args.long:
-            headers = (
-                'ID',
-                'Name',
-                'Prefixes',
-                'Default Prefix Length',
-                'Address Scope',
-                'Default Subnet Pool',
-                'Shared',
-            )
-            columns = (
-                'id',
-                'name',
-                'prefixes',
-                'default_prefixlen',
-                'address_scope_id',
-                'is_default',
-                'shared',
-            )
-        else:
-            headers = (
-                'ID',
-                'Name',
-                'Prefixes',
-            )
-            columns = (
-                'id',
-                'name',
-                'prefixes',
-            )
+            headers += ('Default Prefix Length', 'Address Scope',
+                        'Default Subnet Pool', 'Shared')
+            columns += ('default_prefixlen', 'address_scope_id',
+                        'is_default', 'shared')
 
         return (headers,
                 (utils.get_item_properties(
