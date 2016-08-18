@@ -204,11 +204,10 @@ class SetIdentityProvider(command.Command):
         if parsed_args.remote_id_file or parsed_args.remote_id:
             kwargs['remote_ids'] = remote_ids
 
-        identity_provider = federation_client.identity_providers.update(
-            parsed_args.identity_provider, **kwargs)
-
-        identity_provider._info.pop('links', None)
-        return zip(*sorted(six.iteritems(identity_provider._info)))
+        federation_client.identity_providers.update(
+            parsed_args.identity_provider,
+            **kwargs
+        )
 
 
 class ShowIdentityProvider(command.ShowOne):

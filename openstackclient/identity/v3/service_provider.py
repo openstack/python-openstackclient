@@ -182,12 +182,13 @@ class SetServiceProvider(command.Command):
         elif parsed_args.disable is True:
             enabled = False
 
-        service_provider = federation_client.service_providers.update(
-            parsed_args.service_provider, enabled=enabled,
+        federation_client.service_providers.update(
+            parsed_args.service_provider,
+            enabled=enabled,
             description=parsed_args.description,
             auth_url=parsed_args.auth_url,
-            sp_url=parsed_args.service_provider_url)
-        return zip(*sorted(six.iteritems(service_provider._info)))
+            sp_url=parsed_args.service_provider_url,
+        )
 
 
 class ShowServiceProvider(command.ShowOne):

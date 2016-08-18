@@ -25,6 +25,7 @@ from oslo_utils import importutils
 import six
 
 import openstackclient
+from openstackclient.common import client_config as cloud_config
 from openstackclient.common import clientmanager
 from openstackclient.common import commandmanager
 
@@ -127,9 +128,33 @@ class OpenStackShell(shell.OpenStackShell):
     def initialize_app(self, argv):
         super(OpenStackShell, self).initialize_app(argv)
 
-        # For now we need to build our own ClientManager so re-do what
-        # has already been done :(
-        # TODO(dtroyer): remove when osc-lib is fixed
+        # Argument precedence is really broken in multiple places
+        # so we're just going to fix it here until o-c-c and osc-lib
+        # get sorted out.
+        # TODO(dtroyer): remove when os-client-config and osc-lib are fixed
+
+        # First, throw away what has already been done with o-c-c and
+        # use our own.
+        try:
+            cc = cloud_config.OSC_Config(
+                override_defaults={
+                    'interface': None,
+                    'auth_type': self._auth_type,
+                },
+            )
+        except (IOError, OSError) as e:
+            self.log.critical("Could not read clouds.yaml configuration file")
+            self.print_help_if_requested()
+            raise e
+
+        if not self.options.debug:
+            self.options.debug = None
+        self.cloud = cc.get_one_cloud(
+            cloud=self.options.cloud,
+            argparse=self.options,
+        )
+
+        # Then, re-create the client_manager with the correct arguments
         self.client_manager = clientmanager.ClientManager(
             cli_options=self.cloud,
             api_version=self.api_version,
