@@ -28,9 +28,14 @@ from openstackclient.identity import common as identity_common
 LOG = logging.getLogger(__name__)
 
 
-def _update_arguments(obj_list, parsed_args_list):
+def _update_arguments(obj_list, parsed_args_list, option):
     for item in parsed_args_list:
-        obj_list.remove(item)
+        try:
+            obj_list.remove(item)
+        except ValueError:
+            msg = (_("Subnet does not contain %(option)s %(value)s") %
+                   {'option': option, 'value': item})
+            raise exceptions.CommandError(msg)
 
 
 def _format_allocation_pools(data):
@@ -493,9 +498,9 @@ class UnsetSubnet(command.Command):
             dest='allocation_pools',
             action=parseractions.MultiKeyValueAction,
             required_keys=['start', 'end'],
-            help=_('Allocation pool to be removed from this subnet '
-                   'e.g.: start=192.168.199.2,end=192.168.199.254 '
-                   '(repeat option to unset multiple Allocation pools)')
+            help=_('Allocation pool IP addresses to be removed from this '
+                   'subnet e.g.: start=192.168.199.2,end=192.168.199.254 '
+                   '(repeat option to unset multiple allocation pools)')
         )
         parser.add_argument(
             '--dns-nameserver',
@@ -503,7 +508,7 @@ class UnsetSubnet(command.Command):
             action='append',
             dest='dns_nameservers',
             help=_('DNS server to be removed from this subnet '
-                   '(repeat option to set multiple DNS servers)')
+                   '(repeat option to unset multiple DNS servers)')
         )
         parser.add_argument(
             '--host-route',
@@ -540,39 +545,25 @@ class UnsetSubnet(command.Command):
         tmp_obj = copy.deepcopy(obj)
         attrs = {}
         if parsed_args.dns_nameservers:
-            try:
-                _update_arguments(tmp_obj.dns_nameservers,
-                                  parsed_args.dns_nameservers)
-            except ValueError as error:
-                msg = (_("%s not in dns-nameservers") % str(error))
-                raise exceptions.CommandError(msg)
+            _update_arguments(tmp_obj.dns_nameservers,
+                              parsed_args.dns_nameservers,
+                              'dns-nameserver')
             attrs['dns_nameservers'] = tmp_obj.dns_nameservers
         if parsed_args.host_routes:
-            try:
-                _update_arguments(
-                    tmp_obj.host_routes,
-                    convert_entries_to_nexthop(parsed_args.host_routes))
-            except ValueError as error:
-                msg = (_("Subnet does not have %s in host-routes") %
-                       str(error))
-                raise exceptions.CommandError(msg)
+            _update_arguments(
+                tmp_obj.host_routes,
+                convert_entries_to_nexthop(parsed_args.host_routes),
+                'host-route')
             attrs['host_routes'] = tmp_obj.host_routes
         if parsed_args.allocation_pools:
-            try:
-                _update_arguments(tmp_obj.allocation_pools,
-                                  parsed_args.allocation_pools)
-            except ValueError as error:
-                msg = (_("Subnet does not have %s in allocation-pools") %
-                       str(error))
-                raise exceptions.CommandError(msg)
+            _update_arguments(tmp_obj.allocation_pools,
+                              parsed_args.allocation_pools,
+                              'allocation-pool')
             attrs['allocation_pools'] = tmp_obj.allocation_pools
         if parsed_args.service_types:
-            try:
-                _update_arguments(tmp_obj.service_types,
-                                  parsed_args.service_types)
-            except ValueError as error:
-                msg = (_("%s not in service-types") % str(error))
-                raise exceptions.CommandError(msg)
+            _update_arguments(tmp_obj.service_types,
+                              parsed_args.service_types,
+                              'service-type')
             attrs['service_types'] = tmp_obj.service_types
         if attrs:
             client.update_subnet(obj, **attrs)
