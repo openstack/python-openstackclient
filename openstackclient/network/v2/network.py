@@ -295,21 +295,66 @@ class ListNetwork(common.NetworkAndComputeLister):
     """List networks"""
 
     def update_parser_common(self, parser):
-        parser.add_argument(
+        router_ext_group = parser.add_mutually_exclusive_group()
+        router_ext_group.add_argument(
             '--external',
             action='store_true',
-            default=False,
             help=_("List external networks")
+        )
+        router_ext_group.add_argument(
+            '--internal',
+            action='store_true',
+            help=_("List internal networks")
         )
         parser.add_argument(
             '--long',
             action='store_true',
-            default=False,
             help=_("List additional fields in output")
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_("List networks according to their name")
+        )
+        admin_state_group = parser.add_mutually_exclusive_group()
+        admin_state_group.add_argument(
+            '--enable',
+            action='store_true',
+            help=_("List enabled networks")
+        )
+        admin_state_group.add_argument(
+            '--disable',
+            action='store_true',
+            help=_("List disabled networks")
+        )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_("List networks according to their project (name or ID)")
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
+        shared_group = parser.add_mutually_exclusive_group()
+        shared_group.add_argument(
+            '--share',
+            action='store_true',
+            help=_("List networks shared between projects")
+        )
+        shared_group.add_argument(
+            '--no-share',
+            action='store_true',
+            help=_("List networks not shared between projects")
+        )
+        parser.add_argument(
+            '--status',
+            metavar='<status>',
+            choices=['ACTIVE', 'BUILD', 'DOWN', 'ERROR'],
+            help=_("List networks according to their status "
+                   "('ACTIVE', 'BUILD', 'DOWN', 'ERROR')")
         )
         return parser
 
     def take_action_network(self, client, parsed_args):
+        identity_client = self.app.client_manager.identity
         if parsed_args.long:
             columns = (
                 'id',
@@ -347,10 +392,36 @@ class ListNetwork(common.NetworkAndComputeLister):
                 'Subnets',
             )
 
+        args = {}
+
         if parsed_args.external:
-            args = {'router:external': True}
-        else:
-            args = {}
+            args['router:external'] = True
+        elif parsed_args.internal:
+            args['router:external'] = False
+
+        if parsed_args.name is not None:
+            args['name'] = parsed_args.name
+
+        if parsed_args.enable:
+            args['admin_state_up'] = True
+        elif parsed_args.disable:
+            args['admin_state_up'] = False
+
+        if parsed_args.project:
+            project = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            )
+            args['tenant_id'] = project.id
+
+        if parsed_args.share:
+            args['shared'] = True
+        elif parsed_args.no_share:
+            args['shared'] = False
+
+        if parsed_args.status:
+            args['status'] = parsed_args.status
 
         data = client.networks(**args)
 

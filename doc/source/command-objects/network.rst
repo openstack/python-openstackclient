@@ -181,16 +181,59 @@ List networks
 .. code:: bash
 
     os network list
-        [--external]
+        [--external | --internal]
         [--long]
+        [--name <name>]
+        [--enable | --disable]
+        [--project <project> [--project-domain <project-domain>]]
+        [--share | --no-share]
+        [--status <status>]
 
 .. option:: --external
 
     List external networks
 
+.. option:: --internal
+
+    List internal networks
+
 .. option:: --long
 
     List additional fields in output
+
+.. option:: --name <name>
+
+    List networks according to their name
+
+.. option:: --enable
+
+    List enabled networks
+
+.. option:: --disable
+
+    List disabled networks
+
+.. option:: --project <project>
+
+    List networks according to their project (name or ID)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+.. option:: --share
+
+    List networks shared between projects
+
+.. option:: --no-share
+
+    List networks not shared between projects
+
+.. option:: --status <status>
+
+    List networks according to their status
+    ('ACTIVE', 'BUILD', 'DOWN', 'ERROR')
 
 network set
 -----------
