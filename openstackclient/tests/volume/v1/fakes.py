@@ -129,25 +129,6 @@ QOS_WITH_ASSOCIATIONS = {
 }
 
 
-class FakeTransferClient(object):
-
-    def __init__(self, **kwargs):
-
-        self.transfers = mock.Mock()
-        self.transfers.resource_class = fakes.FakeResource(None, {})
-
-
-class TestTransfer(utils.TestCommand):
-
-    def setUp(self):
-        super(TestTransfer, self).setUp()
-
-        self.app.client_manager.volume = FakeTransferClient(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN
-        )
-
-
 class FakeTransfer(object):
     """Fake one or more Transfer."""
 
@@ -178,24 +159,6 @@ class FakeTransfer(object):
             loaded=True)
 
         return transfer
-
-
-class FakeServiceClient(object):
-
-    def __init__(self, **kwargs):
-        self.services = mock.Mock()
-        self.services.resource_class = fakes.FakeResource(None, {})
-
-
-class TestService(utils.TestCommand):
-
-    def setUp(self):
-        super(TestService, self).setUp()
-
-        self.app.client_manager.volume = FakeServiceClient(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN
-        )
 
 
 class FakeService(object):
@@ -290,6 +253,8 @@ class FakeVolumev1Client(object):
         self.qos_specs.resource_class = fakes.FakeResource(None, {})
         self.volume_types = mock.Mock()
         self.volume_types.resource_class = fakes.FakeResource(None, {})
+        self.transfers = mock.Mock()
+        self.transfers.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
