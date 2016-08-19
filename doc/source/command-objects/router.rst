@@ -213,6 +213,7 @@ Set router properties
         [--description <description>]
         [--route destination=<subnet>,gateway=<ip-address> | --no-route]
         [--ha | --no-ha]
+        [--external-gateway <network> [--enable-snat|--disable-snat] [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]]
         <router>
 
 .. option:: --name <name>
@@ -257,6 +258,24 @@ Set router properties
 .. option:: --no-ha
 
     Clear high availablability attribute of the router (disabled router only)
+
+.. option:: --external-gateway <network>
+
+    External Network used as router's gateway (name or ID)
+
+.. option:: --enable-snat
+
+    Enable Source NAT on external gateway
+
+.. option:: --disable-snat
+
+    Disable Source NAT on external gateway
+
+.. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
+
+    Desired IP and/or subnet (name or ID) on external gateway:
+    subnet=<subnet>,ip-address=<ip-address>
+    (repeat option to set multiple fixed IP addresses)
 
 .. _router_set-router:
 .. describe:: <router>
