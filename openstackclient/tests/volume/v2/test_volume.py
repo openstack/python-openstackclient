@@ -841,7 +841,7 @@ class TestVolumeSet(TestVolume):
         # returns nothing
         self.cmd.take_action(parsed_args)
         self.volumes_mock.set_image_metadata.assert_called_with(
-            self.volumes_mock.get().id, parsed_args.image_property)
+            self.new_volume.id, parsed_args.image_property)
 
     def test_volume_set_state(self):
         arglist = [
@@ -919,7 +919,7 @@ class TestVolumeUnset(TestVolume):
         super(TestVolumeUnset, self).setUp()
 
         self.new_volume = volume_fakes.FakeVolume.create_one_volume()
-        self.volumes_mock.create.return_value = self.new_volume
+        self.volumes_mock.get.return_value = self.new_volume
 
         # Get the command object to set property
         self.cmd_set = volume.SetVolume(self.app, None)
@@ -963,4 +963,4 @@ class TestVolumeUnset(TestVolume):
         self.cmd_unset.take_action(parsed_args_unset)
 
         self.volumes_mock.delete_image_metadata.assert_called_with(
-            self.volumes_mock.get().id, parsed_args_unset.image_property)
+            self.new_volume.id, parsed_args_unset.image_property)
