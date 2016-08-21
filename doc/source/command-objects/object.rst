@@ -13,8 +13,13 @@ Upload object to container
 .. code:: bash
 
     os object create
+        [--name <name>]
         <container>
         <filename> [<filename> ...]
+
+.. option:: --name <name>
+
+    Upload a file and rename it. Can only be used when uploading a single object
 
 .. describe:: <container>
 

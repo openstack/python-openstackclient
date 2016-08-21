@@ -19,6 +19,7 @@ import logging
 
 from osc_lib.cli import parseractions
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
@@ -44,10 +45,20 @@ class CreateObject(command.Lister):
             nargs="+",
             help='Local filename(s) to upload',
         )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help='Upload a file and rename it. '
+                 'Can only be used when uploading a single object'
+        )
         return parser
 
     def take_action(self, parsed_args):
-
+        if parsed_args.name:
+            if len(parsed_args.objects) > 1:
+                msg = _('Attempting to upload multiple objects and '
+                        'using --name is not permitted')
+                raise exceptions.CommandError(msg)
         results = []
         for obj in parsed_args.objects:
             if len(obj) > 1024:
@@ -57,6 +68,7 @@ class CreateObject(command.Lister):
             data = self.app.client_manager.object_store.object_create(
                 container=parsed_args.container,
                 object=obj,
+                name=parsed_args.name,
             )
             results.append(data)
 
