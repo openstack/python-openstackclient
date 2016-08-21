@@ -355,7 +355,7 @@ class TestShellCliV3Integ(TestShellInteg):
 
 
 class TestShellCliPrecedence(TestShellInteg):
-    """Validate option precedence rules
+    """Validate option precedence rules without clouds.yaml
 
     Global option values may be set in three places:
     * command line options
@@ -368,6 +368,96 @@ class TestShellCliPrecedence(TestShellInteg):
 
     def setUp(self):
         super(TestShellCliPrecedence, self).setUp()
+        env = {
+            "OS_AUTH_URL": V3_AUTH_URL,
+            "OS_PROJECT_DOMAIN_ID": test_shell.DEFAULT_PROJECT_DOMAIN_ID,
+            "OS_USER_DOMAIN_ID": test_shell.DEFAULT_USER_DOMAIN_ID,
+            "OS_USERNAME": test_shell.DEFAULT_USERNAME,
+            "OS_IDENTITY_API_VERSION": "3",
+        }
+        self.useFixture(osc_lib_utils.EnvFixture(copy.deepcopy(env)))
+
+        self.token = ksa_fixture.V3Token(
+            project_domain_id=test_shell.DEFAULT_PROJECT_DOMAIN_ID,
+            user_domain_id=test_shell.DEFAULT_USER_DOMAIN_ID,
+            user_name=test_shell.DEFAULT_USERNAME,
+        )
+
+        # Set up the v3 auth routes
+        self.requests_mock.register_uri(
+            'GET',
+            V3_AUTH_URL,
+            json=V3_VERSION_RESP,
+            status_code=200,
+        )
+        self.requests_mock.register_uri(
+            'POST',
+            V3_AUTH_URL + 'auth/tokens',
+            json=self.token,
+            status_code=200,
+        )
+
+        # Patch a v3 auth URL into the o-c-c data
+        test_shell.PUBLIC_1['public-clouds']['megadodo']['auth']['auth_url'] \
+            = V3_AUTH_URL
+
+    def test_shell_args_options(self):
+        """Verify command line options override environment variables"""
+
+        _shell = shell.OpenStackShell()
+        _shell.run(
+            "--os-username zarquon --os-password qaz "
+            "configuration show".split(),
+        )
+
+        # Check general calls
+        self.assertEqual(len(self.requests_mock.request_history), 2)
+
+        # Check discovery request
+        self.assertEqual(
+            V3_AUTH_URL,
+            self.requests_mock.request_history[0].url,
+        )
+
+        # Check auth request
+        auth_req = self.requests_mock.request_history[1].json()
+
+        # -env, -cli
+        # No test, everything not specified tests this
+
+        # -env, +cli
+        self.assertEqual(
+            'qaz',
+            auth_req['auth']['identity']['password']['user']['password'],
+        )
+
+        # +env, -cli
+        self.assertEqual(
+            test_shell.DEFAULT_PROJECT_DOMAIN_ID,
+            auth_req['auth']['identity']['password']['user']['domain']['id'],
+        )
+
+        # +env, +cli
+        self.assertEqual(
+            'zarquon',
+            auth_req['auth']['identity']['password']['user']['name'],
+        )
+
+
+class TestShellCliPrecedenceOCC(TestShellInteg):
+    """Validate option precedence rules with clouds.yaml
+
+    Global option values may be set in three places:
+    * command line options
+    * environment variables
+    * clouds.yaml
+
+    Verify that the above order is the precedence used,
+    i.e. a command line option overrides all others, etc
+    """
+
+    def setUp(self):
+        super(TestShellCliPrecedenceOCC, self).setUp()
         env = {
             "OS_CLOUD": "megacloud",
             "OS_AUTH_URL": V3_AUTH_URL,
@@ -402,47 +492,6 @@ class TestShellCliPrecedence(TestShellInteg):
         # Patch a v3 auth URL into the o-c-c data
         test_shell.PUBLIC_1['public-clouds']['megadodo']['auth']['auth_url'] \
             = V3_AUTH_URL
-
-    # @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
-    # @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
-    # def test_shell_args_options(self, config_mock, vendor_mock):
-    #     """Verify command line options override environment variables"""
-
-    #     _shell = shell.OpenStackShell()
-    #     _shell.run(
-    #         "--os-username zarquon --os-password qaz "
-    #         "configuration show".split(),
-    #     )
-
-    #     # Check general calls
-    #     self.assertEqual(len(self.requests_mock.request_history), 2)
-
-    #     # Check discovery request
-    #     self.assertEqual(
-    #         V3_AUTH_URL,
-    #         self.requests_mock.request_history[0].url,
-    #     )
-
-    #     # Check auth request
-    #     auth_req = self.requests_mock.request_history[1].json()
-
-    #     # Environment var, no option
-    #     self.assertEqual(
-    #         test_shell.DEFAULT_PROJECT_DOMAIN_ID,
-    #         auth_req['auth']['identity']['password']['user']['domain']['id'],
-    #     )
-
-    #     # Environment var, --os-username override
-    #     self.assertEqual(
-    #         'zarquon',
-    #         auth_req['auth']['identity']['password']['user']['name'],
-    #     )
-
-    #     # No environment var, --os-password override
-    #     self.assertEqual(
-    #         'qaz',
-    #         auth_req['auth']['identity']['password']['user']['password'],
-    #     )
 
     @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
     @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
