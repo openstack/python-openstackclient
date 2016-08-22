@@ -148,11 +148,11 @@ class OSC_Config(OpenStackConfig):
         LOG.debug("auth_config_hook(): %s" % config)
         return config
 
-    def _validate_auth_ksc(self, config, cloud):
+    def _validate_auth_ksc(self, config, cloud, fixed_argparse=None):
         """Old compatibility hack for OSC, no longer needed/wanted"""
         return config
 
-    def _validate_auth(self, config, loader):
+    def _validate_auth(self, config, loader, fixed_argparse=None):
         """Validate auth plugin arguments"""
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin
 
