@@ -13,7 +13,10 @@
 #   under the License.
 #
 
+import copy
 import mock
+import random
+import uuid
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
@@ -232,6 +235,159 @@ class FakeService(object):
             services = FakeService.create_services(count)
 
         return mock.MagicMock(side_effect=services)
+
+
+class FakeQos(object):
+    """Fake one or more Qos specification."""
+
+    @staticmethod
+    def create_one_qos(attrs=None):
+        """Create a fake Qos specification.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with id, name, consumer, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        qos_info = {
+            "id": 'qos-id-' + uuid.uuid4().hex,
+            "name": 'qos-name-' + uuid.uuid4().hex,
+            "consumer": 'front-end',
+            "specs": {"foo": "bar", "iops": "9001"},
+        }
+
+        # Overwrite default attributes.
+        qos_info.update(attrs)
+
+        qos = fakes.FakeResource(
+            info=copy.deepcopy(qos_info),
+            loaded=True)
+        return qos
+
+    @staticmethod
+    def create_qoses(attrs=None, count=2):
+        """Create multiple fake Qos specifications.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of Qos specifications to fake
+        :return:
+            A list of FakeResource objects faking the Qos specifications
+        """
+        qoses = []
+        for i in range(0, count):
+            qos = FakeQos.create_one_qos(attrs)
+            qoses.append(qos)
+
+        return qoses
+
+    @staticmethod
+    def get_qoses(qoses=None, count=2):
+        """Get an iterable MagicMock object with a list of faked qoses.
+
+        If qoses list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List volumes:
+            A list of FakeResource objects faking qoses
+        :param Integer count:
+            The number of qoses to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            qoses
+        """
+        if qoses is None:
+            qoses = FakeQos.create_qoses(count)
+
+        return mock.MagicMock(side_effect=qoses)
+
+
+class FakeVolume(object):
+    """Fake one or more volumes."""
+
+    @staticmethod
+    def create_one_volume(attrs=None):
+        """Create a fake volume.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes of volume
+        :return:
+            A FakeResource object with id, name, status, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attribute
+        volume_info = {
+            'id': 'volume-id' + uuid.uuid4().hex,
+            'name': 'volume-name' + uuid.uuid4().hex,
+            'description': 'description' + uuid.uuid4().hex,
+            'status': random.choice(['available', 'in_use']),
+            'size': random.randint(1, 20),
+            'volume_type':
+                random.choice(['fake_lvmdriver-1', 'fake_lvmdriver-2']),
+            'bootable':
+                random.randint(0, 1),
+            'metadata': {
+                'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
+                'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
+                'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex},
+            'snapshot_id': random.randint(1, 5),
+            'availability_zone': 'zone' + uuid.uuid4().hex,
+            'attachments': [{
+                'device': '/dev/' + uuid.uuid4().hex,
+                'server_id': uuid.uuid4().hex,
+            }, ],
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        volume_info.update(attrs)
+
+        volume = fakes.FakeResource(
+            None,
+            volume_info,
+            loaded=True)
+        return volume
+
+    @staticmethod
+    def create_volumes(attrs=None, count=2):
+        """Create multiple fake volumes.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes of volume
+        :param Integer count:
+            The number of volumes to be faked
+        :return:
+            A list of FakeResource objects
+        """
+        volumes = []
+        for n in range(0, count):
+            volumes.append(FakeVolume.create_one_volume(attrs))
+
+        return volumes
+
+    @staticmethod
+    def get_volumes(volumes=None, count=2):
+        """Get an iterable MagicMock object with a list of faked volumes.
+
+        If volumes list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List volumes:
+            A list of FakeResource objects faking volumes
+        :param Integer count:
+            The number of volumes to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            volumes
+        """
+        if volumes is None:
+            volumes = FakeVolume.create_volumes(count)
+
+        return mock.MagicMock(side_effect=volumes)
 
 
 class FakeImagev1Client(object):

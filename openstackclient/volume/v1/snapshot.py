@@ -16,13 +16,18 @@
 """Volume v1 Snapshot action implementations"""
 
 import copy
+import logging
 
 from osc_lib.cli import parseractions
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateSnapshot(command.ShowOne):
@@ -88,10 +93,24 @@ class DeleteSnapshot(command.Command):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        for snapshot in parsed_args.snapshots:
-            snapshot_id = utils.find_resource(volume_client.volume_snapshots,
-                                              snapshot).id
-            volume_client.volume_snapshots.delete(snapshot_id)
+        result = 0
+
+        for i in parsed_args.snapshots:
+            try:
+                snapshot_id = utils.find_resource(
+                    volume_client.volume_snapshots, i).id
+                volume_client.volume_snapshots.delete(snapshot_id)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete snapshot with "
+                            "name or ID '%(snapshot)s': %(e)s"),
+                          {'snapshot': i, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.snapshots)
+            msg = (_("%(result)s of %(total)s snapshots failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListSnapshot(command.Lister):
