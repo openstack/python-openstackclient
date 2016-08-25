@@ -61,8 +61,12 @@ class OpenStackShell(shell.OpenStackShell):
     def _final_defaults(self):
         super(OpenStackShell, self)._final_defaults()
 
-        # Set default auth type to password
-        self._auth_type = 'password'
+        # Set the default plugin to token_endpoint if url and token are given
+        if (self.options.url and self.options.token):
+            # Use service token authentication
+            self._auth_type = 'token_endpoint'
+        else:
+            self._auth_type = 'password'
 
     def _load_plugins(self):
         """Load plugins via stevedore
