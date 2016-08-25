@@ -844,6 +844,8 @@ class TestVolumeSet(TestVolume):
             ('size', None),
             ('property', {'myprop': 'myvalue'}),
             ('volume', volume_fakes.volume_name),
+            ('bootable', False),
+            ('non_bootable', False)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -858,3 +860,28 @@ class TestVolumeSet(TestVolume):
             metadata
         )
         self.assertIsNone(result)
+
+    def test_volume_set_bootable(self):
+        arglist = [
+            ['--bootable', volume_fakes.volume_id],
+            ['--non-bootable', volume_fakes.volume_id]
+        ]
+        verifylist = [
+            [
+                ('bootable', True),
+                ('non_bootable', False),
+                ('volume', volume_fakes.volume_id)
+            ],
+            [
+                ('bootable', False),
+                ('non_bootable', True),
+                ('volume', volume_fakes.volume_id)
+            ]
+        ]
+        for index in range(len(arglist)):
+            parsed_args = self.check_parser(
+                self.cmd, arglist[index], verifylist[index])
+
+            self.cmd.take_action(parsed_args)
+            self.volumes_mock.set_bootable.assert_called_with(
+                volume_fakes.volume_id, verifylist[index][0][1])

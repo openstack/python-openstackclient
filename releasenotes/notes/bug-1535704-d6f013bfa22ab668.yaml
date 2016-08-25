@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Add ``--bootable`` and ``--non-bootable`` options to ``os volume set``
+    command to mark volume as bootable or non-bootable.
+    [Bug `1535704 <https://bugs.launchpad.net/bugs/1535704>`_]

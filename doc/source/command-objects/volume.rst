@@ -193,6 +193,7 @@ Set volume properties
         [--property <key=value> [...] ]
         [--image-property <key=value> [...] ]
         [--state <state>]
+        [--bootable | --non-bootable]
         <volume>
 
 .. option:: --name <name>
@@ -210,6 +211,14 @@ Set volume properties
 .. option:: --property <key=value>
 
     Set a property on this volume (repeat option to set multiple properties)
+
+.. option:: --bootable
+
+    Mark volume as bootable
+
+.. option:: --non-bootable
+
+    Mark volume as non-bootable
 
 .. option:: --image-property <key=value>
 
