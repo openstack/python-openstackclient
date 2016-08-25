@@ -17,7 +17,7 @@ new command without understanding why or why not that instance is correct.
 The :doc:`Human Interface Guide <humaninterfaceguide>`
 describes the guildelines for option names and usage.  In short:
   * All option names shall be GNU-style long names (two leading dashes).
-  * Some global options may have short nmaes, generally limited to those defined
+  * Some global options may have short names, generally limited to those defined
     in support libraries such as ``cliff``.
 
 General Command Options
@@ -36,7 +36,7 @@ prepended (such as in the traditional GNU option usage) like `--share` and
 In order to handle those APIs that behave differently when a field is set to
 `None` and when the field is not present in a passed argument list or dict,
 each of the boolean options shall set its own variable to `True` as part of
-a mutiually exclusive group, rather than the more common configuration of
+a mutually exclusive group, rather than the more common configuration of
 setting a single destination variable `True` or `False` directly.  This allows
 us to detect the situation when neither option is present (both variables will
 be `False`) and act accordingly for those APIs where this matters.
@@ -218,7 +218,7 @@ Some options have no default value and the API does not allow them to be
 `None`, then these options are always required when users use the command
 to which these options belong.
 
-Required options must be validated by the CLI to aviod omissions. The CLI
+Required options must be validated by the CLI to avoid omissions. The CLI
 validation may provide an error message for the user if a required option
 is not specified.
 (for example: ``error: argument --test is required``)
