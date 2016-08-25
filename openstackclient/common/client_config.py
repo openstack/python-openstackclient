@@ -15,7 +15,7 @@
 
 import logging
 
-from os_client_config.config import OpenStackConfig
+from os_client_config import config
 
 
 LOG = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ LOG = logging.getLogger(__name__)
 
 # Sublcass OpenStackConfig in order to munge config values
 # before auth plugins are loaded
-class OSC_Config(OpenStackConfig):
+class OSC_Config(config.OpenStackConfig):
 
     def _auth_select_default_plugin(self, config):
         """Select a default plugin based on supplied arguments
