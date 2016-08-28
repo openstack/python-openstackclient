@@ -16,6 +16,7 @@ shift
 
 install_cmd="pip install"
 mydir=$(mktemp -dt "$CLIENT_NAME-tox_install-XXXXXXX")
+trap "rm -rf $mydir" EXIT
 localfile=$mydir/upper-constraints.txt
 if [[ $CONSTRAINTS_FILE != http* ]]; then
     CONSTRAINTS_FILE=file://$CONSTRAINTS_FILE
@@ -27,7 +28,6 @@ if [ $requirements_installed -eq 0 ]; then
     echo "ALREADY INSTALLED" > /tmp/tox_install.txt
     echo "Requirements already installed; using existing package"
 elif [ -x "$ZUUL_CLONER" ]; then
-    # If this is called in a periodic job, these will not be set
     echo "ZUUL CLONER" > /tmp/tox_install.txt
     pushd $mydir
     $ZUUL_CLONER --cache-dir \
