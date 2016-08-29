@@ -1,5 +1,6 @@
 ---
 features:
-  - Add ``volume transfer request create`` and ``volume transfer request delete``
+  - Add ``volume transfer request create``, ``volume transfer request delete``,
+    ``volume transfer request show`` and ``volume transfer request accept``
     commands in volume v1 and v2.
     [Blueprint `cinder-command-support <https://blueprints.launchpad.net/python-openstackclient/+spec/cinder-command-support>`_]

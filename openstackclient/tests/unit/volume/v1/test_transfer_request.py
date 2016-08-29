@@ -36,6 +36,53 @@ class TestTransfer(transfer_fakes.TestVolumev1):
         self.volumes_mock.reset_mock()
 
 
+class TestTransferAccept(TestTransfer):
+
+    columns = (
+        'id',
+        'name',
+        'volume_id',
+    )
+
+    def setUp(self):
+        super(TestTransferAccept, self).setUp()
+
+        self.volume_transfer = (
+            transfer_fakes.FakeTransfer.create_one_transfer())
+        self.data = (
+            self.volume_transfer.id,
+            self.volume_transfer.name,
+            self.volume_transfer.volume_id,
+        )
+
+        self.transfer_mock.get.return_value = self.volume_transfer
+        self.transfer_mock.accept.return_value = self.volume_transfer
+
+        # Get the command object to test
+        self.cmd = volume_transfer_request.AcceptTransferRequest(
+            self.app, None)
+
+    def test_transfer_accept(self):
+        arglist = [
+            self.volume_transfer.id,
+            'auth_key',
+        ]
+        verifylist = [
+            ('transfer_request', self.volume_transfer.id),
+            ('auth_key', 'auth_key'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.transfer_mock.get.assert_called_once_with(
+            self.volume_transfer.id)
+        self.transfer_mock.accept.assert_called_once_with(
+            self.volume_transfer.id, 'auth_key')
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+
 class TestTransferCreate(TestTransfer):
 
     volume = transfer_fakes.FakeVolume.create_one_volume()
@@ -52,7 +99,10 @@ class TestTransferCreate(TestTransfer):
         super(TestTransferCreate, self).setUp()
 
         self.volume_transfer = transfer_fakes.FakeTransfer.create_one_transfer(
-            attrs={'volume_id': self.volume.id})
+            attrs={'volume_id': self.volume.id,
+                   'auth_key': 'key',
+                   'created_at': 'time'}
+        )
         self.data = (
             self.volume_transfer.auth_key,
             self.volume_transfer.created_at,
@@ -266,3 +316,49 @@ class TestTransferList(TestTransfer):
             detailed=True,
             search_opts={'all_tenants': 1}
         )
+
+
+class TestTransferShow(TestTransfer):
+
+    columns = (
+        'created_at',
+        'id',
+        'name',
+        'volume_id',
+    )
+
+    def setUp(self):
+        super(TestTransferShow, self).setUp()
+
+        self.volume_transfer = (
+            transfer_fakes.FakeTransfer.create_one_transfer(
+                attrs={'created_at': 'time'})
+        )
+        self.data = (
+            self.volume_transfer.created_at,
+            self.volume_transfer.id,
+            self.volume_transfer.name,
+            self.volume_transfer.volume_id,
+        )
+
+        self.transfer_mock.get.return_value = self.volume_transfer
+
+        # Get the command object to test
+        self.cmd = volume_transfer_request.ShowTransferRequest(
+            self.app, None)
+
+    def test_transfer_show(self):
+        arglist = [
+            self.volume_transfer.id,
+        ]
+        verifylist = [
+            ('transfer_request', self.volume_transfer.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.transfer_mock.get.assert_called_once_with(
+            self.volume_transfer.id)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
