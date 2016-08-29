@@ -169,7 +169,7 @@ the plugin commands:
         ...
 
         def take_action(self, parsed_args):
-            # Client manager interfaces are availble to plugins.
+            # Client manager interfaces are available to plugins.
             # This includes the OSC clients created.
             client_manager = self.app.client_manager
 

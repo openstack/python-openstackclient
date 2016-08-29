@@ -74,7 +74,7 @@ volume qos disassociate
 
 Disassociate a QoS specification from a volume type
 
-.. program:: volume qos disassoiate
+.. program:: volume qos disassociate
 .. code:: bash
 
     os volume qos disassociate

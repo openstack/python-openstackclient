@@ -162,7 +162,7 @@ list check out :doc:`plugin-commands`.
 * ``cluster event``: (**Clustering (Senlin)**)
 * ``cluster members``: (**Clustering (Senlin)**)
 * ``cluster node``: (**Clustering (Senlin)**)
-* ``cluster policy``: (**CLustering (Senlin)**)
+* ``cluster policy``: (**Clustering (Senlin)**)
 * ``cluster policy binding``: (**Clustering (Senlin)**)
 * ``cluster policy type``: (**Clustering (Senlin)**)
 * ``cluster profile``: (**Clustering (Senlin)**)
