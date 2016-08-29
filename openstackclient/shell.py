@@ -145,6 +145,7 @@ class OpenStackShell(shell.OpenStackShell):
                     'interface': None,
                     'auth_type': self._auth_type,
                 },
+                pw_func=shell.prompt_for_password,
             )
         except (IOError, OSError) as e:
             self.log.critical("Could not read clouds.yaml configuration file")
@@ -162,7 +163,6 @@ class OpenStackShell(shell.OpenStackShell):
         self.client_manager = clientmanager.ClientManager(
             cli_options=self.cloud,
             api_version=self.api_version,
-            pw_func=shell.prompt_for_password,
         )
 
 

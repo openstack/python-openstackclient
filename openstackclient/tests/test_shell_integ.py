@@ -354,6 +354,64 @@ class TestShellCliV3Integ(TestShellInteg):
         self.assertFalse(self.requests_mock.request_history[0].verify)
 
 
+class TestShellCliV3Prompt(TestShellInteg):
+
+    def setUp(self):
+        super(TestShellCliV3Prompt, self).setUp()
+        env = {
+            "OS_AUTH_URL": V3_AUTH_URL,
+            "OS_PROJECT_DOMAIN_ID": test_shell.DEFAULT_PROJECT_DOMAIN_ID,
+            "OS_USER_DOMAIN_ID": test_shell.DEFAULT_USER_DOMAIN_ID,
+            "OS_USERNAME": test_shell.DEFAULT_USERNAME,
+            "OS_IDENTITY_API_VERSION": "3",
+        }
+        self.useFixture(osc_lib_utils.EnvFixture(copy.deepcopy(env)))
+
+        self.token = ksa_fixture.V3Token(
+            project_domain_id=test_shell.DEFAULT_PROJECT_DOMAIN_ID,
+            user_domain_id=test_shell.DEFAULT_USER_DOMAIN_ID,
+            user_name=test_shell.DEFAULT_USERNAME,
+        )
+
+        # Set up the v3 auth routes
+        self.requests_mock.register_uri(
+            'GET',
+            V3_AUTH_URL,
+            json=V3_VERSION_RESP,
+            status_code=200,
+        )
+        self.requests_mock.register_uri(
+            'POST',
+            V3_AUTH_URL + 'auth/tokens',
+            json=self.token,
+            status_code=200,
+        )
+
+    @mock.patch("osc_lib.shell.prompt_for_password")
+    def test_shell_callback(self, mock_prompt):
+        mock_prompt.return_value = "qaz"
+        _shell = shell.OpenStackShell()
+        _shell.run("configuration show".split())
+
+        # Check general calls
+        self.assertEqual(len(self.requests_mock.request_history), 2)
+
+        # Check password callback set correctly
+        self.assertEqual(
+            mock_prompt,
+            _shell.cloud._openstack_config._pw_callback
+        )
+
+        # Check auth request
+        auth_req = self.requests_mock.request_history[1].json()
+
+        # Check returned password from prompt function
+        self.assertEqual(
+            "qaz",
+            auth_req['auth']['identity']['password']['user']['password'],
+        )
+
+
 class TestShellCliPrecedence(TestShellInteg):
     """Validate option precedence rules without clouds.yaml
 
