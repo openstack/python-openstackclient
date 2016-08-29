@@ -20,6 +20,7 @@ import pkg_resources
 import sys
 
 from osc_lib import clientmanager
+from osc_lib import shell
 
 
 LOG = logging.getLogger(__name__)
@@ -48,6 +49,8 @@ class ClientManager(clientmanager.ClientManager):
         super(ClientManager, self).__init__(
             cli_options=cli_options,
             api_version=api_version,
+            # TODO(dtroyer): Remove this when osc-lib 1.2 is released
+            pw_func=shell.prompt_for_password,
         )
 
         # TODO(dtroyer): For compatibility; mark this for removal when plugin

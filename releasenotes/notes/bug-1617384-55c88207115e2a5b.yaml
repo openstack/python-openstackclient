@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix prompting for password issue introduced in release 3.0.0
+    [Bug `1617384 <https://bugs.launchpad.net/bugs/1617384>`_]
