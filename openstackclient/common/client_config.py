@@ -25,6 +25,40 @@ LOG = logging.getLogger(__name__)
 # before auth plugins are loaded
 class OSC_Config(config.OpenStackConfig):
 
+    # TODO(dtroyer): Once os-client-config with pw_func argument is in
+    #                global-requirements we can remove __init()__
+    def __init__(
+        self,
+        config_files=None,
+        vendor_files=None,
+        override_defaults=None,
+        force_ipv4=None,
+        envvar_prefix=None,
+        secure_files=None,
+        pw_func=None,
+    ):
+        ret = super(OSC_Config, self).__init__(
+            config_files=config_files,
+            vendor_files=vendor_files,
+            override_defaults=override_defaults,
+            force_ipv4=force_ipv4,
+            envvar_prefix=envvar_prefix,
+            secure_files=secure_files,
+        )
+
+        # NOTE(dtroyer): This will be pushed down into os-client-config
+        #                The default is there is no callback, the calling
+        #                application must specify what to use, typically
+        #                it will be osc_lib.shell.prompt_for_password()
+        if '_pw_callback' not in vars(self):
+            # Set the default if it doesn't already exist
+            self._pw_callback = None
+        if pw_func is not None:
+            # Set the passed in value
+            self._pw_callback = pw_func
+
+        return ret
+
     def _auth_select_default_plugin(self, config):
         """Select a default plugin based on supplied arguments
 
@@ -182,5 +216,14 @@ class OSC_Config(config.OpenStackConfig):
                         winning_value)
                 else:
                     config['auth'][p_opt.dest] = winning_value
+
+            # See if this needs a prompting
+            if (
+                    'prompt' in vars(p_opt) and
+                    p_opt.prompt is not None and
+                    p_opt.dest not in config['auth'] and
+                    self._pw_callback is not None
+            ):
+                config['auth'][p_opt.dest] = self._pw_callback(p_opt.prompt)
 
         return config
