@@ -1,84 +1,112 @@
-=================
- Plugin Commands
-=================
+===============
+Plugin Commands
+===============
 
 Note: To see the complete syntax for the plugin commands, see the `CLI_Ref`_
 
 .. list-plugins:: openstack.cli.extension
 
-# aodh
+aodh
+----
+
 .. list-plugins:: openstack.alarming.v2
    :detailed:
 
-# barbican
+barbican
+--------
+
 .. list-plugins:: openstack.key_manager.v1
    :detailed:
 
-# congress
+congress
+--------
+
 .. list-plugins:: openstack.congressclient.v1
    :detailed:
 
-# cue
+.. cue
 .. # cueclient is not in global-requirements
 .. # list-plugins:: openstack.mb.v1
 .. #   :detailed:
 
-# designate
+designate
+---------
+
 .. list-plugins:: openstack.dns.v1
    :detailed:
 
-# gnocchi
+.. gnocchi
 .. # gnocchiclient is not in global-requirements
 .. # list-plugins:: openstack.metric.v1
 .. #  :detailed:
 
-# heat
+heat
+----
+
 .. list-plugins:: openstack.orchestration.v1
    :detailed:
 
-# ironic
+ironic
+------
+
 .. list-plugins:: openstack.baremetal.v1
    :detailed:
 
-# ironic-inspector
+ironic-inspector
+----------------
+
 .. list-plugins:: openstack.baremetal_introspection.v1
    :detailed:
 
-# mistral
+mistral
+-------
+
 .. list-plugins:: openstack.workflow_engine.v2
    :detailed:
 
-# murano
+murano
+------
+
 .. list-plugins:: openstack.application_catalog.v1
    :detailed:
 
-# neutron
+neutron
+-------
+
 .. list-plugins:: openstack.neutronclient.v2
    :detailed:
 
-# sahara
+sahara
+------
+
 .. list-plugins:: openstack.data_processing.v1
    :detailed:
 
-# searchlight
+searchlight
+-----------
+
 .. list-plugins:: openstack.search.v1
    :detailed:
 
-# senlin
+senlin
+------
+
 .. list-plugins:: openstack.clustering.v1
    :detailed:
 
-# tripleo
+.. tripleo
 .. # tripleoclient is not in global-requirements
 .. # list-plugins:: openstack.tripleoclient.v1
 .. #   :detailed:
 
-# watcher
+.. watcher
 .. # watcherclient is not in global-requirements
 .. # list-plugins:: openstack.infra_optim.v1
 .. #  :detailed:
 
-# zaqar
+zaqar
+-----
+
 .. list-plugins:: openstack.messaging.v1
    :detailed:
 
