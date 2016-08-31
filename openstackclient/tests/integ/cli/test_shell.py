@@ -13,75 +13,19 @@
 import copy
 import mock
 
-from keystoneauth1 import fixture as ksa_fixture
 from osc_lib.tests import utils as osc_lib_utils
-from requests_mock.contrib import fixture
 
 from openstackclient import shell
+from openstackclient.tests.integ import base as test_base
 from openstackclient.tests import test_shell
-from openstackclient.tests import utils
-
-HOST = "192.168.5.41"
-URL_BASE = "http://%s/identity" % HOST
-
-V2_AUTH_URL = URL_BASE + "/v2.0/"
-V2_VERSION_RESP = {
-    "version": {
-        "status": "stable",
-        "updated": "2014-04-17T00:00:00Z",
-        "media-types": [
-            {
-                "base": "application/json",
-                "type": "application/vnd.openstack.identity-v2.0+json",
-            },
-        ],
-        "id": "v2.0",
-        "links": [
-            {
-                "href": V2_AUTH_URL,
-                "rel": "self",
-            },
-            {
-                "href": "http://docs.openstack.org/",
-                "type": "text/html",
-                "rel": "describedby",
-            },
-        ],
-    },
-}
-
-V3_AUTH_URL = URL_BASE + "/v3/"
-V3_VERSION_RESP = {
-    "version": {
-        "status": "stable",
-        "updated": "2016-04-04T00:00:00Z",
-        "media-types": [{
-            "base": "application/json",
-            "type": "application/vnd.openstack.identity-v3+json",
-        }],
-        "id": "v3.6",
-        "links": [{
-            "href": V3_AUTH_URL,
-            "rel": "self",
-        }]
-    }
-}
 
 
-class TestShellInteg(utils.TestCase):
+class TestIntegShellCliV2(test_base.TestInteg):
 
     def setUp(self):
-        super(TestShellInteg, self).setUp()
-
-        self.requests_mock = self.useFixture(fixture.Fixture())
-
-
-class TestShellCliV2Integ(TestShellInteg):
-
-    def setUp(self):
-        super(TestShellCliV2Integ, self).setUp()
+        super(TestIntegShellCliV2, self).setUp()
         env = {
-            "OS_AUTH_URL": V2_AUTH_URL,
+            "OS_AUTH_URL": test_base.V2_AUTH_URL,
             "OS_PROJECT_NAME": test_shell.DEFAULT_PROJECT_NAME,
             "OS_USERNAME": test_shell.DEFAULT_USERNAME,
             "OS_PASSWORD": test_shell.DEFAULT_PASSWORD,
@@ -89,24 +33,7 @@ class TestShellCliV2Integ(TestShellInteg):
         }
         self.useFixture(osc_lib_utils.EnvFixture(copy.deepcopy(env)))
 
-        self.token = ksa_fixture.V2Token(
-            tenant_name=test_shell.DEFAULT_PROJECT_NAME,
-            user_name=test_shell.DEFAULT_USERNAME,
-        )
-
-        # Set up the v2 auth routes
-        self.requests_mock.register_uri(
-            'GET',
-            V2_AUTH_URL,
-            json=V2_VERSION_RESP,
-            status_code=200,
-        )
-        self.requests_mock.register_uri(
-            'POST',
-            V2_AUTH_URL + 'tokens',
-            json=self.token,
-            status_code=200,
-        )
+        self.token = test_base.make_v2_token(self.requests_mock)
 
     def test_shell_args_no_options(self):
         _shell = shell.OpenStackShell()
@@ -117,7 +44,7 @@ class TestShellCliV2Integ(TestShellInteg):
 
         # Check discovery request
         self.assertEqual(
-            V2_AUTH_URL,
+            test_base.V2_AUTH_URL,
             self.requests_mock.request_history[0].url,
         )
 
@@ -181,12 +108,12 @@ class TestShellCliV2Integ(TestShellInteg):
         self.assertFalse(self.requests_mock.request_history[0].verify)
 
 
-class TestShellCliV2IgnoreInteg(TestShellInteg):
+class TestIntegShellCliV2Ignore(test_base.TestInteg):
 
     def setUp(self):
-        super(TestShellCliV2IgnoreInteg, self).setUp()
+        super(TestIntegShellCliV2Ignore, self).setUp()
         env = {
-            "OS_AUTH_URL": V2_AUTH_URL,
+            "OS_AUTH_URL": test_base.V2_AUTH_URL,
             "OS_PROJECT_NAME": test_shell.DEFAULT_PROJECT_NAME,
             "OS_USERNAME": test_shell.DEFAULT_USERNAME,
             "OS_PASSWORD": test_shell.DEFAULT_PASSWORD,
@@ -196,24 +123,7 @@ class TestShellCliV2IgnoreInteg(TestShellInteg):
         }
         self.useFixture(osc_lib_utils.EnvFixture(copy.deepcopy(env)))
 
-        self.token = ksa_fixture.V2Token(
-            tenant_name=test_shell.DEFAULT_PROJECT_NAME,
-            user_name=test_shell.DEFAULT_USERNAME,
-        )
-
-        # Set up the v2 auth routes
-        self.requests_mock.register_uri(
-            'GET',
-            V2_AUTH_URL,
-            json=V2_VERSION_RESP,
-            status_code=200,
-        )
-        self.requests_mock.register_uri(
-            'POST',
-            V2_AUTH_URL + 'tokens',
-            json=self.token,
-            status_code=200,
-        )
+        self.token = test_base.make_v2_token(self.requests_mock)
 
     def test_shell_args_ignore_v3(self):
         _shell = shell.OpenStackShell()
@@ -224,7 +134,7 @@ class TestShellCliV2IgnoreInteg(TestShellInteg):
 
         # Check discovery request
         self.assertEqual(
-            V2_AUTH_URL,
+            test_base.V2_AUTH_URL,
             self.requests_mock.request_history[0].url,
         )
 
@@ -245,12 +155,12 @@ class TestShellCliV2IgnoreInteg(TestShellInteg):
         )
 
 
-class TestShellCliV3Integ(TestShellInteg):
+class TestIntegShellCliV3(test_base.TestInteg):
 
     def setUp(self):
-        super(TestShellCliV3Integ, self).setUp()
+        super(TestIntegShellCliV3, self).setUp()
         env = {
-            "OS_AUTH_URL": V3_AUTH_URL,
+            "OS_AUTH_URL": test_base.V3_AUTH_URL,
             "OS_PROJECT_DOMAIN_ID": test_shell.DEFAULT_PROJECT_DOMAIN_ID,
             "OS_USER_DOMAIN_ID": test_shell.DEFAULT_USER_DOMAIN_ID,
             "OS_USERNAME": test_shell.DEFAULT_USERNAME,
@@ -259,25 +169,7 @@ class TestShellCliV3Integ(TestShellInteg):
         }
         self.useFixture(osc_lib_utils.EnvFixture(copy.deepcopy(env)))
 
-        self.token = ksa_fixture.V3Token(
-            project_domain_id=test_shell.DEFAULT_PROJECT_DOMAIN_ID,
-            user_domain_id=test_shell.DEFAULT_USER_DOMAIN_ID,
-            user_name=test_shell.DEFAULT_USERNAME,
-        )
-
-        # Set up the v3 auth routes
-        self.requests_mock.register_uri(
-            'GET',
-            V3_AUTH_URL,
-            json=V3_VERSION_RESP,
-            status_code=200,
-        )
-        self.requests_mock.register_uri(
-            'POST',
-            V3_AUTH_URL + 'auth/tokens',
-            json=self.token,
-            status_code=200,
-        )
+        self.token = test_base.make_v3_token(self.requests_mock)
 
     def test_shell_args_no_options(self):
         _shell = shell.OpenStackShell()
@@ -288,7 +180,7 @@ class TestShellCliV3Integ(TestShellInteg):
 
         # Check discovery request
         self.assertEqual(
-            V3_AUTH_URL,
+            test_base.V3_AUTH_URL,
             self.requests_mock.request_history[0].url,
         )
 
@@ -354,12 +246,12 @@ class TestShellCliV3Integ(TestShellInteg):
         self.assertFalse(self.requests_mock.request_history[0].verify)
 
 
-class TestShellCliV3Prompt(TestShellInteg):
+class TestIntegShellCliV3Prompt(test_base.TestInteg):
 
     def setUp(self):
-        super(TestShellCliV3Prompt, self).setUp()
+        super(TestIntegShellCliV3Prompt, self).setUp()
         env = {
-            "OS_AUTH_URL": V3_AUTH_URL,
+            "OS_AUTH_URL": test_base.V3_AUTH_URL,
             "OS_PROJECT_DOMAIN_ID": test_shell.DEFAULT_PROJECT_DOMAIN_ID,
             "OS_USER_DOMAIN_ID": test_shell.DEFAULT_USER_DOMAIN_ID,
             "OS_USERNAME": test_shell.DEFAULT_USERNAME,
@@ -367,25 +259,7 @@ class TestShellCliV3Prompt(TestShellInteg):
         }
         self.useFixture(osc_lib_utils.EnvFixture(copy.deepcopy(env)))
 
-        self.token = ksa_fixture.V3Token(
-            project_domain_id=test_shell.DEFAULT_PROJECT_DOMAIN_ID,
-            user_domain_id=test_shell.DEFAULT_USER_DOMAIN_ID,
-            user_name=test_shell.DEFAULT_USERNAME,
-        )
-
-        # Set up the v3 auth routes
-        self.requests_mock.register_uri(
-            'GET',
-            V3_AUTH_URL,
-            json=V3_VERSION_RESP,
-            status_code=200,
-        )
-        self.requests_mock.register_uri(
-            'POST',
-            V3_AUTH_URL + 'auth/tokens',
-            json=self.token,
-            status_code=200,
-        )
+        self.token = test_base.make_v3_token(self.requests_mock)
 
     @mock.patch("osc_lib.shell.prompt_for_password")
     def test_shell_callback(self, mock_prompt):
@@ -412,7 +286,7 @@ class TestShellCliV3Prompt(TestShellInteg):
         )
 
 
-class TestShellCliPrecedence(TestShellInteg):
+class TestIntegShellCliPrecedence(test_base.TestInteg):
     """Validate option precedence rules without clouds.yaml
 
     Global option values may be set in three places:
@@ -425,9 +299,9 @@ class TestShellCliPrecedence(TestShellInteg):
     """
 
     def setUp(self):
-        super(TestShellCliPrecedence, self).setUp()
+        super(TestIntegShellCliPrecedence, self).setUp()
         env = {
-            "OS_AUTH_URL": V3_AUTH_URL,
+            "OS_AUTH_URL": test_base.V3_AUTH_URL,
             "OS_PROJECT_DOMAIN_ID": test_shell.DEFAULT_PROJECT_DOMAIN_ID,
             "OS_USER_DOMAIN_ID": test_shell.DEFAULT_USER_DOMAIN_ID,
             "OS_USERNAME": test_shell.DEFAULT_USERNAME,
@@ -435,29 +309,11 @@ class TestShellCliPrecedence(TestShellInteg):
         }
         self.useFixture(osc_lib_utils.EnvFixture(copy.deepcopy(env)))
 
-        self.token = ksa_fixture.V3Token(
-            project_domain_id=test_shell.DEFAULT_PROJECT_DOMAIN_ID,
-            user_domain_id=test_shell.DEFAULT_USER_DOMAIN_ID,
-            user_name=test_shell.DEFAULT_USERNAME,
-        )
-
-        # Set up the v3 auth routes
-        self.requests_mock.register_uri(
-            'GET',
-            V3_AUTH_URL,
-            json=V3_VERSION_RESP,
-            status_code=200,
-        )
-        self.requests_mock.register_uri(
-            'POST',
-            V3_AUTH_URL + 'auth/tokens',
-            json=self.token,
-            status_code=200,
-        )
+        self.token = test_base.make_v3_token(self.requests_mock)
 
         # Patch a v3 auth URL into the o-c-c data
         test_shell.PUBLIC_1['public-clouds']['megadodo']['auth']['auth_url'] \
-            = V3_AUTH_URL
+            = test_base.V3_AUTH_URL
 
     def test_shell_args_options(self):
         """Verify command line options override environment variables"""
@@ -473,7 +329,7 @@ class TestShellCliPrecedence(TestShellInteg):
 
         # Check discovery request
         self.assertEqual(
-            V3_AUTH_URL,
+            test_base.V3_AUTH_URL,
             self.requests_mock.request_history[0].url,
         )
 
@@ -502,7 +358,7 @@ class TestShellCliPrecedence(TestShellInteg):
         )
 
 
-class TestShellCliPrecedenceOCC(TestShellInteg):
+class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
     """Validate option precedence rules with clouds.yaml
 
     Global option values may be set in three places:
@@ -515,10 +371,10 @@ class TestShellCliPrecedenceOCC(TestShellInteg):
     """
 
     def setUp(self):
-        super(TestShellCliPrecedenceOCC, self).setUp()
+        super(TestIntegShellCliPrecedenceOCC, self).setUp()
         env = {
             "OS_CLOUD": "megacloud",
-            "OS_AUTH_URL": V3_AUTH_URL,
+            "OS_AUTH_URL": test_base.V3_AUTH_URL,
             "OS_PROJECT_DOMAIN_ID": test_shell.DEFAULT_PROJECT_DOMAIN_ID,
             "OS_USER_DOMAIN_ID": test_shell.DEFAULT_USER_DOMAIN_ID,
             "OS_USERNAME": test_shell.DEFAULT_USERNAME,
@@ -527,29 +383,11 @@ class TestShellCliPrecedenceOCC(TestShellInteg):
         }
         self.useFixture(osc_lib_utils.EnvFixture(copy.deepcopy(env)))
 
-        self.token = ksa_fixture.V3Token(
-            project_domain_id=test_shell.DEFAULT_PROJECT_DOMAIN_ID,
-            user_domain_id=test_shell.DEFAULT_USER_DOMAIN_ID,
-            user_name=test_shell.DEFAULT_USERNAME,
-        )
-
-        # Set up the v3 auth routes
-        self.requests_mock.register_uri(
-            'GET',
-            V3_AUTH_URL,
-            json=V3_VERSION_RESP,
-            status_code=200,
-        )
-        self.requests_mock.register_uri(
-            'POST',
-            V3_AUTH_URL + 'auth/tokens',
-            json=self.token,
-            status_code=200,
-        )
+        self.token = test_base.make_v3_token(self.requests_mock)
 
         # Patch a v3 auth URL into the o-c-c data
         test_shell.PUBLIC_1['public-clouds']['megadodo']['auth']['auth_url'] \
-            = V3_AUTH_URL
+            = test_base.V3_AUTH_URL
 
     @mock.patch("os_client_config.config.OpenStackConfig._load_vendor_file")
     @mock.patch("os_client_config.config.OpenStackConfig._load_config_file")
@@ -577,7 +415,7 @@ class TestShellCliPrecedenceOCC(TestShellInteg):
 
         # Check discovery request
         self.assertEqual(
-            V3_AUTH_URL,
+            test_base.V3_AUTH_URL,
             self.requests_mock.request_history[0].url,
         )
 
@@ -647,7 +485,7 @@ class TestShellCliPrecedenceOCC(TestShellInteg):
 
         # Check discovery request
         self.assertEqual(
-            V3_AUTH_URL,
+            test_base.V3_AUTH_URL,
             self.requests_mock.request_history[0].url,
         )
 
