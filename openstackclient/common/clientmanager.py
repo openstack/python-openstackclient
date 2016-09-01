@@ -60,6 +60,26 @@ class ClientManager(clientmanager.ClientManager):
         self._cacert = self.cacert
         self._insecure = not self.verify
 
+    def setup_auth(self):
+        """Set up authentication"""
+
+        if self._auth_setup_completed:
+            return
+
+        # NOTE(dtroyer): Validate the auth args; this is protected with 'if'
+        #                because openstack_config is an optional argument to
+        #                CloudConfig.__init__() and we'll die if it was not
+        #                passed.
+        if self._cli_options._openstack_config is not None:
+            self._cli_options._openstack_config._pw_callback = \
+                shell.prompt_for_password
+            self._cli_options._auth = \
+                self._cli_options._openstack_config.load_auth_plugin(
+                    self._cli_options.config,
+                )
+
+        return super(ClientManager, self).setup_auth()
+
     def is_network_endpoint_enabled(self):
         """Check if the network endpoint is enabled"""
 

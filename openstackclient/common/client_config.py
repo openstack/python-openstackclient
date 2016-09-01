@@ -16,6 +16,7 @@
 import logging
 
 from os_client_config import config
+from os_client_config import exceptions as occ_exceptions
 from oslo_utils import strutils
 import six
 
@@ -187,6 +188,14 @@ class OSC_Config(config.OpenStackConfig):
                       strutils.mask_password(six.text_type(config)))
         return config
 
+    def load_auth_plugin(self, config):
+        """Get auth plugin and validate args"""
+
+        loader = self._get_auth_loader(config)
+        config = self._validate_auth(config, loader)
+        auth_plugin = loader.load_from_options(**config['auth'])
+        return auth_plugin
+
     def _validate_auth_ksc(self, config, cloud, fixed_argparse=None):
         """Old compatibility hack for OSC, no longer needed/wanted"""
         return config
@@ -197,6 +206,8 @@ class OSC_Config(config.OpenStackConfig):
 
         plugin_options = loader.get_options()
 
+        msgs = []
+        prompt_options = []
         for p_opt in plugin_options:
             # if it's in config, win, move it and kill it from config dict
             # if it's in config.auth but not in config we're good
@@ -206,6 +217,16 @@ class OSC_Config(config.OpenStackConfig):
             if not winning_value:
                 winning_value = self._find_winning_auth_value(
                     p_opt, config['auth'])
+
+            # if the plugin tells us that this value is required
+            # then error if it's doesn't exist now
+            if not winning_value and p_opt.required:
+                msgs.append(
+                    'Missing value {auth_key}'
+                    ' required for auth plugin {plugin}'.format(
+                        auth_key=p_opt.name, plugin=config.get('auth_type'),
+                    )
+                )
 
             # Clean up after ourselves
             for opt in [p_opt.name] + [o.name for o in p_opt.deprecated]:
@@ -229,6 +250,13 @@ class OSC_Config(config.OpenStackConfig):
                     p_opt.dest not in config['auth'] and
                     self._pw_callback is not None
             ):
+                # Defer these until we know all required opts are present
+                prompt_options.append(p_opt)
+
+        if msgs:
+            raise occ_exceptions.OpenStackConfigException('\n'.join(msgs))
+        else:
+            for p_opt in prompt_options:
                 config['auth'][p_opt.dest] = self._pw_callback(p_opt.prompt)
 
         return config

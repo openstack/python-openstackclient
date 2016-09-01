@@ -140,12 +140,11 @@ class OpenStackShell(shell.OpenStackShell):
         # First, throw away what has already been done with o-c-c and
         # use our own.
         try:
-            cc = cloud_config.OSC_Config(
+            self.cloud_config = cloud_config.OSC_Config(
                 override_defaults={
                     'interface': None,
                     'auth_type': self._auth_type,
                 },
-                pw_func=shell.prompt_for_password,
             )
         except (IOError, OSError) as e:
             self.log.critical("Could not read clouds.yaml configuration file")
@@ -154,9 +153,13 @@ class OpenStackShell(shell.OpenStackShell):
 
         if not self.options.debug:
             self.options.debug = None
-        self.cloud = cc.get_one_cloud(
+
+        # NOTE(dtroyer): Need to do this with validate=False to defer the
+        #                auth plugin handling to ClientManager.setup_auth()
+        self.cloud = self.cloud_config.get_one_cloud(
             cloud=self.options.cloud,
             argparse=self.options,
+            validate=False,
         )
 
         # Then, re-create the client_manager with the correct arguments
@@ -164,6 +167,33 @@ class OpenStackShell(shell.OpenStackShell):
             cli_options=self.cloud,
             api_version=self.api_version,
         )
+
+    def prepare_to_run_command(self, cmd):
+        """Set up auth and API versions"""
+
+        # TODO(dtroyer): Move this to osc-lib
+        # NOTE(dtroyer): If auth is not required for a command, force fake
+        #                token auth so KSA plugins are happy
+
+        kwargs = {}
+        if not cmd.auth_required:
+            # Build fake token creds to keep ksa and o-c-c hushed
+            kwargs['auth_type'] = 'token_endpoint'
+            kwargs['auth'] = {}
+            kwargs['auth']['token'] = 'x'
+            kwargs['auth']['url'] = 'x'
+
+        # Validate auth options
+        self.cloud = self.cloud_config.get_one_cloud(
+            cloud=self.options.cloud,
+            argparse=self.options,
+            validate=True,
+            **kwargs
+        )
+        # Push the updated args into ClientManager
+        self.client_manager._cli_options = self.cloud
+
+        return super(OpenStackShell, self).prepare_to_run_command(cmd)
 
 
 def main(argv=None):
