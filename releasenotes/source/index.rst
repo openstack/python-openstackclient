@@ -8,6 +8,7 @@ OpenStackClient Release Notes
    unreleased
    20_releases
    pre_20_releases
+   newton
 
 OpenStack Releases
 ------------------
