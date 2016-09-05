@@ -58,7 +58,7 @@ class TestTokenIssue(TestToken):
         collist = ('expires', 'id', 'project_id', 'user_id')
         self.assertEqual(collist, columns)
         datalist = (
-            auth_ref.expires,
+            identity_fakes.token_expires,
             identity_fakes.token_id,
             'project-id',
             'user-id',
@@ -86,7 +86,7 @@ class TestTokenIssue(TestToken):
         )
         self.assertEqual(collist, columns)
         datalist = (
-            auth_ref.expires,
+            identity_fakes.token_expires,
             identity_fakes.token_id,
             'user-id',
         )
