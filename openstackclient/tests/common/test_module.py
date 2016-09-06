@@ -106,8 +106,8 @@ class TestModuleList(utils.TestCommand):
         columns, data = self.cmd.take_action(parsed_args)
 
         # Additional modules may be present, just check our additions
-        self.assertTrue(module_name_1 in columns)
-        self.assertTrue(module_version_1 in data)
+        self.assertIn(module_name_1, columns)
+        self.assertIn(module_version_1, data)
 
     def test_module_list_all(self):
         arglist = [
@@ -124,7 +124,7 @@ class TestModuleList(utils.TestCommand):
         columns, data = self.cmd.take_action(parsed_args)
 
         # Additional modules may be present, just check our additions
-        self.assertTrue(module_name_1 in columns)
-        self.assertTrue(module_name_2 in columns)
-        self.assertTrue(module_version_1 in data)
-        self.assertTrue(module_version_2 in data)
+        self.assertIn(module_name_1, columns)
+        self.assertIn(module_name_2, columns)
+        self.assertIn(module_version_1, data)
+        self.assertIn(module_version_2, data)

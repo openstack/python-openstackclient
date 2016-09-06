@@ -1128,7 +1128,7 @@ class TestImageSet(TestImage):
         # ImageManager.update(image, **kwargs)
         a, k = self.images_mock.update.call_args
         self.assertEqual(image_fakes.image_id, a[0])
-        self.assertTrue('tags' in k)
+        self.assertIn('tags', k)
         self.assertEqual(set(kwargs['tags']), set(k['tags']))
         self.assertIsNone(result)
 
@@ -1154,7 +1154,7 @@ class TestImageSet(TestImage):
         # ImageManager.update(image, **kwargs)
         a, k = self.images_mock.update.call_args
         self.assertEqual(image_fakes.image_id, a[0])
-        self.assertTrue('tags' in k)
+        self.assertIn('tags', k)
         self.assertEqual(set(kwargs['tags']), set(k['tags']))
         self.assertIsNone(result)
 
