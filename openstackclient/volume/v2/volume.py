@@ -511,9 +511,23 @@ class UnsetVolume(command.Command):
         volume = utils.find_resource(
             volume_client.volumes, parsed_args.volume)
 
+        result = 0
         if parsed_args.property:
-            volume_client.volumes.delete_metadata(
-                volume.id, parsed_args.property)
+            try:
+                volume_client.volumes.delete_metadata(
+                    volume.id, parsed_args.property)
+            except Exception as e:
+                LOG.error(_("Failed to unset volume property: %s"), e)
+                result += 1
+
         if parsed_args.image_property:
-            volume_client.volumes.delete_image_metadata(
-                volume.id, parsed_args.image_property)
+            try:
+                volume_client.volumes.delete_image_metadata(
+                    volume.id, parsed_args.image_property)
+            except Exception as e:
+                LOG.error(_("Failed to unset image property: %s"), e)
+                result += 1
+
+        if result > 0:
+            raise exceptions.CommandError(_("One or more of the "
+                                          "unset operations failed"))
