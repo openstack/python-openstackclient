@@ -17,7 +17,7 @@ from openstackclient.tests.volume.v2 import fakes as transfer_fakes
 from openstackclient.volume.v2 import volume_transfer_request
 
 
-class TestTransfer(transfer_fakes.TestTransfer):
+class TestTransfer(transfer_fakes.TestVolume):
 
     def setUp(self):
         super(TestTransfer, self).setUp()

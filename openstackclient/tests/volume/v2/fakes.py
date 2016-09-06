@@ -25,25 +25,6 @@ from openstackclient.tests.image.v2 import fakes as image_fakes
 from openstackclient.tests import utils
 
 
-class FakeTransferClient(object):
-
-    def __init__(self, **kwargs):
-
-        self.transfers = mock.Mock()
-        self.transfers.resource_class = fakes.FakeResource(None, {})
-
-
-class TestTransfer(utils.TestCommand):
-
-    def setUp(self):
-        super(TestTransfer, self).setUp()
-
-        self.app.client_manager.volume = FakeTransferClient(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN
-        )
-
-
 class FakeTransfer(object):
     """Fake one or more Transfer."""
 
@@ -106,24 +87,6 @@ class FakeTypeAccess(object):
             loaded=True)
 
         return type_access
-
-
-class FakeServiceClient(object):
-
-    def __init__(self, **kwargs):
-        self.services = mock.Mock()
-        self.services.resource_class = fakes.FakeResource(None, {})
-
-
-class TestService(utils.TestCommand):
-
-    def setUp(self):
-        super(TestService, self).setUp()
-
-        self.app.client_manager.volume = FakeServiceClient(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN
-        )
 
 
 class FakeService(object):
@@ -200,6 +163,10 @@ class FakeVolumeClient(object):
         self.qos_specs.resource_class = fakes.FakeResource(None, {})
         self.availability_zones = mock.Mock()
         self.availability_zones.resource_class = fakes.FakeResource(None, {})
+        self.transfers = mock.Mock()
+        self.transfers.resource_class = fakes.FakeResource(None, {})
+        self.services = mock.Mock()
+        self.services.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 

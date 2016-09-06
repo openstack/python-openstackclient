@@ -18,7 +18,7 @@ from openstackclient.tests.volume.v2 import fakes as service_fakes
 from openstackclient.volume.v2 import service
 
 
-class TestService(service_fakes.TestService):
+class TestService(service_fakes.TestVolume):
 
     def setUp(self):
         super(TestService, self).setUp()
