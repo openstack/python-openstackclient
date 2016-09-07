@@ -55,10 +55,9 @@ class CreateVolumeType(command.ShowOne):
         if parsed_args.property:
             result = volume_type.set_keys(parsed_args.property)
             volume_type._info.update({'properties': utils.format_dict(result)})
+        volume_type._info.pop("os-volume-type-access:is_public", None)
 
-        info = {}
-        info.update(volume_type._info)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(six.iteritems(volume_type._info)))
 
 
 class DeleteVolumeType(command.Command):
@@ -171,6 +170,7 @@ class ShowVolumeType(command.ShowOne):
             volume_client.volume_types, parsed_args.volume_type)
         properties = utils.format_dict(volume_type._info.pop('extra_specs'))
         volume_type._info.update({'properties': properties})
+        volume_type._info.pop("os-volume-type-access:is_public", None)
         return zip(*sorted(six.iteritems(volume_type._info)))
 
 

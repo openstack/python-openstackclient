@@ -1,0 +1,5 @@
+---
+fixes:
+  - Do not show ``os-volume-type-access:is_public`` property which is the
+    same as ``is_public`` property of volume type object.
+    [Bug `1620922 <https://bugs.launchpad.net/python-openstackclient/+bug/1620922>`_]

@@ -110,6 +110,7 @@ class CreateVolumeType(command.ShowOne):
         if parsed_args.property:
             result = volume_type.set_keys(parsed_args.property)
             volume_type._info.update({'properties': utils.format_dict(result)})
+        volume_type._info.pop("os-volume-type-access:is_public", None)
 
         return zip(*sorted(six.iteritems(volume_type._info)))
 
@@ -318,6 +319,7 @@ class ShowVolumeType(command.ShowOne):
                         '%(type)s: %(e)s')
                 LOG.error(msg % {'type': volume_type.id, 'e': e})
         volume_type._info.update({'access_project_ids': access_project_ids})
+        volume_type._info.pop("os-volume-type-access:is_public", None)
         return zip(*sorted(six.iteritems(volume_type._info)))
 
 
