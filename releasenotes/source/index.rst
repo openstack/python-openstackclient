@@ -6,9 +6,9 @@ OpenStackClient Release Notes
    :maxdepth: 1
 
    unreleased
+   newton
    20_releases
    pre_20_releases
-   newton
 
 OpenStack Releases
 ------------------
