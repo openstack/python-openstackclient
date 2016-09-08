@@ -251,6 +251,7 @@ Those actions with an opposite action are noted in parens if applicable.
   live server migration if possible
 * ``pause`` (``unpause``) - stop one or more servers and leave them in memory
 * ``query`` - Query resources by Elasticsearch query string or json format DSL.
+* ``purge`` - clean resources associated with a specific project
 * ``reboot`` - forcibly reboot a server
 * ``rebuild`` - rebuild a server using (most of) the same arguments as in the original create
 * ``remove`` (``add``) - remove an object from a group of objects
