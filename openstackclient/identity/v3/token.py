@@ -183,7 +183,9 @@ class IssueToken(command.ShowOne):
         if auth_ref.auth_token:
             data['id'] = auth_ref.auth_token
         if auth_ref.expires:
-            data['expires'] = auth_ref.expires
+            datetime_obj = auth_ref.expires
+            expires_str = datetime_obj.strftime('%Y-%m-%dT%H:%M:%S%z')
+            data['expires'] = expires_str
         if auth_ref.project_id:
             data['project_id'] = auth_ref.project_id
         if auth_ref.user_id:

@@ -80,7 +80,7 @@ USER = {
     'enabled': True,
 }
 
-token_expires = '2014-01-01T00:00:00Z'
+token_expires = '2016-09-05T18:04:52+0000'
 token_id = 'token-id-' + uuid.uuid4().hex
 
 TOKEN = {

@@ -252,7 +252,7 @@ TRUST = {
     'trustor_user_id': user_id,
 }
 
-token_expires = '2014-01-01T00:00:00Z'
+token_expires = '2016-09-05T18:04:52+0000'
 token_id = 'tttttttt-tttt-tttt-tttt-tttttttttttt'
 
 UNSCOPED_TOKEN = {
