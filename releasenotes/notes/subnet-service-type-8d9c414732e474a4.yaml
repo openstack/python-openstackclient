@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--service-type`` option to the ``subnet create``,
+    ``subnet set``, ``subnet unset``, and ``subnet list`` commands.
+    [ Blueprint `service-subnets <https://blueprints.launchpad.net/neutron/+spec/service-subnets>`_]

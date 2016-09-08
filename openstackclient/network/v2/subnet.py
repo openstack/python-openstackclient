@@ -48,6 +48,7 @@ _formatters = {
     'allocation_pools': _format_allocation_pools,
     'dns_nameservers': utils.format_list,
     'host_routes': _format_host_routes,
+    'service_types': utils.format_list,
 }
 
 
@@ -81,6 +82,16 @@ def _get_common_parse_arguments(parser):
                "destination: destination subnet (in CIDR notation) "
                "gateway: nexthop IP address "
                "(repeat option to add multiple routes)")
+    )
+    parser.add_argument(
+        '--service-type',
+        metavar='<service-type>',
+        action='append',
+        dest='service_types',
+        help=_("Service type for this subnet "
+               "e.g.: network:floatingip_agent_gateway. "
+               "Must be a valid device owner value for a network port "
+               "(repeat option to set multiple service types)")
     )
 
 
@@ -177,6 +188,9 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
         # Change 'gateway' entry to 'nexthop' to match the API
         attrs['host_routes'] = convert_entries_to_nexthop(
             parsed_args.host_routes)
+    if ('service_types' in parsed_args and
+       parsed_args.service_types is not None):
+        attrs['service_types'] = parsed_args.service_types
     return attrs
 
 
@@ -352,6 +366,16 @@ class ListSubnet(command.Lister):
             action='store_true',
             help=_("List subnets which have DHCP disabled")
         )
+        parser.add_argument(
+            '--service-type',
+            metavar='<service-type>',
+            action='append',
+            dest='service_types',
+            help=_("List only subnets of a given service type in output "
+                   "e.g.: network:floatingip_agent_gateway. "
+                   "Must be a valid device owner value for a network port "
+                   "(repeat option to list multiple service types)")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -362,6 +386,8 @@ class ListSubnet(command.Lister):
             filters['enable_dhcp'] = True
         elif parsed_args.no_dhcp:
             filters['enable_dhcp'] = False
+        if parsed_args.service_types:
+            filters['service_types'] = parsed_args.service_types
         data = self.app.client_manager.network.subnets(**filters)
 
         headers = ('ID', 'Name', 'Network', 'Subnet')
@@ -369,10 +395,10 @@ class ListSubnet(command.Lister):
         if parsed_args.long:
             headers += ('Project', 'DHCP', 'Name Servers',
                         'Allocation Pools', 'Host Routes', 'IP Version',
-                        'Gateway')
+                        'Gateway', 'Service Types')
             columns += ('tenant_id', 'enable_dhcp', 'dns_nameservers',
                         'allocation_pools', 'host_routes', 'ip_version',
-                        'gateway_ip')
+                        'gateway_ip', 'service_types')
 
         return (headers,
                 (utils.get_item_properties(
@@ -430,6 +456,8 @@ class SetSubnet(command.Command):
             attrs['host_routes'] += obj.host_routes
         if 'allocation_pools' in attrs:
             attrs['allocation_pools'] += obj.allocation_pools
+        if 'service_types' in attrs:
+            attrs['service_types'] += obj.service_types
         client.update_subnet(obj, **attrs)
         return
 
@@ -490,6 +518,16 @@ class UnsetSubnet(command.Command):
                    '(repeat option to unset multiple host routes)')
         )
         parser.add_argument(
+            '--service-type',
+            metavar='<service-type>',
+            action='append',
+            dest='service_types',
+            help=_('Service type to be removed from this subnet '
+                   'e.g.: network:floatingip_agent_gateway. '
+                   'Must be a valid device owner value for a network port '
+                   '(repeat option to unset multiple service types)')
+        )
+        parser.add_argument(
             'subnet',
             metavar="<subnet>",
             help=_("Subnet to modify (name or ID)")
@@ -528,5 +566,13 @@ class UnsetSubnet(command.Command):
                        str(error))
                 raise exceptions.CommandError(msg)
             attrs['allocation_pools'] = tmp_obj.allocation_pools
+        if parsed_args.service_types:
+            try:
+                _update_arguments(tmp_obj.service_types,
+                                  parsed_args.service_types)
+            except ValueError as error:
+                msg = (_("%s not in service-types") % str(error))
+                raise exceptions.CommandError(msg)
+            attrs['service_types'] = tmp_obj.service_types
         if attrs:
             client.update_subnet(obj, **attrs)
