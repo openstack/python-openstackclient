@@ -57,7 +57,7 @@ _formatters = {
 }
 
 
-def _get_common_parse_arguments(parser):
+def _get_common_parse_arguments(parser, is_create=True):
     parser.add_argument(
         '--allocation-pool',
         metavar='start=<ip-address>,end=<ip-address>',
@@ -68,6 +68,14 @@ def _get_common_parse_arguments(parser):
                "e.g.: start=192.168.199.2,end=192.168.199.254 "
                "(repeat option to add multiple IP addresses)")
     )
+    if not is_create:
+        parser.add_argument(
+            '--no-allocation-pool',
+            action='store_true',
+            help=_("Clear associated allocation-pools from the subnet. "
+                   "Specify both --allocation-pool and --no-allocation-pool "
+                   "to overwrite the current allocation pool information.")
+        )
     parser.add_argument(
         '--dns-nameserver',
         metavar='<dns-nameserver>',
@@ -88,6 +96,14 @@ def _get_common_parse_arguments(parser):
                "gateway: nexthop IP address "
                "(repeat option to add multiple routes)")
     )
+    if not is_create:
+        parser.add_argument(
+            '--no-host-route',
+            action='store_true',
+            help=_("Clear associated host-routes from the subnet. "
+                   "Specify both --host-route and --no-host-route "
+                   "to overwrite the current host route information.")
+        )
     parser.add_argument(
         '--service-type',
         metavar='<service-type>',
@@ -508,7 +524,7 @@ class SetSubnet(command.Command):
             metavar='<description>',
             help=_("Set subnet description")
         )
-        _get_common_parse_arguments(parser)
+        _get_common_parse_arguments(parser, is_create=False)
         return parser
 
     def take_action(self, parsed_args):
@@ -519,9 +535,15 @@ class SetSubnet(command.Command):
         if 'dns_nameservers' in attrs:
             attrs['dns_nameservers'] += obj.dns_nameservers
         if 'host_routes' in attrs:
-            attrs['host_routes'] += obj.host_routes
+            if not parsed_args.no_host_route:
+                attrs['host_routes'] += obj.host_routes
+        elif parsed_args.no_host_route:
+            attrs['host_routes'] = ''
         if 'allocation_pools' in attrs:
-            attrs['allocation_pools'] += obj.allocation_pools
+            if not parsed_args.no_allocation_pool:
+                attrs['allocation_pools'] += obj.allocation_pools
+        elif parsed_args.no_allocation_pool:
+            attrs['allocation_pools'] = ''
         if 'service_types' in attrs:
             attrs['service_types'] += obj.service_types
         client.update_subnet(obj, **attrs)

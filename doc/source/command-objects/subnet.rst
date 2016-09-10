@@ -232,10 +232,12 @@ Set subnet properties
 
     os subnet set
         [--allocation-pool start=<ip-address>,end=<ip-address>]
+        [--no-allocation-pool]
         [--dhcp | --no-dhcp]
         [--dns-nameserver <dns-nameserver>]
         [--gateway <gateway-ip>]
         [--host-route destination=<subnet>,gateway=<ip-address>]
+        [--no-host-route]
         [--service-type <service-type>]
         [--name <new-name>]
         [--description <description>]
@@ -246,6 +248,12 @@ Set subnet properties
     Allocation pool IP addresses for this subnet e.g.:
     ``start=192.168.199.2,end=192.168.199.254``
     (repeat option to add multiple IP addresses)
+
+.. option:: --no-allocation-pool
+
+     Clear associated allocation pools from this subnet.
+     Specify both --allocation-pool and --no-allocation-pool
+     to overwrite the current allocation pool information.
 
 .. option:: --dhcp
 
@@ -272,7 +280,12 @@ Set subnet properties
      ``destination=10.10.0.0/16,gateway=192.168.71.254``
      destination: destination subnet (in CIDR notation)
      gateway: nexthop IP address
-     (repeat option to add multiple routes)
+
+.. option:: --no-host-route
+
+     Clear associated host routes from this subnet.
+     Specify both --host-route and --no-host-route
+     to overwrite the current host route information.
 
 .. option:: --service-type <service-type>
 
