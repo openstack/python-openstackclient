@@ -18,15 +18,15 @@ function generate_testr_results {
     fi
 }
 
-OPENSTACKCLIENT_DIR=$(cd $(dirname "$0") && pwd)
+export OPENSTACKCLIENT_DIR="$BASE/new/python-openstackclient"
 sudo chown -R jenkins:stack $OPENSTACKCLIENT_DIR
+
+# Go to the openstackclient dir
+cd $OPENSTACKCLIENT_DIR
 
 # Run tests
 echo "Running openstackclient functional test suite"
 set +e
-
-# Go to the openstackclient dir
-cd $OPENSTACKCLIENT_DIR
 
 # Source environment variables to kick things off
 source ~stack/devstack/openrc admin admin
