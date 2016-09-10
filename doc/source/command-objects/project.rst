@@ -96,6 +96,7 @@ List projects
         [--domain <domain>]
         [--user <user>]
         [--long]
+        [--sort <key>[:<direction>,<key>:<direction>,..]]
 
 .. option:: --domain <domain>
 
@@ -112,6 +113,12 @@ List projects
 .. option:: --long
 
     List additional fields in output
+
+.. option:: --sort <key>[:<direction>,<key>:<direction>,..]
+
+    Sort output by selected keys and directions (asc or desc) (default: asc),
+    multiple keys and directions can be specified --sort
+    <key>[:<direction>,<key>:<direction>,..]
 
 project set
 -----------
