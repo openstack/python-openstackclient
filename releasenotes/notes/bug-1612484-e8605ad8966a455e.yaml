@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``--limit`` option to ``volume list`` command in volume v1,
+    add ``--limit`` and ``--marker`` options to ``volume list``
+    command in volume v2.
+    [Bug `1612484 <https://bugs.launchpad.net/bugs/1612484>`_]

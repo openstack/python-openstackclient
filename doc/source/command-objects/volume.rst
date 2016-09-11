@@ -121,6 +121,8 @@ List volumes
         [--status <status>]
         [--all-projects]
         [--long]
+        [--limit <limit>]
+        [--marker <marker>]
 
 .. option:: --project <project>
 
@@ -165,6 +167,16 @@ List volumes
 .. option:: --long
 
     List additional fields in output
+
+.. option:: --limit <limit>
+
+    Maximum number of volumes to display
+
+.. option:: --marker <marker>
+
+    The last volume ID of the previous page
+
+    *Volume version 2 only*
 
 volume set
 ----------

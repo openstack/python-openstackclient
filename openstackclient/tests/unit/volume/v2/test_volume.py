@@ -12,6 +12,7 @@
 #   under the License.
 #
 
+import argparse
 import mock
 from mock import call
 
@@ -553,6 +554,8 @@ class TestVolumeList(TestVolume):
             ('all_projects', False),
             ('name', None),
             ('status', None),
+            ('marker', None),
+            ('limit', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -581,6 +584,8 @@ class TestVolumeList(TestVolume):
             ('long', False),
             ('all_projects', False),
             ('status', None),
+            ('marker', None),
+            ('limit', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -611,6 +616,8 @@ class TestVolumeList(TestVolume):
             ('long', False),
             ('all_projects', False),
             ('status', None),
+            ('marker', None),
+            ('limit', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -639,6 +646,8 @@ class TestVolumeList(TestVolume):
             ('long', False),
             ('all_projects', False),
             ('status', None),
+            ('marker', None),
+            ('limit', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -668,6 +677,8 @@ class TestVolumeList(TestVolume):
             ('long', False),
             ('all_projects', False),
             ('status', None),
+            ('marker', None),
+            ('limit', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -696,6 +707,8 @@ class TestVolumeList(TestVolume):
             ('all_projects', False),
             ('name', self.mock_volume.name),
             ('status', None),
+            ('marker', None),
+            ('limit', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -724,6 +737,8 @@ class TestVolumeList(TestVolume):
             ('all_projects', False),
             ('name', None),
             ('status', self.mock_volume.status),
+            ('marker', None),
+            ('limit', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -752,6 +767,8 @@ class TestVolumeList(TestVolume):
             ('all_projects', True),
             ('name', None),
             ('status', None),
+            ('marker', None),
+            ('limit', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -780,6 +797,8 @@ class TestVolumeList(TestVolume):
             ('all_projects', False),
             ('name', None),
             ('status', None),
+            ('marker', None),
+            ('limit', None),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -812,6 +831,58 @@ class TestVolumeList(TestVolume):
             utils.format_dict(self.mock_volume.metadata),
         ), )
         self.assertEqual(datalist, tuple(data))
+
+    def test_volume_list_with_marker_and_limit(self):
+        arglist = [
+            "--marker", self.mock_volume.id,
+            "--limit", "2",
+        ]
+        verifylist = [
+            ('long', False),
+            ('all_projects', False),
+            ('name', None),
+            ('status', None),
+            ('marker', self.mock_volume.id),
+            ('limit', 2),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+
+        server = self.mock_volume.attachments[0]['server_id']
+        device = self.mock_volume.attachments[0]['device']
+        msg = 'Attached to %s on %s ' % (server, device)
+        datalist = ((
+            self.mock_volume.id,
+            self.mock_volume.name,
+            self.mock_volume.status,
+            self.mock_volume.size,
+            msg,
+        ), )
+
+        self.volumes_mock.list.assert_called_once_with(
+            marker=self.mock_volume.id,
+            limit=2,
+            search_opts={
+                'status': None,
+                'project_id': None,
+                'user_id': None,
+                'display_name': None,
+                'all_tenants': False, }
+        )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_volume_list_negative_limit(self):
+        arglist = [
+            "--limit", "-2",
+        ]
+        verifylist = [
+            ("limit", -2),
+        ]
+        self.assertRaises(argparse.ArgumentTypeError, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
 
 class TestVolumeSet(TestVolume):
