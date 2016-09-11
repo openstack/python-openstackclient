@@ -15,12 +15,18 @@
 
 """Volume v1 QoS action implementations"""
 
+import logging
+
 from osc_lib.cli import parseractions
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class AssociateQos(command.Command):
@@ -113,9 +119,23 @@ class DeleteQos(command.Command):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        for qos in parsed_args.qos_specs:
-            qos_spec = utils.find_resource(volume_client.qos_specs, qos)
-            volume_client.qos_specs.delete(qos_spec.id, parsed_args.force)
+        result = 0
+
+        for i in parsed_args.qos_specs:
+            try:
+                qos_spec = utils.find_resource(volume_client.qos_specs, i)
+                volume_client.qos_specs.delete(qos_spec.id, parsed_args.force)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete QoS specification with "
+                            "name or ID '%(qos)s': %(e)s"),
+                          {'qos': i, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.qos_specs)
+            msg = (_("%(result)s of %(total)s QoS specifications failed"
+                   " to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class DisassociateQos(command.Command):

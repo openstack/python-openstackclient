@@ -20,6 +20,7 @@ import logging
 
 from osc_lib.cli import parseractions
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
@@ -184,13 +185,27 @@ class DeleteVolume(command.Command):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        for volume in parsed_args.volumes:
-            volume_obj = utils.find_resource(
-                volume_client.volumes, volume)
-            if parsed_args.force:
-                volume_client.volumes.force_delete(volume_obj.id)
-            else:
-                volume_client.volumes.delete(volume_obj.id)
+        result = 0
+
+        for i in parsed_args.volumes:
+            try:
+                volume_obj = utils.find_resource(
+                    volume_client.volumes, i)
+                if parsed_args.force:
+                    volume_client.volumes.force_delete(volume_obj.id)
+                else:
+                    volume_client.volumes.delete(volume_obj.id)
+            except Exception as e:
+                result += 1
+                LOG.error(_("Failed to delete volume with "
+                            "name or ID '%(volume)s': %(e)s"),
+                          {'volume': i, 'e': e})
+
+        if result > 0:
+            total = len(parsed_args.volumes)
+            msg = (_("%(result)s of %(total)s volumes failed "
+                   "to delete.") % {'result': result, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListVolume(command.Lister):
