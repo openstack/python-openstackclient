@@ -15,12 +15,15 @@
 # NOTE(dtroyer): This file is deprecated in Jun 2016, remove after 4.x release
 #                or Jun 2017.
 
+import inspect
 import sys
 
 from osc_lib.command.command import *  # noqa
 
 
+parent_import = inspect.getouterframes(inspect.currentframe())[1][1]
 sys.stderr.write(
     "WARNING: %s is deprecated and will be removed after Jun 2017. "
-    "Please use osc_lib.command.command\n" % __name__
+    "Please use osc_lib.command.command. This warning is caused by an "
+    "out-of-date import in %s\n" % (__name__, parent_import)
 )
