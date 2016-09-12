@@ -474,3 +474,77 @@ class TestVolumev1(utils.TestCommand):
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+
+
+class FakeType(object):
+    """Fake one or more type."""
+
+    @staticmethod
+    def create_one_type(attrs=None, methods=None):
+        """Create a fake type.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object with id, name, description, etc.
+        """
+        attrs = attrs or {}
+        methods = methods or {}
+
+        # Set default attributes.
+        type_info = {
+            "id": 'type-id-' + uuid.uuid4().hex,
+            "name": 'type-name-' + uuid.uuid4().hex,
+            "description": 'type-description-' + uuid.uuid4().hex,
+            "extra_specs": {"foo": "bar"},
+            "is_public": True,
+        }
+
+        # Overwrite default attributes.
+        type_info.update(attrs)
+
+        volume_type = fakes.FakeResource(
+            info=copy.deepcopy(type_info),
+            methods=methods,
+            loaded=True)
+        return volume_type
+
+    @staticmethod
+    def create_types(attrs=None, count=2):
+        """Create multiple fake types.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of types to fake
+        :return:
+            A list of FakeResource objects faking the types
+        """
+        volume_types = []
+        for i in range(0, count):
+            volume_type = FakeType.create_one_type(attrs)
+            volume_types.append(volume_type)
+
+        return volume_types
+
+    @staticmethod
+    def get_types(types=None, count=2):
+        """Get an iterable MagicMock object with a list of faked types.
+
+        If types list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List types:
+            A list of FakeResource objects faking types
+        :param Integer count:
+            The number of types to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            types
+        """
+        if types is None:
+            types = FakeType.create_types(count)
+
+        return mock.MagicMock(side_effect=types)
