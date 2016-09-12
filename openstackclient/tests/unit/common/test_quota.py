@@ -158,12 +158,20 @@ class TestQuotaSet(TestQuota):
             '--gigabytes', str(volume_fakes.QUOTA['gigabytes']),
             '--snapshots', str(volume_fakes.QUOTA['snapshots']),
             '--volumes', str(volume_fakes.QUOTA['volumes']),
+            '--backups', str(volume_fakes.QUOTA['backups']),
+            '--backup-gigabytes', str(volume_fakes.QUOTA['backup_gigabytes']),
+            '--per-volume-gigabytes',
+            str(volume_fakes.QUOTA['per_volume_gigabytes']),
             identity_fakes.project_name,
         ]
         verifylist = [
             ('gigabytes', volume_fakes.QUOTA['gigabytes']),
             ('snapshots', volume_fakes.QUOTA['snapshots']),
             ('volumes', volume_fakes.QUOTA['volumes']),
+            ('backups', volume_fakes.QUOTA['backups']),
+            ('backup_gigabytes', volume_fakes.QUOTA['backup_gigabytes']),
+            ('per_volume_gigabytes',
+             volume_fakes.QUOTA['per_volume_gigabytes']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -174,6 +182,9 @@ class TestQuotaSet(TestQuota):
             'gigabytes': volume_fakes.QUOTA['gigabytes'],
             'snapshots': volume_fakes.QUOTA['snapshots'],
             'volumes': volume_fakes.QUOTA['volumes'],
+            'backups': volume_fakes.QUOTA['backups'],
+            'backup_gigabytes': volume_fakes.QUOTA['backup_gigabytes'],
+            'per_volume_gigabytes': volume_fakes.QUOTA['per_volume_gigabytes']
         }
 
         self.volume_quotas_mock.update.assert_called_once_with(
@@ -188,6 +199,10 @@ class TestQuotaSet(TestQuota):
             '--gigabytes', str(volume_fakes.QUOTA['gigabytes']),
             '--snapshots', str(volume_fakes.QUOTA['snapshots']),
             '--volumes', str(volume_fakes.QUOTA['volumes']),
+            '--backups', str(volume_fakes.QUOTA['backups']),
+            '--backup-gigabytes', str(volume_fakes.QUOTA['backup_gigabytes']),
+            '--per-volume-gigabytes',
+            str(volume_fakes.QUOTA['per_volume_gigabytes']),
             '--volume-type', 'volume_type_backend',
             identity_fakes.project_name,
         ]
@@ -195,6 +210,10 @@ class TestQuotaSet(TestQuota):
             ('gigabytes', volume_fakes.QUOTA['gigabytes']),
             ('snapshots', volume_fakes.QUOTA['snapshots']),
             ('volumes', volume_fakes.QUOTA['volumes']),
+            ('backups', volume_fakes.QUOTA['backups']),
+            ('backup_gigabytes', volume_fakes.QUOTA['backup_gigabytes']),
+            ('per_volume_gigabytes',
+             volume_fakes.QUOTA['per_volume_gigabytes']),
             ('volume_type', 'volume_type_backend'),
         ]
 
@@ -206,6 +225,9 @@ class TestQuotaSet(TestQuota):
             'gigabytes_volume_type_backend': volume_fakes.QUOTA['gigabytes'],
             'snapshots_volume_type_backend': volume_fakes.QUOTA['snapshots'],
             'volumes_volume_type_backend': volume_fakes.QUOTA['volumes'],
+            'backups': volume_fakes.QUOTA['backups'],
+            'backup_gigabytes': volume_fakes.QUOTA['backup_gigabytes'],
+            'per_volume_gigabytes': volume_fakes.QUOTA['per_volume_gigabytes']
         }
 
         self.volume_quotas_mock.update.assert_called_once_with(

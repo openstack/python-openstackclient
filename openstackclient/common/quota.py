@@ -43,10 +43,19 @@ COMPUTE_QUOTAS = {
 }
 
 VOLUME_QUOTAS = {
+    'backups': 'backups',
+    'backup_gigabytes': 'backup-gigabytes',
     'gigabytes': 'gigabytes',
+    'per_volume_gigabytes': 'per-volume-gigabytes',
     'snapshots': 'snapshots',
     'volumes': 'volumes',
 }
+
+IMPACT_VOLUME_TYPE_QUOTAS = [
+    'gigabytes',
+    'snapshots',
+    'volumes',
+]
 
 NOVA_NETWORK_QUOTAS = {
     'floating_ips': 'floating-ips',
@@ -128,7 +137,8 @@ class SetQuota(command.Command):
         for k, v in VOLUME_QUOTAS.items():
             value = getattr(parsed_args, k, None)
             if value is not None:
-                if parsed_args.volume_type:
+                if (parsed_args.volume_type and
+                        k in IMPACT_VOLUME_TYPE_QUOTAS):
                     k = k + '_%s' % parsed_args.volume_type
                 volume_kwargs[k] = value
 
