@@ -25,6 +25,19 @@ from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit import utils
 
 
+QUOTA = {
+    "gigabytes": 1000,
+    "volumes": 11,
+    "snapshots": 10,
+    "backups": 10,
+    "backup_gigabytes": 1000,
+    "per_volume_gigabytes": -1,
+    "gigabytes_volume_type_backend": -1,
+    "volumes_volume_type_backend": -1,
+    "snapshots_volume_type_backend": -1,
+}
+
+
 class FakeTransfer(object):
     """Fake one or more Transfer."""
 
@@ -207,6 +220,10 @@ class FakeVolumeClient(object):
         self.transfers.resource_class = fakes.FakeResource(None, {})
         self.services = mock.Mock()
         self.services.resource_class = fakes.FakeResource(None, {})
+        self.quotas = mock.Mock()
+        self.quotas.resource_class = fakes.FakeResource(None, {})
+        self.quota_classes = mock.Mock()
+        self.quota_classes.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
