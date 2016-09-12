@@ -91,11 +91,11 @@ class DeleteTransferRequest(command.Command):
             raise exceptions.CommandError(msg)
 
 
-class ListTransferRequests(command.Lister):
+class ListTransferRequest(command.Lister):
     """Lists all volume transfer requests."""
 
     def get_parser(self, prog_name):
-        parser = super(ListTransferRequests, self).get_parser(prog_name)
+        parser = super(ListTransferRequest, self).get_parser(prog_name)
         parser.add_argument(
             '--all-projects',
             dest='all_projects',

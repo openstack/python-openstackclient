@@ -192,7 +192,7 @@ class TestTransferList(TestTransfer):
         self.transfer_mock.list.return_value = [self.volume_transfers]
 
         # Get the command object to test
-        self.cmd = volume_transfer_request.ListTransferRequests(self.app, None)
+        self.cmd = volume_transfer_request.ListTransferRequest(self.app, None)
 
     def test_transfer_list_without_argument(self):
         arglist = []
