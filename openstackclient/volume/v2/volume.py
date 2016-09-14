@@ -404,6 +404,17 @@ class SetVolume(command.Command):
                    '"deleting", "in-use", "attaching", "detaching", '
                    '"error_deleting" or "maintenance")'),
         )
+        bootable_group = parser.add_mutually_exclusive_group()
+        bootable_group.add_argument(
+            "--bootable",
+            action="store_true",
+            help=_("Mark volume as bootable")
+        )
+        bootable_group.add_argument(
+            "--non-bootable",
+            action="store_true",
+            help=_("Mark volume as non-bootable")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -445,6 +456,13 @@ class SetVolume(command.Command):
                     volume.id, parsed_args.state)
             except Exception as e:
                 LOG.error(_("Failed to set volume state: %s"), e)
+                result += 1
+        if parsed_args.bootable or parsed_args.non_bootable:
+            try:
+                volume_client.volumes.set_bootable(
+                    volume.id, parsed_args.bootable)
+            except Exception as e:
+                LOG.error(_("Failed to set volume bootable property: %s"), e)
                 result += 1
 
         kwargs = {}

@@ -363,6 +363,17 @@ class SetVolume(command.Command):
             help=_('Set a property on this volume '
                    '(repeat option to set multiple properties)'),
         )
+        bootable_group = parser.add_mutually_exclusive_group()
+        bootable_group.add_argument(
+            "--bootable",
+            action="store_true",
+            help=_("Mark volume as bootable")
+        )
+        bootable_group.add_argument(
+            "--non-bootable",
+            action="store_true",
+            help=_("Mark volume as non-bootable")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -382,7 +393,12 @@ class SetVolume(command.Command):
 
         if parsed_args.property:
             volume_client.volumes.set_metadata(volume.id, parsed_args.property)
-
+        if parsed_args.bootable or parsed_args.non_bootable:
+            try:
+                volume_client.volumes.set_bootable(
+                    volume.id, parsed_args.bootable)
+            except Exception as e:
+                LOG.error(_("Failed to set volume bootable property: %s"), e)
         kwargs = {}
         if parsed_args.name:
             kwargs['display_name'] = parsed_args.name

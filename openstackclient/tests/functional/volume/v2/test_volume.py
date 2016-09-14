@@ -91,6 +91,17 @@ class VolumeTests(common.BaseVolumeTests):
         raw_output = self.openstack('volume show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n2\n", raw_output)
 
+    def test_volume_set_bootable(self):
+        self.openstack('volume set --bootable ' + self.NAME)
+        opts = self.get_opts(["bootable"])
+        raw_output = self.openstack('volume show ' + self.NAME + opts)
+        self.assertEqual("true\n", raw_output)
+
+        self.openstack('volume set --non-bootable ' + self.NAME)
+        opts = self.get_opts(["bootable"])
+        raw_output = self.openstack('volume show ' + self.NAME + opts)
+        self.assertEqual("false\n", raw_output)
+
     def test_volume_snapshot(self):
         opts = self.get_opts(self.FIELDS)
 

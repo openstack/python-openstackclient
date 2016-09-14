@@ -905,6 +905,8 @@ class TestVolumeSet(TestVolume):
         verifylist = [
             ('image_property', {'Alpha': 'a', 'Beta': 'b'}),
             ('volume', self.new_volume.id),
+            ('bootable', False),
+            ('non_bootable', False)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -951,6 +953,31 @@ class TestVolumeSet(TestVolume):
                              str(e))
         self.volumes_mock.reset_state.assert_called_with(
             self.new_volume.id, 'error')
+
+    def test_volume_set_bootable(self):
+        arglist = [
+            ['--bootable', self.new_volume.id],
+            ['--non-bootable', self.new_volume.id]
+        ]
+        verifylist = [
+            [
+                ('bootable', True),
+                ('non_bootable', False),
+                ('volume', self.new_volume.id)
+            ],
+            [
+                ('bootable', False),
+                ('non_bootable', True),
+                ('volume', self.new_volume.id)
+            ]
+        ]
+        for index in range(len(arglist)):
+            parsed_args = self.check_parser(
+                self.cmd, arglist[index], verifylist[index])
+
+            self.cmd.take_action(parsed_args)
+            self.volumes_mock.set_bootable.assert_called_with(
+                self.new_volume.id, verifylist[index][0][1])
 
 
 class TestVolumeShow(TestVolume):
