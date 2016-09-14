@@ -1035,3 +1035,30 @@ class TestVolumeUnset(TestVolume):
 
         self.volumes_mock.delete_image_metadata.assert_called_with(
             self.new_volume.id, parsed_args_unset.image_property)
+
+    def test_volume_unset_image_property_fail(self):
+        self.volumes_mock.delete_image_metadata.side_effect = (
+            exceptions.CommandError())
+        arglist = [
+            '--image-property', 'Alpha',
+            '--property', 'Beta',
+            self.new_volume.id,
+        ]
+        verifylist = [
+            ('image_property', ['Alpha']),
+            ('property', ['Beta']),
+            ('volume', self.new_volume.id),
+        ]
+        parsed_args = self.check_parser(
+            self.cmd_unset, arglist, verifylist)
+
+        try:
+            self.cmd_unset.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('One or more of the unset operations failed',
+                             str(e))
+        self.volumes_mock.delete_image_metadata.assert_called_with(
+            self.new_volume.id, parsed_args.image_property)
+        self.volumes_mock.delete_metadata.assert_called_with(
+            self.new_volume.id, parsed_args.property)
