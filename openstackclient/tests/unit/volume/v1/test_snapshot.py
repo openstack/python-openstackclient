@@ -19,7 +19,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.tests.unit.volume.v1 import fakes as volume_fakes
-from openstackclient.volume.v1 import snapshot
+from openstackclient.volume.v1 import volume_snapshot
 
 
 class TestSnapshot(volume_fakes.TestVolumev1):
@@ -67,20 +67,20 @@ class TestSnapshotCreate(TestSnapshot):
         self.volumes_mock.get.return_value = self.volume
         self.snapshots_mock.create.return_value = self.new_snapshot
         # Get the command object to test
-        self.cmd = snapshot.CreateSnapshot(self.app, None)
+        self.cmd = volume_snapshot.CreateVolumeSnapshot(self.app, None)
 
     def test_snapshot_create(self):
         arglist = [
-            "--name", self.new_snapshot.display_name,
+            "--volume", self.new_snapshot.volume_id,
             "--description", self.new_snapshot.display_description,
             "--force",
-            self.new_snapshot.volume_id,
+            self.new_snapshot.display_name,
         ]
         verifylist = [
-            ("name", self.new_snapshot.display_name),
+            ("volume", self.new_snapshot.volume_id),
             ("description", self.new_snapshot.display_description),
             ("force", True),
-            ("volume", self.new_snapshot.volume_id),
+            ("snapshot_name", self.new_snapshot.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -97,7 +97,7 @@ class TestSnapshotCreate(TestSnapshot):
 
     def test_snapshot_create_without_name(self):
         arglist = [
-            self.new_snapshot.volume_id,
+            "--volume", self.new_snapshot.volume_id,
             "--description", self.new_snapshot.display_description,
             "--force"
         ]
@@ -119,6 +119,32 @@ class TestSnapshotCreate(TestSnapshot):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def test_snapshot_create_without_volume(self):
+        arglist = [
+            "--description", self.new_snapshot.display_description,
+            "--force",
+            self.new_snapshot.display_name
+        ]
+        verifylist = [
+            ("description", self.new_snapshot.display_description),
+            ("force", True),
+            ("snapshot_name", self.new_snapshot.display_name)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.get.assert_called_once_with(
+            self.new_snapshot.display_name)
+        self.snapshots_mock.create.assert_called_once_with(
+            self.new_snapshot.volume_id,
+            True,
+            self.new_snapshot.display_name,
+            self.new_snapshot.display_description,
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
 
 class TestSnapshotDelete(TestSnapshot):
 
@@ -132,7 +158,7 @@ class TestSnapshotDelete(TestSnapshot):
         self.snapshots_mock.delete.return_value = None
 
         # Get the command object to mock
-        self.cmd = snapshot.DeleteSnapshot(self.app, None)
+        self.cmd = volume_snapshot.DeleteVolumeSnapshot(self.app, None)
 
     def test_snapshot_delete(self):
         arglist = [
@@ -244,7 +270,7 @@ class TestSnapshotList(TestSnapshot):
         self.volumes_mock.list.return_value = [self.volume]
         self.snapshots_mock.list.return_value = self.snapshots
         # Get the command to test
-        self.cmd = snapshot.ListSnapshot(self.app, None)
+        self.cmd = volume_snapshot.ListVolumeSnapshot(self.app, None)
 
     def test_snapshot_list_without_options(self):
         arglist = []
@@ -307,7 +333,7 @@ class TestSnapshotSet(TestSnapshot):
         self.snapshots_mock.get.return_value = self.snapshot
         self.snapshots_mock.set_metadata.return_value = None
         # Get the command object to mock
-        self.cmd = snapshot.SetSnapshot(self.app, None)
+        self.cmd = volume_snapshot.SetVolumeSnapshot(self.app, None)
 
     def test_snapshot_set_all(self):
         arglist = [
@@ -404,7 +430,7 @@ class TestSnapshotShow(TestSnapshot):
 
         self.snapshots_mock.get.return_value = self.snapshot
         # Get the command object to test
-        self.cmd = snapshot.ShowSnapshot(self.app, None)
+        self.cmd = volume_snapshot.ShowVolumeSnapshot(self.app, None)
 
     def test_snapshot_show(self):
         arglist = [
@@ -432,7 +458,7 @@ class TestSnapshotUnset(TestSnapshot):
         self.snapshots_mock.get.return_value = self.snapshot
         self.snapshots_mock.delete_metadata.return_value = None
         # Get the command object to mock
-        self.cmd = snapshot.UnsetSnapshot(self.app, None)
+        self.cmd = volume_snapshot.UnsetVolumeSnapshot(self.app, None)
 
     def test_snapshot_unset(self):
         arglist = [
