@@ -345,16 +345,23 @@ class ListPort(command.Lister):
                    "This is the entity that uses the port (for example, "
                    "network:dhcp).")
         )
-        parser.add_argument(
+        device_group = parser.add_mutually_exclusive_group()
+        device_group.add_argument(
             '--router',
             metavar='<router>',
             dest='router',
             help=_("List only ports attached to this router (name or ID)")
         )
+        device_group.add_argument(
+            '--server',
+            metavar='<server>',
+            help=_("List only ports attached to this server (name or ID)"),
+        )
         return parser
 
     def take_action(self, parsed_args):
-        client = self.app.client_manager.network
+        network_client = self.app.client_manager.network
+        compute_client = self.app.client_manager.compute
 
         columns = (
             'id',
@@ -373,11 +380,15 @@ class ListPort(command.Lister):
         if parsed_args.device_owner is not None:
             filters['device_owner'] = parsed_args.device_owner
         if parsed_args.router:
-            _router = client.find_router(parsed_args.router,
-                                         ignore_missing=False)
+            _router = network_client.find_router(parsed_args.router,
+                                                 ignore_missing=False)
             filters['device_id'] = _router.id
+        if parsed_args.server:
+            server = utils.find_resource(compute_client.servers,
+                                         parsed_args.server)
+            filters['device_id'] = server.id
 
-        data = client.ports(**filters)
+        data = network_client.ports(**filters)
 
         return (column_headers,
                 (utils.get_item_properties(

@@ -115,7 +115,7 @@ List ports
 
     os port list
         [--device-owner <device-owner>]
-        [--router <router>]
+        [--router <router> | --server <server>]
 
 .. option:: --device-owner <device-owner>
 
@@ -125,6 +125,10 @@ List ports
 .. option:: --router <router>
 
     List only ports attached to this router (name or ID)
+
+.. option:: --server <server>
+
+    List only ports attached to this server (name or ID)
 
 port set
 --------
