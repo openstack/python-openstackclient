@@ -128,7 +128,7 @@ class FakeAggregate(object):
         """
         if aggregates is None:
             aggregates = FakeAggregate.create_aggregates(count)
-        return mock.MagicMock(side_effect=aggregates)
+        return mock.Mock(side_effect=aggregates)
 
 
 class FakeComputev2Client(object):
@@ -519,7 +519,7 @@ class FakeSecurityGroup(object):
         """
         if security_groups is None:
             security_groups = FakeSecurityGroup.create_security_groups(count)
-        return mock.MagicMock(side_effect=security_groups)
+        return mock.Mock(side_effect=security_groups)
 
 
 class FakeSecurityGroupRule(object):
@@ -649,7 +649,7 @@ class FakeServer(object):
         """
         if servers is None:
             servers = FakeServer.create_servers(count)
-        return mock.MagicMock(side_effect=servers)
+        return mock.Mock(side_effect=servers)
 
 
 class FakeService(object):
@@ -788,7 +788,7 @@ class FakeFlavor(object):
         """
         if flavors is None:
             flavors = FakeFlavor.create_flavors(count)
-        return mock.MagicMock(side_effect=flavors)
+        return mock.Mock(side_effect=flavors)
 
 
 class FakeFlavorAccess(object):
@@ -887,7 +887,7 @@ class FakeKeypair(object):
         """
         if keypairs is None:
             keypairs = FakeKeypair.create_keypairs(count)
-        return mock.MagicMock(side_effect=keypairs)
+        return mock.Mock(side_effect=keypairs)
 
 
 class FakeAvailabilityZone(object):
@@ -1011,7 +1011,7 @@ class FakeFloatingIP(object):
         """
         if floating_ips is None:
             floating_ips = FakeFloatingIP.create_floating_ips(count)
-        return mock.MagicMock(side_effect=floating_ips)
+        return mock.Mock(side_effect=floating_ips)
 
 
 class FakeFloatingIPPool(object):

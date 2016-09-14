@@ -136,7 +136,7 @@ class FakeAddressScope(object):
         """
         if address_scopes is None:
             address_scopes = FakeAddressScope.create_address_scopes(count)
-        return mock.MagicMock(side_effect=address_scopes)
+        return mock.Mock(side_effect=address_scopes)
 
 
 class FakeAvailabilityZone(object):
@@ -344,7 +344,7 @@ class FakeNetwork(object):
         """
         if networks is None:
             networks = FakeNetwork.create_networks(count)
-        return mock.MagicMock(side_effect=networks)
+        return mock.Mock(side_effect=networks)
 
 
 class FakeNetworkSegment(object):
@@ -488,7 +488,7 @@ class FakePort(object):
         """
         if ports is None:
             ports = FakePort.create_ports(count)
-        return mock.MagicMock(side_effect=ports)
+        return mock.Mock(side_effect=ports)
 
 
 class FakeNetworkAgent(object):
@@ -555,7 +555,7 @@ class FakeNetworkAgent(object):
         """
         if agents is None:
             agents = FakeNetworkAgent.create_network_agents(count)
-        return mock.MagicMock(side_effect=agents)
+        return mock.Mock(side_effect=agents)
 
 
 class FakeNetworkRBAC(object):
@@ -625,7 +625,7 @@ class FakeNetworkRBAC(object):
         """
         if rbac_policies is None:
             rbac_policies = FakeNetworkRBAC.create_network_rbacs(count)
-        return mock.MagicMock(side_effect=rbac_policies)
+        return mock.Mock(side_effect=rbac_policies)
 
 
 class FakeRouter(object):
@@ -703,7 +703,7 @@ class FakeRouter(object):
         """
         if routers is None:
             routers = FakeRouter.create_routers(count)
-        return mock.MagicMock(side_effect=routers)
+        return mock.Mock(side_effect=routers)
 
 
 class FakeSecurityGroup(object):
@@ -776,7 +776,7 @@ class FakeSecurityGroup(object):
         """
         if security_groups is None:
             security_groups = FakeSecurityGroup.create_security_groups(count)
-        return mock.MagicMock(side_effect=security_groups)
+        return mock.Mock(side_effect=security_groups)
 
 
 class FakeSecurityGroupRule(object):
@@ -855,7 +855,7 @@ class FakeSecurityGroupRule(object):
         if security_group_rules is None:
             security_group_rules = (
                 FakeSecurityGroupRule.create_security_group_rules(count))
-        return mock.MagicMock(side_effect=security_group_rules)
+        return mock.Mock(side_effect=security_group_rules)
 
 
 class FakeSubnet(object):
@@ -938,7 +938,7 @@ class FakeSubnet(object):
         """
         if subnets is None:
             subnets = FakeSubnet.create_subnets(count)
-        return mock.MagicMock(side_effect=subnets)
+        return mock.Mock(side_effect=subnets)
 
 
 class FakeFloatingIP(object):
@@ -1015,7 +1015,7 @@ class FakeFloatingIP(object):
         """
         if floating_ips is None:
             floating_ips = FakeFloatingIP.create_floating_ips(count)
-        return mock.MagicMock(side_effect=floating_ips)
+        return mock.Mock(side_effect=floating_ips)
 
 
 class FakeSubnetPool(object):
@@ -1097,4 +1097,4 @@ class FakeSubnetPool(object):
         """
         if subnet_pools is None:
             subnet_pools = FakeSubnetPool.create_subnet_pools(count)
-        return mock.MagicMock(side_effect=subnet_pools)
+        return mock.Mock(side_effect=subnet_pools)

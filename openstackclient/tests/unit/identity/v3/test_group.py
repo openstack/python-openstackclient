@@ -239,7 +239,7 @@ class TestGroupDelete(TestGroup):
     def test_group_delete_with_domain(self):
         get_mock_result = [exceptions.CommandError, self.groups[0]]
         self.groups_mock.get = (
-            mock.MagicMock(side_effect=get_mock_result))
+            mock.Mock(side_effect=get_mock_result))
 
         arglist = [
             '--domain', self.domain.id,
@@ -487,7 +487,7 @@ class TestGroupSet(TestGroup):
     def test_group_set_with_domain(self):
         get_mock_result = [exceptions.CommandError, self.group]
         self.groups_mock.get = (
-            mock.MagicMock(side_effect=get_mock_result))
+            mock.Mock(side_effect=get_mock_result))
 
         arglist = [
             '--domain', self.domain.id,
@@ -550,7 +550,7 @@ class TestGroupShow(TestGroup):
     def test_group_show_with_domain(self):
         get_mock_result = [exceptions.CommandError, self.group]
         self.groups_mock.get = (
-            mock.MagicMock(side_effect=get_mock_result))
+            mock.Mock(side_effect=get_mock_result))
 
         arglist = [
             '--domain', self.domain.id,

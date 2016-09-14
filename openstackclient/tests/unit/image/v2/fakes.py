@@ -245,7 +245,7 @@ class FakeImage(object):
         if images is None:
             images = FakeImage.create_images(count)
 
-        return mock.MagicMock(side_effect=images)
+        return mock.Mock(side_effect=images)
 
     @staticmethod
     def get_image_columns(image=None):

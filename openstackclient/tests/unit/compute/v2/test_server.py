@@ -417,7 +417,7 @@ class TestServerCreate(TestServer):
 
     @mock.patch('openstackclient.compute.v2.server.io.open')
     def test_server_create_userdata(self, mock_open):
-        mock_file = mock.MagicMock(name='File')
+        mock_file = mock.Mock(name='File')
         mock_open.return_value = mock_file
         mock_open.read.return_value = '#!/bin/sh'
 

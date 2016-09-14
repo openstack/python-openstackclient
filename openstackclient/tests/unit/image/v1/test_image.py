@@ -149,7 +149,7 @@ class TestImageCreate(TestImage):
 
     @mock.patch('openstackclient.image.v1.image.io.open', name='Open')
     def test_image_create_file(self, mock_open):
-        mock_file = mock.MagicMock(name='File')
+        mock_file = mock.Mock(name='File')
         mock_open.return_value = mock_file
         mock_open.read.return_value = image_fakes.image_data
         mock_exception = {

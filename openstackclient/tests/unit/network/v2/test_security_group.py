@@ -279,7 +279,7 @@ class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         find_mock_result = [self._security_groups[0], exceptions.CommandError]
         self.network.find_security_group = (
-            mock.MagicMock(side_effect=find_mock_result)
+            mock.Mock(side_effect=find_mock_result)
         )
 
         try:
@@ -365,7 +365,7 @@ class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
 
         find_mock_result = [self._security_groups[0], exceptions.CommandError]
         self.compute.security_groups.get = (
-            mock.MagicMock(side_effect=find_mock_result)
+            mock.Mock(side_effect=find_mock_result)
         )
         self.compute.security_groups.find.side_effect = (
             exceptions.NotFound(None))

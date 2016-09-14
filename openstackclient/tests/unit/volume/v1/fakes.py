@@ -201,7 +201,7 @@ class FakeTransfer(object):
         if transfers is None:
             transfers = FakeTransfer.create_transfers(count)
 
-        return mock.MagicMock(side_effect=transfers)
+        return mock.Mock(side_effect=transfers)
 
 
 class FakeService(object):
@@ -274,7 +274,7 @@ class FakeService(object):
         if services is None:
             services = FakeService.create_services(count)
 
-        return mock.MagicMock(side_effect=services)
+        return mock.Mock(side_effect=services)
 
 
 class FakeQos(object):
@@ -343,7 +343,7 @@ class FakeQos(object):
         if qoses is None:
             qoses = FakeQos.create_qoses(count)
 
-        return mock.MagicMock(side_effect=qoses)
+        return mock.Mock(side_effect=qoses)
 
 
 class FakeVolume(object):
@@ -427,7 +427,7 @@ class FakeVolume(object):
         if volumes is None:
             volumes = FakeVolume.create_volumes(count)
 
-        return mock.MagicMock(side_effect=volumes)
+        return mock.Mock(side_effect=volumes)
 
 
 class FakeImagev1Client(object):
@@ -547,4 +547,4 @@ class FakeType(object):
         if types is None:
             types = FakeType.create_types(count)
 
-        return mock.MagicMock(side_effect=types)
+        return mock.Mock(side_effect=types)

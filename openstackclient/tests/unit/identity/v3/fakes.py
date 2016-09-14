@@ -719,7 +719,7 @@ class FakeCredential(object):
         if credentials is None:
             credentials = FakeCredential.create_credentials(count)
 
-        return mock.MagicMock(side_effect=credentials)
+        return mock.Mock(side_effect=credentials)
 
 
 class FakeUser(object):
@@ -819,7 +819,7 @@ class FakeGroup(object):
         if groups is None:
             groups = FakeGroup.create_groups(count)
 
-        return mock.MagicMock(side_effect=groups)
+        return mock.Mock(side_effect=groups)
 
 
 class FakeEndpoint(object):

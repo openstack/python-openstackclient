@@ -489,7 +489,7 @@ class TestDeleteSubnet(TestSubnet):
 
         find_mock_result = [self._subnets[0], exceptions.CommandError]
         self.network.find_subnet = (
-            mock.MagicMock(side_effect=find_mock_result)
+            mock.Mock(side_effect=find_mock_result)
         )
 
         try:

@@ -196,7 +196,7 @@ class TestCredentialDelete(TestCredential):
 
         delete_mock_result = [None, exceptions.CommandError]
         self.credentials_mock.delete = (
-            mock.MagicMock(side_effect=delete_mock_result)
+            mock.Mock(side_effect=delete_mock_result)
         )
 
         try:

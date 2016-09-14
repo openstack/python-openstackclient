@@ -259,7 +259,7 @@ class TestDeleteNetworkRBAC(TestNetworkRBAC):
 
         find_mock_result = [self.rbac_policies[0], exceptions.CommandError]
         self.network.find_rbac_policy = (
-            mock.MagicMock(side_effect=find_mock_result)
+            mock.Mock(side_effect=find_mock_result)
         )
 
         try:

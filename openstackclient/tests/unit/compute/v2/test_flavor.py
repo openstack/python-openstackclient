@@ -292,7 +292,7 @@ class TestFlavorDelete(TestFlavor):
 
         find_mock_result = [self.flavors[0], exceptions.CommandError]
         self.flavors_mock.get = (
-            mock.MagicMock(side_effect=find_mock_result)
+            mock.Mock(side_effect=find_mock_result)
         )
         self.flavors_mock.find.side_effect = exceptions.NotFound(None)
 

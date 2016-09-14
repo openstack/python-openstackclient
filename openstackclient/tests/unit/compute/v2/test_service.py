@@ -89,7 +89,7 @@ class TestServiceDelete(TestService):
 
         delete_mock_result = [None, exceptions.CommandError]
         self.service_mock.delete = (
-            mock.MagicMock(side_effect=delete_mock_result)
+            mock.Mock(side_effect=delete_mock_result)
         )
 
         try:

@@ -25,12 +25,12 @@ class TestCatalog(utils.TestCommand):
     def setUp(self):
         super(TestCatalog, self).setUp()
 
-        self.sc_mock = mock.MagicMock()
+        self.sc_mock = mock.Mock()
         self.sc_mock.service_catalog.catalog.return_value = [
             self.service_catalog,
         ]
 
-        self.auth_mock = mock.MagicMock()
+        self.auth_mock = mock.Mock()
         self.app.client_manager.session = self.auth_mock
 
         self.auth_mock.auth.get_auth_ref.return_value = self.sc_mock

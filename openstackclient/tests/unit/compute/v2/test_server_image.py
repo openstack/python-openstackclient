@@ -99,8 +99,8 @@ class TestServerImageCreate(TestServerImage):
                 count=count,
             )
 
-        self.images_mock.get = mock.MagicMock(side_effect=images)
-        self.servers_mock.create_image = mock.MagicMock(
+        self.images_mock.get = mock.Mock(side_effect=images)
+        self.servers_mock.create_image = mock.Mock(
             return_value=images[0].id,
         )
         return images

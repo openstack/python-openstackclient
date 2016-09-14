@@ -310,7 +310,7 @@ class TestDeleteSubnetPool(TestSubnetPool):
 
         find_mock_result = [self._subnet_pools[0], exceptions.CommandError]
         self.network.find_subnet_pool = (
-            mock.MagicMock(side_effect=find_mock_result)
+            mock.Mock(side_effect=find_mock_result)
         )
 
         try:

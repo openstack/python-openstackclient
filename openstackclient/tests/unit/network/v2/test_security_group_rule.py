@@ -723,7 +723,7 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         find_mock_result = [
             self._security_group_rules[0], exceptions.CommandError]
         self.network.find_security_group_rule = (
-            mock.MagicMock(side_effect=find_mock_result)
+            mock.Mock(side_effect=find_mock_result)
         )
 
         try:
@@ -803,7 +803,7 @@ class TestDeleteSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
         find_mock_result = [None, exceptions.CommandError]
         self.compute.security_group_rules.delete = (
-            mock.MagicMock(side_effect=find_mock_result)
+            mock.Mock(side_effect=find_mock_result)
         )
 
         try:

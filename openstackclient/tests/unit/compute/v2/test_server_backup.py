@@ -101,7 +101,7 @@ class TestServerBackupCreate(TestServerBackup):
                 count=count,
             )
 
-        self.images_mock.get = mock.MagicMock(side_effect=images)
+        self.images_mock.get = mock.Mock(side_effect=images)
         return images
 
     def test_server_backup_defaults(self):
@@ -181,7 +181,7 @@ class TestServerBackupCreate(TestServerBackup):
             count=5,
         )
 
-        self.images_mock.get = mock.MagicMock(
+        self.images_mock.get = mock.Mock(
             side_effect=images,
         )
 
@@ -230,7 +230,7 @@ class TestServerBackupCreate(TestServerBackup):
             count=5,
         )
 
-        self.images_mock.get = mock.MagicMock(
+        self.images_mock.get = mock.Mock(
             side_effect=images,
         )
 

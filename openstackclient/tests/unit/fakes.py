@@ -200,7 +200,7 @@ class FakeResource(object):
         returned, which looks like a function call.
         """
         for (name, ret) in six.iteritems(methods):
-            method = mock.MagicMock(return_value=ret)
+            method = mock.Mock(return_value=ret)
             setattr(self, name, method)
 
     def __repr__(self):

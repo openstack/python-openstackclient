@@ -204,7 +204,7 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
 
         find_mock_result = [self.floating_ips[0], exceptions.CommandError]
         self.network.find_ip = (
-            mock.MagicMock(side_effect=find_mock_result)
+            mock.Mock(side_effect=find_mock_result)
         )
 
         try:
@@ -454,7 +454,7 @@ class TestDeleteFloatingIPCompute(TestFloatingIPCompute):
 
         find_mock_result = [self.floating_ips[0], exceptions.CommandError]
         self.compute.floating_ips.get = (
-            mock.MagicMock(side_effect=find_mock_result)
+            mock.Mock(side_effect=find_mock_result)
         )
         self.compute.floating_ips.find.side_effect = exceptions.NotFound(None)
 

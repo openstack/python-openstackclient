@@ -170,7 +170,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
 
     def test_role_assignment_list_def_creds(self):
 
-        auth_ref = self.app.client_manager.auth_ref = mock.MagicMock()
+        auth_ref = self.app.client_manager.auth_ref = mock.Mock()
         auth_ref.project_id.return_value = identity_fakes.project_id
         auth_ref.user_id.return_value = identity_fakes.user_id
 

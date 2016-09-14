@@ -107,7 +107,7 @@ class FakeTransfer(object):
         if transfers is None:
             transfers = FakeTransfer.create_transfers(count)
 
-        return mock.MagicMock(side_effect=transfers)
+        return mock.Mock(side_effect=transfers)
 
 
 class FakeTypeAccess(object):
@@ -331,7 +331,7 @@ class FakeVolume(object):
         if volumes is None:
             volumes = FakeVolume.create_volumes(count)
 
-        return mock.MagicMock(side_effect=volumes)
+        return mock.Mock(side_effect=volumes)
 
     @staticmethod
     def get_volume_columns(volume=None):
@@ -492,7 +492,7 @@ class FakeBackup(object):
         if backups is None:
             backups = FakeBackup.create_backups(count)
 
-        return mock.MagicMock(side_effect=backups)
+        return mock.Mock(side_effect=backups)
 
 
 class FakeExtension(object):
@@ -623,7 +623,7 @@ class FakeQos(object):
         if qoses is None:
             qoses = FakeQos.create_qoses(count)
 
-        return mock.MagicMock(side_effect=qoses)
+        return mock.Mock(side_effect=qoses)
 
 
 class FakeSnapshot(object):
@@ -696,7 +696,7 @@ class FakeSnapshot(object):
         if snapshots is None:
             snapshots = FakeSnapshot.create_snapshots(count)
 
-        return mock.MagicMock(side_effect=snapshots)
+        return mock.Mock(side_effect=snapshots)
 
 
 class FakeType(object):
