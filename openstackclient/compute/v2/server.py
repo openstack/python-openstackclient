@@ -1677,7 +1677,7 @@ class SshServer(command.Command):
         if parsed_args.login:
             login = parsed_args.login
         else:
-            login = self.app.client_manager._username
+            login = self.app.client_manager.auth_ref.username
         if parsed_args.verbose:
             cmd += " -v"
 
