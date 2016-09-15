@@ -285,6 +285,7 @@ class TestListRouter(TestRouter):
 
     # The routers going to be listed up.
     routers = network_fakes.FakeRouter.create_routers(count=3)
+    _extensions = network_fakes.FakeExtension.create_one_extension()
 
     columns = (
         'ID',
@@ -299,6 +300,10 @@ class TestListRouter(TestRouter):
         'Routes',
         'External gateway info',
         'Availability zones'
+    )
+    columns_long_no_az = columns + (
+        'Routes',
+        'External gateway info',
     )
 
     data = []
@@ -322,6 +327,15 @@ class TestListRouter(TestRouter):
                 osc_utils.format_list(r.availability_zones),
             )
         )
+    data_long_no_az = []
+    for i in range(0, len(routers)):
+        r = routers[i]
+        data_long_no_az.append(
+            data[i] + (
+                router._format_routes(r.routes),
+                router._format_external_gateway_info(r.external_gateway_info),
+            )
+        )
 
     def setUp(self):
         super(TestListRouter, self).setUp()
@@ -330,6 +344,7 @@ class TestListRouter(TestRouter):
         self.cmd = router.ListRouter(self.app, self.namespace)
 
         self.network.routers = mock.Mock(return_value=self.routers)
+        self.network.find_extension = mock.Mock(return_value=self._extensions)
 
     def test_router_list_no_options(self):
         arglist = []
@@ -364,6 +379,27 @@ class TestListRouter(TestRouter):
         self.network.routers.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
+
+    def test_router_list_long_no_az(self):
+        arglist = [
+            '--long',
+        ]
+        verifylist = [
+            ('long', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # to mock, that no availability zone
+        self.network.find_extension = mock.Mock(return_value=None)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.routers.assert_called_once_with()
+        self.assertEqual(self.columns_long_no_az, columns)
+        self.assertEqual(self.data_long_no_az, list(data))
 
 
 class TestRemovePortFromRouter(TestRouter):
