@@ -146,23 +146,32 @@ class TestServerAddFloatingIP(TestServer):
             'add_floating_ip': None,
         }
 
-    def test_server_add_floating_ip(self):
+    def _test_server_add_floating_ip(self, extralist, fixed_ip_address):
         servers = self.setup_servers_mock(count=1)
 
         arglist = [
             servers[0].id,
             '1.2.3.4',
-        ]
+        ] + extralist
         verifylist = [
             ('server', servers[0].id),
             ('ip_address', '1.2.3.4'),
+            ('fixed_ip_address', fixed_ip_address),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        servers[0].add_floating_ip.assert_called_once_with('1.2.3.4')
+        servers[0].add_floating_ip.assert_called_once_with('1.2.3.4',
+                                                           fixed_ip_address)
         self.assertIsNone(result)
+
+    def test_server_add_floating_ip(self):
+        self._test_server_add_floating_ip([], None)
+
+    def test_server_add_floating_ip_to_fixed_ip(self):
+        extralist = ['--fixed-ip-address', '5.6.7.8']
+        self._test_server_add_floating_ip(extralist, '5.6.7.8')
 
 
 class TestServerAddSecurityGroup(TestServer):

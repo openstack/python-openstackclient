@@ -235,6 +235,12 @@ class AddFloatingIP(command.Command):
             help=_("Floating IP address (IP address only) to assign "
                    "to server"),
         )
+        parser.add_argument(
+            "--fixed-ip-address",
+            metavar="<fixed-ip-address>",
+            help=_("Fixed IP address to associate with this floating IP "
+                   "address"),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -243,7 +249,8 @@ class AddFloatingIP(command.Command):
         server = utils.find_resource(
             compute_client.servers, parsed_args.server)
 
-        server.add_floating_ip(parsed_args.ip_address)
+        server.add_floating_ip(parsed_args.ip_address,
+                               parsed_args.fixed_ip_address)
 
 
 class AddServerSecurityGroup(command.Command):
