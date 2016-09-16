@@ -250,7 +250,7 @@ class TestQuotaSet(TestQuota):
             '--ports', str(network_fakes.QUOTA['port']),
             '--vips', str(network_fakes.QUOTA['vip']),
             '--members', str(network_fakes.QUOTA['member']),
-            '--health-monitors', str(network_fakes.QUOTA['health_monitor']),
+            '--health-monitors', str(network_fakes.QUOTA['healthmonitor']),
             identity_fakes.project_name,
         ]
         verifylist = [
@@ -266,7 +266,7 @@ class TestQuotaSet(TestQuota):
             ('port', network_fakes.QUOTA['port']),
             ('vip', network_fakes.QUOTA['vip']),
             ('member', network_fakes.QUOTA['member']),
-            ('health_monitor', network_fakes.QUOTA['health_monitor']),
+            ('healthmonitor', network_fakes.QUOTA['healthmonitor']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -284,7 +284,7 @@ class TestQuotaSet(TestQuota):
             'port': network_fakes.QUOTA['port'],
             'vip': network_fakes.QUOTA['vip'],
             'member': network_fakes.QUOTA['member'],
-            'health_monitor': network_fakes.QUOTA['health_monitor'],
+            'healthmonitor': network_fakes.QUOTA['healthmonitor'],
         }
         self.network_mock.update_quota.assert_called_once_with(
             identity_fakes.project_id,
