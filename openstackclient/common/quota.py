@@ -74,8 +74,8 @@ NETWORK_QUOTAS = {
     'rbac_policy': 'rbac-policies',
     'vip': 'vips',
     'subnetpool': 'subnetpools',
-    'member': 'members',
     'healthmonitor': 'health-monitors',
+    'l7policy': 'l7policies',
 }
 
 

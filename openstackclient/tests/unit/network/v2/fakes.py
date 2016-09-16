@@ -34,6 +34,7 @@ QUOTA = {
     "vip": 10,
     "member": 10,
     "healthmonitor": 10,
+    "l7policy": 5,
 }
 
 

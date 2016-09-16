@@ -249,8 +249,8 @@ class TestQuotaSet(TestQuota):
             '--rbac-policies', str(network_fakes.QUOTA['rbac_policy']),
             '--ports', str(network_fakes.QUOTA['port']),
             '--vips', str(network_fakes.QUOTA['vip']),
-            '--members', str(network_fakes.QUOTA['member']),
             '--health-monitors', str(network_fakes.QUOTA['healthmonitor']),
+            '--l7policies', str(network_fakes.QUOTA['l7policy']),
             identity_fakes.project_name,
         ]
         verifylist = [
@@ -265,8 +265,8 @@ class TestQuotaSet(TestQuota):
             ('rbac_policy', network_fakes.QUOTA['rbac_policy']),
             ('port', network_fakes.QUOTA['port']),
             ('vip', network_fakes.QUOTA['vip']),
-            ('member', network_fakes.QUOTA['member']),
             ('healthmonitor', network_fakes.QUOTA['healthmonitor']),
+            ('l7policy', network_fakes.QUOTA['l7policy']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -283,8 +283,8 @@ class TestQuotaSet(TestQuota):
             'rbac_policy': network_fakes.QUOTA['rbac_policy'],
             'port': network_fakes.QUOTA['port'],
             'vip': network_fakes.QUOTA['vip'],
-            'member': network_fakes.QUOTA['member'],
             'healthmonitor': network_fakes.QUOTA['healthmonitor'],
+            'l7policy': network_fakes.QUOTA['l7policy'],
         }
         self.network_mock.update_quota.assert_called_once_with(
             identity_fakes.project_id,
