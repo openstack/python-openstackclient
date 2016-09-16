@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Make ``subnet list`` command supports listing up subnets with
+    some filtering options by adding ``--project`` and ``--project-domain``,
+    ``--network``, ``--gateway``,``--name``, ``--subnet-range``
+    options to the command.
+    [Bug `1610883 <https://bugs.launchpad.net/bugs/1610883>`_]

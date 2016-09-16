@@ -646,9 +646,26 @@ class TestListSubnet(TestSubnet):
             ('service_types', ['network:router_gateway']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'service_types': ['network:router_gateway']}
+
+        self.network.subnets.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_list_project(self):
+        project = identity_fakes_v3.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+        ]
+        verifylist = [
+            ('project', project.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'tenant_id': project.id}
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -668,6 +685,97 @@ class TestListSubnet(TestSubnet):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'service_types': ['network:router_gateway',
                                      'network:floatingip_agent_gateway']}
+        self.network.subnets.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_list_project_domain(self):
+        project = identity_fakes_v3.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+            '--project-domain', project.domain_id,
+        ]
+        verifylist = [
+            ('project', project.id),
+            ('project_domain', project.domain_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'tenant_id': project.id}
+
+        self.network.subnets.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_list_network(self):
+        network = network_fakes.FakeNetwork.create_one_network()
+        self.network.find_network = mock.Mock(return_value=network)
+        arglist = [
+            '--network', network.id,
+        ]
+        verifylist = [
+            ('network', network.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'network_id': network.id}
+
+        self.network.subnets.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_list_gateway(self):
+        subnet = network_fakes.FakeSubnet.create_one_subnet()
+        self.network.find_network = mock.Mock(return_value=subnet)
+        arglist = [
+            '--gateway', subnet.gateway_ip,
+        ]
+        verifylist = [
+            ('gateway', subnet.gateway_ip),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'gateway_ip': subnet.gateway_ip}
+
+        self.network.subnets.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_list_name(self):
+        subnet = network_fakes.FakeSubnet.create_one_subnet()
+        self.network.find_network = mock.Mock(return_value=subnet)
+        arglist = [
+            '--name', subnet.name,
+        ]
+        verifylist = [
+            ('name', subnet.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'name': subnet.name}
+
+        self.network.subnets.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_subnet_list_subnet_range(self):
+        subnet = network_fakes.FakeSubnet.create_one_subnet()
+        self.network.find_network = mock.Mock(return_value=subnet)
+        arglist = [
+            '--subnet-range', subnet.cidr,
+        ]
+        verifylist = [
+            ('subnet_range', subnet.cidr),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'cidr': subnet.cidr}
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
