@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix ``--long`` option in ``router list`` command for deployments without
+    the ``router_availability_zone`` extension is not enabled.
+    [Bug `1622565 <https://bugs.launchpad.net/bugs/1622565>`_]

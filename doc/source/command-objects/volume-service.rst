@@ -41,7 +41,8 @@ Set volume service properties
     os volume service set
         [--enable | --disable]
         [--disable-reason <reason>]
-        <host> <service>
+        <host>
+        <service>
 
 .. option:: --enable
 
