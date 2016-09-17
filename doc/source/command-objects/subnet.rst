@@ -292,9 +292,9 @@ Unset subnet properties
 
 .. option:: --allocation-pool start=<ip-address>,end=<ip-address>
 
-    Allocation pool to be removed from this subnet e.g.:
-    ``start=192.168.199.2,end=192.168.199.254``
-    (repeat option to unset multiple Allocation pools)
+    Allocation pool IP addresses to be removed from this
+    subnet e.g.: ``start=192.168.199.2,end=192.168.199.254``
+    (repeat option to unset multiple allocation pools)
 
 .. option:: --host-route destination=<subnet>,gateway=<ip-address>
 
@@ -314,4 +314,4 @@ Unset subnet properties
 .. _subnet_unset-subnet:
 .. describe:: <subnet>
 
-    subnet to modify (name or ID)
+    Subnet to modify (name or ID)
