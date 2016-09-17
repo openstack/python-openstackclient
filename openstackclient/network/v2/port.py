@@ -345,6 +345,10 @@ class ListPort(command.Lister):
                    "This is the entity that uses the port (for example, "
                    "network:dhcp).")
         )
+        parser.add_argument(
+            '--network',
+            metavar='<network>',
+            help=_("List only ports connected to this network (name or ID)"))
         device_group = parser.add_mutually_exclusive_group()
         device_group.add_argument(
             '--router',
@@ -387,6 +391,10 @@ class ListPort(command.Lister):
             server = utils.find_resource(compute_client.servers,
                                          parsed_args.server)
             filters['device_id'] = server.id
+        if parsed_args.network:
+            network = network_client.find_network(parsed_args.network,
+                                                  ignore_missing=False)
+            filters['network_id'] = network.id
 
         data = network_client.ports(**filters)
 
