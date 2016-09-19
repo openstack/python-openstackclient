@@ -281,13 +281,20 @@ class ListRouter(command.Lister):
             columns = columns + (
                 'routes',
                 'external_gateway_info',
-                'availability_zones'
             )
             column_headers = column_headers + (
                 'Routes',
                 'External gateway info',
-                'Availability zones'
             )
+            # availability zone will be available only when
+            # router_availability_zone extension is enabled
+            if client.find_extension("router_availability_zone"):
+                columns = columns + (
+                    'availability_zones',
+                )
+                column_headers = column_headers + (
+                    'Availability zones',
+                )
 
         data = client.routers()
         return (column_headers,
