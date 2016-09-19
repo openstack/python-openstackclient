@@ -75,7 +75,7 @@ NETWORK_QUOTAS = {
     'vip': 'vips',
     'subnetpool': 'subnetpools',
     'member': 'members',
-    'health_monitor': 'health-monitors',
+    'healthmonitor': 'health-monitors',
 }
 
 

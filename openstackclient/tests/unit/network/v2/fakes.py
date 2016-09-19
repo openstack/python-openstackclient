@@ -33,7 +33,7 @@ QUOTA = {
     "port": 50,
     "vip": 10,
     "member": 10,
-    "health_monitor": 10,
+    "healthmonitor": 10,
 }
 
 
