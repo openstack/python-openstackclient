@@ -23,6 +23,7 @@ Create new network
         [--project <project> [--project-domain <project-domain>]]
         [--enable | --disable]
         [--share | --no-share]
+        [--description <description>]
         [--availability-zone-hint <availability-zone>]
         [--enable-port-security | --disable-port-security]
         [--external [--default | --no-default] | --internal]
@@ -64,6 +65,10 @@ Create new network
 .. option:: --no-share
 
     Do not share the network between projects
+
+.. option:: --description <description>
+
+    Set network description
 
 .. option:: --availability-zone-hint <availability-zone>
 
@@ -206,6 +211,7 @@ Set network properties
         [--name <name>]
         [--enable | --disable]
         [--share | --no-share]
+        [--description <description>]
         [--enable-port-security | --disable-port-security]
         [--external [--default | --no-default] | --internal]
         [--provider-network-type <provider-network-type>]
@@ -233,6 +239,10 @@ Set network properties
 .. option:: --no-share
 
     Do not share the network between projects
+
+.. option:: --description <description>
+
+    Set network description
 
 .. option:: --enable-port-security
 
