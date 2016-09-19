@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Make ``subnet pool list`` command supports listing up subnets with
+    some filtering options by adding ``--share`` and ``--no-share``,
+    ``--project`` and ``--project-domain``, ``--default`` and ``--no-default``,
+    ``--name``, ``--address-scope`` options to the command.
+    [Bug `1613926 <https://bugs.launchpad.net/bugs/1613926>`_]
