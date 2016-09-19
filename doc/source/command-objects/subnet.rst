@@ -161,6 +161,11 @@ List subnets
         [--long]
         [--ip-version {4,6}]
         [--dhcp | --no-dhcp]
+        [--project <project> [--project-domain <project-domain>]]
+        [--network <network>]
+        [--gateway <gateway>]
+        [--name <name>]
+        [--subnet-range <subnet-range>]
 
 .. option:: --long
 
@@ -185,6 +190,32 @@ List subnets
     e.g.: ``network:floatingip_agent_gateway``.
     Must be a valid device owner value for a network port
     (repeat option to list multiple service types)
+
+.. option:: --project <project>
+
+    List only subnets which belong to a given project (name or ID) in output
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+.. option:: --network <network>
+
+    List only subnets which belong to a given network (name or ID) in output
+
+.. option:: --gateway <gateway>
+
+    List only subnets of given gateway IP in output
+
+.. option:: --name <name>
+
+    List only subnets of given name in output
+
+.. option:: --subnet-range <subnet-range>
+
+    List only subnets of given subnet range (in CIDR notation) in output
+    e.g.: ``--subnet-range 10.10.0.0/16``
 
 subnet set
 ----------

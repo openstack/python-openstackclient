@@ -381,9 +381,41 @@ class ListSubnet(command.Lister):
                    "Must be a valid device owner value for a network port "
                    "(repeat option to list multiple service types)")
         )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_("List only subnets which belong to a given project "
+                   "(name or ID) in output")
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
+        parser.add_argument(
+            '--network',
+            metavar='<network>',
+            help=_("List only subnets which belong to a given network "
+                   "(name or ID) in output")
+        )
+        parser.add_argument(
+            '--gateway',
+            metavar='<gateway>',
+            help=_("List only subnets of given gateway IP in output")
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_("List only subnets of given name in output")
+        )
+        parser.add_argument(
+            '--subnet-range',
+            metavar='<subnet-range>',
+            help=_("List only subnets of given subnet range "
+                   "(in CIDR notation) in output "
+                   "e.g.: --subnet-range 10.10.0.0/16")
+        )
         return parser
 
     def take_action(self, parsed_args):
+        identity_client = self.app.client_manager.identity
+        network_client = self.app.client_manager.network
         filters = {}
         if parsed_args.ip_version:
             filters['ip_version'] = parsed_args.ip_version
@@ -393,7 +425,24 @@ class ListSubnet(command.Lister):
             filters['enable_dhcp'] = False
         if parsed_args.service_types:
             filters['service_types'] = parsed_args.service_types
-        data = self.app.client_manager.network.subnets(**filters)
+        if parsed_args.project:
+            project_id = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
+            filters['tenant_id'] = project_id
+        if parsed_args.network:
+            network_id = network_client.find_network(parsed_args.network,
+                                                     ignore_missing=False).id
+            filters['network_id'] = network_id
+        if parsed_args.gateway:
+            filters['gateway_ip'] = parsed_args.gateway
+        if parsed_args.name:
+            filters['name'] = parsed_args.name
+        if parsed_args.subnet_range:
+            filters['cidr'] = parsed_args.subnet_range
+        data = network_client.subnets(**filters)
 
         headers = ('ID', 'Name', 'Network', 'Subnet')
         columns = ('id', 'name', 'network_id', 'cidr')
