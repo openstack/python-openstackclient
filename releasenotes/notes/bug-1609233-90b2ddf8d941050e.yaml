@@ -1,0 +1,4 @@
+---
+fixes:
+  - Fix the ``--class`` option not work when we set/show the quota class.
+    [Bug `1609233 <https://bugs.launchpad.net/bugs/1609233>`_]

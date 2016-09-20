@@ -26,8 +26,8 @@ class QuotaTests(base.TestCase):
             cls.get_openstack_configuration_value('auth.project_name')
 
     def test_quota_set(self):
-        self.openstack('quota set --instances 11 --volumes 11 --networks 11 '
-                       + self.PROJECT_NAME)
+        self.openstack('quota set --instances 11 --volumes 11 --networks 11 ' +
+                       self.PROJECT_NAME)
         opts = self.get_opts(self.EXPECTED_FIELDS)
         raw_output = self.openstack('quota show ' + self.PROJECT_NAME + opts)
         self.assertEqual("11\n11\n11\n", raw_output)
@@ -51,3 +51,12 @@ class QuotaTests(base.TestCase):
         raw_output = self.openstack('quota show --class')
         for expected_field in self.EXPECTED_CLASS_FIELDS:
             self.assertIn(expected_field, raw_output)
+
+    def test_quota_class_set(self):
+        class_name = 'default'
+        class_expected_fields = ['instances', 'volumes']
+        self.openstack('quota set --instances 11 --volumes 11 --class ' +
+                       class_name)
+        opts = self.get_opts(class_expected_fields)
+        raw_output = self.openstack('quota show --class ' + class_name + opts)
+        self.assertEqual("11\n11\n", raw_output)
