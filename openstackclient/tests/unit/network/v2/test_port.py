@@ -337,7 +337,11 @@ class TestListPort(TestPort):
         fake_router = network_fakes.FakeRouter.create_one_router({
             'id': 'fake-router-id',
         })
+        fake_network = network_fakes.FakeNetwork.create_one_network({
+            'id': 'fake-network-id',
+        })
         self.network.find_router = mock.Mock(return_value=fake_router)
+        self.network.find_network = mock.Mock(return_value=fake_network)
         self.app.client_manager.compute = mock.Mock()
 
     def test_port_list_no_options(self):
@@ -414,11 +418,13 @@ class TestListPort(TestPort):
         arglist = [
             '--device-owner', self._ports[0].device_owner,
             '--router', 'fake-router-name',
+            '--network', 'fake-network-name',
         ]
 
         verifylist = [
             ('device_owner', self._ports[0].device_owner),
-            ('router', 'fake-router-name')
+            ('router', 'fake-router-name'),
+            ('network', 'fake-network-name')
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -427,7 +433,8 @@ class TestListPort(TestPort):
 
         self.network.ports.assert_called_once_with(**{
             'device_owner': self._ports[0].device_owner,
-            'device_id': 'fake-router-id'
+            'device_id': 'fake-router-id',
+            'network_id': 'fake-network-id'
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))

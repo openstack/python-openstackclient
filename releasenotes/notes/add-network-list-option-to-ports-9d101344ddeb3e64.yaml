@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Ports can now be listed as per the networks they are
+    connected to by using the ``--network`` option with
+    the ``port list`` CLI.
+    [ Blueprint `network-commands-options <https://blueprints.launchpad.net/python-openstackclient/+spec/network-commands-options>`_]
