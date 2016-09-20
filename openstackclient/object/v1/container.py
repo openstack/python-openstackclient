@@ -37,7 +37,7 @@ class CreateContainer(command.Lister):
             'containers',
             metavar='<container-name>',
             nargs="+",
-            help='New container name(s)',
+            help=_('New container name(s)'),
         )
         return parser
 
@@ -71,13 +71,13 @@ class DeleteContainer(command.Command):
             '--recursive', '-r',
             action='store_true',
             default=False,
-            help='Recursively delete objects and container',
+            help=_('Recursively delete objects and container'),
         )
         parser.add_argument(
             'containers',
             metavar='<container>',
             nargs="+",
-            help='Container(s) to delete',
+            help=_('Container(s) to delete'),
         )
         return parser
 
@@ -105,35 +105,35 @@ class ListContainer(command.Lister):
         parser.add_argument(
             "--prefix",
             metavar="<prefix>",
-            help="Filter list using <prefix>",
+            help=_("Filter list using <prefix>"),
         )
         parser.add_argument(
             "--marker",
             metavar="<marker>",
-            help="Anchor for paging",
+            help=_("Anchor for paging"),
         )
         parser.add_argument(
             "--end-marker",
             metavar="<end-marker>",
-            help="End anchor for paging",
+            help=_("End anchor for paging"),
         )
         parser.add_argument(
             "--limit",
             metavar="<limit>",
             type=int,
-            help="Limit the number of containers returned",
+            help=_("Limit the number of containers returned"),
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_('List additional fields in output'),
         )
         parser.add_argument(
             '--all',
             action='store_true',
             default=False,
-            help='List all containers (default is 10000)',
+            help=_('List all containers (default is 10000)'),
         )
         return parser
 
@@ -175,7 +175,7 @@ class SaveContainer(command.Command):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Container to save',
+            help=_('Container to save'),
         )
         return parser
 
@@ -193,15 +193,15 @@ class SetContainer(command.Command):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Container to modify',
+            help=_('Container to modify'),
         )
         parser.add_argument(
             "--property",
             metavar="<key=value>",
             required=True,
             action=parseractions.KeyValueAction,
-            help="Set a property on this container "
-                 "(repeat option to set multiple properties)"
+            help=_("Set a property on this container "
+                   "(repeat option to set multiple properties)")
         )
         return parser
 
@@ -220,7 +220,7 @@ class ShowContainer(command.ShowOne):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Container to display',
+            help=_('Container to display'),
         )
         return parser
 
@@ -243,7 +243,7 @@ class UnsetContainer(command.Command):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Container to modify',
+            help=_('Container to modify'),
         )
         parser.add_argument(
             '--property',
@@ -251,8 +251,8 @@ class UnsetContainer(command.Command):
             required=True,
             action='append',
             default=[],
-            help='Property to remove from container '
-                 '(repeat option to remove multiple properties)',
+            help=_('Property to remove from container '
+                   '(repeat option to remove multiple properties)'),
         )
         return parser
 
