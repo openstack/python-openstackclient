@@ -78,6 +78,10 @@ def _get_attrs(client_manager, parsed_args):
        parsed_args.availability_zone_hints is not None:
         attrs['availability_zone_hints'] = parsed_args.availability_zone_hints
 
+    # set description
+    if parsed_args.description:
+        attrs['description'] = parsed_args.description
+
     # update_external_network_options
     if parsed_args.internal:
         attrs['router:external'] = False
@@ -190,6 +194,11 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             '--project',
             metavar='<project>',
             help=_("Owner's project (name or ID)")
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_("Set network description")
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
@@ -419,6 +428,11 @@ class SetNetwork(command.Command):
             '--no-share',
             action='store_true',
             help=_("Do not share the network between projects")
+        )
+        parser.add_argument(
+            '--description',
+            metavar="<description",
+            help=_("Set network description")
         )
         port_security_group = parser.add_mutually_exclusive_group()
         port_security_group.add_argument(

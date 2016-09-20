@@ -285,6 +285,7 @@ class FakeNetwork(object):
             'id': 'network-id-' + uuid.uuid4().hex,
             'name': 'network-name-' + uuid.uuid4().hex,
             'status': 'ACTIVE',
+            'description': 'network-description-' + uuid.uuid4().hex,
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'admin_state_up': True,
             'shared': False,
