@@ -119,6 +119,7 @@ class TestCreateRouter(TestRouter):
         'admin_state_up',
         'availability_zone_hints',
         'availability_zones',
+        'description',
         'distributed',
         'external_gateway_info',
         'ha',
@@ -132,6 +133,7 @@ class TestCreateRouter(TestRouter):
         router._format_admin_state(new_router.admin_state_up),
         osc_utils.format_list(new_router.availability_zone_hints),
         osc_utils.format_list(new_router.availability_zones),
+        new_router.description,
         new_router.distributed,
         router._format_external_gateway_info(new_router.external_gateway_info),
         new_router.ha,
@@ -503,12 +505,14 @@ class TestSetRouter(TestRouter):
             '--enable',
             '--distributed',
             '--name', 'noob',
+            '--description', 'router',
         ]
         verifylist = [
             ('router', self._router.name),
             ('enable', True),
             ('distributed', True),
             ('name', 'noob'),
+            ('description', 'router'),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -518,6 +522,7 @@ class TestSetRouter(TestRouter):
             'admin_state_up': True,
             'distributed': True,
             'name': 'noob',
+            'description': 'router',
         }
         self.network.update_router.assert_called_once_with(
             self._router, **attrs)
@@ -681,6 +686,7 @@ class TestShowRouter(TestRouter):
         'admin_state_up',
         'availability_zone_hints',
         'availability_zones',
+        'description',
         'distributed',
         'external_gateway_info',
         'ha',
@@ -694,6 +700,7 @@ class TestShowRouter(TestRouter):
         router._format_admin_state(_router.admin_state_up),
         osc_utils.format_list(_router.availability_zone_hints),
         osc_utils.format_list(_router.availability_zones),
+        _router.description,
         _router.distributed,
         router._format_external_gateway_info(_router.external_gateway_info),
         _router.ha,

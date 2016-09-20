@@ -55,6 +55,9 @@ def _get_attrs(client_manager, parsed_args):
     if parsed_args.fixed_ip_address:
         attrs['fixed_ip_address'] = parsed_args.fixed_ip_address
 
+    if parsed_args.description is not None:
+        attrs['description'] = parsed_args.description
+
     return attrs
 
 
@@ -96,6 +99,11 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
             metavar='<fixed-ip-address>',
             dest='fixed_ip_address',
             help=_("Fixed IP address mapped to the floating IP")
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('Set floating IP description')
         )
         return parser
 

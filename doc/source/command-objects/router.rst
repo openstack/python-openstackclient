@@ -64,6 +64,7 @@ Create new router
         [--project <project> [--project-domain <project-domain>]]
         [--enable | --disable]
         [--distributed]
+        [--description <description>]
         [--availability-zone-hint <availability-zone>]
         <name>
 
@@ -87,6 +88,10 @@ Create new router
 .. option:: --distributed
 
     Create a distributed router
+
+.. option:: --description <description>
+
+    Set router description
 
 .. option:: --availability-zone-hint <availability-zone>
 
@@ -186,6 +191,7 @@ Set router properties
         [--name <name>]
         [--enable | --disable]
         [--distributed | --centralized]
+        [--description <description>]
         [--route destination=<subnet>,gateway=<ip-address> | --no-route]
         <router>
 
@@ -208,6 +214,10 @@ Set router properties
 .. option:: --centralized
 
     Set router to centralized mode (disabled router only)
+
+.. option:: --description <description>
+
+    Set router description
 
 .. option:: --route destination=<subnet>,gateway=<ip-address>
 

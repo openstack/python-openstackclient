@@ -49,6 +49,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
     )
 
     columns = (
+        'description',
         'dns_domain',
         'dns_name',
         'fixed_ip_address',
@@ -62,6 +63,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
     )
 
     data = (
+        floating_ip.description,
         floating_ip.dns_domain,
         floating_ip.dns_name,
         floating_ip.fixed_ip_address,
@@ -117,14 +119,16 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
             '--port', self.floating_ip.port_id,
             '--floating-ip-address', self.floating_ip.floating_ip_address,
             '--fixed-ip-address', self.floating_ip.fixed_ip_address,
+            '--description', self.floating_ip.description,
             self.floating_ip.floating_network_id,
         ]
         verifylist = [
             ('subnet', self.subnet.id),
             ('port', self.floating_ip.port_id),
-            ('floating_ip_address', self.floating_ip.floating_ip_address),
             ('fixed_ip_address', self.floating_ip.fixed_ip_address),
             ('network', self.floating_ip.floating_network_id),
+            ('description', self.floating_ip.description),
+            ('floating_ip_address', self.floating_ip.floating_ip_address),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -136,6 +140,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
             'floating_ip_address': self.floating_ip.floating_ip_address,
             'fixed_ip_address': self.floating_ip.fixed_ip_address,
             'floating_network_id': self.floating_ip.floating_network_id,
+            'description': self.floating_ip.description,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -269,6 +274,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
     floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
 
     columns = (
+        'description',
         'dns_domain',
         'dns_name',
         'fixed_ip_address',
@@ -282,6 +288,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
     )
 
     data = (
+        floating_ip.description,
         floating_ip.dns_domain,
         floating_ip.dns_name,
         floating_ip.fixed_ip_address,
