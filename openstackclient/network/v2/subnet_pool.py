@@ -81,6 +81,9 @@ def _get_attrs(client_manager, parsed_args):
         ).id
         attrs['tenant_id'] = project_id
 
+    if parsed_args.description is not None:
+        attrs['description'] = parsed_args.description
+
     return attrs
 
 
@@ -166,6 +169,11 @@ class CreateSubnetPool(command.ShowOne):
             '--no-share',
             action='store_true',
             help=_("Set this subnet pool as not shared"),
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_("Set subnet pool description")
         )
         return parser
 
@@ -340,6 +348,11 @@ class SetSubnetPool(command.Command):
             help=_("Remove address scope associated with the subnet pool")
         )
         _add_default_options(parser)
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_("Set subnet pool description")
+        )
 
         return parser
 

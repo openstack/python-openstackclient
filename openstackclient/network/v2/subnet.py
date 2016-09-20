@@ -196,6 +196,8 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
     if ('service_types' in parsed_args and
        parsed_args.service_types is not None):
         attrs['service_types'] = parsed_args.service_types
+    if parsed_args.description is not None:
+        attrs['description'] = parsed_args.description
     return attrs
 
 
@@ -293,6 +295,11 @@ class CreateSubnet(command.ShowOne):
             required=True,
             metavar='<network>',
             help=_("Network this subnet belongs to (name or ID)")
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_("Set subnet description")
         )
         _get_common_parse_arguments(parser)
         return parser
@@ -495,6 +502,11 @@ class SetSubnet(command.Command):
                    "<ip-address>: Specific IP address to use as the gateway, "
                    "'none': This subnet will not use a gateway, "
                    "e.g.: --gateway 192.168.9.1, --gateway none.")
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_("Set subnet description")
         )
         _get_common_parse_arguments(parser)
         return parser

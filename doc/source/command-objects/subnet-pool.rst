@@ -19,6 +19,7 @@ Create subnet pool
         [--default-prefix-length <default-prefix-length>]
         [--min-prefix-length <min-prefix-length>]
         [--max-prefix-length <max-prefix-length>]
+        [--description <description>]
         [--project <project> [--project-domain <project-domain>]]
         [--address-scope <address-scope>]
         [--default | --no-default]
@@ -37,6 +38,10 @@ Create subnet pool
 .. option:: --max-prefix-length <max-prefix-length>
 
     Set subnet pool maximum prefix length
+
+.. option:: --description <description>
+
+    Set subnet pool description
 
 .. option:: --project <project>
 
@@ -163,6 +168,7 @@ Set subnet pool properties
         [--max-prefix-length <max-prefix-length>]
         [--address-scope <address-scope> | --no-address-scope]
         [--default | --no-default]
+        [--description <description>]
         <subnet-pool>
 
 .. option:: --name <name>
@@ -202,6 +208,10 @@ Set subnet pool properties
 .. option:: --no-default
 
     Set this as a non-default subnet pool
+
+.. option:: --description <description>
+
+    Set subnet pool description
 
 .. _subnet_pool_set-subnet-pool:
 .. describe:: <subnet-pool>

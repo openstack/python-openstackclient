@@ -110,6 +110,7 @@ class TestCreateSubnet(TestSubnet):
     columns = (
         'allocation_pools',
         'cidr',
+        'description',
         'dns_nameservers',
         'enable_dhcp',
         'gateway_ip',
@@ -129,6 +130,7 @@ class TestCreateSubnet(TestSubnet):
     data = (
         subnet_v2._format_allocation_pools(_subnet.allocation_pools),
         _subnet.cidr,
+        _subnet.description,
         utils.format_list(_subnet.dns_nameservers),
         _subnet.enable_dhcp,
         _subnet.gateway_ip,
@@ -148,6 +150,7 @@ class TestCreateSubnet(TestSubnet):
     data_subnet_pool = (
         subnet_v2._format_allocation_pools(_subnet_from_pool.allocation_pools),
         _subnet_from_pool.cidr,
+        _subnet_from_pool.description,
         utils.format_list(_subnet_from_pool.dns_nameservers),
         _subnet_from_pool.enable_dhcp,
         _subnet_from_pool.gateway_ip,
@@ -167,6 +170,7 @@ class TestCreateSubnet(TestSubnet):
     data_ipv6 = (
         subnet_v2._format_allocation_pools(_subnet_ipv6.allocation_pools),
         _subnet_ipv6.cidr,
+        _subnet_ipv6.description,
         utils.format_list(_subnet_ipv6.dns_nameservers),
         _subnet_ipv6.enable_dhcp,
         _subnet_ipv6.gateway_ip,
@@ -423,6 +427,40 @@ class TestCreateSubnet(TestSubnet):
             'name': self._subnet.name,
             'network_id': self._subnet.network_id,
             'segment_id': self._network_segment.id,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_with_description(self):
+        # Mock SDK calls for this test.
+        self.network.create_subnet = mock.Mock(return_value=self._subnet)
+        self._network.id = self._subnet.network_id
+
+        arglist = [
+            "--subnet-range", self._subnet.cidr,
+            "--network", self._subnet.network_id,
+            "--description", self._subnet.description,
+            self._subnet.name,
+        ]
+        verifylist = [
+            ('name', self._subnet.name),
+            ('description', self._subnet.description),
+            ('subnet_range', self._subnet.cidr),
+            ('network', self._subnet.network_id),
+            ('ip_version', self._subnet.ip_version),
+            ('gateway', 'auto'),
+
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_subnet.assert_called_once_with(**{
+            'cidr': self._subnet.cidr,
+            'ip_version': self._subnet.ip_version,
+            'name': self._subnet.name,
+            'network_id': self._subnet.network_id,
+            'description': self._subnet.description,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -876,6 +914,30 @@ class TestSetSubnet(TestSubnet):
             _testsubnet, **attrs)
         self.assertIsNone(result)
 
+    def test_set_non_append_options(self):
+        arglist = [
+            "--description", "new_description",
+            "--dhcp",
+            "--gateway", self._subnet.gateway_ip,
+            self._subnet.name,
+        ]
+        verifylist = [
+            ('description', "new_description"),
+            ('dhcp', True),
+            ('gateway', self._subnet.gateway_ip),
+            ('subnet', self._subnet.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        attrs = {
+            'enable_dhcp': True,
+            'gateway_ip': self._subnet.gateway_ip,
+            'description': "new_description",
+        }
+        self.network.update_subnet.assert_called_with(self._subnet, **attrs)
+        self.assertIsNone(result)
+
 
 class TestShowSubnet(TestSubnet):
     # The subnets to be shown
@@ -884,6 +946,7 @@ class TestShowSubnet(TestSubnet):
     columns = (
         'allocation_pools',
         'cidr',
+        'description',
         'dns_nameservers',
         'enable_dhcp',
         'gateway_ip',
@@ -903,6 +966,7 @@ class TestShowSubnet(TestSubnet):
     data = (
         subnet_v2._format_allocation_pools(_subnet.allocation_pools),
         _subnet.cidr,
+        _subnet.description,
         utils.format_list(_subnet.dns_nameservers),
         _subnet.enable_dhcp,
         _subnet.gateway_ip,

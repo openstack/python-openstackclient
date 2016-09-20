@@ -892,6 +892,7 @@ class FakeSubnet(object):
             'segment_id': None,
             'service_types': [],
             'subnetpool_id': None,
+            'description': 'subnet-description-' + uuid.uuid4().hex,
         }
 
         # Overwrite default attributes.
@@ -1047,6 +1048,7 @@ class FakeSubnetPool(object):
             'min_prefixlen': '8',
             'default_quota': None,
             'ip_version': '4',
+            'description': 'subnet-pool-description-' + uuid.uuid4().hex,
         }
 
         # Overwrite default attributes.

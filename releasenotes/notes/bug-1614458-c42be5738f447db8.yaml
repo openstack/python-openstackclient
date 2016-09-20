@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds ``description`` option to ``subnet create`` and
+    ``subnet set`` commands.
+    [Bug `1614458 <https://bugs.launchpad.net/bugs/1614458>`_]

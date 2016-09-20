@@ -26,6 +26,7 @@ Create new subnet
         [--gateway <gateway>]
         [--host-route destination=<subnet>,gateway=<ip-address>]
         [--ip-version {4,6}]
+        [--description <description>]
         [--ipv6-ra-mode {dhcpv6-stateful,dhcpv6-stateless,slaac}]
         [--ipv6-address-mode {dhcpv6-stateful,dhcpv6-stateless,slaac}]
         [--network-segment <network-segment>]
@@ -99,6 +100,10 @@ Create new subnet
      IP version (default is 4).  Note that when subnet pool is specified,
      IP version is determined from the subnet pool and this option
      is ignored.
+
+.. option:: --description <description>
+
+     Set subnet description
 
 .. option:: --ipv6-ra-mode {dhcpv6-stateful,dhcpv6-stateless,slaac}
 
@@ -233,6 +238,7 @@ Set subnet properties
         [--host-route destination=<subnet>,gateway=<ip-address>]
         [--service-type <service-type>]
         [--name <new-name>]
+        [--description <description>]
         <subnet>
 
 .. option:: --allocation-pool start=<ip-address>,end=<ip-address>
@@ -274,6 +280,9 @@ Set subnet properties
      ``network:floatingip_agent_gateway``.
      Must be a valid device owner value for a network port
      (repeat option to set multiple service types)
+.. option:: --description <description>
+
+     Set subnet description
 
 .. option:: --name
 

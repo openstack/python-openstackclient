@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds ``description`` option to ``subnet pool create``
+    and ``subnet pool set`` commands.
+    [Bug `1614823 <https://bugs.launchpad.net/bugs/1614823>`_]

@@ -50,6 +50,7 @@ class TestCreateSubnetPool(TestSubnetPool):
         'address_scope_id',
         'default_prefixlen',
         'default_quota',
+        'description',
         'id',
         'ip_version',
         'is_default',
@@ -64,6 +65,7 @@ class TestCreateSubnetPool(TestSubnetPool):
         _subnet_pool.address_scope_id,
         _subnet_pool.default_prefixlen,
         _subnet_pool.default_quota,
+        _subnet_pool.description,
         _subnet_pool.id,
         _subnet_pool.ip_version,
         _subnet_pool.is_default,
@@ -241,6 +243,29 @@ class TestCreateSubnetPool(TestSubnetPool):
             'name': self._subnet_pool.name,
             'prefixes': ['10.0.10.0/24'],
             'shared': True,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_with_description(self):
+        arglist = [
+            '--pool-prefix', '10.0.10.0/24',
+            '--description', self._subnet_pool.description,
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('prefixes', ['10.0.10.0/24']),
+            ('description', self._subnet_pool.description),
+            ('name', self._subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_subnet_pool.assert_called_once_with(**{
+            'name': self._subnet_pool.name,
+            'prefixes': ['10.0.10.0/24'],
+            'description': self._subnet_pool.description,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -749,6 +774,26 @@ class TestSetSubnetPool(TestSubnetPool):
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
+    def test_set_description(self):
+        arglist = [
+            '--description', 'new_description',
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('description', "new_description"),
+            ('subnet_pool', self._subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'description': "new_description",
+        }
+        self.network.update_subnet_pool.assert_called_once_with(
+            self._subnet_pool, **attrs)
+        self.assertIsNone(result)
+
 
 class TestShowSubnetPool(TestSubnetPool):
 
@@ -759,6 +804,7 @@ class TestShowSubnetPool(TestSubnetPool):
         'address_scope_id',
         'default_prefixlen',
         'default_quota',
+        'description',
         'id',
         'ip_version',
         'is_default',
@@ -774,6 +820,7 @@ class TestShowSubnetPool(TestSubnetPool):
         _subnet_pool.address_scope_id,
         _subnet_pool.default_prefixlen,
         _subnet_pool.default_quota,
+        _subnet_pool.description,
         _subnet_pool.id,
         _subnet_pool.ip_version,
         _subnet_pool.is_default,
