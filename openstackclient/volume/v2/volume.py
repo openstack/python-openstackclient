@@ -490,7 +490,7 @@ class ShowVolume(command.ShowOne):
         parser = super(ShowVolume, self).get_parser(prog_name)
         parser.add_argument(
             'volume',
-            metavar="<volume-id>",
+            metavar="<volume>",
             help=_("Volume to display (name or ID)")
         )
         return parser
