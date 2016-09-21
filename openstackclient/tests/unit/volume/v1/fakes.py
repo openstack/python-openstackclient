@@ -363,24 +363,24 @@ class FakeVolume(object):
         # Set default attribute
         volume_info = {
             'id': 'volume-id' + uuid.uuid4().hex,
-            'name': 'volume-name' + uuid.uuid4().hex,
-            'description': 'description' + uuid.uuid4().hex,
-            'status': random.choice(['available', 'in_use']),
-            'size': random.randint(1, 20),
+            'display_name': 'volume-name' + uuid.uuid4().hex,
+            'display_description': 'description' + uuid.uuid4().hex,
+            'status': 'available',
+            'size': 10,
             'volume_type':
                 random.choice(['fake_lvmdriver-1', 'fake_lvmdriver-2']),
-            'bootable':
-                random.randint(0, 1),
+            'bootable': 'true',
             'metadata': {
                 'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
                 'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
                 'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex},
-            'snapshot_id': random.randint(1, 5),
+            'snapshot_id': 'snapshot-id-' + uuid.uuid4().hex,
             'availability_zone': 'zone' + uuid.uuid4().hex,
             'attachments': [{
                 'device': '/dev/' + uuid.uuid4().hex,
                 'server_id': uuid.uuid4().hex,
             }, ],
+            'created_at': 'time-' + uuid.uuid4().hex,
         }
 
         # Overwrite default attributes if there are some attributes set
