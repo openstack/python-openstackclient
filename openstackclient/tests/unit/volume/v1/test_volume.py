@@ -880,3 +880,102 @@ class TestVolumeSet(TestVolume):
             self.cmd.take_action(parsed_args)
             self.volumes_mock.set_bootable.assert_called_with(
                 self._volume.id, verifylist[index][0][1])
+
+
+class TestVolumeShow(TestVolume):
+
+    columns = (
+        'attachments',
+        'availability_zone',
+        'bootable',
+        'created_at',
+        'display_description',
+        'display_name',
+        'id',
+        'properties',
+        'size',
+        'snapshot_id',
+        'status',
+        'type',
+    )
+
+    def setUp(self):
+        super(TestVolumeShow, self).setUp()
+        self._volume = volume_fakes.FakeVolume.create_one_volume()
+        self.datalist = (
+            self._volume.attachments,
+            self._volume.availability_zone,
+            self._volume.bootable,
+            self._volume.created_at,
+            self._volume.display_description,
+            self._volume.display_name,
+            self._volume.id,
+            utils.format_dict(self._volume.metadata),
+            self._volume.size,
+            self._volume.snapshot_id,
+            self._volume.status,
+            self._volume.volume_type,
+        )
+        self.volumes_mock.get.return_value = self._volume
+        # Get the command object to test
+        self.cmd = volume.ShowVolume(self.app, None)
+
+    def test_volume_show(self):
+        arglist = [
+            self._volume.id
+        ]
+        verifylist = [
+            ("volume", self._volume.id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.volumes_mock.get.assert_called_with(self._volume.id)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+
+class TestVolumeUnset(TestVolume):
+
+    _volume = volume_fakes.FakeVolume.create_one_volume()
+
+    def setUp(self):
+        super(TestVolumeUnset, self).setUp()
+
+        self.volumes_mock.get.return_value = self._volume
+
+        self.volumes_mock.delete_metadata.return_value = None
+        # Get the command object to test
+        self.cmd = volume.UnsetVolume(self.app, None)
+
+    def test_volume_unset_no_options(self):
+        arglist = [
+            self._volume.display_name,
+        ]
+        verifylist = [
+            ('property', None),
+            ('volume', self._volume.display_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+    def test_volume_unset_property(self):
+        arglist = [
+            '--property', 'myprop',
+            self._volume.display_name,
+        ]
+        verifylist = [
+            ('property', ['myprop']),
+            ('volume', self._volume.display_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.delete_metadata.assert_called_with(
+            self._volume.id, ['myprop']
+        )
+        self.assertIsNone(result)
