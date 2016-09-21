@@ -413,9 +413,6 @@ class TestShellCli(TestShell):
 class TestShellArgV(TestShell):
     """Test the deferred help flag"""
 
-    def setUp(self):
-        super(TestShellArgV, self).setUp()
-
     def test_shell_argv(self):
         """Test argv decoding
 
