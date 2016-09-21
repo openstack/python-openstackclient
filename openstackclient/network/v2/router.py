@@ -119,7 +119,7 @@ class AddPortToRouter(command.Command):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         port = client.find_port(parsed_args.port, ignore_missing=False)
-        client.router_add_interface(client.find_router(
+        client.add_interface_to_router(client.find_router(
             parsed_args.router, ignore_missing=False), port_id=port.id)
 
 
@@ -144,7 +144,7 @@ class AddSubnetToRouter(command.Command):
         client = self.app.client_manager.network
         subnet = client.find_subnet(parsed_args.subnet,
                                     ignore_missing=False)
-        client.router_add_interface(
+        client.add_interface_to_router(
             client.find_router(parsed_args.router,
                                ignore_missing=False),
             subnet_id=subnet.id)
@@ -324,7 +324,7 @@ class RemovePortFromRouter(command.Command):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         port = client.find_port(parsed_args.port, ignore_missing=False)
-        client.router_remove_interface(client.find_router(
+        client.remove_interface_from_router(client.find_router(
             parsed_args.router, ignore_missing=False), port_id=port.id)
 
 
@@ -349,7 +349,7 @@ class RemoveSubnetFromRouter(command.Command):
         client = self.app.client_manager.network
         subnet = client.find_subnet(parsed_args.subnet,
                                     ignore_missing=False)
-        client.router_remove_interface(
+        client.remove_interface_from_router(
             client.find_router(parsed_args.router,
                                ignore_missing=False),
             subnet_id=subnet.id)

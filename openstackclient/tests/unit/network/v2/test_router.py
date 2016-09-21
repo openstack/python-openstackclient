@@ -40,7 +40,7 @@ class TestAddPortToRouter(TestRouter):
 
     def setUp(self):
         super(TestAddPortToRouter, self).setUp()
-        self.network.router_add_interface = mock.Mock()
+        self.network.add_interface_to_router = mock.Mock()
         self.cmd = router.AddPortToRouter(self.app, self.namespace)
         self.network.find_router = mock.Mock(return_value=self._router)
         self.network.find_port = mock.Mock(return_value=self._port)
@@ -65,9 +65,8 @@ class TestAddPortToRouter(TestRouter):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.router_add_interface.assert_called_with(self._router, **{
-            'port_id': self._router.port,
-        })
+        self.network.add_interface_to_router.assert_called_with(
+            self._router, **{'port_id': self._router.port, })
         self.assertIsNone(result)
 
 
@@ -80,7 +79,7 @@ class TestAddSubnetToRouter(TestRouter):
 
     def setUp(self):
         super(TestAddSubnetToRouter, self).setUp()
-        self.network.router_add_interface = mock.Mock()
+        self.network.add_interface_to_router = mock.Mock()
         self.cmd = router.AddSubnetToRouter(self.app, self.namespace)
         self.network.find_router = mock.Mock(return_value=self._router)
         self.network.find_subnet = mock.Mock(return_value=self._subnet)
@@ -104,7 +103,7 @@ class TestAddSubnetToRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.router_add_interface.assert_called_with(
+        self.network.add_interface_to_router.assert_called_with(
             self._router, **{'subnet_id': self._router.subnet})
 
         self.assertIsNone(result)
@@ -411,7 +410,7 @@ class TestRemovePortFromRouter(TestRouter):
 
     def setUp(self):
         super(TestRemovePortFromRouter, self).setUp()
-        self.network.router_remove_interface = mock.Mock()
+        self.network.remove_interface_from_router = mock.Mock()
         self.cmd = router.RemovePortFromRouter(self.app, self.namespace)
         self.network.find_router = mock.Mock(return_value=self._router)
         self.network.find_port = mock.Mock(return_value=self._port)
@@ -436,7 +435,7 @@ class TestRemovePortFromRouter(TestRouter):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.router_remove_interface.assert_called_with(
+        self.network.remove_interface_from_router.assert_called_with(
             self._router, **{'port_id': self._router.port})
         self.assertIsNone(result)
 
@@ -450,7 +449,7 @@ class TestRemoveSubnetFromRouter(TestRouter):
 
     def setUp(self):
         super(TestRemoveSubnetFromRouter, self).setUp()
-        self.network.router_remove_interface = mock.Mock()
+        self.network.remove_interface_from_router = mock.Mock()
         self.cmd = router.RemoveSubnetFromRouter(self.app, self.namespace)
         self.network.find_router = mock.Mock(return_value=self._router)
         self.network.find_subnet = mock.Mock(return_value=self._subnet)
@@ -474,7 +473,7 @@ class TestRemoveSubnetFromRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.router_remove_interface.assert_called_with(
+        self.network.remove_interface_from_router.assert_called_with(
             self._router, **{'subnet_id': self._router.subnet})
         self.assertIsNone(result)
 
