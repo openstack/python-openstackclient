@@ -452,10 +452,8 @@ class UnsetVolume(command.Command):
             '--property',
             metavar='<key>',
             action='append',
-            default=[],
             help=_('Remove a property from volume '
                    '(repeat option to remove multiple properties)'),
-            required=True,
         )
         return parser
 
