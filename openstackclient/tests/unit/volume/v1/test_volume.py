@@ -67,48 +67,50 @@ class TestVolumeCreate(TestVolume):
     user = identity_fakes.FakeUser.create_one_user()
 
     columns = (
-        'attach_status',
+        'attachments',
         'availability_zone',
+        'bootable',
+        'created_at',
         'display_description',
         'display_name',
         'id',
         'properties',
         'size',
+        'snapshot_id',
         'status',
         'type',
-    )
-    datalist = (
-        'detached',
-        volume_fakes.volume_zone,
-        volume_fakes.volume_description,
-        volume_fakes.volume_name,
-        volume_fakes.volume_id,
-        volume_fakes.volume_metadata_str,
-        volume_fakes.volume_size,
-        volume_fakes.volume_status,
-        volume_fakes.volume_type,
     )
 
     def setUp(self):
         super(TestVolumeCreate, self).setUp()
-
-        self.volumes_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.VOLUME),
-            loaded=True,
+        self.new_volume = volume_fakes.FakeVolume.create_one_volume()
+        self.datalist = (
+            self.new_volume.attachments,
+            self.new_volume.availability_zone,
+            self.new_volume.bootable,
+            self.new_volume.created_at,
+            self.new_volume.display_description,
+            self.new_volume.display_name,
+            self.new_volume.id,
+            utils.format_dict(self.new_volume.metadata),
+            self.new_volume.size,
+            self.new_volume.snapshot_id,
+            self.new_volume.status,
+            self.new_volume.volume_type,
         )
+        self.volumes_mock.create.return_value = self.new_volume
 
         # Get the command object to test
         self.cmd = volume.CreateVolume(self.app, None)
 
     def test_volume_create_min_options(self):
         arglist = [
-            '--size', str(volume_fakes.volume_size),
-            volume_fakes.volume_name,
+            '--size', str(self.new_volume.size),
+            self.new_volume.display_name,
         ]
         verifylist = [
-            ('size', volume_fakes.volume_size),
-            ('name', volume_fakes.volume_name),
+            ('size', self.new_volume.size),
+            ('name', self.new_volume.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -123,10 +125,10 @@ class TestVolumeCreate(TestVolume):
         #                      project_id=, availability_zone=,
         #                      metadata=, imageRef=)
         self.volumes_mock.create.assert_called_with(
-            volume_fakes.volume_size,
+            self.new_volume.size,
             None,
             None,
-            volume_fakes.volume_name,
+            self.new_volume.display_name,
             None,
             None,
             None,
@@ -140,18 +142,18 @@ class TestVolumeCreate(TestVolume):
 
     def test_volume_create_options(self):
         arglist = [
-            '--size', str(volume_fakes.volume_size),
-            '--description', volume_fakes.volume_description,
-            '--type', volume_fakes.volume_type,
-            '--availability-zone', volume_fakes.volume_zone,
-            volume_fakes.volume_name,
+            '--size', str(self.new_volume.size),
+            '--description', self.new_volume.display_description,
+            '--type', self.new_volume.volume_type,
+            '--availability-zone', self.new_volume.availability_zone,
+            self.new_volume.display_name,
         ]
         verifylist = [
-            ('size', volume_fakes.volume_size),
-            ('description', volume_fakes.volume_description),
-            ('type', volume_fakes.volume_type),
-            ('availability_zone', volume_fakes.volume_zone),
-            ('name', volume_fakes.volume_name),
+            ('size', self.new_volume.size),
+            ('description', self.new_volume.display_description),
+            ('type', self.new_volume.volume_type),
+            ('availability_zone', self.new_volume.availability_zone),
+            ('name', self.new_volume.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -166,15 +168,15 @@ class TestVolumeCreate(TestVolume):
         #                      project_id=, availability_zone=,
         #                      metadata=, imageRef=)
         self.volumes_mock.create.assert_called_with(
-            volume_fakes.volume_size,
+            self.new_volume.size,
             None,
             None,
-            volume_fakes.volume_name,
-            volume_fakes.volume_description,
-            volume_fakes.volume_type,
+            self.new_volume.display_name,
+            self.new_volume.display_description,
+            self.new_volume.volume_type,
             None,
             None,
-            volume_fakes.volume_zone,
+            self.new_volume.availability_zone,
             None,
             None,
         )
@@ -189,16 +191,16 @@ class TestVolumeCreate(TestVolume):
         self.users_mock.get.return_value = self.user
 
         arglist = [
-            '--size', str(volume_fakes.volume_size),
+            '--size', str(self.new_volume.size),
             '--project', self.project.id,
             '--user', self.user.id,
-            volume_fakes.volume_name,
+            self.new_volume.display_name,
         ]
         verifylist = [
-            ('size', volume_fakes.volume_size),
+            ('size', self.new_volume.size),
             ('project', self.project.id),
             ('user', self.user.id),
-            ('name', volume_fakes.volume_name),
+            ('name', self.new_volume.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -213,10 +215,10 @@ class TestVolumeCreate(TestVolume):
         #                      project_id=, availability_zone=,
         #                      metadata=, imageRef=)
         self.volumes_mock.create.assert_called_with(
-            volume_fakes.volume_size,
+            self.new_volume.size,
             None,
             None,
-            volume_fakes.volume_name,
+            self.new_volume.display_name,
             None,
             None,
             self.user.id,
@@ -236,16 +238,16 @@ class TestVolumeCreate(TestVolume):
         self.users_mock.get.return_value = self.user
 
         arglist = [
-            '--size', str(volume_fakes.volume_size),
+            '--size', str(self.new_volume.size),
             '--project', self.project.name,
             '--user', self.user.name,
-            volume_fakes.volume_name,
+            self.new_volume.display_name,
         ]
         verifylist = [
-            ('size', volume_fakes.volume_size),
+            ('size', self.new_volume.size),
             ('project', self.project.name),
             ('user', self.user.name),
-            ('name', volume_fakes.volume_name),
+            ('name', self.new_volume.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -260,10 +262,10 @@ class TestVolumeCreate(TestVolume):
         #                      project_id=, availability_zone=,
         #                      metadata=, imageRef=)
         self.volumes_mock.create.assert_called_with(
-            volume_fakes.volume_size,
+            self.new_volume.size,
             None,
             None,
-            volume_fakes.volume_name,
+            self.new_volume.display_name,
             None,
             None,
             self.user.id,
@@ -280,13 +282,13 @@ class TestVolumeCreate(TestVolume):
         arglist = [
             '--property', 'Alpha=a',
             '--property', 'Beta=b',
-            '--size', str(volume_fakes.volume_size),
-            volume_fakes.volume_name,
+            '--size', str(self.new_volume.size),
+            self.new_volume.display_name,
         ]
         verifylist = [
             ('property', {'Alpha': 'a', 'Beta': 'b'}),
-            ('size', volume_fakes.volume_size),
-            ('name', volume_fakes.volume_name),
+            ('size', self.new_volume.size),
+            ('name', self.new_volume.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -301,10 +303,10 @@ class TestVolumeCreate(TestVolume):
         #                      project_id=, availability_zone=,
         #                      metadata=, imageRef=)
         self.volumes_mock.create.assert_called_with(
-            volume_fakes.volume_size,
+            self.new_volume.size,
             None,
             None,
-            volume_fakes.volume_name,
+            self.new_volume.display_name,
             None,
             None,
             None,
@@ -326,13 +328,13 @@ class TestVolumeCreate(TestVolume):
 
         arglist = [
             '--image', volume_fakes.image_id,
-            '--size', str(volume_fakes.volume_size),
-            volume_fakes.volume_name,
+            '--size', str(self.new_volume.size),
+            self.new_volume.display_name,
         ]
         verifylist = [
             ('image', volume_fakes.image_id),
-            ('size', volume_fakes.volume_size),
-            ('name', volume_fakes.volume_name),
+            ('size', self.new_volume.size),
+            ('name', self.new_volume.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -347,10 +349,10 @@ class TestVolumeCreate(TestVolume):
         #                      project_id=, availability_zone=,
         #                      metadata=, imageRef=)
         self.volumes_mock.create.assert_called_with(
-            volume_fakes.volume_size,
+            self.new_volume.size,
             None,
             None,
-            volume_fakes.volume_name,
+            self.new_volume.display_name,
             None,
             None,
             None,
@@ -372,13 +374,13 @@ class TestVolumeCreate(TestVolume):
 
         arglist = [
             '--image', volume_fakes.image_name,
-            '--size', str(volume_fakes.volume_size),
-            volume_fakes.volume_name,
+            '--size', str(self.new_volume.size),
+            self.new_volume.display_name,
         ]
         verifylist = [
             ('image', volume_fakes.image_name),
-            ('size', volume_fakes.volume_size),
-            ('name', volume_fakes.volume_name),
+            ('size', self.new_volume.size),
+            ('name', self.new_volume.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -393,10 +395,10 @@ class TestVolumeCreate(TestVolume):
         #                      project_id=, availability_zone=,
         #                      metadata=, imageRef=)
         self.volumes_mock.create.assert_called_with(
-            volume_fakes.volume_size,
+            self.new_volume.size,
             None,
             None,
-            volume_fakes.volume_name,
+            self.new_volume.display_name,
             None,
             None,
             None,
@@ -503,6 +505,7 @@ class TestVolumeDelete(TestVolume):
 
 class TestVolumeList(TestVolume):
 
+    _volume = volume_fakes.FakeVolume.create_one_volume()
     columns = (
         'ID',
         'Display Name',
@@ -510,26 +513,23 @@ class TestVolumeList(TestVolume):
         'Size',
         'Attached to',
     )
+    server = _volume.attachments[0]['server_id']
+    device = _volume.attachments[0]['device']
+    msg = 'Attached to %s on %s ' % (server, device)
     datalist = (
         (
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
-            '',
+            _volume.id,
+            _volume.display_name,
+            _volume.status,
+            _volume.size,
+            msg,
         ),
     )
 
     def setUp(self):
         super(TestVolumeList, self).setUp()
 
-        self.volumes_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(volume_fakes.VOLUME),
-                loaded=True,
-            ),
-        ]
+        self.volumes_mock.list.return_value = [self._volume]
 
         # Get the command object to test
         self.cmd = volume.ListVolume(self.app, None)
@@ -552,12 +552,12 @@ class TestVolumeList(TestVolume):
 
     def test_volume_list_name(self):
         arglist = [
-            '--name', volume_fakes.volume_name,
+            '--name', self._volume.display_name,
         ]
         verifylist = [
             ('long', False),
             ('all_projects', False),
-            ('name', volume_fakes.volume_name),
+            ('name', self._volume.display_name),
             ('status', None),
             ('limit', None),
         ]
@@ -569,13 +569,13 @@ class TestVolumeList(TestVolume):
 
     def test_volume_list_status(self):
         arglist = [
-            '--status', volume_fakes.volume_status,
+            '--status', self._volume.status,
         ]
         verifylist = [
             ('long', False),
             ('all_projects', False),
             ('name', None),
-            ('status', volume_fakes.volume_status),
+            ('status', self._volume.status),
             ('limit', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -630,14 +630,14 @@ class TestVolumeList(TestVolume):
         self.assertEqual(collist, columns)
 
         datalist = ((
-            volume_fakes.volume_id,
-            volume_fakes.volume_name,
-            volume_fakes.volume_status,
-            volume_fakes.volume_size,
-            volume_fakes.volume_type,
-            '',
-            '',
-            "Alpha='a', Beta='b', Gamma='g'",
+            self._volume.id,
+            self._volume.display_name,
+            self._volume.status,
+            self._volume.size,
+            self._volume.volume_type,
+            self._volume.bootable,
+            self.msg,
+            utils.format_dict(self._volume.metadata),
         ), )
         self.assertEqual(datalist, tuple(data))
 
@@ -679,33 +679,27 @@ class TestVolumeList(TestVolume):
 
 class TestVolumeSet(TestVolume):
 
+    _volume = volume_fakes.FakeVolume.create_one_volume()
+
     def setUp(self):
         super(TestVolumeSet, self).setUp()
 
-        self.volumes_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.VOLUME),
-            loaded=True,
-        )
+        self.volumes_mock.get.return_value = self._volume
 
-        self.volumes_mock.update.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.VOLUME),
-            loaded=True,
-        )
+        self.volumes_mock.update.return_value = self._volume
         # Get the command object to test
         self.cmd = volume.SetVolume(self.app, None)
 
     def test_volume_set_no_options(self):
         arglist = [
-            volume_fakes.volume_name,
+            self._volume.display_name,
         ]
         verifylist = [
             ('name', None),
             ('description', None),
             ('size', None),
             ('property', None),
-            ('volume', volume_fakes.volume_name),
+            ('volume', self._volume.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -715,14 +709,14 @@ class TestVolumeSet(TestVolume):
     def test_volume_set_name(self):
         arglist = [
             '--name', 'qwerty',
-            volume_fakes.volume_name,
+            self._volume.display_name,
         ]
         verifylist = [
             ('name', 'qwerty'),
             ('description', None),
             ('size', None),
             ('property', None),
-            ('volume', volume_fakes.volume_name),
+            ('volume', self._volume.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -733,7 +727,7 @@ class TestVolumeSet(TestVolume):
             'display_name': 'qwerty',
         }
         self.volumes_mock.update.assert_called_with(
-            volume_fakes.volume_id,
+            self._volume.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -741,14 +735,14 @@ class TestVolumeSet(TestVolume):
     def test_volume_set_description(self):
         arglist = [
             '--description', 'new desc',
-            volume_fakes.volume_name,
+            self._volume.display_name,
         ]
         verifylist = [
             ('name', None),
             ('description', 'new desc'),
             ('size', None),
             ('property', None),
-            ('volume', volume_fakes.volume_name),
+            ('volume', self._volume.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -759,7 +753,7 @@ class TestVolumeSet(TestVolume):
             'display_description': 'new desc',
         }
         self.volumes_mock.update.assert_called_with(
-            volume_fakes.volume_id,
+            self._volume.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -767,14 +761,14 @@ class TestVolumeSet(TestVolume):
     def test_volume_set_size(self):
         arglist = [
             '--size', '130',
-            volume_fakes.volume_name,
+            self._volume.display_name,
         ]
         verifylist = [
             ('name', None),
             ('description', None),
             ('size', 130),
             ('property', None),
-            ('volume', volume_fakes.volume_name),
+            ('volume', self._volume.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -783,23 +777,24 @@ class TestVolumeSet(TestVolume):
         # Set expected values
         size = 130
         self.volumes_mock.extend.assert_called_with(
-            volume_fakes.volume_id,
+            self._volume.id,
             size
         )
         self.assertIsNone(result)
 
     @mock.patch.object(volume.LOG, 'error')
     def test_volume_set_size_smaller(self, mock_log_error):
+        self._volume.status = 'available'
         arglist = [
-            '--size', '100',
-            volume_fakes.volume_name,
+            '--size', '1',
+            self._volume.display_name,
         ]
         verifylist = [
             ('name', None),
             ('description', None),
-            ('size', 100),
+            ('size', 1),
             ('property', None),
-            ('volume', volume_fakes.volume_name),
+            ('volume', self._volume.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -807,22 +802,22 @@ class TestVolumeSet(TestVolume):
 
         mock_log_error.assert_called_with("New size must be greater "
                                           "than %s GB",
-                                          volume_fakes.volume_size)
+                                          self._volume.size)
         self.assertIsNone(result)
 
     @mock.patch.object(volume.LOG, 'error')
     def test_volume_set_size_not_available(self, mock_log_error):
-        self.volumes_mock.get.return_value.status = 'error'
+        self._volume.status = 'error'
         arglist = [
             '--size', '130',
-            volume_fakes.volume_name,
+            self._volume.display_name,
         ]
         verifylist = [
             ('name', None),
             ('description', None),
             ('size', 130),
             ('property', None),
-            ('volume', volume_fakes.volume_name),
+            ('volume', self._volume.display_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -836,14 +831,14 @@ class TestVolumeSet(TestVolume):
     def test_volume_set_property(self):
         arglist = [
             '--property', 'myprop=myvalue',
-            volume_fakes.volume_name,
+            self._volume.display_name,
         ]
         verifylist = [
             ('name', None),
             ('description', None),
             ('size', None),
             ('property', {'myprop': 'myvalue'}),
-            ('volume', volume_fakes.volume_name),
+            ('volume', self._volume.display_name),
             ('bootable', False),
             ('non_bootable', False)
         ]
@@ -856,26 +851,26 @@ class TestVolumeSet(TestVolume):
             'myprop': 'myvalue'
         }
         self.volumes_mock.set_metadata.assert_called_with(
-            volume_fakes.volume_id,
+            self._volume.id,
             metadata
         )
         self.assertIsNone(result)
 
     def test_volume_set_bootable(self):
         arglist = [
-            ['--bootable', volume_fakes.volume_id],
-            ['--non-bootable', volume_fakes.volume_id]
+            ['--bootable', self._volume.id],
+            ['--non-bootable', self._volume.id]
         ]
         verifylist = [
             [
                 ('bootable', True),
                 ('non_bootable', False),
-                ('volume', volume_fakes.volume_id)
+                ('volume', self._volume.id)
             ],
             [
                 ('bootable', False),
                 ('non_bootable', True),
-                ('volume', volume_fakes.volume_id)
+                ('volume', self._volume.id)
             ]
         ]
         for index in range(len(arglist)):
@@ -884,4 +879,4 @@ class TestVolumeSet(TestVolume):
 
             self.cmd.take_action(parsed_args)
             self.volumes_mock.set_bootable.assert_called_with(
-                volume_fakes.volume_id, verifylist[index][0][1])
+                self._volume.id, verifylist[index][0][1])
