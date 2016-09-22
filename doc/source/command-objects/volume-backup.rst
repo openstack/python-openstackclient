@@ -115,6 +115,37 @@ Restore volume backup
 
     Volume to restore to (name or ID)
 
+volume backup set
+-----------------
+
+Set volume backup properties
+
+.. program:: volume backup set
+.. code:: bash
+
+    os volume backup set
+        [--name <name>]
+        [--description <description>]
+        [--state <state>]
+        <backup>
+
+.. option:: --name <name>
+
+    New backup name
+
+.. option:: --description <description>
+
+    New backup description
+
+.. option:: --state <state>
+
+    New backup state ("available" or "error") (admin only)
+
+.. _backup_set-volume-backup:
+.. describe:: <backup>
+
+    Backup to modify (name or ID)
+
 volume backup show
 ------------------
 
