@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``--internal``, ``--name``, ``--project`` and ``--project-domain``,
+    ``--enable`` and ``--disable``, ``--share`` and ``--no share``, ``--status``
+    options to the ``network list`` command.
+    [Bug `1578819 <https://bugs.launchpad.net/bugs/1578819>`_]

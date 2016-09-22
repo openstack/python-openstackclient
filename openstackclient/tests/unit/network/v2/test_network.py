@@ -13,6 +13,7 @@
 
 import mock
 from mock import call
+import random
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -498,6 +499,23 @@ class TestListNetwork(TestNetwork):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_list_internal(self):
+        arglist = [
+            '--internal',
+        ]
+        verifylist = [
+            ('internal', True),
+            ('long', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.networks.assert_called_once_with(
+            **{'router:external': False}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
     def test_network_list_long(self):
         arglist = [
             '--long',
@@ -516,6 +534,150 @@ class TestListNetwork(TestNetwork):
         self.network.networks.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
+
+    def test_list_name(self):
+        test_name = "fakename"
+        arglist = [
+            '--name', test_name,
+        ]
+        verifylist = [
+            ('external', False),
+            ('long', False),
+            ('name', test_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.networks.assert_called_once_with(
+            **{'name': test_name}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_list_enable(self):
+        arglist = [
+            '--enable',
+        ]
+        verifylist = [
+            ('long', False),
+            ('external', False),
+            ('enable', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.networks.assert_called_once_with(
+            **{'admin_state_up': True}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_list_disable(self):
+        arglist = [
+            '--disable',
+        ]
+        verifylist = [
+            ('long', False),
+            ('external', False),
+            ('disable', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.networks.assert_called_once_with(
+            **{'admin_state_up': False}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_list_project(self):
+        project = identity_fakes_v3.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+        ]
+        verifylist = [
+            ('project', project.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.network.networks.assert_called_once_with(
+            **{'tenant_id': project.id}
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_networ_list_project_domain(self):
+        project = identity_fakes_v3.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+            '--project-domain', project.domain_id,
+        ]
+        verifylist = [
+            ('project', project.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'tenant_id': project.id}
+
+        self.network.networks.assert_called_once_with(**filters)
+
+    def test_network_list_share(self):
+        arglist = [
+            '--share',
+        ]
+        verifylist = [
+            ('long', False),
+            ('share', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.networks.assert_called_once_with(
+            **{'shared': True}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_list_no_share(self):
+        arglist = [
+            '--no-share',
+        ]
+        verifylist = [
+            ('long', False),
+            ('no_share', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.networks.assert_called_once_with(
+            **{'shared': False}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_list_status(self):
+        choices = ['ACTIVE', 'BUILD', 'DOWN', 'ERROR']
+        test_status = random.choice(choices)
+        arglist = [
+            '--status', test_status,
+        ]
+        verifylist = [
+            ('long', False),
+            ('status', test_status),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.networks.assert_called_once_with(
+            **{'status': test_status}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
 
 class TestSetNetwork(TestNetwork):
