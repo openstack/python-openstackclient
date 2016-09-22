@@ -13,7 +13,7 @@
 import time
 import uuid
 
-from openstackclient.tests.functional.volume.v2 import common
+from openstackclient.tests.functional.volume.v1 import common
 
 
 class SnapshotTests(common.BaseVolumeTests):
@@ -64,7 +64,7 @@ class SnapshotTests(common.BaseVolumeTests):
         raw_output = self.openstack('snapshot list' + opts)
         self.assertIn(self.NAME, raw_output)
 
-    def test_snapshot_properties(self):
+    def test_snapshot_set_unset_properties(self):
         raw_output = self.openstack(
             'snapshot set --property a=b --property c=d ' + self.NAME)
         self.assertEqual("", raw_output)
@@ -77,10 +77,10 @@ class SnapshotTests(common.BaseVolumeTests):
         raw_output = self.openstack('snapshot show ' + self.NAME + opts)
         self.assertEqual("c='d'\n", raw_output)
 
-    def test_snapshot_set(self):
+    def test_snapshot_set_description(self):
         raw_output = self.openstack(
             'snapshot set --description backup ' + self.NAME)
         self.assertEqual("", raw_output)
-        opts = self.get_opts(["description", "name"])
+        opts = self.get_opts(["display_description", "display_name"])
         raw_output = self.openstack('snapshot show ' + self.NAME + opts)
         self.assertEqual("backup\n" + self.NAME + "\n", raw_output)
