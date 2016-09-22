@@ -47,7 +47,45 @@ class TransferRequestTests(common.BaseVolumeTests):
         cls.assertOutput('', raw_output_transfer)
         cls.assertOutput('', raw_output_volume)
 
+    def test_volume_transfer_request_accept(self):
+        volume_name = uuid.uuid4().hex
+        name = uuid.uuid4().hex
+
+        # create a volume
+        opts = self.get_opts(self.FIELDS)
+        raw_output = self.openstack(
+            'volume create --size 1 ' + volume_name + opts)
+        self.assertEqual(volume_name + '\n', raw_output)
+
+        # create volume transfer request for the volume
+        # and get the auth_key of the new transfer request
+        opts = self.get_opts(['auth_key'])
+        auth_key = self.openstack(
+            'volume transfer request create ' +
+            volume_name +
+            ' --name ' + name + opts)
+        self.assertNotEqual('', auth_key)
+
+        # accept the volume transfer request
+        opts = self.get_opts(self.FIELDS)
+        raw_output = self.openstack(
+            'volume transfer request accept ' + name +
+            ' ' + auth_key + opts)
+        self.assertEqual(name + '\n', raw_output)
+
+        # the volume transfer will be removed by default after accepted
+        # so just need to delete the volume here
+        raw_output = self.openstack(
+            'volume delete ' + volume_name)
+        self.assertEqual('', raw_output)
+
     def test_volume_transfer_request_list(self):
         opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('volume transfer request list' + opts)
         self.assertIn(self.NAME, raw_output)
+
+    def test_volume_transfer_request_show(self):
+        opts = self.get_opts(self.FIELDS)
+        raw_output = self.openstack(
+            'volume transfer request show ' + self.NAME + opts)
+        self.assertEqual(self.NAME + '\n', raw_output)
