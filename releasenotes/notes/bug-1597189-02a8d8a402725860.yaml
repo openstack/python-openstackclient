@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    The ``volume`` argument of the ``volume backup restore`` command is now
+    optional and can refer to the name of a new volume that should be created
+    rather than a name or ID of an existing volume (which would be
+    overwritten). If not provided, cinder will generate a new volume with a
+    unique name. To restore a backup to an existing volume, you must now
+    specify the ``--force`` option (volume v2, v3 only).
+    [Bug `1597189 <https://bugs.launchpad.net/bugs/1597189>`_]

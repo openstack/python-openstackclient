@@ -458,34 +458,94 @@ class TestBackupRestore(TestBackup):
 
     volume = volume_fakes.FakeVolume.create_one_volume()
     backup = volume_fakes.FakeBackup.create_one_backup(
-        attrs={'volume_id': volume.id})
+        attrs={'volume_id': volume.id},
+    )
 
     def setUp(self):
-        super(TestBackupRestore, self).setUp()
+        super().setUp()
 
         self.backups_mock.get.return_value = self.backup
         self.volumes_mock.get.return_value = self.volume
         self.restores_mock.restore.return_value = (
             volume_fakes.FakeVolume.create_one_volume(
-                {'id': self.volume['id']}))
+                {'id': self.volume['id']},
+            )
+        )
         # Get the command object to mock
         self.cmd = volume_backup.RestoreVolumeBackup(self.app, None)
 
     def test_backup_restore(self):
+        self.volumes_mock.get.side_effect = exceptions.CommandError()
+        self.volumes_mock.find.side_effect = exceptions.CommandError()
         arglist = [
-            self.backup.id,
-            self.backup.volume_id
+            self.backup.id
         ]
         verifylist = [
             ("backup", self.backup.id),
-            ("volume", self.backup.volume_id)
+            ("volume", None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.restores_mock.restore.assert_called_with(self.backup.id,
-                                                      self.backup.volume_id)
+        self.restores_mock.restore.assert_called_with(
+            self.backup.id, None, None,
+        )
         self.assertIsNotNone(result)
+
+    def test_backup_restore_with_volume(self):
+        self.volumes_mock.get.side_effect = exceptions.CommandError()
+        self.volumes_mock.find.side_effect = exceptions.CommandError()
+        arglist = [
+            self.backup.id,
+            self.backup.volume_id,
+        ]
+        verifylist = [
+            ("backup", self.backup.id),
+            ("volume", self.backup.volume_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.restores_mock.restore.assert_called_with(
+            self.backup.id, None, self.backup.volume_id,
+        )
+        self.assertIsNotNone(result)
+
+    def test_backup_restore_with_volume_force(self):
+        arglist = [
+            "--force",
+            self.backup.id,
+            self.volume.name,
+        ]
+        verifylist = [
+            ("force", True),
+            ("backup", self.backup.id),
+            ("volume", self.volume.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.restores_mock.restore.assert_called_with(
+            self.backup.id, self.volume.id, None,
+        )
+        self.assertIsNotNone(result)
+
+    def test_backup_restore_with_volume_existing(self):
+        arglist = [
+            self.backup.id,
+            self.volume.name,
+        ]
+        verifylist = [
+            ("backup", self.backup.id),
+            ("volume", self.volume.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
 
 
 class TestBackupSet(TestBackup):
