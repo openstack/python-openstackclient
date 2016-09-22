@@ -66,7 +66,7 @@ class ProjectTests(common.IdentityTests):
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
         self.assertIn(project_name, raw_output)
-        self.assertTrue(len(items) > 0)
+        self.assertGreater(len(items), 0)
 
     def test_project_set(self):
         project_name = self._create_dummy_project()
