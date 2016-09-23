@@ -82,7 +82,8 @@ def _get_attrs(client_manager, parsed_args):
     if ('availability_zone_hints' in parsed_args
             and parsed_args.availability_zone_hints is not None):
         attrs['availability_zone_hints'] = parsed_args.availability_zone_hints
-
+    if parsed_args.description is not None:
+        attrs['description'] = parsed_args.description
     # "router set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
         identity_client = client_manager.identity
@@ -178,6 +179,11 @@ class CreateRouter(command.ShowOne):
             action='store_true',
             default=False,
             help=_("Create a distributed router")
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('Set router description')
         )
         parser.add_argument(
             '--project',
@@ -369,6 +375,11 @@ class SetRouter(command.Command):
             '--name',
             metavar='<name>',
             help=_("Set router name")
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('Set router description')
         )
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(

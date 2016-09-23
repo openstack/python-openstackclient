@@ -17,6 +17,7 @@ Create floating IP
         [--port <port>]
         [--floating-ip-address <floating-ip-address>]
         [--fixed-ip-address <fixed-ip-address>]
+        [--description <description>]
         <network>
 
 .. option:: --subnet <subnet>
@@ -37,6 +38,11 @@ Create floating IP
 .. option:: --fixed-ip-address <fixed-ip-address>
 
     Fixed IP address mapped to the floating IP
+    *Network version 2 only*
+
+.. option:: --description <description>
+
+    Set floating IP description
     *Network version 2 only*
 
 .. describe:: <network>

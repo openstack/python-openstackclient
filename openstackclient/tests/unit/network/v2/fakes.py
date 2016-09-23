@@ -654,6 +654,7 @@ class FakeRouter(object):
             'name': 'router-name-' + uuid.uuid4().hex,
             'status': 'ACTIVE',
             'admin_state_up': True,
+            'description': 'router-description-' + uuid.uuid4().hex,
             'distributed': False,
             'ha': False,
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
@@ -973,6 +974,7 @@ class FakeFloatingIP(object):
             'router_id': 'router-id-' + uuid.uuid4().hex,
             'port_id': 'port-id-' + uuid.uuid4().hex,
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'description': 'floating-ip-description-' + uuid.uuid4().hex,
         }
 
         # Overwrite default attributes.
