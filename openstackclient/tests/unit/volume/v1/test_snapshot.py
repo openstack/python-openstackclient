@@ -1,0 +1,467 @@
+#
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+#
+
+import mock
+from mock import call
+
+from osc_lib import exceptions
+from osc_lib import utils
+
+from openstackclient.tests.unit.volume.v1 import fakes as volume_fakes
+from openstackclient.volume.v1 import snapshot
+
+
+class TestSnapshot(volume_fakes.TestVolumev1):
+
+    def setUp(self):
+        super(TestSnapshot, self).setUp()
+
+        self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
+        self.snapshots_mock.reset_mock()
+        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock.reset_mock()
+
+
+class TestSnapshotCreate(TestSnapshot):
+
+    columns = (
+        'created_at',
+        'display_description',
+        'display_name',
+        'id',
+        'properties',
+        'size',
+        'status',
+        'volume_id',
+    )
+
+    def setUp(self):
+        super(TestSnapshotCreate, self).setUp()
+
+        self.volume = volume_fakes.FakeVolume.create_one_volume()
+        self.new_snapshot = volume_fakes.FakeSnapshot.create_one_snapshot(
+            attrs={'volume_id': self.volume.id})
+
+        self.data = (
+            self.new_snapshot.created_at,
+            self.new_snapshot.display_description,
+            self.new_snapshot.display_name,
+            self.new_snapshot.id,
+            utils.format_dict(self.new_snapshot.metadata),
+            self.new_snapshot.size,
+            self.new_snapshot.status,
+            self.new_snapshot.volume_id,
+        )
+
+        self.volumes_mock.get.return_value = self.volume
+        self.snapshots_mock.create.return_value = self.new_snapshot
+        # Get the command object to test
+        self.cmd = snapshot.CreateSnapshot(self.app, None)
+
+    def test_snapshot_create(self):
+        arglist = [
+            "--name", self.new_snapshot.display_name,
+            "--description", self.new_snapshot.display_description,
+            "--force",
+            self.new_snapshot.volume_id,
+        ]
+        verifylist = [
+            ("name", self.new_snapshot.display_name),
+            ("description", self.new_snapshot.display_description),
+            ("force", True),
+            ("volume", self.new_snapshot.volume_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.create.assert_called_with(
+            self.new_snapshot.volume_id,
+            True,
+            self.new_snapshot.display_name,
+            self.new_snapshot.display_description,
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_snapshot_create_without_name(self):
+        arglist = [
+            self.new_snapshot.volume_id,
+            "--description", self.new_snapshot.display_description,
+            "--force"
+        ]
+        verifylist = [
+            ("volume", self.new_snapshot.volume_id),
+            ("description", self.new_snapshot.display_description),
+            ("force", True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.create.assert_called_with(
+            self.new_snapshot.volume_id,
+            True,
+            None,
+            self.new_snapshot.display_description,
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+
+class TestSnapshotDelete(TestSnapshot):
+
+    snapshots = volume_fakes.FakeSnapshot.create_snapshots(count=2)
+
+    def setUp(self):
+        super(TestSnapshotDelete, self).setUp()
+
+        self.snapshots_mock.get = (
+            volume_fakes.FakeSnapshot.get_snapshots(self.snapshots))
+        self.snapshots_mock.delete.return_value = None
+
+        # Get the command object to mock
+        self.cmd = snapshot.DeleteSnapshot(self.app, None)
+
+    def test_snapshot_delete(self):
+        arglist = [
+            self.snapshots[0].id
+        ]
+        verifylist = [
+            ("snapshots", [self.snapshots[0].id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.delete.assert_called_with(
+            self.snapshots[0].id)
+        self.assertIsNone(result)
+
+    def test_delete_multiple_snapshots(self):
+        arglist = []
+        for s in self.snapshots:
+            arglist.append(s.id)
+        verifylist = [
+            ('snapshots', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for s in self.snapshots:
+            calls.append(call(s.id))
+        self.snapshots_mock.delete.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_delete_multiple_snapshots_with_exception(self):
+        arglist = [
+            self.snapshots[0].id,
+            'unexist_snapshot',
+        ]
+        verifylist = [
+            ('snapshots', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        find_mock_result = [self.snapshots[0], exceptions.CommandError]
+        with mock.patch.object(utils, 'find_resource',
+                               side_effect=find_mock_result) as find_mock:
+            try:
+                self.cmd.take_action(parsed_args)
+                self.fail('CommandError should be raised.')
+            except exceptions.CommandError as e:
+                self.assertEqual('1 of 2 snapshots failed to delete.',
+                                 str(e))
+
+            find_mock.assert_any_call(
+                self.snapshots_mock, self.snapshots[0].id)
+            find_mock.assert_any_call(self.snapshots_mock, 'unexist_snapshot')
+
+            self.assertEqual(2, find_mock.call_count)
+            self.snapshots_mock.delete.assert_called_once_with(
+                self.snapshots[0].id
+            )
+
+
+class TestSnapshotList(TestSnapshot):
+
+    volume = volume_fakes.FakeVolume.create_one_volume()
+    snapshots = volume_fakes.FakeSnapshot.create_snapshots(
+        attrs={'volume_id': volume.display_name}, count=3)
+
+    columns = [
+        "ID",
+        "Name",
+        "Description",
+        "Status",
+        "Size"
+    ]
+    columns_long = columns + [
+        "Created At",
+        "Volume",
+        "Properties"
+    ]
+
+    data = []
+    for s in snapshots:
+        data.append((
+            s.id,
+            s.display_name,
+            s.display_description,
+            s.status,
+            s.size,
+        ))
+    data_long = []
+    for s in snapshots:
+        data_long.append((
+            s.id,
+            s.display_name,
+            s.display_description,
+            s.status,
+            s.size,
+            s.created_at,
+            s.volume_id,
+            utils.format_dict(s.metadata),
+        ))
+
+    def setUp(self):
+        super(TestSnapshotList, self).setUp()
+
+        self.volumes_mock.list.return_value = [self.volume]
+        self.snapshots_mock.list.return_value = self.snapshots
+        # Get the command to test
+        self.cmd = snapshot.ListSnapshot(self.app, None)
+
+    def test_snapshot_list_without_options(self):
+        arglist = []
+        verifylist = [
+            ('all_projects', False),
+            ("long", False)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.list.assert_called_once_with(
+            search_opts={'all_tenants': False})
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_snapshot_list_with_long(self):
+        arglist = [
+            "--long",
+        ]
+        verifylist = [
+            ("long", True),
+            ('all_projects', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.list.assert_called_once_with(
+            search_opts={'all_tenants': False}
+        )
+        self.assertEqual(self.columns_long, columns)
+        self.assertEqual(self.data_long, list(data))
+
+    def test_snapshot_list_all_projects(self):
+        arglist = [
+            '--all-projects',
+        ]
+        verifylist = [
+            ('long', False),
+            ('all_projects', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.list.assert_called_once_with(
+            search_opts={'all_tenants': True})
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+
+class TestSnapshotSet(TestSnapshot):
+
+    snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
+
+    def setUp(self):
+        super(TestSnapshotSet, self).setUp()
+
+        self.snapshots_mock.get.return_value = self.snapshot
+        self.snapshots_mock.set_metadata.return_value = None
+        # Get the command object to mock
+        self.cmd = snapshot.SetSnapshot(self.app, None)
+
+    def test_snapshot_set_all(self):
+        arglist = [
+            "--name", "new_snapshot",
+            "--description", "new_description",
+            "--property", "x=y",
+            "--property", "foo=foo",
+            self.snapshot.id,
+        ]
+        new_property = {"x": "y", "foo": "foo"}
+        verifylist = [
+            ("name", "new_snapshot"),
+            ("description", "new_description"),
+            ("property", new_property),
+            ("snapshot", self.snapshot.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            "display_name": "new_snapshot",
+            "display_description": "new_description",
+        }
+        self.snapshot.update.assert_called_with(**kwargs)
+        self.snapshots_mock.set_metadata.assert_called_with(
+            self.snapshot.id, new_property
+        )
+        self.assertIsNone(result)
+
+    def test_snapshot_set_nothing(self):
+        arglist = [
+            self.snapshot.id,
+        ]
+        verifylist = [
+            ("snapshot", self.snapshot.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+    def test_snapshot_set_fail(self):
+        self.snapshots_mock.set_metadata.side_effect = (
+            exceptions.CommandError())
+        arglist = [
+            "--name", "new_snapshot",
+            "--description", "new_description",
+            "--property", "x=y",
+            "--property", "foo=foo",
+            self.snapshot.id,
+        ]
+        new_property = {"x": "y", "foo": "foo"}
+        verifylist = [
+            ("name", "new_snapshot"),
+            ("description", "new_description"),
+            ("property", new_property),
+            ("snapshot", self.snapshot.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
+
+
+class TestSnapshotShow(TestSnapshot):
+
+    columns = (
+        'created_at',
+        'display_description',
+        'display_name',
+        'id',
+        'properties',
+        'size',
+        'status',
+        'volume_id',
+    )
+
+    def setUp(self):
+        super(TestSnapshotShow, self).setUp()
+
+        self.snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
+
+        self.data = (
+            self.snapshot.created_at,
+            self.snapshot.display_description,
+            self.snapshot.display_name,
+            self.snapshot.id,
+            utils.format_dict(self.snapshot.metadata),
+            self.snapshot.size,
+            self.snapshot.status,
+            self.snapshot.volume_id,
+        )
+
+        self.snapshots_mock.get.return_value = self.snapshot
+        # Get the command object to test
+        self.cmd = snapshot.ShowSnapshot(self.app, None)
+
+    def test_snapshot_show(self):
+        arglist = [
+            self.snapshot.id
+        ]
+        verifylist = [
+            ("snapshot", self.snapshot.id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.snapshots_mock.get.assert_called_with(self.snapshot.id)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+
+class TestSnapshotUnset(TestSnapshot):
+
+    snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
+
+    def setUp(self):
+        super(TestSnapshotUnset, self).setUp()
+
+        self.snapshots_mock.get.return_value = self.snapshot
+        self.snapshots_mock.delete_metadata.return_value = None
+        # Get the command object to mock
+        self.cmd = snapshot.UnsetSnapshot(self.app, None)
+
+    def test_snapshot_unset(self):
+        arglist = [
+            "--property", "foo",
+            self.snapshot.id,
+        ]
+        verifylist = [
+            ("property", ["foo"]),
+            ("snapshot", self.snapshot.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.delete_metadata.assert_called_with(
+            self.snapshot.id, ["foo"]
+        )
+        self.assertIsNone(result)
+
+    def test_snapshot_unset_nothing(self):
+        arglist = [
+            self.snapshot.id,
+        ]
+        verifylist = [
+            ("snapshot", self.snapshot.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)

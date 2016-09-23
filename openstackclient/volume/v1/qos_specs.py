@@ -273,7 +273,6 @@ class UnsetQos(command.Command):
             '--property',
             metavar='<key>',
             action='append',
-            default=[],
             help=_('Property to remove from the QoS specification. '
                    '(repeat option to unset multiple properties)'),
         )
