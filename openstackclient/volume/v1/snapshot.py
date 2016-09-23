@@ -283,8 +283,6 @@ class UnsetSnapshot(command.Command):
             '--property',
             metavar='<key>',
             action='append',
-            default=[],
-            required=True,
             help=_('Property to remove from snapshot '
                    '(repeat option to remove multiple properties)'),
         )

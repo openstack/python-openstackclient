@@ -449,6 +449,8 @@ class FakeVolumev1Client(object):
         self.volume_types.resource_class = fakes.FakeResource(None, {})
         self.transfers = mock.Mock()
         self.transfers.resource_class = fakes.FakeResource(None, {})
+        self.volume_snapshots = mock.Mock()
+        self.volume_snapshots.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
@@ -546,3 +548,79 @@ class FakeType(object):
             types = FakeType.create_types(count)
 
         return mock.Mock(side_effect=types)
+
+
+class FakeSnapshot(object):
+    """Fake one or more snapshot."""
+
+    @staticmethod
+    def create_one_snapshot(attrs=None):
+        """Create a fake snapshot.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with id, name, description, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        snapshot_info = {
+            "id": 'snapshot-id-' + uuid.uuid4().hex,
+            "display_name": 'snapshot-name-' + uuid.uuid4().hex,
+            "display_description": 'snapshot-description-' + uuid.uuid4().hex,
+            "size": 10,
+            "status": "available",
+            "metadata": {"foo": "bar"},
+            "created_at": "2015-06-03T18:49:19.000000",
+            "volume_id": 'vloume-id-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        snapshot_info.update(attrs)
+
+        snapshot_method = {'update': None}
+
+        snapshot = fakes.FakeResource(
+            info=copy.deepcopy(snapshot_info),
+            methods=copy.deepcopy(snapshot_method),
+            loaded=True)
+        return snapshot
+
+    @staticmethod
+    def create_snapshots(attrs=None, count=2):
+        """Create multiple fake snapshots.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of snapshots to fake
+        :return:
+            A list of FakeResource objects faking the snapshots
+        """
+        snapshots = []
+        for i in range(0, count):
+            snapshot = FakeSnapshot.create_one_snapshot(attrs)
+            snapshots.append(snapshot)
+
+        return snapshots
+
+    @staticmethod
+    def get_snapshots(snapshots=None, count=2):
+        """Get an iterable MagicMock object with a list of faked snapshots.
+
+        If snapshots list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List volumes:
+            A list of FakeResource objects faking snapshots
+        :param Integer count:
+            The number of snapshots to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            snapshots
+        """
+        if snapshots is None:
+            snapshots = FakeSnapshot.create_snapshots(count)
+
+        return mock.Mock(side_effect=snapshots)

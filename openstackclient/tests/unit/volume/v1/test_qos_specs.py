@@ -517,3 +517,16 @@ class TestQosUnset(TestQos):
             ['iops', 'foo']
         )
         self.assertIsNone(result)
+
+    def test_qos_unset_nothing(self):
+        arglist = [
+            volume_fakes.qos_id,
+        ]
+
+        verifylist = [
+            ('qos_spec', volume_fakes.qos_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)

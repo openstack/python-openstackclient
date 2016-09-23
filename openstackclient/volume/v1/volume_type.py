@@ -188,10 +188,8 @@ class UnsetVolumeType(command.Command):
             '--property',
             metavar='<key>',
             action='append',
-            default=[],
             help=_('Remove a property from this volume type '
                    '(repeat option to remove multiple properties)'),
-            required=True,
         )
         return parser
 
