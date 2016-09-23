@@ -109,7 +109,6 @@ def _get_attrs(client_manager, parsed_args):
             'The --host-id option is deprecated, '
             'please use --host instead.'
         ))
-
     if parsed_args.fixed_ip is not None:
         attrs['fixed_ips'] = parsed_args.fixed_ip
     if parsed_args.device:
@@ -428,8 +427,7 @@ class SetPort(command.Command):
             metavar="<name>",
             help=_("Set port name")
         )
-        fixed_ip = parser.add_mutually_exclusive_group()
-        fixed_ip.add_argument(
+        parser.add_argument(
             '--fixed-ip',
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
@@ -438,13 +436,14 @@ class SetPort(command.Command):
                    "subnet=<subnet>,ip-address=<ip-address> "
                    "(repeat option to set multiple fixed IP addresses)")
         )
-        fixed_ip.add_argument(
+        parser.add_argument(
             '--no-fixed-ip',
             action='store_true',
-            help=_("Clear existing information of fixed IP addresses")
+            help=_("Clear existing information of fixed IP addresses."
+                   "Specify both --fixed-ip and --no-fixed-ip "
+                   "to overwrite the current fixed IP addresses.")
         )
-        binding_profile = parser.add_mutually_exclusive_group()
-        binding_profile.add_argument(
+        parser.add_argument(
             '--binding-profile',
             metavar='<binding-profile>',
             action=JSONKeyValueAction,
@@ -452,10 +451,12 @@ class SetPort(command.Command):
                    "be passed as <key>=<value> or JSON. "
                    "(repeat option to set multiple binding:profile data)")
         )
-        binding_profile.add_argument(
+        parser.add_argument(
             '--no-binding-profile',
             action='store_true',
-            help=_("Clear existing information of binding:profile")
+            help=_("Clear existing information of binding:profile."
+                   "Specify both --binding-profile and --no-binding-profile "
+                   "to overwrite the current binding:profile information.")
         )
         parser.add_argument(
             'port',
@@ -471,7 +472,11 @@ class SetPort(command.Command):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.find_port(parsed_args.port, ignore_missing=False)
         if 'binding:profile' in attrs:
-            attrs['binding:profile'].update(obj.binding_profile)
+            # Do not modify attrs if both binding_profile/no_binding given
+            if not parsed_args.no_binding_profile:
+                tmp_binding_profile = copy.deepcopy(obj.binding_profile)
+                tmp_binding_profile.update(attrs['binding:profile'])
+                attrs['binding:profile'] = tmp_binding_profile
         elif parsed_args.no_binding_profile:
             attrs['binding:profile'] = {}
         if 'fixed_ips' in attrs:
@@ -480,7 +485,9 @@ class SetPort(command.Command):
             # would therefore add an empty dictionary, while we need
             # to append the attrs['fixed_ips'] iff there is some info
             # in the obj.fixed_ips. Therefore I have opted for this `for` loop
-            attrs['fixed_ips'] += [ip for ip in obj.fixed_ips if ip]
+            # Do not modify attrs if fixed_ip/no_fixed_ip given
+            if not parsed_args.no_fixed_ip:
+                attrs['fixed_ips'] += [ip for ip in obj.fixed_ips if ip]
         elif parsed_args.no_fixed_ip:
             attrs['fixed_ips'] = []
 
