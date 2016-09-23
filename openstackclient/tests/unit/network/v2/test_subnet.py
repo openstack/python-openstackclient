@@ -938,6 +938,39 @@ class TestSetSubnet(TestSubnet):
         self.network.update_subnet.assert_called_with(self._subnet, **attrs)
         self.assertIsNone(result)
 
+    def test_overwrite_options(self):
+        _testsubnet = network_fakes.FakeSubnet.create_one_subnet(
+            {'host_routes': [{'destination': '10.20.20.0/24',
+                              'nexthop': '10.20.20.1'}],
+             'allocation_pools': [{'start': '8.8.8.200',
+                                   'end': '8.8.8.250'}], })
+        self.network.find_subnet = mock.Mock(return_value=_testsubnet)
+        arglist = [
+            '--host-route', 'destination=10.30.30.30/24,gateway=10.30.30.1',
+            '--no-host-route',
+            '--allocation-pool', 'start=8.8.8.100,end=8.8.8.150',
+            '--no-allocation-pool',
+            _testsubnet.name,
+        ]
+        verifylist = [
+            ('host_routes', [{
+                "destination": "10.30.30.30/24", "gateway": "10.30.30.1"}]),
+            ('allocation_pools', [{
+                'start': '8.8.8.100', 'end': '8.8.8.150'}]),
+            ('no_host_route', True),
+            ('no_allocation_pool', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        attrs = {
+            'host_routes': [{
+                "destination": "10.30.30.30/24", "nexthop": "10.30.30.1"}],
+            'allocation_pools': [{'start': '8.8.8.100', 'end': '8.8.8.150'}],
+        }
+        self.network.update_subnet.assert_called_once_with(
+            _testsubnet, **attrs)
+        self.assertIsNone(result)
+
 
 class TestShowSubnet(TestSubnet):
     # The subnets to be shown
