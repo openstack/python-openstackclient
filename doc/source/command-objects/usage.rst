@@ -13,8 +13,8 @@ List resource usage per project
 .. code:: bash
 
     os usage list
-        --start <start>
-        --end <end>
+        [--start <start>]
+        [--end <end>]
 
 .. option:: --start <start>
 
@@ -33,9 +33,9 @@ Show resource usage for a single project
 .. code:: bash
 
     os usage show
-        --project <project>
-        --start <start>
-        --end <end>
+        [--project <project>]
+        [--start <start>]
+        [--end <end>]
 
 .. option:: --project <project>
 
