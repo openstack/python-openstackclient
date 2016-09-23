@@ -15,11 +15,17 @@
 
 """Object v1 action implementations"""
 
+import logging
 
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import utils
 import six
+
+from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateObject(command.Lister):
@@ -44,6 +50,10 @@ class CreateObject(command.Lister):
 
         results = []
         for obj in parsed_args.objects:
+            if len(obj) > 1024:
+                LOG.warning(
+                    _('Object name is %s characters long, default limit'
+                      ' is 1024'), len(obj))
             data = self.app.client_manager.object_store.object_create(
                 container=parsed_args.container,
                 object=obj,
