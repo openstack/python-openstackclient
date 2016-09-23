@@ -451,6 +451,10 @@ class FakeVolumev1Client(object):
         self.transfers.resource_class = fakes.FakeResource(None, {})
         self.volume_snapshots = mock.Mock()
         self.volume_snapshots.resource_class = fakes.FakeResource(None, {})
+        self.backups = mock.Mock()
+        self.backups.resource_class = fakes.FakeResource(None, {})
+        self.restores = mock.Mock()
+        self.restores.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
@@ -624,3 +628,79 @@ class FakeSnapshot(object):
             snapshots = FakeSnapshot.create_snapshots(count)
 
         return mock.Mock(side_effect=snapshots)
+
+
+class FakeBackup(object):
+    """Fake one or more backup."""
+
+    @staticmethod
+    def create_one_backup(attrs=None):
+        """Create a fake backup.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with id, name, volume_id, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        backup_info = {
+            "id": 'backup-id-' + uuid.uuid4().hex,
+            "name": 'backup-name-' + uuid.uuid4().hex,
+            "volume_id": 'volume-id-' + uuid.uuid4().hex,
+            "snapshot_id": 'snapshot-id' + uuid.uuid4().hex,
+            "description": 'description-' + uuid.uuid4().hex,
+            "object_count": None,
+            "container": 'container-' + uuid.uuid4().hex,
+            "size": random.randint(1, 20),
+            "status": "error",
+            "availability_zone": 'zone' + uuid.uuid4().hex,
+            "links": 'links-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        backup_info.update(attrs)
+
+        backup = fakes.FakeResource(
+            info=copy.deepcopy(backup_info),
+            loaded=True)
+        return backup
+
+    @staticmethod
+    def create_backups(attrs=None, count=2):
+        """Create multiple fake backups.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of backups to fake
+        :return:
+            A list of FakeResource objects faking the backups
+        """
+        backups = []
+        for i in range(0, count):
+            backup = FakeBackup.create_one_backup(attrs)
+            backups.append(backup)
+
+        return backups
+
+    @staticmethod
+    def get_backups(backups=None, count=2):
+        """Get an iterable MagicMock object with a list of faked backups.
+
+        If backups list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List volumes:
+            A list of FakeResource objects faking backups
+        :param Integer count:
+            The number of backups to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            backups
+        """
+        if backups is None:
+            backups = FakeBackup.create_backups(count)
+
+        return mock.Mock(side_effect=backups)
