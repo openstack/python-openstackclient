@@ -49,7 +49,7 @@ Set network agent properties
         [--enable | --disable]
         <network-agent>
 
-.. option:: --description <discription>
+.. option:: --description <description>
 
     Set network agent description
 
