@@ -17,6 +17,7 @@ Create new volume snapshot
         [--description <description>]
         [--force]
         [--property <key=value> [...] ]
+        [--remote-source <key=value> [...]]
         <snapshot-name>
 
 .. option:: --volume <volume>
@@ -34,6 +35,14 @@ Create new volume snapshot
 .. option:: --property <key=value>
 
     Set a property to this snapshot (repeat option to set multiple properties)
+
+    *Volume version 2 only*
+
+.. option:: --remote-source <key=value>
+
+    The attribute(s) of the exsiting remote volume snapshot
+    (admin required) (repeat option to specify multiple attributes)
+    e.g.: '--remote-source source-name=test_name --remote-source source-id=test_id'
 
     *Volume version 2 only*
 
