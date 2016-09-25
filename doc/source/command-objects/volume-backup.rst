@@ -140,6 +140,8 @@ Set volume backup properties
 .. option:: --state <state>
 
     New backup state ("available" or "error") (admin only)
+    (This option simply changes the state of the backup in the database with
+    no regard to actual status, exercise caution when using)
 
 .. _backup_set-volume-backup:
 .. describe:: <backup>

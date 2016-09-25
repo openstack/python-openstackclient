@@ -305,7 +305,10 @@ class SetVolumeBackup(command.Command):
             '--state',
             metavar='<state>',
             choices=['available', 'error'],
-            help=_('New backup state ("available" or "error") (admin only)'),
+            help=_('New backup state ("available" or "error") (admin only) '
+                   '(This option simply changes the state of the backup '
+                   'in the database with no regard to actual status, '
+                   'exercise caution when using)'),
         )
         return parser
 

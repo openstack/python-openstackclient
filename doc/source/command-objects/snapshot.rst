@@ -123,8 +123,9 @@ Set snapshot properties
 .. option:: --state <state>
 
     New snapshot state.
-    Valid values are "available", "error", "creating",
-    "deleting", and "error_deleting".
+    ("available", "error", "creating", "deleting", or "error_deleting") (admin only)
+    (This option simply changes the state of the snapshot in the database with
+    no regard to actual status, exercise caution when using)
 
     *Volume version 2 only*
 
