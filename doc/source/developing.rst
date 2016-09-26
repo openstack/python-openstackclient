@@ -6,7 +6,7 @@ Communication
 -------------
 
 Meetings
-=========
+========
 The OpenStackClient team meets regularly on every Thursday.  For details
 please refer to the `OpenStack IRC meetings`_ page.
 
@@ -16,7 +16,7 @@ Testing
 -------
 
 Tox prerequisites and installation
-===================================
+==================================
 
 Install the prerequisites for Tox:
 
