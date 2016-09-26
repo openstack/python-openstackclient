@@ -99,6 +99,13 @@ def _get_attrs(client_manager, parsed_args):
         attrs['provider:physical_network'] = parsed_args.physical_network
     if parsed_args.segmentation_id:
         attrs['provider:segmentation_id'] = parsed_args.segmentation_id
+    if parsed_args.qos_policy is not None:
+        network_client = client_manager.network
+        _qos_policy = network_client.find_qos_policy(parsed_args.qos_policy,
+                                                     ignore_missing=False)
+        attrs['qos_policy_id'] = _qos_policy.id
+    if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
+        attrs['qos_policy_id'] = None
     # Update VLAN Transparency for networks
     if parsed_args.transparent_vlan:
         attrs['vlan_transparent'] = True
@@ -248,6 +255,11 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             action='store_true',
             help=_("Do not use the network as the default external network "
                    "(default)")
+        )
+        parser.add_argument(
+            '--qos-policy',
+            metavar='<qos-policy>',
+            help=_("QoS policy to attach to this network (name or ID)")
         )
         _add_additional_network_options(parser)
         return parser
@@ -571,6 +583,17 @@ class SetNetwork(command.Command):
             '--no-default',
             action='store_true',
             help=_("Do not use the network as the default external network")
+        )
+        qos_group = parser.add_mutually_exclusive_group()
+        qos_group.add_argument(
+            '--qos-policy',
+            metavar='<qos-policy>',
+            help=_("QoS policy to attach to this network (name or ID)")
+        )
+        qos_group.add_argument(
+            '--no-qos-policy',
+            action='store_true',
+            help=_("Remove the QoS policy attached to this network")
         )
         _add_additional_network_options(parser)
         return parser

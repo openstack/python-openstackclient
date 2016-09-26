@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add QoS support for Network commands.
+    The new parameter ``qos-policy`` is added to ``network create`` and
+    ``network set`` commands. This parameter is the name or the ID of the
+    network QoS policy to attach to this network.
+    [Bug `1627069 <https://bugs.launchpad.net/python-openstackclient/+bug/1627069>`_]

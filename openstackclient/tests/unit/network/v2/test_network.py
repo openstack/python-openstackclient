@@ -53,6 +53,8 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'availability_zone_hints': ["nova"],
         }
     )
+    qos_policy = (network_fakes.FakeNetworkQosPolicy.
+                  create_one_qos_policy(attrs={'id': _network.qos_policy_id}))
 
     columns = (
         'admin_state_up',
@@ -67,6 +69,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         'provider_network_type',
         'provider_physical_network',
         'provider_segmentation_id',
+        'qos_policy_id',
         'router:external',
         'shared',
         'status',
@@ -86,6 +89,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         _network.provider_network_type,
         _network.provider_physical_network,
         _network.provider_segmentation_id,
+        _network.qos_policy_id,
         network._format_router_external(_network.is_router_external),
         _network.shared,
         _network.status,
@@ -102,6 +106,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
+        self.network.find_qos_policy = mock.Mock(return_value=self.qos_policy)
 
     def test_create_no_options(self):
         arglist = []
@@ -144,6 +149,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             "--provider-network-type", "vlan",
             "--provider-physical-network", "physnet1",
             "--provider-segment", "400",
+            "--qos-policy", self.qos_policy.id,
             "--transparent-vlan",
             "--enable-port-security",
             self._network.name,
@@ -160,6 +166,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('provider_network_type', 'vlan'),
             ('physical_network', 'physnet1'),
             ('segmentation_id', '400'),
+            ('qos_policy', self.qos_policy.id),
             ('transparent_vlan', True),
             ('enable_port_security', True),
             ('name', self._network.name),
@@ -180,6 +187,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'provider:network_type': 'vlan',
             'provider:physical_network': 'physnet1',
             'provider:segmentation_id': '400',
+            'qos_policy_id': self.qos_policy.id,
             'vlan_transparent': True,
             'port_security_enabled': True,
         })
@@ -235,6 +243,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         'provider_network_type',
         'provider_physical_network',
         'provider_segmentation_id',
+        'qos_policy_id',
         'router:external',
         'shared',
         'status',
@@ -254,6 +263,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         _network.provider_network_type,
         _network.provider_physical_network,
         _network.provider_segmentation_id,
+        _network.qos_policy_id,
         network._format_router_external(_network.is_router_external),
         _network.shared,
         _network.status,
@@ -745,6 +755,8 @@ class TestSetNetwork(TestNetwork):
 
     # The network to set.
     _network = network_fakes.FakeNetwork.create_one_network()
+    qos_policy = (network_fakes.FakeNetworkQosPolicy.
+                  create_one_qos_policy(attrs={'id': _network.qos_policy_id}))
 
     def setUp(self):
         super(TestSetNetwork, self).setUp()
@@ -752,6 +764,7 @@ class TestSetNetwork(TestNetwork):
         self.network.update_network = mock.Mock(return_value=None)
 
         self.network.find_network = mock.Mock(return_value=self._network)
+        self.network.find_qos_policy = mock.Mock(return_value=self.qos_policy)
 
         # Get the command object to test
         self.cmd = network.SetNetwork(self.app, self.namespace)
@@ -770,6 +783,7 @@ class TestSetNetwork(TestNetwork):
             '--provider-segment', '400',
             '--no-transparent-vlan',
             '--enable-port-security',
+            '--qos-policy', self.qos_policy.name,
         ]
         verifylist = [
             ('network', self._network.name),
@@ -784,6 +798,7 @@ class TestSetNetwork(TestNetwork):
             ('segmentation_id', '400'),
             ('no_transparent_vlan', True),
             ('enable_port_security', True),
+            ('qos_policy', self.qos_policy.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -801,6 +816,7 @@ class TestSetNetwork(TestNetwork):
             'provider:segmentation_id': '400',
             'vlan_transparent': False,
             'port_security_enabled': True,
+            'qos_policy_id': self.qos_policy.id,
         }
         self.network.update_network.assert_called_once_with(
             self._network, **attrs)
@@ -813,6 +829,7 @@ class TestSetNetwork(TestNetwork):
             '--no-share',
             '--internal',
             '--disable-port-security',
+            '--no-qos-policy',
         ]
         verifylist = [
             ('network', self._network.name),
@@ -820,6 +837,7 @@ class TestSetNetwork(TestNetwork):
             ('no_share', True),
             ('internal', True),
             ('disable_port_security', True),
+            ('no_qos_policy', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -830,6 +848,7 @@ class TestSetNetwork(TestNetwork):
             'shared': False,
             'router:external': False,
             'port_security_enabled': False,
+            'qos_policy_id': None,
         }
         self.network.update_network.assert_called_once_with(
             self._network, **attrs)
@@ -866,6 +885,7 @@ class TestShowNetwork(TestNetwork):
         'provider_network_type',
         'provider_physical_network',
         'provider_segmentation_id',
+        'qos_policy_id',
         'router:external',
         'shared',
         'status',
@@ -885,6 +905,7 @@ class TestShowNetwork(TestNetwork):
         _network.provider_network_type,
         _network.provider_physical_network,
         _network.provider_segmentation_id,
+        _network.qos_policy_id,
         network._format_router_external(_network.is_router_external),
         _network.shared,
         _network.status,
