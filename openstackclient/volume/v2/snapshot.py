@@ -230,8 +230,11 @@ class SetSnapshot(command.Command):
             metavar='<state>',
             choices=['available', 'error', 'creating', 'deleting',
                      'error-deleting'],
-            help=_('New snapshot state. Valid values are available, '
-                   'error, creating, deleting, and error-deleting.'),
+            help=_('New snapshot state. ("available", "error", "creating", '
+                   '"deleting", or "error_deleting") (admin only) '
+                   '(This option simply changes the state of the snapshot '
+                   'in the database with no regard to actual status, '
+                   'exercise caution when using)'),
         )
         return parser
 

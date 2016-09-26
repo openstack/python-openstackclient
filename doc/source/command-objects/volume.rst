@@ -235,7 +235,9 @@ Set volume properties
 
     New volume state
     ("available", "error", "creating", "deleting", "in-use",
-    "attaching", "detaching", "error_deleting" or "maintenance")
+    "attaching", "detaching", "error_deleting" or "maintenance") (admin only)
+    (This option simply changes the state of the volume in the database with
+    no regard to actual status, exercise caution when using)
 
     *Volume version 2 only*
 

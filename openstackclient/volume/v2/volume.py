@@ -402,7 +402,10 @@ class SetVolume(command.Command):
                      'maintenance'],
             help=_('New volume state ("available", "error", "creating", '
                    '"deleting", "in-use", "attaching", "detaching", '
-                   '"error_deleting" or "maintenance")'),
+                   '"error_deleting" or "maintenance") (admin only) '
+                   '(This option simply changes the state of the volume '
+                   'in the database with no regard to actual status, '
+                   'exercise caution when using)'),
         )
         bootable_group = parser.add_mutually_exclusive_group()
         bootable_group.add_argument(
