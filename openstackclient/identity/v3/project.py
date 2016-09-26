@@ -189,6 +189,12 @@ class ListProject(command.Lister):
             help=_('Filter projects by <user> (name or ID)'),
         )
         parser.add_argument(
+            '--my-projects',
+            action='store_true',
+            help=_('List projects for the authenticated user. '
+                   'Supersedes other filters.'),
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -228,9 +234,25 @@ class ListProject(command.Lister):
 
             kwargs['user'] = user_id
 
-        data = identity_client.projects.list(**kwargs)
+        if parsed_args.my_projects:
+            # NOTE(adriant): my-projects supersedes all the other filters.
+            kwargs = {'user': self.app.client_manager.auth_ref.user_id}
+
+        try:
+            data = identity_client.projects.list(**kwargs)
+        except ks_exc.Forbidden:
+            # NOTE(adriant): if no filters, assume a forbidden is non-admin
+            # wanting their own project list.
+            if not kwargs:
+                user = self.app.client_manager.auth_ref.user_id
+                data = identity_client.projects.list(
+                    user=user)
+            else:
+                raise
+
         if parsed_args.sort:
             data = utils.sort_items(data, parsed_args.sort)
+
         return (columns,
                 (utils.get_item_properties(
                     s, columns,

@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    The ``project list`` command lists all projects when called by an
+    admin user.  For non-admin users it will now list projects for the
+    authenticated user instead of exiting with an authorization failure.
+    The ``--my-projects`` option has also been added to the ``project list``
+    command to allow admin users to list their own projects.
+    [Bug `1627555 <https://bugs.launchpad.net/bugs/1627555>`_]

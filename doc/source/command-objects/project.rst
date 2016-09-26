@@ -95,6 +95,7 @@ List projects
     openstack project list
         [--domain <domain>]
         [--user <user>]
+        [--my-projects]
         [--long]
         [--sort <key>[:<direction>,<key>:<direction>,..]]
 
@@ -107,6 +108,12 @@ List projects
 .. option:: --user <user>
 
     Filter projects by :option:`\<user\> <--user>` (name or ID)
+
+    .. versionadded:: 3
+
+.. option:: --my-projects
+
+    List projects for the authenticated user. Supersedes other filters.
 
     .. versionadded:: 3
 
