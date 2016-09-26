@@ -16,6 +16,7 @@ Show server's remote console URL
 
     os console url show
         [--novnc | --xvpvnc | --spice]
+        [--rdp | --serial | --mks]
         <server>
 
 .. option:: --novnc
