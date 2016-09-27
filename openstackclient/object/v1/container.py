@@ -15,10 +15,17 @@
 
 """Container v1 action implementations"""
 
+import logging
+
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import utils
 import six
+
+from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateContainer(command.Lister):
@@ -38,6 +45,10 @@ class CreateContainer(command.Lister):
 
         results = []
         for container in parsed_args.containers:
+            if len(container) > 256:
+                LOG.warning(
+                    _('Container name is %s characters long, the default limit'
+                      ' is 256'), len(container))
             data = self.app.client_manager.object_store.container_create(
                 container=container,
             )
