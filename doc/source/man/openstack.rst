@@ -12,7 +12,7 @@ SYNOPSIS
 
 :program:`openstack help` <command>
 
-:program:`openstack` --help
+:program:`openstack` :option:`--help`
 
 
 DESCRIPTION
