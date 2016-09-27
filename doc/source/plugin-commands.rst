@@ -2,8 +2,6 @@
 Plugin Commands
 ===============
 
-Note: To see the complete syntax for the plugin commands, see the `CLI_Ref`_
-
 .. list-plugins:: openstack.cli.extension
 
 aodh
@@ -109,5 +107,3 @@ zaqar
 
 .. list-plugins:: openstack.messaging.v1
    :detailed:
-
-.. _CLI_Ref: http://docs.openstack.org/cli-reference/openstack.html
