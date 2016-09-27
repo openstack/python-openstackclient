@@ -15,7 +15,8 @@ Show compute and block storage limits
 .. code:: bash
 
     os limits show
-        --absolute [--reserved] | --rate
+        --absolute | --rate
+        [--reserved]
         [--project <project>]
         [--domain <domain>]
 
