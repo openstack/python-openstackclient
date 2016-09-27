@@ -30,6 +30,20 @@ from openstackclient.identity import common as identity_common
 LOG = logging.getLogger(__name__)
 
 
+def _check_size_arg(args):
+    """Check whether --size option is required or not.
+
+    Require size parameter only in case when snapshot or source
+    volume is not specified.
+    """
+
+    if ((args.snapshot or args.source or args.source_replicated)
+            is None and args.size is None):
+        msg = _("--size is a required option if snapshot "
+                "or source volume is not specified.")
+        raise exceptions.CommandError(msg)
+
+
 class CreateVolume(command.ShowOne):
     """Create new volume"""
 
@@ -44,28 +58,34 @@ class CreateVolume(command.ShowOne):
             "--size",
             metavar="<size>",
             type=int,
-            required=True,
-            help=_("Volume size in GB"),
+            help=_("Volume size in GB (Required unless --snapshot or "
+                   "--source or --source-replicated is specified)"),
         )
         parser.add_argument(
             "--type",
             metavar="<volume-type>",
             help=_("Set the type of volume"),
         )
-        parser.add_argument(
+        source_group = parser.add_mutually_exclusive_group()
+        source_group.add_argument(
             "--image",
             metavar="<image>",
             help=_("Use <image> as source of volume (name or ID)"),
         )
-        parser.add_argument(
+        source_group.add_argument(
             "--snapshot",
             metavar="<snapshot>",
             help=_("Use <snapshot> as source of volume (name or ID)"),
         )
-        parser.add_argument(
+        source_group.add_argument(
             "--source",
             metavar="<volume>",
             help=_("Volume to clone (name or ID)"),
+        )
+        source_group.add_argument(
+            "--source-replicated",
+            metavar="<replicated-volume>",
+            help=_("Replicated volume to clone (name or ID)"),
         )
         parser.add_argument(
             "--description",
@@ -88,15 +108,34 @@ class CreateVolume(command.ShowOne):
             help=_("Create volume in <availability-zone>"),
         )
         parser.add_argument(
+            "--consistency-group",
+            metavar="consistency-group>",
+            help=_("Consistency group where the new volume belongs to"),
+        )
+        parser.add_argument(
             "--property",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
             help=_("Set a property to this volume "
                    "(repeat option to set multiple properties)"),
         )
+        parser.add_argument(
+            "--hint",
+            metavar="<key=value>",
+            action=parseractions.KeyValueAction,
+            help=_("Arbitrary scheduler hint key-value pairs to help boot "
+                   "an instance (repeat option to set multiple hints)"),
+        )
+        parser.add_argument(
+            "--multi-attach",
+            action="store_true",
+            help=_("Allow volume to be attached more than once "
+                   "(default to False)")
+        )
         return parser
 
     def take_action(self, parsed_args):
+        _check_size_arg(parsed_args)
         identity_client = self.app.client_manager.identity
         volume_client = self.app.client_manager.volume
         image_client = self.app.client_manager.image
@@ -106,6 +145,18 @@ class CreateVolume(command.ShowOne):
             source_volume = utils.find_resource(
                 volume_client.volumes,
                 parsed_args.source).id
+
+        replicated_source_volume = None
+        if parsed_args.source_replicated:
+            replicated_source_volume = utils.find_resource(
+                volume_client.volumes,
+                parsed_args.source_replicated).id
+
+        consistency_group = None
+        if parsed_args.consistency_group:
+            consistency_group = utils.find_resource(
+                volume_client.consistencygroups,
+                parsed_args.consistency_group).id
 
         image = None
         if parsed_args.image:
@@ -142,7 +193,11 @@ class CreateVolume(command.ShowOne):
             availability_zone=parsed_args.availability_zone,
             metadata=parsed_args.property,
             imageRef=image,
-            source_volid=source_volume
+            source_volid=source_volume,
+            consistencygroup_id=consistency_group,
+            source_replica=replicated_source_volume,
+            multiattach=parsed_args.multi_attach,
+            scheduler_hints=parsed_args.hint,
         )
         # Remove key links from being displayed
         volume._info.update(

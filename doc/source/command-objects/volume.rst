@@ -13,21 +13,23 @@ Create new volume
 .. code:: bash
 
     os volume create
-        --size <size>
+        [--size <size>]
         [--type <volume-type>]
-        [--image <image>]
-        [--snapshot <snapshot>]
-        [--source <volume>]
+        [--image <image> | --snapshot <snapshot> | --source <volume> | --source-replicated <replicated-volume>]
         [--description <description>]
         [--user <user>]
         [--project <project>]
         [--availability-zone <availability-zone>]
+        [--consistency-group <consistency-group>]
         [--property <key=value> [...] ]
+        [--hint <key=value> [...] ]
+        [--multi-attach]
         <name>
 
-.. option:: --size <size> (required)
+.. option:: --size <size>
 
     Volume size in GB
+    (Required unless --snapshot or --source or --source-replicated is specified)
 
 .. option:: --type <volume-type>
 
@@ -46,9 +48,13 @@ Create new volume
 
     Use :option:`\<snapshot\>` as source of volume (name or ID)
 
-.. option:: --source <source>
+.. option:: --source <volume>
 
     Volume to clone (name or ID)
+
+.. option:: --source-replicated <replicated-volume>
+
+    Replicated volume to clone (name or ID)
 
 .. option:: --description <description>
 
@@ -66,9 +72,22 @@ Create new volume
 
     Create volume in :option:`\<availability-zone\>`
 
+.. option:: --consistency-group <consistency-group>
+
+    Consistency group where the new volume belongs to
+
 .. option:: --property <key=value>
 
     Set a property on this volume (repeat option to set multiple properties)
+
+.. option:: --hint <key=value>
+
+    Arbitrary scheduler hint key-value pairs to help boot an instance
+    (repeat option to set multiple hints)
+
+.. option:: --multi-attach
+
+    Allow volume to be attached more than once (default to False)
 
 .. _volume_create-name:
 .. describe:: <name>

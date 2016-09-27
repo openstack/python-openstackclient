@@ -21,6 +21,7 @@ from osc_lib import utils
 
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
+from openstackclient.tests.unit import utils as tests_utils
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import volume
 
@@ -44,6 +45,10 @@ class TestVolume(volume_fakes.TestVolume):
 
         self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
         self.snapshots_mock.reset_mock()
+
+        self.consistencygroups_mock = (
+            self.app.client_manager.volume.consistencygroups)
+        self.consistencygroups_mock.reset_mock()
 
     def setup_volumes_mock(self, count):
         volumes = volume_fakes.FakeVolume.create_volumes(count=count)
@@ -123,18 +128,28 @@ class TestVolumeCreate(TestVolume):
             availability_zone=None,
             metadata=None,
             imageRef=None,
-            source_volid=None
+            source_volid=None,
+            consistencygroup_id=None,
+            source_replica=None,
+            multiattach=False,
+            scheduler_hints=None,
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_volume_create_options(self):
+        consistency_group = (
+            volume_fakes.FakeConsistencyGroup.create_one_consistency_group())
+        self.consistencygroups_mock.get.return_value = consistency_group
         arglist = [
             '--size', str(self.new_volume.size),
             '--description', self.new_volume.description,
             '--type', self.new_volume.volume_type,
             '--availability-zone', self.new_volume.availability_zone,
+            '--consistency-group', consistency_group.id,
+            '--hint', 'k=v',
+            '--multi-attach',
             self.new_volume.name,
         ]
         verifylist = [
@@ -142,6 +157,9 @@ class TestVolumeCreate(TestVolume):
             ('description', self.new_volume.description),
             ('type', self.new_volume.volume_type),
             ('availability_zone', self.new_volume.availability_zone),
+            ('consistency_group', consistency_group.id),
+            ('hint', {'k': 'v'}),
+            ('multi_attach', True),
             ('name', self.new_volume.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -162,7 +180,11 @@ class TestVolumeCreate(TestVolume):
             availability_zone=self.new_volume.availability_zone,
             metadata=None,
             imageRef=None,
-            source_volid=None
+            source_volid=None,
+            consistencygroup_id=consistency_group.id,
+            source_replica=None,
+            multiattach=True,
+            scheduler_hints={'k': 'v'},
         )
 
         self.assertEqual(self.columns, columns)
@@ -204,7 +226,11 @@ class TestVolumeCreate(TestVolume):
             availability_zone=None,
             metadata=None,
             imageRef=None,
-            source_volid=None
+            source_volid=None,
+            consistencygroup_id=None,
+            source_replica=None,
+            multiattach=False,
+            scheduler_hints=None,
         )
 
         self.assertEqual(self.columns, columns)
@@ -246,7 +272,11 @@ class TestVolumeCreate(TestVolume):
             availability_zone=None,
             metadata=None,
             imageRef=None,
-            source_volid=None
+            source_volid=None,
+            consistencygroup_id=None,
+            source_replica=None,
+            multiattach=False,
+            scheduler_hints=None,
         )
 
         self.assertEqual(self.columns, columns)
@@ -282,7 +312,11 @@ class TestVolumeCreate(TestVolume):
             availability_zone=None,
             metadata={'Alpha': 'a', 'Beta': 'b'},
             imageRef=None,
-            source_volid=None
+            source_volid=None,
+            consistencygroup_id=None,
+            source_replica=None,
+            multiattach=False,
+            scheduler_hints=None,
         )
 
         self.assertEqual(self.columns, columns)
@@ -321,6 +355,10 @@ class TestVolumeCreate(TestVolume):
             metadata=None,
             imageRef=image.id,
             source_volid=None,
+            consistencygroup_id=None,
+            source_replica=None,
+            multiattach=False,
+            scheduler_hints=None,
         )
 
         self.assertEqual(self.columns, columns)
@@ -358,7 +396,11 @@ class TestVolumeCreate(TestVolume):
             availability_zone=None,
             metadata=None,
             imageRef=image.id,
-            source_volid=None
+            source_volid=None,
+            consistencygroup_id=None,
+            source_replica=None,
+            multiattach=False,
+            scheduler_hints=None,
         )
 
         self.assertEqual(self.columns, columns)
@@ -368,12 +410,10 @@ class TestVolumeCreate(TestVolume):
         snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
         self.new_volume.snapshot_id = snapshot.id
         arglist = [
-            '--size', str(self.new_volume.size),
             '--snapshot', self.new_volume.snapshot_id,
             self.new_volume.name,
         ]
         verifylist = [
-            ('size', self.new_volume.size),
             ('snapshot', self.new_volume.snapshot_id),
             ('name', self.new_volume.name),
         ]
@@ -387,7 +427,7 @@ class TestVolumeCreate(TestVolume):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.volumes_mock.create.assert_called_once_with(
-            size=self.new_volume.size,
+            size=None,
             snapshot_id=snapshot.id,
             name=self.new_volume.name,
             description=None,
@@ -397,11 +437,82 @@ class TestVolumeCreate(TestVolume):
             availability_zone=None,
             metadata=None,
             imageRef=None,
-            source_volid=None
+            source_volid=None,
+            consistencygroup_id=None,
+            source_replica=None,
+            multiattach=False,
+            scheduler_hints=None,
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
+
+    def test_volume_create_with_source_replicated(self):
+        self.volumes_mock.get.return_value = self.new_volume
+        arglist = [
+            '--source-replicated', self.new_volume.id,
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('source_replicated', self.new_volume.id),
+            ('name', self.new_volume.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.volumes_mock.create.assert_called_once_with(
+            size=None,
+            snapshot_id=None,
+            name=self.new_volume.name,
+            description=None,
+            volume_type=None,
+            user_id=None,
+            project_id=None,
+            availability_zone=None,
+            metadata=None,
+            imageRef=None,
+            source_volid=None,
+            consistencygroup_id=None,
+            source_replica=self.new_volume.id,
+            multiattach=False,
+            scheduler_hints=None,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_volume_create_without_size(self):
+        arglist = [
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('name', self.new_volume.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+    def test_volume_create_with_multi_source(self):
+        arglist = [
+            '--image', 'source_image',
+            '--source', 'source_volume',
+            '--snapshot', 'source_snapshot',
+            '--source-replicated', 'source_replicated_volume',
+            '--size', str(self.new_volume.size),
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('image', 'source_image'),
+            ('source', 'source_volume'),
+            ('snapshot', 'source_snapshot'),
+            ('source-replicated', 'source_replicated_volume'),
+            ('size', self.new_volume.size),
+            ('name', self.new_volume.name),
+        ]
+
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
 
 class TestVolumeDelete(TestVolume):

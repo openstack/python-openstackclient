@@ -30,6 +30,20 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
+def _check_size_arg(args):
+    """Check whether --size option is required or not.
+
+    Require size parameter only in case when snapshot or source
+    volume is not specified.
+    """
+
+    if ((args.snapshot or args.source)
+            is None and args.size is None):
+        msg = _("--size is a required option if snapshot "
+                "or source volume is not specified.")
+        raise exceptions.CommandError(msg)
+
+
 class CreateVolume(command.ShowOne):
     """Create new volume"""
 
@@ -43,32 +57,32 @@ class CreateVolume(command.ShowOne):
         parser.add_argument(
             '--size',
             metavar='<size>',
-            required=True,
             type=int,
-            help=_('Volume size in GB'),
+            help=_("Volume size in GB (Required unless --snapshot or "
+                   "--source is specified)"),
         )
         parser.add_argument(
             '--type',
             metavar='<volume-type>',
             help=_("Set the type of volume"),
         )
-        parser.add_argument(
+        source_group = parser.add_mutually_exclusive_group()
+        source_group.add_argument(
             '--image',
             metavar='<image>',
             help=_('Use <image> as source of volume (name or ID)'),
         )
-        snapshot_group = parser.add_mutually_exclusive_group()
-        snapshot_group.add_argument(
+        source_group.add_argument(
             '--snapshot',
             metavar='<snapshot>',
             help=_('Use <snapshot> as source of volume (name or ID)'),
         )
-        snapshot_group.add_argument(
+        source_group.add_argument(
             '--snapshot-id',
             metavar='<snapshot-id>',
             help=argparse.SUPPRESS,
         )
-        parser.add_argument(
+        source_group.add_argument(
             '--source',
             metavar='<volume>',
             help=_('Volume to clone (name or ID)'),
@@ -104,7 +118,7 @@ class CreateVolume(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-
+        _check_size_arg(parsed_args)
         identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
         volume_client = self.app.client_manager.volume
