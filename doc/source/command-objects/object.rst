@@ -65,7 +65,7 @@ List objects
         [--limit <limit>]
         [--long]
         [--all]
-        <container>]
+        <container>
 
 .. option:: --prefix <prefix>
 
@@ -109,8 +109,8 @@ Save object locally
 
     os object save
         [--file <filename>]
-        [<container>]
-        [<object>]
+        <container>
+        <object>
 
 .. option:: --file <filename>
 
@@ -135,7 +135,7 @@ Set object properties
     os object set
         [--property <key=value> [...] ]
         <container>
-        [<object>]
+        <object>
 
 .. option:: --property <key=value>
 
@@ -180,7 +180,7 @@ Unset object properties
     os object unset
         [--property <key>]
         <container>
-        [<object>]
+        <object>
 
 .. option:: --property <key>
 

@@ -104,7 +104,7 @@ Set container properties
 
     os container set
         [--property <key=value> [...] ]
-        [<container>]
+        <container>
 
 .. option:: --property <key=value>
 
@@ -123,7 +123,7 @@ Display container details
 .. code:: bash
 
     os container show
-        [<container>]
+        <container>
 
 .. describe:: <container>
 
@@ -139,7 +139,7 @@ Unset container properties
 
     os container unset
         [--property <key>]
-        [<container>]
+        <container>
 
 .. option:: --property <key>
 
