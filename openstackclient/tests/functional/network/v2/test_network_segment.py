@@ -39,8 +39,7 @@ class NetworkSegmentTests(base.TestCase):
         if cls.NETWORK_SEGMENT_EXTENSION:
             # Get the segment for the network.
             opts = cls.get_opts(['ID', 'Network'])
-            raw_output = cls.openstack('--os-beta-command '
-                                       'network segment list '
+            raw_output = cls.openstack('network segment list '
                                        ' --network ' + cls.NETWORK_NAME +
                                        ' ' + opts)
             raw_output_row = raw_output.split('\n')[0]
@@ -55,14 +54,12 @@ class NetworkSegmentTests(base.TestCase):
         if self.NETWORK_SEGMENT_EXTENSION:
             opts = self.get_opts(['id'])
             raw_output = self.openstack(
-                '--os-beta-command' +
                 ' network segment create --network ' + self.NETWORK_ID +
                 ' --network-type geneve ' +
                 ' --segment 2055 test_segment ' + opts
             )
             network_segment_id = raw_output.strip('\n')
-            raw_output = self.openstack('--os-beta-command ' +
-                                        'network segment delete ' +
+            raw_output = self.openstack('network segment delete ' +
                                         network_segment_id)
             self.assertOutput('', raw_output)
         else:
@@ -71,8 +68,7 @@ class NetworkSegmentTests(base.TestCase):
     def test_network_segment_list(self):
         if self.NETWORK_SEGMENT_EXTENSION:
             opts = self.get_opts(['ID'])
-            raw_output = self.openstack('--os-beta-command '
-                                        'network segment list' + opts)
+            raw_output = self.openstack('network segment list' + opts)
             self.assertIn(self.NETWORK_SEGMENT_ID, raw_output)
         else:
             self.skipTest('Segment extension disabled')
@@ -80,14 +76,12 @@ class NetworkSegmentTests(base.TestCase):
     def test_network_segment_set(self):
         if self.NETWORK_SEGMENT_EXTENSION:
             new_description = 'new_description'
-            raw_output = self.openstack('--os-beta-command '
-                                        'network segment set ' +
+            raw_output = self.openstack('network segment set ' +
                                         '--description ' + new_description +
                                         ' ' + self.NETWORK_SEGMENT_ID)
             self.assertOutput('', raw_output)
             opts = self.get_opts(['description'])
-            raw_output = self.openstack('--os-beta-command '
-                                        'network segment show ' +
+            raw_output = self.openstack('network segment show ' +
                                         self.NETWORK_SEGMENT_ID + opts)
             self.assertEqual(new_description + "\n", raw_output)
         else:
@@ -96,8 +90,7 @@ class NetworkSegmentTests(base.TestCase):
     def test_network_segment_show(self):
         if self.NETWORK_SEGMENT_EXTENSION:
             opts = self.get_opts(['network_id'])
-            raw_output = self.openstack('--os-beta-command '
-                                        'network segment show ' +
+            raw_output = self.openstack('network segment show ' +
                                         self.NETWORK_SEGMENT_ID + opts)
             self.assertEqual(self.NETWORK_ID + "\n", raw_output)
         else:

@@ -116,11 +116,7 @@ Create new subnet
 
 .. option:: --network-segment <network-segment>
 
-     Network segment to associate with this subnet (ID only)
-
-     .. caution:: This is a beta command option and subject
-                  to change. Use global option ``--os-beta-command``
-                  to enable this command option.
+     Network segment to associate with this subnet (name or ID)
 
 .. option:: --service-type <service-type>
 

@@ -179,7 +179,7 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
             attrs['ipv6_ra_mode'] = parsed_args.ipv6_ra_mode
         if parsed_args.ipv6_address_mode is not None:
             attrs['ipv6_address_mode'] = parsed_args.ipv6_address_mode
-        if 'network_segment' in parsed_args:
+        if parsed_args.network_segment is not None:
             attrs['segment_id'] = client.find_segment(
                 parsed_args.network_segment, ignore_missing=False).id
 
@@ -299,13 +299,12 @@ class CreateSubnet(command.ShowOne):
             help=_("IPv6 address mode, "
                    "valid modes: [dhcpv6-stateful, dhcpv6-stateless, slaac]")
         )
-        if self.app.options.os_beta_command:
-            parser.add_argument(
-                '--network-segment',
-                metavar='<network-segment>',
-                help=_("Network segment to associate with this subnet "
-                       "(ID only)")
-            )
+        parser.add_argument(
+            '--network-segment',
+            metavar='<network-segment>',
+            help=_("Network segment to associate with this subnet "
+                   "(name or ID)")
+        )
         parser.add_argument(
             '--network',
             required=True,
