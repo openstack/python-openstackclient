@@ -213,6 +213,7 @@ Set volume properties
         [--image-property <key=value> [...] ]
         [--state <state>]
         [--bootable | --non-bootable]
+        [--read-only | --read-write]
         <volume>
 
 .. option:: --name <name>
@@ -238,6 +239,14 @@ Set volume properties
 .. option:: --non-bootable
 
     Mark volume as non-bootable
+
+.. option:: --read-only
+
+    Set volume to read-only access mode
+
+.. option:: --read-write
+
+    Set volume to read-write access mode
 
 .. option:: --image-property <key=value>
 

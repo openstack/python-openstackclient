@@ -473,6 +473,17 @@ class SetVolume(command.Command):
             action="store_true",
             help=_("Mark volume as non-bootable")
         )
+        readonly_group = parser.add_mutually_exclusive_group()
+        readonly_group.add_argument(
+            "--read-only",
+            action="store_true",
+            help=_("Set volume to read-only access mode")
+        )
+        readonly_group.add_argument(
+            "--read-write",
+            action="store_true",
+            help=_("Set volume to read-write access mode")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -522,6 +533,15 @@ class SetVolume(command.Command):
                     volume.id, parsed_args.bootable)
             except Exception as e:
                 LOG.error(_("Failed to set volume bootable property: %s"), e)
+                result += 1
+        if parsed_args.read_only or parsed_args.read_write:
+            try:
+                volume_client.volumes.update_readonly_flag(
+                    volume.id,
+                    parsed_args.read_only)
+            except Exception as e:
+                LOG.error(_("Failed to set volume read-only access "
+                            "mode flag: %s"), e)
                 result += 1
 
         kwargs = {}
