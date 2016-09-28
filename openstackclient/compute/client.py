@@ -23,11 +23,12 @@ from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
 
-DEFAULT_API_VERSION = '2'
+DEFAULT_API_VERSION = '2.1'
 API_VERSION_OPTION = 'os_compute_api_version'
 API_NAME = 'compute'
 API_VERSIONS = {
     "2": "novaclient.client",
+    "2.1": "novaclient.client",
 }
 
 # Save the microversion if in use
