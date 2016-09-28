@@ -214,6 +214,7 @@ class APIv1(api.BaseAPI):
         self,
         container=None,
         object=None,
+        name=None,
     ):
         """Create an object inside a container
 
@@ -221,6 +222,8 @@ class APIv1(api.BaseAPI):
             name of container to store object
         :param string object:
             local path to object
+        :param string name:
+            name of object to create
         :returns:
             dict of returned headers
         """
@@ -229,8 +232,12 @@ class APIv1(api.BaseAPI):
             # TODO(dtroyer): What exception to raise here?
             return {}
 
+        # For uploading a file, if name is provided then set it as the
+        # object's name in the container.
+        object_name_str = name if name else object
+
         full_url = "%s/%s" % (urllib.parse.quote(container),
-                              urllib.parse.quote(object))
+                              urllib.parse.quote(object_name_str))
         with io.open(object, 'rb') as f:
             response = self.create(
                 full_url,
@@ -240,7 +247,7 @@ class APIv1(api.BaseAPI):
         data = {
             'account': self._find_account_id(),
             'container': container,
-            'object': object,
+            'object': object_name_str,
             'x-trans-id': response.headers.get('X-Trans-Id'),
             'etag': response.headers.get('Etag'),
         }

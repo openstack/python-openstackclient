@@ -1,0 +1,5 @@
+---
+features:
+  - Add ``--name`` option to command ``object create``
+    for uploading a file and renaming it.
+    [Bug `1607972 <https://bugs.launchpad.net/bugs/1607972>`_]

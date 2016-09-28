@@ -75,6 +75,8 @@ OBJECT_2 = {
     'last_modified': object_modified_2,
 }
 
+object_upload_name = 'test-object-name'
+
 
 class TestObjectv1(utils.TestCommand):
 
