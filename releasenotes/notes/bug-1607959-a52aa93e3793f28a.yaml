@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    A warning message will be shown when an empty password is used
+    for ``user create`` and ``user set`` operations.
+    [Bug `1607959 <https://bugs.launchpad.net/bugs/1607959>`_]
