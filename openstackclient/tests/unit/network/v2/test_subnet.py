@@ -379,23 +379,6 @@ class TestCreateSubnet(TestSubnet):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data_ipv6, data)
 
-    def test_create_no_beta_command_options(self):
-        arglist = [
-            "--subnet-range", self._subnet.cidr,
-            "--network-segment", self._network_segment.id,
-            "--network", self._subnet.network_id,
-            self._subnet.name,
-        ]
-        verifylist = [
-            ('name', self._subnet.name),
-            ('subnet_range', self._subnet.cidr),
-            ('network-segment', self._network_segment.id),
-            ('network', self._subnet.network_id),
-        ]
-        self.app.options.os_beta_command = False
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser, self.cmd, arglist, verifylist)
-
     def test_create_with_network_segment(self):
         # Mock SDK calls for this test.
         self.network.create_subnet = mock.Mock(return_value=self._subnet)
@@ -417,7 +400,6 @@ class TestCreateSubnet(TestSubnet):
 
         ]
 
-        self.app.options.os_beta_command = True
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 

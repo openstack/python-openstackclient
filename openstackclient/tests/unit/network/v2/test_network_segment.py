@@ -26,9 +26,6 @@ class TestNetworkSegment(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestNetworkSegment, self).setUp()
 
-        # Enable beta commands.
-        self.app.options.os_beta_command = True
-
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
 
@@ -80,22 +77,6 @@ class TestCreateNetworkSegment(TestNetworkSegment):
         # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, [], [])
-
-    def test_create_no_beta_commands(self):
-        arglist = [
-            '--network', self._network_segment.network_id,
-            '--network-type', self._network_segment.network_type,
-            self._network_segment.name,
-        ]
-        verifylist = [
-            ('network', self._network_segment.network_id),
-            ('network_type', self._network_segment.network_type),
-            ('name', self._network_segment.name),
-        ]
-        self.app.options.os_beta_command = False
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
 
     def test_create_invalid_network_type(self):
         arglist = [
@@ -191,18 +172,6 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
             self.app,
             self.namespace
         )
-
-    def test_delete_no_beta_commands(self):
-        arglist = [
-            self._network_segments[0].id,
-        ]
-        verifylist = [
-            ('network_segment', [self._network_segments[0].id]),
-        ]
-        self.app.options.os_beta_command = False
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
 
     def test_delete(self):
         arglist = [
@@ -330,12 +299,6 @@ class TestListNetworkSegment(TestNetworkSegment):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
-    def test_list_no_beta_commands(self):
-        self.app.options.os_beta_command = False
-        parsed_args = self.check_parser(self.cmd, [], [])
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
-
     def test_list_long(self):
         arglist = [
             '--long',
@@ -390,18 +353,6 @@ class TestSetNetworkSegment(TestNetworkSegment):
 
         # Get the command object to test
         self.cmd = network_segment.SetNetworkSegment(self.app, self.namespace)
-
-    def test_set_no_beta_commands(self):
-        arglist = [
-            self._network_segment.id,
-        ]
-        verifylist = [
-            ('network_segment', self._network_segment.id),
-        ]
-        self.app.options.os_beta_command = False
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
 
     def test_set_no_options(self):
         arglist = [
@@ -484,18 +435,6 @@ class TestShowNetworkSegment(TestNetworkSegment):
         # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, [], [])
-
-    def test_show_no_beta_commands(self):
-        arglist = [
-            self._network_segment.id,
-        ]
-        verifylist = [
-            ('network_segment', self._network_segment.id),
-        ]
-        self.app.options.os_beta_command = False
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
 
     def test_show_all_options(self):
         arglist = [

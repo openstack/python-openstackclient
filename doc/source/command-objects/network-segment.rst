@@ -14,10 +14,6 @@ network segment create
 
 Create new network segment
 
-.. caution:: This is a beta command and subject to change.
-             Use global option ``--os-beta-command`` to
-             enable this command.
-
 .. program:: network segment create
 .. code:: bash
 
@@ -63,10 +59,6 @@ network segment delete
 
 Delete network segment(s)
 
-.. caution:: This is a beta command and subject to change.
-             Use global option ``--os-beta-command`` to
-             enable this command.
-
 .. program:: network segment delete
 .. code:: bash
 
@@ -82,10 +74,6 @@ network segment list
 --------------------
 
 List network segments
-
-.. caution:: This is a beta command and subject to change.
-             Use global option ``--os-beta-command`` to
-             enable this command.
 
 .. program:: network segment list
 .. code:: bash
@@ -106,10 +94,6 @@ network segment set
 -------------------
 
 Set network segment properties
-
-.. caution:: This is a beta command and subject to change.
-             Use global option ``--os-beta-command`` to
-             enable this command.
 
 .. program:: network segment set
 .. code:: bash
@@ -136,10 +120,6 @@ network segment show
 --------------------
 
 Display network segment details
-
-.. caution:: This is a beta command and subject to change.
-             Use global option ``--os-beta-command`` to
-             enable this command.
 
 .. program:: network segment show
 .. code:: bash

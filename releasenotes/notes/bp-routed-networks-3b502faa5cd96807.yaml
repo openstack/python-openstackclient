@@ -1,6 +1,8 @@
 ---
 features:
   - Add ``network segment create``, ``network segment delete`` and
-    ``network segment set`` commands. These are beta commands and subject to
-    change. Use global option ``--os-beta-command`` to enable these commands.
+    ``network segment set`` commands. In addition, the ``network segment list``
+    and ``network segment show`` commands are no longer beta commands and
+    the ``--network-segment`` option on the ``subnet create`` command is
+    no longer a beta command option.
     [Blueprint `routed-networks <https://blueprints.launchpad.net/neutron/+spec/routed-networks>`_]

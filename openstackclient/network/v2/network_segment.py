@@ -26,12 +26,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateNetworkSegment(command.ShowOne):
-    """Create new network segment
-
-       (Caution: This is a beta command and subject to change.
-        Use global option --os-beta-command to enable
-        this command)
-    """
+    """Create new network segment"""
 
     def get_parser(self, prog_name):
         parser = super(CreateNetworkSegment, self).get_parser(prog_name)
@@ -76,7 +71,6 @@ class CreateNetworkSegment(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.validate_os_beta_command_enabled()
         client = self.app.client_manager.network
         attrs = {}
         attrs['name'] = parsed_args.name
@@ -96,12 +90,7 @@ class CreateNetworkSegment(command.ShowOne):
 
 
 class DeleteNetworkSegment(command.Command):
-    """Delete network segment(s)
-
-       (Caution: This is a beta command and subject to change.
-        Use global option --os-beta-command to enable
-        this command)
-    """
+    """Delete network segment(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteNetworkSegment, self).get_parser(prog_name)
@@ -114,7 +103,6 @@ class DeleteNetworkSegment(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.validate_os_beta_command_enabled()
         client = self.app.client_manager.network
 
         result = 0
@@ -137,12 +125,7 @@ class DeleteNetworkSegment(command.Command):
 
 
 class ListNetworkSegment(command.Lister):
-    """List network segments
-
-       (Caution: This is a beta command and subject to change.
-        Use global option --os-beta-command to enable
-        this command)
-    """
+    """List network segments"""
 
     def get_parser(self, prog_name):
         parser = super(ListNetworkSegment, self).get_parser(prog_name)
@@ -161,8 +144,6 @@ class ListNetworkSegment(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        self.validate_os_beta_command_enabled()
-
         network_client = self.app.client_manager.network
 
         filters = {}
@@ -204,12 +185,7 @@ class ListNetworkSegment(command.Lister):
 
 
 class SetNetworkSegment(command.Command):
-    """Set network segment properties
-
-       (Caution: This is a beta command and subject to change.
-        Use global option --os-beta-command to enable
-        this command)
-    """
+    """Set network segment properties"""
 
     def get_parser(self, prog_name):
         parser = super(SetNetworkSegment, self).get_parser(prog_name)
@@ -231,7 +207,6 @@ class SetNetworkSegment(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.validate_os_beta_command_enabled()
         client = self.app.client_manager.network
         obj = client.find_segment(parsed_args.network_segment,
                                   ignore_missing=False)
@@ -244,12 +219,7 @@ class SetNetworkSegment(command.Command):
 
 
 class ShowNetworkSegment(command.ShowOne):
-    """Display network segment details
-
-       (Caution: This is a beta command and subject to change.
-        Use global option --os-beta-command to enable
-        this command)
-    """
+    """Display network segment details"""
 
     def get_parser(self, prog_name):
         parser = super(ShowNetworkSegment, self).get_parser(prog_name)
@@ -261,8 +231,6 @@ class ShowNetworkSegment(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        self.validate_os_beta_command_enabled()
-
         client = self.app.client_manager.network
         obj = client.find_segment(
             parsed_args.network_segment,
