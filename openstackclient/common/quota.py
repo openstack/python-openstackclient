@@ -16,6 +16,7 @@
 """Quota action implementations"""
 
 import itertools
+import logging
 import sys
 
 from osc_lib.command import command
@@ -24,6 +25,8 @@ import six
 
 from openstackclient.i18n import _
 
+
+LOG = logging.getLogger(__name__)
 
 # List the quota items, map the internal argument name to the option
 # name that the user sees.
@@ -77,6 +80,176 @@ NETWORK_QUOTAS = {
     'healthmonitor': 'health-monitors',
     'l7policy': 'l7policies',
 }
+
+NETWORK_KEYS = ['floating_ips', 'networks', 'rbac_policies', 'routers',
+                'ports', 'security_group_rules', 'security_groups',
+                'subnet_pools', 'subnets']
+
+
+def _xform_get_quota(data, value, keys):
+    res = []
+    res_info = {}
+    for key in keys:
+        res_info[key] = getattr(data, key, '')
+
+    res_info['id'] = value
+    res.append(res_info)
+    return res
+
+
+class ListQuota(command.Lister):
+    _description = _("List quotas for all projects "
+                     "with non-default quota values")
+
+    def get_parser(self, prog_name):
+        parser = super(ListQuota, self).get_parser(prog_name)
+        option = parser.add_mutually_exclusive_group(required=True)
+        option.add_argument(
+            '--compute',
+            action='store_true',
+            default=False,
+            help=_('List compute quota'),
+        )
+        option.add_argument(
+            '--volume',
+            action='store_true',
+            default=False,
+            help=_('List volume quota'),
+        )
+        option.add_argument(
+            '--network',
+            action='store_true',
+            default=False,
+            help=_('List network quota'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        projects = self.app.client_manager.identity.projects.list()
+        result = []
+        project_ids = [getattr(p, 'id', '') for p in projects]
+
+        if parsed_args.compute:
+            compute_client = self.app.client_manager.compute
+            for p in project_ids:
+                data = compute_client.quotas.get(p)
+                result_data = _xform_get_quota(data, p,
+                                               COMPUTE_QUOTAS.keys())
+                default_data = compute_client.quotas.defaults(p)
+                result_default = _xform_get_quota(default_data,
+                                                  p,
+                                                  COMPUTE_QUOTAS.keys())
+                if result_default != result_data:
+                    result += result_data
+
+            columns = (
+                'id',
+                'cores',
+                'fixed_ips',
+                'injected_files',
+                'injected_file_content_bytes',
+                'injected_file_path_bytes',
+                'instances',
+                'key_pairs',
+                'metadata_items',
+                'ram',
+                'server_groups',
+                'server_group_members',
+            )
+            column_headers = (
+                'Project ID',
+                'Cores',
+                'Fixed IPs',
+                'Injected Files',
+                'Injected File Content Bytes',
+                'Injected File Path Bytes',
+                'Instances',
+                'Key Pairs',
+                'Metadata Items',
+                'Ram',
+                'Server Groups',
+                'Server Group Members',
+            )
+            return (column_headers,
+                    (utils.get_dict_properties(
+                        s, columns,
+                    ) for s in result))
+        if parsed_args.volume:
+            volume_client = self.app.client_manager.volume
+            for p in project_ids:
+                data = volume_client.quotas.get(p)
+                result_data = _xform_get_quota(data, p,
+                                               VOLUME_QUOTAS.keys())
+                default_data = volume_client.quotas.defaults(p)
+                result_default = _xform_get_quota(default_data,
+                                                  p,
+                                                  VOLUME_QUOTAS.keys())
+                if result_default != result_data:
+                    result += result_data
+
+            columns = (
+                'id',
+                'backups',
+                'backup_gigabytes',
+                'gigabytes',
+                'per_volume_gigabytes',
+                'snapshots',
+                'volumes',
+            )
+            column_headers = (
+                'Project ID',
+                'Backups',
+                'Backup Gigabytes',
+                'Gigabytes',
+                'Per Volume Gigabytes',
+                'Snapshots',
+                'Volumes',
+            )
+            return (column_headers,
+                    (utils.get_dict_properties(
+                        s, columns,
+                    ) for s in result))
+        if parsed_args.network:
+            client = self.app.client_manager.network
+            for p in project_ids:
+                data = client.get_quota(p)
+                result_data = _xform_get_quota(data, p, NETWORK_KEYS)
+                default_data = client.get_quota_default(p)
+                result_default = _xform_get_quota(default_data,
+                                                  p, NETWORK_KEYS)
+                if result_default != result_data:
+                    result += result_data
+
+            columns = (
+                'id',
+                'floating_ips',
+                'networks',
+                'ports',
+                'rbac_policies',
+                'routers',
+                'security_groups',
+                'security_group_rules',
+                'subnets',
+                'subnet_pools',
+            )
+            column_headers = (
+                'Project ID',
+                'Floating IPs',
+                'Networks',
+                'Ports',
+                'RBAC Policies',
+                'Routers',
+                'Security Groups',
+                'Security Group Rules',
+                'Subnets',
+                'Subnet Pools'
+            )
+            return (column_headers,
+                    (utils.get_dict_properties(
+                        s, columns,
+                    ) for s in result))
+
+        return ((), ())
 
 
 class SetQuota(command.Command):

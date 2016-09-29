@@ -1494,3 +1494,53 @@ class FakeNetworkServiceProvider(object):
                                      create_one_network_service_provider(
                                          attrs))
         return service_providers
+
+
+class FakeQuota(object):
+    """Fake quota"""
+
+    @staticmethod
+    def create_one_net_quota(attrs=None):
+        """Create one quota"""
+        attrs = attrs or {}
+
+        quota_attrs = {
+            'floating_ips': 20,
+            'networks': 25,
+            'ports': 11,
+            'rbac_policies': 15,
+            'routers': 40,
+            'security_groups': 10,
+            'security_group_rules': 100,
+            'subnets': 20,
+            'subnet_pools': 30}
+
+        quota_attrs.update(attrs)
+
+        quota = fakes.FakeResource(
+            info=copy.deepcopy(quota_attrs),
+            loaded=True)
+        return quota
+
+    @staticmethod
+    def create_one_default_net_quota(attrs=None):
+        """Create one quota"""
+        attrs = attrs or {}
+
+        quota_attrs = {
+            'floatingip': 30,
+            'network': 20,
+            'port': 10,
+            'rbac_policy': 25,
+            'router': 30,
+            'security_group': 30,
+            'security_group_rule': 200,
+            'subnet': 10,
+            'subnetpool': 20}
+
+        quota_attrs.update(attrs)
+
+        quota = fakes.FakeResource(
+            info=copy.deepcopy(quota_attrs),
+            loaded=True)
+        return quota

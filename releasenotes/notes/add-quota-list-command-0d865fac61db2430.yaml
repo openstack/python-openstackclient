@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``quota list`` command with ``--compute``, ``--volume``
+    and ``--network`` options.
+    [Blueprint `quota-list <https://blueprints.launchpad.net/python-openstackclient/+spec/neutron-client-quota>`_]
