@@ -21,7 +21,6 @@ from osc_lib import utils
 
 from openstackclient.compute.v2 import aggregate
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
-from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestAggregate(compute_fakes.TestComputev2):
@@ -235,7 +234,8 @@ class TestAggregateList(TestAggregate):
         TestAggregate.fake_ag.id,
         TestAggregate.fake_ag.name,
         TestAggregate.fake_ag.availability_zone,
-        {},
+        {key: value for key, value in TestAggregate.fake_ag.metadata.items()
+         if key != 'availability_zone'},
     ), )
 
     def setUp(self):
@@ -371,6 +371,62 @@ class TestAggregateSet(TestAggregate):
             self.fake_ag, parsed_args.property)
         self.assertIsNone(result)
 
+    def test_aggregate_set_with_no_property_and_property(self):
+        arglist = [
+            '--no-property',
+            '--property', 'key2=value2',
+            'ag1',
+        ]
+        verifylist = [
+            ('no_property', True),
+            ('property', {'key2': 'value2'}),
+            ('aggregate', 'ag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
+        self.assertNotCalled(self.aggregate_mock.update)
+        self.aggregate_mock.set_metadata.assert_called_once_with(
+            self.fake_ag, {'key1': None, 'key2': 'value2'})
+        self.assertIsNone(result)
+
+    def test_aggregate_set_with_no_property(self):
+        arglist = [
+            '--no-property',
+            'ag1',
+        ]
+        verifylist = [
+            ('no_property', True),
+            ('aggregate', 'ag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
+        self.assertNotCalled(self.aggregate_mock.update)
+        self.aggregate_mock.set_metadata.assert_called_once_with(
+            self.fake_ag, {'key1': None})
+        self.assertIsNone(result)
+
+    def test_aggregate_set_with_zone_and_no_property(self):
+        arglist = [
+            '--zone', 'new_zone',
+            '--no-property',
+            'ag1',
+        ]
+        verifylist = [
+            ('zone', 'new_zone'),
+            ('no_property', True),
+            ('aggregate', 'ag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
+        self.aggregate_mock.update.assert_called_once_with(
+            self.fake_ag, {'availability_zone': parsed_args.zone})
+        self.aggregate_mock.set_metadata.assert_called_once_with(
+            self.fake_ag, {'key1': None})
+        self.assertIsNone(result)
+
 
 class TestAggregateShow(TestAggregate):
 
@@ -387,7 +443,10 @@ class TestAggregateShow(TestAggregate):
         TestAggregate.fake_ag.hosts,
         TestAggregate.fake_ag.id,
         TestAggregate.fake_ag.name,
-        '',
+        utils.format_dict(
+            {key: value
+             for key, value in TestAggregate.fake_ag.metadata.items()
+             if key != 'availability_zone'}),
     )
 
     def setUp(self):
@@ -435,13 +494,32 @@ class TestAggregateUnset(TestAggregate):
             self.fake_ag, {'unset_key': None})
         self.assertIsNone(result)
 
-    def test_aggregate_unset_no_property(self):
+    def test_aggregate_unset_multiple_properties(self):
+        arglist = [
+            '--property', 'unset_key1',
+            '--property', 'unset_key2',
+            'ag1',
+        ]
+        verifylist = [
+            ('property', ['unset_key1', 'unset_key2']),
+            ('aggregate', 'ag1'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.aggregate_mock.set_metadata.assert_called_once_with(
+            self.fake_ag, {'unset_key1': None, 'unset_key2': None})
+        self.assertIsNone(result)
+
+    def test_aggregate_unset_no_option(self):
         arglist = [
             'ag1',
         ]
-        verifylist = None
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser,
-                          self.cmd,
-                          arglist,
-                          verifylist)
+        verifylist = [
+            ('property', None),
+            ('aggregate', 'ag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.assertNotCalled(self.aggregate_mock.set_metadata)
+        self.assertIsNone(result)

@@ -248,6 +248,14 @@ class SetAggregate(command.Command):
             help=_("Property to set on <aggregate> "
                    "(repeat option to set multiple properties)")
         )
+        parser.add_argument(
+            "--no-property",
+            dest="no_property",
+            action="store_true",
+            help=_("Remove all properties from <aggregate> "
+                   "(specify both --property and --no-property to "
+                   "overwrite the current properties)"),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -269,10 +277,23 @@ class SetAggregate(command.Command):
                 kwargs
             )
 
+        set_property = {}
+        if parsed_args.no_property:
+            # NOTE(RuiChen): "availability_zone" is removed from response of
+            #                aggregate show and create commands, don't see it
+            #                anywhere, so pop it, avoid the unexpected server
+            #                exception(can't unset the availability zone from
+            #                aggregate metadata in nova).
+            set_property.update({key: None
+                                 for key in aggregate.metadata.keys()
+                                 if key != 'availability_zone'})
         if parsed_args.property:
+            set_property.update(parsed_args.property)
+
+        if set_property:
             compute_client.aggregates.set_metadata(
                 aggregate,
-                parsed_args.property
+                set_property
             )
 
 
@@ -326,7 +347,6 @@ class UnsetAggregate(command.Command):
             "--property",
             metavar="<key>",
             action='append',
-            required=True,
             help=_("Property to remove from aggregate "
                    "(repeat option to remove multiple properties)")
         )
@@ -338,6 +358,9 @@ class UnsetAggregate(command.Command):
             compute_client.aggregates,
             parsed_args.aggregate)
 
-        unset_property = {key: None for key in parsed_args.property}
-        compute_client.aggregates.set_metadata(aggregate,
-                                               unset_property)
+        unset_property = {}
+        if parsed_args.property:
+            unset_property.update({key: None for key in parsed_args.property})
+        if unset_property:
+            compute_client.aggregates.set_metadata(aggregate,
+                                                   unset_property)

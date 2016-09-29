@@ -116,6 +116,7 @@ Set aggregate properties
         [--name <new-name>]
         [--zone <availability-zone>]
         [--property <key=value> [...] ]
+        [--no-property]
         <aggregate>
 
 .. option:: --name <name>
@@ -130,6 +131,12 @@ Set aggregate properties
 
     Property to set on :ref:`\<aggregate\> <aggregate_set-aggregate>`
     (repeat option to set multiple properties)
+
+.. option:: --no-property
+
+    Remove all properties from :ref:`\<aggregate\> <aggregate_set-aggregate>`
+    (specify both --property and --no-property to
+    overwrite the current properties)
 
 .. _aggregate_set-aggregate:
 .. describe:: <aggregate>
