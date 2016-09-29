@@ -23,6 +23,7 @@ from osc_lib import utils
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests.unit import utils as tests_utils
 from openstackclient.tests.unit.volume.v1 import fakes as volume_fakes
 from openstackclient.volume.v1 import volume
 
@@ -410,6 +411,67 @@ class TestVolumeCreate(TestVolume):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
+
+    def test_volume_create_with_source(self):
+        self.volumes_mock.get.return_value = self.new_volume
+        arglist = [
+            '--source', self.new_volume.id,
+            self.new_volume.display_name,
+        ]
+        verifylist = [
+            ('source', self.new_volume.id),
+            ('name', self.new_volume.display_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.create.assert_called_with(
+            None,
+            None,
+            self.new_volume.id,
+            self.new_volume.display_name,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_volume_create_without_size(self):
+        arglist = [
+            self.new_volume.display_name,
+        ]
+        verifylist = [
+            ('name', self.new_volume.display_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+    def test_volume_create_with_multi_source(self):
+        arglist = [
+            '--image', 'source_image',
+            '--source', 'source_volume',
+            '--snapshot', 'source_snapshot',
+            '--size', str(self.new_volume.size),
+            self.new_volume.display_name,
+        ]
+        verifylist = [
+            ('image', 'source_image'),
+            ('source', 'source_volume'),
+            ('snapshot', 'source_snapshot'),
+            ('size', self.new_volume.size),
+            ('name', self.new_volume.display_name),
+        ]
+
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
 
 class TestVolumeDelete(TestVolume):
