@@ -94,7 +94,6 @@ def _get_attrs(client_manager, parsed_args):
         ).id
         attrs['tenant_id'] = project_id
 
-    # TODO(tangchen): Support getting 'ha' property.
     # TODO(tangchen): Support getting 'external_gateway_info' property.
 
     return attrs
@@ -181,9 +180,14 @@ class CreateRouter(command.ShowOne):
             help=_("Create a distributed router")
         )
         parser.add_argument(
+            '--ha',
+            action='store_true',
+            help=_("Create a highly available router")
+        )
+        parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_('Set router description')
+            help=_("Set router description")
         )
         parser.add_argument(
             '--project',
@@ -207,6 +211,8 @@ class CreateRouter(command.ShowOne):
         client = self.app.client_manager.network
 
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+        if parsed_args.ha:
+            attrs['ha'] = parsed_args.ha
         obj = client.create_router(**attrs)
 
         columns = _get_columns(obj)

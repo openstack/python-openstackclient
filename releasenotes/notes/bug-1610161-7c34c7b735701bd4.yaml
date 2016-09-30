@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--ha`` option to ``router create`` command.
+    [Bug `1610161 <https://bugs.launchpad.net/bugs/1610161>`_]
