@@ -111,6 +111,22 @@ The selection of ``interface`` (as seen above in the ``rackspace`` entry)
 is optional.  For this configuration to work, every service for this cloud
 instance must already be configured to support this type of interface.
 
+If you are using Identity v3 you need to specify the user and the project
+domain name as shown in the example below:
+
+::
+
+    clouds:
+      devstack:
+        auth:
+          auth_url: http://192.168.122.10:35357/
+          project_name: demo
+          username: demo
+          password: 0penstack
+          user_domain_name: Default
+          project_domain_name: Default
+        region_name: RegionOne
+
 clouds-public.yaml
 ~~~~~~~~~~~~~~~~~~
 
