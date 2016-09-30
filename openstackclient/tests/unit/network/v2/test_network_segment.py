@@ -163,7 +163,7 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
         super(TestDeleteNetworkSegment, self).setUp()
 
         self.network.delete_segment = mock.Mock(return_value=None)
-        self.network.find_segment = mock.MagicMock(
+        self.network.find_segment = mock.Mock(
             side_effect=self._network_segments
         )
 
@@ -220,7 +220,7 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
         find_mock_result = [self._network_segments[0],
                             exceptions.CommandError]
         self.network.find_segment = (
-            mock.MagicMock(side_effect=find_mock_result)
+            mock.Mock(side_effect=find_mock_result)
         )
 
         try:

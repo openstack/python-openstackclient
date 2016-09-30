@@ -122,7 +122,7 @@ class FakeAddressScope(object):
 
     @staticmethod
     def get_address_scopes(address_scopes=None, count=2):
-        """Get an iterable MagicMock object with a list of faked address scopes.
+        """Get an iterable Mock object with a list of faked address scopes.
 
         If address scopes list is provided, then initialize the Mock object
         with the list. Otherwise create one.
@@ -331,7 +331,7 @@ class FakeNetwork(object):
 
     @staticmethod
     def get_networks(networks=None, count=2):
-        """Get an iterable MagicMock object with a list of faked networks.
+        """Get an iterable Mock object with a list of faked networks.
 
         If networks list is provided, then initialize the Mock object with the
         list. Otherwise create one.
@@ -478,7 +478,7 @@ class FakePort(object):
 
     @staticmethod
     def get_ports(ports=None, count=2):
-        """Get an iterable MagicMock object with a list of faked ports.
+        """Get an iterable Mock object with a list of faked ports.
 
         If ports list is provided, then initialize the Mock object with the
         list. Otherwise create one.
@@ -545,7 +545,7 @@ class FakeNetworkAgent(object):
 
     @staticmethod
     def get_network_agents(agents=None, count=2):
-        """Get an iterable MagicMock object with a list of faked network agents.
+        """Get an iterable Mock object with a list of faked network agents.
 
         If network agents list is provided, then initialize the Mock object
         with the list. Otherwise create one.
@@ -615,7 +615,7 @@ class FakeNetworkRBAC(object):
 
     @staticmethod
     def get_network_rbacs(rbac_policies=None, count=2):
-        """Get an iterable MagicMock object with a list of faked rbac policies.
+        """Get an iterable Mock object with a list of faked rbac policies.
 
         If rbac policies list is provided, then initialize the Mock object
         with the list. Otherwise create one.
@@ -694,7 +694,7 @@ class FakeRouter(object):
 
     @staticmethod
     def get_routers(routers=None, count=2):
-        """Get an iterable MagicMock object with a list of faked routers.
+        """Get an iterable Mock object with a list of faked routers.
 
         If routers list is provided, then initialize the Mock object with the
         list. Otherwise create one.
@@ -767,7 +767,7 @@ class FakeSecurityGroup(object):
 
     @staticmethod
     def get_security_groups(security_groups=None, count=2):
-        """Get an iterable MagicMock object with a list of faked security groups.
+        """Get an iterable Mock object with a list of faked security groups.
 
         If security groups list is provided, then initialize the Mock object
         with the list. Otherwise create one.
@@ -845,7 +845,7 @@ class FakeSecurityGroupRule(object):
 
     @staticmethod
     def get_security_group_rules(security_group_rules=None, count=2):
-        """Get an iterable MagicMock object with a list of faked security group rules.
+        """Get an iterable Mock object with a list of faked security group rules.
 
         If security group rules list is provided, then initialize the Mock
         object with the list. Otherwise create one.
@@ -930,7 +930,7 @@ class FakeSubnet(object):
 
     @staticmethod
     def get_subnets(subnets=None, count=2):
-        """Get an iterable MagicMock object with a list of faked subnets.
+        """Get an iterable Mock object with a list of faked subnets.
 
         If subnets list is provided, then initialize the Mock object
         with the list. Otherwise create one.
@@ -1008,7 +1008,7 @@ class FakeFloatingIP(object):
 
     @staticmethod
     def get_floating_ips(floating_ips=None, count=2):
-        """Get an iterable MagicMock object with a list of faked floating ips.
+        """Get an iterable Mock object with a list of faked floating ips.
 
         If floating_ips list is provided, then initialize the Mock object
         with the list. Otherwise create one.
@@ -1091,7 +1091,7 @@ class FakeSubnetPool(object):
 
     @staticmethod
     def get_subnet_pools(subnet_pools=None, count=2):
-        """Get an iterable MagicMock object with a list of faked subnet pools.
+        """Get an iterable Mock object with a list of faked subnet pools.
 
         If subnet_pools list is provided, then initialize the Mock object
         with the list. Otherwise create one.
