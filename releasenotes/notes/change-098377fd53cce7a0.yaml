@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Added support for Volume API v3 for the following block storage command
+    resources: ``consistency group``, ``consistency group snapshot``,
+    ``volume``, ``volume backup``, ``volume host``, ``volume snapshot``,
+    ``volume type``, ``volume qos``, ``volume service``,
+    ``volume transfer request``. Note that microversion support for Volume API
+    v3 is not yet implemented, each command will assume the API version is
+    ``3.0``.
