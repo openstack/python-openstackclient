@@ -230,8 +230,8 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``issue`` (``revoke``) - issue a token
 * ``list`` - display summary information about multiple objects
 * ``lock`` (``unlock``) - lock one or more servers so that non-admin user won't be able to execute actions
-* ``migrate`` - move a server to a different host; ``--live`` performs a
-  live migration if possible
+* ``migrate`` - move a server or a volume to a different host; ``--live`` performs a
+  live server migration if possible
 * ``pause`` (``unpause``) - stop one or more servers and leave them in memory
 * ``reboot`` - forcibly reboot a server
 * ``rebuild`` - rebuild a server using (most of) the same arguments as in the original create
