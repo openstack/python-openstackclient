@@ -39,3 +39,20 @@ List API extensions
 .. option:: --long
 
     List additional fields in output
+
+extension show
+--------------
+
+Show API extension
+
+.. program:: extension show
+.. code:: bash
+
+    openstack extension show
+        <extension>
+
+.. _extension_show:
+.. describe:: <extension>
+
+   Extension to display. Currently, only network extensions are supported.
+   (Name or Alias)

@@ -19,6 +19,7 @@ from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils
+from openstackclient.tests.unit import utils as tests_utils
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 
 
@@ -242,3 +243,60 @@ class TestExtensionList(TestExtension):
         ), )
         self._test_extension_list_helper(arglist, verifylist, datalist)
         self.volume_extensions_mock.show_all.assert_called_with()
+
+
+class TestExtensionShow(TestExtension):
+    extension_details = (
+        network_fakes.FakeExtension.create_one_extension()
+    )
+
+    columns = (
+        'Alias',
+        'Description',
+        'Links',
+        'Name',
+        'Namespace',
+        'Updated'
+    )
+
+    data = (
+        extension_details.alias,
+        extension_details.description,
+        extension_details.links,
+        extension_details.name,
+        extension_details.namespace,
+        extension_details.updated
+    )
+
+    def setUp(self):
+        super(TestExtensionShow, self).setUp()
+
+        self.cmd = extension.ShowExtension(self.app, None)
+
+        self.app.client_manager.network.find_extension = mock.Mock(
+            return_value=self.extension_details)
+
+    def test_show_no_options(self):
+        arglist = []
+        verifylist = []
+
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_show_all_options(self):
+        arglist = [
+            self.extension_details.alias,
+        ]
+        verifylist = [
+            ('extension', self.extension_details.alias),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.app.client_manager.network.find_extension.assert_called_with(
+            self.extension_details.alias)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)

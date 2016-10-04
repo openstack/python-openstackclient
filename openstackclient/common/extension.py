@@ -134,3 +134,32 @@ class ListExtension(command.Lister):
                 LOG.warning(message)
 
         return (columns, extension_tuples)
+
+
+class ShowExtension(command.ShowOne):
+    _description = _("Show API extension")
+
+    def get_parser(self, prog_name):
+        parser = super(ShowExtension, self).get_parser(prog_name)
+        parser.add_argument(
+            'extension',
+            metavar='<extension>',
+            help=_('Extension to display. '
+                   'Currently, only network extensions are supported. '
+                   '(Name or Alias)'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        columns = ('Alias', 'Description', 'Links', 'Name',
+                   'Namespace', 'Updated')
+        ext = str(parsed_args.extension)
+        obj = client.find_extension(ext)
+        dict_tuples = (utils.get_item_properties(
+                       obj,
+                       columns,
+                       formatters={},)
+                       )
+
+        return columns, dict_tuples
