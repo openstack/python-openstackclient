@@ -306,6 +306,32 @@ class FakeQos(object):
         return qos
 
     @staticmethod
+    def create_one_qos_association(attrs=None):
+        """Create a fake Qos specification association.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with id, name, association_type, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        qos_association_info = {
+            "id": 'type-id-' + uuid.uuid4().hex,
+            "name": 'type-name-' + uuid.uuid4().hex,
+            "association_type": 'volume_type',
+        }
+
+        # Overwrite default attributes.
+        qos_association_info.update(attrs)
+
+        qos_association = fakes.FakeResource(
+            info=copy.deepcopy(qos_association_info),
+            loaded=True)
+        return qos_association
+
+    @staticmethod
     def create_qoses(attrs=None, count=2):
         """Create multiple fake Qos specifications.
 
