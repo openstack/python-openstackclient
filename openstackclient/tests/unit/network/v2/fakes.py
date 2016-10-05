@@ -390,6 +390,69 @@ class FakeNetwork(object):
         return mock.Mock(side_effect=networks)
 
 
+class FakeNetworkFlavor(object):
+    """Fake Network Flavor."""
+
+    @staticmethod
+    def create_one_network_flavor(attrs=None):
+        """Create a fake network flavor.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object faking the network flavor
+        """
+        attrs = attrs or {}
+
+        fake_uuid = uuid.uuid4().hex
+        network_flavor_attrs = {
+            'description': 'network-flavor-description-' + fake_uuid,
+            'enabled': True,
+            'id': 'network-flavor-id-' + fake_uuid,
+            'name': 'network-flavor-name-' + fake_uuid,
+            'service_type': 'vpn',
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        network_flavor_attrs.update(attrs)
+
+        network_flavor = fakes.FakeResource(
+            info=copy.deepcopy(network_flavor_attrs),
+            loaded=True
+        )
+
+        network_flavor.project_id = network_flavor_attrs['tenant_id']
+        network_flavor.is_enabled = network_flavor_attrs['enabled']
+
+        return network_flavor
+
+    @staticmethod
+    def create_flavor(attrs=None, count=2):
+        """Create multiple fake network flavors.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of network flavors to fake
+        :return:
+            A list of FakeResource objects faking the network falvors
+        """
+        network_flavors = []
+        for i in range(0, count):
+            network_flavors.append(
+                FakeNetworkFlavor.create_one_network_flavor(attrs)
+            )
+        return network_flavors
+
+    @staticmethod
+    def get_flavor(network_flavors=None, count=2):
+        """Get a list of flavors."""
+        if network_flavors is None:
+            network_flavors = (FakeNetworkFlavor.create_flavor(count))
+        return mock.Mock(side_effect=network_flavors)
+
+
 class FakeNetworkSegment(object):
     """Fake one or more network segments."""
 
