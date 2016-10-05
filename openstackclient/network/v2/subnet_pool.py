@@ -22,17 +22,21 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import sdk_utils
 
 
 LOG = logging.getLogger(__name__)
 
 
 def _get_columns(item):
-    columns = list(item.keys())
-    if 'tenant_id' in columns:
-        columns.remove('tenant_id')
-        columns.append('project_id')
-    return tuple(sorted(columns))
+    column_map = {
+        'default_prefix_length': 'default_prefixlen',
+        'is_shared': 'shared',
+        'maximum_prefix_length': 'max_prefixlen',
+        'minimum_prefix_length': 'min_prefixlen',
+        'tenant_id': 'project_id',
+    }
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 _formatters = {
@@ -134,6 +138,8 @@ def _add_default_options(parser):
     )
 
 
+# TODO(rtheis): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class CreateSubnetPool(command.ShowOne):
     """Create subnet pool"""
 
@@ -184,9 +190,9 @@ class CreateSubnetPool(command.ShowOne):
         if "prefixes" not in attrs:
             attrs['prefixes'] = []
         obj = client.create_subnet_pool(**attrs)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return (columns, data)
+        return (display_columns, data)
 
 
 class DeleteSubnetPool(command.Command):
@@ -223,6 +229,8 @@ class DeleteSubnetPool(command.Command):
             raise exceptions.CommandError(msg)
 
 
+# TODO(rtheis): Use only the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class ListSubnetPool(command.Lister):
     """List subnet pools"""
 
@@ -281,8 +289,10 @@ class ListSubnetPool(command.Lister):
         filters = {}
         if parsed_args.share:
             filters['shared'] = True
+            filters['is_shared'] = True
         elif parsed_args.no_share:
             filters['shared'] = False
+            filters['is_shared'] = False
         if parsed_args.default:
             filters['is_default'] = True
         elif parsed_args.no_default:
@@ -294,6 +304,7 @@ class ListSubnetPool(command.Lister):
                 parsed_args.project_domain,
             ).id
             filters['tenant_id'] = project_id
+            filters['project_id'] = project_id
         if parsed_args.name is not None:
             filters['name'] = parsed_args.name
         if parsed_args.address_scope:
@@ -308,8 +319,8 @@ class ListSubnetPool(command.Lister):
         if parsed_args.long:
             headers += ('Default Prefix Length', 'Address Scope',
                         'Default Subnet Pool', 'Shared')
-            columns += ('default_prefixlen', 'address_scope_id',
-                        'is_default', 'shared')
+            columns += ('default_prefix_length', 'address_scope_id',
+                        'is_default', 'is_shared')
 
         return (headers,
                 (utils.get_item_properties(
@@ -318,6 +329,8 @@ class ListSubnetPool(command.Lister):
                 ) for s in data))
 
 
+# TODO(rtheis): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class SetSubnetPool(command.Command):
     """Set subnet pool properties"""
 
@@ -388,9 +401,9 @@ class ShowSubnetPool(command.ShowOne):
             parsed_args.subnet_pool,
             ignore_missing=False
         )
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return (columns, data)
+        return (display_columns, data)
 
 
 class UnsetSubnetPool(command.Command):

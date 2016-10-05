@@ -1067,6 +1067,11 @@ class FakeSubnetPool(object):
         )
 
         # Set attributes with special mapping in OpenStack SDK.
+        subnet_pool.default_prefix_length = \
+            subnet_pool_attrs['default_prefixlen']
+        subnet_pool.is_shared = subnet_pool_attrs['shared']
+        subnet_pool.maximum_prefix_length = subnet_pool_attrs['max_prefixlen']
+        subnet_pool.minimum_prefix_length = subnet_pool_attrs['min_prefixlen']
         subnet_pool.project_id = subnet_pool_attrs['tenant_id']
 
         return subnet_pool
