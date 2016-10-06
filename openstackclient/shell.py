@@ -93,10 +93,12 @@ class OpenStackShell(shell.OpenStackShell):
                 mod_versions = getattr(mod, 'API_VERSIONS', None)
                 if not skip_old_check and mod_versions:
                     if version_opt not in mod_versions:
+                        sorted_versions = sorted(
+                            mod.API_VERSIONS.keys(),
+                            key=lambda s: list(map(int, s.split('.'))))
                         self.log.warning(
-                            "%s version %s is not in supported versions %s"
-                            % (api, version_opt,
-                               ', '.join(list(mod.API_VERSIONS.keys()))))
+                            "%s version %s is not in supported versions: %s"
+                            % (api, version_opt, ', '.join(sorted_versions)))
 
                 # Command groups deal only with major versions
                 version = '.v' + version_opt.replace('.', '_').split('_')[0]
