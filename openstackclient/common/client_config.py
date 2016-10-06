@@ -16,6 +16,8 @@
 import logging
 
 from os_client_config import config
+from oslo_utils import strutils
+import six
 
 
 LOG = logging.getLogger(__name__)
@@ -179,7 +181,9 @@ class OSC_Config(config.OpenStackConfig):
         config = self._auth_v2_ignore_v3(config)
         config = self._auth_default_domain(config)
 
-        LOG.debug("auth_config_hook(): %s" % config)
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug("auth_config_hook(): %s",
+                      strutils.mask_password(six.text_type(config)))
         return config
 
     def _validate_auth_ksc(self, config, cloud, fixed_argparse=None):
