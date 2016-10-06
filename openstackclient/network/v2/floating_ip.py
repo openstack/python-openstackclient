@@ -17,6 +17,7 @@ import logging
 
 from openstack import exceptions as sdk_exceptions
 from openstack.network.v2 import floating_ip as _floating_ip
+from osc_lib.command import command
 from osc_lib import utils
 
 from openstackclient.i18n import _
@@ -164,7 +165,7 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
         )
         parser.add_argument(
             '--fixed-ip-address',
-            metavar='<fixed-ip-address>',
+            metavar='<ip-address>',
             dest='fixed_ip_address',
             help=_("Fixed IP address mapped to the floating IP")
         )
@@ -446,6 +447,47 @@ class ListIPFloating(ListFloatingIP):
             client, parsed_args)
 
 
+class SetFloatingIP(command.Command):
+    _description = _("Set floating IP Properties")
+
+    def get_parser(self, prog_name):
+        parser = super(SetFloatingIP, self).get_parser(prog_name)
+        parser.add_argument(
+            'floating_ip',
+            metavar='<floating-ip>',
+            help=_("Floating IP to associate (IP address or ID)"))
+        parser.add_argument(
+            '--port',
+            metavar='<port>',
+            required=True,
+            help=_("Assocaite the floating IP with port (name or ID)")),
+        parser.add_argument(
+            '--fixed-ip-address',
+            metavar='<ip-address>',
+            dest='fixed_ip_address',
+            help=_("Fixed IP of the port "
+                   "(required only if port has multiple IPs)")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        attrs = {}
+        # TODO(sindhu) Use client.find_ip() once SDK 0.9.15 is released
+        obj = _find_floating_ip(
+            self.app.client_manager.sdk_connection.session,
+            parsed_args.floating_ip,
+            ignore_missing=False,
+        )
+        port = client.find_port(parsed_args.port,
+                                ignore_missing=False)
+        attrs['port_id'] = port.id
+        if parsed_args.fixed_ip_address:
+            attrs['fixed_ip_address'] = parsed_args.fixed_ip_address
+
+        client.update_ip(obj, **attrs)
+
+
 class ShowFloatingIP(common.NetworkAndComputeShowOne):
     _description = _("Display floating IP details")
 
@@ -499,3 +541,35 @@ class ShowIPFloating(ShowFloatingIP):
                            'Please use "floating ip show" instead.'))
         return super(ShowIPFloating, self).take_action_compute(
             client, parsed_args)
+
+
+class UnsetFloatingIP(command.Command):
+    _description = _("Unset floating IP Properties")
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetFloatingIP, self).get_parser(prog_name)
+        parser.add_argument(
+            'floating_ip',
+            metavar='<floating-ip>',
+            help=_("Floating IP to disassociate (IP address or ID)"))
+        parser.add_argument(
+            '--port',
+            action='store_true',
+            default=False,
+            help=_("Disassociate any port associated with the floating IP")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        # TODO(sindhu) Use client.find_ip() once SDK  0.9.15 is released
+        obj = _find_floating_ip(
+            self.app.client_manager.sdk_connection.session,
+            parsed_args.floating_ip,
+            ignore_missing=False,
+        )
+        if parsed_args.port:
+            attrs = {
+                'port_id': None,
+            }
+            client.update_ip(obj, **attrs)

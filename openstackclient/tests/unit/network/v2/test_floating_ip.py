@@ -16,7 +16,7 @@ from mock import call
 
 from osc_lib import exceptions
 
-from openstackclient.network.v2 import floating_ip
+from openstackclient.network.v2 import floating_ip as fip
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
@@ -92,7 +92,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         self.network.find_port = mock.Mock(return_value=self.port)
 
         # Get the command object to test
-        self.cmd = floating_ip.CreateFloatingIP(self.app, self.namespace)
+        self.cmd = fip.CreateFloatingIP(self.app, self.namespace)
 
     def test_create_no_options(self):
         arglist = []
@@ -210,12 +210,9 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
         self.network.delete_ip = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = floating_ip.DeleteFloatingIP(self.app, self.namespace)
+        self.cmd = fip.DeleteFloatingIP(self.app, self.namespace)
 
-    @mock.patch(
-        "openstackclient.tests.unit.network.v2.test_floating_ip." +
-        "floating_ip._find_floating_ip"
-    )
+    @mock.patch.object(fip, '_find_floating_ip')
     def test_floating_ip_delete(self, find_floating_ip_mock):
         find_floating_ip_mock.side_effect = [
             self.floating_ips[0],
@@ -239,10 +236,7 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
         self.network.delete_ip.assert_called_once_with(self.floating_ips[0])
         self.assertIsNone(result)
 
-    @mock.patch(
-        "openstackclient.tests.unit.network.v2.test_floating_ip." +
-        "floating_ip._find_floating_ip"
-    )
+    @mock.patch.object(fip, '_find_floating_ip')
     def test_floating_ip_delete_multi(self, find_floating_ip_mock):
         find_floating_ip_mock.side_effect = [
             self.floating_ips[0],
@@ -280,10 +274,7 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
         self.network.delete_ip.assert_has_calls(calls)
         self.assertIsNone(result)
 
-    @mock.patch(
-        "openstackclient.tests.unit.network.v2.test_floating_ip." +
-        "floating_ip._find_floating_ip"
-    )
+    @mock.patch.object(fip, '_find_floating_ip')
     def test_floating_ip_delete_multi_exception(self, find_floating_ip_mock):
         find_floating_ip_mock.side_effect = [
             self.floating_ips[0],
@@ -380,7 +371,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         self.network.find_router = mock.Mock(return_value=self.fake_router)
 
         # Get the command object to test
-        self.cmd = floating_ip.ListFloatingIP(self.app, self.namespace)
+        self.cmd = fip.ListFloatingIP(self.app, self.namespace)
 
     def test_floating_ip_list(self):
         arglist = []
@@ -572,12 +563,9 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
         self.network.find_ip = mock.Mock(return_value=self.floating_ip)
 
         # Get the command object to test
-        self.cmd = floating_ip.ShowFloatingIP(self.app, self.namespace)
+        self.cmd = fip.ShowFloatingIP(self.app, self.namespace)
 
-    @mock.patch(
-        "openstackclient.tests.unit.network.v2.test_floating_ip." +
-        "floating_ip._find_floating_ip"
-    )
+    @mock.patch.object(fip, '_find_floating_ip')
     def test_floating_ip_show(self, find_floating_ip_mock):
         find_floating_ip_mock.return_value = self.floating_ip
         arglist = [
@@ -597,6 +585,154 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+
+class TestSetFloatingIP(TestFloatingIPNetwork):
+
+    # Fake data for option tests.
+    floating_network = network_fakes.FakeNetwork.create_one_network()
+    subnet = network_fakes.FakeSubnet.create_one_subnet()
+    port = network_fakes.FakePort.create_one_port()
+
+    # The floating ip to be deleted.
+    floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip(
+        attrs={
+            'floating_network_id': floating_network.id,
+            'port_id': port.id,
+        }
+    )
+
+    def setUp(self):
+        super(TestSetFloatingIP, self).setUp()
+        self.network.find_ip = mock.Mock(return_value=self.floating_ip)
+        self.network.find_port = mock.Mock(return_value=self.port)
+        self.network.update_ip = mock.Mock(return_value=None)
+
+        # Get the command object to test
+        self.cmd = fip.SetFloatingIP(self.app, self.namespace)
+
+    @mock.patch(
+        "openstackclient.tests.unit.network.v2.test_floating_ip." +
+        "fip._find_floating_ip"
+    )
+    def test_port_option(self, find_floating_ip_mock):
+        find_floating_ip_mock.side_effect = [
+            self.floating_ip,
+        ]
+        arglist = [
+            self.floating_ip.id,
+            '--port', self.floating_ip.port_id,
+        ]
+        verifylist = [
+            ('floating_ip', self.floating_ip.id),
+            ('port', self.floating_ip.port_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'port_id': self.floating_ip.port_id,
+        }
+
+        find_floating_ip_mock.assert_called_once_with(
+            mock.ANY,
+            self.floating_ip.id,
+            ignore_missing=False,
+        )
+
+        self.network.update_ip.assert_called_once_with(
+            self.floating_ip, **attrs)
+
+    @mock.patch(
+        "openstackclient.tests.unit.network.v2.test_floating_ip." +
+        "fip._find_floating_ip"
+    )
+    def test_fixed_ip_option(self, find_floating_ip_mock):
+        find_floating_ip_mock.side_effect = [
+            self.floating_ip,
+        ]
+        arglist = [
+            self.floating_ip.id,
+            '--port', self.floating_ip.port_id,
+            "--fixed-ip-address", self.floating_ip.fixed_ip_address,
+        ]
+        verifylist = [
+            ('floating_ip', self.floating_ip.id),
+            ('port', self.floating_ip.port_id),
+            ('fixed_ip_address', self.floating_ip.fixed_ip_address),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'port_id': self.floating_ip.port_id,
+            'fixed_ip_address': self.floating_ip.fixed_ip_address,
+        }
+        find_floating_ip_mock.assert_called_once_with(
+            mock.ANY,
+            self.floating_ip.id,
+            ignore_missing=False,
+        )
+        self.network.update_ip.assert_called_once_with(
+            self.floating_ip, **attrs)
+
+
+class TestUnsetFloatingIP(TestFloatingIPNetwork):
+
+    floating_network = network_fakes.FakeNetwork.create_one_network()
+    subnet = network_fakes.FakeSubnet.create_one_subnet()
+    port = network_fakes.FakePort.create_one_port()
+
+    # The floating ip to be deleted.
+    floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip(
+        attrs={
+            'floating_network_id': floating_network.id,
+            'port_id': port.id,
+        }
+    )
+
+    def setUp(self):
+        super(TestUnsetFloatingIP, self).setUp()
+        self.network.find_ip = mock.Mock(return_value=self.floating_ip)
+        self.network.update_ip = mock.Mock(return_value=None)
+
+        # Get the command object to test
+        self.cmd = fip.UnsetFloatingIP(self.app, self.namespace)
+
+    @mock.patch(
+        "openstackclient.tests.unit.network.v2.test_floating_ip." +
+        "fip._find_floating_ip"
+    )
+    def test_floating_ip_unset_port(self, find_floating_ip_mock):
+        find_floating_ip_mock.side_effect = [
+            self.floating_ip,
+        ]
+        arglist = [
+            self.floating_ip.id,
+            "--port",
+        ]
+        verifylist = [
+            ('floating_ip', self.floating_ip.id),
+            ('port', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'port_id': None,
+        }
+        find_floating_ip_mock.assert_called_once_with(
+            mock.ANY,
+            self.floating_ip.id,
+            ignore_missing=False,
+        )
+        self.network.update_ip.assert_called_once_with(
+            self.floating_ip, **attrs)
+
+        self.assertIsNone(result)
 
 
 # Tests for Nova network
@@ -639,7 +775,7 @@ class TestCreateFloatingIPCompute(TestFloatingIPCompute):
         self.compute.floating_ips.create.return_value = self.floating_ip
 
         # Get the command object to test
-        self.cmd = floating_ip.CreateFloatingIP(self.app, None)
+        self.cmd = fip.CreateFloatingIP(self.app, None)
 
     def test_create_no_options(self):
         arglist = []
@@ -682,7 +818,7 @@ class TestDeleteFloatingIPCompute(TestFloatingIPCompute):
             compute_fakes.FakeFloatingIP.get_floating_ips(self.floating_ips))
 
         # Get the command object to test
-        self.cmd = floating_ip.DeleteFloatingIP(self.app, None)
+        self.cmd = fip.DeleteFloatingIP(self.app, None)
 
     def test_floating_ip_delete(self):
         arglist = [
@@ -782,7 +918,7 @@ class TestListFloatingIPCompute(TestFloatingIPCompute):
         self.compute.floating_ips.list.return_value = self.floating_ips
 
         # Get the command object to test
-        self.cmd = floating_ip.ListFloatingIP(self.app, None)
+        self.cmd = fip.ListFloatingIP(self.app, None)
 
     def test_floating_ip_list(self):
         arglist = []
@@ -826,7 +962,7 @@ class TestShowFloatingIPCompute(TestFloatingIPCompute):
         self.compute.floating_ips.get.return_value = self.floating_ip
 
         # Get the command object to test
-        self.cmd = floating_ip.ShowFloatingIP(self.app, None)
+        self.cmd = fip.ShowFloatingIP(self.app, None)
 
     def test_floating_ip_show(self):
         arglist = [

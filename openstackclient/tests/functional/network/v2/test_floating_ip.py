@@ -21,6 +21,10 @@ class FloatingIpTests(base.TestCase):
     """Functional tests for floating ip"""
     SUBNET_NAME = uuid.uuid4().hex
     NETWORK_NAME = uuid.uuid4().hex
+    PRIVATE_NETWORK_NAME = uuid.uuid4().hex
+    PRIVATE_SUBNET_NAME = uuid.uuid4().hex
+    ROUTER = uuid.uuid4().hex
+    PORT_NAME = uuid.uuid4().hex
 
     @classmethod
     def setUpClass(cls):
@@ -30,6 +34,8 @@ class FloatingIpTests(base.TestCase):
         cls.re_fixed_ip = re.compile("fixed_ip_address\s+\|\s+(\S+)")
         cls.re_description = re.compile("description\s+\|\s+([^|]+?)\s+\|")
         cls.re_network_id = re.compile("floating_network_id\s+\|\s+(\S+)")
+        cls.re_port_id = re.compile("\s+id\s+\|\s+(\S+)")
+        cls.re_fp_port_id = re.compile("\s+port_id\s+\|\s+(\S+)")
 
         # Create a network for the floating ip
         raw_output = cls.openstack(
@@ -37,12 +43,22 @@ class FloatingIpTests(base.TestCase):
         )
         cls.network_id = re.search(cls.re_id, raw_output).group(1)
 
+        # Create a private network for the port
+        raw_output = cls.openstack(
+            'network create ' + cls.PRIVATE_NETWORK_NAME
+        )
+        cls.private_network_id = re.search(cls.re_id, raw_output).group(1)
+
         # Try random subnet range for subnet creating
         # Because we can not determine ahead of time what subnets are already
         # in use, possibly by another test running in parallel, try 4 times
         for i in range(4):
             # Make a random subnet
             cls.subnet = ".".join(map(
+                str,
+                (random.randint(0, 223) for _ in range(3))
+            )) + ".0/26"
+            cls.private_subnet = ".".join(map(
                 str,
                 (random.randint(0, 223) for _ in range(3))
             )) + ".0/26"
@@ -54,6 +70,13 @@ class FloatingIpTests(base.TestCase):
                     '--subnet-range ' + cls.subnet + ' ' +
                     cls.SUBNET_NAME
                 )
+                # Create a subnet for the private network
+                priv_raw_output = cls.openstack(
+                    'subnet create ' +
+                    '--network ' + cls.PRIVATE_NETWORK_NAME + ' ' +
+                    '--subnet-range ' + cls.private_subnet + ' ' +
+                    cls.PRIVATE_SUBNET_NAME
+                )
             except Exception:
                 if (i == 3):
                     # raise the exception at the last time
@@ -64,12 +87,18 @@ class FloatingIpTests(base.TestCase):
                 break
 
         cls.subnet_id = re.search(cls.re_id, raw_output).group(1)
+        cls.private_subnet_id = re.search(cls.re_id, priv_raw_output).group(1)
 
     @classmethod
     def tearDownClass(cls):
         raw_output = cls.openstack('subnet delete ' + cls.SUBNET_NAME)
         cls.assertOutput('', raw_output)
+        raw_output = cls.openstack('subnet delete ' + cls.PRIVATE_SUBNET_NAME)
+        cls.assertOutput('', raw_output)
         raw_output = cls.openstack('network delete ' + cls.NETWORK_NAME)
+        cls.assertOutput('', raw_output)
+        raw_output = cls.openstack(
+            'network delete ' + cls.PRIVATE_NETWORK_NAME)
         cls.assertOutput('', raw_output)
 
     def test_floating_ip_delete(self):
@@ -168,3 +197,50 @@ class FloatingIpTests(base.TestCase):
         #     re.search(self.re_floating_ip, raw_output).group(1),
         # )
         self.assertIsNotNone(re.search(self.re_network_id, raw_output))
+
+    def test_floating_ip_set_and_unset_port(self):
+        """Test Floating IP Set and Unset port"""
+        raw_output = self.openstack(
+            'floating ip create ' +
+            '--description shosho ' +
+            self.NETWORK_NAME
+        )
+        re_ip = re.search(self.re_floating_ip, raw_output)
+        fp_ip = re_ip.group(1)
+        self.addCleanup(self.openstack, 'floating ip delete ' + fp_ip)
+        self.assertIsNotNone(fp_ip)
+
+        raw_output1 = self.openstack(
+            'port create --network ' + self.PRIVATE_NETWORK_NAME
+            + ' --fixed-ip subnet=' + self.PRIVATE_SUBNET_NAME +
+            ' ' + self.PORT_NAME
+        )
+        re_port_id = re.search(self.re_port_id, raw_output1)
+        self.assertIsNotNone(re_port_id)
+        port_id = re_port_id.group(1)
+
+        router = self.openstack('router create ' + self.ROUTER)
+        self.assertIsNotNone(router)
+        self.addCleanup(self.openstack, 'router delete ' + self.ROUTER)
+
+        self.openstack('router add port ' + self.ROUTER +
+                       ' ' + port_id)
+        self.openstack('router set --external-gateway ' + self.NETWORK_NAME +
+                       ' ' + self.ROUTER)
+
+        self.addCleanup(self.openstack, 'router unset --external-gateway '
+                        + self.ROUTER)
+        self.addCleanup(self.openstack, 'router remove port ' + self.ROUTER
+                        + ' ' + port_id)
+
+        raw_output = self.openstack(
+            'floating ip set ' +
+            fp_ip + ' --port ' + port_id)
+        self.addCleanup(self.openstack, 'floating ip unset --port ' + fp_ip)
+
+        show_output = self.openstack(
+            'floating ip show ' + fp_ip)
+
+        self.assertEqual(
+            port_id,
+            re.search(self.re_fp_port_id, show_output).group(1))

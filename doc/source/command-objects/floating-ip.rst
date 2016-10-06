@@ -143,6 +143,32 @@ List floating IP(s)
 
     *Network version 2 only*
 
+floating ip set
+---------------
+
+Set floating IP properties
+
+.. program:: floating ip set
+.. code:: bash
+
+    openstack floating ip set
+        --port <port>
+        [--fixed-ip-address <ip-address>]
+        <floating-ip>
+
+.. option:: --port <port>
+
+    Assocaite the floating IP with port (name or ID)
+
+.. option:: --fixed-ip-address <ip-address>
+
+    Fixed IP of the port (required only if port has multiple IPs)
+
+.. _floating_ip_set-floating-ip:
+.. describe:: <floating-ip>
+
+    Floating IP to associate (IP address or ID)
+
 floating ip show
 ----------------
 
@@ -156,3 +182,24 @@ Display floating IP details
 .. describe:: <floating-ip>
 
     Floating IP to display (IP address or ID)
+
+floating ip unset
+-----------------
+
+Unset floating IP Properties
+
+.. program:: floating ip unset
+.. code:: bash
+
+    openstack floating ip unset
+        --port
+        <floating-ip>
+
+.. option:: --port
+
+    Disassociate any port associated with the floating IP
+
+.. _floating_ip_unset-floating-ip:
+.. describe:: <floating-ip>
+
+    Floating IP to disassociate (IP address or ID)
