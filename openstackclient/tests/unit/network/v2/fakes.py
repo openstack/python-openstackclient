@@ -427,6 +427,7 @@ class FakePort(object):
             'binding:vif_details': {},
             'binding:vif_type': 'ovs',
             'binding:vnic_type': 'normal',
+            'description': 'description-' + uuid.uuid4().hex,
             'device_id': 'device-id-' + uuid.uuid4().hex,
             'device_owner': 'compute:nova',
             'dns_assignment': [{}],
