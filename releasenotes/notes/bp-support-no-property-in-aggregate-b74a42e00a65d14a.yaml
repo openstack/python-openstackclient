@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``--no-property`` option to ``aggregate set`` command.
+    This allows the property list to be cleared and replaced with
+    new values in a single command.
+    [Blueprint `support-no-property-in-aggregate <https://blueprints.launchpad.net/python-openstackclient/+spec/support-no-property-in-aggregate>`_]

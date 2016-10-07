@@ -1,0 +1,16 @@
+---
+features:
+  - |
+    Allow ``--no-fixed-ip`` and ``--no-binding-profile`` options to
+    ``port set`` command to be specified when ``--fixed-ip`` and
+    ``--binding-profile`` are present.  This allows the list of fixed
+    IPs and binding profiles to be cleared and replaced with new values
+    in a single command.
+    [Blueprint  `allow-overwrite-set-options <https://blueprints.launchpad.net/python-openstackclient/+spec/allow-overwrite-set-options>`_]
+  - |
+    Add ``--no-allocation-pool`` and ``--no-host-route`` options to
+    ``subnet set`` command that clears the respective values in the
+    specified subnet.  This allows new values to replace the entire
+    list of existing values in a single command for allocation pools
+    and host routes.
+    [Blueprint  `allow-overwrite-set-options <https://blueprints.launchpad.net/python-openstackclient/+spec/allow-overwrite-set-options>`_]

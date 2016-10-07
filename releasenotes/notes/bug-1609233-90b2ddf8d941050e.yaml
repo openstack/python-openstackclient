@@ -1,4 +1,6 @@
 ---
 fixes:
-  - Fix the ``--class`` option not work when we set/show the quota class.
+  - |
+    Fix the ``--class`` option in ``quota set`` and ``quota show``
+    commands to not perform a project lookup in Identity.
     [Bug `1609233 <https://bugs.launchpad.net/bugs/1609233>`_]

@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--description`` option to ``network create`` and
+    ``network set`` commands.
+    [Blueprint `network-commands-options <https://blueprints.launchpad.net/python-openstackclient/+spec/network-commands-options>`_]

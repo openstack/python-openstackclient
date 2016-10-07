@@ -1,7 +1,9 @@
 ---
 features:
   - |
-    Add ``--description`` option for core network resources. Allows users to
-    set a description for: ``floating ip create`` and ``router set/create``.
+    Add ``--description`` option to ``floating ip create`` command.
     [Blueprint :oscbp:`neutron-client-descriptions`]
+  - |
+    Add ``--description`` option to ``router set`` and
+    ``router create`` commands.
     [Blueprint :oscbp:`network-commands-options`]

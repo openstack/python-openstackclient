@@ -1,7 +1,0 @@
----
-features:
-  - |
-    Add ``--no-property`` option in ``aggregate set``.
-    Supporting ``--no-property`` option will apply user a convenience way to
-    clean all properties of aggregate in a short command.
-    [Blueprint `support-no-property-in-aggregate <https://blueprints.launchpad.net/python-openstackclient/+spec/support-no-property-in-aggregate>`_]

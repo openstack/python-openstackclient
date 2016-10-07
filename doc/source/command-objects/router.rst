@@ -63,7 +63,8 @@ Create new router
     os router create
         [--project <project> [--project-domain <project-domain>]]
         [--enable | --disable]
-        [--distributed] [--ha]
+        [--distributed]
+        [--ha]
         [--description <description>]
         [--availability-zone-hint <availability-zone>]
         <name>

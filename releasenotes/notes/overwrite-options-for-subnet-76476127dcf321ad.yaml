@@ -1,6 +1,0 @@
----
-features:
-  - |
-    ``subnet set`` command now allows the user to clear and overwrite
-    allocation-pool or host-route of a subnet.
-    [ Blueprint  `allow-overwrite-set-options <https://blueprints.launchpad.net/python-openstackclient/+spec/allow-overwrite-set-options>` _]
