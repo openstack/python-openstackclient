@@ -773,9 +773,9 @@ class TestUnsetRouter(TestRouter):
         super(TestUnsetRouter, self).setUp()
         self._testrouter = network_fakes.FakeRouter.create_one_router(
             {'routes': [{"destination": "192.168.101.1/24",
-                         "gateway": "172.24.4.3"},
+                         "nexthop": "172.24.4.3"},
                         {"destination": "192.168.101.2/24",
-                         "gateway": "172.24.4.3"}], })
+                         "nexthop": "172.24.4.3"}], })
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet()
         self.network.find_router = mock.Mock(return_value=self._testrouter)
         self.network.update_router = mock.Mock(return_value=None)

@@ -520,12 +520,11 @@ class UnsetRouter(command.Command):
         if parsed_args.routes:
             try:
                 for route in parsed_args.routes:
+                    route['nexthop'] = route.pop('gateway')
                     tmp_routes.remove(route)
             except ValueError:
                 msg = (_("Router does not contain route %s") % route)
                 raise exceptions.CommandError(msg)
-            for route in tmp_routes:
-                route['nexthop'] = route.pop('gateway')
             attrs['routes'] = tmp_routes
         if attrs:
             client.update_router(obj, **attrs)
