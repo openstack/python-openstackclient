@@ -198,6 +198,7 @@ Set router properties
         [--distributed | --centralized]
         [--description <description>]
         [--route destination=<subnet>,gateway=<ip-address> | --no-route]
+        [--ha | --no-ha]
         <router>
 
 .. option:: --name <name>
@@ -234,6 +235,14 @@ Set router properties
 .. option:: --no-route
 
     Clear routes associated with the router
+
+.. option:: --ha
+
+    Set the router as highly available (disabled router only)
+
+.. option:: --no-ha
+
+    Clear high availablability attribute of the router (disabled router only)
 
 .. _router_set-router:
 .. describe:: <router>

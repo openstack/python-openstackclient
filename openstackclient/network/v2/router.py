@@ -433,11 +433,19 @@ class SetRouter(command.Command):
             action='store_true',
             help=argparse.SUPPRESS,
         )
-
-        # TODO(tangchen): Support setting 'ha' property in 'router set'
-        # command. It appears that changing the ha state is supported by
-        # neutron under certain conditions.
-
+        routes_ha = parser.add_mutually_exclusive_group()
+        routes_ha.add_argument(
+            '--ha',
+            action='store_true',
+            help=_("Set the router as highly available "
+                   "(disabled router only)")
+        )
+        routes_ha.add_argument(
+            '--no-ha',
+            action='store_true',
+            help=_("Clear high availablability attribute of the router "
+                   "(disabled router only)")
+        )
         # TODO(tangchen): Support setting 'external_gateway_info' property in
         # 'router set' command.
 
@@ -451,6 +459,10 @@ class SetRouter(command.Command):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
 
         # Get the route attributes.
+        if parsed_args.ha:
+            attrs['ha'] = True
+        elif parsed_args.no_ha:
+            attrs['ha'] = False
         if parsed_args.no_route:
             attrs['routes'] = []
         elif parsed_args.clear_routes:

@@ -529,6 +529,7 @@ class TestSetRouter(TestRouter):
             '--enable',
             '--distributed',
             '--name', 'noob',
+            '--no-ha',
             '--description', 'router',
         ]
         verifylist = [
@@ -537,6 +538,7 @@ class TestSetRouter(TestRouter):
             ('distributed', True),
             ('name', 'noob'),
             ('description', 'router'),
+            ('no_ha', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -546,6 +548,7 @@ class TestSetRouter(TestRouter):
             'admin_state_up': True,
             'distributed': True,
             'name': 'noob',
+            'ha': False,
             'description': 'router',
         }
         self.network.update_router.assert_called_once_with(
@@ -557,11 +560,13 @@ class TestSetRouter(TestRouter):
             self._router.name,
             '--disable',
             '--centralized',
+            '--ha',
         ]
         verifylist = [
             ('router', self._router.name),
             ('disable', True),
             ('centralized', True),
+            ('ha', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -570,6 +575,7 @@ class TestSetRouter(TestRouter):
         attrs = {
             'admin_state_up': False,
             'distributed': False,
+            'ha': True,
         }
         self.network.update_router.assert_called_once_with(
             self._router, **attrs)

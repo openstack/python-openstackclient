@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add support to update high-availability property of
+    a router by adding ``--ha`` and ``--no-ha`` option
+    to ``router set`` CLI.
+    [Bug `1631492 <https://bugs.launchpad.net/bugs/1631492>`_]
