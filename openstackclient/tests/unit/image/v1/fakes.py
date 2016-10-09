@@ -13,7 +13,9 @@
 #   under the License.
 #
 
+import copy
 import mock
+import uuid
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit import utils
@@ -74,3 +76,45 @@ class TestImagev1(utils.TestCommand):
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+
+
+class FakeImage(object):
+    """Fake one or more images."""
+
+    @staticmethod
+    def create_one_image(attrs=None):
+        """Create a fake image.
+
+        :param Dictionary attrs:
+            A dictionary with all attrbutes of image
+        :return:
+            A FakeResource object with id, name, owner, protected,
+            visibility and tags attrs
+        """
+        attrs = attrs or {}
+
+        # Set default attribute
+        image_info = {
+            'id': str(uuid.uuid4()),
+            'name': 'image-name' + uuid.uuid4().hex,
+            'owner': 'image-owner' + uuid.uuid4().hex,
+            'container_format': '',
+            'disk_format': '',
+            'min_disk': 0,
+            'min_ram': 0,
+            'is_public': True,
+            'protected': False,
+            'properties': {
+                'Alpha': 'a',
+                'Beta': 'b',
+                'Gamma': 'g'},
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        image_info.update(attrs)
+
+        image = fakes.FakeResource(
+            info=copy.deepcopy(image_info),
+            loaded=True)
+
+        return image
