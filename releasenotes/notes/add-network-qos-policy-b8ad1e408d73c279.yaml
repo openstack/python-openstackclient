@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add support for Network QoS policies commands:
+    ``network qos policy create``, ``network qos policy delete``,
+    ``network qos policy list``, ``network qos policy show`` and
+    ``network qos policy set``
+    [Bug `1609037 <https://bugs.launchpad.net/bugs/1609037>`_]
