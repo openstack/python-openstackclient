@@ -973,15 +973,15 @@ class MigrateServer(command.Command):
         migration_group = parser.add_mutually_exclusive_group()
         migration_group.add_argument(
             '--shared-migration',
-            dest='shared_migration',
-            action='store_true',
-            default=True,
+            dest='block_migration',
+            action='store_false',
+            default=False,
             help=_('Perform a shared live migration (default)'),
         )
         migration_group.add_argument(
             '--block-migration',
-            dest='shared_migration',
-            action='store_false',
+            dest='block_migration',
+            action='store_true',
             help=_('Perform a block live migration'),
         )
         disk_group = parser.add_mutually_exclusive_group()
@@ -1016,9 +1016,9 @@ class MigrateServer(command.Command):
         )
         if parsed_args.live:
             server.live_migrate(
-                parsed_args.live,
-                parsed_args.shared_migration,
-                parsed_args.disk_overcommit,
+                host=parsed_args.live,
+                block_migration=parsed_args.block_migration,
+                disk_over_commit=parsed_args.disk_overcommit,
             )
         else:
             server.migrate()
