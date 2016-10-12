@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add a new column ``status`` and ``--long`` option to the result of the
+    ``os port list`` command.
+    [Bug `1613995 <https://bugs.launchpad.net/bugs/1613995>`_]
+    [Bug `1614321 <https://bugs.launchpad.net/bugs/1614321>`_]

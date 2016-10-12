@@ -117,6 +117,7 @@ List ports
         [--device-owner <device-owner>]
         [--router <router> | --server <server>]
         [--network <network>]
+        [--long]
 
 .. option:: --device-owner <device-owner>
 
@@ -134,6 +135,10 @@ List ports
 .. option:: --network <network>
 
     List only ports attached to this network (name or ID)
+
+.. option:: --long
+
+    List additional fields in output
 
 port set
 --------

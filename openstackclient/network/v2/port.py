@@ -360,6 +360,12 @@ class ListPort(command.Lister):
             metavar='<server>',
             help=_("List only ports attached to this server (name or ID)"),
         )
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help=_("List additional fields in output")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -371,15 +377,20 @@ class ListPort(command.Lister):
             'name',
             'mac_address',
             'fixed_ips',
+            'status',
         )
         column_headers = (
             'ID',
             'Name',
             'MAC Address',
             'Fixed IP Addresses',
+            'Status',
         )
 
         filters = {}
+        if parsed_args.long:
+            columns += ('security_groups', 'device_owner',)
+            column_headers += ('Security Groups', 'Device Owner',)
         if parsed_args.device_owner is not None:
             filters['device_owner'] = parsed_args.device_owner
         if parsed_args.router:

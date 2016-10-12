@@ -317,6 +317,17 @@ class TestListPort(TestPort):
         'Name',
         'MAC Address',
         'Fixed IP Addresses',
+        'Status',
+    )
+
+    columns_long = (
+        'ID',
+        'Name',
+        'MAC Address',
+        'Fixed IP Addresses',
+        'Status',
+        'Security Groups',
+        'Device Owner',
     )
 
     data = []
@@ -326,6 +337,19 @@ class TestListPort(TestPort):
             prt.name,
             prt.mac_address,
             utils.format_list_of_dicts(prt.fixed_ips),
+            prt.status,
+        ))
+
+    data_long = []
+    for prt in _ports:
+        data_long.append((
+            prt.id,
+            prt.name,
+            prt.mac_address,
+            utils.format_list_of_dicts(prt.fixed_ips),
+            prt.status,
+            utils.format_list(prt.security_groups),
+            prt.device_owner,
         ))
 
     def setUp(self):
@@ -438,6 +462,23 @@ class TestListPort(TestPort):
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
+
+    def test_list_port_with_long(self):
+        arglist = [
+            '--long',
+        ]
+
+        verifylist = [
+            ('long', True),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ports.assert_called_once_with()
+        self.assertEqual(self.columns_long, columns)
+        self.assertEqual(self.data_long, list(data))
 
 
 class TestSetPort(TestPort):
