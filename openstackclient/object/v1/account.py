@@ -18,6 +18,8 @@ from osc_lib.command import command
 from osc_lib import utils
 import six
 
+from openstackclient.i18n import _
+
 
 class SetAccount(command.Command):
     """Set account properties"""
@@ -29,8 +31,8 @@ class SetAccount(command.Command):
             metavar="<key=value>",
             required=True,
             action=parseractions.KeyValueAction,
-            help="Set a property on this account "
-                 "(repeat option to set multiple properties)"
+            help=_("Set a property on this account "
+                   "(repeat option to set multiple properties)")
         )
         return parser
 
@@ -61,8 +63,8 @@ class UnsetAccount(command.Command):
             required=True,
             action='append',
             default=[],
-            help='Property to remove from account '
-                 '(repeat option to remove multiple properties)',
+            help=_('Property to remove from account '
+                   '(repeat option to remove multiple properties)'),
         )
         return parser
 

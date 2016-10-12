@@ -37,19 +37,19 @@ class CreateObject(command.Lister):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Container for new object',
+            help=_('Container for new object'),
         )
         parser.add_argument(
             'objects',
             metavar='<filename>',
             nargs="+",
-            help='Local filename(s) to upload',
+            help=_('Local filename(s) to upload'),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help='Upload a file and rename it. '
-                 'Can only be used when uploading a single object'
+            help=_('Upload a file and rename it. '
+                   'Can only be used when uploading a single object')
         )
         return parser
 
@@ -88,13 +88,13 @@ class DeleteObject(command.Command):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Delete object(s) from <container>',
+            help=_('Delete object(s) from <container>'),
         )
         parser.add_argument(
             'objects',
             metavar='<object>',
             nargs="+",
-            help='Object(s) to delete',
+            help=_('Object(s) to delete'),
         )
         return parser
 
@@ -115,45 +115,45 @@ class ListObject(command.Lister):
         parser.add_argument(
             "container",
             metavar="<container>",
-            help="Container to list",
+            help=_("Container to list"),
         )
         parser.add_argument(
             "--prefix",
             metavar="<prefix>",
-            help="Filter list using <prefix>",
+            help=_("Filter list using <prefix>"),
         )
         parser.add_argument(
             "--delimiter",
             metavar="<delimiter>",
-            help="Roll up items with <delimiter>",
+            help=_("Roll up items with <delimiter>"),
         )
         parser.add_argument(
             "--marker",
             metavar="<marker>",
-            help="Anchor for paging",
+            help=_("Anchor for paging"),
         )
         parser.add_argument(
             "--end-marker",
             metavar="<end-marker>",
-            help="End anchor for paging",
+            help=_("End anchor for paging"),
         )
         parser.add_argument(
             "--limit",
             metavar="<limit>",
             type=int,
-            help="Limit the number of objects returned",
+            help=_("Limit the number of objects returned"),
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help='List additional fields in output',
+            help=_('List additional fields in output'),
         )
         parser.add_argument(
             '--all',
             action='store_true',
             default=False,
-            help='List all objects in container (default is 10000)',
+            help=_('List all objects in container (default is 10000)'),
         )
         return parser
 
@@ -204,17 +204,17 @@ class SaveObject(command.Command):
         parser.add_argument(
             "--file",
             metavar="<filename>",
-            help="Destination filename (defaults to object name)",
+            help=_("Destination filename (defaults to object name)"),
         )
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Download <object> from <container>',
+            help=_('Download <object> from <container>'),
         )
         parser.add_argument(
             "object",
             metavar="<object>",
-            help="Object to save",
+            help=_("Object to save"),
         )
         return parser
 
@@ -234,20 +234,20 @@ class SetObject(command.Command):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Modify <object> from <container>',
+            help=_('Modify <object> from <container>'),
         )
         parser.add_argument(
             'object',
             metavar='<object>',
-            help='Object to modify',
+            help=_('Object to modify'),
         )
         parser.add_argument(
             "--property",
             metavar="<key=value>",
             required=True,
             action=parseractions.KeyValueAction,
-            help="Set a property on this object "
-                 "(repeat option to set multiple properties)"
+            help=_("Set a property on this object "
+                   "(repeat option to set multiple properties)")
         )
         return parser
 
@@ -267,12 +267,12 @@ class ShowObject(command.ShowOne):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Display <object> from <container>',
+            help=_('Display <object> from <container>'),
         )
         parser.add_argument(
             'object',
             metavar='<object>',
-            help='Object to display',
+            help=_('Object to display'),
         )
         return parser
 
@@ -296,12 +296,12 @@ class UnsetObject(command.Command):
         parser.add_argument(
             'container',
             metavar='<container>',
-            help='Modify <object> from <container>',
+            help=_('Modify <object> from <container>'),
         )
         parser.add_argument(
             'object',
             metavar='<object>',
-            help='Object to modify',
+            help=_('Object to modify'),
         )
         parser.add_argument(
             '--property',
@@ -309,8 +309,8 @@ class UnsetObject(command.Command):
             required=True,
             action='append',
             default=[],
-            help='Property to remove from object '
-                 '(repeat option to remove multiple properties)',
+            help=_('Property to remove from object '
+                   '(repeat option to remove multiple properties)'),
         )
         return parser
 
