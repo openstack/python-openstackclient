@@ -118,12 +118,12 @@ Some options can be repeated to build a collection of values for a property.
 Adding a value to the collection must be provided via the ``set`` action.
 Removing a value from the collection must be provided via an ``unset`` action.
 As a convenience, removing all values from the collection may be provided via a
-``--no`` option on the ``set`` and ``unset`` actions. If both ``--no`` option
-and option are specified, the values specified on the command would overwrite
-the collection property instead of appending on the ``set`` action. The
-``--no`` option must be part of a mutually exclusive group with the related
-property option on the ``unset`` action, overwrite case don't exist in
-``unset`` action.
+``--no`` option on the ``set`` action and a ``--all`` option on ``unset``
+action. If both ``--no`` option and option are specified, the values specified
+on the command would overwrite the collection property instead of appending on
+the ``set`` action. The ``--all`` option must be part of a mutually exclusive
+group with the related property option on the ``unset`` action, overwrite case
+don't exist in ``unset`` action.
 
 An example behavior for ``set`` action:
 
@@ -165,7 +165,9 @@ An example parser declaration for `set` action:
             '--no-example-property',
             dest='no_example_property',
             action='store_true',
-            help=_('Remove all example properties for this <resource>'),
+            help=_('Remove all example properties for this <resource> '
+                   '(specify both --example-property and --no-example-property'
+                   ' to overwrite the current example properties)'),
         )
 
 An example handler in `take_action()` for `set` action:
@@ -194,8 +196,8 @@ An example parser declaration for `unset` action:
                    '(repeat option to remove multiple properties)'),
         )
         example_property_group.add_argument(
-            '--no-example-property',
-            dest='no_example_property',
+            '--all-example-property',
+            dest='all_example_property',
             action='store_true',
             help=_('Remove all example properties for this <resource>'),
         )
@@ -208,7 +210,7 @@ An example handler in `take_action()` for `unset` action:
             kwargs['example_property'] = \
                 list(set(resource_example_property) - \
                      set(parsed_args.example_property))
-        if parsed_args.no_example_property:
+        if parsed_args.all_example_property:
             kwargs['example_property'] = []
 
 Required Options
