@@ -542,7 +542,7 @@ class SetSubnet(command.Command):
             if not parsed_args.no_allocation_pool:
                 attrs['allocation_pools'] += obj.allocation_pools
         elif parsed_args.no_allocation_pool:
-            attrs['allocation_pools'] = ''
+            attrs['allocation_pools'] = []
         if 'service_types' in attrs:
             attrs['service_types'] += obj.service_types
         client.update_subnet(obj, **attrs)
