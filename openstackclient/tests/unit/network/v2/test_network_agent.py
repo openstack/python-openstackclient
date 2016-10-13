@@ -73,6 +73,46 @@ class TestAddNetworkToAgent(TestNetworkAgent):
             self.agent, self.net)
 
 
+class TestAddRouterAgent(TestNetworkAgent):
+
+    _router = network_fakes.FakeRouter.create_one_router()
+    _agent = network_fakes.FakeNetworkAgent.create_one_network_agent()
+
+    def setUp(self):
+        super(TestAddRouterAgent, self).setUp()
+        self.network.add_router_to_agent = mock.Mock()
+        self.cmd = network_agent.AddRouterToAgent(self.app, self.namespace)
+        self.network.get_agent = mock.Mock(return_value=self._agent)
+        self.network.find_router = mock.Mock(return_value=self._router)
+
+    def test_add_no_options(self):
+        arglist = []
+        verifylist = []
+
+        # Missing agent ID will cause command to bail
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_add_router_required_options(self):
+        arglist = [
+            self._agent.id,
+            self._router.id,
+            '--l3',
+        ]
+        verifylist = [
+            ('l3', True),
+            ('agent_id', self._agent.id),
+            ('router', self._router.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.add_router_to_agent.assert_called_with(
+            self._agent, self._router)
+        self.assertIsNone(result)
+
+
 class TestDeleteNetworkAgent(TestNetworkAgent):
 
     network_agents = (
@@ -171,32 +211,14 @@ class TestListNetworkAgent(TestNetworkAgent):
     )
     data = []
     for agent in network_agents:
-        agent.agent_type = 'DHCP agent'
         data.append((
             agent.id,
             agent.agent_type,
             agent.host,
             agent.availability_zone,
-            agent.alive,
+            network_agent._format_alive(agent.alive),
             network_agent._format_admin_state(agent.admin_state_up),
             agent.binary,
-        ))
-
-    network_agent_columns = (
-        'ID',
-        'Host',
-        'Admin State Up',
-        'Alive',
-    )
-
-    network_agent_data = []
-
-    for agent in network_agents:
-        network_agent_data.append((
-            agent.id,
-            agent.host,
-            network_agent._format_admin_state(agent.admin_state_up),
-            agent.alive,
         ))
 
     def setUp(self):
@@ -211,6 +233,14 @@ class TestListNetworkAgent(TestNetworkAgent):
         self._testnetwork = network_fakes.FakeNetwork.create_one_network()
         self.network.find_network = mock.Mock(return_value=self._testnetwork)
         self.network.network_hosting_dhcp_agents = mock.Mock(
+            return_value=self.network_agents)
+
+        self.network.get_agent = mock.Mock(return_value=_testagent)
+
+        self._testrouter = \
+            network_fakes.FakeRouter.create_one_router()
+        self.network.find_router = mock.Mock(return_value=self._testrouter)
+        self.network.routers_hosting_l3_agents = mock.Mock(
             return_value=self.network_agents)
 
         # Get the command object to test
@@ -239,7 +269,7 @@ class TestListNetworkAgent(TestNetworkAgent):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.agents.assert_called_once_with(**{
-            'agent_type': self.network_agents[0].agent_type,
+            'agent_type': 'DHCP agent',
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -276,8 +306,53 @@ class TestListNetworkAgent(TestNetworkAgent):
 
         self.network.network_hosting_dhcp_agents.assert_called_once_with(
             *attrs)
-        self.assertEqual(self.network_agent_columns, columns)
-        self.assertEqual(list(self.network_agent_data), list(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_agents_list_routers(self):
+        arglist = [
+            '--router', self._testrouter.id,
+        ]
+        verifylist = [
+            ('router', self._testrouter.id),
+            ('long', False)
+        ]
+
+        attrs = {self._testrouter, }
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.routers_hosting_l3_agents.assert_called_once_with(
+            *attrs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_agents_list_routers_with_long_option(self):
+        arglist = [
+            '--router', self._testrouter.id,
+            '--long',
+        ]
+        verifylist = [
+            ('router', self._testrouter.id),
+            ('long', True)
+        ]
+
+        attrs = {self._testrouter, }
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.routers_hosting_l3_agents.assert_called_once_with(
+            *attrs)
+
+        # Add a column 'HA State' and corresponding data.
+        router_agent_columns = self.columns + ('HA State',)
+        router_agent_data = [d + ('',) for d in self.data]
+
+        self.assertEqual(router_agent_columns, columns)
+        self.assertEqual(router_agent_data, list(data))
 
 
 class TestRemoveNetworkFromAgent(TestNetworkAgent):
@@ -303,6 +378,16 @@ class TestRemoveNetworkFromAgent(TestNetworkAgent):
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
+    def test_network_agents_list_routers_no_arg(self):
+        arglist = [
+            '--routers',
+        ]
+        verifylist = []
+
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
     def test_network_from_dhcp_agent(self):
         arglist = [
             '--dhcp',
@@ -320,6 +405,46 @@ class TestRemoveNetworkFromAgent(TestNetworkAgent):
 
         self.network.remove_dhcp_agent_from_network.assert_called_once_with(
             self.agent, self.net)
+
+
+class TestRemoveRouterAgent(TestNetworkAgent):
+    _router = network_fakes.FakeRouter.create_one_router()
+    _agent = network_fakes.FakeNetworkAgent.create_one_network_agent()
+
+    def setUp(self):
+        super(TestRemoveRouterAgent, self).setUp()
+        self.network.remove_router_from_agent = mock.Mock()
+        self.cmd = network_agent.RemoveRouterFromAgent(self.app,
+                                                       self.namespace)
+        self.network.get_agent = mock.Mock(return_value=self._agent)
+        self.network.find_router = mock.Mock(return_value=self._router)
+
+    def test_remove_no_options(self):
+        arglist = []
+        verifylist = []
+
+        # Missing agent ID will cause command to bail
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_remove_router_required_options(self):
+        arglist = [
+            '--l3',
+            self._agent.id,
+            self._router.id,
+        ]
+        verifylist = [
+            ('l3', True),
+            ('agent_id', self._agent.id),
+            ('router', self._router.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.remove_router_from_agent.assert_called_with(
+            self._agent, self._router)
+        self.assertIsNone(result)
 
 
 class TestSetNetworkAgent(TestNetworkAgent):
@@ -415,9 +540,9 @@ class TestShowNetworkAgent(TestNetworkAgent):
         'id',
     )
     data = (
-        network_agent._format_admin_state(_network_agent.admin_state_up),
+        network_agent._format_admin_state(_network_agent.is_admin_state_up),
         _network_agent.agent_type,
-        _network_agent.alive,
+        network_agent._format_alive(_network_agent.is_alive),
         _network_agent.availability_zone,
         _network_agent.binary,
         utils.format_dict(_network_agent.configurations),

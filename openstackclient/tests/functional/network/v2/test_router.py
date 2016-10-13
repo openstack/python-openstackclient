@@ -151,6 +151,40 @@ class RouterTests(common.NetworkTests):
         self.assertIn(name1, names)
         self.assertIn(name2, names)
 
+    def test_router_list_l3_agent(self):
+        """Tests create router, add l3 agent, list, delete"""
+        name = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'router create -f json ' + name))
+
+        self.addCleanup(self.openstack, 'router delete ' + name)
+        # Get router ID
+        router_id = cmd_output['id']
+        # Get l3 agent id
+        cmd_output = json.loads(self.openstack(
+            'network agent list -f json --agent-type l3'))
+
+        # Check at least one L3 agent is included in the response.
+        self.assertTrue(cmd_output)
+        agent_id = cmd_output[0]['ID']
+
+        # Add router to agent
+        self.openstack(
+            'network agent add router --l3 ' + agent_id + ' ' + router_id)
+
+        cmd_output = json.loads(self.openstack(
+            'router list -f json --agent ' + agent_id))
+        router_ids = [x['ID'] for x in cmd_output]
+        self.assertIn(router_id, router_ids)
+
+        # Remove router from agent
+        self.openstack(
+            'network agent remove router --l3 ' + agent_id + ' ' + router_id)
+        cmd_output = json.loads(self.openstack(
+            'router list -f json --agent ' + agent_id))
+        router_ids = [x['ID'] for x in cmd_output]
+        self.assertNotIn(router_id, router_ids)
+
     def test_router_set_show_unset(self):
         """Tests create router, set, unset, show"""
 

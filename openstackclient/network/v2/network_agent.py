@@ -26,10 +26,16 @@ from openstackclient.network import sdk_utils
 LOG = logging.getLogger(__name__)
 
 
+def _format_alive(alive):
+    return ":-)" if alive else "XXX"
+
+
 def _format_admin_state(state):
     return 'UP' if state else 'DOWN'
 
 _formatters = {
+    'is_alive': _format_alive,
+    'alive': _format_alive,
     'admin_state_up': _format_admin_state,
     'is_admin_state_up': _format_admin_state,
     'configurations': utils.format_dict,
@@ -60,7 +66,7 @@ class AddNetworkToAgent(command.Command):
         parser.add_argument(
             'network',
             metavar='<network>',
-            help=_('Network to be added to an agent (ID or name)'))
+            help=_('Network to be added to an agent (name or ID)'))
 
         return parser
 
@@ -76,6 +82,37 @@ class AddNetworkToAgent(command.Command):
                 msg = 'Failed to add {} to {}'.format(
                     network.name, agent.agent_type)
                 exceptions.CommandError(msg)
+
+
+class AddRouterToAgent(command.Command):
+    _description = _("Add router to an agent")
+
+    def get_parser(self, prog_name):
+        parser = super(AddRouterToAgent, self).get_parser(prog_name)
+        parser.add_argument(
+            '--l3',
+            action='store_true',
+            help=_('Add router to an L3 agent')
+        )
+        parser.add_argument(
+            'agent_id',
+            metavar='<agent-id>',
+            help=_("Agent to which a router is added (ID only)")
+        )
+        parser.add_argument(
+            'router',
+            metavar='<router>',
+            help=_("Router to be added to an agent (name or ID)")
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        agent = client.get_agent(parsed_args.agent_id)
+        router = client.find_router(parsed_args.router, ignore_missing=False)
+        if parsed_args.l3:
+            client.add_router_to_agent(agent, router)
 
 
 class DeleteNetworkAgent(command.Command):
@@ -135,11 +172,24 @@ class ListNetworkAgent(command.Lister):
             metavar='<host>',
             help=_("List only agents running on the specified host")
         )
-        parser.add_argument(
+        agent_type_group = parser.add_mutually_exclusive_group()
+        agent_type_group.add_argument(
             '--network',
             metavar='<network>',
             help=_('List agents hosting a network (name or ID)')
         )
+        agent_type_group.add_argument(
+            '--router',
+            metavar='<router>',
+            help=_('List agents hosting this router (name or ID)')
+        )
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help=_("List additional fields in output")
+        )
+
         return parser
 
     def take_action(self, parsed_args):
@@ -178,28 +228,18 @@ class ListNetworkAgent(command.Lister):
         }
 
         filters = {}
+
         if parsed_args.network is not None:
-            columns = (
-                'id',
-                'host',
-                'is_admin_state_up',
-                'is_alive',
-            )
-            column_headers = (
-                'ID',
-                'Host',
-                'Admin State Up',
-                'Alive',
-            )
             network = client.find_network(
                 parsed_args.network, ignore_missing=False)
             data = client.network_hosting_dhcp_agents(network)
-
-            return (column_headers,
-                    (utils.get_item_properties(
-                        s, columns,
-                        formatters=_formatters,
-                    ) for s in data))
+        elif parsed_args.router is not None:
+            if parsed_args.long:
+                columns += ('ha_state',)
+                column_headers += ('HA State',)
+            router = client.find_router(parsed_args.router,
+                                        ignore_missing=False)
+            data = client.routers_hosting_l3_agents(router)
         else:
             if parsed_args.agent_type is not None:
                 filters['agent_type'] = key_value[parsed_args.agent_type]
@@ -207,10 +247,10 @@ class ListNetworkAgent(command.Lister):
                 filters['host'] = parsed_args.host
 
             data = client.agents(**filters)
-            return (column_headers,
-                    (utils.get_item_properties(
-                        s, columns, formatters=_formatters,
-                    ) for s in data))
+        return (column_headers,
+                (utils.get_item_properties(
+                    s, columns, formatters=_formatters,
+                ) for s in data))
 
 
 class RemoveNetworkFromAgent(command.Command):
@@ -229,7 +269,7 @@ class RemoveNetworkFromAgent(command.Command):
         parser.add_argument(
             'network',
             metavar='<network>',
-            help=_('Network to be removed from an agent (ID or name)'))
+            help=_('Network to be removed from an agent (name or ID)'))
         return parser
 
     def take_action(self, parsed_args):
@@ -244,6 +284,37 @@ class RemoveNetworkFromAgent(command.Command):
                 msg = 'Failed to remove {} to {}'.format(
                     network.name, agent.agent_type)
                 exceptions.CommandError(msg)
+
+
+class RemoveRouterFromAgent(command.Command):
+    _description = _("Remove router from an agent")
+
+    def get_parser(self, prog_name):
+        parser = super(RemoveRouterFromAgent, self).get_parser(prog_name)
+        parser.add_argument(
+            '--l3',
+            action='store_true',
+            help=_('Remove router from an L3 agent')
+        )
+        parser.add_argument(
+            'agent_id',
+            metavar='<agent-id>',
+            help=_("Agent from which router will be removed (ID only)")
+        )
+        parser.add_argument(
+            'router',
+            metavar='<router>',
+            help=_("Router to be removed from an agent (name or ID)")
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        agent = client.get_agent(parsed_args.agent_id)
+        router = client.find_router(parsed_args.router, ignore_missing=False)
+        if parsed_args.l3:
+            client.remove_router_from_agent(agent, router)
 
 
 # TODO(huanxuan): Use the SDK resource mapped attribute names once the
