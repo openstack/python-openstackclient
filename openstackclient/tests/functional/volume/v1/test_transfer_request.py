@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import uuid
 
 from openstackclient.tests.functional.volume.v1 import common
@@ -67,11 +68,12 @@ class TransferRequestTests(common.BaseVolumeTests):
         self.assertNotEqual('', auth_key)
 
         # accept the volume transfer request
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack(
-            'volume transfer request accept ' + name +
-            ' ' + auth_key + opts)
-        self.assertEqual(name + '\n', raw_output)
+        json_output = json.loads(self.openstack(
+            'volume transfer request accept -f json ' +
+            name + ' ' +
+            '--auth-key ' + auth_key
+        ))
+        self.assertEqual(name, json_output.get('name'))
 
         # the volume transfer will be removed by default after accepted
         # so just need to delete the volume here

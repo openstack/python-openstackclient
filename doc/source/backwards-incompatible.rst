@@ -16,6 +16,17 @@ this backwards incompatible change handling.
 Backwards Incompatible Changes
 ==============================
 
+.. Carry this section as comments until 4.0 release
+.. Release 4.0
+.. -----------
+
+.. 1. Change ``volume transfer request accept`` to use new option ``--auth-key``
+..    rather than a second positional argument.
+
+..   * As of: 4.0
+..   * Remove in: <5.0>
+..   * Commit: <tbd>
+
 Release 3.0
 -----------
 

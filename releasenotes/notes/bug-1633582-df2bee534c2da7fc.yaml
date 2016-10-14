@@ -1,0 +1,17 @@
+---
+deprecations:
+  - |
+    ``volume transfer request accept`` has been changed to move the ``auth-key``
+    positional argument to a requried option ``--auth-key``.  This leaves
+    the transfer request ID as the only positional arguemnt, as per the
+    OpenStackClient command format.  The old format is still functional, but is
+    dperecated and will be removed in the next major release.
+fixes:
+  - |
+    Fix ``volume transfer request accept`` to not fail the transfer request
+    name/ID lookup for non-admin users as the Volume API does not allow non-admin
+    users access to transfers in other projects.
+    [Bug `1633582 <https://bugs.launchpad.net/python-openstackclient/+bug/1633582>`_]
+  - |
+    Change the output column order in ``volume transfer request list`` to have
+    ``ID`` followed by ``Name`` then the remaining columns.

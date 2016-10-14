@@ -64,23 +64,61 @@ class TestTransferAccept(TestTransfer):
 
     def test_transfer_accept(self):
         arglist = [
+            '--auth-key', 'key_value',
             self.volume_transfer.id,
-            'auth_key',
         ]
         verifylist = [
             ('transfer_request', self.volume_transfer.id),
-            ('auth_key', 'auth_key'),
+            ('auth_key', 'key_value'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
         self.transfer_mock.get.assert_called_once_with(
-            self.volume_transfer.id)
+            self.volume_transfer.id,
+        )
         self.transfer_mock.accept.assert_called_once_with(
-            self.volume_transfer.id, 'auth_key')
+            self.volume_transfer.id,
+            'key_value',
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+    def test_transfer_accept_deprecated(self):
+        arglist = [
+            self.volume_transfer.id,
+            'key_value',
+        ]
+        verifylist = [
+            ('transfer_request', self.volume_transfer.id),
+            ('old_auth_key', 'key_value'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.transfer_mock.accept.assert_called_once_with(
+            self.volume_transfer.id,
+            'key_value',
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_transfer_accept_no_option(self):
+        arglist = [
+            self.volume_transfer.id,
+        ]
+        verifylist = [
+            ('transfer_request', self.volume_transfer.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
 
 
 class TestTransferCreate(TestTransfer):
@@ -219,7 +257,7 @@ class TestTransferDelete(TestTransfer):
                 self.fail('CommandError should be raised.')
             except exceptions.CommandError as e:
                 self.assertEqual('1 of 2 volume transfer requests failed '
-                                 'to delete.', str(e))
+                                 'to delete', str(e))
 
             find_mock.assert_any_call(
                 self.transfer_mock, self.volume_transfers[0].id)
@@ -256,8 +294,8 @@ class TestTransferList(TestTransfer):
 
         expected_columns = [
             'ID',
-            'Volume',
             'Name',
+            'Volume',
         ]
 
         # confirming if all expected columns are present in the result.
@@ -265,8 +303,8 @@ class TestTransferList(TestTransfer):
 
         datalist = ((
             self.volume_transfers.id,
-            self.volume_transfers.volume_id,
             self.volume_transfers.name,
+            self.volume_transfers.volume_id,
         ), )
 
         # confirming if all expected values are present in the result.
@@ -295,8 +333,8 @@ class TestTransferList(TestTransfer):
 
         expected_columns = [
             'ID',
-            'Volume',
             'Name',
+            'Volume',
         ]
 
         # confirming if all expected columns are present in the result.
@@ -304,8 +342,8 @@ class TestTransferList(TestTransfer):
 
         datalist = ((
             self.volume_transfers.id,
-            self.volume_transfers.volume_id,
             self.volume_transfers.name,
+            self.volume_transfers.volume_id,
         ), )
 
         # confirming if all expected values are present in the result.

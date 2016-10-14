@@ -13,17 +13,19 @@ Accept volume transfer request
 .. code:: bash
 
     openstack volume transfer request accept
-        <transfer-request>
-        <auth-key>
+        --auth-key <key>
+        <transfer-request-id>
+
+.. option:: --auth-key <key>
+
+    Volume transfer request authentication key
 
 .. _volume_transfer_request_accept:
-.. describe:: <transfer-request>
+.. describe:: <transfer-request-id>
 
-    Volume transfer request to accept (name or ID)
+    Volume transfer request to accept (ID only)
 
-.. describe:: <auth-key>
-
-    Authentication key of transfer request
+    Non-admin users are only able to specify the transfer request by ID.
 
 volume transfer request create
 ------------------------------
@@ -65,7 +67,7 @@ Delete volume transfer request(s)
 volume transfer request list
 ----------------------------
 
-Lists all volume transfer requests.
+Lists all volume transfer requests
 
 .. program:: volume transfer request list
 .. code:: bash
@@ -75,8 +77,7 @@ Lists all volume transfer requests.
 
 .. option:: --all-projects
 
-    Shows detail for all projects. Admin only.
-    (defaults to False)
+    Include all projects (admin only)
 
 volume transfer request show
 ----------------------------
