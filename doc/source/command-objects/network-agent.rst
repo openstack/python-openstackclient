@@ -10,6 +10,31 @@ agent is "True".
 
 Network v2
 
+network agent add network
+-------------------------
+
+Add network to an agent
+
+.. program:: network agent add network
+.. code:: bash
+
+    openstack network agent add network
+        [--dhcp]
+        <agent-id>
+        <network>
+
+.. describe:: --dhcp
+
+    Add a network to DHCP agent.
+
+.. describe:: <agent-id>
+
+    Agent to which a network is added. (ID only)
+
+.. describe:: <network>
+
+    Network to be added to an agent. (ID or name)
+
 network agent delete
 --------------------
 
@@ -37,6 +62,7 @@ List network agents
     openstack network agent list
         [--agent-type <agent-type>]
         [--host <host>]
+        [--network <network>]
 
 .. option:: --agent-type <agent-type>
 
@@ -48,6 +74,10 @@ List network agents
 .. option:: --host <host>
 
     List only agents running on the specified host
+
+.. option:: --network <network>
+
+    List agents hosting a network. (ID or name)
 
 network agent set
 -----------------
@@ -94,3 +124,28 @@ Display network agent details
 .. describe:: <network-agent>
 
     Network agent to display (ID only)
+
+network agent remove network
+----------------------------
+
+Remove network from an agent
+
+.. program:: network agent remove network
+.. code:: bash
+
+    openstack network agent remove network
+        [--dhcp]
+        <agent-id>
+        <network>
+
+.. describe:: --dhcp
+
+    Remove network from DHCP agent.
+
+.. describe:: <agent-id>
+
+    Agent to which a network is removed. (ID only)
+
+.. describe:: <network>
+
+    Network to be removed from an agent. (ID or name)

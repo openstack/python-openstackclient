@@ -29,7 +29,6 @@ LOG = logging.getLogger(__name__)
 def _format_admin_state(state):
     return 'UP' if state else 'DOWN'
 
-
 _formatters = {
     'admin_state_up': _format_admin_state,
     'is_admin_state_up': _format_admin_state,
@@ -43,6 +42,40 @@ def _get_network_columns(item):
         'is_alive': 'alive',
     }
     return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
+
+
+class AddNetworkToAgent(command.Command):
+    _description = _("Add network to an agent")
+
+    def get_parser(self, prog_name):
+        parser = super(AddNetworkToAgent, self).get_parser(prog_name)
+        parser.add_argument(
+            '--dhcp',
+            action='store_true',
+            help=_('Add network to a DHCP agent'))
+        parser.add_argument(
+            'agent_id',
+            metavar='<agent-id>',
+            help=_('Agent to which a network is added. (ID only)'))
+        parser.add_argument(
+            'network',
+            metavar='<network>',
+            help=_('Network to be added to an agent.  (ID or name)'))
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        agent = client.get_agent(parsed_args.agent_id)
+        if parsed_args.dhcp:
+            network = client.find_network(
+                parsed_args.network, ignore_missing=False)
+            try:
+                client.add_dhcp_agent_to_network(agent, network)
+            except Exception:
+                msg = 'Failed to add {} to {}'.format(
+                    network.name, agent.agent_type)
+                exceptions.CommandError(msg)
 
 
 class DeleteNetworkAgent(command.Command):
@@ -101,6 +134,11 @@ class ListNetworkAgent(command.Lister):
             metavar='<host>',
             help=_("List only agents running on the specified host")
         )
+        parser.add_argument(
+            '--network',
+            metavar='<network>',
+            help=_('List agents hosting a network (name or ID)')
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -138,16 +176,72 @@ class ListNetworkAgent(command.Lister):
         }
 
         filters = {}
-        if parsed_args.agent_type is not None:
-            filters['agent_type'] = key_value[parsed_args.agent_type]
-        if parsed_args.host is not None:
-            filters['host'] = parsed_args.host
+        if parsed_args.network is not None:
+            columns = (
+                'id',
+                'host',
+                'is_admin_state_up',
+                'is_alive',
+            )
+            column_headers = (
+                'ID',
+                'Host',
+                'Admin State Up',
+                'Alive',
+            )
+            network = client.find_network(
+                parsed_args.network, ignore_missing=False)
+            data = client.network_hosting_dhcp_agents(network)
 
-        data = client.agents(**filters)
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns, formatters=_formatters,
-                ) for s in data))
+            return (column_headers,
+                    (utils.get_item_properties(
+                        s, columns,
+                        formatters=_formatters,
+                    ) for s in data))
+        else:
+            if parsed_args.agent_type is not None:
+                filters['agent_type'] = key_value[parsed_args.agent_type]
+            if parsed_args.host is not None:
+                filters['host'] = parsed_args.host
+
+            data = client.agents(**filters)
+            return (column_headers,
+                    (utils.get_item_properties(
+                        s, columns, formatters=_formatters,
+                    ) for s in data))
+
+
+class RemoveNetworkFromAgent(command.Command):
+    _description = _("Remove network from an agent.")
+
+    def get_parser(self, prog_name):
+        parser = super(RemoveNetworkFromAgent, self).get_parser(prog_name)
+        parser.add_argument(
+            '--dhcp',
+            action='store_true',
+            help=_('Remove network from DHCP agent'))
+        parser.add_argument(
+            'agent_id',
+            metavar='<agent-id>',
+            help=_('Agent to which a network is removed. (ID only)'))
+        parser.add_argument(
+            'network',
+            metavar='<network>',
+            help=_('Network to be removed from an agent. (ID or name)'))
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        agent = client.get_agent(parsed_args.agent_id)
+        if parsed_args.dhcp:
+            network = client.find_network(
+                parsed_args.network, ignore_missing=False)
+            try:
+                client.remove_dhcp_agent_from_network(agent, network)
+            except Exception:
+                msg = 'Failed to remove {} to {}'.format(
+                    network.name, agent.agent_type)
+                exceptions.CommandError(msg)
 
 
 # TODO(huanxuan): Use the SDK resource mapped attribute names once the
