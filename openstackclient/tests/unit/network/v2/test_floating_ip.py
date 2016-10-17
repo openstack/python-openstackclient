@@ -237,6 +237,8 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         'Floating IP Address',
         'Fixed IP Address',
         'Port',
+        'Floating Network',
+        'Project',
     )
 
     data = []
@@ -246,6 +248,8 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
             ip.floating_ip_address,
             ip.fixed_ip_address,
             ip.port_id,
+            ip.floating_network_id,
+            ip.tenant_id,
         ))
 
     def setUp(self):

@@ -203,12 +203,16 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             'floating_ip_address',
             'fixed_ip_address',
             'port_id',
+            'floating_network_id',
+            'project_id',
         )
         headers = (
             'ID',
             'Floating IP Address',
             'Fixed IP Address',
             'Port',
+            'Floating Network',
+            'Project',
         )
 
         query = {}

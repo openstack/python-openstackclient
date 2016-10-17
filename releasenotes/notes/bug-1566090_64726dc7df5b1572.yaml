@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    ``openstack floating ip`` now provides ``Floating Network`` and
+    ``Project`` to identify to which network and project the
+    floating-ip belongs to.
+    [Bug `1566090 <https://bugs.launchpad.net/bugs/1566090>`_]
