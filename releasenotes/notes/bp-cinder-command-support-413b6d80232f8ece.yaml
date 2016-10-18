@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--type`` and ``--retype-policy`` options to ``volume set`` command.
+    [Blueprint `cinder-command-support <https://blueprints.launchpad.net/python-openstackclient/+spec/cinder-command-support>`_]
