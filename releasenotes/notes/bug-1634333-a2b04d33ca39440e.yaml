@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add support to allow filtering ports via ``--mac-address``
+    option to the ``port list`` command.
+    [Bug `1634333 <https://bugs.launchpad.net/bugs/1634333>`_]

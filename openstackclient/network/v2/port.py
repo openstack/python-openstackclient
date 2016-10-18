@@ -385,6 +385,11 @@ class ListPort(command.Lister):
             help=_("List only ports attached to this server (name or ID)"),
         )
         parser.add_argument(
+            '--mac-address',
+            metavar='<mac-address>',
+            help=_("List only ports with this MAC address")
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -429,6 +434,8 @@ class ListPort(command.Lister):
             network = network_client.find_network(parsed_args.network,
                                                   ignore_missing=False)
             filters['network_id'] = network.id
+        if parsed_args.mac_address:
+            filters['mac_address'] = parsed_args.mac_address
 
         data = network_client.ports(**filters)
 

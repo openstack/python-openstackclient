@@ -530,12 +530,14 @@ class TestListPort(TestPort):
             '--device-owner', self._ports[0].device_owner,
             '--router', 'fake-router-name',
             '--network', 'fake-network-name',
+            '--mac-address', self._ports[0].mac_address,
         ]
 
         verifylist = [
             ('device_owner', self._ports[0].device_owner),
             ('router', 'fake-router-name'),
-            ('network', 'fake-network-name')
+            ('network', 'fake-network-name'),
+            ('mac_address', self._ports[0].mac_address)
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -545,7 +547,27 @@ class TestListPort(TestPort):
         self.network.ports.assert_called_once_with(**{
             'device_owner': self._ports[0].device_owner,
             'device_id': 'fake-router-id',
-            'network_id': 'fake-network-id'
+            'network_id': 'fake-network-id',
+            'mac_address': self._ports[0].mac_address
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_port_list_mac_address_opt(self):
+        arglist = [
+            '--mac-address', self._ports[0].mac_address,
+        ]
+
+        verifylist = [
+            ('mac_address', self._ports[0].mac_address)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ports.assert_called_once_with(**{
+            'mac_address': self._ports[0].mac_address
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
