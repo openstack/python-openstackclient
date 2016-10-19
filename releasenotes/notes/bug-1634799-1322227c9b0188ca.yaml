@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--fixed-ip`` option to the ``port list`` command.
+    [Bug `1634799 <https://bugs.launchpad.net/bugs/1634799>`_]

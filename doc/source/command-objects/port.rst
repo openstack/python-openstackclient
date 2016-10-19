@@ -155,6 +155,7 @@ List ports
         [--router <router> | --server <server>]
         [--network <network>]
         [--mac-address <mac-address>]
+        [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]
         [--long]
         [--project <project> [--project-domain <project-domain>]]
 
@@ -178,6 +179,12 @@ List ports
 .. option:: --mac-address <mac-address>
 
     List only ports with this MAC address
+
+.. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
+
+    Desired IP and/or subnet (name or ID) for filtering ports:
+    subnet=<subnet>,ip-address=<ip-address>
+    (repeat option to set multiple fixed IP addresses)
 
 .. option:: --long
 
