@@ -52,7 +52,7 @@ Create network RBAC policy
 .. _network_rbac_create-rbac-policy:
 .. describe:: <rbac-object>
 
-    The object to which this RBAC policy affects (name or ID for network objects, ID only for QoS policy objects)
+    The object to which this RBAC policy affects (name or ID)
 
 network rbac delete
 -------------------
