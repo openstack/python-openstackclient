@@ -14,15 +14,14 @@
 #
 
 import argparse
-import copy
 import mock
 from mock import call
 
 from osc_lib import exceptions
 from osc_lib import utils
 
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests.unit.image.v1 import fakes as image_fakes
 from openstackclient.tests.unit import utils as tests_utils
 from openstackclient.tests.unit.volume.v1 import fakes as volume_fakes
 from openstackclient.volume.v1 import volume
@@ -321,19 +320,16 @@ class TestVolumeCreate(TestVolume):
         self.assertEqual(self.datalist, data)
 
     def test_volume_create_image_id(self):
-        self.images_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.IMAGE),
-            loaded=True,
-        )
+        image = image_fakes.FakeImage.create_one_image()
+        self.images_mock.get.return_value = image
 
         arglist = [
-            '--image', volume_fakes.image_id,
+            '--image', image.id,
             '--size', str(self.new_volume.size),
             self.new_volume.display_name,
         ]
         verifylist = [
-            ('image', volume_fakes.image_id),
+            ('image', image.id),
             ('size', self.new_volume.size),
             ('name', self.new_volume.display_name),
         ]
@@ -360,26 +356,23 @@ class TestVolumeCreate(TestVolume):
             None,
             None,
             None,
-            volume_fakes.image_id,
+            image.id,
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_volume_create_image_name(self):
-        self.images_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(volume_fakes.IMAGE),
-            loaded=True,
-        )
+        image = image_fakes.FakeImage.create_one_image()
+        self.images_mock.get.return_value = image
 
         arglist = [
-            '--image', volume_fakes.image_name,
+            '--image', image.name,
             '--size', str(self.new_volume.size),
             self.new_volume.display_name,
         ]
         verifylist = [
-            ('image', volume_fakes.image_name),
+            ('image', image.name),
             ('size', self.new_volume.size),
             ('name', self.new_volume.display_name),
         ]
@@ -406,7 +399,7 @@ class TestVolumeCreate(TestVolume):
             None,
             None,
             None,
-            volume_fakes.image_id,
+            image.id,
         )
 
         self.assertEqual(self.columns, columns)
