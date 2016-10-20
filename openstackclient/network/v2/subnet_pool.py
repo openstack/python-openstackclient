@@ -238,40 +238,42 @@ class ListSubnetPool(command.Lister):
         shared_group.add_argument(
             '--share',
             action='store_true',
-            help=_("List subnets shared between projects"),
+            help=_("List subnet pools shared between projects"),
         )
         shared_group.add_argument(
             '--no-share',
             action='store_true',
-            help=_("List subnets not shared between projects"),
+            help=_("List subnet pools not shared between projects"),
         )
         default_group = parser.add_mutually_exclusive_group()
         default_group.add_argument(
             '--default',
             action='store_true',
-            help=_("List subnets used as the default external subnet pool"),
+            help=_("List subnet pools used as the default external "
+                   "subnet pool"),
         )
         default_group.add_argument(
             '--no-default',
             action='store_true',
-            help=_("List subnets not used as the default external subnet pool")
+            help=_("List subnet pools not used as the default external "
+                   "subnet pool")
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("List subnets according to their project (name or ID)")
+            help=_("List subnet pools according to their project (name or ID)")
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List only subnets of given name in output")
+            help=_("List only subnet pools of given name in output")
         )
         parser.add_argument(
             '--address-scope',
             metavar='<address-scope>',
-            help=_("List only subnets of given address scope (name or ID) "
-                   "in output")
+            help=_("List only subnet pools of given address scope "
+                   "(name or ID) in output")
         )
         return parser
 

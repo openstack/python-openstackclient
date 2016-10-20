@@ -121,23 +121,23 @@ List subnet pools
 
 .. option:: --share
 
-    List subnets shared between projects
+    List subnet pools shared between projects
 
 .. option:: --no-share
 
-    List subnets not shared between projects
+    List subnet pools not shared between projects
 
 .. option:: --default
 
-    List subnets used as the default external subnet pool
+    List subnet pools used as the default external subnet pool
 
 .. option:: --no-default
 
-    List subnets not used as the default external subnet pool
+    List subnet pools not used as the default external subnet pool
 
 .. option:: --project <project>
 
-    List subnets according to their project (name or ID)
+    List subnet pools according to their project (name or ID)
 
 .. option:: --project-domain <project-domain>
 
@@ -146,11 +146,11 @@ List subnet pools
 
 .. option:: --name <name>
 
-    List only subnets of given name in output
+    List only subnet pools of given name in output
 
 .. option:: --address-scope <address-scope>
 
-    List only subnets of given address scope (name or ID) in output
+    List only subnet pools of given address scope (name or ID) in output
 
 subnet pool set
 ---------------
