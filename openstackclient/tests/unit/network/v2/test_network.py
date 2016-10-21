@@ -609,7 +609,7 @@ class TestListNetwork(TestNetwork):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
-    def test_networ_list_project_domain(self):
+    def test_network_list_project_domain(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
@@ -625,6 +625,8 @@ class TestListNetwork(TestNetwork):
         filters = {'tenant_id': project.id}
 
         self.network.networks.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
     def test_network_list_share(self):
         arglist = [
