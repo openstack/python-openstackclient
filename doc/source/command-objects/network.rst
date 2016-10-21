@@ -193,52 +193,95 @@ List networks
         [--project <project> [--project-domain <project-domain>]]
         [--share | --no-share]
         [--status <status>]
+        [--provider-network-type <provider-network-type>]
+        [--provider-physical-network <provider-physical-network>]
+        [--provider-segment <provider-segment>]
 
 .. option:: --external
 
     List external networks
 
+    *Network version 2 only*
+
 .. option:: --internal
 
     List internal networks
+
+    *Network version 2 only*
 
 .. option:: --long
 
     List additional fields in output
 
+    *Network version 2 only*
+
 .. option:: --name <name>
 
     List networks according to their name
+
+    *Network version 2 only*
 
 .. option:: --enable
 
     List enabled networks
 
+    *Network version 2 only*
+
 .. option:: --disable
 
     List disabled networks
 
+    *Network version 2 only*
+
 .. option:: --project <project>
 
     List networks according to their project (name or ID)
+
+    *Network version 2 only*
 
 .. option:: --project-domain <project-domain>
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
 
+    *Network version 2 only*
+
 .. option:: --share
 
     List networks shared between projects
+
+    *Network version 2 only*
 
 .. option:: --no-share
 
     List networks not shared between projects
 
+    *Network version 2 only*
+
 .. option:: --status <status>
 
     List networks according to their status
     ('ACTIVE', 'BUILD', 'DOWN', 'ERROR')
+
+.. option:: --provider-network-type <provider-network-type>
+
+    List networks according to their physical mechanisms.
+    The supported options are: flat, geneve, gre, local, vlan, vxlan.
+
+    *Network version 2 only*
+
+.. option:: --provider-physical-network <provider-physical-network>
+
+    List networks according to name of the physical network
+
+    *Network version 2 only*
+
+.. option:: --provider-segment <provider-segment>
+
+    List networks according to VLAN ID for VLAN networks
+    or Tunnel ID for GENEVE/GRE/VXLAN networks
+
+    *Network version 2 only*
 
 network set
 -----------
