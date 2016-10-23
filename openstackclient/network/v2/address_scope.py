@@ -140,8 +140,47 @@ class DeleteAddressScope(command.Command):
             raise exceptions.CommandError(msg)
 
 
+# TODO(yanxing'an): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class ListAddressScope(command.Lister):
     _description = _("List address scopes")
+
+    def get_parser(self, prog_name):
+        parser = super(ListAddressScope, self).get_parser(prog_name)
+
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_("List only address scopes of given name in output")
+        )
+        parser.add_argument(
+            '--ip-version',
+            type=int,
+            choices=[4, 6],
+            metavar='<ip-version>',
+            dest='ip_version',
+            help=_("List address scopes of given IP version networks (4 or 6)")
+        )
+        parser.add_argument(
+            '--project',
+            metavar="<project>",
+            help=_("List address scopes according to their project "
+                   "(name or ID)")
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
+
+        shared_group = parser.add_mutually_exclusive_group()
+        shared_group.add_argument(
+            '--share',
+            action='store_true',
+            help=_("List address scopes shared between projects")
+        )
+        shared_group.add_argument(
+            '--no-share',
+            action='store_true',
+            help=_("List address scopes not shared between projects")
+        )
+        return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
@@ -159,7 +198,27 @@ class ListAddressScope(command.Lister):
             'Shared',
             'Project',
         )
-        data = client.address_scopes()
+        attrs = {}
+        if parsed_args.name:
+            attrs['name'] = parsed_args.name
+        if parsed_args.ip_version:
+            attrs['ip_version'] = parsed_args.ip_version
+        if parsed_args.share:
+            attrs['shared'] = True
+            attrs['is_shared'] = True
+        if parsed_args.no_share:
+            attrs['shared'] = False
+            attrs['is_shared'] = False
+        if 'project' in parsed_args and parsed_args.project is not None:
+            identity_client = self.app.client_manager.identity
+            project_id = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
+            attrs['tenant_id'] = project_id
+            attrs['project_id'] = project_id
+        data = client.address_scopes(**attrs)
 
         return (column_headers,
                 (utils.get_item_properties(

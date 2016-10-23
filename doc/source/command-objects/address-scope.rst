@@ -72,6 +72,35 @@ List address scopes
 .. code:: bash
 
     os address scope list
+        [--name <name>]
+        [--ip-version <ip-version>]
+        [--project <project> [--project-domain <project-domain>]]
+        [--share | --no-share]
+
+.. option:: --name <name>
+
+    List only address scopes of given name in output
+
+.. option:: --ip-version <ip-version>
+
+    List address scopes of given IP version networks (4 or 6)
+
+.. option:: --project <project>
+
+    List address scopes according to their project (name or ID)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+.. option:: --share
+
+    List address scopes shared between projects
+
+.. option:: --no-share
+
+    List address scopes not shared between projects
 
 address scope set
 -----------------
