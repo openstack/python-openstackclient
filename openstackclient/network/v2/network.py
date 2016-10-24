@@ -42,6 +42,7 @@ def _get_columns(item):
     columns = list(item.keys())
     if 'tenant_id' in columns:
         columns.remove('tenant_id')
+    if 'project_id' not in columns:
         columns.append('project_id')
     return tuple(sorted(columns))
 
