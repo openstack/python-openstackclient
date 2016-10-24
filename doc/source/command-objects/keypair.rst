@@ -3,14 +3,16 @@ keypair
 =======
 
 The badly named keypair is really the public key of an OpenSSH key pair to be
-used for access to created servers.
+used for access to created servers. You can also create a private key for
+access to a created server by not passing any argument to the keypair create
+command.
 
 Compute v2
 
 keypair create
 --------------
 
-Create new public key
+Create new public or private key for server ssh access
 
 .. program:: keypair create
 .. code:: bash
@@ -21,16 +23,16 @@ Create new public key
 
 .. option:: --public-key <file>
 
-    Filename for public key to add
+    Filename for public key to add. If not used, creates a private key.
 
 .. describe:: <name>
 
-    New public key name
+    New public or private key name
 
 keypair delete
 --------------
 
-Delete public key(s)
+Delete public or private key(s)
 
 .. program:: keypair delete
 .. code:: bash
@@ -40,12 +42,12 @@ Delete public key(s)
 
 .. describe:: <key>
 
-    Public key(s) to delete (name only)
+    Name of key(s) to delete (name only)
 
 keypair list
 ------------
 
-List public key fingerprints
+List key fingerprints
 
 .. program:: keypair list
 .. code:: bash
@@ -55,7 +57,7 @@ List public key fingerprints
 keypair show
 ------------
 
-Display public key details
+Display key details
 
 .. program:: keypair show
 .. code:: bash
@@ -66,8 +68,8 @@ Display public key details
 
 .. option:: --public-key
 
-    Show only bare public key (name only)
+    Show only bare public key paired with the generated key
 
 .. describe:: <key>
 
-    Public key to display (name only)
+    Public or private key to display (name only)
