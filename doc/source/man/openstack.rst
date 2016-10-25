@@ -417,8 +417,8 @@ http://www.apache.org/licenses/LICENSE-2.0
 SEE ALSO
 ========
 
-The `OpenStackClient page <https://wiki.openstack.org/wiki/OpenStackClient>`_
-in the `OpenStack Wiki <https://wiki.openstack.org/>`_ contains further
+The `OpenStackClient page <http://docs.openstack.org/developer/python-openstackclient/>`_
+in the `OpenStack Docs <https://docs.openstack.org/>`_ contains further
 documentation.
 
 The individual OpenStack project CLIs, the OpenStack API references.
