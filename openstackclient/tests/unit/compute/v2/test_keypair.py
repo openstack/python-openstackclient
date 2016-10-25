@@ -179,8 +179,7 @@ class TestKeypairDelete(TestKeypair):
                 self.cmd.take_action(parsed_args)
                 self.fail('CommandError should be raised.')
             except exceptions.CommandError as e:
-                self.assertEqual('1 of 2 public keys failed to delete.',
-                                 str(e))
+                self.assertEqual('1 of 2 keys failed to delete.', str(e))
 
             find_mock.assert_any_call(
                 self.keypairs_mock, self.keypairs[0].name)

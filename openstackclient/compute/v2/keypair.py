@@ -32,19 +32,20 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateKeypair(command.ShowOne):
-    """Create new public key"""
+    """Create new public or private key for server ssh access"""
 
     def get_parser(self, prog_name):
         parser = super(CreateKeypair, self).get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<name>',
-            help=_("New public key name")
+            help=_("New public or private key name")
         )
         parser.add_argument(
             '--public-key',
             metavar='<file>',
-            help=_("Filename for public key to add")
+            help=_("Filename for public key to add. If not used, "
+                   "creates a private key.")
         )
         return parser
 
@@ -82,7 +83,7 @@ class CreateKeypair(command.ShowOne):
 
 
 class DeleteKeypair(command.Command):
-    """Delete public key(s)"""
+    """Delete public or private key(s)"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteKeypair, self).get_parser(prog_name)
@@ -90,7 +91,7 @@ class DeleteKeypair(command.Command):
             'name',
             metavar='<key>',
             nargs='+',
-            help=_("Public key(s) to delete (name only)")
+            help=_("Name of key(s) to delete (name only)")
         )
         return parser
 
@@ -104,19 +105,19 @@ class DeleteKeypair(command.Command):
                 compute_client.keypairs.delete(data.name)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete public key with name "
+                LOG.error(_("Failed to delete key with name "
                           "'%(name)s': %(e)s")
                           % {'name': n, 'e': e})
 
         if result > 0:
             total = len(parsed_args.name)
-            msg = (_("%(result)s of %(total)s public keys failed "
+            msg = (_("%(result)s of %(total)s keys failed "
                    "to delete.") % {'result': result, 'total': total})
             raise exceptions.CommandError(msg)
 
 
 class ListKeypair(command.Lister):
-    """List public key fingerprints"""
+    """List key fingerprints"""
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
@@ -133,20 +134,20 @@ class ListKeypair(command.Lister):
 
 
 class ShowKeypair(command.ShowOne):
-    """Display public key details"""
+    """Display key details"""
 
     def get_parser(self, prog_name):
         parser = super(ShowKeypair, self).get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<key>',
-            help=_("Public key to display (name only)")
+            help=_("Public or private key to display (name only)")
         )
         parser.add_argument(
             '--public-key',
             action='store_true',
             default=False,
-            help=_("Show only bare public key (name only)")
+            help=_("Show only bare public key paired with the generated key")
         )
         return parser
 
