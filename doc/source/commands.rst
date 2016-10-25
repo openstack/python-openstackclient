@@ -143,11 +143,11 @@ referring to both Compute and Volume quotas.
 * ``user``: (**Identity**) individual cloud resources users
 * ``user role``: (**Identity**) roles assigned to a user
 * ``volume``: (**Volume**) block volumes
+* ``volume backup``: (**Volume**) backup for volumes
 * ``volume qos``: (**Volume**) quality-of-service (QoS) specification for volumes
 * ``volume type``: (**Volume**) deployment-specific types of volumes available
 * ``volume service``: (**Volume**) services to manage block storage operations
 * ``volume transfer request``: (**Volume**) volume owner transfer request
-
 
 Plugin Objects
 --------------
@@ -210,6 +210,8 @@ list check out :doc:`plugin-commands`.
 * ``workflow execution``: (**Workflow Engine (Mistral)**)
 * ``zone``: (**DNS (Designate)**)
 * ``zone blacklist``: (**DNS (Designate)**)
+* ``zone export``: (**DNS (Designate)**)
+* ``zone import``: (**DNS (Designate)**)
 * ``zone transfer``: (**DNS (Designate)**)
 
 
