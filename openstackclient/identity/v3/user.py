@@ -110,6 +110,10 @@ class CreateUser(command.ShowOne):
         if parsed_args.password_prompt:
             parsed_args.password = utils.get_password(self.app.stdin)
 
+        if not parsed_args.password:
+            LOG.warning(_("No password was supplied, authentication will fail "
+                          "when a user does not have a password."))
+
         try:
             user = identity_client.users.create(
                 name=parsed_args.name,
@@ -329,6 +333,10 @@ class SetUser(command.Command):
         if parsed_args.password_prompt:
             parsed_args.password = utils.get_password(self.app.stdin)
 
+        if '' == parsed_args.password:
+            LOG.warning(_("No password was supplied, authentication will fail "
+                          "when a user does not have a password."))
+
         user = utils.find_resource(
             identity_client.users,
             parsed_args.user,
@@ -407,6 +415,10 @@ class SetPasswordUser(command.Command):
         if password is None:
             password = utils.get_password(
                 self.app.stdin, prompt="New Password:")
+
+        if '' == password:
+            LOG.warning(_("No password was supplied, authentication will fail "
+                          "when a user does not have a password."))
 
         identity_client.users.update_password(current_password, password)
 
