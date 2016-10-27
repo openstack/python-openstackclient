@@ -35,14 +35,24 @@ class ListHypervisor(command.Lister):
             metavar="<hostname>",
             help=_("Filter hypervisors using <hostname> substring")
         )
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            help=_("List additional fields in output")
+        )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         columns = (
             "ID",
-            "Hypervisor Hostname"
+            "Hypervisor Hostname",
+            "Hypervisor Type",
+            "Host IP",
+            "State"
         )
+        if parsed_args.long:
+            columns += ("vCPUs Used", "vCPUs", "Memory MB Used", "Memory MB")
 
         if parsed_args.matching:
             data = compute_client.hypervisors.search(parsed_args.matching)

@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--long`` option and more columns to the ``hypervisor list`` command.
+    [Bug `1637074 <https://bugs.launchpad.net/bugs/1637074>`_]

@@ -48,19 +48,63 @@ class TestHypervisorList(TestHypervisor):
 
         self.columns = (
             "ID",
-            "Hypervisor Hostname"
+            "Hypervisor Hostname",
+            "Hypervisor Type",
+            "Host IP",
+            "State"
+        )
+        self.columns_long = (
+            "ID",
+            "Hypervisor Hostname",
+            "Hypervisor Type",
+            "Host IP",
+            "State",
+            "vCPUs Used",
+            "vCPUs",
+            "Memory MB Used",
+            "Memory MB"
         )
         self.data = (
             (
                 self.hypervisors[0].id,
                 self.hypervisors[0].hypervisor_hostname,
+                self.hypervisors[0].hypervisor_type,
+                self.hypervisors[0].host_ip,
+                self.hypervisors[0].state
             ),
             (
                 self.hypervisors[1].id,
                 self.hypervisors[1].hypervisor_hostname,
+                self.hypervisors[1].hypervisor_type,
+                self.hypervisors[1].host_ip,
+                self.hypervisors[1].state
             ),
         )
 
+        self.data_long = (
+            (
+                self.hypervisors[0].id,
+                self.hypervisors[0].hypervisor_hostname,
+                self.hypervisors[0].hypervisor_type,
+                self.hypervisors[0].host_ip,
+                self.hypervisors[0].state,
+                self.hypervisors[0].vcpus_used,
+                self.hypervisors[0].vcpus,
+                self.hypervisors[0].memory_mb_used,
+                self.hypervisors[0].memory_mb
+            ),
+            (
+                self.hypervisors[1].id,
+                self.hypervisors[1].hypervisor_hostname,
+                self.hypervisors[1].hypervisor_type,
+                self.hypervisors[1].host_ip,
+                self.hypervisors[1].state,
+                self.hypervisors[1].vcpus_used,
+                self.hypervisors[1].vcpus,
+                self.hypervisors[1].memory_mb_used,
+                self.hypervisors[1].memory_mb
+            ),
+        )
         # Get the command object to test
         self.cmd = hypervisor.ListHypervisor(self.app, None)
 
@@ -93,6 +137,9 @@ class TestHypervisorList(TestHypervisor):
             (
                 self.hypervisors[0].id,
                 self.hypervisors[0].hypervisor_hostname,
+                self.hypervisors[1].hypervisor_type,
+                self.hypervisors[1].host_ip,
+                self.hypervisors[1].state,
             ),
         )
 
@@ -122,6 +169,24 @@ class TestHypervisorList(TestHypervisor):
         self.assertRaises(exceptions.NotFound,
                           self.cmd.take_action,
                           parsed_args)
+
+    def test_hypervisor_list_long_option(self):
+        arglist = [
+            '--long',
+        ]
+        verifylist = [
+            ('long', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.hypervisors_mock.list.assert_called_with()
+        self.assertEqual(self.columns_long, columns)
+        self.assertEqual(self.data_long, tuple(data))
 
 
 class TestHypervisorShow(TestHypervisor):

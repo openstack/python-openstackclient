@@ -14,10 +14,15 @@ List hypervisors
 
     os hypervisor list
         [--matching <hostname>]
+        [--long]
 
 .. option:: --matching <hostname>
 
     Filter hypervisors using <hostname> substring
+
+.. option:: --long
+
+    List additional fields in output
 
 hypervisor show
 ---------------
