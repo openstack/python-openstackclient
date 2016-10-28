@@ -157,6 +157,31 @@ class FakeAddressScope(object):
         return mock.Mock(side_effect=address_scopes)
 
 
+class FakeAutoAllocatedTopology(object):
+    """Fake Auto Allocated Topology"""
+
+    @staticmethod
+    def create_one_topology(attrs=None):
+        attrs = attrs or {}
+
+        auto_allocated_topology_attrs = {
+            'id': 'network-id-' + uuid.uuid4().hex,
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+        }
+
+        auto_allocated_topology_attrs.update(attrs)
+
+        auto_allocated_topology = fakes.FakeResource(
+            info=copy.deepcopy(auto_allocated_topology_attrs),
+            loaded=True)
+
+        auto_allocated_topology.project_id = auto_allocated_topology_attrs[
+            'tenant_id'
+        ]
+
+        return auto_allocated_topology
+
+
 class FakeAvailabilityZone(object):
     """Fake one or more network availability zones (AZs)."""
 
