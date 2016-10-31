@@ -261,6 +261,22 @@ class ListRouter(command.Lister):
     def get_parser(self, prog_name):
         parser = super(ListRouter, self).get_parser(prog_name)
         parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_("List routers according to their name")
+        )
+        admin_state_group = parser.add_mutually_exclusive_group()
+        admin_state_group.add_argument(
+            '--enable',
+            action='store_true',
+            help=_("List enabled routers")
+        )
+        admin_state_group.add_argument(
+            '--disable',
+            action='store_true',
+            help=_("List disabled routers")
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -289,6 +305,17 @@ class ListRouter(command.Lister):
             'HA',
             'Project',
         )
+
+        args = {}
+
+        if parsed_args.name is not None:
+            args['name'] = parsed_args.name
+
+        if parsed_args.enable:
+            args['admin_state_up'] = True
+        elif parsed_args.disable:
+            args['admin_state_up'] = False
+
         if parsed_args.long:
             columns = columns + (
                 'routes',
@@ -308,7 +335,7 @@ class ListRouter(command.Lister):
                     'Availability zones',
                 )
 
-        data = client.routers()
+        data = client.routers(**args)
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,

@@ -427,6 +427,58 @@ class TestListRouter(TestRouter):
         self.assertEqual(self.columns_long_no_az, columns)
         self.assertEqual(self.data_long_no_az, list(data))
 
+    def test_list_name(self):
+        test_name = "fakename"
+        arglist = [
+            '--name', test_name,
+        ]
+        verifylist = [
+            ('long', False),
+            ('name', test_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.routers.assert_called_once_with(
+            **{'name': test_name}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_router_list_enable(self):
+        arglist = [
+            '--enable',
+        ]
+        verifylist = [
+            ('long', False),
+            ('enable', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.routers.assert_called_once_with(
+            **{'admin_state_up': True}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_router_list_disable(self):
+        arglist = [
+            '--disable',
+        ]
+        verifylist = [
+            ('long', False),
+            ('disable', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.routers.assert_called_once_with(
+            **{'admin_state_up': False}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
 
 class TestRemovePortFromRouter(TestRouter):
     '''Remove port from a Router '''

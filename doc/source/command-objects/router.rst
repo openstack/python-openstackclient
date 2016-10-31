@@ -134,11 +134,25 @@ List routers
 .. code:: bash
 
     os router list
+        [--name <name>]
+        [--enable | --disable]
         [--long]
 
 .. option:: --long
 
     List additional fields in output
+
+.. option:: --name <name>
+
+    List routers according to their name
+
+.. option:: --enable
+
+    List enabled routers
+
+.. option:: --disable
+
+    List disabled routers
 
 router remove port
 ------------------
