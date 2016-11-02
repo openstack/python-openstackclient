@@ -19,6 +19,14 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.network import common
+from openstackclient.network import sdk_utils
+
+
+def _get_network_columns(item):
+    column_map = {
+        'tenant_id': 'project_id',
+    }
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 def _get_columns(item):
@@ -110,9 +118,9 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
     def take_action_network(self, client, parsed_args):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_ip(**attrs)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_network_columns(obj)
         data = utils.get_item_properties(obj, columns)
-        return (columns, data)
+        return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
         obj = client.floating_ips.create(parsed_args.network)
@@ -282,9 +290,9 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
 
     def take_action_network(self, client, parsed_args):
         obj = client.find_ip(parsed_args.floating_ip, ignore_missing=False)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_network_columns(obj)
         data = utils.get_item_properties(obj, columns)
-        return (columns, data)
+        return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
         obj = utils.find_resource(
