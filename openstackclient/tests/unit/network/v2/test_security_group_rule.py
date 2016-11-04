@@ -119,6 +119,15 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertRaises(tests_utils.ParserException,
                           self.check_parser, self.cmd, arglist, [])
 
+    def test_create_all_remote_options(self):
+        arglist = [
+            '--remote-ip', '10.10.0.0/24',
+            '--remote-group', self._security_group.id,
+            self._security_group.id,
+        ]
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser, self.cmd, arglist, [])
+
     def test_create_bad_ethertype(self):
         arglist = [
             '--ethertype', 'foo',
@@ -213,7 +222,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, data)
 
-    def test_create_source_group(self):
+    def test_create_remote_group(self):
         self._setup_security_group_rule({
             'port_range_max': 22,
             'port_range_min': 22,
@@ -248,6 +257,34 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, data)
 
+    def test_create_source_group(self):
+        self._setup_security_group_rule({
+            'remote_group_id': self._security_group.id,
+        })
+        arglist = [
+            '--ingress',
+            '--src-group', self._security_group.name,
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('ingress', True),
+            ('src_group', self._security_group.name),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_security_group_rule.assert_called_once_with(**{
+            'direction': self._security_group_rule.direction,
+            'ethertype': self._security_group_rule.ethertype,
+            'protocol': self._security_group_rule.protocol,
+            'remote_group_id': self._security_group_rule.remote_group_id,
+            'security_group_id': self._security_group.id,
+        })
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
     def test_create_source_ip(self):
         self._setup_security_group_rule({
             'protocol': 'icmp',
@@ -261,6 +298,35 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         verifylist = [
             ('protocol', self._security_group_rule.protocol),
             ('src_ip', self._security_group_rule.remote_ip_prefix),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_security_group_rule.assert_called_once_with(**{
+            'direction': self._security_group_rule.direction,
+            'ethertype': self._security_group_rule.ethertype,
+            'protocol': self._security_group_rule.protocol,
+            'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
+            'security_group_id': self._security_group.id,
+        })
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
+    def test_create_remote_ip(self):
+        self._setup_security_group_rule({
+            'protocol': 'icmp',
+            'remote_ip_prefix': '10.0.2.0/24',
+        })
+        arglist = [
+            '--protocol', self._security_group_rule.protocol,
+            '--remote-ip', self._security_group_rule.remote_ip_prefix,
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('protocol', self._security_group_rule.protocol),
+            ('remote_ip', self._security_group_rule.remote_ip_prefix),
             ('group', self._security_group.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -498,6 +564,15 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         self.assertRaises(tests_utils.ParserException,
                           self.check_parser, self.cmd, arglist, [])
 
+    def test_create_all_remote_options(self):
+        arglist = [
+            '--remote-ip', '10.10.0.0/24',
+            '--remote-group', self._security_group.id,
+            self._security_group.id,
+        ]
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser, self.cmd, arglist, [])
+
     def test_create_bad_protocol(self):
         arglist = [
             '--protocol', 'foo',
@@ -588,6 +663,38 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
 
+    def test_create_remote_group(self):
+        expected_columns, expected_data = self._setup_security_group_rule({
+            'from_port': 22,
+            'to_port': 22,
+            'group': {'name': self._security_group.name},
+        })
+        arglist = [
+            '--dst-port', str(self._security_group_rule.from_port),
+            '--remote-group', self._security_group.name,
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('dst_port', (self._security_group_rule.from_port,
+                          self._security_group_rule.to_port)),
+            ('remote_group', self._security_group.name),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute.security_group_rules.create.assert_called_once_with(
+            self._security_group.id,
+            self._security_group_rule.ip_protocol,
+            self._security_group_rule.from_port,
+            self._security_group_rule.to_port,
+            self._security_group_rule.ip_range['cidr'],
+            self._security_group.id,
+        )
+        self.assertEqual(expected_columns, columns)
+        self.assertEqual(expected_data, data)
+
     def test_create_source_ip(self):
         expected_columns, expected_data = self._setup_security_group_rule({
             'ip_protocol': 'icmp',
@@ -603,6 +710,38 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         verifylist = [
             ('protocol', self._security_group_rule.ip_protocol),
             ('src_ip', self._security_group_rule.ip_range['cidr']),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute.security_group_rules.create.assert_called_once_with(
+            self._security_group.id,
+            self._security_group_rule.ip_protocol,
+            self._security_group_rule.from_port,
+            self._security_group_rule.to_port,
+            self._security_group_rule.ip_range['cidr'],
+            None,
+        )
+        self.assertEqual(expected_columns, columns)
+        self.assertEqual(expected_data, data)
+
+    def test_create_remote_ip(self):
+        expected_columns, expected_data = self._setup_security_group_rule({
+            'ip_protocol': 'icmp',
+            'from_port': -1,
+            'to_port': -1,
+            'ip_range': {'cidr': '10.0.2.0/24'},
+        })
+        arglist = [
+            '--protocol', self._security_group_rule.ip_protocol,
+            '--remote-ip', self._security_group_rule.ip_range['cidr'],
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('protocol', self._security_group_rule.ip_protocol),
+            ('remote_ip', self._security_group_rule.ip_range['cidr']),
             ('group', self._security_group.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

@@ -94,14 +94,31 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             metavar='<group>',
             help=_("Create rule in this security group (name or ID)")
         )
-        source_group = parser.add_mutually_exclusive_group()
-        source_group.add_argument(
+        # NOTE(yujie): Support either remote-ip option name for now.
+        # However, consider deprecating and then removing --src-ip in
+        # a future release.
+        remote_group = parser.add_mutually_exclusive_group()
+        remote_group.add_argument(
+            "--remote-ip",
+            metavar="<ip-address>",
+            help=_("Remote IP address block (may use CIDR notation; "
+                   "default for IPv4 rule: 0.0.0.0/0)")
+        )
+        remote_group.add_argument(
             "--src-ip",
             metavar="<ip-address>",
             help=_("Source IP address block (may use CIDR notation; "
                    "default for IPv4 rule: 0.0.0.0/0)")
         )
-        source_group.add_argument(
+        # NOTE(yujie): Support either remote-group option name for now.
+        # However, consider deprecating and then removing --src-group in
+        # a future release.
+        remote_group.add_argument(
+            "--remote-group",
+            metavar="<group>",
+            help=_("Remote security group (name or ID)")
+        )
+        remote_group.add_argument(
             "--src-group",
             metavar="<group>",
             help=_("Source security group (name or ID)")
@@ -277,13 +294,16 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         if parsed_args.icmp_code:
             attrs['port_range_max'] = parsed_args.icmp_code
 
-        if parsed_args.src_group is not None:
+        if not (parsed_args.remote_group is None and
+                parsed_args.src_group is None):
             attrs['remote_group_id'] = client.find_security_group(
-                parsed_args.src_group,
+                parsed_args.remote_group or parsed_args.src_group,
                 ignore_missing=False
             ).id
-        elif parsed_args.src_ip is not None:
-            attrs['remote_ip_prefix'] = parsed_args.src_ip
+        elif not (parsed_args.remote_ip is None and
+                  parsed_args.src_ip is None):
+            attrs['remote_ip_prefix'] = (parsed_args.remote_ip or
+                                         parsed_args.src_ip)
         elif attrs['ethertype'] == 'IPv4':
             attrs['remote_ip_prefix'] = '0.0.0.0/0'
         attrs['security_group_id'] = security_group_id
@@ -312,23 +332,25 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             from_port, to_port = -1, -1
         else:
             from_port, to_port = parsed_args.dst_port
-        src_ip = None
-        if parsed_args.src_group is not None:
-            parsed_args.src_group = utils.find_resource(
+        remote_ip = None
+        if not (parsed_args.remote_group is None and
+                parsed_args.src_group is None):
+            parsed_args.remote_group = utils.find_resource(
                 client.security_groups,
-                parsed_args.src_group,
+                parsed_args.remote_group or parsed_args.src_group,
             ).id
-        if parsed_args.src_ip is not None:
-            src_ip = parsed_args.src_ip
+        if not (parsed_args.remote_ip is None and
+                parsed_args.src_ip is None):
+            remote_ip = parsed_args.remote_ip or parsed_args.src_ip
         else:
-            src_ip = '0.0.0.0/0'
+            remote_ip = '0.0.0.0/0'
         obj = client.security_group_rules.create(
             group.id,
             protocol,
             from_port,
             to_port,
-            src_ip,
-            parsed_args.src_group,
+            remote_ip,
+            parsed_args.remote_group,
         )
         return _format_security_group_rule_show(obj._info)
 
