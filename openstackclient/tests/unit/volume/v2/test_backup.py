@@ -294,6 +294,7 @@ class TestBackupList(TestBackup):
             ("volume", None),
             ("marker", None),
             ("limit", None),
+            ('all_projects', False),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -303,9 +304,10 @@ class TestBackupList(TestBackup):
             "name": None,
             "status": None,
             "volume_id": None,
+            'all_tenants': False,
         }
-        self.volumes_mock.get.assert_not_called
-        self.backups_mock.get.assert_not_called
+        self.volumes_mock.get.assert_not_called()
+        self.backups_mock.get.assert_not_called()
         self.backups_mock.list.assert_called_with(
             search_opts=search_opts,
             marker=None,
@@ -321,6 +323,7 @@ class TestBackupList(TestBackup):
             "--status", "error",
             "--volume", self.volume.id,
             "--marker", self.backups[0].id,
+            "--all-projects",
             "--limit", "3",
         ]
         verifylist = [
@@ -329,6 +332,7 @@ class TestBackupList(TestBackup):
             ("status", "error"),
             ("volume", self.volume.id),
             ("marker", self.backups[0].id),
+            ('all_projects', True),
             ("limit", 3),
         ]
 
@@ -339,6 +343,7 @@ class TestBackupList(TestBackup):
             "name": self.backups[0].name,
             "status": "error",
             "volume_id": self.volume.id,
+            'all_tenants': True,
         }
         self.volumes_mock.get.assert_called_once_with(self.volume.id)
         self.backups_mock.get.assert_called_once_with(self.backups[0].id)

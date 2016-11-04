@@ -1,0 +1,4 @@
+---
+features:
+  - The ``openstack volume backup list`` command now supports the
+    ``all-projects`` option to list volume backups accross all projects.

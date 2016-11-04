@@ -172,6 +172,12 @@ class ListVolumeBackup(command.Lister):
             help=_("Filters results by the volume which they "
                    "backup (name or ID)")
         )
+        parser.add_argument(
+            '--all-projects',
+            action='store_true',
+            default=False,
+            help=_('Include all projects (admin only)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -215,6 +221,7 @@ class ListVolumeBackup(command.Lister):
             'name': parsed_args.name,
             'status': parsed_args.status,
             'volume_id': filter_volume_id,
+            'all_tenants': parsed_args.all_projects,
         }
         data = volume_client.backups.list(
             search_opts=search_opts,

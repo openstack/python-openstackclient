@@ -94,6 +94,7 @@ List volume backups
         [--volume <volume>]
         [--marker <marker>]
         [--limit <limit>]
+        [--all-projects]
 
 .. _volume_backup_list-backup:
 .. option:: --long
@@ -124,6 +125,10 @@ List volume backups
     Maximum number of backups to display
 
     *Volume version 2 only*
+
+.. option:: --all-projects
+
+    Include all projects (admin only)
 
 volume backup restore
 ---------------------
