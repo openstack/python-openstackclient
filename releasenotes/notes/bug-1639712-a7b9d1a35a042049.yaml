@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--name``, ``--status``, ``--volume``, ``--marker`` and ``--limit`` options
+    to ``volume backup list`` command
+    [Bug `1639712 <https://bugs.launchpad.net/bugs/1639712>`_]

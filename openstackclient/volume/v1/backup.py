@@ -152,9 +152,30 @@ class ListVolumeBackup(command.Lister):
             default=False,
             help=_('List additional fields in output'),
         )
+        parser.add_argument(
+            "--name",
+            metavar="<name>",
+            help=_("Filters results by the backup name")
+        )
+        parser.add_argument(
+            "--status",
+            metavar="<status>",
+            choices=['creating', 'available', 'deleting',
+                     'error', 'restoring', 'error_restoring'],
+            help=_("Filters results by the backup status "
+                   "('creating', 'available', 'deleting', "
+                   "'error', 'restoring' or 'error_restoring')")
+        )
+        parser.add_argument(
+            "--volume",
+            metavar="<volume>",
+            help=_("Filters results by the volume which they "
+                   "backup (name or ID)")
+        )
         return parser
 
     def take_action(self, parsed_args):
+        volume_client = self.app.client_manager.volume
 
         def _format_volume_id(volume_id):
             """Return a volume name if available
@@ -180,13 +201,24 @@ class ListVolumeBackup(command.Lister):
         # Cache the volume list
         volume_cache = {}
         try:
-            for s in self.app.client_manager.volume.volumes.list():
+            for s in volume_client.volumes.list():
                 volume_cache[s.id] = s
         except Exception:
             # Just forget it if there's any trouble
             pass
 
-        data = self.app.client_manager.volume.backups.list()
+        filter_volume_id = None
+        if parsed_args.volume:
+            filter_volume_id = utils.find_resource(volume_client.volumes,
+                                                   parsed_args.volume).id
+        search_opts = {
+            'name': parsed_args.name,
+            'status': parsed_args.status,
+            'volume_id': filter_volume_id,
+        }
+        data = volume_client.backups.list(
+            search_opts=search_opts,
+        )
 
         return (column_headers,
                 (utils.get_item_properties(

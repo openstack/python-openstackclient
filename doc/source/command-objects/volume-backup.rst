@@ -88,11 +88,42 @@ List volume backups
 .. code:: bash
 
     os volume backup list
+        [--long]
+        [--name <name>]
+        [--status <status>]
+        [--volume <volume>]
+        [--marker <marker>]
+        [--limit <limit>]
 
 .. _volume_backup_list-backup:
 .. option:: --long
 
     List additional fields in output
+
+.. options:: --name <name>
+
+    Filters results by the backup name
+
+.. options:: --status <status>
+
+    Filters results by the backup status
+    ('creating', 'available', 'deleting', 'error', 'restoring' or 'error_restoring')
+
+.. options:: --volume <volume>
+
+    Filters results by the volume which they backup (name or ID)"
+
+.. options:: --marker <marker>
+
+    The last backup of the previous page (name or ID)
+
+    *Volume version 2 only*
+
+.. options:: --limit <limit>
+
+    Maximum number of backups to display
+
+    *Volume version 2 only*
 
 volume backup restore
 ---------------------

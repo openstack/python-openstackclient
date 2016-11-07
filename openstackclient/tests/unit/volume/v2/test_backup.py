@@ -280,26 +280,73 @@ class TestBackupList(TestBackup):
 
         self.volumes_mock.list.return_value = [self.volume]
         self.backups_mock.list.return_value = self.backups
+        self.volumes_mock.get.return_value = self.volume
+        self.backups_mock.get.return_value = self.backups[0]
         # Get the command to test
         self.cmd = backup.ListVolumeBackup(self.app, None)
 
     def test_backup_list_without_options(self):
         arglist = []
-        verifylist = [("long", False)]
+        verifylist = [
+            ("long", False),
+            ("name", None),
+            ("status", None),
+            ("volume", None),
+            ("marker", None),
+            ("limit", None),
+        ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
+        search_opts = {
+            "name": None,
+            "status": None,
+            "volume_id": None,
+        }
+        self.volumes_mock.get.assert_not_called
+        self.backups_mock.get.assert_not_called
+        self.backups_mock.list.assert_called_with(
+            search_opts=search_opts,
+            marker=None,
+            limit=None,
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
     def test_backup_list_with_options(self):
-        arglist = ["--long"]
-        verifylist = [("long", True)]
+        arglist = [
+            "--long",
+            "--name", self.backups[0].name,
+            "--status", "error",
+            "--volume", self.volume.id,
+            "--marker", self.backups[0].id,
+            "--limit", "3",
+        ]
+        verifylist = [
+            ("long", True),
+            ("name", self.backups[0].name),
+            ("status", "error"),
+            ("volume", self.volume.id),
+            ("marker", self.backups[0].id),
+            ("limit", 3),
+        ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
+        search_opts = {
+            "name": self.backups[0].name,
+            "status": "error",
+            "volume_id": self.volume.id,
+        }
+        self.volumes_mock.get.assert_called_once_with(self.volume.id)
+        self.backups_mock.get.assert_called_once_with(self.backups[0].id)
+        self.backups_mock.list.assert_called_with(
+            search_opts=search_opts,
+            marker=self.backups[0].id,
+            limit=3,
+        )
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
