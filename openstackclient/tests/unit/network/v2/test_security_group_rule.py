@@ -60,6 +60,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         network_fakes.FakeSecurityGroup.create_one_security_group()
 
     expected_columns = (
+        'description',
         'direction',
         'ethertype',
         'id',
@@ -81,6 +82,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.network.create_security_group_rule = mock.Mock(
             return_value=self._security_group_rule)
         self.expected_data = (
+            self._security_group_rule.description,
             self._security_group_rule.direction,
             self._security_group_rule.ethertype,
             self._security_group_rule.id,
@@ -447,6 +449,33 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'ethertype': self._security_group_rule.ethertype,
             'port_range_min': self._security_group_rule.port_range_min,
             'protocol': self._security_group_rule.protocol,
+            'security_group_id': self._security_group.id,
+        })
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
+    def test_create_with_description(self):
+        self._setup_security_group_rule({
+            'description': 'Setting SGR',
+        })
+        arglist = [
+            '--description', self._security_group_rule.description,
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('description', self._security_group_rule.description),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_security_group_rule.assert_called_once_with(**{
+            'description': self._security_group_rule.description,
+            'direction': self._security_group_rule.direction,
+            'ethertype': self._security_group_rule.ethertype,
+            'protocol': self._security_group_rule.protocol,
+            'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
             'security_group_id': self._security_group.id,
         })
         self.assertEqual(self.expected_columns, columns)
@@ -1075,6 +1104,7 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         network_fakes.FakeSecurityGroupRule.create_one_security_group_rule()
 
     columns = (
+        'description',
         'direction',
         'ethertype',
         'id',
@@ -1088,6 +1118,7 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     )
 
     data = (
+        _security_group_rule.description,
         _security_group_rule.direction,
         _security_group_rule.ethertype,
         _security_group_rule.id,

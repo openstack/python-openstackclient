@@ -110,6 +110,11 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
 
     def update_parser_network(self, parser):
         parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_("Set security group rule description")
+        )
+        parser.add_argument(
             '--dst-port',
             metavar='<port-range>',
             action=parseractions.RangeAction,
@@ -234,6 +239,9 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         # Build the create attributes.
         attrs = {}
         attrs['protocol'] = self._get_protocol(parsed_args)
+
+        if parsed_args.description is not None:
+            attrs['description'] = parsed_args.description
 
         # NOTE(rtheis): A direction must be specified and ingress
         # is the default.
