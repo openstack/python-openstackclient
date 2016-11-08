@@ -435,7 +435,7 @@ class TestListSubnetPool(TestSubnetPool):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'shared': False}
+        filters = {'shared': False, 'is_shared': False}
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -451,7 +451,7 @@ class TestListSubnetPool(TestSubnetPool):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'shared': True}
+        filters = {'shared': True, 'is_shared': True}
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -501,7 +501,7 @@ class TestListSubnetPool(TestSubnetPool):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id}
+        filters = {'tenant_id': project.id, 'project_id': project.id}
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -521,7 +521,7 @@ class TestListSubnetPool(TestSubnetPool):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id}
+        filters = {'tenant_id': project.id, 'project_id': project.id}
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
