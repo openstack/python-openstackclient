@@ -98,6 +98,7 @@ class FakeAddressScope(object):
             loaded=True)
 
         # Set attributes with special mapping in OpenStack SDK.
+        address_scope.is_shared = address_scope_attrs['shared']
         address_scope.project_id = address_scope_attrs['tenant_id']
 
         return address_scope
