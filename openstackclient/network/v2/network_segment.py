@@ -20,9 +20,14 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
+from openstackclient.network import sdk_utils
 
 
 LOG = logging.getLogger(__name__)
+
+
+def _get_columns(item):
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, {})
 
 
 class CreateNetworkSegment(command.ShowOne):
@@ -84,9 +89,9 @@ class CreateNetworkSegment(command.ShowOne):
         if parsed_args.segment is not None:
             attrs['segmentation_id'] = parsed_args.segment
         obj = client.create_segment(**attrs)
-        columns = tuple(sorted(obj.keys()))
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
-        return (columns, data)
+        return (display_columns, data)
 
 
 class DeleteNetworkSegment(command.Command):
@@ -236,6 +241,6 @@ class ShowNetworkSegment(command.ShowOne):
             parsed_args.network_segment,
             ignore_missing=False
         )
-        columns = tuple(sorted(obj.keys()))
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
-        return (columns, data)
+        return (display_columns, data)
