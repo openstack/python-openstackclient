@@ -300,7 +300,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
         floating_ip.floating_network_id,
         floating_ip.id,
         floating_ip.port_id,
-        floating_ip.tenant_id,
+        floating_ip.project_id,
         floating_ip.router_id,
         floating_ip.status,
     )
