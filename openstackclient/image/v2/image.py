@@ -32,6 +32,8 @@ from openstackclient.identity import common
 
 DEFAULT_CONTAINER_FORMAT = 'bare'
 DEFAULT_DISK_FORMAT = 'raw'
+DISK_CHOICES = ["ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2", "vhdx",
+                "vdi", "iso"]
 
 
 LOG = logging.getLogger(__name__)
@@ -140,9 +142,10 @@ class CreateImage(command.ShowOne):
         parser.add_argument(
             "--disk-format",
             default=DEFAULT_DISK_FORMAT,
+            choices=DISK_CHOICES,
             metavar="<disk-format>",
-            help=_("Image disk format "
-                   "(default: %s)") % DEFAULT_DISK_FORMAT,
+            help=_("Image disk format. The supported options are: %s. "
+                   "The default format is: raw") % ', '.join(DISK_CHOICES)
         )
         parser.add_argument(
             "--min-disk",
@@ -650,8 +653,9 @@ class SetImage(command.Command):
         parser.add_argument(
             "--disk-format",
             metavar="<disk-format>",
-            help=_("Image disk format "
-                   "(default: %s)") % DEFAULT_DISK_FORMAT,
+            choices=DISK_CHOICES,
+            help=_("Image disk format. The supported options are: %s") %
+            ', '.join(DISK_CHOICES)
         )
         protected_group = parser.add_mutually_exclusive_group()
         protected_group.add_argument(
