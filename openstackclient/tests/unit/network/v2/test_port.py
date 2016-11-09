@@ -315,6 +315,54 @@ class TestCreatePort(TestPort):
         self.assertEqual(ref_columns, columns)
         self.assertEqual(ref_data, data)
 
+    def test_create_port_security_enabled(self):
+        arglist = [
+            '--network', self._port.network_id,
+            '--enable-port-security',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id,),
+            ('enable', True),
+            ('enable_port_security', True),
+            ('name', 'test-port'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.network.create_port.assert_called_once_with(**{
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'port_security_enabled': True,
+            'name': 'test-port',
+        })
+
+    def test_create_port_security_disabled(self):
+        arglist = [
+            '--network', self._port.network_id,
+            '--disable-port-security',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id,),
+            ('enable', True),
+            ('disable_port_security', True),
+            ('name', 'test-port'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.network.create_port.assert_called_once_with(**{
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'port_security_enabled': False,
+            'name': 'test-port',
+        })
+
 
 class TestDeletePort(TestPort):
 
@@ -867,6 +915,42 @@ class TestSetPort(TestPort):
         }
         self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
+
+    def test_port_security_enabled(self):
+        arglist = [
+            '--enable-port-security',
+            self._port.id,
+        ]
+        verifylist = [
+            ('enable_port_security', True),
+            ('port', self._port.id,)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.network.update_port.assert_called_once_with(self._port, **{
+            'port_security_enabled': True,
+        })
+
+    def test_port_security_disabled(self):
+        arglist = [
+            '--disable-port-security',
+            self._port.id,
+        ]
+        verifylist = [
+            ('disable_port_security', True),
+            ('port', self._port.id,)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.network.update_port.assert_called_once_with(self._port, **{
+            'port_security_enabled': False,
+        })
 
 
 class TestShowPort(TestPort):

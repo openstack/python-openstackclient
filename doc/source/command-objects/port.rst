@@ -28,6 +28,7 @@ Create new port
         [--mac-address <mac-address>]
         [--security-group <security-group> | --no-security-group]
         [--project <project> [--project-domain <project-domain>]]
+        [--enable-port-security | --disable-port-security]
         <name>
 
 .. option:: --network <network>
@@ -93,6 +94,14 @@ Create new port
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
+
+.. option::  --enable-port-security
+
+    Enable port security for this port (Default)
+
+.. option::  --disable-port-security
+
+    Disable port security for this port
 
 .. _port_create-name:
 .. describe:: <name>
@@ -171,6 +180,7 @@ Set port properties
         [--name <name>]
         [--security-group <security-group>]
         [--no-security-group]
+        [--enable-port-security | --disable-port-security]
         <port>
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
@@ -235,6 +245,14 @@ Set port properties
 .. option::  --no-security-group
 
     Clear existing security groups associated with this port
+
+.. option::  --enable-port-security
+
+    Enable port security for this port
+
+.. option::  --disable-port-security
+
+    Disable port security for this port
 
 .. _port_set-port:
 .. describe:: <port>

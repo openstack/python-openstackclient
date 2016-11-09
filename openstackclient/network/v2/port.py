@@ -146,6 +146,12 @@ def _get_attrs(client_manager, parsed_args):
         ).id
         attrs['tenant_id'] = project_id
 
+    if parsed_args.disable_port_security:
+        attrs['port_security_enabled'] = False
+
+    if parsed_args.enable_port_security:
+        attrs['port_security_enabled'] = True
+
     return attrs
 
 
@@ -296,6 +302,17 @@ class CreatePort(command.ShowOne):
             dest='no_security_group',
             action='store_true',
             help=_("Associate no security groups with this port")
+        )
+        port_security = parser.add_mutually_exclusive_group()
+        port_security.add_argument(
+            '--enable-port-security',
+            action='store_true',
+            help=_("Enable port security for this port (Default)")
+        )
+        port_security.add_argument(
+            '--disable-port-security',
+            action='store_true',
+            help=_("Disable port security for this port")
         )
 
         return parser
@@ -511,6 +528,17 @@ class SetPort(command.Command):
             dest='no_security_group',
             action='store_true',
             help=_("Clear existing security groups associated with this port")
+        )
+        port_security = parser.add_mutually_exclusive_group()
+        port_security.add_argument(
+            '--enable-port-security',
+            action='store_true',
+            help=_("Enable port security for this port")
+        )
+        port_security.add_argument(
+            '--disable-port-security',
+            action='store_true',
+            help=_("Disable port security for this port")
         )
 
         return parser
