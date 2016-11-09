@@ -22,6 +22,7 @@ Create a new security group rule
         [--ingress | --egress]
         [--ethertype <ethertype>]
         [--project <project> [--project-domain <project-domain>]]
+        [--description <description>]
         <group>
 
 .. option:: --src-ip <ip-address>
@@ -94,6 +95,12 @@ Create a new security group rule
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
+
+    *Network version 2 only*
+
+.. option:: --description <description>
+
+    Set security group rule description
 
     *Network version 2 only*
 

@@ -952,6 +952,8 @@ class FakeSecurityGroupRule(object):
 
         # Set default attributes.
         security_group_rule_attrs = {
+            'description': 'security-group-rule-description-' +
+                           uuid.uuid4().hex,
             'direction': 'ingress',
             'ethertype': 'IPv4',
             'id': 'security-group-rule-id-' + uuid.uuid4().hex,
