@@ -16,7 +16,7 @@ Create a new security group rule
 .. code:: bash
 
     os security group rule create
-        [--src-ip <ip-address> | --src-group <group>]
+        [--remote-ip <ip-address> | --remote-group <group>]
         [--dst-port <port-range> | [--icmp-type <icmp-type> [--icmp-code <icmp-code>]]]
         [--protocol <protocol>]
         [--ingress | --egress]
@@ -25,14 +25,14 @@ Create a new security group rule
         [--description <description>]
         <group>
 
-.. option:: --src-ip <ip-address>
+.. option:: --remote-ip <ip-address>
 
-    Source IP address block
+    Remote IP address block
     (may use CIDR notation; default for IPv4 rule: 0.0.0.0/0)
 
-.. option:: --src-group <group>
+.. option:: --remote-group <group>
 
-    Source security group (name or ID)
+    Remote security group (name or ID)
 
 .. option:: --dst-port <port-range>
 

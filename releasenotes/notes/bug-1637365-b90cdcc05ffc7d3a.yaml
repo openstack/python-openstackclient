@@ -1,0 +1,7 @@
+upgrade:
+  -
+    Changed the ``security group rule create`` command ``--src-ip``
+    option to ``--remote-ip``, ``--src-group`` option to ``--remote-group``.
+    Using the ``--src-ip`` ``--src-group`` option is still supported, but
+    is no longer documented and may be deprecated in a future release.
+    [Bug `1637365 <https://bugs.launchpad.net/python-openstackclient/+bug/1637365>`_]
