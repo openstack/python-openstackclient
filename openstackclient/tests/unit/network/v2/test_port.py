@@ -41,6 +41,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'binding_vif_details',
             'binding_vif_type',
             'binding_vnic_type',
+            'description',
             'device_id',
             'device_owner',
             'dns_assignment',
@@ -65,6 +66,7 @@ class TestPort(network_fakes.TestNetworkV2):
             utils.format_dict(fake_port.binding_vif_details),
             fake_port.binding_vif_type,
             fake_port.binding_vnic_type,
+            fake_port.description,
             fake_port.device_id,
             fake_port.device_owner,
             utils.format_list_of_dicts(fake_port.dns_assignment),
@@ -130,6 +132,7 @@ class TestCreatePort(TestPort):
             '--mac-address', 'aa:aa:aa:aa:aa:aa',
             '--fixed-ip', 'subnet=%s,ip-address=10.0.0.2'
             % self.fake_subnet.id,
+            '--description', self._port.description,
             '--device', 'deviceid',
             '--device-owner', 'fakeowner',
             '--disable',
@@ -146,6 +149,7 @@ class TestCreatePort(TestPort):
                 'fixed_ip',
                 [{'subnet': self.fake_subnet.id, 'ip-address': '10.0.0.2'}]
             ),
+            ('description', self._port.description),
             ('device', 'deviceid'),
             ('device_owner', 'fakeowner'),
             ('disable', True),
@@ -163,6 +167,7 @@ class TestCreatePort(TestPort):
             'mac_address': 'aa:aa:aa:aa:aa:aa',
             'fixed_ips': [{'subnet_id': self.fake_subnet.id,
                            'ip_address': '10.0.0.2'}],
+            'description': self._port.description,
             'device_id': 'deviceid',
             'device_owner': 'fakeowner',
             'admin_state_up': False,
@@ -715,6 +720,7 @@ class TestSetPort(TestPort):
 
     def test_set_that(self):
         arglist = [
+            '--description', 'newDescription',
             '--enable',
             '--vnic-type', 'macvtap',
             '--binding-profile', 'foo=bar',
@@ -723,6 +729,7 @@ class TestSetPort(TestPort):
             self._port.name,
         ]
         verifylist = [
+            ('description', 'newDescription'),
             ('enable', True),
             ('vnic_type', 'macvtap'),
             ('binding_profile', {'foo': 'bar'}),
@@ -739,6 +746,7 @@ class TestSetPort(TestPort):
             'binding:vnic_type': 'macvtap',
             'binding:profile': {'foo': 'bar'},
             'binding:host_id': 'binding-host-id-xxxx',
+            'description': 'newDescription',
             'name': 'newName',
         }
         self.network.update_port.assert_called_once_with(self._port, **attrs)

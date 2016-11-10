@@ -18,6 +18,7 @@ Create new port
 
     os port create
         --network <network>
+        [--description <description>]
         [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]
         [--device <device-id>]
         [--device-owner <device-owner>]
@@ -33,6 +34,10 @@ Create new port
 .. option:: --network <network>
 
     Network this port belongs to (name or ID)
+
+.. option:: --description <description>
+
+    Description of this port
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
 
@@ -164,6 +169,7 @@ Set port properties
 .. code:: bash
 
     os port set
+        [--description <description>]
         [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]
         [--no-fixed-ip]
         [--device <device-id>]
@@ -177,6 +183,10 @@ Set port properties
         [--security-group <security-group>]
         [--no-security-group]
         <port>
+
+.. option:: --description <description>
+
+    Description of this port
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
 

@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--description`` option to ``port set`` and
+    ``port create`` commands.
+    [Blueprint :oscbp:`neutron-client-descriptions`]

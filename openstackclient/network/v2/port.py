@@ -109,6 +109,8 @@ def _get_attrs(client_manager, parsed_args):
             'The --host-id option is deprecated, '
             'please use --host instead.'
         ))
+    if parsed_args.description is not None:
+        attrs['description'] = parsed_args.description
     if parsed_args.fixed_ip is not None:
         attrs['fixed_ips'] = parsed_args.fixed_ip
     if parsed_args.device:
@@ -180,46 +182,51 @@ def _prepare_fixed_ips(client_manager, parsed_args):
 
 
 def _add_updatable_args(parser):
-        # NOTE(dtroyer): --device-id is deprecated in Mar 2016.  Do not
-        #                remove before 3.x release or Mar 2017.
-        device_group = parser.add_mutually_exclusive_group()
-        device_group.add_argument(
-            '--device',
-            metavar='<device-id>',
-            help=_("Port device ID")
-        )
-        device_group.add_argument(
-            '--device-id',
-            metavar='<device-id>',
-            help=argparse.SUPPRESS,
-        )
-        parser.add_argument(
-            '--device-owner',
-            metavar='<device-owner>',
-            help=_("Device owner of this port. This is the entity that uses "
-                   "the port (for example, network:dhcp).")
-        )
-        parser.add_argument(
-            '--vnic-type',
-            metavar='<vnic-type>',
-            choices=['direct', 'direct-physical', 'macvtap',
-                     'normal', 'baremetal'],
-            help=_("VNIC type for this port (direct | direct-physical | "
-                   "macvtap | normal | baremetal, default: normal)")
-        )
-        # NOTE(dtroyer): --host-id is deprecated in Mar 2016.  Do not
-        #                remove before 3.x release or Mar 2017.
-        host_group = parser.add_mutually_exclusive_group()
-        host_group.add_argument(
-            '--host',
-            metavar='<host-id>',
-            help=_("Allocate port on host <host-id> (ID only)")
-        )
-        host_group.add_argument(
-            '--host-id',
-            metavar='<host-id>',
-            help=argparse.SUPPRESS,
-        )
+    parser.add_argument(
+        '--description',
+        metavar='<description>',
+        help=_("Description of this port")
+    )
+    # NOTE(dtroyer): --device-id is deprecated in Mar 2016.  Do not
+    #                remove before 3.x release or Mar 2017.
+    device_group = parser.add_mutually_exclusive_group()
+    device_group.add_argument(
+        '--device',
+        metavar='<device-id>',
+        help=_("Port device ID")
+    )
+    device_group.add_argument(
+        '--device-id',
+        metavar='<device-id>',
+        help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        '--device-owner',
+        metavar='<device-owner>',
+        help=_("Device owner of this port. This is the entity that uses "
+               "the port (for example, network:dhcp).")
+    )
+    parser.add_argument(
+        '--vnic-type',
+        metavar='<vnic-type>',
+        choices=['direct', 'direct-physical', 'macvtap',
+                 'normal', 'baremetal'],
+        help=_("VNIC type for this port (direct | direct-physical | "
+               "macvtap | normal | baremetal, default: normal)")
+    )
+    # NOTE(dtroyer): --host-id is deprecated in Mar 2016.  Do not
+    #                remove before 3.x release or Mar 2017.
+    host_group = parser.add_mutually_exclusive_group()
+    host_group.add_argument(
+        '--host',
+        metavar='<host-id>',
+        help=_("Allocate port on host <host-id> (ID only)")
+    )
+    host_group.add_argument(
+        '--host-id',
+        metavar='<host-id>',
+        help=argparse.SUPPRESS,
+    )
 
 
 class CreatePort(command.ShowOne):
