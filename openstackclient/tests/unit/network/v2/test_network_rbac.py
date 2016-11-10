@@ -36,6 +36,7 @@ class TestNetworkRBAC(network_fakes.TestNetworkV2):
 class TestCreateNetworkRBAC(TestNetworkRBAC):
 
     network_object = network_fakes.FakeNetwork.create_one_network()
+    qos_object = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
     project = identity_fakes_v3.FakeProject.create_one_project()
     rbac_policy = network_fakes.FakeNetworkRBAC.create_one_network_rbac(
         attrs={'tenant_id': project.id,
@@ -71,6 +72,8 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             return_value=self.rbac_policy)
         self.network.find_network = mock.Mock(
             return_value=self.network_object)
+        self.network.find_qos_policy = mock.Mock(
+            return_value=self.qos_object)
         self.projects_mock.get.return_value = self.project
 
     def test_network_rbac_create_no_type(self):
@@ -191,6 +194,43 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             'target_tenant': self.rbac_policy.target_tenant,
             'tenant_id': self.rbac_policy.tenant_id,
         })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_rbac_create_qos_object(self):
+        self.rbac_policy.object_type = 'qos_policy'
+        self.rbac_policy.object_id = self.qos_object.id
+        arglist = [
+            '--type', 'qos_policy',
+            '--action', self.rbac_policy.action,
+            '--target-project', self.rbac_policy.target_tenant,
+            self.qos_object.name,
+        ]
+        verifylist = [
+            ('type', 'qos_policy'),
+            ('action', self.rbac_policy.action),
+            ('target_project', self.rbac_policy.target_tenant),
+            ('rbac_object', self.qos_object.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_rbac_policy.assert_called_with(**{
+            'object_id': self.qos_object.id,
+            'object_type': 'qos_policy',
+            'action': self.rbac_policy.action,
+            'target_tenant': self.rbac_policy.target_tenant,
+        })
+        self.data = [
+            self.rbac_policy.action,
+            self.rbac_policy.id,
+            self.qos_object.id,
+            'qos_policy',
+            self.rbac_policy.tenant_id,
+            self.rbac_policy.target_tenant,
+        ]
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 

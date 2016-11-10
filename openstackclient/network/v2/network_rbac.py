@@ -47,9 +47,9 @@ def _get_attrs(client_manager, parsed_args):
         object_id = network_client.find_network(
             parsed_args.rbac_object, ignore_missing=False).id
     if parsed_args.type == 'qos_policy':
-        # TODO(Huanxuan Ao): Support finding a object ID by obejct name
-        # after qos policy finding supported in SDK.
-        object_id = parsed_args.rbac_object
+        object_id = network_client.find_qos_policy(
+            parsed_args.rbac_object,
+            ignore_missing=False).id
     attrs['object_id'] = object_id
 
     identity_client = client_manager.identity
@@ -78,8 +78,7 @@ class CreateNetworkRBAC(command.ShowOne):
         parser.add_argument(
             'rbac_object',
             metavar="<rbac-object>",
-            help=_("The object to which this RBAC policy affects (name or "
-                   "ID for network objects, ID only for QoS policy objects)")
+            help=_("The object to which this RBAC policy affects (name or ID)")
         )
         parser.add_argument(
             '--type',
