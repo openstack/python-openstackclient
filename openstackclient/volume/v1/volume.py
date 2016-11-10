@@ -419,38 +419,78 @@ class SetVolume(command.Command):
             action="store_true",
             help=_("Mark volume as non-bootable")
         )
+        readonly_group = parser.add_mutually_exclusive_group()
+        readonly_group.add_argument(
+            "--read-only",
+            action="store_true",
+            help=_("Set volume to read-only access mode")
+        )
+        readonly_group.add_argument(
+            "--read-write",
+            action="store_true",
+            help=_("Set volume to read-write access mode")
+        )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 
+        result = 0
         if parsed_args.size:
-            if volume.status != 'available':
-                LOG.error(_("Volume is in %s state, it must be available "
-                            "before size can be extended"), volume.status)
-                return
-            if parsed_args.size <= volume.size:
-                LOG.error(_("New size must be greater than %s GB"),
-                          volume.size)
-                return
-            volume_client.volumes.extend(volume.id, parsed_args.size)
-
+            try:
+                if volume.status != 'available':
+                    msg = (_("Volume is in %s state, it must be available "
+                           "before size can be extended") % volume.status)
+                    raise exceptions.CommandError(msg)
+                if parsed_args.size <= volume.size:
+                    msg = (_("New size must be greater than %s GB")
+                           % volume.size)
+                    raise exceptions.CommandError(msg)
+                volume_client.volumes.extend(volume.id, parsed_args.size)
+            except Exception as e:
+                LOG.error(_("Failed to set volume size: %s"), e)
+                result += 1
         if parsed_args.property:
-            volume_client.volumes.set_metadata(volume.id, parsed_args.property)
+            try:
+                volume_client.volumes.set_metadata(
+                    volume.id,
+                    parsed_args.property)
+            except Exception as e:
+                LOG.error(_("Failed to set volume property: %s"), e)
+                result += 1
         if parsed_args.bootable or parsed_args.non_bootable:
             try:
                 volume_client.volumes.set_bootable(
                     volume.id, parsed_args.bootable)
             except Exception as e:
                 LOG.error(_("Failed to set volume bootable property: %s"), e)
+                result += 1
+        if parsed_args.read_only or parsed_args.read_write:
+            try:
+                volume_client.volumes.update_readonly_flag(
+                    volume.id,
+                    parsed_args.read_only)
+            except Exception as e:
+                LOG.error(_("Failed to set volume read-only access "
+                            "mode flag: %s"), e)
+                result += 1
         kwargs = {}
         if parsed_args.name:
             kwargs['display_name'] = parsed_args.name
         if parsed_args.description:
             kwargs['display_description'] = parsed_args.description
         if kwargs:
-            volume_client.volumes.update(volume.id, **kwargs)
+            try:
+                volume_client.volumes.update(volume.id, **kwargs)
+            except Exception as e:
+                LOG.error(_("Failed to update volume display name "
+                          "or display description: %s"), e)
+                result += 1
+
+        if result > 0:
+            raise exceptions.CommandError(_("One or more of the "
+                                          "set operations failed"))
 
 
 class ShowVolume(command.ShowOne):

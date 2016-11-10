@@ -1123,6 +1123,8 @@ class TestVolumeSet(TestVolume):
             self.new_volume.id
         ]
         verifylist = [
+            ('read_only', False),
+            ('read_write', False),
             ('state', 'error'),
             ('volume', self.new_volume.id)
         ]
@@ -1132,6 +1134,7 @@ class TestVolumeSet(TestVolume):
         result = self.cmd.take_action(parsed_args)
         self.volumes_mock.reset_state.assert_called_with(
             self.new_volume.id, 'error')
+        self.volumes_mock.update_readonly_flag.assert_not_called()
         self.assertIsNone(result)
 
     def test_volume_set_state_failed(self):
@@ -1179,6 +1182,44 @@ class TestVolumeSet(TestVolume):
             self.cmd.take_action(parsed_args)
             self.volumes_mock.set_bootable.assert_called_with(
                 self.new_volume.id, verifylist[index][0][1])
+
+    def test_volume_set_readonly(self):
+        arglist = [
+            '--read-only',
+            self.new_volume.id
+        ]
+        verifylist = [
+            ('read_only', True),
+            ('read_write', False),
+            ('volume', self.new_volume.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.volumes_mock.update_readonly_flag.assert_called_once_with(
+            self.new_volume.id,
+            True)
+        self.assertIsNone(result)
+
+    def test_volume_set_read_write(self):
+        arglist = [
+            '--read-write',
+            self.new_volume.id
+        ]
+        verifylist = [
+            ('read_only', False),
+            ('read_write', True),
+            ('volume', self.new_volume.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.volumes_mock.update_readonly_flag.assert_called_once_with(
+            self.new_volume.id,
+            False)
+        self.assertIsNone(result)
 
 
 class TestVolumeShow(TestVolume):

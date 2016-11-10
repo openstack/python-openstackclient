@@ -906,8 +906,7 @@ class TestVolumeSet(TestVolume):
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(volume.LOG, 'error')
-    def test_volume_set_size_smaller(self, mock_log_error):
+    def test_volume_set_size_smaller(self):
         self._volume.status = 'available'
         arglist = [
             '--size', '1',
@@ -922,15 +921,11 @@ class TestVolumeSet(TestVolume):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)
 
-        mock_log_error.assert_called_with("New size must be greater "
-                                          "than %s GB",
-                                          self._volume.size)
-        self.assertIsNone(result)
-
-    @mock.patch.object(volume.LOG, 'error')
-    def test_volume_set_size_not_available(self, mock_log_error):
+    def test_volume_set_size_not_available(self):
         self._volume.status = 'error'
         arglist = [
             '--size', '130',
@@ -945,12 +940,9 @@ class TestVolumeSet(TestVolume):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
-
-        mock_log_error.assert_called_with("Volume is in %s state, it must be "
-                                          "available before size can be "
-                                          "extended", 'error')
-        self.assertIsNone(result)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)
 
     def test_volume_set_property(self):
         arglist = [
@@ -958,6 +950,8 @@ class TestVolumeSet(TestVolume):
             self._volume.display_name,
         ]
         verifylist = [
+            ('read_only', False),
+            ('read_write', False),
             ('name', None),
             ('description', None),
             ('size', None),
@@ -978,6 +972,7 @@ class TestVolumeSet(TestVolume):
             self._volume.id,
             metadata
         )
+        self.volumes_mock.update_readonly_flag.assert_not_called()
         self.assertIsNone(result)
 
     def test_volume_set_bootable(self):
@@ -1004,6 +999,44 @@ class TestVolumeSet(TestVolume):
             self.cmd.take_action(parsed_args)
             self.volumes_mock.set_bootable.assert_called_with(
                 self._volume.id, verifylist[index][0][1])
+
+    def test_volume_set_readonly(self):
+        arglist = [
+            '--read-only',
+            self._volume.id
+        ]
+        verifylist = [
+            ('read_only', True),
+            ('read_write', False),
+            ('volume', self._volume.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.volumes_mock.update_readonly_flag.assert_called_once_with(
+            self._volume.id,
+            True)
+        self.assertIsNone(result)
+
+    def test_volume_set_read_write(self):
+        arglist = [
+            '--read-write',
+            self._volume.id
+        ]
+        verifylist = [
+            ('read_only', False),
+            ('read_write', True),
+            ('volume', self._volume.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.volumes_mock.update_readonly_flag.assert_called_once_with(
+            self._volume.id,
+            False)
+        self.assertIsNone(result)
 
 
 class TestVolumeShow(TestVolume):
