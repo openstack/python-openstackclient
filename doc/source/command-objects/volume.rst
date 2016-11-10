@@ -197,6 +197,48 @@ List volumes
 
     *Volume version 2 only*
 
+volume migrate
+--------------
+
+Migrate volume to a new host
+
+.. program:: volume migrate
+.. code:: bash
+
+    os volume migrate
+        --host <host>
+        [--force-host-copy]
+        [--lock-volume | --unlock-volume]
+        <volume>
+
+.. option:: --host <host>
+
+    Destination host (takes the form: host@backend-name#pool) (required)
+
+.. option:: --force-host-copy
+
+    Enable generic host-based force-migration,
+    which bypasses driver optimizations
+
+.. option:: --lock-volume
+
+    If specified, the volume state will be locked and will not allow
+    a migration to be aborted (possibly by another operation)
+
+    *Volume version 2 only*
+
+.. option:: --unlock-volume
+
+    If specified, the volume state will not be locked and the a
+    migration can be aborted (default) (possibly by another operation)
+
+    *Volume version 2 only*
+
+.. _volume_migrate-volume:
+.. describe:: <volume>
+
+    Volume to migrate (name or ID)
+
 volume set
 ----------
 
