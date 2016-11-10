@@ -14,6 +14,7 @@
 import abc
 import logging
 
+import openstack.exceptions
 from osc_lib.command import command
 from osc_lib import exceptions
 import six
@@ -181,12 +182,16 @@ class NetworkAndComputeShowOne(command.ShowOne):
     """
 
     def take_action(self, parsed_args):
-        if self.app.client_manager.is_network_endpoint_enabled():
-            return self.take_action_network(self.app.client_manager.network,
-                                            parsed_args)
-        else:
-            return self.take_action_compute(self.app.client_manager.compute,
-                                            parsed_args)
+        try:
+            if self.app.client_manager.is_network_endpoint_enabled():
+                return self.take_action_network(
+                    self.app.client_manager.network, parsed_args)
+            else:
+                return self.take_action_compute(
+                    self.app.client_manager.compute, parsed_args)
+        except openstack.exceptions.HttpException as exc:
+            msg = _("Error while executing command: %s") % exc.message
+            raise exceptions.CommandError(msg)
 
     def get_parser(self, prog_name):
         LOG.debug('get_parser(%s)', prog_name)
