@@ -69,19 +69,6 @@ EXTENSION = {
     'links': extension_links,
 }
 
-# NOTE(dtroyer): duplicating here the minimum image info needed to test
-#                volume create --image until circular references can be
-#                avoided by refactoring the test fakes.
-
-image_id = 'im1'
-image_name = 'graven'
-
-
-IMAGE = {
-    'id': image_id,
-    'name': image_name,
-}
-
 type_id = "5520dc9e-6f9b-4378-a719-729911c0f407"
 type_name = "fake-lvmdriver-1"
 
