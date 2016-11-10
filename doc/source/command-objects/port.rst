@@ -127,6 +127,7 @@ List ports
         [--device-owner <device-owner>]
         [--router <router> | --server <server>]
         [--network <network>]
+        [--mac-address <mac-address>]
         [--long]
 
 .. option:: --device-owner <device-owner>
@@ -145,6 +146,10 @@ List ports
 .. option:: --network <network>
 
     List only ports attached to this network (name or ID)
+
+.. option:: --mac-address <mac-address>
+
+    List only ports with this MAC address
 
 .. option:: --long
 
