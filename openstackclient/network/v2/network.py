@@ -304,7 +304,7 @@ class DeleteNetwork(common.NetworkAndComputeDelete):
 class ListNetwork(common.NetworkAndComputeLister):
     """List networks"""
 
-    def update_parser_common(self, parser):
+    def update_parser_network(self, parser):
         router_ext_group = parser.add_mutually_exclusive_group()
         router_ext_group.add_argument(
             '--external',
@@ -361,6 +361,29 @@ class ListNetwork(common.NetworkAndComputeLister):
             help=_("List networks according to their status "
                    "('ACTIVE', 'BUILD', 'DOWN', 'ERROR')")
         )
+        parser.add_argument(
+            '--provider-network-type',
+            metavar='<provider-network-type>',
+            choices=['flat', 'geneve', 'gre', 'local',
+                     'vlan', 'vxlan'],
+            help=_("List networks according to their physical mechanisms. "
+                   "The supported options are: flat, geneve, gre, local, "
+                   "vlan, vxlan.")
+        )
+        parser.add_argument(
+            '--provider-physical-network',
+            metavar='<provider-physical-network>',
+            dest='physical_network',
+            help=_("List networks according to name of the physical network")
+        )
+        parser.add_argument(
+            '--provider-segment',
+            metavar='<provider-segment>',
+            dest='segmentation_id',
+            help=_("List networks according to VLAN ID for VLAN networks "
+                   "or Tunnel ID for GENEVE/GRE/VXLAN networks")
+        )
+
         return parser
 
     def take_action_network(self, client, parsed_args):
@@ -432,6 +455,13 @@ class ListNetwork(common.NetworkAndComputeLister):
 
         if parsed_args.status:
             args['status'] = parsed_args.status
+
+        if parsed_args.provider_network_type:
+            args['provider:network_type'] = parsed_args.provider_network_type
+        if parsed_args.physical_network:
+            args['provider:physical_network'] = parsed_args.physical_network
+        if parsed_args.segmentation_id:
+            args['provider:segmentation_id'] = parsed_args.segmentation_id
 
         data = client.networks(**args)
 

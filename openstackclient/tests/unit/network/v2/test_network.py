@@ -65,6 +65,8 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         'port_security_enabled',
         'project_id',
         'provider_network_type',
+        'provider_physical_network',
+        'provider_segmentation_id',
         'router:external',
         'shared',
         'status',
@@ -82,6 +84,8 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         _network.is_port_security_enabled,
         _network.project_id,
         _network.provider_network_type,
+        _network.provider_physical_network,
+        _network.provider_segmentation_id,
         network._format_router_external(_network.is_router_external),
         _network.shared,
         _network.status,
@@ -229,6 +233,8 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         'port_security_enabled',
         'project_id',
         'provider_network_type',
+        'provider_physical_network',
+        'provider_segmentation_id',
         'router:external',
         'shared',
         'status',
@@ -246,6 +252,8 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         _network.is_port_security_enabled,
         _network.project_id,
         _network.provider_network_type,
+        _network.provider_physical_network,
+        _network.provider_segmentation_id,
         network._format_router_external(_network.is_router_external),
         _network.shared,
         _network.status,
@@ -681,6 +689,57 @@ class TestListNetwork(TestNetwork):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_network_list_provider_network_type(self):
+        network_type = self._network[0].provider_network_type
+        arglist = [
+            '--provider-network-type', network_type,
+        ]
+        verifylist = [
+            ('provider_network_type', network_type),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.networks.assert_called_once_with(
+            **{'provider:network_type': network_type}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_list_provider_physical_network(self):
+        physical_network = self._network[0].provider_physical_network
+        arglist = [
+            '--provider-physical-network', physical_network,
+        ]
+        verifylist = [
+            ('physical_network', physical_network),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.networks.assert_called_once_with(
+            **{'provider:physical_network': physical_network}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_list_provider_segment(self):
+        segmentation_id = self._network[0].provider_segmentation_id
+        arglist = [
+            '--provider-segment', segmentation_id,
+        ]
+        verifylist = [
+            ('segmentation_id', segmentation_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.networks.assert_called_once_with(
+            **{'provider:segmentation_id': segmentation_id}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
 
 class TestSetNetwork(TestNetwork):
 
@@ -805,6 +864,8 @@ class TestShowNetwork(TestNetwork):
         'port_security_enabled',
         'project_id',
         'provider_network_type',
+        'provider_physical_network',
+        'provider_segmentation_id',
         'router:external',
         'shared',
         'status',
@@ -822,6 +883,8 @@ class TestShowNetwork(TestNetwork):
         _network.is_port_security_enabled,
         _network.project_id,
         _network.provider_network_type,
+        _network.provider_physical_network,
+        _network.provider_segmentation_id,
         network._format_router_external(_network.is_router_external),
         _network.shared,
         _network.status,
@@ -1111,10 +1174,7 @@ class TestListNetworkCompute(TestNetworkCompute):
 
     def test_network_list_no_options(self):
         arglist = []
-        verifylist = [
-            ('external', False),
-            ('long', False),
-        ]
+        verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # In base command class Lister in cliff, abstract method take_action()

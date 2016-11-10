@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--provider-network-type``, ``--provider-physical-network``,  and
+    ``--provider-segment`` options to the ``network list`` command.
+    [Bug `1635580 <https://bugs.launchpad.net/bugs/1635580>`_]

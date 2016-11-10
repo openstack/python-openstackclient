@@ -292,6 +292,8 @@ class FakeNetwork(object):
             'shared': False,
             'subnets': ['a', 'b'],
             'provider_network_type': 'vlan',
+            'provider_physical_network': 'physnet1',
+            'provider_segmentation_id': "400",
             'router:external': True,
             'availability_zones': [],
             'availability_zone_hints': [],
