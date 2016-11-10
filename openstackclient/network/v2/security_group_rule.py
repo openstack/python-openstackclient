@@ -388,6 +388,28 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             help=argparse.SUPPRESS
         )
         parser.add_argument(
+            '--protocol',
+            metavar='<protocol>',
+            type=_convert_to_lowercase,
+            help=_("List rules by the IP protocol ("
+                   "ah, dhcp, egp, esp, gre, icmp, igmp, "
+                   "ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt, "
+                   "ipv6-opts, ipv6-route, ospf, pgm, rsvp, sctp, tcp, "
+                   "udp, udplite, vrrp and integer representations [0-255])."
+                   )
+        )
+        direction_group = parser.add_mutually_exclusive_group()
+        direction_group.add_argument(
+            '--ingress',
+            action='store_true',
+            help=_("List rules applied to incoming network traffic")
+        )
+        direction_group.add_argument(
+            '--egress',
+            action='store_true',
+            help=_("List rules applied to outgoing network traffic")
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -451,6 +473,14 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             query = {'security_group_id': security_group_id}
         else:
             columns = columns + ('security_group_id',)
+
+        if parsed_args.ingress:
+            query['direction'] = 'ingress'
+        if parsed_args.egress:
+            query['direction'] = 'egress'
+        if parsed_args.protocol is not None:
+            query['protocol'] = parsed_args.protocol
+
         rules = list(client.security_group_rules(**query))
 
         # Reformat the rules to display a port range instead

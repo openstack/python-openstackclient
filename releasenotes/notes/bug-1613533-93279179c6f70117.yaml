@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--ingress``, ``--egress`` and ``--protocol`` options to
+    ``security group rule list`` command.
+    [Bug `1613533 <https://bugs.launchpad.net/bugs/1613533>`_]

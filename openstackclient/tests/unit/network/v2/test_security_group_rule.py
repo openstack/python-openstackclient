@@ -971,6 +971,60 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertEqual(self.expected_columns_no_group, columns)
         self.assertEqual(self.expected_data_no_group, list(data))
 
+    def test_list_with_protocol(self):
+        self._security_group_rule_tcp.port_range_min = 80
+        arglist = [
+            '--protocol', 'tcp',
+        ]
+        verifylist = [
+            ('protocol', 'tcp'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.security_group_rules.assert_called_once_with(**{
+            'protocol': 'tcp',
+        })
+        self.assertEqual(self.expected_columns_no_group, columns)
+        self.assertEqual(self.expected_data_no_group, list(data))
+
+    def test_list_with_ingress(self):
+        self._security_group_rule_tcp.port_range_min = 80
+        arglist = [
+            '--ingress',
+        ]
+        verifylist = [
+            ('ingress', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.security_group_rules.assert_called_once_with(**{
+            'direction': 'ingress',
+        })
+        self.assertEqual(self.expected_columns_no_group, columns)
+        self.assertEqual(self.expected_data_no_group, list(data))
+
+    def test_list_with_wrong_egress(self):
+        self._security_group_rule_tcp.port_range_min = 80
+        arglist = [
+            '--egress',
+        ]
+        verifylist = [
+            ('egress', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.security_group_rules.assert_called_once_with(**{
+            'direction': 'egress',
+        })
+        self.assertEqual(self.expected_columns_no_group, columns)
+        self.assertEqual(self.expected_data_no_group, list(data))
+
 
 class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
