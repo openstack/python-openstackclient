@@ -350,8 +350,9 @@ class ListImage(command.Lister):
         parser.add_argument(
             '--sort',
             metavar="<key>[:<direction>]",
+            default='name:asc',
             help=_("Sort output by selected keys and directions(asc or desc) "
-                   "(default: asc), multiple keys and directions can be "
+                   "(default: name:asc), multiple keys and directions can be "
                    "specified separated by comma"),
         )
         return parser
