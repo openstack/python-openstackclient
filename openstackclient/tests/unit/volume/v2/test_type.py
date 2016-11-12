@@ -172,7 +172,11 @@ class TestTypeList(TestType):
         "Description",
         "Properties"
     ]
-
+    data_with_default_type = [(
+        volume_types[0].id,
+        volume_types[0].name,
+        True
+    )]
     data = []
     for t in volume_types:
         data.append((
@@ -194,6 +198,7 @@ class TestTypeList(TestType):
         super(TestTypeList, self).setUp()
 
         self.types_mock.list.return_value = self.volume_types
+        self.types_mock.default.return_value = self.volume_types[0]
         # get the command to test
         self.cmd = volume_type.ListVolumeType(self.app, None)
 
@@ -203,6 +208,7 @@ class TestTypeList(TestType):
             ("long", False),
             ("private", False),
             ("public", False),
+            ("default", False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -220,6 +226,7 @@ class TestTypeList(TestType):
             ("long", True),
             ("private", False),
             ("public", True),
+            ("default", False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -236,6 +243,7 @@ class TestTypeList(TestType):
             ("long", False),
             ("private", True),
             ("public", False),
+            ("default", False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -243,6 +251,23 @@ class TestTypeList(TestType):
         self.types_mock.list.assert_called_once_with(is_public=False)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
+
+    def test_type_list_with_default_option(self):
+        arglist = [
+            "--default",
+        ]
+        verifylist = [
+            ("long", False),
+            ("private", False),
+            ("public", False),
+            ("default", True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.types_mock.default.assert_called_once_with()
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data_with_default_type, list(data))
 
 
 class TestTypeSet(TestType):

@@ -160,8 +160,15 @@ class ListVolumeType(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help=_('List additional fields in output'))
+            help=_('List additional fields in output')
+        )
         public_group = parser.add_mutually_exclusive_group()
+        public_group.add_argument(
+            "--default",
+            action='store_true',
+            default=False,
+            help=_('List the default volume type')
+        )
         public_group.add_argument(
             "--public",
             action="store_true",
@@ -175,6 +182,7 @@ class ListVolumeType(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
+        volume_client = self.app.client_manager.volume
         if parsed_args.long:
             columns = ['ID', 'Name', 'Is Public', 'Description', 'Extra Specs']
             column_headers = [
@@ -182,14 +190,16 @@ class ListVolumeType(command.Lister):
         else:
             columns = ['ID', 'Name', 'Is Public']
             column_headers = columns
-
-        is_public = None
-        if parsed_args.public:
-            is_public = True
-        if parsed_args.private:
-            is_public = False
-        data = self.app.client_manager.volume.volume_types.list(
-            is_public=is_public)
+        if parsed_args.default:
+            data = [volume_client.volume_types.default()]
+        else:
+            is_public = None
+            if parsed_args.public:
+                is_public = True
+            if parsed_args.private:
+                is_public = False
+            data = volume_client.volume_types.list(
+                is_public=is_public)
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
@@ -240,7 +250,6 @@ class SetVolumeType(command.Command):
 
         volume_type = utils.find_resource(
             volume_client.volume_types, parsed_args.volume_type)
-
         result = 0
         kwargs = {}
         if parsed_args.name:

@@ -42,6 +42,11 @@ class VolumeTypeTests(common.BaseVolumeTests):
         raw_output = self.openstack('volume type list' + opts)
         self.assertIn(self.NAME, raw_output)
 
+    def test_volume_type_list_default(self):
+        opts = self.get_opts(self.HEADERS)
+        raw_output = self.openstack('volume type list --default' + opts)
+        self.assertEqual("lvmdriver-1\n", raw_output)
+
     def test_volume_type_show(self):
         opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('volume type show ' + self.NAME + opts)
