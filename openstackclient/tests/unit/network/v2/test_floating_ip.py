@@ -231,6 +231,12 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
     # The floating ips to list up
     floating_ips = network_fakes.FakeFloatingIP.create_floating_ips(count=3)
+    fake_network = network_fakes.FakeNetwork.create_one_network({
+        'id': 'fake_network_id',
+    })
+    fake_port = network_fakes.FakePort.create_one_port({
+        'id': 'fake_port_id',
+    })
 
     columns = (
         'ID',
@@ -256,6 +262,8 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         super(TestListFloatingIPNetwork, self).setUp()
 
         self.network.ips = mock.Mock(return_value=self.floating_ips)
+        self.network.find_network = mock.Mock(return_value=self.fake_network)
+        self.network.find_port = mock.Mock(return_value=self.fake_port)
 
         # Get the command object to test
         self.cmd = floating_ip.ListFloatingIP(self.app, self.namespace)
@@ -267,7 +275,58 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(**{})
+        self.network.ips.assert_called_once_with()
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_floating_ip_list_network(self):
+        arglist = [
+            '--network', 'fake_network_id',
+        ]
+        verifylist = [
+            ('network', 'fake_network_id'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ips.assert_called_once_with(**{
+            'floating_network_id': 'fake_network_id',
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_floating_ip_list_port(self):
+        arglist = [
+            '--port', 'fake_port_id',
+        ]
+        verifylist = [
+            ('port', 'fake_port_id'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ips.assert_called_once_with(**{
+            'port_id': 'fake_port_id',
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_floating_ip_list_fixed_ip_address(self):
+        arglist = [
+            '--fixed-ip-address', self.floating_ips[0].fixed_ip_address,
+        ]
+        verifylist = [
+            ('fixed_ip_address', self.floating_ips[0].fixed_ip_address),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ips.assert_called_once_with(**{
+            'fixed_ip_address': self.floating_ips[0].fixed_ip_address,
+        })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
