@@ -37,7 +37,7 @@ def _show_progress(progress):
 
 
 class CreateServerImage(command.ShowOne):
-    """Create a new server disk image from an existing server"""
+    _description = _("Create a new server disk image from an existing server")
 
     IMAGE_API_VERSIONS = {
         "1": "openstackclient.image.v1.image",

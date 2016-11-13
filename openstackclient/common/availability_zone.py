@@ -88,7 +88,7 @@ def _xform_network_availability_zone(az):
 
 
 class ListAvailabilityZone(command.Lister):
-    """List availability zones and their status"""
+    _description = _("List availability zones and their status")
 
     def get_parser(self, prog_name):
         parser = super(ListAvailabilityZone, self).get_parser(prog_name)

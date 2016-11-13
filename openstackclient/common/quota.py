@@ -80,7 +80,7 @@ NETWORK_QUOTAS = {
 
 
 class SetQuota(command.Command):
-    """Set quotas for project or class"""
+    _description = _("Set quotas for project or class")
 
     def _build_options_list(self):
         if self.app.client_manager.is_network_endpoint_enabled():
@@ -186,7 +186,7 @@ class SetQuota(command.Command):
 
 
 class ShowQuota(command.ShowOne):
-    """Show quotas for project or class"""
+    _description = _("Show quotas for project or class")
 
     def get_parser(self, prog_name):
         parser = super(ShowQuota, self).get_parser(prog_name)

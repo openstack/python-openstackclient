@@ -43,7 +43,7 @@ def _format_endpoints(eps=None):
 
 
 class ListCatalog(command.Lister):
-    """List services in the service catalog"""
+    _description = _("List services in the service catalog")
 
     def take_action(self, parsed_args):
 
@@ -66,7 +66,7 @@ class ListCatalog(command.Lister):
 
 
 class ShowCatalog(command.ShowOne):
-    """Display service catalog details"""
+    _description = _("Display service catalog details")
 
     def get_parser(self, prog_name):
         parser = super(ShowCatalog, self).get_parser(prog_name)

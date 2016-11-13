@@ -30,7 +30,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateVolumeBackup(command.ShowOne):
-    """Create new volume backup"""
+    _description = _("Create new volume backup")
 
     def get_parser(self, prog_name):
         parser = super(CreateVolumeBackup, self).get_parser(prog_name)
@@ -73,7 +73,7 @@ class CreateVolumeBackup(command.ShowOne):
 
 
 class CreateBackup(CreateVolumeBackup):
-    """Create new backup"""
+    _description = _("Create new backup")
 
     # TODO(Huanxuan Ao): Remove this class and ``backup create`` command
     #                    two cycles after Newton.
@@ -90,7 +90,7 @@ class CreateBackup(CreateVolumeBackup):
 
 
 class DeleteVolumeBackup(command.Command):
-    """Delete volume backup(s)"""
+    _description = _("Delete volume backup(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteVolumeBackup, self).get_parser(prog_name)
@@ -125,7 +125,7 @@ class DeleteVolumeBackup(command.Command):
 
 
 class DeleteBackup(DeleteVolumeBackup):
-    """Delete backup(s)"""
+    _description = _("Delete backup(s)")
 
     # TODO(Huanxuan Ao): Remove this class and ``backup delete`` command
     #                    two cycles after Newton.
@@ -142,7 +142,7 @@ class DeleteBackup(DeleteVolumeBackup):
 
 
 class ListVolumeBackup(command.Lister):
-    """List volume backups"""
+    _description = _("List volume backups")
 
     def get_parser(self, prog_name):
         parser = super(ListVolumeBackup, self).get_parser(prog_name)
@@ -235,7 +235,7 @@ class ListVolumeBackup(command.Lister):
 
 
 class ListBackup(ListVolumeBackup):
-    """List backups"""
+    _description = _("List backups")
 
     # TODO(Huanxuan Ao): Remove this class and ``backup list`` command
     #                    two cycles after Newton.
@@ -252,7 +252,7 @@ class ListBackup(ListVolumeBackup):
 
 
 class RestoreVolumeBackup(command.Command):
-    """Restore volume backup"""
+    _description = _("Restore volume backup")
 
     def get_parser(self, prog_name):
         parser = super(RestoreVolumeBackup, self).get_parser(prog_name)
@@ -279,7 +279,7 @@ class RestoreVolumeBackup(command.Command):
 
 
 class RestoreBackup(RestoreVolumeBackup):
-    """Restore backup"""
+    _description = _("Restore backup")
 
     # TODO(Huanxuan Ao): Remove this class and ``backup restore`` command
     #                    two cycles after Newton.
@@ -296,7 +296,7 @@ class RestoreBackup(RestoreVolumeBackup):
 
 
 class ShowVolumeBackup(command.ShowOne):
-    """Display volume backup details"""
+    _description = _("Display volume backup details")
 
     def get_parser(self, prog_name):
         parser = super(ShowVolumeBackup, self).get_parser(prog_name)
@@ -316,7 +316,7 @@ class ShowVolumeBackup(command.ShowOne):
 
 
 class ShowBackup(ShowVolumeBackup):
-    """Display backup details"""
+    _description = _("Display backup details")
 
     # TODO(Huanxuan Ao): Remove this class and ``backup show`` command
     #                    two cycles after Newton.

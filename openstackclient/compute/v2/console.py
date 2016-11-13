@@ -26,7 +26,7 @@ from openstackclient.i18n import _
 
 
 class ShowConsoleLog(command.Command):
-    """Show server's console output"""
+    _description = _("Show server's console output")
 
     def get_parser(self, prog_name):
         parser = super(ShowConsoleLog, self).get_parser(prog_name)
@@ -64,7 +64,7 @@ class ShowConsoleLog(command.Command):
 
 
 class ShowConsoleURL(command.ShowOne):
-    """Show server's remote console URL"""
+    _description = _("Show server's remote console URL")
 
     def get_parser(self, prog_name):
         parser = super(ShowConsoleURL, self).get_parser(prog_name)

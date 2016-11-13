@@ -27,7 +27,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateServiceProvider(command.ShowOne):
-    """Create new service provider"""
+    _description = _("Create new service provider")
 
     def get_parser(self, prog_name):
         parser = super(CreateServiceProvider, self).get_parser(prog_name)
@@ -87,7 +87,7 @@ class CreateServiceProvider(command.ShowOne):
 
 
 class DeleteServiceProvider(command.Command):
-    """Delete service provider(s)"""
+    _description = _("Delete service provider(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteServiceProvider, self).get_parser(prog_name)
@@ -119,7 +119,7 @@ class DeleteServiceProvider(command.Command):
 
 
 class ListServiceProvider(command.Lister):
-    """List service providers"""
+    _description = _("List service providers")
 
     def take_action(self, parsed_args):
         service_client = self.app.client_manager.identity
@@ -134,7 +134,7 @@ class ListServiceProvider(command.Lister):
 
 
 class SetServiceProvider(command.Command):
-    """Set service provider properties"""
+    _description = _("Set service provider properties")
 
     def get_parser(self, prog_name):
         parser = super(SetServiceProvider, self).get_parser(prog_name)
@@ -192,7 +192,7 @@ class SetServiceProvider(command.Command):
 
 
 class ShowServiceProvider(command.ShowOne):
-    """Display service provider details"""
+    _description = _("Display service provider details")
 
     def get_parser(self, prog_name):
         parser = super(ShowServiceProvider, self).get_parser(prog_name)

@@ -12,6 +12,7 @@
 #
 
 """Subnet pool action implementations"""
+
 import copy
 import logging
 
@@ -141,7 +142,7 @@ def _add_default_options(parser):
 # TODO(rtheis): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
 class CreateSubnetPool(command.ShowOne):
-    """Create subnet pool"""
+    _description = _("Create subnet pool")
 
     def get_parser(self, prog_name):
         parser = super(CreateSubnetPool, self).get_parser(prog_name)
@@ -196,7 +197,7 @@ class CreateSubnetPool(command.ShowOne):
 
 
 class DeleteSubnetPool(command.Command):
-    """Delete subnet pool(s)"""
+    _description = _("Delete subnet pool(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteSubnetPool, self).get_parser(prog_name)
@@ -232,7 +233,7 @@ class DeleteSubnetPool(command.Command):
 # TODO(rtheis): Use only the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
 class ListSubnetPool(command.Lister):
-    """List subnet pools"""
+    _description = _("List subnet pools")
 
     def get_parser(self, prog_name):
         parser = super(ListSubnetPool, self).get_parser(prog_name)
@@ -334,7 +335,7 @@ class ListSubnetPool(command.Lister):
 # TODO(rtheis): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
 class SetSubnetPool(command.Command):
-    """Set subnet pool properties"""
+    _description = _("Set subnet pool properties")
 
     def get_parser(self, prog_name):
         parser = super(SetSubnetPool, self).get_parser(prog_name)
@@ -386,7 +387,7 @@ class SetSubnetPool(command.Command):
 
 
 class ShowSubnetPool(command.ShowOne):
-    """Display subnet pool details"""
+    _description = _("Display subnet pool details")
 
     def get_parser(self, prog_name):
         parser = super(ShowSubnetPool, self).get_parser(prog_name)
@@ -409,7 +410,7 @@ class ShowSubnetPool(command.ShowOne):
 
 
 class UnsetSubnetPool(command.Command):
-    """Unset subnet pool properties"""
+    _description = _("Unset subnet pool properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetSubnetPool, self).get_parser(prog_name)

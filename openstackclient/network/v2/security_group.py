@@ -95,7 +95,7 @@ def _get_columns(item):
 
 
 class CreateSecurityGroup(common.NetworkAndComputeShowOne):
-    """Create a new security group"""
+    _description = _("Create a new security group")
 
     def update_parser_common(self, parser):
         parser.add_argument(
@@ -165,7 +165,7 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
 
 
 class DeleteSecurityGroup(common.NetworkAndComputeDelete):
-    """Delete security group(s)"""
+    _description = _("Delete security group(s)")
 
     # Used by base class to find resources in parsed_args.
     resource = 'group'
@@ -190,7 +190,7 @@ class DeleteSecurityGroup(common.NetworkAndComputeDelete):
 
 
 class ListSecurityGroup(common.NetworkAndComputeLister):
-    """List security groups"""
+    _description = _("List security groups")
 
     def update_parser_network(self, parser):
         # Maintain and hide the argument for backwards compatibility.
@@ -238,7 +238,7 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
 
 
 class SetSecurityGroup(common.NetworkAndComputeCommand):
-    """Set security group properties"""
+    _description = _("Set security group properties")
 
     def update_parser_common(self, parser):
         parser.add_argument(
@@ -293,7 +293,7 @@ class SetSecurityGroup(common.NetworkAndComputeCommand):
 
 
 class ShowSecurityGroup(common.NetworkAndComputeShowOne):
-    """Display security group details"""
+    _description = _("Display security group details")
 
     def update_parser_common(self, parser):
         parser.add_argument(

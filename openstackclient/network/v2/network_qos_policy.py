@@ -57,7 +57,7 @@ def _get_attrs(client_manager, parsed_args):
 
 
 class CreateNetworkQosPolicy(command.ShowOne):
-    """Create a QoS policy"""
+    _description = _("Create a QoS policy")
 
     def get_parser(self, prog_name):
         parser = super(CreateNetworkQosPolicy, self).get_parser(prog_name)
@@ -102,7 +102,7 @@ class CreateNetworkQosPolicy(command.ShowOne):
 
 
 class DeleteNetworkQosPolicy(command.Command):
-    """Delete Qos Policy(s)"""
+    _description = _("Delete Qos Policy(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteNetworkQosPolicy, self).get_parser(prog_name)
@@ -136,7 +136,7 @@ class DeleteNetworkQosPolicy(command.Command):
 
 
 class ListNetworkQosPolicy(command.Lister):
-    """List QoS policies"""
+    _description = _("List QoS policies")
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
@@ -161,7 +161,7 @@ class ListNetworkQosPolicy(command.Lister):
 
 
 class SetNetworkQosPolicy(command.Command):
-    """Set QoS policy properties"""
+    _description = _("Set QoS policy properties")
 
     def get_parser(self, prog_name):
         parser = super(SetNetworkQosPolicy, self).get_parser(prog_name)
@@ -211,7 +211,7 @@ class SetNetworkQosPolicy(command.Command):
 
 
 class ShowNetworkQosPolicy(command.ShowOne):
-    """Display QoS policy details"""
+    _description = _("Display QoS policy details")
 
     def get_parser(self, prog_name):
         parser = super(ShowNetworkQosPolicy, self).get_parser(prog_name)

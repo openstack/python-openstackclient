@@ -59,7 +59,7 @@ def _format_visibility(data):
 
 
 class CreateImage(command.ShowOne):
-    """Create/upload an image"""
+    _description = _("Create/upload an image")
 
     def get_parser(self, prog_name):
         parser = super(CreateImage, self).get_parser(prog_name)
@@ -277,7 +277,7 @@ class CreateImage(command.ShowOne):
 
 
 class DeleteImage(command.Command):
-    """Delete image(s)"""
+    _description = _("Delete image(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteImage, self).get_parser(prog_name)
@@ -300,7 +300,7 @@ class DeleteImage(command.Command):
 
 
 class ListImage(command.Lister):
-    """List available images"""
+    _description = _("List available images")
 
     def get_parser(self, prog_name):
         parser = super(ListImage, self).get_parser(prog_name)
@@ -440,7 +440,7 @@ class ListImage(command.Lister):
 
 
 class SaveImage(command.Command):
-    """Save an image locally"""
+    _description = _("Save an image locally")
 
     def get_parser(self, prog_name):
         parser = super(SaveImage, self).get_parser(prog_name)
@@ -468,7 +468,7 @@ class SaveImage(command.Command):
 
 
 class SetImage(command.Command):
-    """Set image properties"""
+    _description = _("Set image properties")
 
     def get_parser(self, prog_name):
         parser = super(SetImage, self).get_parser(prog_name)
@@ -702,7 +702,7 @@ class SetImage(command.Command):
 
 
 class ShowImage(command.ShowOne):
-    """Display image details"""
+    _description = _("Display image details")
 
     def get_parser(self, prog_name):
         parser = super(ShowImage, self).get_parser(prog_name)

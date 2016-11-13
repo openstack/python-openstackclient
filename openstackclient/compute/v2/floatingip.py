@@ -24,7 +24,7 @@ from openstackclient.i18n import _
 
 
 class AddFloatingIP(command.Command):
-    """Add floating IP address to server"""
+    _description = _("Add floating IP address to server")
 
     # TODO(tangchen): Remove this class and ``ip floating add`` command
     #                 two cycles after Mitaka.
@@ -61,7 +61,7 @@ class AddFloatingIP(command.Command):
 
 
 class RemoveFloatingIP(command.Command):
-    """Remove floating IP address from server"""
+    _description = _("Remove floating IP address from server")
 
     # TODO(tangchen): Remove this class and ``ip floating remove`` command
     #                 two cycles after Mitaka.

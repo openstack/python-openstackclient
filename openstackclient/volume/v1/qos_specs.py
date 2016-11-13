@@ -30,7 +30,7 @@ LOG = logging.getLogger(__name__)
 
 
 class AssociateQos(command.Command):
-    """Associate a QoS specification to a volume type"""
+    _description = _("Associate a QoS specification to a volume type")
 
     def get_parser(self, prog_name):
         parser = super(AssociateQos, self).get_parser(prog_name)
@@ -57,7 +57,7 @@ class AssociateQos(command.Command):
 
 
 class CreateQos(command.ShowOne):
-    """Create new QoS specification"""
+    _description = _("Create new QoS specification")
 
     def get_parser(self, prog_name):
         parser = super(CreateQos, self).get_parser(prog_name)
@@ -99,7 +99,7 @@ class CreateQos(command.ShowOne):
 
 
 class DeleteQos(command.Command):
-    """Delete QoS specification"""
+    _description = _("Delete QoS specification")
 
     def get_parser(self, prog_name):
         parser = super(DeleteQos, self).get_parser(prog_name)
@@ -139,7 +139,7 @@ class DeleteQos(command.Command):
 
 
 class DisassociateQos(command.Command):
-    """Disassociate a QoS specification from a volume type"""
+    _description = _("Disassociate a QoS specification from a volume type")
 
     def get_parser(self, prog_name):
         parser = super(DisassociateQos, self).get_parser(prog_name)
@@ -177,7 +177,7 @@ class DisassociateQos(command.Command):
 
 
 class ListQos(command.Lister):
-    """List QoS specifications"""
+    _description = _("List QoS specifications")
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
@@ -202,7 +202,7 @@ class ListQos(command.Lister):
 
 
 class SetQos(command.Command):
-    """Set QoS specification properties"""
+    _description = _("Set QoS specification properties")
 
     def get_parser(self, prog_name):
         parser = super(SetQos, self).get_parser(prog_name)
@@ -231,7 +231,7 @@ class SetQos(command.Command):
 
 
 class ShowQos(command.ShowOne):
-    """Display QoS specification details"""
+    _description = _("Display QoS specification details")
 
     def get_parser(self, prog_name):
         parser = super(ShowQos, self).get_parser(prog_name)
@@ -260,7 +260,7 @@ class ShowQos(command.ShowOne):
 
 
 class UnsetQos(command.Command):
-    """Unset QoS specification properties"""
+    _description = _("Unset QoS specification properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetQos, self).get_parser(prog_name)

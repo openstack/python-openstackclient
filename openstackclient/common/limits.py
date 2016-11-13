@@ -25,7 +25,7 @@ from openstackclient.identity import common as identity_common
 
 
 class ShowLimits(command.Lister):
-    """Show compute and block storage limits"""
+    _description = _("Show compute and block storage limits")
 
     def get_parser(self, prog_name):
         parser = super(ShowLimits, self).get_parser(prog_name)

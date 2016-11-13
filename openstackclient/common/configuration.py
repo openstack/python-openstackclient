@@ -23,7 +23,7 @@ REDACTED = "<redacted>"
 
 
 class ShowConfiguration(command.ShowOne):
-    """Display configuration details"""
+    _description = _("Display configuration details")
 
     def get_parser(self, prog_name):
         parser = super(ShowConfiguration, self).get_parser(prog_name)

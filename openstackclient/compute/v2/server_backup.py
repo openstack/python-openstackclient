@@ -33,7 +33,7 @@ def _show_progress(progress):
 
 
 class CreateServerBackup(command.ShowOne):
-    """Create a server backup image"""
+    _description = _("Create a server backup image")
 
     IMAGE_API_VERSIONS = {
         "1": "openstackclient.image.v1.image",

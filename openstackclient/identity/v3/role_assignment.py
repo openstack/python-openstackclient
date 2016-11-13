@@ -11,7 +11,7 @@
 #   under the License.
 #
 
-"""Identity v3 Assignment action implementations """
+"""Identity v3 Assignment action implementations"""
 
 from osc_lib.command import command
 from osc_lib import utils
@@ -21,7 +21,7 @@ from openstackclient.identity import common
 
 
 class ListRoleAssignment(command.Lister):
-    """List role assignments"""
+    _description = _("List role assignments")
 
     def get_parser(self, prog_name):
         parser = super(ListRoleAssignment, self).get_parser(prog_name)

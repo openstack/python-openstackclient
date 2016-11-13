@@ -32,7 +32,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateKeypair(command.ShowOne):
-    """Create new public or private key for server ssh access"""
+    _description = _("Create new public or private key for server ssh access")
 
     def get_parser(self, prog_name):
         parser = super(CreateKeypair, self).get_parser(prog_name)
@@ -83,7 +83,7 @@ class CreateKeypair(command.ShowOne):
 
 
 class DeleteKeypair(command.Command):
-    """Delete public or private key(s)"""
+    _description = _("Delete public or private key(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteKeypair, self).get_parser(prog_name)
@@ -117,7 +117,7 @@ class DeleteKeypair(command.Command):
 
 
 class ListKeypair(command.Lister):
-    """List key fingerprints"""
+    _description = _("List key fingerprints")
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
@@ -134,7 +134,7 @@ class ListKeypair(command.Lister):
 
 
 class ShowKeypair(command.ShowOne):
-    """Display key details"""
+    _description = _("Display key details")
 
     def get_parser(self, prog_name):
         parser = super(ShowKeypair, self).get_parser(prog_name)

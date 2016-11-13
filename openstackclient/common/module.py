@@ -25,7 +25,7 @@ from openstackclient.i18n import _
 
 
 class ListCommand(command.Lister):
-    """List recognized commands by group"""
+    _description = _("List recognized commands by group")
 
     auth_required = False
 
@@ -53,7 +53,7 @@ class ListCommand(command.Lister):
 
 
 class ListModule(command.ShowOne):
-    """List module versions"""
+    _description = _("List module versions")
 
     auth_required = False
 

@@ -58,7 +58,7 @@ def _get_attrs(client_manager, parsed_args):
 # TODO(rtheis): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
 class CreateAddressScope(command.ShowOne):
-    """Create a new Address Scope"""
+    _description = _("Create a new Address Scope")
 
     def get_parser(self, prog_name):
         parser = super(CreateAddressScope, self).get_parser(prog_name)
@@ -106,7 +106,7 @@ class CreateAddressScope(command.ShowOne):
 
 
 class DeleteAddressScope(command.Command):
-    """Delete address scope(s)"""
+    _description = _("Delete address scope(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteAddressScope, self).get_parser(prog_name)
@@ -141,7 +141,7 @@ class DeleteAddressScope(command.Command):
 
 
 class ListAddressScope(command.Lister):
-    """List address scopes"""
+    _description = _("List address scopes")
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
@@ -170,7 +170,7 @@ class ListAddressScope(command.Lister):
 # TODO(rtheis): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
 class SetAddressScope(command.Command):
-    """Set address scope properties"""
+    _description = _("Set address scope properties")
 
     def get_parser(self, prog_name):
         parser = super(SetAddressScope, self).get_parser(prog_name)
@@ -214,7 +214,7 @@ class SetAddressScope(command.Command):
 
 
 class ShowAddressScope(command.ShowOne):
-    """Display address scope details"""
+    _description = _("Display address scope details")
 
     def get_parser(self, prog_name):
         parser = super(ShowAddressScope, self).get_parser(prog_name)

@@ -71,7 +71,7 @@ def _get_attrs(client_manager, parsed_args):
 
 
 class CreateNetworkRBAC(command.ShowOne):
-    """Create network RBAC policy"""
+    _description = _("Create network RBAC policy")
 
     def get_parser(self, prog_name):
         parser = super(CreateNetworkRBAC, self).get_parser(prog_name)
@@ -128,7 +128,7 @@ class CreateNetworkRBAC(command.ShowOne):
 
 
 class DeleteNetworkRBAC(command.Command):
-    """Delete network RBAC policy(s)"""
+    _description = _("Delete network RBAC policy(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteNetworkRBAC, self).get_parser(prog_name)
@@ -162,7 +162,7 @@ class DeleteNetworkRBAC(command.Command):
 
 
 class ListNetworkRBAC(command.Lister):
-    """List network RBAC policies"""
+    _description = _("List network RBAC policies")
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
@@ -186,7 +186,7 @@ class ListNetworkRBAC(command.Lister):
 
 
 class SetNetworkRBAC(command.Command):
-    """Set network RBAC policy properties"""
+    _description = _("Set network RBAC policy properties")
 
     def get_parser(self, prog_name):
         parser = super(SetNetworkRBAC, self).get_parser(prog_name)
@@ -227,7 +227,7 @@ class SetNetworkRBAC(command.Command):
 
 
 class ShowNetworkRBAC(command.ShowOne):
-    """Display network RBAC policy details"""
+    _description = _("Display network RBAC policy details")
 
     def get_parser(self, prog_name):
         parser = super(ShowNetworkRBAC, self).get_parser(prog_name)

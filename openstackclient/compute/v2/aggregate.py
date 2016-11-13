@@ -31,7 +31,7 @@ LOG = logging.getLogger(__name__)
 
 
 class AddAggregateHost(command.ShowOne):
-    """Add host to aggregate"""
+    _description = _("Add host to aggregate")
 
     def get_parser(self, prog_name):
         parser = super(AddAggregateHost, self).get_parser(prog_name)
@@ -62,7 +62,7 @@ class AddAggregateHost(command.ShowOne):
 
 
 class CreateAggregate(command.ShowOne):
-    """Create a new aggregate"""
+    _description = _("Create a new aggregate")
 
     def get_parser(self, prog_name):
         parser = super(CreateAggregate, self).get_parser(prog_name)
@@ -105,7 +105,7 @@ class CreateAggregate(command.ShowOne):
 
 
 class DeleteAggregate(command.Command):
-    """Delete existing aggregate(s)"""
+    _description = _("Delete existing aggregate(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteAggregate, self).get_parser(prog_name)
@@ -139,7 +139,7 @@ class DeleteAggregate(command.Command):
 
 
 class ListAggregate(command.Lister):
-    """List all aggregates"""
+    _description = _("List all aggregates")
 
     def get_parser(self, prog_name):
         parser = super(ListAggregate, self).get_parser(prog_name)
@@ -188,7 +188,7 @@ class ListAggregate(command.Lister):
 
 
 class RemoveAggregateHost(command.ShowOne):
-    """Remove host from aggregate"""
+    _description = _("Remove host from aggregate")
 
     def get_parser(self, prog_name):
         parser = super(RemoveAggregateHost, self).get_parser(prog_name)
@@ -222,7 +222,7 @@ class RemoveAggregateHost(command.ShowOne):
 
 
 class SetAggregate(command.Command):
-    """Set aggregate properties"""
+    _description = _("Set aggregate properties")
 
     def get_parser(self, prog_name):
         parser = super(SetAggregate, self).get_parser(prog_name)
@@ -298,7 +298,7 @@ class SetAggregate(command.Command):
 
 
 class ShowAggregate(command.ShowOne):
-    """Display aggregate details"""
+    _description = _("Display aggregate details")
 
     def get_parser(self, prog_name):
         parser = super(ShowAggregate, self).get_parser(prog_name)
@@ -334,7 +334,7 @@ class ShowAggregate(command.ShowOne):
 
 
 class UnsetAggregate(command.Command):
-    """Unset aggregate properties"""
+    _description = _("Unset aggregate properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetAggregate, self).get_parser(prog_name)

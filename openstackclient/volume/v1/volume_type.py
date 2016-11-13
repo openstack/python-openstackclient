@@ -30,7 +30,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateVolumeType(command.ShowOne):
-    """Create new volume type"""
+    _description = _("Create new volume type")
 
     def get_parser(self, prog_name):
         parser = super(CreateVolumeType, self).get_parser(prog_name)
@@ -61,7 +61,7 @@ class CreateVolumeType(command.ShowOne):
 
 
 class DeleteVolumeType(command.Command):
-    """Delete volume type(s)"""
+    _description = _("Delete volume type(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteVolumeType, self).get_parser(prog_name)
@@ -97,7 +97,7 @@ class DeleteVolumeType(command.Command):
 
 
 class ListVolumeType(command.Lister):
-    """List volume types"""
+    _description = _("List volume types")
 
     def get_parser(self, prog_name):
         parser = super(ListVolumeType, self).get_parser(prog_name)
@@ -125,7 +125,7 @@ class ListVolumeType(command.Lister):
 
 
 class SetVolumeType(command.Command):
-    """Set volume type properties"""
+    _description = _("Set volume type properties")
 
     def get_parser(self, prog_name):
         parser = super(SetVolumeType, self).get_parser(prog_name)
@@ -153,7 +153,7 @@ class SetVolumeType(command.Command):
 
 
 class ShowVolumeType(command.ShowOne):
-    """Display volume type details"""
+    _description = _("Display volume type details")
 
     def get_parser(self, prog_name):
         parser = super(ShowVolumeType, self).get_parser(prog_name)
@@ -175,7 +175,7 @@ class ShowVolumeType(command.ShowOne):
 
 
 class UnsetVolumeType(command.Command):
-    """Unset volume type properties"""
+    _description = _("Unset volume type properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetVolumeType, self).get_parser(prog_name)

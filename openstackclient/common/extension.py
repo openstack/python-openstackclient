@@ -28,7 +28,7 @@ LOG = logging.getLogger(__name__)
 
 
 class ListExtension(command.Lister):
-    """List API extensions"""
+    _description = _("List API extensions")
 
     def get_parser(self, prog_name):
         parser = super(ListExtension, self).get_parser(prog_name)

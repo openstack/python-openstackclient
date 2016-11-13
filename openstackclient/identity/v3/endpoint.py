@@ -37,7 +37,7 @@ def get_service_name(service):
 
 
 class CreateEndpoint(command.ShowOne):
-    """Create new endpoint"""
+    _description = _("Create new endpoint")
 
     def get_parser(self, prog_name):
         parser = super(CreateEndpoint, self).get_parser(prog_name)
@@ -99,7 +99,7 @@ class CreateEndpoint(command.ShowOne):
 
 
 class DeleteEndpoint(command.Command):
-    """Delete endpoint(s)"""
+    _description = _("Delete endpoint(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteEndpoint, self).get_parser(prog_name)
@@ -133,7 +133,7 @@ class DeleteEndpoint(command.Command):
 
 
 class ListEndpoint(command.Lister):
-    """List endpoints"""
+    _description = _("List endpoints")
 
     def get_parser(self, prog_name):
         parser = super(ListEndpoint, self).get_parser(prog_name)
@@ -181,7 +181,7 @@ class ListEndpoint(command.Lister):
 
 
 class SetEndpoint(command.Command):
-    """Set endpoint properties"""
+    _description = _("Set endpoint properties")
 
     def get_parser(self, prog_name):
         parser = super(SetEndpoint, self).get_parser(prog_name)
@@ -252,7 +252,7 @@ class SetEndpoint(command.Command):
 
 
 class ShowEndpoint(command.ShowOne):
-    """Display endpoint details"""
+    _description = _("Display endpoint details")
 
     def get_parser(self, prog_name):
         parser = super(ShowEndpoint, self).get_parser(prog_name)

@@ -29,7 +29,7 @@ LOG = logging.getLogger(__name__)
 
 
 class DeleteService(command.Command):
-    """Delete compute service(s)"""
+    _description = _("Delete compute service(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteService, self).get_parser(prog_name)
@@ -61,7 +61,7 @@ class DeleteService(command.Command):
 
 
 class ListService(command.Lister):
-    """List compute services"""
+    _description = _("List compute services")
 
     def get_parser(self, prog_name):
         parser = super(ListService, self).get_parser(prog_name)
@@ -115,7 +115,7 @@ class ListService(command.Lister):
 
 
 class SetService(command.Command):
-    """Set compute service properties"""
+    _description = _("Set compute service properties")
 
     def get_parser(self, prog_name):
         parser = super(SetService, self).get_parser(prog_name)

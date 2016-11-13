@@ -30,7 +30,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateService(command.ShowOne):
-    """Create new service"""
+    _description = _("Create new service")
 
     def get_parser(self, prog_name):
         parser = super(CreateService, self).get_parser(prog_name)
@@ -81,7 +81,7 @@ class CreateService(command.ShowOne):
 
 
 class DeleteService(command.Command):
-    """Delete service(s)"""
+    _description = _("Delete service(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteService, self).get_parser(prog_name)
@@ -114,7 +114,7 @@ class DeleteService(command.Command):
 
 
 class ListService(command.Lister):
-    """List services"""
+    _description = _("List services")
 
     def get_parser(self, prog_name):
         parser = super(ListService, self).get_parser(prog_name)
@@ -140,7 +140,7 @@ class ListService(command.Lister):
 
 
 class SetService(command.Command):
-    """Set service properties"""
+    _description = _("Set service properties")
 
     def get_parser(self, prog_name):
         parser = super(SetService, self).get_parser(prog_name)
@@ -201,7 +201,7 @@ class SetService(command.Command):
 
 
 class ShowService(command.ShowOne):
-    """Display service details"""
+    _description = _("Display service details")
 
     def get_parser(self, prog_name):
         parser = super(ShowService, self).get_parser(prog_name)

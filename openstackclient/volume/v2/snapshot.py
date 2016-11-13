@@ -30,7 +30,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateSnapshot(command.ShowOne):
-    """Create new snapshot"""
+    _description = _("Create new snapshot")
 
     def get_parser(self, prog_name):
         parser = super(CreateSnapshot, self).get_parser(prog_name)
@@ -83,7 +83,7 @@ class CreateSnapshot(command.ShowOne):
 
 
 class DeleteSnapshot(command.Command):
-    """Delete volume snapshot(s)"""
+    _description = _("Delete volume snapshot(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteSnapshot, self).get_parser(prog_name)
@@ -118,7 +118,7 @@ class DeleteSnapshot(command.Command):
 
 
 class ListSnapshot(command.Lister):
-    """List snapshots"""
+    _description = _("List snapshots")
 
     def get_parser(self, prog_name):
         parser = super(ListSnapshot, self).get_parser(prog_name)
@@ -199,7 +199,7 @@ class ListSnapshot(command.Lister):
 
 
 class SetSnapshot(command.Command):
-    """Set snapshot properties"""
+    _description = _("Set snapshot properties")
 
     def get_parser(self, prog_name):
         parser = super(SetSnapshot, self).get_parser(prog_name)
@@ -280,7 +280,7 @@ class SetSnapshot(command.Command):
 
 
 class ShowSnapshot(command.ShowOne):
-    """Display snapshot details"""
+    _description = _("Display snapshot details")
 
     def get_parser(self, prog_name):
         parser = super(ShowSnapshot, self).get_parser(prog_name)
@@ -302,7 +302,7 @@ class ShowSnapshot(command.ShowOne):
 
 
 class UnsetSnapshot(command.Command):
-    """Unset snapshot properties"""
+    _description = _("Unset snapshot properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetSnapshot, self).get_parser(prog_name)

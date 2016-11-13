@@ -31,7 +31,7 @@ def _get_columns(item):
 
 
 class CreateNetworkSegment(command.ShowOne):
-    """Create new network segment"""
+    _description = _("Create new network segment")
 
     def get_parser(self, prog_name):
         parser = super(CreateNetworkSegment, self).get_parser(prog_name)
@@ -95,7 +95,7 @@ class CreateNetworkSegment(command.ShowOne):
 
 
 class DeleteNetworkSegment(command.Command):
-    """Delete network segment(s)"""
+    _description = _("Delete network segment(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteNetworkSegment, self).get_parser(prog_name)
@@ -130,7 +130,7 @@ class DeleteNetworkSegment(command.Command):
 
 
 class ListNetworkSegment(command.Lister):
-    """List network segments"""
+    _description = _("List network segments")
 
     def get_parser(self, prog_name):
         parser = super(ListNetworkSegment, self).get_parser(prog_name)
@@ -190,7 +190,7 @@ class ListNetworkSegment(command.Lister):
 
 
 class SetNetworkSegment(command.Command):
-    """Set network segment properties"""
+    _description = _("Set network segment properties")
 
     def get_parser(self, prog_name):
         parser = super(SetNetworkSegment, self).get_parser(prog_name)
@@ -224,7 +224,7 @@ class SetNetworkSegment(command.Command):
 
 
 class ShowNetworkSegment(command.ShowOne):
-    """Display network segment details"""
+    _description = _("Display network segment details")
 
     def get_parser(self, prog_name):
         parser = super(ShowNetworkSegment, self).get_parser(prog_name)

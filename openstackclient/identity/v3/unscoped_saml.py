@@ -44,7 +44,7 @@ def auth_with_unscoped_saml(func):
 
 
 class ListAccessibleDomains(command.Lister):
-    """List accessible domains"""
+    _description = _("List accessible domains")
 
     @auth_with_unscoped_saml
     def take_action(self, parsed_args):
@@ -59,7 +59,7 @@ class ListAccessibleDomains(command.Lister):
 
 
 class ListAccessibleProjects(command.Lister):
-    """List accessible projects"""
+    _description = _("List accessible projects")
 
     @auth_with_unscoped_saml
     def take_action(self, parsed_args):

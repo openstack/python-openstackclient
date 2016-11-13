@@ -22,7 +22,7 @@ from openstackclient.i18n import _
 
 
 class ListService(command.Lister):
-    """List service command"""
+    _description = _("List service command")
 
     def get_parser(self, prog_name):
         parser = super(ListService, self).get_parser(prog_name)
@@ -76,7 +76,7 @@ class ListService(command.Lister):
 
 
 class SetService(command.Command):
-    """Set volume service properties"""
+    _description = _("Set volume service properties")
 
     def get_parser(self, prog_name):
         parser = super(SetService, self).get_parser(prog_name)

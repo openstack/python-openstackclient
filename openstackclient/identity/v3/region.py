@@ -27,7 +27,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateRegion(command.ShowOne):
-    """Create new region"""
+    _description = _("Create new region")
 
     def get_parser(self, prog_name):
         parser = super(CreateRegion, self).get_parser(prog_name)
@@ -66,7 +66,7 @@ class CreateRegion(command.ShowOne):
 
 
 class DeleteRegion(command.Command):
-    """Delete region(s)"""
+    _description = _("Delete region(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteRegion, self).get_parser(prog_name)
@@ -98,7 +98,7 @@ class DeleteRegion(command.Command):
 
 
 class ListRegion(command.Lister):
-    """List regions"""
+    _description = _("List regions")
 
     def get_parser(self, prog_name):
         parser = super(ListRegion, self).get_parser(prog_name)
@@ -128,7 +128,7 @@ class ListRegion(command.Lister):
 
 
 class SetRegion(command.Command):
-    """Set region properties"""
+    _description = _("Set region properties")
 
     def get_parser(self, prog_name):
         parser = super(SetRegion, self).get_parser(prog_name)
@@ -162,7 +162,7 @@ class SetRegion(command.Command):
 
 
 class ShowRegion(command.ShowOne):
-    """Display region details"""
+    _description = _("Display region details")
 
     def get_parser(self, prog_name):
         parser = super(ShowRegion, self).get_parser(prog_name)

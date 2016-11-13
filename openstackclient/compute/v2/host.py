@@ -22,7 +22,7 @@ from openstackclient.i18n import _
 
 
 class ListHost(command.Lister):
-    """List hosts"""
+    _description = _("List hosts")
 
     def get_parser(self, prog_name):
         parser = super(ListHost, self).get_parser(prog_name)
@@ -48,7 +48,8 @@ class ListHost(command.Lister):
 
 
 class SetHost(command.Command):
-    """Set host properties"""
+    _description = _("Set host properties")
+
     def get_parser(self, prog_name):
         parser = super(SetHost, self).get_parser(prog_name)
         parser.add_argument(
@@ -107,7 +108,7 @@ class SetHost(command.Command):
 
 
 class ShowHost(command.Lister):
-    """Display host details"""
+    _description = _("Display host details")
 
     def get_parser(self, prog_name):
         parser = super(ShowHost, self).get_parser(prog_name)

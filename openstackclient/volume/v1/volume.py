@@ -45,7 +45,7 @@ def _check_size_arg(args):
 
 
 class CreateVolume(command.ShowOne):
-    """Create new volume"""
+    _description = _("Create new volume")
 
     def get_parser(self, prog_name):
         parser = super(CreateVolume, self).get_parser(prog_name)
@@ -178,7 +178,7 @@ class CreateVolume(command.ShowOne):
 
 
 class DeleteVolume(command.Command):
-    """Delete volume(s)"""
+    _description = _("Delete volume(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteVolume, self).get_parser(prog_name)
@@ -223,7 +223,7 @@ class DeleteVolume(command.Command):
 
 
 class ListVolume(command.Lister):
-    """List volumes"""
+    _description = _("List volumes")
 
     def get_parser(self, prog_name):
         parser = super(ListVolume, self).get_parser(prog_name)
@@ -345,7 +345,7 @@ class ListVolume(command.Lister):
 
 
 class MigrateVolume(command.Command):
-    """Migrate volume to a new host"""
+    _description = _("Migrate volume to a new host")
 
     def get_parser(self, prog_name):
         parser = super(MigrateVolume, self).get_parser(prog_name)
@@ -376,7 +376,7 @@ class MigrateVolume(command.Command):
 
 
 class SetVolume(command.Command):
-    """Set volume properties"""
+    _description = _("Set volume properties")
 
     def get_parser(self, prog_name):
         parser = super(SetVolume, self).get_parser(prog_name)
@@ -494,7 +494,7 @@ class SetVolume(command.Command):
 
 
 class ShowVolume(command.ShowOne):
-    """Show volume details"""
+    _description = _("Show volume details")
 
     def get_parser(self, prog_name):
         parser = super(ShowVolume, self).get_parser(prog_name)
@@ -524,7 +524,7 @@ class ShowVolume(command.ShowOne):
 
 
 class UnsetVolume(command.Command):
-    """Unset volume properties"""
+    _description = _("Unset volume properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetVolume, self).get_parser(prog_name)

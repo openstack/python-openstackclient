@@ -28,7 +28,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateProtocol(command.ShowOne):
-    """Create new federation protocol"""
+    _description = _("Create new federation protocol")
 
     def get_parser(self, prog_name):
         parser = super(CreateProtocol, self).get_parser(prog_name)
@@ -72,7 +72,7 @@ class CreateProtocol(command.ShowOne):
 
 
 class DeleteProtocol(command.Command):
-    """Delete federation protocol(s)"""
+    _description = _("Delete federation protocol(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteProtocol, self).get_parser(prog_name)
@@ -113,7 +113,7 @@ class DeleteProtocol(command.Command):
 
 
 class ListProtocols(command.Lister):
-    """List federation protocols"""
+    _description = _("List federation protocols")
 
     def get_parser(self, prog_name):
         parser = super(ListProtocols, self).get_parser(prog_name)
@@ -139,7 +139,7 @@ class ListProtocols(command.Lister):
 
 
 class SetProtocol(command.Command):
-    """Set federation protocol properties"""
+    _description = _("Set federation protocol properties")
 
     def get_parser(self, prog_name):
         parser = super(SetProtocol, self).get_parser(prog_name)
@@ -179,7 +179,7 @@ class SetProtocol(command.Command):
 
 
 class ShowProtocol(command.ShowOne):
-    """Display federation protocol details"""
+    _description = _("Display federation protocol details")
 
     def get_parser(self, prog_name):
         parser = super(ShowProtocol, self).get_parser(prog_name)

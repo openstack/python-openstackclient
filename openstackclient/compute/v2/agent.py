@@ -29,7 +29,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateAgent(command.ShowOne):
-    """Create compute agent"""
+    _description = _("Create compute agent")
 
     def get_parser(self, prog_name):
         parser = super(CreateAgent, self).get_parser(prog_name)
@@ -81,7 +81,7 @@ class CreateAgent(command.ShowOne):
 
 
 class DeleteAgent(command.Command):
-    """Delete compute agent(s)"""
+    _description = _("Delete compute agent(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteAgent, self).get_parser(prog_name)
@@ -112,7 +112,7 @@ class DeleteAgent(command.Command):
 
 
 class ListAgent(command.Lister):
-    """List compute agents"""
+    _description = _("List compute agents")
 
     def get_parser(self, prog_name):
         parser = super(ListAgent, self).get_parser(prog_name)
@@ -142,7 +142,7 @@ class ListAgent(command.Lister):
 
 
 class SetAgent(command.Command):
-    """Set compute agent properties"""
+    _description = _("Set compute agent properties")
 
     def get_parser(self, prog_name):
         parser = super(SetAgent, self).get_parser(prog_name)

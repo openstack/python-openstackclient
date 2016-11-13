@@ -109,7 +109,8 @@ def _process_identity_and_resource_options(parsed_args,
 
 
 class AddRole(command.Command):
-    """Adds a role assignment to a user or group on a domain or project"""
+    _description = _("Adds a role assignment to a user or group on a domain "
+                     "or project")
 
     def get_parser(self, prog_name):
         parser = super(AddRole, self).get_parser(prog_name)
@@ -151,7 +152,7 @@ class AddRole(command.Command):
 
 
 class CreateRole(command.ShowOne):
-    """Create new role"""
+    _description = _("Create new role")
 
     def get_parser(self, prog_name):
         parser = super(CreateRole, self).get_parser(prog_name)
@@ -198,7 +199,7 @@ class CreateRole(command.ShowOne):
 
 
 class DeleteRole(command.Command):
-    """Delete role(s)"""
+    _description = _("Delete role(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteRole, self).get_parser(prog_name)
@@ -233,7 +234,7 @@ class DeleteRole(command.Command):
 
 
 class ListRole(command.Lister):
-    """List roles"""
+    _description = _("List roles")
 
     def get_parser(self, prog_name):
         parser = super(ListRole, self).get_parser(prog_name)
@@ -371,7 +372,8 @@ class ListRole(command.Lister):
 
 
 class RemoveRole(command.Command):
-    """Removes a role assignment from domain/project : user/group"""
+    _description = _("Removes a role assignment from domain/project : "
+                     "user/group")
 
     def get_parser(self, prog_name):
         parser = super(RemoveRole, self).get_parser(prog_name)
@@ -415,7 +417,7 @@ class RemoveRole(command.Command):
 
 
 class SetRole(command.Command):
-    """Set role properties"""
+    _description = _("Set role properties")
 
     def get_parser(self, prog_name):
         parser = super(SetRole, self).get_parser(prog_name)
@@ -452,7 +454,7 @@ class SetRole(command.Command):
 
 
 class ShowRole(command.ShowOne):
-    """Display role details"""
+    _description = _("Display role details")
 
     def get_parser(self, prog_name):
         parser = super(ShowRole, self).get_parser(prog_name)

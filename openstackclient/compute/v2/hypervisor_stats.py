@@ -17,9 +17,11 @@
 from osc_lib.command import command
 import six
 
+from openstackclient.i18n import _
+
 
 class ShowHypervisorStats(command.ShowOne):
-    """Display hypervisor stats details"""
+    _description = _("Display hypervisor stats details")
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute

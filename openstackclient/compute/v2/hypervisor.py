@@ -26,7 +26,7 @@ from openstackclient.i18n import _
 
 
 class ListHypervisor(command.Lister):
-    """List hypervisors"""
+    _description = _("List hypervisors")
 
     def get_parser(self, prog_name):
         parser = super(ListHypervisor, self).get_parser(prog_name)
@@ -66,7 +66,7 @@ class ListHypervisor(command.Lister):
 
 
 class ShowHypervisor(command.ShowOne):
-    """Display hypervisor details"""
+    _description = _("Display hypervisor details")
 
     def get_parser(self, prog_name):
         parser = super(ShowHypervisor, self).get_parser(prog_name)

@@ -175,7 +175,7 @@ def _show_progress(progress):
 
 
 class AddFixedIP(command.Command):
-    """Add fixed IP address to server"""
+    _description = _("Add fixed IP address to server")
 
     def get_parser(self, prog_name):
         parser = super(AddFixedIP, self).get_parser(prog_name)
@@ -205,7 +205,7 @@ class AddFixedIP(command.Command):
 
 
 class AddFloatingIP(command.Command):
-    """Add floating IP address to server"""
+    _description = _("Add floating IP address to server")
 
     def get_parser(self, prog_name):
         parser = super(AddFloatingIP, self).get_parser(prog_name)
@@ -232,7 +232,7 @@ class AddFloatingIP(command.Command):
 
 
 class AddServerSecurityGroup(command.Command):
-    """Add security group to server"""
+    _description = _("Add security group to server")
 
     def get_parser(self, prog_name):
         parser = super(AddServerSecurityGroup, self).get_parser(prog_name)
@@ -264,7 +264,7 @@ class AddServerSecurityGroup(command.Command):
 
 
 class AddServerVolume(command.Command):
-    """Add volume to server"""
+    _description = _("Add volume to server")
 
     def get_parser(self, prog_name):
         parser = super(AddServerVolume, self).get_parser(prog_name)
@@ -306,7 +306,7 @@ class AddServerVolume(command.Command):
 
 
 class CreateServer(command.ShowOne):
-    """Create a new server"""
+    _description = _("Create a new server")
 
     def get_parser(self, prog_name):
         parser = super(CreateServer, self).get_parser(prog_name)
@@ -642,7 +642,7 @@ class CreateServerDump(command.Command):
 
 
 class DeleteServer(command.Command):
-    """Delete server(s)"""
+    _description = _("Delete server(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteServer, self).get_parser(prog_name)
@@ -680,7 +680,7 @@ class DeleteServer(command.Command):
 
 
 class ListServer(command.Lister):
-    """List servers"""
+    _description = _("List servers")
 
     def get_parser(self, prog_name):
         parser = super(ListServer, self).get_parser(prog_name)
@@ -923,7 +923,8 @@ class ListServer(command.Lister):
 
 class LockServer(command.Command):
 
-    """Lock server(s). A non-admin user will not be able to execute actions"""
+    _description = _("Lock server(s). A non-admin user will not be able to "
+                     "execute actions")
 
     def get_parser(self, prog_name):
         parser = super(LockServer, self).get_parser(prog_name)
@@ -956,7 +957,7 @@ class LockServer(command.Command):
 # then adding the groups doesn't seem to work
 
 class MigrateServer(command.Command):
-    """Migrate server to different host"""
+    _description = _("Migrate server to different host")
 
     def get_parser(self, prog_name):
         parser = super(MigrateServer, self).get_parser(prog_name)
@@ -1038,7 +1039,7 @@ class MigrateServer(command.Command):
 
 
 class PauseServer(command.Command):
-    """Pause server(s)"""
+    _description = _("Pause server(s)")
 
     def get_parser(self, prog_name):
         parser = super(PauseServer, self).get_parser(prog_name)
@@ -1060,7 +1061,7 @@ class PauseServer(command.Command):
 
 
 class RebootServer(command.Command):
-    """Perform a hard or soft server reboot"""
+    _description = _("Perform a hard or soft server reboot")
 
     def get_parser(self, prog_name):
         parser = super(RebootServer, self).get_parser(prog_name)
@@ -1114,7 +1115,7 @@ class RebootServer(command.Command):
 
 
 class RebuildServer(command.ShowOne):
-    """Rebuild server"""
+    _description = _("Rebuild server")
 
     def get_parser(self, prog_name):
         parser = super(RebuildServer, self).get_parser(prog_name)
@@ -1170,7 +1171,7 @@ class RebuildServer(command.ShowOne):
 
 
 class RemoveFixedIP(command.Command):
-    """Remove fixed IP address from server"""
+    _description = _("Remove fixed IP address from server")
 
     def get_parser(self, prog_name):
         parser = super(RemoveFixedIP, self).get_parser(prog_name)
@@ -1197,7 +1198,7 @@ class RemoveFixedIP(command.Command):
 
 
 class RemoveFloatingIP(command.Command):
-    """Remove floating IP address from server"""
+    _description = _("Remove floating IP address from server")
 
     def get_parser(self, prog_name):
         parser = super(RemoveFloatingIP, self).get_parser(prog_name)
@@ -1225,7 +1226,7 @@ class RemoveFloatingIP(command.Command):
 
 
 class RemoveServerSecurityGroup(command.Command):
-    """Remove security group from server"""
+    _description = _("Remove security group from server")
 
     def get_parser(self, prog_name):
         parser = super(RemoveServerSecurityGroup, self).get_parser(prog_name)
@@ -1257,7 +1258,7 @@ class RemoveServerSecurityGroup(command.Command):
 
 
 class RemoveServerVolume(command.Command):
-    """Remove volume from server"""
+    _description = _("Remove volume from server")
 
     def get_parser(self, prog_name):
         parser = super(RemoveServerVolume, self).get_parser(prog_name)
@@ -1293,7 +1294,7 @@ class RemoveServerVolume(command.Command):
 
 
 class RescueServer(command.ShowOne):
-    """Put server in rescue mode"""
+    _description = _("Put server in rescue mode")
 
     def get_parser(self, prog_name):
         parser = super(RescueServer, self).get_parser(prog_name)
@@ -1315,7 +1316,7 @@ class RescueServer(command.ShowOne):
 
 
 class ResizeServer(command.Command):
-    """Scale server to a new flavor"""
+    _description = _("Scale server to a new flavor")
 
     def get_parser(self, prog_name):
         parser = super(ResizeServer, self).get_parser(prog_name)
@@ -1380,7 +1381,7 @@ class ResizeServer(command.Command):
 
 
 class RestoreServer(command.Command):
-    """Restore server(s)"""
+    _description = _("Restore server(s)")
 
     def get_parser(self, prog_name):
         parser = super(RestoreServer, self).get_parser(prog_name)
@@ -1402,7 +1403,7 @@ class RestoreServer(command.Command):
 
 
 class ResumeServer(command.Command):
-    """Resume server(s)"""
+    _description = _("Resume server(s)")
 
     def get_parser(self, prog_name):
         parser = super(ResumeServer, self).get_parser(prog_name)
@@ -1425,7 +1426,7 @@ class ResumeServer(command.Command):
 
 
 class SetServer(command.Command):
-    """Set server properties"""
+    _description = _("Set server properties")
 
     def get_parser(self, prog_name):
         parser = super(SetServer, self).get_parser(prog_name)
@@ -1490,7 +1491,7 @@ class SetServer(command.Command):
 
 
 class ShelveServer(command.Command):
-    """Shelve server(s)"""
+    _description = _("Shelve server(s)")
 
     def get_parser(self, prog_name):
         parser = super(ShelveServer, self).get_parser(prog_name)
@@ -1512,7 +1513,7 @@ class ShelveServer(command.Command):
 
 
 class ShowServer(command.ShowOne):
-    """Show server details"""
+    _description = _("Show server details")
 
     def get_parser(self, prog_name):
         parser = super(ShowServer, self).get_parser(prog_name)
@@ -1546,7 +1547,7 @@ class ShowServer(command.ShowOne):
 
 
 class SshServer(command.Command):
-    """SSH to server"""
+    _description = _("SSH to server")
 
     def get_parser(self, prog_name):
         parser = super(SshServer, self).get_parser(prog_name)
@@ -1690,7 +1691,7 @@ class SshServer(command.Command):
 
 
 class StartServer(command.Command):
-    """Start server(s)."""
+    _description = _("Start server(s).")
 
     def get_parser(self, prog_name):
         parser = super(StartServer, self).get_parser(prog_name)
@@ -1712,7 +1713,7 @@ class StartServer(command.Command):
 
 
 class StopServer(command.Command):
-    """Stop server(s)."""
+    _description = _("Stop server(s).")
 
     def get_parser(self, prog_name):
         parser = super(StopServer, self).get_parser(prog_name)
@@ -1734,7 +1735,7 @@ class StopServer(command.Command):
 
 
 class SuspendServer(command.Command):
-    """Suspend server(s)"""
+    _description = _("Suspend server(s)")
 
     def get_parser(self, prog_name):
         parser = super(SuspendServer, self).get_parser(prog_name)
@@ -1757,7 +1758,7 @@ class SuspendServer(command.Command):
 
 
 class UnlockServer(command.Command):
-    """Unlock server(s)"""
+    _description = _("Unlock server(s)")
 
     def get_parser(self, prog_name):
         parser = super(UnlockServer, self).get_parser(prog_name)
@@ -1780,7 +1781,7 @@ class UnlockServer(command.Command):
 
 
 class UnpauseServer(command.Command):
-    """Unpause server(s)"""
+    _description = _("Unpause server(s)")
 
     def get_parser(self, prog_name):
         parser = super(UnpauseServer, self).get_parser(prog_name)
@@ -1803,7 +1804,7 @@ class UnpauseServer(command.Command):
 
 
 class UnrescueServer(command.Command):
-    """Restore server from rescue mode"""
+    _description = _("Restore server from rescue mode")
 
     def get_parser(self, prog_name):
         parser = super(UnrescueServer, self).get_parser(prog_name)
@@ -1824,7 +1825,7 @@ class UnrescueServer(command.Command):
 
 
 class UnsetServer(command.Command):
-    """Unset server properties"""
+    _description = _("Unset server properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetServer, self).get_parser(prog_name)
@@ -1858,7 +1859,7 @@ class UnsetServer(command.Command):
 
 
 class UnshelveServer(command.Command):
-    """Unshelve server(s)"""
+    _description = _("Unshelve server(s)")
 
     def get_parser(self, prog_name):
         parser = super(UnshelveServer, self).get_parser(prog_name)

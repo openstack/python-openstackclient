@@ -31,7 +31,7 @@ LOG = logging.getLogger(__name__)
 
 
 class AddUserToGroup(command.Command):
-    """Add user to group"""
+    _description = _("Add user to group")
 
     def get_parser(self, prog_name):
         parser = super(AddUserToGroup, self).get_parser(prog_name)
@@ -76,7 +76,7 @@ class AddUserToGroup(command.Command):
 
 
 class CheckUserInGroup(command.Command):
-    """Check user membership in group"""
+    _description = _("Check user membership in group")
 
     def get_parser(self, prog_name):
         parser = super(CheckUserInGroup, self).get_parser(prog_name)
@@ -121,7 +121,7 @@ class CheckUserInGroup(command.Command):
 
 
 class CreateGroup(command.ShowOne):
-    """Create new group"""
+    _description = _("Create new group")
 
     def get_parser(self, prog_name):
         parser = super(CreateGroup, self).get_parser(prog_name)
@@ -174,7 +174,7 @@ class CreateGroup(command.ShowOne):
 
 
 class DeleteGroup(command.Command):
-    """Delete group(s)"""
+    _description = _("Delete group(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteGroup, self).get_parser(prog_name)
@@ -202,7 +202,7 @@ class DeleteGroup(command.Command):
 
 
 class ListGroup(command.Lister):
-    """List groups"""
+    _description = _("List groups")
 
     def get_parser(self, prog_name):
         parser = super(ListGroup, self).get_parser(prog_name)
@@ -262,7 +262,7 @@ class ListGroup(command.Lister):
 
 
 class RemoveUserFromGroup(command.Command):
-    """Remove user from group"""
+    _description = _("Remove user from group")
 
     def get_parser(self, prog_name):
         parser = super(RemoveUserFromGroup, self).get_parser(prog_name)
@@ -307,7 +307,7 @@ class RemoveUserFromGroup(command.Command):
 
 
 class SetGroup(command.Command):
-    """Set group properties"""
+    _description = _("Set group properties")
 
     def get_parser(self, prog_name):
         parser = super(SetGroup, self).get_parser(prog_name)
@@ -347,7 +347,7 @@ class SetGroup(command.Command):
 
 
 class ShowGroup(command.ShowOne):
-    """Display group details"""
+    _description = _("Display group details")
 
     def get_parser(self, prog_name):
         parser = super(ShowGroup, self).get_parser(prog_name)

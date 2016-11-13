@@ -29,7 +29,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateConsumer(command.ShowOne):
-    """Create new consumer"""
+    _description = _("Create new consumer")
 
     def get_parser(self, prog_name):
         parser = super(CreateConsumer, self).get_parser(prog_name)
@@ -50,7 +50,7 @@ class CreateConsumer(command.ShowOne):
 
 
 class DeleteConsumer(command.Command):
-    """Delete consumer(s)"""
+    _description = _("Delete consumer(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteConsumer, self).get_parser(prog_name)
@@ -84,7 +84,7 @@ class DeleteConsumer(command.Command):
 
 
 class ListConsumer(command.Lister):
-    """List consumers"""
+    _description = _("List consumers")
 
     def take_action(self, parsed_args):
         columns = ('ID', 'Description')
@@ -97,7 +97,7 @@ class ListConsumer(command.Lister):
 
 
 class SetConsumer(command.Command):
-    """Set consumer properties"""
+    _description = _("Set consumer properties")
 
     def get_parser(self, prog_name):
         parser = super(SetConsumer, self).get_parser(prog_name)
@@ -126,7 +126,7 @@ class SetConsumer(command.Command):
 
 
 class ShowConsumer(command.ShowOne):
-    """Display consumer details"""
+    _description = _("Display consumer details")
 
     def get_parser(self, prog_name):
         parser = super(ShowConsumer, self).get_parser(prog_name)

@@ -29,7 +29,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreatePolicy(command.ShowOne):
-    """Create new policy"""
+    _description = _("Create new policy")
 
     def get_parser(self, prog_name):
         parser = super(CreatePolicy, self).get_parser(prog_name)
@@ -61,7 +61,7 @@ class CreatePolicy(command.ShowOne):
 
 
 class DeletePolicy(command.Command):
-    """Delete policy(s)"""
+    _description = _("Delete policy(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeletePolicy, self).get_parser(prog_name)
@@ -93,7 +93,7 @@ class DeletePolicy(command.Command):
 
 
 class ListPolicy(command.Lister):
-    """List policies"""
+    _description = _("List policies")
 
     def get_parser(self, prog_name):
         parser = super(ListPolicy, self).get_parser(prog_name)
@@ -121,7 +121,7 @@ class ListPolicy(command.Lister):
 
 
 class SetPolicy(command.Command):
-    """Set policy properties"""
+    _description = _("Set policy properties")
 
     def get_parser(self, prog_name):
         parser = super(SetPolicy, self).get_parser(prog_name)
@@ -159,7 +159,7 @@ class SetPolicy(command.Command):
 
 
 class ShowPolicy(command.ShowOne):
-    """Display policy details"""
+    _description = _("Display policy details")
 
     def get_parser(self, prog_name):
         parser = super(ShowPolicy, self).get_parser(prog_name)

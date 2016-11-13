@@ -31,7 +31,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateDomain(command.ShowOne):
-    """Create new domain"""
+    _description = _("Create new domain")
 
     def get_parser(self, prog_name):
         parser = super(CreateDomain, self).get_parser(prog_name)
@@ -89,7 +89,7 @@ class CreateDomain(command.ShowOne):
 
 
 class DeleteDomain(command.Command):
-    """Delete domain(s)"""
+    _description = _("Delete domain(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteDomain, self).get_parser(prog_name)
@@ -122,7 +122,7 @@ class DeleteDomain(command.Command):
 
 
 class ListDomain(command.Lister):
-    """List domains"""
+    _description = _("List domains")
 
     def take_action(self, parsed_args):
         columns = ('ID', 'Name', 'Enabled', 'Description')
@@ -135,7 +135,7 @@ class ListDomain(command.Lister):
 
 
 class SetDomain(command.Command):
-    """Set domain properties"""
+    _description = _("Set domain properties")
 
     def get_parser(self, prog_name):
         parser = super(SetDomain, self).get_parser(prog_name)
@@ -186,7 +186,7 @@ class SetDomain(command.Command):
 
 
 class ShowDomain(command.ShowOne):
-    """Display domain details"""
+    _description = _("Display domain details")
 
     def get_parser(self, prog_name):
         parser = super(ShowDomain, self).get_parser(prog_name)

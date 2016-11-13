@@ -31,7 +31,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateUser(command.ShowOne):
-    """Create new user"""
+    _description = _("Create new user")
 
     def get_parser(self, prog_name):
         parser = super(CreateUser, self).get_parser(prog_name)
@@ -138,7 +138,7 @@ class CreateUser(command.ShowOne):
 
 
 class DeleteUser(command.Command):
-    """Delete user(s)"""
+    _description = _("Delete user(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteUser, self).get_parser(prog_name)
@@ -173,7 +173,7 @@ class DeleteUser(command.Command):
 
 
 class ListUser(command.Lister):
-    """List users"""
+    _description = _("List users")
 
     def get_parser(self, prog_name):
         parser = super(ListUser, self).get_parser(prog_name)
@@ -273,7 +273,7 @@ class ListUser(command.Lister):
 
 
 class SetUser(command.Command):
-    """Set user properties"""
+    _description = _("Set user properties")
 
     def get_parser(self, prog_name):
         parser = super(SetUser, self).get_parser(prog_name)
@@ -365,7 +365,7 @@ class SetUser(command.Command):
 
 
 class SetPasswordUser(command.Command):
-    """Change current user password"""
+    _description = _("Change current user password")
 
     required_scope = False
 
@@ -424,7 +424,7 @@ class SetPasswordUser(command.Command):
 
 
 class ShowUser(command.ShowOne):
-    """Display user details"""
+    _description = _("Display user details")
 
     def get_parser(self, prog_name):
         parser = super(ShowUser, self).get_parser(prog_name)

@@ -30,7 +30,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateProject(command.ShowOne):
-    """Create new project"""
+    _description = _("Create new project")
 
     def get_parser(self, prog_name):
         parser = super(CreateProject, self).get_parser(prog_name)
@@ -102,7 +102,7 @@ class CreateProject(command.ShowOne):
 
 
 class DeleteProject(command.Command):
-    """Delete project(s)"""
+    _description = _("Delete project(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteProject, self).get_parser(prog_name)
@@ -126,7 +126,7 @@ class DeleteProject(command.Command):
 
 
 class ListProject(command.Lister):
-    """List projects"""
+    _description = _("List projects")
 
     def get_parser(self, prog_name):
         parser = super(ListProject, self).get_parser(prog_name)
@@ -152,7 +152,7 @@ class ListProject(command.Lister):
 
 
 class SetProject(command.Command):
-    """Set project properties"""
+    _description = _("Set project properties")
 
     def get_parser(self, prog_name):
         parser = super(SetProject, self).get_parser(prog_name)
@@ -221,7 +221,7 @@ class SetProject(command.Command):
 
 
 class ShowProject(command.ShowOne):
-    """Display project details"""
+    _description = _("Display project details")
 
     def get_parser(self, prog_name):
         parser = super(ShowProject, self).get_parser(prog_name)
@@ -279,7 +279,7 @@ class ShowProject(command.ShowOne):
 
 
 class UnsetProject(command.Command):
-    """Unset project properties"""
+    _description = _("Unset project properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetProject, self).get_parser(prog_name)

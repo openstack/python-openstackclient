@@ -34,7 +34,7 @@ def _get_columns(item):
 
 
 class ListIPAvailability(command.Lister):
-    """List IP availability for network"""
+    _description = _("List IP availability for network")
 
     def get_parser(self, prog_name):
         parser = super(ListIPAvailability, self).get_parser(prog_name)
@@ -92,7 +92,7 @@ class ListIPAvailability(command.Lister):
 
 
 class ShowIPAvailability(command.ShowOne):
-    """Show network IP availability details"""
+    _description = _("Show network IP availability details")
 
     def get_parser(self, prog_name):
         parser = super(ShowIPAvailability, self).get_parser(prog_name)

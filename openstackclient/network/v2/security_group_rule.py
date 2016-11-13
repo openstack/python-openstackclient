@@ -90,7 +90,7 @@ def _is_icmp_protocol(protocol):
 
 
 class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
-    """Create a new security group rule"""
+    _description = _("Create a new security group rule")
 
     def update_parser_common(self, parser):
         parser.add_argument(
@@ -394,7 +394,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
 
 
 class DeleteSecurityGroupRule(common.NetworkAndComputeDelete):
-    """Delete security group rule(s)"""
+    _description = _("Delete security group rule(s)")
 
     # Used by base class to find resources in parsed_args.
     resource = 'rule'
@@ -419,7 +419,7 @@ class DeleteSecurityGroupRule(common.NetworkAndComputeDelete):
 
 
 class ListSecurityGroupRule(common.NetworkAndComputeLister):
-    """List security group rules"""
+    _description = _("List security group rules")
 
     def update_parser_common(self, parser):
         parser.add_argument(
@@ -584,7 +584,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
 
 
 class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
-    """Display security group rule details"""
+    _description = _("Display security group rule details")
 
     def update_parser_common(self, parser):
         parser.add_argument(

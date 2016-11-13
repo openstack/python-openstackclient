@@ -24,7 +24,7 @@ from openstackclient.i18n import _
 
 
 class AddFixedIP(command.Command):
-    """Add fixed IP address to server"""
+    _description = _("Add fixed IP address to server")
 
     # TODO(tangchen): Remove this class and ``ip fixed add`` command
     #                 two cycles after Mitaka.
@@ -64,7 +64,7 @@ class AddFixedIP(command.Command):
 
 
 class RemoveFixedIP(command.Command):
-    """Remove fixed IP address from server"""
+    _description = _("Remove fixed IP address from server")
 
     # TODO(tangchen): Remove this class and ``ip fixed remove`` command
     #                 two cycles after Mitaka.

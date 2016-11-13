@@ -30,7 +30,7 @@ LOG = logging.getLogger(__name__)
 
 
 class _RulesReader(object):
-    """Helper class capable of reading rules from files"""
+    _description = _("Helper class capable of reading rules from files")
 
     def _read_rules(self, path):
         """Read and parse rules from path
@@ -82,7 +82,7 @@ class _RulesReader(object):
 
 
 class CreateMapping(command.ShowOne, _RulesReader):
-    """Create new mapping"""
+    _description = _("Create new mapping")
 
     def get_parser(self, prog_name):
         parser = super(CreateMapping, self).get_parser(prog_name)
@@ -111,7 +111,7 @@ class CreateMapping(command.ShowOne, _RulesReader):
 
 
 class DeleteMapping(command.Command):
-    """Delete mapping(s)"""
+    _description = _("Delete mapping(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteMapping, self).get_parser(prog_name)
@@ -143,7 +143,7 @@ class DeleteMapping(command.Command):
 
 
 class ListMapping(command.Lister):
-    """List mappings"""
+    _description = _("List mappings")
 
     def take_action(self, parsed_args):
         # NOTE(marek-denis): Since rules can be long and tedious I have decided
@@ -157,7 +157,7 @@ class ListMapping(command.Lister):
 
 
 class SetMapping(command.Command, _RulesReader):
-    """Set mapping properties"""
+    _description = _("Set mapping properties")
 
     def get_parser(self, prog_name):
         parser = super(SetMapping, self).get_parser(prog_name)
@@ -187,7 +187,7 @@ class SetMapping(command.Command, _RulesReader):
 
 
 class ShowMapping(command.ShowOne):
-    """Display mapping details"""
+    _description = _("Display mapping details")
 
     def get_parser(self, prog_name):
         parser = super(ShowMapping, self).get_parser(prog_name)

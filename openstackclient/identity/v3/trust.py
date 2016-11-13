@@ -24,7 +24,7 @@ from openstackclient.identity import common
 
 
 class CreateTrust(command.ShowOne):
-    """Create new trust"""
+    _description = _("Create new trust")
 
     def get_parser(self, prog_name):
         parser = super(CreateTrust, self).get_parser(prog_name)
@@ -131,7 +131,7 @@ class CreateTrust(command.ShowOne):
 
 
 class DeleteTrust(command.Command):
-    """Delete trust(s)"""
+    _description = _("Delete trust(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteTrust, self).get_parser(prog_name)
@@ -151,7 +151,7 @@ class DeleteTrust(command.Command):
 
 
 class ListTrust(command.Lister):
-    """List trusts"""
+    _description = _("List trusts")
 
     def take_action(self, parsed_args):
         columns = ('ID', 'Expires At', 'Impersonation', 'Project ID',
@@ -165,7 +165,7 @@ class ListTrust(command.Lister):
 
 
 class ShowTrust(command.ShowOne):
-    """Display trust details"""
+    _description = _("Display trust details")
 
     def get_parser(self, prog_name):
         parser = super(ShowTrust, self).get_parser(prog_name)

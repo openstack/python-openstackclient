@@ -30,7 +30,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateEC2Creds(command.ShowOne):
-    """Create EC2 credentials"""
+    _description = _("Create EC2 credentials")
 
     def get_parser(self, prog_name):
         parser = super(CreateEC2Creds, self).get_parser(prog_name)
@@ -86,7 +86,7 @@ class CreateEC2Creds(command.ShowOne):
 
 
 class DeleteEC2Creds(command.Command):
-    """Delete EC2 credentials"""
+    _description = _("Delete EC2 credentials")
 
     def get_parser(self, prog_name):
         parser = super(DeleteEC2Creds, self).get_parser(prog_name)
@@ -133,7 +133,7 @@ class DeleteEC2Creds(command.Command):
 
 
 class ListEC2Creds(command.Lister):
-    """List EC2 credentials"""
+    _description = _("List EC2 credentials")
 
     def get_parser(self, prog_name):
         parser = super(ListEC2Creds, self).get_parser(prog_name)
@@ -168,7 +168,7 @@ class ListEC2Creds(command.Lister):
 
 
 class ShowEC2Creds(command.ShowOne):
-    """Display EC2 credentials details"""
+    _description = _("Display EC2 credentials details")
 
     def get_parser(self, prog_name):
         parser = super(ShowEC2Creds, self).get_parser(prog_name)

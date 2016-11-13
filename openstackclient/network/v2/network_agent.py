@@ -36,7 +36,7 @@ _formatters = {
 
 
 class DeleteNetworkAgent(command.Command):
-    """Delete network agent(s)"""
+    _description = _("Delete network agent(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteNetworkAgent, self).get_parser(prog_name)
@@ -70,7 +70,7 @@ class DeleteNetworkAgent(command.Command):
 
 
 class ListNetworkAgent(command.Lister):
-    """List network agents"""
+    _description = _("List network agents")
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
@@ -100,7 +100,7 @@ class ListNetworkAgent(command.Lister):
 
 
 class SetNetworkAgent(command.Command):
-    """Set network agent properties"""
+    _description = _("Set network agent properties")
 
     def get_parser(self, prog_name):
         parser = super(SetNetworkAgent, self).get_parser(prog_name)
@@ -141,7 +141,7 @@ class SetNetworkAgent(command.Command):
 
 
 class ShowNetworkAgent(command.ShowOne):
-    """Display network agent details"""
+    _description = _("Display network agent details")
 
     def get_parser(self, prog_name):
         parser = super(ShowNetworkAgent, self).get_parser(prog_name)

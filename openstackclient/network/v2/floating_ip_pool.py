@@ -23,7 +23,7 @@ from openstackclient.network import common
 
 
 class ListFloatingIPPool(common.NetworkAndComputeLister):
-    """List pools of floating IP addresses"""
+    _description = _("List pools of floating IP addresses")
 
     def take_action_network(self, client, parsed_args):
         msg = _("Floating ip pool operations are only available for "
@@ -43,7 +43,7 @@ class ListFloatingIPPool(common.NetworkAndComputeLister):
 
 
 class ListIPFloatingPool(ListFloatingIPPool):
-    """List pools of floating IP addresses"""
+    _description = _("List pools of floating IP addresses")
 
     # TODO(tangchen): Remove this class and ``ip floating pool list`` command
     #                 two cycles after Mitaka.

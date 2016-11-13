@@ -26,7 +26,7 @@ from openstackclient.i18n import _
 
 
 class ListUsage(command.Lister):
-    """List resource usage per project"""
+    _description = _("List resource usage per project")
 
     def get_parser(self, prog_name):
         parser = super(ListUsage, self).get_parser(prog_name)
@@ -115,7 +115,7 @@ class ListUsage(command.Lister):
 
 
 class ShowUsage(command.ShowOne):
-    """Show resource usage for a single project"""
+    _description = _("Show resource usage for a single project")
 
     def get_parser(self, prog_name):
         parser = super(ShowUsage, self).get_parser(prog_name)

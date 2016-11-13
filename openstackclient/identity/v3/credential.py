@@ -29,7 +29,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateCredential(command.ShowOne):
-    """Create new credential"""
+    _description = _("Create new credential")
 
     def get_parser(self, prog_name):
         parser = super(CreateCredential, self).get_parser(prog_name)
@@ -78,7 +78,7 @@ class CreateCredential(command.ShowOne):
 
 
 class DeleteCredential(command.Command):
-    """Delete credential(s)"""
+    _description = _("Delete credential(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteCredential, self).get_parser(prog_name)
@@ -110,7 +110,7 @@ class DeleteCredential(command.Command):
 
 
 class ListCredential(command.Lister):
-    """List credentials"""
+    _description = _("List credentials")
 
     def take_action(self, parsed_args):
         columns = ('ID', 'Type', 'User ID', 'Blob', 'Project ID')
@@ -124,7 +124,7 @@ class ListCredential(command.Lister):
 
 
 class SetCredential(command.Command):
-    """Set credential properties"""
+    _description = _("Set credential properties")
 
     def get_parser(self, prog_name):
         parser = super(SetCredential, self).get_parser(prog_name)
@@ -180,7 +180,7 @@ class SetCredential(command.Command):
 
 
 class ShowCredential(command.ShowOne):
-    """Display credential details"""
+    _description = _("Display credential details")
 
     def get_parser(self, prog_name):
         parser = super(ShowCredential, self).get_parser(prog_name)

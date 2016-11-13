@@ -28,7 +28,7 @@ LOG = logging.getLogger(__name__)
 
 
 class AcceptTransferRequest(command.ShowOne):
-    """Accept volume transfer request."""
+    _description = _("Accept volume transfer request.")
 
     def get_parser(self, prog_name):
         parser = super(AcceptTransferRequest, self).get_parser(prog_name)
@@ -56,7 +56,7 @@ class AcceptTransferRequest(command.ShowOne):
 
 
 class CreateTransferRequest(command.ShowOne):
-    """Create volume transfer request."""
+    _description = _("Create volume transfer request.")
 
     def get_parser(self, prog_name):
         parser = super(CreateTransferRequest, self).get_parser(prog_name)
@@ -85,7 +85,7 @@ class CreateTransferRequest(command.ShowOne):
 
 
 class DeleteTransferRequest(command.Command):
-    """Delete volume transfer request(s)."""
+    _description = _("Delete volume transfer request(s).")
 
     def get_parser(self, prog_name):
         parser = super(DeleteTransferRequest, self).get_parser(prog_name)
@@ -120,7 +120,7 @@ class DeleteTransferRequest(command.Command):
 
 
 class ListTransferRequest(command.Lister):
-    """Lists all volume transfer requests."""
+    _description = _("Lists all volume transfer requests.")
 
     def get_parser(self, prog_name):
         parser = super(ListTransferRequest, self).get_parser(prog_name)
@@ -151,7 +151,7 @@ class ListTransferRequest(command.Lister):
 
 
 class ShowTransferRequest(command.ShowOne):
-    """Show volume transfer request details."""
+    _description = _("Show volume transfer request details.")
 
     def get_parser(self, prog_name):
         parser = super(ShowTransferRequest, self).get_parser(prog_name)

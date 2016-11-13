@@ -218,7 +218,7 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
 
 
 class CreateSubnet(command.ShowOne):
-    """Create a subnet"""
+    _description = _("Create a subnet")
 
     def get_parser(self, prog_name):
         parser = super(CreateSubnet, self).get_parser(prog_name)
@@ -329,7 +329,7 @@ class CreateSubnet(command.ShowOne):
 
 
 class DeleteSubnet(command.Command):
-    """Delete subnet(s)"""
+    _description = _("Delete subnet(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteSubnet, self).get_parser(prog_name)
@@ -363,7 +363,7 @@ class DeleteSubnet(command.Command):
 
 
 class ListSubnet(command.Lister):
-    """List subnets"""
+    _description = _("List subnets")
 
     def get_parser(self, prog_name):
         parser = super(ListSubnet, self).get_parser(prog_name)
@@ -484,7 +484,7 @@ class ListSubnet(command.Lister):
 
 
 class SetSubnet(command.Command):
-    """Set subnet properties"""
+    _description = _("Set subnet properties")
 
     def get_parser(self, prog_name):
         parser = super(SetSubnet, self).get_parser(prog_name)
@@ -550,7 +550,7 @@ class SetSubnet(command.Command):
 
 
 class ShowSubnet(command.ShowOne):
-    """Display subnet details"""
+    _description = _("Display subnet details")
 
     def get_parser(self, prog_name):
         parser = super(ShowSubnet, self).get_parser(prog_name)
@@ -570,7 +570,7 @@ class ShowSubnet(command.ShowOne):
 
 
 class UnsetSubnet(command.Command):
-    """Unset subnet properties"""
+    _description = _("Unset subnet properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetSubnet, self).get_parser(prog_name)

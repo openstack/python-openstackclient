@@ -30,7 +30,7 @@ LOG = logging.getLogger(__name__)
 
 
 class AddRole(command.ShowOne):
-    """Add role to project:user"""
+    _description = _("Add role to project:user")
 
     def get_parser(self, prog_name):
         parser = super(AddRole, self).get_parser(prog_name)
@@ -73,7 +73,7 @@ class AddRole(command.ShowOne):
 
 
 class CreateRole(command.ShowOne):
-    """Create new role"""
+    _description = _("Create new role")
 
     def get_parser(self, prog_name):
         parser = super(CreateRole, self).get_parser(prog_name)
@@ -109,7 +109,7 @@ class CreateRole(command.ShowOne):
 
 
 class DeleteRole(command.Command):
-    """Delete role(s)"""
+    _description = _("Delete role(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteRole, self).get_parser(prog_name)
@@ -133,7 +133,7 @@ class DeleteRole(command.Command):
 
 
 class ListRole(command.Lister):
-    """List roles"""
+    _description = _("List roles")
 
     def get_parser(self, prog_name):
         parser = super(ListRole, self).get_parser(prog_name)
@@ -223,7 +223,7 @@ class ListRole(command.Lister):
 
 
 class ListUserRole(command.Lister):
-    """List user-role assignments"""
+    _description = _("List user-role assignments")
 
     def get_parser(self, prog_name):
         parser = super(ListUserRole, self).get_parser(prog_name)
@@ -293,7 +293,7 @@ class ListUserRole(command.Lister):
 
 
 class RemoveRole(command.Command):
-    """Remove role from project : user"""
+    _description = _("Remove role from project : user")
 
     def get_parser(self, prog_name):
         parser = super(RemoveRole, self).get_parser(prog_name)
@@ -331,7 +331,7 @@ class RemoveRole(command.Command):
 
 
 class ShowRole(command.ShowOne):
-    """Display role details"""
+    _description = _("Display role details")
 
     def get_parser(self, prog_name):
         parser = super(ShowRole, self).get_parser(prog_name)

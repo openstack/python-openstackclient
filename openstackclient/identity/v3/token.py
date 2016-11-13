@@ -25,7 +25,7 @@ from openstackclient.identity import common
 
 
 class AuthorizeRequestToken(command.ShowOne):
-    """Authorize a request token"""
+    _description = _("Authorize a request token")
 
     def get_parser(self, prog_name):
         parser = super(AuthorizeRequestToken, self).get_parser(prog_name)
@@ -66,7 +66,7 @@ class AuthorizeRequestToken(command.ShowOne):
 
 
 class CreateAccessToken(command.ShowOne):
-    """Create an access token"""
+    _description = _("Create an access token")
 
     def get_parser(self, prog_name):
         parser = super(CreateAccessToken, self).get_parser(prog_name)
@@ -112,7 +112,7 @@ class CreateAccessToken(command.ShowOne):
 
 
 class CreateRequestToken(command.ShowOne):
-    """Create a request token"""
+    _description = _("Create a request token")
 
     def get_parser(self, prog_name):
         parser = super(CreateRequestToken, self).get_parser(prog_name)
@@ -164,7 +164,7 @@ class CreateRequestToken(command.ShowOne):
 
 
 class IssueToken(command.ShowOne):
-    """Issue new token"""
+    _description = _("Issue new token")
 
     # scoped token is optional
     required_scope = False
@@ -196,7 +196,7 @@ class IssueToken(command.ShowOne):
 
 
 class RevokeToken(command.Command):
-    """Revoke existing token"""
+    _description = _("Revoke existing token")
 
     def get_parser(self, prog_name):
         parser = super(RevokeToken, self).get_parser(prog_name)

@@ -230,7 +230,7 @@ def _add_updatable_args(parser):
 
 
 class CreatePort(command.ShowOne):
-    """Create a new port"""
+    _description = _("Create a new port")
 
     def get_parser(self, prog_name):
         parser = super(CreatePort, self).get_parser(prog_name)
@@ -330,7 +330,7 @@ class CreatePort(command.ShowOne):
 
 
 class DeletePort(command.Command):
-    """Delete port(s)"""
+    _description = _("Delete port(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeletePort, self).get_parser(prog_name)
@@ -364,7 +364,7 @@ class DeletePort(command.Command):
 
 
 class ListPort(command.Lister):
-    """List ports"""
+    _description = _("List ports")
 
     def get_parser(self, prog_name):
         parser = super(ListPort, self).get_parser(prog_name)
@@ -454,7 +454,7 @@ class ListPort(command.Lister):
 
 
 class SetPort(command.Command):
-    """Set port properties"""
+    _description = _("Set port properties")
 
     def get_parser(self, prog_name):
         parser = super(SetPort, self).get_parser(prog_name)
@@ -570,7 +570,7 @@ class SetPort(command.Command):
 
 
 class ShowPort(command.ShowOne):
-    """Display port details"""
+    _description = _("Display port details")
 
     def get_parser(self, prog_name):
         parser = super(ShowPort, self).get_parser(prog_name)
@@ -590,7 +590,7 @@ class ShowPort(command.ShowOne):
 
 
 class UnsetPort(command.Command):
-    """Unset port properties"""
+    _description = _("Unset port properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetPort, self).get_parser(prog_name)

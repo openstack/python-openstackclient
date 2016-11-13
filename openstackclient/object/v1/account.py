@@ -22,7 +22,7 @@ from openstackclient.i18n import _
 
 
 class SetAccount(command.Command):
-    """Set account properties"""
+    _description = _("Set account properties")
 
     def get_parser(self, prog_name):
         parser = super(SetAccount, self).get_parser(prog_name)
@@ -43,7 +43,7 @@ class SetAccount(command.Command):
 
 
 class ShowAccount(command.ShowOne):
-    """Display account details"""
+    _description = _("Display account details")
 
     def take_action(self, parsed_args):
         data = self.app.client_manager.object_store.account_show()
@@ -53,7 +53,7 @@ class ShowAccount(command.ShowOne):
 
 
 class UnsetAccount(command.Command):
-    """Unset account properties"""
+    _description = _("Unset account properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetAccount, self).get_parser(prog_name)

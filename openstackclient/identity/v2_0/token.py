@@ -23,7 +23,7 @@ from openstackclient.i18n import _
 
 
 class IssueToken(command.ShowOne):
-    """Issue new token"""
+    _description = _("Issue new token")
 
     # scoped token is optional
     required_scope = False
@@ -53,7 +53,7 @@ class IssueToken(command.ShowOne):
 
 
 class RevokeToken(command.Command):
-    """Revoke existing token"""
+    _description = _("Revoke existing token")
 
     def get_parser(self, prog_name):
         parser = super(RevokeToken, self).get_parser(prog_name)

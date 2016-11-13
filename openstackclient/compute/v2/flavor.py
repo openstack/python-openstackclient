@@ -49,7 +49,7 @@ def _find_flavor(compute_client, flavor):
 
 
 class CreateFlavor(command.ShowOne):
-    """Create new flavor"""
+    _description = _("Create new flavor")
 
     def get_parser(self, prog_name):
         parser = super(CreateFlavor, self).get_parser(prog_name)
@@ -186,7 +186,7 @@ class CreateFlavor(command.ShowOne):
 
 
 class DeleteFlavor(command.Command):
-    """Delete flavor(s)"""
+    _description = _("Delete flavor(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteFlavor, self).get_parser(prog_name)
@@ -219,7 +219,7 @@ class DeleteFlavor(command.Command):
 
 
 class ListFlavor(command.Lister):
-    """List flavors"""
+    _description = _("List flavors")
 
     def get_parser(self, prog_name):
         parser = super(ListFlavor, self).get_parser(prog_name)
@@ -303,7 +303,7 @@ class ListFlavor(command.Lister):
 
 
 class SetFlavor(command.Command):
-    """Set flavor properties"""
+    _description = _("Set flavor properties")
 
     def get_parser(self, prog_name):
         parser = super(SetFlavor, self).get_parser(prog_name)
@@ -366,7 +366,7 @@ class SetFlavor(command.Command):
 
 
 class ShowFlavor(command.ShowOne):
-    """Display flavor details"""
+    _description = _("Display flavor details")
 
     def get_parser(self, prog_name):
         parser = super(ShowFlavor, self).get_parser(prog_name)
@@ -409,7 +409,7 @@ class ShowFlavor(command.ShowOne):
 
 
 class UnsetFlavor(command.Command):
-    """Unset flavor properties"""
+    _description = _("Unset flavor properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetFlavor, self).get_parser(prog_name)

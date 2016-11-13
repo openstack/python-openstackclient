@@ -156,7 +156,7 @@ def _get_attrs_compute(client_manager, parsed_args):
 
 
 class CreateNetwork(common.NetworkAndComputeShowOne):
-    """Create new network"""
+    _description = _("Create new network")
 
     def update_parser_common(self, parser):
         parser.add_argument(
@@ -276,7 +276,7 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
 
 
 class DeleteNetwork(common.NetworkAndComputeDelete):
-    """Delete network(s)"""
+    _description = _("Delete network(s)")
 
     # Used by base class to find resources in parsed_args.
     resource = 'network'
@@ -302,7 +302,7 @@ class DeleteNetwork(common.NetworkAndComputeDelete):
 
 
 class ListNetwork(common.NetworkAndComputeLister):
-    """List networks"""
+    _description = _("List networks")
 
     def update_parser_network(self, parser):
         router_ext_group = parser.add_mutually_exclusive_group()
@@ -493,7 +493,7 @@ class ListNetwork(common.NetworkAndComputeLister):
 
 
 class SetNetwork(command.Command):
-    """Set network properties"""
+    _description = _("Set network properties")
 
     def get_parser(self, prog_name):
         parser = super(SetNetwork, self).get_parser(prog_name)
@@ -584,7 +584,7 @@ class SetNetwork(command.Command):
 
 
 class ShowNetwork(common.NetworkAndComputeShowOne):
-    """Show network details"""
+    _description = _("Show network details")
 
     def update_parser_common(self, parser):
         parser.add_argument(

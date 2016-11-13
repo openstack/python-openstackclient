@@ -38,7 +38,7 @@ LOG = logging.getLogger(__name__)
 
 
 def _format_image(image):
-    """Format an image to make it more consistent with OSC operations. """
+    """Format an image to make it more consistent with OSC operations."""
 
     info = {}
     properties = {}
@@ -69,7 +69,7 @@ def _format_image(image):
 
 
 class AddProjectToImage(command.ShowOne):
-    """Associate project with image"""
+    _description = _("Associate project with image")
 
     def get_parser(self, prog_name):
         parser = super(AddProjectToImage, self).get_parser(prog_name)
@@ -107,7 +107,7 @@ class AddProjectToImage(command.ShowOne):
 
 
 class CreateImage(command.ShowOne):
-    """Create/upload an image"""
+    _description = _("Create/upload an image")
 
     deadopts = ('size', 'location', 'copy-from', 'checksum', 'store')
 
@@ -361,7 +361,7 @@ class CreateImage(command.ShowOne):
 
 
 class DeleteImage(command.Command):
-    """Delete image(s)"""
+    _description = _("Delete image(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteImage, self).get_parser(prog_name)
@@ -398,7 +398,7 @@ class DeleteImage(command.Command):
 
 
 class ListImage(command.Lister):
-    """List available images"""
+    _description = _("List available images")
 
     def get_parser(self, prog_name):
         parser = super(ListImage, self).get_parser(prog_name)
@@ -542,7 +542,7 @@ class ListImage(command.Lister):
 
 
 class RemoveProjectImage(command.Command):
-    """Disassociate project with image"""
+    _description = _("Disassociate project with image")
 
     def get_parser(self, prog_name):
         parser = super(RemoveProjectImage, self).get_parser(prog_name)
@@ -575,7 +575,7 @@ class RemoveProjectImage(command.Command):
 
 
 class SaveImage(command.Command):
-    """Save an image locally"""
+    _description = _("Save an image locally")
 
     def get_parser(self, prog_name):
         parser = super(SaveImage, self).get_parser(prog_name)
@@ -603,7 +603,7 @@ class SaveImage(command.Command):
 
 
 class SetImage(command.Command):
-    """Set image properties"""
+    _description = _("Set image properties")
 
     deadopts = ('visibility',)
 
@@ -844,7 +844,7 @@ class SetImage(command.Command):
 
 
 class ShowImage(command.ShowOne):
-    """Display image details"""
+    _description = _("Display image details")
 
     def get_parser(self, prog_name):
         parser = super(ShowImage, self).get_parser(prog_name)
@@ -867,7 +867,7 @@ class ShowImage(command.ShowOne):
 
 
 class UnsetImage(command.Command):
-    """Unset image tags and properties"""
+    _description = _("Unset image tags and properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetImage, self).get_parser(prog_name)

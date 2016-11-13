@@ -21,7 +21,7 @@ from openstackclient.i18n import _
 
 
 class ListConsistencyGroup(command.Lister):
-    """List consistency groups."""
+    _description = _("List consistency groups.")
 
     def get_parser(self, prog_name):
         parser = super(ListConsistencyGroup, self).get_parser(prog_name)

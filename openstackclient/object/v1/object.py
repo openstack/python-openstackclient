@@ -30,7 +30,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateObject(command.Lister):
-    """Upload object to container"""
+    _description = _("Upload object to container")
 
     def get_parser(self, prog_name):
         parser = super(CreateObject, self).get_parser(prog_name)
@@ -81,7 +81,7 @@ class CreateObject(command.Lister):
 
 
 class DeleteObject(command.Command):
-    """Delete object from container"""
+    _description = _("Delete object from container")
 
     def get_parser(self, prog_name):
         parser = super(DeleteObject, self).get_parser(prog_name)
@@ -108,7 +108,7 @@ class DeleteObject(command.Command):
 
 
 class ListObject(command.Lister):
-    """List objects"""
+    _description = _("List objects")
 
     def get_parser(self, prog_name):
         parser = super(ListObject, self).get_parser(prog_name)
@@ -197,7 +197,7 @@ class ListObject(command.Lister):
 
 
 class SaveObject(command.Command):
-    """Save object locally"""
+    _description = _("Save object locally")
 
     def get_parser(self, prog_name):
         parser = super(SaveObject, self).get_parser(prog_name)
@@ -227,7 +227,7 @@ class SaveObject(command.Command):
 
 
 class SetObject(command.Command):
-    """Set object properties"""
+    _description = _("Set object properties")
 
     def get_parser(self, prog_name):
         parser = super(SetObject, self).get_parser(prog_name)
@@ -260,7 +260,7 @@ class SetObject(command.Command):
 
 
 class ShowObject(command.ShowOne):
-    """Display object details"""
+    _description = _("Display object details")
 
     def get_parser(self, prog_name):
         parser = super(ShowObject, self).get_parser(prog_name)
@@ -289,7 +289,7 @@ class ShowObject(command.ShowOne):
 
 
 class UnsetObject(command.Command):
-    """Unset object properties"""
+    _description = _("Unset object properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetObject, self).get_parser(prog_name)

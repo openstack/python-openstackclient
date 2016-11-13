@@ -27,7 +27,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateIdentityProvider(command.ShowOne):
-    """Create new identity provider"""
+    _description = _("Create new identity provider")
 
     def get_parser(self, prog_name):
         parser = super(CreateIdentityProvider, self).get_parser(prog_name)
@@ -94,7 +94,7 @@ class CreateIdentityProvider(command.ShowOne):
 
 
 class DeleteIdentityProvider(command.Command):
-    """Delete identity provider(s)"""
+    _description = _("Delete identity provider(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteIdentityProvider, self).get_parser(prog_name)
@@ -126,7 +126,7 @@ class DeleteIdentityProvider(command.Command):
 
 
 class ListIdentityProvider(command.Lister):
-    """List identity providers"""
+    _description = _("List identity providers")
 
     def take_action(self, parsed_args):
         columns = ('ID', 'Enabled', 'Description')
@@ -140,7 +140,7 @@ class ListIdentityProvider(command.Lister):
 
 
 class SetIdentityProvider(command.Command):
-    """Set identity provider properties"""
+    _description = _("Set identity provider properties")
 
     def get_parser(self, prog_name):
         parser = super(SetIdentityProvider, self).get_parser(prog_name)
@@ -211,7 +211,7 @@ class SetIdentityProvider(command.Command):
 
 
 class ShowIdentityProvider(command.ShowOne):
-    """Display identity provider details"""
+    _description = _("Display identity provider details")
 
     def get_parser(self, prog_name):
         parser = super(ShowIdentityProvider, self).get_parser(prog_name)

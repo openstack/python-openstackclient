@@ -100,7 +100,7 @@ def _get_attrs(client_manager, parsed_args):
 
 
 class AddPortToRouter(command.Command):
-    """Add a port to a router"""
+    _description = _("Add a port to a router")
 
     def get_parser(self, prog_name):
         parser = super(AddPortToRouter, self).get_parser(prog_name)
@@ -124,7 +124,7 @@ class AddPortToRouter(command.Command):
 
 
 class AddSubnetToRouter(command.Command):
-    """Add a subnet to a router"""
+    _description = _("Add a subnet to a router")
 
     def get_parser(self, prog_name):
         parser = super(AddSubnetToRouter, self).get_parser(prog_name)
@@ -151,7 +151,7 @@ class AddSubnetToRouter(command.Command):
 
 
 class CreateRouter(command.ShowOne):
-    """Create a new router"""
+    _description = _("Create a new router")
 
     def get_parser(self, prog_name):
         parser = super(CreateRouter, self).get_parser(prog_name)
@@ -222,7 +222,7 @@ class CreateRouter(command.ShowOne):
 
 
 class DeleteRouter(command.Command):
-    """Delete router(s)"""
+    _description = _("Delete router(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteRouter, self).get_parser(prog_name)
@@ -256,7 +256,7 @@ class DeleteRouter(command.Command):
 
 
 class ListRouter(command.Lister):
-    """List routers"""
+    _description = _("List routers")
 
     def get_parser(self, prog_name):
         parser = super(ListRouter, self).get_parser(prog_name)
@@ -344,7 +344,7 @@ class ListRouter(command.Lister):
 
 
 class RemovePortFromRouter(command.Command):
-    """Remove a port from a router"""
+    _description = _("Remove a port from a router")
 
     def get_parser(self, prog_name):
         parser = super(RemovePortFromRouter, self).get_parser(prog_name)
@@ -368,7 +368,7 @@ class RemovePortFromRouter(command.Command):
 
 
 class RemoveSubnetFromRouter(command.Command):
-    """Remove a subnet from a router"""
+    _description = _("Remove a subnet from a router")
 
     def get_parser(self, prog_name):
         parser = super(RemoveSubnetFromRouter, self).get_parser(prog_name)
@@ -395,7 +395,7 @@ class RemoveSubnetFromRouter(command.Command):
 
 
 class SetRouter(command.Command):
-    """Set router properties"""
+    _description = _("Set router properties")
 
     def get_parser(self, prog_name):
         parser = super(SetRouter, self).get_parser(prog_name)
@@ -509,7 +509,7 @@ class SetRouter(command.Command):
 
 
 class ShowRouter(command.ShowOne):
-    """Display router details"""
+    _description = _("Display router details")
 
     def get_parser(self, prog_name):
         parser = super(ShowRouter, self).get_parser(prog_name)
@@ -529,7 +529,7 @@ class ShowRouter(command.ShowOne):
 
 
 class UnsetRouter(command.Command):
-    """Unset router properties"""
+    _description = _("Unset router properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetRouter, self).get_parser(prog_name)

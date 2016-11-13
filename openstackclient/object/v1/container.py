@@ -29,7 +29,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateContainer(command.Lister):
-    """Create new container"""
+    _description = _("Create new container")
 
     def get_parser(self, prog_name):
         parser = super(CreateContainer, self).get_parser(prog_name)
@@ -63,7 +63,7 @@ class CreateContainer(command.Lister):
 
 
 class DeleteContainer(command.Command):
-    """Delete container"""
+    _description = _("Delete container")
 
     def get_parser(self, prog_name):
         parser = super(DeleteContainer, self).get_parser(prog_name)
@@ -98,7 +98,7 @@ class DeleteContainer(command.Command):
 
 
 class ListContainer(command.Lister):
-    """List containers"""
+    _description = _("List containers")
 
     def get_parser(self, prog_name):
         parser = super(ListContainer, self).get_parser(prog_name)
@@ -168,7 +168,7 @@ class ListContainer(command.Lister):
 
 
 class SaveContainer(command.Command):
-    """Save container contents locally"""
+    _description = _("Save container contents locally")
 
     def get_parser(self, prog_name):
         parser = super(SaveContainer, self).get_parser(prog_name)
@@ -186,7 +186,7 @@ class SaveContainer(command.Command):
 
 
 class SetContainer(command.Command):
-    """Set container properties"""
+    _description = _("Set container properties")
 
     def get_parser(self, prog_name):
         parser = super(SetContainer, self).get_parser(prog_name)
@@ -213,7 +213,7 @@ class SetContainer(command.Command):
 
 
 class ShowContainer(command.ShowOne):
-    """Display container details"""
+    _description = _("Display container details")
 
     def get_parser(self, prog_name):
         parser = super(ShowContainer, self).get_parser(prog_name)
@@ -236,7 +236,7 @@ class ShowContainer(command.ShowOne):
 
 
 class UnsetContainer(command.Command):
-    """Unset container properties"""
+    _description = _("Unset container properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetContainer, self).get_parser(prog_name)

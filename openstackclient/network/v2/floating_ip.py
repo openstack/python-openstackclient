@@ -70,7 +70,7 @@ def _get_attrs(client_manager, parsed_args):
 
 
 class CreateFloatingIP(common.NetworkAndComputeShowOne):
-    """Create floating IP"""
+    _description = _("Create floating IP")
 
     def update_parser_common(self, parser):
         # In Compute v2 network, floating IPs could be allocated from floating
@@ -130,7 +130,7 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
 
 
 class CreateIPFloating(CreateFloatingIP):
-    """Create floating IP"""
+    _description = _("Create floating IP")
 
     # TODO(tangchen): Remove this class and ``ip floating create`` command
     #                 two cycles after Mitaka.
@@ -154,7 +154,7 @@ class CreateIPFloating(CreateFloatingIP):
 
 
 class DeleteFloatingIP(common.NetworkAndComputeDelete):
-    """Delete floating IP(s)"""
+    _description = _("Delete floating IP(s)")
 
     # Used by base class to find resources in parsed_args.
     resource = 'floating_ip'
@@ -179,7 +179,7 @@ class DeleteFloatingIP(common.NetworkAndComputeDelete):
 
 
 class DeleteIPFloating(DeleteFloatingIP):
-    """Delete floating IP(s)"""
+    _description = _("Delete floating IP(s)")
 
     # TODO(tangchen): Remove this class and ``ip floating delete`` command
     #                 two cycles after Mitaka.
@@ -203,7 +203,7 @@ class DeleteIPFloating(DeleteFloatingIP):
 
 
 class ListFloatingIP(common.NetworkAndComputeLister):
-    """List floating IP(s)"""
+    _description = _("List floating IP(s)")
 
     def take_action_network(self, client, parsed_args):
         columns = (
@@ -258,7 +258,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
 
 
 class ListIPFloating(ListFloatingIP):
-    """List floating IP(s)"""
+    _description = _("List floating IP(s)")
 
     # TODO(tangchen): Remove this class and ``ip floating list`` command
     #                 two cycles after Mitaka.
@@ -282,7 +282,7 @@ class ListIPFloating(ListFloatingIP):
 
 
 class ShowFloatingIP(common.NetworkAndComputeShowOne):
-    """Display floating IP details"""
+    _description = _("Display floating IP details")
 
     def update_parser_common(self, parser):
         parser.add_argument(
@@ -309,7 +309,7 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
 
 
 class ShowIPFloating(ShowFloatingIP):
-    """Display floating IP details"""
+    _description = _("Display floating IP details")
 
     # TODO(tangchen): Remove this class and ``ip floating show`` command
     #                 two cycles after Mitaka.
