@@ -834,6 +834,9 @@ class FakeRouter(object):
 
         # Set attributes with special mapping in OpenStack SDK.
         router.project_id = router_attrs['tenant_id']
+        router.is_admin_state_up = router_attrs['admin_state_up']
+        router.is_distributed = router_attrs['distributed']
+        router.is_ha = router_attrs['ha']
 
         return router
 
