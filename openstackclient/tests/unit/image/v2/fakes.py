@@ -32,6 +32,7 @@ image_owner = 'baal'
 image_protected = False
 image_visibility = 'public'
 image_tags = []
+image_size = 0
 
 IMAGE = {
     'id': image_id,
@@ -39,7 +40,8 @@ IMAGE = {
     'owner': image_owner,
     'protected': image_protected,
     'visibility': image_visibility,
-    'tags': image_tags
+    'tags': image_tags,
+    'size': image_size
 }
 
 IMAGE_columns = tuple(sorted(IMAGE))
@@ -106,7 +108,8 @@ IMAGE_schema = {
         "size": {
             "type": [
                 "null",
-                "integer"
+                "integer",
+                "string"
             ],
             "description": "Size of image file in bytes (READ-ONLY)"
         },
@@ -185,7 +188,7 @@ class FakeImage(object):
             A dictionary with all attrbutes of image
         :return:
             A FakeResource object with id, name, owner, protected,
-            visibility and tags attrs
+            visibility, tags and size attrs
         """
         attrs = attrs or {}
 

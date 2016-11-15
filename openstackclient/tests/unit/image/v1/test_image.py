@@ -692,7 +692,8 @@ class TestImageSet(TestImage):
 
 class TestImageShow(TestImage):
 
-    _image = image_fakes.FakeImage.create_one_image()
+    _image = image_fakes.FakeImage.create_one_image(
+        attrs={'size': 2000})
     columns = (
         'container_format',
         'disk_format',
@@ -704,6 +705,7 @@ class TestImageShow(TestImage):
         'owner',
         'properties',
         'protected',
+        'size',
     )
     data = (
         _image.container_format,
@@ -716,6 +718,7 @@ class TestImageShow(TestImage):
         _image.owner,
         utils.format_dict(_image.properties),
         _image.protected,
+        _image.size,
     )
 
     def setUp(self):
@@ -745,3 +748,25 @@ class TestImageShow(TestImage):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+    def test_image_show_human_readable(self):
+        arglist = [
+            '--human-readable',
+            self._image.id,
+        ]
+        verifylist = [
+            ('human_readable', True),
+            ('image', self._image.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+        self.images_mock.get.assert_called_with(
+            self._image.id,
+        )
+
+        size_index = columns.index('size')
+        self.assertEqual(data[size_index], '2K')

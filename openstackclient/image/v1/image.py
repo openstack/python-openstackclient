@@ -707,6 +707,12 @@ class ShowImage(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ShowImage, self).get_parser(prog_name)
         parser.add_argument(
+            "--human-readable",
+            default=False,
+            action='store_true',
+            help=_("Print image size in a human-friendly format."),
+        )
+        parser.add_argument(
             "image",
             metavar="<image>",
             help=_("Image to display (name or ID)"),
@@ -722,5 +728,8 @@ class ShowImage(command.ShowOne):
 
         info = {}
         info.update(image._info)
+        if parsed_args.human_readable:
+            if 'size' in info:
+                info['size'] = utils.format_size(info['size'])
         info['properties'] = utils.format_dict(info.get('properties', {}))
         return zip(*sorted(six.iteritems(info)))
