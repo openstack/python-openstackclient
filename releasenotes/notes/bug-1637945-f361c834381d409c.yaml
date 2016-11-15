@@ -1,5 +1,6 @@
 ---
 features:
   - |
-    Add ``--name``, ``--enable``, ``--disable`` to ``os router list``
+    Add ``--name``, ``--enable``, ``--disable`` options to
+    ``router list`` command.
     [Bug `1637945 <https://bugs.launchpad.net/bugs/1637945>`_]

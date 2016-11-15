@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Cliff 2.3.0: The shell formatter would emit invalid shell variable
+    names for field names that contain colons ('``:``') and dashes ('``-``'),
+    these are now replaced by underscores ('``_``').
+    [Bug `1616323 <https://bugs.launchpad.net/bugs/1616323>`_]

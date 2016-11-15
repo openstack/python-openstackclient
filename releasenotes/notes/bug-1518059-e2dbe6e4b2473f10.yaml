@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix the ``--block-migration`` and ``--shared-migration`` options for
+    ``server migrate`` to send the correct values to the Compute API.
+    [Bug `1518059 <https://bugs.launchpad.net/bugs/1518059>`_]:
