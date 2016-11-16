@@ -289,6 +289,7 @@ Set subnet properties
      ``network:floatingip_agent_gateway``.
      Must be a valid device owner value for a network port
      (repeat option to set multiple service types)
+
 .. option:: --description <description>
 
      Set subnet description
