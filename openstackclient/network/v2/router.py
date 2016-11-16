@@ -98,8 +98,6 @@ def _get_attrs(client_manager, parsed_args):
         ).id
         attrs['tenant_id'] = project_id
 
-    # TODO(tangchen): Support getting 'external_gateway_info' property.
-
     return attrs
 
 
@@ -464,7 +462,8 @@ class SetRouter(command.Command):
             help=_("Set router to centralized mode (disabled router only)")
         )
         routes_group = parser.add_mutually_exclusive_group()
-        routes_group.add_argument(
+        # ToDo(Reedip):Remove mutual exclusiveness once clear-routes is removed
+        parser.add_argument(
             '--route',
             metavar='destination=<subnet>,gateway=<ip-address>',
             action=parseractions.MultiKeyValueAction,
@@ -479,7 +478,9 @@ class SetRouter(command.Command):
         routes_group.add_argument(
             '--no-route',
             action='store_true',
-            help=_("Clear routes associated with the router")
+            help=_("Clear routes associated with the router. "
+                   "Specify both --route and --no-route to overwrite "
+                   "current value of route.")
         )
         routes_group.add_argument(
             '--clear-routes',
@@ -539,20 +540,22 @@ class SetRouter(command.Command):
             attrs['ha'] = True
         elif parsed_args.no_ha:
             attrs['ha'] = False
-        if parsed_args.no_route:
-            attrs['routes'] = []
-        elif parsed_args.clear_routes:
-            attrs['routes'] = []
+        if parsed_args.clear_routes:
             LOG.warning(_(
                 'The --clear-routes option is deprecated, '
                 'please use --no-route instead.'
             ))
-        elif parsed_args.routes is not None:
-            # Map the route keys and append to the current routes.
-            # The REST API will handle route validation and duplicates.
+
+        if parsed_args.routes is not None:
             for route in parsed_args.routes:
                 route['nexthop'] = route.pop('gateway')
-            attrs['routes'] = obj.routes + parsed_args.routes
+            attrs['routes'] = parsed_args.routes
+            if not (parsed_args.no_route or parsed_args.clear_routes):
+                # Map the route keys and append to the current routes.
+                # The REST API will handle route validation and duplicates.
+                attrs['routes'] += obj.routes
+        elif parsed_args.no_route or parsed_args.clear_routes:
+            attrs['routes'] = []
         if (parsed_args.disable_snat or parsed_args.enable_snat or
            parsed_args.fixed_ip) and not parsed_args.external_gateway:
                 msg = (_("You must specify '--external-gateway' in order"
