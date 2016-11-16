@@ -1,0 +1,6 @@
+---
+features:
+  - Add ``consistency group snapshot create``, ``consistency group snapshot delete``,
+    ``consistency group snapshot list`` and ``consistency group snapshot show`` commands
+    in volume v2.
+    [Bug `1642238 <https://bugs.launchpad.net/python-openstackclient/+bug/1642238>`_]

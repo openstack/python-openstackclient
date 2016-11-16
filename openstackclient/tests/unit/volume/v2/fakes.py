@@ -224,6 +224,8 @@ class FakeVolumeClient(object):
         self.quota_classes.resource_class = fakes.FakeResource(None, {})
         self.consistencygroups = mock.Mock()
         self.consistencygroups.resource_class = fakes.FakeResource(None, {})
+        self.cgsnapshots = mock.Mock()
+        self.cgsnapshots.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
@@ -546,6 +548,82 @@ class FakeConsistencyGroup(object):
             consistency_groups.append(consistency_group)
 
         return consistency_groups
+
+
+class FakeConsistencyGroupSnapshot(object):
+    """Fake one or more consistency group snapshot."""
+
+    @staticmethod
+    def create_one_consistency_group_snapshot(attrs=None):
+        """Create a fake consistency group snapshot.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with id, name, description, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        consistency_group_snapshot_info = {
+            "id": 'id-' + uuid.uuid4().hex,
+            "name": 'backup-name-' + uuid.uuid4().hex,
+            "description": 'description-' + uuid.uuid4().hex,
+            "status": "error",
+            "consistencygroup_id": 'consistency-group-id' + uuid.uuid4().hex,
+            "created_at": 'time-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        consistency_group_snapshot_info.update(attrs)
+
+        consistency_group_snapshot = fakes.FakeResource(
+            info=copy.deepcopy(consistency_group_snapshot_info),
+            loaded=True)
+        return consistency_group_snapshot
+
+    @staticmethod
+    def create_consistency_group_snapshots(attrs=None, count=2):
+        """Create multiple fake consistency group snapshots.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of consistency group snapshots to fake
+        :return:
+            A list of FakeResource objects faking the
+            consistency group snapshots
+        """
+        consistency_group_snapshots = []
+        for i in range(0, count):
+            consistency_group_snapshot = (
+                FakeConsistencyGroupSnapshot.
+                create_one_consistency_group_snapshot(attrs)
+            )
+            consistency_group_snapshots.append(consistency_group_snapshot)
+
+        return consistency_group_snapshots
+
+    @staticmethod
+    def get_consistency_group_snapshots(snapshots=None, count=2):
+        """Get an iterable MagicMock object with a list of faked cgsnapshots.
+
+        If consistenct group snapshots list is provided, then initialize
+        the Mock object with the list. Otherwise create one.
+
+        :param List snapshots:
+            A list of FakeResource objects faking consistency group snapshots
+        :param Integer count:
+            The number of consistency group snapshots to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            consistency groups
+        """
+        if snapshots is None:
+            snapshots = (FakeConsistencyGroupSnapshot.
+                         create_consistency_group_snapshots(count))
+
+        return mock.Mock(side_effect=snapshots)
 
 
 class FakeExtension(object):

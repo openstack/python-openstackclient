@@ -81,6 +81,7 @@ referring to both Compute and Volume quotas.
 * ``compute service``: (**Compute**) a cloud Compute process running on a host
 * ``configuration``: (**Internal**) OpenStack client configuration
 * ``consistency group``: (**Volume**) a consistency group of volumes
+* ``consistency group snapshot``: (**Volume**) a point-in-time copy of a consistency group
 * ``console log``: (**Compute**) server console text dump
 * ``console url``: (**Compute**) server remote console URL
 * ``consumer``: (**Identity**) OAuth-based delegatee
