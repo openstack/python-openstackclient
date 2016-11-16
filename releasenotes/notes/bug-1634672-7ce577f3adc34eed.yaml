@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix ``--no-allocation-pool`` option for ``subnet set`` command to
+    send the correct value to the Network API.
+    [Bug `1518059 <https://bugs.launchpad.net/bugs/1518059>`_]:

@@ -1,6 +1,9 @@
 ---
 features:
   - |
+    Add ``--description`` option to ``security group rule create`` command.
+    [Blueprint :oscbp:`network-commands-options`]
+  - |
     Add ``--description`` option to ``port set`` and
     ``port create`` commands.
     [Blueprint :oscbp:`neutron-client-descriptions`]

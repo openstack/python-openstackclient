@@ -7,6 +7,3 @@ features:
     Add ``--description`` option to ``router set`` and
     ``router create`` commands.
     [Blueprint :oscbp:`network-commands-options`]
-    |
-    Adds ``--description`` option to ``security group rule create``.
-    [Blueprint :oscbp:`network-commands-options`] 

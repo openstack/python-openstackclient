@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix ``router unset --route`` to correctly removed routes.
+    [Bug `1631471 <https://bugs.launchpad.net/bugs/1631471>`_]
