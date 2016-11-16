@@ -14,6 +14,7 @@
 """Security Group Rule action implementations"""
 
 import argparse
+import logging
 
 try:
     from novaclient.v2 import security_group_rules as compute_secgroup_rules
@@ -29,6 +30,9 @@ from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 from openstackclient.network import utils as network_utils
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _format_security_group_rule_show(obj):
@@ -94,34 +98,30 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             metavar='<group>',
             help=_("Create rule in this security group (name or ID)")
         )
-        # NOTE(yujie): Support either remote-ip option name for now.
-        # However, consider deprecating and then removing --src-ip in
-        # a future release.
         remote_group = parser.add_mutually_exclusive_group()
         remote_group.add_argument(
             "--remote-ip",
             metavar="<ip-address>",
             help=_("Remote IP address block (may use CIDR notation; "
-                   "default for IPv4 rule: 0.0.0.0/0)")
+                   "default for IPv4 rule: 0.0.0.0/0)"),
         )
-        remote_group.add_argument(
-            "--src-ip",
-            metavar="<ip-address>",
-            help=_("Source IP address block (may use CIDR notation; "
-                   "default for IPv4 rule: 0.0.0.0/0)")
-        )
-        # NOTE(yujie): Support either remote-group option name for now.
-        # However, consider deprecating and then removing --src-group in
-        # a future release.
         remote_group.add_argument(
             "--remote-group",
             metavar="<group>",
-            help=_("Remote security group (name or ID)")
+            help=_("Remote security group (name or ID)"),
+        )
+        # Handle deprecated options
+        # NOTE(dtroyer): --src-ip and --src-group were deprecated in Nov 2016.
+        #                Do not remove before 4.x release or Nov 2017.
+        remote_group.add_argument(
+            "--src-ip",
+            metavar="<ip-address>",
+            help=argparse.SUPPRESS,
         )
         remote_group.add_argument(
             "--src-group",
             metavar="<group>",
-            help=_("Source security group (name or ID)")
+            help=argparse.SUPPRESS,
         )
         return parser
 
@@ -302,16 +302,31 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         if parsed_args.icmp_code:
             attrs['port_range_max'] = parsed_args.icmp_code
 
+        # NOTE(dtroyer): --src-ip and --src-group were deprecated in Nov 2016.
+        #                Do not remove before 4.x release or Nov 2017.
         if not (parsed_args.remote_group is None and
                 parsed_args.src_group is None):
             attrs['remote_group_id'] = client.find_security_group(
                 parsed_args.remote_group or parsed_args.src_group,
                 ignore_missing=False
             ).id
+            if parsed_args.src_group:
+                LOG.warning(
+                    _("The %(old)s option is deprecated, "
+                      "please use %(new)s instead.") %
+                    {'old': '--src-group', 'new': '--remote-group'},
+                )
         elif not (parsed_args.remote_ip is None and
                   parsed_args.src_ip is None):
-            attrs['remote_ip_prefix'] = (parsed_args.remote_ip or
-                                         parsed_args.src_ip)
+            attrs['remote_ip_prefix'] = (
+                parsed_args.remote_ip or parsed_args.src_ip
+            )
+            if parsed_args.src_ip:
+                LOG.warning(
+                    _("The %(old)s option is deprecated, "
+                      "please use %(new)s instead.") %
+                    {'old': '--src-ip', 'new': '--remote-ip'},
+                )
         elif attrs['ethertype'] == 'IPv4':
             attrs['remote_ip_prefix'] = '0.0.0.0/0'
         attrs['security_group_id'] = security_group_id
@@ -340,6 +355,9 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             from_port, to_port = -1, -1
         else:
             from_port, to_port = parsed_args.dst_port
+
+        # NOTE(dtroyer): --src-ip and --src-group were deprecated in Nov 2016.
+        #                Do not remove before 4.x release or Nov 2017.
         remote_ip = None
         if not (parsed_args.remote_group is None and
                 parsed_args.src_group is None):
@@ -347,9 +365,21 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
                 client.security_groups,
                 parsed_args.remote_group or parsed_args.src_group,
             ).id
+            if parsed_args.src_group:
+                LOG.warning(
+                    _("The %(old)s option is deprecated, "
+                      "please use %(new)s instead.") %
+                    {'old': '--src-group', 'new': '--remote-group'},
+                )
         if not (parsed_args.remote_ip is None and
                 parsed_args.src_ip is None):
             remote_ip = parsed_args.remote_ip or parsed_args.src_ip
+            if parsed_args.src_ip:
+                LOG.warning(
+                    _("The %(old)s option is deprecated, "
+                      "please use %(new)s instead.") %
+                    {'old': '--src-ip', 'new': '--remote-ip'},
+                )
         else:
             remote_ip = '0.0.0.0/0'
         obj = client.security_group_rules.create(
