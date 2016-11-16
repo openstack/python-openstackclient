@@ -84,6 +84,15 @@ def _get_common_parse_arguments(parser, is_create=True):
         help=_("DNS server for this subnet "
                "(repeat option to set multiple DNS servers)")
     )
+
+    if not is_create:
+        parser.add_argument(
+            '--no-dns-nameservers',
+            action='store_true',
+            help=_("Clear existing information of DNS Nameservers. "
+                   "Specify both --dns-nameserver and --no-dns-nameserver "
+                   "to overwrite the current DNS Nameserver information.")
+        )
     parser.add_argument(
         '--host-route',
         metavar='destination=<subnet>,gateway=<ip-address>',
@@ -532,7 +541,10 @@ class SetSubnet(command.Command):
         attrs = _get_attrs(self.app.client_manager, parsed_args,
                            is_create=False)
         if 'dns_nameservers' in attrs:
-            attrs['dns_nameservers'] += obj.dns_nameservers
+            if not parsed_args.no_dns_nameservers:
+                attrs['dns_nameservers'] += obj.dns_nameservers
+        elif parsed_args.no_dns_nameservers:
+            attrs['dns_nameservers'] = []
         if 'host_routes' in attrs:
             if not parsed_args.no_host_route:
                 attrs['host_routes'] += obj.host_routes

@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    ``subnet set`` command now allows the user to overwrite/clear dns-nameserver information
+    of a subnet by using the option ``no-dns-nameserver``.
+    [ Blueprint  `allow-overwrite-set-options <https://blueprints.launchpad.net/python-openstackclient/+spec/allow-overwrite-set-options>` _]
+

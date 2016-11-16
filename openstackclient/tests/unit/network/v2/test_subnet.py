@@ -925,13 +925,16 @@ class TestSetSubnet(TestSubnet):
             {'host_routes': [{'destination': '10.20.20.0/24',
                               'nexthop': '10.20.20.1'}],
              'allocation_pools': [{'start': '8.8.8.200',
-                                   'end': '8.8.8.250'}], })
+                                   'end': '8.8.8.250'}],
+             'dns_nameservers': ["10.0.0.1"], })
         self.network.find_subnet = mock.Mock(return_value=_testsubnet)
         arglist = [
             '--host-route', 'destination=10.30.30.30/24,gateway=10.30.30.1',
             '--no-host-route',
             '--allocation-pool', 'start=8.8.8.100,end=8.8.8.150',
             '--no-allocation-pool',
+            '--dns-nameserver', '10.1.10.1',
+            '--no-dns-nameservers',
             _testsubnet.name,
         ]
         verifylist = [
@@ -939,6 +942,8 @@ class TestSetSubnet(TestSubnet):
                 "destination": "10.30.30.30/24", "gateway": "10.30.30.1"}]),
             ('allocation_pools', [{
                 'start': '8.8.8.100', 'end': '8.8.8.150'}]),
+            ('dns_nameservers', ['10.1.10.1']),
+            ('no_dns_nameservers', True),
             ('no_host_route', True),
             ('no_allocation_pool', True),
         ]
@@ -948,6 +953,7 @@ class TestSetSubnet(TestSubnet):
             'host_routes': [{
                 "destination": "10.30.30.30/24", "nexthop": "10.30.30.1"}],
             'allocation_pools': [{'start': '8.8.8.100', 'end': '8.8.8.150'}],
+            'dns_nameservers': ["10.1.10.1"],
         }
         self.network.update_subnet.assert_called_once_with(
             _testsubnet, **attrs)
