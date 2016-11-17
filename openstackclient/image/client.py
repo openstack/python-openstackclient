@@ -22,7 +22,7 @@ from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
 
-DEFAULT_API_VERSION = '1'
+DEFAULT_API_VERSION = '2'
 API_VERSION_OPTION = 'os_image_api_version'
 API_NAME = "image"
 API_VERSIONS = {

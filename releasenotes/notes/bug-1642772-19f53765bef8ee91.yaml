@@ -1,0 +1,6 @@
+---
+fixes:
+  - Changed the default version of ``OS_IMAGE_API_VERSION`` to ``2``. Image v1
+    has been deprecated for more than six months and other projects, such as
+    `shade` and `os-client-config` are using Image v2 by default as well.
+    [Bug `1642772 <https://bugs.launchpad.net/bugs/1642772>`_]
