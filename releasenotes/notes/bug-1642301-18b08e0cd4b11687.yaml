@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix ``TypeError: __init__() got an unexpected keyword argument 'project_domain_id'``
+    error with non-password authentication types.
+    [Bug `1642301 <https://bugs.launchpad.net/bugs/1642301>`_]
