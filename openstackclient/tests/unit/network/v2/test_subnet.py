@@ -636,7 +636,7 @@ class TestListSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'enable_dhcp': True}
+        filters = {'enable_dhcp': True, 'is_dhcp_enabled': True}
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -652,7 +652,7 @@ class TestListSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'enable_dhcp': False}
+        filters = {'enable_dhcp': False, 'is_dhcp_enabled': False}
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -685,7 +685,7 @@ class TestListSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id}
+        filters = {'tenant_id': project.id, 'project_id': project.id}
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -723,7 +723,7 @@ class TestListSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id}
+        filters = {'tenant_id': project.id, 'project_id': project.id}
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
