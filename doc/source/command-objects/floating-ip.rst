@@ -72,6 +72,27 @@ List floating IP(s)
 .. code:: bash
 
     os floating ip list
+        [--network <network>]
+        [--port <port>]
+        [--fixed-ip-address <fixed-ip-address>]
+
+.. option:: --network <network>
+
+    List floating IP(s) according to given network (name or ID)
+
+    *Network version 2 only*
+
+.. option:: --port <port>
+
+    List floating IP(s) according to given port (name or ID)
+
+    *Network version 2 only*
+
+.. option:: --fixed-ip-address <fixed-ip-address>
+
+    List floating IP(s) according to given fixed IP address
+
+    *Network version 2 only*
 
 floating ip show
 ----------------

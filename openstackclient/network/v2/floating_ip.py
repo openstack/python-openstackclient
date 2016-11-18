@@ -205,7 +205,31 @@ class DeleteIPFloating(DeleteFloatingIP):
 class ListFloatingIP(common.NetworkAndComputeLister):
     _description = _("List floating IP(s)")
 
+    def update_parser_network(self, parser):
+        parser.add_argument(
+            '--network',
+            metavar='<network>',
+            help=_("List floating IP(s) according to "
+                   "given network (name or ID)")
+        )
+        parser.add_argument(
+            '--port',
+            metavar='<port>',
+            help=_("List floating IP(s) according to "
+                   "given port (name or ID)")
+        )
+        parser.add_argument(
+            '--fixed-ip-address',
+            metavar='<fixed-ip-address>',
+            help=_("List floating IP(s) according to "
+                   "given fixed IP address")
+        )
+
+        return parser
+
     def take_action_network(self, client, parsed_args):
+        network_client = self.app.client_manager.network
+
         columns = (
             'id',
             'floating_ip_address',
@@ -224,6 +248,18 @@ class ListFloatingIP(common.NetworkAndComputeLister):
         )
 
         query = {}
+
+        if parsed_args.network is not None:
+            network = network_client.find_network(parsed_args.network,
+                                                  ignore_missing=False)
+            query['floating_network_id'] = network.id
+        if parsed_args.port is not None:
+            port = network_client.find_port(parsed_args.port,
+                                            ignore_missing=False)
+            query['port_id'] = port.id
+        if parsed_args.fixed_ip_address is not None:
+            query['fixed_ip_address'] = parsed_args.fixed_ip_address
+
         data = client.ips(**query)
 
         return (headers,
