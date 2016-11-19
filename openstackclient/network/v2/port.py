@@ -25,6 +25,7 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import sdk_utils
 
 
 LOG = logging.getLogger(__name__)
@@ -36,34 +37,33 @@ def _format_admin_state(state):
 
 _formatters = {
     'admin_state_up': _format_admin_state,
+    'is_admin_state_up': _format_admin_state,
     'allowed_address_pairs': utils.format_list_of_dicts,
     'binding_profile': utils.format_dict,
     'binding_vif_details': utils.format_dict,
+    'binding:profile': utils.format_dict,
+    'binding:vif_details': utils.format_dict,
     'dns_assignment': utils.format_list_of_dicts,
     'extra_dhcp_opts': utils.format_list_of_dicts,
     'fixed_ips': utils.format_list_of_dicts,
+    'security_group_ids': utils.format_list,
     'security_groups': utils.format_list,
 }
 
 
 def _get_columns(item):
-    columns = list(item.keys())
-    if 'tenant_id' in columns:
-        columns.remove('tenant_id')
-        if 'project_id' not in columns:
-            columns.append('project_id')
-    binding_columns = [
-        'binding:host_id',
-        'binding:profile',
-        'binding:vif_details',
-        'binding:vif_type',
-        'binding:vnic_type',
-    ]
-    for binding_column in binding_columns:
-        if binding_column in columns:
-            columns.remove(binding_column)
-            columns.append(binding_column.replace('binding:', 'binding_', 1))
-    return tuple(sorted(columns))
+    column_map = {
+        'binding:host_id': 'binding_host_id',
+        'binding:profile': 'binding_profile',
+        'binding:vif_details': 'binding_vif_details',
+        'binding:vif_type': 'binding_vif_type',
+        'binding:vnic_type': 'binding_vnic_type',
+        'is_admin_state_up': 'admin_state_up',
+        'is_port_security_enabled': 'port_security_enabled',
+        'security_group_ids': 'security_groups',
+        'tenant_id': 'project_id',
+    }
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 class JSONKeyValueAction(argparse.Action):
@@ -244,6 +244,8 @@ def _add_updatable_args(parser):
     )
 
 
+# TODO(abhiraut): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class CreatePort(command.ShowOne):
     _description = _("Create a new port")
 
@@ -349,10 +351,10 @@ class CreatePort(command.ShowOne):
             attrs['security_groups'] = []
 
         obj = client.create_port(**attrs)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
 
-        return (columns, data)
+        return (display_columns, data)
 
 
 class DeletePort(command.Command):
@@ -389,6 +391,8 @@ class DeletePort(command.Command):
             raise exceptions.CommandError(msg)
 
 
+# TODO(abhiraut): Use only the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class ListPort(command.Lister):
     _description = _("List ports")
 
@@ -451,7 +455,7 @@ class ListPort(command.Lister):
 
         filters = {}
         if parsed_args.long:
-            columns += ('security_groups', 'device_owner',)
+            columns += ('security_group_ids', 'device_owner',)
             column_headers += ('Security Groups', 'Device Owner',)
         if parsed_args.device_owner is not None:
             filters['device_owner'] = parsed_args.device_owner
@@ -479,6 +483,8 @@ class ListPort(command.Lister):
                 ) for s in data))
 
 
+# TODO(abhiraut): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class SetPort(command.Command):
     _description = _("Set port properties")
 
@@ -621,11 +627,13 @@ class ShowPort(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj = client.find_port(parsed_args.port, ignore_missing=False)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return (columns, data)
+        return (display_columns, data)
 
 
+# TODO(abhiraut): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class UnsetPort(command.Command):
     _description = _("Unset port properties")
 
