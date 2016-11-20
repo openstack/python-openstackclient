@@ -1,0 +1,5 @@
+---
+features:
+  - Add ``volume host set`` command, it allows a user to enable or disable a volume host.
+    [Blueprint `cinder-command-support <https://blueprints.launchpad.net/python-openstackclient/+spec/cinder-command-support>`_]
+
