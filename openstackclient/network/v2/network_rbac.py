@@ -21,20 +21,18 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import sdk_utils
 
 
 LOG = logging.getLogger(__name__)
 
 
 def _get_columns(item):
-    columns = list(item.keys())
-    if 'tenant_id' in columns:
-        columns.remove('tenant_id')
-        columns.append('project_id')
-    if 'target_tenant' in columns:
-        columns.remove('target_tenant')
-        columns.append('target_project_id')
-    return tuple(sorted(columns))
+    column_map = {
+        'target_tenant': 'target_project_id',
+        'tenant_id': 'project_id',
+    }
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 def _get_attrs(client_manager, parsed_args):
@@ -70,6 +68,8 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
+# TODO(abhiraut): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class CreateNetworkRBAC(command.ShowOne):
     _description = _("Create network RBAC policy")
 
@@ -122,9 +122,9 @@ class CreateNetworkRBAC(command.ShowOne):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_rbac_policy(**attrs)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
-        return columns, data
+        return display_columns, data
 
 
 class DeleteNetworkRBAC(command.Command):
@@ -185,6 +185,8 @@ class ListNetworkRBAC(command.Lister):
                 ) for s in data))
 
 
+# TODO(abhiraut): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class SetNetworkRBAC(command.Command):
     _description = _("Set network RBAC policy properties")
 
@@ -242,6 +244,6 @@ class ShowNetworkRBAC(command.ShowOne):
         client = self.app.client_manager.network
         obj = client.find_rbac_policy(parsed_args.rbac_policy,
                                       ignore_missing=False)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
-        return columns, data
+        return display_columns, data
