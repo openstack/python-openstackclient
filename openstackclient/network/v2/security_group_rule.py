@@ -29,6 +29,7 @@ import six
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
+from openstackclient.network import sdk_utils
 from openstackclient.network import utils as network_utils
 
 
@@ -67,11 +68,10 @@ def _format_network_port_range(rule):
 
 
 def _get_columns(item):
-    columns = list(item.keys())
-    if 'tenant_id' in columns:
-        columns.remove('tenant_id')
-        columns.append('project_id')
-    return tuple(sorted(columns))
+    column_map = {
+        'tenant_id': 'project_id',
+    }
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 def _convert_to_lowercase(string):
@@ -89,6 +89,8 @@ def _is_icmp_protocol(protocol):
         return False
 
 
+# TODO(abhiraut): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
     _description = _("Create a new security group rule")
 
@@ -341,9 +343,9 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
 
         # Create and show the security group rule.
         obj = client.create_security_group_rule(**attrs)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
-        return (columns, data)
+        return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
         group = utils.find_resource(
@@ -597,9 +599,9 @@ class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
     def take_action_network(self, client, parsed_args):
         obj = client.find_security_group_rule(parsed_args.rule,
                                               ignore_missing=False)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
-        return (columns, data)
+        return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
         # NOTE(rtheis): Unfortunately, compute does not have an API
