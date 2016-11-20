@@ -746,6 +746,7 @@ class FakeNetworkQosPolicy(object):
             loaded=True)
 
         # Set attributes with special mapping in OpenStack SDK.
+        qos_policy.is_shared = qos_policy_attrs['shared']
         qos_policy.project_id = qos_policy_attrs['tenant_id']
 
         return qos_policy

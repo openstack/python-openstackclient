@@ -21,17 +21,18 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import sdk_utils
 
 
 LOG = logging.getLogger(__name__)
 
 
 def _get_columns(item):
-    columns = list(item.keys())
-    if 'tenant_id' in columns:
-        columns.remove('tenant_id')
-        columns.append('project_id')
-    return tuple(sorted(columns))
+    column_map = {
+        'is_shared': 'shared',
+        'tenant_id': 'project_id',
+    }
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 def _get_attrs(client_manager, parsed_args):
@@ -56,6 +57,8 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
+# TODO(abhiraut): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class CreateNetworkQosPolicy(command.ShowOne):
     _description = _("Create a QoS policy")
 
@@ -96,9 +99,9 @@ class CreateNetworkQosPolicy(command.ShowOne):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_qos_policy(**attrs)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters={})
-        return columns, data
+        return (display_columns, data)
 
 
 class DeleteNetworkQosPolicy(command.Command):
@@ -135,6 +138,8 @@ class DeleteNetworkQosPolicy(command.Command):
             raise exceptions.CommandError(msg)
 
 
+# TODO(abhiraut): Use only the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class ListNetworkQosPolicy(command.Lister):
     _description = _("List QoS policies")
 
@@ -143,8 +148,8 @@ class ListNetworkQosPolicy(command.Lister):
         columns = (
             'id',
             'name',
-            'shared',
-            'tenant_id',
+            'is_shared',
+            'project_id',
         )
         column_headers = (
             'ID',
@@ -160,6 +165,8 @@ class ListNetworkQosPolicy(command.Lister):
                 ) for s in data))
 
 
+# TODO(abhiraut): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class SetNetworkQosPolicy(command.Command):
     _description = _("Set QoS policy properties")
 
@@ -226,6 +233,6 @@ class ShowNetworkQosPolicy(command.ShowOne):
         client = self.app.client_manager.network
         obj = client.find_qos_policy(parsed_args.policy,
                                      ignore_missing=False)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
-        return columns, data
+        return (display_columns, data)
