@@ -48,7 +48,7 @@ class AggregateTests(base.TestCase):
         self.assertEqual(self.NAME + "\n", raw_output)
 
     def test_aggregate_properties(self):
-        opts = self.get_opts(['properties'])
+        opts = self.get_opts(['name', 'properties'])
 
         raw_output = self.openstack(
             'aggregate set --property a=b --property c=d ' + self.NAME
@@ -56,7 +56,7 @@ class AggregateTests(base.TestCase):
         self.assertEqual('', raw_output)
 
         raw_output = self.openstack('aggregate show ' + self.NAME + opts)
-        self.assertIn("a='b', c='d'\n", raw_output)
+        self.assertIn(self.NAME + "\na='b', c='d'\n", raw_output)
 
         raw_output = self.openstack(
             'aggregate unset --property a ' + self.NAME
@@ -64,4 +64,44 @@ class AggregateTests(base.TestCase):
         self.assertEqual('', raw_output)
 
         raw_output = self.openstack('aggregate show ' + self.NAME + opts)
-        self.assertIn("c='d'\n", raw_output)
+        self.assertIn(self.NAME + "\nc='d'\n", raw_output)
+
+        raw_output = self.openstack(
+            'aggregate set --property a=b --property c=d ' + self.NAME
+        )
+        self.assertEqual('', raw_output)
+
+        raw_output = self.openstack(
+            'aggregate set --no-property ' + self.NAME
+        )
+        self.assertEqual('', raw_output)
+
+        raw_output = self.openstack('aggregate show ' + self.NAME + opts)
+        self.assertNotIn("a='b', c='d'", raw_output)
+
+    def test_aggregate_set(self):
+        opts = self.get_opts(["name", "availability_zone"])
+
+        raw_output = self.openstack(
+            'aggregate set --zone Zone_1 ' + self.NAME)
+        self.assertEqual("", raw_output)
+
+        raw_output = self.openstack('aggregate show ' + self.NAME + opts)
+        self.assertEqual("Zone_1\n" + self.NAME + "\n", raw_output)
+
+    def test_aggregate_add_and_remove_host(self):
+        opts = self.get_opts(["hosts", "name"])
+
+        raw_output = self.openstack('host list -f value -c "Host Name"')
+        host_name = raw_output.split()[0]
+
+        self.openstack(
+            'aggregate add host ' + self.NAME + ' ' + host_name)
+        raw_output = self.openstack('aggregate show ' + self.NAME + opts)
+        self.assertEqual("[u'" + host_name + "']" + "\n" + self.NAME + "\n",
+                         raw_output)
+
+        self.openstack(
+            'aggregate remove host ' + self.NAME + ' ' + host_name)
+        raw_output = self.openstack('aggregate show ' + self.NAME + opts)
+        self.assertEqual("[]\n" + self.NAME + "\n", raw_output)
