@@ -151,9 +151,31 @@ class ListVolumeSnapshot(command.Lister):
             metavar='<limit>',
             help=_('Maximum number of snapshots to display'),
         )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            default=None,
+            help=_('Filters results by a name.')
+        )
+        parser.add_argument(
+            '--status',
+            metavar='<status>',
+            choices=['available', 'error', 'creating', 'deleting',
+                     'error-deleting'],
+            help=_("Filters results by a status. "
+                   "('available', 'error', 'creating', 'deleting'"
+                   " or 'error-deleting')")
+        )
+        parser.add_argument(
+            '--volume',
+            metavar='<volume>',
+            default=None,
+            help=_('Filters results by a volume (name or ID).')
+        )
         return parser
 
     def take_action(self, parsed_args):
+        volume_client = self.app.client_manager.volume
 
         def _format_volume_id(volume_id):
             """Return a volume name if available
@@ -180,17 +202,25 @@ class ListVolumeSnapshot(command.Lister):
         # Cache the volume list
         volume_cache = {}
         try:
-            for s in self.app.client_manager.volume.volumes.list():
+            for s in volume_client.volumes.list():
                 volume_cache[s.id] = s
         except Exception:
             # Just forget it if there's any trouble
             pass
 
+        volume_id = None
+        if parsed_args.volume:
+            volume_id = utils.find_resource(
+                volume_client.volumes, parsed_args.volume).id
+
         search_opts = {
             'all_tenants': parsed_args.all_projects,
+            'name': parsed_args.name,
+            'status': parsed_args.status,
+            'volume_id': volume_id,
         }
 
-        data = self.app.client_manager.volume.volume_snapshots.list(
+        data = volume_client.volume_snapshots.list(
             search_opts=search_opts,
             marker=parsed_args.marker,
             limit=parsed_args.limit,

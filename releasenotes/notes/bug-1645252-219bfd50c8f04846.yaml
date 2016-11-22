@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--name``, ``--status`` and ``--volume`` options
+    to ``volume snapshot list`` command
+    [Bug `1645252 <https://bugs.launchpad.net/bugs/1645252>`_]

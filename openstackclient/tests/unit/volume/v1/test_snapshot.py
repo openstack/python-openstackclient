@@ -268,6 +268,7 @@ class TestSnapshotList(TestSnapshot):
         super(TestSnapshotList, self).setUp()
 
         self.volumes_mock.list.return_value = [self.volume]
+        self.volumes_mock.get.return_value = self.volume
         self.snapshots_mock.list.return_value = self.snapshots
         # Get the command to test
         self.cmd = volume_snapshot.ListVolumeSnapshot(self.app, None)
@@ -283,7 +284,13 @@ class TestSnapshotList(TestSnapshot):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.snapshots_mock.list.assert_called_once_with(
-            search_opts={'all_tenants': False})
+            search_opts={
+                'all_tenants': False,
+                'display_name': None,
+                'status': None,
+                'volume_id': None
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -300,10 +307,87 @@ class TestSnapshotList(TestSnapshot):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.snapshots_mock.list.assert_called_once_with(
-            search_opts={'all_tenants': False}
+            search_opts={
+                'all_tenants': False,
+                'display_name': None,
+                'status': None,
+                'volume_id': None
+            }
         )
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
+
+    def test_snapshot_list_name_option(self):
+        arglist = [
+            '--name', self.snapshots[0].display_name,
+        ]
+        verifylist = [
+            ('all_projects', False),
+            ('long', False),
+            ('name', self.snapshots[0].display_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.list.assert_called_once_with(
+            search_opts={
+                'all_tenants': False,
+                'display_name': self.snapshots[0].display_name,
+                'status': None,
+                'volume_id': None
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_snapshot_list_status_option(self):
+        arglist = [
+            '--status', self.snapshots[0].status,
+        ]
+        verifylist = [
+            ('all_projects', False),
+            ('long', False),
+            ('status', self.snapshots[0].status),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.list.assert_called_once_with(
+            search_opts={
+                'all_tenants': False,
+                'display_name': None,
+                'status': self.snapshots[0].status,
+                'volume_id': None
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_snapshot_list_volumeid_option(self):
+        arglist = [
+            '--volume', self.volume.id,
+        ]
+        verifylist = [
+            ('all_projects', False),
+            ('long', False),
+            ('volume', self.volume.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.list.assert_called_once_with(
+            search_opts={
+                'all_tenants': False,
+                'display_name': None,
+                'status': None,
+                'volume_id': self.volume.id
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
     def test_snapshot_list_all_projects(self):
         arglist = [
@@ -318,7 +402,13 @@ class TestSnapshotList(TestSnapshot):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.snapshots_mock.list.assert_called_once_with(
-            search_opts={'all_tenants': True})
+            search_opts={
+                'all_tenants': True,
+                'display_name': None,
+                'status': None,
+                'volume_id': None
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
