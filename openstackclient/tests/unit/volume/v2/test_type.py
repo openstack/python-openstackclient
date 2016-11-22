@@ -165,7 +165,8 @@ class TestTypeList(TestType):
 
     columns = [
         "ID",
-        "Name"
+        "Name",
+        "Is Public",
     ]
     columns_long = columns + [
         "Description",
@@ -177,12 +178,14 @@ class TestTypeList(TestType):
         data.append((
             t.id,
             t.name,
+            t.is_public,
         ))
     data_long = []
     for t in volume_types:
         data_long.append((
             t.id,
             t.name,
+            t.is_public,
             t.description,
             utils.format_dict(t.extra_specs),
         ))

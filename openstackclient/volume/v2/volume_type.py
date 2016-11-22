@@ -176,10 +176,11 @@ class ListVolumeType(command.Lister):
 
     def take_action(self, parsed_args):
         if parsed_args.long:
-            columns = ['ID', 'Name', 'Description', 'Extra Specs']
-            column_headers = ['ID', 'Name', 'Description', 'Properties']
+            columns = ['ID', 'Name', 'Is Public', 'Description', 'Extra Specs']
+            column_headers = [
+                'ID', 'Name', 'Is Public', 'Description', 'Properties']
         else:
-            columns = ['ID', 'Name']
+            columns = ['ID', 'Name', 'Is Public']
             column_headers = columns
 
         is_public = None

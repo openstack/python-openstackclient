@@ -111,10 +111,10 @@ class ListVolumeType(command.Lister):
 
     def take_action(self, parsed_args):
         if parsed_args.long:
-            columns = ('ID', 'Name', 'Extra Specs')
-            column_headers = ('ID', 'Name', 'Properties')
+            columns = ('ID', 'Name', 'Is Public', 'Extra Specs')
+            column_headers = ('ID', 'Name', 'Is Public', 'Properties')
         else:
-            columns = ('ID', 'Name')
+            columns = ('ID', 'Name', 'Is Public')
             column_headers = columns
         data = self.app.client_manager.volume.volume_types.list()
         return (column_headers,
