@@ -248,10 +248,7 @@ class TestVolume(utils.TestCommand):
 
 
 class FakeVolume(object):
-    """Fake one or more volumes.
-
-    TODO(xiexs): Currently, only volume API v2 is supported by this class.
-    """
+    """Fake one or more volumes."""
 
     @staticmethod
     def create_one_volume(attrs=None):
