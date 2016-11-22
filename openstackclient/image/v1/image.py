@@ -503,7 +503,7 @@ class SetImage(command.Command):
             choices=container_choices
         )
         disk_choices = ["ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2",
-                        "vdi", "iso"]
+                        "vhdx", "vdi", "iso"]
         parser.add_argument(
             "--disk-format",
             metavar="<disk-format>",
