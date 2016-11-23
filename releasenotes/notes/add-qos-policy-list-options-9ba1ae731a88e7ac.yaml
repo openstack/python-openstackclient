@@ -1,0 +1,5 @@
+---
+features:
+   - Add ``--share``, ``--no-share``, ``--project``, ``--project-domain``
+     options to ``qos policy list`` command.
+     [Blueprint `network-commands-options <https://blueprints.launchpad.net/python-openstackclient/+spec/network-commands-options>`_]

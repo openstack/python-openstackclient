@@ -250,6 +250,59 @@ class TestListNetworkQosPolicy(TestQosPolicy):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_qos_policy_list_share(self):
+        arglist = [
+            '--share',
+        ]
+        verifylist = [
+            ('share', True),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.qos_policies.assert_called_once_with(
+            **{'shared': True}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_qos_policy_list_no_share(self):
+        arglist = [
+            '--no-share',
+        ]
+        verifylist = [
+            ('no_share', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.qos_policies.assert_called_once_with(
+            **{'shared': False}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_qos_list_project(self):
+        project = identity_fakes_v3.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+            '--project-domain', project.domain_id,
+        ]
+        verifylist = [
+            ('project', project.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.network.qos_policies.assert_called_once_with(
+            **{'tenant_id': project.id}
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
 
 class TestSetNetworkQosPolicy(TestQosPolicy):
 

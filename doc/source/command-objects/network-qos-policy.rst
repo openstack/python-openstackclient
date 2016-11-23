@@ -73,6 +73,25 @@ List Network QoS policies
 .. code:: bash
 
     openstack network qos policy list
+        [--project <project> [--project-domain <project-domain>]]
+        [--share | --no-share]
+
+.. option:: --project <project>
+
+    List qos policies according to their project (name or ID)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+.. option:: --share
+
+    List qos policies shared between projects
+
+.. option:: --no-share
+
+    List qos policies not shared between projects
 
 network qos policy set
 ----------------------
