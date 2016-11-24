@@ -2,3 +2,5 @@
 features:
   - Add ``consistency group create`` command in volume v2.
     [Bug `1613964 <https://bugs.launchpad.net/python-openstackclient/+bug/1613964>`_]
+  - Add ``consistency group delete`` command in volume v2.
+    [Bug `1613964 <https://bugs.launchpad.net/python-openstackclient/+bug/1613964>`_]

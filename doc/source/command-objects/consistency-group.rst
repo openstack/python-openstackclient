@@ -40,6 +40,27 @@ Create new consistency group.
 
     Name of new consistency group (default to None)
 
+consistency group delete
+------------------------
+
+Delete consistency group(s).
+
+.. program:: consistency group delete
+.. code:: bash
+
+    os consistency group delete
+        [--force]
+        <consistency-group> [<consistency-group> ...]
+
+.. option:: --force
+
+    Allow delete in state other than error or available
+
+.. _consistency_group_delete-consistency-group:
+.. describe:: <consistency-group>
+
+    Consistency group(s) to delete (name or ID)
+
 consistency group list
 ----------------------
 
