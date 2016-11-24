@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--deleted`` and ``--changes-since`` options to ``server list``
+    command.
+    [Bug `1647242 <https://bugs.launchpad.net/bugs/1647272>`_]
