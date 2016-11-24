@@ -63,53 +63,22 @@ class TestServerGroupCreate(TestServerGroup):
 
     def test_server_group_create(self):
         arglist = [
-            '--policy', 'affinity',
+            '--policy', 'anti-affinity',
             'affinity_group',
         ]
         verifylist = [
-            ('policy', ['affinity']),
+            ('policy', 'anti-affinity'),
             ('name', 'affinity_group'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
         self.server_groups_mock.create.assert_called_once_with(
             name=parsed_args.name,
-            policies=parsed_args.policy,
+            policies=[parsed_args.policy],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
-
-    def test_server_group_create_with_multiple_policies(self):
-        arglist = [
-            '--policy', 'affinity',
-            '--policy', 'soft-affinity',
-            'affinity_group',
-        ]
-        verifylist = [
-            ('policy', ['affinity', 'soft-affinity']),
-            ('name', 'affinity_group'),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = self.cmd.take_action(parsed_args)
-        self.server_groups_mock.create.assert_called_once_with(
-            name=parsed_args.name,
-            policies=parsed_args.policy,
-        )
-
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
-
-    def test_server_group_create_no_policy(self):
-        arglist = [
-            'affinity_group',
-        ]
-        verifylist = None
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser,
-                          self.cmd,
-                          arglist,
-                          verifylist)
 
 
 class TestServerGroupDelete(TestServerGroup):

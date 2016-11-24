@@ -55,10 +55,11 @@ class CreateServerGroup(command.ShowOne):
         parser.add_argument(
             '--policy',
             metavar='<policy>',
-            action='append',
-            required=True,
+            choices=['affinity', 'anti-affinity'],
+            default='affinity',
             help=_("Add a policy to <name> "
-                   "(repeat option to add multiple policies)")
+                   "('affinity' or 'anti-affinity', "
+                   "default to 'affinity')")
         )
         return parser
 
@@ -67,7 +68,7 @@ class CreateServerGroup(command.ShowOne):
         info = {}
         server_group = compute_client.server_groups.create(
             name=parsed_args.name,
-            policies=parsed_args.policy)
+            policies=[parsed_args.policy])
         info.update(server_group._info)
 
         columns = _get_columns(info)

@@ -15,13 +15,13 @@ Create a new server group
 .. code-block:: bash
 
     openstack server group create
-        --policy <policy> [--policy <policy>] ...
+        --policy <policy>
         <name>
 
 .. option:: --policy <policy>
 
     Add a policy to :ref:`\<name\> <server_group_create-name>`
-    (repeat option to add multiple policies)
+    ('affinity' or 'anti-affinity', default to 'affinity')
 
 .. _server_group_create-name:
 .. describe:: <name>
