@@ -4461,26 +4461,30 @@ class SshServer(command.Command):
             metavar='<server>',
             help=_('Server (name or ID)'),
         )
+        # Deprecated during the Yoga cycle
         parser.add_argument(
             '--login', '-l',
             metavar='<login-name>',
-            help=_('Login name (ssh -l option)'),
+            help=argparse.SUPPRESS,
         )
+        # Deprecated during the Yoga cycle
         parser.add_argument(
             '--port', '-p',
             metavar='<port>',
             type=int,
-            help=_('Destination port (ssh -p option)'),
+            help=argparse.SUPPRESS,
         )
+        # Deprecated during the Yoga cycle
         parser.add_argument(
             '--identity', '-i',
             metavar='<keyfile>',
-            help=_('Private key file (ssh -i option)'),
+            help=argparse.SUPPRESS,
         )
+        # Deprecated during the Yoga cycle
         parser.add_argument(
             '--option', '-o',
             metavar='<config-options>',
-            help=_('Options in ssh_config(5) format (ssh -o option)'),
+            help=argparse.SUPPRESS,
         )
         ip_group = parser.add_mutually_exclusive_group()
         ip_group.add_argument(
@@ -4521,6 +4525,7 @@ class SshServer(command.Command):
             default='public',
             help=_('Use other IP address (public, private, etc)'),
         )
+        # Deprecated during the Yoga cycle
         parser.add_argument(
             '-v',
             dest='verbose',
@@ -4528,46 +4533,77 @@ class SshServer(command.Command):
             default=False,
             help=argparse.SUPPRESS,
         )
+        parser.add_argument(
+            'ssh_args',
+            nargs='*',
+            metavar='-- <standard ssh args>',
+            help=(
+                'Any argument or option that ssh allows. '
+                'Use -- once between openstackclient args and SSH args.'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute
+
         server = utils.find_resource(
             compute_client.servers,
             parsed_args.server,
         )
 
-        # Build the command
-        cmd = "ssh"
+        # first, handle the deprecated options
+        if any((
+            parsed_args.port,
+            parsed_args.identity,
+            parsed_args.option,
+            parsed_args.login,
+            parsed_args.verbose,
+        )):
+            msg = _(
+                'The ssh options have been deprecated. The ssh equivalent '
+                'options can be used instead as arguments after "--" on '
+                'the command line.'
+            )
+            self.log.warning(msg)
 
         ip_address_family = [4, 6]
         if parsed_args.ipv4:
             ip_address_family = [4]
-            cmd += " -4"
         if parsed_args.ipv6:
             ip_address_family = [6]
-            cmd += " -6"
+
+        args = parsed_args.ssh_args[:]
 
         if parsed_args.port:
-            cmd += " -p %d" % parsed_args.port
+            args.extend(['-p', str(parsed_args.port)])
+
         if parsed_args.identity:
-            cmd += " -i %s" % parsed_args.identity
+            args.extend(['-i', parsed_args.identity])
+
         if parsed_args.option:
-            cmd += " -o %s" % parsed_args.option
+            args.extend(['-o', parsed_args.option])
+
         if parsed_args.login:
             login = parsed_args.login
-        else:
+            args.extend(['-l', login])
+        elif '-l' not in args:
             login = self.app.client_manager.auth_ref.username
-        if parsed_args.verbose:
-            cmd += " -v"
+            args.extend(['-l', login])
 
-        cmd += " %s@%s"
-        ip_address = _get_ip_address(server.addresses,
-                                     parsed_args.address_type,
-                                     ip_address_family)
-        LOG.debug("ssh command: %s", (cmd % (login, ip_address)))
-        os.system(cmd % (login, ip_address))
+        if parsed_args.verbose:
+            args.append('-v')
+
+        ip_address = _get_ip_address(
+            server.addresses,
+            parsed_args.address_type,
+            ip_address_family,
+        )
+
+        cmd = ' '.join(['ssh', ip_address] + args)
+        LOG.debug("ssh command: {cmd}".format(cmd=cmd))
+        os.system(cmd)
 
 
 class StartServer(command.Command):
