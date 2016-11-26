@@ -38,11 +38,12 @@ Create new Network QoS policy
 
     Owner's project (name or ID)
 
-.. option:: --project-domain <project-domain>]
+.. option:: --project-domain <project-domain>
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
 
+.. _network_qos_policy_create-name:
 .. describe:: <name>
 
     New QoS policy specification name
@@ -58,6 +59,7 @@ Delete Network QoS policy
     openstack network qos policy delete
          <qos-policy> [<qos-policy> ...]
 
+.. _network_qos_policy_delete-qos-policy:
 .. describe:: <qos-policy>
 
     Network QoS policy(s) to delete (name or ID)
@@ -102,9 +104,10 @@ Set Network QoS policy properties
 
     Make the QoS policy not accessible by other projects
 
+.. _network_qos_policy_set-qos-policy:
 .. describe:: <qos-policy>
 
-    Network QoS policy(s) to delete (name or ID)
+    Network QoS policy to modify (name or ID)
 
 network qos policy show
 -----------------------
@@ -117,6 +120,7 @@ Display Network QoS policy details
     openstack network qos policy show
         <qos-policy>
 
+.. _network_qos_policy_show-qos-policy:
 .. describe:: <qos-policy>
 
-    Network QoS policy(s) to show (name or ID)
+    Network QoS policy to display (name or ID)
