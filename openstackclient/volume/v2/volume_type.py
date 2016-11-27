@@ -213,7 +213,7 @@ class SetVolumeType(command.Command):
         )
         parser.add_argument(
             '--description',
-            metavar='<name>',
+            metavar='<description>',
             help=_('Set volume type description'),
         )
         parser.add_argument(
