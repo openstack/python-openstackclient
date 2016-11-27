@@ -328,6 +328,61 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
+    def test_server_create_with_options(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--key-name', 'keyname',
+            '--property', 'Beta=b',
+            '--security-group', 'securitygroup',
+            '--hint', 'a=b',
+            '--hint', 'a=c',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('key_name', 'keyname'),
+            ('property', {'Beta': 'b'}),
+            ('security_group', ['securitygroup']),
+            ('hint', ['a=b', 'a=c']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta={'Beta': 'b'},
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=['securitygroup'],
+            userdata=None,
+            key_name='keyname',
+            availability_zone=None,
+            block_device_mapping={},
+            nics=[],
+            scheduler_hints={'a': ['b', 'c']},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
     def test_server_create_with_network(self):
         arglist = [
             '--image', 'image1',
@@ -414,6 +469,102 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
+    def test_server_create_with_wait_ok(self, mock_wait_for_status):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--wait',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('config_drive', False),
+            ('wait', True),
+            ('server_name', self.new_server.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        mock_wait_for_status.assert_called_once_with(
+            self.servers_mock.get,
+            self.new_server.id,
+            callback=server._show_progress,
+        )
+
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping={},
+            nics=[],
+            scheduler_hints={},
+            config_drive=None,
+        )
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
+    def test_server_create_with_wait_fails(self, mock_wait_for_status):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--wait',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('config_drive', False),
+            ('wait', True),
+            ('server_name', self.new_server.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+
+        mock_wait_for_status.assert_called_once_with(
+            self.servers_mock.get,
+            self.new_server.id,
+            callback=server._show_progress,
+        )
+
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping={},
+            nics=[],
+            scheduler_hints={},
+            config_drive=None,
+        )
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
 
     @mock.patch('openstackclient.compute.v2.server.io.open')
     def test_server_create_userdata(self, mock_open):
