@@ -30,6 +30,7 @@ Create new network
         [--provider-network-type <provider-network-type>]
         [--provider-physical-network <provider-physical-network>]
         [--provider-segment <provider-segment>]
+        [--qos-policy <qos-policy>]
         [--transparent-vlan | --no-transparent-vlan]
         <name>
 
@@ -141,6 +142,12 @@ Create new network
 .. option:: --provider-segment <provider-segment>
 
     VLAN ID for VLAN networks or Tunnel ID for GENEVE/GRE/VXLAN networks
+
+    *Network version 2 only*
+
+.. option:: --qos-policy <qos-policy>
+
+    QoS policy to attach to this network (name or ID)
 
     *Network version 2 only*
 
@@ -303,6 +310,7 @@ Set network properties
         [--provider-network-type <provider-network-type>]
         [--provider-physical-network <provider-physical-network>]
         [--provider-segment <provider-segment>]
+        [--qos-policy <qos-policy> | --no-qos-policy]
         [--transparent-vlan | --no-transparent-vlan]
         <network>
 
@@ -369,6 +377,14 @@ Set network properties
 .. option:: --provider-segment <provider-segment>
 
     VLAN ID for VLAN networks or Tunnel ID for GRE/VXLAN networks
+
+.. option:: --qos-policy <qos-policy>
+
+    QoS policy to attach to this network (name or ID)
+
+.. option:: --no-qos-policy
+
+    Remove the QoS policy attached to this network
 
 .. option:: --transparent-vlan
 

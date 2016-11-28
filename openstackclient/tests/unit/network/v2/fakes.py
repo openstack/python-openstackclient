@@ -299,6 +299,7 @@ class FakeNetwork(object):
             'availability_zone_hints': [],
             'is_default': False,
             'port_security_enabled': True,
+            'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
         }
 
         # Overwrite default attributes.
