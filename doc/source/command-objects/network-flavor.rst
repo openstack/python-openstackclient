@@ -8,6 +8,28 @@ service flavors.
 
 Network v2
 
+network flavor add profile
+--------------------------
+
+Add network flavor to service profile
+
+.. program:: network flavor add profile
+.. code:: bash
+
+    openstack network flavor add profile
+        <flavor>
+        <service-profile-id>
+
+.. describe:: <flavor>
+
+    Flavor to which service profile is added. (Name or ID)
+
+.. describe:: <service-profile-id>
+
+    Service profile to be added to flavor. (ID only)
+
+.. _network_flavor_add_profile:
+
 network flavor create
 ---------------------
 
@@ -84,6 +106,28 @@ List network flavors
     openstack network flavor list
 
 .. _network_flavor_list:
+
+network flavor remove profile
+-----------------------------
+
+Remove network flavor from service profile
+
+.. program:: network flavor remove profile
+.. code:: bash
+
+    openstack network flavor remove profile
+        <flavor>
+        <service-profile-id>
+
+.. describe:: <flavor>
+
+    Flavor from which service profile is removed. (Name or ID)
+
+.. describe:: <service-profile-id>
+
+    Service profile to be removed from flavor. (ID only)
+
+.. _network_flavor_remove_profile:
 
 network flavor set
 ------------------

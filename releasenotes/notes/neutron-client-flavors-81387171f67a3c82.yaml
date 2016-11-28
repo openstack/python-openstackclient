@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``network flavor add profile`` and ``network flavor remove profile`` commands.
+    [Blueprint :oscbp:`neutron-client-flavors`]
