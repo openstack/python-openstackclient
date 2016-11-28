@@ -18,35 +18,14 @@ the user can list domains and projects they are allowed to access, and request
 a scoped token."""
 
 from osc_lib.command import command
-from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
 
 
-UNSCOPED_AUTH_PLUGINS = ['v3unscopedsaml', 'v3unscopedadfs', 'v3oidc']
-
-
-def auth_with_unscoped_saml(func):
-    """Check the unscoped federated context"""
-
-    def _decorated(self, parsed_args):
-        auth_plugin_name = self.app.client_manager.auth_plugin_name
-        if auth_plugin_name in UNSCOPED_AUTH_PLUGINS:
-            return func(self, parsed_args)
-        else:
-            msg = (_('This command requires the use of an unscoped SAML '
-                     'authentication plugin. Please use argument '
-                     '--os-auth-type with one of the following '
-                     'plugins: %s') % ', '.join(UNSCOPED_AUTH_PLUGINS))
-            raise exceptions.CommandError(msg)
-    return _decorated
-
-
 class ListAccessibleDomains(command.Lister):
     _description = _("List accessible domains")
 
-    @auth_with_unscoped_saml
     def take_action(self, parsed_args):
         columns = ('ID', 'Enabled', 'Name', 'Description')
         identity_client = self.app.client_manager.identity
@@ -61,7 +40,6 @@ class ListAccessibleDomains(command.Lister):
 class ListAccessibleProjects(command.Lister):
     _description = _("List accessible projects")
 
-    @auth_with_unscoped_saml
     def take_action(self, parsed_args):
         columns = ('ID', 'Domain ID', 'Enabled', 'Name')
         identity_client = self.app.client_manager.identity

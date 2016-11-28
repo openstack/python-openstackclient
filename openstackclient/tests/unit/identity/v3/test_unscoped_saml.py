@@ -12,8 +12,6 @@
 
 import copy
 
-from osc_lib import exceptions
-
 from openstackclient.identity.v3 import unscoped_saml
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -48,7 +46,6 @@ class TestDomainList(TestUnscopedSAML):
         self.cmd = unscoped_saml.ListAccessibleDomains(self.app, None)
 
     def test_accessible_domains_list(self):
-        self.app.client_manager.auth_plugin_name = 'v3unscopedsaml'
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -70,17 +67,6 @@ class TestDomainList(TestUnscopedSAML):
         ), )
         self.assertEqual(datalist, tuple(data))
 
-    def test_accessible_domains_list_wrong_auth(self):
-        auth = identity_fakes.FakeAuth("wrong auth")
-        self.app.client_manager.identity.session.auth = auth
-        arglist = []
-        verifylist = []
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action,
-                          parsed_args)
-
 
 class TestProjectList(TestUnscopedSAML):
 
@@ -99,7 +85,6 @@ class TestProjectList(TestUnscopedSAML):
         self.cmd = unscoped_saml.ListAccessibleProjects(self.app, None)
 
     def test_accessible_projects_list(self):
-        self.app.client_manager.auth_plugin_name = 'v3unscopedsaml'
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -120,14 +105,3 @@ class TestProjectList(TestUnscopedSAML):
             identity_fakes.project_name,
         ), )
         self.assertEqual(datalist, tuple(data))
-
-    def test_accessible_projects_list_wrong_auth(self):
-        auth = identity_fakes.FakeAuth("wrong auth")
-        self.app.client_manager.identity.session.auth = auth
-        arglist = []
-        verifylist = []
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action,
-                          parsed_args)
