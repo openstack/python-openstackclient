@@ -114,6 +114,7 @@ referring to both Compute and Volume quotas.
 * ``network rbac``: (**Network**) - an RBAC policy for network resources
 * ``network qos policy``: (**Network**) - a QoS policy for network resources
 * ``network segment``: (**Network**) - a segment of a virtual network
+* ``network service provider``: (**Network**) - a driver providing a network service
 * ``object``: (**Object Storage**) a single file in the Object Storage
 * ``object store account``: (**Object Storage**) owns a group of Object Storage resources
 * ``policy``: (**Identity**) determines authorization

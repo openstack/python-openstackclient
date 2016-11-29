@@ -1269,3 +1269,38 @@ class FakeSubnetPool(object):
         if subnet_pools is None:
             subnet_pools = FakeSubnetPool.create_subnet_pools(count)
         return mock.Mock(side_effect=subnet_pools)
+
+
+class FakeNetworkServiceProvider(object):
+    """Fake Network Service Providers"""
+
+    @staticmethod
+    def create_one_network_service_provider(attrs=None):
+        """Create service provider"""
+        attrs = attrs or {}
+
+        service_provider = {
+            'name': 'provider-name-' + uuid.uuid4().hex,
+            'service_type': 'service-type-' + uuid.uuid4().hex,
+            'default': False,
+        }
+
+        service_provider.update(attrs)
+
+        provider = fakes.FakeResource(
+            info=copy.deepcopy(service_provider),
+            loaded=True)
+        provider.is_default = service_provider['default']
+
+        return provider
+
+    @staticmethod
+    def create_network_service_providers(attrs=None, count=2):
+        """Create multiple service providers"""
+
+        service_providers = []
+        for i in range(0, count):
+            service_providers.append(FakeNetworkServiceProvider.
+                                     create_one_network_service_provider(
+                                         attrs))
+        return service_providers
