@@ -318,6 +318,7 @@ Unset router properties
 
     os router unset
         [--route destination=<subnet>,gateway=<ip-address>]
+        [--external-gateway]
         <router>
 
 .. option:: --route destination=<subnet>,gateway=<ip-address>
@@ -326,6 +327,10 @@ Unset router properties
     destination: destination subnet (in CIDR notation)
     gateway: nexthop IP address
     (repeat option to unset multiple routes)
+
+.. option:: --external-gateway
+
+    Remove external gateway information from the router
 
 .. _router_unset-router:
 .. describe:: <router>

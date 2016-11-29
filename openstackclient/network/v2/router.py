@@ -622,6 +622,11 @@ class UnsetRouter(command.Command):
                    "gateway: nexthop IP address "
                    "(repeat option to unset multiple routes)"))
         parser.add_argument(
+            '--external-gateway',
+            action='store_true',
+            default=False,
+            help=_("Remove external gateway information from the router"))
+        parser.add_argument(
             'router',
             metavar="<router>",
             help=_("Router to modify (name or ID)")
@@ -642,5 +647,7 @@ class UnsetRouter(command.Command):
                 msg = (_("Router does not contain route %s") % route)
                 raise exceptions.CommandError(msg)
             attrs['routes'] = tmp_routes
+        if parsed_args.external_gateway:
+            attrs['external_gateway_info'] = {}
         if attrs:
             client.update_router(obj, **attrs)
