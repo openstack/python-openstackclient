@@ -104,7 +104,7 @@ class VolumeTests(common.BaseVolumeTests):
         # TODO(qiangjiahui): Add project option to filter tests when we can
         # specify volume with project
 
-    def test_volume_set(self):
+    def test_volume_set_and_unset(self):
         """Tests create volume, set, unset, show, delete"""
         name = uuid.uuid4().hex
         new_name = name + "_"
@@ -144,8 +144,11 @@ class VolumeTests(common.BaseVolumeTests):
             '--name ' + new_name +
             ' --size 2 ' +
             '--description bbbb ' +
-            '--property Alpha=c ' +
+            '--no-property ' +
             '--property Beta=b ' +
+            '--property Gamma=c ' +
+            '--image-property a=b ' +
+            '--image-property c=d ' +
             '--bootable ' +
             name,
         )
@@ -168,8 +171,12 @@ class VolumeTests(common.BaseVolumeTests):
             cmd_output["description"],
         )
         self.assertEqual(
-            "Alpha='c', Beta='b'",
+            "Beta='b', Gamma='c'",
             cmd_output["properties"],
+        )
+        self.assertEqual(
+            {'a': 'b', 'c': 'd'},
+            cmd_output["volume_image_metadata"],
         )
         self.assertEqual(
             'true',
@@ -179,7 +186,8 @@ class VolumeTests(common.BaseVolumeTests):
         # Test volume unset
         raw_output = self.openstack(
             'volume unset ' +
-            '--property Alpha ' +
+            '--property Beta ' +
+            '--image-property a ' +
             new_name,
         )
         self.assertOutput('', raw_output)
@@ -189,8 +197,12 @@ class VolumeTests(common.BaseVolumeTests):
             new_name
         ))
         self.assertEqual(
-            "Beta='b'",
+            "Gamma='c'",
             cmd_output["properties"],
+        )
+        self.assertEqual(
+            {'c': 'd'},
+            cmd_output["volume_image_metadata"],
         )
 
     def test_volume_snapshot(self):

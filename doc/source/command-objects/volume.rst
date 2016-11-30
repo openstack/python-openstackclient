@@ -269,6 +269,7 @@ Set volume properties
         [--name <name>]
         [--size <size>]
         [--description <description>]
+        [--no-property]
         [--property <key=value> [...] ]
         [--image-property <key=value> [...] ]
         [--state <state>]
@@ -290,6 +291,12 @@ Set volume properties
 
     New volume description
 
+.. option:: --no-property
+
+    Remove all properties from :ref:`\<volume\> <volume_set-volume>`
+    (specify both :option:`--no-property` and :option:`--property` to
+    remove the current properties before setting new properties.)
+
 .. option:: --property <key=value>
 
     Set a property on this volume (repeat option to set multiple properties)
@@ -304,7 +311,7 @@ Set volume properties
 
     Migration policy while re-typing volume
     ("never" or "on-demand", default is "never" )
-    (available only when "--type" option is specified)
+    (available only when :option:`--type` option is specified)
 
     *Volume version 2 only*
 

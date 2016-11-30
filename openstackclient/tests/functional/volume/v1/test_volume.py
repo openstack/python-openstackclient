@@ -141,8 +141,9 @@ class VolumeTests(common.BaseVolumeTests):
             '--name ' + new_name +
             ' --size 2 ' +
             '--description bbbb ' +
-            '--property Alpha=c ' +
+            '--no-property ' +
             '--property Beta=b ' +
+            '--property Gamma=c ' +
             '--bootable ' +
             name,
         )
@@ -165,7 +166,7 @@ class VolumeTests(common.BaseVolumeTests):
             cmd_output["display_description"],
         )
         self.assertEqual(
-            "Alpha='c', Beta='b'",
+            "Beta='b', Gamma='c'",
             cmd_output["properties"],
         )
         self.assertEqual(
@@ -176,7 +177,7 @@ class VolumeTests(common.BaseVolumeTests):
         # Test volume unset
         raw_output = self.openstack(
             'volume unset ' +
-            '--property Alpha ' +
+            '--property Beta ' +
             new_name,
         )
         self.assertOutput('', raw_output)
@@ -186,7 +187,7 @@ class VolumeTests(common.BaseVolumeTests):
             new_name
         ))
         self.assertEqual(
-            "Beta='b'",
+            "Gamma='c'",
             cmd_output["properties"],
         )
 
