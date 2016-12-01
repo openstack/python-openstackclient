@@ -231,6 +231,7 @@ Set subnet properties
         [--no-allocation-pool]
         [--dhcp | --no-dhcp]
         [--dns-nameserver <dns-nameserver>]
+        [--no-dns-nameserver]
         [--gateway <gateway-ip>]
         [--host-route destination=<subnet>,gateway=<ip-address>]
         [--no-host-route]
@@ -262,6 +263,12 @@ Set subnet properties
 .. option:: --dns-nameserver <dns-nameserver>
 
      DNS server for this subnet (repeat option to set multiple DNS servers)
+
+.. option:: --no-dns-nameservers
+
+     Clear existing information of DNS servers.
+     Specify both --dns-nameserver and --no-dns-nameservers
+     to overwrite the current DNS server information.
 
 .. option:: --gateway <gateway>
 
