@@ -222,7 +222,7 @@ List available images
 
 .. option:: --sort <key>[:<direction>]
 
-    Sort output by selected keys and directions(asc or desc) (default: asc),
+    Sort output by selected keys and directions(asc or desc) (default: name:asc),
     multiple keys and directions can be specified separated by comma
 
 .. option:: --limit <limit>

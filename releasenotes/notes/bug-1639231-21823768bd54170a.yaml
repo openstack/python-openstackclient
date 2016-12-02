@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The  ``image list`` command will now sort by name in ascending order by
+    default. ``--sort`` option will have the default value of ``name:asc``.
+    [Bug `1639231 <https://bugs.launchpad.net/bugs/1639231>`_]
