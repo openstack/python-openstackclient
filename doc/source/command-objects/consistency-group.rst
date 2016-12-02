@@ -81,3 +81,20 @@ List consistency groups.
 .. option:: --long
 
     List additional fields in output
+
+consistency group show
+----------------------
+
+Display consistency group details.
+
+.. program:: consistency group show
+.. code:: bash
+
+    os consistency group show
+        <consistency-group>
+
+.. _consistency_group_show-consistency-group:
+.. describe:: <consistency-group>
+
+    Consistency group to display (name or ID)
+
