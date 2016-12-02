@@ -1,0 +1,4 @@
+---
+features:
+  - Add ``Is Public`` column to ``volume type list``.
+    [Bug `1643861 <https://bugs.launchpad.net/python-openstackclient/+bug/1643861>`_]
