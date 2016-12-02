@@ -57,10 +57,6 @@ class TestVolume(volume_fakes.TestVolumev1):
         return volumes
 
 
-# TODO(dtroyer): The volume create tests are incomplete, only the minimal
-#                options and the options that require additional processing
-#                are implemented at this time.
-
 class TestVolumeCreate(TestVolume):
 
     project = identity_fakes.FakeProject.create_one_project()
