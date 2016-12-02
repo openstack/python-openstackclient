@@ -38,6 +38,8 @@ from openstackclient.i18n import _
 
 DEFAULT_CONTAINER_FORMAT = 'bare'
 DEFAULT_DISK_FORMAT = 'raw'
+DISK_CHOICES = ["ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2", "vhdx",
+                "vdi", "iso"]
 
 
 LOG = logging.getLogger(__name__)
@@ -89,8 +91,9 @@ class CreateImage(command.ShowOne):
             "--disk-format",
             default=DEFAULT_DISK_FORMAT,
             metavar="<disk-format>",
-            help=_("Image disk format "
-                   "(default: %s)") % DEFAULT_DISK_FORMAT,
+            choices=DISK_CHOICES,
+            help=_("Image disk format. The supported options are: %s. "
+                   "The default format is: raw") % ', '.join(DISK_CHOICES)
         )
         parser.add_argument(
             "--size",
@@ -502,14 +505,12 @@ class SetImage(command.Command):
             container_choices,
             choices=container_choices
         )
-        disk_choices = ["ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2",
-                        "vhdx", "vdi", "iso"]
         parser.add_argument(
             "--disk-format",
             metavar="<disk-format>",
-            help=_("Disk format of image. Acceptable formats: %s") %
-            disk_choices,
-            choices=disk_choices
+            choices=DISK_CHOICES,
+            help=_("Image disk format. The supported options are: %s.") %
+            ', '.join(DISK_CHOICES)
         )
         parser.add_argument(
             "--size",

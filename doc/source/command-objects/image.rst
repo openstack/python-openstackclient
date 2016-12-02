@@ -78,7 +78,8 @@ Create/upload an image
 
 .. option:: --disk-format <disk-format>
 
-    Image disk format (default: raw)
+    Image disk format. The supported options are: ami, ari, aki, vhd, vmdk,
+    raw, qcow2, vhdx, vdi, and iso. The default format is: raw
 
 .. option:: --size <size>
 
@@ -337,7 +338,8 @@ Set image properties
 
 .. option:: --disk-format <disk-format>
 
-    Image disk format (default: raw)
+    Image disk format. The supported options are: ami, ari, aki, vhd, vmdk,
+    raw, qcow2, vhdx, vdi, and iso.
 
 .. option:: --size <size>
 

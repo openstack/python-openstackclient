@@ -116,7 +116,7 @@ class TestImageCreate(TestImage):
         self.images_mock.configure_mock(**mock_exception)
         arglist = [
             '--container-format', 'ovf',
-            '--disk-format', 'fs',
+            '--disk-format', 'ami',
             '--min-disk', '10',
             '--min-ram', '4',
             '--protected',
@@ -126,7 +126,7 @@ class TestImageCreate(TestImage):
         ]
         verifylist = [
             ('container_format', 'ovf'),
-            ('disk_format', 'fs'),
+            ('disk_format', 'ami'),
             ('min_disk', 10),
             ('min_ram', 4),
             ('protected', True),
@@ -147,7 +147,7 @@ class TestImageCreate(TestImage):
         self.images_mock.create.assert_called_with(
             name=self.new_image.name,
             container_format='ovf',
-            disk_format='fs',
+            disk_format='ami',
             min_disk=10,
             min_ram=4,
             protected=True,
