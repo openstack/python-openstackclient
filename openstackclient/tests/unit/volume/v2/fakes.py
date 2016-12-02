@@ -903,3 +903,23 @@ class FakeType(object):
             volume_types.append(volume_type)
 
         return volume_types
+
+    @staticmethod
+    def get_types(types=None, count=2):
+        """Get an iterable MagicMock object with a list of faked types.
+
+        If types list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List types:
+            A list of FakeResource objects faking types
+        :param Integer count:
+            The number of types to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            types
+        """
+        if types is None:
+            types = FakeType.create_types(count)
+
+        return mock.Mock(side_effect=types)
