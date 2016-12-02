@@ -546,6 +546,30 @@ class FakeConsistencyGroup(object):
 
         return consistency_groups
 
+    @staticmethod
+    def get_consistency_groups(consistency_groups=None, count=2):
+        """Note:
+
+        Get an iterable MagicMock object with a list of faked
+        consistency_groups.
+
+        If consistency_groups list is provided, then initialize
+        the Mock object with the list. Otherwise create one.
+
+        :param List consistency_groups:
+            A list of FakeResource objects faking consistency_groups
+        :param Integer count:
+            The number of consistency_groups to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            consistency_groups
+        """
+        if consistency_groups is None:
+            consistency_groups = (FakeConsistencyGroup.
+                                  create_consistency_groups(count))
+
+        return mock.Mock(side_effect=consistency_groups)
+
 
 class FakeConsistencyGroupSnapshot(object):
     """Fake one or more consistency group snapshot."""
