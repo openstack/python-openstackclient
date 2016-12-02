@@ -254,6 +254,8 @@ Set volume properties
         [--property <key=value> [...] ]
         [--image-property <key=value> [...] ]
         [--state <state>]
+        [--type <volume-type>]
+        [--retype-policy <retype-policy>]
         [--bootable | --non-bootable]
         [--read-only | --read-write]
         <volume>
@@ -273,6 +275,20 @@ Set volume properties
 .. option:: --property <key=value>
 
     Set a property on this volume (repeat option to set multiple properties)
+
+.. option:: --type <volume-type>
+
+    New volume type (name or ID)
+
+    *Volume version 2 only*
+
+.. option:: --retype-policy <retype-policy>
+
+    Migration policy while re-typing volume
+    ("never" or "on-demand", default is "never" )
+    (available only when "--type" option is specified)
+
+    *Volume version 2 only*
 
 .. option:: --bootable
 

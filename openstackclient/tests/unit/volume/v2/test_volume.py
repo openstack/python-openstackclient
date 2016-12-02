@@ -46,6 +46,9 @@ class TestVolume(volume_fakes.TestVolume):
         self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
         self.snapshots_mock.reset_mock()
 
+        self.types_mock = self.app.client_manager.volume.volume_types
+        self.types_mock.reset_mock()
+
         self.consistencygroups_mock = (
             self.app.client_manager.volume.consistencygroups)
         self.consistencygroups_mock.reset_mock()
@@ -1088,11 +1091,14 @@ class TestVolumeMigrate(TestVolume):
 
 class TestVolumeSet(TestVolume):
 
+    volume_type = volume_fakes.FakeType.create_one_type()
+
     def setUp(self):
         super(TestVolumeSet, self).setUp()
 
         self.new_volume = volume_fakes.FakeVolume.create_one_volume()
         self.volumes_mock.get.return_value = self.new_volume
+        self.types_mock.get.return_value = self.volume_type
 
         # Get the command object to test
         self.cmd = volume.SetVolume(self.app, None)
@@ -1219,6 +1225,66 @@ class TestVolumeSet(TestVolume):
         self.volumes_mock.update_readonly_flag.assert_called_once_with(
             self.new_volume.id,
             False)
+        self.assertIsNone(result)
+
+    def test_volume_set_type(self):
+        arglist = [
+            '--type', self.volume_type.id,
+            self.new_volume.id
+        ]
+        verifylist = [
+            ('retype_policy', None),
+            ('type', self.volume_type.id),
+            ('volume', self.new_volume.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.volumes_mock.retype.assert_called_once_with(
+            self.new_volume.id,
+            self.volume_type.id,
+            'never')
+        self.assertIsNone(result)
+
+    def test_volume_set_type_with_policy(self):
+        arglist = [
+            '--retype-policy', 'on-demand',
+            '--type', self.volume_type.id,
+            self.new_volume.id
+        ]
+        verifylist = [
+            ('retype_policy', 'on-demand'),
+            ('type', self.volume_type.id),
+            ('volume', self.new_volume.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.volumes_mock.retype.assert_called_once_with(
+            self.new_volume.id,
+            self.volume_type.id,
+            'on-demand')
+        self.assertIsNone(result)
+
+    @mock.patch.object(volume.LOG, 'warning')
+    def test_volume_set_with_only_retype_policy(self, mock_warning):
+        arglist = [
+            '--retype-policy', 'on-demand',
+            self.new_volume.id
+        ]
+        verifylist = [
+            ('retype_policy', 'on-demand'),
+            ('volume', self.new_volume.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.volumes_mock.retype.assert_not_called()
+        mock_warning.assert_called_with("'--retype-policy' option will "
+                                        "not work without '--type' option")
         self.assertIsNone(result)
 
 

@@ -509,6 +509,19 @@ class SetVolume(command.Command):
                    'in the database with no regard to actual status, '
                    'exercise caution when using)'),
         )
+        parser.add_argument(
+            '--type',
+            metavar='<volume-type>',
+            help=_('New volume type (name or ID)'),
+        )
+        parser.add_argument(
+            '--retype-policy',
+            metavar='<retype-policy>',
+            choices=['never', 'on-demand'],
+            help=_('Migration policy while re-typing volume '
+                   '("never" or "on-demand", default is "never" ) '
+                   '(available only when "--type" option is specified)'),
+        )
         bootable_group = parser.add_mutually_exclusive_group()
         bootable_group.add_argument(
             "--bootable",
@@ -590,6 +603,28 @@ class SetVolume(command.Command):
                 LOG.error(_("Failed to set volume read-only access "
                             "mode flag: %s"), e)
                 result += 1
+        if parsed_args.type:
+            # get the migration policy
+            migration_policy = 'never'
+            if parsed_args.retype_policy:
+                migration_policy = parsed_args.retype_policy
+            try:
+                # find the volume type
+                volume_type = utils.find_resource(
+                    volume_client.volume_types,
+                    parsed_args.type)
+                # reset to the new volume type
+                volume_client.volumes.retype(
+                    volume.id,
+                    volume_type.id,
+                    migration_policy)
+            except Exception as e:
+                LOG.error(_("Failed to set volume type: %s"), e)
+                result += 1
+        elif parsed_args.retype_policy:
+            # If the "--retype-policy" is specified without "--type"
+            LOG.warning(_("'--retype-policy' option will not work "
+                          "without '--type' option"))
 
         kwargs = {}
         if parsed_args.name:
