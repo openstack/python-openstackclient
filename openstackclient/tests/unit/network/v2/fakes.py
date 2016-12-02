@@ -1064,6 +1064,8 @@ class FakeSubnet(object):
                                     loaded=True)
 
         # Set attributes with special mappings in OpenStack SDK.
+        subnet.is_dhcp_enabled = subnet_attrs['enable_dhcp']
+        subnet.subnet_pool_id = subnet_attrs['subnetpool_id']
         subnet.project_id = subnet_attrs['tenant_id']
 
         return subnet

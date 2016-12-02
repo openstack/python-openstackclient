@@ -23,6 +23,7 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import sdk_utils
 
 
 LOG = logging.getLogger(__name__)
@@ -126,11 +127,12 @@ def _get_common_parse_arguments(parser, is_create=True):
 
 
 def _get_columns(item):
-    columns = list(item.keys())
-    if 'tenant_id' in columns:
-        columns.remove('tenant_id')
-        columns.append('project_id')
-    return tuple(sorted(columns))
+    column_map = {
+        'is_dhcp_enabled': 'enable_dhcp',
+        'subnet_pool_id': 'subnetpool_id',
+        'tenant_id': 'project_id',
+    }
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 def convert_entries_to_nexthop(entries):
@@ -226,6 +228,8 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
     return attrs
 
 
+# TODO(abhiraut): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class CreateSubnet(command.ShowOne):
     _description = _("Create a subnet")
 
@@ -332,9 +336,9 @@ class CreateSubnet(command.ShowOne):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_subnet(**attrs)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return (columns, data)
+        return (display_columns, data)
 
 
 class DeleteSubnet(command.Command):
@@ -371,6 +375,8 @@ class DeleteSubnet(command.Command):
             raise exceptions.CommandError(msg)
 
 
+# TODO(abhiraut): Use only the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class ListSubnet(command.Lister):
     _description = _("List subnets")
 
@@ -452,8 +458,10 @@ class ListSubnet(command.Lister):
             filters['ip_version'] = parsed_args.ip_version
         if parsed_args.dhcp:
             filters['enable_dhcp'] = True
+            filters['is_dhcp_enabled'] = True
         elif parsed_args.no_dhcp:
             filters['enable_dhcp'] = False
+            filters['is_dhcp_enabled'] = False
         if parsed_args.service_types:
             filters['service_types'] = parsed_args.service_types
         if parsed_args.project:
@@ -463,6 +471,7 @@ class ListSubnet(command.Lister):
                 parsed_args.project_domain,
             ).id
             filters['tenant_id'] = project_id
+            filters['project_id'] = project_id
         if parsed_args.network:
             network_id = network_client.find_network(parsed_args.network,
                                                      ignore_missing=False).id
@@ -481,7 +490,7 @@ class ListSubnet(command.Lister):
             headers += ('Project', 'DHCP', 'Name Servers',
                         'Allocation Pools', 'Host Routes', 'IP Version',
                         'Gateway', 'Service Types')
-            columns += ('tenant_id', 'enable_dhcp', 'dns_nameservers',
+            columns += ('project_id', 'is_dhcp_enabled', 'dns_nameservers',
                         'allocation_pools', 'host_routes', 'ip_version',
                         'gateway_ip', 'service_types')
 
@@ -492,6 +501,8 @@ class ListSubnet(command.Lister):
                 ) for s in data))
 
 
+# TODO(abhiraut): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class SetSubnet(command.Command):
     _description = _("Set subnet properties")
 
@@ -576,9 +587,9 @@ class ShowSubnet(command.ShowOne):
     def take_action(self, parsed_args):
         obj = self.app.client_manager.network.find_subnet(parsed_args.subnet,
                                                           ignore_missing=False)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return (columns, data)
+        return (display_columns, data)
 
 
 class UnsetSubnet(command.Command):
