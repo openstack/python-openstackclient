@@ -12,10 +12,6 @@
 #   under the License.
 #
 
-# TODO(Huanxuan Ao): Remove this file and "snapshot create", "snapshot delete",
-#                    "snapshot set", "snapshot show" and "snapshot unset"
-#                    commands two cycles after Ocata.
-
 """Volume v2 snapshot action implementations"""
 
 import copy
@@ -30,25 +26,25 @@ import six
 from openstackclient.i18n import _
 
 
-deprecated = True
-LOG_DEP = logging.getLogger('deprecated')
 LOG = logging.getLogger(__name__)
 
 
-class CreateSnapshot(command.ShowOne):
-    _description = _("Create new snapshot")
+class CreateVolumeSnapshot(command.ShowOne):
+    """Create new volume snapshot"""
 
     def get_parser(self, prog_name):
-        parser = super(CreateSnapshot, self).get_parser(prog_name)
+        parser = super(CreateVolumeSnapshot, self).get_parser(prog_name)
         parser.add_argument(
-            "volume",
-            metavar="<volume>",
-            help=_("Volume to snapshot (name or ID)")
+            "snapshot_name",
+            metavar="<snapshot-name>",
+            nargs="?",
+            help=_("Name of the new snapshot (default to None)")
         )
         parser.add_argument(
-            "--name",
-            metavar="<name>",
-            help=_("Name of the snapshot")
+            "--volume",
+            metavar="<volume>",
+            help=_("Volume to snapshot (name or ID) "
+                   "(default is <snapshot-name>)")
         )
         parser.add_argument(
             "--description",
@@ -72,15 +68,16 @@ class CreateSnapshot(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        LOG_DEP.warning(_('This command has been deprecated. '
-                          'Please use "volume snapshot create" instead.'))
         volume_client = self.app.client_manager.volume
+        volume = parsed_args.volume
+        if not parsed_args.volume:
+            volume = parsed_args.snapshot_name
         volume_id = utils.find_resource(
-            volume_client.volumes, parsed_args.volume).id
+            volume_client.volumes, volume).id
         snapshot = volume_client.volume_snapshots.create(
             volume_id,
             force=parsed_args.force,
-            name=parsed_args.name,
+            name=parsed_args.snapshot_name,
             description=parsed_args.description,
             metadata=parsed_args.property,
         )
@@ -90,11 +87,11 @@ class CreateSnapshot(command.ShowOne):
         return zip(*sorted(six.iteritems(snapshot._info)))
 
 
-class DeleteSnapshot(command.Command):
-    _description = _("Delete volume snapshot(s)")
+class DeleteVolumeSnapshot(command.Command):
+    """Delete volume snapshot(s)"""
 
     def get_parser(self, prog_name):
-        parser = super(DeleteSnapshot, self).get_parser(prog_name)
+        parser = super(DeleteVolumeSnapshot, self).get_parser(prog_name)
         parser.add_argument(
             "snapshots",
             metavar="<snapshot>",
@@ -104,8 +101,6 @@ class DeleteSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        LOG_DEP.warning(_('This command has been deprecated. '
-                          'Please use "volume snapshot delete" instead.'))
         volume_client = self.app.client_manager.volume
         result = 0
 
@@ -127,11 +122,11 @@ class DeleteSnapshot(command.Command):
             raise exceptions.CommandError(msg)
 
 
-class ListSnapshot(command.Lister):
-    _description = _("List snapshots")
+class ListVolumeSnapshot(command.Lister):
+    """List volume snapshots"""
 
     def get_parser(self, prog_name):
-        parser = super(ListSnapshot, self).get_parser(prog_name)
+        parser = super(ListVolumeSnapshot, self).get_parser(prog_name)
         parser.add_argument(
             '--all-projects',
             action='store_true',
@@ -159,8 +154,6 @@ class ListSnapshot(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        LOG_DEP.warning(_('This command has been deprecated. '
-                          'Please use "volume snapshot list" instead.'))
 
         def _format_volume_id(volume_id):
             """Return a volume name if available
@@ -210,11 +203,11 @@ class ListSnapshot(command.Lister):
                 ) for s in data))
 
 
-class SetSnapshot(command.Command):
-    _description = _("Set snapshot properties")
+class SetVolumeSnapshot(command.Command):
+    """Set volume snapshot properties"""
 
     def get_parser(self, prog_name):
-        parser = super(SetSnapshot, self).get_parser(prog_name)
+        parser = super(SetVolumeSnapshot, self).get_parser(prog_name)
         parser.add_argument(
             'snapshot',
             metavar='<snapshot>',
@@ -251,8 +244,6 @@ class SetSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        LOG_DEP.warning(_('This command has been deprecated. '
-                          'Please use "volume snapshot set" instead.'))
         volume_client = self.app.client_manager.volume
         snapshot = utils.find_resource(volume_client.volume_snapshots,
                                        parsed_args.snapshot)
@@ -293,11 +284,11 @@ class SetSnapshot(command.Command):
                                           "set operations failed"))
 
 
-class ShowSnapshot(command.ShowOne):
-    _description = _("Display snapshot details")
+class ShowVolumeSnapshot(command.ShowOne):
+    """Display volume snapshot details"""
 
     def get_parser(self, prog_name):
-        parser = super(ShowSnapshot, self).get_parser(prog_name)
+        parser = super(ShowVolumeSnapshot, self).get_parser(prog_name)
         parser.add_argument(
             "snapshot",
             metavar="<snapshot>",
@@ -306,8 +297,6 @@ class ShowSnapshot(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        LOG_DEP.warning(_('This command has been deprecated. '
-                          'Please use "volume snapshot show" instead.'))
         volume_client = self.app.client_manager.volume
         snapshot = utils.find_resource(
             volume_client.volume_snapshots, parsed_args.snapshot)
@@ -317,11 +306,11 @@ class ShowSnapshot(command.ShowOne):
         return zip(*sorted(six.iteritems(snapshot._info)))
 
 
-class UnsetSnapshot(command.Command):
-    _description = _("Unset snapshot properties")
+class UnsetVolumeSnapshot(command.Command):
+    """Unset volume snapshot properties"""
 
     def get_parser(self, prog_name):
-        parser = super(UnsetSnapshot, self).get_parser(prog_name)
+        parser = super(UnsetVolumeSnapshot, self).get_parser(prog_name)
         parser.add_argument(
             'snapshot',
             metavar='<snapshot>',
@@ -338,8 +327,6 @@ class UnsetSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        LOG_DEP.warning(_('This command has been deprecated. '
-                          'Please use "volume snapshot unset" instead.'))
         volume_client = self.app.client_manager.volume
         snapshot = utils.find_resource(
             volume_client.volume_snapshots, parsed_args.snapshot)

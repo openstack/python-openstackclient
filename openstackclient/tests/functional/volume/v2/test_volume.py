@@ -106,11 +106,12 @@ class VolumeTests(common.BaseVolumeTests):
         opts = self.get_opts(self.FIELDS)
 
         # Create snapshot from test volume
-        raw_output = self.openstack('snapshot create ' + self.NAME +
-                                    ' --name ' + self.SNAPSHOT_NAME + opts)
+        raw_output = self.openstack('volume snapshot create ' +
+                                    self.SNAPSHOT_NAME +
+                                    ' --volume ' + self.NAME + opts)
         expected = self.SNAPSHOT_NAME + '\n'
         self.assertOutput(expected, raw_output)
-        self.wait_for("snapshot", self.SNAPSHOT_NAME, "available")
+        self.wait_for("volume snapshot", self.SNAPSHOT_NAME, "available")
 
         # Create volume from snapshot
         raw_output = self.openstack('volume create --size 2 --snapshot ' +
@@ -126,7 +127,8 @@ class VolumeTests(common.BaseVolumeTests):
         self.assertOutput('', raw_output)
 
         # Delete test snapshot
-        raw_output = self.openstack('snapshot delete ' + self.SNAPSHOT_NAME)
+        raw_output = self.openstack(
+            'volume snapshot delete ' + self.SNAPSHOT_NAME)
         self.assertOutput('', raw_output)
         self.wait_for("volume", self.NAME, "available")
 

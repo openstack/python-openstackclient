@@ -74,7 +74,6 @@ referring to both Compute and Volume quotas.
 * ``address scope``: (**Network**) a scope of IPv4 or IPv6 addresses
 * ``aggregate``: (**Compute**) a grouping of compute hosts
 * ``availability zone``: (**Compute**, **Network**, **Volume**) a logical partition of hosts or block storage or network services
-* ``backup``: (**Volume**) a volume copy
 * ``catalog``: (**Identity**) service catalog
 * ``command``: (**Internal**) installed commands in the OSC process
 * ``compute agent``: (**Compute**) a cloud Compute agent available to a hypervisor
@@ -136,7 +135,6 @@ referring to both Compute and Volume quotas.
 * ``server image``: (**Compute**) saved server disk image
 * ``service``: (**Identity**) a cloud service
 * ``service provider``: (**Identity**) a resource that consumes assertions from an ``identity provider``
-* ``snapshot``: (**Volume**) a point-in-time copy of a volume
 * ``subnet``: (**Network**) - a contiguous range of IP addresses assigned to a network
 * ``subnet pool``: (**Network**) - a pool of subnets
 * ``token``: (**Identity**) a bearer token managed by Identity service
@@ -147,6 +145,7 @@ referring to both Compute and Volume quotas.
 * ``volume``: (**Volume**) block volumes
 * ``volume backup``: (**Volume**) backup for volumes
 * ``volume qos``: (**Volume**) quality-of-service (QoS) specification for volumes
+* ``volume snapshot``: (**Volume**) a point-in-time copy of a volume
 * ``volume type``: (**Volume**) deployment-specific types of volumes available
 * ``volume service``: (**Volume**) services to manage block storage operations
 * ``volume transfer request``: (**Volume**) volume owner transfer request

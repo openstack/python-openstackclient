@@ -16,8 +16,8 @@ import uuid
 from openstackclient.tests.functional.volume.v2 import common
 
 
-class SnapshotTests(common.BaseVolumeTests):
-    """Functional tests for snapshot. """
+class VolumeSnapshotTests(common.BaseVolumeTests):
+    """Functional tests for volume snapshot. """
 
     VOLLY = uuid.uuid4().hex
     NAME = uuid.uuid4().hex
@@ -36,24 +36,25 @@ class SnapshotTests(common.BaseVolumeTests):
 
     @classmethod
     def setUpClass(cls):
-        super(SnapshotTests, cls).setUpClass()
+        super(VolumeSnapshotTests, cls).setUpClass()
         cls.openstack('volume create --size 1 ' + cls.VOLLY)
         cls.wait_for_status('volume show ' + cls.VOLLY, 'available\n', 3)
         opts = cls.get_opts(['status'])
-        raw_output = cls.openstack('snapshot create --name ' + cls.NAME +
-                                   ' ' + cls.VOLLY + opts)
+        raw_output = cls.openstack('volume snapshot create --volume ' +
+                                   cls.VOLLY + ' ' + cls.NAME + opts)
         cls.assertOutput('creating\n', raw_output)
-        cls.wait_for_status('snapshot show ' + cls.NAME, 'available\n', 3)
+        cls.wait_for_status(
+            'volume snapshot show ' + cls.NAME, 'available\n', 3)
 
     @classmethod
     def tearDownClass(cls):
         # Rename test
         raw_output = cls.openstack(
-            'snapshot set --name ' + cls.OTHER_NAME + ' ' + cls.NAME)
+            'volume snapshot set --name ' + cls.OTHER_NAME + ' ' + cls.NAME)
         cls.assertOutput('', raw_output)
         # Delete test
         raw_output_snapshot = cls.openstack(
-            'snapshot delete ' + cls.OTHER_NAME)
+            'volume snapshot delete ' + cls.OTHER_NAME)
         cls.wait_for_status('volume show ' + cls.VOLLY, 'available\n', 6)
         raw_output_volume = cls.openstack('volume delete --force ' + cls.VOLLY)
         cls.assertOutput('', raw_output_snapshot)
@@ -61,26 +62,27 @@ class SnapshotTests(common.BaseVolumeTests):
 
     def test_snapshot_list(self):
         opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('snapshot list' + opts)
+        raw_output = self.openstack('volume snapshot list' + opts)
         self.assertIn(self.NAME, raw_output)
 
     def test_snapshot_properties(self):
         raw_output = self.openstack(
-            'snapshot set --property a=b --property c=d ' + self.NAME)
+            'volume snapshot set --property a=b --property c=d ' + self.NAME)
         self.assertEqual("", raw_output)
         opts = self.get_opts(["properties"])
-        raw_output = self.openstack('snapshot show ' + self.NAME + opts)
+        raw_output = self.openstack('volume snapshot show ' + self.NAME + opts)
         self.assertEqual("a='b', c='d'\n", raw_output)
 
-        raw_output = self.openstack('snapshot unset --property a ' + self.NAME)
+        raw_output = self.openstack(
+            'volume snapshot unset --property a ' + self.NAME)
         self.assertEqual("", raw_output)
-        raw_output = self.openstack('snapshot show ' + self.NAME + opts)
+        raw_output = self.openstack('volume snapshot show ' + self.NAME + opts)
         self.assertEqual("c='d'\n", raw_output)
 
     def test_snapshot_set(self):
         raw_output = self.openstack(
-            'snapshot set --description backup ' + self.NAME)
+            'volume snapshot set --description backup ' + self.NAME)
         self.assertEqual("", raw_output)
         opts = self.get_opts(["description", "name"])
-        raw_output = self.openstack('snapshot show ' + self.NAME + opts)
+        raw_output = self.openstack('volume snapshot show ' + self.NAME + opts)
         self.assertEqual("backup\n" + self.NAME + "\n", raw_output)

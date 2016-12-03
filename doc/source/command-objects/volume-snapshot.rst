@@ -1,28 +1,27 @@
-========
-snapshot
-========
+===============
+volume snapshot
+===============
 
 Block Storage v1, v2
 
-snapshot create
----------------
+volume snapshot create
+----------------------
 
-Create new snapshot
-(Deprecated, please use ``volume snapshot create`` instead)
+Create new volume snapshot
 
-.. program:: snapshot create
+.. program:: volume snapshot create
 .. code:: bash
 
-    os snapshot create
-        [--name <name>]
+    os volume snapshot create
+        [--volume <volume>]
         [--description <description>]
         [--force]
         [--property <key=value> [...] ]
-        <volume>
+        <snapshot-name>
 
-.. option:: --name <name>
+.. option:: --volume <volume>
 
-    Name of the snapshot
+    Volume to snapshot (name or ID) (default is <snapshot-name>)
 
 .. option:: --description <description>
 
@@ -38,38 +37,36 @@ Create new snapshot
 
     *Volume version 2 only*
 
-.. _snapshot_create-snapshot:
-.. describe:: <volume>
+.. _volume_snapshot_create-snapshot-name:
+.. describe:: <snapshot-name>
 
-    Volume to snapshot (name or ID)
+    Name of the new snapshot (default to None)
 
-snapshot delete
----------------
+volume snapshot delete
+----------------------
 
-Delete snapshot(s)
-(Deprecated, please use ``volume snapshot delete`` instead)
+Delete volume snapshot(s)
 
-.. program:: snapshot delete
+.. program:: volume snapshot delete
 .. code:: bash
 
-    os snapshot delete
+    os volume snapshot delete
         <snapshot> [<snapshot> ...]
 
-.. _snapshot_delete-snapshot:
+.. _volume_snapshot_delete-snapshot:
 .. describe:: <snapshot>
 
     Snapshot(s) to delete (name or ID)
 
-snapshot list
--------------
+volume snapshot list
+--------------------
 
-List snapshots
-(Deprecated, please use ``volume snapshot list`` instead)
+List volume snapshots
 
-.. program:: snapshot list
+.. program:: volume snapshot list
 .. code:: bash
 
-    os snapshot list
+    os volume snapshot list
         [--all-projects]
         [--long]
         [--limit <limit>]
@@ -95,23 +92,21 @@ List snapshots
 
     *Volume version 2 only*
 
-snapshot set
-------------
+volume snapshot set
+-------------------
 
-Set snapshot properties
-(Deprecated, please use ``volume snapshot set`` instead)
+Set volume snapshot properties
 
-.. program:: snapshot set
+.. program:: volume snapshot set
 .. code:: bash
 
-    os snapshot set
+    os volume snapshot set
         [--name <name>]
         [--description <description>]
         [--property <key=value> [...] ]
         [--state <state>]
         <snapshot>
 
-.. _snapshot_restore-snapshot:
 .. option:: --name <name>
 
     New snapshot name
@@ -133,37 +128,36 @@ Set snapshot properties
 
     *Volume version 2 only*
 
+.. _volume_snapshot_set-snapshot:
 .. describe:: <snapshot>
 
     Snapshot to modify (name or ID)
 
-snapshot show
--------------
+volume snapshot show
+--------------------
 
-Display snapshot details
-(Deprecated, please use ``volume snapshot show`` instead)
+Display volume snapshot details
 
-.. program:: snapshot show
+.. program:: volume snapshot show
 .. code:: bash
 
-    os snapshot show
+    os volume snapshot show
         <snapshot>
 
-.. _snapshot_show-snapshot:
+.. _volume_snapshot_show-snapshot:
 .. describe:: <snapshot>
 
     Snapshot to display (name or ID)
 
-snapshot unset
---------------
+volume snapshot unset
+---------------------
 
-Unset snapshot properties
-(Deprecated, please use ``volume snapshot unset`` instead)
+Unset volume snapshot properties
 
-.. program:: snapshot unset
+.. program:: volume snapshot unset
 .. code:: bash
 
-    os snapshot unset
+    os volume snapshot unset
         [--property <key>]
         <snapshot>
 
@@ -171,6 +165,7 @@ Unset snapshot properties
 
     Property to remove from snapshot (repeat option to remove multiple properties)
 
+.. _volume_snapshot_unset-snapshot:
 .. describe:: <snapshot>
 
     Snapshot to modify (name or ID)
