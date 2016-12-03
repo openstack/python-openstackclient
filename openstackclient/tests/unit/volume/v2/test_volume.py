@@ -450,6 +450,154 @@ class TestVolumeCreate(TestVolume):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
+    def test_volume_create_with_bootable_and_readonly(self):
+        arglist = [
+            '--bootable',
+            '--read-only',
+            '--size', str(self.new_volume.size),
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('bootable', True),
+            ('non_bootable', False),
+            ('read_only', True),
+            ('read_write', False),
+            ('size', self.new_volume.size),
+            ('name', self.new_volume.name),
+        ]
+
+        parsed_args = self.check_parser(
+            self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.create.assert_called_with(
+            size=self.new_volume.size,
+            snapshot_id=None,
+            name=self.new_volume.name,
+            description=None,
+            volume_type=None,
+            user_id=None,
+            project_id=None,
+            availability_zone=None,
+            metadata=None,
+            imageRef=None,
+            source_volid=None,
+            consistencygroup_id=None,
+            source_replica=None,
+            multiattach=False,
+            scheduler_hints=None,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+        self.volumes_mock.set_bootable.assert_called_with(
+            self.new_volume.id, True)
+        self.volumes_mock.update_readonly_flag.assert_called_with(
+            self.new_volume.id, True)
+
+    def test_volume_create_with_nonbootable_and_readwrite(self):
+        arglist = [
+            '--non-bootable',
+            '--read-write',
+            '--size', str(self.new_volume.size),
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('bootable', False),
+            ('non_bootable', True),
+            ('read_only', False),
+            ('read_write', True),
+            ('size', self.new_volume.size),
+            ('name', self.new_volume.name),
+        ]
+
+        parsed_args = self.check_parser(
+            self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.create.assert_called_with(
+            size=self.new_volume.size,
+            snapshot_id=None,
+            name=self.new_volume.name,
+            description=None,
+            volume_type=None,
+            user_id=None,
+            project_id=None,
+            availability_zone=None,
+            metadata=None,
+            imageRef=None,
+            source_volid=None,
+            consistencygroup_id=None,
+            source_replica=None,
+            multiattach=False,
+            scheduler_hints=None,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+        self.volumes_mock.set_bootable.assert_called_with(
+            self.new_volume.id, False)
+        self.volumes_mock.update_readonly_flag.assert_called_with(
+            self.new_volume.id, False)
+
+    @mock.patch.object(volume.LOG, 'error')
+    def test_volume_create_with_bootable_and_readonly_fail(
+            self, mock_error):
+
+        self.volumes_mock.set_bootable.side_effect = (
+            exceptions.CommandError())
+
+        self.volumes_mock.update_readonly_flag.side_effect = (
+            exceptions.CommandError())
+
+        arglist = [
+            '--bootable',
+            '--read-only',
+            '--size', str(self.new_volume.size),
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('bootable', True),
+            ('non_bootable', False),
+            ('read_only', True),
+            ('read_write', False),
+            ('size', self.new_volume.size),
+            ('name', self.new_volume.name),
+        ]
+
+        parsed_args = self.check_parser(
+            self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.create.assert_called_with(
+            size=self.new_volume.size,
+            snapshot_id=None,
+            name=self.new_volume.name,
+            description=None,
+            volume_type=None,
+            user_id=None,
+            project_id=None,
+            availability_zone=None,
+            metadata=None,
+            imageRef=None,
+            source_volid=None,
+            consistencygroup_id=None,
+            source_replica=None,
+            multiattach=False,
+            scheduler_hints=None,
+        )
+
+        self.assertEqual(2, mock_error.call_count)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+        self.volumes_mock.set_bootable.assert_called_with(
+            self.new_volume.id, True)
+        self.volumes_mock.update_readonly_flag.assert_called_with(
+            self.new_volume.id, True)
+
     def test_volume_create_with_source_replicated(self):
         self.volumes_mock.get.return_value = self.new_volume
         arglist = [

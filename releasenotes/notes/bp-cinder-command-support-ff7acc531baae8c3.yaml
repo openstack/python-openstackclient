@@ -1,0 +1,5 @@
+---
+features:
+  - Add ``--bootable``, ``--non-bootable``, ``--read-only`` and ``--read-write``
+    options to ``volume create`` command.
+    [Blueprint `cinder-command-support <https://blueprints.launchpad.net/python-openstackclient/+spec/cinder-command-support>`_]

@@ -114,6 +114,28 @@ class CreateVolume(command.ShowOne):
             help=_('Set a property on this volume '
                    '(repeat option to set multiple properties)'),
         )
+        bootable_group = parser.add_mutually_exclusive_group()
+        bootable_group.add_argument(
+            "--bootable",
+            action="store_true",
+            help=_("Mark volume as bootable")
+        )
+        bootable_group.add_argument(
+            "--non-bootable",
+            action="store_true",
+            help=_("Mark volume as non-bootable (default)")
+        )
+        readonly_group = parser.add_mutually_exclusive_group()
+        readonly_group.add_argument(
+            "--read-only",
+            action="store_true",
+            help=_("Set volume to read-only access mode")
+        )
+        readonly_group.add_argument(
+            "--read-write",
+            action="store_true",
+            help=_("Set volume to read-write access mode (default)")
+        )
 
         return parser
 
@@ -166,6 +188,22 @@ class CreateVolume(command.ShowOne):
             parsed_args.property,
             image,
         )
+
+        if parsed_args.bootable or parsed_args.non_bootable:
+            try:
+                volume_client.volumes.set_bootable(
+                    volume.id, parsed_args.bootable)
+            except Exception as e:
+                LOG.error(_("Failed to set volume bootable property: %s"), e)
+        if parsed_args.read_only or parsed_args.read_write:
+            try:
+                volume_client.volumes.update_readonly_flag(
+                    volume.id,
+                    parsed_args.read_only)
+            except Exception as e:
+                LOG.error(_("Failed to set volume read-only access "
+                            "mode flag: %s"), e)
+
         # Map 'metadata' column to 'properties'
         volume._info.update(
             {
