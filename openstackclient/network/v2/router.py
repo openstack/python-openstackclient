@@ -25,6 +25,7 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import sdk_utils
 
 
 LOG = logging.getLogger(__name__)
@@ -59,11 +60,10 @@ _formatters = {
 
 
 def _get_columns(item):
-    columns = list(item.keys())
-    if 'tenant_id' in columns:
-        columns.remove('tenant_id')
-        columns.append('project_id')
-    return tuple(sorted(columns))
+    column_map = {
+        'tenant_id': 'project_id',
+    }
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 def _get_attrs(client_manager, parsed_args):
@@ -215,10 +215,10 @@ class CreateRouter(command.ShowOne):
             attrs['ha'] = parsed_args.ha
         obj = client.create_router(**attrs)
 
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
 
-        return (columns, data)
+        return (display_columns, data)
 
 
 class DeleteRouter(command.Command):
@@ -523,9 +523,10 @@ class ShowRouter(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj = client.find_router(parsed_args.router, ignore_missing=False)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return (columns, data)
+
+        return (display_columns, data)
 
 
 class UnsetRouter(command.Command):

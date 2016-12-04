@@ -81,8 +81,9 @@ def _get_columns(item):
         columns.remove('security_group_rules')
         property_column_mappings.append(('rules', 'security_group_rules'))
     if 'tenant_id' in columns:
-        columns.append('project_id')
         columns.remove('tenant_id')
+        if 'project_id' not in columns:
+            columns.append('project_id')
         property_column_mappings.append(('project_id', 'tenant_id'))
     display_columns = sorted(columns)
 
