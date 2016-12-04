@@ -151,7 +151,7 @@ class ListConsistencyGroup(command.Lister):
         parser.add_argument(
             '--all-projects',
             action="store_true",
-            help=_('Show detail for all projects. Admin only. '
+            help=_('Show details for all projects. Admin only. '
                    '(defaults to False)')
         )
         parser.add_argument(
@@ -178,6 +178,43 @@ class ListConsistencyGroup(command.Lister):
                 s, columns,
                 formatters={'Volume Types': utils.format_list})
             for s in consistency_groups))
+
+
+class SetConsistencyGroup(command.Command):
+    _description = _("Set consistency group properties")
+
+    def get_parser(self, prog_name):
+        parser = super(SetConsistencyGroup, self).get_parser(prog_name)
+        parser.add_argument(
+            'consistency_group',
+            metavar='<consistency-group>',
+            help=_('Consistency group to modify (name or ID)')
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_('New consistency group name'),
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('New consistency group description'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        volume_client = self.app.client_manager.volume
+        kwargs = {}
+        if parsed_args.name:
+            kwargs['name'] = parsed_args.name
+        if parsed_args.description:
+            kwargs['description'] = parsed_args.description
+        if kwargs:
+            consistency_group_id = utils.find_resource(
+                volume_client.consistencygroups,
+                parsed_args.consistency_group).id
+            volume_client.consistencygroups.update(
+                consistency_group_id, **kwargs)
 
 
 class ShowConsistencyGroup(command.ShowOne):
