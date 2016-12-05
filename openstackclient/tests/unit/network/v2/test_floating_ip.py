@@ -18,6 +18,7 @@ from osc_lib import exceptions
 
 from openstackclient.network.v2 import floating_ip
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
+from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -31,6 +32,7 @@ class TestFloatingIPNetwork(network_fakes.TestNetworkV2):
 
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
+        self.projects_mock = self.app.client_manager.identity.projects
 
 
 class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
@@ -141,6 +143,54 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
             'fixed_ip_address': self.floating_ip.fixed_ip_address,
             'floating_network_id': self.floating_ip.floating_network_id,
             'description': self.floating_ip.description,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_floating_ip_create_project(self):
+        project = identity_fakes_v3.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+            self.floating_ip.floating_network_id,
+        ]
+        verifylist = [
+            ('network', self.floating_ip.floating_network_id),
+            ('project', project.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_ip.assert_called_once_with(**{
+            'floating_network_id': self.floating_ip.floating_network_id,
+            'tenant_id': project.id,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_floating_ip_create_project_domain(self):
+        project = identity_fakes_v3.FakeProject.create_one_project()
+        domain = identity_fakes_v3.FakeDomain.create_one_domain()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            "--project", project.name,
+            "--project-domain", domain.name,
+            self.floating_ip.floating_network_id,
+        ]
+        verifylist = [
+            ('network', self.floating_ip.floating_network_id),
+            ('project', project.name),
+            ('project_domain', domain.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_ip.assert_called_once_with(**{
+            'floating_network_id': self.floating_ip.floating_network_id,
+            'tenant_id': project.id,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

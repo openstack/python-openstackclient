@@ -18,6 +18,7 @@ from osc_lib import exceptions
 from osc_lib import utils as osc_utils
 
 from openstackclient.network.v2 import router
+from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -29,6 +30,7 @@ class TestRouter(network_fakes.TestNetworkV2):
 
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
+        self.projects_mock = self.app.client_manager.identity.projects
 
 
 class TestAddPortToRouter(TestRouter):
@@ -476,6 +478,45 @@ class TestListRouter(TestRouter):
         self.network.routers.assert_called_once_with(
             **{'admin_state_up': False}
         )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_router_list_project(self):
+        project = identity_fakes_v3.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+        ]
+        verifylist = [
+            ('project', project.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'tenant_id': project.id}
+
+        self.network.routers.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_router_list_project_domain(self):
+        project = identity_fakes_v3.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+            '--project-domain', project.domain_id,
+        ]
+        verifylist = [
+            ('project', project.id),
+            ('project_domain', project.domain_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'tenant_id': project.id}
+
+        self.network.routers.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 

@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add ``--project`` and ``--project-domain`` options to the ``router list``,
+    ``floating ip create`` and ``security group list`` commands.
+    [Bug `1613231 <https://bugs.launchpad.net/bugs/1613231>`_]
+    [Bug `1613629 <https://bugs.launchpad.net/bugs/1613629>`_]
+    [Bug `1610909 <https://bugs.launchpad.net/bugs/1610909>`_]
