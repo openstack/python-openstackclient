@@ -417,19 +417,23 @@ class ServerTests(base.TestCase):
 
         # NOTE(dtroyer): Prior to https://review.openstack.org/#/c/407111
         #                --block-device-mapping was ignored if --volume
-        #                present on the command line, so this volume should
-        #                not be attached.
+        #                present on the command line.  Now we should see the
+        #                attachment.
         cmd_output = json.loads(self.openstack(
             'volume show -f json ' +
             empty_volume_name
         ))
         attachments = cmd_output['attachments']
         self.assertEqual(
-            0,
+            1,
             len(attachments),
         )
         self.assertEqual(
-            "available",
+            server['id'],
+            attachments[0]['server_id'],
+        )
+        self.assertEqual(
+            "in-use",
             cmd_output['status'],
         )
 
