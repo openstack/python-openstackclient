@@ -535,7 +535,9 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with()
+        self.api_mock.image_list.assert_called_with(
+            marker=self._image.id,
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
@@ -558,6 +560,7 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             public=True,
+            marker=self._image.id,
         )
 
         self.assertEqual(self.columns, columns)
@@ -581,6 +584,7 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             private=True,
+            marker=self._image.id,
         )
 
         self.assertEqual(self.columns, columns)
@@ -604,6 +608,7 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
             shared=True,
+            marker=self._image.id,
         )
 
         self.assertEqual(self.columns, columns)
@@ -622,7 +627,9 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with()
+        self.api_mock.image_list.assert_called_with(
+            marker=self._image.id,
+        )
 
         collist = (
             'ID',
@@ -670,7 +677,9 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with()
+        self.api_mock.image_list.assert_called_with(
+            marker=self._image.id,
+        )
         sf_mock.assert_called_with(
             [self._image],
             attr='a',
@@ -693,7 +702,9 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with()
+        self.api_mock.image_list.assert_called_with(
+            marker=self._image.id,
+        )
         si_mock.assert_called_with(
             [self._image],
             'name:asc'
@@ -712,7 +723,7 @@ class TestImageList(TestImage):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
-            limit=1,
+            limit=1, marker=self._image.id
         )
 
         self.assertEqual(self.columns, columns)

@@ -486,7 +486,6 @@ class ListImage(command.Lister):
         if parsed_args.marker:
             kwargs['marker'] = utils.find_resource(image_client.images,
                                                    parsed_args.marker).id
-
         if parsed_args.long:
             columns = (
                 'ID',
@@ -519,7 +518,19 @@ class ListImage(command.Lister):
             column_headers = columns
 
         # List of image data received
-        data = image_client.api.image_list(**kwargs)
+        data = []
+        if 'marker' in kwargs:
+            data = image_client.api.image_list(**kwargs)
+        else:
+            # No pages received yet, so start the page marker at None.
+            marker = None
+            while True:
+                page = image_client.api.image_list(marker=marker, **kwargs)
+                if not page:
+                    break
+                data.extend(page)
+                # Set the marker to the id of the last item we received
+                marker = page[-1]['id']
 
         if parsed_args.property:
             # NOTE(dtroyer): coerce to a list to subscript it in py3
