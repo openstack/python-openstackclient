@@ -4,6 +4,28 @@ consistency group
 
 Block Storage v2
 
+consistency group add volume
+----------------------------
+
+Add volume(s) to consistency group.
+
+.. program:: consistency group add volume
+.. code:: bash
+
+    os consistency group add volume
+        <consistency-group>
+        <volume> [<volume> ...]
+
+.. _consistency_group_add_volume:
+.. describe:: <consistency-group>
+
+    Consistency group to contain <volume> (name or ID)
+
+.. describe:: <volume>
+
+    Volume(s) to add to <consistency-group> (name or ID)
+    (repeat option to add multiple volumes)
+
 consistency group create
 ------------------------
 
@@ -86,13 +108,35 @@ List consistency groups.
 
     List additional fields in output
 
+consistency group remove volume
+-------------------------------
+
+Remove volume(s) from consistency group.
+
+.. program:: consistency group remove volume
+.. code:: bash
+
+    os consistency group remove volume
+        <consistency-group>
+        <volume> [<volume> ...]
+
+.. _consistency_group_remove_volume:
+.. describe:: <consistency-group>
+
+    Consistency group containing <volume> (name or ID)
+
+.. describe:: <volume>
+
+    Volume(s) to remove from <consistency-group> (name or ID)
+    (repeat option to remove multiple volumes)
+
 consistency group set
 ---------------------
 
 Set consistency group properties.
 
 .. program:: consistency group set
-   .. code:: bash
+.. code:: bash
 
     os consistency group set
         [--name <name>]
