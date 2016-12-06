@@ -62,13 +62,15 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         'availability_zones',
         'description',
         'id',
+        'ipv4_address_scope',
+        'ipv6_address_scope',
         'is_default',
         'name',
         'port_security_enabled',
         'project_id',
-        'provider_network_type',
-        'provider_physical_network',
-        'provider_segmentation_id',
+        'provider:network_type',
+        'provider:physical_network',
+        'provider:segmentation_id',
         'qos_policy_id',
         'router:external',
         'shared',
@@ -82,6 +84,8 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         utils.format_list(_network.availability_zones),
         _network.description,
         _network.id,
+        _network.ipv4_address_scope_id,
+        _network.ipv6_address_scope_id,
         _network.is_default,
         _network.name,
         _network.is_port_security_enabled,
@@ -236,13 +240,15 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         'availability_zones',
         'description',
         'id',
+        'ipv4_address_scope',
+        'ipv6_address_scope',
         'is_default',
         'name',
         'port_security_enabled',
         'project_id',
-        'provider_network_type',
-        'provider_physical_network',
-        'provider_segmentation_id',
+        'provider:network_type',
+        'provider:physical_network',
+        'provider:segmentation_id',
         'qos_policy_id',
         'router:external',
         'shared',
@@ -256,6 +262,8 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         utils.format_list(_network.availability_zones),
         _network.description,
         _network.id,
+        _network.ipv4_address_scope_id,
+        _network.ipv6_address_scope_id,
         _network.is_default,
         _network.name,
         _network.is_port_security_enabled,
@@ -512,7 +520,7 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.networks.assert_called_once_with(
-            **{'router:external': True}
+            **{'router:external': True, 'is_router_external': True}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -529,7 +537,7 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.networks.assert_called_once_with(
-            **{'router:external': False}
+            **{'router:external': False, 'is_router_external': False}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -585,7 +593,7 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.networks.assert_called_once_with(
-            **{'admin_state_up': True}
+            **{'admin_state_up': True, 'is_admin_state_up': True}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -603,7 +611,7 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.networks.assert_called_once_with(
-            **{'admin_state_up': False}
+            **{'admin_state_up': False, 'is_admin_state_up': False}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -621,7 +629,7 @@ class TestListNetwork(TestNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.network.networks.assert_called_once_with(
-            **{'tenant_id': project.id}
+            **{'tenant_id': project.id, 'project_id': project.id}
         )
 
         self.assertEqual(self.columns, columns)
@@ -640,7 +648,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id}
+        filters = {'tenant_id': project.id, 'project_id': project.id}
 
         self.network.networks.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -658,7 +666,7 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.networks.assert_called_once_with(
-            **{'shared': True}
+            **{'shared': True, 'is_shared': True}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -675,7 +683,7 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.networks.assert_called_once_with(
-            **{'shared': False}
+            **{'shared': False, 'is_shared': False}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -711,7 +719,8 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.networks.assert_called_once_with(
-            **{'provider:network_type': network_type}
+            **{'provider:network_type': network_type,
+               'provider_network_type': network_type}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -728,7 +737,8 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.networks.assert_called_once_with(
-            **{'provider:physical_network': physical_network}
+            **{'provider:physical_network': physical_network,
+               'provider_physical_network': physical_network}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -745,7 +755,8 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.networks.assert_called_once_with(
-            **{'provider:segmentation_id': segmentation_id}
+            **{'provider:segmentation_id': segmentation_id,
+               'provider_segmentation_id': segmentation_id}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -878,13 +889,15 @@ class TestShowNetwork(TestNetwork):
         'availability_zones',
         'description',
         'id',
+        'ipv4_address_scope',
+        'ipv6_address_scope',
         'is_default',
         'name',
         'port_security_enabled',
         'project_id',
-        'provider_network_type',
-        'provider_physical_network',
-        'provider_segmentation_id',
+        'provider:network_type',
+        'provider:physical_network',
+        'provider:segmentation_id',
         'qos_policy_id',
         'router:external',
         'shared',
@@ -898,6 +911,8 @@ class TestShowNetwork(TestNetwork):
         utils.format_list(_network.availability_zones),
         _network.description,
         _network.id,
+        _network.ipv4_address_scope_id,
+        _network.ipv6_address_scope_id,
         _network.is_default,
         _network.name,
         _network.is_port_security_enabled,

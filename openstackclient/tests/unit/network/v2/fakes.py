@@ -291,15 +291,17 @@ class FakeNetwork(object):
             'admin_state_up': True,
             'shared': False,
             'subnets': ['a', 'b'],
-            'provider_network_type': 'vlan',
-            'provider_physical_network': 'physnet1',
-            'provider_segmentation_id': "400",
+            'provider:network_type': 'vlan',
+            'provider:physical_network': 'physnet1',
+            'provider:segmentation_id': "400",
             'router:external': True,
             'availability_zones': [],
             'availability_zone_hints': [],
             'is_default': False,
             'port_security_enabled': True,
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
+            'ipv4_address_scope': 'ipv4' + uuid.uuid4().hex,
+            'ipv6_address_scope': 'ipv6' + uuid.uuid4().hex,
         }
 
         # Overwrite default attributes.
@@ -311,8 +313,21 @@ class FakeNetwork(object):
         # Set attributes with special mapping in OpenStack SDK.
         network.project_id = network_attrs['tenant_id']
         network.is_router_external = network_attrs['router:external']
+        network.is_admin_state_up = network_attrs['admin_state_up']
         network.is_port_security_enabled = \
             network_attrs['port_security_enabled']
+        network.subnet_ids = network_attrs['subnets']
+        network.is_shared = network_attrs['shared']
+        network.provider_network_type = \
+            network_attrs['provider:network_type']
+        network.provider_physical_network = \
+            network_attrs['provider:physical_network']
+        network.provider_segmentation_id = \
+            network_attrs['provider:segmentation_id']
+        network.ipv4_address_scope_id = \
+            network_attrs['ipv4_address_scope']
+        network.ipv6_address_scope_id = \
+            network_attrs['ipv6_address_scope']
 
         return network
 
