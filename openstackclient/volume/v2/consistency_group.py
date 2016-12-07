@@ -94,6 +94,11 @@ class CreateConsistencyGroup(command.ShowOne):
             metavar="<consistency-group>",
             help=_("Existing consistency group (name or ID)")
         )
+        exclusive_group.add_argument(
+            "--consistency-group-snapshot",
+            metavar="<consistency-group-snapshot>",
+            help=_("Existing consistency group snapshot (name or ID)")
+        )
         parser.add_argument(
             "--description",
             metavar="<description>",
@@ -120,17 +125,23 @@ class CreateConsistencyGroup(command.ShowOne):
                 description=parsed_args.description,
                 availability_zone=parsed_args.availability_zone
             )
-        elif parsed_args.consistency_group_source:
+        else:
             if parsed_args.availability_zone:
                 msg = _("'--availability-zone' option will not work "
                         "if creating consistency group from source")
                 LOG.warning(msg)
-            consistency_group_id = utils.find_resource(
-                volume_client.consistencygroups,
-                parsed_args.consistency_group_source).id
+
+            consistency_group_id = None
             consistency_group_snapshot = None
-            # TODO(Huanxuan Ao): Support for creating from consistency group
-            # snapshot after adding "consistency_group_snapshot" resource
+            if parsed_args.consistency_group_source:
+                consistency_group_id = utils.find_resource(
+                    volume_client.consistencygroups,
+                    parsed_args.consistency_group_source).id
+            elif parsed_args.consistency_group_snapshot:
+                consistency_group_snapshot = utils.find_resource(
+                    volume_client.cgsnapshots,
+                    parsed_args.consistency_group_snapshot).id
+
             consistency_group = (
                 volume_client.consistencygroups.create_from_src(
                     consistency_group_snapshot,

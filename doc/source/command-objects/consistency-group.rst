@@ -13,7 +13,7 @@ Create new consistency group.
 .. code:: bash
 
     os consistency group create
-        --volume-type <volume-type> | --consistency-group-source <consistency-group>
+        --volume-type <volume-type> | --consistency-group-source <consistency-group> | --consistency-group-snapshot <consistency-group-snapshot>
         [--description <description>]
         [--availability-zone <availability-zone>]
         [<name>]
@@ -25,6 +25,10 @@ Create new consistency group.
 .. option:: --consistency-group-source <consistency-group>
 
     Existing consistency group (name or ID)
+
+.. option:: --consistency-group-snapshot <consistency-group-snapshot>
+
+    Existing consistency group snapshot (name or ID)
 
 .. option:: --description <description>
 
