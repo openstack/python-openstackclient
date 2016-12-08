@@ -480,7 +480,7 @@ class FakeBackup(object):
         If backups list is provided, then initialize the Mock object with the
         list. Otherwise create one.
 
-        :param List volumes:
+        :param List backups:
             A list of FakeResource objects faking backups
         :param Integer count:
             The number of backups to be faked
@@ -764,7 +764,7 @@ class FakeQos(object):
         If qoses list is provided, then initialize the Mock object with the
         list. Otherwise create one.
 
-        :param List volumes:
+        :param List qoses:
             A list of FakeResource objects faking qoses
         :param Integer count:
             The number of qoses to be faked
@@ -837,7 +837,7 @@ class FakeSnapshot(object):
         If snapshots list is provided, then initialize the Mock object with the
         list. Otherwise create one.
 
-        :param List volumes:
+        :param List snapshots:
             A list of FakeResource objects faking snapshots
         :param Integer count:
             The number of snapshots to be faked
