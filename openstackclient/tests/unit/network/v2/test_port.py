@@ -140,6 +140,7 @@ class TestCreatePort(TestPort):
             '--binding-profile', 'foo=bar',
             '--binding-profile', 'foo2=bar2',
             '--network', self._port.network_id,
+            '--dns-name', '8.8.8.8',
             'test-port',
 
         ]
@@ -156,6 +157,7 @@ class TestCreatePort(TestPort):
             ('vnic_type', 'macvtap'),
             ('binding_profile', {'foo': 'bar', 'foo2': 'bar2'}),
             ('network', self._port.network_id),
+            ('dns_name', '8.8.8.8'),
             ('name', 'test-port'),
 
         ]
@@ -174,6 +176,7 @@ class TestCreatePort(TestPort):
             'binding:vnic_type': 'macvtap',
             'binding:profile': {'foo': 'bar', 'foo2': 'bar2'},
             'network_id': self._port.network_id,
+            'dns_name': '8.8.8.8',
             'name': 'test-port',
         })
 
@@ -241,6 +244,7 @@ class TestCreatePort(TestPort):
             '--security-group', secgroup.id,
             'test-port',
         ]
+
         verifylist = [
             ('network', self._port.network_id,),
             ('enable', True),
@@ -255,6 +259,33 @@ class TestCreatePort(TestPort):
             'admin_state_up': True,
             'network_id': self._port.network_id,
             'security_groups': [secgroup.id],
+            'name': 'test-port',
+        })
+
+        ref_columns, ref_data = self._get_common_cols_data(self._port)
+        self.assertEqual(ref_columns, columns)
+        self.assertEqual(ref_data, data)
+
+    def test_create_port_with_dns_name(self):
+        arglist = [
+            '--network', self._port.network_id,
+            '--dns-name', '8.8.8.8',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id,),
+            ('enable', True),
+            ('dns_name', '8.8.8.8'),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_port.assert_called_once_with(**{
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'dns_name': '8.8.8.8',
             'name': 'test-port',
         })
 
@@ -672,6 +703,25 @@ class TestSetPort(TestPort):
 
         attrs = {
             'fixed_ips': [{'ip_address': '10.0.0.11'}],
+        }
+        self.network.update_port.assert_called_once_with(self._port, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_dns_name(self):
+        arglist = [
+            '--dns-name', '8.8.8.8',
+            self._port.name,
+        ]
+        verifylist = [
+            ('dns_name', '8.8.8.8'),
+            ('port', self._port.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'dns_name': '8.8.8.8',
         }
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)

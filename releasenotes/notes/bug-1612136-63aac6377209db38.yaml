@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--dns-name`` option to ``os port create`` and ``os port set`` commands.
+    [Bug `1612136 <https://bugs.launchpad.net/python-openstackclient/+bug/1612136>`_]
