@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--type``, ``--action``, ``--long`` options
+    to ``network rbac list`` command
+    [Bug `1648307 <https://bugs.launchpad.net/bugs/1648307>`_]
