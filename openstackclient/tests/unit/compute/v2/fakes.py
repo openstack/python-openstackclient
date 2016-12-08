@@ -168,6 +168,9 @@ class FakeComputev2Client(object):
         self.quota_classes = mock.Mock()
         self.quota_classes.resource_class = fakes.FakeResource(None, {})
 
+        self.usage = mock.Mock()
+        self.usage.resource_class = fakes.FakeResource(None, {})
+
         self.volumes = mock.Mock()
         self.volumes.resource_class = fakes.FakeResource(None, {})
 
@@ -1248,3 +1251,65 @@ class FakeServerGroup(object):
             info=copy.deepcopy(server_group_info),
             loaded=True)
         return server_group
+
+
+class FakeUsage(object):
+    """Fake one or more usage."""
+
+    @staticmethod
+    def create_one_usage(attrs=None):
+        """Create a fake usage.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with tenant_id and other attributes
+        """
+        if attrs is None:
+            attrs = {}
+
+        # Set default attributes.
+        usage_info = {
+            'tenant_id': 'usage-tenant-id-' + uuid.uuid4().hex,
+            'total_memory_mb_usage': 512.0,
+            'total_vcpus_usage': 1.0,
+            'total_local_gb_usage': 1.0,
+            'server_usages': [
+                {
+                    'ended_at': None,
+                    'flavor': 'usage-flavor-' + uuid.uuid4().hex,
+                    'hours': 1.0,
+                    'local_gb': 1,
+                    'memory_mb': 512,
+                    'name': 'usage-name-' + uuid.uuid4().hex,
+                    'state': 'active',
+                    'uptime': 3600,
+                    'vcpus': 1
+                }
+            ]
+        }
+
+        # Overwrite default attributes.
+        usage_info.update(attrs)
+
+        usage = fakes.FakeResource(info=copy.deepcopy(usage_info),
+                                   loaded=True)
+
+        return usage
+
+    @staticmethod
+    def create_usages(attrs=None, count=2):
+        """Create multiple fake services.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of services to fake
+        :return:
+            A list of FakeResource objects faking the services
+        """
+        usages = []
+        for i in range(0, count):
+            usages.append(FakeUsage.create_one_usage(attrs))
+
+        return usages
