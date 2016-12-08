@@ -2,7 +2,7 @@
 Human Interface Guide
 =====================
 
-*Note: This page covers the OpenStackClient CLI only but looks familiar 
+*Note: This page covers the OpenStackClient CLI only but looks familiar
 because it was derived from the Horizon HIG.*
 
 Overview
@@ -297,7 +297,7 @@ Using global options:
 
 .. code-block:: bash
 
-    $ openstack --os-tenant-name ExampleCo --os-username demo --os-password secrete --os-auth-url http://localhost:5000:/v2.0 server show appweb01
+    $ openstack --os-tenant-name ExampleCo --os-username demo --os-password secret --os-auth-url http://localhost:5000:/v2.0 server show appweb01
     +------------------------+-----------------------------------------------------+
     |        Property        |                Value                                |
     +------------------------+-----------------------------------------------------+
@@ -319,7 +319,7 @@ Using environment variables:
 
     $ export OS_TENANT_NAME=ExampleCo
     $ export OS_USERNAME=demo
-    $ export OS_PASSWORD=secrete
+    $ export OS_PASSWORD=secret
     $ export OS_AUTH_URL=http://localhost:5000:/v2.0
     $ openstack server show appweb01
     +------------------------+-----------------------------------------------------+

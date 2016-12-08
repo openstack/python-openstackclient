@@ -288,7 +288,7 @@ Show the detailed information for server ``appweb01``::
 
     openstack \
         --os-project-name ExampleCo \
-        --os-username demo --os-password secrete \
+        --os-username demo --os-password secret \
         --os-auth-url http://localhost:5000:/v2.0 \
         server show appweb01
 
