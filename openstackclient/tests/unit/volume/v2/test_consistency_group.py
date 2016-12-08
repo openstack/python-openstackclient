@@ -32,6 +32,10 @@ class TestConsistencyGroup(volume_fakes.TestVolume):
             self.app.client_manager.volume.consistencygroups)
         self.consistencygroups_mock.reset_mock()
 
+        self.cgsnapshots_mock = (
+            self.app.client_manager.volume.cgsnapshots)
+        self.cgsnapshots_mock.reset_mock()
+
         self.types_mock = self.app.client_manager.volume.volume_types
         self.types_mock.reset_mock()
 
@@ -41,6 +45,11 @@ class TestConsistencyGroupCreate(TestConsistencyGroup):
     volume_type = volume_fakes.FakeType.create_one_type()
     new_consistency_group = (
         volume_fakes.FakeConsistencyGroup.create_one_consistency_group())
+    consistency_group_snapshot = (
+        volume_fakes.
+        FakeConsistencyGroupSnapshot.
+        create_one_consistency_group_snapshot()
+    )
 
     columns = (
         'availability_zone',
@@ -70,6 +79,8 @@ class TestConsistencyGroupCreate(TestConsistencyGroup):
         self.consistencygroups_mock.get.return_value = (
             self.new_consistency_group)
         self.types_mock.get.return_value = self.volume_type
+        self.cgsnapshots_mock.get.return_value = (
+            self.consistency_group_snapshot)
 
         # Get the command object to test
         self.cmd = consistency_group.CreateConsistencyGroup(self.app, None)
@@ -157,6 +168,34 @@ class TestConsistencyGroupCreate(TestConsistencyGroup):
         self.consistencygroups_mock.create_from_src.assert_called_with(
             None,
             self.new_consistency_group.id,
+            name=self.new_consistency_group.name,
+            description=self.new_consistency_group.description,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_consistency_group_create_from_snapshot(self):
+        arglist = [
+            '--consistency-group-snapshot', self.consistency_group_snapshot.id,
+            '--description', self.new_consistency_group.description,
+            self.new_consistency_group.name,
+        ]
+        verifylist = [
+            ('consistency_group_snapshot', self.consistency_group_snapshot.id),
+            ('description', self.new_consistency_group.description),
+            ('name', self.new_consistency_group.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.types_mock.get.assert_not_called()
+        self.cgsnapshots_mock.get.assert_called_once_with(
+            self.consistency_group_snapshot.id)
+        self.consistencygroups_mock.create_from_src.assert_called_with(
+            self.consistency_group_snapshot.id,
+            None,
             name=self.new_consistency_group.name,
             description=self.new_consistency_group.description,
         )
