@@ -16,6 +16,7 @@ Associate a QoS specification to a volume type
         <qos-spec>
         <volume-type>
 
+.. _volume_qos_associate:
 .. describe:: <qos-spec>
 
     QoS specification to modify (name or ID)
@@ -45,6 +46,7 @@ Create new QoS Specification
 
     Set a property on this QoS specification (repeat option to set multiple properties)
 
+.. _volume_qos_create-name:
 .. describe:: <name>
 
     New QoS specification name
@@ -65,6 +67,7 @@ Delete QoS specification
 
     Allow to delete in-use QoS specification(s)
 
+.. _volume_qos_delete-qos-spec:
 .. describe:: <qos-spec>
 
     QoS specification(s) to delete (name or ID)
@@ -89,6 +92,7 @@ Disassociate a QoS specification from a volume type
 
     Disassociate the QoS from every volume type
 
+.. _volume_qos_disassociate-qos-spec:
 .. describe:: <qos-spec>
 
     QoS specification to modify (name or ID)
@@ -119,6 +123,7 @@ Set QoS specification properties
 
     Property to add or modify for this QoS specification (repeat option to set multiple properties)
 
+.. _volume_qos_set-qos-spec:
 .. describe:: <qos-spec>
 
     QoS specification to modify (name or ID)
@@ -134,6 +139,7 @@ Display QoS specification details
     os volume qos show
         <qos-spec>
 
+.. _volume_qos_show-qos-spec:
 .. describe:: <qos-spec>
 
    QoS specification to display (name or ID)
@@ -147,13 +153,14 @@ Unset QoS specification properties
 .. code:: bash
 
     os volume qos unset
-        [--property <key>]
+        [--property <key> [...] ]
         <qos-spec>
 
 .. option:: --property <key>
 
     Property to remove from QoS specification (repeat option to remove multiple properties)
 
+.. _volume_qos_unset-qos-spec:
 .. describe:: <qos-spec>
 
     QoS specification to modify (name or ID)
