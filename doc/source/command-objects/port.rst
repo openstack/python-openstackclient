@@ -149,6 +149,7 @@ List ports
         [--network <network>]
         [--mac-address <mac-address>]
         [--long]
+        [--project <project> [--project-domain <project-domain>]]
 
 .. option:: --device-owner <device-owner>
 
@@ -174,6 +175,15 @@ List ports
 .. option:: --long
 
     List additional fields in output
+
+.. option:: --project <project>
+
+    List ports according to their project (name or ID)
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
 
 port set
 --------
