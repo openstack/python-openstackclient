@@ -71,6 +71,9 @@ List volume snapshots
         [--long]
         [--limit <limit>]
         [--marker <marker>]
+        [--name <name>]
+        [--status <status>]
+        [--volume <volume>]
 
 .. option:: --all-projects
 
@@ -79,6 +82,19 @@ List volume snapshots
 .. option:: --long
 
     List additional fields in output
+
+.. option:: --status <status>
+
+    Filters results by a status.
+    ('available', 'error', 'creating', 'deleting' or 'error-deleting')
+
+.. option:: --name <name>
+
+    Filters results by a name.
+
+.. option:: --volume <volume>
+
+    Filters results by a volume (name or ID).
 
 .. option:: --limit <limit>
 
