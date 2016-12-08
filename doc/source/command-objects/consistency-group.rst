@@ -86,6 +86,32 @@ List consistency groups.
 
     List additional fields in output
 
+consistency group set
+---------------------
+
+Set consistency group properties.
+
+.. program:: consistency group set
+   .. code:: bash
+
+    os consistency group set
+        [--name <name>]
+        [--description <description>]
+        <consistency-group>
+
+.. option:: --name <name>
+
+    New consistency group name
+
+.. option:: --description <description>
+
+    New consistency group description
+
+.. _consistency_group_set-consistency-group:
+.. describe:: <consistency-group>
+
+    Consistency group to modify (name or ID)
+
 consistency group show
 ----------------------
 
@@ -101,4 +127,3 @@ Display consistency group details.
 .. describe:: <consistency-group>
 
     Consistency group to display (name or ID)
-
