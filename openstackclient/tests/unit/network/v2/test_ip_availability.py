@@ -107,6 +107,7 @@ class TestListIPAvailability(TestIPAvailability):
 
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'tenant_id': self.project.id,
+                   'project_id': self.project.id,
                    'ip_version': 4}
 
         self.network.network_ip_availabilities.assert_called_once_with(

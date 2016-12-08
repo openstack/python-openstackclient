@@ -194,15 +194,18 @@ class FakeIPAvailability(object):
     """Fake one or more network ip availabilities."""
 
     @staticmethod
-    def create_one_ip_availability():
+    def create_one_ip_availability(attrs=None):
         """Create a fake list with ip availability stats of a network.
 
+        :param Dictionary attrs:
+            A dictionary with all attributes
         :return:
             A FakeResource object with network_name, network_id, etc.
         """
+        attrs = attrs or {}
 
         # Set default attributes.
-        network_ip_availability = {
+        network_ip_attrs = {
             'network_id': 'network-id-' + uuid.uuid4().hex,
             'network_name': 'network-name-' + uuid.uuid4().hex,
             'tenant_id': '',
@@ -210,10 +213,13 @@ class FakeIPAvailability(object):
             'total_ips': 254,
             'used_ips': 6,
         }
+        network_ip_attrs.update(attrs)
 
         network_ip_availability = fakes.FakeResource(
-            info=copy.deepcopy(network_ip_availability),
+            info=copy.deepcopy(network_ip_attrs),
             loaded=True)
+        network_ip_availability.project_id = network_ip_attrs['tenant_id']
+
         return network_ip_availability
 
     @staticmethod
