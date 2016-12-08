@@ -98,6 +98,12 @@ class DeleteVolumeSnapshot(command.Command):
             nargs="+",
             help=_("Snapshot(s) to delete (name or ID)")
         )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            help=_("Attempt forced removal of snapshot(s), "
+                   "regardless of state (defaults to False)")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -108,7 +114,8 @@ class DeleteVolumeSnapshot(command.Command):
             try:
                 snapshot_id = utils.find_resource(
                     volume_client.volume_snapshots, i).id
-                volume_client.volume_snapshots.delete(snapshot_id)
+                volume_client.volume_snapshots.delete(
+                    snapshot_id, parsed_args.force)
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete snapshot with "

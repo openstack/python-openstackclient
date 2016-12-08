@@ -51,7 +51,12 @@ Delete volume snapshot(s)
 .. code:: bash
 
     os volume snapshot delete
+        [--force]
         <snapshot> [<snapshot> ...]
+
+.. option:: --force
+
+    Attempt forced removal of snapshot(s), regardless of state (defaults to False)
 
 .. _volume_snapshot_delete-snapshot:
 .. describe:: <snapshot>
