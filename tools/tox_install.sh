@@ -5,7 +5,7 @@
 # the constraints file before applying it for from-source installation.
 
 ZUUL_CLONER=/usr/zuul-env/bin/zuul-cloner
-BRANCH_NAME=master
+BRANCH_NAME=stable/newton
 CLIENT_NAME=python-openstackclient
 requirements_installed=$(echo "import openstack_requirements" | python 2>/dev/null ; echo $?)
 
