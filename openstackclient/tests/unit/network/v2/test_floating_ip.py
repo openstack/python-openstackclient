@@ -32,7 +32,10 @@ class TestFloatingIPNetwork(network_fakes.TestNetworkV2):
 
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
+        # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.app.client_manager.identity.projects
+        # Get a shortcut to the DomainManager Mock
+        self.domains_mock = self.app.client_manager.identity.domains
 
 
 class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
@@ -287,6 +290,9 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
     fake_port = network_fakes.FakePort.create_one_port({
         'id': 'fake_port_id',
     })
+    fake_router = network_fakes.FakeRouter.create_one_router({
+        'id': 'fake_router_id',
+    })
 
     columns = (
         'ID',
@@ -296,8 +302,14 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         'Floating Network',
         'Project',
     )
+    columns_long = columns + (
+        'Router',
+        'Status',
+        'Description',
+    )
 
     data = []
+    data_long = []
     for ip in floating_ips:
         data.append((
             ip.id,
@@ -307,6 +319,17 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
             ip.floating_network_id,
             ip.tenant_id,
         ))
+        data_long.append((
+            ip.id,
+            ip.floating_ip_address,
+            ip.fixed_ip_address,
+            ip.port_id,
+            ip.floating_network_id,
+            ip.tenant_id,
+            ip.router_id,
+            ip.status,
+            ip.description,
+        ))
 
     def setUp(self):
         super(TestListFloatingIPNetwork, self).setUp()
@@ -314,6 +337,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         self.network.ips = mock.Mock(return_value=self.floating_ips)
         self.network.find_network = mock.Mock(return_value=self.fake_network)
         self.network.find_port = mock.Mock(return_value=self.fake_port)
+        self.network.find_router = mock.Mock(return_value=self.fake_router)
 
         # Get the command object to test
         self.cmd = floating_ip.ListFloatingIP(self.app, self.namespace)
@@ -379,6 +403,94 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
+
+    def test_floating_ip_list_long(self):
+        arglist = ['--long', ]
+        verifylist = [('long', True), ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ips.assert_called_once_with()
+        self.assertEqual(self.columns_long, columns)
+        self.assertEqual(self.data_long, list(data))
+
+    def test_floating_ip_list_status(self):
+        arglist = [
+            '--status', 'ACTIVE',
+            '--long',
+        ]
+        verifylist = [
+            ('status', 'ACTIVE'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ips.assert_called_once_with(**{
+            'status': 'ACTIVE',
+        })
+        self.assertEqual(self.columns_long, columns)
+        self.assertEqual(self.data_long, list(data))
+
+    def test_floating_ip_list_project(self):
+        project = identity_fakes_v3.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+        ]
+        verifylist = [
+            ('project', project.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'tenant_id': project.id,
+                   'project_id': project.id, }
+
+        self.network.ips.assert_called_once_with(**filters)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_floating_ip_list_project_domain(self):
+        project = identity_fakes_v3.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+            '--project-domain', project.domain_id,
+        ]
+        verifylist = [
+            ('project', project.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'tenant_id': project.id,
+                   'project_id': project.id, }
+
+        self.network.ips.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_floating_ip_list_router(self):
+        arglist = [
+            '--router', 'fake_router_id',
+            '--long',
+        ]
+        verifylist = [
+            ('router', 'fake_router_id'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ips.assert_called_once_with(**{
+            'router_id': 'fake_router_id',
+        })
+        self.assertEqual(self.columns_long, columns)
+        self.assertEqual(self.data_long, list(data))
 
 
 class TestShowFloatingIPNetwork(TestFloatingIPNetwork):

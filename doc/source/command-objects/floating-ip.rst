@@ -89,6 +89,10 @@ List floating IP(s)
         [--network <network>]
         [--port <port>]
         [--fixed-ip-address <fixed-ip-address>]
+        [--long]
+        [--status <status>]
+        [--project <project> [--project-domain <project-domain>]]
+        [--router <router>]
 
 .. option:: --network <network>
 
@@ -105,6 +109,37 @@ List floating IP(s)
 .. option:: --fixed-ip-address <fixed-ip-address>
 
     List floating IP(s) according to given fixed IP address
+
+    *Network version 2 only*
+
+.. option:: --long
+
+    List additional fields in output
+
+    *Network version 2 only*
+
+.. option:: --status <status>
+
+    List floating IP(s) according to given status ('ACTIVE', 'DOWN')
+
+    *Network version 2 only*
+
+.. option:: --project <project>
+
+    List floating IP(s) according to given project (name or ID)
+
+    *Network version 2 only*
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID). This can
+    be used in case collisions between project names exist.
+
+    *Network version 2 only*
+
+.. option:: --router <router>
+
+    List floating IP(s) according to given router (name or ID)
 
     *Network version 2 only*
 

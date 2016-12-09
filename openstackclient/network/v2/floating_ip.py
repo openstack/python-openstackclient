@@ -219,6 +219,8 @@ class DeleteIPFloating(DeleteFloatingIP):
 
 
 class ListFloatingIP(common.NetworkAndComputeLister):
+    # TODO(songminglong): Use SDK resource mapped attribute names once
+    # the OSC minimum requirements include SDK 1.0
     _description = _("List floating IP(s)")
 
     def update_parser_network(self, parser):
@@ -240,11 +242,38 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             help=_("List floating IP(s) according to "
                    "given fixed IP address")
         )
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help=_("List additional fields in output")
+        )
+        parser.add_argument(
+            '--status',
+            metavar='<status>',
+            choices=['ACTIVE', 'DOWN'],
+            help=_("List floating IP(s) according to "
+                   "given status ('ACTIVE', 'DOWN')")
+        )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_("List floating IP(s) according to "
+                   "given project (name or ID)")
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
+        parser.add_argument(
+            '--router',
+            metavar='<router>',
+            help=_("List floating IP(s) according to "
+                   "given router (name or ID)")
+        )
 
         return parser
 
     def take_action_network(self, client, parsed_args):
         network_client = self.app.client_manager.network
+        identity_client = self.app.client_manager.identity
 
         columns = (
             'id',
@@ -262,6 +291,17 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             'Floating Network',
             'Project',
         )
+        if parsed_args.long:
+            columns = columns + (
+                'router_id',
+                'status',
+                'description',
+            )
+            headers = headers + (
+                'Router',
+                'Status',
+                'Description',
+            )
 
         query = {}
 
@@ -275,6 +315,20 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             query['port_id'] = port.id
         if parsed_args.fixed_ip_address is not None:
             query['fixed_ip_address'] = parsed_args.fixed_ip_address
+        if parsed_args.status:
+            query['status'] = parsed_args.status
+        if parsed_args.project is not None:
+            project = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            )
+            query['tenant_id'] = project.id
+            query['project_id'] = project.id
+        if parsed_args.router is not None:
+            router = network_client.find_router(parsed_args.router,
+                                                ignore_missing=False)
+            query['router_id'] = router.id
 
         data = client.ips(**query)
 

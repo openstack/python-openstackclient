@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--long``, ``--status``, ``--project``, ``--project-domain``,
+    and ``--router`` options to ``floating ip list`` command.
+    [Bug `1614379 <https://bugs.launchpad.net/bugs/1614379>`_]
