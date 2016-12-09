@@ -1,0 +1,6 @@
+---
+fixes:
+  - Skip password prompt when running commands that do not require auth
+    and user auth values are present except for password.
+    [Bug `1619274 <https://bugs.launchpad.net/python-openstackclient/+bug/1619274>`_]
+    *Fixed in release 3.3.0*

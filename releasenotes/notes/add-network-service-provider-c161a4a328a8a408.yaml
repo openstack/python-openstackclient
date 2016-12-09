@@ -1,4 +1,4 @@
 ---
 features:
   - |
-    Add support for the ``network service provider`` command.
+    Add ``network service provider list`` command.

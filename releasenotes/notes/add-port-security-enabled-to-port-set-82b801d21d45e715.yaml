@@ -1,6 +1,6 @@
 ---
 features:
   - |
-    Added ``--enable-port-security`` and ``--disable-port-security``
+    Add ``--enable-port-security`` and ``--disable-port-security``
     options to ``port set`` and ``port create`` commands.
     [Blueprint :oscbp:`network-commands-options`]
