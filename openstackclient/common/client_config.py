@@ -150,6 +150,7 @@ class OSC_Config(config.OpenStackConfig):
             # present, then do not change the behaviour. Otherwise, set the
             # PROJECT_DOMAIN_ID to 'OS_DEFAULT_DOMAIN' for better usability.
             if (
+                    auth_type in ("password", "v3password", "v3totp") and
                     not config['auth'].get('project_domain_id') and
                     not config['auth'].get('project_domain_name')
             ):
