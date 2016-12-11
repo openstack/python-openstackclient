@@ -25,7 +25,6 @@ The following is a list of projects that are an OpenStackClient plugin.
 - gnocchiclient\*\*
 - python-barbicanclient
 - python-congressclient
-- python-cueclient\*\*
 - python-designateclient
 - python-heatclient
 - python-ironicclient
@@ -37,7 +36,7 @@ The following is a list of projects that are an OpenStackClient plugin.
 - python-searchlightclient
 - python-senlinclient
 - python-tripleoclient\*\*
-- python-watcherclient\*\*
+- python-watcherclient
 - python-zaqarclient
 
 \*\* Note that some clients are not listed in global-requirements.
