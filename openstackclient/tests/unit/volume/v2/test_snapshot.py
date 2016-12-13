@@ -67,6 +67,7 @@ class TestSnapshotCreate(TestSnapshot):
 
         self.volumes_mock.get.return_value = self.volume
         self.snapshots_mock.create.return_value = self.new_snapshot
+        self.snapshots_mock.manage.return_value = self.new_snapshot
         # Get the command object to test
         self.cmd = volume_snapshot.CreateVolumeSnapshot(self.app, None)
 
@@ -149,6 +150,33 @@ class TestSnapshotCreate(TestSnapshot):
             description=self.new_snapshot.description,
             metadata=None,
         )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_snapshot_create_without_remote_source(self):
+        arglist = [
+            '--remote-source', 'source-name=test_source_name',
+            '--remote-source', 'source-id=test_source_id',
+            '--volume', self.new_snapshot.volume_id,
+        ]
+        ref_dict = {'source-name': 'test_source_name',
+                    'source-id': 'test_source_id'}
+        verifylist = [
+            ('remote_source', ref_dict),
+            ('volume', self.new_snapshot.volume_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.snapshots_mock.manage.assert_called_with(
+            volume_id=self.new_snapshot.volume_id,
+            ref=ref_dict,
+            name=None,
+            description=None,
+            metadata=None,
+        )
+        self.snapshots_mock.create.assert_not_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 

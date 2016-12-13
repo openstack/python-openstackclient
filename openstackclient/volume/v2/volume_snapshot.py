@@ -65,6 +65,15 @@ class CreateVolumeSnapshot(command.ShowOne):
             help=_("Set a property to this snapshot "
                    "(repeat option to set multiple properties)"),
         )
+        parser.add_argument(
+            "--remote-source",
+            metavar="<key=value>",
+            action=parseractions.KeyValueAction,
+            help=_("The attribute(s) of the exsiting remote volume snapshot "
+                   "(admin required) (repeat option to specify multiple "
+                   "attributes) e.g.: '--remote-source source-name=test_name "
+                   "--remote-source source-id=test_id'"),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -74,13 +83,29 @@ class CreateVolumeSnapshot(command.ShowOne):
             volume = parsed_args.snapshot_name
         volume_id = utils.find_resource(
             volume_client.volumes, volume).id
-        snapshot = volume_client.volume_snapshots.create(
-            volume_id,
-            force=parsed_args.force,
-            name=parsed_args.snapshot_name,
-            description=parsed_args.description,
-            metadata=parsed_args.property,
-        )
+        if parsed_args.remote_source:
+            # Create a new snapshot from an existing remote snapshot source
+            if parsed_args.force:
+                msg = (_("'--force' option will not work when you create "
+                         "new volume snapshot from an existing remote "
+                         "volume snapshot"))
+                LOG.warning(msg)
+            snapshot = volume_client.volume_snapshots.manage(
+                volume_id=volume_id,
+                ref=parsed_args.remote_source,
+                name=parsed_args.snapshot_name,
+                description=parsed_args.description,
+                metadata=parsed_args.property,
+            )
+        else:
+            # create a new snapshot from scratch
+            snapshot = volume_client.volume_snapshots.create(
+                volume_id,
+                force=parsed_args.force,
+                name=parsed_args.snapshot_name,
+                description=parsed_args.description,
+                metadata=parsed_args.property,
+            )
         snapshot._info.update(
             {'properties': utils.format_dict(snapshot._info.pop('metadata'))}
         )
