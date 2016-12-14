@@ -422,7 +422,7 @@ class TestShellArgV(TestShell):
 
         Use the argv supplied by the test runner so we get actual Python
         runtime behaviour; we only need to check the type of argv[0]
-        which will alwyas be present.
+        which will always be present.
         """
 
         with mock.patch(

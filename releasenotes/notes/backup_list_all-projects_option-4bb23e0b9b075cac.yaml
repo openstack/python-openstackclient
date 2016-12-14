@@ -1,4 +1,4 @@
 ---
 features:
   - Add ``--all-projects`` option to the ``volume backup list`` command
-    to list volume backups accross all projects.
+    to list volume backups across all projects.

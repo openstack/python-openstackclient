@@ -666,7 +666,7 @@ class UnsetPort(command.Command):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj = client.find_port(parsed_args.port, ignore_missing=False)
-        # SDK ignores update() if it recieves a modified obj and attrs
+        # SDK ignores update() if it receives a modified obj and attrs
         # To handle the same tmp_obj is created in all take_action of
         # Unset* classes
         tmp_fixed_ips = copy.deepcopy(obj.fixed_ips)
