@@ -19,6 +19,31 @@ from osc_lib.command import command
 from openstackclient.i18n import _
 
 
+class FailoverVolumeHost(command.Command):
+    _description = _("Failover volume host to different backend")
+
+    def get_parser(self, prog_name):
+        parser = super(FailoverVolumeHost, self).get_parser(prog_name)
+        parser.add_argument(
+            "host",
+            metavar="<host-name>",
+            help=_("Name of volume host")
+        )
+        parser.add_argument(
+            "--volume-backend",
+            metavar="<backend-id>",
+            required=True,
+            help=_("The ID of the volume backend replication "
+                   "target where the host will failover to (required)")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        service_client = self.app.client_manager.volume
+        service_client.services.failover_host(parsed_args.host,
+                                              parsed_args.volume_backend)
+
+
 class SetVolumeHost(command.Command):
     _description = _("Set volume host properties")
 
@@ -33,12 +58,12 @@ class SetVolumeHost(command.Command):
         enabled_group.add_argument(
             "--disable",
             action="store_true",
-            help=_("Freeze and disable the specified volume host.")
+            help=_("Freeze and disable the specified volume host")
         )
         enabled_group.add_argument(
             "--enable",
             action="store_true",
-            help=_("Thaw and enable the specified volume host.")
+            help=_("Thaw and enable the specified volume host")
         )
         return parser
 

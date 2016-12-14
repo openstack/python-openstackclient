@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``volume host failover`` command.
+    [Blueprint `cinder-command-support <https://blueprints.launchpad.net/python-openstackclient/+spec/cinder-command-support>`_]
