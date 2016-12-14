@@ -1,6 +1,6 @@
 ---
 features:
-  - Add new commands ``volume snapshot create/delete/list/show/set/unset``. they are
+  - Add new commands ``volume snapshot create/delete/list/show/set/unset``. They are
     used to replace the old commands ``snapshot create/delete/list/show/set/unset``.
     [Blueprint `backup-snapshot-renamed-for-volume-resource <https://blueprints.launchpad.net/python-openstackclient/+spec/backup-snapshot-renamed-for-volume-resource>`_]
 deprecations:

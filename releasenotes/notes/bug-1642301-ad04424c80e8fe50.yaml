@@ -1,0 +1,6 @@
+---
+fixes:
+  - Fix problem with ``--os-auth-type token_endpoint`` that caused exceptions
+    when recent os-client-config version 1.23.0 or newer is installed.
+    [Bug `1642301 <https://bugs.launchpad.net/bugs/1642301>`_]
+    *Fixed in release 3.4.1*
