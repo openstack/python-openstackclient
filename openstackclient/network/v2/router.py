@@ -52,6 +52,7 @@ def _format_routes(routes):
 
 _formatters = {
     'admin_state_up': _format_admin_state,
+    'is_admin_state_up': _format_admin_state,
     'external_gateway_info': _format_external_gateway_info,
     'availability_zones': utils.format_list,
     'availability_zone_hints': utils.format_list,
@@ -62,6 +63,9 @@ _formatters = {
 def _get_columns(item):
     column_map = {
         'tenant_id': 'project_id',
+        'is_ha': 'ha',
+        'is_distributed': 'distributed',
+        'is_admin_state_up': 'admin_state_up',
     }
     return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
@@ -150,6 +154,8 @@ class AddSubnetToRouter(command.Command):
             subnet_id=subnet.id)
 
 
+# TODO(yanxing'an): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class CreateRouter(command.ShowOne):
     _description = _("Create a new router")
 
@@ -255,6 +261,8 @@ class DeleteRouter(command.Command):
             raise exceptions.CommandError(msg)
 
 
+# TODO(yanxing'an): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class ListRouter(command.Lister):
     _description = _("List routers")
 
@@ -297,10 +305,10 @@ class ListRouter(command.Lister):
             'id',
             'name',
             'status',
-            'admin_state_up',
-            'distributed',
-            'ha',
-            'tenant_id',
+            'is_admin_state_up',
+            'is_distributed',
+            'is_ha',
+            'project_id',
         )
         column_headers = (
             'ID',
@@ -319,8 +327,10 @@ class ListRouter(command.Lister):
 
         if parsed_args.enable:
             args['admin_state_up'] = True
+            args['is_admin_state_up'] = True
         elif parsed_args.disable:
             args['admin_state_up'] = False
+            args['is_admin_state_up'] = False
 
         if parsed_args.project:
             project_id = identity_common.find_project(
@@ -329,6 +339,7 @@ class ListRouter(command.Lister):
                 parsed_args.project_domain,
             ).id
             args['tenant_id'] = project_id
+            args['project_id'] = project_id
         if parsed_args.long:
             columns = columns + (
                 'routes',
@@ -407,6 +418,8 @@ class RemoveSubnetFromRouter(command.Command):
             subnet_id=subnet.id)
 
 
+# TODO(yanxing'an): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class SetRouter(command.Command):
     _description = _("Set router properties")
 

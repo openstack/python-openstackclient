@@ -459,7 +459,7 @@ class TestListRouter(TestRouter):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.routers.assert_called_once_with(
-            **{'admin_state_up': True}
+            **{'admin_state_up': True, 'is_admin_state_up': True}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -476,7 +476,7 @@ class TestListRouter(TestRouter):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.routers.assert_called_once_with(
-            **{'admin_state_up': False}
+            **{'admin_state_up': False, 'is_admin_state_up': False}
         )
 
         self.assertEqual(self.columns, columns)
@@ -494,7 +494,7 @@ class TestListRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id}
+        filters = {'tenant_id': project.id, 'project_id': project.id}
 
         self.network.routers.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -514,7 +514,7 @@ class TestListRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id}
+        filters = {'tenant_id': project.id, 'project_id': project.id}
 
         self.network.routers.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
