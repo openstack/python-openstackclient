@@ -1,0 +1,5 @@
+---
+features:
+  - Add ``ploop`` as a valid disk format choice for ``image create``
+    and ``image set`` commands.
+    [Bug `1650342 <https://bugs.launchpad.net/bugs/1650342>`_]

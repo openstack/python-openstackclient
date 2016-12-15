@@ -39,7 +39,7 @@ from openstackclient.i18n import _
 DEFAULT_CONTAINER_FORMAT = 'bare'
 DEFAULT_DISK_FORMAT = 'raw'
 DISK_CHOICES = ["ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2", "vhdx",
-                "vdi", "iso"]
+                "vdi", "iso", "ploop"]
 
 
 LOG = logging.getLogger(__name__)
