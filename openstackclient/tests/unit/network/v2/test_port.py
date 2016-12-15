@@ -324,7 +324,7 @@ class TestCreatePort(TestPort):
         self.assertEqual(ref_columns, columns)
         self.assertEqual(ref_data, data)
 
-    def test_create_with_no_secuirty_groups(self):
+    def test_create_with_no_security_groups(self):
         arglist = [
             '--network', self._port.network_id,
             '--no-security-group',

@@ -461,12 +461,15 @@ class FakePort(object):
                                   loaded=True)
 
         # Set attributes with special mappings in OpenStack SDK.
-        port.project_id = port_attrs['tenant_id']
         port.binding_host_id = port_attrs['binding:host_id']
         port.binding_profile = port_attrs['binding:profile']
         port.binding_vif_details = port_attrs['binding:vif_details']
         port.binding_vif_type = port_attrs['binding:vif_type']
         port.binding_vnic_type = port_attrs['binding:vnic_type']
+        port.is_admin_state_up = port_attrs['admin_state_up']
+        port.is_port_security_enabled = port_attrs['port_security_enabled']
+        port.project_id = port_attrs['tenant_id']
+        port.security_group_ids = port_attrs['security_groups']
 
         return port
 
