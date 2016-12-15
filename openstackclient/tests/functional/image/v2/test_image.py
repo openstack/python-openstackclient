@@ -74,3 +74,25 @@ class ImageTests(base.TestCase):
         self.openstack('image unset --property a --property c ' + self.NAME)
         raw_output = self.openstack('image show ' + self.NAME + opts)
         self.assertEqual(self.NAME + "\n\n", raw_output)
+
+    def test_image_members(self):
+        opts = self.get_opts(['project_id'])
+        my_project_id = self.openstack('token issue' + opts).strip()
+        self.openstack(
+            'image add project {} {}'.format(self.NAME, my_project_id))
+
+        self.openstack(
+            'image set --accept ' + self.NAME)
+        shared_img_list = self.parse_listing(
+            self.openstack('image list --shared', self.get_opts(['name']))
+        )
+        self.assertIn(self.NAME, [img['Name'] for img in shared_img_list])
+
+        self.openstack(
+            'image set --reject ' + self.NAME)
+        shared_img_list = self.parse_listing(
+            self.openstack('image list --shared', self.get_opts(['name']))
+        )
+
+        self.openstack(
+            'image remove project {} {}'.format(self.NAME, my_project_id))
