@@ -24,6 +24,8 @@ Create new volume
         [--property <key=value> [...] ]
         [--hint <key=value> [...] ]
         [--multi-attach]
+        [--bootable | --non-bootable]
+        [--read-only | --read-write]
         <name>
 
 .. option:: --size <size>
@@ -88,6 +90,22 @@ Create new volume
 .. option:: --multi-attach
 
     Allow volume to be attached more than once (default to False)
+
+.. option:: --bootable
+
+    Mark volume as bootable
+
+.. option:: --non-bootable
+
+    Mark volume as non-bootable (default)
+
+.. option:: --read-only
+
+    Set volume to read-only access mode
+
+.. option:: --read-write
+
+    Set volume to read-write access mode (default)
 
 .. _volume_create-name:
 .. describe:: <name>
