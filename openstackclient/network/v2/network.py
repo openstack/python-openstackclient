@@ -19,6 +19,7 @@ from osc_lib import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
+from openstackclient.network import sdk_utils
 
 
 def _format_admin_state(item):
@@ -31,11 +32,31 @@ def _format_router_external(item):
 
 _formatters = {
     'subnets': utils.format_list,
+    'subnet_ids': utils.format_list,
     'admin_state_up': _format_admin_state,
+    'is_admin_state_up': _format_admin_state,
     'router:external': _format_router_external,
+    'is_router_external': _format_router_external,
     'availability_zones': utils.format_list,
     'availability_zone_hints': utils.format_list,
 }
+
+
+def _get_network_columns(item):
+    column_map = {
+        'subnet_ids': 'subnets',
+        'is_admin_state_up': 'admin_state_up',
+        'is_router_external': 'router:external',
+        'is_port_security_enabled': 'port_security_enabled',
+        'provider_network_type': 'provider:network_type',
+        'provider_physical_network': 'provider:physical_network',
+        'provider_segmentation_id': 'provider:segmentation_id',
+        'is_shared': 'shared',
+        'ipv4_address_scope_id': 'ipv4_address_scope',
+        'ipv6_address_scope_id': 'ipv6_address_scope',
+        'tenant_id': 'project_id',
+    }
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 def _get_columns(item):
@@ -162,6 +183,8 @@ def _get_attrs_compute(client_manager, parsed_args):
     return attrs
 
 
+# TODO(sindhu): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class CreateNetwork(common.NetworkAndComputeShowOne):
     _description = _("Create new network")
 
@@ -275,9 +298,9 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
     def take_action_network(self, client, parsed_args):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_network(**attrs)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_network_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return (columns, data)
+        return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
         attrs = _get_attrs_compute(self.app.client_manager, parsed_args)
@@ -313,6 +336,8 @@ class DeleteNetwork(common.NetworkAndComputeDelete):
         client.networks.delete(network.id)
 
 
+# TODO(sindhu): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class ListNetwork(common.NetworkAndComputeLister):
     _description = _("List networks")
 
@@ -405,12 +430,12 @@ class ListNetwork(common.NetworkAndComputeLister):
                 'id',
                 'name',
                 'status',
-                'tenant_id',
-                'admin_state_up',
-                'shared',
-                'subnets',
+                'project_id',
+                'is_admin_state_up',
+                'is_shared',
+                'subnet_ids',
                 'provider_network_type',
-                'router:external',
+                'is_router_external',
                 'availability_zones',
             )
             column_headers = (
@@ -429,7 +454,7 @@ class ListNetwork(common.NetworkAndComputeLister):
             columns = (
                 'id',
                 'name',
-                'subnets'
+                'subnet_ids'
             )
             column_headers = (
                 'ID',
@@ -441,16 +466,20 @@ class ListNetwork(common.NetworkAndComputeLister):
 
         if parsed_args.external:
             args['router:external'] = True
+            args['is_router_external'] = True
         elif parsed_args.internal:
             args['router:external'] = False
+            args['is_router_external'] = False
 
         if parsed_args.name is not None:
             args['name'] = parsed_args.name
 
         if parsed_args.enable:
             args['admin_state_up'] = True
+            args['is_admin_state_up'] = True
         elif parsed_args.disable:
             args['admin_state_up'] = False
+            args['is_admin_state_up'] = False
 
         if parsed_args.project:
             project = identity_common.find_project(
@@ -459,21 +488,27 @@ class ListNetwork(common.NetworkAndComputeLister):
                 parsed_args.project_domain,
             )
             args['tenant_id'] = project.id
+            args['project_id'] = project.id
 
         if parsed_args.share:
             args['shared'] = True
+            args['is_shared'] = True
         elif parsed_args.no_share:
             args['shared'] = False
+            args['is_shared'] = False
 
         if parsed_args.status:
             args['status'] = parsed_args.status
 
         if parsed_args.provider_network_type:
             args['provider:network_type'] = parsed_args.provider_network_type
+            args['provider_network_type'] = parsed_args.provider_network_type
         if parsed_args.physical_network:
             args['provider:physical_network'] = parsed_args.physical_network
+            args['provider_physical_network'] = parsed_args.physical_network
         if parsed_args.segmentation_id:
             args['provider:segmentation_id'] = parsed_args.segmentation_id
+            args['provider_segmentation_id'] = parsed_args.segmentation_id
 
         data = client.networks(**args)
 
@@ -504,6 +539,8 @@ class ListNetwork(common.NetworkAndComputeLister):
                 ) for s in data))
 
 
+# TODO(sindhu): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class SetNetwork(command.Command):
     _description = _("Set network properties")
 
@@ -619,9 +656,9 @@ class ShowNetwork(common.NetworkAndComputeShowOne):
 
     def take_action_network(self, client, parsed_args):
         obj = client.find_network(parsed_args.network, ignore_missing=False)
-        columns = _get_columns(obj)
+        display_columns, columns = _get_network_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
-        return (columns, data)
+        return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
         obj = utils.find_resource(
