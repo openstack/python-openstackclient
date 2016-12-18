@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--name``, ``--ip-version``, ``--project``, ``--project-domain``,
+    ``--share``, ``--no-share`` options to the ``address scope list`` command.
+    [Bug `1636046 <https://bugs.launchpad.net/bugs/1636046>`_]
