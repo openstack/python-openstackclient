@@ -87,7 +87,7 @@ List volume types
 
     os volume type list
         [--long]
-        [--public | --private]
+        [--default | --public | --private]
 
 .. option:: --long
 
@@ -102,6 +102,12 @@ List volume types
 .. option:: --private
 
     List only private types (admin only)
+
+    *Volume version 2 only*
+
+.. option:: --default
+
+    List the default volume type
 
     *Volume version 2 only*
 
