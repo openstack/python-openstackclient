@@ -34,8 +34,8 @@ Show compute and block storage limits
 
 .. option:: --project <project>
 
-    Show limits for a specific project (name or ID) [only valid with --absolute]
+    Show limits for a specific project (name or ID) [only valid with :option:`--absolute`]
 
 .. option:: --domain <domain>
 
-    Domain the project belongs to (name or ID) [only valid with --absolute]
+    Domain the project belongs to (name or ID) [only valid with :option:`--absolute`]

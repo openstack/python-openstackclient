@@ -214,7 +214,7 @@ Set port properties
 .. option:: --no-fixed-ip
 
     Clear existing information of fixed IP addresses.
-    Specify both --fixed-ip and --no-fixed-ip
+    Specify both :option:`--fixed-ip` and :option:`--no-fixed-ip`
     to overwrite the current fixed IP addresses.
 
 .. option:: --device <device-id>
@@ -240,7 +240,7 @@ Set port properties
 .. option:: --no-binding-profile
 
     Clear existing information of binding:profile.
-    Specify both --binding-profile and --no-binding-profile
+    Specify both :option:`--binding-profile` and :option:`--no-binding-profile`
     to overwrite the current binding:profile information.
 
 .. option:: --host <host-id>

@@ -17,7 +17,6 @@ List volume service
         [--service <service>]
         [--long]
 
-.. _volume-service-list:
 .. option:: --host <host>
 
     List services on specified host (name only)
@@ -54,9 +53,10 @@ Set volume service properties
 
 .. option:: --disable-reason <reason>
 
-    Reason for disabling the service (should be used with --disable option)
+    Reason for disabling the service
+    (should be used with :option:`--disable` option)
 
-.. _volume-service-set:
+.. _volume_service_set-host:
 .. describe:: <host>
 
     Name of host
