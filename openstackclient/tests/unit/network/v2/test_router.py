@@ -602,17 +602,19 @@ class TestSetRouter(TestRouter):
 
     # The router to set.
     _default_route = {'destination': '10.20.20.0/24', 'nexthop': '10.20.30.1'}
+    _network = network_fakes.FakeNetwork.create_one_network()
+    _subnet = network_fakes.FakeSubnet.create_one_subnet()
     _router = network_fakes.FakeRouter.create_one_router(
         attrs={'routes': [_default_route]}
     )
 
     def setUp(self):
         super(TestSetRouter, self).setUp()
-
+        self.network.router_add_gateway = mock.Mock()
         self.network.update_router = mock.Mock(return_value=None)
-
         self.network.find_router = mock.Mock(return_value=self._router)
-
+        self.network.find_network = mock.Mock(return_value=self._network)
+        self.network.find_subnet = mock.Mock(return_value=self._subnet)
         # Get the command object to test
         self.cmd = router.SetRouter(self.app, self.namespace)
 
@@ -797,6 +799,110 @@ class TestSetRouter(TestRouter):
         attrs = {}
         self.network.update_router.assert_called_once_with(
             self._router, **attrs)
+        self.assertIsNone(result)
+
+    def test_wrong_gateway_params(self):
+        arglist = [
+            "--fixed-ip", "subnet='abc'",
+            self._router.id,
+        ]
+        verifylist = [
+            ('fixed_ip', [{'subnet': "'abc'"}]),
+            ('router', self._router.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
+
+    def test_set_gateway_network_only(self):
+        arglist = [
+            "--external-gateway", self._network.id,
+            self._router.id,
+        ]
+        verifylist = [
+            ('external_gateway', self._network.id),
+            ('router', self._router.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.network.update_router.assert_called_with(
+            self._router, **{'external_gateway_info': {
+                'network_id': self._network.id}})
+        self.assertIsNone(result)
+
+    def test_set_gateway_options_subnet_only(self):
+        arglist = [
+            "--external-gateway", self._network.id,
+            "--fixed-ip", "subnet='abc'",
+            self._router.id,
+            '--enable-snat',
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('external_gateway', self._network.id),
+            ('fixed_ip', [{'subnet': "'abc'"}]),
+            ('enable_snat', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.network.update_router.assert_called_with(
+            self._router, **{'external_gateway_info': {
+                'network_id': self._network.id,
+                'external_fixed_ips': [{
+                    'subnet_id': self._subnet.id, }],
+                'enable_snat': True, }})
+        self.assertIsNone(result)
+
+    def test_set_gateway_option_ipaddress_only(self):
+        arglist = [
+            "--external-gateway", self._network.id,
+            "--fixed-ip", "ip-address=10.0.1.1",
+            self._router.id,
+            '--enable-snat',
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('external_gateway', self._network.id),
+            ('fixed_ip', [{'ip-address': "10.0.1.1"}]),
+            ('enable_snat', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.network.update_router.assert_called_with(
+            self._router, **{'external_gateway_info': {
+                'network_id': self._network.id,
+                'external_fixed_ips': [{
+                    'ip_address': "10.0.1.1", }],
+                'enable_snat': True, }})
+        self.assertIsNone(result)
+
+    def test_set_gateway_options_subnet_ipaddress(self):
+        arglist = [
+            "--external-gateway", self._network.id,
+            "--fixed-ip", "subnet='abc',ip-address=10.0.1.1",
+            self._router.id,
+            '--enable-snat',
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('external_gateway', self._network.id),
+            ('fixed_ip', [{'subnet': "'abc'",
+                           'ip-address': "10.0.1.1"}]),
+            ('enable_snat', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.network.update_router.assert_called_with(
+            self._router, **{'external_gateway_info': {
+                'network_id': self._network.id,
+                'external_fixed_ips': [{
+                    'subnet_id': self._subnet.id,
+                    'ip_address': "10.0.1.1", }],
+                'enable_snat': True, }})
         self.assertIsNone(result)
 
 

@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add support for setting the gateway information in a router,
+    by introducing the new option ``--external-gateway`` in
+    ``router set`` CLI.
+    [ Blueprint `neutron-client-advanced-router <https://blueprints.launchpad.net/python-openstackclient/+spec/neutron-client-advanced-router>`_]
