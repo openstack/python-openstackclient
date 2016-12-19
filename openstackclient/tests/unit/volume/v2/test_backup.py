@@ -418,6 +418,30 @@ class TestBackupSet(TestBackup):
             self.backup.id, **{'name': 'new_name'})
         self.assertIsNone(result)
 
+    def test_backup_set_description(self):
+        arglist = [
+            '--description', 'new_description',
+            self.backup.id,
+        ]
+        verifylist = [
+            ('name', None),
+            ('description', 'new_description'),
+            ('backup', self.backup.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'description': 'new_description'
+        }
+        self.backups_mock.update.assert_called_once_with(
+            self.backup.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
     def test_backup_set_state(self):
         arglist = [
             '--state', 'error',
