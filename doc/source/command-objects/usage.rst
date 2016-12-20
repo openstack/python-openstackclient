@@ -12,7 +12,7 @@ List resource usage per project
 .. program:: usage list
 .. code:: bash
 
-    os usage list
+    openstack usage list
         [--start <start>]
         [--end <end>]
 
@@ -32,7 +32,7 @@ Show resource usage for a single project
 .. program:: usage show
 .. code:: bash
 
-    os usage show
+    openstack usage show
         [--project <project>]
         [--start <start>]
         [--end <end>]

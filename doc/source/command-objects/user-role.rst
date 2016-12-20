@@ -14,7 +14,7 @@ List user-role assignments
 .. program:: user role list
 .. code:: bash
 
-    os user role list
+    openstack user role list
         [--project <project>]
         [<user>]
 

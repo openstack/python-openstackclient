@@ -52,7 +52,7 @@ Delete snapshot(s)
 .. program:: snapshot delete
 .. code:: bash
 
-    os snapshot delete
+    openstack snapshot delete
         <snapshot> [<snapshot> ...]
 
 .. _snapshot_delete-snapshot:
@@ -69,7 +69,7 @@ List snapshots
 .. program:: snapshot list
 .. code:: bash
 
-    os snapshot list
+    openstack snapshot list
         [--all-projects]
         [--long]
         [--limit <limit>]
@@ -104,7 +104,7 @@ Set snapshot properties
 .. program:: snapshot set
 .. code:: bash
 
-    os snapshot set
+    openstack snapshot set
         [--name <name>]
         [--description <description>]
         [--property <key=value> [...] ]
@@ -146,7 +146,7 @@ Display snapshot details
 .. program:: snapshot show
 .. code:: bash
 
-    os snapshot show
+    openstack snapshot show
         <snapshot>
 
 .. _snapshot_show-snapshot:
@@ -163,7 +163,7 @@ Unset snapshot properties
 .. program:: snapshot unset
 .. code:: bash
 
-    os snapshot unset
+    openstack snapshot unset
         [--property <key>]
         <snapshot>
 

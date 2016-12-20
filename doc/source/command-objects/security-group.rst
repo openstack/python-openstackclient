@@ -16,7 +16,7 @@ Create a new security group
 .. program:: security group create
 .. code:: bash
 
-    os security group create
+    openstack security group create
         [--description <description>]
         [--project <project> [--project-domain <project-domain>]]
         <name>
@@ -50,7 +50,7 @@ Delete security group(s)
 .. program:: security group delete
 .. code:: bash
 
-    os security group delete
+    openstack security group delete
         <group> [<group> ...]
 
 .. describe:: <group>
@@ -65,7 +65,7 @@ List security groups
 .. program:: security group list
 .. code:: bash
 
-    os security group list
+    openstack security group list
         [--all-projects]
         [--project <project> [--project-domain <project-domain>]]
 
@@ -97,7 +97,7 @@ Set security group properties
 .. program:: security group set
 .. code:: bash
 
-    os security group set
+    openstack security group set
         [--name <new-name>]
         [--description <description>]
         <group>
@@ -122,7 +122,7 @@ Display security group details
 .. program:: security group show
 .. code:: bash
 
-    os security group show
+    openstack security group show
         <group>
 
 .. describe:: <group>

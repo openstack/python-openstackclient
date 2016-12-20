@@ -12,7 +12,7 @@ Create new volume
 .. program:: volume create
 .. code:: bash
 
-    os volume create
+    openstack volume create
         [--size <size>]
         [--type <volume-type>]
         [--image <image> | --snapshot <snapshot> | --source <volume> | --source-replicated <replicated-volume>]
@@ -124,7 +124,7 @@ Delete volume(s)
 .. program:: volume delete
 .. code:: bash
 
-    os volume delete
+    openstack volume delete
         [--force | --purge]
         <volume> [<volume> ...]
 
@@ -151,7 +151,7 @@ List volumes
 .. program:: volume list
 .. code:: bash
 
-    os volume list
+    openstack volume list
         [--project <project> [--project-domain <project-domain>]]
         [--user <user> [--user-domain <user-domain>]]
         [--name <name>]
@@ -223,7 +223,7 @@ Migrate volume to a new host
 .. program:: volume migrate
 .. code:: bash
 
-    os volume migrate
+    openstack volume migrate
         --host <host>
         [--force-host-copy]
         [--lock-volume | --unlock-volume]
@@ -265,7 +265,7 @@ Set volume properties
 .. program:: volume set
 .. code:: bash
 
-    os volume set
+    openstack volume set
         [--name <name>]
         [--size <size>]
         [--description <description>]
@@ -358,7 +358,7 @@ Show volume details
 .. program:: volume show
 .. code:: bash
 
-    os volume show
+    openstack volume show
         <volume>
 
 .. _volume_show-volume:
@@ -374,7 +374,7 @@ Unset volume properties
 .. program:: volume unset
 .. code:: bash
 
-    os volume unset
+    openstack volume unset
         [--property <key>]
         [--image-property <key>]
         <volume>

@@ -15,7 +15,7 @@ Create a server backup image
 .. program:: server create
 .. code:: bash
 
-    os server backup create
+    openstack server backup create
         [--name <image-name>]
         [--type <backup-type>]
         [--rotate <count>]

@@ -12,7 +12,7 @@ Issue new token
 .. program:: token issue
 .. code:: bash
 
-    os token issue
+    openstack token issue
 
 token revoke
 ------------
@@ -22,7 +22,7 @@ Revoke existing token
 .. program:: token revoke
 .. code:: bash
 
-    os token revoke
+    openstack token revoke
         <token>
 
 .. describe:: <token>

@@ -14,7 +14,7 @@ Create a new server group
 .. program:: server group create
 .. code-block:: bash
 
-    os server group create
+    openstack server group create
         --policy <policy> [--policy <policy>] ...
         <name>
 
@@ -36,7 +36,7 @@ Delete existing server group(s)
 .. program:: server group delete
 .. code-block:: bash
 
-    os server group delete
+    openstack server group delete
         <server-group> [<server-group> ...]
 
 .. describe:: <server-group>
@@ -52,7 +52,7 @@ List all server groups
 .. program:: server group list
 .. code-block:: bash
 
-    os server group list
+    openstack server group list
         [--all-projects]
         [--long]
 
@@ -72,7 +72,7 @@ Display server group details
 .. program:: server group show
 .. code-block:: bash
 
-    os server group show
+    openstack server group show
         <server-group>
 
 .. describe:: <server-group>

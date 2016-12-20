@@ -12,7 +12,7 @@ Create new service
 .. program:: service create
 .. code-block:: bash
 
-    os service create
+    openstack service create
         [--name <name>]
         [--description <description>]
         [--enable | --disable]
@@ -51,7 +51,7 @@ Delete service(s)
 .. program:: service delete
 .. code-block:: bash
 
-    os service delete
+    openstack service delete
         <service> [<service> ...]
 
 .. _service_delete-type:
@@ -67,7 +67,7 @@ List services
 .. program:: service list
 .. code-block:: bash
 
-    os service list
+    openstack service list
         [--long]
 
 .. option:: --long
@@ -87,7 +87,7 @@ Set service properties
 .. program:: service set
 .. code-block:: bash
 
-    os service set
+    openstack service set
         [--type <type>]
         [--name <name>]
         [--description <description>]
@@ -127,7 +127,7 @@ Display service details
 .. program:: service show
 .. code-block:: bash
 
-    os service show
+    openstack service show
         [--catalog]
         <service>
 

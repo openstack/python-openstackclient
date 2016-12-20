@@ -16,7 +16,7 @@ Create new subnet
 .. program:: subnet create
 .. code:: bash
 
-    os subnet create
+    openstack subnet create
         [--project <project> [--project-domain <project-domain>]]
         [--subnet-pool <subnet-pool> | --use-default-subnet-pool [--prefix-length <prefix-length>]]
         [--subnet-range <subnet-range>]
@@ -142,7 +142,7 @@ Delete subnet(s)
 .. program:: subnet delete
 .. code:: bash
 
-    os subnet delete
+    openstack subnet delete
         <subnet> [<subnet> ...]
 
 .. _subnet_delete-subnet:
@@ -158,7 +158,7 @@ List subnets
 .. program:: subnet list
 .. code:: bash
 
-    os subnet list
+    openstack subnet list
         [--long]
         [--ip-version {4,6}]
         [--dhcp | --no-dhcp]
@@ -226,7 +226,7 @@ Set subnet properties
 .. program:: subnet set
 .. code:: bash
 
-    os subnet set
+    openstack subnet set
         [--allocation-pool start=<ip-address>,end=<ip-address>]
         [--no-allocation-pool]
         [--dhcp | --no-dhcp]
@@ -319,7 +319,7 @@ Display subnet details
 .. program:: subnet show
 .. code:: bash
 
-    os subnet show
+    openstack subnet show
         <subnet>
 
 .. _subnet_show-subnet:
@@ -335,7 +335,7 @@ Unset subnet properties
 .. program:: subnet unset
 .. code:: bash
 
-    os subnet unset
+    openstack subnet unset
         [--allocation-pool start=<ip-address>,end=<ip-address> [...]]
         [--dns-nameserver <dns-nameserver> [...]]
         [--host-route destination=<subnet>,gateway=<ip-address> [...]]

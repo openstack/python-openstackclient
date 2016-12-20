@@ -14,7 +14,7 @@ Create new service provider
 .. program:: service provider create
 .. code:: bash
 
-    os service provider create
+    openstack service provider create
         [--description <description>]
         [--enable | --disable]
         --auth-url <auth-url>
@@ -53,7 +53,7 @@ Delete service provider(s)
 .. program:: service provider delete
 .. code:: bash
 
-    os service provider delete
+    openstack service provider delete
         <service-provider> [<service-provider> ...]
 
 .. describe:: <service-provider>
@@ -68,7 +68,7 @@ List service providers
 .. program:: service provider list
 .. code:: bash
 
-    os service provider list
+    openstack service provider list
 
 service provider set
 --------------------
@@ -78,7 +78,7 @@ Set service provider properties
 .. program:: service provider set
 .. code:: bash
 
-    os service provider set
+    openstack service provider set
         [--enable | --disable]
         [--description <description>]
         [--auth-url <auth-url>]
@@ -117,7 +117,7 @@ Display service provider details
 .. program:: service provider show
 .. code:: bash
 
-    os service provider show
+    openstack service provider show
         <service-provider>
 
 .. describe:: <service-provider>

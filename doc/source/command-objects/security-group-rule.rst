@@ -15,7 +15,7 @@ Create a new security group rule
 .. program:: security group rule create
 .. code:: bash
 
-    os security group rule create
+    openstack security group rule create
         [--remote-ip <ip-address> | --remote-group <group>]
         [--dst-port <port-range> | [--icmp-type <icmp-type> [--icmp-code <icmp-code>]]]
         [--protocol <protocol>]
@@ -116,7 +116,7 @@ Delete security group rule(s)
 .. program:: security group rule delete
 .. code:: bash
 
-    os security group rule delete
+    openstack security group rule delete
         <rule> [<rule> ...]
 
 .. describe:: <rule>
@@ -131,7 +131,7 @@ List security group rules
 .. program:: security group rule list
 .. code:: bash
 
-    os security group rule list
+    openstack security group rule list
         [--all-projects]
         [--protocol <protocol>]
         [--ingress | --egress]
@@ -185,7 +185,7 @@ Display security group rule details
 .. program:: security group rule show
 .. code:: bash
 
-    os security group rule show
+    openstack security group rule show
         <rule>
 
 .. describe:: <rule>

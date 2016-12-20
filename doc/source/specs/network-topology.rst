@@ -19,7 +19,7 @@ List network topologies
 .. program:: network topology list
 .. code:: bash
 
-    os network topology list
+    openstack network topology list
         [--project <project>]
 
 .. option:: --project <project>
@@ -35,7 +35,7 @@ Show network topology details
 .. program:: network topology show
 .. code:: bash
 
-    os network topology show
+    openstack network topology show
         <network>
 
 .. _network_topology_show-network

@@ -15,7 +15,7 @@ Create subnet pool
 .. program:: subnet pool create
 .. code:: bash
 
-    os subnet pool create
+    openstack subnet pool create
         [--default-prefix-length <default-prefix-length>]
         [--min-prefix-length <min-prefix-length>]
         [--max-prefix-length <max-prefix-length>]
@@ -91,7 +91,7 @@ Delete subnet pool(s)
 .. program:: subnet pool delete
 .. code:: bash
 
-    os subnet pool delete
+    openstack subnet pool delete
         <subnet-pool> [<subnet-pool> ...]
 
 .. _subnet_pool_delete-subnet-pool:
@@ -107,7 +107,7 @@ List subnet pools
 .. program:: subnet pool list
 .. code:: bash
 
-    os subnet pool list
+    openstack subnet pool list
         [--long]
         [--share | --no-share]
         [--default | --no-default]
@@ -160,7 +160,7 @@ Set subnet pool properties
 .. program:: subnet pool set
 .. code:: bash
 
-    os subnet pool set
+    openstack subnet pool set
         [--name <name>]
         [--pool-prefix <pool-prefix> [...]]
         [--default-prefix-length <default-prefix-length>]
@@ -226,7 +226,7 @@ Display subnet pool details
 .. program:: subnet pool show
 .. code:: bash
 
-    os subnet pool show
+    openstack subnet pool show
         <subnet-pool>
 
 .. _subnet_pool_show-subnet-pool:
@@ -242,7 +242,7 @@ Unset subnet pool properties
 .. program:: subnet pool unset
 .. code:: bash
 
-    os subnet pool unset
+    openstack subnet pool unset
         [--pool-prefix <pool-prefix> [...]]
         <subnet-pool>
 

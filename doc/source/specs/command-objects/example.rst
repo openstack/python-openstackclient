@@ -18,7 +18,7 @@ Create new example
 .. program:: example create
 .. code:: bash
 
-    os example create
+    openstack example create
         <name>
 
 .. describe:: <name>
@@ -33,7 +33,7 @@ Delete example(s)
 .. program:: example delete
 .. code:: bash
 
-    os example delete
+    openstack example delete
         <example> [<example> ...]
 
 .. describe:: <example>
@@ -48,7 +48,7 @@ List examples
 .. program:: example list
 .. code:: bash
 
-    os example list
+    openstack example list
 
 example set
 -----------
@@ -58,7 +58,7 @@ Set example properties
 .. program:: example set
 .. code:: bash
 
-    os example set
+    openstack example set
         [--name <new-name>]
         <example>
 
@@ -78,7 +78,7 @@ Display example details
 .. program:: example show
 .. code:: bash
 
-    os example show
+    openstack example show
         <example>
 
 .. describe:: <example>
