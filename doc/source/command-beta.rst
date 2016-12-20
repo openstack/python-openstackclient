@@ -45,7 +45,7 @@ List examples
 .. program:: example list
 .. code:: bash
 
-    os example list
+    openstack example list
 
 Help
 ~~~~
