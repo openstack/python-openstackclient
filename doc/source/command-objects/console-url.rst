@@ -14,7 +14,7 @@ Show server's remote console URL
 .. program:: console url show
 .. code:: bash
 
-    os console url show
+    openstack console url show
         [--novnc | --xvpvnc | --spice]
         [--rdp | --serial | --mks]
         <server>

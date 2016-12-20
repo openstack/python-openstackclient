@@ -14,7 +14,7 @@ Create new consumer
 .. program:: consumer create
 .. code:: bash
 
-    os consumer create
+    openstack consumer create
         [--description <description>]
 
 .. option:: --description <description>
@@ -29,7 +29,7 @@ Delete consumer(s)
 .. program:: consumer delete
 .. code:: bash
 
-    os consumer delete
+    openstack consumer delete
         <consumer> [<consumer> ...]
 
 .. describe:: <consumer>
@@ -44,7 +44,7 @@ List consumers
 .. program:: consumer list
 .. code:: bash
 
-    os consumer list
+    openstack consumer list
 
 consumer set
 ------------
@@ -54,7 +54,7 @@ Set consumer properties
 .. program:: consumer set
 .. code:: bash
 
-    os consumer set
+    openstack consumer set
         [--description <description>]
         <consumer>
 
@@ -74,7 +74,7 @@ Display consumer details
 .. program:: consumer show
 .. code:: bash
 
-    os consumer show
+    openstack consumer show
         <consumer>
 
 .. _consumer_show-consumer:

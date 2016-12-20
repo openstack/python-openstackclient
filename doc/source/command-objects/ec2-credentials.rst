@@ -12,7 +12,7 @@ Create EC2 credentials
 .. program:: ec2 credentials create
 .. code-block:: bash
 
-    os ec2 credentials create
+    openstack ec2 credentials create
         [--project <project>]
         [--user <user>]
         [--user-domain <user-domain>]
@@ -52,7 +52,7 @@ Delete EC2 credentials
 .. program:: ec2 credentials delete
 .. code-block:: bash
 
-    os ec2 credentials delete
+    openstack ec2 credentials delete
         [--user <user>]
         [--user-domain <user-domain>]
         <access-key> [<access-key> ...]
@@ -85,7 +85,7 @@ List EC2 credentials
 .. program:: ec2 credentials list
 .. code-block:: bash
 
-    os ec2 credentials list
+    openstack ec2 credentials list
         [--user <user>]
         [--user-domain <user-domain>]
 
@@ -112,7 +112,7 @@ Display EC2 credentials details
 .. program:: ec2 credentials show
 .. code-block:: bash
 
-    os ec2 credentials show
+    openstack ec2 credentials show
         [--user <user>]
         [--user-domain <user-domain>]
         <access-key>

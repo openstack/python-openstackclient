@@ -12,7 +12,7 @@ Create new container
 .. program:: container create
 .. code:: bash
 
-    os container create
+    openstack container create
         <container-name> [<container-name> ...]
 
 .. describe:: <container-name>
@@ -27,7 +27,7 @@ Delete container
 .. program:: container delete
 .. code:: bash
 
-    os container delete
+    openstack container delete
         [-r] | [--recursive]
         <container> [<container> ...]
 
@@ -47,7 +47,7 @@ List containers
 .. program:: container list
 .. code:: bash
 
-    os container list
+    openstack container list
         [--prefix <prefix>]
         [--marker <marker>]
         [--end-marker <end-marker>]
@@ -87,7 +87,7 @@ Save container contents locally
 .. program:: container save
 .. code:: bash
 
-    os container save
+    openstack container save
         <container>
 
 .. describe:: <container>
@@ -102,7 +102,7 @@ Set container properties
 .. program:: container set
 .. code:: bash
 
-    os container set
+    openstack container set
         [--property <key=value> [...] ]
         <container>
 
@@ -122,7 +122,7 @@ Display container details
 .. program:: container show
 .. code:: bash
 
-    os container show
+    openstack container show
         <container>
 
 .. describe:: <container>
@@ -137,7 +137,7 @@ Unset container properties
 .. program:: container unset
 .. code:: bash
 
-    os container unset
+    openstack container unset
         [--property <key>]
         <container>
 

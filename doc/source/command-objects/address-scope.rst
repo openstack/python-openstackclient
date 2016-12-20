@@ -15,7 +15,7 @@ Create new address scope
 .. program:: address scope create
 .. code:: bash
 
-    os address scope create
+    openstack address scope create
         [--project <project> [--project-domain <project-domain>]]
         [--ip-version <ip-version>]
         [--share | --no-share]
@@ -55,7 +55,7 @@ Delete address scope(s)
 .. program:: address scope delete
 .. code:: bash
 
-    os address scope delete
+    openstack address scope delete
         <address-scope> [<address-scope> ...]
 
 .. _address_scope_delete-address-scope:
@@ -71,7 +71,7 @@ List address scopes
 .. program:: address scope list
 .. code:: bash
 
-    os address scope list
+    openstack address scope list
         [--name <name>]
         [--ip-version <ip-version>]
         [--project <project> [--project-domain <project-domain>]]
@@ -110,7 +110,7 @@ Set address scope properties
 .. program:: address scope set
 .. code:: bash
 
-    os address scope set
+    openstack address scope set
         [--name <name>]
         [--share | --no-share]
         <address-scope>
@@ -140,7 +140,7 @@ Display address scope details
 .. program:: address scope show
 .. code:: bash
 
-    os address scope show
+    openstack address scope show
         <address-scope>
 
 .. _address_scope_show-address-scope:

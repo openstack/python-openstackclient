@@ -22,4 +22,4 @@ print bash completion command
 .. program:: complete
 .. code:: bash
 
-    os complete
+    openstack complete

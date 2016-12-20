@@ -14,7 +14,7 @@ Create new endpoint
 .. program:: endpoint create
 .. code:: bash
 
-    os endpoint create
+    openstack endpoint create
         --publicurl <url>
         [--adminurl <url>]
         [--internalurl <url>]
@@ -47,7 +47,7 @@ Create new endpoint
 .. program:: endpoint create
 .. code:: bash
 
-    os endpoint create
+    openstack endpoint create
         [--region <region-id>]
         [--enable | --disable]
         <service>
@@ -86,7 +86,7 @@ Delete endpoint(s)
 .. program:: endpoint delete
 .. code:: bash
 
-    os endpoint delete
+    openstack endpoint delete
         <endpoint-id> [<endpoint-id> ...]
 
 .. _endpoint_delete-endpoint:
@@ -102,7 +102,7 @@ List endpoints
 .. program:: endpoint list
 .. code:: bash
 
-    os endpoint list
+    openstack endpoint list
         [--service <service]
         [--interface <interface>]
         [--region <region-id>]
@@ -142,7 +142,7 @@ Set endpoint properties
 .. program:: endpoint set
 .. code:: bash
 
-    os endpoint set
+    openstack endpoint set
         [--region <region-id>]
         [--interface <interface>]
         [--url <url>]
@@ -187,7 +187,7 @@ Display endpoint details
 .. program:: endpoint show
 .. code:: bash
 
-    os endpoint show
+    openstack endpoint show
         <endpoint>
 
 .. _endpoint_show-endpoint:

@@ -12,7 +12,7 @@ Create new consistency group.
 .. program:: consistency group create
 .. code:: bash
 
-    os consistency group create
+    openstack consistency group create
         --volume-type <volume-type> | --consistency-group-source <consistency-group> | --consistency-group-snapshot <consistency-group-snapshot>
         [--description <description>]
         [--availability-zone <availability-zone>]
@@ -52,7 +52,7 @@ Delete consistency group(s).
 .. program:: consistency group delete
 .. code:: bash
 
-    os consistency group delete
+    openstack consistency group delete
         [--force]
         <consistency-group> [<consistency-group> ...]
 
@@ -73,7 +73,7 @@ List consistency groups.
 .. program:: consistency group list
 .. code:: bash
 
-    os consistency group list
+    openstack consistency group list
         [--all-projects]
         [--long]
 
@@ -94,7 +94,7 @@ Set consistency group properties.
 .. program:: consistency group set
    .. code:: bash
 
-    os consistency group set
+    openstack consistency group set
         [--name <name>]
         [--description <description>]
         <consistency-group>
@@ -120,7 +120,7 @@ Display consistency group details.
 .. program:: consistency group show
 .. code:: bash
 
-    os consistency group show
+    openstack consistency group show
         <consistency-group>
 
 .. _consistency_group_show-consistency-group:

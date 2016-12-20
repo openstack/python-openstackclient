@@ -12,7 +12,7 @@ Create new domain
 .. program:: domain create
 .. code:: bash
 
-    os domain create
+    openstack domain create
         [--description <description>]
         [--enable | --disable]
         [--or-show]
@@ -48,7 +48,7 @@ Delete domain(s)
 .. program:: domain delete
 .. code:: bash
 
-    os domain delete
+    openstack domain delete
         <domain> [<domain> ...]
 
 .. describe:: <domain>
@@ -63,7 +63,7 @@ List domains
 .. program:: domain list
 .. code:: bash
 
-    os domain list
+    openstack domain list
 
 domain set
 ----------
@@ -73,7 +73,7 @@ Set domain properties
 .. program:: domain set
 .. code:: bash
 
-    os domain set
+    openstack domain set
         [--name <name>]
         [--description <description>]
         [--enable | --disable]
@@ -107,7 +107,7 @@ Display domain details
 .. program:: domain show
 .. code:: bash
 
-    os domain show
+    openstack domain show
         <domain>
 
 .. describe:: <domain>

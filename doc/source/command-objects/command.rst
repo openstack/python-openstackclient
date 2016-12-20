@@ -14,4 +14,4 @@ List recognized commands by group
 .. program:: command list
 .. code:: bash
 
-    os command list
+    openstack command list

@@ -14,7 +14,7 @@ Create an access token
 .. program:: access token create
 .. code:: bash
 
-    os access token create
+    openstack access token create
         --consumer-key <consumer-key>
         --consumer-secret <consumer-secret>
         --request-key <request-key>

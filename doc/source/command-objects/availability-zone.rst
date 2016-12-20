@@ -15,7 +15,7 @@ List availability zones and their status
 .. program availability zone list
 .. code:: bash
 
-    os availability zone list
+    openstack availability zone list
         [--compute]
         [--network]
         [--volume]
