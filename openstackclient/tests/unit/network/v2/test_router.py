@@ -1021,3 +1021,16 @@ class TestUnsetRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(exceptions.CommandError,
                           self.cmd.take_action, parsed_args)
+
+    def test_unset_router_external_gateway(self):
+        arglist = [
+            '--external-gateway',
+            self._testrouter.name,
+        ]
+        verifylist = [('external_gateway', True)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        attrs = {'external_gateway_info': {}}
+        self.network.update_router.assert_called_once_with(
+            self._testrouter, **attrs)
+        self.assertIsNone(result)
