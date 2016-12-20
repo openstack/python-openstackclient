@@ -12,7 +12,7 @@ Create new user
 .. program:: user create
 .. code:: bash
 
-    os user create
+    openstack user create
         [--domain <domain>]
         [--project <project> [--project-domain <project-domain>]]
         [--password <password>]
@@ -82,7 +82,7 @@ Delete user(s)
 .. program:: user delete
 .. code:: bash
 
-    os user delete
+    openstack user delete
         [--domain <domain>]
         <user> [<user> ...]
 
@@ -105,7 +105,7 @@ List users
 .. program:: user list
 .. code:: bash
 
-    os user list
+    openstack user list
         [--project <project>]
         [--domain <domain>]
         [--group <group> | --project <project>]
@@ -139,7 +139,7 @@ Set user properties
 .. program:: user set
 .. code:: bash
 
-    os user set
+    openstack user set
         [--name <name>]
         [--project <project> [--project-domain <project-domain>]]
         [--password <password>]
@@ -200,7 +200,7 @@ Display user details
 .. program:: user show
 .. code:: bash
 
-    os user show
+    openstack user show
         [--domain <domain>]
         <user>
 

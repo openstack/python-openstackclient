@@ -12,7 +12,7 @@ Create new volume type
 .. program:: volume type create
 .. code:: bash
 
-    os volume type create
+    openstack volume type create
         [--description <description>]
         [--public | --private]
         [--property <key=value> [...] ]
@@ -69,7 +69,7 @@ Delete volume type(s)
 .. program:: volume type delete
 .. code:: bash
 
-    os volume type delete
+    openstack volume type delete
         <volume-type> [<volume-type> ...]
 
 .. _volume_type_delete-volume-type:
@@ -85,7 +85,7 @@ List volume types
 .. program:: volume type list
 .. code:: bash
 
-    os volume type list
+    openstack volume type list
         [--long]
         [--default | --public | --private]
 
@@ -119,7 +119,7 @@ Set volume type properties
 .. program:: volume type set
 .. code:: bash
 
-    os volume type set
+    openstack volume type set
         [--name <name>]
         [--description <description>]
         [--property <key=value> [...] ]
@@ -167,7 +167,7 @@ Display volume type details
 .. program:: volume type show
 .. code:: bash
 
-    os volume type show
+    openstack volume type show
         <volume-type>
 
 .. _volume_type_show-volume-type:
@@ -183,7 +183,7 @@ Unset volume type properties
 .. program:: volume type unset
 .. code:: bash
 
-    os volume type unset
+    openstack volume type unset
         [--property <key> [...] ]
         [--project <project>]
         [--project-domain <project-domain>]

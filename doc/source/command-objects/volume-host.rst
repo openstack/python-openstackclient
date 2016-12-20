@@ -12,7 +12,7 @@ Set volume host properties
 .. program:: volume host set
 .. code:: bash
 
-    os volume host set
+    openstack volume host set
         [--enable | --disable]
         <host-name>
 

@@ -32,7 +32,7 @@ Add floating IP address to server
 .. program:: server add floating ip
 .. code:: bash
 
-    os server add floating ip
+    openstack server add floating ip
         <server>
         <ip-address>
 
@@ -52,7 +52,7 @@ Add security group to server
 .. program:: server add security group
 .. code:: bash
 
-    os server add security group
+    openstack server add security group
         <server>
         <group>
 
@@ -72,7 +72,7 @@ Add volume to server
 .. program:: server add volume
 .. code:: bash
 
-    os server add volume
+    openstack server add volume
         [--device <device>]
         <server>
         <volume>
@@ -97,7 +97,7 @@ Create a new server
 .. program:: server create
 .. code:: bash
 
-    os server create
+    openstack server create
         --image <image> | --volume <volume>
         --flavor <flavor>
         [--security-group <security-group-name> [...] ]
@@ -199,7 +199,7 @@ Delete server(s)
 .. program:: server delete
 .. code:: bash
 
-    os server delete
+    openstack server delete
         <server> [<server> ...] [--wait]
 
 .. option:: --wait
@@ -222,7 +222,7 @@ resource.
 .. program:: server dump create
 .. code:: bash
 
-    os server dump create
+    openstack server dump create
         <server> [<server> ...]
 
 .. describe:: <server>
@@ -236,7 +236,7 @@ List servers
 
 .. code:: bash
 
-    os server list
+    openstack server list
         [--reservation-id <reservation-id>]
         [--ip <ip-address-regex>]
         [--ip6 <ip6-address-regex>]
@@ -333,7 +333,7 @@ Lock server(s). A non-admin user will not be able to execute actions
 .. program:: server lock
 .. code:: bash
 
-    os server lock
+    openstack server lock
         <server> [<server> ...]
 
 .. describe:: <server>
@@ -348,7 +348,7 @@ Migrate server to different host
 .. program:: server migrate
 .. code:: bash
 
-    os server migrate
+    openstack server migrate
         --live <host>
         [--shared-migration | --block-migration]
         [--disk-overcommit | --no-disk-overcommit]
@@ -391,7 +391,7 @@ Pause server(s)
 .. program:: server pause
 .. code:: bash
 
-    os server pause
+    openstack server pause
         <server> [<server> ...]
 
 .. describe:: <server>
@@ -406,7 +406,7 @@ Perform a hard or soft server reboot
 .. program:: server reboot
 .. code:: bash
 
-    os server reboot
+    openstack server reboot
         [--hard | --soft]
         [--wait]
         <server>
@@ -435,7 +435,7 @@ Rebuild server
 .. program:: server rebuild
 .. code:: bash
 
-    os server rebuild
+    openstack server rebuild
         [--image <image>]
         [--password <password>]
         [--wait]
@@ -466,7 +466,7 @@ Remove fixed IP address from server
 .. program:: server remove fixed ip
 .. code:: bash
 
-    os server remove fixed ip
+    openstack server remove fixed ip
         <server>
         <ip-address>
 
@@ -486,7 +486,7 @@ Remove floating IP address from server
 .. program:: server remove floating ip
 .. code:: bash
 
-    os server remove floating ip
+    openstack server remove floating ip
         <server>
         <ip-address>
 
@@ -506,7 +506,7 @@ Remove security group from server
 .. program:: server remove security group
 .. code:: bash
 
-    os server remove security group
+    openstack server remove security group
         <server>
         <group>
 
@@ -526,7 +526,7 @@ Remove volume from server
 .. program:: server remove volume
 .. code:: bash
 
-    os server remove volume
+    openstack server remove volume
         <server>
         <volume>
 
@@ -546,7 +546,7 @@ Put server in rescue mode
 .. program:: server rescue
 .. code:: bash
 
-    os server rescue
+    openstack server rescue
         <server>
 
 .. describe:: <server>
@@ -561,12 +561,12 @@ Scale server to a new flavor
 .. program:: server resize
 .. code:: bash
 
-    os server resize
+    openstack server resize
         --flavor <flavor>
         [--wait]
         <server>
 
-    os server resize
+    openstack server resize
         --confirm | --revert
         <server>
 
@@ -604,7 +604,7 @@ Restore server(s) from soft-deleted state
 .. program:: server restore
 .. code:: bash
 
-    os server restore
+    openstack server restore
         <server> [<server> ...]
 
 .. describe:: <server>
@@ -619,7 +619,7 @@ Resume server(s)
 .. program:: server resume
 .. code:: bash
 
-    os server resume
+    openstack server resume
         <server> [<server> ...]
 
 .. describe:: <server>
@@ -634,7 +634,7 @@ Set server properties
 .. program:: server set
 .. code:: bash
 
-    os server set
+    openstack server set
         --name <new-name>
         --property <key=value>
         [--property <key=value>] ...
@@ -671,7 +671,7 @@ Shelve server(s)
 .. program:: server shelve
 .. code:: bash
 
-    os server shelve
+    openstack server shelve
         <server> [<server> ...]
 
 .. describe:: <server>
@@ -686,7 +686,7 @@ Show server details
 .. program:: server show
 .. code:: bash
 
-    os server show
+    openstack server show
         [--diagnostics]
         <server>
 
@@ -706,7 +706,7 @@ SSH to server
 .. program:: server ssh
 .. code:: bash
 
-    os server ssh
+    openstack server ssh
         [--login <login-name>]
         [--port <port>]
         [--identity <keyfile>]
@@ -754,7 +754,7 @@ Start server(s)
 .. program:: server start
 .. code:: bash
 
-    os server start
+    openstack server start
         <server> [<server> ...]
 
 .. describe:: <server>
@@ -769,7 +769,7 @@ Stop server(s)
 .. program:: server stop
 .. code:: bash
 
-    os server stop
+    openstack server stop
         <server> [<server> ...]
 
 .. describe:: <server>
@@ -784,7 +784,7 @@ Suspend server(s)
 .. program:: server suspend
 .. code:: bash
 
-    os server suspend
+    openstack server suspend
         <server> [<server> ...]
 
 .. describe:: <server>
@@ -799,7 +799,7 @@ Unlock server(s)
 .. program:: server unlock
 .. code:: bash
 
-    os server unlock
+    openstack server unlock
         <server> [<server> ...]
 
 .. describe:: <server>
@@ -814,7 +814,7 @@ Unpause server(s)
 .. program:: server unpause
 .. code:: bash
 
-    os server unpause
+    openstack server unpause
         <server> [<server> ...]
 
 .. describe:: <server>
@@ -829,7 +829,7 @@ Restore server from rescue mode
 .. program:: server unrescue
 .. code:: bash
 
-    os server unrescue
+    openstack server unrescue
         <server>
 
 .. describe:: <server>
@@ -844,7 +844,7 @@ Unset server properties
 .. program:: server unset
 .. code:: bash
 
-    os server unset
+    openstack server unset
         --property <key>
         [--property <key>] ...
         <server>
@@ -866,7 +866,7 @@ Unshelve server(s)
 .. program:: server unshelve
 .. code:: bash
 
-    os server unshelve
+    openstack server unshelve
         <server> [<server> ...]
 
 .. describe:: <server>

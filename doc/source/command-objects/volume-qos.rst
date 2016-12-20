@@ -12,7 +12,7 @@ Associate a QoS specification to a volume type
 .. program:: volume qos associate
 .. code:: bash
 
-    os volume qos associate
+    openstack volume qos associate
         <qos-spec>
         <volume-type>
 
@@ -33,7 +33,7 @@ Create new QoS Specification
 .. program:: volume qos create
 .. code:: bash
 
-    os volume qos create
+    openstack volume qos create
         [--consumer <consumer>]
         [--property <key=value> [...] ]
         <name>
@@ -59,7 +59,7 @@ Delete QoS specification
 .. program:: volume qos delete
 .. code:: bash
 
-    os volume qos delete
+    openstack volume qos delete
          [--force]
          <qos-spec> [<qos-spec> ...]
 
@@ -80,7 +80,7 @@ Disassociate a QoS specification from a volume type
 .. program:: volume qos disassociate
 .. code:: bash
 
-    os volume qos disassociate
+    openstack volume qos disassociate
         --volume-type <volume-type> | --all
         <qos-spec>
 
@@ -105,7 +105,7 @@ List QoS specifications
 .. program:: volume qos list
 .. code:: bash
 
-    os volume qos list
+    openstack volume qos list
 
 volume qos set
 --------------
@@ -115,7 +115,7 @@ Set QoS specification properties
 .. program:: volume qos set
 .. code:: bash
 
-    os volume qos set
+    openstack volume qos set
         [--property <key=value> [...] ]
         <qos-spec>
 
@@ -136,7 +136,7 @@ Display QoS specification details
 .. program:: volume qos show
 .. code:: bash
 
-    os volume qos show
+    openstack volume qos show
         <qos-spec>
 
 .. _volume_qos_show-qos-spec:
@@ -152,7 +152,7 @@ Unset QoS specification properties
 .. program:: volume qos unset
 .. code:: bash
 
-    os volume qos unset
+    openstack volume qos unset
         [--property <key> [...] ]
         <qos-spec>
 

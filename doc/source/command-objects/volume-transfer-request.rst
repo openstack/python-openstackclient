@@ -12,7 +12,7 @@ Accept volume transfer request
 .. program:: volume transfer request accept
 .. code:: bash
 
-    os volume transfer request accept
+    openstack volume transfer request accept
         <transfer-request>
         <auth-key>
 
@@ -33,7 +33,7 @@ Create volume transfer request
 .. program:: volume transfer request create
 .. code:: bash
 
-    os volume transfer request create
+    openstack volume transfer request create
         [--name <name>]
         <volume>
 
@@ -54,7 +54,7 @@ Delete volume transfer request(s)
 .. program:: volume transfer request delete
 .. code:: bash
 
-    os volume transfer request delete
+    openstack volume transfer request delete
         <transfer-request> [<transfer-request> ...]
 
 .. _volume_transfer_request_delete-transfer-request:
@@ -70,7 +70,7 @@ Lists all volume transfer requests.
 .. program:: volume transfer request list
 .. code:: bash
 
-    os volume transfer request list
+    openstack volume transfer request list
         --all-projects
 
 .. option:: --all-projects
@@ -86,7 +86,7 @@ Show volume transfer request details
 .. program:: volume transfer request show
 .. code:: bash
 
-    os volume transfer request show
+    openstack volume transfer request show
         <transfer-request>
 
 .. _volume_transfer_request_show-transfer-request:

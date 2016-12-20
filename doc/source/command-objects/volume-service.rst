@@ -12,7 +12,7 @@ List volume service
 .. program:: volume service list
 .. code:: bash
 
-    os volume service list
+    openstack volume service list
         [--host <host>]
         [--service <service>]
         [--long]
@@ -38,7 +38,7 @@ Set volume service properties
 .. program:: volume service set
 .. code:: bash
 
-    os volume service set
+    openstack volume service set
         [--enable | --disable]
         [--disable-reason <reason>]
         <host>

@@ -59,7 +59,7 @@ Delete volume snapshot(s)
 .. program:: volume snapshot delete
 .. code:: bash
 
-    os volume snapshot delete
+    openstack volume snapshot delete
         [--force]
         <snapshot> [<snapshot> ...]
 
@@ -80,7 +80,7 @@ List volume snapshots
 .. program:: volume snapshot list
 .. code:: bash
 
-    os volume snapshot list
+    openstack volume snapshot list
         [--all-projects]
         [--long]
         [--limit <limit>]
@@ -130,7 +130,7 @@ Set volume snapshot properties
 .. program:: volume snapshot set
 .. code:: bash
 
-    os volume snapshot set
+    openstack volume snapshot set
         [--name <name>]
         [--description <description>]
         [--property <key=value> [...] ]
@@ -171,7 +171,7 @@ Display volume snapshot details
 .. program:: volume snapshot show
 .. code:: bash
 
-    os volume snapshot show
+    openstack volume snapshot show
         <snapshot>
 
 .. _volume_snapshot_show-snapshot:
@@ -187,7 +187,7 @@ Unset volume snapshot properties
 .. program:: volume snapshot unset
 .. code:: bash
 
-    os volume snapshot unset
+    openstack volume snapshot unset
         [--property <key>]
         <snapshot>
 

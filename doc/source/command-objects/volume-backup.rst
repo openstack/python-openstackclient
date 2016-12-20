@@ -64,7 +64,7 @@ Delete volume backup(s)
 .. program:: volume backup delete
 .. code:: bash
 
-    os volume backup delete
+    openstack volume backup delete
         [--force]
         <backup> [<backup> ...]
 
@@ -87,7 +87,7 @@ List volume backups
 .. program:: volume backup list
 .. code:: bash
 
-    os volume backup list
+    openstack volume backup list
         [--long]
         [--name <name>]
         [--status <status>]
@@ -138,7 +138,7 @@ Restore volume backup
 .. program:: volume backup restore
 .. code:: bash
 
-    os volume backup restore
+    openstack volume backup restore
         <backup>
         <volume>
 
@@ -159,7 +159,7 @@ Set volume backup properties
 .. program:: volume backup set
 .. code:: bash
 
-    os volume backup set
+    openstack volume backup set
         [--name <name>]
         [--description <description>]
         [--state <state>]
@@ -192,7 +192,7 @@ Display volume backup details
 .. program:: volume backup show
 .. code:: bash
 
-    os volume backup show
+    openstack volume backup show
         <backup>
 
 .. _volume_backup_show-backup:

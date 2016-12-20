@@ -12,7 +12,7 @@ Create new trust
 .. program:: trust create
 .. code:: bash
 
-    os trust create
+    openstack trust create
         --project <project>
         --role <role>
         [--impersonate]
@@ -69,7 +69,7 @@ Delete trust(s)
 .. program:: trust delete
 .. code:: bash
 
-    os trust delete
+    openstack trust delete
         <trust> [<trust> ...]
 
 .. describe:: <trust>
@@ -84,7 +84,7 @@ List trusts
 .. program:: trust list
 .. code:: bash
 
-    os trust list
+    openstack trust list
 
 trust show
 ----------
@@ -94,7 +94,7 @@ Display trust details
 .. program:: trust show
 .. code:: bash
 
-    os trust show
+    openstack trust show
         <trust>
 
 .. describe:: <trust>

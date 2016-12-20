@@ -15,7 +15,7 @@ Create a new server disk image from an existing server
 .. program:: server image create
 .. code:: bash
 
-    os server image create
+    openstack server image create
         [--name <image-name>]
         [--wait]
         <server>
