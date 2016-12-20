@@ -15,7 +15,7 @@ Set quotas for project
 .. program:: quota set
 .. code:: bash
 
-    os quota set
+    openstack quota set
         # Compute settings
         [--cores <num-cores>]
         [--fixed-ips <num-fixed-ips>]
@@ -58,7 +58,7 @@ Set quotas for class
 
 .. code:: bash
 
-    os quota set
+    openstack quota set
         --class
         # Compute settings
         [--cores <num-cores>]
@@ -216,7 +216,7 @@ Show quotas for project or class
 .. program:: quota show
 .. code:: bash
 
-    os quota show
+    openstack quota show
         [--default]
         [<project>]
 
@@ -232,7 +232,7 @@ Show quotas for project or class
 
 .. code:: bash
 
-    os quota show
+    openstack quota show
         --class
         [<class>]
 

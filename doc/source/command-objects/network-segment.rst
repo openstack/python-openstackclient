@@ -17,7 +17,7 @@ Create new network segment
 .. program:: network segment create
 .. code:: bash
 
-    os network segment create
+    openstack network segment create
         [--description <description>]
         [--physical-network <physical-network>]
         [--segment <segment>]
@@ -62,7 +62,7 @@ Delete network segment(s)
 .. program:: network segment delete
 .. code:: bash
 
-    os network segment delete
+    openstack network segment delete
         <network-segment> [<network-segment> ...]
 
 .. _network_segment_delete-segment:
@@ -78,7 +78,7 @@ List network segments
 .. program:: network segment list
 .. code:: bash
 
-    os network segment list
+    openstack network segment list
         [--long]
         [--network <network>]
 
@@ -98,7 +98,7 @@ Set network segment properties
 .. program:: network segment set
 .. code:: bash
 
-    os network segment set
+    openstack network segment set
         [--description <description>]
         [--name <name>]
         <network-segment>
@@ -124,7 +124,7 @@ Display network segment details
 .. program:: network segment show
 .. code:: bash
 
-    os network segment show
+    openstack network segment show
         <network-segment>
 
 .. _network_segment_show-segment:

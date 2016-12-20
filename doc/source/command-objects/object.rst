@@ -12,7 +12,7 @@ Upload object to container
 .. program:: object create
 .. code:: bash
 
-    os object create
+    openstack object create
         [--name <name>]
         <container>
         <filename> [<filename> ...]
@@ -37,7 +37,7 @@ Delete object from container
 .. program:: object delete
 .. code:: bash
 
-    os object delete
+    openstack object delete
         <container>
         <object> [<object> ...]
 
@@ -57,7 +57,7 @@ List objects
 .. program object list
 .. code:: bash
 
-    os object list
+    openstack object list
         [--prefix <prefix>]
         [--delimiter <delimiter>]
         [--marker <marker>]
@@ -107,7 +107,7 @@ Save object locally
 .. program:: object save
 .. code:: bash
 
-    os object save
+    openstack object save
         [--file <filename>]
         <container>
         <object>
@@ -132,7 +132,7 @@ Set object properties
 .. program:: object set
 .. code:: bash
 
-    os object set
+    openstack object set
         [--property <key=value> [...] ]
         <container>
         <object>
@@ -157,7 +157,7 @@ Display object details
 .. program:: object show
 .. code:: bash
 
-    os object show
+    openstack object show
         <container>
         <object>
 
@@ -177,7 +177,7 @@ Unset object properties
 .. program:: object unset
 .. code:: bash
 
-    os object unset
+    openstack object unset
         [--property <key>]
         <container>
         <object>

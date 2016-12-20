@@ -12,7 +12,7 @@ Create new policy
 .. program:: policy create
 .. code:: bash
 
-    os policy create
+    openstack policy create
         [--type <type>]
         <filename>
 
@@ -32,7 +32,7 @@ Delete policy(s)
 .. program:: policy delete
 .. code:: bash
 
-    os policy delete
+    openstack policy delete
         <policy> [<policy> ...]
 
 .. describe:: <policy>
@@ -47,7 +47,7 @@ List policies
 .. program:: policy list
 .. code:: bash
 
-    os policy list
+    openstack policy list
         [--long]
 
 .. option:: --long
@@ -62,7 +62,7 @@ Set policy properties
 .. program:: policy set
 .. code:: bash
 
-    os policy set
+    openstack policy set
         [--type <type>]
         [--rules <filename>]
         <policy>
@@ -87,7 +87,7 @@ Display policy details
 .. program:: policy show
 .. code:: bash
 
-    os policy show
+    openstack policy show
         <policy>
 
 .. describe:: <policy>

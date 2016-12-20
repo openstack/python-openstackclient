@@ -14,7 +14,7 @@ Authorize a request token
 .. program:: request token authorize
 .. code:: bash
 
-    os request token authorize
+    openstack request token authorize
         --request-key <consumer-key>
         --role <role>
 
@@ -34,7 +34,7 @@ Create a request token
 .. program:: request token create
 .. code:: bash
 
-    os request token create
+    openstack request token create
         --consumer-key <consumer-key>
         --consumer-secret <consumer-secret>
         --project <project>

@@ -18,7 +18,7 @@ Delete network agent(s)
 .. program:: network agent delete
 .. code:: bash
 
-    os network agent delete
+    openstack network agent delete
         <network-agent> [<network-agent> ...]
 
 .. _network_agent_delete-network-agent:
@@ -34,7 +34,7 @@ List network agents
 .. program:: network agent list
 .. code:: bash
 
-    os network agent list
+    openstack network agent list
 
 network agent set
 -----------------
@@ -44,7 +44,7 @@ Set network agent properties
 .. program:: network agent set
 .. code:: bash
 
-    os network agent set
+    openstack network agent set
         [--description <description>]
         [--enable | --disable]
         <network-agent>
@@ -74,7 +74,7 @@ Display network agent details
 .. program:: network agent show
 .. code:: bash
 
-    os network agent show
+    openstack network agent show
         <network-agent>
 
 .. _network_agent_show-network-agent:

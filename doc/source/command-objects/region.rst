@@ -12,7 +12,7 @@ Create new region
 .. program:: region create
 .. code:: bash
 
-    os region create
+    openstack region create
         [--parent-region <region-id>]
         [--description <description>]
         <region-id>
@@ -38,7 +38,7 @@ Delete region(s)
 .. program:: region delete
 .. code:: bash
 
-    os region delete
+    openstack region delete
         <region-id> [<region-id> ...]
 
 .. _region_delete-region-id:
@@ -54,7 +54,7 @@ List regions
 .. program:: region list
 .. code:: bash
 
-    os region list
+    openstack region list
         [--parent-region <region-id>]
 
 .. option:: --parent-region <region-id>
@@ -69,7 +69,7 @@ Set region properties
 .. program:: region set
 .. code:: bash
 
-    os region set
+    openstack region set
         [--parent-region <region-id>]
         [--description <description>]
         <region-id>
@@ -95,7 +95,7 @@ Display region details
 .. program:: region show
 .. code:: bash
 
-    os region show
+    openstack region show
         <region-id>
 
 .. _region_show-region-id:

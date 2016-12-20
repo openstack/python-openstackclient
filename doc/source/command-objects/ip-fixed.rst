@@ -13,7 +13,7 @@ Add fixed IP address to server
 .. program:: ip fixed add
 .. code:: bash
 
-    os ip fixed add
+    openstack ip fixed add
         <network>
         <server>
 
@@ -34,7 +34,7 @@ Remove fixed IP address from server
 .. program:: ip fixed remove
 .. code:: bash
 
-    os ip fixed remove
+    openstack ip fixed remove
         <ip-address>
         <server>
 

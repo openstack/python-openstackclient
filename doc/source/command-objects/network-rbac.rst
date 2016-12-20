@@ -16,7 +16,7 @@ Create network RBAC policy
 .. program:: network rbac create
 .. code:: bash
 
-    os network rbac create
+    openstack network rbac create
         --type <type>
         --action <action>
         --target-project <target-project> [--target-project-domain <target-project-domain>]
@@ -62,7 +62,7 @@ Delete network RBAC policy(s)
 .. program:: network rbac delete
 .. code:: bash
 
-    os network rbac delete
+    openstack network rbac delete
         <rbac-policy> [<rbac-policy> ...]
 
 .. _network_rbac_delete-rbac-policy:
@@ -78,7 +78,7 @@ List network RBAC policies
 .. program:: network rbac list
 .. code:: bash
 
-    os network rbac list
+    openstack network rbac list
 
 network rbac set
 ----------------
@@ -88,7 +88,7 @@ Set network RBAC policy properties
 .. program:: network rbac set
 .. code:: bash
 
-    os network rbac set
+    openstack network rbac set
         [--target-project <target-project> [--target-project-domain <target-project-domain>]]
         <rbac-policy>
 
@@ -114,7 +114,7 @@ Display network RBAC policy details
 .. program:: network rbac show
 .. code:: bash
 
-    os network rbac show
+    openstack network rbac show
         <rbac-policy>
 
 .. _network_rbac_show-rbac-policy:

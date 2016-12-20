@@ -16,7 +16,7 @@ Create new port
 .. program:: port create
 .. code:: bash
 
-    os port create
+    openstack port create
         --network <network>
         [--description <description>]
         [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]
@@ -127,7 +127,7 @@ Delete port(s)
 .. program:: port delete
 .. code:: bash
 
-    os port delete
+    openstack port delete
         <port> [<port> ...]
 
 .. _port_delete-port:
@@ -143,7 +143,7 @@ List ports
 .. program:: port list
 .. code:: bash
 
-    os port list
+    openstack port list
         [--device-owner <device-owner>]
         [--router <router> | --server <server>]
         [--network <network>]
@@ -183,7 +183,7 @@ Set port properties
 .. program:: port set
 .. code:: bash
 
-    os port set
+    openstack port set
         [--description <description>]
         [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]
         [--no-fixed-ip]
@@ -294,7 +294,7 @@ Display port details
 .. program:: port show
 .. code:: bash
 
-    os port show
+    openstack port show
         <port>
 
 .. _port_show-port:
@@ -310,7 +310,7 @@ Unset port properties
 .. program:: port unset
 .. code:: bash
 
-    os port unset
+    openstack port unset
         [--fixed-ip subnet=<subnet>,ip-address=<ip-address> [...]]
         [--binding-profile <binding-profile-key> [...]]
         [--security-group <security-group> [...]]

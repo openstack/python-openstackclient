@@ -48,7 +48,7 @@ Check user membership in group
 .. program:: group contains user
 .. code:: bash
 
-    os group contains user
+    openstack group contains user
         [--group-domain <group-domain>]
         [--user-domain <user-domain>]
         <group>
@@ -84,7 +84,7 @@ Create new group
 .. program:: group create
 .. code:: bash
 
-    os group create
+    openstack group create
         [--domain <domain>]
         [--description <description>]
         [--or-show]
@@ -116,7 +116,7 @@ Delete group
 .. program:: group delete
 .. code:: bash
 
-    os group delete
+    openstack group delete
         [--domain <domain>]
         <group> [<group> ...]
 
@@ -136,7 +136,7 @@ List groups
 .. program:: group list
 .. code:: bash
 
-    os group list
+    openstack group list
         [--domain <domain>]
         [--user <user> [--user-domain <user-domain>]]
         [--long]
@@ -168,7 +168,7 @@ Remove user from group
 .. program:: group remove user
 .. code:: bash
 
-    os group remove user
+    openstack group remove user
         [--group-domain <group-domain>]
         [--user-domain <user-domain>]
         <group>
@@ -204,7 +204,7 @@ Set group properties
 .. program:: group set
 .. code:: bash
 
-    os group set
+    openstack group set
         [--domain <domain>]
         [--name <name>]
         [--description <description>]
@@ -234,7 +234,7 @@ Display group details
 .. program:: group show
 .. code:: bash
 
-    os group show
+    openstack group show
         [--domain <domain>]
         <group>
 

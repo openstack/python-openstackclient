@@ -12,7 +12,7 @@ Set account properties
 .. program:: object store account set
 .. code:: bash
 
-    os object store account set
+    openstack object store account set
         [--property <key=value> [...] ]
 
 .. option:: --property <key=value>
@@ -27,7 +27,7 @@ Display account details
 .. program:: object store account show
 .. code:: bash
 
-    os object store account show
+    openstack object store account show
 
 object store account unset
 --------------------------
@@ -37,7 +37,7 @@ Unset account properties
 .. program:: object store account unset
 .. code:: bash
 
-    os object store account unset
+    openstack object store account unset
         [--property <key>]
 
 .. option:: --property <key>

@@ -12,4 +12,4 @@ List pools of floating IP addresses
 .. program:: floating ip pool list
 .. code:: bash
 
-    os floating ip pool list
+    openstack floating ip pool list

@@ -16,7 +16,7 @@ Add a port to a router
 .. program:: router add port
 .. code:: bash
 
-    os router add port
+    openstack router add port
         <router>
         <port>
 
@@ -38,7 +38,7 @@ Add a subnet to a router
 .. program:: router add subnet
 .. code:: bash
 
-    os router add subnet
+    openstack router add subnet
         <router>
         <subnet>
 
@@ -60,7 +60,7 @@ Create new router
 .. program:: router create
 .. code:: bash
 
-    os router create
+    openstack router create
         [--project <project> [--project-domain <project-domain>]]
         [--enable | --disable]
         [--distributed]
@@ -117,7 +117,7 @@ Delete router(s)
 .. program:: router delete
 .. code:: bash
 
-    os router delete
+    openstack router delete
         <router> [<router> ...]
 
 .. _router_delete-router:
@@ -133,7 +133,7 @@ List routers
 .. program:: router list
 .. code:: bash
 
-    os router list
+    openstack router list
         [--name <name>]
         [--enable | --disable]
         [--long]
@@ -172,7 +172,7 @@ Remove a port from a router
 .. program:: router remove port
 .. code:: bash
 
-    os router remove port
+    openstack router remove port
         <router>
         <port>
 
@@ -194,7 +194,7 @@ Remove a subnet from a router
 .. program:: router remove subnet
 .. code:: bash
 
-    os router remove subnet
+    openstack router remove subnet
         <router>
         <subnet>
 
@@ -216,7 +216,7 @@ Set router properties
 .. program:: router set
 .. code:: bash
 
-    os router set
+    openstack router set
         [--name <name>]
         [--enable | --disable]
         [--distributed | --centralized]
@@ -300,7 +300,7 @@ Display router details
 .. program:: router show
 .. code:: bash
 
-    os router show
+    openstack router show
         <router>
 
 .. _router_show-router:
@@ -316,7 +316,7 @@ Unset router properties
 .. program:: router unset
 .. code:: bash
 
-    os router unset
+    openstack router unset
         [--route destination=<subnet>,gateway=<ip-address>]
         [--external-gateway]
         <router>

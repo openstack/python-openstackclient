@@ -14,7 +14,7 @@ Create new mapping
 .. program:: mapping create
 .. code:: bash
 
-    os mapping create
+    openstack mapping create
         --rules <filename>
         <name>
 
@@ -35,7 +35,7 @@ Delete mapping(s)
 .. program:: mapping delete
 .. code:: bash
 
-    os mapping delete
+    openstack mapping delete
         <mapping> [<mapping> ...]
 
 .. _mapping_delete-mapping:
@@ -51,7 +51,7 @@ List mappings
 .. program:: mapping list
 .. code:: bash
 
-    os mapping list
+    openstack mapping list
 
 mapping set
 -----------
@@ -61,7 +61,7 @@ Set mapping properties
 .. program:: mapping set
 .. code:: bash
 
-    os mapping set
+    openstack mapping set
         [--rules <filename>]
         <mapping>
 
@@ -82,7 +82,7 @@ Display mapping details
 .. program:: mapping show
 .. code:: bash
 
-    os mapping show
+    openstack mapping show
         <mapping>
 
 .. _mapping_show-mapping:

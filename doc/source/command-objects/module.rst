@@ -14,7 +14,7 @@ List module versions
 .. program:: module list
 .. code:: bash
 
-    os module list
+    openstack module list
         [--all]
 
 .. option:: --all
