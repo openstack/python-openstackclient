@@ -193,6 +193,9 @@ list check out :doc:`plugin-commands`.
 * ``ptr record``: (**DNS (Designate)**)
 * ``queue``: (**Messaging (Zaqar)**)
 * ``recordset``: (**DNS (Designate)**)
+* ``search`` (**Search (Searchlight)**)
+* ``search facet`` (**Search (Searchlight)**)
+* ``search resource type`` (**Search (Searchlight)**)
 * ``secret``: (**Key Manager (Barbican)**)
 * ``secret container``: (**Key Manager (Barbican)**)
 * ``secret order``: (**Key Manager (Barbican)**)
@@ -237,6 +240,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``migrate`` - move a server or a volume to a different host; ``--live`` performs a
   live server migration if possible
 * ``pause`` (``unpause``) - stop one or more servers and leave them in memory
+* ``query`` - Query resources by Elasticsearch query string or json format DSL.
 * ``reboot`` - forcibly reboot a server
 * ``rebuild`` - rebuild a server using (most of) the same arguments as in the original create
 * ``remove`` (``add``) - remove an object from a group of objects
