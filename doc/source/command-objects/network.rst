@@ -19,7 +19,7 @@ Create new network
 .. program:: network create
 .. code:: bash
 
-    os network create
+    openstack network create
         [--project <project> [--project-domain <project-domain>]]
         [--enable | --disable]
         [--share | --no-share]
@@ -176,7 +176,7 @@ Delete network(s)
 .. program:: network delete
 .. code:: bash
 
-    os network delete
+    openstack network delete
         <network> [<network> ...]
 
 .. _network_delete-network:
@@ -192,7 +192,7 @@ List networks
 .. program:: network list
 .. code:: bash
 
-    os network list
+    openstack network list
         [--external | --internal]
         [--long]
         [--name <name>]
@@ -300,7 +300,7 @@ Set network properties
 .. program:: network set
 .. code:: bash
 
-    os network set
+    openstack network set
         [--name <name>]
         [--enable | --disable]
         [--share | --no-share]
@@ -407,7 +407,7 @@ Display network details
 .. program:: network show
 .. code:: bash
 
-    os network show
+    openstack network show
         <network>
 
 .. _network_show-network:

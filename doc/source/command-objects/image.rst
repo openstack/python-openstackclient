@@ -14,7 +14,7 @@ Associate project with image
 .. program:: image add project
 .. code:: bash
 
-    os image add project
+    openstack image add project
         [--project-domain <project-domain>]
         <image> <project>
 
@@ -41,7 +41,7 @@ Create/upload an image
 .. program:: image create
 .. code:: bash
 
-    os image create
+    openstack image create
         [--id <id>]
         [--store <store>]
         [--container-format <container-format>]
@@ -175,7 +175,7 @@ Delete image(s)
 .. program:: image delete
 .. code:: bash
 
-    os image delete
+    openstack image delete
         <image>
 
 .. describe:: <image>
@@ -190,7 +190,7 @@ List available images
 .. program:: image list
 .. code:: bash
 
-    os image list
+    openstack image list
         [--public | --private | --shared]
         [--property <key=value>]
         [--long]
@@ -244,7 +244,7 @@ Disassociate project with image
 .. program:: image remove project
 .. code:: bash
 
-    os image remove remove
+    openstack image remove remove
         [--project-domain <project-domain>]
         <image> <project>
 
@@ -269,7 +269,7 @@ Save an image locally
 .. program:: image save
 .. code:: bash
 
-    os image save
+    openstack image save
         --file <filename>
         <image>
 
@@ -291,7 +291,7 @@ Set image properties
 .. program:: image set
 .. code:: bash
 
-    os image set
+    openstack image set
         [--name <name>]
         [--min-disk <disk-gb>]
         [--min-ram <disk-ram>]
@@ -495,7 +495,7 @@ Display image details
 .. program:: image show
 .. code:: bash
 
-    os image show
+    openstack image show
         <image>
 
 .. describe:: <image>
@@ -512,7 +512,7 @@ Unset image tags or properties
 .. program:: image unset
 .. code:: bash
 
-    os image set
+    openstack image set
         [--tag <tag>]
         [--property <property>]
         <image>

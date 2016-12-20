@@ -12,7 +12,7 @@ Add role assignment to a user or group in a project or domain
 .. program:: role add
 .. code:: bash
 
-    os role add
+    openstack role add
         --domain <domain> | --project <project> [--project-domain <project-domain>]
         --user <user> [--user-domain <user-domain>] | --group <group> [--group-domain <group-domain>]
         --role-domain <role-domain>
@@ -85,7 +85,7 @@ Create new role
 .. program:: role create
 .. code:: bash
 
-    os role create
+    openstack role create
         [--or-show]
         [--domain <domain>]
         <name>
@@ -114,7 +114,7 @@ Delete role(s)
 .. program:: role delete
 .. code:: bash
 
-    os role delete
+    openstack role delete
         <role> [<role> ...]
         [--domain <domain>]
 
@@ -136,7 +136,7 @@ List roles
 .. program:: role list
 .. code:: bash
 
-    os role list
+    openstack role list
         --domain <domain> | --project <project> [--project-domain <project-domain>]
         --user <user> [--user-domain <user-domain>] | --group <group> [--group-domain <group-domain>]
         --inherited
@@ -209,7 +209,7 @@ Remove role assignment from domain/project : user/group
 .. program:: role remove
 .. code:: bash
 
-    os role remove
+    openstack role remove
         --domain <domain> | --project <project> [--project-domain <project-domain>]
         --user <user> [--user-domain <user-domain>] | --group <group> [--group-domain <group-domain>]
         --role-domain <role-domain>
@@ -284,7 +284,7 @@ Set role properties
 .. program:: role set
 .. code:: bash
 
-    os role set
+    openstack role set
         [--name <name>]
         [--domain <domain>]
         <role>
@@ -311,7 +311,7 @@ Display role details
 .. program:: role show
 .. code:: bash
 
-    os role show
+    openstack role show
         [--domain <domain>]
         <role>
 

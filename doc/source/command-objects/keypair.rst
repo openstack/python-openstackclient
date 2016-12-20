@@ -17,7 +17,7 @@ Create new public or private key for server ssh access
 .. program:: keypair create
 .. code:: bash
 
-    os keypair create
+    openstack keypair create
         [--public-key <file>]
         <name>
 
@@ -37,7 +37,7 @@ Delete public or private key(s)
 .. program:: keypair delete
 .. code:: bash
 
-    os keypair delete
+    openstack keypair delete
         <key> [<key> ...]
 
 .. describe:: <key>
@@ -52,7 +52,7 @@ List key fingerprints
 .. program:: keypair list
 .. code:: bash
 
-    os keypair list
+    openstack keypair list
 
 keypair show
 ------------
@@ -62,7 +62,7 @@ Display key details
 .. program:: keypair show
 .. code:: bash
 
-    os keypair show
+    openstack keypair show
         [--public-key]
         <key>
 

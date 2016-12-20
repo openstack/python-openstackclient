@@ -14,7 +14,7 @@ Create new federation protocol
 .. program:: federation protocol create
 .. code:: bash
 
-    os federation protocol create
+    openstack federation protocol create
         --identity-provider <identity-provider>
         --mapping <mapping>
         <name>
@@ -39,7 +39,7 @@ Delete federation protocol(s)
 .. program:: federation protocol delete
 .. code:: bash
 
-    os federation protocol delete
+    openstack federation protocol delete
         --identity-provider <identity-provider>
         <federation-protocol> [<federation-protocol> ...]
 
@@ -59,7 +59,7 @@ List federation protocols
 .. program:: federation protocol list
 .. code:: bash
 
-    os federation protocol list
+    openstack federation protocol list
         --identity-provider <identity-provider>
 
 .. option:: --identity-provider <identity-provider>
@@ -74,7 +74,7 @@ Set federation protocol properties
 .. program:: federation protocol set
 .. code:: bash
 
-    os federation protocol set
+    openstack federation protocol set
         --identity-provider <identity-provider>
         [--mapping <mapping>]
         <federation-protocol>
@@ -99,7 +99,7 @@ Display federation protocol details
 .. program:: federation protocol show
 .. code:: bash
 
-    os federation protocol show
+    openstack federation protocol show
         --identity-provider <identity-provider>
         <federation-protocol>
 

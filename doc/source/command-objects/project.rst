@@ -12,7 +12,7 @@ Create new project
 .. program:: project create
 .. code:: bash
 
-    os project create
+    openstack project create
         [--domain <domain>]
         [--parent <project>]
         [--description <description>]
@@ -69,7 +69,7 @@ Delete project(s)
 .. program:: project delete
 .. code:: bash
 
-    os project delete
+    openstack project delete
         [--domain <domain>]
         <project> [<project> ...]
 
@@ -92,7 +92,7 @@ List projects
 .. program:: project list
 .. code:: bash
 
-    os project list
+    openstack project list
         [--domain <domain>]
         [--user <user>]
         [--long]
@@ -121,7 +121,7 @@ Set project properties
 .. program:: project set
 .. code:: bash
 
-    os project set
+    openstack project set
         [--name <name>]
         [--domain <domain>]
         [--description <description>]
@@ -171,7 +171,7 @@ Display project details
 .. program:: project show
 .. code:: bash
 
-    os project show
+    openstack project show
         [--domain <domain>]
         <project>
 
@@ -208,7 +208,7 @@ Unset project properties
 .. program:: project unset
 .. code:: bash
 
-    os project unset
+    openstack project unset
         --property <key> [--property <key> ...]
         <project>
 

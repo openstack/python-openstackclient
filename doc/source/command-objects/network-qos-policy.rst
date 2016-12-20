@@ -15,7 +15,7 @@ Create new Network QoS policy
 .. program:: network qos policy create
 .. code:: bash
 
-    os network qos policy create
+    openstack network qos policy create
         [--description <description>]
         [--share | --no-share]
         [--project <project>]
@@ -55,7 +55,7 @@ Delete Network QoS policy
 .. program:: network qos policy delete
 .. code:: bash
 
-    os network qos policy delete
+    openstack network qos policy delete
          <qos-policy> [<qos-policy> ...]
 
 .. describe:: <qos-policy>
@@ -70,7 +70,7 @@ List Network QoS policies
 .. program:: network qos policy list
 .. code:: bash
 
-    os network qos policy list
+    openstack network qos policy list
 
 network qos policy set
 ----------------------
@@ -80,7 +80,7 @@ Set Network QoS policy properties
 .. program:: network qos policy set
 .. code:: bash
 
-    os network qos policy set
+    openstack network qos policy set
         [--name <name>]
         [--description <description>]
         [--share | --no-share]
@@ -114,7 +114,7 @@ Display Network QoS policy details
 .. program:: network qos policy show
 .. code:: bash
 
-    os network qos policy show
+    openstack network qos policy show
         <qos-policy>
 
 .. describe:: <qos-policy>

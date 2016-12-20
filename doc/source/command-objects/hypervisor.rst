@@ -12,7 +12,7 @@ List hypervisors
 .. program:: hypervisor list
 .. code:: bash
 
-    os hypervisor list
+    openstack hypervisor list
         [--matching <hostname>]
         [--long]
 
@@ -32,7 +32,7 @@ Display hypervisor details
 .. program:: hypervisor show
 .. code:: bash
 
-    os hypervisor show
+    openstack hypervisor show
         <hypervisor>
 
 .. _hypervisor_show-flavor:

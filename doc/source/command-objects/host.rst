@@ -14,7 +14,7 @@ List hosts
 .. program:: host list
 .. code:: bash
 
-    os host list
+    openstack host list
         [--zone <availability-zone>]
 
 .. option:: --zone <availability-zone>
@@ -29,7 +29,7 @@ Set host properties
 .. program:: host set
 .. code:: bash
 
-    os host set
+    openstack host set
         [--enable | --disable]
         [--enable-maintenance | --disable-maintenance]
         <host>
@@ -64,7 +64,7 @@ Display host details
 .. program:: host show
 .. code:: bash
 
-    os host show
+    openstack host show
         <host>
 
 .. describe:: <host>

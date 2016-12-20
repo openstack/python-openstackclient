@@ -12,5 +12,5 @@ Display hypervisor stats details
 .. program:: hypervisor stats show
 .. code:: bash
 
-    os hypervisor stats show
+    openstack hypervisor stats show
 

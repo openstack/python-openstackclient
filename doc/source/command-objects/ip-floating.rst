@@ -13,7 +13,7 @@ Add floating IP address to server
 .. program:: ip floating add
 .. code:: bash
 
-    os ip floating add
+    openstack ip floating add
         <ip-address>
         <server>
 
@@ -34,7 +34,7 @@ Create new floating IP address
 .. program:: ip floating create
 .. code:: bash
 
-    os ip floating create
+    openstack ip floating create
         [--subnet <subnet>]
         [--port <port>]
         [--floating-ip-address <floating-ip-address>]
@@ -74,7 +74,7 @@ Delete floating IP(s)
 .. program:: ip floating delete
 .. code:: bash
 
-    os ip floating delete
+    openstack ip floating delete
         <floating-ip> [<floating-ip> ...]
 
 .. describe:: <floating-ip>
@@ -90,7 +90,7 @@ List floating IP addresses
 .. program:: ip floating list
 .. code:: bash
 
-    os ip floating list
+    openstack ip floating list
 
 ip floating remove
 ------------------
@@ -101,7 +101,7 @@ Remove floating IP address from server
 .. program:: ip floating remove
 .. code:: bash
 
-    os ip floating remove
+    openstack ip floating remove
         <ip-address>
         <server>
 
@@ -122,7 +122,7 @@ Display floating IP details
 .. program:: ip floating show
 .. code:: bash
 
-    os ip floating show <floating-ip>
+    openstack ip floating show <floating-ip>
 
 .. describe:: <floating-ip>
 

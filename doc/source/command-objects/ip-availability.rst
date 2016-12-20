@@ -18,7 +18,7 @@ number of allocated IP addresses from that pool.
 .. program:: ip availability list
 .. code:: bash
 
-    os ip availability list
+    openstack ip availability list
         [--ip-version {4,6}]
         [--project <project>]
 
@@ -51,7 +51,7 @@ subnet within the network as well.
 .. program:: ip availability show
 .. code:: bash
 
-    os ip availability show
+    openstack ip availability show
         <network>
 
 .. _ip_availability_show-network

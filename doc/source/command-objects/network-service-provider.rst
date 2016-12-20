@@ -15,4 +15,4 @@ List service providers
 .. program:: network service provider list
 .. code:: bash
 
-    os network service provider list
+    openstack network service provider list

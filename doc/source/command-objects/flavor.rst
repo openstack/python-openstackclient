@@ -12,7 +12,7 @@ Create new flavor
 .. program:: flavor create
 .. code:: bash
 
-    os flavor create
+    openstack flavor create
         [--id <id>]
         [--ram <size-mb>]
         [--disk <size-gb>]
@@ -89,7 +89,7 @@ Delete flavor(s)
 .. program:: flavor delete
 .. code:: bash
 
-    os flavor delete
+    openstack flavor delete
         <flavor> [<flavor> ...]
 
 .. _flavor_delete-flavor:
@@ -105,7 +105,7 @@ List flavors
 .. program:: flavor list
 .. code:: bash
 
-    os flavor list
+    openstack flavor list
         [--public | --private | --all]
         [--long]
         [--marker <marker>]
@@ -143,7 +143,7 @@ Set flavor properties
 .. program:: flavor set
 .. code:: bash
 
-    os flavor set
+    openstack flavor set
         [--property <key=value> [...] ]
         [--project <project>]
         [--project-domain <project-domain>]
@@ -174,7 +174,7 @@ Display flavor details
 .. program:: flavor show
 .. code:: bash
 
-    os flavor show
+    openstack flavor show
         <flavor>
 
 .. _flavor_show-flavor:
@@ -190,7 +190,7 @@ Unset flavor properties
 .. program:: flavor unset
 .. code:: bash
 
-    os flavor unset
+    openstack flavor unset
         [--property <key> [...] ]
         [--project <project>]
         [--project-domain <project-domain>]

@@ -14,7 +14,7 @@ Create new identity provider
 .. program:: identity provider create
 .. code:: bash
 
-    os identity provider create
+    openstack identity provider create
         [--remote-id <remote-id> [...] | --remote-id-file <file-name>]
         [--description <description>]
         [--enable | --disable]
@@ -54,7 +54,7 @@ Delete identity provider(s)
 .. program:: identity provider delete
 .. code:: bash
 
-    os identity provider delete
+    openstack identity provider delete
         <identity-provider> [<identity-provider> ...]
 
 .. describe:: <identity-provider>
@@ -69,7 +69,7 @@ List identity providers
 .. program:: identity provider list
 .. code:: bash
 
-    os identity provider list
+    openstack identity provider list
 
 identity provider set
 ---------------------
@@ -79,7 +79,7 @@ Set identity provider properties
 .. program:: identity provider set
 .. code:: bash
 
-    os identity provider set
+    openstack identity provider set
         [--remote-id <remote-id> [...] | --remote-id-file <file-name>]
         [--description <description>]
         [--enable | --disable]
@@ -119,7 +119,7 @@ Display identity provider details
 .. program:: identity provider show
 .. code:: bash
 
-    os identity provider show
+    openstack identity provider show
         <identity-provider>
 
 .. describe:: <identity-provider>

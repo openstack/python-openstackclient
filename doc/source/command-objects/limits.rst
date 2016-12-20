@@ -14,7 +14,7 @@ Show compute and block storage limits
 .. program:: limits show
 .. code:: bash
 
-    os limits show
+    openstack limits show
         --absolute | --rate
         [--reserved]
         [--project <project>]
