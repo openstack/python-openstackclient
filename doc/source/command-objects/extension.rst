@@ -13,7 +13,7 @@ List API extensions
 .. program:: extension list
 .. code:: bash
 
-    os extension list
+    openstack extension list
         [--compute]
         [--identity]
         [--network]

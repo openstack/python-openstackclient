@@ -12,7 +12,7 @@ Create compute agent
 .. program:: compute agent create
 .. code:: bash
 
-    os compute agent create
+    openstack compute agent create
         <os> <architecture> <version> <url> <md5hash>
         <hypervisor>
 
@@ -49,7 +49,7 @@ Delete compute agent(s)
 .. program:: compute agent delete
 .. code:: bash
 
-    os compute agent delete <id> [<id> ...]
+    openstack compute agent delete <id> [<id> ...]
 
 .. _compute_agent-delete:
 .. describe:: <id>
@@ -64,7 +64,7 @@ List compute agents
 .. program:: compute agent list
 .. code:: bash
 
-    os compute agent list [--hypervisor <hypervisor>]
+    openstack compute agent list [--hypervisor <hypervisor>]
 
 .. option:: --hypervisor <hypervisor>
 
@@ -78,7 +78,7 @@ Set compute agent properties
 .. program:: agent set
 .. code:: bash
 
-    os compute agent set
+    openstack compute agent set
         [--agent-version <version>]
         [--url <url]
         [--md5hash <md5hash>]

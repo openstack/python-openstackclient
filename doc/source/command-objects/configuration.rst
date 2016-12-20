@@ -15,7 +15,7 @@ show different configurations.
 .. program:: configuration show
 .. code:: bash
 
-    os configuration show
+    openstack configuration show
         [--mask | --unmask]
 
 .. option:: --mask

@@ -12,7 +12,7 @@ Create new credential
 .. program:: credential create
 .. code:: bash
 
-    os credential create
+    openstack credential create
         [--type <type>]
         [--project <project>]
         <user> <data>
@@ -42,7 +42,7 @@ Delete credential(s)
 .. program:: credential delete
 .. code:: bash
 
-    os credential delete
+    openstack credential delete
         <credential-id> [<credential-id> ...]
 
 .. _credential_delete:
@@ -58,7 +58,7 @@ List credentials
 .. program:: credential list
 .. code:: bash
 
-    os credential list
+    openstack credential list
 
 credential set
 --------------
@@ -68,7 +68,7 @@ Set credential properties
 .. program:: credential set
 .. code:: bash
 
-    os credential set
+    openstack credential set
         [--user <user>]
         [--type <type>]
         [--data <data>]
@@ -104,7 +104,7 @@ Display credential details
 .. program:: credential show
 .. code:: bash
 
-    os credential show
+    openstack credential show
         <credential-id>
 
 .. _credential_show:

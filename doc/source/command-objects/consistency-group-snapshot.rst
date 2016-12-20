@@ -12,7 +12,7 @@ Create new consistency group snapshot.
 .. program:: consistency group snapshot create
 .. code:: bash
 
-    os consistency group snapshot create
+    openstack consistency group snapshot create
         [--consistency-group <consistency-group>]
         [--description <description>]
         [<snapshot-name>]
@@ -39,7 +39,7 @@ Delete consistency group snapshot(s)
 .. program:: consistency group snapshot delete
 .. code:: bash
 
-    os consistency group snapshot delete
+    openstack consistency group snapshot delete
         <consistency-group-snapshot> [<consistency-group-snapshot> ...]
 
 .. _consistency_group_snapshot_delete-consistency-group-snapshot:
@@ -55,7 +55,7 @@ List consistency group snapshots.
 .. program:: consistency group snapshot list
 .. code:: bash
 
-    os consistency group snapshot list
+    openstack consistency group snapshot list
         [--all-projects]
         [--long]
         [--status <status>]
@@ -87,7 +87,7 @@ Display consistency group snapshot details.
 .. program:: consistency group snapshot show
 .. code:: bash
 
-    os consistency group snapshot show
+    openstack consistency group snapshot show
         <consistency-group-snapshot>
 
 .. _consistency_group_snapshot_show-consistency-group-snapshot:

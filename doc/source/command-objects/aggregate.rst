@@ -15,7 +15,7 @@ Add host to aggregate
 .. program:: aggregate add host
 .. code:: bash
 
-    os aggregate add host
+    openstack aggregate add host
         <aggregate>
         <host>
 
@@ -36,7 +36,7 @@ Create a new aggregate
 .. program:: aggregate create
 .. code:: bash
 
-    os aggregate create
+    openstack aggregate create
         [--zone <availability-zone>]
         [--property <key=value> [...] ]
         <name>
@@ -61,7 +61,7 @@ Delete existing aggregate(s)
 .. program:: aggregate delete
 .. code:: bash
 
-    os aggregate delete
+    openstack aggregate delete
         <aggregate> [<aggregate> ...]
 
 .. describe:: <aggregate>
@@ -76,7 +76,7 @@ List all aggregates
 .. program:: aggregate list
 .. code:: bash
 
-    os aggregate list
+    openstack aggregate list
         [--long]
 
 .. option:: --long
@@ -91,7 +91,7 @@ Remove host from aggregate
 .. program:: aggregate remove host
 .. code:: bash
 
-    os aggregate remove host
+    openstack aggregate remove host
         <aggregate>
         <host>
 
@@ -112,7 +112,7 @@ Set aggregate properties
 .. program:: aggregate set
 .. code:: bash
 
-    os aggregate set
+    openstack aggregate set
         [--name <new-name>]
         [--zone <availability-zone>]
         [--property <key=value> [...] ]
@@ -151,7 +151,7 @@ Display aggregate details
 .. program:: aggregate show
 .. code:: bash
 
-    os aggregate show
+    openstack aggregate show
         <aggregate>
 
 .. describe:: <aggregate>
@@ -166,7 +166,7 @@ Unset aggregate properties
 .. program:: aggregate unset
 .. code-block:: bash
 
-    os aggregate unset
+    openstack aggregate unset
         [--property <key> [...] ]
         <aggregate>
 

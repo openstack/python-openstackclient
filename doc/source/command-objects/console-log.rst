@@ -14,7 +14,7 @@ Show server's console output
 .. program:: console log show
 .. code:: bash
 
-    os console log show
+    openstack console log show
         [--lines <num-lines>]
         <server>
 

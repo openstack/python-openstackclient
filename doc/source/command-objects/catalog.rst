@@ -12,7 +12,7 @@ List services in the service catalog
 .. program:: catalog list
 .. code:: bash
 
-    os catalog list
+    openstack catalog list
 
 catalog show
 ------------
@@ -22,7 +22,7 @@ Display service catalog details
 .. program:: catalog show
 .. code:: bash
 
-    os catalog show
+    openstack catalog show
         <service>
 
 .. describe:: <service>

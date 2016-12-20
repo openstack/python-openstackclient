@@ -13,7 +13,7 @@ Create new backup
 .. program:: backup create
 .. code:: bash
 
-    os backup create
+    openstack backup create
         [--container <container>]
         [--name <name>]
         [--description <description>]
@@ -66,7 +66,7 @@ Delete backup(s)
 .. program:: backup delete
 .. code:: bash
 
-    os backup delete
+    openstack backup delete
         [--force]
         <backup> [<backup> ...]
 
@@ -90,7 +90,7 @@ List backups
 .. program:: backup list
 .. code:: bash
 
-    os backup list
+    openstack backup list
 
 .. _backup_list-backup:
 .. option:: --long
@@ -106,7 +106,7 @@ Restore backup
 .. program:: backup restore
 .. code:: bash
 
-    os backup restore
+    openstack backup restore
         <backup>
         <volume>
 
@@ -128,7 +128,7 @@ Display backup details
 .. program:: backup show
 .. code:: bash
 
-    os backup show
+    openstack backup show
         <backup>
 
 .. _backup_show-backup:

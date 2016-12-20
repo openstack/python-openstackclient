@@ -12,7 +12,7 @@ Delete compute service(s)
 .. program:: compute service delete
 .. code:: bash
 
-    os compute service delete
+    openstack compute service delete
         <service> [<service> ...]
 
 .. _compute-service-delete:
@@ -28,7 +28,7 @@ List compute services
 .. program:: compute service list
 .. code:: bash
 
-    os compute service list
+    openstack compute service list
         [--host <host>]
         [--service <service>]
         [--long]
@@ -55,7 +55,7 @@ Set compute service properties
 .. program:: compute service set
 .. code:: bash
 
-    os compute service set
+    openstack compute service set
         [--enable | --disable]
         [--disable-reason <reason>]
         [--up | --down]
