@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Added ``auto`` and ``none`` as values for ``--nic`` to
+    the``server create`` command. Specifying ``none`` will not
+    attach a network to the server. Specifying ``auto``
+    will automatically attach a network. Note, v2.37 (or newer)
+    of the Compute API is required for these options.
+    [Bug `1650342 <https://bugs.launchpad.net/bugs/1650342>`_]
