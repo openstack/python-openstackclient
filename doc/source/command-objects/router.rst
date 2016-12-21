@@ -259,7 +259,9 @@ Set router properties
 
 .. option:: --no-route
 
-    Clear routes associated with the router
+    Clear routes associated with the router.
+    Specify both --route and --no-route to overwrite
+    current value of route.
 
 .. option:: --ha
 
