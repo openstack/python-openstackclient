@@ -12,7 +12,7 @@ Create new volume backup
 .. program:: volume backup create
 .. code:: bash
 
-    os volume backup create
+    openstack volume backup create
         [--container <container>]
         [--name <name>]
         [--description <description>]

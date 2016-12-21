@@ -12,7 +12,7 @@ Add user to group
 .. program:: group add user
 .. code:: bash
 
-    os group add user
+    openstack group add user
         [--group-domain <group-domain>]
         [--user-domain <user-domain>]
         <group>
