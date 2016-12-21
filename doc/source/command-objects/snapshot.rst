@@ -13,7 +13,7 @@ Create new snapshot
 .. program:: snapshot create
 .. code:: bash
 
-    os snapshot create
+    openstack snapshot create
         [--name <name>]
         [--description <description>]
         [--force]

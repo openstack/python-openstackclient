@@ -12,7 +12,7 @@ Create new volume snapshot
 .. program:: volume snapshot create
 .. code:: bash
 
-    os volume snapshot create
+    openstack volume snapshot create
         [--volume <volume>]
         [--description <description>]
         [--force]

@@ -12,7 +12,7 @@ Add fixed IP address to server
 .. program:: server add fixed ip
 .. code:: bash
 
-    os server add fixed ip
+    openstack server add fixed ip
         <server>
         <network>
 
