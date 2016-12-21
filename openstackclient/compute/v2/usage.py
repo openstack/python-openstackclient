@@ -89,7 +89,7 @@ class ListUsage(command.Lister):
         # Cache the project list
         project_cache = {}
         try:
-            for p in self.app.client_manager.identity.tenants.list():
+            for p in self.app.client_manager.identity.projects.list():
                 project_cache[p.id] = p
         except Exception:
             # Just forget it if there's any trouble
