@@ -72,6 +72,25 @@ class DeleteNetworkAgent(command.Command):
 class ListNetworkAgent(command.Lister):
     _description = _("List network agents")
 
+    def get_parser(self, prog_name):
+        parser = super(ListNetworkAgent, self).get_parser(prog_name)
+        parser.add_argument(
+            '--agent-type',
+            metavar='<agent-type>',
+            choices=["dhcp", "open-vswitch", "linux-bridge", "ofa", "l3",
+                     "loadbalancer", "metering", "metadata", "macvtap", "nic"],
+            help=_("List only agents with the specified agent type. "
+                   "The supported agent types are: dhcp, open-vswitch, "
+                   "linux-bridge, ofa, l3, loadbalancer, metering, "
+                   "metadata, macvtap, nic.")
+        )
+        parser.add_argument(
+            '--host',
+            metavar='<host>',
+            help=_("List only agents running on the specified host")
+        )
+        return parser
+
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         columns = (
@@ -92,7 +111,27 @@ class ListNetworkAgent(command.Lister):
             'State',
             'Binary'
         )
-        data = client.agents()
+
+        key_value = {
+            'dhcp': 'DHCP agent',
+            'open-vswitch': 'Open vSwitch agent',
+            'linux-bridge': 'Linux bridge agent',
+            'ofa': 'OFA driver agent',
+            'l3': 'L3 agent',
+            'loadbalancer': 'Loadbalancer agent',
+            'metering': 'Metering agent',
+            'metadata': 'Metadata agent',
+            'macvtap': 'Macvtap agent',
+            'nic': 'NIC Switch agent'
+        }
+
+        filters = {}
+        if parsed_args.agent_type is not None:
+            filters['agent_type'] = key_value[parsed_args.agent_type]
+        if parsed_args.host is not None:
+            filters['host'] = parsed_args.host
+
+        data = client.agents(**filters)
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns, formatters=_formatters,

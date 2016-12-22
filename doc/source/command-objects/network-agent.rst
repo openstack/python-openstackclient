@@ -35,6 +35,19 @@ List network agents
 .. code:: bash
 
     openstack network agent list
+        [--agent-type <agent-type>]
+        [--host <host>]
+
+.. option:: --agent-type <agent-type>
+
+    List only agents with the specified agent type.
+    The supported agent types are: dhcp, open-vswitch,
+    linux-bridge, ofa, l3, loadbalancer, metering,
+    metadata, macvtap, nic.
+
+.. option:: --host <host>
+
+    List only agents running on the specified host
 
 network agent set
 -----------------
