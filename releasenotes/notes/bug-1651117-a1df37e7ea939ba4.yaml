@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Add ``--encryption-provider``, ``--encryption-cipher``, ``--encryption-key-size``
+    and ``--encryption-control-location`` options to ``volume type set`` and
+    ``volume type create`` commands.
+    Add ``--encryption-type`` option to ``volume type unset``, ``volume type list``
+    and ``volume type show`` commands.
+    [Bug `1651117 <https://bugs.launchpad.net/bugs/1651117>`_]

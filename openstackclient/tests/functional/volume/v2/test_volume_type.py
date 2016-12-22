@@ -102,3 +102,90 @@ class VolumeTypeTests(common.BaseVolumeTests):
         time.sleep(5)
         raw_output = self.openstack(cmd)
         self.assertOutput('', raw_output)
+
+    # NOTE: Add some basic funtional tests with the old format to
+    #       make sure the command works properly, need to change
+    #       these to new test format when beef up all tests for
+    #       volume tye commands.
+    def test_encryption_type(self):
+        encryption_type = uuid.uuid4().hex
+        # test create new encryption type
+        opts = self.get_opts(['encryption'])
+        raw_output = self.openstack(
+            'volume type create '
+            '--encryption-provider LuksEncryptor '
+            '--encryption-cipher aes-xts-plain64 '
+            '--encryption-key-size 128 '
+            '--encryption-control-location front-end ' +
+            encryption_type + opts)
+        expected = ["provider='LuksEncryptor'",
+                    "cipher='aes-xts-plain64'",
+                    "key_size='128'",
+                    "control_location='front-end'"]
+        for attr in expected:
+            self.assertIn(attr, raw_output)
+        # test show encryption type
+        opts = self.get_opts(['encryption'])
+        raw_output = self.openstack(
+            'volume type show --encryption-type ' + encryption_type + opts)
+        expected = ["provider='LuksEncryptor'",
+                    "cipher='aes-xts-plain64'",
+                    "key_size='128'",
+                    "control_location='front-end'"]
+        for attr in expected:
+            self.assertIn(attr, raw_output)
+        # test list encryption type
+        opts = self.get_opts(['Encryption'])
+        raw_output = self.openstack(
+            'volume type list --encryption-type ' + opts)
+        expected = ["provider='LuksEncryptor'",
+                    "cipher='aes-xts-plain64'",
+                    "key_size='128'",
+                    "control_location='front-end'"]
+        for attr in expected:
+            self.assertIn(attr, raw_output)
+        # test set existing encryption type
+        raw_output = self.openstack(
+            'volume type set '
+            '--encryption-key-size 256 '
+            '--encryption-control-location back-end ' +
+            encryption_type)
+        self.assertEqual('', raw_output)
+        opts = self.get_opts(['encryption'])
+        raw_output = self.openstack(
+            'volume type show --encryption-type ' + encryption_type + opts)
+        expected = ["provider='LuksEncryptor'",
+                    "cipher='aes-xts-plain64'",
+                    "key_size='256'",
+                    "control_location='back-end'"]
+        for attr in expected:
+            self.assertIn(attr, raw_output)
+        # test set new encryption type
+        raw_output = self.openstack(
+            'volume type set '
+            '--encryption-provider LuksEncryptor '
+            '--encryption-cipher aes-xts-plain64 '
+            '--encryption-key-size 128 '
+            '--encryption-control-location front-end ' +
+            self.NAME)
+        self.assertEqual('', raw_output)
+        opts = self.get_opts(['encryption'])
+        raw_output = self.openstack(
+            'volume type show --encryption-type ' + self.NAME + opts)
+        expected = ["provider='LuksEncryptor'",
+                    "cipher='aes-xts-plain64'",
+                    "key_size='128'",
+                    "control_location='front-end'"]
+        for attr in expected:
+            self.assertIn(attr, raw_output)
+        # test unset encryption type
+        raw_output = self.openstack(
+            'volume type unset --encryption-type ' + self.NAME)
+        self.assertEqual('', raw_output)
+        opts = self.get_opts(['encryption'])
+        raw_output = self.openstack(
+            'volume type show --encryption-type ' + self.NAME + opts)
+        self.assertEqual('\n', raw_output)
+        # test delete encryption type
+        raw_output = self.openstack('volume type delete ' + encryption_type)
+        self.assertEqual('', raw_output)
