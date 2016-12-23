@@ -393,7 +393,10 @@ class CreateServer(command.ShowOne):
                    "net-id: attach NIC to network with this UUID, "
                    "port-id: attach NIC to port with this UUID, "
                    "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
-                   "v6-fixed-ip: IPv6 fixed address for NIC (optional)."),
+                   "v6-fixed-ip: IPv6 fixed address for NIC (optional), "
+                   "none: (v2.37+) no network is attached, "
+                   "auto: (v2.37+) the compute service will automatically "
+                   "allocate a network."),
         )
         parser.add_argument(
             '--hint',
@@ -513,36 +516,39 @@ class CreateServer(command.ShowOne):
                 block_device_mapping.update({dev_key: block_volume})
 
         nics = []
-        for nic_str in parsed_args.nic:
-            nic_info = {"net-id": "", "v4-fixed-ip": "",
-                        "v6-fixed-ip": "", "port-id": ""}
-            nic_info.update(dict(kv_str.split("=", 1)
-                            for kv_str in nic_str.split(",")))
-            if bool(nic_info["net-id"]) == bool(nic_info["port-id"]):
-                msg = _("either net-id or port-id should be specified "
-                        "but not both")
-                raise exceptions.CommandError(msg)
-            if self.app.client_manager.is_network_endpoint_enabled():
-                network_client = self.app.client_manager.network
-                if nic_info["net-id"]:
-                    net = network_client.find_network(
-                        nic_info["net-id"], ignore_missing=False)
-                    nic_info["net-id"] = net.id
-                if nic_info["port-id"]:
-                    port = network_client.find_port(
-                        nic_info["port-id"], ignore_missing=False)
-                    nic_info["port-id"] = port.id
-            else:
-                if nic_info["net-id"]:
-                    nic_info["net-id"] = utils.find_resource(
-                        compute_client.networks,
-                        nic_info["net-id"]
-                    ).id
-                if nic_info["port-id"]:
-                    msg = _("can't create server with port specified "
-                            "since network endpoint not enabled")
+        if parsed_args.nic in ('auto', 'none'):
+            nics = [parsed_args.nic]
+        else:
+            for nic_str in parsed_args.nic:
+                nic_info = {"net-id": "", "v4-fixed-ip": "",
+                            "v6-fixed-ip": "", "port-id": ""}
+                nic_info.update(dict(kv_str.split("=", 1)
+                                for kv_str in nic_str.split(",")))
+                if bool(nic_info["net-id"]) == bool(nic_info["port-id"]):
+                    msg = _("either net-id or port-id should be specified "
+                            "but not both")
                     raise exceptions.CommandError(msg)
-            nics.append(nic_info)
+                if self.app.client_manager.is_network_endpoint_enabled():
+                    network_client = self.app.client_manager.network
+                    if nic_info["net-id"]:
+                        net = network_client.find_network(
+                            nic_info["net-id"], ignore_missing=False)
+                        nic_info["net-id"] = net.id
+                    if nic_info["port-id"]:
+                        port = network_client.find_port(
+                            nic_info["port-id"], ignore_missing=False)
+                        nic_info["port-id"] = port.id
+                else:
+                    if nic_info["net-id"]:
+                        nic_info["net-id"] = utils.find_resource(
+                            compute_client.networks,
+                            nic_info["net-id"]
+                        ).id
+                    if nic_info["port-id"]:
+                        msg = _("can't create server with port specified "
+                                "since network endpoint not enabled")
+                        raise exceptions.CommandError(msg)
+                nics.append(nic_info)
 
         hints = {}
         for hint in parsed_args.hint:

@@ -107,7 +107,7 @@ Create a new server
         [--user-data <user-data>]
         [--availability-zone <zone-name>]
         [--block-device-mapping <dev-name=mapping> [...] ]
-        [--nic <net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,port-id=port-uuid> [...] ]
+        [--nic <net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,port-id=port-uuid,auto,none> [...] ]
         [--hint <key=value> [...] ]
         [--config-drive <value>|True ]
         [--min <count>]
@@ -158,7 +158,7 @@ Create a new server
 
     Map block devices; map is <id>:<type>:<size(GB)>:<delete_on_terminate> (optional extension)
 
-.. option:: --nic <net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,port-id=port-uuid>
+.. option:: --nic <net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,port-id=port-uuid,auto,none>
 
     Create a NIC on the server. Specify option multiple times to create
     multiple NICs. Either net-id or port-id must be provided, but not both.
@@ -166,6 +166,8 @@ Create a new server
     port-id: attach NIC to port with this UUID,
     v4-fixed-ip: IPv4 fixed address for NIC (optional),
     v6-fixed-ip: IPv6 fixed address for NIC (optional).
+    none: (v2.37+) no network is attached.
+    auto: (v2.37+) the compute service will automatically allocate a network.
 
 .. option:: --hint <key=value>
 
