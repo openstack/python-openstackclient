@@ -10,6 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
 from openstackclient.tests.functional import base
 
 
@@ -26,11 +28,13 @@ class NetworkAgentTests(base.TestCase):
         # get the list of network agent IDs.
         cls.IDs = raw_output.split('\n')
 
+    @testtools.skip('broken SDK testing')
     def test_network_agent_show(self):
         opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('network agent show ' + self.IDs[0] + opts)
         self.assertEqual(self.IDs[0] + "\n", raw_output)
 
+    @testtools.skip('broken SDK testing')
     def test_network_agent_set(self):
         opts = self.get_opts(['admin_state_up'])
         self.openstack('network agent set --disable ' + self.IDs[0])

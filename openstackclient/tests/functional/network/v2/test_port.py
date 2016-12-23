@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
 import uuid
 
 from openstackclient.tests.functional import base
@@ -23,6 +24,7 @@ class PortTests(base.TestCase):
     FIELDS = ['name']
 
     @classmethod
+    @testtools.skip('broken SDK testing')
     def setUpClass(cls):
         # Create a network for the subnet.
         cls.openstack('network create ' + cls.NETWORK_NAME)

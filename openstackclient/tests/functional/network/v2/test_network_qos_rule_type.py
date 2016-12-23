@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
 from openstackclient.tests.functional import base
 
 
@@ -23,6 +25,7 @@ class NetworkQosRuleTypeTests(base.TestCase):
                             'bandwidth_limit',
                             'minimum_bandwidth']
 
+    @testtools.skip('broken SDK testing')
     def test_qos_rule_type_list(self):
         raw_output = self.openstack('network qos rule type list')
         for rule_type in self.AVAILABLE_RULE_TYPES:
