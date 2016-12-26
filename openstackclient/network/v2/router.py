@@ -483,7 +483,7 @@ class SetRouter(command.Command):
         routes_ha.add_argument(
             '--no-ha',
             action='store_true',
-            help=_("Clear high availablability attribute of the router "
+            help=_("Clear high availability attribute of the router "
                    "(disabled router only)")
         )
         # TODO(tangchen): Support setting 'external_gateway_info' property in
