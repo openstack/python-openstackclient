@@ -79,6 +79,21 @@ List network RBAC policies
 .. code:: bash
 
     openstack network rbac list
+        [--type <type>]
+        [--action <action>]
+        [--long]
+
+.. option:: --type <type>
+
+    List network RBAC policies according to given object type ("qos_policy" or "network")
+
+.. option:: --action <action>
+
+    List network RBAC policies according to given action ("access_as_external" or "access_as_shared")
+
+.. option:: --long
+
+    List additional fields in output
 
 network rbac set
 ----------------

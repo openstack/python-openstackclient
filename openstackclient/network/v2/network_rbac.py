@@ -164,6 +164,30 @@ class DeleteNetworkRBAC(command.Command):
 class ListNetworkRBAC(command.Lister):
     _description = _("List network RBAC policies")
 
+    def get_parser(self, prog_name):
+        parser = super(ListNetworkRBAC, self).get_parser(prog_name)
+        parser.add_argument(
+            '--type',
+            metavar='<type>',
+            choices=['qos_policy', 'network'],
+            help=_('List network RBAC policies according to '
+                   'given object type ("qos_policy" or "network")')
+        )
+        parser.add_argument(
+            '--action',
+            metavar='<action>',
+            choices=['access_as_external', 'access_as_shared'],
+            help=_('List network RBAC policies according to given '
+                   'action ("access_as_external" or "access_as_shared")')
+        )
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help=_("List additional fields in output")
+        )
+        return parser
+
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
 
@@ -178,7 +202,17 @@ class ListNetworkRBAC(command.Lister):
             'Object ID',
         )
 
-        data = client.rbac_policies()
+        query = {}
+        if parsed_args.long:
+            columns += ('action',)
+            column_headers += ('Action',)
+        if parsed_args.type is not None:
+            query['object_type'] = parsed_args.type
+        if parsed_args.action is not None:
+            query['action'] = parsed_args.action
+
+        data = client.rbac_policies(**query)
+
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
