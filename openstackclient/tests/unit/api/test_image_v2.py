@@ -21,7 +21,7 @@ from openstackclient.tests.unit import utils
 
 
 FAKE_PROJECT = 'xyzpdq'
-FAKE_URL = 'http://gopher.com'
+FAKE_URL = 'http://gopher.dev20.com'
 
 
 class TestImageAPIv2(utils.TestCase):
