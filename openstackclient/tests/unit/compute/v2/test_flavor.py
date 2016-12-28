@@ -528,6 +528,23 @@ class TestFlavorSet(TestFlavor):
         self.flavor.set_keys.assert_called_with({'FOO': '"B A R"'})
         self.assertIsNone(result)
 
+    def test_flavor_set_no_property(self):
+        arglist = [
+            '--no-property',
+            'baremetal'
+        ]
+        verifylist = [
+            ('no_property', True),
+            ('flavor', 'baremetal')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
+                                                  is_public=None)
+        self.flavor.unset_keys.assert_called_with(['property'])
+        self.assertIsNone(result)
+
     def test_flavor_set_project(self):
         arglist = [
             '--project', self.project.id,

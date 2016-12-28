@@ -144,6 +144,7 @@ Set flavor properties
 .. code:: bash
 
     openstack flavor set
+        [--no-property]
         [--property <key=value> [...] ]
         [--project <project>]
         [--project-domain <project-domain>]
@@ -161,6 +162,11 @@ Set flavor properties
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
+
+.. option:: --no-property
+
+    Remove all properties from this flavor (specify both --no-property and --property
+    to remove the current properties before setting new properties.)
 
 .. describe:: <flavor>
 
