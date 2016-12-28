@@ -10,8 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import testtools
-
 from openstackclient.tests.functional import base
 
 
@@ -27,7 +25,6 @@ class QuotaTests(base.TestCase):
         cls.PROJECT_NAME =\
             cls.get_openstack_configuration_value('auth.project_name')
 
-    @testtools.skip('broken SDK testing')
     def test_quota_set(self):
         self.openstack('quota set --instances 11 --volumes 11 --networks 11 ' +
                        self.PROJECT_NAME)
@@ -35,19 +32,16 @@ class QuotaTests(base.TestCase):
         raw_output = self.openstack('quota show ' + self.PROJECT_NAME + opts)
         self.assertEqual("11\n11\n11\n", raw_output)
 
-    @testtools.skip('broken SDK testing')
     def test_quota_show(self):
         raw_output = self.openstack('quota show ' + self.PROJECT_NAME)
         for expected_field in self.EXPECTED_FIELDS:
             self.assertIn(expected_field, raw_output)
 
-    @testtools.skip('broken SDK testing')
     def test_quota_show_default_project(self):
         raw_output = self.openstack('quota show')
         for expected_field in self.EXPECTED_FIELDS:
             self.assertIn(expected_field, raw_output)
 
-    @testtools.skip('broken SDK testing')
     def test_quota_show_with_default_option(self):
         raw_output = self.openstack('quota show --default')
         for expected_field in self.EXPECTED_FIELDS:
