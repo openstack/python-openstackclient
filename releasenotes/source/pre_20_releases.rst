@@ -194,7 +194,7 @@ Pre-2.0 Releases
 * catalog list fails in identity v2
   Bug `1474656 <https://bugs.launchpad.net/bugs/1474656>`_
 
-* openstack flavor unset NoneType error when used without --proprty
+* openstack flavor unset NoneType error when used without --property
   Bug `1474237 <https://bugs.launchpad.net/bugs/1474237>`_
 
 * TypeError: 'NoneType' object does not support item assignment with latest os-client-config
