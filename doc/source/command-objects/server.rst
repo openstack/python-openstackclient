@@ -379,7 +379,7 @@ Migrate server to different host
 
 .. option:: --wait
 
-    Wait for resize to complete
+    Wait for migrate to complete
 
 .. describe:: <server>
 

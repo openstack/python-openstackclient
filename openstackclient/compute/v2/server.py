@@ -1009,7 +1009,7 @@ class MigrateServer(command.Command):
         parser.add_argument(
             '--wait',
             action='store_true',
-            help=_('Wait for resize to complete'),
+            help=_('Wait for migrate to complete'),
         )
         return parser
 
