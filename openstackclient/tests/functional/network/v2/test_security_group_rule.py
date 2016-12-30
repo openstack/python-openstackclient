@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import testtools
 import uuid
 
 from openstackclient.tests.functional import base
@@ -25,7 +24,6 @@ class SecurityGroupRuleTests(base.TestCase):
     ID_HEADER = ['ID']
 
     @classmethod
-    @testtools.skip('broken SDK testing')
     def setUpClass(cls):
         # Create the security group to hold the rule.
         opts = cls.get_opts(cls.NAME_FIELD)
@@ -54,7 +52,6 @@ class SecurityGroupRuleTests(base.TestCase):
                                    cls.SECURITY_GROUP_NAME)
         cls.assertOutput('', raw_output)
 
-    @testtools.skip('broken SDK testing')
     def test_security_group_rule_list(self):
         opts = self.get_opts(self.ID_HEADER)
         raw_output = self.openstack('security group rule list ' +
@@ -62,7 +59,6 @@ class SecurityGroupRuleTests(base.TestCase):
                                     opts)
         self.assertIn(self.SECURITY_GROUP_RULE_ID, raw_output)
 
-    @testtools.skip('broken SDK testing')
     def test_security_group_rule_show(self):
         opts = self.get_opts(self.ID_FIELD)
         raw_output = self.openstack('security group rule show ' +
