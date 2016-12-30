@@ -124,12 +124,25 @@ class DeleteRole(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
+        errors = 0
         for role in parsed_args.roles:
-            role_obj = utils.find_resource(
-                identity_client.roles,
-                role,
-            )
-            identity_client.roles.delete(role_obj.id)
+            try:
+                role_obj = utils.find_resource(
+                    identity_client.roles,
+                    role,
+                )
+                identity_client.roles.delete(role_obj.id)
+            except Exception as e:
+                errors += 1
+                LOG.error(_("Failed to delete role with "
+                          "name or ID '%(role)s': %(e)s"),
+                          {'role': role, 'e': e})
+
+        if errors > 0:
+            total = len(parsed_args.roles)
+            msg = (_("%(errors)s of %(total)s roles failed "
+                   "to delete.") % {'errors': errors, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListRole(command.Lister):

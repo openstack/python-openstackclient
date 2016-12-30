@@ -20,6 +20,7 @@ import logging
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib.cli import parseractions
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
@@ -148,15 +149,28 @@ class DeleteProject(command.Command):
         domain = None
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
+        errors = 0
         for project in parsed_args.projects:
-            if domain is not None:
-                project_obj = utils.find_resource(identity_client.projects,
-                                                  project,
-                                                  domain_id=domain.id)
-            else:
-                project_obj = utils.find_resource(identity_client.projects,
-                                                  project)
-            identity_client.projects.delete(project_obj.id)
+            try:
+                if domain is not None:
+                    project_obj = utils.find_resource(identity_client.projects,
+                                                      project,
+                                                      domain_id=domain.id)
+                else:
+                    project_obj = utils.find_resource(identity_client.projects,
+                                                      project)
+                identity_client.projects.delete(project_obj.id)
+            except Exception as e:
+                errors += 1
+                LOG.error(_("Failed to delete project with "
+                          "name or ID '%(project)s': %(e)s"),
+                          {'project': project, 'e': e})
+
+        if errors > 0:
+            total = len(parsed_args.projects)
+            msg = (_("%(errors)s of %(total)s projects failed "
+                   "to delete.") % {'errors': errors, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListProject(command.Lister):

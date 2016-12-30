@@ -20,6 +20,7 @@ import sys
 
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
@@ -223,14 +224,26 @@ class DeleteRole(command.Command):
         if parsed_args.domain:
             domain_id = common.find_domain(identity_client,
                                            parsed_args.domain).id
-
+        errors = 0
         for role in parsed_args.roles:
-            role_obj = utils.find_resource(
-                identity_client.roles,
-                role,
-                domain_id=domain_id
-            )
-            identity_client.roles.delete(role_obj.id)
+            try:
+                role_obj = utils.find_resource(
+                    identity_client.roles,
+                    role,
+                    domain_id=domain_id
+                )
+                identity_client.roles.delete(role_obj.id)
+            except Exception as e:
+                errors += 1
+                LOG.error(_("Failed to delete role with "
+                          "name or ID '%(role)s': %(e)s"),
+                          {'role': role, 'e': e})
+
+        if errors > 0:
+            total = len(parsed_args.roles)
+            msg = (_("%(errors)s of %(total)s roles failed "
+                   "to delete.") % {'errors': errors, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListRole(command.Lister):

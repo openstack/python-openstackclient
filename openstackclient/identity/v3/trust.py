@@ -14,13 +14,18 @@
 """Identity v3 Trust action implementations"""
 
 import datetime
+import logging
 
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CreateTrust(command.ShowOne):
@@ -145,9 +150,24 @@ class DeleteTrust(command.Command):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        for t in parsed_args.trust:
-            trust_obj = utils.find_resource(identity_client.trusts, t)
-            identity_client.trusts.delete(trust_obj.id)
+
+        errors = 0
+        for trust in parsed_args.trust:
+            try:
+                trust_obj = utils.find_resource(identity_client.trusts,
+                                                trust)
+                identity_client.trusts.delete(trust_obj.id)
+            except Exception as e:
+                errors += 1
+                LOG.error(_("Failed to delete trust with "
+                          "name or ID '%(trust)s': %(e)s"),
+                          {'trust': trust, 'e': e})
+
+        if errors > 0:
+            total = len(parsed_args.trust)
+            msg = (_("%(errors)s of %(total)s trusts failed "
+                   "to delete.") % {'errors': errors, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListTrust(command.Lister):

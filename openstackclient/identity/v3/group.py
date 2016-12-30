@@ -20,6 +20,7 @@ import sys
 
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
@@ -194,11 +195,24 @@ class DeleteGroup(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
+        errors = 0
         for group in parsed_args.groups:
-            group_obj = common.find_group(identity_client,
-                                          group,
-                                          parsed_args.domain)
-            identity_client.groups.delete(group_obj.id)
+            try:
+                group_obj = common.find_group(identity_client,
+                                              group,
+                                              parsed_args.domain)
+                identity_client.groups.delete(group_obj.id)
+            except Exception as e:
+                errors += 1
+                LOG.error(_("Failed to delete group with "
+                          "name or ID '%(group)s': %(e)s"),
+                          {'group': group, 'e': e})
+
+        if errors > 0:
+            total = len(parsed_args.groups)
+            msg = (_("%(errors)s of %(total)s groups failed "
+                   "to delete.") % {'errors': errors, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListGroup(command.Lister):

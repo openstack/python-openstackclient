@@ -20,6 +20,7 @@ import logging
 
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
@@ -161,15 +162,28 @@ class DeleteUser(command.Command):
         domain = None
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
+        errors = 0
         for user in parsed_args.users:
-            if domain is not None:
-                user_obj = utils.find_resource(identity_client.users,
-                                               user,
-                                               domain_id=domain.id)
-            else:
-                user_obj = utils.find_resource(identity_client.users,
-                                               user)
-            identity_client.users.delete(user_obj.id)
+            try:
+                if domain is not None:
+                    user_obj = utils.find_resource(identity_client.users,
+                                                   user,
+                                                   domain_id=domain.id)
+                else:
+                    user_obj = utils.find_resource(identity_client.users,
+                                                   user)
+                identity_client.users.delete(user_obj.id)
+            except Exception as e:
+                errors += 1
+                LOG.error(_("Failed to delete user with "
+                          "name or ID '%(user)s': %(e)s"),
+                          {'user': user, 'e': e})
+
+        if errors > 0:
+            total = len(parsed_args.users)
+            msg = (_("%(errors)s of %(total)s users failed "
+                   "to delete.") % {'errors': errors, 'total': total})
+            raise exceptions.CommandError(msg)
 
 
 class ListUser(command.Lister):
