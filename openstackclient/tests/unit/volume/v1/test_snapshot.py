@@ -429,15 +429,17 @@ class TestSnapshotSet(TestSnapshot):
         arglist = [
             "--name", "new_snapshot",
             "--description", "new_description",
-            "--property", "x=y",
-            "--property", "foo=foo",
+            "--property", "foo_1=foo_1",
+            "--property", "foo_2=foo_2",
+            "--no-property",
             self.snapshot.id,
         ]
-        new_property = {"x": "y", "foo": "foo"}
+        new_property = {"foo_1": "foo_1", "foo_2": "foo_2"}
         verifylist = [
             ("name", "new_snapshot"),
             ("description", "new_description"),
             ("property", new_property),
+            ("no_property", True),
             ("snapshot", self.snapshot.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -449,8 +451,11 @@ class TestSnapshotSet(TestSnapshot):
             "display_description": "new_description",
         }
         self.snapshot.update.assert_called_with(**kwargs)
+        self.snapshots_mock.delete_metadata.assert_called_with(
+            self.snapshot.id, ["foo"]
+        )
         self.snapshots_mock.set_metadata.assert_called_with(
-            self.snapshot.id, new_property
+            self.snapshot.id, {"foo_2": "foo_2", "foo_1": "foo_1"}
         )
         self.assertIsNone(result)
 

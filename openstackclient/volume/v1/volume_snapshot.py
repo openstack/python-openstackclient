@@ -240,6 +240,15 @@ class SetVolumeSnapshot(command.Command):
             help=_('New snapshot description')
         )
         parser.add_argument(
+            "--no-property",
+            dest="no_property",
+            action="store_true",
+            help=_("Remove all properties from <snapshot> "
+                   "(specify both --no-property and --property to "
+                   "remove the current properties before setting "
+                   "new properties.)"),
+        )
+        parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
@@ -254,6 +263,17 @@ class SetVolumeSnapshot(command.Command):
                                        parsed_args.snapshot)
 
         result = 0
+        if parsed_args.no_property:
+            try:
+                key_list = snapshot.metadata.keys()
+                volume_client.volume_snapshots.delete_metadata(
+                    snapshot.id,
+                    list(key_list),
+                )
+            except Exception as e:
+                LOG.error(_("Failed to clean snapshot properties: %s"), e)
+                result += 1
+
         if parsed_args.property:
             try:
                 volume_client.volume_snapshots.set_metadata(
