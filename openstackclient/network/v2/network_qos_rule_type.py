@@ -18,12 +18,14 @@ import logging
 from osc_lib.command import command
 from osc_lib import utils
 
+from openstackclient.i18n import _
+
 
 LOG = logging.getLogger(__name__)
 
 
 class ListNetworkQosRuleType(command.Lister):
-    """List QoS rule types"""
+    _description = _("List QoS rule types")
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network

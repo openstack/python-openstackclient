@@ -31,7 +31,7 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateVolumeSnapshot(command.ShowOne):
-    """Create new volume snapshot"""
+    _description = _("Create new volume snapshot")
 
     def get_parser(self, prog_name):
         parser = super(CreateVolumeSnapshot, self).get_parser(prog_name)
@@ -84,7 +84,7 @@ class CreateVolumeSnapshot(command.ShowOne):
 
 
 class DeleteVolumeSnapshot(command.Command):
-    """Delete volume snapshot(s)"""
+    _description = _("Delete volume snapshot(s)")
 
     def get_parser(self, prog_name):
         parser = super(DeleteVolumeSnapshot, self).get_parser(prog_name)
@@ -119,7 +119,7 @@ class DeleteVolumeSnapshot(command.Command):
 
 
 class ListVolumeSnapshot(command.Lister):
-    """List volume snapshots"""
+    _description = _("List volume snapshots")
 
     def get_parser(self, prog_name):
         parser = super(ListVolumeSnapshot, self).get_parser(prog_name)
@@ -220,7 +220,7 @@ class ListVolumeSnapshot(command.Lister):
 
 
 class SetVolumeSnapshot(command.Command):
-    """Set volume snapshot properties"""
+    _description = _("Set volume snapshot properties")
 
     def get_parser(self, prog_name):
         parser = super(SetVolumeSnapshot, self).get_parser(prog_name)
@@ -281,7 +281,7 @@ class SetVolumeSnapshot(command.Command):
 
 
 class ShowVolumeSnapshot(command.ShowOne):
-    """Display volume snapshot details"""
+    _description = _("Display volume snapshot details")
 
     def get_parser(self, prog_name):
         parser = super(ShowVolumeSnapshot, self).get_parser(prog_name)
@@ -305,7 +305,7 @@ class ShowVolumeSnapshot(command.ShowOne):
 
 
 class UnsetVolumeSnapshot(command.Command):
-    """Unset volume snapshot properties"""
+    _description = _("Unset volume snapshot properties")
 
     def get_parser(self, prog_name):
         parser = super(UnsetVolumeSnapshot, self).get_parser(prog_name)
