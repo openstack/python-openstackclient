@@ -15,10 +15,8 @@
 
 import logging
 
-from os_client_config import config
 from os_client_config import exceptions as occ_exceptions
-from oslo_utils import strutils
-import six
+from osc_lib.cli import client_config
 
 
 LOG = logging.getLogger(__name__)
@@ -26,7 +24,7 @@ LOG = logging.getLogger(__name__)
 
 # Sublcass OpenStackConfig in order to munge config values
 # before auth plugins are loaded
-class OSC_Config(config.OpenStackConfig):
+class OSC_Config(client_config.OSC_Config):
 
     # TODO(dtroyer): Once os-client-config with pw_func argument is in
     #                global-requirements we can remove __init()__
@@ -62,75 +60,8 @@ class OSC_Config(config.OpenStackConfig):
 
         return ret
 
-    def _auth_select_default_plugin(self, config):
-        """Select a default plugin based on supplied arguments
-
-        Migrated from auth.select_auth_plugin()
-        """
-
-        identity_version = config.get('identity_api_version', '')
-
-        if config.get('username', None) and not config.get('auth_type', None):
-            if identity_version == '3':
-                config['auth_type'] = 'v3password'
-            elif identity_version.startswith('2'):
-                config['auth_type'] = 'v2password'
-            else:
-                # let keystoneauth figure it out itself
-                config['auth_type'] = 'password'
-        elif config.get('token', None) and not config.get('auth_type', None):
-            if identity_version == '3':
-                config['auth_type'] = 'v3token'
-            elif identity_version.startswith('2'):
-                config['auth_type'] = 'v2token'
-            else:
-                # let keystoneauth figure it out itself
-                config['auth_type'] = 'token'
-        else:
-            # The ultimate default is similar to the original behaviour,
-            # but this time with version discovery
-            if not config.get('auth_type', None):
-                config['auth_type'] = 'password'
-
-        LOG.debug("Auth plugin %s selected" % config['auth_type'])
-        return config
-
-    def _auth_v2_arguments(self, config):
-        """Set up v2-required arguments from v3 info
-
-        Migrated from auth.build_auth_params()
-        """
-
-        if ('auth_type' in config and config['auth_type'].startswith("v2")):
-            if 'project_id' in config['auth']:
-                config['auth']['tenant_id'] = config['auth']['project_id']
-            if 'project_name' in config['auth']:
-                config['auth']['tenant_name'] = config['auth']['project_name']
-        return config
-
-    def _auth_v2_ignore_v3(self, config):
-        """Remove v3 arguemnts if present for v2 plugin
-
-        Migrated from clientmanager.setup_auth()
-        """
-
-        # NOTE(hieulq): If USER_DOMAIN_NAME, USER_DOMAIN_ID, PROJECT_DOMAIN_ID
-        # or PROJECT_DOMAIN_NAME is present and API_VERSION is 2.0, then
-        # ignore all domain related configs.
-        if (config.get('identity_api_version', '').startswith('2') and
-                config.get('auth_type', None).endswith('password')):
-            domain_props = [
-                'project_domain_id',
-                'project_domain_name',
-                'user_domain_id',
-                'user_domain_name',
-            ]
-            for prop in domain_props:
-                if config['auth'].pop(prop, None) is not None:
-                    LOG.warning("Ignoring domain related config " +
-                                prop + " because identity API version is 2.0")
-        return config
-
+    # TODO(dtroyer): Remove _auth_default_domain when the v3otp fix is
+    #                backported to osc-lib, should be in release 1.3.0
     def _auth_default_domain(self, config):
         """Set a default domain from available arguments
 
@@ -171,23 +102,6 @@ class OSC_Config(config.OpenStackConfig):
                 config['auth']['user_domain_id'] = default_domain
         return config
 
-    def auth_config_hook(self, config):
-        """Allow examination of config values before loading auth plugin
-
-        OpenStackClient will override this to perform additional chacks
-        on auth_type.
-        """
-
-        config = self._auth_select_default_plugin(config)
-        config = self._auth_v2_arguments(config)
-        config = self._auth_v2_ignore_v3(config)
-        config = self._auth_default_domain(config)
-
-        if LOG.isEnabledFor(logging.DEBUG):
-            LOG.debug("auth_config_hook(): %s",
-                      strutils.mask_password(six.text_type(config)))
-        return config
-
     def load_auth_plugin(self, config):
         """Get auth plugin and validate args"""
 
@@ -196,10 +110,12 @@ class OSC_Config(config.OpenStackConfig):
         auth_plugin = loader.load_from_options(**config['auth'])
         return auth_plugin
 
+    # TODO(dtroyer): Remove _validate_auth_ksc when it is in osc-lib 1.3.0
     def _validate_auth_ksc(self, config, cloud, fixed_argparse=None):
         """Old compatibility hack for OSC, no longer needed/wanted"""
         return config
 
+    # TODO(dtroyer): Remove _validate_auth when it is in osc-lib 1.3.0
     def _validate_auth(self, config, loader, fixed_argparse=None):
         """Validate auth plugin arguments"""
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin
