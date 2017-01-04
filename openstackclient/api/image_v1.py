@@ -19,7 +19,7 @@ from openstackclient.api import api
 class APIv1(api.BaseAPI):
     """Image v1 API"""
 
-    _endpoint_suffix = 'v1'
+    _endpoint_suffix = '/v1'
 
     def __init__(self, endpoint=None, **kwargs):
         super(APIv1, self).__init__(endpoint=endpoint, **kwargs)
@@ -29,8 +29,8 @@ class APIv1(api.BaseAPI):
 
     def _munge_url(self):
         # Hack this until discovery is up
-        if self._endpoint_suffix not in self.endpoint.split('/')[-1]:
-            self.endpoint = '/'.join([self.endpoint, self._endpoint_suffix])
+        if not self.endpoint.endswith(self._endpoint_suffix):
+            self.endpoint = self.endpoint + self._endpoint_suffix
 
     def image_list(
         self,
