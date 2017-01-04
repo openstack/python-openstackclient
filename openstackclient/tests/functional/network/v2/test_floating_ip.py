@@ -10,49 +10,148 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import random
+import re
 import uuid
 
 from openstackclient.tests.functional import base
 
 
 class FloatingIpTests(base.TestCase):
-    """Functional tests for floating ip. """
+    """Functional tests for floating ip"""
     SUBNET_NAME = uuid.uuid4().hex
     NETWORK_NAME = uuid.uuid4().hex
-    ID = None
-    HEADERS = ['ID']
-    FIELDS = ['id']
 
     @classmethod
     def setUpClass(cls):
-        # Create a network for the floating ip.
-        cls.openstack('network create --external ' + cls.NETWORK_NAME)
-        # Create a subnet for the network.
-        cls.openstack(
-            'subnet create --network ' + cls.NETWORK_NAME +
-            ' --subnet-range 10.10.10.0/24 ' +
+        # Set up some regex for matching below
+        cls.re_id = re.compile("id\s+\|\s+(\S+)")
+        cls.re_floating_ip = re.compile("floating_ip_address\s+\|\s+(\S+)")
+        cls.re_fixed_ip = re.compile("fixed_ip_address\s+\|\s+(\S+)")
+        cls.re_description = re.compile("description\s+\|\s+([^|]+?)\s+\|")
+        cls.re_network_id = re.compile("floating_network_id\s+\|\s+(\S+)")
+
+        # Make a random subnet
+        cls.subnet = ".".join(map(
+            str,
+            (random.randint(0, 255) for _ in range(3))
+        )) + ".0/26"
+
+        # Create a network for the floating ip
+        raw_output = cls.openstack(
+            'network create --external ' + cls.NETWORK_NAME
+        )
+        cls.network_id = re.search(cls.re_id, raw_output).group(1)
+
+        # Create a subnet for the network
+        raw_output = cls.openstack(
+            'subnet create ' +
+            '--network ' + cls.NETWORK_NAME + ' ' +
+            '--subnet-range ' + cls.subnet + ' ' +
             cls.SUBNET_NAME
         )
-        opts = cls.get_opts(cls.FIELDS)
-        raw_output = cls.openstack(
-            'floating ip create ' + cls.NETWORK_NAME + opts)
-        cls.ID = raw_output.strip('\n')
+        cls.subnet_id = re.search(cls.re_id, raw_output).group(1)
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack('floating ip delete ' + cls.ID)
-        cls.assertOutput('', raw_output)
         raw_output = cls.openstack('subnet delete ' + cls.SUBNET_NAME)
         cls.assertOutput('', raw_output)
         raw_output = cls.openstack('network delete ' + cls.NETWORK_NAME)
         cls.assertOutput('', raw_output)
 
+    def test_floating_ip_delete(self):
+        """Test create, delete multiple"""
+        raw_output = self.openstack(
+            'floating ip create ' +
+            '--description aaaa ' +
+            self.NETWORK_NAME
+        )
+        re_ip = re.search(self.re_floating_ip, raw_output)
+        self.assertIsNotNone(re_ip)
+        ip1 = re_ip.group(1)
+        self.assertEqual(
+            'aaaa',
+            re.search(self.re_description, raw_output).group(1),
+        )
+
+        raw_output = self.openstack(
+            'floating ip create ' +
+            '--description bbbb ' +
+            self.NETWORK_NAME
+        )
+        ip2 = re.search(self.re_floating_ip, raw_output).group(1)
+        self.assertEqual(
+            'bbbb',
+            re.search(self.re_description, raw_output).group(1),
+        )
+
+        # Clean up after ourselves
+        raw_output = self.openstack('floating ip delete ' + ip1 + ' ' + ip2)
+        self.assertOutput('', raw_output)
+
     def test_floating_ip_list(self):
-        opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('floating ip list' + opts)
-        self.assertIn(self.ID, raw_output)
+        """Test create defaults, list filters, delete"""
+        raw_output = self.openstack(
+            'floating ip create ' +
+            '--description aaaa ' +
+            self.NETWORK_NAME
+        )
+        re_ip = re.search(self.re_floating_ip, raw_output)
+        self.assertIsNotNone(re_ip)
+        ip1 = re_ip.group(1)
+        self.addCleanup(self.openstack, 'floating ip delete ' + ip1)
+        self.assertEqual(
+            'aaaa',
+            re.search(self.re_description, raw_output).group(1),
+        )
+        self.assertIsNotNone(re.search(self.re_network_id, raw_output))
+
+        raw_output = self.openstack(
+            'floating ip create ' +
+            '--description bbbb ' +
+            self.NETWORK_NAME
+        )
+        ip2 = re.search(self.re_floating_ip, raw_output).group(1)
+        self.addCleanup(self.openstack, 'floating ip delete ' + ip2)
+        self.assertEqual(
+            'bbbb',
+            re.search(self.re_description, raw_output).group(1),
+        )
+
+        # Test list
+        raw_output = self.openstack('floating ip list')
+        self.assertIsNotNone(re.search("\|\s+" + ip1 + "\s+\|", raw_output))
+        self.assertIsNotNone(re.search("\|\s+" + ip2 + "\s+\|", raw_output))
+
+        # Test list --long
+        raw_output = self.openstack('floating ip list --long')
+        self.assertIsNotNone(re.search("\|\s+" + ip1 + "\s+\|", raw_output))
+        self.assertIsNotNone(re.search("\|\s+" + ip2 + "\s+\|", raw_output))
+
+        # TODO(dtroyer): add more filter tests
 
     def test_floating_ip_show(self):
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack('floating ip show ' + self.ID + opts)
-        self.assertEqual(self.ID + "\n", raw_output)
+        """Test show"""
+        raw_output = self.openstack(
+            'floating ip create ' +
+            '--description shosho ' +
+            # '--fixed-ip-address 1.2.3.4 ' +
+            self.NETWORK_NAME
+        )
+        re_ip = re.search(self.re_floating_ip, raw_output)
+        self.assertIsNotNone(re_ip)
+        ip = re_ip.group(1)
+
+        raw_output = self.openstack('floating ip show ' + ip)
+        self.addCleanup(self.openstack, 'floating ip delete ' + ip)
+
+        self.assertEqual(
+            'shosho',
+            re.search(self.re_description, raw_output).group(1),
+        )
+        # TODO(dtroyer): not working???
+        # self.assertEqual(
+        #     '1.2.3.4',
+        #     re.search(self.re_floating_ip, raw_output).group(1),
+        # )
+        self.assertIsNotNone(re.search(self.re_network_id, raw_output))
