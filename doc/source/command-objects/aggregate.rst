@@ -24,6 +24,7 @@ Add host to aggregate
 
     Aggregate (name or ID)
 
+.. _aggregate_add_host-host:
 .. describe:: <host>
 
     Host to add to :ref:`\<aggregate\> <aggregate_add_host-aggregate>`
@@ -49,6 +50,7 @@ Create a new aggregate
 
     Property to add to this aggregate (repeat option to set multiple properties)
 
+.. _aggregate_create-name:
 .. describe:: <name>
 
     New aggregate name
@@ -64,6 +66,7 @@ Delete existing aggregate(s)
     openstack aggregate delete
         <aggregate> [<aggregate> ...]
 
+.. _aggregate_delete-aggregate:
 .. describe:: <aggregate>
 
     Aggregate(s) to delete (name or ID)
@@ -100,6 +103,7 @@ Remove host from aggregate
 
     Aggregate (name or ID)
 
+.. _aggregate_remove_host-host:
 .. describe:: <host>
 
     Host to remove from :ref:`\<aggregate\> <aggregate_remove_host-aggregate>`
@@ -135,7 +139,7 @@ Set aggregate properties
 .. option:: --no-property
 
     Remove all properties from :ref:`\<aggregate\> <aggregate_set-aggregate>`
-    (specify both --property and --no-property to
+    (specify both :option:`--property` and :option:`--no-property` to
     overwrite the current properties)
 
 .. _aggregate_set-aggregate:
@@ -154,6 +158,7 @@ Display aggregate details
     openstack aggregate show
         <aggregate>
 
+.. _aggregate_show-aggregate:
 .. describe:: <aggregate>
 
     Aggregate to display (name or ID)

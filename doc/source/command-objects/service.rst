@@ -54,7 +54,7 @@ Delete service(s)
     openstack service delete
         <service> [<service> ...]
 
-.. _service_delete-type:
+.. _service_delete-service:
 .. describe:: <service>
 
     Service(s) to delete (type, name or ID)

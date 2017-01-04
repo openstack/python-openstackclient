@@ -15,7 +15,7 @@ Delete compute service(s)
     openstack compute service delete
         <service> [<service> ...]
 
-.. _compute-service-delete:
+.. _compute_service_delete-service:
 .. describe:: <service>
 
     Compute service(s) to delete (ID only)
@@ -33,7 +33,6 @@ List compute services
         [--service <service>]
         [--long]
 
-.. _compute-service-list:
 .. option:: --host <host>
 
     List services on specified host (name only)
@@ -45,7 +44,6 @@ List compute services
 .. option:: --long
 
     List additional fields in output
-
 
 compute service set
 -------------------
@@ -61,7 +59,6 @@ Set compute service properties
         [--up | --down]
         <host> <service>
 
-.. _compute-service-set:
 .. option:: --enable
 
     Enable service
@@ -72,7 +69,7 @@ Set compute service properties
 
 .. option:: --disable-reason <reason>
 
-    Reason for disabling the service (in quotes). Should be used with --disable option.
+    Reason for disabling the service (in quotes). Should be used with :option:`--disable` option.
 
 .. option:: --up
 
@@ -82,6 +79,7 @@ Set compute service properties
 
     Force down service
 
+.. _compute_service_set-host:
 .. describe:: <host>
 
     Name of host
@@ -89,4 +87,3 @@ Set compute service properties
 .. describe:: <service>
 
     Name of service (Binary name)
-

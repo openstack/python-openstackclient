@@ -23,10 +23,12 @@ Associate project with image
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
 
+.. _image_add_project-image:
 .. describe:: <image>
 
     Image to share (name or ID).
 
+.. _image_add_project-project:
 .. describe:: <project>
 
     Project to associate with image (name or ID)
@@ -83,7 +85,7 @@ Create/upload an image
 
 .. option:: --size <size>
 
-    Image size, in bytes (only used with --location and --copy-from)
+    Image size, in bytes (only used with :option:`--location` and :option:`--copy-from`)
 
     *Image version 1 only.*
 
@@ -91,7 +93,7 @@ Create/upload an image
 
     Minimum disk size needed to boot image, in gigabytes
 
-.. option:: --min-ram <disk-ram>
+.. option:: --min-ram <ram-mb>
 
     Minimum RAM size needed to boot image, in megabytes
 
@@ -103,7 +105,7 @@ Create/upload an image
 
 .. option:: --copy-from <image-url>
 
-    Copy image from the data store (similar to --location)
+    Copy image from the data store (similar to :option:`--location`)
 
     *Image version 1 only.*
 
@@ -117,7 +119,7 @@ Create/upload an image
 
 .. option:: --force
 
-    Force image creation if volume is in use (only meaningful with --volume)
+    Force image creation if volume is in use (only meaningful with :option:`--volume`)
 
 .. option:: --checksum <checksum>
 
@@ -163,6 +165,7 @@ Create/upload an image
 
     .. versionadded:: 2
 
+.. _image_create-image-name:
 .. describe:: <image-name>
 
     New image name
@@ -178,6 +181,7 @@ Delete image(s)
     openstack image delete
         <image>
 
+.. _image_delete-image:
 .. describe:: <image>
 
     Image(s) to delete (name or ID)
@@ -246,13 +250,15 @@ Disassociate project with image
 
     openstack image remove remove
         [--project-domain <project-domain>]
-        <image> <project>
+        <image>
+        <project>
 
 .. option:: --project-domain <project-domain>
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
 
+.. _image_remove_project:
 .. describe:: <image>
 
     Image to unshare (name or ID).
@@ -277,6 +283,7 @@ Save an image locally
 
     Downloaded image save filename (default: stdout)
 
+.. _image_save-image:
 .. describe:: <image>
 
     Image to save (name or ID)
@@ -294,7 +301,7 @@ Set image properties
     openstack image set
         [--name <name>]
         [--min-disk <disk-gb>]
-        [--min-ram <disk-ram>]
+        [--min-ram <ram-mb>]
         [--container-format <container-format>]
         [--disk-format <disk-format>]
         [--size <size>]
@@ -328,7 +335,7 @@ Set image properties
 
     Minimum disk size needed to boot image, in gigabytes
 
-.. option:: --min-ram <disk-ram>
+.. option:: --min-ram <ram-mb>
 
     Minimum RAM size needed to boot image, in megabytes
 
@@ -377,7 +384,7 @@ Set image properties
 
 .. option:: --copy-from <image-url>
 
-    Copy image from the data store (similar to --location)
+    Copy image from the data store (similar to :option:`--location`)
 
     *Image version 1 only.*
 
@@ -395,7 +402,7 @@ Set image properties
 
 .. option:: --force
 
-    Force image update if volume is in use (only meaningful with --volume)
+    Force image update if volume is in use (only meaningful with :option:`--volume`)
 
     *Image version 1 only.*
 
@@ -483,6 +490,7 @@ Set image properties
 
     .. versionadded:: 2
 
+.. _image_set-image:
 .. describe:: <image>
 
     Image to modify (name or ID)
@@ -498,6 +506,7 @@ Display image details
     openstack image show
         <image>
 
+.. _image_show-image:
 .. describe:: <image>
 
     Image to display (name or ID)
@@ -525,6 +534,7 @@ Unset image tags or properties
 
     Unset a property on this image (repeat option to unset multiple properties)
 
+.. _image_unset-image:
 .. describe:: <image>
 
     Image to modify (name or ID)

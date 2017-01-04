@@ -49,7 +49,7 @@ Create new subnet
 
 .. option:: --use-default-subnet-pool
 
-    Use default subnet pool for ``--ip-version``
+    Use default subnet pool for :option:`--ip-version`
 
 .. option:: --prefix-length <prefix-length>
 
@@ -58,7 +58,7 @@ Create new subnet
 .. option:: --subnet-range <subnet-range>
 
     Subnet range in CIDR notation
-    (required if ``--subnet-pool`` is not specified, optional otherwise)
+    (required if :option:`--subnet-pool` is not specified, optional otherwise)
 
 .. option:: --allocation-pool start=<ip-address>,end=<ip-address>
 
@@ -249,7 +249,7 @@ Set subnet properties
 .. option:: --no-allocation-pool
 
      Clear associated allocation pools from this subnet.
-     Specify both --allocation-pool and --no-allocation-pool
+     Specify both :option:`--allocation-pool` and :option:`--no-allocation-pool`
      to overwrite the current allocation pool information.
 
 .. option:: --dhcp
@@ -267,7 +267,7 @@ Set subnet properties
 .. option:: --no-dns-nameservers
 
      Clear existing information of DNS servers.
-     Specify both --dns-nameserver and --no-dns-nameservers
+     Specify both :option:`--dns-nameserver` and :option:`--no-dns-nameservers`
      to overwrite the current DNS server information.
 
 .. option:: --gateway <gateway>
@@ -287,7 +287,7 @@ Set subnet properties
 .. option:: --no-host-route
 
      Clear associated host routes from this subnet.
-     Specify both --host-route and --no-host-route
+     Specify both :option:`--host-route` and :option:`--no-host-route`
      to overwrite the current host route information.
 
 .. option:: --service-type <service-type>
