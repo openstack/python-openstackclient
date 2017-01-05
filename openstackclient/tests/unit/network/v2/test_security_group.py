@@ -456,7 +456,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id}
+        filters = {'tenant_id': project.id, 'project_id': project.id}
 
         self.network.security_groups.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -476,7 +476,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id}
+        filters = {'tenant_id': project.id, 'project_id': project.id}
 
         self.network.security_groups.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
