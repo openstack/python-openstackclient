@@ -167,7 +167,7 @@ class CreateFlavor(command.ShowOne):
                     parsed_args.project_domain,
                 ).id
                 compute_client.flavor_access.add_tenant_access(
-                    parsed_args.id, project_id)
+                    flavor.id, project_id)
             except Exception as e:
                 msg = _("Failed to add project %(project)s access to "
                         "flavor: %(e)s")

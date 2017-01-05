@@ -160,7 +160,7 @@ class TestFlavorCreate(TestFlavor):
 
         self.flavor.is_public = False
         arglist = [
-            '--id', self.flavor.id,
+            '--id', 'auto',
             '--ram', str(self.flavor.ram),
             '--disk', str(self.flavor.disk),
             '--ephemeral', str(self.flavor.ephemeral),
@@ -174,7 +174,6 @@ class TestFlavorCreate(TestFlavor):
             self.flavor.name,
         ]
         verifylist = [
-            ('id', self.flavor.id),
             ('ram', self.flavor.ram),
             ('disk', self.flavor.disk),
             ('ephemeral', self.flavor.ephemeral),
@@ -193,7 +192,7 @@ class TestFlavorCreate(TestFlavor):
             self.flavor.ram,
             self.flavor.vcpus,
             self.flavor.disk,
-            self.flavor.id,
+            'auto',
             self.flavor.ephemeral,
             self.flavor.swap,
             self.flavor.rxtx_factor,
