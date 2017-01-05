@@ -16,9 +16,11 @@
 from osc_lib.command import command
 from osc_lib import utils
 
+from openstackclient.i18n import _
+
 
 class ListNetworkServiceProvider(command.Lister):
-    """List Service Providers"""
+    _description = _("List Service Providers")
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
