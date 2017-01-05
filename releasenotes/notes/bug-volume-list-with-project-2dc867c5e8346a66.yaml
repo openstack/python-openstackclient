@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix a bug of unable to filter volume list by ``--project``
+    and ``--user`` options in the ``openstack volume list``.
