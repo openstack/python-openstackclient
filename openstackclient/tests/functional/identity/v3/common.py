@@ -42,7 +42,8 @@ class IdentityTests(base.TestCase):
     ENDPOINT_LIST_HEADERS = ['ID', 'Region', 'Service Name', 'Service Type',
                              'Enabled', 'Interface', 'URL']
 
-    IDENTITY_PROVIDER_FIELDS = ['description', 'enabled', 'id', 'remote_ids']
+    IDENTITY_PROVIDER_FIELDS = ['description', 'enabled', 'id', 'remote_ids',
+                                'domain_id']
     IDENTITY_PROVIDER_LIST_HEADERS = ['ID', 'Enabled', 'Description']
 
     SERVICE_PROVIDER_FIELDS = ['auth_url', 'description', 'enabled',
