@@ -82,6 +82,7 @@ List volume snapshots
 
     openstack volume snapshot list
         [--all-projects]
+        [--project <project> [--project-domain <project-domain>]]
         [--long]
         [--limit <limit>]
         [--marker <marker>]
@@ -92,6 +93,20 @@ List volume snapshots
 .. option:: --all-projects
 
     Include all projects (admin only)
+
+.. option:: --project <project>
+
+    Filter results by project (name or ID) (admin only)
+
+    *Volume version 2 only*
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+
+    This can be used in case collisions between project names exist.
+
+    *Volume version 2 only*
 
 .. option:: --long
 
