@@ -118,8 +118,10 @@ class TestListIPAvailability(TestIPAvailability):
 
 class TestShowIPAvailability(TestIPAvailability):
 
+    _network = network_fakes.FakeNetwork.create_one_network()
     _ip_availability = \
-        network_fakes.FakeIPAvailability.create_one_ip_availability()
+        network_fakes.FakeIPAvailability.create_one_ip_availability(
+            attrs={'network_id': _network.id})
 
     columns = (
         'network_id',
@@ -144,6 +146,8 @@ class TestShowIPAvailability(TestIPAvailability):
 
         self.network.find_network_ip_availability = mock.Mock(
             return_value=self._ip_availability)
+        self.network.find_network = mock.Mock(
+            return_value=self._network)
 
         # Get the command object to test
         self.cmd = ip_availability.ShowIPAvailability(
@@ -166,8 +170,10 @@ class TestShowIPAvailability(TestIPAvailability):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
         self.network.find_network_ip_availability.assert_called_once_with(
+            self._ip_availability.network_id,
+            ignore_missing=False)
+        self.network.find_network.assert_called_once_with(
             self._ip_availability.network_name,
             ignore_missing=False)
-
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
