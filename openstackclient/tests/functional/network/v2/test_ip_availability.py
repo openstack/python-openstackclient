@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import testtools
 import uuid
 
 from openstackclient.tests.functional import base
@@ -47,7 +46,6 @@ class IPAvailabilityTests(base.TestCase):
         raw_output = self.openstack('ip availability list' + opts)
         self.assertIn(self.NETWORK_NAME, raw_output)
 
-    @testtools.skip('broken SDK testing')
     def test_ip_availability_show(self):
         opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack(

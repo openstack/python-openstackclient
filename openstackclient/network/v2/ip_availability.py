@@ -107,7 +107,9 @@ class ShowIPAvailability(command.ShowOne):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_network_ip_availability(parsed_args.network,
+        network_id = client.find_network(parsed_args.network,
+                                         ignore_missing=False).id
+        obj = client.find_network_ip_availability(network_id,
                                                   ignore_missing=False)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
