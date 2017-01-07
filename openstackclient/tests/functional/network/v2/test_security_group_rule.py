@@ -12,6 +12,8 @@
 
 import uuid
 
+import testtools
+
 from openstackclient.tests.functional import base
 
 
@@ -24,6 +26,7 @@ class SecurityGroupRuleTests(base.TestCase):
     ID_HEADER = ['ID']
 
     @classmethod
+    @testtools.skip('broken SDK testing')
     def setUpClass(cls):
         # Create the security group to hold the rule.
         opts = cls.get_opts(cls.NAME_FIELD)

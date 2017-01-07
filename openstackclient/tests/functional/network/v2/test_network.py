@@ -13,6 +13,8 @@
 import re
 import uuid
 
+import testtools
+
 from openstackclient.tests.functional import base
 
 
@@ -58,6 +60,7 @@ class NetworkTests(base.TestCase):
         del_output = self.openstack('network delete ' + name1 + ' ' + name2)
         self.assertOutput('', del_output)
 
+    @testtools.skip('broken SDK testing')
     def test_network_list(self):
         """Test create defaults, list filters, delete"""
         name1 = uuid.uuid4().hex
@@ -159,6 +162,7 @@ class NetworkTests(base.TestCase):
             re.search("\|\s+" + name2 + "\s+\|\s+ACTIVE", raw_output)
         )
 
+    @testtools.skip('broken SDK testing')
     def test_network_set(self):
         """Tests create options, set, show, delete"""
         name = uuid.uuid4().hex

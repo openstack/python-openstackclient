@@ -12,6 +12,8 @@
 
 import uuid
 
+import testtools
+
 from openstackclient.tests.functional import base
 
 
@@ -23,6 +25,7 @@ class SecurityGroupTests(base.TestCase):
     FIELDS = ['name']
 
     @classmethod
+    @testtools.skip('broken SDK testing')
     def setUpClass(cls):
         opts = cls.get_opts(cls.FIELDS)
         raw_output = cls.openstack('security group create ' + cls.NAME + opts)
