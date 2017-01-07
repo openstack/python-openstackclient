@@ -13,17 +13,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import testtools
-
 from openstackclient.tests.functional import base
 
 
 class TestNetworkServiceProvider(base.TestCase):
     """Functional tests for network service provider"""
 
-    SERVICE_TYPE = ['L3_ROUTER_NAT']
+    SERVICE_TYPE = 'L3_ROUTER_NAT'
 
-    @testtools.skip('broken SDK testing')
     def test_network_service_provider_list(self):
         raw_output = self.openstack('network service provider list')
         self.assertIn(self.SERVICE_TYPE, raw_output)
