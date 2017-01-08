@@ -1258,6 +1258,51 @@ class FakeFloatingIP(object):
         return mock.Mock(side_effect=floating_ips)
 
 
+class FakeNetworkMeter(object):
+    """Fake network meter"""
+
+    @staticmethod
+    def create_one_meter(attrs=None):
+        """Create metering pool"""
+        attrs = attrs or {}
+
+        meter_attrs = {
+            'id': 'meter-id-' + uuid.uuid4().hex,
+            'name': 'meter-name-' + uuid.uuid4().hex,
+            'description': 'meter-description-' + uuid.uuid4().hex,
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'shared': False
+        }
+
+        meter_attrs.update(attrs)
+
+        meter = fakes.FakeResource(
+            info=copy.deepcopy(meter_attrs),
+            loaded=True)
+
+        meter.project_id = meter_attrs['tenant_id']
+
+        return meter
+
+    @staticmethod
+    def create_meter(attrs=None, count=2):
+        """Create multiple meters"""
+
+        meters = []
+        for i in range(0, count):
+            meters.append(FakeNetworkMeter.
+                          create_one_meter(attrs))
+        return meters
+
+    @staticmethod
+    def get_meter(meter=None, count=2):
+        """Get a list of meters"""
+        if meter is None:
+            meter = (FakeNetworkMeter.
+                     create_meter(count))
+        return mock.Mock(side_effect=meter)
+
+
 class FakeSubnetPool(object):
     """Fake one or more subnet pools."""
 

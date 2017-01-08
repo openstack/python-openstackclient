@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add support for network metering commands:
+    ``network meter create``, ``network meter delete``,
+    ``network meter show``, ``network meter list``
+    [Blueprint :oscbp:`neutron-client-metering`]
