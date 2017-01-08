@@ -130,6 +130,7 @@ class TestListNetworkAgent(TestNetworkAgent):
     )
     data = []
     for agent in network_agents:
+        agent.agent_type = 'DHCP agent'
         data.append((
             agent.id,
             agent.agent_type,
@@ -156,6 +157,40 @@ class TestListNetworkAgent(TestNetworkAgent):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.agents.assert_called_once_with(**{})
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_agents_list_agent_type(self):
+        arglist = [
+            '--agent-type', 'dhcp',
+        ]
+        verifylist = [
+            ('agent_type', 'dhcp'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.agents.assert_called_once_with(**{
+            'agent_type': self.network_agents[0].agent_type,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_agents_list_host(self):
+        arglist = [
+            '--host', self.network_agents[0].host,
+        ]
+        verifylist = [
+            ('host', self.network_agents[0].host),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.agents.assert_called_once_with(**{
+            'host': self.network_agents[0].host,
+        })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 

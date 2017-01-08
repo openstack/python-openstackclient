@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add filters ``--agent-type`` and ``--host``
+    to ``network agent list`` command
+    [Bug `1641868 <https://bugs.launchpad.net/bugs/1641868>`_]
