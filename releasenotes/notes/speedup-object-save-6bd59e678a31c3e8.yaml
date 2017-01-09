@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+     Makes ``openstack object save`` much faster when saving an object to disk.
+     [Bug `1654645 <https://bugs.launchpad.net/bugs/1654645>`_]
