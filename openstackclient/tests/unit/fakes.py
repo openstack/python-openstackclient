@@ -212,6 +212,9 @@ class FakeResource(object):
     def keys(self):
         return self._info.keys()
 
+    def to_dict(self):
+        return self._info
+
     @property
     def info(self):
         return self._info

@@ -26,7 +26,6 @@ class SecurityGroupRuleTests(base.TestCase):
     ID_HEADER = ['ID']
 
     @classmethod
-    @testtools.skip('broken SDK testing')
     def setUpClass(cls):
         # Create the security group to hold the rule.
         opts = cls.get_opts(cls.NAME_FIELD)
@@ -55,6 +54,7 @@ class SecurityGroupRuleTests(base.TestCase):
                                    cls.SECURITY_GROUP_NAME)
         cls.assertOutput('', raw_output)
 
+    @testtools.skip('broken SDK testing')
     def test_security_group_rule_list(self):
         opts = self.get_opts(self.ID_HEADER)
         raw_output = self.openstack('security group rule list ' +

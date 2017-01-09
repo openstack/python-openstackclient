@@ -74,7 +74,7 @@ _formatters_compute = {
 def _get_columns(item):
     # Build the display columns and a list of the property columns
     # that need to be mapped (display column name, property name).
-    columns = list(item.keys())
+    columns = list(item.to_dict().keys())
     property_column_mappings = []
     if 'security_group_rules' in columns:
         columns.append('rules')
@@ -156,7 +156,7 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
             parsed_args.name,
             description,
         )
-        display_columns, property_columns = _get_columns(obj._info)
+        display_columns, property_columns = _get_columns(obj)
         data = utils.get_dict_properties(
             obj._info,
             property_columns,
@@ -336,7 +336,7 @@ class ShowSecurityGroup(common.NetworkAndComputeShowOne):
             client.security_groups,
             parsed_args.group,
         )
-        display_columns, property_columns = _get_columns(obj._info)
+        display_columns, property_columns = _get_columns(obj)
         data = utils.get_dict_properties(
             obj._info,
             property_columns,
