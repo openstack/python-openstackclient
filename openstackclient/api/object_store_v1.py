@@ -380,7 +380,7 @@ class APIv1(api.BaseAPI):
                 if len(os.path.dirname(file)) > 0:
                     os.makedirs(os.path.dirname(file))
             with open(file, 'wb') as f:
-                for chunk in response.iter_content():
+                for chunk in response.iter_content(64 * 1024):
                     f.write(chunk)
 
     def object_set(
