@@ -64,3 +64,10 @@ class HelpTests(base.TestCase):
         raw_output = self.openstack('help server')
         for command in [row[0] for row in self.SERVER_COMMANDS]:
             self.assertIn(command, raw_output)
+
+    def test_networking_commands_help(self):
+        """Check networking related commands in help message."""
+        raw_output = self.openstack('help network list')
+        self.assertIn('List networks', raw_output)
+        raw_output = self.openstack('network create --help')
+        self.assertIn('Create new network', raw_output)

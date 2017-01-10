@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixed a ``__init__() got an unexpected keyword argument 'project_name'``
+    error in various networking commands when ``help`` or ``--help`` was used.
+    [Bug `1650026 <https://bugs.launchpad.net/bugs/1650026>`_]
