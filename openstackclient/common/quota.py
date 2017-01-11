@@ -273,6 +273,10 @@ class ShowQuota(command.ShowOne):
         volume_quota_info = self.get_compute_volume_quota(volume_client,
                                                           parsed_args)
         network_quota_info = self.get_network_quota(parsed_args)
+        # NOTE(reedip): Remove the below check once requirement for
+        #               Openstack SDK is fixed to version 0.9.12 and above
+        if type(network_quota_info) is not dict:
+            network_quota_info = network_quota_info.to_dict()
 
         info = {}
         info.update(compute_quota_info)

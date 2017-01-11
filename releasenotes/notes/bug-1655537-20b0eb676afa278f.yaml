@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixed a ``'Quota' object is not iterable`` error in the ``quota show`` command
+    that appeared with the initial release of openstacksdk v0.9.11 and v0.9.12.
+    [Bug `1655537 <https://bugs.launchpad.net/bugs/1655537>`_]
