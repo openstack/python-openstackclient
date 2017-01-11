@@ -325,6 +325,7 @@ Set image properties
         [--ramdisk-id <ramdisk-id>]
         [--activate|--deactivate]
         [--project <project> [--project-domain <project-domain>]]
+        [--accept | --reject | --pending]
         <image>
 
 .. option:: --name <name>
@@ -487,6 +488,36 @@ Set image properties
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
+
+    .. versionadded:: 2
+
+.. option:: --accept
+
+    Accept the image membership.
+
+    If `--project` is passed, this will update the membership status for the
+    given project, otherwise `--project` will default to the project the user
+    is authenticated to.
+
+    .. versionadded:: 2
+
+.. option:: --reject
+
+    Reject the image membership.
+
+    If `--project` is passed, this will update the membership status for the
+    given project, otherwise `--project` will default to the project the user
+    is authenticated to.
+
+    .. versionadded:: 2
+
+.. option:: --pending
+
+    Reset the image membership to 'pending'.
+
+    If `--project` is passed, this will update the membership status for the
+    given project, otherwise `--project` will default to the project the user
+    is authenticated to.
 
     .. versionadded:: 2
 
