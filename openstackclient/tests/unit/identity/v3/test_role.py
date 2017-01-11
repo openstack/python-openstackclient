@@ -14,6 +14,10 @@
 #
 
 import copy
+import mock
+
+from osc_lib import exceptions
+from osc_lib import utils
 
 from openstackclient.identity.v3 import role
 from openstackclient.tests.unit import fakes
@@ -427,6 +431,36 @@ class TestRoleDelete(TestRole):
             identity_fakes.ROLE_2['id'],
         )
         self.assertIsNone(result)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_delete_multi_roles_with_exception(self, find_mock):
+        find_mock.side_effect = [self.roles_mock.get.return_value,
+                                 exceptions.CommandError]
+        arglist = [
+            identity_fakes.role_name,
+            'unexist_role',
+        ]
+        verifylist = [
+            ('roles', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('1 of 2 roles failed to delete.',
+                             str(e))
+
+        find_mock.assert_any_call(self.roles_mock,
+                                  identity_fakes.role_name,
+                                  domain_id=None)
+        find_mock.assert_any_call(self.roles_mock,
+                                  'unexist_role',
+                                  domain_id=None)
+
+        self.assertEqual(2, find_mock.call_count)
+        self.roles_mock.delete.assert_called_once_with(identity_fakes.role_id)
 
 
 class TestRoleList(TestRole):
