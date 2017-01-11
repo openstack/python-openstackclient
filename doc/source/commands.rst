@@ -113,6 +113,7 @@ referring to both Compute and Volume quotas.
 * ``network agent``: (**Network**) - A network agent is an agent that handles various tasks used to implement virtual networks
 * ``network meter``: (**Network**) - allow traffic metering in a network
 * ``network rbac``: (**Network**) - an RBAC policy for network resources
+* ``network qos rule``: (**Network**) - a QoS rule for network resources
 * ``network qos policy``: (**Network**) - a QoS policy for network resources
 * ``network qos rule type``: (**Network**) - list of QoS available rule types
 * ``network segment``: (**Network**) - a segment of a virtual network
