@@ -823,6 +823,19 @@ class TestVolumeList(TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
+        search_opts = {
+            'all_tenants': False,
+            'project_id': None,
+            'user_id': None,
+            'display_name': None,
+            'status': None,
+        }
+        self.volumes_mock.list.assert_called_once_with(
+            search_opts=search_opts,
+            marker=None,
+            limit=None,
+        )
+
         self.assertEqual(self.columns, columns)
 
         server = self.mock_volume.attachments[0]['server_id']
@@ -852,6 +865,19 @@ class TestVolumeList(TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
+
+        search_opts = {
+            'all_tenants': True,
+            'project_id': self.project.id,
+            'user_id': None,
+            'display_name': None,
+            'status': None,
+        }
+        self.volumes_mock.list.assert_called_once_with(
+            search_opts=search_opts,
+            marker=None,
+            limit=None,
+        )
 
         self.assertEqual(self.columns, columns)
 
@@ -885,6 +911,19 @@ class TestVolumeList(TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
+        search_opts = {
+            'all_tenants': True,
+            'project_id': self.project.id,
+            'user_id': None,
+            'display_name': None,
+            'status': None,
+        }
+        self.volumes_mock.list.assert_called_once_with(
+            search_opts=search_opts,
+            marker=None,
+            limit=None,
+        )
+
         self.assertEqual(self.columns, columns)
 
         server = self.mock_volume.attachments[0]['server_id']
@@ -914,6 +953,19 @@ class TestVolumeList(TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
+
+        search_opts = {
+            'all_tenants': False,
+            'project_id': None,
+            'user_id': self.user.id,
+            'display_name': None,
+            'status': None,
+        }
+        self.volumes_mock.list.assert_called_once_with(
+            search_opts=search_opts,
+            marker=None,
+            limit=None,
+        )
 
         self.assertEqual(self.columns, columns)
         server = self.mock_volume.attachments[0]['server_id']
@@ -946,6 +998,19 @@ class TestVolumeList(TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
+        search_opts = {
+            'all_tenants': False,
+            'project_id': None,
+            'user_id': self.user.id,
+            'display_name': None,
+            'status': None,
+        }
+        self.volumes_mock.list.assert_called_once_with(
+            search_opts=search_opts,
+            marker=None,
+            limit=None,
+        )
+
         self.assertEqual(self.columns, columns)
 
         server = self.mock_volume.attachments[0]['server_id']
@@ -975,6 +1040,19 @@ class TestVolumeList(TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
+
+        search_opts = {
+            'all_tenants': False,
+            'project_id': None,
+            'user_id': None,
+            'display_name': self.mock_volume.name,
+            'status': None,
+        }
+        self.volumes_mock.list.assert_called_once_with(
+            search_opts=search_opts,
+            marker=None,
+            limit=None,
+        )
 
         self.assertEqual(self.columns, columns)
 
@@ -1006,6 +1084,19 @@ class TestVolumeList(TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
+        search_opts = {
+            'all_tenants': False,
+            'project_id': None,
+            'user_id': None,
+            'display_name': None,
+            'status': self.mock_volume.status,
+        }
+        self.volumes_mock.list.assert_called_once_with(
+            search_opts=search_opts,
+            marker=None,
+            limit=None,
+        )
+
         self.assertEqual(self.columns, columns)
 
         server = self.mock_volume.attachments[0]['server_id']
@@ -1035,6 +1126,19 @@ class TestVolumeList(TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
+
+        search_opts = {
+            'all_tenants': True,
+            'project_id': None,
+            'user_id': None,
+            'display_name': None,
+            'status': None,
+        }
+        self.volumes_mock.list.assert_called_once_with(
+            search_opts=search_opts,
+            marker=None,
+            limit=None,
+        )
 
         self.assertEqual(self.columns, columns)
 
@@ -1066,6 +1170,19 @@ class TestVolumeList(TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
+
+        search_opts = {
+            'all_tenants': False,
+            'project_id': None,
+            'user_id': None,
+            'display_name': None,
+            'status': None,
+        }
+        self.volumes_mock.list.assert_called_once_with(
+            search_opts=search_opts,
+            marker=None,
+            limit=None,
+        )
 
         collist = [
             'ID',

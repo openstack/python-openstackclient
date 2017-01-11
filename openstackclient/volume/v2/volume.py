@@ -417,16 +417,19 @@ class ListVolume(command.Lister):
             project_id = identity_common.find_project(
                 identity_client,
                 parsed_args.project,
-                parsed_args.project_domain)
+                parsed_args.project_domain).id
 
         user_id = None
         if parsed_args.user:
             user_id = identity_common.find_user(identity_client,
                                                 parsed_args.user,
-                                                parsed_args.user_domain)
+                                                parsed_args.user_domain).id
+
+        # set value of 'all_tenants' when using project option
+        all_projects = bool(parsed_args.project) or parsed_args.all_projects
 
         search_opts = {
-            'all_tenants': parsed_args.all_projects,
+            'all_tenants': all_projects,
             'project_id': project_id,
             'user_id': user_id,
             'display_name': parsed_args.name,
