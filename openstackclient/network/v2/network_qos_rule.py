@@ -85,16 +85,16 @@ def _get_attrs(network_client, parsed_args, is_create=False):
             msg = _('"Create" rule command requires argument "type"')
             raise exceptions.CommandError(msg)
         rule_type = parsed_args.type
-    if parsed_args.max_kbps:
+    if parsed_args.max_kbps is not None:
         attrs['max_kbps'] = parsed_args.max_kbps
-    if parsed_args.max_burst_kbits:
+    if parsed_args.max_burst_kbits is not None:
         # NOTE(ralonsoh): this parameter must be changed in SDK and then in
         #                 Neutron API, from 'max_burst_kbps' to
         #                 'max_burst_kbits'
         attrs['max_burst_kbps'] = parsed_args.max_burst_kbits
-    if parsed_args.dscp_mark:
+    if parsed_args.dscp_mark is not None:
         attrs['dscp_mark'] = parsed_args.dscp_mark
-    if parsed_args.min_kbps:
+    if parsed_args.min_kbps is not None:
         attrs['min_kbps'] = parsed_args.min_kbps
     if parsed_args.ingress:
         attrs['direction'] = 'ingress'

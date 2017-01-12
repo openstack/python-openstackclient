@@ -523,6 +523,16 @@ class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         self.assertIsNone(result)
 
     def test_set_min_kbps(self):
+        self._set_min_kbps()
+
+    def test_set_min_kbps_to_zero(self):
+        self._set_min_kbps(min_kbps=0)
+
+    def _set_min_kbps(self, min_kbps=None):
+        if min_kbps:
+            previous_min_kbps = self.new_rule.min_kbps
+            self.new_rule.min_kbps = min_kbps
+
         arglist = [
             '--min-kbps', str(self.new_rule.min_kbps),
             self.new_rule.qos_policy_id,
@@ -543,6 +553,9 @@ class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         self.network.update_qos_minimum_bandwidth_rule.assert_called_with(
             self.new_rule, self.qos_policy.id, **attrs)
         self.assertIsNone(result)
+
+        if min_kbps:
+            self.new_rule.min_kbps = previous_min_kbps
 
     def test_set_wrong_options(self):
         arglist = [
@@ -604,6 +617,16 @@ class TestSetNetworkQosRuleDSCPMarking(TestNetworkQosRule):
         self.assertIsNone(result)
 
     def test_set_dscp_mark(self):
+        self._set_dscp_mark()
+
+    def test_set_dscp_mark_to_zero(self):
+        self._set_dscp_mark(dscp_mark=0)
+
+    def _set_dscp_mark(self, dscp_mark=None):
+        if dscp_mark:
+            previous_dscp_mark = self.new_rule.dscp_mark
+            self.new_rule.dscp_mark = dscp_mark
+
         arglist = [
             '--dscp-mark', str(self.new_rule.dscp_mark),
             self.new_rule.qos_policy_id,
@@ -624,6 +647,9 @@ class TestSetNetworkQosRuleDSCPMarking(TestNetworkQosRule):
         self.network.update_qos_dscp_marking_rule.assert_called_with(
             self.new_rule, self.qos_policy.id, **attrs)
         self.assertIsNone(result)
+
+        if dscp_mark:
+            self.new_rule.dscp_mark = previous_dscp_mark
 
     def test_set_wrong_options(self):
         arglist = [
@@ -685,6 +711,16 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
         self.assertIsNone(result)
 
     def test_set_max_kbps(self):
+        self._set_max_kbps()
+
+    def test_set_max_kbps_to_zero(self):
+        self._set_max_kbps(max_kbps=0)
+
+    def _set_max_kbps(self, max_kbps=None):
+        if max_kbps:
+            previous_max_kbps = self.new_rule.max_kbps
+            self.new_rule.max_kbps = max_kbps
+
         arglist = [
             '--max-kbps', str(self.new_rule.max_kbps),
             self.new_rule.qos_policy_id,
@@ -706,7 +742,20 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
             self.new_rule, self.qos_policy.id, **attrs)
         self.assertIsNone(result)
 
+        if max_kbps:
+            self.new_rule.max_kbps = previous_max_kbps
+
     def test_set_max_burst_kbits(self):
+        self._set_max_burst_kbits()
+
+    def test_set_max_burst_kbits_to_zero(self):
+        self._set_max_burst_kbits(max_burst_kbits=0)
+
+    def _set_max_burst_kbits(self, max_burst_kbits=None):
+        if max_burst_kbits:
+            previous_max_burst_kbits = self.new_rule.max_burst_kbits
+            self.new_rule.max_burst_kbits = max_burst_kbits
+
         arglist = [
             '--max-burst-kbits', str(self.new_rule.max_burst_kbits),
             self.new_rule.qos_policy_id,
@@ -727,6 +776,9 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
         self.network.update_qos_bandwidth_limit_rule.assert_called_with(
             self.new_rule, self.qos_policy.id, **attrs)
         self.assertIsNone(result)
+
+        if max_burst_kbits:
+            self.new_rule.max_burst_kbits = previous_max_burst_kbits
 
     def test_set_wrong_options(self):
         arglist = [
