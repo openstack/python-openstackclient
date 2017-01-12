@@ -1,4 +1,4 @@
 ---
 features:
-  - Add support to update image membership with the `--accept`,
+  - Add support to update image membership with the ``--accept``,
     ``--reject`` and ``--pending`` options of the ``image set command``.

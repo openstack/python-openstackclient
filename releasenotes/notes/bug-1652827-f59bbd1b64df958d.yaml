@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix an endpoint version problem with Image endpoints that contained the
+    substring 'v2'.
+    [Bug `1652827 <https://bugs.launchpad.net/bugs/1652827>`_]
