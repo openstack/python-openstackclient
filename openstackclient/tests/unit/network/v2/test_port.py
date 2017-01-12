@@ -57,6 +57,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'network_id',
             'port_security_enabled',
             'project_id',
+            'qos_policy_id',
             'security_group_ids',
             'status',
         )
@@ -82,6 +83,7 @@ class TestPort(network_fakes.TestNetworkV2):
             fake_port.network_id,
             fake_port.port_security_enabled,
             fake_port.project_id,
+            fake_port.qos_policy_id,
             utils.format_list(fake_port.security_group_ids),
             fake_port.status,
         )
@@ -415,6 +417,35 @@ class TestCreatePort(TestPort):
             'admin_state_up': True,
             'network_id': self._port.network_id,
             'allowed_address_pairs': pairs,
+            'name': 'test-port',
+        })
+
+        ref_columns, ref_data = self._get_common_cols_data(self._port)
+        self.assertEqual(ref_columns, columns)
+        self.assertEqual(ref_data, data)
+
+    def test_create_port_with_qos(self):
+        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        arglist = [
+            '--network', self._port.network_id,
+            '--qos-policy', qos_policy.id,
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id,),
+            ('enable', True),
+            ('qos_policy', qos_policy.id),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_port.assert_called_once_with(**{
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'qos_policy_id': qos_policy.id,
             'name': 'test-port',
         })
 
@@ -1316,6 +1347,30 @@ class TestSetPort(TestPort):
             'port_security_enabled': False,
         })
 
+    def test_set_port_with_qos(self):
+        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        _testport = network_fakes.FakePort.create_one_port(
+            {'qos_policy_id': None})
+        self.network.find_port = mock.Mock(return_value=_testport)
+        arglist = [
+            '--qos-policy', qos_policy.id,
+            _testport.name,
+        ]
+        verifylist = [
+            ('qos_policy', qos_policy.id),
+            ('port', _testport.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'qos_policy_id': qos_policy.id,
+        }
+        self.network.update_port.assert_called_once_with(_testport, **attrs)
+        self.assertIsNone(result)
+
 
 class TestShowPort(TestPort):
 
@@ -1379,6 +1434,7 @@ class TestUnsetPort(TestPort):
             '--fixed-ip',
             'subnet=042eb10a-3a18-4658-ab-cf47c8d03152,ip-address=1.0.0.0',
             '--binding-profile', 'Superman',
+            '--qos-policy',
             self._testport.name,
         ]
         verifylist = [
@@ -1386,6 +1442,7 @@ class TestUnsetPort(TestPort):
                 'subnet': '042eb10a-3a18-4658-ab-cf47c8d03152',
                 'ip-address': '1.0.0.0'}]),
             ('binding_profile', ['Superman']),
+            ('qos_policy', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1395,7 +1452,8 @@ class TestUnsetPort(TestPort):
             'fixed_ips': [{
                 'subnet_id': '042eb10a-3a18-4658-ab-cf47c8d03152',
                 'ip_address': '0.0.0.1'}],
-            'binding:profile': {'batman': 'Joker'}
+            'binding:profile': {'batman': 'Joker'},
+            'qos_policy_id': None
         }
         self.network.update_port.assert_called_once_with(
             self._testport, **attrs)

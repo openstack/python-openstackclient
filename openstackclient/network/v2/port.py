@@ -155,6 +155,13 @@ def _get_attrs(client_manager, parsed_args):
     if parsed_args.enable_port_security:
         attrs['port_security_enabled'] = True
 
+    if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
+        attrs['qos_policy_id'] = None
+
+    if parsed_args.qos_policy:
+        attrs['qos_policy_id'] = client_manager.network.find_qos_policy(
+            parsed_args.qos_policy, ignore_missing=False).id
+
     return attrs
 
 
@@ -337,7 +344,7 @@ class CreatePort(command.ShowOne):
             help=_("Name of this port")
         )
         # TODO(singhj): Add support for extended options:
-        # qos,dhcp
+        # dhcp
         secgroups = parser.add_mutually_exclusive_group()
         secgroups.add_argument(
             '--security-group',
@@ -352,6 +359,11 @@ class CreatePort(command.ShowOne):
             dest='no_security_group',
             action='store_true',
             help=_("Associate no security groups with this port")
+        )
+        parser.add_argument(
+            '--qos-policy',
+            metavar='<qos-policy>',
+            help=_("Attach QoS policy to this port (name or ID)")
         )
         port_security = parser.add_mutually_exclusive_group()
         port_security.add_argument(
@@ -403,6 +415,9 @@ class CreatePort(command.ShowOne):
             attrs['allowed_address_pairs'] = (
                 _convert_address_pairs(parsed_args))
 
+        if parsed_args.qos_policy:
+            attrs['qos_policy_id'] = client.find_qos_policy(
+                parsed_args.qos_policy, ignore_missing=False).id
         obj = client.create_port(**attrs)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
@@ -620,6 +635,11 @@ class SetPort(command.Command):
                    "to overwrite the current binding:profile information.")
         )
         parser.add_argument(
+            '--qos-policy',
+            metavar='<qos-policy>',
+            help=_("Attach QoS policy to this port (name or ID)")
+        )
+        parser.add_argument(
             'port',
             metavar="<port>",
             help=_("Port to modify (name or ID)")
@@ -675,8 +695,8 @@ class SetPort(command.Command):
         client = self.app.client_manager.network
 
         _prepare_fixed_ips(self.app.client_manager, parsed_args)
-        attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.find_port(parsed_args.port, ignore_missing=False)
+        attrs = _get_attrs(self.app.client_manager, parsed_args)
 
         if parsed_args.no_binding_profile:
             attrs['binding:profile'] = {}
@@ -794,6 +814,12 @@ class UnsetPort(command.Command):
                    "[,mac-address=<mac-address>] (repeat option to set "
                    "multiple allowed-address pairs)")
         )
+        parser.add_argument(
+            '--qos-policy',
+            action='store_true',
+            default=False,
+            help=_("Remove the QoS policy attached to the port")
+        )
 
         return parser
 
@@ -843,6 +869,8 @@ class UnsetPort(command.Command):
                 msg = _("Port does not contain allowed-address-pair %s") % addr
                 raise exceptions.CommandError(msg)
             attrs['allowed_address_pairs'] = tmp_addr_pairs
+        if parsed_args.qos_policy:
+            attrs['qos_policy_id'] = None
 
         if attrs:
             client.update_port(obj, **attrs)
