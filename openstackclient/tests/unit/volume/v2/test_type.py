@@ -13,6 +13,7 @@
 #
 
 import mock
+from mock import call
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -133,12 +134,13 @@ class TestTypeCreate(TestType):
 
 class TestTypeDelete(TestType):
 
-    volume_type = volume_fakes.FakeType.create_one_type()
+    volume_types = volume_fakes.FakeType.create_types(count=2)
 
     def setUp(self):
         super(TestTypeDelete, self).setUp()
 
-        self.types_mock.get.return_value = self.volume_type
+        self.types_mock.get = volume_fakes.FakeType.get_types(
+            self.volume_types)
         self.types_mock.delete.return_value = None
 
         # Get the command object to mock
@@ -146,17 +148,63 @@ class TestTypeDelete(TestType):
 
     def test_type_delete(self):
         arglist = [
-            self.volume_type.id
+            self.volume_types[0].id
         ]
         verifylist = [
-            ("volume_types", [self.volume_type.id])
+            ("volume_types", [self.volume_types[0].id])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.types_mock.delete.assert_called_with(self.volume_type)
+        self.types_mock.delete.assert_called_with(self.volume_types[0])
         self.assertIsNone(result)
+
+    def test_delete_multiple_types(self):
+        arglist = []
+        for t in self.volume_types:
+            arglist.append(t.id)
+        verifylist = [
+            ('volume_types', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for t in self.volume_types:
+            calls.append(call(t))
+        self.types_mock.delete.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_delete_multiple_types_with_exception(self):
+        arglist = [
+            self.volume_types[0].id,
+            'unexist_type',
+        ]
+        verifylist = [
+            ('volume_types', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        find_mock_result = [self.volume_types[0], exceptions.CommandError]
+        with mock.patch.object(utils, 'find_resource',
+                               side_effect=find_mock_result) as find_mock:
+            try:
+                self.cmd.take_action(parsed_args)
+                self.fail('CommandError should be raised.')
+            except exceptions.CommandError as e:
+                self.assertEqual('1 of 2 volume types failed to delete.',
+                                 str(e))
+            find_mock.assert_any_call(
+                self.types_mock, self.volume_types[0].id)
+            find_mock.assert_any_call(self.types_mock, 'unexist_type')
+
+            self.assertEqual(2, find_mock.call_count)
+            self.types_mock.delete.assert_called_once_with(
+                self.volume_types[0]
+            )
 
 
 class TestTypeList(TestType):
