@@ -42,9 +42,9 @@ Create new flavor
 
     Ephemeral disk size in GB (default 0G)
 
-.. option:: --swap <size-gb>
+.. option:: --swap <size-mb>
 
-    Swap space size in GB (default 0G)
+    Swap space size in MB (default 0M)
 
 .. option:: --vcpus <num-cpu>
 

@@ -89,9 +89,9 @@ class CreateFlavor(command.ShowOne):
         parser.add_argument(
             "--swap",
             type=int,
-            metavar="<size-gb>",
+            metavar="<size-mb>",
             default=0,
-            help=_("Swap space size in GB (default 0G)")
+            help=_("Swap space size in MB (default 0M)")
         )
         parser.add_argument(
             "--vcpus",
