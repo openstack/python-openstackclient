@@ -829,6 +829,11 @@ class TestImageSet(TestImage):
 
         self.images_mock.get.return_value = self.model(**image_fakes.IMAGE)
         self.images_mock.update.return_value = self.model(**image_fakes.IMAGE)
+
+        self.app.client_manager.auth_ref = mock.Mock(
+            project_id=self.project.id,
+        )
+
         # Get the command object to test
         self.cmd = image.SetImage(self.app, None)
 
@@ -847,32 +852,94 @@ class TestImageSet(TestImage):
 
         self.image_members_mock.update.assert_not_called()
 
-    def test_image_set_membership_option(self):
+    def test_image_set_membership_option_accept(self):
         membership = image_fakes.FakeImage.create_one_image_member(
             attrs={'image_id': image_fakes.image_id,
                    'member_id': self.project.id}
         )
         self.image_members_mock.update.return_value = membership
 
-        for status in ('accept', 'reject', 'pending'):
-            arglist = [
-                '--%s' % status,
-                image_fakes.image_id,
-            ]
-            verifylist = [
-                (status, True),
-                ('image', image_fakes.image_id)
-            ]
+        arglist = [
+            '--accept',
+            image_fakes.image_id,
+        ]
+        verifylist = [
+            ('accept', True),
+            ('reject', False),
+            ('pending', False),
+            ('image', image_fakes.image_id)
+        ]
 
-            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-            self.cmd.take_action(parsed_args)
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
 
-            self.image_members_mock.update.assert_called_once_with(
-                image_fakes.image_id,
-                self.app.client_manager.auth_ref.project_id,
-                status if status == 'pending' else status + 'ed'
-            )
-            self.image_members_mock.update.reset_mock()
+        self.image_members_mock.update.assert_called_once_with(
+            image_fakes.image_id,
+            self.app.client_manager.auth_ref.project_id,
+            'accepted',
+        )
+
+        # Assert that the 'update image" route is also called, in addition to
+        # the 'update membership' route.
+        self.images_mock.update.assert_called_with(image_fakes.image_id)
+
+    def test_image_set_membership_option_reject(self):
+        membership = image_fakes.FakeImage.create_one_image_member(
+            attrs={'image_id': image_fakes.image_id,
+                   'member_id': self.project.id}
+        )
+        self.image_members_mock.update.return_value = membership
+
+        arglist = [
+            '--reject',
+            image_fakes.image_id,
+        ]
+        verifylist = [
+            ('accept', False),
+            ('reject', True),
+            ('pending', False),
+            ('image', image_fakes.image_id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.image_members_mock.update.assert_called_once_with(
+            image_fakes.image_id,
+            self.app.client_manager.auth_ref.project_id,
+            'rejected',
+        )
+
+        # Assert that the 'update image" route is also called, in addition to
+        # the 'update membership' route.
+        self.images_mock.update.assert_called_with(image_fakes.image_id)
+
+    def test_image_set_membership_option_pending(self):
+        membership = image_fakes.FakeImage.create_one_image_member(
+            attrs={'image_id': image_fakes.image_id,
+                   'member_id': self.project.id}
+        )
+        self.image_members_mock.update.return_value = membership
+
+        arglist = [
+            '--pending',
+            image_fakes.image_id,
+        ]
+        verifylist = [
+            ('accept', False),
+            ('reject', False),
+            ('pending', True),
+            ('image', image_fakes.image_id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.image_members_mock.update.assert_called_once_with(
+            image_fakes.image_id,
+            self.app.client_manager.auth_ref.project_id,
+            'pending',
+        )
 
         # Assert that the 'update image" route is also called, in addition to
         # the 'update membership' route.
