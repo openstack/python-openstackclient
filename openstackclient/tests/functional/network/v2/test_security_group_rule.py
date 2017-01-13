@@ -12,8 +12,6 @@
 
 import uuid
 
-import testtools
-
 from openstackclient.tests.functional import base
 
 
@@ -54,7 +52,6 @@ class SecurityGroupRuleTests(base.TestCase):
                                    cls.SECURITY_GROUP_NAME)
         cls.assertOutput('', raw_output)
 
-    @testtools.skip('broken SDK testing')
     def test_security_group_rule_list(self):
         opts = self.get_opts(self.ID_HEADER)
         raw_output = self.openstack('security group rule list ' +
