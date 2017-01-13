@@ -51,17 +51,17 @@ def _format_network_port_range(rule):
     # - Single port: '80:80'
     # - No port range: ''
     port_range = ''
-    if _is_icmp_protocol(rule.protocol):
-        if rule.port_range_min:
-            port_range += 'type=' + str(rule.port_range_min)
-        if rule.port_range_max:
-            port_range += ':code=' + str(rule.port_range_max)
-    elif rule.port_range_min or rule.port_range_max:
-        port_range_min = str(rule.port_range_min)
-        port_range_max = str(rule.port_range_max)
-        if rule.port_range_min is None:
+    if _is_icmp_protocol(rule['protocol']):
+        if rule['port_range_min']:
+            port_range += 'type=' + str(rule['port_range_min'])
+        if rule['port_range_max']:
+            port_range += ':code=' + str(rule['port_range_max'])
+    elif rule['port_range_min'] or rule['port_range_max']:
+        port_range_min = str(rule['port_range_min'])
+        port_range_max = str(rule['port_range_max'])
+        if rule['port_range_min'] is None:
             port_range_min = port_range_max
-        if rule.port_range_max is None:
+        if rule['port_range_max'] is None:
             port_range_max = port_range_min
         port_range = port_range_min + ':' + port_range_max
     return port_range
@@ -423,6 +423,16 @@ class DeleteSecurityGroupRule(common.NetworkAndComputeDelete):
 class ListSecurityGroupRule(common.NetworkAndComputeLister):
     _description = _("List security group rules")
 
+    def _format_network_security_group_rule(self, rule):
+        """Transform the SDK SecurityGroupRule object to a dict
+
+        The SDK object gets in the way of reformatting columns...
+        Create port_range column from port_range_min and port_range_max
+        """
+        rule = rule.to_dict()
+        rule['port_range'] = _format_network_port_range(rule)
+        return rule
+
     def update_parser_common(self, parser):
         parser.add_argument(
             'group',
@@ -508,7 +518,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             'id',
             'protocol',
             'remote_ip_prefix',
-            'port_range_min',
+            'port_range',
         )
         if parsed_args.long:
             columns = columns + ('direction', 'ethertype',)
@@ -535,16 +545,13 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         if parsed_args.protocol is not None:
             query['protocol'] = parsed_args.protocol
 
-        rules = list(client.security_group_rules(**query))
-
-        # Reformat the rules to display a port range instead
-        # of just the port range minimum. This maintains
-        # output compatibility with compute.
-        for rule in rules:
-            rule.port_range_min = _format_network_port_range(rule)
+        rules = [
+            self._format_network_security_group_rule(r)
+            for r in client.security_group_rules(**query)
+        ]
 
         return (column_headers,
-                (utils.get_item_properties(
+                (utils.get_dict_properties(
                     s, columns,
                 ) for s in rules))
 
