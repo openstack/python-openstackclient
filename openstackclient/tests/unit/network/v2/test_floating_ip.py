@@ -208,13 +208,19 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
         super(TestDeleteFloatingIPNetwork, self).setUp()
 
         self.network.delete_ip = mock.Mock(return_value=None)
-        self.network.find_ip = (
-            network_fakes.FakeFloatingIP.get_floating_ips(self.floating_ips))
 
         # Get the command object to test
         self.cmd = floating_ip.DeleteFloatingIP(self.app, self.namespace)
 
-    def test_floating_ip_delete(self):
+    @mock.patch(
+        "openstackclient.tests.unit.network.v2.test_floating_ip." +
+        "floating_ip._find_floating_ip"
+    )
+    def test_floating_ip_delete(self, find_floating_ip_mock):
+        find_floating_ip_mock.side_effect = [
+            (self.floating_ips[0], []),
+            (self.floating_ips[1], []),
+        ]
         arglist = [
             self.floating_ips[0].id,
         ]
@@ -225,12 +231,24 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.find_ip.assert_called_once_with(
-            self.floating_ips[0].id, ignore_missing=False)
+        find_floating_ip_mock.assert_called_once_with(
+            mock.ANY,
+            [],
+            self.floating_ips[0].id,
+            ignore_missing=False,
+        )
         self.network.delete_ip.assert_called_once_with(self.floating_ips[0])
         self.assertIsNone(result)
 
-    def test_multi_floating_ips_delete(self):
+    @mock.patch(
+        "openstackclient.tests.unit.network.v2.test_floating_ip." +
+        "floating_ip._find_floating_ip"
+    )
+    def test_floating_ip_delete_multi(self, find_floating_ip_mock):
+        find_floating_ip_mock.side_effect = [
+            (self.floating_ips[0], []),
+            (self.floating_ips[1], []),
+        ]
         arglist = []
         verifylist = []
 
@@ -243,13 +261,37 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
 
         result = self.cmd.take_action(parsed_args)
 
+        calls = [
+            call(
+                mock.ANY,
+                [],
+                self.floating_ips[0].id,
+                ignore_missing=False,
+            ),
+            call(
+                mock.ANY,
+                [],
+                self.floating_ips[1].id,
+                ignore_missing=False,
+            ),
+        ]
+        find_floating_ip_mock.assert_has_calls(calls)
+
         calls = []
         for f in self.floating_ips:
             calls.append(call(f))
         self.network.delete_ip.assert_has_calls(calls)
         self.assertIsNone(result)
 
-    def test_multi_floating_ips_delete_with_exception(self):
+    @mock.patch(
+        "openstackclient.tests.unit.network.v2.test_floating_ip." +
+        "floating_ip._find_floating_ip"
+    )
+    def test_floating_ip_delete_multi_exception(self, find_floating_ip_mock):
+        find_floating_ip_mock.side_effect = [
+            (self.floating_ips[0], []),
+            exceptions.CommandError,
+        ]
         arglist = [
             self.floating_ips[0].id,
             'unexist_floating_ip',
@@ -260,21 +302,24 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        find_mock_result = [self.floating_ips[0], exceptions.CommandError]
-        self.network.find_ip = (
-            mock.Mock(side_effect=find_mock_result)
-        )
-
         try:
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 floating_ips failed to delete.', str(e))
 
-        self.network.find_ip.assert_any_call(
-            self.floating_ips[0].id, ignore_missing=False)
-        self.network.find_ip.assert_any_call(
-            'unexist_floating_ip', ignore_missing=False)
+        find_floating_ip_mock.assert_any_call(
+            mock.ANY,
+            [],
+            self.floating_ips[0].id,
+            ignore_missing=False,
+        )
+        find_floating_ip_mock.assert_any_call(
+            mock.ANY,
+            [],
+            'unexist_floating_ip',
+            ignore_missing=False,
+        )
         self.network.delete_ip.assert_called_once_with(
             self.floating_ips[0]
         )
@@ -534,7 +579,12 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
         # Get the command object to test
         self.cmd = floating_ip.ShowFloatingIP(self.app, self.namespace)
 
-    def test_floating_ip_show(self):
+    @mock.patch(
+        "openstackclient.tests.unit.network.v2.test_floating_ip." +
+        "floating_ip._find_floating_ip"
+    )
+    def test_floating_ip_show(self, find_floating_ip_mock):
+        find_floating_ip_mock.return_value = (self.floating_ip, [])
         arglist = [
             self.floating_ip.id,
         ]
@@ -545,9 +595,11 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_ip.assert_called_once_with(
+        find_floating_ip_mock.assert_called_once_with(
+            mock.ANY,
+            [],
             self.floating_ip.id,
-            ignore_missing=False
+            ignore_missing=False,
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

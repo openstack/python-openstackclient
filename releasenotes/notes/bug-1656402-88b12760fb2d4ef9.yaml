@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix ``floating ip delete`` and ``floating ip show`` to accept IP addresses
+    in addition to IDs to select floating IPs to delete or show.
+    [Bug `1656402 <https://bugs.launchpad.net/bugs/1656402>`_

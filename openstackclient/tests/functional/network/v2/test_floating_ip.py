@@ -14,8 +14,6 @@ import random
 import re
 import uuid
 
-import testtools
-
 from openstackclient.tests.functional import base
 
 
@@ -25,7 +23,6 @@ class FloatingIpTests(base.TestCase):
     NETWORK_NAME = uuid.uuid4().hex
 
     @classmethod
-    @testtools.skip('broken SDK testing')
     def setUpClass(cls):
         # Set up some regex for matching below
         cls.re_id = re.compile("id\s+\|\s+(\S+)")
@@ -62,7 +59,6 @@ class FloatingIpTests(base.TestCase):
         raw_output = cls.openstack('network delete ' + cls.NETWORK_NAME)
         cls.assertOutput('', raw_output)
 
-    @testtools.skip('broken SDK testing')
     def test_floating_ip_delete(self):
         """Test create, delete multiple"""
         raw_output = self.openstack(
@@ -93,7 +89,6 @@ class FloatingIpTests(base.TestCase):
         raw_output = self.openstack('floating ip delete ' + ip1 + ' ' + ip2)
         self.assertOutput('', raw_output)
 
-    @testtools.skip('broken SDK testing')
     def test_floating_ip_list(self):
         """Test create defaults, list filters, delete"""
         raw_output = self.openstack(
@@ -135,7 +130,6 @@ class FloatingIpTests(base.TestCase):
 
         # TODO(dtroyer): add more filter tests
 
-    @testtools.skip('broken SDK testing')
     def test_floating_ip_show(self):
         """Test show"""
         raw_output = self.openstack(
