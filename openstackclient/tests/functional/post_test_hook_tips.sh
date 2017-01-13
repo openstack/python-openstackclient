@@ -7,13 +7,14 @@
 # http://docs.openstack.org/developer/python-openstackclient/
 
 # This particular script differs from the normal post_test_hook because
-# it installs the master (tip) version of osc-lib and openstacksdk
+# it installs the master (tip) version of osc-lib, os-client-config
+# and openstacksdk, OSCs most important dependencies.
 
 function generate_testr_results {
     if [ -f .testrepository/0 ]; then
-        sudo .tox/functional/bin/testr last --subunit > $WORKSPACE/testrepository.subunit
+        sudo .tox/functional-tips/bin/testr last --subunit > $WORKSPACE/testrepository.subunit
         sudo mv $WORKSPACE/testrepository.subunit $BASE/logs/testrepository.subunit
-        sudo .tox/functional/bin/subunit2html $BASE/logs/testrepository.subunit $BASE/logs/testr_results.html
+        sudo .tox/functional-tips/bin/subunit2html $BASE/logs/testrepository.subunit $BASE/logs/testr_results.html
         sudo gzip -9 $BASE/logs/testrepository.subunit
         sudo gzip -9 $BASE/logs/testr_results.html
         sudo chown jenkins:jenkins $BASE/logs/testrepository.subunit.gz $BASE/logs/testr_results.html.gz
@@ -28,7 +29,7 @@ sudo chown -R jenkins:stack $OPENSTACKCLIENT_DIR
 cd $OPENSTACKCLIENT_DIR
 
 # Run tests
-echo "Running openstackclient functional test suite"
+echo "Running openstackclient functional-tips test suite"
 set +e
 
 # Source environment variables to kick things off
