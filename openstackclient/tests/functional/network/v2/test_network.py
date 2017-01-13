@@ -10,10 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import re
+import json
 import uuid
-
-import testtools
 
 from openstackclient.tests.functional import base
 
@@ -21,153 +19,164 @@ from openstackclient.tests.functional import base
 class NetworkTests(base.TestCase):
     """Functional tests for network"""
 
-    @classmethod
-    def setUpClass(cls):
-        # Set up some regex for matching below
-        cls.re_id = re.compile("id\s+\|\s+(\S+)")
-        cls.re_description = re.compile("description\s+\|\s+([^|]+?)\s+\|")
-        cls.re_enabled = re.compile("admin_state_up\s+\|\s+(\S+)")
-        cls.re_shared = re.compile("shared\s+\|\s+(\S+)")
-        cls.re_external = re.compile("router:external\s+\|\s+(\S+)")
-        cls.re_default = re.compile("is_default\s+\|\s+(\S+)")
-        cls.re_port_security = re.compile(
-            "port_security_enabled\s+\|\s+(\S+)"
-        )
-
     def test_network_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
-        raw_output = self.openstack(
-            'network create ' +
+        cmd_output = json.loads(self.openstack(
+            'network create -f json ' +
             '--description aaaa ' +
             name1
-        )
+        ))
+        self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
             'aaaa',
-            re.search(self.re_description, raw_output).group(1),
+            cmd_output["description"],
         )
+
         name2 = uuid.uuid4().hex
-        raw_output = self.openstack(
-            'network create ' +
+        cmd_output = json.loads(self.openstack(
+            'network create -f json ' +
             '--description bbbb ' +
             name2
-        )
+        ))
+        self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
             'bbbb',
-            re.search(self.re_description, raw_output).group(1),
+            cmd_output["description"],
         )
 
         del_output = self.openstack('network delete ' + name1 + ' ' + name2)
         self.assertOutput('', del_output)
 
-    @testtools.skip('broken SDK testing')
     def test_network_list(self):
         """Test create defaults, list filters, delete"""
         name1 = uuid.uuid4().hex
-        raw_output = self.openstack(
-            'network create ' +
+        cmd_output = json.loads(self.openstack(
+            'network create -f json ' +
             '--description aaaa ' +
             name1
-        )
+        ))
         self.addCleanup(self.openstack, 'network delete ' + name1)
+        self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
             'aaaa',
-            re.search(self.re_description, raw_output).group(1),
+            cmd_output["description"],
         )
         # Check the default values
         self.assertEqual(
             'UP',
-            re.search(self.re_enabled, raw_output).group(1),
+            cmd_output["admin_state_up"],
         )
         self.assertEqual(
-            'False',
-            re.search(self.re_shared, raw_output).group(1),
+            False,
+            cmd_output["shared"],
         )
         self.assertEqual(
             'Internal',
-            re.search(self.re_external, raw_output).group(1),
+            cmd_output["router:external"],
         )
         # NOTE(dtroyer): is_default is not present in the create output
         #                so make sure it stays that way.
-        self.assertIsNone(re.search(self.re_default, raw_output))
+        # NOTE(stevemar): is_default *is* present in SDK 0.9.11 and newer,
+        #                 but the value seems to always be None, regardless
+        #                 of the --default or --no-default value.
+        # self.assertEqual('x', cmd_output)
+        if ('is_default' in cmd_output):
+            self.assertEqual(
+                None,
+                cmd_output["is_default"],
+            )
         self.assertEqual(
-            'True',
-            re.search(self.re_port_security, raw_output).group(1),
+            True,
+            cmd_output["port_security_enabled"],
         )
 
         name2 = uuid.uuid4().hex
-        raw_output = self.openstack(
-            'network create ' +
+        cmd_output = json.loads(self.openstack(
+            'network create -f json ' +
             '--description bbbb ' +
             '--disable ' +
             '--share ' +
             name2
-        )
+        ))
         self.addCleanup(self.openstack, 'network delete ' + name2)
+        self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
             'bbbb',
-            re.search(self.re_description, raw_output).group(1),
+            cmd_output["description"],
         )
         self.assertEqual(
             'DOWN',
-            re.search(self.re_enabled, raw_output).group(1),
+            cmd_output["admin_state_up"],
         )
         self.assertEqual(
-            'True',
-            re.search(self.re_shared, raw_output).group(1),
+            True,
+            cmd_output["shared"],
+        )
+        if ('is_default' in cmd_output):
+            self.assertEqual(
+                None,
+                cmd_output["is_default"],
+            )
+        self.assertEqual(
+            True,
+            cmd_output["port_security_enabled"],
         )
 
         # Test list --long
-        raw_output = self.openstack('network list --long')
-        self.assertIsNotNone(
-            re.search("\|\s+" + name1 + "\s+\|\s+ACTIVE", raw_output)
-        )
-        self.assertIsNotNone(
-            re.search("\|\s+" + name2 + "\s+\|\s+ACTIVE", raw_output)
-        )
+        cmd_output = json.loads(self.openstack(
+            "network list -f json " +
+            "--long"
+        ))
+        col_name = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, col_name)
+        self.assertIn(name2, col_name)
 
         # Test list --long --enable
-        raw_output = self.openstack('network list --long --enable')
-        self.assertIsNotNone(
-            re.search("\|\s+" + name1 + "\s+\|\s+ACTIVE", raw_output)
-        )
-        self.assertIsNone(
-            re.search("\|\s+" + name2 + "\s+\|\s+ACTIVE", raw_output)
-        )
+        cmd_output = json.loads(self.openstack(
+            "network list -f json " +
+            "--enable " +
+            "--long"
+        ))
+        col_name = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, col_name)
+        self.assertNotIn(name2, col_name)
 
         # Test list --long --disable
-        raw_output = self.openstack('network list --long --disable')
-        self.assertIsNone(
-            re.search("\|\s+" + name1 + "\s+\|\s+ACTIVE", raw_output)
-        )
-        self.assertIsNotNone(
-            re.search("\|\s+" + name2 + "\s+\|\s+ACTIVE", raw_output)
-        )
+        cmd_output = json.loads(self.openstack(
+            "network list -f json " +
+            "--disable " +
+            "--long"
+        ))
+        col_name = [x["Name"] for x in cmd_output]
+        self.assertNotIn(name1, col_name)
+        self.assertIn(name2, col_name)
 
         # Test list --long --share
-        raw_output = self.openstack('network list --long --share')
-        self.assertIsNone(
-            re.search("\|\s+" + name1 + "\s+\|\s+ACTIVE", raw_output)
-        )
-        self.assertIsNotNone(
-            re.search("\|\s+" + name2 + "\s+\|\s+ACTIVE", raw_output)
-        )
+        cmd_output = json.loads(self.openstack(
+            "network list -f json " +
+            "--share " +
+            "--long"
+        ))
+        col_name = [x["Name"] for x in cmd_output]
+        self.assertNotIn(name1, col_name)
+        self.assertIn(name2, col_name)
 
         # Test list --long --no-share
-        raw_output = self.openstack('network list --long --no-share')
-        self.assertIsNotNone(
-            re.search("\|\s+" + name1 + "\s+\|\s+ACTIVE", raw_output)
-        )
-        self.assertIsNone(
-            re.search("\|\s+" + name2 + "\s+\|\s+ACTIVE", raw_output)
-        )
+        cmd_output = json.loads(self.openstack(
+            "network list -f json " +
+            "--no-share " +
+            "--long"
+        ))
+        col_name = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, col_name)
+        self.assertNotIn(name2, col_name)
 
-    @testtools.skip('broken SDK testing')
     def test_network_set(self):
         """Tests create options, set, show, delete"""
         name = uuid.uuid4().hex
-        raw_output = self.openstack(
-            'network create ' +
+        cmd_output = json.loads(self.openstack(
+            'network create -f json ' +
             '--description aaaa ' +
             '--enable ' +
             '--no-share ' +
@@ -175,30 +184,38 @@ class NetworkTests(base.TestCase):
             '--no-default ' +
             '--enable-port-security ' +
             name
-        )
+        ))
         self.addCleanup(self.openstack, 'network delete ' + name)
+        self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
             'aaaa',
-            re.search(self.re_description, raw_output).group(1),
+            cmd_output["description"],
         )
         self.assertEqual(
             'UP',
-            re.search(self.re_enabled, raw_output).group(1),
+            cmd_output["admin_state_up"],
         )
         self.assertEqual(
-            'False',
-            re.search(self.re_shared, raw_output).group(1),
+            False,
+            cmd_output["shared"],
         )
         self.assertEqual(
             'Internal',
-            re.search(self.re_external, raw_output).group(1),
+            cmd_output["router:external"],
         )
         # NOTE(dtroyer): is_default is not present in the create output
         #                so make sure it stays that way.
-        self.assertIsNone(re.search(self.re_default, raw_output))
+        # NOTE(stevemar): is_default *is* present in SDK 0.9.11 and newer,
+        #                 but the value seems to always be None, regardless
+        #                 of the --default or --no-default value.
+        if ('is_default' in cmd_output):
+            self.assertEqual(
+                None,
+                cmd_output["is_default"],
+            )
         self.assertEqual(
-            'True',
-            re.search(self.re_port_security, raw_output).group(1),
+            True,
+            cmd_output["port_security_enabled"],
         )
 
         raw_output = self.openstack(
@@ -212,32 +229,34 @@ class NetworkTests(base.TestCase):
         )
         self.assertOutput('', raw_output)
 
-        raw_output = self.openstack('network show ' + name)
+        cmd_output = json.loads(self.openstack(
+            'network show -f json ' + name
+        ))
 
         self.assertEqual(
             'cccc',
-            re.search(self.re_description, raw_output).group(1),
+            cmd_output["description"],
         )
         self.assertEqual(
             'DOWN',
-            re.search(self.re_enabled, raw_output).group(1),
+            cmd_output["admin_state_up"],
         )
         self.assertEqual(
-            'True',
-            re.search(self.re_shared, raw_output).group(1),
+            True,
+            cmd_output["shared"],
         )
         self.assertEqual(
             'External',
-            re.search(self.re_external, raw_output).group(1),
+            cmd_output["router:external"],
         )
         # why not 'None' like above??
         self.assertEqual(
-            'False',
-            re.search(self.re_default, raw_output).group(1),
+            False,
+            cmd_output["is_default"],
         )
         self.assertEqual(
-            'False',
-            re.search(self.re_port_security, raw_output).group(1),
+            False,
+            cmd_output["port_security_enabled"],
         )
 
         # NOTE(dtroyer): There is ambiguity around is_default in that
@@ -252,14 +271,16 @@ class NetworkTests(base.TestCase):
         )
         self.assertOutput('', raw_output)
 
-        raw_output = self.openstack('network show ' + name)
+        cmd_output = json.loads(self.openstack(
+            'network show -f json ' + name
+        ))
 
         self.assertEqual(
             'cccc',
-            re.search(self.re_description, raw_output).group(1),
+            cmd_output["description"],
         )
         # NOTE(dtroyer): This should be 'True'
         self.assertEqual(
-            'False',
-            re.search(self.re_default, raw_output).group(1),
+            False,
+            cmd_output["port_security_enabled"],
         )
