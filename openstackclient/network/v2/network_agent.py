@@ -168,7 +168,7 @@ class SetNetworkAgent(command.Command):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.get_agent(parsed_args.network_agent, ignore_missing=False)
+        obj = client.get_agent(parsed_args.network_agent)
         attrs = {}
         if parsed_args.description is not None:
             attrs['description'] = str(parsed_args.description)
@@ -193,7 +193,7 @@ class ShowNetworkAgent(command.ShowOne):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.get_agent(parsed_args.network_agent, ignore_missing=False)
+        obj = client.get_agent(parsed_args.network_agent)
         columns = tuple(sorted(list(obj.keys())))
         data = utils.get_item_properties(obj, columns, formatters=_formatters,)
         return columns, data
