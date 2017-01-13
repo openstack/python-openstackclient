@@ -324,6 +324,6 @@ class TestShowNetworkAgent(TestNetworkAgent):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.get_agent.assert_called_once_with(
-            self._network_agent.id, ignore_missing=False)
+            self._network_agent.id)
         self.assertEqual(self.columns, columns)
         self.assertEqual(list(self.data), list(data))
