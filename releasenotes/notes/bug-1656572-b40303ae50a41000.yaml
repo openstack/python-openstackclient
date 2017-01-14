@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Work around a bug in OpenStackSDK 0.9.11 and 0.9.12 that causes
+    ``quota show --default`` to fail.
+    [Bug `1656572 <https://bugs.launchpad.net/python-openstackclient/+bug/1656572>`_]
