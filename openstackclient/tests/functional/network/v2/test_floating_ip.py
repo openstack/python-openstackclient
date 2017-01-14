@@ -37,7 +37,7 @@ class FloatingIpTests(base.TestCase):
         # Make a random subnet
         cls.subnet = ".".join(map(
             str,
-            (random.randint(0, 255) for _ in range(3))
+            (random.randint(0, 223) for _ in range(3))
         )) + ".0/26"
 
         # Create a network for the floating ip
