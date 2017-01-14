@@ -52,6 +52,7 @@ VALID_DSCP_MARKS = [0, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
 class FakeNetworkV2Client(object):
 
     def __init__(self, **kwargs):
+        self.session = mock.Mock()
         self.extensions = mock.Mock()
         self.extensions.resource_class = fakes.FakeResource(None, {})
 

@@ -15,6 +15,8 @@
 
 import logging
 
+from openstack import exceptions as sdk_exceptions
+from openstack.network.v2 import floating_ip as _floating_ip
 from osc_lib import utils
 
 from openstackclient.i18n import _
@@ -77,6 +79,58 @@ def _get_attrs(client_manager, parsed_args):
         attrs['tenant_id'] = project_id
 
     return attrs
+
+
+def _find_floating_ip(
+    session,
+    ip_cache,
+    name_or_id,
+    ignore_missing=True,
+    **params
+):
+    """Find a floating IP by IP or ID
+
+    The SDK's find_ip() can only locate a floating IP by ID so we have
+    to do this ourselves.
+    """
+
+    def _get_one_match(name_or_id):
+        """Given a list of results, return the match"""
+        the_result = None
+        for maybe_result in ip_cache:
+            id_value = maybe_result.id
+            ip_value = maybe_result.floating_ip_address
+
+            if (id_value == name_or_id) or (ip_value == name_or_id):
+                # Only allow one resource to be found. If we already
+                # found a match, raise an exception to show it.
+                if the_result is None:
+                    the_result = maybe_result
+                else:
+                    msg = "More than one %s exists with the name '%s'."
+                    msg = (msg % (_floating_ip.FloatingIP, name_or_id))
+                    raise sdk_exceptions.DuplicateResource(msg)
+
+        return the_result
+
+    # Try to short-circuit by looking directly for a matching ID.
+    try:
+        match = _floating_ip.FloatingIP.existing(id=name_or_id, **params)
+        return (match.get(session), ip_cache)
+    except sdk_exceptions.NotFoundException:
+        pass
+
+    if len(ip_cache) == 0:
+        ip_cache = list(_floating_ip.FloatingIP.list(session, **params))
+
+    result = _get_one_match(name_or_id)
+    if result is not None:
+        return (result, ip_cache)
+
+    if ignore_missing:
+        return (None, ip_cache)
+    raise sdk_exceptions.ResourceNotFound(
+        "No %s found for %s" % (_floating_ip.FloatingIP.__name__, name_or_id))
 
 
 class CreateFloatingIP(common.NetworkAndComputeShowOne):
@@ -186,12 +240,27 @@ class DeleteFloatingIP(common.NetworkAndComputeDelete):
         return parser
 
     def take_action_network(self, client, parsed_args):
-        obj = client.find_ip(self.r, ignore_missing=False)
+        (obj, self.ip_cache) = _find_floating_ip(
+            client.session,
+            self.ip_cache,
+            self.r,
+            ignore_missing=False,
+        )
         client.delete_ip(obj)
 
     def take_action_compute(self, client, parsed_args):
         obj = utils.find_resource(client.floating_ips, self.r)
         client.floating_ips.delete(obj.id)
+
+    def take_action(self, parsed_args):
+        """Implements a naive cache for the list of floating IPs"""
+
+        # NOTE(dtroyer): This really only prevents multiple list()
+        #                calls when performing multiple resource deletes
+        #                in a single command. In an interactive session
+        #                each delete command will call list().
+        self.ip_cache = []
+        super(DeleteFloatingIP, self).take_action(parsed_args)
 
 
 class DeleteIPFloating(DeleteFloatingIP):
@@ -390,6 +459,9 @@ class ListIPFloating(ListFloatingIP):
 class ShowFloatingIP(common.NetworkAndComputeShowOne):
     _description = _("Display floating IP details")
 
+    # ip_cache is unused here but is a side effect of _find_floating_ip()
+    ip_cache = []
+
     def update_parser_common(self, parser):
         parser.add_argument(
             'floating_ip',
@@ -399,7 +471,12 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
         return parser
 
     def take_action_network(self, client, parsed_args):
-        obj = client.find_ip(parsed_args.floating_ip, ignore_missing=False)
+        (obj, self.ip_cache) = _find_floating_ip(
+            client.session,
+            [],
+            parsed_args.floating_ip,
+            ignore_missing=False,
+        )
         display_columns, columns = _get_network_columns(obj)
         data = utils.get_item_properties(obj, columns)
         return (display_columns, data)
