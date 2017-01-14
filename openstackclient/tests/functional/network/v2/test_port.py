@@ -12,8 +12,6 @@
 
 import uuid
 
-import testtools
-
 from openstackclient.tests.functional import base
 
 
@@ -25,7 +23,6 @@ class PortTests(base.TestCase):
     FIELDS = ['name']
 
     @classmethod
-    @testtools.skip('broken SDK testing')
     def setUpClass(cls):
         # Create a network for the subnet.
         cls.openstack('network create ' + cls.NETWORK_NAME)
