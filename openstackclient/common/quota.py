@@ -18,6 +18,8 @@
 import itertools
 import sys
 
+from openstack import exceptions as sdk_exceptions
+from openstack.network.v2 import quota as _quota
 from osc_lib.command import command
 from osc_lib import utils
 import six
@@ -251,7 +253,39 @@ class ShowQuota(command.ShowOne):
             project = self._get_project(parsed_args)
             client = self.app.client_manager.network
             if parsed_args.default:
-                network_quota = client.get_quota_default(project)
+                # TODO(dtroyer): Remove the top of this if block once the
+                #                fixed SDK QuotaDefault class is the minimum
+                #                required version.  This is expected to be
+                #                SDK release 0.9.13
+                if hasattr(_quota.QuotaDefault, 'project'):
+                    # hack 0.9.11+
+                    quotadef_obj = client._get_resource(
+                        _quota.QuotaDefault,
+                        project,
+                    )
+                    quotadef_obj.base_path = quotadef_obj.base_path % {
+                        'project': project,
+                    }
+                    try:
+                        network_quota = quotadef_obj.get(
+                            client.session,
+                            requires_id=False,
+                        )
+                    except sdk_exceptions.NotFoundException as e:
+                        raise sdk_exceptions.ResourceNotFound(
+                            message="No %s found for %s" %
+                                    (_quota.QuotaDefault.__name__, project),
+                            details=e.details,
+                            response=e.response,
+                            request_id=e.request_id,
+                            url=e.url,
+                            method=e.method,
+                            http_status=e.http_status,
+                            cause=e.cause,
+                        )
+                    # end hack-around
+                else:
+                    network_quota = client.get_quota_default(project)
             else:
                 network_quota = client.get_quota(project)
             return network_quota
