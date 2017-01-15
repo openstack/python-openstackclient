@@ -10,8 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import testtools
-
 from openstackclient.tests.functional import base
 
 
@@ -27,7 +25,6 @@ class QuotaTests(base.TestCase):
         cls.PROJECT_NAME =\
             cls.get_openstack_configuration_value('auth.project_name')
 
-    @testtools.skip('broken SDK testing')
     def test_quota_set(self):
         self.openstack('quota set --instances 11 --volumes 11 --networks 11 ' +
                        self.PROJECT_NAME)

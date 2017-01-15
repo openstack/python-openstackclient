@@ -182,9 +182,36 @@ class SetQuota(command.Command):
                     project,
                     **volume_kwargs)
             if network_kwargs:
-                network_client.update_quota(
-                    project,
-                    **network_kwargs)
+                if hasattr(_quota.Quota, 'allow_get'):
+                    # TODO(huanxuan): Remove this block once the fixed
+                    # SDK Quota class is the minimum required version.
+                    # This is expected to be SDK release 0.9.13
+                    res = network_client._get_resource(
+                        _quota.Quota, project, **network_kwargs)
+                    if any([res._body.dirty, res._header.dirty]):
+                        request = res._prepare_request(prepend_key=True)
+                        # remove the id in the body
+                        if 'id' in request.body[res.resource_key]:
+                            del request.body[res.resource_key]['id']
+                        if res.patch_update:
+                            response = network_client.session.patch(
+                                request.uri,
+                                endpoint_filter=res.service,
+                                json=request.body,
+                                headers=request.headers
+                            )
+                        else:
+                            response = network_client.session.put(
+                                request.uri,
+                                endpoint_filter=res.service,
+                                json=request.body,
+                                headers=request.headers
+                            )
+                        res._translate_response(response, has_body=True)
+                else:
+                    network_client.update_quota(
+                        project,
+                        **network_kwargs)
 
 
 class ShowQuota(command.ShowOne):
