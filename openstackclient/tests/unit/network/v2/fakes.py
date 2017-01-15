@@ -565,6 +565,8 @@ class FakeNetworkAgent(object):
         agent_attrs.update(attrs)
         agent = fakes.FakeResource(info=copy.deepcopy(agent_attrs),
                                    loaded=True)
+        agent.is_admin_state_up = agent_attrs['admin_state_up']
+        agent.is_alive = agent_attrs['alive']
         return agent
 
     @staticmethod

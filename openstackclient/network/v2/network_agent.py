@@ -20,6 +20,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
+from openstackclient.network import sdk_utils
 
 
 LOG = logging.getLogger(__name__)
@@ -31,8 +32,17 @@ def _format_admin_state(state):
 
 _formatters = {
     'admin_state_up': _format_admin_state,
+    'is_admin_state_up': _format_admin_state,
     'configurations': utils.format_dict,
 }
+
+
+def _get_network_columns(item):
+    column_map = {
+        'is_admin_state_up': 'admin_state_up',
+        'is_alive': 'alive',
+    }
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 class DeleteNetworkAgent(command.Command):
@@ -69,6 +79,8 @@ class DeleteNetworkAgent(command.Command):
             raise exceptions.CommandError(msg)
 
 
+# TODO(huanxuan): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class ListNetworkAgent(command.Lister):
     _description = _("List network agents")
 
@@ -98,8 +110,8 @@ class ListNetworkAgent(command.Lister):
             'agent_type',
             'host',
             'availability_zone',
-            'alive',
-            'admin_state_up',
+            'is_alive',
+            'is_admin_state_up',
             'binary'
         )
         column_headers = (
@@ -138,6 +150,8 @@ class ListNetworkAgent(command.Lister):
                 ) for s in data))
 
 
+# TODO(huanxuan): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class SetNetworkAgent(command.Command):
     _description = _("Set network agent properties")
 
@@ -172,6 +186,8 @@ class SetNetworkAgent(command.Command):
         attrs = {}
         if parsed_args.description is not None:
             attrs['description'] = str(parsed_args.description)
+        # TODO(huanxuan): Also update by the new attribute name
+        # "is_admin_state_up" after sdk 0.9.12
         if parsed_args.enable:
             attrs['admin_state_up'] = True
         if parsed_args.disable:
@@ -194,6 +210,6 @@ class ShowNetworkAgent(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj = client.get_agent(parsed_args.network_agent)
-        columns = tuple(sorted(list(obj.keys())))
+        display_columns, columns = _get_network_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters,)
-        return columns, data
+        return display_columns, data
