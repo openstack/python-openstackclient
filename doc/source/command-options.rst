@@ -154,6 +154,15 @@ An example parser declaration for `set` action:
 .. code-block:: python
 
         parser.add_argument(
+            '--no-example-property',
+            dest='no_example_property',
+            action='store_true',
+            help=_('Remove all example properties for this <resource> '
+                   '(specify both --no-example-property and --example-property'
+                   ' to remove the current properties before setting'
+                   ' new properties.)'),
+        )
+        parser.add_argument(
             '--example-property',
             metavar='<example-property>',
             dest='example_property',
@@ -161,26 +170,21 @@ An example parser declaration for `set` action:
             help=_('Example property for this <resource> '
                    '(repeat option to set multiple properties)'),
         )
-        parser.add_argument(
-            '--no-example-property',
-            dest='no_example_property',
-            action='store_true',
-            help=_('Remove all example properties for this <resource> '
-                   '(specify both --example-property and --no-example-property'
-                   ' to overwrite the current example properties)'),
-        )
+
+Please make `--no-example-property` be shown in front of `--example-property`
+in the help, like above, that help make users aware of the processing order.
 
 An example handler in `take_action()` for `set` action:
 
 .. code-block:: python
 
-        if parsed_args.example_property and parsed_args.no_example_property:
+        if parsed_args.no_example_property and parsed_args.example_property:
             kwargs['example_property'] = parsed_args.example_property
+        elif parsed_args.no_example_property:
+            kwargs['example_property'] = []
         elif parsed_args.example_property:
             kwargs['example_property'] = \
                 resource_example_property + parsed_args.example_property
-        elif parsed_args.no_example_property:
-            kwargs['example_property'] = []
 
 An example parser declaration for `unset` action:
 
