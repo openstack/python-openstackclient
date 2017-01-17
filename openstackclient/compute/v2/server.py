@@ -144,6 +144,20 @@ def _prep_server_detail(compute_client, server):
     except Exception:
         info['flavor'] = flavor_id
 
+    if 'os-extended-volumes:volumes_attached' in info:
+        info.update(
+            {
+                'volumes_attached': utils.format_list_of_dicts(
+                    info.pop('os-extended-volumes:volumes_attached'))
+            }
+        )
+    if 'security_groups' in info:
+        info.update(
+            {
+                'security_groups': utils.format_list_of_dicts(
+                    info.pop('security_groups'))
+            }
+        )
     # NOTE(dtroyer): novaclient splits these into separate entries...
     # Format addresses in a useful way
     info['addresses'] = _format_servers_list_networks(server.networks)
