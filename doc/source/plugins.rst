@@ -36,6 +36,7 @@ The following is a list of projects that are an OpenStackClient plugin.
 - python-searchlightclient
 - python-senlinclient
 - python-tripleoclient\*\*
+- python-troveclient
 - python-watcherclient
 - python-zaqarclient
 
@@ -45,7 +46,6 @@ The following is a list of projects that are an OpenStackClient plugin.
 
 The following is a list of projects that are not an OpenStackClient plugin.
 
-- python-troveclient
 - python-magnumclient
 - python-ceilometerclient
 - python-solumclient

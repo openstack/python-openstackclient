@@ -181,6 +181,7 @@ list check out :doc:`plugin-commands`.
 * ``congress policy``: (**Policy (Congress)**)
 * ``congress policy rule``: (**Policy (Congress)**)
 * ``cron trigger``: (**Workflow Engine (Mistral)**)
+* ``database flavor``: (**Database (Trove)**)
 * ``dataprocessing data source``: (**Data Processing (Sahara)**)
 * ``dataprocessing image``: (**Data Processing (Sahara)**)
 * ``dataprocessing image tags``: (**Data Processing (Sahara)**)
