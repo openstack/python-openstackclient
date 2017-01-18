@@ -141,10 +141,8 @@ def _add_additional_network_options(parser):
     parser.add_argument(
         '--provider-network-type',
         metavar='<provider-network-type>',
-        choices=['flat', 'geneve', 'gre', 'local',
-                 'vlan', 'vxlan'],
         help=_("The physical mechanism by which the virtual network "
-               "is implemented. The supported options are: "
+               "is implemented. For example: "
                "flat, geneve, gre, local, vlan, vxlan."))
     parser.add_argument(
         '--provider-physical-network',
