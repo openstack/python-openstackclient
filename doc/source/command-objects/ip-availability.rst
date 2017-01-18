@@ -54,7 +54,7 @@ subnet within the network as well.
     openstack ip availability show
         <network>
 
-.. _ip_availability_show-network
+.. _ip_availability_show-network:
 .. describe:: <network>
 
     Show IP availability for a specific network (name or ID)
