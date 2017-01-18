@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Allow ``--default`` and ``--no-default`` options in  ``network create`` command to
+    be recognized when ``--external`` is not present.
+    [Bug `1665231 <https://bugs.launchpad.net/python-openstackclient/+bug/1665231>`_]
