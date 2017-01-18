@@ -36,4 +36,5 @@ python-neutronclient>=5.1.0 # Apache-2.0
 python-saharaclient>=0.18.0 # Apache-2.0
 python-searchlightclient>=1.0.0 #Apache-2.0
 python-senlinclient>=1.1.0 # Apache-2.0
+python-troveclient>=2.2.0 # Apache-2.0
 python-zaqarclient>=1.0.0 # Apache-2.0

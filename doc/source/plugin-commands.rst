@@ -97,6 +97,12 @@ senlin
 .. # list-plugins:: openstack.tripleoclient.v1
 .. #   :detailed:
 
+trove
+------
+
+.. list-plugins:: openstack.database.v1
+   :detailed:
+
 .. watcher
 .. # watcherclient is not in global-requirements
 .. # list-plugins:: openstack.infra_optim.v1
