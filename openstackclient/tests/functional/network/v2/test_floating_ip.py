@@ -31,25 +31,38 @@ class FloatingIpTests(base.TestCase):
         cls.re_description = re.compile("description\s+\|\s+([^|]+?)\s+\|")
         cls.re_network_id = re.compile("floating_network_id\s+\|\s+(\S+)")
 
-        # Make a random subnet
-        cls.subnet = ".".join(map(
-            str,
-            (random.randint(0, 223) for _ in range(3))
-        )) + ".0/26"
-
         # Create a network for the floating ip
         raw_output = cls.openstack(
             'network create --external ' + cls.NETWORK_NAME
         )
         cls.network_id = re.search(cls.re_id, raw_output).group(1)
 
-        # Create a subnet for the network
-        raw_output = cls.openstack(
-            'subnet create ' +
-            '--network ' + cls.NETWORK_NAME + ' ' +
-            '--subnet-range ' + cls.subnet + ' ' +
-            cls.SUBNET_NAME
-        )
+        # Try random subnet range for subnet creating
+        # Because we can not determine ahead of time what subnets are already
+        # in use, possibly by another test running in parallel, try 4 times
+        for i in range(4):
+            # Make a random subnet
+            cls.subnet = ".".join(map(
+                str,
+                (random.randint(0, 223) for _ in range(3))
+            )) + ".0/26"
+            try:
+                # Create a subnet for the network
+                raw_output = cls.openstack(
+                    'subnet create ' +
+                    '--network ' + cls.NETWORK_NAME + ' ' +
+                    '--subnet-range ' + cls.subnet + ' ' +
+                    cls.SUBNET_NAME
+                )
+            except Exception:
+                if (i == 3):
+                    # raise the exception at the last time
+                    raise
+                pass
+            else:
+                # break and no longer retry if create sucessfully
+                break
+
         cls.subnet_id = re.search(cls.re_id, raw_output).group(1)
 
     @classmethod
