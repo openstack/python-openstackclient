@@ -44,6 +44,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'binding_vif_details',
             'binding_vif_type',
             'binding_vnic_type',
+            'data_plane_status',
             'description',
             'device_id',
             'device_owner',
@@ -70,6 +71,7 @@ class TestPort(network_fakes.TestNetworkV2):
             utils.format_dict(fake_port.binding_vif_details),
             fake_port.binding_vif_type,
             fake_port.binding_vnic_type,
+            fake_port.data_plane_status,
             fake_port.description,
             fake_port.device_id,
             fake_port.device_owner,
@@ -1371,6 +1373,40 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
 
+    def test_set_port_data_plane_status(self):
+        _testport = network_fakes.FakePort.create_one_port(
+            {'data_plane_status': None})
+        self.network.find_port = mock.Mock(return_value=_testport)
+        arglist = [
+            '--data-plane-status', 'ACTIVE',
+            _testport.name,
+        ]
+        verifylist = [
+            ('data_plane_status', 'ACTIVE'),
+            ('port', _testport.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'data_plane_status': 'ACTIVE',
+        }
+
+        self.network.update_port.assert_called_once_with(_testport, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_port_invalid_data_plane_status_value(self):
+        arglist = [
+            '--data-plane-status', 'Spider-Man',
+            'test-port',
+        ]
+        self.assertRaises(tests_utils.ParserException,
+                          self.check_parser,
+                          self.cmd,
+                          arglist,
+                          None)
+
 
 class TestShowPort(TestPort):
 
@@ -1573,3 +1609,26 @@ class TestUnsetPort(TestPort):
         self.assertRaises(exceptions.CommandError,
                           self.cmd.take_action,
                           parsed_args)
+
+    def test_unset_port_data_plane_status(self):
+        _fake_port = network_fakes.FakePort.create_one_port(
+            {'data_plane_status': 'ACTIVE'})
+        self.network.find_port = mock.Mock(return_value=_fake_port)
+        arglist = [
+            '--data-plane-status',
+            _fake_port.name,
+        ]
+        verifylist = [
+            ('data_plane_status', True),
+            ('port', _fake_port.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'data_plane_status': None,
+        }
+
+        self.network.update_port.assert_called_once_with(_fake_port, **attrs)
+        self.assertIsNone(result)
