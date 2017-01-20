@@ -27,6 +27,27 @@ Backwards Incompatible Changes
 ..   * Remove in: <5.0>
 ..   * Commit: <tbd>
 
+Release 3.12.0
+--------------
+
+1. Replace ``Display Name`` by ``Name`` in volume list.
+
+  Change column name ``Display Name`` to ``Name`` in ``volume list`` output.
+  Current ``volume list --name`` command uses ``display_name`` as search_opts
+  to send to cinder API, and show the result table with ``Display Name``
+  as column title. Replace all ``Display Name`` by ``Name`` to be consistent
+  with other list commands.
+
+  Support a mapping for volume list -c ``Display Name`` (Volume v1 and v2)
+  and volume create/show -c ``display_name`` (Volume v1) to maintain backward
+  compatibility until the next major release.
+
+  * In favor of: ``openstack volume list -c Name``
+  * As of: 3.12.0
+  * Removed in: n/a
+  * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1657956
+  * Commit: https://review.openstack.org/#/c/423081/
+
 Release 3.10
 ------------
 
@@ -61,6 +82,7 @@ Release 3.0
   * Removed in: n/a
   * Bug: n/a
   * Commit: https://review.openstack.org/332938
+
 
 Releases Before 3.0
 -------------------

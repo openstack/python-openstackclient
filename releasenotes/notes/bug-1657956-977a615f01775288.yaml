@@ -1,0 +1,13 @@
+---
+fixes:
+  - |
+    Change column name ``Display Name`` to ``Name`` in ``volume list`` output.
+    Current ``volume list --name`` command uses ``display_name`` as search_opts
+    to send to cinder API, and show the result table with ``Display Name``
+    as column title. Replace all ``Display Name`` by ``Name`` to be consistent
+    with other list commands.
+
+    Support a mapping for volume list -c ``Display Name`` (Volume v1 and v2)
+    and volume create/show -c ``display_name`` (Volume v1) to maintain backward
+    compatibility until the next major release.
+    [Bug `1657956 <https://bugs.launchpad.net/python-openstackclient/+bug/1657956>`_]

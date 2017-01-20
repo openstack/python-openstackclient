@@ -27,7 +27,7 @@ class TransferRequestTests(common.BaseVolumeTests):
         super(TransferRequestTests, cls).setUpClass()
         cmd_output = json.loads(cls.openstack(
             'volume create -f json --size 1 ' + cls.VOLUME_NAME))
-        cls.assertOutput(cls.VOLUME_NAME, cmd_output['display_name'])
+        cls.assertOutput(cls.VOLUME_NAME, cmd_output['name'])
 
         cmd_output = json.loads(cls.openstack(
             'volume transfer request create -f json ' +
@@ -51,7 +51,7 @@ class TransferRequestTests(common.BaseVolumeTests):
         # create a volume
         cmd_output = json.loads(self.openstack(
             'volume create -f json --size 1 ' + volume_name))
-        self.assertEqual(volume_name, cmd_output['display_name'])
+        self.assertEqual(volume_name, cmd_output['name'])
 
         # create volume transfer request for the volume
         # and get the auth_key of the new transfer request
