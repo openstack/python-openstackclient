@@ -30,6 +30,7 @@ from openstackclient.i18n import _
 from openstackclient.identity import common
 
 
+CONTAINER_CHOICES = ["ami", "ari", "aki", "bare", "docker", "ova", "ovf"]
 DEFAULT_CONTAINER_FORMAT = 'bare'
 DEFAULT_DISK_FORMAT = 'raw'
 DISK_CHOICES = ["ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2", "vhdx",
@@ -135,9 +136,13 @@ class CreateImage(command.ShowOne):
         parser.add_argument(
             "--container-format",
             default=DEFAULT_CONTAINER_FORMAT,
+            choices=CONTAINER_CHOICES,
             metavar="<container-format>",
-            help=_("Image container format "
-                   "(default: %s)") % DEFAULT_CONTAINER_FORMAT,
+            help=(_("Image container format. "
+                    "The supported options are: %(option_list)s. "
+                    "The default format is: %(default_opt)s") %
+                  {'option_list': ', '.join(CONTAINER_CHOICES),
+                   'default_opt': DEFAULT_CONTAINER_FORMAT})
         )
         parser.add_argument(
             "--disk-format",
@@ -659,8 +664,9 @@ class SetImage(command.Command):
         parser.add_argument(
             "--container-format",
             metavar="<container-format>",
-            help=_("Image container format "
-                   "(default: %s)") % DEFAULT_CONTAINER_FORMAT,
+            choices=CONTAINER_CHOICES,
+            help=_("Image container format. The supported options are: %s") %
+            ', '.join(CONTAINER_CHOICES)
         )
         parser.add_argument(
             "--disk-format",

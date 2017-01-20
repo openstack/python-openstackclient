@@ -76,7 +76,8 @@ Create/upload an image
 
 .. option:: --container-format <container-format>
 
-    Image container format (default: bare)
+    Image container format. The supported options are: ami, ari, aki,
+    bare, docker, ova, ovf. The default format is: bare
 
 .. option:: --disk-format <disk-format>
 
@@ -342,7 +343,8 @@ Set image properties
 
 .. option:: --container-format <container-format>
 
-    Image container format (default: bare)
+    Image container format. The supported options are: ami, ari, aki,
+    bare, docker, ova, ovf.
 
 .. option:: --disk-format <disk-format>
 
