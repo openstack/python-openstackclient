@@ -20,7 +20,7 @@ class RouterTests(base.TestCase):
     """Functional tests for router. """
 
     def test_router_create_and_delete(self):
-        """Test create options, delete"""
+        """Test create options, delete multiple"""
         name1 = uuid.uuid4().hex
         name2 = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
@@ -75,6 +75,8 @@ class RouterTests(base.TestCase):
             '--disable ' +
             name1
         ))
+
+        self.addCleanup(self.openstack, 'router delete ' + name1)
         self.assertEqual(
             name1,
             cmd_output["name"],
@@ -92,6 +94,8 @@ class RouterTests(base.TestCase):
             '--project ' + demo_project_id +
             ' ' + name2
         ))
+
+        self.addCleanup(self.openstack, 'router delete ' + name2)
         self.assertEqual(
             name2,
             cmd_output["name"],
@@ -141,12 +145,8 @@ class RouterTests(base.TestCase):
         self.assertIn(name1, names)
         self.assertIn(name2, names)
 
-        del_output = self.openstack(
-            'router delete ' + name1 + ' ' + name2)
-        self.assertOutput('', del_output)
-
     def test_router_set_show_unset(self):
-        """Tests create router, set, unset, show, delete"""
+        """Tests create router, set, unset, show"""
 
         name = uuid.uuid4().hex
         new_name = name + "_"
@@ -155,6 +155,7 @@ class RouterTests(base.TestCase):
             '--description aaaa ' +
             name
         ))
+        self.addCleanup(self.openstack, 'router delete ' + new_name)
         self.assertEqual(
             name,
             cmd_output["name"],
@@ -221,7 +222,3 @@ class RouterTests(base.TestCase):
             new_name
         ))
         self.assertIsNone(cmd_output["external_gateway_info"])
-
-        del_output = self.openstack(
-            'router delete ' + new_name)
-        self.assertOutput('', del_output)

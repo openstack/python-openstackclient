@@ -37,7 +37,7 @@ class SubnetTests(base.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_subnet_create_and_delete(self):
-        """Test create, delete"""
+        """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
         cmd = ('subnet create -f json --network ' +
                self.NETWORK_NAME +
@@ -51,9 +51,22 @@ class SubnetTests(base.TestCase):
             self.NETWORK_ID,
             cmd_output["network_id"],
         )
+        name2 = uuid.uuid4().hex
+        cmd = ('subnet create -f json --network ' +
+               self.NETWORK_NAME +
+               ' --subnet-range')
+        cmd_output = self._subnet_create(cmd, name2)
+        self.assertEqual(
+            name2,
+            cmd_output["name"],
+        )
+        self.assertEqual(
+            self.NETWORK_ID,
+            cmd_output["network_id"],
+        )
 
         del_output = self.openstack(
-            'subnet delete ' + name1)
+            'subnet delete ' + name1 + ' ' + name2)
         self.assertOutput('', del_output)
 
     def test_subnet_list(self):
@@ -64,6 +77,8 @@ class SubnetTests(base.TestCase):
                '--network ' + self.NETWORK_NAME +
                ' --dhcp --subnet-range')
         cmd_output = self._subnet_create(cmd, name1)
+
+        self.addCleanup(self.openstack, 'subnet delete ' + name1)
         self.assertEqual(
             name1,
             cmd_output["name"],
@@ -86,6 +101,8 @@ class SubnetTests(base.TestCase):
                ' --ip-version 6 --no-dhcp ' +
                '--subnet-range')
         cmd_output = self._subnet_create(cmd, name2, is_type_ipv4=False)
+
+        self.addCleanup(self.openstack, 'subnet delete ' + name2)
         self.assertEqual(
             name2,
             cmd_output["name"],
@@ -148,12 +165,8 @@ class SubnetTests(base.TestCase):
         self.assertNotIn(name1, names)
         self.assertIn(name2, names)
 
-        del_output = self.openstack(
-            'subnet delete ' + name1 + ' ' + name2)
-        self.assertOutput('', del_output)
-
     def test_subnet_set_show_unset(self):
-        """Test create subnet, set, unset, show, delete"""
+        """Test create subnet, set, unset, show"""
 
         name = uuid.uuid4().hex
         new_name = name + "_"
@@ -161,6 +174,8 @@ class SubnetTests(base.TestCase):
                '--network ' + self.NETWORK_NAME +
                ' --description aaaa --subnet-range')
         cmd_output = self._subnet_create(cmd, name)
+
+        self.addCleanup(self.openstack, 'subnet delete ' + new_name)
         self.assertEqual(
             name,
             cmd_output["name"],
@@ -223,10 +238,6 @@ class SubnetTests(base.TestCase):
             '',
             cmd_output["service_types"],
         )
-
-        del_output = self.openstack(
-            'subnet delete ' + new_name)
-        self.assertOutput('', del_output)
 
     def _subnet_create(self, cmd, name, is_type_ipv4=True):
         # Try random subnet range for subnet creating
