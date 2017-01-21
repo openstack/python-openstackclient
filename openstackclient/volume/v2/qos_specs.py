@@ -95,6 +95,9 @@ class CreateQos(command.ShowOne):
 
         qos_spec = volume_client.qos_specs.create(parsed_args.name, specs)
 
+        qos_spec._info.update(
+            {'properties': utils.format_dict(qos_spec._info.pop('specs'))}
+        )
         return zip(*sorted(six.iteritems(qos_spec._info)))
 
 
@@ -190,8 +193,11 @@ class ListQos(command.Lister):
                                 for association in qos_associations]
                 qos._info.update({'associations': associations})
 
+        display_columns = (
+            'ID', 'Name', 'Consumer', 'Associations', 'Properties')
+
         columns = ('ID', 'Name', 'Consumer', 'Associations', 'Specs')
-        return (columns,
+        return (display_columns,
                 (utils.get_dict_properties(
                     s._info, columns,
                     formatters={
@@ -254,7 +260,8 @@ class ShowQos(command.ShowOne):
             qos_spec._info.update({
                 'associations': utils.format_list(associations)
             })
-        qos_spec._info.update({'specs': utils.format_dict(qos_spec.specs)})
+        qos_spec._info.update(
+            {'properties': utils.format_dict(qos_spec._info.pop('specs'))})
 
         return zip(*sorted(six.iteritems(qos_spec._info)))
 

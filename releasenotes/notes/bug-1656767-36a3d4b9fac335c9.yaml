@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixed a ``volume qos create`` display mistake in argument of ``specs``.
+    [Bug `1656767 <https://bugs.launchpad.net/python-openstackclient/+bug/1656767>`_]

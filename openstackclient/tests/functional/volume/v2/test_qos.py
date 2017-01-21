@@ -50,13 +50,13 @@ class QosTests(common.BaseVolumeTests):
         raw_output = self.openstack(
             'volume qos set --property a=b --property c=d ' + self.ID)
         self.assertEqual("", raw_output)
-        opts = self.get_opts(['name', 'specs'])
+        opts = self.get_opts(['name', 'properties'])
         raw_output = self.openstack('volume qos show ' + self.ID + opts)
         self.assertEqual(self.NAME + "\na='b', c='d'\n", raw_output)
 
         raw_output = self.openstack(
             'volume qos unset --property a ' + self.ID)
         self.assertEqual("", raw_output)
-        opts = self.get_opts(['name', 'specs'])
+        opts = self.get_opts(['name', 'properties'])
         raw_output = self.openstack('volume qos show ' + self.ID + opts)
         self.assertEqual(self.NAME + "\nc='d'\n", raw_output)
