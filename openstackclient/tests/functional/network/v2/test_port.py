@@ -10,7 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import re
+import json
 import uuid
 
 from openstackclient.tests.functional import base
@@ -20,21 +20,11 @@ class PortTests(base.TestCase):
     """Functional tests for port. """
     NAME = uuid.uuid4().hex
     NETWORK_NAME = uuid.uuid4().hex
-    HEADERS = ['Name']
-    FIELDS = ['name']
 
     @classmethod
     def setUpClass(cls):
-        # Set up some regex for matching below
-        cls.re_id = re.compile("\s+id\s+\|\s+(\S+)")
-        cls.re_name = re.compile("\s+name\s+\|\s+([^|]+?)\s+\|")
-        cls.re_description = re.compile("\s+description\s+\|\s+([^|]+?)\s+\|")
-        cls.re_mac_address = re.compile("\s+mac_address\s+\|\s+([^|]+?)\s+\|")
-        cls.re_state = re.compile("\s+admin_state_up\s+\|\s+([^|]+?)\s+\|")
-
         # Create a network for the port
-        raw_output = cls.openstack('network create ' + cls.NETWORK_NAME)
-        cls.network_id = re.search(cls.re_id, raw_output).group(1)
+        cls.openstack('network create ' + cls.NETWORK_NAME)
 
     @classmethod
     def tearDownClass(cls):
@@ -43,33 +33,23 @@ class PortTests(base.TestCase):
 
     def test_port_delete(self):
         """Test create, delete multiple"""
-        raw_output = self.openstack(
-            'port create --network ' + self.NETWORK_NAME + ' ' + self.NAME
-        )
-        re_id1 = re.search(self.re_id, raw_output)
-        self.assertIsNotNone(re_id1)
-        id1 = re_id1.group(1)
-        self.assertIsNotNone(
-            re.search(self.re_mac_address, raw_output).group(1),
-        )
-        self.assertEqual(
-            self.NAME,
-            re.search(self.re_name, raw_output).group(1),
-        )
+        json_output = json.loads(self.openstack(
+            'port create -f json --network ' +
+            self.NETWORK_NAME + ' ' + self.NAME
+        ))
+        id1 = json_output.get('id')
+        self.assertIsNotNone(id1)
+        self.assertIsNotNone(json_output.get('mac_address'))
+        self.assertEqual(self.NAME, json_output.get('name'))
 
-        raw_output = self.openstack(
-            'port create ' +
-            '--network ' + self.NETWORK_NAME + ' ' +
+        json_output = json.loads(self.openstack(
+            'port create -f json --network ' + self.NETWORK_NAME + ' ' +
             self.NAME + 'x'
-        )
-        id2 = re.search(self.re_id, raw_output).group(1)
-        self.assertIsNotNone(
-            re.search(self.re_mac_address, raw_output).group(1),
-        )
-        self.assertEqual(
-            self.NAME + 'x',
-            re.search(self.re_name, raw_output).group(1),
-        )
+        ))
+        id2 = json_output.get('id')
+        self.assertIsNotNone(id2)
+        self.assertIsNotNone(json_output.get('mac_address'))
+        self.assertEqual(self.NAME + 'x', json_output.get('name'))
 
         # Clean up after ourselves
         raw_output = self.openstack('port delete ' + id1 + ' ' + id2)
@@ -77,100 +57,80 @@ class PortTests(base.TestCase):
 
     def test_port_list(self):
         """Test create defaults, list, delete"""
-        raw_output = self.openstack(
-            'port create --network ' + self.NETWORK_NAME + ' ' + self.NAME
-        )
-        re_id1 = re.search(self.re_id, raw_output)
-        self.assertIsNotNone(re_id1)
-        id1 = re_id1.group(1)
-        mac1 = re.search(self.re_mac_address, raw_output).group(1)
+        json_output = json.loads(self.openstack(
+            'port create -f json --network ' + self.NETWORK_NAME + ' ' +
+            self.NAME
+        ))
+        id1 = json_output.get('id')
+        self.assertIsNotNone(id1)
+        mac1 = json_output.get('mac_address')
+        self.assertIsNotNone(mac1)
         self.addCleanup(self.openstack, 'port delete ' + id1)
-        self.assertEqual(
-            self.NAME,
-            re.search(self.re_name, raw_output).group(1),
-        )
+        self.assertEqual(self.NAME, json_output.get('name'))
 
-        raw_output = self.openstack(
-            'port create ' +
-            '--network ' + self.NETWORK_NAME + ' ' +
+        json_output = json.loads(self.openstack(
+            'port create -f json --network ' + self.NETWORK_NAME + ' ' +
             self.NAME + 'x'
-        )
-        id2 = re.search(self.re_id, raw_output).group(1)
-        mac2 = re.search(self.re_mac_address, raw_output).group(1)
+        ))
+        id2 = json_output.get('id')
+        self.assertIsNotNone(id2)
+        mac2 = json_output.get('mac_address')
+        self.assertIsNotNone(mac2)
         self.addCleanup(self.openstack, 'port delete ' + id2)
-        self.assertEqual(
-            self.NAME + 'x',
-            re.search(self.re_name, raw_output).group(1),
-        )
+        self.assertEqual(self.NAME + 'x', json_output.get('name'))
 
         # Test list
-        raw_output = self.openstack('port list')
-        self.assertIsNotNone(re.search("\|\s+" + id1 + "\s+\|", raw_output))
-        self.assertIsNotNone(re.search("\|\s+" + id2 + "\s+\|", raw_output))
-        self.assertIsNotNone(re.search("\|\s+" + mac1 + "\s+\|", raw_output))
-        self.assertIsNotNone(re.search("\|\s+" + mac2 + "\s+\|", raw_output))
+        json_output = json.loads(self.openstack(
+            'port list -f json'
+        ))
+        item_map = {item.get('ID'): item.get('MAC Address') for item in
+                    json_output}
+        self.assertIn(id1, item_map.keys())
+        self.assertIn(id2, item_map.keys())
+        self.assertIn(mac1, item_map.values())
+        self.assertIn(mac2, item_map.values())
 
         # Test list --long
-        raw_output = self.openstack('port list --long')
-        self.assertIsNotNone(re.search("\|\s+" + id1 + "\s+\|", raw_output))
-        self.assertIsNotNone(re.search("\|\s+" + id2 + "\s+\|", raw_output))
+        json_output = json.loads(self.openstack(
+            'port list --long -f json'
+        ))
+        id_list = [item.get('ID') for item in json_output]
+        self.assertIn(id1, id_list)
+        self.assertIn(id2, id_list)
 
         # Test list --mac-address
-        raw_output = self.openstack('port list --mac-address ' + mac2)
-        self.assertIsNone(re.search("\|\s+" + id1 + "\s+\|", raw_output))
-        self.assertIsNotNone(re.search("\|\s+" + id2 + "\s+\|", raw_output))
-        self.assertIsNone(re.search("\|\s+" + mac1 + "\s+\|", raw_output))
-        self.assertIsNotNone(re.search("\|\s+" + mac2 + "\s+\|", raw_output))
+        json_output = json.loads(self.openstack(
+            'port list -f json --mac-address ' + mac2
+        ))
+        item_map = {item.get('ID'): item.get('MAC Address') for item in
+                    json_output}
+        self.assertNotIn(id1, item_map.keys())
+        self.assertIn(id2, item_map.keys())
+        self.assertNotIn(mac1, item_map.values())
+        self.assertIn(mac2, item_map.values())
 
     def test_port_set(self):
         """Test create, set, show, delete"""
-        raw_output = self.openstack(
-            'port create ' +
+        json_output = json.loads(self.openstack(
+            'port create -f json ' +
             '--network ' + self.NETWORK_NAME + ' ' +
             '--description xyzpdq '
             '--disable ' +
             self.NAME
-        )
-        re_id = re.search(self.re_id, raw_output)
-        self.assertIsNotNone(re_id)
-        id = re_id.group(1)
-        self.addCleanup(self.openstack, 'port delete ' + id)
-        self.assertEqual(
-            self.NAME,
-            re.search(self.re_name, raw_output).group(1),
-        )
-        self.assertEqual(
-            'xyzpdq',
-            re.search(self.re_description, raw_output).group(1),
-        )
-        self.assertEqual(
-            'DOWN',
-            re.search(self.re_state, raw_output).group(1),
-        )
+        ))
+        id1 = json_output.get('id')
+        self.addCleanup(self.openstack, 'port delete ' + id1)
+        self.assertEqual(self.NAME, json_output.get('name'))
+        self.assertEqual('xyzpdq', json_output.get('description'))
+        self.assertEqual('DOWN', json_output.get('admin_state_up'))
 
-        raw_output = self.openstack(
-            'port set ' +
-            '--enable ' +
-            self.NAME
-        )
+        raw_output = self.openstack('port set ' + '--enable ' + self.NAME)
         self.assertOutput('', raw_output)
 
-        raw_output = self.openstack(
-            'port show ' +
-            self.NAME
-        )
-        self.assertEqual(
-            self.NAME,
-            re.search(self.re_name, raw_output).group(1),
-        )
-        self.assertEqual(
-            'xyzpdq',
-            re.search(self.re_description, raw_output).group(1),
-        )
-        self.assertEqual(
-            'UP',
-            re.search(self.re_state, raw_output).group(1),
-        )
-        self.assertIsNotNone(
-            re.search(self.re_mac_address, raw_output).group(1),
-        )
+        json_output = json.loads(self.openstack(
+            'port show -f json ' + self.NAME
+        ))
+        self.assertEqual(self.NAME, json_output.get('name'))
+        self.assertEqual('xyzpdq', json_output.get('description'))
+        self.assertEqual('UP', json_output.get('admin_state_up'))
+        self.assertIsNotNone(json_output.get('mac_address'))
