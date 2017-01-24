@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Correctly handle non-admin in ``create trust`` command when looking
+    up role names.
+    [Bug `1658582 <https://bugs.launchpad.net/python-openstackclient/+bug/1658582>`_]

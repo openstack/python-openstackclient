@@ -16,6 +16,7 @@
 import datetime
 import logging
 
+from keystoneclient import exceptions as identity_exc
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -105,10 +106,13 @@ class CreateTrust(command.ShowOne):
 
         role_names = []
         for role in parsed_args.role:
-            role_name = utils.find_resource(
-                identity_client.roles,
-                role,
-            ).name
+            try:
+                role_name = utils.find_resource(
+                    identity_client.roles,
+                    role,
+                ).name
+            except identity_exc.Forbidden:
+                role_name = role
             role_names.append(role_name)
 
         expires_at = None
