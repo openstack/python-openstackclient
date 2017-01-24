@@ -21,6 +21,7 @@ import six
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
+from openstackclient.network import sdk_utils
 from openstackclient.network import utils as network_utils
 
 
@@ -34,6 +35,7 @@ def _format_network_security_group_rules(sg_rules):
             sg_rule.pop(key)
         sg_rule.pop('security_group_id', None)
         sg_rule.pop('tenant_id', None)
+        sg_rule.pop('project_id', None)
     return utils.format_list_of_dicts(sg_rules)
 
 
@@ -72,29 +74,15 @@ _formatters_compute = {
 
 
 def _get_columns(item):
-    # Build the display columns and a list of the property columns
-    # that need to be mapped (display column name, property name).
-    columns = list(item.to_dict().keys())
-    property_column_mappings = []
-    if 'security_group_rules' in columns:
-        columns.append('rules')
-        columns.remove('security_group_rules')
-        property_column_mappings.append(('rules', 'security_group_rules'))
-    if 'tenant_id' in columns:
-        columns.remove('tenant_id')
-        if 'project_id' not in columns:
-            columns.append('project_id')
-        property_column_mappings.append(('project_id', 'tenant_id'))
-    display_columns = sorted(columns)
-
-    # Build the property columns and apply any column mappings.
-    property_columns = sorted(columns)
-    for property_column_mapping in property_column_mappings:
-        property_index = property_columns.index(property_column_mapping[0])
-        property_columns[property_index] = property_column_mapping[1]
-    return tuple(display_columns), property_columns
+    column_map = {
+        'security_group_rules': 'rules',
+        'tenant_id': 'project_id',
+    }
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
+# TODO(abhiraut): Use the SDK resource mapped attribute names once the
+# OSC minimum requirements include SDK 1.0.
 class CreateSecurityGroup(common.NetworkAndComputeShowOne):
     _description = _("Create a new security group")
 
@@ -190,6 +178,8 @@ class DeleteSecurityGroup(common.NetworkAndComputeDelete):
         client.security_groups.delete(data.id)
 
 
+# TODO(rauta): Use the SDK resource mapped attribute names once
+# the OSC minimum requirements include SDK 1.0.
 class ListSecurityGroup(common.NetworkAndComputeLister):
     _description = _("List security groups")
 
@@ -245,6 +235,7 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
                 parsed_args.project_domain,
             ).id
             filters['tenant_id'] = project_id
+            filters['project_id'] = project_id
         return self._get_return_data(client.security_groups(**filters))
 
     def take_action_compute(self, client, parsed_args):
