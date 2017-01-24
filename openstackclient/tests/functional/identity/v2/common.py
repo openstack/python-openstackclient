@@ -22,14 +22,13 @@ BASIC_LIST_HEADERS = ['ID', 'Name']
 class IdentityTests(base.TestCase):
     """Functional tests for Identity commands. """
 
-    USER_FIELDS = ['email', 'enabled', 'id', 'name', 'project_id',
-                   'username', 'domain_id', 'default_project_id']
-    PROJECT_FIELDS = ['enabled', 'id', 'name', 'description', 'domain_id']
+    USER_FIELDS = ['email', 'enabled', 'id', 'name', 'project_id', 'username']
+    PROJECT_FIELDS = ['enabled', 'id', 'name', 'description']
     TOKEN_FIELDS = ['expires', 'id', 'project_id', 'user_id']
-    ROLE_FIELDS = ['id', 'name', 'links', 'domain_id']
+    ROLE_FIELDS = ['id', 'name', 'domain_id']
     SERVICE_FIELDS = ['id', 'enabled', 'name', 'type', 'description']
     ENDPOINT_FIELDS = ['id', 'region', 'service_id', 'service_name',
-                       'service_type', 'enabled', 'publicurl',
+                       'service_type', 'publicurl',
                        'adminurl', 'internalurl']
 
     EC2_CREDENTIALS_FIELDS = ['access', 'project_id', 'secret',

@@ -23,15 +23,15 @@ BASIC_LIST_HEADERS = ['ID', 'Name']
 class IdentityTests(base.TestCase):
     """Functional tests for Identity commands. """
 
-    DOMAIN_FIELDS = ['description', 'enabled', 'id', 'name', 'links']
-    GROUP_FIELDS = ['description', 'domain_id', 'id', 'name', 'links']
+    DOMAIN_FIELDS = ['description', 'enabled', 'id', 'name']
+    GROUP_FIELDS = ['description', 'domain_id', 'id', 'name']
     TOKEN_FIELDS = ['expires', 'id', 'project_id', 'user_id']
     USER_FIELDS = ['email', 'enabled', 'id', 'name', 'name',
                    'domain_id', 'default_project_id', 'description',
                    'password_expires_at']
     PROJECT_FIELDS = ['description', 'id', 'domain_id', 'is_domain',
-                      'enabled', 'name', 'parent_id', 'links']
-    ROLE_FIELDS = ['id', 'name', 'links', 'domain_id']
+                      'enabled', 'name', 'parent_id']
+    ROLE_FIELDS = ['id', 'name', 'domain_id']
     SERVICE_FIELDS = ['id', 'enabled', 'name', 'type', 'description']
     REGION_FIELDS = ['description', 'enabled', 'parent_region', 'region']
     ENDPOINT_FIELDS = ['id', 'region', 'region_id', 'service_id',

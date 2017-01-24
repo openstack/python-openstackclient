@@ -16,7 +16,6 @@ import shlex
 import subprocess
 import testtools
 
-import six
 from tempest.lib.cli import output_parser
 from tempest.lib import exceptions
 
@@ -88,23 +87,17 @@ class TestCase(testtools.TestCase):
             for field in field_names:
                 self.assertIn(field, item)
 
-    def assert_show_fields(self, items, field_names):
+    def assert_show_fields(self, show_output, field_names):
         """Verify that all items have keys listed in field_names."""
-        for item in items:
-            for key in six.iterkeys(item):
-                self.assertIn(key, field_names)
 
-    def assert_show_structure(self, items, field_names):
-        """Verify that all field_names listed in keys of all items."""
-        if isinstance(items, list):
-            o = {}
-            for d in items:
-                o.update(d)
-        else:
-            o = items
-        item_keys = o.keys()
-        for field in field_names:
-            self.assertIn(field, item_keys)
+        # field_names = ['name', 'description']
+        # show_output = [{'name': 'fc2b98d8faed4126b9e371eda045ade2'},
+        #          {'description': 'description-821397086'}]
+        # this next line creates a flattened list of all 'keys' (like 'name',
+        # and 'description' out of the output
+        all_headers = [item for sublist in show_output for item in sublist]
+        for field_name in field_names:
+            self.assertIn(field_name, all_headers)
 
     def parse_show_as_object(self, raw_output):
         """Return a dict with values parsed from cli output."""
