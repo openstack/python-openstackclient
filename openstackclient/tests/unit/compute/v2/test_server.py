@@ -36,10 +36,6 @@ class TestServer(compute_fakes.TestComputev2):
         self.servers_mock = self.app.client_manager.compute.servers
         self.servers_mock.reset_mock()
 
-        # Get a shortcut to the compute client ImageManager Mock
-        self.cimages_mock = self.app.client_manager.compute.images
-        self.cimages_mock.reset_mock()
-
         # Get a shortcut to the compute client FlavorManager Mock
         self.flavors_mock = self.app.client_manager.compute.flavors
         self.flavors_mock.reset_mock()
@@ -259,7 +255,7 @@ class TestServerCreate(TestServer):
         self.servers_mock.create.return_value = self.new_server
 
         self.image = image_fakes.FakeImage.create_one_image()
-        self.cimages_mock.get.return_value = self.image
+        self.images_mock.get.return_value = self.image
 
         self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
         self.flavors_mock.get.return_value = self.flavor
@@ -859,7 +855,7 @@ class TestServerList(TestServer):
         self.servers_mock.list.return_value = self.servers
 
         self.image = image_fakes.FakeImage.create_one_image()
-        self.cimages_mock.get.return_value = self.image
+        self.images_mock.get.return_value = self.image
 
         self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
         self.flavors_mock.get.return_value = self.flavor
@@ -943,7 +939,7 @@ class TestServerList(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.cimages_mock.get.assert_any_call(self.image.id)
+        self.images_mock.get.assert_any_call(self.image.id)
 
         self.search_opts['image'] = self.image.id
         self.servers_mock.list.assert_called_with(**self.kwargs)
@@ -1019,7 +1015,7 @@ class TestServerRebuild(TestServer):
 
         # Return value for utils.find_resource for image
         self.image = image_fakes.FakeImage.create_one_image()
-        self.cimages_mock.get.return_value = self.image
+        self.images_mock.get.return_value = self.image
 
         # Fake the rebuilt new server.
         new_server = compute_fakes.FakeServer.create_one_server()
@@ -1059,7 +1055,7 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.cimages_mock.get.assert_called_with(self.image.id)
+        self.images_mock.get.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
 
     def test_rebuild_with_current_image_and_password(self):
@@ -1078,7 +1074,7 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.cimages_mock.get.assert_called_with(self.image.id)
+        self.images_mock.get.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, password)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
@@ -1106,7 +1102,7 @@ class TestServerRebuild(TestServer):
         )
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.cimages_mock.get.assert_called_with(self.image.id)
+        self.images_mock.get.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
@@ -1130,7 +1126,7 @@ class TestServerRebuild(TestServer):
         )
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.cimages_mock.get.assert_called_with(self.image.id)
+        self.images_mock.get.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
 
 
@@ -1628,7 +1624,7 @@ class TestServerShow(TestServer):
 
         # This is the return value for utils.find_resource()
         self.servers_mock.get.return_value = self.server
-        self.cimages_mock.get.return_value = self.image
+        self.images_mock.get.return_value = self.image
         self.flavors_mock.get.return_value = self.flavor
 
         # Get the command object to test
@@ -1986,6 +1982,7 @@ class TestServerGeneral(TestServer):
         # Call _prep_server_detail().
         server_detail = server._prep_server_detail(
             self.app.client_manager.compute,
+            self.app.client_manager.image,
             _server
         )
         # 'networks' is used to create _server. Remove it.

@@ -113,7 +113,7 @@ def _get_ip_address(addresses, address_type, ip_address_family):
         )
 
 
-def _prep_server_detail(compute_client, server):
+def _prep_server_detail(compute_client, image_client, server):
     """Prepare the detailed server dict for printing
 
     :param compute_client: a compute client instance
@@ -130,7 +130,7 @@ def _prep_server_detail(compute_client, server):
     if image_info:
         image_id = image_info.get('id', '')
         try:
-            image = utils.find_resource(compute_client.images, image_id)
+            image = utils.find_resource(image_client.images, image_id)
             info['image'] = "%s (%s)" % (image.name, image_id)
         except Exception:
             info['image'] = image_id
@@ -450,12 +450,13 @@ class CreateServer(command.ShowOne):
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
+        image_client = self.app.client_manager.image
 
         # Lookup parsed_args.image
         image = None
         if parsed_args.image:
             image = utils.find_resource(
-                compute_client.images,
+                image_client.images,
                 parsed_args.image,
             )
 
@@ -629,7 +630,7 @@ class CreateServer(command.ShowOne):
                 sys.stdout.write(_('Error creating server\n'))
                 raise SystemExit
 
-        details = _prep_server_detail(compute_client, server)
+        details = _prep_server_detail(compute_client, image_client, server)
         return zip(*sorted(six.iteritems(details)))
 
 
@@ -797,6 +798,7 @@ class ListServer(command.Lister):
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
+        image_client = self.app.client_manager.image
 
         project_id = None
         if parsed_args.project:
@@ -826,7 +828,7 @@ class ListServer(command.Lister):
         # image name is given, map it to ID.
         image_id = None
         if parsed_args.image:
-            image_id = utils.find_resource(compute_client.images,
+            image_id = utils.find_resource(image_client.images,
                                            parsed_args.image).id
 
         search_opts = {
@@ -1164,13 +1166,14 @@ class RebuildServer(command.ShowOne):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
+        image_client = self.app.client_manager.image
 
         server = utils.find_resource(
             compute_client.servers, parsed_args.server)
 
         # If parsed_args.image is not set, default to the currently used one.
         image_id = parsed_args.image or server._info.get('image', {}).get('id')
-        image = utils.find_resource(compute_client.images, image_id)
+        image = utils.find_resource(image_client.images, image_id)
 
         server = server.rebuild(image, parsed_args.password)
         if parsed_args.wait:
@@ -1186,7 +1189,7 @@ class RebuildServer(command.ShowOne):
                 sys.stdout.write(_('Error rebuilding server\n'))
                 raise SystemExit
 
-        details = _prep_server_detail(compute_client, server)
+        details = _prep_server_detail(compute_client, image_client, server)
         return zip(*sorted(six.iteritems(details)))
 
 
@@ -1561,7 +1564,8 @@ class ShowServer(command.ShowOne):
                 sys.stderr.write(_("Error retrieving diagnostics data\n"))
                 return ({}, {})
         else:
-            data = _prep_server_detail(compute_client, server)
+            data = _prep_server_detail(compute_client,
+                                       self.app.client_manager.image, server)
 
         return zip(*sorted(six.iteritems(data)))
 
