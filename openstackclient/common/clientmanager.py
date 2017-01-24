@@ -59,6 +59,8 @@ class ClientManager(clientmanager.ClientManager):
         self._interface = self.interface
         self._cacert = self.cacert
         self._insecure = not self.verify
+        # store original auth_type
+        self._original_auth_type = cli_options.auth_type
 
     def setup_auth(self):
         """Set up authentication"""
@@ -73,12 +75,33 @@ class ClientManager(clientmanager.ClientManager):
         if self._cli_options._openstack_config is not None:
             self._cli_options._openstack_config._pw_callback = \
                 shell.prompt_for_password
+            try:
+                self._cli_options._auth = \
+                    self._cli_options._openstack_config.load_auth_plugin(
+                        self._cli_options.config,
+                    )
+            except TypeError as e:
+                self._fallback_load_auth_plugin(e)
+
+        return super(ClientManager, self).setup_auth()
+
+    def _fallback_load_auth_plugin(self, e):
+        # NOTES(RuiChen): Hack to avoid auth plugins choking on data they don't
+        #                 expect, delete fake token and endpoint, then try to
+        #                 load auth plugin again with user specified options.
+        #                 We know it looks ugly, but it's necessary.
+        if self._cli_options.config['auth']['token'] == 'x':
+            # restore original auth_type
+            self._cli_options.config['auth_type'] = \
+                self._original_auth_type
+            del self._cli_options.config['auth']['token']
+            del self._cli_options.config['auth']['endpoint']
             self._cli_options._auth = \
                 self._cli_options._openstack_config.load_auth_plugin(
                     self._cli_options.config,
                 )
-
-        return super(ClientManager, self).setup_auth()
+        else:
+            raise e
 
     def is_network_endpoint_enabled(self):
         """Check if the network endpoint is enabled"""
