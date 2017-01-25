@@ -19,6 +19,7 @@ from mock import call
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.tests.unit.identity.v3 import fakes as project_fakes
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import volume_snapshot
 
@@ -32,6 +33,8 @@ class TestSnapshot(volume_fakes.TestVolume):
         self.snapshots_mock.reset_mock()
         self.volumes_mock = self.app.client_manager.volume.volumes
         self.volumes_mock.reset_mock()
+        self.project_mock = self.app.client_manager.identity.projects
+        self.project_mock.reset_mock()
 
 
 class TestSnapshotCreate(TestSnapshot):
@@ -278,6 +281,7 @@ class TestSnapshotDelete(TestSnapshot):
 class TestSnapshotList(TestSnapshot):
 
     volume = volume_fakes.FakeVolume.create_one_volume()
+    project = project_fakes.FakeProject.create_one_project()
     snapshots = volume_fakes.FakeSnapshot.create_snapshots(
         attrs={'volume_id': volume.name}, count=3)
 
@@ -321,6 +325,7 @@ class TestSnapshotList(TestSnapshot):
 
         self.volumes_mock.list.return_value = [self.volume]
         self.volumes_mock.get.return_value = self.volume
+        self.project_mock.get.return_value = self.project
         self.snapshots_mock.list.return_value = self.snapshots
         # Get the command to test
         self.cmd = volume_snapshot.ListVolumeSnapshot(self.app, None)
@@ -341,6 +346,7 @@ class TestSnapshotList(TestSnapshot):
                 'all_tenants': False,
                 'name': None,
                 'status': None,
+                'project_id': None,
                 'volume_id': None
             }
         )
@@ -351,11 +357,13 @@ class TestSnapshotList(TestSnapshot):
         arglist = [
             "--long",
             "--limit", "2",
+            "--project", self.project.id,
             "--marker", self.snapshots[0].id,
         ]
         verifylist = [
             ("long", True),
             ("limit", 2),
+            ("project", self.project.id),
             ("marker", self.snapshots[0].id),
             ('all_projects', False),
         ]
@@ -367,7 +375,8 @@ class TestSnapshotList(TestSnapshot):
             limit=2,
             marker=self.snapshots[0].id,
             search_opts={
-                'all_tenants': False,
+                'all_tenants': True,
+                'project_id': self.project.id,
                 'name': None,
                 'status': None,
                 'volume_id': None
@@ -394,6 +403,7 @@ class TestSnapshotList(TestSnapshot):
                 'all_tenants': True,
                 'name': None,
                 'status': None,
+                'project_id': None,
                 'volume_id': None
             }
         )
@@ -419,6 +429,7 @@ class TestSnapshotList(TestSnapshot):
                 'all_tenants': False,
                 'name': self.snapshots[0].name,
                 'status': None,
+                'project_id': None,
                 'volume_id': None
             }
         )
@@ -444,6 +455,7 @@ class TestSnapshotList(TestSnapshot):
                 'all_tenants': False,
                 'name': None,
                 'status': self.snapshots[0].status,
+                'project_id': None,
                 'volume_id': None
             }
         )
@@ -469,6 +481,7 @@ class TestSnapshotList(TestSnapshot):
                 'all_tenants': False,
                 'name': None,
                 'status': None,
+                'project_id': None,
                 'volume_id': self.volume.id
             }
         )

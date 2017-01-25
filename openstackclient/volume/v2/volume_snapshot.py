@@ -24,6 +24,7 @@ from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+from openstackclient.identity import common as identity_common
 
 
 LOG = logging.getLogger(__name__)
@@ -166,6 +167,12 @@ class ListVolumeSnapshot(command.Lister):
             help=_('Include all projects (admin only)'),
         )
         parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_('Filter results by project (name or ID) (admin only)')
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -208,6 +215,7 @@ class ListVolumeSnapshot(command.Lister):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
+        identity_client = self.app.client_manager.identity
 
         def _format_volume_id(volume_id):
             """Return a volume name if available
@@ -245,8 +253,20 @@ class ListVolumeSnapshot(command.Lister):
             volume_id = utils.find_resource(
                 volume_client.volumes, parsed_args.volume).id
 
+        project_id = None
+        if parsed_args.project:
+            project_id = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain).id
+
+        # set value of 'all_tenants' when using project option
+        all_projects = True if parsed_args.project else \
+            parsed_args.all_projects
+
         search_opts = {
-            'all_tenants': parsed_args.all_projects,
+            'all_tenants': all_projects,
+            'project_id': project_id,
             'name': parsed_args.name,
             'status': parsed_args.status,
             'volume_id': volume_id,
