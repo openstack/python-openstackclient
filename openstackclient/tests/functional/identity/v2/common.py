@@ -44,8 +44,8 @@ class IdentityTests(base.TestCase):
         # prepare v2 env
         os.environ['OS_IDENTITY_API_VERSION'] = '2.0'
         auth_url = os.environ.get('OS_AUTH_URL')
-        auth_url = auth_url.replace('v3', 'v2.0')
-        os.environ['OS_AUTH_URL'] = auth_url
+        if auth_url:
+            os.environ['OS_AUTH_URL'] = auth_url.replace('v3', 'v2.0')
 
         # create dummy project
         cls.project_name = data_utils.rand_name('TestProject')
