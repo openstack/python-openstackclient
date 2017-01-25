@@ -183,7 +183,6 @@ class SetMapping(command.Command, _RulesReader):
             rules=rules)
 
         mapping._info.pop('links', None)
-        return zip(*sorted(six.iteritems(mapping._info)))
 
 
 class ShowMapping(command.ShowOne):

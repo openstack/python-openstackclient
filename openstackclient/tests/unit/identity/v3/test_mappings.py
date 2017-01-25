@@ -181,16 +181,12 @@ class TestMappingSet(TestMapping):
         mocker.return_value = identity_fakes.MAPPING_RULES_2
         with mock.patch("openstackclient.identity.v3.mapping."
                         "SetMapping._read_rules", mocker):
-            columns, data = self.cmd.take_action(parsed_args)
+            result = self.cmd.take_action(parsed_args)
         self.mapping_mock.update.assert_called_with(
             mapping=identity_fakes.mapping_id,
             rules=identity_fakes.MAPPING_RULES_2)
 
-        collist = ('id', 'rules')
-        self.assertEqual(collist, columns)
-        datalist = (identity_fakes.mapping_id,
-                    identity_fakes.MAPPING_RULES_2)
-        self.assertEqual(datalist, data)
+        self.assertIsNone(result)
 
     def test_set_rules_wrong_file_path(self):
         arglist = [
