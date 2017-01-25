@@ -16,6 +16,7 @@ import time
 from tempest.lib.common.utils import data_utils
 
 from openstackclient.tests.functional import base
+from openstackclient.tests.functional.volume.v2 import test_volume
 from tempest.lib import exceptions
 
 
@@ -317,6 +318,120 @@ class ServerTests(base.TestCase):
         raw_output = self.openstack('server reboot ' + self.NAME)
         self.assertEqual("", raw_output)
         self.wait_for_status("ACTIVE")
+
+    def test_server_boot_from_volume(self):
+        """Test server create from volume, server delete
+
+        Test steps:
+        1) Create volume from image
+        2) Create empty volume
+        3) Create server from new volumes
+        4) Check for ACTIVE new server status
+        5) Check volumes attached to server
+        """
+        # server_image = self.get_image()
+        # get volume status wait function
+        volume_wait_for = test_volume.VolumeTests(
+            methodName='wait_for',
+        ).wait_for
+
+        # get image size
+        cmd_output = json.loads(self.openstack(
+            'image show -f json ' +
+            self.image_name
+        ))
+        try:
+            image_size = cmd_output['min_disk']
+            if image_size < 1:
+                image_size = 1
+        except ValueError:
+            image_size = 1
+
+        # create volume from image
+        volume_name = data_utils.rand_name('volume', self.image_name)
+        cmd_output = json.loads(self.openstack(
+            'volume create -f json ' +
+            '--image ' + self.image_name + ' ' +
+            '--size ' + str(image_size) + ' ' +
+            volume_name
+        ))
+        self.assertIsNotNone(cmd_output["id"])
+        self.addCleanup(self.openstack, 'volume delete ' + volume_name)
+        self.assertEqual(
+            volume_name,
+            cmd_output['name'],
+        )
+        volume_wait_for("volume", volume_name, "available")
+
+        # create empty volume
+        empty_volume_name = data_utils.rand_name('TestVolume')
+        cmd_output = json.loads(self.openstack(
+            'volume create -f json ' +
+            '--size ' + str(image_size) + ' ' +
+            empty_volume_name
+        ))
+        self.assertIsNotNone(cmd_output["id"])
+        self.addCleanup(self.openstack, 'volume delete ' + empty_volume_name)
+        self.assertEqual(
+            empty_volume_name,
+            cmd_output['name'],
+        )
+        volume_wait_for("volume", empty_volume_name, "available")
+
+        # create server
+        server_name = data_utils.rand_name('TestServer')
+        server = json.loads(self.openstack(
+            'server create -f json ' +
+            '--flavor ' + self.flavor_name + ' ' +
+            '--volume ' + volume_name + ' ' +
+            '--block-device-mapping vdb=' + empty_volume_name + ' ' +
+            self.network_arg + ' ' +
+            server_name
+        ))
+        self.assertIsNotNone(server["id"])
+        self.addCleanup(self.openstack, 'server delete --wait ' + server_name)
+        self.assertEqual(
+            server_name,
+            server['name'],
+        )
+        volume_wait_for("server", server_name, "ACTIVE")
+
+        # check volumes
+        cmd_output = json.loads(self.openstack(
+            'volume show -f json ' +
+            volume_name
+        ))
+        attachments = cmd_output['attachments']
+        self.assertEqual(
+            1,
+            len(attachments),
+        )
+        self.assertEqual(
+            server['id'],
+            attachments[0]['server_id'],
+        )
+        self.assertEqual(
+            "in-use",
+            cmd_output['status'],
+        )
+
+        # NOTE(dtroyer): Prior to https://review.openstack.org/#/c/407111
+        #                --block-device-mapping was ignored if --volume
+        #                present on the command line, so this volume should
+        #                not be attached.
+        cmd_output = json.loads(self.openstack(
+            'volume show -f json ' +
+            empty_volume_name
+        ))
+        attachments = cmd_output['attachments']
+        self.assertEqual(
+            0,
+            len(attachments),
+        )
+        self.assertEqual(
+            "available",
+            cmd_output['status'],
+        )
 
     def wait_for_status(self, expected_status='ACTIVE', wait=900, interval=30):
         """Wait until server reaches expected status."""
