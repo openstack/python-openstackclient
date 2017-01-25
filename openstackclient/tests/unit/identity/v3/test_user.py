@@ -684,8 +684,13 @@ class TestUserList(TestUser):
 class TestUserSet(TestUser):
 
     project = identity_fakes.FakeProject.create_one_project()
+    domain = identity_fakes.FakeDomain.create_one_domain()
     user = identity_fakes.FakeUser.create_one_user(
         attrs={'default_project_id': project.id}
+    )
+    user2 = identity_fakes.FakeUser.create_one_user(
+        attrs={'default_project_id': project.id,
+               'domain_id': domain.id}
     )
 
     def setUp(self):
@@ -742,6 +747,37 @@ class TestUserSet(TestUser):
         }
         # UserManager.update(user, name=, domain=, project=, password=,
         #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            self.user.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_user_set_specify_domain(self):
+        arglist = [
+            '--name', 'qwerty',
+            '--domain', self.domain.id,
+            self.user2.name
+        ]
+        verifylist = [
+            ('name', 'qwerty'),
+            ('password', None),
+            ('domain', self.domain.id),
+            ('email', None),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', self.user2.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'enabled': True,
+            'name': 'qwerty'
+        }
+
         self.users_mock.update.assert_called_with(
             self.user.id,
             **kwargs
