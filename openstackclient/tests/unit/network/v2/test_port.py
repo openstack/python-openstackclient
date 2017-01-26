@@ -20,6 +20,7 @@ from osc_lib import utils
 
 from openstackclient.network.v2 import port
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
+from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -31,6 +32,8 @@ class TestPort(network_fakes.TestNetworkV2):
 
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
+        # Get a shortcut to the ProjectManager Mock
+        self.projects_mock = self.app.client_manager.identity.projects
 
     def _get_common_cols_data(self, fake_port):
         columns = (
@@ -740,6 +743,44 @@ class TestListPort(TestPort):
         self.network.ports.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
+
+    def test_port_list_project(self):
+        project = identity_fakes.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+        ]
+        verifylist = [
+            ('project', project.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'tenant_id': project.id, 'project_id': project.id}
+
+        self.network.ports.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_port_list_project_domain(self):
+        project = identity_fakes.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = project
+        arglist = [
+            '--project', project.id,
+            '--project-domain', project.domain_id,
+        ]
+        verifylist = [
+            ('project', project.id),
+            ('project_domain', project.domain_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'tenant_id': project.id, 'project_id': project.id}
+
+        self.network.ports.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
 
 class TestSetPort(TestPort):
