@@ -253,6 +253,8 @@ List servers
         [--long]
         [--marker <server>]
         [--limit <limit>]
+        [--deleted]
+        [--changes-since <changes-since>]
 
 .. option:: --reservation-id <reservation-id>
 
@@ -326,6 +328,15 @@ List servers
     Maximum number of servers to display. If limit equals -1, all servers will
     be displayed. If limit is greater than 'osapi_max_limit' option of Nova
     API, 'osapi_max_limit' will be used instead.
+
+.. option:: --deleted
+
+    Only display deleted servers (Admin only).
+
+.. option:: --changes-since <changes-since>
+
+    List only servers changed after a certain point of time. The provided time
+    should be an ISO 8061 formatted time. ex 2016-03-04T06:27:59Z.
 
 server lock
 -----------

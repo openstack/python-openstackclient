@@ -19,6 +19,7 @@ from mock import call
 
 from osc_lib import exceptions
 from osc_lib import utils as common_utils
+from oslo_utils import timeutils
 
 from openstackclient.compute.v2 import server
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -831,6 +832,8 @@ class TestServerList(TestServer):
             'tenant_id': None,
             'all_tenants': False,
             'user_id': None,
+            'deleted': False,
+            'changes_since': None,
         }
 
         # Default params of the core function of the command in the case of no
@@ -907,6 +910,7 @@ class TestServerList(TestServer):
         verifylist = [
             ('all_projects', False),
             ('long', False),
+            ('deleted', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -971,6 +975,48 @@ class TestServerList(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_with_changes_since(self):
+
+        arglist = [
+            '--changes-since', '2016-03-04T06:27:59Z',
+            '--deleted'
+        ]
+        verifylist = [
+            ('changes_since', '2016-03-04T06:27:59Z'),
+            ('deleted', True),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['changes_since'] = '2016-03-04T06:27:59Z'
+        self.search_opts['deleted'] = True
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    @mock.patch.object(timeutils, 'parse_isotime', side_effect=ValueError)
+    def test_server_list_with_invalid_changes_since(self, mock_parse_isotime):
+
+        arglist = [
+            '--changes-since', 'Invalid time value',
+        ]
+        verifylist = [
+            ('changes_since', 'Invalid time value'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('Invalid changes-since value: Invalid time '
+                             'value', str(e))
+        mock_parse_isotime.assert_called_once_with(
+            'Invalid time value'
+        )
 
 
 class TestServerLock(TestServer):

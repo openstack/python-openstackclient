@@ -26,6 +26,7 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
+from oslo_utils import timeutils
 import six
 
 try:
@@ -805,6 +806,20 @@ class ListServer(command.Lister):
                    " 'osapi_max_limit' option of Nova API,"
                    " 'osapi_max_limit' will be used instead."),
         )
+        parser.add_argument(
+            '--deleted',
+            action="store_true",
+            default=False,
+            help=_('Only display deleted servers (Admin only).')
+        )
+        parser.add_argument(
+            '--changes-since',
+            metavar='<changes-since>',
+            default=None,
+            help=_("List only servers changed after a certain point of time."
+                   " The provided time should be an ISO 8061 formatted time."
+                   " ex 2016-03-04T06:27:59Z .")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -856,8 +871,18 @@ class ListServer(command.Lister):
             'tenant_id': project_id,
             'all_tenants': parsed_args.all_projects,
             'user_id': user_id,
+            'deleted': parsed_args.deleted,
+            'changes_since': parsed_args.changes_since,
         }
         LOG.debug('search options: %s', search_opts)
+
+        if search_opts['changes_since']:
+            try:
+                timeutils.parse_isotime(search_opts['changes_since'])
+            except ValueError:
+                raise exceptions.CommandError(_('Invalid changes-since value:'
+                                              ' %s') % search_opts['changes'
+                                                                   '_since'])
 
         if parsed_args.long:
             columns = (
