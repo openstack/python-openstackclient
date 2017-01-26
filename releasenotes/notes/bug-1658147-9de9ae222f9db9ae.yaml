@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--domain`` options to the ``user set`` command.
+    Allows specification of domain context when changing users.
+    [Bug `1658147 <https://bugs.launchpad.net/bugs/1658147>`_]

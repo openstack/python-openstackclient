@@ -302,6 +302,12 @@ class SetUser(command.Command):
             help=_('Set user name'),
         )
         parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help=_('Domain the user belongs to (name or ID). This can be '
+                   'used in case collisions between user names exist.'),
+        )
+        parser.add_argument(
             '--project',
             metavar='<project>',
             help=_('Set default project (name or ID)'),
@@ -351,10 +357,19 @@ class SetUser(command.Command):
             LOG.warning(_("No password was supplied, authentication will fail "
                           "when a user does not have a password."))
 
-        user = utils.find_resource(
-            identity_client.users,
-            parsed_args.user,
-        )
+        user_str = common._get_token_resource(identity_client, 'user',
+                                              parsed_args.user)
+        if parsed_args.domain:
+            domain = common.find_domain(identity_client, parsed_args.domain)
+            user = utils.find_resource(identity_client.users,
+                                       user_str,
+                                       domain_id=domain.id)
+        else:
+            user = utils.find_resource(
+                identity_client.users,
+                parsed_args.user,
+            )
+
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name

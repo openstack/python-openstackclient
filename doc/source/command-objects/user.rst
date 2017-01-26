@@ -153,6 +153,13 @@ Set user properties
 
     Set user name
 
+.. option:: --domain <domain>
+
+    Domain the user belongs to (name or ID).
+    This can be used in case collisions between user names exist.
+
+    .. versionadded:: 3
+
 .. option:: --project <project>
 
     Set default project (name or ID)
