@@ -1,0 +1,16 @@
+---
+fixes:
+  - |
+    Allow ``--block-device-mapping`` option to work correctly with
+    ``--volume`` option in ``server create`` command.
+    After :lpbug:`1383338` ``--block-device-mapping`` was ignored if
+    ``--volume`` was present. Block device mappings are now appended
+    to the mapping created by the ``--volume`` option if it is present.
+    The device name of the boot volume specificed in the ``--volume`` option
+    is no longer assumed to be *'vda'* but now uses the hypervisor's boot
+    index to obtain the device name.  This maintains the status quo for
+    **QEMU/KVM** hypervisors but **XEN**, **parallels** and others 
+    *virt types* that have device naming is different from ``vd*``
+    should now also work correctly.
+    [:lpbug:`1497845`]
+    [:lpbug:`1647406`]

@@ -507,28 +507,40 @@ class CreateServer(command.ShowOne):
                            "exception": e}
                 )
 
-        block_device_mapping = {}
+        block_device_mapping_v2 = []
         if volume:
-            # When booting from volume, for now assume no other mappings
-            # This device value is likely KVM-specific
-            block_device_mapping = {'vda': volume}
-        else:
-            for dev_map in parsed_args.block_device_mapping:
-                dev_key, dev_vol = dev_map.split('=', 1)
-                block_volume = None
-                if dev_vol:
-                    vol = dev_vol.split(':', 1)[0]
-                    if vol:
-                        vol_id = utils.find_resource(
+            block_device_mapping_v2 = [{'uuid': volume,
+                                        'boot_index': '0',
+                                        'source_type': 'volume',
+                                        'destination_type': 'volume'
+                                        }]
+        for dev_map in parsed_args.block_device_mapping:
+            dev_name, dev_map = dev_map.split('=', 1)
+            if dev_map:
+                dev_map = dev_map.split(':')
+                if len(dev_map) > 0:
+                    mapping = {
+                        'device_name': dev_name,
+                        'uuid': utils.find_resource(
                             volume_client.volumes,
-                            vol,
-                        ).id
-                        block_volume = dev_vol.replace(vol, vol_id)
+                            dev_map[0],
+                        ).id}
+                    # Block device mapping v1 compatibility
+                    if len(dev_map) > 1 and \
+                            dev_map[1] in ('volume', 'snapshot'):
+                        mapping['source_type'] = dev_map[1]
                     else:
-                        msg = _("Volume name or ID must be specified if "
-                                "--block-device-mapping is specified")
-                        raise exceptions.CommandError(msg)
-                block_device_mapping.update({dev_key: block_volume})
+                        mapping['source_type'] = 'volume'
+                    mapping['destination_type'] = 'volume'
+                    if len(dev_map) > 2:
+                        mapping['volume_size'] = dev_map[2]
+                    if len(dev_map) > 3:
+                        mapping['delete_on_termination'] = dev_map[3]
+                else:
+                    msg = _("Volume name or ID must be specified if "
+                            "--block-device-mapping is specified")
+                    raise exceptions.CommandError(msg)
+                block_device_mapping_v2.append(mapping)
 
         nics = []
         if parsed_args.nic in ('auto', 'none'):
@@ -598,7 +610,7 @@ class CreateServer(command.ShowOne):
             userdata=userdata,
             key_name=parsed_args.key_name,
             availability_zone=parsed_args.availability_zone,
-            block_device_mapping=block_device_mapping,
+            block_device_mapping_v2=block_device_mapping_v2,
             nics=nics,
             scheduler_hints=hints,
             config_drive=config_drive)
