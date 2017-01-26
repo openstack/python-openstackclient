@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import time
 
 from tempest.lib.common.utils import data_utils
@@ -59,12 +60,10 @@ class ServerTests(base.TestCase):
         """Create server. Add cleanup."""
         name = name or data_utils.rand_uuid()
         opts = self.get_opts(self.FIELDS)
-        flavor = self.get_flavor()
-        image = self.get_image()
-        network = self.get_network()
         raw_output = self.openstack('--debug server create --flavor ' +
-                                    flavor +
-                                    ' --image ' + image + network + ' ' +
+                                    self.flavor_name +
+                                    ' --image ' + self.image_name +
+                                    self.network_arg + ' ' +
                                     name + opts)
         if not raw_output:
             self.fail('Server has not been created!')
@@ -82,6 +81,10 @@ class ServerTests(base.TestCase):
     def setUp(self):
         """Set necessary variables and create server."""
         super(ServerTests, self).setUp()
+        self.flavor_name = self.get_flavor()
+        self.image_name = self.get_image()
+        self.network_arg = self.get_network()
+
         self.NAME = data_utils.rand_name('TestServer')
         self.OTHER_NAME = data_utils.rand_name('TestServer')
         self.HEADERS = ['"Name"']
@@ -119,16 +122,47 @@ class ServerTests(base.TestCase):
         self.assertIn(self.NAME, raw_output)
 
     def test_server_show(self):
-        """Test server show command.
+        """Test server create, server delete commands"""
+        name1 = data_utils.rand_name('TestServer')
+        cmd_output = json.loads(self.openstack(
+            'server create -f json ' +
+            '--flavor ' + self.flavor_name + ' ' +
+            '--image ' + self.image_name + ' ' +
+            self.network_arg + ' ' +
+            name1
+        ))
+        self.assertIsNotNone(cmd_output["id"])
+        self.addCleanup(self.openstack, 'server delete ' + name1)
+        self.assertEqual(
+            name1,
+            cmd_output["name"],
+        )
 
-        Test steps:
-        1) Boot server in setUp
-        2) Show server
-        3) Check output
-        """
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack('server show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + "\n", raw_output)
+        # Have a look at some other fields
+        flavor = json.loads(self.openstack(
+            'flavor show -f json ' +
+            self.flavor_name
+        ))
+        self.assertEqual(
+            self.flavor_name,
+            flavor['name'],
+        )
+        self.assertEqual(
+            '%s (%s)' % (flavor['name'], flavor['id']),
+            cmd_output["flavor"],
+        )
+        image = json.loads(self.openstack(
+            'image show -f json ' +
+            self.image_name
+        ))
+        self.assertEqual(
+            self.image_name,
+            image['name'],
+        )
+        self.assertEqual(
+            '%s (%s)' % (image['name'], image['id']),
+            cmd_output["image"],
+        )
 
     def test_server_metadata(self):
         """Test command to set server metadata.
