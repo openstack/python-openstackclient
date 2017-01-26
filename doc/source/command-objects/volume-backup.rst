@@ -101,26 +101,26 @@ List volume backups
 
     List additional fields in output
 
-.. options:: --name <name>
+.. option:: --name <name>
 
     Filters results by the backup name
 
-.. options:: --status <status>
+.. option:: --status <status>
 
     Filters results by the backup status
     ('creating', 'available', 'deleting', 'error', 'restoring' or 'error_restoring')
 
-.. options:: --volume <volume>
+.. option:: --volume <volume>
 
     Filters results by the volume which they backup (name or ID)"
 
-.. options:: --marker <marker>
+.. option:: --marker <marker>
 
     The last backup of the previous page (name or ID)
 
     *Volume version 2 only*
 
-.. options:: --limit <limit>
+.. option:: --limit <limit>
 
     Maximum number of backups to display
 
