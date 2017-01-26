@@ -148,6 +148,7 @@ Set volume snapshot properties
     openstack volume snapshot set
         [--name <name>]
         [--description <description>]
+        [--no-property]
         [--property <key=value> [...] ]
         [--state <state>]
         <snapshot>
@@ -159,6 +160,12 @@ Set volume snapshot properties
 .. option:: --description <description>
 
     New snapshot description
+
+.. option:: --no-property
+
+    Remove all properties from :ref:`\<snapshot\> <volume_snapshot_set-snapshot>`
+    (specify both :option:`--no-property` and :option:`--property` to
+    remove the current properties before setting new properties.)
 
 .. option:: --property <key=value>
 

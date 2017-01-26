@@ -512,7 +512,23 @@ class TestSnapshotSet(TestSnapshot):
         # Get the command object to mock
         self.cmd = volume_snapshot.SetVolumeSnapshot(self.app, None)
 
-    def test_snapshot_set(self):
+    def test_snapshot_set_no_option(self):
+        arglist = [
+            self.snapshot.id,
+        ]
+        verifylist = [
+            ("snapshot", self.snapshot.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.snapshots_mock.get.assert_called_once_with(parsed_args.snapshot)
+        self.assertNotCalled(self.snapshots_mock.reset_state)
+        self.assertNotCalled(self.snapshots_mock.update)
+        self.assertNotCalled(self.snapshots_mock.set_metadata)
+        self.assertIsNone(result)
+
+    def test_snapshot_set_name_and_property(self):
         arglist = [
             "--name", "new_snapshot",
             "--property", "x=y",
@@ -537,6 +553,51 @@ class TestSnapshotSet(TestSnapshot):
         self.snapshots_mock.set_metadata.assert_called_with(
             self.snapshot.id, new_property
         )
+        self.assertIsNone(result)
+
+    def test_snapshot_set_with_no_property(self):
+        arglist = [
+            "--no-property",
+            self.snapshot.id,
+        ]
+        verifylist = [
+            ("no_property", True),
+            ("snapshot", self.snapshot.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.snapshots_mock.get.assert_called_once_with(parsed_args.snapshot)
+        self.assertNotCalled(self.snapshots_mock.reset_state)
+        self.assertNotCalled(self.snapshots_mock.update)
+        self.assertNotCalled(self.snapshots_mock.set_metadata)
+        self.snapshots_mock.delete_metadata.assert_called_with(
+            self.snapshot.id, ["foo"]
+        )
+        self.assertIsNone(result)
+
+    def test_snapshot_set_with_no_property_and_property(self):
+        arglist = [
+            "--no-property",
+            "--property", "foo_1=bar_1",
+            self.snapshot.id,
+        ]
+        verifylist = [
+            ("no_property", True),
+            ("property", {"foo_1": "bar_1"}),
+            ("snapshot", self.snapshot.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.snapshots_mock.get.assert_called_once_with(parsed_args.snapshot)
+        self.assertNotCalled(self.snapshots_mock.reset_state)
+        self.assertNotCalled(self.snapshots_mock.update)
+        self.snapshots_mock.delete_metadata.assert_called_with(
+            self.snapshot.id, ["foo"]
+        )
+        self.snapshots_mock.set_metadata.assert_called_once_with(
+            self.snapshot.id, {"foo_1": "bar_1"})
         self.assertIsNone(result)
 
     def test_snapshot_set_state_to_error(self):

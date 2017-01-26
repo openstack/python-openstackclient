@@ -28,7 +28,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         for attempt in range(tries):
             time.sleep(1)
             raw_output = cls.openstack(command + opts)
-            if (raw_output == status):
+            if (raw_output.rstrip() == status):
                 return
         cls.assertOutput(status, raw_output)
 
@@ -41,12 +41,12 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             '--size 1 ' +
             cls.VOLLY
         ))
-        cls.wait_for_status('volume show ' + cls.VOLLY, 'available\n', 6)
+        cls.wait_for_status('volume show ' + cls.VOLLY, 'available', 6)
         cls.VOLUME_ID = cmd_output['id']
 
     @classmethod
     def tearDownClass(cls):
-        cls.wait_for_status('volume show ' + cls.VOLLY, 'available\n', 6)
+        cls.wait_for_status('volume show ' + cls.VOLLY, 'available', 6)
         raw_output = cls.openstack('volume delete --force ' + cls.VOLLY)
         cls.assertOutput('', raw_output)
 
@@ -75,9 +75,9 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         )
 
         self.wait_for_status(
-            'volume snapshot show ' + name1, 'available\n', 6)
+            'volume snapshot show ' + name1, 'available', 6)
         self.wait_for_status(
-            'volume snapshot show ' + name2, 'available\n', 6)
+            'volume snapshot show ' + name2, 'available', 6)
 
         del_output = self.openstack(
             'volume snapshot delete ' + name1 + ' ' + name2)
@@ -105,7 +105,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             cmd_output["size"],
         )
         self.wait_for_status(
-            'volume snapshot show ' + name1, 'available\n', 6)
+            'volume snapshot show ' + name1, 'available', 6)
 
         name2 = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
@@ -127,7 +127,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             cmd_output["size"],
         )
         self.wait_for_status(
-            'volume snapshot show ' + name2, 'available\n', 6)
+            'volume snapshot show ' + name2, 'available', 6)
         raw_output = self.openstack(
             'volume snapshot set ' +
             '--state error ' +
@@ -163,7 +163,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         self.assertIn(name1, names)
         self.assertNotIn(name2, names)
 
-    def test_snapshot_set(self):
+    def test_volume_snapshot_set(self):
         """Test create, set, unset, show, delete volume snapshot"""
         name = uuid.uuid4().hex
         new_name = name + "_"
@@ -192,7 +192,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             cmd_output["properties"],
         )
         self.wait_for_status(
-            'volume snapshot show ' + name, 'available\n', 6)
+            'volume snapshot show ' + name, 'available', 6)
 
         # Test volume snapshot set
         raw_output = self.openstack(
@@ -227,7 +227,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             cmd_output["properties"],
         )
 
-        # Test volume unset
+        # Test volume snapshot unset
         raw_output = self.openstack(
             'volume snapshot unset ' +
             '--property Alpha ' +
@@ -240,6 +240,22 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             new_name
         ))
         self.assertEqual(
+            "Beta='b'",
+            cmd_output["properties"],
+        )
+
+        # Test volume snapshot set --no-property
+        raw_output = self.openstack(
+            'volume snapshot set ' +
+            '--no-property ' +
+            new_name,
+        )
+        self.assertOutput('', raw_output)
+        cmd_output = json.loads(self.openstack(
+            'volume snapshot show -f json ' +
+            new_name
+        ))
+        self.assertNotIn(
             "Beta='b'",
             cmd_output["properties"],
         )
