@@ -1322,6 +1322,52 @@ class FakeNetworkMeter(object):
         return mock.Mock(side_effect=meter)
 
 
+class FakeNetworkMeterRule(object):
+    """Fake metering rule"""
+
+    @staticmethod
+    def create_one_rule(attrs=None):
+        """Create one meter rule"""
+        attrs = attrs or {}
+
+        meter_rule_attrs = {
+            'id': 'meter-label-rule-id-' + uuid.uuid4().hex,
+            'direction': 'ingress',
+            'excluded': False,
+            'metering_label_id': 'meter-label-id-' + uuid.uuid4().hex,
+            'remote_ip_prefix': '10.0.0.0/24',
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+        }
+
+        meter_rule_attrs.update(attrs)
+
+        meter_rule = fakes.FakeResource(
+            info=copy.deepcopy(meter_rule_attrs),
+            loaded=True)
+
+        meter_rule.project_id = meter_rule_attrs['tenant_id']
+
+        return meter_rule
+
+    @staticmethod
+    def create_meter_rule(attrs=None, count=2):
+        """Create multiple meter rules"""
+
+        meter_rules = []
+        for i in range(0, count):
+            meter_rules.append(FakeNetworkMeterRule.
+                               create_one_rule(attrs))
+        return meter_rules
+
+    @staticmethod
+    def get_meter_rule(meter_rule=None, count=2):
+        """Get a list of meter rules"""
+        if meter_rule is None:
+            meter_rule = (FakeNetworkMeterRule.
+                          create_meter_rule(count))
+        return mock.Mock(side_effect=meter_rule)
+
+
 class FakeSubnetPool(object):
     """Fake one or more subnet pools."""
 

@@ -112,6 +112,7 @@ referring to both Compute and Volume quotas.
 * ``network``: (**Compute**, **Network**) - a virtual network for connecting servers and other resources
 * ``network agent``: (**Network**) - A network agent is an agent that handles various tasks used to implement virtual networks
 * ``network meter``: (**Network**) - allow traffic metering in a network
+* ``network meter rule``: (**Network**) - rules for network traffic metering
 * ``network rbac``: (**Network**) - an RBAC policy for network resources
 * ``network qos rule``: (**Network**) - a QoS rule for network resources
 * ``network qos policy``: (**Network**) - a QoS policy for network resources
