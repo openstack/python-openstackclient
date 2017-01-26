@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``--allowed-address`` option to ``port create``, ``port set`` and
+    ``port unset`` commands. Also add ``--no-allowed-address`` option to
+    ``port create`` and ``port set`` commands.
+    [Bug `1612136 <https://bugs.launchpad.net/python-openstackclient/+bug/1612136>`_]

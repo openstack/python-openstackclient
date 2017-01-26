@@ -250,6 +250,17 @@ def _add_updatable_args(parser):
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
+def _convert_address_pairs(parsed_args):
+    ops = []
+    for opt in parsed_args.allowed_address_pairs:
+        addr = {}
+        addr['ip_address'] = opt['ip-address']
+        if 'mac-address' in opt:
+            addr['mac_address'] = opt['mac-address']
+        ops.append(addr)
+    return ops
+
+
 class CreatePort(command.ShowOne):
     _description = _("Create a new port")
 
@@ -309,7 +320,7 @@ class CreatePort(command.ShowOne):
             help=_("Name of this port")
         )
         # TODO(singhj): Add support for extended options:
-        # qos,dhcp, address pairs
+        # qos,dhcp
         secgroups = parser.add_mutually_exclusive_group()
         secgroups.add_argument(
             '--security-group',
@@ -336,7 +347,17 @@ class CreatePort(command.ShowOne):
             action='store_true',
             help=_("Disable port security for this port")
         )
-
+        parser.add_argument(
+            '--allowed-address',
+            metavar='ip-address=<ip-address>[,mac-address=<mac-address>]',
+            action=parseractions.MultiKeyValueAction,
+            dest='allowed_address_pairs',
+            required_keys=['ip-address'],
+            optional_keys=['mac-address'],
+            help=_("Add allowed-address pair associated with this port: "
+                   "ip-address=<ip-address>[,mac-address=<mac-address>] "
+                   "(repeat option to set multiple allowed-address pairs)")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -353,6 +374,9 @@ class CreatePort(command.ShowOne):
                                         for sg in parsed_args.security_groups]
         if parsed_args.no_security_group:
             attrs['security_groups'] = []
+        if parsed_args.allowed_address_pairs:
+            attrs['allowed_address_pairs'] = (
+                _convert_address_pairs(parsed_args))
 
         obj = client.create_port(**attrs)
         display_columns, columns = _get_columns(obj)
@@ -573,7 +597,26 @@ class SetPort(command.Command):
             action='store_true',
             help=_("Disable port security for this port")
         )
-
+        parser.add_argument(
+            '--allowed-address',
+            metavar='ip-address=<ip-address>[,mac-address=<mac-address>]',
+            action=parseractions.MultiKeyValueAction,
+            dest='allowed_address_pairs',
+            required_keys=['ip-address'],
+            optional_keys=['mac-address'],
+            help=_("Add allowed-address pair associated with this port: "
+                   "ip-address=<ip-address>[,mac-address=<mac-address>] "
+                   "(repeat option to set multiple allowed-address pairs)")
+        )
+        parser.add_argument(
+            '--no-allowed-address',
+            dest='no_allowed_address_pair',
+            action='store_true',
+            help=_("Clear existing allowed-address pairs associated"
+                   "with this port."
+                   "(Specify both --allowed-address and --no-allowed-address"
+                   "to overwrite the current allowed-address pairs)")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -612,6 +655,19 @@ class SetPort(command.Command):
                 attrs['security_groups'].append(sg_id)
         elif parsed_args.no_security_group:
             attrs['security_groups'] = []
+
+        if (parsed_args.allowed_address_pairs and
+                parsed_args.no_allowed_address_pair):
+            attrs['allowed_address_pairs'] = (
+                _convert_address_pairs(parsed_args))
+
+        elif parsed_args.allowed_address_pairs:
+            attrs['allowed_address_pairs'] = (
+                [addr for addr in obj.allowed_address_pairs if addr] +
+                _convert_address_pairs(parsed_args))
+
+        elif parsed_args.no_allowed_address_pair:
+            attrs['allowed_address_pairs'] = []
 
         client.update_port(obj, **attrs)
 
@@ -673,6 +729,19 @@ class UnsetPort(command.Command):
             metavar="<port>",
             help=_("Port to modify (name or ID)")
         )
+        parser.add_argument(
+            '--allowed-address',
+            metavar='ip-address=<ip-address>[,mac-address=<mac-address>]',
+            action=parseractions.MultiKeyValueAction,
+            dest='allowed_address_pairs',
+            required_keys=['ip-address'],
+            optional_keys=['mac-address'],
+            help=_("Desired allowed-address pair which should be removed "
+                   "from this port: ip-address=<ip-address> "
+                   "[,mac-address=<mac-address>] (repeat option to set "
+                   "multiple allowed-address pairs)")
+        )
+
         return parser
 
     def take_action(self, parsed_args):
@@ -684,6 +753,7 @@ class UnsetPort(command.Command):
         tmp_fixed_ips = copy.deepcopy(obj.fixed_ips)
         tmp_binding_profile = copy.deepcopy(obj.binding_profile)
         tmp_secgroups = copy.deepcopy(obj.security_groups)
+        tmp_addr_pairs = copy.deepcopy(obj.allowed_address_pairs)
         _prepare_fixed_ips(self.app.client_manager, parsed_args)
         attrs = {}
         if parsed_args.fixed_ip:
@@ -712,6 +782,14 @@ class UnsetPort(command.Command):
                 msg = _("Port does not contain security group %s") % sg
                 raise exceptions.CommandError(msg)
             attrs['security_groups'] = tmp_secgroups
+        if parsed_args.allowed_address_pairs:
+            try:
+                for addr in _convert_address_pairs(parsed_args):
+                    tmp_addr_pairs.remove(addr)
+            except ValueError:
+                msg = _("Port does not contain allowed-address-pair %s") % addr
+                raise exceptions.CommandError(msg)
+            attrs['allowed_address_pairs'] = tmp_addr_pairs
 
         if attrs:
             client.update_port(obj, **attrs)
