@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add meter rules commands for ``network meter rule create``,
+    ``network meter rule delete``, ``network meter rule list``,
+    and ``network meter rule show``.
+    [Blueprint :oscbp:`neutron-client-metering`]

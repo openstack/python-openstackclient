@@ -18,17 +18,15 @@ Create meter rule
 .. code:: bash
 
     openstack network meter rule create
-        [--project <project> [--project-domain <project-domain>]]
+        --remote-ip-prefix <remote-ip-prefix>
         [--ingress | --egress]
         [--exclude | --include]
-        --remote-ip-prefix <remote-ip-prefix>
+        [--project <project> [--project-domain <project-domain>]]
         <meter>
 
 .. option:: --project <project>
 
     Owner's project (name or ID)
-
-    *Network version 2 only*
 
 .. option:: --project-domain <project-domain>
 

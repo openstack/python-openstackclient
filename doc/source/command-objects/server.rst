@@ -117,11 +117,16 @@ Create a new server
 
 .. option:: --image <image>
 
-    Create server from this image (name or ID)
+    Create server boot disk from this image (name or ID)
 
 .. option:: --volume <volume>
 
-    Create server from this volume (name or ID)
+    Create server using this volume as the boot disk (name or ID)
+
+    This option automatically creates a block device mapping with a boot
+    index of 0.  On many hypervisors (libvirt/kvm for example) this will
+    be device ``vda``.  Do not create a duplicate mapping using
+    :option:`--block-device-mapping` for this volume.
 
 .. option:: --flavor <flavor>
 

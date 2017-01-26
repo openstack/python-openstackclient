@@ -336,12 +336,15 @@ class CreateServer(command.ShowOne):
         disk_group.add_argument(
             '--image',
             metavar='<image>',
-            help=_('Create server from this image (name or ID)'),
+            help=_('Create server boot disk from this image (name or ID)'),
         )
         disk_group.add_argument(
             '--volume',
             metavar='<volume>',
-            help=_('Create server from this volume (name or ID)'),
+            help=_(
+                'Create server using this volume as the boot disk '
+                '(name or ID)'
+            ),
         )
         parser.add_argument(
             '--flavor',
