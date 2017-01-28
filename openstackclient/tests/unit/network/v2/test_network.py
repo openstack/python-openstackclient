@@ -185,7 +185,9 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'name': self._network.name,
             'shared': True,
             'description': self._network.description,
+            # TODO(dtroyer): Remove tenant_id when we clean up the SDK refactor
             'tenant_id': self.project.id,
+            'project_id': self.project.id,
             'is_default': True,
             'router:external': True,
             'provider:network_type': 'vlan',
@@ -319,7 +321,9 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         self.network.create_network.assert_called_once_with(**{
             'admin_state_up': True,
             'name': self._network.name,
+            # TODO(dtroyer): Remove tenant_id when we clean up the SDK refactor
             'tenant_id': self.project.id,
+            'project_id': self.project.id,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
