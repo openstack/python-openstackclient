@@ -93,7 +93,9 @@ def _get_attrs(client_manager, parsed_args):
             parsed_args.project,
             parsed_args.project_domain,
         ).id
+        # TODO(dtroyer): Remove tenant_id when we clean up the SDK refactor
         attrs['tenant_id'] = project_id
+        attrs['project_id'] = project_id
 
     # "network set" command doesn't support setting availability zone hints.
     if 'availability_zone_hints' in parsed_args and \
