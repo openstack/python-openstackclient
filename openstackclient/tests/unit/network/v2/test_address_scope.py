@@ -352,7 +352,7 @@ class TestListAddressScope(TestAddressScope):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.address_scopes.assert_called_once_with(
-            **{'shared': True, 'is_shared': True}
+            **{'is_shared': True}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -368,7 +368,7 @@ class TestListAddressScope(TestAddressScope):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.address_scopes.assert_called_once_with(
-            **{'shared': False, 'is_shared': False}
+            **{'is_shared': False}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))

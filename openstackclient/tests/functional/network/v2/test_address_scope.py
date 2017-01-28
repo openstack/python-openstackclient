@@ -10,7 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import re
+import json
 import uuid
 
 from openstackclient.tests.functional import base
@@ -24,36 +24,31 @@ class AddressScopeTests(base.TestCase):
     #                has its own needs and there are collisions when running
     #                tests in parallel.
 
-    @classmethod
-    def setUpClass(cls):
-        # Set up some regex for matching below
-        cls.re_name = re.compile("name\s+\|\s+([^|]+?)\s+\|")
-        cls.re_ip_version = re.compile("ip_version\s+\|\s+(\S+)")
-        cls.re_shared = re.compile("shared\s+\|\s+(\S+)")
-
     def test_address_scope_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
-        raw_output = self.openstack(
-            'address scope create ' + name1,
-        )
+        cmd_output = json.loads(self.openstack(
+            'address scope create -f json ' +
+            name1
+        ))
         self.assertEqual(
             name1,
-            re.search(self.re_name, raw_output).group(1),
+            cmd_output['name'],
         )
         # Check the default values
         self.assertEqual(
-            'False',
-            re.search(self.re_shared, raw_output).group(1),
+            False,
+            cmd_output['shared'],
         )
 
         name2 = uuid.uuid4().hex
-        raw_output = self.openstack(
-            'address scope create ' + name2,
-        )
+        cmd_output = json.loads(self.openstack(
+            'address scope create -f json ' +
+            name2
+        ))
         self.assertEqual(
             name2,
-            re.search(self.re_name, raw_output).group(1),
+            cmd_output['name'],
         )
 
         raw_output = self.openstack(
@@ -64,72 +59,93 @@ class AddressScopeTests(base.TestCase):
     def test_address_scope_list(self):
         """Test create defaults, list filters, delete"""
         name1 = uuid.uuid4().hex
-        raw_output = self.openstack(
-            'address scope create --ip-version 4 --share ' + name1,
-        )
+        cmd_output = json.loads(self.openstack(
+            'address scope create -f json ' +
+            '--ip-version 4 ' +
+            '--share ' +
+            name1
+        ))
         self.addCleanup(self.openstack, 'address scope delete ' + name1)
         self.assertEqual(
-            '4',
-            re.search(self.re_ip_version, raw_output).group(1),
+            name1,
+            cmd_output['name'],
         )
         self.assertEqual(
-            'True',
-            re.search(self.re_shared, raw_output).group(1),
+            4,
+            cmd_output['ip_version'],
+        )
+        self.assertEqual(
+            True,
+            cmd_output['shared'],
         )
 
         name2 = uuid.uuid4().hex
-        raw_output = self.openstack(
-            'address scope create --ip-version 6 --no-share ' + name2,
-        )
+        cmd_output = json.loads(self.openstack(
+            'address scope create -f json ' +
+            '--ip-version 6 ' +
+            '--no-share ' +
+            name2
+        ))
         self.addCleanup(self.openstack, 'address scope delete ' + name2)
         self.assertEqual(
-            '6',
-            re.search(self.re_ip_version, raw_output).group(1),
+            name2,
+            cmd_output['name'],
         )
         self.assertEqual(
-            'False',
-            re.search(self.re_shared, raw_output).group(1),
+            6,
+            cmd_output['ip_version'],
+        )
+        self.assertEqual(
+            False,
+            cmd_output['shared'],
         )
 
         # Test list
-        raw_output = self.openstack('address scope list')
-        self.assertIsNotNone(re.search(name1 + "\s+\|\s+4", raw_output))
-        self.assertIsNotNone(re.search(name2 + "\s+\|\s+6", raw_output))
+        cmd_output = json.loads(self.openstack(
+            'address scope list -f json ',
+        ))
+        col_data = [x["IP Version"] for x in cmd_output]
+        self.assertIn(4, col_data)
+        self.assertIn(6, col_data)
 
         # Test list --share
-        # TODO(dtroyer): returns 'HttpException: Bad Request'
-        # raw_output = self.openstack('address scope list --share')
-        # self.assertIsNotNone(re.search(name1 + "\s+\|\s+4", raw_output))
-        # self.assertIsNotNone(re.search(name2 + "\s+\|\s+6", raw_output))
+        cmd_output = json.loads(self.openstack(
+            'address scope list -f json --share',
+        ))
+        col_data = [x["Shared"] for x in cmd_output]
+        self.assertIn(True, col_data)
+        self.assertNotIn(False, col_data)
 
         # Test list --no-share
-        # TODO(dtroyer): returns 'HttpException: Bad Request'
-        # raw_output = self.openstack('address scope list --no-share')
-        # self.assertIsNotNone(re.search(name1 + "\s+\|\s+4", raw_output))
-        # self.assertIsNotNone(re.search(name2 + "\s+\|\s+6", raw_output))
+        cmd_output = json.loads(self.openstack(
+            'address scope list -f json --no-share',
+        ))
+        col_data = [x["Shared"] for x in cmd_output]
+        self.assertIn(False, col_data)
+        self.assertNotIn(True, col_data)
 
     def test_address_scope_set(self):
         """Tests create options, set, show, delete"""
         name = uuid.uuid4().hex
         newname = name + "_"
-        raw_output = self.openstack(
-            'address scope create ' +
+        cmd_output = json.loads(self.openstack(
+            'address scope create -f json ' +
             '--ip-version 4 ' +
             '--no-share ' +
-            name,
-        )
+            name
+        ))
         self.addCleanup(self.openstack, 'address scope delete ' + newname)
         self.assertEqual(
             name,
-            re.search(self.re_name, raw_output).group(1),
+            cmd_output['name'],
         )
         self.assertEqual(
-            '4',
-            re.search(self.re_ip_version, raw_output).group(1),
+            4,
+            cmd_output['ip_version'],
         )
         self.assertEqual(
-            'False',
-            re.search(self.re_shared, raw_output).group(1),
+            False,
+            cmd_output['shared'],
         )
 
         raw_output = self.openstack(
@@ -140,16 +156,19 @@ class AddressScopeTests(base.TestCase):
         )
         self.assertOutput('', raw_output)
 
-        raw_output = self.openstack('address scope show ' + newname)
+        cmd_output = json.loads(self.openstack(
+            'address scope show -f json ' +
+            newname,
+        ))
         self.assertEqual(
             newname,
-            re.search(self.re_name, raw_output).group(1),
+            cmd_output['name'],
         )
         self.assertEqual(
-            '4',
-            re.search(self.re_ip_version, raw_output).group(1),
+            4,
+            cmd_output['ip_version'],
         )
         self.assertEqual(
-            'True',
-            re.search(self.re_shared, raw_output).group(1),
+            True,
+            cmd_output['shared'],
         )

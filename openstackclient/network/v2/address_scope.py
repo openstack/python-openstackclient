@@ -204,10 +204,8 @@ class ListAddressScope(command.Lister):
         if parsed_args.ip_version:
             attrs['ip_version'] = parsed_args.ip_version
         if parsed_args.share:
-            attrs['shared'] = True
             attrs['is_shared'] = True
         if parsed_args.no_share:
-            attrs['shared'] = False
             attrs['is_shared'] = False
         if 'project' in parsed_args and parsed_args.project is not None:
             identity_client = self.app.client_manager.identity
