@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    The ``address scope list`` command failed with 'HttpException: Bad Request'
+    when the ``--share`` or ``--no-share`` options were used.
+    [Bug `1659993 <https://bugs.launchpad.net/bugs/1659993>`_]

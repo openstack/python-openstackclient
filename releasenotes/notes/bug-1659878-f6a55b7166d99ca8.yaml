@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The ``network create`` command was ignoring the ``--project`` option and
+    creating networks owned by the current authenticated user's project.  This
+    was a regression introduced in OSC 3.8.0.
+    [Bug `1659878 <https://bugs.launchpad.net/bugs/1659878>`_]
