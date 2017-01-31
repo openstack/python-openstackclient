@@ -6,6 +6,7 @@ OpenStackClient Release Notes
    :maxdepth: 1
 
    unreleased
+   mitaka
    pre_20_releases
 
 OpenStack Releases
