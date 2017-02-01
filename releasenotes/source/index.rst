@@ -7,6 +7,7 @@ OpenStackClient Release Notes
 
    unreleased
    newton
+   mitaka
    20_releases
    pre_20_releases
 
