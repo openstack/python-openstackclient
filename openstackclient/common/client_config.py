@@ -26,40 +26,6 @@ LOG = logging.getLogger(__name__)
 # before auth plugins are loaded
 class OSC_Config(client_config.OSC_Config):
 
-    # TODO(dtroyer): Once os-client-config with pw_func argument is in
-    #                global-requirements we can remove __init()__
-    def __init__(
-        self,
-        config_files=None,
-        vendor_files=None,
-        override_defaults=None,
-        force_ipv4=None,
-        envvar_prefix=None,
-        secure_files=None,
-        pw_func=None,
-    ):
-        ret = super(OSC_Config, self).__init__(
-            config_files=config_files,
-            vendor_files=vendor_files,
-            override_defaults=override_defaults,
-            force_ipv4=force_ipv4,
-            envvar_prefix=envvar_prefix,
-            secure_files=secure_files,
-        )
-
-        # NOTE(dtroyer): This will be pushed down into os-client-config
-        #                The default is there is no callback, the calling
-        #                application must specify what to use, typically
-        #                it will be osc_lib.shell.prompt_for_password()
-        if '_pw_callback' not in vars(self):
-            # Set the default if it doesn't already exist
-            self._pw_callback = None
-        if pw_func is not None:
-            # Set the passed in value
-            self._pw_callback = pw_func
-
-        return ret
-
     # TODO(dtroyer): Remove _auth_default_domain when the v3otp fix is
     #                backported to osc-lib, should be in release 1.3.0
     def _auth_default_domain(self, config):
