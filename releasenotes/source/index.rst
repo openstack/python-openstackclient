@@ -6,6 +6,7 @@ OpenStackClient Release Notes
    :maxdepth: 1
 
    unreleased
+   ocata
    newton
    mitaka
    20_releases
