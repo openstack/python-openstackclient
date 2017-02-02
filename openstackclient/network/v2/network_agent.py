@@ -186,11 +186,11 @@ class SetNetworkAgent(command.Command):
         attrs = {}
         if parsed_args.description is not None:
             attrs['description'] = str(parsed_args.description)
-        # TODO(huanxuan): Also update by the new attribute name
-        # "is_admin_state_up" after sdk 0.9.12
         if parsed_args.enable:
+            attrs['is_admin_state_up'] = True
             attrs['admin_state_up'] = True
         if parsed_args.disable:
+            attrs['is_admin_state_up'] = False
             attrs['admin_state_up'] = False
         client.update_agent(obj, **attrs)
 

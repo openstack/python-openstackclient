@@ -195,8 +195,6 @@ class TestListNetworkAgent(TestNetworkAgent):
         self.assertEqual(self.data, list(data))
 
 
-# TODO(huanxuan): Also update by the new attribute name
-# "is_admin_state_up" after sdk 0.9.12
 class TestSetNetworkAgent(TestNetworkAgent):
 
     _network_agent = (
@@ -245,6 +243,7 @@ class TestSetNetworkAgent(TestNetworkAgent):
         attrs = {
             'description': 'new_description',
             'admin_state_up': True,
+            'is_admin_state_up': True,
         }
         self.network.update_agent.assert_called_once_with(
             self._network_agent, **attrs)
@@ -266,6 +265,7 @@ class TestSetNetworkAgent(TestNetworkAgent):
 
         attrs = {
             'admin_state_up': False,
+            'is_admin_state_up': False,
         }
         self.network.update_agent.assert_called_once_with(
             self._network_agent, **attrs)
