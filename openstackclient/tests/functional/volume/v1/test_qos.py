@@ -94,7 +94,7 @@ class QosTests(common.BaseVolumeTests):
         )
         self.assertEqual(
             "Alpha='c', Beta='b'",
-            cmd_output['specs']
+            cmd_output['properties']
         )
 
         # Test volume qos unset
@@ -115,7 +115,7 @@ class QosTests(common.BaseVolumeTests):
         )
         self.assertEqual(
             "Beta='b'",
-            cmd_output['specs']
+            cmd_output['properties']
         )
 
     # TODO(qiangjiahui): Add tests for associate and disassociate volume type

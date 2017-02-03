@@ -70,23 +70,22 @@ class TestQosAssociate(TestQos):
 
 class TestQosCreate(TestQos):
 
-    new_qos_spec = volume_fakes.FakeQos.create_one_qos()
     columns = (
         'consumer',
         'id',
         'name',
-        'specs'
-    )
-    datalist = (
-        new_qos_spec.consumer,
-        new_qos_spec.id,
-        new_qos_spec.name,
-        new_qos_spec.specs
+        'properties'
     )
 
     def setUp(self):
         super(TestQosCreate, self).setUp()
-
+        self.new_qos_spec = volume_fakes.FakeQos.create_one_qos()
+        self.datalist = (
+            self.new_qos_spec.consumer,
+            self.new_qos_spec.id,
+            self.new_qos_spec.name,
+            utils.format_dict(self.new_qos_spec.specs)
+        )
         self.qos_mock.create.return_value = self.new_qos_spec
         # Get the command object to test
         self.cmd = qos_specs.CreateQos(self.app, None)
@@ -336,7 +335,7 @@ class TestQosList(TestQos):
             'Name',
             'Consumer',
             'Associations',
-            'Specs',
+            'Properties',
         )
         self.assertEqual(collist, columns)
         datalist = ((
@@ -413,7 +412,7 @@ class TestQosShow(TestQos):
             'consumer',
             'id',
             'name',
-            'specs'
+            'properties'
         )
         self.assertEqual(collist, columns)
         datalist = (
