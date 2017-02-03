@@ -23,6 +23,7 @@ OpenStack release was made is shown below:
 =================  =======================
 OpenStack Release  OpenStackClient Release
 =================  =======================
+Ocata              3.8.1
 Newton             3.2.0
 Mitaka             2.3.0
 Liberty            1.7.3
