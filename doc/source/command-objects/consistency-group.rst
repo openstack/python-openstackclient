@@ -12,7 +12,7 @@ Add volume(s) to consistency group.
 .. program:: consistency group add volume
 .. code:: bash
 
-    os consistency group add volume
+    openstack consistency group add volume
         <consistency-group>
         <volume> [<volume> ...]
 
@@ -116,7 +116,7 @@ Remove volume(s) from consistency group.
 .. program:: consistency group remove volume
 .. code:: bash
 
-    os consistency group remove volume
+    openstack consistency group remove volume
         <consistency-group>
         <volume> [<volume> ...]
 

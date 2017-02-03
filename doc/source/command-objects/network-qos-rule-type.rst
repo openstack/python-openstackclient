@@ -15,4 +15,4 @@ List Network QoS rule types
 .. program:: network qos rule type list
 .. code:: bash
 
-    os network qos rule type list
+    openstack network qos rule type list

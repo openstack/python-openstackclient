@@ -17,7 +17,7 @@ Create new Network QoS rule
 .. program:: network qos rule create
 .. code:: bash
 
-    os network qos rule create
+    openstack network qos rule create
         --type <type>
         [--max-kbps <max-kbps>]
         [--max-burst-kbits <max-burst-kbits>]
@@ -67,7 +67,7 @@ Delete Network QoS rule
 .. program:: network qos rule delete
 .. code:: bash
 
-    os network qos rule delete
+    openstack network qos rule delete
          <qos-policy>
          <rule-id>
 
@@ -87,7 +87,7 @@ List Network QoS rules
 .. program:: network qos rule list
 .. code:: bash
 
-    os network qos rule list
+    openstack network qos rule list
          <qos-policy>
 
 .. describe:: <qos-policy>
@@ -102,7 +102,7 @@ Set Network QoS rule properties
 .. program:: network qos rule set
 .. code:: bash
 
-    os network qos rule set
+    openstack network qos rule set
         [--max-kbps <max-kbps>]
         [--max-burst-kbits <max-burst-kbits>]
         [--dscp-marks <dscp-marks>]
@@ -152,7 +152,7 @@ Display Network QoS rule details
 .. program:: network qos rule show
 .. code:: bash
 
-    os network qos rule show
+    openstack network qos rule show
         <qos-policy>
         <rule-id>
 
