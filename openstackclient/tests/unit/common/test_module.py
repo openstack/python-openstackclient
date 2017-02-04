@@ -26,19 +26,28 @@ from openstackclient.tests.unit import utils
 #                currently == '*client*'
 module_name_1 = 'fakeclient'
 module_version_1 = '0.1.2'
-MODULE_1 = {
-    '__version__': module_version_1,
-}
 
 module_name_2 = 'zlib'
 module_version_2 = '1.1'
-MODULE_2 = {
-    '__version__': module_version_2,
-}
+
+# module_3 match openstacksdk
+module_name_3 = 'openstack'
+module_version_3 = '0.9.13'
+
+# module_4 match sub module of fakeclient
+module_name_4 = 'fakeclient.submodule'
+module_version_4 = '0.2.2'
+
+# module_5 match private module
+module_name_5 = '_private_module.lib'
+module_version_5 = '0.0.1'
 
 MODULES = {
     module_name_1: fakes.FakeModule(module_name_1, module_version_1),
     module_name_2: fakes.FakeModule(module_name_2, module_version_2),
+    module_name_3: fakes.FakeModule(module_name_3, module_version_3),
+    module_name_4: fakes.FakeModule(module_name_4, module_version_4),
+    module_name_5: fakes.FakeModule(module_name_5, module_version_5),
 }
 
 
@@ -105,9 +114,18 @@ class TestModuleList(utils.TestCommand):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Additional modules may be present, just check our additions
+        # Output xxxclient and openstacksdk, but not regular module, like: zlib
         self.assertIn(module_name_1, columns)
         self.assertIn(module_version_1, data)
+        self.assertNotIn(module_name_2, columns)
+        self.assertNotIn(module_version_2, data)
+        self.assertIn(module_name_3, columns)
+        self.assertIn(module_version_3, data)
+        # Filter sub and private modules
+        self.assertNotIn(module_name_4, columns)
+        self.assertNotIn(module_version_4, data)
+        self.assertNotIn(module_name_5, columns)
+        self.assertNotIn(module_version_5, data)
 
     def test_module_list_all(self):
         arglist = [
@@ -123,8 +141,15 @@ class TestModuleList(utils.TestCommand):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Additional modules may be present, just check our additions
+        # Output xxxclient, openstacksdk and regular module, like: zlib
         self.assertIn(module_name_1, columns)
-        self.assertIn(module_name_2, columns)
         self.assertIn(module_version_1, data)
+        self.assertIn(module_name_2, columns)
         self.assertIn(module_version_2, data)
+        self.assertIn(module_name_3, columns)
+        self.assertIn(module_version_3, data)
+        # Filter sub and private modules
+        self.assertNotIn(module_name_4, columns)
+        self.assertNotIn(module_version_4, data)
+        self.assertNotIn(module_name_5, columns)
+        self.assertNotIn(module_version_5, data)

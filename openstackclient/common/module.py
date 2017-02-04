@@ -74,15 +74,21 @@ class ListModule(command.ShowOne):
         mods = sys.modules
         for k in mods.keys():
             k = k.split('.')[0]
-            # TODO(dtroyer): Need a better way to decide which modules to
-            #                show for the default (not --all) invocation.
-            #                It should be just the things we actually care
-            #                about like client and plugin modules...
-            if (parsed_args.all or 'client' in k):
-                try:
-                    data[k] = mods[k].__version__
-                except AttributeError:
-                    # aw, just skip it
-                    pass
+            # Skip private modules and the modules that had been added,
+            # like: keystoneclient, keystoneclient.exceptions and
+            # keystoneclient.auth
+            if not k.startswith('_') and k not in data:
+                # TODO(dtroyer): Need a better way to decide which modules to
+                #                show for the default (not --all) invocation.
+                #                It should be just the things we actually care
+                #                about like client and plugin modules...
+                if (parsed_args.all or
+                        # Handle xxxclient and openstacksdk
+                        (k.endswith('client') or k == 'openstack')):
+                    try:
+                        data[k] = mods[k].__version__
+                    except Exception:
+                        # Catch all exceptions, just skip it
+                        pass
 
         return zip(*sorted(six.iteritems(data)))
