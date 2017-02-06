@@ -76,7 +76,9 @@ class OpenStackShell(shell.OpenStackShell):
         # Loop through extensions to get API versions
         for mod in clientmanager.PLUGIN_MODULES:
             default_version = getattr(mod, 'DEFAULT_API_VERSION', None)
-            option = mod.API_VERSION_OPTION.replace('os_', '')
+            # Only replace the first instance of "os", some service names will
+            # have "os" in their name, like: "antiddos"
+            option = mod.API_VERSION_OPTION.replace('os_', '', 1)
             version_opt = str(self.cloud.config.get(option, default_version))
             if version_opt:
                 api = mod.API_NAME

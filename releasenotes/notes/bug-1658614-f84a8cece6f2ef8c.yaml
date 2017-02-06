@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Fix wrong behavior of parsing plugin service name when the service name end
+    with keyword ``os``, like: antiddos. That cause the service api version
+    specified by users don't work.
+    [Bug `1658614 <https://bugs.launchpad.net/python-openstackclient/+bug/1658614>`_]
