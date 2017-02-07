@@ -57,7 +57,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'network_id',
             'port_security_enabled',
             'project_id',
-            'security_groups',
+            'security_group_ids',
             'status',
         )
 
@@ -82,7 +82,7 @@ class TestPort(network_fakes.TestNetworkV2):
             fake_port.network_id,
             fake_port.port_security_enabled,
             fake_port.project_id,
-            utils.format_list(fake_port.security_groups),
+            utils.format_list(fake_port.security_group_ids),
             fake_port.status,
         )
 
@@ -251,7 +251,7 @@ class TestCreatePort(TestPort):
         verifylist = [
             ('network', self._port.network_id,),
             ('enable', True),
-            ('security_groups', [secgroup.id]),
+            ('security_group', [secgroup.id]),
             ('name', 'test-port'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -261,7 +261,7 @@ class TestCreatePort(TestPort):
         self.network.create_port.assert_called_once_with(**{
             'admin_state_up': True,
             'network_id': self._port.network_id,
-            'security_groups': [secgroup.id],
+            'security_group_ids': [secgroup.id],
             'name': 'test-port',
         })
 
@@ -309,7 +309,7 @@ class TestCreatePort(TestPort):
         verifylist = [
             ('network', self._port.network_id,),
             ('enable', True),
-            ('security_groups', [sg_1.id, sg_2.id]),
+            ('security_group', [sg_1.id, sg_2.id]),
             ('name', 'test-port'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -319,7 +319,7 @@ class TestCreatePort(TestPort):
         self.network.create_port.assert_called_once_with(**{
             'admin_state_up': True,
             'network_id': self._port.network_id,
-            'security_groups': [sg_1.id, sg_2.id],
+            'security_group_ids': [sg_1.id, sg_2.id],
             'name': 'test-port',
         })
 
@@ -346,7 +346,7 @@ class TestCreatePort(TestPort):
         self.network.create_port.assert_called_once_with(**{
             'admin_state_up': True,
             'network_id': self._port.network_id,
-            'security_groups': [],
+            'security_group_ids': [],
             'name': 'test-port',
         })
 
@@ -590,7 +590,7 @@ class TestListPort(TestPort):
             prt.mac_address,
             utils.format_list_of_dicts(prt.fixed_ips),
             prt.status,
-            utils.format_list(prt.security_groups),
+            utils.format_list(prt.security_group_ids),
             prt.device_owner,
         ))
 
@@ -1111,7 +1111,7 @@ class TestSetPort(TestPort):
             self._port.name,
         ]
         verifylist = [
-            ('security_groups', [sg.id]),
+            ('security_group', [sg.id]),
             ('port', self._port.name),
         ]
 
@@ -1119,7 +1119,7 @@ class TestSetPort(TestPort):
         result = self.cmd.take_action(parsed_args)
 
         attrs = {
-            'security_groups': [sg.id],
+            'security_group_ids': [sg.id],
         }
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
@@ -1130,7 +1130,7 @@ class TestSetPort(TestPort):
         sg_3 = network_fakes.FakeSecurityGroup.create_one_security_group()
         self.network.find_security_group = mock.Mock(side_effect=[sg_2, sg_3])
         _testport = network_fakes.FakePort.create_one_port(
-            {'security_groups': [sg_1.id]})
+            {'security_group_ids': [sg_1.id]})
         self.network.find_port = mock.Mock(return_value=_testport)
         arglist = [
             '--security-group', sg_2.id,
@@ -1138,13 +1138,13 @@ class TestSetPort(TestPort):
             _testport.name,
         ]
         verifylist = [
-            ('security_groups', [sg_2.id, sg_3.id]),
+            ('security_group', [sg_2.id, sg_3.id]),
             ('port', _testport.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         attrs = {
-            'security_groups': [sg_1.id, sg_2.id, sg_3.id],
+            'security_group_ids': [sg_2.id, sg_3.id, sg_1.id],
         }
         self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
@@ -1163,7 +1163,7 @@ class TestSetPort(TestPort):
         result = self.cmd.take_action(parsed_args)
 
         attrs = {
-            'security_groups': [],
+            'security_group_ids': [],
         }
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
@@ -1172,7 +1172,7 @@ class TestSetPort(TestPort):
         sg1 = network_fakes.FakeSecurityGroup.create_one_security_group()
         sg2 = network_fakes.FakeSecurityGroup.create_one_security_group()
         _testport = network_fakes.FakePort.create_one_port(
-            {'security_groups': [sg1.id]})
+            {'security_group_ids': [sg1.id]})
         self.network.find_port = mock.Mock(return_value=_testport)
         self.network.find_security_group = mock.Mock(return_value=sg2)
         arglist = [
@@ -1181,13 +1181,13 @@ class TestSetPort(TestPort):
             _testport.name,
         ]
         verifylist = [
-            ('security_groups', [sg2.id]),
+            ('security_group', [sg2.id]),
             ('no_security_group', True)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         attrs = {
-            'security_groups': [sg2.id],
+            'security_group_ids': [sg2.id],
         }
         self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
@@ -1434,7 +1434,7 @@ class TestUnsetPort(TestPort):
         _fake_sg1 = network_fakes.FakeSecurityGroup.create_one_security_group()
         _fake_sg2 = network_fakes.FakeSecurityGroup.create_one_security_group()
         _fake_port = network_fakes.FakePort.create_one_port(
-            {'security_groups': [_fake_sg1.id, _fake_sg2.id]})
+            {'security_group_ids': [_fake_sg1.id, _fake_sg2.id]})
         self.network.find_port = mock.Mock(return_value=_fake_port)
         self.network.find_security_group = mock.Mock(return_value=_fake_sg2)
         arglist = [
@@ -1442,14 +1442,14 @@ class TestUnsetPort(TestPort):
             _fake_port.name,
         ]
         verifylist = [
-            ('security_groups', [_fake_sg2.id]),
+            ('security_group_ids', [_fake_sg2.id]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
         attrs = {
-            'security_groups': [_fake_sg1.id]
+            'security_group_ids': [_fake_sg1.id]
         }
         self.network.update_port.assert_called_once_with(
             _fake_port, **attrs)
@@ -1459,14 +1459,14 @@ class TestUnsetPort(TestPort):
         _fake_sg1 = network_fakes.FakeSecurityGroup.create_one_security_group()
         _fake_sg2 = network_fakes.FakeSecurityGroup.create_one_security_group()
         _fake_port = network_fakes.FakePort.create_one_port(
-            {'security_groups': [_fake_sg1.id]})
+            {'security_group_ids': [_fake_sg1.id]})
         self.network.find_security_group = mock.Mock(return_value=_fake_sg2)
         arglist = [
             '--security-group', _fake_sg2.id,
             _fake_port.name,
         ]
         verifylist = [
-            ('security_groups', [_fake_sg2.id]),
+            ('security_group_ids', [_fake_sg2.id]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

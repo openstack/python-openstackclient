@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixed the ``port set`` and ``port unset`` command failures
+    (AttributeError) when ``--security-group`` option is included.
+    [Bug `1656788 <https://bugs.launchpad.net/python-openstackclient/+bug/1656788>`_]
