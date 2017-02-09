@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import uuid
 
 from openstackclient.tests.functional import base
@@ -18,29 +19,88 @@ from openstackclient.tests.functional import base
 class ServerGroupTests(base.TestCase):
     """Functional tests for servergroup."""
 
-    NAME = uuid.uuid4().hex
-    HEADERS = ['Name']
-    FIELDS = ['name']
+    def test_server_group_delete(self):
+        """Test create, delete multiple"""
+        name1 = uuid.uuid4().hex
+        name2 = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'server group create -f json ' +
+            '--policy affinity ' +
+            name1
+        ))
+        self.assertEqual(
+            name1,
+            cmd_output['name']
+        )
+        self.assertEqual(
+            'affinity',
+            cmd_output['policies']
+        )
 
-    @classmethod
-    def setUpClass(cls):
-        opts = cls.get_opts(cls.FIELDS)
-        raw_output = cls.openstack('server group create --policy affinity ' +
-                                   cls.NAME + opts)
-        expected = cls.NAME + '\n'
-        cls.assertOutput(expected, raw_output)
+        cmd_output = json.loads(self.openstack(
+            'server group create -f json ' +
+            '--policy anti-affinity ' +
+            name2
+        ))
+        self.assertEqual(
+            name2,
+            cmd_output['name']
+        )
+        self.assertEqual(
+            'anti-affinity',
+            cmd_output['policies']
+        )
 
-    @classmethod
-    def tearDownClass(cls):
-        raw_output = cls.openstack('server group delete ' + cls.NAME)
-        cls.assertOutput('', raw_output)
+        del_output = self.openstack(
+            'server group delete ' + name1 + ' ' + name2)
+        self.assertOutput('', del_output)
 
-    def test_server_group_list(self):
-        opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('server group list' + opts)
-        self.assertIn(self.NAME, raw_output)
+    def test_server_group_show_and_list(self):
+        """Test server group create, show, and list"""
+        name1 = uuid.uuid4().hex
+        name2 = uuid.uuid4().hex
 
-    def test_server_group_show(self):
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack('server group show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + "\n", raw_output)
+        # test server gorup show
+        cmd_output = json.loads(self.openstack(
+            'server group create -f json ' +
+            '--policy affinity ' +
+            name1
+        ))
+        self.addCleanup(self.openstack, 'server group delete ' + name1)
+        cmd_output = json.loads(self.openstack(
+            'server group show -f json ' + name1))
+        self.assertEqual(
+            name1,
+            cmd_output['name']
+        )
+        self.assertEqual(
+            'affinity',
+            cmd_output['policies']
+        )
+
+        cmd_output = json.loads(self.openstack(
+            'server group create -f json ' +
+            '--policy anti-affinity ' +
+            name2
+        ))
+        self.addCleanup(self.openstack, 'server group delete ' + name2)
+        cmd_output = json.loads(self.openstack(
+            'server group show -f json ' + name2))
+        self.assertEqual(
+            name2,
+            cmd_output['name']
+        )
+        self.assertEqual(
+            'anti-affinity',
+            cmd_output['policies']
+        )
+
+        # test server group list
+        cmd_output = json.loads(self.openstack(
+            'server group list -f json'))
+        names = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, names)
+        self.assertIn(name2, names)
+        policies = [x["Policies"] for x in cmd_output]
+        self.assertIn('affinity', policies)
+        self.assertIn('anti-affinity', policies)
