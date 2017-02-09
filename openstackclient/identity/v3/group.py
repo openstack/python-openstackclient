@@ -62,18 +62,13 @@ class AddUserToGroup(command.Command):
 
         try:
             identity_client.users.add_to_group(user_id, group_id)
-        except Exception:
-            msg = _("%(user)s not added to group %(group)s\n") % {
+        except Exception as e:
+            msg = _("%(user)s not added to group %(group)s: %(e)s") % {
                 'user': parsed_args.user,
                 'group': parsed_args.group,
+                'e': e,
             }
-            sys.stderr.write(msg)
-        else:
-            msg = _("%(user)s added to group %(group)s\n") % {
-                'user': parsed_args.user,
-                'group': parsed_args.group,
-            }
-            sys.stdout.write(msg)
+            raise exceptions.CommandError(msg)
 
 
 class CheckUserInGroup(command.Command):
@@ -306,18 +301,13 @@ class RemoveUserFromGroup(command.Command):
 
         try:
             identity_client.users.remove_from_group(user_id, group_id)
-        except Exception:
-            msg = _("%(user)s not removed from group %(group)s\n") % {
+        except Exception as e:
+            msg = _("%(user)s not removed from group %(group)s: %(e)s") % {
                 'user': parsed_args.user,
                 'group': parsed_args.group,
+                'e': e,
             }
-            sys.stderr.write(msg)
-        else:
-            msg = _("%(user)s removed from group %(group)s\n") % {
-                'user': parsed_args.user,
-                'group': parsed_args.group,
-            }
-            sys.stdout.write(msg)
+            raise exceptions.CommandError(msg)
 
 
 class SetGroup(command.Command):

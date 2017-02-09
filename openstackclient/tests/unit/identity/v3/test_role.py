@@ -273,6 +273,22 @@ class TestRoleAdd(TestRole):
         )
         self.assertIsNone(result)
 
+    def test_role_add_with_error(self):
+        arglist = [
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('user', None),
+            ('group', None),
+            ('domain', None),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+            ('inherited', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
+
 
 class TestRoleAddInherited(TestRoleAdd, TestRoleInherited):
     pass
@@ -771,6 +787,17 @@ class TestRoleList(TestRole):
         ), )
         self.assertEqual(datalist, tuple(data))
 
+    def test_role_list_group_with_error(self):
+        arglist = [
+            '--group', identity_fakes.group_id,
+        ]
+        verifylist = [
+            ('group', identity_fakes.group_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
+
 
 class TestRoleRemove(TestRole):
 
@@ -981,6 +1008,22 @@ class TestRoleRemove(TestRole):
             **kwargs
         )
         self.assertIsNone(result)
+
+    def test_role_remove_with_error(self):
+        arglist = [
+            identity_fakes.role_name,
+        ]
+        verifylist = [
+            ('user', None),
+            ('group', None),
+            ('domain', None),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+            ('inherited', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
 
 
 class TestRoleSet(TestRole):

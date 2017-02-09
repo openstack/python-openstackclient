@@ -16,7 +16,6 @@
 """Identity v3 Role action implementations"""
 
 import logging
-import sys
 
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib.command import command
@@ -129,7 +128,9 @@ class AddRole(command.Command):
 
         if (not parsed_args.user and not parsed_args.domain
                 and not parsed_args.group and not parsed_args.project):
-            return
+            msg = _("Role not added, incorrect set of arguments "
+                    "provided. See openstack --help for more details")
+            raise exceptions.CommandError(msg)
 
         domain_id = None
         if parsed_args.role_domain:
@@ -143,11 +144,6 @@ class AddRole(command.Command):
 
         kwargs = _process_identity_and_resource_options(
             parsed_args, self.app.client_manager.identity)
-        if not kwargs:
-            sys.stderr.write(_("Role not added, incorrect set of arguments "
-                               "provided. See openstack --help for more "
-                               "details\n"))
-            return
 
         identity_client.roles.grant(role.id, **kwargs)
 
@@ -372,10 +368,10 @@ class ListRole(command.Lister):
                                '<group-name> --project <project-name> --names '
                                'instead.'))
         else:
-            sys.stderr.write(_("Error: If a user or group is specified, "
-                               "either --domain or --project must also be "
-                               "specified to list role grants.\n"))
-            return ([], [])
+            msg = _("Error: If a user or group is specified, "
+                    "either --domain or --project must also be "
+                    "specified to list role grants.")
+            raise exceptions.CommandError(msg)
 
         return (columns,
                 (utils.get_item_properties(
@@ -405,9 +401,9 @@ class RemoveRole(command.Command):
 
         if (not parsed_args.user and not parsed_args.domain
                 and not parsed_args.group and not parsed_args.project):
-            sys.stderr.write(_("Incorrect set of arguments provided. "
-                               "See openstack --help for more details\n"))
-            return
+            msg = _("Incorrect set of arguments provided. "
+                    "See openstack --help for more details")
+            raise exceptions.CommandError(msg)
 
         domain_id = None
         if parsed_args.role_domain:
@@ -421,11 +417,6 @@ class RemoveRole(command.Command):
 
         kwargs = _process_identity_and_resource_options(
             parsed_args, self.app.client_manager.identity)
-        if not kwargs:
-            sys.stderr.write(_("Role not removed, incorrect set of arguments "
-                               "provided. See openstack --help for more "
-                               "details\n"))
-            return
         identity_client.roles.revoke(role.id, **kwargs)
 
 
