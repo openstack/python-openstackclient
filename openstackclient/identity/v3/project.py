@@ -336,13 +336,18 @@ class ShowProject(command.ShowOne):
             project = utils.find_resource(
                 identity_client.projects,
                 project_str,
-                domain_id=domain.id,
-                parents_as_list=parsed_args.parents,
-                subtree_as_list=parsed_args.children)
+                domain_id=domain.id)
         else:
             project = utils.find_resource(
                 identity_client.projects,
-                project_str,
+                project_str)
+
+        if parsed_args.parents or parsed_args.children:
+            # NOTE(RuiChen): utils.find_resource() can't pass kwargs,
+            #                if id query hit the result at first, so call
+            #                identity manager.get() with kwargs directly.
+            project = identity_client.projects.get(
+                project.id,
                 parents_as_list=parsed_args.parents,
                 subtree_as_list=parsed_args.children)
 

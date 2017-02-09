@@ -14,6 +14,7 @@
 #
 
 import mock
+from mock import call
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -763,8 +764,6 @@ class TestProjectShow(TestProject):
 
     def test_project_show(self):
 
-        self.projects_mock.get.side_effect = [Exception("Not found"),
-                                              self.project]
         self.projects_mock.get.return_value = self.project
 
         arglist = [
@@ -790,11 +789,7 @@ class TestProjectShow(TestProject):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.projects_mock.get.assert_called_with(
-            self.project.id,
-            parents_as_list=False,
-            subtree_as_list=False,
-        )
+        self.projects_mock.get.assert_called_once_with(self.project.id)
 
         collist = (
             'description',
@@ -824,8 +819,6 @@ class TestProjectShow(TestProject):
                 'parents': [{'project': {'id': self.project.parent_id}}]
             }
         )
-        self.projects_mock.get.side_effect = [Exception("Not found"),
-                                              self.project]
         self.projects_mock.get.return_value = self.project
 
         arglist = [
@@ -849,11 +842,12 @@ class TestProjectShow(TestProject):
              }
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.projects_mock.get.assert_called_with(
-            self.project.id,
-            parents_as_list=True,
-            subtree_as_list=False,
-        )
+
+        self.projects_mock.get.assert_has_calls([call(self.project.id),
+                                                 call(self.project.id,
+                                                      parents_as_list=True,
+                                                      subtree_as_list=False,
+                                                      )])
 
         collist = (
             'description',
@@ -885,8 +879,6 @@ class TestProjectShow(TestProject):
                 'subtree': [{'project': {'id': 'children-id'}}]
             }
         )
-        self.projects_mock.get.side_effect = [Exception("Not found"),
-                                              self.project]
         self.projects_mock.get.return_value = self.project
 
         arglist = [
@@ -910,11 +902,11 @@ class TestProjectShow(TestProject):
              }
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.projects_mock.get.assert_called_with(
-            self.project.id,
-            parents_as_list=False,
-            subtree_as_list=True,
-        )
+        self.projects_mock.get.assert_has_calls([call(self.project.id),
+                                                 call(self.project.id,
+                                                      parents_as_list=False,
+                                                      subtree_as_list=True,
+                                                      )])
 
         collist = (
             'description',
@@ -947,8 +939,6 @@ class TestProjectShow(TestProject):
                 'subtree': [{'project': {'id': 'children-id'}}]
             }
         )
-        self.projects_mock.get.side_effect = [Exception("Not found"),
-                                              self.project]
         self.projects_mock.get.return_value = self.project
 
         arglist = [
@@ -973,11 +963,11 @@ class TestProjectShow(TestProject):
              }
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.projects_mock.get.assert_called_with(
-            self.project.id,
-            parents_as_list=True,
-            subtree_as_list=True,
-        )
+        self.projects_mock.get.assert_has_calls([call(self.project.id),
+                                                 call(self.project.id,
+                                                      parents_as_list=True,
+                                                      subtree_as_list=True,
+                                                      )])
 
         collist = (
             'description',

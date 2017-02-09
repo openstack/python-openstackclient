@@ -10,6 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
+
 from tempest.lib.common.utils import data_utils
 
 from openstackclient.tests.functional.identity.v3 import common
@@ -111,3 +113,14 @@ class ProjectTests(common.IdentityTests):
                           'name': self.project_name})
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.PROJECT_FIELDS)
+
+    def test_project_show_with_parents_children(self):
+        json_output = json.loads(self.openstack(
+            'project show '
+            '--parents --children -f json '
+            '--domain %(domain)s '
+            '%(name)s' % {'domain': self.domain_name,
+                          'name': self.project_name}))
+        for attr_name in (self.PROJECT_FIELDS + ['parents', 'subtree']):
+            self.assertIn(attr_name, json_output)
+        self.assertEqual(self.project_name, json_output.get('name'))
