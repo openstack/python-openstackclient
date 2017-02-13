@@ -194,6 +194,29 @@ def _prepare_fixed_ips(client_manager, parsed_args):
         parsed_args.fixed_ip = ips
 
 
+def _prepare_filter_fixed_ips(client_manager, parsed_args):
+    """Fix and properly format fixed_ip option for filtering.
+
+    Appropriately convert any subnet names to their respective ids.
+    Convert fixed_ips in parsed args to be in valid list format for filter:
+    ['subnet_id=foo'].
+    """
+    client = client_manager.network
+    ips = []
+
+    for ip_spec in parsed_args.fixed_ip:
+        if 'subnet' in ip_spec:
+            subnet_name_id = ip_spec['subnet']
+            if subnet_name_id:
+                _subnet = client.find_subnet(subnet_name_id,
+                                             ignore_missing=False)
+                ips.append('subnet_id=%s' % _subnet.id)
+
+        if 'ip-address' in ip_spec:
+            ips.append('ip_address=%s' % ip_spec['ip-address'])
+    return ips
+
+
 def _add_updatable_args(parser):
     parser.add_argument(
         '--description',
@@ -466,6 +489,15 @@ class ListPort(command.Lister):
             help=_("List ports according to their project (name or ID)")
         )
         identity_common.add_project_domain_option_to_parser(parser)
+        parser.add_argument(
+            '--fixed-ip',
+            metavar='subnet=<subnet>,ip-address=<ip-address>',
+            action=parseractions.MultiKeyValueAction,
+            optional_keys=['subnet', 'ip-address'],
+            help=_("Desired IP and/or subnet (name or ID) for filtering "
+                   "ports: subnet=<subnet>,ip-address=<ip-address> "
+                   "(repeat option to set multiple fixed IP addresses)")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -516,6 +548,9 @@ class ListPort(command.Lister):
             ).id
             filters['tenant_id'] = project_id
             filters['project_id'] = project_id
+        if parsed_args.fixed_ip:
+            filters['fixed_ips'] = _prepare_filter_fixed_ips(
+                self.app.client_manager, parsed_args)
 
         data = network_client.ports(**filters)
 

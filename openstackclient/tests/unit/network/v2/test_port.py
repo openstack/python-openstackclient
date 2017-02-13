@@ -727,6 +727,92 @@ class TestListPort(TestPort):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_port_list_fixed_ip_opt_ip_address(self):
+        ip_address = self._ports[0].fixed_ips[0]['ip_address']
+        arglist = [
+            '--fixed-ip', "ip-address=%s" % ip_address,
+        ]
+        verifylist = [
+            ('fixed_ip', [{'ip-address': ip_address}])
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ports.assert_called_once_with(**{
+            'fixed_ips': ['ip_address=%s' % ip_address]})
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_port_list_fixed_ip_opt_subnet_id(self):
+        subnet_id = self._ports[0].fixed_ips[0]['subnet_id']
+        arglist = [
+            '--fixed-ip', "subnet=%s" % subnet_id,
+        ]
+        verifylist = [
+            ('fixed_ip', [{'subnet': subnet_id}])
+        ]
+
+        self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet(
+            {'id': subnet_id})
+        self.network.find_subnet = mock.Mock(return_value=self.fake_subnet)
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ports.assert_called_once_with(**{
+            'fixed_ips': ['subnet_id=%s' % subnet_id]})
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_port_list_fixed_ip_opts(self):
+        subnet_id = self._ports[0].fixed_ips[0]['subnet_id']
+        ip_address = self._ports[0].fixed_ips[0]['ip_address']
+        arglist = [
+            '--fixed-ip', "subnet=%s,ip-address=%s" % (subnet_id,
+                                                       ip_address)
+        ]
+        verifylist = [
+            ('fixed_ip', [{'subnet': subnet_id,
+                          'ip-address': ip_address}])
+        ]
+
+        self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet(
+            {'id': subnet_id})
+        self.network.find_subnet = mock.Mock(return_value=self.fake_subnet)
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ports.assert_called_once_with(**{
+            'fixed_ips': ['subnet_id=%s' % subnet_id,
+                          'ip_address=%s' % ip_address]})
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_port_list_fixed_ips(self):
+        subnet_id = self._ports[0].fixed_ips[0]['subnet_id']
+        ip_address = self._ports[0].fixed_ips[0]['ip_address']
+        arglist = [
+            '--fixed-ip', "subnet=%s" % subnet_id,
+            '--fixed-ip', "ip-address=%s" % ip_address,
+        ]
+        verifylist = [
+            ('fixed_ip', [{'subnet': subnet_id},
+                          {'ip-address': ip_address}])
+        ]
+
+        self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet(
+            {'id': subnet_id})
+        self.network.find_subnet = mock.Mock(return_value=self.fake_subnet)
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ports.assert_called_once_with(**{
+            'fixed_ips': ['subnet_id=%s' % subnet_id,
+                          'ip_address=%s' % ip_address]})
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
     def test_list_port_with_long(self):
         arglist = [
             '--long',
@@ -801,6 +887,7 @@ class TestSetPort(TestPort):
         arglist = [
             '--fixed-ip', 'ip-address=10.0.0.11',
             self._port.name,
+            '--no-fixed-ip',
         ]
         verifylist = [
             ('fixed_ip', [{'ip-address': '10.0.0.11'}]),
