@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import os
 
 from openstackclient.common import configuration
@@ -20,25 +21,47 @@ BASIC_CONFIG_HEADERS = ['Field', 'Value']
 
 
 class ConfigurationTests(base.TestCase):
-
-    opts = "-f value -c auth.password"
+    """Functional test for configuration."""
 
     def test_configuration_show(self):
+
+        # Test show without option
         raw_output = self.openstack('configuration show')
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, BASIC_CONFIG_HEADERS)
 
-    def test_configuration_show_unmask(self):
-        raw_output = self.openstack('configuration show --unmask ' + self.opts)
+        cmd_output = json.loads(self.openstack(
+            'configuration show -f json'
+        ))
+        self.assertEqual(
+            configuration.REDACTED,
+            cmd_output['auth.password']
+        )
+
+        # Test show --mask
+        cmd_output = json.loads(self.openstack(
+            'configuration show --mask -f json'
+        ))
+        self.assertEqual(
+            configuration.REDACTED,
+            cmd_output['auth.password']
+        )
+
+        # Test show --unmask
+        cmd_output = json.loads(self.openstack(
+            'configuration show --unmask -f json'
+        ))
         # If we are using os-client-config, this will not be set.  Rather than
         # parse clouds.yaml to get the right value, just make sure
         # we are not getting redacted.
         passwd = os.environ.get('OS_PASSWORD')
         if passwd:
-            self.assertEqual(passwd + '\n', raw_output)
+            self.assertEqual(
+                passwd,
+                cmd_output['auth.password']
+            )
         else:
-            self.assertNotEqual(configuration.REDACTED + '\n', raw_output)
-
-    def test_configuration_show_mask(self):
-        raw_output = self.openstack('configuration show --mask ' + self.opts)
-        self.assertEqual(configuration.REDACTED + '\n', raw_output)
+            self.assertNotEqual(
+                configuration.REDACTED,
+                cmd_output['auth.password']
+            )
