@@ -14,10 +14,10 @@ import json
 import time
 
 from tempest.lib.common.utils import data_utils
+from tempest.lib import exceptions
 
 from openstackclient.tests.functional import base
 from openstackclient.tests.functional.volume.v2 import test_volume
-from tempest.lib import exceptions
 
 
 class ServerTests(base.TestCase):
@@ -319,7 +319,7 @@ class ServerTests(base.TestCase):
         self.assertEqual("", raw_output)
         self.wait_for_status("ACTIVE")
 
-    def test_server_boot_from_volume(self):
+    def test_server_create_from_volume(self):
         """Test server create from volume, server delete
 
         Test steps:
@@ -437,14 +437,57 @@ class ServerTests(base.TestCase):
             cmd_output['status'],
         )
 
-    def wait_for_status(self, expected_status='ACTIVE', wait=900, interval=30):
+    def test_server_create_with_none_network(self):
+        """Test server create with none network option."""
+        server_name = data_utils.rand_name('TestServer')
+        server = json.loads(self.openstack(
+            # auto/none enable in nova micro version (v2.37+)
+            '--os-compute-api-version 2.latest ' +
+            'server create -f json ' +
+            '--flavor ' + self.flavor_name + ' ' +
+            '--image ' + self.image_name + ' ' +
+            '--nic none ' +
+            server_name
+        ))
+        self.assertIsNotNone(server["id"])
+        self.addCleanup(self.openstack, 'server delete --wait ' + server_name)
+        self.assertEqual(server_name, server['name'])
+        self.wait_for_status(server_name=server_name)
+        server = json.loads(self.openstack(
+            'server show -f json ' + server_name
+        ))
+        self.assertIsNotNone(server['addresses'])
+        self.assertEqual('', server['addresses'])
+
+    def test_server_create_with_empty_network_option_latest(self):
+        """Test server create with empty network option in nova 2.latest."""
+        server_name = data_utils.rand_name('TestServer')
+        try:
+            self.openstack(
+                # auto/none enable in nova micro version (v2.37+)
+                '--os-compute-api-version 2.latest ' +
+                'server create -f json ' +
+                '--flavor ' + self.flavor_name + ' ' +
+                '--image ' + self.image_name + ' ' +
+                server_name
+            )
+        except exceptions.CommandFailed as e:
+            self.assertIn('nics are required after microversion 2.36',
+                          e.stderr)
+        else:
+            self.fail('CommandFailed should be raised.')
+
+    def wait_for_status(self, expected_status='ACTIVE',
+                        wait=900, interval=30, server_name=None):
         """Wait until server reaches expected status."""
         # TODO(thowe): Add a server wait command to osc
         failures = ['ERROR']
         total_sleep = 0
         opts = self.get_opts(['status'])
+        if not server_name:
+            server_name = self.NAME
         while total_sleep < wait:
-            status = self.openstack('server show ' + self.NAME + opts)
+            status = self.openstack('server show ' + server_name + opts)
             status = status.rstrip()
             print('Waiting for {} current status: {}'.format(expected_status,
                                                              status))
@@ -454,7 +497,7 @@ class ServerTests(base.TestCase):
             time.sleep(interval)
             total_sleep += interval
 
-        status = self.openstack('server show ' + self.NAME + opts)
+        status = self.openstack('server show ' + server_name + opts)
         status = status.rstrip()
         self.assertEqual(status, expected_status)
         # give it a little bit more time

@@ -467,6 +467,152 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
+    def test_server_create_with_auto_network(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'auto',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('nic', ['auto']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[],
+            nics='auto',
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_none_network(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'none',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('nic', ['none']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[],
+            nics='none',
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_conflict_network_options(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'none',
+            '--nic', 'auto',
+            '--nic', 'port-id=port1',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('nic', ['none', 'auto', 'port-id=port1']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        get_endpoints = mock.Mock()
+        get_endpoints.return_value = {'network': []}
+        self.app.client_manager.auth_ref = mock.Mock()
+        self.app.client_manager.auth_ref.service_catalog = mock.Mock()
+        self.app.client_manager.auth_ref.service_catalog.get_endpoints = (
+            get_endpoints)
+
+        find_port = mock.Mock()
+        network_client = self.app.client_manager.network
+        network_client.find_port = find_port
+        port_resource = mock.Mock()
+        port_resource.id = 'port1_uuid'
+        find_port.return_value = port_resource
+
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
+        self.assertNotCalled(self.servers_mock.create)
+
+    def test_server_create_with_invalid_network_options(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'abcdefgh',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('nic', ['abcdefgh']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
+        self.assertNotCalled(self.servers_mock.create)
+
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_server_create_with_wait_ok(self, mock_wait_for_status):
         arglist = [

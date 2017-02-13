@@ -173,6 +173,8 @@ Create a new server
     v6-fixed-ip: IPv6 fixed address for NIC (optional).
     none: (v2.37+) no network is attached.
     auto: (v2.37+) the compute service will automatically allocate a network.
+    Specifying a --nic of auto or none cannot be used with any other
+    --nic value.
 
 .. option:: --hint <key=value>
 
