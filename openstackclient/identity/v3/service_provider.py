@@ -108,8 +108,8 @@ class DeleteServiceProvider(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete service provider with "
-                          "name or ID '%(provider)s': %(e)s")
-                          % {'provider': i, 'e': e})
+                          "name or ID '%(provider)s': %(e)s"),
+                          {'provider': i, 'e': e})
 
         if result > 0:
             total = len(parsed_args.service_provider)

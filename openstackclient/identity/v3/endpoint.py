@@ -122,8 +122,7 @@ class DeleteEndpoint(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete endpoint with "
-                          "ID '%(endpoint)s': %(e)s")
-                          % {'endpoint': i, 'e': e})
+                          "ID '%(endpoint)s': %(e)s"), {'endpoint': i, 'e': e})
 
         if result > 0:
             total = len(parsed_args.endpoint)

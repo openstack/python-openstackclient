@@ -114,8 +114,8 @@ class DeleteService(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete service with "
-                          "name or ID '%(service)s': %(e)s")
-                          % {'service': service, 'e': e})
+                          "name or ID '%(service)s': %(e)s"),
+                          {'service': service, 'e': e})
 
         if result > 0:
             total = len(parsed_args.services)

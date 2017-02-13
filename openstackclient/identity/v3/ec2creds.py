@@ -140,8 +140,8 @@ class DeleteEC2Creds(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete EC2 credentials with "
-                          "access key '%(access_key)s': %(e)s")
-                          % {'access_key': i, 'e': e})
+                          "access key '%(access_key)s': %(e)s"),
+                          {'access_key': i, 'e': e})
 
         if result > 0:
             total = len(parsed_args.access_key)
