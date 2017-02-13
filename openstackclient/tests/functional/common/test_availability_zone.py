@@ -10,16 +10,23 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
+
 from openstackclient.tests.functional import base
 
 
 class AvailabilityZoneTests(base.TestCase):
     """Functional tests for availability zone. """
-    HEADERS = ["'Zone Name'"]
-    # So far, all components have the same default availability zone name.
-    DEFAULT_AZ_NAME = 'nova'
 
     def test_availability_zone_list(self):
-        opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('availability zone list' + opts)
-        self.assertIn(self.DEFAULT_AZ_NAME, raw_output)
+        cmd_output = json.loads(self.openstack(
+            'availability zone list -f json'))
+        zones = [x['Zone Name'] for x in cmd_output]
+        self.assertIn(
+            'internal',
+            zones
+        )
+        self.assertIn(
+            'nova',
+            zones
+        )
