@@ -70,6 +70,20 @@ class TestGroupAddUser(TestGroup):
             self.user.id, self.group.id)
         self.assertIsNone(result)
 
+    def test_group_add_user_with_error(self):
+        self.users_mock.add_to_group.side_effect = exceptions.CommandError()
+        arglist = [
+            self.group.name,
+            self.user.name,
+        ]
+        verifylist = [
+            ('group', self.group.name),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
+
 
 class TestGroupCheckUser(TestGroup):
 
@@ -459,6 +473,21 @@ class TestGroupRemoveUser(TestGroup):
         self.users_mock.remove_from_group.assert_called_once_with(
             self.user.id, self.group.id)
         self.assertIsNone(result)
+
+    def test_group_remove_user_with_error(self):
+        self.users_mock.remove_from_group.side_effect = (
+            exceptions.CommandError())
+        arglist = [
+            self.group.id,
+            self.user.id,
+        ]
+        verifylist = [
+            ('group', self.group.id),
+            ('user', self.user.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
 
 
 class TestGroupSet(TestGroup):
