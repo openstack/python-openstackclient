@@ -315,7 +315,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             if parsed_args.src_group:
                 LOG.warning(
                     _("The %(old)s option is deprecated, "
-                      "please use %(new)s instead.") %
+                      "please use %(new)s instead."),
                     {'old': '--src-group', 'new': '--remote-group'},
                 )
         elif not (parsed_args.remote_ip is None and
@@ -326,7 +326,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             if parsed_args.src_ip:
                 LOG.warning(
                     _("The %(old)s option is deprecated, "
-                      "please use %(new)s instead.") %
+                      "please use %(new)s instead."),
                     {'old': '--src-ip', 'new': '--remote-ip'},
                 )
         elif attrs['ethertype'] == 'IPv4':
@@ -370,7 +370,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             if parsed_args.src_group:
                 LOG.warning(
                     _("The %(old)s option is deprecated, "
-                      "please use %(new)s instead.") %
+                      "please use %(new)s instead."),
                     {'old': '--src-group', 'new': '--remote-group'},
                 )
         if not (parsed_args.remote_ip is None and
@@ -379,7 +379,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             if parsed_args.src_ip:
                 LOG.warning(
                     _("The %(old)s option is deprecated, "
-                      "please use %(new)s instead.") %
+                      "please use %(new)s instead."),
                     {'old': '--src-ip', 'new': '--remote-ip'},
                 )
         else:

@@ -365,8 +365,8 @@ class DeleteSubnet(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete subnet with "
-                          "name or ID '%(subnet)s': %(e)s")
-                          % {'subnet': subnet, 'e': e})
+                          "name or ID '%(subnet)s': %(e)s"),
+                          {'subnet': subnet, 'e': e})
 
         if result > 0:
             total = len(parsed_args.subnet)

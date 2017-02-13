@@ -249,8 +249,8 @@ class DeleteRouter(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete router with "
-                          "name or ID '%(router)s': %(e)s")
-                          % {'router': router, 'e': e})
+                          "name or ID '%(router)s': %(e)s"),
+                          {'router': router, 'e': e})
 
         if result > 0:
             total = len(parsed_args.router)

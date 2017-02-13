@@ -220,8 +220,8 @@ class DeleteSubnetPool(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete subnet pool with "
-                          "name or ID '%(pool)s': %(e)s")
-                          % {'pool': pool, 'e': e})
+                          "name or ID '%(pool)s': %(e)s"),
+                          {'pool': pool, 'e': e})
 
         if result > 0:
             total = len(parsed_args.subnet_pool)
