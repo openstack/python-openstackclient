@@ -313,6 +313,14 @@ class SetFlavor(command.Command):
             help=_("Flavor to modify (name or ID)")
         )
         parser.add_argument(
+            "--no-property",
+            action="store_true",
+            help=_("Remove all properties from this flavor "
+                   "(specify both --no-property and --property"
+                   " to remove the current properties before setting"
+                   " new properties.)"),
+        )
+        parser.add_argument(
             "--property",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
@@ -336,6 +344,15 @@ class SetFlavor(command.Command):
         flavor = _find_flavor(compute_client, parsed_args.flavor)
 
         result = 0
+        key_list = []
+        if parsed_args.no_property:
+            try:
+                for key in flavor.get_keys().keys():
+                    key_list.append(key)
+                flavor.unset_keys(key_list)
+            except Exception as e:
+                LOG.error(_("Failed to clear flavor property: %s"), e)
+                result += 1
         if parsed_args.property:
             try:
                 flavor.set_keys(parsed_args.property)
