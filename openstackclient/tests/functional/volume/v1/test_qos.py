@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import uuid
 
 from openstackclient.tests.functional.volume.v1 import common
@@ -18,38 +19,103 @@ from openstackclient.tests.functional.volume.v1 import common
 class QosTests(common.BaseVolumeTests):
     """Functional tests for volume qos. """
 
-    NAME = uuid.uuid4().hex
-    HEADERS = ['Name']
-    FIELDS = ['id', 'name']
-    ID = None
+    def test_volume_qos_create_list(self):
+        """Test create, list, delete multiple"""
+        name1 = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'volume qos create -f json ' +
+            name1
+        ))
+        self.assertEqual(
+            name1,
+            cmd_output['name']
+        )
 
-    @classmethod
-    def setUpClass(cls):
-        super(QosTests, cls).setUpClass()
-        opts = cls.get_opts(cls.FIELDS)
-        raw_output = cls.openstack('volume qos create ' + cls.NAME + opts)
-        cls.ID, name, rol = raw_output.split('\n')
-        cls.assertOutput(cls.NAME, name)
+        name2 = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'volume qos create -f json ' +
+            name2
+        ))
+        self.assertEqual(
+            name2,
+            cmd_output['name']
+        )
 
-    @classmethod
-    def tearDownClass(cls):
-        raw_output = cls.openstack('volume qos delete ' + cls.ID)
-        cls.assertOutput('', raw_output)
+        # Test list
+        cmd_output = json.loads(self.openstack(
+            'volume qos list -f json'
+        ))
+        names = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, names)
+        self.assertIn(name2, names)
 
-    def test_volume_qos_list(self):
-        opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('volume qos list' + opts)
-        self.assertIn(self.NAME, raw_output)
+        # Test delete multiple
+        del_output = self.openstack('volume qos delete ' + name1 + ' ' + name2)
+        self.assertOutput('', del_output)
 
-    def test_volume_qos_show(self):
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack('volume qos show ' + self.ID + opts)
-        self.assertEqual(self.ID + "\n" + self.NAME + "\n", raw_output)
+    def test_volume_qos_set_show_unset(self):
+        """Tests create volume qos, set, unset, show, delete"""
 
-    def test_volume_qos_metadata(self):
+        name = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'volume qos create -f json ' +
+            '--consumer front-end '
+            '--property Alpha=a ' +
+            name
+        ))
+        self.addCleanup(self.openstack, 'volume qos delete ' + name)
+        self.assertEqual(
+            name,
+            cmd_output['name']
+        )
+
+        self.assertEqual(
+            "front-end",
+            cmd_output['consumer']
+        )
+
+        # Test volume qos set
         raw_output = self.openstack(
-            'volume qos set --property a=b --property c=d ' + self.ID)
-        self.assertEqual("", raw_output)
-        opts = self.get_opts(['name', 'specs'])
-        raw_output = self.openstack('volume qos show ' + self.ID + opts)
-        self.assertEqual(self.NAME + "\na='b', c='d'\n", raw_output)
+            'volume qos set ' +
+            '--property Alpha=c ' +
+            '--property Beta=b ' +
+            name,
+        )
+        self.assertOutput('', raw_output)
+
+        # Test volume qos show
+        cmd_output = json.loads(self.openstack(
+            'volume qos show -f json ' +
+            name
+        ))
+        self.assertEqual(
+            name,
+            cmd_output['name']
+        )
+        self.assertEqual(
+            "Alpha='c', Beta='b'",
+            cmd_output['specs']
+        )
+
+        # Test volume qos unset
+        raw_output = self.openstack(
+            'volume qos unset ' +
+            '--property Alpha ' +
+            name,
+        )
+        self.assertOutput('', raw_output)
+
+        cmd_output = json.loads(self.openstack(
+            'volume qos show -f json ' +
+            name
+        ))
+        self.assertEqual(
+            name,
+            cmd_output['name']
+        )
+        self.assertEqual(
+            "Beta='b'",
+            cmd_output['specs']
+        )
+
+    # TODO(qiangjiahui): Add tests for associate and disassociate volume type
