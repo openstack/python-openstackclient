@@ -29,12 +29,15 @@ class ModuleTest(base.TestCase):
             'os_client_config',
             'keystoneauth1']
 
-    def test_module_list_no_options(self):
-        json_output = json.loads(self.openstack('module list -f json'))
+    def test_module_list(self):
+        # Test module list
+        cmd_output = json.loads(self.openstack('module list -f json'))
         for one_module in self.CLIENTS:
-            self.assertIn(one_module, json_output.keys())
+            self.assertIn(one_module, cmd_output.keys())
+        for one_module in self.LIBS:
+            self.assertNotIn(one_module, cmd_output.keys())
 
-    def test_module_list_with_all_option(self):
-        json_output = json.loads(self.openstack('module list --all -f json'))
-        for one_module in (self.CLIENTS + self.LIBS):
-            self.assertIn(one_module, json_output.keys())
+        # Test module list --all
+        cmd_output = json.loads(self.openstack('module list --all -f json'))
+        for one_module in self.CLIENTS + self.LIBS:
+            self.assertIn(one_module, cmd_output.keys())
