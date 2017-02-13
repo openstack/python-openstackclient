@@ -50,8 +50,7 @@ class DeleteService(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete compute service with "
-                          "ID '%(service)s': %(e)s")
-                          % {'service': s, 'e': e})
+                          "ID '%(service)s': %(e)s"), {'service': s, 'e': e})
 
         if result > 0:
             total = len(parsed_args.service)

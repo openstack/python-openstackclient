@@ -171,7 +171,7 @@ class CreateFlavor(command.ShowOne):
             except Exception as e:
                 msg = _("Failed to add project %(project)s access to "
                         "flavor: %(e)s")
-                LOG.error(msg % {'project': parsed_args.project, 'e': e})
+                LOG.error(msg, {'project': parsed_args.project, 'e': e})
         if parsed_args.property:
             try:
                 flavor.set_keys(parsed_args.property)
@@ -208,8 +208,7 @@ class DeleteFlavor(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete flavor with name or "
-                          "ID '%(flavor)s': %(e)s")
-                          % {'flavor': f, 'e': e})
+                          "ID '%(flavor)s': %(e)s"), {'flavor': f, 'e': e})
 
         if result > 0:
             total = len(parsed_args.flavor)
@@ -395,7 +394,7 @@ class ShowFlavor(command.ShowOne):
             except Exception as e:
                 msg = _("Failed to get access projects list "
                         "for flavor '%(flavor)s': %(e)s")
-                LOG.error(msg % {'flavor': parsed_args.flavor, 'e': e})
+                LOG.error(msg, {'flavor': parsed_args.flavor, 'e': e})
 
         flavor = resource_flavor._info.copy()
         flavor.update({

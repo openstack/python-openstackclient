@@ -106,8 +106,7 @@ class DeleteKeypair(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete key with name "
-                          "'%(name)s': %(e)s")
-                          % {'name': n, 'e': e})
+                          "'%(name)s': %(e)s"), {'name': n, 'e': e})
 
         if result > 0:
             total = len(parsed_args.name)
