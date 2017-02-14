@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    Allow users to create centralized (distributed=False)
+    routers using the ``--centralized`` option in ``router create``.
+    Without this, routers are created based on the default
+    neutron configuration of the deployment, which, for example,
+    could be 'distributed'.
+    [Bug `1664255 <https://bugs.launchpad.net/bugs/1664255>`_]

@@ -211,6 +211,35 @@ class TestCreateRouter(TestRouter):
     def test_create_with_no_ha_option(self):
         self._test_create_with_ha_options('--no-ha', False)
 
+    def _test_create_with_distributed_options(self, option, distributed):
+        arglist = [
+            option,
+            self.new_router.name,
+        ]
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable', True),
+            ('distributed', distributed),
+            ('centralized', not distributed),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_router.assert_called_once_with(**{
+            'admin_state_up': True,
+            'name': self.new_router.name,
+            'distributed': distributed,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_with_distributed_option(self):
+        self._test_create_with_distributed_options('--distributed', True)
+
+    def test_create_with_centralized_option(self):
+        self._test_create_with_distributed_options('--centralized', False)
+
     def test_create_with_AZ_hints(self):
         arglist = [
             self.new_router.name,

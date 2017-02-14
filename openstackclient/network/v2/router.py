@@ -78,8 +78,7 @@ def _get_attrs(client_manager, parsed_args):
         attrs['admin_state_up'] = True
     if parsed_args.disable:
         attrs['admin_state_up'] = False
-    # centralized is available only for SetRouter and not for CreateRouter
-    if 'centralized' in parsed_args and parsed_args.centralized:
+    if parsed_args.centralized:
         attrs['distributed'] = False
     if parsed_args.distributed:
         attrs['distributed'] = True
@@ -176,12 +175,16 @@ class CreateRouter(command.ShowOne):
             action='store_true',
             help=_("Disable router")
         )
-        parser.add_argument(
+        distribute_group = parser.add_mutually_exclusive_group()
+        distribute_group.add_argument(
             '--distributed',
-            dest='distributed',
             action='store_true',
-            default=False,
             help=_("Create a distributed router")
+        )
+        distribute_group.add_argument(
+            '--centralized',
+            action='store_true',
+            help=_("Create a centralized router")
         )
         ha_group = parser.add_mutually_exclusive_group()
         ha_group.add_argument(
