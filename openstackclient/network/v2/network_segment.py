@@ -119,8 +119,8 @@ class DeleteNetworkSegment(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete network segment with "
-                            "ID '%(network_segment)s': %(e)s")
-                          % {'network_segment': network_segment, 'e': e})
+                            "ID '%(network_segment)s': %(e)s"),
+                          {'network_segment': network_segment, 'e': e})
 
         if result > 0:
             total = len(parsed_args.network_segment)
