@@ -82,8 +82,7 @@ class DeletePolicy(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete policy with name or "
-                          "ID '%(policy)s': %(e)s")
-                          % {'policy': i, 'e': e})
+                          "ID '%(policy)s': %(e)s"), {'policy': i, 'e': e})
 
         if result > 0:
             total = len(parsed_args.policy)

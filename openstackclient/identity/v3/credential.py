@@ -99,8 +99,8 @@ class DeleteCredential(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete credentials with "
-                          "ID '%(credential)s': %(e)s")
-                          % {'credential': i, 'e': e})
+                          "ID '%(credential)s': %(e)s"),
+                          {'credential': i, 'e': e})
 
         if result > 0:
             total = len(parsed_args.credential)

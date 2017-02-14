@@ -73,8 +73,7 @@ class DeleteConsumer(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete consumer with name or "
-                          "ID '%(consumer)s': %(e)s")
-                          % {'consumer': i, 'e': e})
+                          "ID '%(consumer)s': %(e)s"), {'consumer': i, 'e': e})
 
         if result > 0:
             total = len(parsed_args.consumer)

@@ -132,8 +132,7 @@ class DeleteMapping(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete mapping with name or "
-                          "ID '%(mapping)s': %(e)s")
-                          % {'mapping': i, 'e': e})
+                          "ID '%(mapping)s': %(e)s"), {'mapping': i, 'e': e})
 
         if result > 0:
             total = len(parsed_args.mapping)

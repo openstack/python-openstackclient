@@ -111,8 +111,7 @@ class DeleteDomain(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete domain with name or "
-                          "ID '%(domain)s': %(e)s")
-                          % {'domain': i, 'e': e})
+                          "ID '%(domain)s': %(e)s"), {'domain': i, 'e': e})
 
         if result > 0:
             total = len(parsed_args.domain)

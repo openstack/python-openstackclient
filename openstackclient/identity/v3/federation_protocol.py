@@ -102,8 +102,8 @@ class DeleteProtocol(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete federation protocol "
-                          "with name or ID '%(protocol)s': %(e)s")
-                          % {'protocol': i, 'e': e})
+                          "with name or ID '%(protocol)s': %(e)s"),
+                          {'protocol': i, 'e': e})
 
         if result > 0:
             total = len(parsed_args.federation_protocol)
