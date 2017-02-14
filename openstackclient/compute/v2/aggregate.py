@@ -128,8 +128,8 @@ class DeleteAggregate(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete aggregate with name or "
-                          "ID '%(aggregate)s': %(e)s")
-                          % {'aggregate': a, 'e': e})
+                          "ID '%(aggregate)s': %(e)s"),
+                          {'aggregate': a, 'e': e})
 
         if result > 0:
             total = len(parsed_args.aggregate)
