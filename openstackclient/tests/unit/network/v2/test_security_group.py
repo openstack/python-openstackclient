@@ -404,7 +404,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
             grp.id,
             grp.name,
             grp.description,
-            grp.tenant_id,
+            grp.project_id,
         ))
 
     def setUp(self):
