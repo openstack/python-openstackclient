@@ -45,7 +45,15 @@ def _get_attrs(client_manager, parsed_args):
         attrs['shared'] = True
     if parsed_args.no_share:
         attrs['shared'] = False
-    if parsed_args.project is not None:
+    # NOTE(ralonsoh): 'default' and 'no_default' parameters are defined only in
+    #                create and set commands context only.
+    if 'default' in parsed_args and parsed_args.default:
+        attrs['is_default'] = True
+    if 'no_default' in parsed_args and parsed_args.no_default:
+        attrs['is_default'] = False
+    # NOTE(ralonsoh): 'project' parameter is defined only in create and list
+    #                commands context only.
+    if 'project' in parsed_args and parsed_args.project is not None:
         identity_client = client_manager.identity
         project_id = identity_common.find_project(
             identity_client,
@@ -93,6 +101,17 @@ class CreateNetworkQosPolicy(command.ShowOne):
             help=_("Owner's project (name or ID)")
         )
         identity_common.add_project_domain_option_to_parser(parser)
+        default_group = parser.add_mutually_exclusive_group()
+        default_group.add_argument(
+            '--default',
+            action='store_true',
+            help=_("Set this as a default network QoS policy"),
+        )
+        default_group.add_argument(
+            '--no-default',
+            action='store_true',
+            help=_("Set this as a non-default network QoS policy"),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -170,12 +189,14 @@ class ListNetworkQosPolicy(command.Lister):
             'id',
             'name',
             'is_shared',
+            'is_default',
             'project_id',
         )
         column_headers = (
             'ID',
             'Name',
             'Shared',
+            'Default',
             'Project',
         )
         attrs = _get_attrs(self.app.client_manager, parsed_args)
@@ -219,6 +240,17 @@ class SetNetworkQosPolicy(command.Command):
             action='store_true',
             help=_('Make the QoS policy not accessible by other projects'),
         )
+        default_group = parser.add_mutually_exclusive_group()
+        default_group.add_argument(
+            '--default',
+            action='store_true',
+            help=_("Set this as a default network QoS policy"),
+        )
+        default_group.add_argument(
+            '--no-default',
+            action='store_true',
+            help=_("Set this as a non-default network QoS policy"),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -226,15 +258,7 @@ class SetNetworkQosPolicy(command.Command):
         obj = client.find_qos_policy(
             parsed_args.policy,
             ignore_missing=False)
-        attrs = {}
-        if parsed_args.name is not None:
-            attrs['name'] = parsed_args.name
-        if parsed_args.share:
-            attrs['shared'] = True
-        if parsed_args.no_share:
-            attrs['shared'] = False
-        if parsed_args.description is not None:
-            attrs['description'] = parsed_args.description
+        attrs = _get_attrs(self.app.client_manager, parsed_args)
         client.update_qos_policy(obj, **attrs)
 
 

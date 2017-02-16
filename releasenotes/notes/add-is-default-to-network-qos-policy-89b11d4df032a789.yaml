@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``--default``  and ``--no-default`` options to
+    ``network qos policy create`` and ``network qos policy set``
+    comamnds.
+    [Bug `1639220 <https://bugs.launchpad.net/bugs/1639220>`_]

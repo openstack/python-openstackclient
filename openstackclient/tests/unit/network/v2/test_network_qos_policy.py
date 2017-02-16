@@ -48,6 +48,7 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
     columns = (
         'description',
         'id',
+        'is_default',
         'name',
         'project_id',
         'rules',
@@ -57,6 +58,7 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
     data = (
         new_qos_policy.description,
         new_qos_policy.id,
+        new_qos_policy.is_default,
         new_qos_policy.name,
         new_qos_policy.project_id,
         new_qos_policy.rules,
@@ -106,12 +108,14 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
             '--project', self.project.name,
             self.new_qos_policy.name,
             '--description', 'QoS policy description',
+            '--default',
         ]
         verifylist = [
             ('share', True),
             ('project', self.project.name),
             ('name', self.new_qos_policy.name),
             ('description', 'QoS policy description'),
+            ('default', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -122,6 +126,28 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
             'tenant_id': self.project.id,
             'name': self.new_qos_policy.name,
             'description': 'QoS policy description',
+            'is_default': True,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_no_default(self):
+        arglist = [
+            self.new_qos_policy.name,
+            '--no-default'
+        ]
+        verifylist = [
+            ('project', None),
+            ('name', self.new_qos_policy.name),
+            ('default', False),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_qos_policy.assert_called_once_with(**{
+            'name': self.new_qos_policy.name,
+            'is_default': False,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -220,6 +246,7 @@ class TestListNetworkQosPolicy(TestQosPolicy):
         'ID',
         'Name',
         'Shared',
+        'Default',
         'Project',
     )
     data = []
@@ -228,6 +255,7 @@ class TestListNetworkQosPolicy(TestQosPolicy):
             qos_policy.id,
             qos_policy.name,
             qos_policy.shared,
+            qos_policy.is_default,
             qos_policy.project_id,
         ))
 
@@ -333,17 +361,19 @@ class TestSetNetworkQosPolicy(TestQosPolicy):
             self._qos_policy, **attrs)
         self.assertIsNone(result)
 
-    def test_set_name_share_description(self):
+    def test_set_name_share_description_default(self):
         arglist = [
             '--name', 'new_qos_policy',
             '--share',
             '--description', 'QoS policy description',
+            '--default',
             self._qos_policy.name,
         ]
         verifylist = [
             ('name', 'new_qos_policy'),
             ('share', True),
             ('description', 'QoS policy description'),
+            ('default', True),
             ('policy', self._qos_policy.name),
         ]
 
@@ -353,25 +383,29 @@ class TestSetNetworkQosPolicy(TestQosPolicy):
             'name': 'new_qos_policy',
             'description': 'QoS policy description',
             'shared': True,
+            'is_default': True,
         }
         self.network.update_qos_policy.assert_called_with(
             self._qos_policy, **attrs)
         self.assertIsNone(result)
 
-    def test_set_no_share(self):
+    def test_set_no_share_no_default(self):
         arglist = [
             '--no-share',
+            '--no-default',
             self._qos_policy.name,
         ]
         verifylist = [
             ('no_share', True),
+            ('no_default', True),
             ('policy', self._qos_policy.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         attrs = {
-            'shared': False
+            'shared': False,
+            'is_default': False
         }
         self.network.update_qos_policy.assert_called_with(
             self._qos_policy, **attrs)
@@ -386,6 +420,7 @@ class TestShowNetworkQosPolicy(TestQosPolicy):
     columns = (
         'description',
         'id',
+        'is_default',
         'name',
         'project_id',
         'rules',
@@ -394,6 +429,7 @@ class TestShowNetworkQosPolicy(TestQosPolicy):
     data = (
         _qos_policy.description,
         _qos_policy.id,
+        _qos_policy.is_default,
         _qos_policy.name,
         _qos_policy.project_id,
         _qos_policy.rules,

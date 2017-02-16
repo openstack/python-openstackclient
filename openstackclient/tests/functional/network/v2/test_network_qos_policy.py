@@ -68,3 +68,16 @@ class NetworkQosPolicyTests(common.NetworkTests):
         raw_output = self.openstack('network qos policy show ' + self.NAME +
                                     opts)
         self.assertEqual("True\n", raw_output)
+
+    def test_qos_policy_default(self):
+        self.openstack('network qos policy set --default ' + self.NAME)
+        opts = self.get_opts(['is_default'])
+        raw_output = self.openstack('network qos policy show ' + self.NAME +
+                                    opts)
+        self.assertEqual("True\n", raw_output)
+
+        self.openstack('network qos policy set --no-default ' + self.NAME)
+        opts = self.get_opts(['is_default'])
+        raw_output = self.openstack('network qos policy show ' + self.NAME +
+                                    opts)
+        self.assertEqual("False\n", raw_output)

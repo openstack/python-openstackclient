@@ -20,6 +20,7 @@ Create new Network QoS policy
         [--share | --no-share]
         [--project <project>]
         [--project-domain <project-domain>]
+        [--default | --no-default]
         <name>
 
 .. option:: --description <description>
@@ -42,6 +43,14 @@ Create new Network QoS policy
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
+
+.. option:: --default
+
+    Set this as a default network QoS policy
+
+.. option:: --no-default
+
+    Set this as a non-default network QoS policy
 
 .. _network_qos_policy_create-name:
 .. describe:: <name>
@@ -105,6 +114,7 @@ Set Network QoS policy properties
         [--name <name>]
         [--description <description>]
         [--share | --no-share]
+        [--default | --no-default]
         <qos-policy>
 
 .. option:: --name <name>
@@ -122,6 +132,14 @@ Set Network QoS policy properties
 .. option:: --no-share
 
     Make the QoS policy not accessible by other projects
+
+.. option:: --default
+
+    Set this as a default network QoS policy
+
+.. option:: --no-default
+
+    Set this as a non-default network QoS policy
 
 .. _network_qos_policy_set-qos-policy:
 .. describe:: <qos-policy>
