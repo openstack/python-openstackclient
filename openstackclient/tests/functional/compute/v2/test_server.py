@@ -37,13 +37,18 @@ class ServerTests(base.TestCase):
 
     @classmethod
     def get_image(cls):
-        # NOTE(rtheis): Get cirros image since functional tests may
-        # create other images.
-        images = cls.openstack('image list -c Name -f value').split('\n')
+        # NOTE(rtheis): Get first Cirros image since functional tests may
+        #               create other images.  Image may be named '-uec' or
+        #               '-disk'.
+        cmd_output = json.loads(cls.openstack(
+            "image list -f json "
+        ))
         server_image = None
-        for image in images:
-            if image.startswith('cirros-') and image.endswith('-uec'):
-                server_image = image
+        for image in cmd_output:
+            if (image['Name'].startswith('cirros-') and
+                    (image['Name'].endswith('-uec') or
+                     image['Name'].endswith('-disk'))):
+                server_image = image['Name']
                 break
         return server_image
 
