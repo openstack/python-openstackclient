@@ -12,8 +12,8 @@
 
 import json
 import time
+import uuid
 
-from tempest.lib.common.utils import data_utils
 from tempest.lib import exceptions
 
 from openstackclient.tests.functional import base
@@ -27,11 +27,13 @@ class ServerTests(base.TestCase):
     def get_flavor(cls):
         # NOTE(rtheis): Get cirros256 or m1.tiny flavors since functional
         # tests may create other flavors.
-        flavors = cls.openstack('flavor list -c Name -f value').split('\n')
+        flavors = json.loads(cls.openstack(
+            "flavor list -f json "
+        ))
         server_flavor = None
         for flavor in flavors:
-            if flavor in ['m1.tiny', 'cirros256']:
-                server_flavor = flavor
+            if flavor['Name'] in ['m1.tiny', 'cirros256']:
+                server_flavor = flavor['Name']
                 break
         return server_flavor
 
@@ -40,11 +42,11 @@ class ServerTests(base.TestCase):
         # NOTE(rtheis): Get first Cirros image since functional tests may
         #               create other images.  Image may be named '-uec' or
         #               '-disk'.
-        cmd_output = json.loads(cls.openstack(
+        images = json.loads(cls.openstack(
             "image list -f json "
         ))
         server_image = None
-        for image in cmd_output:
+        for image in images:
             if (image['Name'].startswith('cirros-') and
                     (image['Name'].endswith('-uec') or
                      image['Name'].endswith('-disk'))):
@@ -57,92 +59,84 @@ class ServerTests(base.TestCase):
         try:
             # NOTE(rtheis): Get private network since functional tests may
             # create other networks.
-            raw_output = cls.openstack('network show private -c id -f value')
+            cmd_output = json.loads(cls.openstack(
+                'network show private -f json'
+            ))
         except exceptions.CommandFailed:
             return ''
-        return ' --nic net-id=' + raw_output.strip('\n')
+        return '--nic net-id=' + cmd_output['id']
 
     def server_create(self, name=None):
-        """Create server. Add cleanup."""
-        name = name or data_utils.rand_uuid()
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack('--debug server create --flavor ' +
-                                    self.flavor_name +
-                                    ' --image ' + self.image_name +
-                                    self.network_arg + ' ' +
-                                    name + opts)
-        if not raw_output:
-            self.fail('Server has not been created!')
-        self.addCleanup(self.server_delete, name)
-
-    def server_list(self, params=[]):
-        """List servers."""
-        opts = self.get_opts(params)
-        return self.openstack('server list' + opts)
-
-    def server_delete(self, name):
-        """Delete server by name."""
-        self.openstack('server delete ' + name)
-
-    def setUp(self):
-        """Set necessary variables and create server."""
-        super(ServerTests, self).setUp()
-        self.flavor_name = self.get_flavor()
-        self.image_name = self.get_image()
-        self.network_arg = self.get_network()
-
-        self.NAME = data_utils.rand_name('TestServer')
-        self.OTHER_NAME = data_utils.rand_name('TestServer')
-        self.HEADERS = ['"Name"']
-        self.FIELDS = ['name']
-        self.IP_POOL = 'public'
-        self.server_create(self.NAME)
-
-    def test_server_rename(self):
-        """Test server rename command.
-
-        Test steps:
-        1) Boot server in setUp
-        2) Rename server
-        3) Check output
-        4) Rename server back to original name
-        """
-        raw_output = self.openstack('server set --name ' + self.OTHER_NAME +
-                                    ' ' + self.NAME)
-        self.assertOutput("", raw_output)
-        self.assertNotIn(self.NAME, self.server_list(['Name']))
-        self.assertIn(self.OTHER_NAME, self.server_list(['Name']))
-        self.openstack('server set --name ' + self.NAME + ' ' +
-                       self.OTHER_NAME)
-
-    def test_server_list(self):
-        """Test server list command.
-
-        Test steps:
-        1) Boot server in setUp
-        2) List servers
-        3) Check output
-        """
-        opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('server list' + opts)
-        self.assertIn(self.NAME, raw_output)
-
-    def test_server_show(self):
-        """Test server create, server delete commands"""
-        name1 = data_utils.rand_name('TestServer')
+        """Create server, with cleanup"""
+        name = name or uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
             'server create -f json ' +
             '--flavor ' + self.flavor_name + ' ' +
             '--image ' + self.image_name + ' ' +
             self.network_arg + ' ' +
-            name1
+            '--wait ' +
+            name
         ))
-        self.assertIsNotNone(cmd_output["id"])
-        self.addCleanup(self.openstack, 'server delete ' + name1)
+        if not cmd_output:
+            self.fail('Server has not been created!')
+        self.addCleanup(self.server_delete, name)
         self.assertEqual(
-            name1,
+            name,
             cmd_output["name"],
         )
+        return cmd_output
+
+    def server_delete(self, name):
+        """Delete server by name"""
+        self.openstack('server delete ' + name)
+
+    def setUp(self):
+        """Select common resources"""
+        super(ServerTests, self).setUp()
+        self.flavor_name = self.get_flavor()
+        self.image_name = self.get_image()
+        self.network_arg = self.get_network()
+
+    def test_server_list(self):
+        """Test server list, set"""
+        cmd_output = self.server_create()
+        name1 = cmd_output['name']
+        cmd_output = self.server_create()
+        name2 = cmd_output['name']
+        self.wait_for_status(name1, "ACTIVE")
+        self.wait_for_status(name2, "ACTIVE")
+
+        cmd_output = json.loads(self.openstack(
+            'server list -f json'
+        ))
+        col_name = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, col_name)
+        self.assertIn(name2, col_name)
+
+        # Test list --status PAUSED
+        raw_output = self.openstack('server pause ' + name2)
+        self.assertEqual("", raw_output)
+        self.wait_for_status(name2, "PAUSED")
+        cmd_output = json.loads(self.openstack(
+            'server list -f json ' +
+            '--status ACTIVE'
+        ))
+        col_name = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, col_name)
+        self.assertNotIn(name2, col_name)
+        cmd_output = json.loads(self.openstack(
+            'server list -f json ' +
+            '--status PAUSED'
+        ))
+        col_name = [x["Name"] for x in cmd_output]
+        self.assertNotIn(name1, col_name)
+        self.assertIn(name2, col_name)
+
+    def test_server_set(self):
+        """Test server create, delete, set, show"""
+        cmd_output = self.server_create()
+        name = cmd_output['name']
+        # self.wait_for_status(name, "ACTIVE")
 
         # Have a look at some other fields
         flavor = json.loads(self.openstack(
@@ -170,171 +164,176 @@ class ServerTests(base.TestCase):
             cmd_output["image"],
         )
 
-    def test_server_metadata(self):
-        """Test command to set server metadata.
-
-        Test steps:
-        1) Boot server in setUp
-        2) Set properties for server
-        3) Check server properties in server show output
-        4) Unset properties for server
-        5) Check server properties in server show output
-        """
-        self.wait_for_status("ACTIVE")
-        # metadata
+        # Test properties set
         raw_output = self.openstack(
-            'server set --property a=b --property c=d ' + self.NAME)
-        opts = self.get_opts(["name", "properties"])
-        raw_output = self.openstack('server show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + "\na='b', c='d'\n", raw_output)
+            'server set ' +
+            '--property a=b --property c=d ' +
+            name
+        )
+        self.assertOutput('', raw_output)
+
+        cmd_output = json.loads(self.openstack(
+            'server show -f json ' +
+            name
+        ))
+        # Really, shouldn't this be a list?
+        self.assertEqual(
+            "a='b', c='d'",
+            cmd_output['properties'],
+        )
 
         raw_output = self.openstack(
-            'server unset --property a ' + self.NAME)
-        opts = self.get_opts(["name", "properties"])
-        raw_output = self.openstack('server show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + "\nc='d'\n", raw_output)
+            'server unset ' +
+            '--property a ' +
+            name
+        )
+        cmd_output = json.loads(self.openstack(
+            'server show -f json ' +
+            name
+        ))
+        self.assertEqual(
+            "c='d'",
+            cmd_output['properties'],
+        )
 
-    def test_server_suspend_resume(self):
-        """Test server suspend and resume commands.
+        # Test set --name
+        new_name = uuid.uuid4().hex
+        raw_output = self.openstack(
+            'server set ' +
+            '--name ' + new_name + ' ' +
+            name
+        )
+        self.assertOutput("", raw_output)
+        cmd_output = json.loads(self.openstack(
+            'server show -f json ' +
+            new_name
+        ))
+        self.assertEqual(
+            new_name,
+            cmd_output["name"],
+        )
+        # Put it back so we clean up properly
+        raw_output = self.openstack(
+            'server set ' +
+            '--name ' + name + ' ' +
+            new_name
+        )
+        self.assertOutput("", raw_output)
 
-        Test steps:
-        1) Boot server in setUp
-        2) Suspend server
-        3) Check for SUSPENDED server status
-        4) Resume server
-        5) Check for ACTIVE server status
+    def test_server_actions(self):
+        """Test server action pairs
+
+        suspend/resume
+        pause/unpause
+        rescue/unrescue
+        lock/unlock
         """
-        self.wait_for_status("ACTIVE")
+        cmd_output = self.server_create()
+        name = cmd_output['name']
+
         # suspend
-        raw_output = self.openstack('server suspend ' + self.NAME)
+        raw_output = self.openstack('server suspend ' + name)
         self.assertEqual("", raw_output)
-        self.wait_for_status("SUSPENDED")
+        self.wait_for_status(name, "SUSPENDED")
+
         # resume
-        raw_output = self.openstack('server resume ' + self.NAME)
+        raw_output = self.openstack('server resume ' + name)
         self.assertEqual("", raw_output)
-        self.wait_for_status("ACTIVE")
+        self.wait_for_status(name, "ACTIVE")
 
-    def test_server_lock_unlock(self):
-        """Test server lock and unlock commands.
-
-        Test steps:
-        1) Boot server in setUp
-        2) Lock server
-        3) Check output
-        4) Unlock server
-        5) Check output
-        """
-        self.wait_for_status("ACTIVE")
-        # lock
-        raw_output = self.openstack('server lock ' + self.NAME)
-        self.assertEqual("", raw_output)
-        # unlock
-        raw_output = self.openstack('server unlock ' + self.NAME)
-        self.assertEqual("", raw_output)
-
-    def test_server_pause_unpause(self):
-        """Test server pause and unpause commands.
-
-        Test steps:
-        1) Boot server in setUp
-        2) Pause server
-        3) Check for PAUSED server status
-        4) Unpause server
-        5) Check for ACTIVE server status
-        """
-        self.wait_for_status("ACTIVE")
         # pause
-        raw_output = self.openstack('server pause ' + self.NAME)
+        raw_output = self.openstack('server pause ' + name)
         self.assertEqual("", raw_output)
-        self.wait_for_status("PAUSED")
+        self.wait_for_status(name, "PAUSED")
+
         # unpause
-        raw_output = self.openstack('server unpause ' + self.NAME)
+        raw_output = self.openstack('server unpause ' + name)
         self.assertEqual("", raw_output)
-        self.wait_for_status("ACTIVE")
+        self.wait_for_status(name, "ACTIVE")
 
-    def test_server_rescue_unrescue(self):
-        """Test server rescue and unrescue commands.
-
-        Test steps:
-        1) Boot server in setUp
-        2) Rescue server
-        3) Check for RESCUE server status
-        4) Unrescue server
-        5) Check for ACTIVE server status
-        """
-        self.wait_for_status("ACTIVE")
         # rescue
-        opts = self.get_opts(["adminPass"])
-        raw_output = self.openstack('server rescue ' + self.NAME + opts)
+        raw_output = self.openstack('server rescue ' + name)
         self.assertNotEqual("", raw_output)
-        self.wait_for_status("RESCUE")
+        self.wait_for_status(name, "RESCUE")
+
         # unrescue
-        raw_output = self.openstack('server unrescue ' + self.NAME)
+        raw_output = self.openstack('server unrescue ' + name)
         self.assertEqual("", raw_output)
-        self.wait_for_status("ACTIVE")
+        self.wait_for_status(name, "ACTIVE")
+
+        # lock
+        raw_output = self.openstack('server lock ' + name)
+        self.assertEqual("", raw_output)
+        # NOTE(dtroyer): No way to verify this status???
+
+        # unlock
+        raw_output = self.openstack('server unlock ' + name)
+        self.assertEqual("", raw_output)
+        # NOTE(dtroyer): No way to verify this status???
 
     def test_server_attach_detach_floating_ip(self):
-        """Test commands to attach and detach floating IP for server.
+        """Test floating ip create/delete; server add/remove floating ip"""
+        cmd_output = self.server_create()
+        name = cmd_output['name']
+        self.wait_for_status(name, "ACTIVE")
 
-        Test steps:
-        1) Boot server in setUp
-        2) Create floating IP
-        3) Add floating IP to server
-        4) Check for floating IP in server show output
-        5) Remove floating IP from server
-        6) Check that floating IP is  not in server show output
-        7) Delete floating IP
-        8) Check output
-        """
-        self.wait_for_status("ACTIVE")
         # attach ip
-        opts = self.get_opts(["id", "floating_ip_address"])
-        raw_output = self.openstack('floating ip create ' +
-                                    self.IP_POOL +
-                                    opts)
-        ip, ipid, rol = tuple(raw_output.split('\n'))
-        self.assertNotEqual("", ipid)
-        self.assertNotEqual("", ip)
-        raw_output = self.openstack('server add floating ip ' + self.NAME +
-                                    ' ' + ip)
+        cmd_output = json.loads(self.openstack(
+            'floating ip create -f json ' +
+            'public'
+        ))
+        floating_ip = cmd_output['floating_ip_address']
+        self.assertNotEqual('', cmd_output['id'])
+        self.assertNotEqual('', floating_ip)
+        self.addCleanup(
+            self.openstack,
+            'floating ip delete ' + cmd_output['id']
+        )
+
+        raw_output = self.openstack(
+            'server add floating ip ' +
+            name + ' ' +
+            floating_ip
+        )
         self.assertEqual("", raw_output)
-        raw_output = self.openstack('server show ' + self.NAME)
-        self.assertIn(ip, raw_output)
+        cmd_output = json.loads(self.openstack(
+            'server show -f json ' +
+            name
+        ))
+        self.assertIn(
+            floating_ip,
+            cmd_output['addresses'],
+        )
 
         # detach ip
-        raw_output = self.openstack('server remove floating ip ' + self.NAME +
-                                    ' ' + ip)
+        raw_output = self.openstack(
+            'server remove floating ip ' +
+            name + ' ' +
+            floating_ip
+        )
         self.assertEqual("", raw_output)
-        raw_output = self.openstack('server show ' + self.NAME)
-        self.assertNotIn(ip, raw_output)
-        raw_output = self.openstack('floating ip delete ' + ipid)
-        self.assertEqual("", raw_output)
+
+        cmd_output = json.loads(self.openstack(
+            'server show -f json ' +
+            name
+        ))
+        self.assertNotIn(
+            floating_ip,
+            cmd_output['addresses'],
+        )
 
     def test_server_reboot(self):
-        """Test server reboot command.
+        """Test server reboot"""
+        cmd_output = self.server_create()
+        name = cmd_output['name']
 
-        Test steps:
-        1) Boot server in setUp
-        2) Reboot server
-        3) Check for ACTIVE server status
-        """
-        self.wait_for_status("ACTIVE")
         # reboot
-        raw_output = self.openstack('server reboot ' + self.NAME)
+        raw_output = self.openstack('server reboot ' + name)
         self.assertEqual("", raw_output)
-        self.wait_for_status("ACTIVE")
+        self.wait_for_status(name, "ACTIVE")
 
-    def test_server_create_from_volume(self):
-        """Test server create from volume, server delete
-
-        Test steps:
-        1) Create volume from image
-        2) Create empty volume
-        3) Create server from new volumes
-        4) Check for ACTIVE new server status
-        5) Check volumes attached to server
-        """
-        # server_image = self.get_image()
+    def test_server_boot_from_volume(self):
+        """Test server create from volume, server delete"""
         # get volume status wait function
         volume_wait_for = test_volume.VolumeTests(
             methodName='wait_for',
@@ -353,7 +352,7 @@ class ServerTests(base.TestCase):
             image_size = 1
 
         # create volume from image
-        volume_name = data_utils.rand_name('volume', self.image_name)
+        volume_name = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
             'volume create -f json ' +
             '--image ' + self.image_name + ' ' +
@@ -369,7 +368,7 @@ class ServerTests(base.TestCase):
         volume_wait_for("volume", volume_name, "available")
 
         # create empty volume
-        empty_volume_name = data_utils.rand_name('TestVolume')
+        empty_volume_name = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
             'volume create -f json ' +
             '--size ' + str(image_size) + ' ' +
@@ -384,13 +383,14 @@ class ServerTests(base.TestCase):
         volume_wait_for("volume", empty_volume_name, "available")
 
         # create server
-        server_name = data_utils.rand_name('TestServer')
+        server_name = uuid.uuid4().hex
         server = json.loads(self.openstack(
             'server create -f json ' +
             '--flavor ' + self.flavor_name + ' ' +
             '--volume ' + volume_name + ' ' +
             '--block-device-mapping vdb=' + empty_volume_name + ' ' +
             self.network_arg + ' ' +
+            '--wait ' +
             server_name
         ))
         self.assertIsNotNone(server["id"])
@@ -399,7 +399,6 @@ class ServerTests(base.TestCase):
             server_name,
             server['name'],
         )
-        volume_wait_for("server", server_name, "ACTIVE")
 
         # check volumes
         cmd_output = json.loads(self.openstack(
@@ -444,7 +443,7 @@ class ServerTests(base.TestCase):
 
     def test_server_create_with_none_network(self):
         """Test server create with none network option."""
-        server_name = data_utils.rand_name('TestServer')
+        server_name = uuid.uuid4().hex
         server = json.loads(self.openstack(
             # auto/none enable in nova micro version (v2.37+)
             '--os-compute-api-version 2.latest ' +
@@ -457,7 +456,7 @@ class ServerTests(base.TestCase):
         self.assertIsNotNone(server["id"])
         self.addCleanup(self.openstack, 'server delete --wait ' + server_name)
         self.assertEqual(server_name, server['name'])
-        self.wait_for_status(server_name=server_name)
+        self.wait_for_status(server_name, "ACTIVE")
         server = json.loads(self.openstack(
             'server show -f json ' + server_name
         ))
@@ -466,7 +465,7 @@ class ServerTests(base.TestCase):
 
     def test_server_create_with_empty_network_option_latest(self):
         """Test server create with empty network option in nova 2.latest."""
-        server_name = data_utils.rand_name('TestServer')
+        server_name = uuid.uuid4().hex
         try:
             self.openstack(
                 # auto/none enable in nova micro version (v2.37+)
@@ -482,28 +481,38 @@ class ServerTests(base.TestCase):
         else:
             self.fail('CommandFailed should be raised.')
 
-    def wait_for_status(self, expected_status='ACTIVE',
-                        wait=900, interval=30, server_name=None):
+    def wait_for_status(
+            self,
+            name,
+            expected_status='ACTIVE',
+            wait=900,
+            interval=10,
+    ):
         """Wait until server reaches expected status."""
         # TODO(thowe): Add a server wait command to osc
         failures = ['ERROR']
         total_sleep = 0
-        opts = self.get_opts(['status'])
-        if not server_name:
-            server_name = self.NAME
         while total_sleep < wait:
-            status = self.openstack('server show ' + server_name + opts)
-            status = status.rstrip()
-            print('Waiting for {} current status: {}'.format(expected_status,
-                                                             status))
+            cmd_output = json.loads(self.openstack(
+                'server show -f json ' +
+                name
+            ))
+            status = cmd_output['status']
+            print('Waiting for {}, current status: {}'.format(
+                expected_status,
+                status,
+            ))
             if status == expected_status:
                 break
             self.assertNotIn(status, failures)
             time.sleep(interval)
             total_sleep += interval
 
-        status = self.openstack('server show ' + server_name + opts)
-        status = status.rstrip()
+        cmd_output = json.loads(self.openstack(
+            'server show -f json ' +
+            name
+        ))
+        status = cmd_output['status']
         self.assertEqual(status, expected_status)
         # give it a little bit more time
         time.sleep(5)
