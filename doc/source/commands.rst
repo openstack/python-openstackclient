@@ -239,6 +239,7 @@ Those actions with an opposite action are noted in parens if applicable.
 * ``create`` (``delete``) - create a new occurrence of the specified object
 * ``delete`` (``create``) - delete specific occurrences of the specified objects
 * ``expand`` (``shrink``) - increase the capacity of a cluster
+* ``failover`` - failover volume host to different backend
 * ``issue`` (``revoke``) - issue a token
 * ``list`` - display summary information about multiple objects
 * ``lock`` (``unlock``) - lock one or more servers so that non-admin user won't be able to execute actions
