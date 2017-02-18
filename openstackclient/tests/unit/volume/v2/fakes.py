@@ -208,6 +208,9 @@ class FakeVolumeClient(object):
         self.volume_types.resource_class = fakes.FakeResource(None, {})
         self.volume_type_access = mock.Mock()
         self.volume_type_access.resource_class = fakes.FakeResource(None, {})
+        self.volume_encryption_types = mock.Mock()
+        self.volume_encryption_types.resource_class = (
+            fakes.FakeResource(None, {}))
         self.restores = mock.Mock()
         self.restores.resource_class = fakes.FakeResource(None, {})
         self.qos_specs = mock.Mock()
@@ -923,3 +926,31 @@ class FakeType(object):
             types = FakeType.create_types(count)
 
         return mock.Mock(side_effect=types)
+
+    @staticmethod
+    def create_one_encryption_type(attrs=None):
+        """Create a fake encryption type.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with volume_type_id etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        encryption_info = {
+            "volume_type_id": 'type-id-' + uuid.uuid4().hex,
+            'provider': 'LuksEncryptor',
+            'cipher': None,
+            'key_size': None,
+            'control_location': 'front-end',
+        }
+
+        # Overwrite default attributes.
+        encryption_info.update(attrs)
+
+        encryption_type = fakes.FakeResource(
+            info=copy.deepcopy(encryption_info),
+            loaded=True)
+        return encryption_type
