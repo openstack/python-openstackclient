@@ -402,7 +402,7 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--nic',
             metavar="<net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,"
-                    "port-id=port-uuid>",
+                    "port-id=port-uuid,auto,none>",
             action='append',
             default=[],
             help=_("Create a NIC on the server. "
@@ -414,7 +414,8 @@ class CreateServer(command.ShowOne):
                    "v6-fixed-ip: IPv6 fixed address for NIC (optional), "
                    "none: (v2.37+) no network is attached, "
                    "auto: (v2.37+) the compute service will automatically "
-                   "allocate a network."),
+                   "allocate a network. Specifying a --nic of auto or none "
+                   "cannot be used with any other --nic value."),
         )
         parser.add_argument(
             '--hint',
@@ -547,14 +548,21 @@ class CreateServer(command.ShowOne):
                 block_device_mapping_v2.append(mapping)
 
         nics = []
-        if parsed_args.nic in ('auto', 'none'):
-            nics = [parsed_args.nic]
-        else:
-            for nic_str in parsed_args.nic:
+        auto_or_none = False
+        for nic_str in parsed_args.nic:
+            # Handle the special auto/none cases
+            if nic_str in ('auto', 'none'):
+                auto_or_none = True
+                nics.append(nic_str)
+            else:
                 nic_info = {"net-id": "", "v4-fixed-ip": "",
                             "v6-fixed-ip": "", "port-id": ""}
-                nic_info.update(dict(kv_str.split("=", 1)
-                                for kv_str in nic_str.split(",")))
+                try:
+                    nic_info.update(dict(kv_str.split("=", 1)
+                                    for kv_str in nic_str.split(",")))
+                except ValueError:
+                    msg = _('Invalid --nic argument %s.') % nic_str
+                    raise exceptions.CommandError(msg)
                 if bool(nic_info["net-id"]) == bool(nic_info["port-id"]):
                     msg = _("either net-id or port-id should be specified "
                             "but not both")
@@ -580,6 +588,18 @@ class CreateServer(command.ShowOne):
                                 "since network endpoint not enabled")
                         raise exceptions.CommandError(msg)
                 nics.append(nic_info)
+
+        if nics:
+            if auto_or_none:
+                if len(nics) > 1:
+                    msg = _('Specifying a --nic of auto or none cannot '
+                            'be used with any other --nic value.')
+                    raise exceptions.CommandError(msg)
+                nics = nics[0]
+        else:
+            # Default to empty list if nothing was specified, let nova side to
+            # decide the default behavior.
+            nics = []
 
         hints = {}
         for hint in parsed_args.hint:
