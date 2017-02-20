@@ -190,11 +190,14 @@ unit tests for the plugin commands:
 Requirements
 ------------
 
-OSC must be included in ``requirements.txt`` or ``test-requirements.txt``
-for the plugin project. Update ``requirements.txt`` if the plugin project
-considers the CLI a required feature. Update ``test-requirements.txt`` if
-the plugin project can be installed as a library with the CLI being an
+OSC should be included in the plugin's ``test-requirements.txt`` if
+the plugin can be installed as a library with the CLI being an
 optional feature (available when OSC is also installed).
+
+OSC should not appear in ``requirements.txt`` unless the plugin project
+wants OSC and all of its dependencies installed with it.  This is
+specifically not a good idea for plugins that are also libraries
+installed with OpenStack services.
 
 .. code-block:: ini
 
