@@ -126,18 +126,7 @@ class ShowConsoleURL(command.ShowOne):
             parsed_args.server,
         )
 
-        data = None
-        if parsed_args.url_type in ['novnc', 'xvpvnc']:
-            data = server.get_vnc_console(parsed_args.url_type)
-        if parsed_args.url_type in ['spice-html5']:
-            data = server.get_spice_console(parsed_args.url_type)
-        if parsed_args.url_type in ['rdp-html5']:
-            data = server.get_rdp_console(parsed_args.url_type)
-        if parsed_args.url_type in ['serial']:
-            data = server.get_serial_console(parsed_args.url_type)
-        if parsed_args.url_type in ['webmks']:
-            data = server.get_mks_console()
-
+        data = server.get_console_url(parsed_args.url_type)
         if not data:
             return ({}, {})
 
