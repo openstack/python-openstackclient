@@ -23,6 +23,7 @@ User Documentation
    interactive
    humaninterfaceguide
    backwards-incompatible
+   decoder
 
 Getting Started
 ---------------

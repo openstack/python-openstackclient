@@ -1,0 +1,10 @@
+delete,object delete / container delete,Delete a container or objects within a container.
+download,object save / container save,Download objects from containers.
+list,object list / container list,Lists the containers for the account or the objects for a container.
+post,container create / object set / container set / object store account set,"Updates meta information for the account, container, or object."
+copy,,"Copies object, optionally adds meta."
+stat,object show / container show / object store account show,"Displays information for the account, container, or object."
+upload,object create,Uploads files or directories to the given container.
+capabilities,,List cluster capabilities.
+tempurl,,Create a temporary URL.
+auth,WONTFIX,Display auth related environment variables.
