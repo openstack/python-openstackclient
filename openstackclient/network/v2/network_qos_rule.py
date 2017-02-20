@@ -14,7 +14,6 @@
 #    under the License.
 
 import itertools
-import logging
 import six
 
 from osc_lib.command import command
@@ -24,8 +23,6 @@ from osc_lib import utils
 from openstackclient.i18n import _
 from openstackclient.network import sdk_utils
 
-
-LOG = logging.getLogger(__name__)
 
 RULE_TYPE_BANDWIDTH_LIMIT = 'bandwidth-limit'
 RULE_TYPE_DSCP_MARKING = 'dscp-marking'

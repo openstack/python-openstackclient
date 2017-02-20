@@ -13,13 +13,8 @@
 
 """OpenStackConfig subclass for argument compatibility"""
 
-import logging
-
 from os_client_config import exceptions as occ_exceptions
 from osc_lib.cli import client_config
-
-
-LOG = logging.getLogger(__name__)
 
 
 # Sublcass OpenStackConfig in order to munge config values
