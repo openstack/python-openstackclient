@@ -84,7 +84,7 @@ class ImageTests(base.TestCase):
         self.openstack(
             'image set --accept ' + self.NAME)
         shared_img_list = self.parse_listing(
-            self.openstack('image list --shared', self.get_opts(['name']))
+            self.openstack('image list --shared')
         )
         self.assertIn(self.NAME, [img['Name'] for img in shared_img_list])
 
