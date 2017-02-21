@@ -1,0 +1,140 @@
+add-fixed-ip,server add fixed ip,Add new IP address on a network to server.
+add-secgroup,server add security group,Add a Security Group to a server.
+agent-create,compute agent create,Create new agent build.
+agent-delete,compute agent delete,Delete existing agent build.
+agent-list,compute agent list,List all builds.
+agent-modify,compute agent set,Modify existing agent build.
+aggregate-add-host,aggregate add host,Add the host to the specified aggregate.
+aggregate-create,aggregate create,Create a new aggregate with the specified details.
+aggregate-delete,aggregate delete,Delete the aggregate.
+aggregate-list,aggregate list,Print a list of all aggregates.
+aggregate-remove-host,aggregate remove host,Remove the specified host from the specified aggregate.
+aggregate-set-metadata,aggregate set / unset,Update the metadata associated with the aggregate.
+aggregate-show,aggregate show,Show details of the specified aggregate.
+aggregate-update,aggregate set / unset,Update the aggregate's name and optionally availability zone.
+availability-zone-list,availability zone list,List all the availability zones.
+backup,server backup create,Backup a server by creating a 'backup' type snapshot.
+boot,server create,Boot a new server.
+cell-capacities,,Get cell capacities for all cells or a given cell.
+cell-show,,Show details of a given cell.
+clear-password,server set --root-password,Clear the admin password for a server from the metadata server.
+cloudpipe-configure,WONTFIX,Update the VPN IP/port of a cloudpipe instance.
+cloudpipe-create,WONTFIX,Create a cloudpipe instance for the given project.
+cloudpipe-list,WONTFIX,Print a list of all cloudpipe instances.
+console-log,console log show,Get console log output of a server.
+delete,server delete,Immediately shut down and delete specified server(s).
+diagnostics,openstack server show --diagnostics,Retrieve server diagnostics.
+evacuate,,Evacuate server from failed host.
+flavor-access-add,,Add flavor access for the given tenant.
+flavor-access-list,,Print access information about the given flavor.
+flavor-access-remove,,Remove flavor access for the given tenant.
+flavor-create,flavor create,Create a new flavor.
+flavor-delete,flavor delete,Delete a specific flavor
+flavor-key,flavor set / unset,Set or unset extra_spec for a flavor.
+flavor-list,flavor list,Print a list of available 'flavors'
+flavor-show,flavor show,Show details about the given flavor.
+floating-ip-associate,server add floating ip,Associate a floating IP address to a server.
+floating-ip-disassociate,server remove floating ip,Disassociate a floating IP address from a server.
+force-delete,server delete,Force delete a server.
+get-mks-console,console url show --mks,Get an MKS console to a server.
+get-password,WONTFIX,Get the admin password for a server.
+get-rdp-console,console url show --rdp,Get a rdp console to a server.
+get-serial-console,console url show --serial,Get a serial console to a server.
+get-spice-console,console url show --spice,Get a spice console to a server.
+get-vnc-console,console url show --novnc | --xvpvnc,Get a vnc console to a server.
+host-action,,Perform a power action on a host.
+host-describe,host show,Describe a specific host.
+host-evacuate,,Evacuate all instances from failed host.
+host-evacuate-live,,Live migrate all instances of the specified host to other available hosts.
+host-list,host list,List all hosts by service.
+host-meta,host set / unset,Set or Delete metadata on all instances of a host.
+host-servers-migrate,,Cold migrate all instances off the specified host to other available hosts.
+host-update,host set,Update host settings.
+hypervisor-list,hypervisor list,List hypervisors.
+hypervisor-servers,,List servers belonging to specific hypervisors.
+hypervisor-show,hypervisor show,Display the details of the specified hypervisor.
+hypervisor-stats,hypervisor stats show,Get hypervisor statistics over all compute nodes.
+hypervisor-uptime,,Display the uptime of the specified hypervisor.
+image-create,server image create,Create a new image by taking a snapshot of a running server.
+instance-action,,Show an action.
+instance-action-list,,List actions on a server.
+interface-attach,,Attach a network interface to a server.
+interface-detach,,Detach a network interface from a server.
+interface-list,,List interfaces attached to a server.
+keypair-add,keypair create,Create a new key pair for use with servers.
+keypair-delete,keypair delete,Delete keypair given by its name.
+keypair-list,keypair list,Print a list of keypairs for a user
+keypair-show,keypair show,Show details about the given keypair.
+limits,limits show,Print rate and absolute limits.
+list,server list,List active servers.
+list-extensions,extension list,List all the os-api extensions that are available.
+list-secgroup,security group list,List Security Group(s) of a server.
+live-migration,,Migrate running server to a new machine.
+live-migration-abort,,Abort an on-going live migration.
+live-migration-force-comp,,Force on-going live migration to complete.
+lock,server lock,Lock a server.
+meta,server set --property / unset,Set or delete metadata on a server.
+migrate,server migrate,Migrate a server. The new host will be selected by the scheduler.
+migration-list,,Print a list of migrations.
+pause,server pause,Pause a server.
+quota-class-show,,List the quotas for a quota class.
+quota-class-update,quota set --class,Update the quotas for a quota class.
+quota-defaults,quota list,List the default quotas for a tenant.
+quota-delete,quota set,Delete quota for a tenant/user so their quota will Revert back to default.
+quota-show,quota show,List the quotas for a tenant/user.
+quota-update,quota set,Update the quotas for a tenant/user.
+reboot,server reboot,Reboot a server.
+rebuild,server rebuild,"Shutdown, re-image, and re-boot a server."
+refresh-network,WONTFIX,Refresh server network information.
+remove-fixed-ip,server remove fixed ip,Remove an IP address from a server.
+remove-secgroup,server remove security group,Remove a Security Group from a server.
+rescue,server rescue,Reboots a server into rescue mode.
+reset-network,WONTFIX,Reset network of a server.
+reset-state,server set --state,Reset the state of a server.
+resize,server resize,Resize a server.
+resize-confirm,server resize --confirm,Confirm a previous resize.
+resize-revert,server resize --revert,Revert a previous resize.
+restore,server restore,Restore a soft-deleted server.
+resume,server resume,Resume a server.
+server-group-create,server group create,Create a new server group with the specified details.
+server-group-delete,server group delete,Delete specific server group(s).
+server-group-get,server group show,Get a specific server group.
+server-group-list,server group list,Print a list of all server groups.
+server-migration-list,,Get the migrations list of specified server.
+server-migration-show,,Get the migration of specified server.
+server-tag-add,,Add one or more tags to a server.
+server-tag-delete,,Delete one or more tags from a server.
+server-tag-delete-all,,Delete all tags from a server.
+server-tag-list,,Get list of tags from a server.
+server-tag-set,,Set list of tags to a server.
+service-delete,compute service delete,Delete the service.
+service-disable,compute service set --disable,Disable the service.
+service-enable,compute service set --enable,Enable the service.
+service-force-down,compute service set --force,Force service to down.
+service-list,compute service list,Show a list of all running services.
+set-password,server set --root-password,Change the admin password for a server.
+shelve,server shelve,Shelve a server.
+shelve-offload,,Remove a shelved server from the compute node.
+show,server show,Show details about the given server.
+ssh,server ssh,SSH into a server.
+start,server start,Start the server(s).
+stop,server stop,Stop the server(s).
+suspend,server suspend,Suspend a server.
+trigger-crash-dump,server dump create,Trigger crash dump in an instance.
+unlock,server unlock,Unlock a server.
+unpause,server unpause,Unpause a server.
+unrescue,server unrescue,Restart the server from normal boot disk again.
+unshelve,server unshelve,Unshelve a server.
+update,server set / unset,Update the name or the description for a server.
+usage,usage show,Show usage data for a single tenant.
+usage-list,usage list,List usage data for all tenants.
+version-list,,List all API versions.
+virtual-interface-list,,Show virtual interface info about the given server.
+volume-attach,server add volume,Attach a volume to a server.
+volume-attachments,server show,List all the volumes attached to a server.
+volume-detach,server remove volume,Detach a volume from a server.
+volume-update,,Update volume attachment.
+x509-create-cert,WONTFIX,Create x509 cert for a user in tenant.
+x509-get-root-cert,WONTFIX,Fetch the x509 root cert.
+bash-completion,complete,Prints all of the commands and options to
+help,help,Display help about this program or one of its subcommands.
