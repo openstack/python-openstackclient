@@ -241,7 +241,7 @@ class DeleteFloatingIP(common.NetworkAndComputeDelete):
 
     def take_action_network(self, client, parsed_args):
         (obj, self.ip_cache) = _find_floating_ip(
-            client.session,
+            self.app.client_manager.sdk_connection.session,
             self.ip_cache,
             self.r,
             ignore_missing=False,
@@ -472,7 +472,7 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
 
     def take_action_network(self, client, parsed_args):
         (obj, self.ip_cache) = _find_floating_ip(
-            client.session,
+            self.app.client_manager.sdk_connection.session,
             [],
             parsed_args.floating_ip,
             ignore_missing=False,

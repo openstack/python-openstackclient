@@ -71,6 +71,10 @@ class TestNetworkV2(utils.TestCommand):
             token=fakes.AUTH_TOKEN,
         )
 
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.network = \
+            self.app.client_manager.network
+
         self.app.client_manager.identity = (
             identity_fakes_v3.FakeIdentityv3Client(
                 endpoint=fakes.AUTH_URL,

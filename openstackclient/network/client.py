@@ -44,6 +44,11 @@ def make_client(instance):
     LOG.debug('Connection: %s', conn)
     LOG.debug('Network client initialized using OpenStack SDK: %s',
               conn.network)
+
+    # NOTE(dtroyer): Horrible ugly hack since we don't actually save
+    #                the connection anywhere yet, so stash it in the
+    #                instance directly from here for other uses
+    instance.sdk_connection = conn
     return conn.network
 
 
