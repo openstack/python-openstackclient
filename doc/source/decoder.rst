@@ -7,6 +7,14 @@ OpenStackClient. Think of it as a magic decoder ring if you were using the
 legacy CLIs and want to transition to OpenStack CLI. Command options are only
 shown when necessary.
 
+``cinder CLI``
+--------------
+
+.. csv-table::
+   :header: "Cinder CLI", "OSC Equivalent", "Description"
+   :widths: 25, 25, 50
+   :file: data/cinder.csv
+
 ``nova CLI``
 ------------
 
