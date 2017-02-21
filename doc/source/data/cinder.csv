@@ -1,0 +1,104 @@
+absolute-limits,limits show --absolute,Lists absolute limits for a user.
+availability-zone-list,availability zone list --volume,Lists all availability zones.
+backup-create,volume backup create,Creates a volume backup.
+backup-delete,volume backup delete,Removes a backup.
+backup-export,volume backup export,Export backup metadata record.
+backup-import,volume backup import,Import backup metadata record.
+backup-list,volume backup list,Lists all backups.
+backup-reset-state,volume backup set --state,Explicitly updates the backup state.
+backup-restore,volume backup restore,Restores a backup.
+backup-show,volume backup show,Show backup details.
+cgsnapshot-create,consistency group snapshot create,Creates a cgsnapshot.
+cgsnapshot-delete,consistency group snapshot delete,Removes one or more cgsnapshots.
+cgsnapshot-list,consistency group snapshot list,Lists all cgsnapshots.
+cgsnapshot-show,consistency group snapshot show,Shows cgsnapshot details.
+consisgroup-create,consistency group create,Creates a consistency group.
+consisgroup-create-from-src,consistency group create --consistency-group-snapshot,Creates a consistency group from a cgsnapshot or a source CG
+consisgroup-delete,consistency group delete,Removes one or more consistency groups.
+consisgroup-list,consistency group list,Lists all consistencygroups.
+consisgroup-show,consistency group show,Shows details of a consistency group.
+consisgroup-update,consistency group set,Updates a consistencygroup.
+create,volume create,Creates a volume.
+credentials,WONTFIX,Shows user credentials returned from auth.
+delete,volume delete,Removes one or more volumes.
+encryption-type-create,volume type create --encryption-provider --enc..,Creates encryption type for a volume type. Admin only.
+encryption-type-delete,volume type delete,Deletes encryption type for a volume type. Admin only.
+encryption-type-list,volume type list --encryption-type,Shows encryption type details for volume types. Admin only.
+encryption-type-show,volume type list --encryption-show,Shows encryption type details for volume type. Admin only.
+encryption-type-update,volume type set --encryption-provider --enc..,Update encryption type information for a volume type (Admin Only).
+endpoints,catalog list,Discovers endpoints registered by authentication service.
+extend,volume set --size,Attempts to extend size of an existing volume.
+extra-specs-list,volume types list --long,Lists current volume types and extra specs.
+failover-host,volume host failover,Failover a replicating cinder-volume host.
+force-delete,volume delete --force,"Attempts force-delete of volume, regardless of state."
+freeze-host,volume host set --disable,Freeze and disable the specified cinder-volume host.
+get-capabilities,,Show backend volume stats and properties. Admin only.
+get-pools,,Show pool information for backends. Admin only.
+image-metadata,volume set --image-property,Sets or deletes volume image metadata.
+image-metadata-show,volume show,Shows volume image metadata.
+list,volume list,Lists all volumes.
+manage,volume create --remote-source k=v,Manage an existing volume.
+metadata,volume set --property k=v / volume unset --property k,Sets or deletes volume metadata.
+metadata-show,volume show,Shows volume metadata.
+metadata-update-all,volume set --property k=v,Updates volume metadata.
+migrate,volume migrate --host --force-copy --lock-volume <volume>,Migrates volume to a new host.
+qos-associate,volume qos associate,Associates qos specs with specified volume type.
+qos-create,volume qos create,Creates a qos specs.
+qos-delete,volume qos delete,Deletes a specified qos specs.
+qos-disassociate,volume qos disassociate,Disassociates qos specs from specified volume type.
+qos-disassociate-all,volume qos disassociate --all,Disassociates qos specs from all associations.
+qos-get-association,volume qos show,Gets all associations for specified qos specs.
+qos-key,volume qos set --property k=v / volume qos unset --property k,Sets or unsets specifications for a qos spec
+qos-list,volume qos list,Lists qos specs.
+qos-show,volume qos show,Shows a specified qos specs.
+quota-class-show,quota show --class,Lists quotas for a quota class.
+quota-class-update,quota set --class,Updates quotas for a quota class.
+quota-defaults,quota show --default,Lists default quotas for a tenant.
+quota-delete,,Delete the quotas for a tenant.
+quota-show,quota show,Lists quotas for a tenant.
+quota-update,quota set,Updates quotas for a tenant.
+quota-usage,,Lists quota usage for a tenant.
+rate-limits,limits show --rate,Lists rate limits for a user.
+readonly-mode-update,volume set --read-only-mode | --read-write-mode,Updates volume read-only access-mode flag.
+rename,volume set --name,Renames a volume.
+replication-promote,WONTFIX,Promote a secondary volume to primary for a relationship
+replication-reenable,WONTFIX,Sync the secondary volume with primary for a relationship
+reset-state,volume set --state,Explicitly updates the volume state.
+retype,volume type set --type,Changes the volume type for a volume.
+service-disable,volume service set --disable,Disables the service.
+service-enable,volume service set --enable,Enables the service.
+service-list,volume service list,Lists all services. Filter by host and service binary.
+set-bootable,volume set --bootable / --not-bootable,Update bootable status of a volume.
+show,volume show,Shows volume details.
+snapshot-create,snapshot create,Creates a snapshot.
+snapshot-delete,snapshot delete,Remove one or more snapshots.
+snapshot-list,snapshot list,Lists all snapshots.
+snapshot-manage,volume snapshot create --remote-source <key=value>,Manage an existing snapshot.
+snapshot-metadata,snapshot set --property k=v / snapshot unset --property k,Sets or deletes snapshot metadata.
+snapshot-metadata-show,snapshot show,Shows snapshot metadata.
+snapshot-metadata-update-all,snapshot set --property k=v,Updates snapshot metadata.
+snapshot-rename,snapshot set --name,Renames a snapshot.
+snapshot-reset-state,snapshot set --state,Explicitly updates the snapshot state.
+snapshot-show,snapshot show,Shows snapshot details.
+snapshot-unmanage,volume snapshot delete --remote,Stop managing a snapshot.
+thaw-host,volume host set --enable,Thaw and enable the specified cinder-volume host.
+transfer-accept,volume transfer accept,Accepts a volume transfer.
+transfer-create,volume transfer create,Creates a volume transfer.
+transfer-delete,volume transfer delete,Undoes a transfer.
+transfer-list,volume transfer list,Lists all transfers.
+transfer-show,volume transfer show,Show transfer details.
+type-access-add,volume type set --project,Adds volume type access for the given project.
+type-access-list,volume type show,Print access information about the given volume type.
+type-access-remove,volume type unset --project,Removes volume type access for the given project.
+type-create,volume type create,Creates a volume type.
+type-default,volume type list --default,List the default volume type.
+type-delete,volume type delete,Deletes a specified volume type.
+type-key,volume type set --property k=v / volume type unset --property k,Sets or unsets extra_spec for a volume type.
+type-list,volume type list,Lists available 'volume types'.
+type-show,volume type show,Show volume type details.
+type-update,volume type set,"Updates volume type name, description, and/or is_public."
+unmanage,volume delete --remote,Stop managing a volume.
+upload-to-image,image create --volume,Uploads volume to Image Service as an image.
+bash-completion,complete,Prints arguments for bash_completion.
+help,help,Shows help about this program or one of its subcommands.
+list-extensions,extension list --volume,Lists all available os-api extensions.
