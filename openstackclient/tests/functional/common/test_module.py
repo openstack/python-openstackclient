@@ -42,3 +42,38 @@ class ModuleTest(base.TestCase):
         cmd_output = json.loads(self.openstack('module list --all -f json'))
         for one_module in self.CLIENTS + self.LIBS:
             self.assertIn(one_module, cmd_output.keys())
+
+
+class CommandTest(base.TestCase):
+    """Functional tests for openstackclient command list."""
+    GROUPS = [
+        'openstack.volume.v2',
+        'openstack.network.v2',
+        'openstack.image.v2',
+        'openstack.identity.v3',
+        'openstack.compute.v2',
+        'openstack.common',
+        'openstack.cli',
+    ]
+
+    def test_command_list_no_option(self):
+        cmd_output = json.loads(self.openstack('command list -f json'))
+        group_names = [each.get('Command Group') for each in cmd_output]
+        for one_group in self.GROUPS:
+            self.assertIn(one_group, group_names)
+
+    def test_command_list_with_group(self):
+        input_groups = [
+            'volume',
+            'network',
+            'image',
+            'identity',
+            'compute.v2'
+        ]
+        for each_input in input_groups:
+            cmd_output = json.loads(self.openstack(
+                'command list --group %s -f json' % each_input
+            ))
+            group_names = [each.get('Command Group') for each in cmd_output]
+            for each_name in group_names:
+                self.assertIn(each_input, each_name)
