@@ -139,7 +139,7 @@ class ListEndpoint(command.Lister):
         parser.add_argument(
             '--service',
             metavar='<service>',
-            help=_('Filter by service (name or ID)'),
+            help=_('Filter by service (type, name or ID)'),
         )
         parser.add_argument(
             '--interface',

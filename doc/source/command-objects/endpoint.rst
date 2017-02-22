@@ -103,14 +103,14 @@ List endpoints
 .. code:: bash
 
     openstack endpoint list
-        [--service <service]
+        [--service <service>]
         [--interface <interface>]
         [--region <region-id>]
         [--long]
 
 .. option:: --service <service>
 
-    Filter by service (name or ID)
+    Filter by service (type, name or ID)
 
     *Identity version 3 only*
 
