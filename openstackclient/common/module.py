@@ -86,7 +86,15 @@ class ListModule(command.ShowOne):
                         # Handle xxxclient and openstacksdk
                         (k.endswith('client') or k == 'openstack')):
                     try:
-                        data[k] = mods[k].__version__
+                        # NOTE(RuiChen): openstacksdk bug/1588823 exist,
+                        #                no good way to add __version__ for
+                        #                openstack module properly, hard code
+                        #                looks bad, but openstacksdk module
+                        #                information is important.
+                        if k == 'openstack':
+                            data[k] = mods[k].version.__version__
+                        else:
+                            data[k] = mods[k].__version__
                     except Exception:
                         # Catch all exceptions, just skip it
                         pass

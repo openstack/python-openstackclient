@@ -23,7 +23,8 @@ class ModuleTest(base.TestCase):
 
     CLIENTS = ['openstackclient',
                'keystoneclient',
-               'novaclient']
+               'novaclient',
+               'openstack']
 
     LIBS = ['osc_lib',
             'os_client_config',
