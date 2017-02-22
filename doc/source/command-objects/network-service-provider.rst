@@ -7,6 +7,7 @@ networking service
 
 Network v2
 
+.. _network_service_provider_list:
 network service provider list
 -----------------------------
 
