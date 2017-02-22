@@ -1,6 +1,6 @@
-=================
-OSC Mapping Table
-=================
+=============
+Mapping Guide
+=============
 
 The following is an incomplete mapping between legacy OpenStack CLIs and
 OpenStackClient. Think of it as a magic decoder ring if you were using the
