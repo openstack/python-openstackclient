@@ -1185,6 +1185,209 @@ class TestServerLock(TestServer):
         self.run_method_with_servers('lock', 3)
 
 
+class TestServerMigrate(TestServer):
+
+    def setUp(self):
+        super(TestServerMigrate, self).setUp()
+
+        methods = {
+            'migrate': None,
+            'live_migrate': None,
+        }
+        self.server = compute_fakes.FakeServer.create_one_server(
+            methods=methods)
+
+        # This is the return value for utils.find_resource()
+        self.servers_mock.get.return_value = self.server
+
+        self.servers_mock.migrate.return_value = None
+        self.servers_mock.live_migrate.return_value = None
+
+        # Get the command object to test
+        self.cmd = server.MigrateServer(self.app, None)
+
+    def test_server_migrate_no_options(self):
+        arglist = [
+            self.server.id,
+        ]
+        verifylist = [
+            ('live', None),
+            ('block_migration', False),
+            ('disk_overcommit', False),
+            ('wait', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.migrate.assert_called_with()
+        self.assertNotCalled(self.servers_mock.live_migrate)
+        self.assertIsNone(result)
+
+    def test_server_migrate_with_block_migration(self):
+        arglist = [
+            '--block-migration', self.server.id,
+        ]
+        verifylist = [
+            ('live', None),
+            ('block_migration', True),
+            ('disk_overcommit', False),
+            ('wait', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.assertNotCalled(self.servers_mock.live_migrate)
+        self.assertNotCalled(self.servers_mock.migrate)
+
+    def test_server_migrate_with_disk_overcommit(self):
+        arglist = [
+            '--disk-overcommit', self.server.id,
+        ]
+        verifylist = [
+            ('live', None),
+            ('block_migration', False),
+            ('disk_overcommit', True),
+            ('wait', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.assertNotCalled(self.servers_mock.live_migrate)
+        self.assertNotCalled(self.servers_mock.migrate)
+
+    def test_server_live_migrate(self):
+        arglist = [
+            '--live', 'fakehost', self.server.id,
+        ]
+        verifylist = [
+            ('live', 'fakehost'),
+            ('block_migration', False),
+            ('disk_overcommit', False),
+            ('wait', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.live_migrate.assert_called_with(block_migration=False,
+                                                    disk_over_commit=False,
+                                                    host='fakehost')
+        self.assertNotCalled(self.servers_mock.migrate)
+        self.assertIsNone(result)
+
+    def test_server_block_live_migrate(self):
+        arglist = [
+            '--live', 'fakehost', '--block-migration', self.server.id,
+        ]
+        verifylist = [
+            ('live', 'fakehost'),
+            ('block_migration', True),
+            ('disk_overcommit', False),
+            ('wait', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.live_migrate.assert_called_with(block_migration=True,
+                                                    disk_over_commit=False,
+                                                    host='fakehost')
+        self.assertNotCalled(self.servers_mock.migrate)
+        self.assertIsNone(result)
+
+    def test_server_live_migrate_with_disk_overcommit(self):
+        arglist = [
+            '--live', 'fakehost', '--disk-overcommit', self.server.id,
+        ]
+        verifylist = [
+            ('live', 'fakehost'),
+            ('block_migration', False),
+            ('disk_overcommit', True),
+            ('wait', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.live_migrate.assert_called_with(block_migration=False,
+                                                    disk_over_commit=True,
+                                                    host='fakehost')
+        self.assertNotCalled(self.servers_mock.migrate)
+        self.assertIsNone(result)
+
+    def test_server_live_migrate_with_false_value_options(self):
+        arglist = [
+            '--live', 'fakehost', '--no-disk-overcommit',
+            '--shared-migration', self.server.id,
+        ]
+        verifylist = [
+            ('live', 'fakehost'),
+            ('block_migration', False),
+            ('disk_overcommit', False),
+            ('wait', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.live_migrate.assert_called_with(block_migration=False,
+                                                    disk_over_commit=False,
+                                                    host='fakehost')
+        self.assertNotCalled(self.servers_mock.migrate)
+        self.assertIsNone(result)
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
+    def test_server_migrate_with_wait(self, mock_wait_for_status):
+        arglist = [
+            '--wait', self.server.id,
+        ]
+        verifylist = [
+            ('live', None),
+            ('block_migration', False),
+            ('disk_overcommit', False),
+            ('wait', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.migrate.assert_called_with()
+        self.assertNotCalled(self.servers_mock.live_migrate)
+        self.assertIsNone(result)
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
+    def test_server_migrate_with_wait_fails(self, mock_wait_for_status):
+        arglist = [
+            '--wait', self.server.id,
+        ]
+        verifylist = [
+            ('live', None),
+            ('block_migration', False),
+            ('disk_overcommit', False),
+            ('wait', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.migrate.assert_called_with()
+        self.assertNotCalled(self.servers_mock.live_migrate)
+
+
 class TestServerPause(TestServer):
 
     def setUp(self):

@@ -1104,6 +1104,10 @@ class MigrateServer(command.Command):
                 disk_over_commit=parsed_args.disk_overcommit,
             )
         else:
+            if parsed_args.block_migration or parsed_args.disk_overcommit:
+                raise exceptions.CommandError("--live must be specified if "
+                                              "--block-migration or "
+                                              "--disk-overcommit is specified")
             server.migrate()
 
         if parsed_args.wait:
