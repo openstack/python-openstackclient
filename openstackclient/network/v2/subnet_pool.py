@@ -89,6 +89,9 @@ def _get_attrs(client_manager, parsed_args):
     if parsed_args.description is not None:
         attrs['description'] = parsed_args.description
 
+    if parsed_args.default_quota is not None:
+        attrs['default_quota'] = int(parsed_args.default_quota)
+
     return attrs
 
 
@@ -182,6 +185,12 @@ class CreateSubnetPool(command.ShowOne):
             metavar='<description>',
             help=_("Set subnet pool description")
         )
+        parser.add_argument(
+            '--default-quota',
+            type=int,
+            metavar='<num-ip-addresses>',
+            help=_("Set default quota for subnet pool as the number of"
+                   "IP addresses allowed in a subnet")),
         return parser
 
     def take_action(self, parsed_args):
@@ -369,7 +378,12 @@ class SetSubnetPool(command.Command):
             metavar='<description>',
             help=_("Set subnet pool description")
         )
-
+        parser.add_argument(
+            '--default-quota',
+            type=int,
+            metavar='<num-ip-addresses>',
+            help=_("Set default quota for subnet pool as the number of"
+                   "IP addresses allowed in a subnet")),
         return parser
 
     def take_action(self, parsed_args):

@@ -165,7 +165,7 @@ class SubnetPoolTests(common.NetworkTests):
         self.assertIn(name2, names)
 
     def test_subnet_pool_set_show(self):
-        """Test create, set, show, delete"""
+        """Test create, delete, set, show, unset"""
 
         name = uuid.uuid4().hex
         new_name = name + "_"
@@ -173,11 +173,15 @@ class SubnetPoolTests(common.NetworkTests):
             '--default-prefix-length 16 ' +
             '--min-prefix-length 16 ' +
             '--max-prefix-length 32 ' +
-            '--description aaaa ',
+            '--description aaaa ' +
+            '--default-quota 10 ',
             name,
         )
 
-        self.addCleanup(self.openstack, 'subnet pool delete ' + new_name)
+        self.addCleanup(
+            self.openstack,
+            'subnet pool delete ' + cmd_output['id'],
+        )
         self.assertEqual(
             name,
             cmd_output["name"],
@@ -202,6 +206,10 @@ class SubnetPoolTests(common.NetworkTests):
             32,
             cmd_output["max_prefixlen"],
         )
+        self.assertEqual(
+            10,
+            cmd_output["default_quota"],
+        )
 
         # Test set
         cmd_output = self.openstack(
@@ -212,7 +220,8 @@ class SubnetPoolTests(common.NetworkTests):
             '--default-prefix-length 8 ' +
             '--min-prefix-length 8 ' +
             '--max-prefix-length 16 ' +
-            name
+            '--default-quota 20 ' +
+            name,
         )
         self.assertOutput('', cmd_output)
 
@@ -244,6 +253,28 @@ class SubnetPoolTests(common.NetworkTests):
             16,
             cmd_output["max_prefixlen"],
         )
+        self.assertEqual(
+            20,
+            cmd_output["default_quota"],
+        )
+
+        # Test unset
+        # NOTE(dtroyer): The unset command --default-quota option DOES NOT
+        #                WORK after a default quota has been set once on a
+        #                pool.  The error appears to be in a lower layer,
+        #                once that is fixed add a test for subnet pool unset
+        #                --default-quota.
+        #                The unset command of --pool-prefixes also doesnt work
+        #                right now. It would be fixed in a separate patch once
+        #                the lower layer is fixed.
+        # cmd_output = self.openstack(
+        #    '--debug ' +
+        #    'subnet pool unset ' +
+        #    ' --pool-prefix 10.110.0.0/16 ' +
+        #    new_name,
+        # )
+        # self.assertOutput('', cmd_output)
+        # self.assertNone(cmd_output["prefixes"])
 
     def _subnet_pool_create(self, cmd, name, is_type_ipv4=True):
         """Make a random subnet pool

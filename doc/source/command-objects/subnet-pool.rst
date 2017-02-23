@@ -24,6 +24,7 @@ Create subnet pool
         [--address-scope <address-scope>]
         [--default | --no-default]
         [--share | --no-share]
+        [--default-quota <num-ip-addresses>]
         --pool-prefix <pool-prefix> [...]
         <name>
 
@@ -73,7 +74,12 @@ Create subnet pool
 
     Set this subnet pool as not shared
 
-.. describe:: --pool-prefix <pool-prefix>
+.. option:: --default-quota <num-ip-addresses>
+
+    Set default quota for subnet pool as the number of
+    IP addresses allowed in a subnet
+
+.. option:: --pool-prefix <pool-prefix>
 
     Set subnet pool prefixes (in CIDR notation)
     (repeat option to set multiple prefixes)
@@ -169,6 +175,7 @@ Set subnet pool properties
         [--address-scope <address-scope> | --no-address-scope]
         [--default | --no-default]
         [--description <description>]
+        [--default-quota <num-ip-addresses>]
         <subnet-pool>
 
 .. option:: --name <name>
@@ -212,6 +219,11 @@ Set subnet pool properties
 .. option:: --description <description>
 
     Set subnet pool description
+
+.. option:: --default-quota <num-ip-addresses>
+
+    Set default quota for subnet pool as the number of
+    IP addresses allowed in a subnet
 
 .. _subnet_pool_set-subnet-pool:
 .. describe:: <subnet-pool>

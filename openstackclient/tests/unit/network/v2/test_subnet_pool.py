@@ -270,6 +270,27 @@ class TestCreateSubnetPool(TestSubnetPool):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def test_create_with_default_quota(self):
+        arglist = [
+            '--pool-prefix', '10.0.10.0/24',
+            '--default-quota', '10',
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('prefixes', ['10.0.10.0/24']),
+            ('default_quota', 10),
+            ('name', self._subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = (self.cmd.take_action(parsed_args))
+        self.network.create_subnet_pool.assert_called_once_with(**{
+            'name': self._subnet_pool.name,
+            'prefixes': ['10.0.10.0/24'],
+            'default_quota': 10,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
 
 class TestDeleteSubnetPool(TestSubnetPool):
 
@@ -567,7 +588,9 @@ class TestListSubnetPool(TestSubnetPool):
 class TestSetSubnetPool(TestSubnetPool):
 
     # The subnet_pool to set.
-    _subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
+    _subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool(
+        {'default_quota': 10},
+    )
 
     _address_scope = network_fakes.FakeAddressScope.create_one_address_scope()
 
@@ -792,6 +815,23 @@ class TestSetSubnetPool(TestSubnetPool):
         }
         self.network.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_with_default_quota(self):
+        arglist = [
+            '--default-quota', '20',
+            self._subnet_pool.name,
+        ]
+        verifylist = [
+            ('default_quota', 20),
+            ('subnet_pool', self._subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.network.update_subnet_pool.assert_called_once_with(
+            self._subnet_pool,
+            **{'default_quota': 20, }
+        )
         self.assertIsNone(result)
 
 
