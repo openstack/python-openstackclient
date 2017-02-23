@@ -128,12 +128,13 @@ class CreateImage(command.ShowOne):
             metavar="<image-url>",
             help=_("Copy image from the data store (similar to --location)"),
         )
-        parser.add_argument(
+        source_group = parser.add_mutually_exclusive_group()
+        source_group.add_argument(
             "--file",
             metavar="<file>",
             help=_("Upload image from local file"),
         )
-        parser.add_argument(
+        source_group.add_argument(
             "--volume",
             metavar="<volume>",
             help=_("Create image from a volume"),
