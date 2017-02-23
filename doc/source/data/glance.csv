@@ -1,0 +1,24 @@
+explain,WONTFIX,Describe a specific model.
+image-create,image create,Create a new image.
+image-deactivate,image set --deactivate,Deactivate specified image.
+image-delete,image delete,Delete specified image.
+image-download,image save,Download a specific image.
+image-list,image list,List images you can access.
+image-reactivate,image set --activate,Reactivate specified image.
+image-show,image show,Describe a specific image.
+image-tag-delete,image set --tag <tag>,Delete the tag associated with the given image.
+image-tag-update,image unset --tag <tag>,Update an image with the given tag.
+image-update,image set,Update an existing image.
+image-upload,,Upload data for a specific image.
+location-add,,Add a location (and related metadata) to an image.
+location-delete,,Remove locations (and related metadata) from an image.
+location-update,,Update metadata of an image's location.
+member-create,image add project,Create member for a given image.
+member-delete,image remove project,Delete image member.
+member-list,,Describe sharing permissions by image.
+member-update,image set --accept --reject --status,Update the status of a member for a given image.
+task-create,,Create a new task.
+task-list,,List tasks you can access.
+task-show,,Describe a specific task.
+bash-completion,complete,Prints arguments for bash_completion.
+help,help,Display help about this program or one of its subcommands.

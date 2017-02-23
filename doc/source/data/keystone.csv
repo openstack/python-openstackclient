@@ -1,0 +1,37 @@
+catalog,catalog show,"List service catalog, possibly filtered by service."
+ec2-credentials-create,ec2 credentials create,Create EC2-compatible credentials for user per tenant.
+ec2-credentials-delete,ec2 credentials delete,Delete EC2-compatible credentials.
+ec2-credentials-get,ec2 credentials show,Display EC2-compatible credentials.
+ec2-credentials-list,ec2 credentials list,List EC2-compatible credentials for a user.
+endpoint-create,endpoint create,Create a new endpoint associated with a service.
+endpoint-delete,endpoint delete,Delete a service endpoint.
+endpoint-get,endpoint get,Find endpoint filtered by a specific attribute or service type.
+endpoint-list,endpoint list,List configured service endpoints.
+password-update,user password set,Update own password.
+role-create,role create,Create new role.
+role-delete,role delete,Delete role.
+role-get,role show,Display role details.
+role-list,role list,List all roles.
+service-create,service create,Add service to Service Catalog.
+service-delete,service delete,Delete service from Service Catalog.
+service-get,service show,Display service from Service Catalog.
+service-list,service list,List all services in Service Catalog.
+tenant-create,project create,Create new tenant.
+tenant-delete,project delete,Delete tenant.
+tenant-get,proejct show,Display tenant details.
+tenant-list,project list,List all tenants.
+tenant-update,project set,"Update tenant name, description, enabled status."
+token-get,issue token,Display the current user token.
+user-create,user create,Create new user.
+user-delete,user delete,Delete user.
+user-get,user show,Display user details.
+user-list,user list,List users.
+user-password-update,user set --password,Update user password.
+user-role-add,role add <role> --user --project,Add role to user.
+user-role-list,role assignment list --user --project,List roles granted to a user.
+user-role-remove,role remove <role> --user --project,Remove role from user.
+user-update,user set,"Update user's name, email, and enabled status."
+discover,WONTFIX,"Discover Keystone servers, supported API versions and extensions."
+bootstrap,WONTFIX,"Grants a new role to a new user on a new tenant, after creating each."
+bash-completion,complete,Prints all of the commands and options to stdout.
+help,help,Display help about this program or one of its subcommands.

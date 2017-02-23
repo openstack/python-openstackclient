@@ -15,6 +15,23 @@ shown when necessary.
    :widths: 25, 25, 50
    :file: data/cinder.csv
 
+``glance CLI``
+--------------
+
+.. csv-table::
+   :header: "Glance CLI", "OSC Equivalent", "Description"
+   :widths: 25, 25, 50
+   :file: data/glance.csv
+
+``keystone CLI``
+----------------
+
+.. csv-table::
+   :header: "Keystone CLI", "OSC Equivalent", "Description"
+   :widths: 25, 25, 50
+   :file: data/keystone.csv
+
+
 ``nova CLI``
 ------------
 
