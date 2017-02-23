@@ -13,8 +13,6 @@
 import copy
 import mock
 
-from openstack.network.v2 import quota as _quota
-
 from openstackclient.common import quota
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import fakes
@@ -284,32 +282,27 @@ class TestQuotaSet(TestQuota):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # TODO(huanxuan): Remove this if condition once the fixed
-        # SDK Quota class is the minimum required version.
-        # This is expected to be SDK release 0.9.13
-        if not hasattr(_quota.Quota, 'allow_get'):
-            # Just run this when sdk <= 0.9.10
-            result = self.cmd.take_action(parsed_args)
-            kwargs = {
-                'subnet': network_fakes.QUOTA['subnet'],
-                'network': network_fakes.QUOTA['network'],
-                'floatingip': network_fakes.QUOTA['floatingip'],
-                'subnetpool': network_fakes.QUOTA['subnetpool'],
-                'security_group_rule':
-                    network_fakes.QUOTA['security_group_rule'],
-                'security_group': network_fakes.QUOTA['security_group'],
-                'router': network_fakes.QUOTA['router'],
-                'rbac_policy': network_fakes.QUOTA['rbac_policy'],
-                'port': network_fakes.QUOTA['port'],
-                'vip': network_fakes.QUOTA['vip'],
-                'healthmonitor': network_fakes.QUOTA['healthmonitor'],
-                'l7policy': network_fakes.QUOTA['l7policy'],
-            }
-            self.network_mock.update_quota.assert_called_once_with(
-                identity_fakes.project_id,
-                **kwargs
-            )
-            self.assertIsNone(result)
+        result = self.cmd.take_action(parsed_args)
+        kwargs = {
+            'subnet': network_fakes.QUOTA['subnet'],
+            'network': network_fakes.QUOTA['network'],
+            'floatingip': network_fakes.QUOTA['floatingip'],
+            'subnetpool': network_fakes.QUOTA['subnetpool'],
+            'security_group_rule':
+                network_fakes.QUOTA['security_group_rule'],
+            'security_group': network_fakes.QUOTA['security_group'],
+            'router': network_fakes.QUOTA['router'],
+            'rbac_policy': network_fakes.QUOTA['rbac_policy'],
+            'port': network_fakes.QUOTA['port'],
+            'vip': network_fakes.QUOTA['vip'],
+            'healthmonitor': network_fakes.QUOTA['healthmonitor'],
+            'l7policy': network_fakes.QUOTA['l7policy'],
+        }
+        self.network_mock.update_quota.assert_called_once_with(
+            identity_fakes.project_id,
+            **kwargs
+        )
+        self.assertIsNone(result)
 
     def test_quota_set_with_class(self):
         arglist = [
@@ -483,20 +476,15 @@ class TestQuotaShow(TestQuota):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # TODO(huanxuan): Remove this if condition once the fixed
-        # SDK QuotaDefault class is the minimum required version.
-        # This is expected to be SDK release 0.9.13
-        if not hasattr(_quota.QuotaDefault, 'project'):
-            # Just run this when sdk <= 0.9.10
-            self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
 
-            self.quotas_mock.defaults.assert_called_once_with(
-                identity_fakes.project_id)
-            self.volume_quotas_mock.defaults.assert_called_once_with(
-                identity_fakes.project_id)
-            self.network.get_quota_default.assert_called_once_with(
-                identity_fakes.project_id)
-            self.assertNotCalled(self.network.get_quota)
+        self.quotas_mock.defaults.assert_called_once_with(
+            identity_fakes.project_id)
+        self.volume_quotas_mock.defaults.assert_called_once_with(
+            identity_fakes.project_id)
+        self.network.get_quota_default.assert_called_once_with(
+            identity_fakes.project_id)
+        self.assertNotCalled(self.network.get_quota)
 
     def test_quota_show_with_class(self):
         arglist = [
