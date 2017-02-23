@@ -23,6 +23,10 @@ User Documentation
    interactive
    humaninterfaceguide
    backwards-incompatible
+
+.. toctree::
+   :maxdepth: 2
+
    decoder
 
 Getting Started
