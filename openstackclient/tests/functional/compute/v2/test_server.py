@@ -388,6 +388,113 @@ class ServerTests(common.ComputeTestCase):
             cmd_output['status'],
         )
 
+    def test_server_boot_with_bdm_snapshot(self):
+        """Test server create from image with bdm snapshot, server delete"""
+        # get volume status wait function
+        volume_wait_for = test_volume.VolumeTests(
+            methodName='wait_for',
+        ).wait_for
+
+        # create source empty volume
+        empty_volume_name = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'volume create -f json ' +
+            '--size 1 ' +
+            empty_volume_name
+        ))
+        self.assertIsNotNone(cmd_output["id"])
+        self.addCleanup(self.openstack,
+                        'volume delete ' + empty_volume_name)
+        self.assertEqual(
+            empty_volume_name,
+            cmd_output['name'],
+        )
+        volume_wait_for("volume", empty_volume_name, "available")
+
+        # create snapshot of source empty volume
+        empty_snapshot_name = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'volume snapshot create -f json ' +
+            '--volume ' + empty_volume_name + ' ' +
+            empty_snapshot_name
+        ))
+        self.assertIsNotNone(cmd_output["id"])
+        self.assertEqual(
+            empty_snapshot_name,
+            cmd_output['name'],
+        )
+        volume_wait_for("volume snapshot", empty_snapshot_name, "available")
+
+        # create server with bdm snapshot
+        server_name = uuid.uuid4().hex
+        server = json.loads(self.openstack(
+            'server create -f json ' +
+            '--flavor ' + self.flavor_name + ' ' +
+            '--image ' + self.image_name + ' ' +
+            '--block-device-mapping '
+            'vdb=' + empty_snapshot_name + ':snapshot:1:true ' +
+            self.network_arg + ' ' +
+            '--wait ' +
+            server_name
+        ))
+        self.assertIsNotNone(server["id"])
+        self.assertEqual(
+            server_name,
+            server['name'],
+        )
+        self.wait_for_status(server_name, 'ACTIVE')
+
+        # check server volumes_attached, format is
+        # {"volumes_attached": "id='2518bc76-bf0b-476e-ad6b-571973745bb5'",}
+        cmd_output = json.loads(self.openstack(
+            'server show -f json ' +
+            server_name
+        ))
+        volumes_attached = cmd_output['volumes_attached']
+        self.assertTrue(volumes_attached.startswith('id='))
+        attached_volume_id = volumes_attached.replace('id=', '')
+
+        # check the volume that attached on server
+        cmd_output = json.loads(self.openstack(
+            'volume show -f json ' +
+            attached_volume_id
+        ))
+        attachments = cmd_output['attachments']
+        self.assertEqual(
+            1,
+            len(attachments),
+        )
+        self.assertEqual(
+            server['id'],
+            attachments[0]['server_id'],
+        )
+        self.assertEqual(
+            "in-use",
+            cmd_output['status'],
+        )
+
+        # delete server, then check the attached volume had been deleted,
+        # <delete-on-terminate>=true
+        self.openstack('server delete --wait ' + server_name)
+        cmd_output = json.loads(self.openstack(
+            'volume list -f json'
+        ))
+        target_volume = [each_volume
+                         for each_volume in cmd_output
+                         if each_volume['ID'] == attached_volume_id]
+        if target_volume:
+            # check the attached volume is 'deleting' status
+            self.assertEqual('deleting', target_volume[0]['Status'])
+        else:
+            # the attached volume had been deleted
+            pass
+
+        # clean up volume snapshot manually, make sure the snapshot and volume
+        # can be deleted sequentially, self.addCleanup so fast, that cause
+        # volume service API 400 error and the volume is left over at the end.
+        self.openstack('volume snapshot delete ' + empty_snapshot_name)
+        volume_wait_for('volume snapshot', empty_snapshot_name, 'disappear')
+
     def test_server_create_with_none_network(self):
         """Test server create with none network option."""
         server_name = uuid.uuid4().hex

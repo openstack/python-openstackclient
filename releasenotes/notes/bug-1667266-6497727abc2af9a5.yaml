@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    Make ``block-device-mapping`` option of ``server create`` command more
+    stable and clear. Fix ValueError when input block device mapping option in
+    wrong format. Support to create block device from snapshot. Add details in
+    help message about block-device-mapping option format and regular value of
+    each item.
+    [Bug `1667266 <https://bugs.launchpad.net/python-openstackclient/+bug/1667266>`_]

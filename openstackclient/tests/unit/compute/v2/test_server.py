@@ -12,6 +12,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
+import argparse
 import collections
 import getpass
 import mock
@@ -48,6 +49,10 @@ class TestServer(compute_fakes.TestComputev2):
         # Get a shortcut to the volume client VolumeManager Mock
         self.volumes_mock = self.app.client_manager.volume.volumes
         self.volumes_mock.reset_mock()
+
+        # Get a shortcut to the volume client VolumeManager Mock
+        self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
+        self.snapshots_mock.reset_mock()
 
         # Set object attributes to be tested. Could be overwritten in subclass.
         self.attrs = {}
@@ -326,7 +331,9 @@ class TestServerCreate(TestServer):
 
         self.volume = volume_fakes.FakeVolume.create_one_volume()
         self.volumes_mock.get.return_value = self.volume
-        self.block_device_mapping = 'vda=' + self.volume.name + ':::0'
+
+        self.snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
+        self.snapshots_mock.get.return_value = self.snapshot
 
         # Get the command object to test
         self.cmd = server.CreateServer(self.app, None)
@@ -852,13 +859,13 @@ class TestServerCreate(TestServer):
         arglist = [
             '--image', 'image1',
             '--flavor', self.flavor.id,
-            '--block-device-mapping', self.block_device_mapping,
+            '--block-device-mapping', 'vda=' + self.volume.name + ':::false',
             self.new_server.name,
         ]
         verifylist = [
             ('image', 'image1'),
             ('flavor', self.flavor.id),
-            ('block_device_mapping', [self.block_device_mapping]),
+            ('block_device_mapping', {'vda': self.volume.name + ':::false'}),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -866,11 +873,6 @@ class TestServerCreate(TestServer):
 
         # CreateServer.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
-
-        real_volume_mapping = (
-            (self.block_device_mapping.split('=', 1)[1]).replace(
-                self.volume.name,
-                self.volume.id))
 
         # Set expected values
         kwargs = dict(
@@ -885,10 +887,10 @@ class TestServerCreate(TestServer):
             availability_zone=None,
             block_device_mapping_v2=[{
                 'device_name': 'vda',
-                'uuid': real_volume_mapping.split(':', 1)[0],
+                'uuid': self.volume.id,
                 'destination_type': 'volume',
                 'source_type': 'volume',
-                'delete_on_termination': '0'
+                'delete_on_termination': 'false',
             }],
             nics=[],
             scheduler_hints={},
@@ -904,6 +906,323 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_block_device_mapping_min_input(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device-mapping', 'vdf=' + self.volume.name,
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', self.flavor.id),
+            ('block_device_mapping', {'vdf': self.volume.name}),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # CreateServer.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[{
+                'device_name': 'vdf',
+                'uuid': self.volume.id,
+                'destination_type': 'volume',
+                'source_type': 'volume',
+            }],
+            nics=[],
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_block_device_mapping_default_input(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device-mapping', 'vdf=' + self.volume.name + ':::',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', self.flavor.id),
+            ('block_device_mapping', {'vdf': self.volume.name + ':::'}),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # CreateServer.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[{
+                'device_name': 'vdf',
+                'uuid': self.volume.id,
+                'destination_type': 'volume',
+                'source_type': 'volume',
+            }],
+            nics=[],
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_block_device_mapping_full_input(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device-mapping',
+            'vde=' + self.volume.name + ':volume:3:true',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', self.flavor.id),
+            ('block_device_mapping',
+             {'vde': self.volume.name + ':volume:3:true'}),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # CreateServer.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[{
+                'device_name': 'vde',
+                'uuid': self.volume.id,
+                'destination_type': 'volume',
+                'source_type': 'volume',
+                'delete_on_termination': 'true',
+                'volume_size': '3'
+            }],
+            nics=[],
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_block_device_mapping_snapshot(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device-mapping',
+            'vds=' + self.volume.name + ':snapshot:5:true',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', self.flavor.id),
+            ('block_device_mapping',
+             {'vds': self.volume.name + ':snapshot:5:true'}),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # CreateServer.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[{
+                'device_name': 'vds',
+                'uuid': self.snapshot.id,
+                'destination_type': 'volume',
+                'source_type': 'snapshot',
+                'delete_on_termination': 'true',
+                'volume_size': '5'
+            }],
+            nics=[],
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_block_device_mapping_multiple(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device-mapping', 'vdb=' + self.volume.name + ':::false',
+            '--block-device-mapping', 'vdc=' + self.volume.name + ':::true',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', self.flavor.id),
+            ('block_device_mapping', {'vdb': self.volume.name + ':::false',
+                                      'vdc': self.volume.name + ':::true'}),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # CreateServer.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[
+                {
+                    'device_name': 'vdb',
+                    'uuid': self.volume.id,
+                    'destination_type': 'volume',
+                    'source_type': 'volume',
+                    'delete_on_termination': 'false',
+                },
+                {
+                    'device_name': 'vdc',
+                    'uuid': self.volume.id,
+                    'destination_type': 'volume',
+                    'source_type': 'volume',
+                    'delete_on_termination': 'true',
+                }
+            ],
+            nics=[],
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_block_device_mapping_invalid_format(self):
+        # 1. block device mapping don't contain equal sign "="
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device-mapping', 'not_contain_equal_sign',
+            self.new_server.name,
+        ]
+        self.assertRaises(argparse.ArgumentTypeError,
+                          self.check_parser,
+                          self.cmd, arglist, [])
+        # 2. block device mapping don't contain device name "=uuid:::true"
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device-mapping', '=uuid:::true',
+            self.new_server.name,
+        ]
+        self.assertRaises(argparse.ArgumentTypeError,
+                          self.check_parser,
+                          self.cmd, arglist, [])
+
+    def test_server_create_with_block_device_mapping_no_uuid(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device-mapping', 'vdb=',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', self.flavor.id),
+            ('block_device_mapping', {'vdb': ''}),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)
 
 
 class TestServerDelete(TestServer):
