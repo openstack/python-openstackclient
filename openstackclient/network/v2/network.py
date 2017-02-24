@@ -111,10 +111,10 @@ def _get_attrs(client_manager, parsed_args):
         attrs['router:external'] = False
     if parsed_args.external:
         attrs['router:external'] = True
-        if parsed_args.no_default:
-            attrs['is_default'] = False
-        if parsed_args.default:
-            attrs['is_default'] = True
+    if parsed_args.no_default:
+        attrs['is_default'] = False
+    if parsed_args.default:
+        attrs['is_default'] = True
     # Update Provider network options
     if parsed_args.provider_network_type:
         attrs['provider:network_type'] = parsed_args.provider_network_type

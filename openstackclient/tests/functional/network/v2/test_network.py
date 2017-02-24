@@ -126,6 +126,7 @@ class NetworkTests(base.TestCase):
         cmd_output = json.loads(self.openstack(
             'network create -f json ' +
             '--description aaaa ' +
+            '--no-default ' +
             name1
         ))
         self.addCleanup(self.openstack, 'network delete ' + name1)
@@ -147,17 +148,11 @@ class NetworkTests(base.TestCase):
             'Internal',
             cmd_output["router:external"],
         )
-        # NOTE(dtroyer): is_default is not present in the create output
-        #                so make sure it stays that way.
-        # NOTE(stevemar): is_default *is* present in SDK 0.9.11 and newer,
-        #                 but the value seems to always be None, regardless
-        #                 of the --default or --no-default value.
-        # self.assertEqual('x', cmd_output)
-        if ('is_default' in cmd_output):
-            self.assertEqual(
-                None,
-                cmd_output["is_default"],
-            )
+
+        self.assertEqual(
+            False,
+            cmd_output["is_default"],
+        )
         self.assertEqual(
             True,
             cmd_output["port_security_enabled"],
@@ -185,11 +180,10 @@ class NetworkTests(base.TestCase):
             True,
             cmd_output["shared"],
         )
-        if ('is_default' in cmd_output):
-            self.assertEqual(
-                None,
-                cmd_output["is_default"],
-            )
+        self.assertEqual(
+            None,
+            cmd_output["is_default"],
+        )
         self.assertEqual(
             True,
             cmd_output["port_security_enabled"],
@@ -275,16 +269,11 @@ class NetworkTests(base.TestCase):
             'Internal',
             cmd_output["router:external"],
         )
-        # NOTE(dtroyer): is_default is not present in the create output
-        #                so make sure it stays that way.
-        # NOTE(stevemar): is_default *is* present in SDK 0.9.11 and newer,
-        #                 but the value seems to always be None, regardless
-        #                 of the --default or --no-default value.
-        if ('is_default' in cmd_output):
-            self.assertEqual(
-                None,
-                cmd_output["is_default"],
-            )
+
+        self.assertEqual(
+            False,
+            cmd_output["is_default"],
+        )
         self.assertEqual(
             True,
             cmd_output["port_security_enabled"],
@@ -321,37 +310,10 @@ class NetworkTests(base.TestCase):
             'External',
             cmd_output["router:external"],
         )
-        # why not 'None' like above??
         self.assertEqual(
             False,
             cmd_output["is_default"],
         )
-        self.assertEqual(
-            False,
-            cmd_output["port_security_enabled"],
-        )
-
-        # NOTE(dtroyer): There is ambiguity around is_default in that
-        #                it is not in the API docs and apparently can
-        #                not be set when the network is --external,
-        #                although the option handling code only looks at
-        #                the value of is_default when external is True.
-        raw_output = self.openstack(
-            'network set ' +
-            '--default ' +
-            name
-        )
-        self.assertOutput('', raw_output)
-
-        cmd_output = json.loads(self.openstack(
-            'network show -f json ' + name
-        ))
-
-        self.assertEqual(
-            'cccc',
-            cmd_output["description"],
-        )
-        # NOTE(dtroyer): This should be 'True'
         self.assertEqual(
             False,
             cmd_output["port_security_enabled"],
