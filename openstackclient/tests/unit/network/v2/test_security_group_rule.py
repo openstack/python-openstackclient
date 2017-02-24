@@ -62,7 +62,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     expected_columns = (
         'description',
         'direction',
-        'ethertype',
+        'ether_type',
         'id',
         'port_range_max',
         'port_range_min',
@@ -84,7 +84,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.expected_data = (
             self._security_group_rule.description,
             self._security_group_rule.direction,
-            self._security_group_rule.ethertype,
+            self._security_group_rule.ether_type,
             self._security_group_rule.id,
             self._security_group_rule.port_range_max,
             self._security_group_rule.port_range_min,
@@ -184,7 +184,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.create_security_group_rule.assert_called_once_with(**{
             'direction': self._security_group_rule.direction,
-            'ethertype': self._security_group_rule.ethertype,
+            'ethertype': self._security_group_rule.ether_type,
             'port_range_max': self._security_group_rule.port_range_max,
             'port_range_min': self._security_group_rule.port_range_min,
             'protocol': self._security_group_rule.protocol,
@@ -216,7 +216,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.create_security_group_rule.assert_called_once_with(**{
             'direction': self._security_group_rule.direction,
-            'ethertype': self._security_group_rule.ethertype,
+            'ethertype': self._security_group_rule.ether_type,
             'protocol': self._security_group_rule.protocol,
             'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
             'security_group_id': self._security_group.id,
@@ -249,7 +249,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.create_security_group_rule.assert_called_once_with(**{
             'direction': self._security_group_rule.direction,
-            'ethertype': self._security_group_rule.ethertype,
+            'ethertype': self._security_group_rule.ether_type,
             'port_range_max': self._security_group_rule.port_range_max,
             'port_range_min': self._security_group_rule.port_range_min,
             'protocol': self._security_group_rule.protocol,
@@ -279,7 +279,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.create_security_group_rule.assert_called_once_with(**{
             'direction': self._security_group_rule.direction,
-            'ethertype': self._security_group_rule.ethertype,
+            'ethertype': self._security_group_rule.ether_type,
             'protocol': self._security_group_rule.protocol,
             'remote_group_id': self._security_group_rule.remote_group_id,
             'security_group_id': self._security_group.id,
@@ -308,7 +308,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.create_security_group_rule.assert_called_once_with(**{
             'direction': self._security_group_rule.direction,
-            'ethertype': self._security_group_rule.ethertype,
+            'ethertype': self._security_group_rule.ether_type,
             'protocol': self._security_group_rule.protocol,
             'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
             'security_group_id': self._security_group.id,
@@ -337,7 +337,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.create_security_group_rule.assert_called_once_with(**{
             'direction': self._security_group_rule.direction,
-            'ethertype': self._security_group_rule.ethertype,
+            'ethertype': self._security_group_rule.ether_type,
             'protocol': self._security_group_rule.protocol,
             'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
             'security_group_id': self._security_group.id,
@@ -348,7 +348,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     def test_create_network_options(self):
         self._setup_security_group_rule({
             'direction': 'egress',
-            'ethertype': 'IPv6',
+            'ether_type': 'IPv6',
             'port_range_max': 443,
             'port_range_min': 443,
             'protocol': '6',
@@ -358,7 +358,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         arglist = [
             '--dst-port', str(self._security_group_rule.port_range_min),
             '--egress',
-            '--ethertype', self._security_group_rule.ethertype,
+            '--ethertype', self._security_group_rule.ether_type,
             '--project', self.project.name,
             '--project-domain', self.domain.name,
             '--protocol', self._security_group_rule.protocol,
@@ -368,7 +368,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             ('dst_port', (self._security_group_rule.port_range_min,
                           self._security_group_rule.port_range_max)),
             ('egress', True),
-            ('ethertype', self._security_group_rule.ethertype),
+            ('ethertype', self._security_group_rule.ether_type),
             ('project', self.project.name),
             ('project_domain', self.domain.name),
             ('protocol', self._security_group_rule.protocol),
@@ -380,7 +380,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.create_security_group_rule.assert_called_once_with(**{
             'direction': self._security_group_rule.direction,
-            'ethertype': self._security_group_rule.ethertype,
+            'ethertype': self._security_group_rule.ether_type,
             'port_range_max': self._security_group_rule.port_range_max,
             'port_range_min': self._security_group_rule.port_range_min,
             'protocol': self._security_group_rule.protocol,
@@ -444,7 +444,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.create_security_group_rule.assert_called_once_with(**{
             'direction': self._security_group_rule.direction,
-            'ethertype': self._security_group_rule.ethertype,
+            'ethertype': self._security_group_rule.ether_type,
             'port_range_min': self._security_group_rule.port_range_min,
             'protocol': self._security_group_rule.protocol,
             'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
@@ -455,7 +455,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
     def test_create_ipv6_icmp_type_code(self):
         self._setup_security_group_rule({
-            'ethertype': 'IPv6',
+            'ether_type': 'IPv6',
             'port_range_min': 139,
             'port_range_max': 2,
             'protocol': 'ipv6-icmp',
@@ -479,7 +479,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.create_security_group_rule.assert_called_once_with(**{
             'direction': self._security_group_rule.direction,
-            'ethertype': self._security_group_rule.ethertype,
+            'ethertype': self._security_group_rule.ether_type,
             'port_range_min': self._security_group_rule.port_range_min,
             'port_range_max': self._security_group_rule.port_range_max,
             'protocol': self._security_group_rule.protocol,
@@ -490,7 +490,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
     def test_create_icmpv6_type(self):
         self._setup_security_group_rule({
-            'ethertype': 'IPv6',
+            'ether_type': 'IPv6',
             'port_range_min': 139,
             'protocol': 'icmpv6',
         })
@@ -512,7 +512,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.create_security_group_rule.assert_called_once_with(**{
             'direction': self._security_group_rule.direction,
-            'ethertype': self._security_group_rule.ethertype,
+            'ethertype': self._security_group_rule.ether_type,
             'port_range_min': self._security_group_rule.port_range_min,
             'protocol': self._security_group_rule.protocol,
             'security_group_id': self._security_group.id,
@@ -539,7 +539,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.network.create_security_group_rule.assert_called_once_with(**{
             'description': self._security_group_rule.description,
             'direction': self._security_group_rule.direction,
-            'ethertype': self._security_group_rule.ethertype,
+            'ethertype': self._security_group_rule.ether_type,
             'protocol': self._security_group_rule.protocol,
             'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
             'security_group_id': self._security_group.id,
@@ -1039,7 +1039,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             security_group_rule._format_network_port_range(
                 _security_group_rule),
             _security_group_rule.direction,
-            _security_group_rule.ethertype,
+            _security_group_rule.ether_type,
             _security_group_rule.remote_group_id,
         ))
         expected_data_no_group.append((
@@ -1299,7 +1299,7 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     columns = (
         'description',
         'direction',
-        'ethertype',
+        'ether_type',
         'id',
         'port_range_max',
         'port_range_min',
@@ -1313,7 +1313,7 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     data = (
         _security_group_rule.description,
         _security_group_rule.direction,
-        _security_group_rule.ethertype,
+        _security_group_rule.ether_type,
         _security_group_rule.id,
         _security_group_rule.port_range_max,
         _security_group_rule.port_range_min,

@@ -1119,7 +1119,7 @@ class FakeSecurityGroupRule(object):
             'description': 'security-group-rule-description-' +
                            uuid.uuid4().hex,
             'direction': 'ingress',
-            'ethertype': 'IPv4',
+            'ether_type': 'IPv4',
             'id': 'security-group-rule-id-' + uuid.uuid4().hex,
             'port_range_max': None,
             'port_range_min': None,

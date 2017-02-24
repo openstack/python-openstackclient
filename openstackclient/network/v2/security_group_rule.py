@@ -521,7 +521,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             'port_range',
         )
         if parsed_args.long:
-            columns = columns + ('direction', 'ethertype',)
+            columns = columns + ('direction', 'ether_type',)
         columns = columns + ('remote_group_id',)
 
         # Get the security group rules using the requested query.
