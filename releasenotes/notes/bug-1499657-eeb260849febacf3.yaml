@@ -1,6 +1,5 @@
 ---
 fixes:
   - |
-    Options ``--parents`` and ``--children`` don't work in ``project show``
-    command, fix the issue.
+    Fix ``--parents`` and ``--children`` options in ``project show`` command.
     [Bug `1499657 <https://bugs.launchpad.net/python-openstackclient/+bug/1499657>`_]
