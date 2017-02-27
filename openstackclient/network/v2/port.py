@@ -51,7 +51,6 @@ _formatters = {
     'extra_dhcp_opts': utils.format_list_of_dicts,
     'fixed_ips': utils.format_list_of_dicts,
     'security_group_ids': utils.format_list,
-    'security_groups': utils.format_list,
 }
 
 
@@ -64,7 +63,6 @@ def _get_columns(item):
         'binding:vnic_type': 'binding_vnic_type',
         'is_admin_state_up': 'admin_state_up',
         'is_port_security_enabled': 'port_security_enabled',
-        'security_group_ids': 'security_groups',
         'tenant_id': 'project_id',
     }
     return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
@@ -349,7 +347,7 @@ class CreatePort(command.ShowOne):
             '--security-group',
             metavar='<security-group>',
             action='append',
-            dest='security_groups',
+            dest='security_group',
             help=_("Security group to associate with this port (name or ID) "
                    "(repeat option to set multiple security groups)")
         )
@@ -391,12 +389,13 @@ class CreatePort(command.ShowOne):
         _prepare_fixed_ips(self.app.client_manager, parsed_args)
         attrs = _get_attrs(self.app.client_manager, parsed_args)
 
-        if parsed_args.security_groups:
-            attrs['security_groups'] = [client.find_security_group(
-                                        sg, ignore_missing=False).id
-                                        for sg in parsed_args.security_groups]
-        if parsed_args.no_security_group:
-            attrs['security_groups'] = []
+        if parsed_args.security_group:
+            attrs['security_group_ids'] = [client.find_security_group(
+                                           sg, ignore_missing=False).id
+                                           for sg in
+                                           parsed_args.security_group]
+        elif parsed_args.no_security_group:
+            attrs['security_group_ids'] = []
         if parsed_args.allowed_address_pairs:
             attrs['allowed_address_pairs'] = (
                 _convert_address_pairs(parsed_args))
@@ -626,7 +625,7 @@ class SetPort(command.Command):
             '--security-group',
             metavar='<security-group>',
             action='append',
-            dest='security_groups',
+            dest='security_group',
             help=_("Security group to associate with this port (name or ID) "
                    "(repeat option to set multiple security groups)")
         )
@@ -694,17 +693,16 @@ class SetPort(command.Command):
                 attrs['fixed_ips'] += [ip for ip in obj.fixed_ips if ip]
         elif parsed_args.no_fixed_ip:
             attrs['fixed_ips'] = []
-        if parsed_args.security_groups and parsed_args.no_security_group:
-            attrs['security_groups'] = [client.find_security_group(sg,
-                                        ignore_missing=False).id
-                                        for sg in parsed_args.security_groups]
-        elif parsed_args.security_groups:
-            attrs['security_groups'] = obj.security_groups
-            for sg in parsed_args.security_groups:
-                sg_id = client.find_security_group(sg, ignore_missing=False).id
-                attrs['security_groups'].append(sg_id)
+
+        if parsed_args.security_group:
+            attrs['security_group_ids'] = [
+                client.find_security_group(sg, ignore_missing=False).id for
+                sg in parsed_args.security_group]
+            if not parsed_args.no_security_group:
+                attrs['security_group_ids'] += obj.security_group_ids
+
         elif parsed_args.no_security_group:
-            attrs['security_groups'] = []
+            attrs['security_group_ids'] = []
 
         if (parsed_args.allowed_address_pairs and
                 parsed_args.no_allowed_address_pair):
@@ -769,7 +767,7 @@ class UnsetPort(command.Command):
             '--security-group',
             metavar='<security-group>',
             action='append',
-            dest='security_groups',
+            dest='security_group_ids',
             help=_("Security group which should be removed this port (name "
                    "or ID) (repeat option to unset multiple security groups)")
         )
@@ -802,7 +800,7 @@ class UnsetPort(command.Command):
         # Unset* classes
         tmp_fixed_ips = copy.deepcopy(obj.fixed_ips)
         tmp_binding_profile = copy.deepcopy(obj.binding_profile)
-        tmp_secgroups = copy.deepcopy(obj.security_groups)
+        tmp_secgroups = copy.deepcopy(obj.security_group_ids)
         tmp_addr_pairs = copy.deepcopy(obj.allowed_address_pairs)
         _prepare_fixed_ips(self.app.client_manager, parsed_args)
         attrs = {}
@@ -822,16 +820,16 @@ class UnsetPort(command.Command):
                 msg = _("Port does not contain binding-profile %s") % key
                 raise exceptions.CommandError(msg)
             attrs['binding:profile'] = tmp_binding_profile
-        if parsed_args.security_groups:
+        if parsed_args.security_group_ids:
             try:
-                for sg in parsed_args.security_groups:
+                for sg in parsed_args.security_group_ids:
                     sg_id = client.find_security_group(
                         sg, ignore_missing=False).id
                     tmp_secgroups.remove(sg_id)
             except ValueError:
                 msg = _("Port does not contain security group %s") % sg
                 raise exceptions.CommandError(msg)
-            attrs['security_groups'] = tmp_secgroups
+            attrs['security_group_ids'] = tmp_secgroups
         if parsed_args.allowed_address_pairs:
             try:
                 for addr in _convert_address_pairs(parsed_args):

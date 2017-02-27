@@ -20,6 +20,7 @@ class PortTests(base.TestCase):
     """Functional tests for port. """
     NAME = uuid.uuid4().hex
     NETWORK_NAME = uuid.uuid4().hex
+    SG_NAME = uuid.uuid4().hex
 
     @classmethod
     def setUpClass(cls):
@@ -124,13 +125,25 @@ class PortTests(base.TestCase):
         self.assertEqual('xyzpdq', json_output.get('description'))
         self.assertEqual('DOWN', json_output.get('admin_state_up'))
 
-        raw_output = self.openstack('port set ' + '--enable ' + self.NAME)
+        raw_output = self.openstack(
+            'port set ' + '--enable ' + self.NAME)
         self.assertOutput('', raw_output)
 
         json_output = json.loads(self.openstack(
             'port show -f json ' + self.NAME
         ))
+        sg_id = json_output.get('security_group_ids')
+
         self.assertEqual(self.NAME, json_output.get('name'))
         self.assertEqual('xyzpdq', json_output.get('description'))
         self.assertEqual('UP', json_output.get('admin_state_up'))
         self.assertIsNotNone(json_output.get('mac_address'))
+
+        raw_output = self.openstack(
+            'port unset --security-group ' + sg_id + ' ' + id1)
+        self.assertOutput('', raw_output)
+
+        json_output = json.loads(self.openstack(
+            'port show -f json ' + self.NAME
+        ))
+        self.assertEqual('', json_output.get('security_group_ids'))

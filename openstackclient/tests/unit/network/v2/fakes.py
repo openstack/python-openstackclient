@@ -544,7 +544,7 @@ class FakePort(object):
             'name': 'port-name-' + uuid.uuid4().hex,
             'network_id': 'network-id-' + uuid.uuid4().hex,
             'port_security_enabled': True,
-            'security_groups': [],
+            'security_group_ids': [],
             'status': 'ACTIVE',
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
         }
@@ -564,7 +564,7 @@ class FakePort(object):
         port.is_admin_state_up = port_attrs['admin_state_up']
         port.is_port_security_enabled = port_attrs['port_security_enabled']
         port.project_id = port_attrs['tenant_id']
-        port.security_group_ids = port_attrs['security_groups']
+        port.security_group_ids = port_attrs['security_group_ids']
 
         return port
 
