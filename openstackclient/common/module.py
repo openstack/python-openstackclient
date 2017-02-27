@@ -29,11 +29,25 @@ class ListCommand(command.Lister):
 
     auth_required = False
 
+    def get_parser(self, prog_name):
+        parser = super(ListCommand, self).get_parser(prog_name)
+        parser.add_argument(
+            '--group',
+            metavar='<group-keyword>',
+            help=_('Show commands filtered by a command group, for example: '
+                   'identity, volume, compute, image, network and '
+                   'other keywords'),
+        )
+        return parser
+
     def take_action(self, parsed_args):
         cm = self.app.command_manager
         groups = cm.get_command_groups()
         groups = sorted(groups)
         columns = ('Command Group', 'Commands')
+
+        if parsed_args.group:
+            groups = (group for group in groups if parsed_args.group in group)
 
         commands = []
         for group in groups:
