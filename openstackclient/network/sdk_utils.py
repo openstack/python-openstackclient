@@ -13,8 +13,24 @@
 import six
 
 
-# Get the OSC show command display and attribute columns for an SDK resource.
-def get_osc_show_columns_for_sdk_resource(sdk_resource, osc_column_map):
+def get_osc_show_columns_for_sdk_resource(
+    sdk_resource,
+    osc_column_map,
+    invisible_columns=[]
+):
+    """Get and filter the display and attribute columns for an SDK resource.
+
+    Common utility function for preparing the output of an OSC show command.
+    Some of the columns may need to get renamed, others made invisible.
+
+    :param sdk_resource: An SDK resource
+    :param osc_column_map: A hash of mappings for display column names
+    :param invisible_columns: A list of invisible column names
+
+    :returns: Two tuples containing the names of the display and attribute
+              columns
+    """
+
     if getattr(sdk_resource, 'allow_get', None) is not None:
         resource_dict = sdk_resource.to_dict(
             body=True, headers=False, ignore_none=False)
@@ -24,6 +40,9 @@ def get_osc_show_columns_for_sdk_resource(sdk_resource, osc_column_map):
     # Build the OSC column names to display for the SDK resource.
     attr_map = {}
     display_columns = list(resource_dict.keys())
+    for col_name in invisible_columns:
+        if col_name in display_columns:
+            display_columns.remove(col_name)
     for sdk_attr, osc_attr in six.iteritems(osc_column_map):
         if sdk_attr in display_columns:
             attr_map[osc_attr] = sdk_attr

@@ -132,7 +132,13 @@ def _get_columns(item):
         'subnet_pool_id': 'subnetpool_id',
         'tenant_id': 'project_id',
     }
-    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
+    # Do not show this column when displaying a subnet
+    invisible_columns = ['use_default_subnetpool']
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(
+        item,
+        column_map,
+        invisible_columns=invisible_columns
+    )
 
 
 def convert_entries_to_nexthop(entries):
@@ -179,7 +185,7 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
                                                   ignore_missing=False)
             attrs['subnetpool_id'] = subnet_pool.id
         if parsed_args.use_default_subnet_pool:
-            attrs['use_default_subnetpool'] = True
+            attrs['use_default_subnet_pool'] = True
         if parsed_args.prefix_length is not None:
             attrs['prefixlen'] = parsed_args.prefix_length
         if parsed_args.subnet_range is not None:
