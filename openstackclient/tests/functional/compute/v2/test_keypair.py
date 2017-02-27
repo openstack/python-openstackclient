@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import tempfile
 
 from openstackclient.tests.functional import base
@@ -99,6 +100,26 @@ class KeypairTests(KeypairBase):
                 'keypair delete tmpkey',
             )
             self.assertIn('tmpkey', raw_output)
+
+    def test_keypair_create_private_key(self):
+        """Test for create keypair with --private-key option.
+
+        Test steps:
+        1) Create keypair with private key file
+        2) Delete keypair
+        """
+        with tempfile.NamedTemporaryFile() as f:
+            cmd_output = json.loads(self.openstack(
+                'keypair create -f json --private-key %s tmpkey' % f.name,
+            ))
+            self.addCleanup(self.openstack, 'keypair delete tmpkey')
+            self.assertEqual('tmpkey', cmd_output.get('name'))
+            self.assertIsNotNone(cmd_output.get('user_id'))
+            self.assertIsNotNone(cmd_output.get('fingerprint'))
+            pk_content = f.read()
+            self.assertInOutput('-----BEGIN RSA PRIVATE KEY-----', pk_content)
+            self.assertRegex(pk_content, "[0-9A-Za-z+/]+[=]{0,3}\n")
+            self.assertInOutput('-----END RSA PRIVATE KEY-----', pk_content)
 
     def test_keypair_create(self):
         """Test keypair create command.

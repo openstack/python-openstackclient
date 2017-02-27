@@ -41,11 +41,18 @@ class CreateKeypair(command.ShowOne):
             metavar='<name>',
             help=_("New public or private key name")
         )
-        parser.add_argument(
+        key_group = parser.add_mutually_exclusive_group()
+        key_group.add_argument(
             '--public-key',
             metavar='<file>',
             help=_("Filename for public key to add. If not used, "
                    "creates a private key.")
+        )
+        key_group.add_argument(
+            '--private-key',
+            metavar='<file>',
+            help=_("Filename for private key to save. If not used, "
+                   "print private key in console.")
         )
         return parser
 
@@ -69,13 +76,31 @@ class CreateKeypair(command.ShowOne):
             public_key=public_key,
         )
 
+        private_key = parsed_args.private_key
+        # Save private key into specified file
+        if private_key:
+            try:
+                with io.open(
+                        os.path.expanduser(parsed_args.private_key), 'w+'
+                ) as p:
+                    p.write(keypair.private_key)
+            except IOError as e:
+                msg = _("Key file %(private_key)s can not be saved: "
+                        "%(exception)s")
+                raise exceptions.CommandError(
+                    msg % {"private_key": parsed_args.private_key,
+                           "exception": e}
+                )
         # NOTE(dtroyer): how do we want to handle the display of the private
         #                key when it needs to be communicated back to the user
         #                For now, duplicate nova keypair-add command output
         info = {}
-        if public_key:
+        if public_key or private_key:
             info.update(keypair._info)
-            del info['public_key']
+            if 'public_key' in info:
+                del info['public_key']
+            if 'private_key' in info:
+                del info['private_key']
             return zip(*sorted(six.iteritems(info)))
         else:
             sys.stdout.write(keypair.private_key)

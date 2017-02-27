@@ -18,12 +18,17 @@ Create new public or private key for server ssh access
 .. code:: bash
 
     openstack keypair create
-        [--public-key <file>]
+        [--public-key <file> | --private-key <file>]
         <name>
 
 .. option:: --public-key <file>
 
     Filename for public key to add. If not used, creates a private key.
+
+.. option:: --private-key <file>
+
+    Filename for private key to save. If not used, print private key in
+    console.
 
 .. describe:: <name>
 
