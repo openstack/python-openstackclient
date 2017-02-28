@@ -883,27 +883,69 @@ class TestSetPort(TestPort):
         # Get the command object to test
         self.cmd = port.SetPort(self.app, self.namespace)
 
-    def test_set_fixed_ip(self):
+    def test_set_port_defaults(self):
         arglist = [
-            '--fixed-ip', 'ip-address=10.0.0.11',
             self._port.name,
-            '--no-fixed-ip',
         ]
         verifylist = [
-            ('fixed_ip', [{'ip-address': '10.0.0.11'}]),
             ('port', self._port.name),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = self.cmd.take_action(parsed_args)
 
-        attrs = {
-            'fixed_ips': [{'ip_address': '10.0.0.11'}],
-        }
+        result = self.cmd.take_action(parsed_args)
+        attrs = {}
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
-    def test_set_dns_name(self):
+    def test_set_port_fixed_ip(self):
+        _testport = network_fakes.FakePort.create_one_port(
+            {'fixed_ips': [{'ip_address': '0.0.0.1'}]})
+        self.network.find_port = mock.Mock(return_value=_testport)
+        arglist = [
+            '--fixed-ip', 'ip-address=10.0.0.12',
+            _testport.name,
+        ]
+        verifylist = [
+            ('fixed_ip', [{'ip-address': '10.0.0.12'}]),
+            ('port', _testport.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        attrs = {
+            'fixed_ips': [
+                {'ip_address': '0.0.0.1'},
+                {'ip_address': '10.0.0.12'},
+            ],
+        }
+        self.network.update_port.assert_called_once_with(_testport, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_port_fixed_ip_clear(self):
+        _testport = network_fakes.FakePort.create_one_port(
+            {'fixed_ips': [{'ip_address': '0.0.0.1'}]})
+        self.network.find_port = mock.Mock(return_value=_testport)
+        arglist = [
+            '--fixed-ip', 'ip-address=10.0.0.12',
+            '--no-fixed-ip',
+            _testport.name,
+        ]
+        verifylist = [
+            ('fixed_ip', [{'ip-address': '10.0.0.12'}]),
+            ('no_fixed_ip', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        attrs = {
+            'fixed_ips': [
+                {'ip_address': '10.0.0.12'},
+            ],
+        }
+        self.network.update_port.assert_called_once_with(_testport, **attrs)
+        self.assertIsNone(result)
+
+    def test_set_port_dns_name(self):
         arglist = [
             '--dns-name', '8.8.8.8',
             self._port.name,
@@ -922,28 +964,7 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
-    def test_append_fixed_ip(self):
-        _testport = network_fakes.FakePort.create_one_port(
-            {'fixed_ips': [{'ip_address': '0.0.0.1'}]})
-        self.network.find_port = mock.Mock(return_value=_testport)
-        arglist = [
-            '--fixed-ip', 'ip-address=10.0.0.12',
-            _testport.name,
-        ]
-        verifylist = [
-            ('fixed_ip', [{'ip-address': '10.0.0.12'}]),
-            ('port', _testport.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = self.cmd.take_action(parsed_args)
-        attrs = {
-            'fixed_ips': [
-                {'ip_address': '10.0.0.12'}, {'ip_address': '0.0.0.1'}],
-        }
-        self.network.update_port.assert_called_once_with(_testport, **attrs)
-        self.assertIsNone(result)
-
-    def test_overwrite_binding_profile(self):
+    def test_set_port_overwrite_binding_profile(self):
         _testport = network_fakes.FakePort.create_one_port(
             {'binding_profile': {'lok_i': 'visi_on'}})
         self.network.find_port = mock.Mock(return_value=_testport)
@@ -961,28 +982,6 @@ class TestSetPort(TestPort):
         attrs = {
             'binding:profile':
                 {'lok_i': 'than_os'},
-        }
-        self.network.update_port.assert_called_once_with(_testport, **attrs)
-        self.assertIsNone(result)
-
-    def test_overwrite_fixed_ip(self):
-        _testport = network_fakes.FakePort.create_one_port(
-            {'fixed_ips': [{'ip_address': '0.0.0.1'}]})
-        self.network.find_port = mock.Mock(return_value=_testport)
-        arglist = [
-            '--fixed-ip', 'ip-address=10.0.0.12',
-            '--no-fixed-ip',
-            _testport.name,
-        ]
-        verifylist = [
-            ('fixed_ip', [{'ip-address': '10.0.0.12'}]),
-            ('no_fixed_ip', True)
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = self.cmd.take_action(parsed_args)
-        attrs = {
-            'fixed_ips': [
-                {'ip_address': '10.0.0.12'}],
         }
         self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
@@ -1006,7 +1005,7 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
 
-    def test_set_this(self):
+    def test_set_port_this(self):
         arglist = [
             '--disable',
             '--no-fixed-ip',
@@ -1031,7 +1030,7 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
-    def test_set_that(self):
+    def test_set_port_that(self):
         arglist = [
             '--description', 'newDescription',
             '--enable',
@@ -1065,22 +1064,7 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
-    def test_set_nothing(self):
-        arglist = [
-            self._port.name,
-        ]
-        verifylist = [
-            ('port', self._port.name),
-        ]
-
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = self.cmd.take_action(parsed_args)
-
-        attrs = {}
-        self.network.update_port.assert_called_once_with(self._port, **attrs)
-        self.assertIsNone(result)
-
-    def test_set_invalid_json_binding_profile(self):
+    def test_set_port_invalid_json_binding_profile(self):
         arglist = [
             '--binding-profile', '{"parent_name"}',
             'test-port',
@@ -1091,7 +1075,7 @@ class TestSetPort(TestPort):
                           arglist,
                           None)
 
-    def test_set_invalid_key_value_binding_profile(self):
+    def test_set_port_invalid_key_value_binding_profile(self):
         arglist = [
             '--binding-profile', 'key',
             'test-port',
@@ -1102,7 +1086,7 @@ class TestSetPort(TestPort):
                           arglist,
                           None)
 
-    def test_set_mixed_binding_profile(self):
+    def test_set_port_mixed_binding_profile(self):
         arglist = [
             '--binding-profile', 'foo=bar',
             '--binding-profile', '{"foo2": "bar2"}',
@@ -1122,7 +1106,7 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
-    def test_set_security_group(self):
+    def test_set_port_security_group(self):
         sg = network_fakes.FakeSecurityGroup.create_one_security_group()
         self.network.find_security_group = mock.Mock(return_value=sg)
         arglist = [
@@ -1133,17 +1117,16 @@ class TestSetPort(TestPort):
             ('security_group', [sg.id]),
             ('port', self._port.name),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = self.cmd.take_action(parsed_args)
 
+        result = self.cmd.take_action(parsed_args)
         attrs = {
             'security_group_ids': [sg.id],
         }
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
-    def test_append_security_group(self):
+    def test_set_port_security_group_append(self):
         sg_1 = network_fakes.FakeSecurityGroup.create_one_security_group()
         sg_2 = network_fakes.FakeSecurityGroup.create_one_security_group()
         sg_3 = network_fakes.FakeSecurityGroup.create_one_security_group()
@@ -1161,14 +1144,15 @@ class TestSetPort(TestPort):
             ('port', _testport.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
         result = self.cmd.take_action(parsed_args)
         attrs = {
-            'security_group_ids': [sg_2.id, sg_3.id, sg_1.id],
+            'security_group_ids': [sg_1.id, sg_2.id, sg_3.id],
         }
         self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
 
-    def test_set_no_security_groups(self):
+    def test_set_port_security_group_clear(self):
         arglist = [
             '--no-security-group',
             self._port.name,
@@ -1177,17 +1161,16 @@ class TestSetPort(TestPort):
             ('no_security_group', True),
             ('port', self._port.name),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = self.cmd.take_action(parsed_args)
 
+        result = self.cmd.take_action(parsed_args)
         attrs = {
             'security_group_ids': [],
         }
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
-    def test_overwrite_security_group(self):
+    def test_set_port_security_group_replace(self):
         sg1 = network_fakes.FakeSecurityGroup.create_one_security_group()
         sg2 = network_fakes.FakeSecurityGroup.create_one_security_group()
         _testport = network_fakes.FakePort.create_one_port(
@@ -1204,6 +1187,7 @@ class TestSetPort(TestPort):
             ('no_security_group', True)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
         result = self.cmd.take_action(parsed_args)
         attrs = {
             'security_group_ids': [sg2.id],
@@ -1211,7 +1195,7 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
 
-    def test_set_allowed_address_pair(self):
+    def test_set_port_allowed_address_pair(self):
         arglist = [
             '--allowed-address', 'ip-address=192.168.1.123',
             self._port.name,
@@ -1230,7 +1214,7 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
-    def test_append_allowed_address_pair(self):
+    def test_set_port_append_allowed_address_pair(self):
         _testport = network_fakes.FakePort.create_one_port(
             {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]})
         self.network.find_port = mock.Mock(return_value=_testport)
@@ -1253,7 +1237,7 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
 
-    def test_overwrite_allowed_address_pair(self):
+    def test_set_port_overwrite_allowed_address_pair(self):
         _testport = network_fakes.FakePort.create_one_port(
             {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]})
         self.network.find_port = mock.Mock(return_value=_testport)
@@ -1277,7 +1261,7 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
 
-    def test_set_no_allowed_address_pairs(self):
+    def test_set_port_no_allowed_address_pairs(self):
         arglist = [
             '--no-allowed-address',
             self._port.name,
@@ -1296,7 +1280,7 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
-    def test_port_security_enabled(self):
+    def test_set_port_security_enabled(self):
         arglist = [
             '--enable-port-security',
             self._port.id,
@@ -1314,7 +1298,7 @@ class TestSetPort(TestPort):
             'port_security_enabled': True,
         })
 
-    def test_port_security_disabled(self):
+    def test_set_port_security_disabled(self):
         arglist = [
             '--disable-port-security',
             self._port.id,

@@ -20,7 +20,6 @@ class PortTests(base.TestCase):
     """Functional tests for port. """
     NAME = uuid.uuid4().hex
     NETWORK_NAME = uuid.uuid4().hex
-    SG_NAME = uuid.uuid4().hex
 
     @classmethod
     def setUpClass(cls):
@@ -112,29 +111,32 @@ class PortTests(base.TestCase):
 
     def test_port_set(self):
         """Test create, set, show, delete"""
+        name = uuid.uuid4().hex
         json_output = json.loads(self.openstack(
             'port create -f json ' +
             '--network ' + self.NETWORK_NAME + ' ' +
-            '--description xyzpdq '
+            '--description xyzpdq ' +
             '--disable ' +
-            self.NAME
+            name
         ))
         id1 = json_output.get('id')
         self.addCleanup(self.openstack, 'port delete ' + id1)
-        self.assertEqual(self.NAME, json_output.get('name'))
+        self.assertEqual(name, json_output.get('name'))
         self.assertEqual('xyzpdq', json_output.get('description'))
         self.assertEqual('DOWN', json_output.get('admin_state_up'))
 
         raw_output = self.openstack(
-            'port set ' + '--enable ' + self.NAME)
+            'port set ' + '--enable ' +
+            name
+        )
         self.assertOutput('', raw_output)
 
         json_output = json.loads(self.openstack(
-            'port show -f json ' + self.NAME
+            'port show -f json ' + name
         ))
         sg_id = json_output.get('security_group_ids')
 
-        self.assertEqual(self.NAME, json_output.get('name'))
+        self.assertEqual(name, json_output.get('name'))
         self.assertEqual('xyzpdq', json_output.get('description'))
         self.assertEqual('UP', json_output.get('admin_state_up'))
         self.assertIsNotNone(json_output.get('mac_address'))
@@ -144,7 +146,7 @@ class PortTests(base.TestCase):
         self.assertOutput('', raw_output)
 
         json_output = json.loads(self.openstack(
-            'port show -f json ' + self.NAME
+            'port show -f json ' + name
         ))
         self.assertEqual('', json_output.get('security_group_ids'))
 
@@ -166,3 +168,68 @@ class PortTests(base.TestCase):
             'port show -f json ' + self.NAME
         ))
         self.assertEqual(json_output.get('mac_address'), '11:22:33:44:55:66')
+
+    def test_port_set_sg(self):
+        """Test create, set, show, delete"""
+        sg_name1 = uuid.uuid4().hex
+        json_output = json.loads(self.openstack(
+            'security group create -f json ' +
+            sg_name1
+        ))
+        sg_id1 = json_output.get('id')
+        self.addCleanup(self.openstack, 'security group delete ' + sg_id1)
+
+        sg_name2 = uuid.uuid4().hex
+        json_output = json.loads(self.openstack(
+            'security group create -f json ' +
+            sg_name2
+        ))
+        sg_id2 = json_output.get('id')
+        self.addCleanup(self.openstack, 'security group delete ' + sg_id2)
+
+        name = uuid.uuid4().hex
+        json_output = json.loads(self.openstack(
+            'port create -f json ' +
+            '--network ' + self.NETWORK_NAME + ' ' +
+            '--security-group ' + sg_name1 + ' ' +
+            name
+        ))
+        id1 = json_output.get('id')
+        self.addCleanup(self.openstack, 'port delete ' + id1)
+        self.assertEqual(name, json_output.get('name'))
+        self.assertEqual(sg_id1, json_output.get('security_group_ids'))
+
+        raw_output = self.openstack(
+            'port set ' +
+            '--security-group ' + sg_name2 + ' ' +
+            name
+        )
+        self.assertOutput('', raw_output)
+
+        json_output = json.loads(self.openstack(
+            'port show -f json ' + name
+        ))
+        self.assertEqual(name, json_output.get('name'))
+        self.assertIn(
+            # TODO(dtroyer): output formatters should not mess with JSON!
+            sg_id1,
+            json_output.get('security_group_ids'),
+        )
+        self.assertIn(
+            # TODO(dtroyer): output formatters should not mess with JSON!
+            sg_id2,
+            json_output.get('security_group_ids'),
+        )
+
+        raw_output = self.openstack(
+            'port unset --security-group ' + sg_id1 + ' ' + id1)
+        self.assertOutput('', raw_output)
+
+        json_output = json.loads(self.openstack(
+            'port show -f json ' + name
+        ))
+        self.assertEqual(
+            # TODO(dtroyer): output formatters should do this on JSON!
+            sg_id2,
+            json_output.get('security_group_ids'),
+        )
