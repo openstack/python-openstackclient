@@ -31,6 +31,13 @@ shown when necessary.
    :widths: 25, 25, 50
    :file: data/keystone.csv
 
+``neutron CLI``
+---------------
+
+.. csv-table::
+   :header: "Neutron CLI", "OSC Equivalent", "Description"
+   :widths: 25, 25, 50
+   :file: data/neutron.csv
 
 ``nova CLI``
 ------------
