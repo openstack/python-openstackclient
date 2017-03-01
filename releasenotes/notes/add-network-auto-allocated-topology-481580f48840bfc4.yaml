@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add support for the ``network auto allocated topology`` command for
+    creating and deleting auto allocated topologies.
+    [Blueprint :oscbp:`network-auto-allocated-topology`]
