@@ -27,7 +27,8 @@ API_VERSION_OPTION = 'os_volume_api_version'
 API_NAME = "volume"
 API_VERSIONS = {
     "1": "cinderclient.v1.client.Client",
-    "2": "cinderclient.v2.client.Client"
+    "2": "cinderclient.v2.client.Client",
+    "3": "cinderclient.v3.client.Client",
 }
 
 
