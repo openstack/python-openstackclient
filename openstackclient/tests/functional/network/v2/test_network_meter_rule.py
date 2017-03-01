@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import re
+import json
 import uuid
 
 from openstackclient.tests.functional import base
@@ -27,19 +27,11 @@ class TestMeterRule(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # Set up some regex for matching below
-        cls.re_id = re.compile("id\s+\|\s+(\S+)")
-        cls.re_direction = re.compile("direction\s+\|\s+(\S+)")
-        cls.re_ip_prefix = re.compile(
-            "remote_ip_prefix\s+\|\s+([^|]+?)\s+\|"
-        )
-        cls.re_meter_id = re.compile("metering_label_id\s+\|\s+(\S+)")
+        json_output = json.loads(cls.openstack(
+            'network meter create -f json ' + cls.METER_NAME
+        ))
 
-        raw_output = cls.openstack(
-            'network meter create ' + cls.METER_NAME
-        )
-
-        cls.METER_ID = re.search(cls.re_id, raw_output).group(1)
+        cls.METER_ID = json_output.get('id')
 
     @classmethod
     def tearDownClass(cls):
@@ -49,58 +41,81 @@ class TestMeterRule(base.TestCase):
     def test_meter_rule_delete(self):
         """test create, delete"""
 
-        raw_output = self.openstack(
-            'network meter rule create ' +
+        json_output = json.loads(self.openstack(
+            'network meter rule create -f json ' +
             '--remote-ip-prefix 10.0.0.0/8 ' +
             self.METER_ID
-        )
-        rule_id = re.search(self.re_id, raw_output).group(1)
-        re_ip = re.search(self.re_ip_prefix, raw_output)
+        ))
+        rule_id = json_output.get('id')
+        re_ip = json_output.get('remote_ip_prefix')
 
         self.addCleanup(self.openstack,
                         'network meter rule delete ' + rule_id)
         self.assertIsNotNone(re_ip)
         self.assertIsNotNone(rule_id)
+        self.assertEqual(
+            '10.0.0.0/8', re_ip
+        )
 
     def test_meter_rule_list(self):
         """Test create, list, delete"""
-        raw_output = self.openstack(
-            'network meter rule create ' +
+        json_output = json.loads(self.openstack(
+            'network meter rule create -f json ' +
             '--remote-ip-prefix 10.0.0.0/8 ' +
             self.METER_ID
-        )
-        rule_id = re.search(self.re_id, raw_output).group(1)
+        ))
+        rule_id_1 = json_output.get('id')
         self.addCleanup(self.openstack,
-                        'network meter rule delete ' + rule_id)
+                        'network meter rule delete ' + rule_id_1)
         self.assertEqual(
             '10.0.0.0/8',
-            re.search(self.re_ip_prefix, raw_output).group(1)
+            json_output.get('remote_ip_prefix')
         )
 
-        raw_output = self.openstack('network meter rule list')
-        self.assertIsNotNone(re.search(rule_id + "|\s+\|\s+\|\s+10.0.0.0/8",
-                                       raw_output))
+        json_output_1 = json.loads(self.openstack(
+            'network meter rule create -f json ' +
+            '--remote-ip-prefix 11.0.0.0/8 ' +
+            self.METER_ID
+        ))
+        rule_id_2 = json_output_1.get('id')
+        self.addCleanup(self.openstack,
+                        'network meter rule delete ' + rule_id_2)
+        self.assertEqual(
+            '11.0.0.0/8',
+            json_output_1.get('remote_ip_prefix')
+        )
+
+        json_output = json.loads(self.openstack('network meter rule list -f '
+                                                'json'))
+        rule_id_list = [item.get('ID') for item in json_output]
+        ip_prefix_list = [item.get('Remote IP Prefix') for item in json_output]
+        self.assertIn(rule_id_1, rule_id_list)
+        self.assertIn(rule_id_2, rule_id_list)
+        self.assertIn('10.0.0.0/8', ip_prefix_list)
+        self.assertIn('11.0.0.0/8', ip_prefix_list)
 
     def test_meter_rule_show(self):
+
         """Test create, show, delete"""
-        raw_output = self.openstack(
-            'network meter rule create ' +
+        json_output = json.loads(self.openstack(
+            'network meter rule create -f json ' +
             '--remote-ip-prefix 10.0.0.0/8 ' +
             '--egress ' +
             self.METER_ID
-        )
-        rule_id = re.search(self.re_id, raw_output).group(1)
+        ))
+        rule_id = json_output.get('id')
 
         self.assertEqual(
             'egress',
-            re.search(self.re_direction, raw_output).group(1)
+            json_output.get('direction')
         )
 
-        raw_output = self.openstack('network meter rule show ' + rule_id)
+        json_output = json.loads(self.openstack('network meter rule show'
+                                                ' -f json ' + rule_id))
 
         self.assertEqual(
             '10.0.0.0/8',
-            re.search(self.re_ip_prefix, raw_output).group(1)
+            json_output.get('remote_ip_prefix')
         )
         self.assertIsNotNone(rule_id)
 
