@@ -10,7 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import re
+
+import json
 import uuid
 
 from openstackclient.tests.functional import base
@@ -19,135 +20,157 @@ from openstackclient.tests.functional import base
 class NetworkFlavorTests(base.TestCase):
     """Functional tests for network flavor."""
 
-    @classmethod
-    def setUpClass(cls):
-        # Set up some regex for matching below
-        cls.re_name = re.compile("name\s+\|\s+([^|]+?)\s+\|")
-        cls.re_enabled = re.compile("enabled\s+\|\s+(\S+)")
-        cls.re_description = re.compile("description\s+\|\s+([^|]+?)\s+\|")
-        cls.SERVICE_TYPE = 'L3_ROUTER_NAT'
-
     def test_network_flavor_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
-        raw_output = self.openstack(
-            'network flavor create --description testdescription --enable'
-            ' --service-type ' + self.SERVICE_TYPE + ' ' + name1,
-        )
+        cmd_output = json.loads(self.openstack(
+            'network flavor create -f json --description testdescription '
+            '--enable  --service-type L3_ROUTER_NAT ' + name1,
+        ))
         self.assertEqual(
             name1,
-            re.search(self.re_name, raw_output).group(1))
-        self.assertEqual(
-            'True',
-            re.search(self.re_enabled, raw_output).group(1))
-        self.assertEqual(
-            'testdescription',
-            re.search(self.re_description, raw_output).group(1))
-
-        name2 = uuid.uuid4().hex
-        raw_output = self.openstack(
-            'network flavor create --description testdescription1 --disable'
-            ' --service-type ' + self.SERVICE_TYPE + ' ' + name2,
+            cmd_output['name'],
         )
         self.assertEqual(
-            name2,
-            re.search(self.re_name, raw_output).group(1))
+            True,
+            cmd_output['enabled'],
+        )
         self.assertEqual(
-            'False',
-            re.search(self.re_enabled, raw_output).group(1))
+            'testdescription',
+            cmd_output['description'],
+        )
+
+        name2 = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'network flavor create -f json --description testdescription1 '
+            '--disable --service-type  L3_ROUTER_NAT ' + name2,
+        ))
+        self.assertEqual(
+            name2,
+            cmd_output['name'],
+        )
+        self.assertEqual(
+            False,
+            cmd_output['enabled'],
+        )
         self.assertEqual(
             'testdescription1',
-            re.search(self.re_description, raw_output).group(1))
-
+            cmd_output['description'],
+        )
         raw_output = self.openstack(
             'network flavor delete ' + name1 + " " + name2)
         self.assertOutput('', raw_output)
 
     def test_network_flavor_list(self):
+        """Test create defaults, list filters, delete"""
         name1 = uuid.uuid4().hex
-        raw_output = self.openstack(
-            'network flavor create --description testdescription --enable'
-            ' --service-type ' + self.SERVICE_TYPE + ' ' + name1,
-        )
+        cmd_output = json.loads(self.openstack(
+            'network flavor create -f json --description testdescription '
+            '--enable  --service-type  L3_ROUTER_NAT ' + name1,
+        ))
         self.addCleanup(self.openstack, "network flavor delete " + name1)
         self.assertEqual(
             name1,
-            re.search(self.re_name, raw_output).group(1))
-        self.assertEqual(
-            'True',
-            re.search(self.re_enabled, raw_output).group(1))
-        self.assertEqual(
-            'testdescription',
-            re.search(self.re_description, raw_output).group(1))
-
-        name2 = uuid.uuid4().hex
-        raw_output = self.openstack(
-            'network flavor create --description testdescription --disable'
-            ' --service-type ' + self.SERVICE_TYPE + ' ' + name2,
+            cmd_output['name'],
         )
         self.assertEqual(
-            name2,
-            re.search(self.re_name, raw_output).group(1))
-        self.assertEqual(
-            'False',
-            re.search(self.re_enabled, raw_output).group(1))
+            True,
+            cmd_output['enabled'],
+        )
         self.assertEqual(
             'testdescription',
-            re.search(self.re_description, raw_output).group(1))
+            cmd_output['description'],
+        )
+
+        name2 = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'network flavor create -f json --description testdescription1 '
+            '--disable --service-type  L3_ROUTER_NAT ' + name2,
+        ))
+        self.assertEqual(
+            name2,
+            cmd_output['name'],
+        )
+        self.assertEqual(
+            False,
+            cmd_output['enabled'],
+        )
+        self.assertEqual(
+            'testdescription1',
+            cmd_output['description'],
+        )
         self.addCleanup(self.openstack, "network flavor delete " + name2)
 
         # Test list
-        raw_output = self.openstack('network flavor list')
-        self.assertIsNotNone(raw_output)
-        self.assertIsNotNone(re.search(name1, raw_output))
-        self.assertIsNotNone(re.search(name2, raw_output))
+        cmd_output = json.loads(self.openstack(
+            'network flavor list -f json ',))
+        self.assertIsNotNone(cmd_output)
+
+        name_list = [item.get('Name') for item in cmd_output]
+        self.assertIn(name1, name_list)
+        self.assertIn(name2, name_list)
 
     def test_network_flavor_set(self):
+        """Tests create options, set, show, delete"""
         name = uuid.uuid4().hex
         newname = name + "_"
-        raw_output = self.openstack(
-            'network flavor create --description testdescription --enable'
-            ' --service-type ' + self.SERVICE_TYPE + ' ' + name,
-        )
+        cmd_output = json.loads(self.openstack(
+            'network flavor create -f json --description testdescription '
+            '--disable --service-type  L3_ROUTER_NAT ' + name,
+        ))
         self.addCleanup(self.openstack, "network flavor delete " + newname)
         self.assertEqual(
             name,
-            re.search(self.re_name, raw_output).group(1))
+            cmd_output['name'],
+        )
         self.assertEqual(
-            'True',
-            re.search(self.re_enabled, raw_output).group(1))
+            False,
+            cmd_output['enabled'],
+        )
         self.assertEqual(
             'testdescription',
-            re.search(self.re_description, raw_output).group(1))
+            cmd_output['description'],
+        )
 
-        self.openstack(
+        raw_output = self.openstack(
             'network flavor set --name ' + newname + ' --disable ' + name
         )
-        raw_output = self.openstack('network flavor show ' + newname)
+        self.assertOutput('', raw_output)
+
+        cmd_output = json.loads(self.openstack(
+            'network flavor show -f json ' + newname,))
         self.assertEqual(
             newname,
-            re.search(self.re_name, raw_output).group(1))
+            cmd_output['name'],
+        )
         self.assertEqual(
-            'False',
-            re.search(self.re_enabled, raw_output).group(1))
+            False,
+            cmd_output['enabled'],
+        )
         self.assertEqual(
             'testdescription',
-            re.search(self.re_description, raw_output).group(1))
+            cmd_output['description'],
+        )
 
     def test_network_flavor_show(self):
+        """Test show network flavor"""
         name = uuid.uuid4().hex
-        self.openstack(
-            'network flavor create --description testdescription --enable'
-            ' --service-type ' + self.SERVICE_TYPE + ' ' + name,
-        )
+        cmd_output = json.loads(self.openstack(
+            'network flavor create -f json --description testdescription '
+            '--disable --service-type  L3_ROUTER_NAT ' + name,
+        ))
         self.addCleanup(self.openstack, "network flavor delete " + name)
-        raw_output = self.openstack('network flavor show ' + name)
+        cmd_output = json.loads(self.openstack(
+            'network flavor show -f json ' + name,))
         self.assertEqual(
             name,
-            re.search(self.re_name, raw_output).group(1))
+            cmd_output['name'],
+        )
         self.assertEqual(
-            'True',
-            re.search(self.re_enabled, raw_output).group(1))
+            False,
+            cmd_output['enabled'],
+        )
         self.assertEqual(
             'testdescription',
-            re.search(self.re_description, raw_output).group(1))
+            cmd_output['description'],
+        )
