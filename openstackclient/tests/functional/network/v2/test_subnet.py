@@ -10,6 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
+import random
 import uuid
 
 from openstackclient.tests.functional import base
@@ -17,50 +19,242 @@ from openstackclient.tests.functional import base
 
 class SubnetTests(base.TestCase):
     """Functional tests for subnet. """
-    NAME = uuid.uuid4().hex
-    NETWORK_NAME = uuid.uuid4().hex
-    HEADERS = ['Name']
-    FIELDS = ['name']
 
     @classmethod
     def setUpClass(cls):
-        # Create a network for the subnet.
-        cls.openstack('network create ' + cls.NETWORK_NAME)
-        opts = cls.get_opts(cls.FIELDS)
-        raw_output = cls.openstack(
-            'subnet create --network ' + cls.NETWORK_NAME +
-            ' --subnet-range 10.10.10.0/24 ' +
-            cls.NAME + opts
-        )
-        expected = cls.NAME + '\n'
-        cls.assertOutput(expected, raw_output)
+        # Create a network for the all subnet tests.
+        cls.NETWORK_NAME = uuid.uuid4().hex
+        cmd_output = json.loads(cls.openstack(
+            'network create -f json ' +
+            cls.NETWORK_NAME
+        ))
+        # Get network_id for assertEqual
+        cls.NETWORK_ID = cmd_output["id"]
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack('subnet delete ' + cls.NAME)
-        cls.assertOutput('', raw_output)
         raw_output = cls.openstack('network delete ' + cls.NETWORK_NAME)
         cls.assertOutput('', raw_output)
 
+    def test_subnet_create_and_delete(self):
+        """Test create, delete"""
+        name1 = uuid.uuid4().hex
+        cmd = ('subnet create -f json --network ' +
+               self.NETWORK_NAME +
+               ' --subnet-range')
+        cmd_output = self._subnet_create(cmd, name1)
+        self.assertEqual(
+            name1,
+            cmd_output["name"],
+        )
+        self.assertEqual(
+            self.NETWORK_ID,
+            cmd_output["network_id"],
+        )
+
+        del_output = self.openstack(
+            'subnet delete ' + name1)
+        self.assertOutput('', del_output)
+
     def test_subnet_list(self):
-        opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('subnet list' + opts)
-        self.assertIn(self.NAME, raw_output)
+        """Test create, list filter"""
+        name1 = uuid.uuid4().hex
+        name2 = uuid.uuid4().hex
+        cmd = ('subnet create -f json ' +
+               '--network ' + self.NETWORK_NAME +
+               ' --dhcp --subnet-range')
+        cmd_output = self._subnet_create(cmd, name1)
+        self.assertEqual(
+            name1,
+            cmd_output["name"],
+        )
+        self.assertEqual(
+            True,
+            cmd_output["enable_dhcp"],
+        )
+        self.assertEqual(
+            self.NETWORK_ID,
+            cmd_output["network_id"],
+        )
+        self.assertEqual(
+            4,
+            cmd_output["ip_version"],
+        )
 
-    def test_subnet_set(self):
-        self.openstack('subnet set --no-dhcp ' + self.NAME)
-        opts = self.get_opts(['name', 'enable_dhcp'])
-        raw_output = self.openstack('subnet show ' + self.NAME + opts)
-        self.assertEqual("False\n" + self.NAME + "\n", raw_output)
+        cmd = ('subnet create -f json ' +
+               '--network ' + self.NETWORK_NAME +
+               ' --ip-version 6 --no-dhcp ' +
+               '--subnet-range')
+        cmd_output = self._subnet_create(cmd, name2, is_type_ipv4=False)
+        self.assertEqual(
+            name2,
+            cmd_output["name"],
+        )
+        self.assertEqual(
+            False,
+            cmd_output["enable_dhcp"],
+        )
+        self.assertEqual(
+            self.NETWORK_ID,
+            cmd_output["network_id"],
+        )
+        self.assertEqual(
+            6,
+            cmd_output["ip_version"],
+        )
 
-    def test_subnet_set_service_type(self):
-        TYPE = 'network:floatingip_agent_gateway'
-        self.openstack('subnet set --service-type ' + TYPE + ' ' + self.NAME)
-        opts = self.get_opts(['name', 'service_types'])
-        raw_output = self.openstack('subnet show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + "\n" + TYPE + "\n", raw_output)
+        # Test list --long
+        cmd_output = json.loads(self.openstack(
+            'subnet list -f json ' +
+            '--long '
+        ))
+        names = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, names)
+        self.assertIn(name2, names)
 
-    def test_subnet_show(self):
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack('subnet show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + "\n", raw_output)
+        # Test list --name
+        cmd_output = json.loads(self.openstack(
+            'subnet list -f json ' +
+            '--name ' + name1
+        ))
+        names = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, names)
+        self.assertNotIn(name2, names)
+
+        # Test list --ip-version
+        cmd_output = json.loads(self.openstack(
+            'subnet list -f json ' +
+            '--ip-version 6'
+        ))
+        names = [x["Name"] for x in cmd_output]
+        self.assertNotIn(name1, names)
+        self.assertIn(name2, names)
+
+        # Test list --network
+        cmd_output = json.loads(self.openstack(
+            'subnet list -f json ' +
+            '--network ' + self.NETWORK_ID
+        ))
+        names = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, names)
+        self.assertIn(name2, names)
+
+        # Test list --no-dhcp
+        cmd_output = json.loads(self.openstack(
+            'subnet list -f json ' +
+            '--no-dhcp '
+        ))
+        names = [x["Name"] for x in cmd_output]
+        self.assertNotIn(name1, names)
+        self.assertIn(name2, names)
+
+        del_output = self.openstack(
+            'subnet delete ' + name1 + ' ' + name2)
+        self.assertOutput('', del_output)
+
+    def test_subnet_set_show_unset(self):
+        """Test create subnet, set, unset, show, delete"""
+
+        name = uuid.uuid4().hex
+        new_name = name + "_"
+        cmd = ('subnet create -f json ' +
+               '--network ' + self.NETWORK_NAME +
+               ' --description aaaa --subnet-range')
+        cmd_output = self._subnet_create(cmd, name)
+        self.assertEqual(
+            name,
+            cmd_output["name"],
+        )
+        self.assertEqual(
+            'aaaa',
+            cmd_output["description"],
+        )
+
+        # Test set --no-dhcp --name --gateway --description
+        cmd_output = self.openstack(
+            'subnet set ' +
+            '--name ' + new_name +
+            ' --description bbbb ' +
+            '--no-dhcp ' +
+            '--gateway 10.10.11.1 ' +
+            '--service-type network:floatingip_agent_gateway ' +
+            name
+        )
+        self.assertOutput('', cmd_output)
+
+        cmd_output = json.loads(self.openstack(
+            'subnet show -f json ' +
+            new_name
+        ))
+        self.assertEqual(
+            new_name,
+            cmd_output["name"],
+        )
+        self.assertEqual(
+            'bbbb',
+            cmd_output["description"],
+        )
+        self.assertEqual(
+            False,
+            cmd_output["enable_dhcp"],
+        )
+        self.assertEqual(
+            '10.10.11.1',
+            cmd_output["gateway_ip"],
+        )
+        self.assertEqual(
+            'network:floatingip_agent_gateway',
+            cmd_output["service_types"],
+        )
+
+        # Test unset
+        cmd_output = self.openstack(
+            'subnet unset ' +
+            '--service-type network:floatingip_agent_gateway ' +
+            new_name
+        )
+        self.assertOutput('', cmd_output)
+
+        cmd_output = json.loads(self.openstack(
+            'subnet show -f json ' +
+            new_name
+        ))
+        self.assertEqual(
+            '',
+            cmd_output["service_types"],
+        )
+
+        del_output = self.openstack(
+            'subnet delete ' + new_name)
+        self.assertOutput('', del_output)
+
+    def _subnet_create(self, cmd, name, is_type_ipv4=True):
+        # Try random subnet range for subnet creating
+        # Because we can not determine ahead of time what subnets are already
+        # in use, possibly by another test running in parallel, try 4 times
+        for i in range(4):
+            # Make a random subnet
+            if is_type_ipv4:
+                subnet = ".".join(map(
+                    str,
+                    (random.randint(0, 223) for _ in range(3))
+                )) + ".0/26"
+            else:
+                subnet = ":".join(map(
+                    str,
+                    (hex(random.randint(0, 65535))[2:] for _ in range(7))
+                )) + ":0/112"
+            try:
+                cmd_output = json.loads(self.openstack(
+                    cmd + ' ' + subnet + ' ' +
+                    name
+                ))
+            except Exception:
+                if (i == 3):
+                    # raise the exception at the last time
+                    raise
+                pass
+            else:
+                # break and no longer retry if create sucessfully
+                break
+        return cmd_output
