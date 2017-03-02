@@ -8,7 +8,6 @@ service flavors.
 
 Network v2
 
-.. _network_flavor_create:
 network flavor create
 ---------------------
 
@@ -55,7 +54,8 @@ Create network flavor
 
     Name for the flavor
 
-.. _network_flavor_delete:
+.. _network_flavor_create:
+
 network flavor delete
 ---------------------
 
@@ -71,6 +71,8 @@ Delete network flavor(s)
 
     Flavor(s) to delete (name or ID)
 
+.. _network_flavor_delete:
+
 network flavor list
 -------------------
 
@@ -81,7 +83,8 @@ List network flavors
 
     openstack network flavor list
 
-.. _network_flavor_set:
+.. _network_flavor_list:
+
 network flavor set
 ------------------
 
@@ -116,7 +119,8 @@ Set network flavor properties
 
     Flavor to update (name or ID)
 
-.. _network_flavor_show:
+.. _network_flavor_set:
+
 network flavor show
 -------------------
 
@@ -131,3 +135,5 @@ Show network flavor
 .. describe:: <flavor>
 
     Flavor to display (name or ID)
+
+.. _network_flavor_show:
