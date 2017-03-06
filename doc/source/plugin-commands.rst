@@ -33,10 +33,10 @@ designate
 .. list-plugins:: openstack.dns.v1
    :detailed:
 
-.. gnocchi
-.. # gnocchiclient is not in global-requirements
-.. # list-plugins:: openstack.metric.v1
-.. #  :detailed:
+gnocchi
+-------
+.. list-plugins:: openstack.metric.v1
+   :detailed:
 
 heat
 ----

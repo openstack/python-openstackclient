@@ -22,7 +22,7 @@ OpenStackClient.
 The following is a list of projects that are an OpenStackClient plugin.
 
 - aodhclient
-- gnocchiclient\*\*
+- gnocchiclient
 - python-barbicanclient
 - python-congressclient
 - python-designateclient
