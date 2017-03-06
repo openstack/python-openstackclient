@@ -18,7 +18,7 @@ from mock import call
 
 from osc_lib import exceptions
 
-from openstackclient.network.v2 import meter
+from openstackclient.network.v2 import network_meter
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
@@ -62,7 +62,7 @@ class TestCreateMeter(TestMeter):
         self.network.create_metering_label = mock.Mock(
             return_value=self.new_meter)
         self.projects_mock.get.return_value = self.project
-        self.cmd = meter.CreateMeter(self.app, self.namespace)
+        self.cmd = network_meter.CreateMeter(self.app, self.namespace)
 
     def test_create_no_options(self):
         arglist = []
@@ -134,7 +134,7 @@ class TestDeleteMeter(TestMeter):
                 meter=self.meter_list
             )
 
-        self.cmd = meter.DeleteMeter(self.app, self.namespace)
+        self.cmd = network_meter.DeleteMeter(self.app, self.namespace)
 
     def test_delete_one_meter(self):
         arglist = [
@@ -235,7 +235,7 @@ class TestListMeter(TestMeter):
             return_value=self.meter_list
         )
 
-        self.cmd = meter.ListMeter(self.app, self.namespace)
+        self.cmd = network_meter.ListMeter(self.app, self.namespace)
 
     def test_meter_list(self):
         arglist = []
@@ -274,7 +274,7 @@ class TestShowMeter(TestMeter):
     def setUp(self):
         super(TestShowMeter, self).setUp()
 
-        self.cmd = meter.ShowMeter(self.app, self.namespace)
+        self.cmd = network_meter.ShowMeter(self.app, self.namespace)
 
         self.network.find_metering_label = \
             mock.Mock(return_value=self.new_meter)
