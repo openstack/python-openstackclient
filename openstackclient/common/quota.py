@@ -165,7 +165,7 @@ class SetQuota(command.Command):
                     **volume_kwargs)
             if network_kwargs:
                 sys.stderr.write("Network quotas are ignored since quota class"
-                                 "is not supported.")
+                                 " is not supported.")
         else:
             project = utils.find_resource(
                 identity_client.projects,
