@@ -1,0 +1,244 @@
+address-scope-create,address scope create,Create an address scope for a given tenant.
+address-scope-delete,address scope delete,Delete an address scope.
+address-scope-list,address scope list,List address scopes that belong to a given tenant.
+address-scope-show,address scope show,Show information about an address scope.
+address-scope-update,address scope set,Update an address scope.
+agent-delete,network agent delete,Delete a given agent.
+agent-list,network agent list,List agents.
+agent-show,network agent show,Show information of a given agent.
+agent-update,network agent set,Updates the admin status and description for a specified agent.
+auto-allocated-topology-delete,network auto allocated topology delete,Delete the auto-allocated topology of a given tenant.
+auto-allocated-topology-show,network auto allocated topology create,Show the auto-allocated topology of a given tenant.
+availability-zone-list,availability zone list,List availability zones.
+bash-completion,complete,Prints all of the commands and options for bash-completion.
+bgp-dragent-list-hosting-speaker,,List Dynamic Routing agents hosting a BGP speaker.
+bgp-dragent-speaker-add,,Add a BGP speaker to a Dynamic Routing agent.
+bgp-dragent-speaker-remove,,Removes a BGP speaker from a Dynamic Routing agent.
+bgp-peer-create,,Create a BGP Peer.
+bgp-peer-delete,,Delete a BGP peer.
+bgp-peer-list,,List BGP peers.
+bgp-peer-show,,Show information of a given BGP peer.
+bgp-peer-update,,Update BGP Peer's information.
+bgp-speaker-advertiseroute-list,,List routes advertised by a given BGP speaker.
+bgp-speaker-create,,Create a BGP Speaker.
+bgp-speaker-delete,,Delete a BGP speaker.
+bgp-speaker-list,,List BGP speakers.
+bgp-speaker-list-on-dragent,,List BGP speakers hosted by a Dynamic Routing agent.
+bgp-speaker-network-add,,Add a network to the BGP speaker.
+bgp-speaker-network-remove,,Remove a network from the BGP speaker.
+bgp-speaker-peer-add,,Add a peer to the BGP speaker.
+bgp-speaker-peer-remove,,Remove a peer from the BGP speaker.
+bgp-speaker-show,,Show information of a given BGP speaker.
+bgp-speaker-update,,Update BGP Speaker's information.
+dhcp-agent-list-hosting-net,network agent list --network,List DHCP agents hosting a network.
+dhcp-agent-network-add,network agent add network,Add a network to a DHCP agent.
+dhcp-agent-network-remove,network agent remove network,Remove a network from a DHCP agent.
+ext-list,extension list,List all extensions.
+ext-show,extension show,Show information of a given resource.
+flavor-associate,network flavor associate,Associate a Neutron service flavor with a flavor profile.
+flavor-create,network flavor create,Create a Neutron service flavor.
+flavor-delete,network flavor delete,Delete a given Neutron service flavor.
+flavor-disassociate,network flavor disassociate,Disassociate a Neutron service flavor from a flavor profile.
+flavor-list,network flavor list,List Neutron service flavors.
+flavor-profile-create,network flavor profile create,Create a Neutron service flavor profile.
+flavor-profile-delete,network flavor profile delete,Delete a given Neutron service flavor profile.
+flavor-profile-list,network flavor profile list,List Neutron service flavor profiles.
+flavor-profile-show,network flavor profile show,Show information about a given Neutron service flavor profile.
+flavor-profile-update,network flavor profile set,Update a given Neutron service flavor profile.
+flavor-show,network flavor show,Show information about a given Neutron service flavor.
+flavor-update,network flavor set,Update a Neutron service flavor.
+floatingip-associate,floating ip set port --fixed-ip,Create a mapping between a floating IP and a fixed IP.
+floatingip-create,floating ip create,Create a floating IP for a given tenant.
+floatingip-delete,floating ip delete,Delete a given floating IP.
+floatingip-disassociate,floating ip unset port,Remove a mapping from a floating IP to a fixed IP.
+floatingip-list,floating ip list,List floating IPs that belong to a given tenant.
+floatingip-show,floating ip show,Show information of a given floating IP.
+help,help,print detailed help for another command
+ipsec-site-connection-create,,Create an IPsec site connection.
+ipsec-site-connection-delete,,Delete a given IPsec site connection.
+ipsec-site-connection-list,,List IPsec site connections that belong to a given tenant.
+ipsec-site-connection-show,,Show information of a given IPsec site connection.
+ipsec-site-connection-update,,Update a given IPsec site connection.
+l3-agent-list-hosting-router,network agent list --routers,List L3 agents hosting a router.
+l3-agent-router-add,network agent add router --agent-type l3,Add a router to a L3 agent.
+l3-agent-router-remove,network agent remove router --agent-type l3,Remove a router from a L3 agent.
+lb-agent-hosting-pool,,Get loadbalancer agent hosting a pool.
+lb-healthmonitor-associate,,Create a mapping between a health monitor and a pool.
+lb-healthmonitor-create,,Create a health monitor.
+lb-healthmonitor-delete,,Delete a given health monitor.
+lb-healthmonitor-disassociate,,Remove a mapping from a health monitor to a pool.
+lb-healthmonitor-list,,List health monitors that belong to a given tenant.
+lb-healthmonitor-show,,Show information of a given health monitor.
+lb-healthmonitor-update,,Update a given health monitor.
+lb-member-create,,Create a member.
+lb-member-delete,,Delete a given member.
+lb-member-list,,List members that belong to a given tenant.
+lb-member-show,,Show information of a given member.
+lb-member-update,,Update a given member.
+lb-pool-create,,Create a pool.
+lb-pool-delete,,Delete a given pool.
+lb-pool-list,,List pools that belong to a given tenant.
+lb-pool-list-on-agent,,List the pools on a loadbalancer agent.
+lb-pool-show,,Show information of a given pool.
+lb-pool-stats,,Retrieve stats for a given pool.
+lb-pool-update,,Update a given pool.
+lb-vip-create,,Create a vip.
+lb-vip-delete,,Delete a given vip.
+lb-vip-list,,List vips that belong to a given tenant.
+lb-vip-show,,Show information of a given vip.
+lb-vip-update,,Update a given vip.
+lbaas-agent-hosting-loadbalancer,,Get lbaas v2 agent hosting a loadbalancer.
+lbaas-healthmonitor-create,,LBaaS v2 Create a healthmonitor.
+lbaas-healthmonitor-delete,,LBaaS v2 Delete a given healthmonitor.
+lbaas-healthmonitor-list,,LBaaS v2 List healthmonitors that belong to a given tenant.
+lbaas-healthmonitor-show,,LBaaS v2 Show information of a given healthmonitor.
+lbaas-healthmonitor-update,,LBaaS v2 Update a given healthmonitor.
+lbaas-l7policy-create,,LBaaS v2 Create L7 policy.
+lbaas-l7policy-delete,,LBaaS v2 Delete a given L7 policy.
+lbaas-l7policy-list,,LBaaS v2 List L7 policies that belong to a given listener.
+lbaas-l7policy-show,,LBaaS v2 Show information of a given L7 policy.
+lbaas-l7policy-update,,LBaaS v2 Update a given L7 policy.
+lbaas-l7rule-create,,LBaaS v2 Create L7 rule.
+lbaas-l7rule-delete,,LBaaS v2 Delete a given L7 rule.
+lbaas-l7rule-list,,LBaaS v2 List L7 rules that belong to a given L7 policy.
+lbaas-l7rule-show,,LBaaS v2 Show information of a given rule.
+lbaas-l7rule-update,,LBaaS v2 Update a given L7 rule.
+lbaas-listener-create,,LBaaS v2 Create a listener.
+lbaas-listener-delete,,LBaaS v2 Delete a given listener.
+lbaas-listener-list,,LBaaS v2 List listeners that belong to a given tenant.
+lbaas-listener-show,,LBaaS v2 Show information of a given listener.
+lbaas-listener-update,,LBaaS v2 Update a given listener.
+lbaas-loadbalancer-create,,LBaaS v2 Create a loadbalancer.
+lbaas-loadbalancer-delete,,LBaaS v2 Delete a given loadbalancer.
+lbaas-loadbalancer-list,,LBaaS v2 List loadbalancers that belong to a given tenant.
+lbaas-loadbalancer-list-on-agent,,List the loadbalancers on a loadbalancer v2 agent.
+lbaas-loadbalancer-show,,LBaaS v2 Show information of a given loadbalancer.
+lbaas-loadbalancer-stats,,Retrieve stats for a given loadbalancer.
+lbaas-loadbalancer-status,,Retrieve status for a given loadbalancer.
+lbaas-loadbalancer-update,,LBaaS v2 Update a given loadbalancer.
+lbaas-member-create,,LBaaS v2 Create a member.
+lbaas-member-delete,,LBaaS v2 Delete a given member.
+lbaas-member-list,,LBaaS v2 List members that belong to a given pool.
+lbaas-member-show,,LBaaS v2 Show information of a given member.
+lbaas-member-update,,LBaaS v2 Update a given member.
+lbaas-pool-create,,LBaaS v2 Create a pool.
+lbaas-pool-delete,,LBaaS v2 Delete a given pool.
+lbaas-pool-list,,LBaaS v2 List pools that belong to a given tenant.
+lbaas-pool-show,,LBaaS v2 Show information of a given pool.
+lbaas-pool-update,,LBaaS v2 Update a given pool.
+meter-label-create,network meter create,Create a metering label for a given tenant.
+meter-label-delete,network meter delete,Delete a given metering label.
+meter-label-list,network meter list,List metering labels that belong to a given tenant.
+meter-label-rule-create,network meter rule create,Create a metering label rule for a given label.
+meter-label-rule-delete,network meter rule delete,Delete a given metering label.
+meter-label-rule-list,network meter rule list,List metering labels that belong to a given label.
+meter-label-rule-show,network meter rule show,Show information of a given metering label rule.
+meter-label-show,network meter show,Show information of a given metering label.
+net-create,network create,Create a network for a given tenant.
+net-delete,network delete,Delete a given network.
+net-external-list,network list --external,List external networks that belong to a given tenant.
+net-ip-availability-list,ip availability list,List IP usage of networks
+net-ip-availability-show,ip availability show,Show IP usage of specific network
+net-list,network list,List networks that belong to a given tenant.
+net-list-on-dhcp-agent,network list --agent,List the networks on a DHCP agent.
+net-show,network show,Show information of a given network.
+net-update,network set,Update network's information.
+port-create,port create,Create a port for a given tenant.
+port-delete,port delete,Delete a given port.
+port-list,port list,List ports that belong to a given tenant.
+port-show,port show,Show information of a given port.
+port-update,port set/port unset,Update port's information.
+purge,,Delete all resources that belong to a given tenant.
+qos-available-rule-types,network qos rule type list,List available qos rule types.
+qos-bandwidth-limit-rule-create,network qos rule create --type bandwidth-limit,Create a qos bandwidth limit rule.
+qos-bandwidth-limit-rule-delete,network qos rule delete --type bandwidth-limit,Delete a given qos bandwidth limit rule.
+qos-bandwidth-limit-rule-list,network qos rule list --type bandwidth-limit,List all qos bandwidth limit rules belonging to the specified policy.
+qos-bandwidth-limit-rule-show,network qos rule show --type bandwidth-limit,Show information about the given qos bandwidth limit rule.
+qos-bandwidth-limit-rule-update,network qos rule update --type bandwidth-limit,Update the given qos bandwidth limit rule.
+qos-dscp-marking-rule-create,network qos rule create --type dscp-marking,Create a QoS DSCP marking rule.
+qos-dscp-marking-rule-delete,network qos rule delete --type dscp-marking,Delete a given qos dscp marking rule.
+qos-dscp-marking-rule-list,network qos rule list --type dscp-marking,List all QoS DSCP marking rules belonging to the specified policy.
+qos-dscp-marking-rule-show,network qos rule show --type dscp-marking,Show information about the given qos dscp marking rule.
+qos-dscp-marking-rule-update,network qos rule update --type dscp-marking,Update the given QoS DSCP marking rule.
+qos-minimum-bandwidth-rule-create,network qos rule create --type minimum-bandwidth,Create a qos minimum bandwidth rule.
+qos-minimum-bandwidth-rule-delete,network qos rule delete --type minimum-bandwidth,Delete a given qos minimum bandwidth rule.
+qos-minimum-bandwidth-rule-list,network qos rule list --type minimum-bandwidth,List all qos minimum bandwidth rules belonging to the specified policy.
+qos-minimum-bandwidth-rule-show,network qos rule show --type minimum-bandwidth,Show information about the given qos minimum bandwidth rule.
+qos-minimum-bandwidth-rule-update,network qos rule update --type minimum-bandwidth,Update the given qos minimum bandwidth rule.
+qos-policy-create,network qos policy create,Create a qos policy.
+qos-policy-delete,network qos policy delete,Delete a given qos policy.
+qos-policy-list,network qos policy list,List QoS policies that belong to a given tenant connection.
+qos-policy-show,network qos policy show,Show information of a given qos policy.
+qos-policy-update,network qos policy set,Update a given qos policy.
+quota-default-show,quota show --default,Show default quotas for a given tenant.
+quota-delete,,Delete defined quotas of a given tenant.
+quota-list,quota list,List quotas of all tenants who have non-default quota values.
+quota-show,quota show,Show quotas for a given tenant.
+quota-update,quota set,Define tenant's quotas not to use defaults.
+rbac-create,network rbac create,Create a RBAC policy for a given tenant.
+rbac-delete,network rbac delete,Delete a RBAC policy.
+rbac-list,network rbac list,List RBAC policies that belong to a given tenant.
+rbac-show,network rbac show,Show information of a given RBAC policy.
+rbac-update,network rbac set,Update RBAC policy for given tenant.
+router-create,router create,Create a router for a given tenant.
+router-delete,router delete,Delete a given router.
+router-gateway-clear,router unset,Remove an external network gateway from a router.
+router-gateway-set,router set,Set the external network gateway for a router.
+router-interface-add,router add subnet / router add port,Add an internal network interface to a router.
+router-interface-delete,router remove subnet / router remove port,Remove an internal network interface from a router.
+router-list,router list,List routers that belong to a given tenant.
+router-list-on-l3-agent,router list --agents,List the routers on a L3 agent.
+router-port-list,port list --router,"List ports that belong to a given tenant, with specified router."
+router-show,router show,Show information of a given router.
+router-update,router set,Update router's information.
+security-group-create,security group create,Create a security group.
+security-group-delete,security group delete,Delete a given security group.
+security-group-list,security group list,List security groups that belong to a given tenant.
+security-group-rule-create,security group rule create,Create a security group rule.
+security-group-rule-delete,security group rule delete,Delete a given security group rule.
+security-group-rule-list,security group rule list,List security group rules that belong to a given tenant.
+security-group-rule-show,security group rule show,Show information of a given security group rule.
+security-group-show,security group show,Show information of a given security group.
+security-group-update,security group set,Update a given security group.
+service-provider-list,network service provider list,List service providers.
+subnet-create,subnet create,Create a subnet for a given tenant.
+subnet-delete,subnet delete,Delete a given subnet.
+subnet-list,subnet list,List subnets that belong to a given tenant.
+subnet-show,subnet show,Show information of a given subnet.
+subnet-update,subnet set / subnet unset,Update subnet's information.
+subnetpool-create,subnet pool create,Create a subnetpool for a given tenant.
+subnetpool-delete,subnet pool delete,Delete a given subnetpool.
+subnetpool-list,subnet pool list,List subnetpools that belong to a given tenant.
+subnetpool-show,subnet pool show,Show information of a given subnetpool.
+subnetpool-update,subnet pool set / subnet pool unset,Update subnetpool's information.
+tag-add,network set --tag,Add a tag into the resource.
+tag-remove,network unset --tag,Remove a tag on the resource.
+tag-replace,,Replace all tags on the resource.
+tap-flow-create,tapflow create,Create a tap flow
+tap-flow-delete,tapflow delete,Delete a tap flow
+tap-flow-list,tapflow list,List all tap flows
+tap-flow-show,tapflow show,Show details of the tap flow
+tap-service-create,tapservice create,Create a tap service
+tap-service-delete,tapservice delete,Delete a tap service
+tap-service-list,tapservice list,List all tap services
+tap-service-show,tapservice show,Show details of the tap service
+vpn-endpoint-group-create,,Create a VPN endpoint group.
+vpn-endpoint-group-delete,,Delete a given VPN endpoint group.
+vpn-endpoint-group-list,,List VPN endpoint groups that belong to a given tenant.
+vpn-endpoint-group-show,,Show a specific VPN endpoint group.
+vpn-endpoint-group-update,,Update a given VPN endpoint group.
+vpn-ikepolicy-create,,Create an IKE policy.
+vpn-ikepolicy-delete,,Delete a given IKE policy.
+vpn-ikepolicy-list,,List IKE policies that belong to a tenant.
+vpn-ikepolicy-show,,Show information of a given IKE policy.
+vpn-ikepolicy-update,,Update a given IKE policy.
+vpn-ipsecpolicy-create,,Create an IPsec policy.
+vpn-ipsecpolicy-delete,,Delete a given IPsec policy.
+vpn-ipsecpolicy-list,,List IPsec policies that belong to a given tenant connection.
+vpn-ipsecpolicy-show,,Show information of a given IPsec policy.
+vpn-ipsecpolicy-update,,Update a given IPsec policy.
+vpn-service-create,,Create a VPN service.
+vpn-service-delete,,Delete a given VPN service.
+vpn-service-list,,List VPN service configurations that belong to a given tenant.
+vpn-service-show,,Show information of a given VPN service.
+vpn-service-update,,Update a given VPN service.
