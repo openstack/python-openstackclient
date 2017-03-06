@@ -1368,6 +1368,24 @@ class TestVolumeSet(TestVolume):
         # Get the command object to test
         self.cmd = volume.SetVolume(self.app, None)
 
+    def test_volume_set_property(self):
+        arglist = [
+            '--property', 'a=b',
+            '--property', 'c=d',
+            self.new_volume.id,
+        ]
+        verifylist = [
+            ('property', {'a': 'b', 'c': 'd'}),
+            ('volume', self.new_volume.id),
+            ('bootable', False),
+            ('non_bootable', False)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+        self.volumes_mock.set_metadata.assert_called_with(
+            self.new_volume.id, parsed_args.property)
+
     def test_volume_set_image_property(self):
         arglist = [
             '--image-property', 'Alpha=a',

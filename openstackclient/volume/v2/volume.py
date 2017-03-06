@@ -524,6 +524,15 @@ class SetVolume(command.Command):
             help=_('New volume description'),
         )
         parser.add_argument(
+            "--no-property",
+            dest="no_property",
+            action="store_true",
+            help=_("Remove all properties from <volume> "
+                   "(specify both --no-property and --property to "
+                   "remove the current properties before setting "
+                   "new properties.)"),
+        )
+        parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
@@ -561,7 +570,7 @@ class SetVolume(command.Command):
             choices=['never', 'on-demand'],
             help=_('Migration policy while re-typing volume '
                    '("never" or "on-demand", default is "never" ) '
-                   '(available only when "--type" option is specified)'),
+                   '(available only when --type option is specified)'),
         )
         bootable_group = parser.add_mutually_exclusive_group()
         bootable_group.add_argument(
@@ -605,6 +614,14 @@ class SetVolume(command.Command):
                 volume_client.volumes.extend(volume.id, parsed_args.size)
             except Exception as e:
                 LOG.error(_("Failed to set volume size: %s"), e)
+                result += 1
+
+        if parsed_args.no_property:
+            try:
+                volume_client.volumes.delete_metadata(
+                    volume.id, volume.metadata.keys())
+            except Exception as e:
+                LOG.error(_("Failed to clean volume properties: %s"), e)
                 result += 1
 
         if parsed_args.property:

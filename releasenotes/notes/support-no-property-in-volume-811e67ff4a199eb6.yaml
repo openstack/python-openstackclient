@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--no-property`` option in ``volume set``, this removes all properties from a volume.
+    [Blueprint `allow-overwrite-set-options <https://blueprints.launchpad.net/python-openstackclient/+spec/allow-overwrite-set-options>`_]

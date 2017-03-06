@@ -1071,6 +1071,7 @@ class TestVolumeSet(TestVolume):
 
     def test_volume_set_property(self):
         arglist = [
+            '--no-property',
             '--property', 'myprop=myvalue',
             self._volume.display_name,
         ]
@@ -1080,6 +1081,7 @@ class TestVolumeSet(TestVolume):
             ('name', None),
             ('description', None),
             ('size', None),
+            ('no_property', True),
             ('property', {'myprop': 'myvalue'}),
             ('volume', self._volume.display_name),
             ('bootable', False),
@@ -1096,6 +1098,10 @@ class TestVolumeSet(TestVolume):
         self.volumes_mock.set_metadata.assert_called_with(
             self._volume.id,
             metadata
+        )
+        self.volumes_mock.delete_metadata.assert_called_with(
+            self._volume.id,
+            self._volume.metadata.keys()
         )
         self.volumes_mock.update_readonly_flag.assert_not_called()
         self.assertIsNone(result)
