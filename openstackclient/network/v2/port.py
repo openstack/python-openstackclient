@@ -130,6 +130,8 @@ def _get_attrs(client_manager, parsed_args):
         attrs['binding:vnic_type'] = parsed_args.vnic_type
     if parsed_args.host:
         attrs['binding:host_id'] = parsed_args.host
+    if parsed_args.mac_address is not None:
+        attrs['mac_address'] = parsed_args.mac_address
 
     if parsed_args.dns_name is not None:
         attrs['dns_name'] = parsed_args.dns_name
@@ -138,8 +140,6 @@ def _get_attrs(client_manager, parsed_args):
         attrs['name'] = str(parsed_args.name)
     # The remaining options do not support 'port set' command, so they require
     # additional check
-    if 'mac_address' in parsed_args and parsed_args.mac_address is not None:
-        attrs['mac_address'] = parsed_args.mac_address
     if 'network' in parsed_args and parsed_args.network is not None:
         attrs['network_id'] = parsed_args.network
     if 'project' in parsed_args and parsed_args.project is not None:
@@ -235,6 +235,11 @@ def _add_updatable_args(parser):
         help=argparse.SUPPRESS,
     )
     parser.add_argument(
+        '--mac-address',
+        metavar='<mac-address>',
+        help=_("MAC address of this port (admin only)")
+    )
+    parser.add_argument(
         '--device-owner',
         metavar='<device-owner>',
         help=_("Device owner of this port. This is the entity that uses "
@@ -323,11 +328,6 @@ class CreatePort(command.ShowOne):
             '--disable',
             action='store_true',
             help=_("Disable port")
-        )
-        parser.add_argument(
-            '--mac-address',
-            metavar='<mac-address>',
-            help=_("MAC address of this port")
         )
         parser.add_argument(
             '--project',

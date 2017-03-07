@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Add ``--mac-address`` option to ``port set`` command.
+    [Bug `1670707 <https://launchpad.net/bugs/1670707>`_]

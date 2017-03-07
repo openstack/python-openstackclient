@@ -147,3 +147,22 @@ class PortTests(base.TestCase):
             'port show -f json ' + self.NAME
         ))
         self.assertEqual('', json_output.get('security_group_ids'))
+
+    def test_port_admin_set(self):
+        """Test create, set (as admin), show, delete"""
+        json_output = json.loads(self.openstack(
+            'port create -f json ' +
+            '--network ' + self.NETWORK_NAME + ' ' + self.NAME
+        ))
+        id_ = json_output.get('id')
+        self.addCleanup(self.openstack, 'port delete ' + id_)
+
+        raw_output = self.openstack(
+            '--os-username admin '
+            + 'port set --mac-address 11:22:33:44:55:66 '
+            + self.NAME)
+        self.assertOutput('', raw_output)
+        json_output = json.loads(self.openstack(
+            'port show -f json ' + self.NAME
+        ))
+        self.assertEqual(json_output.get('mac_address'), '11:22:33:44:55:66')
