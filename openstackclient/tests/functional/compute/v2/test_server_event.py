@@ -14,34 +14,21 @@
 #
 
 import json
-import uuid
 
-from openstackclient.tests.functional import base
-from openstackclient.tests.functional.compute.v2 import test_server
+from openstackclient.tests.functional.compute.v2 import common
 
 
-class ServerEventTests(base.TestCase):
-    """Functional tests for server event."""
+class ServerEventTests(common.ComputeTestCase):
+    """Functional tests for server event"""
 
     def setUp(self):
         super(ServerEventTests, self).setUp()
-        _flavor = test_server.ServerTests.get_flavor()
-        _image = test_server.ServerTests.get_image()
-        _network = test_server.ServerTests.get_network()
-        self.server_name = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'server create -f json ' +
-            '--flavor ' + _flavor + ' ' +
-            '--image ' + _image + ' ' +
-            _network + ' ' +
-            '--wait ' +
-            self.server_name
-        ))
-        if not cmd_output:
-            self.fail('Server has not been created!')
-        self.addCleanup(self.openstack, 'server delete ' + self.server_name)
-        self.assertEqual(self.server_name, cmd_output['name'])
+
+        # NOTE(dtroyer): As long as these tests are read-only we can get away
+        #                with using the same server instance for all of them.
+        cmd_output = self.server_create()
         self.server_id = cmd_output.get('id')
+        self.server_name = cmd_output['name']
 
     def test_server_event_list_and_show(self):
         """Test list, show server event"""
