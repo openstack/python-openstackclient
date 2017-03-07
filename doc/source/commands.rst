@@ -137,6 +137,7 @@ referring to both Compute and Volume quotas.
 * ``server``: (**Compute**) virtual machine instance
 * ``server backup``: (**Compute**) backup server disk image by using snapshot method
 * ``server dump``: (**Compute**) a dump file of a server created by features like kdump
+* ``server event``: (**Compute**) events of a server
 * ``server group``: (**Compute**) a grouping of servers
 * ``server image``: (**Compute**) saved server disk image
 * ``service``: (**Identity**) a cloud service

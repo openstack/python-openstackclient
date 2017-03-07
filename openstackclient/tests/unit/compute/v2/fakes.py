@@ -204,6 +204,9 @@ class FakeComputev2Client(object):
         self.server_groups = mock.Mock()
         self.server_groups.resource_class = fakes.FakeResource(None, {})
 
+        self.instance_action = mock.Mock()
+        self.instance_action.resource_class = fakes.FakeResource(None, {})
+
         self.auth_token = kwargs['token']
 
         self.management_url = kwargs['endpoint']
@@ -654,6 +657,47 @@ class FakeServer(object):
         if servers is None:
             servers = FakeServer.create_servers(count)
         return mock.Mock(side_effect=servers)
+
+
+class FakeServerEvent(object):
+    """Fake one or more server event."""
+
+    @staticmethod
+    def create_one_server_event(attrs=None):
+        """Create a fake server event.
+
+        :param attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id and other attributes
+        """
+        attrs = attrs or {}
+
+        # Set default attributes
+        server_event_info = {
+            "instance_uuid": "server-event-" + uuid.uuid4().hex,
+            "user_id": "user-id-" + uuid.uuid4().hex,
+            "start_time": "2017-02-27T07:47:13.000000",
+            "request_id": "req-" + uuid.uuid4().hex,
+            "action": "create",
+            "message": None,
+            "project_id": "project-id-" + uuid.uuid4().hex,
+            "events": [{
+                "finish_time": "2017-02-27T07:47:25.000000",
+                "start_time": "2017-02-27T07:47:15.000000",
+                "traceback": None,
+                "event": "compute__do_build_and_run_instance",
+                "result": "Success"
+            }]
+        }
+        # Overwrite default attributes
+        server_event_info.update(attrs)
+
+        server_event = fakes.FakeResource(
+            info=copy.deepcopy(server_event_info),
+            loaded=True,
+        )
+        return server_event
 
 
 class FakeService(object):
