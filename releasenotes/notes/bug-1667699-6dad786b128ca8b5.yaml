@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix the ``Ethertype`` column output of ``security group rule list`` command.
+    [Bug `1667699 <https://bugs.launchpad.net/python-openstackclient/+bug/1667699>`_]

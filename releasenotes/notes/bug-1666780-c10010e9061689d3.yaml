@@ -1,11 +1,12 @@
 ---
 features:
   - |
-    Support list commands by group name keyword. Add ``--group`` option to
-    filter the commands by group name keyword, like: --group volume, list all
-    openstack.volume.v2 (cinder) commands.
-    That support the scenario that users need to know the current support
-    commands of some OpenStack services(nova, neutron, cinder and so on) in
-    OSC, and make it easier for users to find out the related commands that
-    they care about.
+    Add ``--group`` option to the ``command list`` command to filter the
+    commands by group name: ``openstack command list --group volume`` will
+    list all Volume commands for the selected API version.  Use
+    ``--os-XXXX-api-version`` to select a specific API version for the desired APIs.
+
+    This provides an alternative to searching help output to list the comamnds
+    available for specific APIs.  Note that the ``--group`` argument is used as
+    a simple substring search in the Command Group column.
     [Bug `1666780 <https://bugs.launchpad.net/python-openstackclient/+bug/1666780>`_]
