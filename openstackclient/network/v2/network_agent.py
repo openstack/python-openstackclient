@@ -89,10 +89,11 @@ class ListNetworkAgent(command.Lister):
         parser.add_argument(
             '--agent-type',
             metavar='<agent-type>',
-            choices=["dhcp", "open-vswitch", "linux-bridge", "ofa", "l3",
-                     "loadbalancer", "metering", "metadata", "macvtap", "nic"],
+            choices=["bgp", "dhcp", "open-vswitch", "linux-bridge", "ofa",
+                     "l3", "loadbalancer", "metering", "metadata", "macvtap",
+                     "nic"],
             help=_("List only agents with the specified agent type. "
-                   "The supported agent types are: dhcp, open-vswitch, "
+                   "The supported agent types are: bgp, dhcp, open-vswitch, "
                    "linux-bridge, ofa, l3, loadbalancer, metering, "
                    "metadata, macvtap, nic.")
         )
@@ -125,6 +126,7 @@ class ListNetworkAgent(command.Lister):
         )
 
         key_value = {
+            'bgp': 'BGP dynamic routing agent',
             'dhcp': 'DHCP agent',
             'open-vswitch': 'Open vSwitch agent',
             'linux-bridge': 'Linux bridge agent',
