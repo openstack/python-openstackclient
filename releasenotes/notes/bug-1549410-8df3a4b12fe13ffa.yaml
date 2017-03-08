@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add ``--private-key`` option for ``keypair create`` command to specify the
+    private key file to save when a keypair is created, removing the need to
+    copy the output and paste it into a new file. This is a convenient way
+    to save private key in OSC interactive mode.
+    [Bug `1549410 <https://bugs.launchpad.net/python-openstackclient/+bug/1549410>`_]

@@ -15,6 +15,7 @@
 
 import mock
 from mock import call
+import uuid
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -111,6 +112,36 @@ class TestKeypairCreate(TestKeypair):
                 self.keypair.name,
                 public_key=self.keypair.public_key
             )
+
+            self.assertEqual(self.columns, columns)
+            self.assertEqual(self.data, data)
+
+    def test_keypair_create_private_key(self):
+        tmp_pk_file = '/tmp/kp-file-' + uuid.uuid4().hex
+        arglist = [
+            '--private-key', tmp_pk_file,
+            self.keypair.name,
+        ]
+        verifylist = [
+            ('private_key', tmp_pk_file),
+            ('name', self.keypair.name)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch('io.open') as mock_open:
+            mock_open.return_value = mock.MagicMock()
+            m_file = mock_open.return_value.__enter__.return_value
+
+            columns, data = self.cmd.take_action(parsed_args)
+
+            self.keypairs_mock.create.assert_called_with(
+                self.keypair.name,
+                public_key=None
+            )
+
+            mock_open.assert_called_once_with(tmp_pk_file, 'w+')
+            m_file.write.assert_called_once_with(self.keypair.private_key)
 
             self.assertEqual(self.columns, columns)
             self.assertEqual(self.data, data)
