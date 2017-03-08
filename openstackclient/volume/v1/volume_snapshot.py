@@ -38,8 +38,7 @@ class CreateVolumeSnapshot(command.ShowOne):
         parser.add_argument(
             'snapshot_name',
             metavar='<snapshot-name>',
-            nargs="?",
-            help=_('Name of the snapshot (default to None)'),
+            help=_('Name of the new snapshot'),
         )
         parser.add_argument(
             '--volume',

@@ -27,6 +27,21 @@ Backwards Incompatible Changes
 ..   * Remove in: <5.0>
 ..   * Commit: <tbd>
 
+Release 3.10
+------------
+
+1. The positional argument ``<snapshot-name>`` of the ``volume snapshot create``
+   command is no longer optional.
+
+   Previously when the ``--volume`` option was
+   present ``<snapshot-name>`` defaulted to the ``--volume`` value.  When the
+   ``--volume`` option is not present now it defaults to the value of
+   ``<snapshot-name>``.
+
+  * As of: 3.10
+  * Bug: 1659894
+  * Commit: https://review.openstack.org/440497
+
 Release 3.0
 -----------
 

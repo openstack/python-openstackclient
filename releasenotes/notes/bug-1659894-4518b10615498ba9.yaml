@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Now the positional parameter ``<snapshot-name>`` of ``volume snapshot create``
+    command is no longer optional, it should be always present.
+    [Bug `1659894 <https://bugs.launchpad.net/bugs/1659894>`_]
