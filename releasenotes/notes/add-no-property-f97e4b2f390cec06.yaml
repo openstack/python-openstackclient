@@ -3,4 +3,4 @@ features:
   - |
     Add support to clear/overwrite all flavor properties using
     ``--no-property`` option with ``flavor set`` command.
-    [ Blueprint  `allow-overwrite-set-options <https://blueprints.launchpad.net/python-openstackclient/+spec/allow-overwrite-set-options>` _]
+    [Blueprint  :oscbp:`allow-overwrite-set-options`]
