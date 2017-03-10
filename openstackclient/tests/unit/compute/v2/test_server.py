@@ -18,6 +18,7 @@ import getpass
 
 import mock
 from mock import call
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils as common_utils
 from oslo_utils import timeutils
@@ -298,14 +299,15 @@ class TestServerCreate(TestServer):
     def datalist(self):
         datalist = (
             server._format_servers_list_power_state(
-                getattr(self.new_server, 'OS-EXT-STS:power_state')),
-            '',
+                getattr(self.new_server, 'OS-EXT-STS:power_state')
+            ),
+            format_columns.DictListColumn(self.new_server.networks),
             self.flavor.name + ' (' + self.new_server.flavor.get('id') + ')',
             self.new_server.id,
             self.image.name + ' (' + self.new_server.image.get('id') + ')',
             self.new_server.name,
             self.new_server.networks,
-            '',
+            format_columns.DictColumn(''),
         )
         return datalist
 
@@ -313,7 +315,10 @@ class TestServerCreate(TestServer):
         super(TestServerCreate, self).setUp()
 
         attrs = {
-            'networks': {},
+            'networks': {
+                'private': ['fdb4:4f0f:960b:0:f816:3eff:fed9:af5e',
+                            '10.0.0.8']
+            },
         }
         self.new_server = compute_fakes.FakeServer.create_one_server(
             attrs=attrs)
@@ -394,7 +399,7 @@ class TestServerCreate(TestServer):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
         self.assertFalse(self.images_mock.called)
         self.assertFalse(self.flavors_mock.called)
 
@@ -459,7 +464,7 @@ class TestServerCreate(TestServer):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
 
     def test_server_create_with_not_exist_security_group(self):
         arglist = [
@@ -545,7 +550,7 @@ class TestServerCreate(TestServer):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
 
     def test_server_create_with_network(self):
         arglist = [
@@ -650,7 +655,7 @@ class TestServerCreate(TestServer):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
 
     def test_server_create_with_auto_network(self):
         arglist = [
@@ -695,7 +700,7 @@ class TestServerCreate(TestServer):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
 
     def test_server_create_with_none_network(self):
         arglist = [
@@ -740,7 +745,7 @@ class TestServerCreate(TestServer):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
 
     def test_server_create_with_conflict_network_options(self):
         arglist = [
@@ -903,7 +908,7 @@ class TestServerCreate(TestServer):
             **kwargs
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
     def test_server_create_with_wait_fails(self, mock_wait_for_status):
@@ -1010,7 +1015,7 @@ class TestServerCreate(TestServer):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping(self):
         arglist = [
@@ -1062,7 +1067,7 @@ class TestServerCreate(TestServer):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping_min_input(self):
         arglist = [
@@ -1113,7 +1118,7 @@ class TestServerCreate(TestServer):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping_default_input(self):
         arglist = [
@@ -1164,7 +1169,7 @@ class TestServerCreate(TestServer):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping_full_input(self):
         arglist = [
@@ -1219,7 +1224,7 @@ class TestServerCreate(TestServer):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping_snapshot(self):
         arglist = [
@@ -1274,7 +1279,7 @@ class TestServerCreate(TestServer):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping_multiple(self):
         arglist = [
@@ -1337,7 +1342,7 @@ class TestServerCreate(TestServer):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertItemEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping_invalid_format(self):
         # 1. block device mapping don't contain equal sign "="
@@ -1597,7 +1602,7 @@ class TestServerList(TestServer):
                 s.id,
                 s.name,
                 s.status,
-                server._format_servers_list_networks(s.networks),
+                format_columns.DictListColumn(s.networks),
                 self.image.name,
                 self.flavor.name,
             ))
@@ -1609,20 +1614,20 @@ class TestServerList(TestServer):
                 server._format_servers_list_power_state(
                     getattr(s, 'OS-EXT-STS:power_state')
                 ),
-                server._format_servers_list_networks(s.networks),
+                format_columns.DictListColumn(s.networks),
                 self.image.name,
                 s.image['id'],
                 self.flavor.name,
                 s.flavor['id'],
                 getattr(s, 'OS-EXT-AZ:availability_zone'),
                 getattr(s, 'OS-EXT-SRV-ATTR:host'),
-                s.Metadata,
+                format_columns.DictColumn(s.Metadata),
             ))
             self.data_no_name_lookup.append((
                 s.id,
                 s.name,
                 s.status,
-                server._format_servers_list_networks(s.networks),
+                format_columns.DictListColumn(s.networks),
                 s.image['id'],
                 s.flavor['id']
             ))
@@ -1640,7 +1645,7 @@ class TestServerList(TestServer):
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_server_list_long_option(self):
         arglist = [
@@ -1656,7 +1661,7 @@ class TestServerList(TestServer):
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns_long, columns)
-        self.assertEqual(tuple(self.data_long), tuple(data))
+        self.assertListItemEqual(self.data_long, list(data))
 
     def test_server_list_no_name_lookup_option(self):
         arglist = [
@@ -1672,7 +1677,7 @@ class TestServerList(TestServer):
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data_no_name_lookup), tuple(data))
+        self.assertListItemEqual(self.data_no_name_lookup, list(data))
 
     def test_server_list_n_option(self):
         arglist = [
@@ -1688,7 +1693,7 @@ class TestServerList(TestServer):
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data_no_name_lookup), tuple(data))
+        self.assertListItemEqual(self.data_no_name_lookup, list(data))
 
     def test_server_list_with_image(self):
 
@@ -1708,7 +1713,7 @@ class TestServerList(TestServer):
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_server_list_with_flavor(self):
 
@@ -1728,7 +1733,7 @@ class TestServerList(TestServer):
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_server_list_with_changes_since(self):
 
@@ -1749,7 +1754,7 @@ class TestServerList(TestServer):
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertListItemEqual(self.data, list(data))
 
     @mock.patch.object(timeutils, 'parse_isotime', side_effect=ValueError)
     def test_server_list_with_invalid_changes_since(self, mock_parse_isotime):
@@ -2700,14 +2705,16 @@ class TestServerShow(TestServer):
 
         self.data = (
             'Running',
-            'public=10.20.30.40, 2001:db8::f',
+            format_columns.DictListColumn(
+                {'public': ['10.20.30.40', '2001:db8::f']}
+            ),
             self.flavor.name + " (" + self.flavor.id + ")",
             self.server.id,
             self.image.name + " (" + self.image.id + ")",
             self.server.name,
             {'public': ['10.20.30.40', '2001:db8::f']},
             'tenant-id-xxx',
-            '',
+            format_columns.DictColumn(''),
         )
 
     def test_show_no_options(self):
@@ -2730,7 +2737,7 @@ class TestServerShow(TestServer):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_show_diagnostics(self):
         arglist = [
@@ -2989,13 +2996,13 @@ class TestServerGeneral(TestServer):
         # Prepare expected data.
         # Since networks is a dict, whose items are in random order, there
         # could be two results after formatted.
-        data_1 = (u'private=2001:db8::f, 10.20.30.40; '
+        data_1 = (u'private=10.20.30.40, 2001:db8::f; '
                   u'public=10.20.30.40, 2001:db8::f')
         data_2 = (u'public=10.20.30.40, 2001:db8::f; '
-                  u'private=2001:db8::f, 10.20.30.40')
+                  u'private=10.20.30.40, 2001:db8::f')
 
-        # Call _format_servers_list_networks().
-        networks_format = server._format_servers_list_networks(networks)
+        format_col = format_columns.DictListColumn(networks)
+        networks_format = format_col.human_readable()
 
         msg = ('Network string is not formatted correctly.\n'
                'reference = %s or %s\n'
@@ -3043,6 +3050,18 @@ class TestServerGeneral(TestServer):
         )
         # 'networks' is used to create _server. Remove it.
         server_detail.pop('networks')
+
+        # Special handle for 'properties', it's DictColumn type
+        prop = server_detail.pop('properties')
+        expected_prop = info.pop('properties')
+        self.assertIsInstance(prop, format_columns.DictColumn)
+        self.assertEqual(expected_prop, prop.human_readable())
+
+        # Special handle for 'addresses', it's DictListColumn type
+        prop = server_detail.pop('addresses')
+        expected_prop = info.pop('addresses')
+        self.assertIsInstance(prop, format_columns.DictListColumn)
+        self.assertEqual(expected_prop, prop.human_readable())
 
         # Check the results.
         self.assertEqual(info, server_detail)

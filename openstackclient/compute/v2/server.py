@@ -23,6 +23,7 @@ import os
 import sys
 
 from novaclient.v2 import servers
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -35,22 +36,6 @@ from openstackclient.identity import common as identity_common
 
 
 LOG = logging.getLogger(__name__)
-
-
-def _format_servers_list_networks(networks):
-    """Return a formatted string of a server's networks
-
-    :param networks: a Server.networks field
-    :rtype: a string of formatted network addresses
-    """
-    output = []
-    for (network, addresses) in networks.items():
-        if not addresses:
-            continue
-        addresses_csv = ', '.join(addresses)
-        group = "%s=%s" % (network, addresses_csv)
-        output.append(group)
-    return '; '.join(output)
 
 
 def _format_servers_list_power_state(state):
@@ -154,24 +139,26 @@ def _prep_server_detail(compute_client, image_client, server):
     if 'os-extended-volumes:volumes_attached' in info:
         info.update(
             {
-                'volumes_attached': utils.format_list_of_dicts(
-                    info.pop('os-extended-volumes:volumes_attached'))
+                'volumes_attached': format_columns.ListDictColumn(
+                    info.pop('os-extended-volumes:volumes_attached')
+                )
             }
         )
     if 'security_groups' in info:
         info.update(
             {
-                'security_groups': utils.format_list_of_dicts(
-                    info.pop('security_groups'))
+                'security_groups': format_columns.ListDictColumn(
+                    info.pop('security_groups')
+                )
             }
         )
     # NOTE(dtroyer): novaclient splits these into separate entries...
     # Format addresses in a useful way
-    info['addresses'] = _format_servers_list_networks(server.networks)
+    info['addresses'] = format_columns.DictListColumn(server.networks)
 
     # Map 'metadata' field to 'properties'
     info.update(
-        {'properties': utils.format_dict(info.pop('metadata'))}
+        {'properties': format_columns.DictColumn(info.pop('metadata'))}
     )
 
     # Migrate tenant_id to project_id naming
@@ -1161,8 +1148,8 @@ class ListServer(command.Lister):
                      formatters={
                          'OS-EXT-STS:power_state':
                              _format_servers_list_power_state,
-                         'Networks': _format_servers_list_networks,
-                         'Metadata': utils.format_dict,
+                         'Networks': format_columns.DictListColumn,
+                         'Metadata': format_columns.DictColumn,
                      },
                  ) for s in data))
         return table

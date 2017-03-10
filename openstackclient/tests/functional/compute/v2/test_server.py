@@ -107,25 +107,19 @@ class ServerTests(common.ComputeTestCase):
             'server show -f json ' +
             name
         ))
-        # Really, shouldn't this be a list?
-        self.assertEqual(
-            "a='b', c='d'",
-            cmd_output['properties'],
-        )
+        self.assertEqual({'a': 'b', 'c': 'd'}, cmd_output['properties'])
 
         raw_output = self.openstack(
             'server unset ' +
             '--property a ' +
             name
         )
+        self.assertOutput('', raw_output)
         cmd_output = json.loads(self.openstack(
             'server show -f json ' +
             name
         ))
-        self.assertEqual(
-            "c='d'",
-            cmd_output['properties'],
-        )
+        self.assertEqual({'c': 'd'}, cmd_output['properties'])
 
         # Test set --name
         new_name = uuid.uuid4().hex
@@ -248,10 +242,8 @@ class ServerTests(common.ComputeTestCase):
             'server show -f json ' +
             name
         ))
-        self.assertIn(
-            floating_ip,
-            cmd_output['addresses'],
-        )
+        self.assertIsInstance(cmd_output['addresses'], dict)
+        self.assertIn(floating_ip, cmd_output['addresses']['private'])
 
         # detach ip
         raw_output = self.openstack(
@@ -265,10 +257,8 @@ class ServerTests(common.ComputeTestCase):
             'server show -f json ' +
             name
         ))
-        self.assertNotIn(
-            floating_ip,
-            cmd_output['addresses'],
-        )
+        self.assertIsInstance(cmd_output['addresses'], dict)
+        self.assertNotIn(floating_ip, cmd_output['addresses']['private'])
 
     def test_server_reboot(self):
         """Test server reboot"""
@@ -456,8 +446,10 @@ class ServerTests(common.ComputeTestCase):
             server_name
         ))
         volumes_attached = cmd_output['volumes_attached']
-        self.assertTrue(volumes_attached.startswith('id='))
-        attached_volume_id = volumes_attached.replace('id=', '')
+        self.assertIsInstance(volumes_attached, list)
+        self.assertEqual(1, len(volumes_attached))
+        self.assertIn('id', volumes_attached[0])
+        attached_volume_id = volumes_attached[0]['id']
 
         # check the volume that attached on server
         cmd_output = json.loads(self.openstack(
@@ -514,7 +506,7 @@ class ServerTests(common.ComputeTestCase):
             'server show -f json ' + server_name
         ))
         self.assertIsNotNone(server['addresses'])
-        self.assertEqual('', server['addresses'])
+        self.assertEqual({}, server['addresses'])
 
     def test_server_create_with_security_group(self):
         """Test server create with security group ID and name"""
@@ -553,14 +545,27 @@ class ServerTests(common.ComputeTestCase):
 
         self.assertIsNotNone(server['id'])
         self.assertEqual(server_name, server['name'])
-        self.assertIn(str(security_group1['id']), server['security_groups'])
-        self.assertIn(str(security_group2['id']), server['security_groups'])
+        self.assertIsInstance(server['security_groups'], list)
+        self.assertEqual(2, len(server['security_groups']))
+        # NOTE(RuiChen): Nova return security group id in response of server
+        #                create API, but return security group name in server
+        #                show API for the same server, so we assert id and name
+        #                for different create and show commands in the
+        #                following code.
+        sg_ids = [each_sg['name'] for each_sg in server['security_groups']]
+        # Security group id is integer in nova-network, convert to string
+        self.assertIn(str(security_group1['id']), sg_ids)
+        self.assertIn(str(security_group2['id']), sg_ids)
+
         self.wait_for_status(server_name, 'ACTIVE')
         server = json.loads(self.openstack(
             'server show -f json ' + server_name
         ))
-        self.assertIn(sg_name1, server['security_groups'])
-        self.assertIn(sg_name2, server['security_groups'])
+        self.assertIsInstance(server['security_groups'], list)
+        self.assertEqual(2, len(server['security_groups']))
+        sg_names = [each_sg['name'] for each_sg in server['security_groups']]
+        self.assertIn(sg_name1, sg_names)
+        self.assertIn(sg_name2, sg_names)
 
     def test_server_create_with_empty_network_option_latest(self):
         """Test server create with empty network option in nova 2.latest."""

@@ -17,6 +17,7 @@
 
 import logging
 
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -180,7 +181,14 @@ class CreateFlavor(command.ShowOne):
 
         flavor_info = flavor._info.copy()
         flavor_info.pop("links")
-        flavor_info['properties'] = utils.format_dict(flavor.get_keys())
+        flavor_info['properties'] = format_columns.DictColumn(
+            # NOTE(RuiChen): novaclient flavor.get_keys() return a mixin class
+            #                DictWithMeta, that can't be represented properly
+            #                in yaml format(-f yaml), wrapping it in base type
+            #                dict is a workaround, please do not remove the
+            #                conversion.
+            dict(flavor.get_keys())
+        )
 
         return zip(*sorted(six.iteritems(flavor_info)))
 
@@ -291,13 +299,19 @@ class ListFlavor(command.Lister):
                 "Properties",
             )
             for f in data:
-                f.properties = f.get_keys()
+                # NOTE(RuiChen): novaclient flavor.get_keys() return a mixin
+                #                class DictWithMeta, that can't be represented
+                #                properly in yaml format(-f yaml), wrapping it
+                #                in base type dict is a workaround, please do
+                #                not remove the conversion.
+                f.properties = dict(f.get_keys())
 
         column_headers = columns
 
         return (column_headers,
                 (utils.get_item_properties(
-                    s, columns, formatters={'Properties': utils.format_dict},
+                    s, columns,
+                    formatters={'Properties': format_columns.DictColumn},
                 ) for s in data))
 
 
@@ -405,9 +419,7 @@ class ShowFlavor(command.ShowOne):
                     flavor=resource_flavor.id)
                 projects = [utils.get_field(access, 'tenant_id')
                             for access in flavor_access]
-                # TODO(Huanxuan Ao): This format case can be removed after
-                # patch https://review.openstack.org/#/c/330223/ merged.
-                access_projects = utils.format_list(projects)
+                access_projects = format_columns.ListColumn(projects)
             except Exception as e:
                 msg = _("Failed to get access projects list "
                         "for flavor '%(flavor)s': %(e)s")
@@ -419,7 +431,14 @@ class ShowFlavor(command.ShowOne):
         })
         flavor.pop("links", None)
 
-        flavor['properties'] = utils.format_dict(resource_flavor.get_keys())
+        flavor['properties'] = format_columns.DictColumn(
+            # NOTE(RuiChen): novaclient flavor.get_keys() return a mixin class
+            #                DictWithMeta, that can't be represented properly
+            #                in yaml format(-f yaml), wrapping it in base type
+            #                dict is a workaround, please do not remove the
+            #                conversion.
+            dict(resource_flavor.get_keys())
+        )
 
         return zip(*sorted(six.iteritems(flavor)))
 

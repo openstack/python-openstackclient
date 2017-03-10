@@ -16,6 +16,7 @@
 import mock
 from mock import call
 
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -443,7 +444,7 @@ class TestAggregateShow(TestAggregate):
         TestAggregate.fake_ag.hosts,
         TestAggregate.fake_ag.id,
         TestAggregate.fake_ag.name,
-        utils.format_dict(
+        format_columns.DictColumn(
             {key: value
              for key, value in TestAggregate.fake_ag.metadata.items()
              if key != 'availability_zone'}),
@@ -467,7 +468,7 @@ class TestAggregateShow(TestAggregate):
         self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 class TestAggregateUnset(TestAggregate):

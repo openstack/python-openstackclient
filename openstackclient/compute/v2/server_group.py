@@ -17,6 +17,7 @@
 
 import logging
 
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -28,8 +29,8 @@ LOG = logging.getLogger(__name__)
 
 
 _formatters = {
-    'policies': utils.format_list,
-    'members': utils.format_list,
+    'policies': format_columns.ListColumn,
+    'members': format_columns.ListColumn,
 }
 
 
@@ -155,8 +156,8 @@ class ListServerGroup(command.Lister):
                 (utils.get_item_properties(
                     s, columns,
                     formatters={
-                        'Policies': utils.format_list,
-                        'Members': utils.format_list,
+                        'Policies': format_columns.ListColumn,
+                        'Members': format_columns.ListColumn,
                     }
                 ) for s in data))
 

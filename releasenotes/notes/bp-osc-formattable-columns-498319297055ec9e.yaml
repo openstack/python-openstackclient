@@ -1,0 +1,149 @@
+---
+features:
+  - |
+    Make console output machine readable. Openstackclient support to format the
+    console output into several formats, like: json, shell, csv, yaml, table.
+    Most of these should be understood by program and code, so we should keep
+    column content as actually complex data structures rather than string, if
+    users specify the output format as machine readable type, for example:
+    ``json``, ``yaml``, ``cvs`` and so on, that make sense, like:
+    {'key': 'value'} vs "key='value'"
+    [Blueprint :oscbp:`osc-formattable-columns`]
+
+    The following output format are changed when machine readable format is
+    specified:
+
+    - Compute v2:
+
+      - ``properties`` in **aggregate show**
+      - ``properties`` in **flavor create**
+      - ``Properties`` in **flavor list**
+      - ``properties``, ``access_project_ids`` in **flavor show**
+      - ``volumes_attached``, ``security_groups``, ``addresses``,
+        ``properties`` in **server create**
+      - ``volumes_attached``, ``security_groups``, ``addresses``,
+        ``properties`` in **server rebuild**
+      - ``volumes_attached``, ``security_groups``, ``addresses``,
+        ``properties`` in **server show**
+      - ``Networks``, ``Metadata`` in **server list**
+      - ``properties`` in **server backup create**
+      - ``policies``, ``members`` in **server group create**
+      - ``policies``, ``members`` in **server group show**
+      - ``Policies``, ``Members`` in **server group list**
+      - ``properties`` in **server image create**
+
+    - Object store v1:
+
+      - ``properties`` in **account show**
+      - ``properties`` in **container show**
+      - ``properties`` in **object show**
+
+    - Volume v1:
+
+      - ``Volume ID`` in **volume backup list**
+      - ``properties`` in **volume qos create**
+      - ``Specs``, ``Associations`` in **volume qos list**
+      - ``associations``, ``properties`` in **volume qos show**
+      - ``properties`` in **snapshot create**
+      - ``Metadata``, ``Volume ID`` in **snapshot list**
+      - ``properties`` in **snapshot show**
+      - ``properties`` in **volume create**
+      - ``Metadata``, ``Attachments`` in **volume list**
+      - ``properties`` in **volume show**
+      - ``properties`` in **volume snapshot create**
+      - ``Metadata``, ``Volume ID`` in **volume snapshot list**
+      - ``properties`` in **volume snapshot show**
+      - ``properties``, ``encryption`` in **volume type create**
+      - ``Extra Specs``, ``id`` in **volume type list**
+      - ``properties``, ``encryption`` in **volume type show**
+
+    - Volume v2:
+
+      - ``Volume ID`` in **volume backup list**
+      - ``Volume Types`` in **consistency group list**
+      - ``properties`` in **volume qos create**
+      - ``Specs``, ``Associations`` in **volume qos list**
+      - ``associations``, ``properties`` in **volume qos show**
+      - ``properties`` in **snapshot create**
+      - ``Metadata``, ``Volume ID`` in **snapshot list**
+      - ``properties`` in **snapshot show**
+      - ``properties`` in **volume create**
+      - ``Metadata``, ``Attachments`` in **volume list**
+      - ``properties`` in **volume show**
+      - ``properties`` in **volume snapshot create**
+      - ``Metadata``, ``Volume ID`` in **volume snapshot list**
+      - ``properties`` in **volume snapshot show**
+      - ``properties``, ``encryption`` in **volume type create**
+      - ``Extra Specs``, ``id`` in **volume type list**
+      - ``properties``, ``access_project_ids``, ``encryption``
+        in **volume type show**
+
+    - Identity v2.0:
+
+      - ``Endpoints`` in **catalog list**
+      - ``endpoints`` in **catalog show**
+      - ``properties`` in **project show**
+      - ``tenantId`` in **user list**
+
+    - Identity v3:
+
+      - ``Endpoints`` in **catalog list**
+      - ``endpoints`` in **catalog show**
+      - ``remote_ids`` in **identity provider create**
+      - ``remote_ids`` in **identity provider show**
+
+    - Image v1:
+
+      - ``properties`` in **image create**
+      - ``Visibility``, ``Properties`` in **image list**
+      - ``properties`` in **image show**
+
+    - Image v2:
+
+      - ``tags``, ``properties`` in **image create**
+      - ``Tags`` in **image list**
+      - ``tags``, ``properties`` in **image show**
+
+    - Network v2:
+
+      - ``subnet_ip_availability`` in **ip availability show**
+      - ``subnets``, ``subnet_ids``, ``admin_state_up``,
+        ``is_admin_state_up``, ``router:external``, ``is_router_external``,
+        ``availability_zones``, ``availability_zone_hints``, ``tags`` in
+        **network create**
+      - ``Subnets``, ``State``, ``Router Type``, ``Availability Zones``,
+        ``Tags`` in **network list**
+      - ``subnets``, ``subnet_ids``, ``admin_state_up``,
+        ``is_admin_state_up``, ``router:external``, ``is_router_external``,
+        ``availability_zones``, ``availability_zone_hints``, ``tags`` in
+        **network show**
+      - ``Alive``, ``State`` in **network agent list**
+      - ``alive``, ``admin_state_up``, ``configurations`` in
+        **network agent show**
+      - ``admin_state_up``, ``allowed_address_pairs``, ``binding_profile``,
+        ``binding_vif_details``, ``dns_assignment``, ``extra_dhcp_opts``,
+        ``fixed_ips``, ``security_group_ids``, ``tags`` in **port create**
+      - ``Fixed IP Addresses``, ``Status``, ``Security Groups``, ``Tags``
+        in **port list**
+      - ``admin_state_up``, ``allowed_address_pairs``, ``binding_profile``,
+        ``binding_vif_details``, ``dns_assignment``, ``extra_dhcp_opts``,
+        ``fixed_ips``, ``security_group_ids``, ``tags`` in **port show**
+      - ``admin_state_up``, ``external_gateway_info``,
+        ``availability_zones``, ``availability_zone_hints``, ``routes``,
+        ``tags`` in **router create**
+      - ``State``, ``Routes``, ``External gateway info``, ``Tags``,
+        ``Availability zones`` in **router list**
+      - ``admin_state_up``, ``external_gateway_info``,
+        ``availability_zones``, ``availability_zone_hints``, ``routes``,
+        ``tags`` in **router show**
+      - ``security_group_rules`` in **security group create**
+      - ``security_group_rules`` in **security group show**
+      - ``allocation_pools``, ``dns_nameservers``, ``host_routes``, ``tags``,
+        ``service_types`` in **subnet create**
+      - ``Name Servers``, ``Allocation Pools``, ``Host Routes``, ``Tags``,
+        ``Service Types`` in **subnet list**
+      - ``allocation_pools``, ``dns_nameservers``, ``host_routes``, ``tags``,
+        ``service_types`` in **subnet show**
+      - ``prefixes``, ``tags`` in **subnet pool create**
+      - ``Prefixes``, ``Tags`` in **subnet pool list**
+      - ``prefixes``, ``tags`` in **subnet pool show**

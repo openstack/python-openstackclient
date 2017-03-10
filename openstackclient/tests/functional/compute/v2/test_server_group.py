@@ -32,10 +32,7 @@ class ServerGroupTests(base.TestCase):
             name1,
             cmd_output['name']
         )
-        self.assertEqual(
-            'affinity',
-            cmd_output['policies']
-        )
+        self.assertEqual(['affinity'], cmd_output['policies'])
 
         cmd_output = json.loads(self.openstack(
             'server group create -f json ' +
@@ -46,10 +43,7 @@ class ServerGroupTests(base.TestCase):
             name2,
             cmd_output['name']
         )
-        self.assertEqual(
-            'anti-affinity',
-            cmd_output['policies']
-        )
+        self.assertEqual(['anti-affinity'], cmd_output['policies'])
 
         del_output = self.openstack(
             'server group delete ' + name1 + ' ' + name2)
@@ -73,10 +67,7 @@ class ServerGroupTests(base.TestCase):
             name1,
             cmd_output['name']
         )
-        self.assertEqual(
-            'affinity',
-            cmd_output['policies']
-        )
+        self.assertEqual(['affinity'], cmd_output['policies'])
 
         cmd_output = json.loads(self.openstack(
             'server group create -f json ' +
@@ -90,10 +81,7 @@ class ServerGroupTests(base.TestCase):
             name2,
             cmd_output['name']
         )
-        self.assertEqual(
-            'anti-affinity',
-            cmd_output['policies']
-        )
+        self.assertEqual(['anti-affinity'], cmd_output['policies'])
 
         # test server group list
         cmd_output = json.loads(self.openstack(
@@ -102,5 +90,5 @@ class ServerGroupTests(base.TestCase):
         self.assertIn(name1, names)
         self.assertIn(name2, names)
         policies = [x["Policies"] for x in cmd_output]
-        self.assertIn('affinity', policies)
-        self.assertIn('anti-affinity', policies)
+        self.assertIn(['affinity'], policies)
+        self.assertIn(['anti-affinity'], policies)

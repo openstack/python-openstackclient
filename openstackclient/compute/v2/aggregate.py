@@ -18,6 +18,7 @@
 
 import logging
 
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -324,7 +325,9 @@ class ShowAggregate(command.ShowOne):
         # 'metadata' --> 'properties'
         data._info.update(
             {
-                'properties': utils.format_dict(data._info.pop('metadata')),
+                'properties': format_columns.DictColumn(
+                    data._info.pop('metadata')
+                ),
             },
         )
 

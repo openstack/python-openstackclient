@@ -91,7 +91,7 @@ class FlavorTests(base.TestCase):
             "--ram 123 " +
             "--private " +
             "--property a=b2 " +
-            "--property b=d2 " +
+            "--property c=d2 " +
             name2
         ))
         self.addCleanup(self.openstack, "flavor delete " + name2)
@@ -116,10 +116,7 @@ class FlavorTests(base.TestCase):
             False,
             cmd_output["os-flavor-access:is_public"],
         )
-        self.assertEqual(
-            "a='b2', b='d2'",
-            cmd_output["properties"],
-        )
+        self.assertEqual({'a': 'b2', 'c': 'd2'}, cmd_output["properties"])
 
         # Test list
         cmd_output = json.loads(self.openstack(
@@ -135,11 +132,11 @@ class FlavorTests(base.TestCase):
             "--long"
         ))
         col_name = [x["Name"] for x in cmd_output]
-        col_properties = [x['Properties'] for x in cmd_output]
         self.assertIn(name1, col_name)
-        self.assertIn("a='b', c='d'", col_properties)
         self.assertNotIn(name2, col_name)
-        self.assertNotIn("b2', b='d2'", col_properties)
+
+        props = [x['Properties'] for x in cmd_output]
+        self.assertIn({'a': 'b', 'c': 'd'}, props)
 
         # Test list --public
         cmd_output = json.loads(self.openstack(
@@ -203,10 +200,8 @@ class FlavorTests(base.TestCase):
             False,
             cmd_output["os-flavor-access:is_public"],
         )
-        self.assertEqual(
-            "a='first', b='second'",
-            cmd_output["properties"],
-        )
+        self.assertEqual({'a': 'first', 'b': 'second'},
+                         cmd_output['properties'])
 
         raw_output = self.openstack(
             "flavor set " +
@@ -224,10 +219,8 @@ class FlavorTests(base.TestCase):
             "qaz",
             cmd_output["id"],
         )
-        self.assertEqual(
-            "a='third and 10', b='second', g='fourth'",
-            cmd_output['properties'],
-        )
+        self.assertEqual({'a': 'third and 10', 'b': 'second', 'g': 'fourth'},
+                         cmd_output['properties'])
 
         raw_output = self.openstack(
             "flavor unset " +
@@ -240,7 +233,5 @@ class FlavorTests(base.TestCase):
             "flavor show -f json " +
             name1
         ))
-        self.assertEqual(
-            "a='third and 10', g='fourth'",
-            cmd_output["properties"],
-        )
+        self.assertEqual({'a': 'third and 10', 'g': 'fourth'},
+                         cmd_output['properties'])

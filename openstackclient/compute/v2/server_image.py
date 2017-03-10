@@ -18,6 +18,7 @@
 import logging
 import sys
 
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -101,7 +102,9 @@ class CreateServerImage(command.ShowOne):
         if self.app.client_manager._api_version['image'] == '1':
             info = {}
             info.update(image._info)
-            info['properties'] = utils.format_dict(info.get('properties', {}))
+            info['properties'] = format_columns.DictColumn(
+                info.get('properties', {})
+            )
         else:
             # Get the right image module to format the output
             image_module = importutils.import_module(

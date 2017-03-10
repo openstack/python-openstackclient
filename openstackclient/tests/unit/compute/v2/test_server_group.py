@@ -15,6 +15,7 @@
 
 import mock
 
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -38,9 +39,9 @@ class TestServerGroup(compute_fakes.TestComputev2):
 
     data = (
         fake_server_group.id,
-        utils.format_list(fake_server_group.members),
+        format_columns.ListColumn(fake_server_group.members),
         fake_server_group.name,
-        utils.format_list(fake_server_group.policies),
+        format_columns.ListColumn(fake_server_group.policies),
         fake_server_group.project_id,
         fake_server_group.user_id,
     )
@@ -78,7 +79,7 @@ class TestServerGroupCreate(TestServerGroup):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 class TestServerGroupDelete(TestServerGroup):
@@ -182,14 +183,14 @@ class TestServerGroupList(TestServerGroup):
     list_data = ((
         TestServerGroup.fake_server_group.id,
         TestServerGroup.fake_server_group.name,
-        utils.format_list(TestServerGroup.fake_server_group.policies),
+        format_columns.ListColumn(TestServerGroup.fake_server_group.policies),
     ),)
 
     list_data_long = ((
         TestServerGroup.fake_server_group.id,
         TestServerGroup.fake_server_group.name,
-        utils.format_list(TestServerGroup.fake_server_group.policies),
-        utils.format_list(TestServerGroup.fake_server_group.members),
+        format_columns.ListColumn(TestServerGroup.fake_server_group.policies),
+        format_columns.ListColumn(TestServerGroup.fake_server_group.members),
         TestServerGroup.fake_server_group.project_id,
         TestServerGroup.fake_server_group.user_id,
     ),)
@@ -211,7 +212,7 @@ class TestServerGroupList(TestServerGroup):
         self.server_groups_mock.list.assert_called_once_with(False)
 
         self.assertEqual(self.list_columns, columns)
-        self.assertEqual(self.list_data, tuple(data))
+        self.assertListItemEqual(self.list_data, list(data))
 
     def test_server_group_list_with_all_projects_and_long(self):
         arglist = [
@@ -227,7 +228,7 @@ class TestServerGroupList(TestServerGroup):
         self.server_groups_mock.list.assert_called_once_with(True)
 
         self.assertEqual(self.list_columns_long, columns)
-        self.assertEqual(self.list_data_long, tuple(data))
+        self.assertListItemEqual(self.list_data_long, list(data))
 
 
 class TestServerGroupShow(TestServerGroup):
@@ -250,4 +251,4 @@ class TestServerGroupShow(TestServerGroup):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)

@@ -136,14 +136,7 @@ class AggregateTests(base.TestCase):
             'internal',
             cmd_output['availability_zone']
         )
-        self.assertIn(
-            "c='d'",
-            cmd_output['properties']
-        )
-        self.assertNotIn(
-            "a='b'",
-            cmd_output['properties']
-        )
+        self.assertEqual({'c': 'd'}, cmd_output['properties'])
 
         # Test unset
         raw_output = self.openstack(
@@ -157,10 +150,7 @@ class AggregateTests(base.TestCase):
             'aggregate show -f json ' +
             name2
         ))
-        self.assertNotIn(
-            "c='d'",
-            cmd_output['properties']
-        )
+        self.assertEqual({}, cmd_output['properties'])
 
     def test_aggregate_add_and_remove_host(self):
         """Test aggregate add and remove host"""
