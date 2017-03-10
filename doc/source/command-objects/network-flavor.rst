@@ -26,7 +26,7 @@ Create network flavor
 .. option:: --service-type <service-type>
 
     Service type to which the flavor applies to: e.g. VPN.
-    (See openstack :ref:'network_service_provider_list` (required)
+    (See openstack :ref:`network_service_provider_list`) (required)
 
 .. option:: --description <description>
 
