@@ -1712,6 +1712,29 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
+    def test_port_list_status(self):
+        arglist = [
+            '--status',
+            'ACTIVE',
+        ]
+        verifylist = [
+            ('status', 'ACTIVE'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {
+            'status': 'ACTIVE',
+            'fields': LIST_FIELDS_TO_RETRIEVE,
+        }
+
+        self.network_client.ports.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(
+            self.data,
+            list(data),
+        )
+
 
 class TestSetPort(TestPort):
     _port = network_fakes.create_one_port({'tags': ['green', 'red']})
