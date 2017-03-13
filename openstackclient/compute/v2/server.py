@@ -917,6 +917,8 @@ class ListServer(command.Lister):
                 'Networks',
                 'Image Name',
                 'Image ID',
+                'Flavor Name',
+                'Flavor ID',
                 'OS-EXT-AZ:availability_zone',
                 'OS-EXT-SRV-ATTR:host',
                 'Metadata',
@@ -930,6 +932,8 @@ class ListServer(command.Lister):
                 'Networks',
                 'Image Name',
                 'Image ID',
+                'Flavor Name',
+                'Flavor ID',
                 'Availability Zone',
                 'Host',
                 'Properties',
@@ -977,8 +981,19 @@ class ListServer(command.Lister):
         except Exception:
             pass
 
-        # Populate image_name and image_id attributes of server objects
-        # so that we can display "Image Name" and "Image ID" columns.
+        flavors = {}
+        # Create a dict that maps flavor_id to flavor object.
+        # Needed so that we can display the "Flavor Name" column.
+        # "Flavor Name" is not crucial, so we swallow any exceptions.
+        try:
+            flavors_list = compute_client.flavors.list()
+            for i in flavors_list:
+                flavors[i.id] = i
+        except Exception:
+            pass
+
+        # Populate image_name, image_id, flavor_name and flavor_id attributes
+        # of server objects so that we can display those columns.
         for s in data:
             if 'id' in s.image:
                 image = images.get(s.image['id'])
@@ -988,6 +1003,14 @@ class ListServer(command.Lister):
             else:
                 s.image_name = ''
                 s.image_id = ''
+            if 'id' in s.flavor:
+                flavor = flavors.get(s.flavor['id'])
+                if flavor:
+                    s.flavor_name = flavor.name
+                s.flavor_id = s.flavor['id']
+            else:
+                s.flavor_name = ''
+                s.flavor_id = ''
 
         table = (column_headers,
                  (utils.get_item_properties(
