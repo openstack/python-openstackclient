@@ -114,6 +114,16 @@ def _get_ip_address(addresses, address_type, ip_address_family):
         )
 
 
+def _prefix_checked_value(prefix):
+    def func(value):
+        if ',' in value or '=' in value:
+            msg = _("Invalid argument %s, "
+                    "characters ',' and '=' are not allowed") % value
+            raise argparse.ArgumentTypeError(msg)
+        return prefix + value
+    return func
+
+
 def _prep_server_detail(compute_client, image_client, server):
     """Prepare the detailed server dict for printing
 
@@ -404,7 +414,6 @@ class CreateServer(command.ShowOne):
             metavar="<net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,"
                     "port-id=port-uuid,auto,none>",
             action='append',
-            default=[],
             help=_("Create a NIC on the server. "
                    "Specify option multiple times to create multiple NICs. "
                    "Either net-id or port-id must be provided, but not both. "
@@ -416,6 +425,28 @@ class CreateServer(command.ShowOne):
                    "auto: (v2.37+) the compute service will automatically "
                    "allocate a network. Specifying a --nic of auto or none "
                    "cannot be used with any other --nic value."),
+        )
+        parser.add_argument(
+            '--network',
+            metavar="<network>",
+            action='append',
+            dest='nic',
+            type=_prefix_checked_value('net-id='),
+            help=_("Create a NIC on the server and connect it to network. "
+                   "Specify option multiple times to create multiple NICs. "
+                   "For more options on NICs see --nic parameter. "
+                   "network: attach NIC to this network "),
+        )
+        parser.add_argument(
+            '--port',
+            metavar="<port>",
+            action='append',
+            dest='nic',
+            type=_prefix_checked_value('port-id='),
+            help=_("Create a NIC on the server and connect it to port. "
+                   "Specify option multiple times to create multiple NICs. "
+                   "For more options on NICs see --nic parameter. "
+                   "port: attach NIC this port "),
         )
         parser.add_argument(
             '--hint',
@@ -549,6 +580,8 @@ class CreateServer(command.ShowOne):
 
         nics = []
         auto_or_none = False
+        if parsed_args.nic is None:
+            parsed_args.nic = []
         for nic_str in parsed_args.nic:
             # Handle the special auto/none cases
             if nic_str in ('auto', 'none'):
@@ -564,7 +597,7 @@ class CreateServer(command.ShowOne):
                     msg = _('Invalid --nic argument %s.') % nic_str
                     raise exceptions.CommandError(msg)
                 if bool(nic_info["net-id"]) == bool(nic_info["port-id"]):
-                    msg = _("either net-id or port-id should be specified "
+                    msg = _("either network or port should be specified "
                             "but not both")
                     raise exceptions.CommandError(msg)
                 if self.app.client_manager.is_network_endpoint_enabled():
@@ -593,7 +626,8 @@ class CreateServer(command.ShowOne):
             if auto_or_none:
                 if len(nics) > 1:
                     msg = _('Specifying a --nic of auto or none cannot '
-                            'be used with any other --nic value.')
+                            'be used with any other --nic, --network '
+                            'or --port value.')
                     raise exceptions.CommandError(msg)
                 nics = nics[0]
         else:

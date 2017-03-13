@@ -108,6 +108,8 @@ Create a new server
         [--availability-zone <zone-name>]
         [--block-device-mapping <dev-name=mapping> [...] ]
         [--nic <net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,port-id=port-uuid,auto,none> [...] ]
+        [--network <network>]
+        [--port <port>]
         [--hint <key=value> [...] ]
         [--config-drive <value>|True ]
         [--min <count>]
@@ -176,6 +178,20 @@ Create a new server
     Specifying a --nic of auto or none cannot be used with any other
     --nic value.
 
+.. option:: --network <network>
+
+    Create a NIC on the server and connect it to network.
+    Specify option multiple times to create multiple NICs.
+    For more options on NICs see --nic parameter.
+    network: attach NIC to this network
+
+.. option:: --port <port>
+
+    Create a NIC on the server and connect it to port.
+    Specify option multiple times to create multiple NICs.
+    For more options on NICs see --nic parameter.
+    port: attach NIC to this port
+
 .. option:: --hint <key=value>
 
     Hints for the scheduler (optional extension)
@@ -199,6 +215,16 @@ Create a new server
 .. describe:: <server-name>
 
     New server name
+
+..
+
+The parameters ``--network <network>`` and ``--port <port>`` are actually
+wrappers to ``--nic net-id=<network>`` and ``--nic port-id=<port>``. ``--nic``
+also provides additional options to specify an IP address, automatic network
+assignment and NICs which are not assigned to any port. This functionality
+is not part of ``--network`` and ``--port``, which aim to provide a simple
+syntax for the standard use cases of connecting a new server to a given
+network or port.
 
 server delete
 -------------
