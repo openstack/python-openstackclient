@@ -479,6 +479,7 @@ class TestProjectList(TestProject):
     domain = identity_fakes.FakeDomain.create_one_domain()
     project = identity_fakes.FakeProject.create_one_project(
         attrs={'domain_id': domain.id})
+    projects = identity_fakes.FakeProject.create_projects()
 
     columns = (
         'ID',
@@ -489,6 +490,12 @@ class TestProjectList(TestProject):
             project.id,
             project.name,
         ),
+    )
+    datalists = (
+        (projects[0].description, True,
+         projects[0].id, projects[0].name,),
+        (projects[1].description, True,
+         projects[1].id, projects[1].name,),
     )
 
     def setUp(self):
@@ -579,6 +586,36 @@ class TestProjectList(TestProject):
             domain=self.project.domain_id)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
+
+    def test_project_list_sort(self):
+        self.projects_mock.list.return_value = self.projects
+
+        arglist = ['--sort', 'name:asc', ]
+        verifylist = []
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        (columns, data) = self.cmd.take_action(parsed_args)
+        self.projects_mock.list.assert_called_with()
+
+        collist = ('ID', 'Name')
+        self.assertEqual(collist, columns)
+
+        if self.projects[0].name > self.projects[1].name:
+            datalists = (
+                (self.projects[1].id, self.projects[1].name),
+                (self.projects[0].id, self.projects[0].name),
+            )
+        else:
+            datalists = (
+                (self.projects[0].id, self.projects[0].name),
+                (self.projects[1].id, self.projects[1].name),
+            )
+
+        self.assertEqual(datalists, tuple(data))
 
 
 class TestProjectSet(TestProject):

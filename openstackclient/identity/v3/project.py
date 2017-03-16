@@ -194,6 +194,13 @@ class ListProject(command.Lister):
             default=False,
             help=_('List additional fields in output'),
         )
+        parser.add_argument(
+            '--sort',
+            metavar='<key>[:<direction>]',
+            help=_('Sort output by selected keys and directions (asc or desc) '
+                   '(default: asc), repeat this option to specify multiple '
+                   'keys and directions.'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -222,6 +229,8 @@ class ListProject(command.Lister):
             kwargs['user'] = user_id
 
         data = identity_client.projects.list(**kwargs)
+        if parsed_args.sort:
+            data = utils.sort_items(data, parsed_args.sort)
         return (columns,
                 (utils.get_item_properties(
                     s, columns,

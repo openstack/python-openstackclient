@@ -26,6 +26,7 @@ from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 class TestProject(identity_fakes.TestIdentityv2):
 
     fake_project = identity_fakes.FakeProject.create_one_project()
+    fake_projects = identity_fakes.FakeProject.create_projects()
 
     columns = (
         'description',
@@ -38,6 +39,12 @@ class TestProject(identity_fakes.TestIdentityv2):
         True,
         fake_project.id,
         fake_project.name,
+    )
+    datalists = (
+        (fake_projects[0].description, True,
+         fake_projects[0].id, fake_projects[0].name,),
+        (fake_projects[1].description, True,
+         fake_projects[1].id, fake_projects[1].name,),
     )
 
     def setUp(self):
@@ -385,6 +392,35 @@ class TestProjectList(TestProject):
             True,
         ), )
         self.assertEqual(datalist, tuple(data))
+
+    def test_project_list_sort(self):
+        self.projects_mock.list.return_value = self.fake_projects
+
+        arglist = ['--sort', 'name:asc', ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        (columns, data) = self.cmd.take_action(parsed_args)
+        self.projects_mock.list.assert_called_with()
+
+        collist = ('ID', 'Name')
+        self.assertEqual(collist, columns)
+
+        if self.fake_projects[0].name > self.fake_projects[1].name:
+            datalists = (
+                (self.fake_projects[1].id, self.fake_projects[1].name),
+                (self.fake_projects[0].id, self.fake_projects[0].name),
+            )
+        else:
+            datalists = (
+                (self.fake_projects[0].id, self.fake_projects[0].name),
+                (self.fake_projects[1].id, self.fake_projects[1].name),
+            )
+
+        self.assertEqual(datalists, tuple(data))
 
 
 class TestProjectSet(TestProject):

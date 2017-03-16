@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--sort`` support to ``project list`` by sorting items in client side
+    By default project list will be sorted by name.
+    [Bug `1596818 <https://bugs.launchpad.net/bugs/1596818>`_]
