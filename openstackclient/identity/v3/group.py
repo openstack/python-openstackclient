@@ -102,12 +102,15 @@ class CheckUserInGroup(command.Command):
 
         try:
             identity_client.users.check_in_group(user_id, group_id)
-        except Exception:
-            msg = _("%(user)s not in group %(group)s\n") % {
-                'user': parsed_args.user,
-                'group': parsed_args.group,
-            }
-            sys.stderr.write(msg)
+        except ks_exc.http.HTTPClientError as e:
+            if e.http_status == 403 or e.http_status == 404:
+                msg = _("%(user)s not in group %(group)s\n") % {
+                    'user': parsed_args.user,
+                    'group': parsed_args.group,
+                }
+                sys.stderr.write(msg)
+            else:
+                raise e
         else:
             msg = _("%(user)s in group %(group)s\n") % {
                 'user': parsed_args.user,

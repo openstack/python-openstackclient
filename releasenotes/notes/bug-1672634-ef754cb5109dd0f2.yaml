@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Narrow acceptable negative response codes for ``group contains user``
+    [Bug `1672634 <https://bugs.launchpad.net/python-openstackclient/+bug/1672634>`_]

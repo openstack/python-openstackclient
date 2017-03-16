@@ -115,6 +115,23 @@ class TestGroupCheckUser(TestGroup):
             self.user.id, self.group.id)
         self.assertIsNone(result)
 
+    def test_group_check_user_server_error(self):
+        def server_error(*args):
+            raise ks_exc.http.InternalServerError
+        self.users_mock.check_in_group.side_effect = server_error
+        arglist = [
+            self.group.name,
+            self.user.name,
+        ]
+        verifylist = [
+            ('group', self.group.name),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(ks_exc.http.InternalServerError,
+                          self.cmd.take_action, parsed_args)
+
 
 class TestGroupCreate(TestGroup):
 
