@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import uuid
 
 from openstackclient.tests.functional import base
@@ -17,22 +18,19 @@ from openstackclient.tests.functional import base
 
 class IPAvailabilityTests(base.TestCase):
     """Functional tests for IP availability. """
-    NAME = uuid.uuid4().hex
-    NETWORK_NAME = uuid.uuid4().hex
-    FIELDS = ['network_name']
 
     @classmethod
     def setUpClass(cls):
         # Create a network for the subnet.
+        cls.NAME = uuid.uuid4().hex
+        cls.NETWORK_NAME = uuid.uuid4().hex
         cls.openstack('network create ' + cls.NETWORK_NAME)
-        opts = cls.get_opts(['name'])
-        raw_output = cls.openstack(
-            'subnet create --network ' + cls.NETWORK_NAME +
+        cmd_output = json.loads(cls.openstack(
+            'subnet create -f json --network ' + cls.NETWORK_NAME +
             ' --subnet-range 10.10.10.0/24 ' +
-            cls.NAME + opts
-        )
-        expected = cls.NAME + '\n'
-        cls.assertOutput(expected, raw_output)
+            cls.NAME
+        ))
+        cls.assertOutput(cls.NAME, cmd_output['name'])
 
     @classmethod
     def tearDownClass(cls):
@@ -42,12 +40,17 @@ class IPAvailabilityTests(base.TestCase):
         cls.assertOutput('', raw_network)
 
     def test_ip_availability_list(self):
-        opts = ' -f csv -c "Network Name"'
-        raw_output = self.openstack('ip availability list' + opts)
-        self.assertIn(self.NETWORK_NAME, raw_output)
+        """Test ip availability list"""
+        cmd_output = json.loads(self.openstack(
+            'ip availability list -f json'))
+        names = [x['Network Name'] for x in cmd_output]
+        self.assertIn(self.NETWORK_NAME, names)
 
     def test_ip_availability_show(self):
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack(
-            'ip availability show ' + self.NETWORK_NAME + opts)
-        self.assertEqual(self.NETWORK_NAME + "\n", raw_output)
+        """Test ip availability show"""
+        cmd_output = json.loads(self.openstack(
+            'ip availability show -f json ' + self.NETWORK_NAME))
+        self.assertEqual(
+            self.NETWORK_NAME,
+            cmd_output['network_name'],
+        )
