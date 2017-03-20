@@ -60,12 +60,10 @@ def _get_network_columns(item):
 
 
 def _get_columns(item):
-    columns = list(item.keys())
-    if 'tenant_id' in columns:
-        columns.remove('tenant_id')
-    if 'project_id' not in columns:
-        columns.append('project_id')
-    return tuple(sorted(columns))
+    column_map = {
+        'tenant_id': 'project_id',
+    }
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 def _get_attrs(client_manager, parsed_args):
@@ -305,9 +303,9 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
     def take_action_compute(self, client, parsed_args):
         attrs = _get_attrs_compute(self.app.client_manager, parsed_args)
         obj = client.networks.create(**attrs)
-        columns = _get_columns(obj._info)
+        display_columns, columns = _get_columns(obj._info)
         data = utils.get_dict_properties(obj._info, columns)
-        return (columns, data)
+        return (display_columns, data)
 
 
 class DeleteNetwork(common.NetworkAndComputeDelete):
@@ -420,7 +418,11 @@ class ListNetwork(common.NetworkAndComputeLister):
             help=_("List networks according to VLAN ID for VLAN networks "
                    "or Tunnel ID for GENEVE/GRE/VXLAN networks")
         )
-
+        parser.add_argument(
+            '--agent',
+            metavar='<agent-id>',
+            dest='agent_id',
+            help=_('List networks hosted by agent (ID only)'))
         return parser
 
     def take_action_network(self, client, parsed_args):
@@ -450,6 +452,26 @@ class ListNetwork(common.NetworkAndComputeLister):
                 'Router Type',
                 'Availability Zones',
             )
+        elif parsed_args.agent_id:
+            columns = (
+                'id',
+                'name',
+                'subnet_ids'
+            )
+            column_headers = (
+                'ID',
+                'Name',
+                'Subnets',
+            )
+            client = self.app.client_manager.network
+            dhcp_agent = client.get_agent(parsed_args.agent_id)
+            data = client.dhcp_agent_hosting_networks(dhcp_agent)
+
+            return (column_headers,
+                    (utils.get_item_properties(
+                        s, columns,
+                        formatters=_formatters,
+                    ) for s in data))
         else:
             columns = (
                 'id',
@@ -665,6 +687,6 @@ class ShowNetwork(common.NetworkAndComputeShowOne):
             client.networks,
             parsed_args.network,
         )
-        columns = _get_columns(obj._info)
+        display_columns, columns = _get_columns(obj._info)
         data = utils.get_dict_properties(obj._info, columns)
-        return (columns, data)
+        return (display_columns, data)

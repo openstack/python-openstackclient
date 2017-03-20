@@ -203,6 +203,7 @@ List networks
         [--provider-network-type <provider-network-type>]
         [--provider-physical-network <provider-physical-network>]
         [--provider-segment <provider-segment>]
+        [--agent <agent-id>]
 
 .. option:: --external
 
@@ -289,6 +290,10 @@ List networks
     or Tunnel ID for GENEVE/GRE/VXLAN networks
 
     *Network version 2 only*
+
+.. option:: --agent <agent-id>
+
+    List networks hosted by agent (ID only)
 
 network set
 -----------

@@ -238,6 +238,49 @@ class NetworkTests(base.TestCase):
         self.assertIn(name1, col_name)
         self.assertNotIn(name2, col_name)
 
+    def test_network_dhcp_agent(self):
+        name1 = uuid.uuid4().hex
+        cmd_output1 = json.loads(self.openstack(
+            'network create -f json ' +
+            '--description aaaa ' +
+            name1
+        ))
+
+        self.addCleanup(self.openstack, 'network delete ' + name1)
+
+        # Get network ID
+        network_id = cmd_output1['id']
+
+        # Get DHCP Agent ID
+        cmd_output2 = json.loads(self.openstack(
+            'network agent list -f json --agent-type dhcp'
+        ))
+        agent_id = cmd_output2[0]['ID']
+
+        # Add Agent to Network
+        self.openstack(
+            'network agent add network --dhcp '
+            + agent_id + ' ' + network_id
+        )
+
+        # Test network list --agent
+        cmd_output3 = json.loads(self.openstack(
+            'network list -f json --agent ' + agent_id
+        ))
+
+        # Cleanup
+        # Remove Agent from Network
+        self.openstack(
+            'network agent remove network --dhcp '
+            + agent_id + ' ' + network_id
+        )
+
+        # Assert
+        col_name = [x["ID"] for x in cmd_output3]
+        self.assertIn(
+            network_id, col_name
+        )
+
     def test_network_set(self):
         """Tests create options, set, show, delete"""
         name = uuid.uuid4().hex

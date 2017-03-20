@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add network dhcp-agent related commands ``network agent add network``,
+    ``network agent remove network``, ``network agent list --network`` and
+    ``network list --agent`` for adding/removing network to dhcp agent.
+    [Blueprint :oscbp:`network-dhcp-adv-commands`]
