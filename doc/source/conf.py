@@ -22,10 +22,6 @@ import pbr.version
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-# NOTE(blk-u): Path for our Sphinx extension, remove when
-# https://launchpad.net/bugs/1260495 is fixed.
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 # -- General configuration ----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -37,7 +33,6 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest',
               'sphinx.ext.todo',
               'oslosphinx',
-              'ext.apidoc',
               'stevedore.sphinxext',
               ]
 
