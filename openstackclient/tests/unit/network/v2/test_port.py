@@ -987,6 +987,25 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(_testport, **attrs)
         self.assertIsNone(result)
 
+    def test_overwrite_mac_address(self):
+        _testport = network_fakes.FakePort.create_one_port(
+            {'mac_address': '11:22:33:44:55:66'})
+        self.network.find_port = mock.Mock(return_value=_testport)
+        arglist = [
+            '--mac-address', '66:55:44:33:22:11',
+            _testport.name,
+        ]
+        verifylist = [
+            ('mac_address', '66:55:44:33:22:11'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        attrs = {
+            'mac_address': '66:55:44:33:22:11',
+        }
+        self.network.update_port.assert_called_once_with(_testport, **attrs)
+        self.assertIsNone(result)
+
     def test_set_this(self):
         arglist = [
             '--disable',

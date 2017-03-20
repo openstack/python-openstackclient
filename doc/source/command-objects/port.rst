@@ -219,6 +219,7 @@ Set port properties
         [--host <host-id>]
         [--enable | --disable]
         [--name <name>]
+        [--mac-address <mac-address>]
         [--security-group <security-group>]
         [--no-security-group]
         [--enable-port-security | --disable-port-security]
@@ -284,6 +285,10 @@ Set port properties
 .. option:: --name
 
     Set port name
+
+.. option:: --mac-address
+
+    Set port's MAC address (admin only)
 
 .. option:: --security-group <security-group>
 
