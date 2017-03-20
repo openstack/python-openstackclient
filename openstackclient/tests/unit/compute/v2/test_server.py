@@ -957,6 +957,8 @@ class TestServerList(TestServer):
         'Networks',
         'Image Name',
         'Image ID',
+        'Flavor Name',
+        'Flavor ID',
         'Availability Zone',
         'Host',
         'Properties',
@@ -1027,6 +1029,12 @@ class TestServerList(TestServer):
             for s in self.servers
         ]
 
+        Flavor = collections.namedtuple('Flavor', 'id name')
+        self.flavors_mock.list.return_value = [
+            Flavor(id=s.flavor['id'], name=self.flavor.name)
+            for s in self.servers
+        ]
+
         for s in self.servers:
             self.data.append((
                 s.id,
@@ -1046,6 +1054,8 @@ class TestServerList(TestServer):
                 server._format_servers_list_networks(s.networks),
                 self.image.name,
                 s.image['id'],
+                self.flavor.name,
+                s.flavor['id'],
                 getattr(s, 'OS-EXT-AZ:availability_zone'),
                 getattr(s, 'OS-EXT-SRV-ATTR:host'),
                 s.Metadata,
