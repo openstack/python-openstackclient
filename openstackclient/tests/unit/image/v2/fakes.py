@@ -238,7 +238,7 @@ class FakeImage(object):
             A list of FakeResource objects faking images
         :param Integer count:
             The number of images to be faked
-        :return
+        :return:
             An iterable Mock object with side_effect set to a list of faked
             images
         """
@@ -253,7 +253,7 @@ class FakeImage(object):
 
         :param image:
             A FakeResource objects faking image
-        :return
+        :return:
             A tuple which may include the following keys:
             ('id', 'name', 'owner', 'protected', 'visibility', 'tags')
         """
@@ -267,7 +267,7 @@ class FakeImage(object):
 
         :param image:
             A FakeResource objects faking image
-        :return
+        :return:
             A tuple which may include the following values:
             ('image-123', 'image-foo', 'admin', False, 'public', 'bar, baz')
         """

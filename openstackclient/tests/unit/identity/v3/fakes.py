@@ -729,7 +729,7 @@ class FakeCredential(object):
             A list of FakeResource objects faking credentials
         :param Integer count:
             The number of credentials to be faked
-        :return
+        :return:
             An iterable Mock object with side_effect set to a list of faked
             credentials
         """
@@ -867,7 +867,7 @@ class FakeGroup(object):
             A list of FakeResource objects faking groups
         :param Integer count:
             The number of groups to be faked
-        :return
+        :return:
             An iterable Mock object with side_effect set to a list of faked
             groups
         """

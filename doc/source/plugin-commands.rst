@@ -62,11 +62,10 @@ mistral
 .. list-plugins:: openstack.workflow_engine.v2
    :detailed:
 
-murano
-------
-
-.. list-plugins:: openstack.application_catalog.v1
-   :detailed:
+.. murano
+.. # the murano docs cause warnings and a broken docs build
+.. # .. list-plugins:: openstack.application_catalog.v1
+.. #   :detailed:
 
 neutron
 -------

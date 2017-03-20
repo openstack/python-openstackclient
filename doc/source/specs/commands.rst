@@ -19,14 +19,15 @@ Objects Specs
 
 Add specifications for new objects based on the ``example`` object.
 
-* ``example``: (**example API name**) example object description
-
 Actions Specs
 -------------
 
 Add specifications for new actions based on the ``example`` action.
 
-* ``example`` - example action description
+.. toctree::
+   :maxdepth: 1
+
+   network-topology
 
 Commands Specs
 --------------

@@ -11,7 +11,7 @@ Create new endpoint
 
 *Identity version 2 only*
 
-.. program:: endpoint create
+.. program:: endpoint create (v2)
 .. code:: bash
 
     openstack endpoint create
@@ -44,7 +44,7 @@ Create new endpoint
 
 *Identity version 3 only*
 
-.. program:: endpoint create
+.. program:: endpoint create (v3)
 .. code:: bash
 
     openstack endpoint create

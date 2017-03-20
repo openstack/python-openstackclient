@@ -46,7 +46,7 @@ Releases Before 3.0
 2. <type> should not be optional for command `openstack service create`
 
   Previously, the command was `openstack service create <name> --type <type>`,
-  whereas now it is: `openstack service create <type> --name <name>`
+  whereas now it is: `openstack service create <type> --name <name>`.
   This bug also affected python-keystoneclient, and keystone.
 
   * In favor of: making <type> a positional argument.
@@ -170,12 +170,12 @@ Releases Before 3.0
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1546065
   * Commit: https://review.openstack.org/#/c/281088/
 
-12. <version> <url> <md5hash> should be optional for command `openstack compute agent set`
+12. `<version> <url> <md5hash>` should be optional for command `openstack
+    compute agent set`
 
-  Previously, the command was `openstack compute agent set <id> <version> <url> <md5hash>`,
-  whereas now it is: `openstack compute agent set <id> --version <version>
-                                                       --url <url>
-                                                       --md5hash <md5hash>`.
+  Previously, the command was `openstack compute agent set <id> <version> <url>
+  <md5hash>`, whereas now it is: `openstack compute agent set <id> --version
+  <version> --url <url> --md5hash <md5hash>`.
 
   * In favor of: making <version> <url> <md5hash> optional.
   * As of: NA

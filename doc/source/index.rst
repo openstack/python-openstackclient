@@ -57,6 +57,7 @@ Developer Documentation
    command-errors
    command-logs
    specs/commands
+   api/modules
 
 Project Goals
 -------------
@@ -92,5 +93,4 @@ Indices and Tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`

@@ -62,7 +62,7 @@ Create new consistency group.
     (not available if creating consistency group from source)
 
 .. _consistency_group_create-name:
-.. option:: <name>
+.. describe:: <name>
 
     Name of new consistency group (default to None)
 

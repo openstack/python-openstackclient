@@ -96,6 +96,7 @@ def check_api_version(check_version):
     """Validate version supplied by user
 
     Returns:
+
     * True if version is OK
     * False if the version has not been checked and the previous plugin
       check should be performed

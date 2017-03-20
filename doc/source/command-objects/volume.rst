@@ -37,18 +37,18 @@ Create new volume
 
     Set the type of volume
 
-    Select :option:`\<volume-type\>` from the available types as shown
+    Select ``<volume-type>`` from the available types as shown
     by ``volume type list``.
 
 .. option:: --image <image>
 
-    Use :option:`\<image\>` as source of volume (name or ID)
+    Use ``<image>`` as source of volume (name or ID)
 
     This is commonly used to create a boot volume for a server.
 
 .. option:: --snapshot <snapshot>
 
-    Use :option:`\<snapshot\>` as source of volume (name or ID)
+    Use ``<snapshot>`` as source of volume (name or ID)
 
 .. option:: --source <volume>
 
@@ -72,7 +72,7 @@ Create new volume
 
 .. option:: --availability-zone <availability-zone>
 
-    Create volume in :option:`\<availability-zone\>`
+    Create volume in ``<availability-zone>``
 
 .. option:: --consistency-group <consistency-group>
 
@@ -163,7 +163,7 @@ List volumes
 
 .. option:: --project <project>
 
-    Filter results by :option:`\<project\>` (name or ID) (admin only)
+    Filter results by ``<project>`` (name or ID) (admin only)
 
     *Volume version 2 only*
 
@@ -177,7 +177,7 @@ List volumes
 
 .. option:: --user <user>
 
-    Filter results by :option:`\<user\>` (name or ID) (admin only)
+    Filter results by ``<user>`` (name or ID) (admin only)
 
     *Volume version 2 only*
 
@@ -337,8 +337,8 @@ Set volume properties
     (repeat option to set multiple image properties)
 
     Image properties are copied along with the image when creating a volume
-    using :option:`--image`.  Note that these properties are immutable on the
-    image itself, this option updates the copy attached to this volume.
+    using ``--image``.  Note that these properties are immutable on the image
+    itself, this option updates the copy attached to this volume.
 
     *Volume version 2 only*
 

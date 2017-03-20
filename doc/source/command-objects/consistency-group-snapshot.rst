@@ -27,7 +27,7 @@ Create new consistency group snapshot.
     Description of this consistency group snapshot
 
 .. _consistency_group_snapshot_create-snapshot-name:
-.. option:: <snapshot-name>
+.. describe:: <snapshot-name>
 
     Name of new consistency group snapshot (default to None)
 
