@@ -56,20 +56,20 @@ class AddNetworkToAgent(command.Command):
         parser.add_argument(
             'agent_id',
             metavar='<agent-id>',
-            help=_('Agent to which a network is added. (ID only)'))
+            help=_('Agent to which a network is added (ID only)'))
         parser.add_argument(
             'network',
             metavar='<network>',
-            help=_('Network to be added to an agent.  (ID or name)'))
+            help=_('Network to be added to an agent (ID or name)'))
 
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         agent = client.get_agent(parsed_args.agent_id)
+        network = client.find_network(
+            parsed_args.network, ignore_missing=False)
         if parsed_args.dhcp:
-            network = client.find_network(
-                parsed_args.network, ignore_missing=False)
             try:
                 client.add_dhcp_agent_to_network(agent, network)
             except Exception:
@@ -225,19 +225,19 @@ class RemoveNetworkFromAgent(command.Command):
         parser.add_argument(
             'agent_id',
             metavar='<agent-id>',
-            help=_('Agent to which a network is removed. (ID only)'))
+            help=_('Agent to which a network is removed (ID only)'))
         parser.add_argument(
             'network',
             metavar='<network>',
-            help=_('Network to be removed from an agent. (ID or name)'))
+            help=_('Network to be removed from an agent (ID or name)'))
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         agent = client.get_agent(parsed_args.agent_id)
+        network = client.find_network(
+            parsed_args.network, ignore_missing=False)
         if parsed_args.dhcp:
-            network = client.find_network(
-                parsed_args.network, ignore_missing=False)
             try:
                 client.remove_dhcp_agent_from_network(agent, network)
             except Exception:
