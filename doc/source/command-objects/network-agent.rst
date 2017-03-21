@@ -25,15 +25,15 @@ Add network to an agent
 
 .. describe:: --dhcp
 
-    Add a network to DHCP agent.
+    Add a network to DHCP agent
 
 .. describe:: <agent-id>
 
-    Agent to which a network is added. (ID only)
+    Agent to which a network is added (ID only)
 
 .. describe:: <network>
 
-    Network to be added to an agent. (ID or name)
+    Network to be added to an agent (ID or name)
 
 network agent delete
 --------------------
@@ -77,7 +77,7 @@ List network agents
 
 .. option:: --network <network>
 
-    List agents hosting a network. (ID or name)
+    List agents hosting a network (ID or name)
 
 network agent set
 -----------------
@@ -144,8 +144,8 @@ Remove network from an agent
 
 .. describe:: <agent-id>
 
-    Agent to which a network is removed. (ID only)
+    Agent to which a network is removed (ID only)
 
 .. describe:: <network>
 
-    Network to be removed from an agent. (ID or name)
+    Network to be removed from an agent (ID or name)
