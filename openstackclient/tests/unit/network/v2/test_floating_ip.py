@@ -218,8 +218,8 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
     )
     def test_floating_ip_delete(self, find_floating_ip_mock):
         find_floating_ip_mock.side_effect = [
-            (self.floating_ips[0], []),
-            (self.floating_ips[1], []),
+            self.floating_ips[0],
+            self.floating_ips[1],
         ]
         arglist = [
             self.floating_ips[0].id,
@@ -233,7 +233,6 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
 
         find_floating_ip_mock.assert_called_once_with(
             mock.ANY,
-            [],
             self.floating_ips[0].id,
             ignore_missing=False,
         )
@@ -246,8 +245,8 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
     )
     def test_floating_ip_delete_multi(self, find_floating_ip_mock):
         find_floating_ip_mock.side_effect = [
-            (self.floating_ips[0], []),
-            (self.floating_ips[1], []),
+            self.floating_ips[0],
+            self.floating_ips[1],
         ]
         arglist = []
         verifylist = []
@@ -264,13 +263,11 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
         calls = [
             call(
                 mock.ANY,
-                [],
                 self.floating_ips[0].id,
                 ignore_missing=False,
             ),
             call(
                 mock.ANY,
-                [],
                 self.floating_ips[1].id,
                 ignore_missing=False,
             ),
@@ -289,7 +286,7 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
     )
     def test_floating_ip_delete_multi_exception(self, find_floating_ip_mock):
         find_floating_ip_mock.side_effect = [
-            (self.floating_ips[0], []),
+            self.floating_ips[0],
             exceptions.CommandError,
         ]
         arglist = [
@@ -310,13 +307,11 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
 
         find_floating_ip_mock.assert_any_call(
             mock.ANY,
-            [],
             self.floating_ips[0].id,
             ignore_missing=False,
         )
         find_floating_ip_mock.assert_any_call(
             mock.ANY,
-            [],
             'unexist_floating_ip',
             ignore_missing=False,
         )
@@ -584,7 +579,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
         "floating_ip._find_floating_ip"
     )
     def test_floating_ip_show(self, find_floating_ip_mock):
-        find_floating_ip_mock.return_value = (self.floating_ip, [])
+        find_floating_ip_mock.return_value = self.floating_ip
         arglist = [
             self.floating_ip.id,
         ]
@@ -597,7 +592,6 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
 
         find_floating_ip_mock.assert_called_once_with(
             mock.ANY,
-            [],
             self.floating_ip.id,
             ignore_missing=False,
         )
