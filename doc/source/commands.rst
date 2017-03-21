@@ -113,6 +113,7 @@ referring to both Compute and Volume quotas.
 * ``network agent``: (**Network**) - A network agent is an agent that handles various tasks used to implement virtual networks
 * ``network auto allocated topology``: (**Network**) - an auto-allocated topology for a project
 * ``network flavor``: (**Network**) - allows the user to choose the type of service by a set of advertised service capabilities (e.g., LOADBALANCER, FWAAS, L3, VPN, etc) rather than by a provider type or named vendor
+* ``network flavor profile``: (**Network**) - predefined neutron service configurations: driver
 * ``network meter``: (**Network**) - allow traffic metering in a network
 * ``network meter rule``: (**Network**) - rules for network traffic metering
 * ``network rbac``: (**Network**) - an RBAC policy for network resources

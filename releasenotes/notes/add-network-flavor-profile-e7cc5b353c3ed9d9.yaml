@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Add support for Network Flavor Profile commands:
+    ``network flavor profile create``, ``network flavor profile delete``,
+    ``network flavor profile list``, ``network flavor profile show`` and
+    ``network flavor profile set``
+    [Blueprint :oscbp:`neutron-client-flavors`]
+

@@ -769,6 +769,53 @@ class FakeNetworkRBAC(object):
         return mock.Mock(side_effect=rbac_policies)
 
 
+class FakeNetworkFlavorProfile(object):
+    """Fake network flavor profile."""
+
+    @staticmethod
+    def create_one_service_profile(attrs=None):
+        """Create flavor profile."""
+        attrs = attrs or {}
+
+        flavor_profile_attrs = {
+            'id': 'flavor-profile-id' + uuid.uuid4().hex,
+            'description': 'flavor-profile-description-' + uuid.uuid4().hex,
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'driver': 'driver-' + uuid.uuid4().hex,
+            'metainfo': 'metainfo-' + uuid.uuid4().hex,
+            'enabled': True
+        }
+
+        flavor_profile_attrs.update(attrs)
+
+        flavor_profile = fakes.FakeResource(
+            info=copy.deepcopy(flavor_profile_attrs),
+            loaded=True)
+
+        flavor_profile.project_id = flavor_profile_attrs['tenant_id']
+        flavor_profile.is_enabled = flavor_profile_attrs['enabled']
+
+        return flavor_profile
+
+    @staticmethod
+    def create_service_profile(attrs=None, count=2):
+        """Create multiple flavor profiles."""
+
+        flavor_profiles = []
+        for i in range(0, count):
+            flavor_profiles.append(FakeNetworkFlavorProfile.
+                                   create_one_service_profile(attrs))
+        return flavor_profiles
+
+    @staticmethod
+    def get_service_profile(flavor_profile=None, count=2):
+        """Get a list of flavor profiles."""
+        if flavor_profile is None:
+            flavor_profile = (FakeNetworkFlavorProfile.
+                              create_service_profile(count))
+        return mock.Mock(side_effect=flavor_profile)
+
+
 class FakeNetworkQosPolicy(object):
     """Fake one or more QoS policies."""
 
