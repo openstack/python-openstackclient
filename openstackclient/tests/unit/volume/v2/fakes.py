@@ -954,3 +954,53 @@ class FakeType(object):
             info=copy.deepcopy(encryption_info),
             loaded=True)
         return encryption_type
+
+
+class FakeQuota(object):
+    """Fake quota"""
+
+    @staticmethod
+    def create_one_vol_quota(attrs=None):
+        """Create one quota"""
+        attrs = attrs or {}
+
+        quota_attrs = {
+            'id': 'project-id-' + uuid.uuid4().hex,
+            'backups': 100,
+            'backup_gigabytes': 100,
+            'gigabytes': 10,
+            'per_volume_gigabytes': 10,
+            'snapshots': 0,
+            'volumes': 10}
+
+        quota_attrs.update(attrs)
+
+        quota = fakes.FakeResource(
+            info=copy.deepcopy(quota_attrs),
+            loaded=True)
+        quota.project_id = quota_attrs['id']
+
+        return quota
+
+    @staticmethod
+    def create_one_default_vol_quota(attrs=None):
+        """Create one quota"""
+        attrs = attrs or {}
+
+        quota_attrs = {
+            'id': 'project-id-' + uuid.uuid4().hex,
+            'backups': 100,
+            'backup_gigabytes': 100,
+            'gigabytes': 100,
+            'per_volume_gigabytes': 100,
+            'snapshots': 100,
+            'volumes': 100}
+
+        quota_attrs.update(attrs)
+
+        quota = fakes.FakeResource(
+            info=copy.deepcopy(quota_attrs),
+            loaded=True)
+        quota.project_id = quota_attrs['id']
+
+        return quota

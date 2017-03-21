@@ -25,6 +25,27 @@ class QuotaTests(base.TestCase):
         cls.PROJECT_NAME =\
             cls.get_openstack_configuration_value('auth.project_name')
 
+    def test_quota_list_network_option(self):
+        self.openstack('quota set --networks 40 ' +
+                       self.PROJECT_NAME)
+        raw_output = self.openstack('quota list --network')
+        self.assertIsNotNone(raw_output)
+        self.assertIn("40", raw_output)
+
+    def test_quota_list_compute_option(self):
+        self.openstack('quota set --instances 40 ' +
+                       self.PROJECT_NAME)
+        raw_output = self.openstack('quota list --compute')
+        self.assertIsNotNone(raw_output)
+        self.assertIn("40", raw_output)
+
+    def test_quota_list_volume_option(self):
+        self.openstack('quota set --backups 40 ' +
+                       self.PROJECT_NAME)
+        raw_output = self.openstack('quota list --volume')
+        self.assertIsNotNone(raw_output)
+        self.assertIn("40", raw_output)
+
     def test_quota_set(self):
         self.openstack('quota set --instances 11 --volumes 11 --networks 11 ' +
                        self.PROJECT_NAME)

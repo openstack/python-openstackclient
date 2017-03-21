@@ -17,6 +17,7 @@ from openstackclient.common import quota
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 
@@ -518,3 +519,161 @@ class TestQuotaShow(TestQuota):
         self.network.get_quota.assert_called_once_with(
             identity_fakes.project_id)
         self.assertNotCalled(self.network.get_quota_default)
+
+
+class TestQuotaList(TestQuota):
+    """Test cases for quota list command"""
+
+    project = identity_fakes_v3.FakeProject.create_one_project()
+
+    quota_list = network_fakes.FakeQuota.create_one_net_quota()
+    quota_list1 = compute_fakes.FakeQuota.create_one_comp_quota()
+    quota_list2 = volume_fakes.FakeQuota.create_one_vol_quota()
+
+    default_quota = network_fakes.FakeQuota.create_one_default_net_quota()
+    default_quota1 = compute_fakes.FakeQuota.create_one_default_comp_quota()
+    default_quota2 = volume_fakes.FakeQuota.create_one_default_vol_quota()
+
+    reference_data = (project.id,
+                      quota_list.floating_ips,
+                      quota_list.networks,
+                      quota_list.ports,
+                      quota_list.rbac_policies,
+                      quota_list.routers,
+                      quota_list.security_groups,
+                      quota_list.security_group_rules,
+                      quota_list.subnets,
+                      quota_list.subnet_pools)
+
+    comp_reference_data = (project.id,
+                           quota_list1.cores,
+                           quota_list1.fixed_ips,
+                           quota_list1.injected_files,
+                           quota_list1.injected_file_content_bytes,
+                           quota_list1.injected_file_path_bytes,
+                           quota_list1.instances,
+                           quota_list1.key_pairs,
+                           quota_list1.metadata_items,
+                           quota_list1.ram,
+                           quota_list1.server_groups,
+                           quota_list1.server_group_members)
+
+    vol_reference_data = (project.id,
+                          quota_list2.backups,
+                          quota_list2.backup_gigabytes,
+                          quota_list2.gigabytes,
+                          quota_list2.per_volume_gigabytes,
+                          quota_list2.snapshots,
+                          quota_list2.volumes)
+
+    net_column_header = (
+        'Project ID',
+        'Floating IPs',
+        'Networks',
+        'Ports',
+        'RBAC Policies',
+        'Routers',
+        'Security Groups',
+        'Security Group Rules',
+        'Subnets',
+        'Subnet Pools'
+    )
+
+    comp_column_header = (
+        'Project ID',
+        'Cores',
+        'Fixed IPs',
+        'Injected Files',
+        'Injected File Content Bytes',
+        'Injected File Path Bytes',
+        'Instances',
+        'Key Pairs',
+        'Metadata Items',
+        'Ram',
+        'Server Groups',
+        'Server Group Members',
+    )
+
+    vol_column_header = (
+        'Project ID',
+        'Backups',
+        'Backup Gigabytes',
+        'Gigabytes',
+        'Per Volume Gigabytes',
+        'Snapshots',
+        'Volumes',
+    )
+
+    def setUp(self):
+        super(TestQuotaList, self).setUp()
+
+        self.projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
+        self.identity = self.app.client_manager.identity
+        self.identity.tenants.list = mock.Mock(return_value=[self.project])
+
+        self.network = self.app.client_manager.network
+        self.compute = self.app.client_manager.compute
+        self.volume = self.app.client_manager.volume
+
+        self.network.get_quota = mock.Mock(return_value=self.quota_list)
+        self.compute.quotas.get = mock.Mock(return_value=self.quota_list1)
+        self.volume.quotas.get = mock.Mock(return_value=self.quota_list2)
+
+        self.network.get_quota_default = mock.Mock(
+            return_value=self.default_quota)
+        self.compute.quotas.defaults = mock.Mock(
+            return_value=self.default_quota1)
+        self.volume.quotas.defaults = mock.Mock(
+            return_value=self.default_quota2)
+
+        self.cmd = quota.ListQuota(self.app, None)
+
+    def test_quota_list_network(self):
+        arglist = [
+            '--network'
+        ]
+        verifylist = [
+            ('network', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.net_column_header, columns)
+
+        self.assertEqual(self.reference_data, list(data)[0])
+
+    def test_quota_list_compute(self):
+        arglist = [
+            '--compute'
+        ]
+        verifylist = [
+            ('compute', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.comp_column_header, columns)
+
+        self.assertEqual(self.comp_reference_data, list(data)[0])
+
+    def test_quota_list_volume(self):
+        arglist = [
+            '--volume'
+        ]
+        verifylist = [
+            ('volume', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.vol_column_header, columns)
+
+        self.assertEqual(self.vol_reference_data, list(data)[0])

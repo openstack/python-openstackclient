@@ -7,6 +7,29 @@ single object with multiple properties.
 
 Block Storage v1, v2, Compute v2, Network v2
 
+quota list
+----------
+
+List quotas for all projects with non-default quota values
+
+.. program:: quota list
+.. code:: bash
+
+    openstack quota list
+        --compute | --network | --volume
+
+.. option:: --network
+
+    List network quotas
+
+.. option:: --compute
+
+    List compute quotas
+
+.. option:: --volume
+
+    List volume quotas
+
 quota set
 ---------
 

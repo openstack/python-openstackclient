@@ -1357,3 +1357,67 @@ class FakeUsage(object):
             usages.append(FakeUsage.create_one_usage(attrs))
 
         return usages
+
+
+class FakeQuota(object):
+    """Fake quota"""
+
+    @staticmethod
+    def create_one_comp_quota(attrs=None):
+        """Create one quota"""
+
+        attrs = attrs or {}
+
+        quota_attrs = {
+            'id': 'project-id-' + uuid.uuid4().hex,
+            'cores': 20,
+            'fixed_ips': 30,
+            'injected_files': 100,
+            'injected_file_content_bytes': 10240,
+            'injected_file_path_bytes': 255,
+            'instances': 50,
+            'key_pairs': 20,
+            'metadata_items': 10,
+            'ram': 51200,
+            'server_groups': 10,
+            'server_group_members': 10
+        }
+
+        quota_attrs.update(attrs)
+        quota = fakes.FakeResource(
+            info=copy.deepcopy(quota_attrs),
+            loaded=True)
+
+        quota.project_id = quota_attrs['id']
+
+        return quota
+
+    @staticmethod
+    def create_one_default_comp_quota(attrs=None):
+        """Crate one quota"""
+
+        attrs = attrs or {}
+
+        quota_attrs = {
+            'id': 'project-id-' + uuid.uuid4().hex,
+            'cores': 10,
+            'fixed_ips': 10,
+            'injected_files': 100,
+            'injected_file_content_bytes': 10240,
+            'injected_file_path_bytes': 255,
+            'instances': 20,
+            'key_pairs': 20,
+            'metadata_items': 10,
+            'ram': 51200,
+            'server_groups': 10,
+            'server_group_members': 10
+        }
+
+        quota_attrs.update(attrs)
+        quota = fakes.FakeResource(
+            info=copy.deepcopy(quota_attrs),
+            loaded=True)
+
+        quota.project_id = quota_attrs['id']
+
+        return quota
