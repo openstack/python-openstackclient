@@ -1,0 +1,5 @@
+---
+features:
+    - |
+      Add ``--fixed-ip-address`` option to the ``server add floating ip`` command
+      [Bug `1624524 <https://bugs.launchpad.net/python-openstackclient/+bug/1624524>`_]

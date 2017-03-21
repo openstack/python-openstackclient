@@ -33,8 +33,13 @@ Add floating IP address to server
 .. code:: bash
 
     openstack server add floating ip
+        [--fixed-ip-address <fixed-ip-address>]
         <server>
         <ip-address>
+
+.. option:: --fixed-ip-address <fixed-ip-address>
+
+    Fixed IP address to associate with this floating IP address
 
 .. describe:: <server>
 
