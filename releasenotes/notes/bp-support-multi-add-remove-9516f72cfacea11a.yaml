@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support to add/remove multi users by ``group add/remove user`` command.
+    [Blueprint  :oscbp:`support-multi-add-remove`]

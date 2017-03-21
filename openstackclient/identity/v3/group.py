@@ -44,7 +44,9 @@ class AddUserToGroup(command.Command):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help=_('User to add to <group> (name or ID)'),
+            nargs='+',
+            help=_('User(s) to add to <group> (name or ID) '
+                   '(repeat option to add multiple users)'),
         )
         common.add_group_domain_option_to_parser(parser)
         common.add_user_domain_option_to_parser(parser)
@@ -53,20 +55,32 @@ class AddUserToGroup(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        user_id = common.find_user(identity_client,
-                                   parsed_args.user,
-                                   parsed_args.user_domain).id
         group_id = common.find_group(identity_client,
                                      parsed_args.group,
                                      parsed_args.group_domain).id
 
-        try:
-            identity_client.users.add_to_group(user_id, group_id)
-        except Exception as e:
-            msg = _("%(user)s not added to group %(group)s: %(e)s") % {
-                'user': parsed_args.user,
+        result = 0
+        for i in parsed_args.user:
+            try:
+                user_id = common.find_user(identity_client,
+                                           i,
+                                           parsed_args.user_domain).id
+                identity_client.users.add_to_group(user_id, group_id)
+            except Exception as e:
+                result += 1
+                msg = _("%(user)s not added to group %(group)s: %(e)s") % {
+                    'user': i,
+                    'group': parsed_args.group,
+                    'e': e,
+                }
+                LOG.error(msg)
+        if result > 0:
+            total = len(parsed_args.user)
+            msg = (_("%(result)s of %(total)s users not added to group "
+                   "%(group)s.")) % {
+                'result': result,
+                'total': total,
                 'group': parsed_args.group,
-                'e': e,
             }
             raise exceptions.CommandError(msg)
 
@@ -286,7 +300,9 @@ class RemoveUserFromGroup(command.Command):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help=_('User to remove from <group> (name or ID)'),
+            nargs='+',
+            help=_('User(s) to remove from <group> (name or ID) '
+                   '(repeat option to remove multiple users)'),
         )
         common.add_group_domain_option_to_parser(parser)
         common.add_user_domain_option_to_parser(parser)
@@ -295,20 +311,32 @@ class RemoveUserFromGroup(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        user_id = common.find_user(identity_client,
-                                   parsed_args.user,
-                                   parsed_args.user_domain).id
         group_id = common.find_group(identity_client,
                                      parsed_args.group,
                                      parsed_args.group_domain).id
 
-        try:
-            identity_client.users.remove_from_group(user_id, group_id)
-        except Exception as e:
-            msg = _("%(user)s not removed from group %(group)s: %(e)s") % {
-                'user': parsed_args.user,
+        result = 0
+        for i in parsed_args.user:
+            try:
+                user_id = common.find_user(identity_client,
+                                           i,
+                                           parsed_args.user_domain).id
+                identity_client.users.remove_from_group(user_id, group_id)
+            except Exception as e:
+                result += 1
+                msg = _("%(user)s not removed from group %(group)s: %(e)s") % {
+                    'user': i,
+                    'group': parsed_args.group,
+                    'e': e,
+                }
+                LOG.error(msg)
+        if result > 0:
+            total = len(parsed_args.user)
+            msg = (_("%(result)s of %(total)s users not removed from group "
+                   "%(group)s.")) % {
+                'result': result,
+                'total': total,
                 'group': parsed_args.group,
-                'e': e,
             }
             raise exceptions.CommandError(msg)
 

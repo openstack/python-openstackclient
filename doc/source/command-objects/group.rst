@@ -16,7 +16,7 @@ Add user to group
         [--group-domain <group-domain>]
         [--user-domain <user-domain>]
         <group>
-        <user>
+        <user> [<user> ...]
 
 .. option:: --group-domain <group-domain>
 
@@ -38,7 +38,8 @@ Add user to group
 
 .. describe:: <user>
 
-    User to add to <group> (name or ID)
+    User(s) to add to <group> (name or ID)
+    (repeat option to add multiple users)
 
 group contains user
 -------------------
@@ -172,7 +173,7 @@ Remove user from group
         [--group-domain <group-domain>]
         [--user-domain <user-domain>]
         <group>
-        <user>
+        <user> [<user> ...]
 
 .. option:: --group-domain <group-domain>
 
@@ -194,7 +195,8 @@ Remove user from group
 
 .. describe:: <user>
 
-    User to remove from <group> (name or ID)
+    User(s) to remove from <group> (name or ID)
+    (repeat option to remove multiple users)
 
 group set
 ---------

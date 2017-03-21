@@ -770,6 +770,44 @@ class FakeUser(object):
                                   loaded=True)
         return user
 
+    @staticmethod
+    def create_users(attrs=None, count=2):
+        """Create multiple fake users.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of users to fake
+        :return:
+            A list of FakeResource objects faking the users
+        """
+        users = []
+        for i in range(0, count):
+            user = FakeUser.create_one_user(attrs)
+            users.append(user)
+
+        return users
+
+    @staticmethod
+    def get_users(users=None, count=2):
+        """Get an iterable MagicMock object with a list of faked users.
+
+        If users list is provided, then initialize the Mock object with
+        the list. Otherwise create one.
+
+        :param List users:
+            A list of FakeResource objects faking users
+        :param Integer count:
+            The number of users to be faked
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            users
+        """
+        if users is None:
+            users = FakeUser.create_users(count)
+
+        return mock.Mock(side_effect=users)
+
 
 class FakeGroup(object):
     """Fake one or more group."""
