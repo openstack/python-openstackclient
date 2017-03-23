@@ -1,0 +1,5 @@
+---
+features:
+    - |
+      Add ``--no-ha`` option to the ``router create`` command
+      [Bug `1675514 <https://bugs.launchpad.net/python-openstackclient/+bug/1675514>`_]

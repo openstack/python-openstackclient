@@ -64,7 +64,7 @@ Create new router
         [--project <project> [--project-domain <project-domain>]]
         [--enable | --disable]
         [--distributed]
-        [--ha]
+        [--ha | --no-ha]
         [--description <description>]
         [--availability-zone-hint <availability-zone>]
         <name>
@@ -93,6 +93,10 @@ Create new router
 .. option:: --ha
 
     Create a highly available router
+
+.. option:: --no-ha
+
+    Create a legacy router
 
 .. option:: --description <description>
 
