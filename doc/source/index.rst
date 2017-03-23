@@ -43,7 +43,6 @@ Release Notes
    :maxdepth: 1
 
    Release Notes <http://docs.openstack.org/releasenotes/python-openstackclient>
-   history
 
 Developer Documentation
 -----------------------
