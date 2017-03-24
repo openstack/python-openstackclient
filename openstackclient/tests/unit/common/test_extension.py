@@ -67,7 +67,7 @@ class TestExtension(utils.TestCommand):
 class TestExtensionList(TestExtension):
 
     columns = ('Name', 'Alias', 'Description')
-    long_columns = ('Name', 'Namespace', 'Description', 'Alias', 'Updated',
+    long_columns = ('Name', 'Alias', 'Description', 'Namespace', 'Updated',
                     'Links')
 
     volume_extension = volume_fakes.FakeExtension.create_one_extension()
@@ -145,33 +145,33 @@ class TestExtensionList(TestExtension):
         datalist = (
             (
                 self.identity_extension.name,
-                self.identity_extension.namespace,
-                self.identity_extension.description,
                 self.identity_extension.alias,
+                self.identity_extension.description,
+                self.identity_extension.namespace,
                 self.identity_extension.updated,
                 self.identity_extension.links,
             ),
             (
                 self.compute_extension.name,
-                self.compute_extension.namespace,
-                self.compute_extension.description,
                 self.compute_extension.alias,
+                self.compute_extension.description,
+                self.compute_extension.namespace,
                 self.compute_extension.updated,
                 self.compute_extension.links,
             ),
             (
                 self.volume_extension.name,
-                self.volume_extension.namespace,
-                self.volume_extension.description,
                 self.volume_extension.alias,
+                self.volume_extension.description,
+                self.volume_extension.namespace,
                 self.volume_extension.updated,
                 self.volume_extension.links,
             ),
             (
                 self.network_extension.name,
-                self.network_extension.namespace,
-                self.network_extension.description,
                 self.network_extension.alias,
+                self.network_extension.description,
+                self.network_extension.namespace,
                 self.network_extension.updated,
                 self.network_extension.links,
             ),
@@ -214,6 +214,27 @@ class TestExtensionList(TestExtension):
         self._test_extension_list_helper(arglist, verifylist, datalist)
         self.network_extensions_mock.assert_called_with()
 
+    def test_extension_list_network_with_long(self):
+        arglist = [
+            '--network',
+            '--long',
+        ]
+        verifylist = [
+            ('network', True),
+            ('long', True),
+        ]
+        datalist = ((
+            self.network_extension.name,
+            self.network_extension.alias,
+            self.network_extension.description,
+            self.network_extension.namespace,
+            self.network_extension.updated,
+            self.network_extension.links,
+        ), )
+        self._test_extension_list_helper(arglist, verifylist, datalist,
+                                         long=True)
+        self.network_extensions_mock.assert_called_with()
+
     def test_extension_list_compute(self):
         arglist = [
             '--compute',
@@ -228,6 +249,31 @@ class TestExtensionList(TestExtension):
         ), )
         self._test_extension_list_helper(arglist, verifylist, datalist)
         self.compute_extensions_mock.show_all.assert_called_with()
+
+    def test_extension_list_compute_and_network(self):
+        arglist = [
+            '--compute',
+            '--network',
+        ]
+        verifylist = [
+            ('compute', True),
+            ('network', True),
+        ]
+        datalist = (
+            (
+                self.compute_extension.name,
+                self.compute_extension.alias,
+                self.compute_extension.description,
+            ),
+            (
+                self.network_extension.name,
+                self.network_extension.alias,
+                self.network_extension.description,
+            ),
+        )
+        self._test_extension_list_helper(arglist, verifylist, datalist)
+        self.compute_extensions_mock.show_all.assert_called_with()
+        self.network_extensions_mock.assert_called_with()
 
     def test_extension_list_volume(self):
         arglist = [
@@ -251,12 +297,12 @@ class TestExtensionShow(TestExtension):
     )
 
     columns = (
-        'Alias',
-        'Description',
-        'Links',
-        'Name',
-        'Namespace',
-        'Updated'
+        'alias',
+        'description',
+        'links',
+        'name',
+        'namespace',
+        'updated',
     )
 
     data = (
@@ -296,7 +342,7 @@ class TestExtensionShow(TestExtension):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.app.client_manager.network.find_extension.assert_called_with(
-            self.extension_details.alias)
+            self.extension_details.alias, ignore_missing=False)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
