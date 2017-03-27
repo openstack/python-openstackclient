@@ -114,8 +114,6 @@ def _get_attrs(client_manager, parsed_args):
         ))
     if parsed_args.description is not None:
         attrs['description'] = parsed_args.description
-    if parsed_args.fixed_ip is not None:
-        attrs['fixed_ips'] = parsed_args.fixed_ip
     if parsed_args.device:
         attrs['device_id'] = parsed_args.device
     if parsed_args.device_owner is not None:
@@ -124,8 +122,6 @@ def _get_attrs(client_manager, parsed_args):
         attrs['admin_state_up'] = True
     if parsed_args.disable:
         attrs['admin_state_up'] = False
-    if parsed_args.binding_profile is not None:
-        attrs['binding:profile'] = parsed_args.binding_profile
     if parsed_args.vnic_type is not None:
         attrs['binding:vnic_type'] = parsed_args.vnic_type
     if parsed_args.host:
@@ -389,6 +385,12 @@ class CreatePort(command.ShowOne):
         _prepare_fixed_ips(self.app.client_manager, parsed_args)
         attrs = _get_attrs(self.app.client_manager, parsed_args)
 
+        if parsed_args.binding_profile is not None:
+            attrs['binding:profile'] = parsed_args.binding_profile
+
+        if parsed_args.fixed_ip:
+            attrs['fixed_ips'] = parsed_args.fixed_ip
+
         if parsed_args.security_group:
             attrs['security_group_ids'] = [client.find_security_group(
                                            sg, ignore_missing=False).id
@@ -396,6 +398,7 @@ class CreatePort(command.ShowOne):
                                            parsed_args.security_group]
         elif parsed_args.no_security_group:
             attrs['security_group_ids'] = []
+
         if parsed_args.allowed_address_pairs:
             attrs['allowed_address_pairs'] = (
                 _convert_address_pairs(parsed_args))
@@ -674,48 +677,50 @@ class SetPort(command.Command):
         _prepare_fixed_ips(self.app.client_manager, parsed_args)
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.find_port(parsed_args.port, ignore_missing=False)
-        if 'binding:profile' in attrs:
-            # Do not modify attrs if both binding_profile/no_binding given
-            if not parsed_args.no_binding_profile:
-                tmp_binding_profile = copy.deepcopy(obj.binding_profile)
-                tmp_binding_profile.update(attrs['binding:profile'])
-                attrs['binding:profile'] = tmp_binding_profile
-        elif parsed_args.no_binding_profile:
+
+        if parsed_args.no_binding_profile:
             attrs['binding:profile'] = {}
-        if 'fixed_ips' in attrs:
-            # When user unsets the fixed_ips, obj.fixed_ips = [{}].
-            # Adding the obj.fixed_ips list to attrs['fixed_ips']
-            # would therefore add an empty dictionary, while we need
-            # to append the attrs['fixed_ips'] iff there is some info
-            # in the obj.fixed_ips. Therefore I have opted for this `for` loop
-            # Do not modify attrs if fixed_ip/no_fixed_ip given
-            if not parsed_args.no_fixed_ip:
-                attrs['fixed_ips'] += [ip for ip in obj.fixed_ips if ip]
-        elif parsed_args.no_fixed_ip:
+        if parsed_args.binding_profile:
+            if 'binding:profile' not in attrs:
+                attrs['binding:profile'] = copy.deepcopy(obj.binding_profile)
+            attrs['binding:profile'].update(parsed_args.binding_profile)
+
+        if parsed_args.no_fixed_ip:
             attrs['fixed_ips'] = []
+        if parsed_args.fixed_ip:
+            if 'fixed_ips' not in attrs:
+                # obj.fixed_ips = [{}] if no fixed IPs are set.
+                # Only append this to attrs['fixed_ips'] if actual fixed
+                # IPs are present to avoid adding an empty dict.
+                attrs['fixed_ips'] = [ip for ip in obj.fixed_ips if ip]
+            attrs['fixed_ips'].extend(parsed_args.fixed_ip)
 
-        if parsed_args.security_group:
-            attrs['security_group_ids'] = [
-                client.find_security_group(sg, ignore_missing=False).id for
-                sg in parsed_args.security_group]
-            if not parsed_args.no_security_group:
-                attrs['security_group_ids'] += obj.security_group_ids
-
-        elif parsed_args.no_security_group:
+        if parsed_args.no_security_group:
             attrs['security_group_ids'] = []
+        if parsed_args.security_group:
+            if 'security_group_ids' not in attrs:
+                # NOTE(dtroyer): Get existing security groups, iterate the
+                #                list to force a new list object to be
+                #                created and make sure the SDK Resource
+                #                marks the attribute 'dirty'.
+                attrs['security_group_ids'] = [
+                    id for id in obj.security_group_ids
+                ]
+            attrs['security_group_ids'].extend(
+                client.find_security_group(sg, ignore_missing=False).id
+                for sg in parsed_args.security_group
+            )
 
-        if (parsed_args.allowed_address_pairs and
-                parsed_args.no_allowed_address_pair):
-            attrs['allowed_address_pairs'] = (
-                _convert_address_pairs(parsed_args))
-
-        elif parsed_args.allowed_address_pairs:
-            attrs['allowed_address_pairs'] = (
-                [addr for addr in obj.allowed_address_pairs if addr] +
-                _convert_address_pairs(parsed_args))
-
-        elif parsed_args.no_allowed_address_pair:
+        if parsed_args.no_allowed_address_pair:
             attrs['allowed_address_pairs'] = []
+        if parsed_args.allowed_address_pairs:
+            if 'allowed_address_pairs' not in attrs:
+                attrs['allowed_address_pairs'] = (
+                    [addr for addr in obj.allowed_address_pairs if addr]
+                )
+            attrs['allowed_address_pairs'].extend(
+                _convert_address_pairs(parsed_args)
+            )
 
         client.update_port(obj, **attrs)
 
