@@ -14,6 +14,7 @@
 
 """Volume v1 transfer action implementations"""
 
+import argparse
 import logging
 
 from osc_lib.command import command
@@ -34,22 +35,54 @@ class AcceptTransferRequest(command.ShowOne):
         parser = super(AcceptTransferRequest, self).get_parser(prog_name)
         parser.add_argument(
             'transfer_request',
-            metavar="<transfer-request>",
-            help=_('Volume transfer request to accept (name or ID)'),
+            metavar="<transfer-request-id>",
+            help=_('Volume transfer request to accept (ID only)'),
         )
         parser.add_argument(
-            'auth_key',
-            metavar="<auth-key>",
-            help=_('Authentication key of transfer request'),
+            'old_auth_key',
+            metavar="<key>",
+            nargs="?",
+            help=argparse.SUPPRESS,
+        )
+        parser.add_argument(
+            '--auth-key',
+            metavar="<key>",
+            help=_('Volume transfer request authentication key'),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        transfer_request_id = utils.find_resource(
-            volume_client.transfers, parsed_args.transfer_request).id
+
+        try:
+            transfer_request_id = utils.find_resource(
+                volume_client.transfers,
+                parsed_args.transfer_request
+            ).id
+        except exceptions.CommandError:
+            # Non-admin users will fail to lookup name -> ID so we just
+            # move on and attempt with the user-supplied information
+            transfer_request_id = parsed_args.transfer_request
+
+        # Remain backward-compatible for the previous command layout
+        # TODO(dtroyer): Remove this back-compat in 4.0 or Oct 2017
+        if not parsed_args.auth_key:
+            if parsed_args.old_auth_key:
+                # Move the old one into the correct place
+                parsed_args.auth_key = parsed_args.old_auth_key
+                self.log.warning(_(
+                    'Specifying the auth-key as a positional argument '
+                    'has been deprecated.  Please use the --auth-key '
+                    'option in the future.'
+                ))
+            else:
+                msg = _("argument --auth-key is required")
+                raise exceptions.CommandError(msg)
+
         transfer_accept = volume_client.transfers.accept(
-            transfer_request_id, parsed_args.auth_key)
+            transfer_request_id,
+            parsed_args.auth_key,
+        )
         transfer_accept._info.pop("links", None)
 
         return zip(*sorted(six.iteritems(transfer_accept._info)))
@@ -75,9 +108,12 @@ class CreateTransferRequest(command.ShowOne):
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         volume_id = utils.find_resource(
-            volume_client.volumes, parsed_args.volume).id
+            volume_client.volumes,
+            parsed_args.volume,
+        ).id
         volume_transfer_request = volume_client.transfers.create(
-            volume_id, parsed_args.name,
+            volume_id,
+            parsed_args.name,
         )
         volume_transfer_request._info.pop("links", None)
 
@@ -104,7 +140,9 @@ class DeleteTransferRequest(command.Command):
         for t in parsed_args.transfer_request:
             try:
                 transfer_request_id = utils.find_resource(
-                    volume_client.transfers, t).id
+                    volume_client.transfers,
+                    t,
+                ).id
                 volume_client.transfers.delete(transfer_request_id)
             except Exception as e:
                 result += 1
@@ -115,7 +153,7 @@ class DeleteTransferRequest(command.Command):
         if result > 0:
             total = len(parsed_args.transfer_request)
             msg = (_("%(result)s of %(total)s volume transfer requests failed"
-                   " to delete.") % {'result': result, 'total': total})
+                   " to delete") % {'result': result, 'total': total})
             raise exceptions.CommandError(msg)
 
 
@@ -129,20 +167,19 @@ class ListTransferRequest(command.Lister):
             dest='all_projects',
             action="store_true",
             default=False,
-            help=_('Shows detail for all projects. Admin only. '
-                   '(defaults to False)')
+            help=_('Include all projects (admin only)'),
         )
         return parser
 
     def take_action(self, parsed_args):
-        columns = ['ID', 'Volume ID', 'Name']
-        column_headers = ['ID', 'Volume', 'Name']
+        columns = ['ID', 'Name', 'Volume ID']
+        column_headers = ['ID', 'Name', 'Volume']
 
         volume_client = self.app.client_manager.volume
 
         volume_transfer_result = volume_client.transfers.list(
             detailed=True,
-            search_opts={'all_tenants': parsed_args.all_projects}
+            search_opts={'all_tenants': parsed_args.all_projects},
         )
 
         return (column_headers, (
@@ -165,7 +202,9 @@ class ShowTransferRequest(command.ShowOne):
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         volume_transfer_request = utils.find_resource(
-            volume_client.transfers, parsed_args.transfer_request)
+            volume_client.transfers,
+            parsed_args.transfer_request,
+        )
         volume_transfer_request._info.pop("links", None)
 
         return zip(*sorted(six.iteritems(volume_transfer_request._info)))
