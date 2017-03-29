@@ -817,8 +817,7 @@ class TestServerCreate(TestServer):
                 'uuid': real_volume_mapping.split(':', 1)[0],
                 'destination_type': 'volume',
                 'source_type': 'volume',
-                'delete_on_termination': '0',
-                'volume_size': ''
+                'delete_on_termination': '0'
             }],
             nics=[],
             scheduler_hints={},

@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix creating a server with a block-device-mapping when volume_size
+    is empty.
+    [Bug `1677236 <https://bugs.launchpad.net/bugs/1652827>`_]

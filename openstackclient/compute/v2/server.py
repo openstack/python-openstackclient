@@ -544,7 +544,7 @@ class CreateServer(command.ShowOne):
                     else:
                         mapping['source_type'] = 'volume'
                     mapping['destination_type'] = 'volume'
-                    if len(dev_map) > 2:
+                    if len(dev_map) > 2 and dev_map[2]:
                         mapping['volume_size'] = dev_map[2]
                     if len(dev_map) > 3:
                         mapping['delete_on_termination'] = dev_map[3]
