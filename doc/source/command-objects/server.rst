@@ -49,6 +49,26 @@ Add floating IP address to server
 
     Floating IP address (IP address only) to assign to server
 
+server add port
+---------------
+
+Add port to server
+
+.. program:: server add port
+.. code:: bash
+
+    openstack server add port
+        <server>
+        <port>
+
+.. describe:: <server>
+
+    Server to add the port to (name or ID)
+
+.. describe:: <port>
+
+    Port to add to the server (name or ID)
+
 server add security group
 -------------------------
 
@@ -522,6 +542,26 @@ Remove floating IP address from server
 .. describe:: <ip-address>
 
     Floating IP address (IP address only) to remove from server
+
+server remove port
+------------------
+
+Remove port from server
+
+.. program:: server remove port
+.. code:: bash
+
+    openstack server remove port
+        <server>
+        <port>
+
+.. describe:: <server>
+
+    Server to remove the port from (name or ID)
+
+.. describe:: <port>
+
+    Port to remove from the server (name or ID)
 
 server remove security group
 ----------------------------
