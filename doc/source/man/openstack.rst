@@ -58,94 +58,145 @@ OPTIONS
 
 :program:`openstack` recognizes the following global options:
 
-:option:`--os-cloud` <cloud-name>
+.. option:: --os-cloud <cloud-name>
+
     :program:`openstack` will look for a ``clouds.yaml`` file that contains
     a cloud configuration to use for authentication.  See CLOUD CONFIGURATION
     below for more information.
 
-:option:`--os-auth-type` <auth-type>
+.. option::  --os-auth-type <auth-type>
+
     The authentication plugin type to use when connecting to the Identity service.
+
     If this option is not set, :program:`openstack` will attempt to guess the
     authentication method to use based on the other options.
-    If this option is set, its version must match :option:`--os-identity-api-version`
 
-:option:`--os-auth-url` <auth-url>
+    If this option is set, its version must match
+    :option:`--os-identity-api-version`
+
+.. option:: --os-auth-url <auth-url>
+
     Authentication URL
 
-:option:`--os-url` <service-url>
+.. option:: --os-url <service-url>
+
     Service URL, when using a service token for authentication
 
-:option:`--os-domain-name` <auth-domain-name> | :option:`--os-domain-id` <auth-domain-id>
-    Domain-level authorization scope (name or ID)
+.. option:: --os-domain-name <auth-domain-name>
 
-:option:`--os-project-name` <auth-project-name> | :option:`--os-project-id` <auth-project-id>
-    Project-level authentication scope (name or ID)
+    Domain-level authorization scope (by name)
 
-:option:`--os-project-domain-name` <auth-project-domain-name> | :option:`--os-project-domain-id` <auth-project-domain-id>
-    Domain name or ID containing project
+.. option:: --os-domain-id <auth-domain-id>
 
-:option:`--os-username` <auth-username>
+    Domain-level authorization scope (by ID)
+
+.. option:: --os-project-name <auth-project-name>
+
+    Project-level authentication scope (by name)
+
+.. option:: --os-project-id <auth-project-id>
+
+    Project-level authentication scope (by ID)
+
+.. option:: --os-project-domain-name <auth-project-domain-name>
+
+    Domain name containing project
+
+.. option:: --os-project-domain-id <auth-project-domain-id>
+
+    Domain ID containing project
+
+.. option:: --os-username <auth-username>
+
     Authentication username
 
-:option:`--os-password` <auth-password>
+.. option:: --os-password <auth-password>
+
     Authentication password
 
-:option:`--os-token` <token>
+.. option:: --os-token <token>
+
     Authenticated token or service token
 
-:option:`--os-user-domain-name` <auth-user-domain-name> | :option:`--os-user-domain-id` <auth-user-domain-id>
-    Domain name or ID containing user
+.. option:: --os-user-domain-name <auth-user-domain-name>
 
-:option:`--os-trust-id` <trust-id>
+    Domain name containing user
+
+.. option:: --os-user-domain-id <auth-user-domain-id>
+
+    Domain ID containing user
+
+.. option:: --os-trust-id <trust-id>
+
     ID of the trust to use as a trustee user
 
-:option:`--os-default-domain` <auth-domain>
+.. option:: --os-default-domain <auth-domain>
+
     Default domain ID (Default: 'default')
 
-:option:`--os-region-name` <auth-region-name>
+.. option:: --os-region-name <auth-region-name>
+
     Authentication region name
 
-:option:`--os-cacert` <ca-bundle-file>
+.. option:: --os-cacert <ca-bundle-file>
+
     CA certificate bundle file
 
-:option:`--verify` | :option:`--insecure`
+.. option:: --verify` | :option:`--insecure
+
     Verify or ignore server certificate (default: verify)
 
-:option:`--os-cert` <certificate-file>
+.. option:: --os-cert <certificate-file>
+
     Client certificate bundle file
 
-:option:`--os-key` <key-file>
+.. option:: --os-key <key-file>
+
     Client certificate key file
 
-:option:`--os-identity-api-version` <identity-api-version>
+.. option:: --os-identity-api-version <identity-api-version>
+
     Identity API version (Default: 2.0)
 
-:option:`--os-XXXX-api-version` <XXXX-api-version>
-    Additional API version options will be available depending on the installed API libraries.
+.. option:: --os-XXXX-api-version <XXXX-api-version>
 
-:option:`--os-interface` <interface>
+    Additional API version options will be available depending on the installed
+    API libraries.
+
+.. option:: --os-interface <interface>
+
     Interface type. Valid options are `public`, `admin` and `internal`.
 
-:option:`--os-profile` <hmac-key>
+.. option:: --os-profile <hmac-key>
+
     Performance profiling HMAC key for encrypting context data
 
     This key should be the value of one of the HMAC keys defined in the
     configuration files of OpenStack services to be traced.
 
-:option:`--os-beta-command`
+.. option:: --os-beta-command
+
     Enable beta commands which are subject to change
 
-:option:`--log-file` <LOGFILE>
+.. option:: --log-file <LOGFILE>
+
     Specify a file to log output. Disabled by default.
 
-:option:`-v, --verbose`
+.. option:: -v, --verbose
+
     Increase verbosity of output. Can be repeated.
 
-:option:`-q, --quiet`
+.. option:: -q, --quiet
+
     Suppress output except warnings and errors
 
-:option:`--debug`
+.. option:: --debug
+
     Show tracebacks on errors and set verbosity to debug
+
+.. option:: --help
+
+    Show help message and exit
 
 COMMANDS
 ========
@@ -160,14 +211,16 @@ To get a description of a specific command::
 
 Note that the set of commands shown will vary depending on the API versions
 that are in effect at that time.  For example, to force the display of the
-Identity v3 commands:
+Identity v3 commands::
 
     openstack --os-identity-api-version 3 --help
 
-:option:`complete`
+.. option:: complete
+
     Print the bash completion functions for the current command set.
 
-:option:`help <command>`
+.. option:: help <command>
+
     Print help for an individual command
 
 Additional information on the OpenStackClient command structure and arguments
@@ -328,64 +381,85 @@ ENVIRONMENT VARIABLES
 
 The following environment variables can be set to alter the behaviour of :program:`openstack`.  Most of them have corresponding command-line options that take precedence if set.
 
-:envvar:`OS_CLOUD`
+.. envvar:: OS_CLOUD
+
     The name of a cloud configuration in ``clouds.yaml``.
 
-:envvar:`OS_AUTH_PLUGIN`
+.. envvar:: OS_AUTH_PLUGIN
+
     The authentication plugin to use when connecting to the Identity service, its version must match the Identity API version
 
-:envvar:`OS_AUTH_URL`
+.. envvar:: OS_AUTH_URL
+
     Authentication URL
 
-:envvar:`OS_URL`
+.. envvar:: OS_URL
+
     Service URL (when using the service token)
 
-:envvar:`OS_DOMAIN_NAME`
+.. envvar:: OS_DOMAIN_NAME
+
     Domain-level authorization scope (name or ID)
 
-:envvar:`OS_PROJECT_NAME`
+.. envvar:: OS_PROJECT_NAME
+
     Project-level authentication scope (name or ID)
 
-:envvar:`OS_PROJECT_DOMAIN_NAME`
+.. envvar:: OS_PROJECT_DOMAIN_NAME
+
     Domain name or ID containing project
 
-:envvar:`OS_USERNAME`
+.. envvar:: OS_USERNAME
+
     Authentication username
 
-:envvar:`OS_TOKEN`
+.. envvar:: OS_TOKEN
+
     Authenticated or service token
 
-:envvar:`OS_PASSWORD`
+.. envvar:: OS_PASSWORD
+
     Authentication password
 
-:envvar:`OS_USER_DOMAIN_NAME`
+.. envvar:: OS_USER_DOMAIN_NAME
+
     Domain name or ID containing user
 
-:envvar:`OS_TRUST_ID`
+.. envvar:: OS_TRUST_ID
+
     ID of the trust to use as a trustee user
 
-:envvar:`OS_DEFAULT_DOMAIN`
+.. envvar:: OS_DEFAULT_DOMAIN
+
     Default domain ID (Default: 'default')
 
-:envvar:`OS_REGION_NAME`
+.. envvar:: OS_REGION_NAME
+
     Authentication region name
 
-:envvar:`OS_CACERT`
+.. envvar:: OS_CACERT
+
     CA certificate bundle file
 
-:envvar:`OS_CERT`
+.. envvar:: OS_CERT
+
     Client certificate bundle file
 
-:envvar:`OS_KEY`
+.. envvar:: OS_KEY
+
     Client certificate key file
 
-:envvar:`OS_IDENTITY_API_VERSION`
+.. envvar:: OS_IDENTITY_API_VERSION
+
     Identity API version (Default: 2.0)
 
-:envvar:`OS_XXXX_API_VERSION`
-    Additional API version options will be available depending on the installed API libraries.
+.. envvar:: OS_XXXX_API_VERSION
 
-:envvar:`OS_INTERFACE`
+    Additional API version options will be available depending on the installed
+    API libraries.
+
+.. envvar:: OS_INTERFACE
+
     Interface type. Valid options are `public`, `admin` and `internal`.
 
 

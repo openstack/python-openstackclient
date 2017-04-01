@@ -16,9 +16,10 @@ new command without understanding why or why not that instance is correct.
 
 The :doc:`Human Interface Guide <humaninterfaceguide>`
 describes the guildelines for option names and usage.  In short:
-  * All option names shall be GNU-style long names (two leading dashes).
-  * Some global options may have short names, generally limited to those defined
-    in support libraries such as ``cliff``.
+
+* All option names shall be GNU-style long names (two leading dashes).
+* Some global options may have short names, generally limited to those defined
+  in support libraries such as ``cliff``.
 
 General Command Options
 =======================

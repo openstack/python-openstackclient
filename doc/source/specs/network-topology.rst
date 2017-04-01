@@ -38,7 +38,7 @@ Show network topology details
     openstack network topology show
         <network>
 
-.. _network_topology_show-network
+.. _network_topology_show-network:
 .. describe:: <network>
 
     Show network topology for a specific network (name or ID)
