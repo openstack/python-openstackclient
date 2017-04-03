@@ -175,24 +175,17 @@ class OpenStackShell(shell.OpenStackShell):
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""
 
-        # TODO(dtroyer): Move this to osc-lib
-        # NOTE(dtroyer): If auth is not required for a command, force fake
-        #                token auth so KSA plugins are happy
-
-        kwargs = {}
-        if not cmd.auth_required:
-            # Build fake token creds to keep ksa and o-c-c hushed
-            kwargs['auth_type'] = 'token_endpoint'
-            kwargs['auth'] = {}
-            kwargs['auth']['token'] = 'x'
-            kwargs['auth']['url'] = 'x'
+        # TODO(dtroyer): Move this to osc-lib, remove entire method when 1.4.0
+        #                release is minimum version is in global-requirements
+        # NOTE(dtroyer): If auth is not required for a command, skip
+        #                get_one_Cloud()'s validation to avoid loading plugins
+        validate = cmd.auth_required
 
         # Validate auth options
         self.cloud = self.cloud_config.get_one_cloud(
             cloud=self.options.cloud,
             argparse=self.options,
-            validate=True,
-            **kwargs
+            validate=validate,
         )
         # Push the updated args into ClientManager
         self.client_manager._cli_options = self.cloud
