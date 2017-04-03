@@ -1,0 +1,6 @@
+---
+features:
+    - |
+      Add ``server add port`` and ``server remove port`` commands which enable to
+      add/remove ports to/from a server
+      [Bug `1678137 <https://bugs.launchpad.net/python-openstackclient/+bug/1678137>`_]

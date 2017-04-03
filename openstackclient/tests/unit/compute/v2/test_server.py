@@ -146,6 +146,9 @@ class TestServerAddFloatingIP(TestServer):
             'add_floating_ip': None,
         }
 
+        self.find_port = mock.Mock()
+        self.app.client_manager.network.find_port = self.find_port
+
     def _test_server_add_floating_ip(self, extralist, fixed_ip_address):
         servers = self.setup_servers_mock(count=1)
 
@@ -172,6 +175,53 @@ class TestServerAddFloatingIP(TestServer):
     def test_server_add_floating_ip_to_fixed_ip(self):
         extralist = ['--fixed-ip-address', '5.6.7.8']
         self._test_server_add_floating_ip(extralist, '5.6.7.8')
+
+
+class TestServerAddPort(TestServer):
+
+    def setUp(self):
+        super(TestServerAddPort, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.AddPort(self.app, None)
+
+        # Set add_fixed_ip method to be tested.
+        self.methods = {
+            'interface_attach': None,
+        }
+
+        self.find_port = mock.Mock()
+        self.app.client_manager.network.find_port = self.find_port
+
+    def _test_server_add_port(self, port_id):
+        servers = self.setup_servers_mock(count=1)
+        port = 'fake-port'
+
+        arglist = [
+            servers[0].id,
+            port,
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('port', port)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        servers[0].interface_attach.assert_called_once_with(
+            port_id=port_id, net_id=None, fixed_ip=None)
+        self.assertIsNone(result)
+
+    def test_server_add_port(self):
+        self._test_server_add_port(self.find_port.return_value.id)
+        self.find_port.assert_called_once_with(
+            'fake-port', ignore_missing=False)
+
+    def test_server_add_port_no_neutron(self):
+        self.app.client_manager.network_endpoint_enabled = False
+        self._test_server_add_port('fake-port')
+        self.find_port.assert_not_called()
 
 
 class TestServerAddSecurityGroup(TestServer):
@@ -1610,6 +1660,52 @@ class TestServerRemoveFloatingIP(TestServer):
 
         servers[0].remove_floating_ip.assert_called_once_with('1.2.3.4')
         self.assertIsNone(result)
+
+
+class TestServerRemovePort(TestServer):
+
+    def setUp(self):
+        super(TestServerRemovePort, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.RemovePort(self.app, None)
+
+        # Set method to be tested.
+        self.methods = {
+            'interface_detach': None,
+        }
+
+        self.find_port = mock.Mock()
+        self.app.client_manager.network.find_port = self.find_port
+
+    def _test_server_remove_port(self, port_id):
+        servers = self.setup_servers_mock(count=1)
+        port = 'fake-port'
+
+        arglist = [
+            servers[0].id,
+            port,
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('port', port),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        servers[0].interface_detach.assert_called_once_with(port_id)
+        self.assertIsNone(result)
+
+    def test_server_remove_port(self):
+        self._test_server_remove_port(self.find_port.return_value.id)
+        self.find_port.assert_called_once_with(
+            'fake-port', ignore_missing=False)
+
+    def test_server_remove_port_no_neutron(self):
+        self.app.client_manager.network_endpoint_enabled = False
+        self._test_server_remove_port('fake-port')
+        self.find_port.assert_not_called()
 
 
 class TestServerRemoveSecurityGroup(TestServer):
