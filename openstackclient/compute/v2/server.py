@@ -197,13 +197,14 @@ class AddFixedIP(command.Command):
         parser.add_argument(
             "server",
             metavar="<server>",
-            help=_("Server (name or ID) to receive the fixed IP address"),
+            help=_("Server to receive the fixed IP address (name or ID)"),
         )
         parser.add_argument(
             "network",
             metavar="<network>",
-            help=_("Network (name or ID) to allocate "
-                   "the fixed IP address from"),
+            help=_(
+                "Network to allocate the fixed IP address from (name or ID)"
+            ),
         )
         return parser
 
@@ -227,17 +228,16 @@ class AddFloatingIP(command.Command):
         parser.add_argument(
             "server",
             metavar="<server>",
-            help=_("Server (name or ID) to receive the floating IP address"),
+            help=_("Server to receive the floating IP address (name or ID)"),
         )
         parser.add_argument(
             "ip_address",
             metavar="<ip-address>",
-            help=_("Floating IP address (IP address only) to assign "
-                   "to server"),
+            help=_("Floating IP address to assign to server (IP only)"),
         )
         parser.add_argument(
             "--fixed-ip-address",
-            metavar="<fixed-ip-address>",
+            metavar="<ip-address>",
             help=_("Fixed IP address to associate with this floating IP "
                    "address"),
         )
@@ -820,21 +820,21 @@ class ListServer(command.Lister):
         )
         parser.add_argument(
             '--marker',
-            metavar='<marker>',
+            metavar='<server>',
             default=None,
-            help=_('The last server (name or ID) of the previous page. Display'
-                   ' list of servers after marker. Display all servers if not'
-                   ' specified.')
+            help=_('The last server of the previous page. Display '
+                   'list of servers after marker. Display all servers if not '
+                   'specified. (name or ID)')
         )
         parser.add_argument(
             '--limit',
-            metavar='<limit>',
+            metavar='<num-servers>',
             type=int,
             default=None,
-            help=_("Maximum number of servers to display. If limit equals -1,"
-                   " all servers will be displayed. If limit is greater than"
-                   " 'osapi_max_limit' option of Nova API,"
-                   " 'osapi_max_limit' will be used instead."),
+            help=_("Maximum number of servers to display. If limit equals -1, "
+                   "all servers will be displayed. If limit is greater than "
+                   "'osapi_max_limit' option of Nova API, "
+                   "'osapi_max_limit' will be used instead."),
         )
         parser.add_argument(
             '--deleted',
@@ -1295,13 +1295,12 @@ class RemoveFixedIP(command.Command):
         parser.add_argument(
             "server",
             metavar="<server>",
-            help=_("Server (name or ID) to remove the fixed IP address from"),
+            help=_("Server to remove the fixed IP address from (name or ID)"),
         )
         parser.add_argument(
             "ip_address",
             metavar="<ip-address>",
-            help=_("Fixed IP address (IP address only) to remove from the "
-                   "server"),
+            help=_("Fixed IP address to remove from the server (IP only)"),
         )
         return parser
 
@@ -1322,14 +1321,14 @@ class RemoveFloatingIP(command.Command):
         parser.add_argument(
             "server",
             metavar="<server>",
-            help=_("Server (name or ID) to remove the "
-                   "floating IP address from"),
+            help=_(
+                "Server to remove the floating IP address from (name or ID)"
+            ),
         )
         parser.add_argument(
             "ip_address",
             metavar="<ip-address>",
-            help=_("Floating IP address (IP address only) "
-                   "to remove from server"),
+            help=_("Floating IP address to remove from server (IP only)"),
         )
         return parser
 

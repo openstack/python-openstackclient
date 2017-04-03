@@ -146,14 +146,14 @@ class ListSnapshot(command.Lister):
         )
         parser.add_argument(
             '--marker',
-            metavar='<marker>',
+            metavar='<snapshot>',
             help=_('The last snapshot ID of the previous page'),
         )
         parser.add_argument(
             '--limit',
             type=int,
             action=parseractions.NonNegativeAction,
-            metavar='<limit>',
+            metavar='<num-snapshots>',
             help=_('Maximum number of snapshots to display'),
         )
         return parser

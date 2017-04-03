@@ -291,7 +291,7 @@ class ListVolume(command.Lister):
             '--limit',
             type=int,
             action=parseractions.NonNegativeAction,
-            metavar='<limit>',
+            metavar='<num-volumes>',
             help=_('Maximum number of volumes to display'),
         )
         return parser

@@ -162,13 +162,13 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
         )
         parser.add_argument(
             '--floating-ip-address',
-            metavar='<floating-ip-address>',
+            metavar='<ip-address>',
             dest='floating_ip_address',
             help=_("Floating IP address")
         )
         parser.add_argument(
             '--fixed-ip-address',
-            metavar='<fixed-ip-address>',
+            metavar='<ip-address>',
             dest='fixed_ip_address',
             help=_("Fixed IP address mapped to the floating IP")
         )
@@ -307,7 +307,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
         )
         parser.add_argument(
             '--fixed-ip-address',
-            metavar='<fixed-ip-address>',
+            metavar='<ip-address>',
             help=_("List floating IP(s) according to "
                    "given fixed IP address")
         )

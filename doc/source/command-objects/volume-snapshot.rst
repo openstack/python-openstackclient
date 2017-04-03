@@ -84,8 +84,8 @@ List volume snapshots
         [--all-projects]
         [--project <project> [--project-domain <project-domain>]]
         [--long]
-        [--limit <limit>]
-        [--marker <marker>]
+        [--limit <num-snapshots>]
+        [--marker <snapshot>]
         [--name <name>]
         [--status <status>]
         [--volume <volume>]
@@ -125,13 +125,13 @@ List volume snapshots
 
     Filters results by a volume (name or ID).
 
-.. option:: --limit <limit>
+.. option:: --limit <num-snapshots>
 
     Maximum number of snapshots to display
 
     *Volume version 2 only*
 
-.. option:: --marker <marker>
+.. option:: --marker <snapshot>
 
     The last snapshot ID of the previous page
 

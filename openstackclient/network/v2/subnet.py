@@ -428,14 +428,14 @@ class ListSubnet(command.Lister):
             '--project',
             metavar='<project>',
             help=_("List only subnets which belong to a given project "
-                   "(name or ID) in output")
+                   "in output (name or ID)")
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--network',
             metavar='<network>',
             help=_("List only subnets which belong to a given network "
-                   "(name or ID) in output")
+                   "in output (name or ID)")
         )
         parser.add_argument(
             '--gateway',

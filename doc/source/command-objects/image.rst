@@ -199,8 +199,8 @@ List available images
         [--property <key=value>]
         [--long]
         [--sort <key>[:<direction>]]
-        [--limit <limit>]
-        [--marker <marker>]
+        [--limit <num-images>]
+        [--marker <image>]
 
 .. option:: --public
 
@@ -229,14 +229,18 @@ List available images
     Sort output by selected keys and directions(asc or desc) (default: name:asc),
     multiple keys and directions can be specified separated by comma
 
-.. option:: --limit <limit>
+.. option:: --limit <num-images>
 
     Maximum number of images to display.
 
-.. option:: --marker <marker>
+    *Image version 2 only*
 
-    The last image (name or ID) of the previous page. Display list of images
-    after marker. Display all images if not specified.
+.. option:: --marker <image>
+
+    The last image of the previous page. Display list of images
+    after marker. Display all images if not specified. (name or ID)
+
+    *Image version 2 only*
 
 image remove project
 --------------------

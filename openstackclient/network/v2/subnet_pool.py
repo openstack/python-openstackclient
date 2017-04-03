@@ -282,7 +282,7 @@ class ListSubnetPool(command.Lister):
             '--address-scope',
             metavar='<address-scope>',
             help=_("List only subnet pools of given address scope "
-                   "(name or ID) in output")
+                   "in output (name or ID)")
         )
         return parser
 

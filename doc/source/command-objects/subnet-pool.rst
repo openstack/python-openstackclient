@@ -150,7 +150,7 @@ List subnet pools
 
 .. option:: --address-scope <address-scope>
 
-    List only subnet pools of given address scope (name or ID) in output
+    List only subnet pools of given address scope in output (name or ID)
 
 subnet pool set
 ---------------

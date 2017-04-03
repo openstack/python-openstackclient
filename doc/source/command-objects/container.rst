@@ -51,7 +51,7 @@ List containers
         [--prefix <prefix>]
         [--marker <marker>]
         [--end-marker <end-marker>]
-        [--limit <limit>]
+        [--limit <num-containers>]
         [--long]
         [--all]
 
@@ -67,7 +67,7 @@ List containers
 
     End anchor for paging
 
-.. option:: --limit <limit>
+.. option:: --limit <num-containers>
 
     Limit the number of containers returned
 

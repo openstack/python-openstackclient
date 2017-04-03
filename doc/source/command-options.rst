@@ -283,11 +283,11 @@ There are many ways to do pagination, some OpenStack APIs support it, some
 don't. OpenStackClient attempts to define a single common way to specify
 pagination on the command line.
 
-.. option:: --marker <marker>
+.. option:: --marker <resource>
 
-    Anchor for paging
+    Anchor for paging (name or ID)
 
-.. option:: --limit <limit>
+.. option:: --limit <num-resources>
 
     Limit number of <resource> returned (*integer*)
 
@@ -300,13 +300,13 @@ The parser declaration should look like this:
 
         parser.add_argument(
             "--marker",
-            metavar="<marker>",
-            help="Anchor for paging",
+            metavar="<resource>",
+            help="Anchor for paging (name or ID)",
         )
 
         parser.add_argument(
             "--limit",
-            metavar="<limit>",
+            metavar="<num-resources>",
             type=int,
             help="Limit the number of <resource> returned",
         )

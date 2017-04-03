@@ -544,7 +544,7 @@ class UnsetVolumeType(command.Command):
             '--project',
             metavar='<project>',
             help=_('Removes volume type access to project (name or ID) '
-                   ' (admin only)'),
+                   '(admin only)'),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(

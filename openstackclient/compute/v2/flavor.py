@@ -251,13 +251,13 @@ class ListFlavor(command.Lister):
         )
         parser.add_argument(
             '--marker',
-            metavar="<marker>",
+            metavar="<flavor-id>",
             help=_("The last flavor ID of the previous page")
         )
         parser.add_argument(
             '--limit',
             type=int,
-            metavar="<limit>",
+            metavar="<num-flavors>",
             help=_("Maximum number of flavors to display")
         )
         return parser

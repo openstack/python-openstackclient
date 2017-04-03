@@ -158,8 +158,8 @@ List volumes
         [--status <status>]
         [--all-projects]
         [--long]
-        [--limit <limit>]
-        [--marker <marker>]
+        [--limit <num-volumes>]
+        [--marker <volume>]
 
 .. option:: --project <project>
 
@@ -205,11 +205,11 @@ List volumes
 
     List additional fields in output
 
-.. option:: --limit <limit>
+.. option:: --limit <num-volumes>
 
     Maximum number of volumes to display
 
-.. option:: --marker <marker>
+.. option:: --marker <volume>
 
     The last volume ID of the previous page
 

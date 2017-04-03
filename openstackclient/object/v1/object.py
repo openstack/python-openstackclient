@@ -139,7 +139,7 @@ class ListObject(command.Lister):
         )
         parser.add_argument(
             "--limit",
-            metavar="<limit>",
+            metavar="<num-objects>",
             type=int,
             help=_("Limit the number of objects returned"),
         )
