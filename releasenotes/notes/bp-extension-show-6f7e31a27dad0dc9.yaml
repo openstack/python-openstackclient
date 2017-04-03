@@ -1,7 +1,6 @@
 ---
 features:
   - |
-    Added `openstack extension show` command to allow users
-    to view the details of the extension. Currently works only for
-    network extensions.
+    Added ``extension show`` command to display the details of an extension.
+    Currently works only for network extensions.
     [Blueprint `extension-show <https://blueprints.launchpad.net/python-openstackclient/+spec/extension-show>`_]

@@ -1,11 +1,9 @@
 ---
 features:
   - |
-    Add ``server event`` list and show commands, that is similar to nova's
-    instance action commands.
+    Add ``server event list`` and ``server event show`` commands.
 
-    Server event is the event record that had been done on a server,
-    include: event type(create, delete, reboot and so on),
-    event result(success, error), start time, finish time and so on.
-    These are important information for server maintains.
+    A server event is the event record of actions performed on a server,
+    including: event type(create, delete, reboot and so on),
+    event result(success, error), start time, finish time and others.
     [Bug `1642030 <https://bugs.launchpad.net/python-openstackclient/+bug/1642030>`_]
