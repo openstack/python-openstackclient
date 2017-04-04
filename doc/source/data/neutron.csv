@@ -35,10 +35,10 @@ dhcp-agent-network-add,network agent add network,Add a network to a DHCP agent.
 dhcp-agent-network-remove,network agent remove network,Remove a network from a DHCP agent.
 ext-list,extension list,List all extensions.
 ext-show,extension show,Show information of a given resource.
-flavor-associate,network flavor associate,Associate a Neutron service flavor with a flavor profile.
+flavor-associate,network flavor add profile,Add a Neutron service flavor with a flavor profile.
 flavor-create,network flavor create,Create a Neutron service flavor.
 flavor-delete,network flavor delete,Delete a given Neutron service flavor.
-flavor-disassociate,network flavor disassociate,Disassociate a Neutron service flavor from a flavor profile.
+flavor-disassociate,network flavor remove profile,Remove a Neutron service flavor from a flavor profile.
 flavor-list,network flavor list,List Neutron service flavors.
 flavor-profile-create,network flavor profile create,Create a Neutron service flavor profile.
 flavor-profile-delete,network flavor profile delete,Delete a given Neutron service flavor profile.
