@@ -37,6 +37,48 @@ class TestNetworkFlavor(network_fakes.TestNetworkV2):
         self.domains_mock = self.app.client_manager.identity.domains
 
 
+class TestAddNetworkFlavorToProfile(TestNetworkFlavor):
+
+    network_flavor = \
+        network_fakes.FakeNetworkFlavor.create_one_network_flavor()
+    service_profile = \
+        network_fakes.FakeNetworkFlavorProfile.create_one_service_profile()
+
+    def setUp(self):
+        super(TestAddNetworkFlavorToProfile, self).setUp()
+        self.network.find_flavor = mock.Mock(return_value=self.network_flavor)
+        self.network.find_service_profile = mock.Mock(
+            return_value=self.service_profile)
+        self.network.associate_flavor_with_service_profile = mock.Mock()
+
+        self.cmd = network_flavor.AddNetworkFlavorToProfile(
+            self.app, self.namespace)
+
+    def test_show_no_options(self):
+        arglist = []
+        verifylist = []
+
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_add_flavor_to_service_profile(self):
+        arglist = [
+            self.network_flavor.id,
+            self.service_profile.id
+        ]
+        verifylist = [
+            ('flavor', self.network_flavor.id),
+            ('service_profile', self.service_profile.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.network.associate_flavor_with_service_profile.\
+            assert_called_once_with(self.network_flavor, self.service_profile)
+
+
 class TestCreateNetworkFlavor(TestNetworkFlavor):
 
     project = identity_fakes_v3.FakeProject.create_one_project()
@@ -279,6 +321,48 @@ class TestListNetworkFlavor(TestNetworkFlavor):
         self.network.flavors.assert_called_once_with(**{})
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
+
+
+class TestRemoveNetworkFlavorFromProfile(TestNetworkFlavor):
+
+    network_flavor = \
+        network_fakes.FakeNetworkFlavor.create_one_network_flavor()
+    service_profile = \
+        network_fakes.FakeNetworkFlavorProfile.create_one_service_profile()
+
+    def setUp(self):
+        super(TestRemoveNetworkFlavorFromProfile, self).setUp()
+        self.network.find_flavor = mock.Mock(return_value=self.network_flavor)
+        self.network.find_service_profile = mock.Mock(
+            return_value=self.service_profile)
+        self.network.disassociate_flavor_from_service_profile = mock.Mock()
+
+        self.cmd = network_flavor.RemoveNetworkFlavorFromProfile(
+            self.app, self.namespace)
+
+    def test_show_no_options(self):
+        arglist = []
+        verifylist = []
+
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_remove_flavor_from_service_profile(self):
+        arglist = [
+            self.network_flavor.id,
+            self.service_profile.id
+        ]
+        verifylist = [
+            ('flavor', self.network_flavor.id),
+            ('service_profile', self.service_profile.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.network.disassociate_flavor_from_service_profile.\
+            assert_called_once_with(self.network_flavor, self.service_profile)
 
 
 class TestShowNetworkFlavor(TestNetworkFlavor):

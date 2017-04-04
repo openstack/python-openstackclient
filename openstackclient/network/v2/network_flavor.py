@@ -58,6 +58,34 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
+class AddNetworkFlavorToProfile(command.Command):
+    _description = _("Add a service profile to a network flavor")
+
+    def get_parser(self, prog_name):
+        parser = super(
+            AddNetworkFlavorToProfile, self).get_parser(prog_name)
+        parser.add_argument(
+            'flavor',
+            metavar="<flavor>",
+            help=_("Network flavor (name or ID)")
+        )
+        parser.add_argument(
+            'service_profile',
+            metavar="<service-profile>",
+            help=_("Service profile (ID only)")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        obj_flavor = client.find_flavor(
+            parsed_args.flavor, ignore_missing=False)
+        obj_service_profile = client.find_service_profile(
+            parsed_args.service_profile, ignore_missing=False)
+        client.associate_flavor_with_service_profile(
+            obj_flavor, obj_service_profile)
+
+
 # TODO(dasanind): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
 class CreateNetworkFlavor(command.ShowOne):
@@ -173,6 +201,35 @@ class ListNetworkFlavor(command.Lister):
                 (utils.get_item_properties(
                     s, columns,
                 ) for s in data))
+
+
+class RemoveNetworkFlavorFromProfile(command.Command):
+    _description = _(
+        "Remove service profile from network flavor")
+
+    def get_parser(self, prog_name):
+        parser = super(
+            RemoveNetworkFlavorFromProfile, self).get_parser(prog_name)
+        parser.add_argument(
+            'flavor',
+            metavar="<flavor>",
+            help=_("Network flavor (name or ID)")
+        )
+        parser.add_argument(
+            'service_profile',
+            metavar="<service-profile>",
+            help=_("Service profile (ID only)")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        obj_flavor = client.find_flavor(
+            parsed_args.flavor, ignore_missing=False)
+        obj_service_profile = client.find_service_profile(
+            parsed_args.service_profile, ignore_missing=False)
+        client.disassociate_flavor_from_service_profile(
+            obj_flavor, obj_service_profile)
 
 
 # TODO(dasanind): Use only the SDK resource mapped attribute names once the

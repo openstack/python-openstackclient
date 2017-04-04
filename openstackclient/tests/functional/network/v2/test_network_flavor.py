@@ -20,6 +20,57 @@ from openstackclient.tests.functional import base
 class NetworkFlavorTests(base.TestCase):
     """Functional tests for network flavor."""
 
+    def test_add_remove_network_flavor_profile(self):
+        """Test add and remove network flavor to/from profile"""
+
+        # Create Flavor
+        name1 = uuid.uuid4().hex
+        cmd_output1 = json.loads(self.openstack(
+            'network flavor create -f json --description testdescription '
+            '--enable  --service-type L3_ROUTER_NAT ' + name1,
+        ))
+        flavor_id = cmd_output1.get('id')
+
+        # Create Service Flavor
+        cmd_output2 = json.loads(self.openstack(
+            'network flavor profile create -f json --description '
+            + 'fakedescription' + ' --enable --metainfo ' + 'Extrainfo'
+        ))
+        service_profile_id = cmd_output2.get('id')
+
+        self.addCleanup(self.openstack, 'network flavor delete ' +
+                        flavor_id)
+        self.addCleanup(self.openstack, 'network flavor profile delete ' +
+                        service_profile_id)
+        # Add flavor to service profile
+        self.openstack(
+            'network flavor add profile ' +
+            flavor_id + ' ' + service_profile_id
+        )
+
+        cmd_output4 = json.loads(self.openstack(
+            'network flavor show -f json ' + flavor_id
+        ))
+        service_profile_ids1 = cmd_output4.get('service_profile_ids')
+
+        # Assert
+        self.assertIn(service_profile_id, service_profile_ids1)
+
+        # Cleanup
+        # Remove flavor from service profile
+        self.openstack(
+            'network flavor remove profile ' +
+            flavor_id + ' ' + service_profile_id
+        )
+
+        cmd_output6 = json.loads(self.openstack(
+            'network flavor show -f json ' + flavor_id
+        ))
+        service_profile_ids2 = cmd_output6.get('service_profile_ids')
+
+        # Assert
+        self.assertNotIn(service_profile_id, service_profile_ids2)
+
     def test_network_flavor_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
