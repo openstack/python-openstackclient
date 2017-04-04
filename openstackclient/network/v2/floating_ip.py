@@ -83,7 +83,6 @@ def _get_attrs(client_manager, parsed_args):
 
 def _find_floating_ip(
     session,
-    ip_cache,
     name_or_id,
     ignore_missing=True,
     **params
@@ -93,11 +92,11 @@ def _find_floating_ip(
     The SDK's find_ip() can only locate a floating IP by ID so we have
     to do this ourselves.
     """
-
     def _get_one_match(name_or_id):
         """Given a list of results, return the match"""
         the_result = None
-        for maybe_result in ip_cache:
+        ip_list = list(_floating_ip.FloatingIP.list(session, **params))
+        for maybe_result in ip_list:
             id_value = maybe_result.id
             ip_value = maybe_result.floating_ip_address
 
@@ -116,19 +115,16 @@ def _find_floating_ip(
     # Try to short-circuit by looking directly for a matching ID.
     try:
         match = _floating_ip.FloatingIP.existing(id=name_or_id, **params)
-        return (match.get(session), ip_cache)
+        return match.get(session)
     except sdk_exceptions.NotFoundException:
         pass
 
-    if len(ip_cache) == 0:
-        ip_cache = list(_floating_ip.FloatingIP.list(session, **params))
-
     result = _get_one_match(name_or_id)
     if result is not None:
-        return (result, ip_cache)
+        return result
 
     if ignore_missing:
-        return (None, ip_cache)
+        return None
     raise sdk_exceptions.ResourceNotFound(
         "No %s found for %s" % (_floating_ip.FloatingIP.__name__, name_or_id))
 
@@ -240,9 +236,8 @@ class DeleteFloatingIP(common.NetworkAndComputeDelete):
         return parser
 
     def take_action_network(self, client, parsed_args):
-        (obj, self.ip_cache) = _find_floating_ip(
+        obj = _find_floating_ip(
             self.app.client_manager.sdk_connection.session,
-            self.ip_cache,
             self.r,
             ignore_missing=False,
         )
@@ -255,11 +250,6 @@ class DeleteFloatingIP(common.NetworkAndComputeDelete):
     def take_action(self, parsed_args):
         """Implements a naive cache for the list of floating IPs"""
 
-        # NOTE(dtroyer): This really only prevents multiple list()
-        #                calls when performing multiple resource deletes
-        #                in a single command. In an interactive session
-        #                each delete command will call list().
-        self.ip_cache = []
         super(DeleteFloatingIP, self).take_action(parsed_args)
 
 
@@ -459,9 +449,6 @@ class ListIPFloating(ListFloatingIP):
 class ShowFloatingIP(common.NetworkAndComputeShowOne):
     _description = _("Display floating IP details")
 
-    # ip_cache is unused here but is a side effect of _find_floating_ip()
-    ip_cache = []
-
     def update_parser_common(self, parser):
         parser.add_argument(
             'floating_ip',
@@ -471,9 +458,8 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
         return parser
 
     def take_action_network(self, client, parsed_args):
-        (obj, self.ip_cache) = _find_floating_ip(
+        obj = _find_floating_ip(
             self.app.client_manager.sdk_connection.session,
-            [],
             parsed_args.floating_ip,
             ignore_missing=False,
         )
