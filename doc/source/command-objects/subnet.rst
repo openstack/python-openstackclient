@@ -194,7 +194,7 @@ List subnets
 
 .. option:: --project <project>
 
-    List only subnets which belong to a given project (name or ID) in output
+    List only subnets which belong to a given project in output (name or ID)
 
 .. option:: --project-domain <project-domain>
 
@@ -203,7 +203,7 @@ List subnets
 
 .. option:: --network <network>
 
-    List only subnets which belong to a given network (name or ID) in output
+    List only subnets which belong to a given network in output (name or ID)
 
 .. option:: --gateway <gateway>
 

@@ -202,14 +202,14 @@ class ListVolumeBackup(command.Lister):
         )
         parser.add_argument(
             '--marker',
-            metavar='<marker>',
+            metavar='<volume-backup>',
             help=_('The last backup of the previous page (name or ID)'),
         )
         parser.add_argument(
             '--limit',
             type=int,
             action=parseractions.NonNegativeAction,
-            metavar='<limit>',
+            metavar='<num-backups>',
             help=_('Maximum number of backups to display'),
         )
         parser.add_argument(

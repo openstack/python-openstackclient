@@ -72,8 +72,8 @@ List snapshots
     openstack snapshot list
         [--all-projects]
         [--long]
-        [--limit <limit>]
-        [--marker <marker>]
+        [--limit <num-snapshots>]
+        [--marker <snapshot>]
 
 .. option:: --all-projects
 
@@ -83,13 +83,13 @@ List snapshots
 
     List additional fields in output
 
-.. option:: --limit <limit>
+.. option:: --limit <num-snapshots>
 
     Maximum number of snapshots to display
 
     *Volume version 2 only*
 
-.. option:: --marker <marker>
+.. option:: --marker <snapshot>
 
     The last snapshot ID of the previous page
 

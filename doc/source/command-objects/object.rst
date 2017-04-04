@@ -62,7 +62,7 @@ List objects
         [--delimiter <delimiter>]
         [--marker <marker>]
         [--end-marker <end-marker>]
-        [--limit <limit>]
+        [--limit <num-objects>]
         [--long]
         [--all]
         <container>
@@ -83,7 +83,7 @@ List objects
 
     End anchor for paging
 
-.. option:: --limit <limit>
+.. option:: --limit <num-objects>
 
     Limit number of objects returned
 

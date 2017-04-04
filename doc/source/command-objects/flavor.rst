@@ -108,8 +108,8 @@ List flavors
     openstack flavor list
         [--public | --private | --all]
         [--long]
-        [--marker <marker>]
-        [--limit <limit>]
+        [--marker <flavor-id>]
+        [--limit <num-flavors>]
 
 .. option:: --public
 
@@ -127,11 +127,11 @@ List flavors
 
     List additional fields in output
 
-.. option:: --marker <marker>
+.. option:: --marker <flavor-id>
 
     The last flavor ID of the previous page
 
-.. option:: --limit <limit>
+.. option:: --limit <num-flavors>
 
     Maximum number of flavors to display
 

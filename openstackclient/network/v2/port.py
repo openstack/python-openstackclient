@@ -301,7 +301,7 @@ class CreatePort(command.ShowOne):
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
-            help=_("Desired IP and/or subnet (name or ID) for this port: "
+            help=_("Desired IP and/or subnet for this port (name or ID): "
                    "subnet=<subnet>,ip-address=<ip-address> "
                    "(repeat option to set multiple fixed IP addresses)")
         )
@@ -496,9 +496,9 @@ class ListPort(command.Lister):
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
-            help=_("Desired IP and/or subnet (name or ID) for filtering "
-                   "ports: subnet=<subnet>,ip-address=<ip-address> "
-                   "(repeat option to set multiple fixed IP addresses)")
+            help=_("Desired IP and/or subnet for filtering ports "
+                   "(name or ID): subnet=<subnet>,ip-address=<ip-address> "
+                   "(repeat option to set multiple fixed IP addresses)"),
         )
         return parser
 
@@ -593,7 +593,7 @@ class SetPort(command.Command):
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
-            help=_("Desired IP and/or subnet (name or ID) for this port: "
+            help=_("Desired IP and/or subnet for this port (name or ID): "
                    "subnet=<subnet>,ip-address=<ip-address> "
                    "(repeat option to set multiple fixed IP addresses)")
         )
@@ -757,8 +757,8 @@ class UnsetPort(command.Command):
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
-            help=_("Desired IP and/or subnet (name or ID) which should be "
-                   "removed from this port: subnet=<subnet>,"
+            help=_("Desired IP and/or subnet which should be "
+                   "removed from this port (name or ID): subnet=<subnet>,"
                    "ip-address=<ip-address> (repeat option to unset multiple "
                    "fixed IP addresses)"))
 

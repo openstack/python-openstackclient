@@ -44,7 +44,7 @@ Create new port
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
 
-    Desired IP and/or subnet (name or ID) for this port:
+    Desired IP and/or subnet for this port (name or ID):
     subnet=<subnet>,ip-address=<ip-address>
     (repeat option to set multiple fixed IP addresses)
 
@@ -182,7 +182,7 @@ List ports
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
 
-    Desired IP and/or subnet (name or ID) for filtering ports:
+    Desired IP and/or subnet for filtering ports (name or ID):
     subnet=<subnet>,ip-address=<ip-address>
     (repeat option to set multiple fixed IP addresses)
 
@@ -234,7 +234,7 @@ Set port properties
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
 
-    Desired IP and/or subnet (name or ID) for this port:
+    Desired IP and/or subnet for this port (name or ID):
     subnet=<subnet>,ip-address=<ip-address>
     (repeat option to set multiple fixed IP addresses)
 
@@ -363,8 +363,8 @@ Unset port properties
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
 
-    Desired IP and/or subnet (name or ID) which should be removed
-    from this port: subnet=<subnet>,ip-address=<ip-address>
+    Desired IP and/or subnet which should be removed
+    from this port (name or ID): subnet=<subnet>,ip-address=<ip-address>
     (repeat option to unset multiple fixed IP addresses)
 
 .. option:: --binding-profile <binding-profile-key>

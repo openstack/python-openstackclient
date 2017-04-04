@@ -92,8 +92,8 @@ List volume backups
         [--name <name>]
         [--status <status>]
         [--volume <volume>]
-        [--marker <marker>]
-        [--limit <limit>]
+        [--marker <volume-backup>]
+        [--limit <num-backups>]
         [--all-projects]
 
 .. _volume_backup_list-backup:
@@ -114,13 +114,13 @@ List volume backups
 
     Filters results by the volume which they backup (name or ID)"
 
-.. option:: --marker <marker>
+.. option:: --marker <volume-backup>
 
     The last backup of the previous page (name or ID)
 
     *Volume version 2 only*
 
-.. option:: --limit <limit>
+.. option:: --limit <num-backups>
 
     Maximum number of backups to display
 

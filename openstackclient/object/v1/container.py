@@ -119,7 +119,7 @@ class ListContainer(command.Lister):
         )
         parser.add_argument(
             "--limit",
-            metavar="<limit>",
+            metavar="<num-containers>",
             type=int,
             help=_("Limit the number of containers returned"),
         )

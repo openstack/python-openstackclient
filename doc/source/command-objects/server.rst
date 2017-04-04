@@ -18,11 +18,11 @@ Add fixed IP address to server
 
 .. describe:: <server>
 
-    Server (name or ID) to receive the fixed IP address
+    Server to receive the fixed IP address (name or ID)
 
 .. describe:: <network>
 
-    Network (name or ID) to allocate the fixed IP address from
+    Network to allocate the fixed IP address from (name or ID)
 
 server add floating ip
 ----------------------
@@ -33,21 +33,21 @@ Add floating IP address to server
 .. code:: bash
 
     openstack server add floating ip
-        [--fixed-ip-address <fixed-ip-address>]
+        [--fixed-ip-address <ip-address>]
         <server>
         <ip-address>
 
-.. option:: --fixed-ip-address <fixed-ip-address>
+.. option:: --fixed-ip-address <ip-address>
 
     Fixed IP address to associate with this floating IP address
 
 .. describe:: <server>
 
-    Server (name or ID) to receive the floating IP address
+    Server to receive the floating IP address (name or ID)
 
 .. describe:: <ip-address>
 
-    Floating IP address (IP address only) to assign to server
+    Floating IP address to assign to server (IP only)
 
 server add port
 ---------------
@@ -284,7 +284,7 @@ List servers
         [--project <project> [--project-domain <project-domain>]]
         [--long]
         [--marker <server>]
-        [--limit <limit>]
+        [--limit <num-servers>]
         [--deleted]
         [--changes-since <changes-since>]
 
@@ -352,10 +352,10 @@ List servers
 
 .. option:: --marker <server>
 
-    The last server (name or ID) of the previous page. Display list of servers
-    after marker. Display all servers if not specified.
+    The last server of the previous page. Display list of servers
+    after marker. Display all servers if not specified. (name or ID)
 
-.. option:: --limit <limit>
+.. option:: --limit <num-servers>
 
     Maximum number of servers to display. If limit equals -1, all servers will
     be displayed. If limit is greater than 'osapi_max_limit' option of Nova
@@ -517,11 +517,11 @@ Remove fixed IP address from server
 
 .. describe:: <server>
 
-    Server (name or ID) to remove the fixed IP address from
+    Server to remove the fixed IP address from (name or ID)
 
 .. describe:: <ip-address>
 
-    Fixed IP address (IP address only) to remove from the server
+    Fixed IP address to remove from the server (IP only)
 
 server remove floating ip
 -------------------------
@@ -537,11 +537,11 @@ Remove floating IP address from server
 
 .. describe:: <server>
 
-    Server (name or ID) to remove the floating IP address from
+    Server to remove the floating IP address from (name or ID)
 
 .. describe:: <ip-address>
 
-    Floating IP address (IP address only) to remove from server
+    Floating IP address to remove from server (IP only)
 
 server remove port
 ------------------

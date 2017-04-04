@@ -341,14 +341,14 @@ class ListVolume(command.Lister):
         )
         parser.add_argument(
             '--marker',
-            metavar='<marker>',
+            metavar='<volume>',
             help=_('The last volume ID of the previous page'),
         )
         parser.add_argument(
             '--limit',
             type=int,
             action=parseractions.NonNegativeAction,
-            metavar='<limit>',
+            metavar='<num-volumes>',
             help=_('Maximum number of volumes to display'),
         )
         return parser

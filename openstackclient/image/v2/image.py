@@ -463,17 +463,17 @@ class ListImage(command.Lister):
         )
         parser.add_argument(
             "--limit",
-            metavar="<limit>",
+            metavar="<num-images>",
             type=int,
             help=_("Maximum number of images to display."),
         )
         parser.add_argument(
             '--marker',
-            metavar='<marker>',
+            metavar='<image>',
             default=None,
-            help=_("The last image (name or ID) of the previous page. Display "
+            help=_("The last image of the previous page. Display "
                    "list of images after marker. Display all images if not "
-                   "specified."),
+                   "specified. (name or ID)"),
         )
         return parser
 

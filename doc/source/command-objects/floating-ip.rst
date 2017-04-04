@@ -15,8 +15,8 @@ Create floating IP
     openstack floating ip create
         [--subnet <subnet>]
         [--port <port>]
-        [--floating-ip-address <floating-ip-address>]
-        [--fixed-ip-address <fixed-ip-address>]
+        [--floating-ip-address <ip-address>]
+        [--fixed-ip-address <ip-address>]
         [--description <description>]
         [--project <project> [--project-domain <project-domain>]]
         <network>
@@ -31,12 +31,12 @@ Create floating IP
     Port to be associated with the floating IP (name or ID)
     *Network version 2 only*
 
-.. option:: --floating-ip-address <floating-ip-address>
+.. option:: --floating-ip-address <ip-address>
 
     Floating IP address
     *Network version 2 only*
 
-.. option:: --fixed-ip-address <fixed-ip-address>
+.. option:: --fixed-ip-address <ip-address>
 
     Fixed IP address mapped to the floating IP
     *Network version 2 only*
@@ -88,7 +88,7 @@ List floating IP(s)
     openstack floating ip list
         [--network <network>]
         [--port <port>]
-        [--fixed-ip-address <fixed-ip-address>]
+        [--fixed-ip-address <ip-address>]
         [--long]
         [--status <status>]
         [--project <project> [--project-domain <project-domain>]]
@@ -106,7 +106,7 @@ List floating IP(s)
 
     *Network version 2 only*
 
-.. option:: --fixed-ip-address <fixed-ip-address>
+.. option:: --fixed-ip-address <ip-address>
 
     List floating IP(s) according to given fixed IP address
 
