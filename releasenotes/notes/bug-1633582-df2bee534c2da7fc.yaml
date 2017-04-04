@@ -5,7 +5,7 @@ deprecations:
     positional argument to a requried option ``--auth-key``.  This leaves
     the transfer request ID as the only positional arguemnt, as per the
     OpenStackClient command format.  The old format is still functional, but is
-    dperecated and will be removed in the next major release.
+    deprecated and will be removed in the next major release.
 fixes:
   - |
     Fix ``volume transfer request accept`` to not fail the transfer request
