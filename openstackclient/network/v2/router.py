@@ -183,10 +183,16 @@ class CreateRouter(command.ShowOne):
             default=False,
             help=_("Create a distributed router")
         )
-        parser.add_argument(
+        ha_group = parser.add_mutually_exclusive_group()
+        ha_group.add_argument(
             '--ha',
             action='store_true',
             help=_("Create a highly available router")
+        )
+        ha_group.add_argument(
+            '--no-ha',
+            action='store_true',
+            help=_("Create a legacy router")
         )
         parser.add_argument(
             '--description',
@@ -216,7 +222,9 @@ class CreateRouter(command.ShowOne):
 
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         if parsed_args.ha:
-            attrs['ha'] = parsed_args.ha
+            attrs['ha'] = True
+        if parsed_args.no_ha:
+            attrs['ha'] = False
         obj = client.create_router(**attrs)
 
         display_columns, columns = _get_columns(obj)
