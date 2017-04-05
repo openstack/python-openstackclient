@@ -13,8 +13,13 @@ Add fixed IP address to server
 .. code:: bash
 
     openstack server add fixed ip
+        [--fixed-ip-address <ip-address>]
         <server>
         <network>
+
+.. option:: --fixed-ip-address <ip-address>
+
+    Requested fixed IP address
 
 .. describe:: <server>
 

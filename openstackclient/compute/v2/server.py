@@ -206,6 +206,11 @@ class AddFixedIP(command.Command):
                 "Network to allocate the fixed IP address from (name or ID)"
             ),
         )
+        parser.add_argument(
+            "--fixed-ip-address",
+            metavar="<ip-address>",
+            help=_("Requested fixed IP address"),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -217,7 +222,8 @@ class AddFixedIP(command.Command):
         network = utils.find_resource(
             compute_client.networks, parsed_args.network)
 
-        server.add_fixed_ip(network.id)
+        server.interface_attach(port_id=None, net_id=network.id,
+                                fixed_ip=parsed_args.fixed_ip_address)
 
 
 class AddFloatingIP(command.Command):

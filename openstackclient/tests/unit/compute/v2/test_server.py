@@ -104,10 +104,10 @@ class TestServerAddFixedIP(TestServer):
 
         # Set add_fixed_ip method to be tested.
         self.methods = {
-            'add_fixed_ip': None,
+            'interface_attach': None,
         }
 
-    def test_server_add_fixed_ip(self):
+    def _test_server_add_fixed_ip(self, extralist, fixed_ip_address):
         servers = self.setup_servers_mock(count=1)
         network = compute_fakes.FakeNetwork.create_one_network()
         self.networks_mock.get.return_value = network
@@ -115,19 +115,27 @@ class TestServerAddFixedIP(TestServer):
         arglist = [
             servers[0].id,
             network.id,
-        ]
+        ] + extralist
         verifylist = [
             ('server', servers[0].id),
-            ('network', network.id)
+            ('network', network.id),
+            ('fixed_ip_address', fixed_ip_address)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        servers[0].add_fixed_ip.assert_called_once_with(
-            network.id,
+        servers[0].interface_attach.assert_called_once_with(
+            port_id=None, net_id=network.id, fixed_ip=fixed_ip_address
         )
         self.assertIsNone(result)
+
+    def test_server_add_fixed_ip(self):
+        self._test_server_add_fixed_ip([], None)
+
+    def test_server_add_specific_fixed_ip(self):
+        extralist = ['--fixed-ip-address', '5.6.7.8']
+        self._test_server_add_fixed_ip(extralist, '5.6.7.8')
 
 
 class TestServerAddFloatingIP(TestServer):
