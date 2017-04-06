@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``floating ip set`` and ``floating ip unset`` commands.
+    [:lpbug:`1560297`]
