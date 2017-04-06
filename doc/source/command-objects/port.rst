@@ -30,6 +30,7 @@ Create new port
         [--security-group <security-group> | --no-security-group]
         [--dns-name <dns-name>]
         [--allowed-address ip-address=<ip-address>[,mac-address=<mac-address>]]
+        [--qos-policy <qos-policy>]
         [--project <project> [--project-domain <project-domain>]]
         [--enable-port-security | --disable-port-security]
         <name>
@@ -103,6 +104,10 @@ Create new port
     Add allowed-address pair associated with this port:
     ip-address=<ip-address>[,mac-address=<mac-address>]
     (repeat option to set multiple allowed-address pairs)
+
+.. option:: --qos-policy <qos-policy>
+
+    Attach QoS policy to this port (name or ID)
 
 .. option:: --project <project>
 
@@ -217,6 +222,7 @@ Set port properties
         [--binding-profile <binding-profile>]
         [--no-binding-profile]
         [--host <host-id>]
+        [--qos-policy <qos-policy>]
         [--enable | --disable]
         [--name <name>]
         [--mac-address <mac-address>]
@@ -273,6 +279,10 @@ Set port properties
 .. option:: --host <host-id>
 
     Allocate port on host ``<host-id>`` (ID only)
+
+.. option:: --qos-policy <qos-policy>
+
+    Attach QoS policy to this port (name or ID)
 
 .. option:: --enable
 
@@ -359,6 +369,7 @@ Unset port properties
         [--binding-profile <binding-profile-key> [...]]
         [--security-group <security-group> [...]]
         [--allowed-address ip-address=<ip-address>[,mac-address=<mac-address>] [...]]
+        [--qos-policy]
         <port>
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
@@ -382,6 +393,10 @@ Unset port properties
     Desired allowed-address pair which should be removed from this port:
     ip-address=<ip-address>[,mac-address=<mac-address>]
     (repeat option to unset multiple allowed-address pairs)
+
+.. option:: --qos-policy
+
+    Remove the QoS policy attached to the port
 
 .. _port_unset-port:
 .. describe:: <port>

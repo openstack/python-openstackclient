@@ -572,6 +572,7 @@ class FakePort(object):
             'security_group_ids': [],
             'status': 'ACTIVE',
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
         }
 
         # Overwrite default attributes.
@@ -590,6 +591,7 @@ class FakePort(object):
         port.is_port_security_enabled = port_attrs['port_security_enabled']
         port.project_id = port_attrs['tenant_id']
         port.security_group_ids = port_attrs['security_group_ids']
+        port.qos_policy_id = port_attrs['qos_policy_id']
 
         return port
 
