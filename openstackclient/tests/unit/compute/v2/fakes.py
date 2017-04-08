@@ -556,10 +556,7 @@ class FakeSecurityGroupRule(object):
         # Overwrite default attributes.
         security_group_rule_attrs.update(attrs)
 
-        security_group_rule = fakes.FakeResource(
-            info=copy.deepcopy(security_group_rule_attrs),
-            loaded=True)
-        return security_group_rule
+        return security_group_rule_attrs
 
     @staticmethod
     def create_security_group_rules(attrs=None, count=2):

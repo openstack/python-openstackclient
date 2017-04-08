@@ -356,7 +356,7 @@ class TestShowSecurityGroupCompute(TestSecurityGroupCompute):
     # The security group to be shown.
     _security_group = \
         compute_fakes.FakeSecurityGroup.create_one_security_group(
-            attrs={'rules': [_security_group_rule._info]}
+            attrs={'rules': [_security_group_rule]}
         )
 
     columns = (
@@ -373,7 +373,7 @@ class TestShowSecurityGroupCompute(TestSecurityGroupCompute):
         _security_group['name'],
         _security_group['tenant_id'],
         security_group._format_compute_security_group_rules(
-            [_security_group_rule._info]),
+            [_security_group_rule]),
     )
 
     def setUp(self):
