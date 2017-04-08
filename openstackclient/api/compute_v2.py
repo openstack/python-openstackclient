@@ -64,6 +64,88 @@ class APIv2(api.BaseAPI):
 
         return ret
 
+    # Flaoting IPs
+
+    def floating_ip_create(
+        self,
+        pool=None,
+    ):
+        """Create a new floating ip
+
+        https://developer.openstack.org/api-ref/compute/#create-allocate-floating-ip-address
+
+        :param pool: Name of floating IP pool
+        """
+
+        url = "/os-floating-ips"
+
+        try:
+            return self.create(
+                url,
+                json={'pool': pool},
+            )['floating_ip']
+        except (
+            ksa_exceptions.NotFound,
+            ksa_exceptions.BadRequest,
+        ):
+            msg = _("%s not found") % pool
+            raise exceptions.NotFound(msg)
+
+    def floating_ip_delete(
+        self,
+        floating_ip_id=None,
+    ):
+        """Delete a floating IP
+
+        https://developer.openstack.org/api-ref/compute/#delete-deallocate-floating-ip-address
+
+        :param string security_group:
+            Floating IP ID
+        """
+
+        url = "/os-floating-ips"
+
+        if floating_ip_id is not None:
+            return self.delete('/%s/%s' % (url, floating_ip_id))
+
+        return None
+
+    def floating_ip_find(
+        self,
+        floating_ip=None,
+    ):
+        """Return a security group given name or ID
+
+        https://developer.openstack.org/api-ref/compute/#list-floating-ip-addresses
+
+        :param string floating_ip:
+            Floating IP address
+        :returns: A dict of the floating IP attributes
+        """
+
+        url = "/os-floating-ips"
+
+        return self.find(
+            url,
+            attr='ip',
+            value=floating_ip,
+        )
+
+    def floating_ip_list(
+        self,
+    ):
+        """Get floating IPs
+
+        https://developer.openstack.org/api-ref/compute/#show-floating-ip-address-details
+
+        :returns:
+            list of security groups names
+        """
+
+        url = "/os-floating-ips"
+
+        return self.list(url)["floating_ips"]
+
     # Security Groups
 
     def security_group_create(
