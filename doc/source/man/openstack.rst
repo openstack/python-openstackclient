@@ -167,6 +167,11 @@ OPTIONS
 
     Interface type. Valid options are `public`, `admin` and `internal`.
 
+.. NOTE::
+    If you switch to openstackclient from project specified clients, like:
+    novaclient, neutronclient and so on, please use `--os-interface` instead of
+    `--os-endpoint-type`.
+
 .. option:: --os-profile <hmac-key>
 
     Performance profiling HMAC key for encrypting context data
@@ -462,6 +467,10 @@ The following environment variables can be set to alter the behaviour of :progra
 
     Interface type. Valid options are `public`, `admin` and `internal`.
 
+.. NOTE::
+    If you switch to openstackclient from project specified clients, like:
+    novaclient, neutronclient and so on, please use `OS_INTERFACE` instead of
+    `OS_ENDPOINT_TYPE`.
 
 BUGS
 ====
