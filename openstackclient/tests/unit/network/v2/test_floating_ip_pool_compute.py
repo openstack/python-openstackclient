@@ -11,44 +11,12 @@
 #   under the License.
 #
 
-from osc_lib import exceptions
-
 from openstackclient.network.v2 import floating_ip_pool
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
-from openstackclient.tests.unit.network.v2 import fakes as network_fakes
-
-
-# Tests for Network API v2
-#
-class TestFloatingIPPoolNetwork(network_fakes.TestNetworkV2):
-
-    def setUp(self):
-        super(TestFloatingIPPoolNetwork, self).setUp()
-
-        # Get a shortcut to the network client
-        self.network = self.app.client_manager.network
-
-
-class TestListFloatingIPPoolNetwork(TestFloatingIPPoolNetwork):
-
-    def setUp(self):
-        super(TestListFloatingIPPoolNetwork, self).setUp()
-
-        # Get the command object to test
-        self.cmd = floating_ip_pool.ListFloatingIPPool(self.app,
-                                                       self.namespace)
-
-    def test_floating_ip_list(self):
-        arglist = []
-        verifylist = []
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
 
 
 # Tests for Compute network
-#
+
 class TestFloatingIPPoolCompute(compute_fakes.TestComputev2):
 
     def setUp(self):
