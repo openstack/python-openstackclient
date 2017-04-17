@@ -181,15 +181,6 @@ class FakeComputev2Client(object):
         self.hypervisors_stats = mock.Mock()
         self.hypervisors_stats.resource_class = fakes.FakeResource(None, {})
 
-        self.security_group_rules = mock.Mock()
-        self.security_group_rules.resource_class = fakes.FakeResource(None, {})
-
-        self.floating_ips = mock.Mock()
-        self.floating_ips.resource_class = fakes.FakeResource(None, {})
-
-        self.floating_ip_pools = mock.Mock()
-        self.floating_ip_pools.resource_class = fakes.FakeResource(None, {})
-
         self.keypairs = mock.Mock()
         self.keypairs.resource_class = fakes.FakeResource(None, {})
 
@@ -1074,11 +1065,7 @@ class FakeFloatingIPPool(object):
         # Overwrite default attributes.
         floating_ip_pool_attrs.update(attrs)
 
-        floating_ip_pool = fakes.FakeResource(
-            info=copy.deepcopy(floating_ip_pool_attrs),
-            loaded=True)
-
-        return floating_ip_pool
+        return floating_ip_pool_attrs
 
     @staticmethod
     def create_floating_ip_pools(attrs=None, count=2):

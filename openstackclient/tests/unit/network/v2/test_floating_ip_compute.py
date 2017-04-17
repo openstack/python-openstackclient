@@ -103,10 +103,6 @@ class TestDeleteFloatingIPCompute(TestFloatingIPCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        # Return value of utils.find_resource()
-        self.compute.floating_ips.get = (
-            compute_fakes.FakeFloatingIP.get_floating_ips(self._floating_ips))
-
         # Get the command object to test
         self.cmd = fip.DeleteFloatingIP(self.app, None)
 

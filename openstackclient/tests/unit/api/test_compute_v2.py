@@ -145,6 +145,24 @@ class TestFloatingIP(TestComputeAPIv2):
         self.assertEqual(self.LIST_FLOATING_IP_RESP, ret)
 
 
+class TestFloatingIPPool(TestComputeAPIv2):
+
+    LIST_FLOATING_IP_POOL_RESP = [
+        {"name": "tide"},
+        {"name": "press"},
+    ]
+
+    def test_floating_ip_pool_list(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-floating-ip-pools',
+            json={'floating_ip_pools': self.LIST_FLOATING_IP_POOL_RESP},
+            status_code=200,
+        )
+        ret = self.api.floating_ip_pool_list()
+        self.assertEqual(self.LIST_FLOATING_IP_POOL_RESP, ret)
+
+
 class TestNetwork(TestComputeAPIv2):
 
     FAKE_NETWORK_RESP = {

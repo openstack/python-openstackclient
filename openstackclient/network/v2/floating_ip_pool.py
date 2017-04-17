@@ -34,10 +34,10 @@ class ListFloatingIPPool(common.NetworkAndComputeLister):
         columns = (
             'Name',
         )
-        data = client.floating_ip_pools.list()
+        data = client.api.floating_ip_pool_list()
 
         return (columns,
-                (utils.get_item_properties(
+                (utils.get_dict_properties(
                     s, columns,
                 ) for s in data))
 

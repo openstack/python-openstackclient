@@ -11,6 +11,8 @@
 #   under the License.
 #
 
+import mock
+
 from openstackclient.network.v2 import floating_ip_pool
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
@@ -26,10 +28,13 @@ class TestFloatingIPPoolCompute(compute_fakes.TestComputev2):
         self.compute = self.app.client_manager.compute
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.floating_ip_pool_list'
+)
 class TestListFloatingIPPoolCompute(TestFloatingIPPoolCompute):
 
     # The floating ip pools to list up
-    floating_ip_pools = \
+    _floating_ip_pools = \
         compute_fakes.FakeFloatingIPPool.create_floating_ip_pools(count=3)
 
     columns = (
@@ -37,9 +42,9 @@ class TestListFloatingIPPoolCompute(TestFloatingIPPoolCompute):
     )
 
     data = []
-    for pool in floating_ip_pools:
+    for pool in _floating_ip_pools:
         data.append((
-            pool.name,
+            pool['name'],
         ))
 
     def setUp(self):
@@ -47,19 +52,17 @@ class TestListFloatingIPPoolCompute(TestFloatingIPPoolCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        self.compute.floating_ip_pools.list.return_value = \
-            self.floating_ip_pools
-
         # Get the command object to test
         self.cmd = floating_ip_pool.ListFloatingIPPool(self.app, None)
 
-    def test_floating_ip_list(self):
+    def test_floating_ip_list(self, fipp_mock):
+        fipp_mock.return_value = self._floating_ip_pools
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute.floating_ip_pools.list.assert_called_once_with()
+        fipp_mock.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))

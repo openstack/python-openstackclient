@@ -168,12 +168,29 @@ class APIv2(api.BaseAPI):
         https://developer.openstack.org/api-ref/compute/#show-floating-ip-address-details
 
         :returns:
-            list of security groups names
+            list of floating IPs
         """
 
         url = "/os-floating-ips"
 
         return self.list(url)["floating_ips"]
+
+    # Floating IP Pools
+
+    def floating_ip_pool_list(
+        self,
+    ):
+        """Get floating IP pools
+
+        https://developer.openstack.org/api-ref/compute/?expanded=#list-floating-ip-pools
+
+        :returns:
+            list of floating IP pools
+        """
+
+        url = "/os-floating-ip-pools"
+
+        return self.list(url)["floating_ip_pools"]
 
     # Networks
 
