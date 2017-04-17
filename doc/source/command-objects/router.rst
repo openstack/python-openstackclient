@@ -63,7 +63,7 @@ Create new router
     openstack router create
         [--project <project> [--project-domain <project-domain>]]
         [--enable | --disable]
-        [--distributed]
+        [--distributed | --centralized]
         [--ha | --no-ha]
         [--description <description>]
         [--availability-zone-hint <availability-zone>]
@@ -89,6 +89,19 @@ Create new router
 .. option:: --distributed
 
     Create a distributed router
+
+    The default router type (distributed vs centralized) is determined by a
+    configuration setting in the OpenStack deployment.  Since we are unable
+    to know that default wihtout attempting to actually create a router it
+    is suggested to use either :option:`--distributed` or :option:`--centralized`
+    in situations where multiple cloud deployments may be used.
+
+.. option:: --centralized
+
+    Create a centralized router
+
+    See the note in :option:`--distributed` regarding the default used when
+    creating a new router.
 
 .. option:: --ha
 
