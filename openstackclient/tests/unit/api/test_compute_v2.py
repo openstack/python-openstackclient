@@ -34,6 +34,117 @@ class TestComputeAPIv2(utils.TestCase):
         self.requests_mock = self.useFixture(fixture.Fixture())
 
 
+class TestFloatingIP(TestComputeAPIv2):
+
+    FAKE_FLOATING_IP_RESP = {
+        'id': 1,
+        'ip': '203.0.113.11',                   # TEST-NET-3
+        'fixed_ip': '198.51.100.11',            # TEST-NET-2
+        'pool': 'nova',
+        'instance_id': None,
+    }
+    FAKE_FLOATING_IP_RESP_2 = {
+        'id': 2,
+        'ip': '203.0.113.12',                   # TEST-NET-3
+        'fixed_ip': '198.51.100.12',            # TEST-NET-2
+        'pool': 'nova',
+        'instance_id': None,
+    }
+    LIST_FLOATING_IP_RESP = [
+        FAKE_FLOATING_IP_RESP,
+        FAKE_FLOATING_IP_RESP_2,
+    ]
+
+    def test_floating_ip_create(self):
+        self.requests_mock.register_uri(
+            'POST',
+            FAKE_URL + '/os-floating-ips',
+            json={'floating_ip': self.FAKE_FLOATING_IP_RESP},
+            status_code=200,
+        )
+        ret = self.api.floating_ip_create('nova')
+        self.assertEqual(self.FAKE_FLOATING_IP_RESP, ret)
+
+    def test_floating_ip_create_not_found(self):
+        self.requests_mock.register_uri(
+            'POST',
+            FAKE_URL + '/os-floating-ips',
+            status_code=404,
+        )
+        self.assertRaises(
+            osc_lib_exceptions.NotFound,
+            self.api.floating_ip_create,
+            'not-nova',
+        )
+
+    def test_floating_ip_delete(self):
+        self.requests_mock.register_uri(
+            'DELETE',
+            FAKE_URL + '/os-floating-ips/1',
+            status_code=202,
+        )
+        ret = self.api.floating_ip_delete('1')
+        self.assertEqual(202, ret.status_code)
+        self.assertEqual("", ret.text)
+
+    def test_floating_ip_delete_none(self):
+        ret = self.api.floating_ip_delete()
+        self.assertIsNone(ret)
+
+    def test_floating_ip_find_id(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-floating-ips/1',
+            json={'floating_ip': self.FAKE_FLOATING_IP_RESP},
+            status_code=200,
+        )
+        ret = self.api.floating_ip_find('1')
+        self.assertEqual(self.FAKE_FLOATING_IP_RESP, ret)
+
+    def test_floating_ip_find_ip(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-floating-ips/' + self.FAKE_FLOATING_IP_RESP['ip'],
+            status_code=404,
+        )
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-floating-ips',
+            json={'floating_ips': self.LIST_FLOATING_IP_RESP},
+            status_code=200,
+        )
+        ret = self.api.floating_ip_find(self.FAKE_FLOATING_IP_RESP['ip'])
+        self.assertEqual(self.FAKE_FLOATING_IP_RESP, ret)
+
+    def test_floating_ip_find_not_found(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-floating-ips/1.2.3.4',
+            status_code=404,
+        )
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-floating-ips',
+            json={'floating_ips': self.LIST_FLOATING_IP_RESP},
+            status_code=200,
+        )
+        self.assertRaises(
+            osc_lib_exceptions.NotFound,
+            self.api.floating_ip_find,
+            '1.2.3.4',
+        )
+
+    def test_floating_ip_list(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-floating-ips',
+            json={'floating_ips': self.LIST_FLOATING_IP_RESP},
+            status_code=200,
+        )
+        ret = self.api.floating_ip_list()
+        self.assertEqual(self.LIST_FLOATING_IP_RESP, ret)
+
+
 class TestSecurityGroup(TestComputeAPIv2):
 
     FAKE_SECURITY_GROUP_RESP = {

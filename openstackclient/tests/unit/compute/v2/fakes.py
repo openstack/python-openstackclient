@@ -1016,11 +1016,7 @@ class FakeFloatingIP(object):
         # Overwrite default attributes.
         floating_ip_attrs.update(attrs)
 
-        floating_ip = fakes.FakeResource(
-            info=copy.deepcopy(floating_ip_attrs),
-            loaded=True)
-
-        return floating_ip
+        return floating_ip_attrs
 
     @staticmethod
     def create_floating_ips(attrs=None, count=2):

@@ -190,9 +190,9 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
-        obj = client.floating_ips.create(parsed_args.network)
-        columns = _get_columns(obj._info)
-        data = utils.get_dict_properties(obj._info, columns)
+        obj = client.api.floating_ip_create(parsed_args.network)
+        columns = _get_columns(obj)
+        data = utils.get_dict_properties(obj, columns)
         return (columns, data)
 
 
@@ -245,13 +245,7 @@ class DeleteFloatingIP(common.NetworkAndComputeDelete):
         client.delete_ip(obj)
 
     def take_action_compute(self, client, parsed_args):
-        obj = utils.find_resource(client.floating_ips, self.r)
-        client.floating_ips.delete(obj.id)
-
-    def take_action(self, parsed_args):
-        """Implements a naive cache for the list of floating IPs"""
-
-        super(DeleteFloatingIP, self).take_action(parsed_args)
+        client.api.floating_ip_delete(self.r)
 
 
 class DeleteIPFloating(DeleteFloatingIP):
@@ -414,10 +408,10 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             'Pool',
         )
 
-        data = client.floating_ips.list()
+        data = client.api.floating_ip_list()
 
         return (headers,
-                (utils.get_item_properties(
+                (utils.get_dict_properties(
                     s, columns,
                     formatters={},
                 ) for s in data))
@@ -510,12 +504,9 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
-        obj = utils.find_resource(
-            client.floating_ips,
-            parsed_args.floating_ip,
-        )
-        columns = _get_columns(obj._info)
-        data = utils.get_dict_properties(obj._info, columns)
+        obj = client.api.floating_ip_find(parsed_args.floating_ip)
+        columns = _get_columns(obj)
+        data = utils.get_dict_properties(obj, columns)
         return (columns, data)
 
 
