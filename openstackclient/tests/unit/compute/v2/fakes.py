@@ -17,6 +17,7 @@ import copy
 import mock
 import uuid
 
+from openstackclient.api import compute_v2
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
@@ -180,9 +181,6 @@ class FakeComputev2Client(object):
         self.hypervisors_stats = mock.Mock()
         self.hypervisors_stats.resource_class = fakes.FakeResource(None, {})
 
-        self.security_groups = mock.Mock()
-        self.security_groups.resource_class = fakes.FakeResource(None, {})
-
         self.security_group_rules = mock.Mock()
         self.security_group_rules.resource_class = fakes.FakeResource(None, {})
 
@@ -220,6 +218,11 @@ class TestComputev2(utils.TestCommand):
         self.app.client_manager.compute = FakeComputev2Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
+        )
+
+        self.app.client_manager.compute.api = compute_v2.APIv2(
+            session=self.app.client_manager.session,
+            endpoint=fakes.AUTH_URL,
         )
 
         self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
@@ -485,11 +488,7 @@ class FakeSecurityGroup(object):
 
         # Overwrite default attributes.
         security_group_attrs.update(attrs)
-
-        security_group = fakes.FakeResource(
-            info=copy.deepcopy(security_group_attrs),
-            loaded=True)
-        return security_group
+        return security_group_attrs
 
     @staticmethod
     def create_security_groups(attrs=None, count=2):

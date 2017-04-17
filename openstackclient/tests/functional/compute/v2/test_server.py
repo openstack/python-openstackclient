@@ -371,7 +371,7 @@ class ServerTests(common.ComputeTestCase):
         server_name = uuid.uuid4().hex
         server = json.loads(self.openstack(
             # auto/none enable in nova micro version (v2.37+)
-            '--os-compute-api-version 2.latest ' +
+            '--os-compute-api-version 2.37 ' +
             'server create -f json ' +
             '--flavor ' + self.flavor_name + ' ' +
             '--image ' + self.image_name + ' ' +
@@ -394,7 +394,7 @@ class ServerTests(common.ComputeTestCase):
         try:
             self.openstack(
                 # auto/none enable in nova micro version (v2.37+)
-                '--os-compute-api-version 2.latest ' +
+                '--os-compute-api-version 2.37 ' +
                 'server create -f json ' +
                 '--flavor ' + self.flavor_name + ' ' +
                 '--image ' + self.image_name + ' ' +

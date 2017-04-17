@@ -22,17 +22,13 @@ import logging
 import os
 import sys
 
+from novaclient.v2 import servers
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 from oslo_utils import timeutils
 import six
-
-try:
-    from novaclient.v2 import servers
-except ImportError:
-    from novaclient.v1_1 import servers
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -316,12 +312,11 @@ class AddServerSecurityGroup(command.Command):
             compute_client.servers,
             parsed_args.server,
         )
-        security_group = utils.find_resource(
-            compute_client.security_groups,
+        security_group = compute_client.api.security_group_find(
             parsed_args.group,
         )
 
-        server.add_security_group(security_group.id)
+        server.add_security_group(security_group['id'])
 
 
 class AddServerVolume(command.Command):
@@ -1437,12 +1432,11 @@ class RemoveServerSecurityGroup(command.Command):
             compute_client.servers,
             parsed_args.server,
         )
-        security_group = utils.find_resource(
-            compute_client.security_groups,
+        security_group = compute_client.api.security_group_find(
             parsed_args.group,
         )
 
-        server.remove_security_group(security_group.id)
+        server.remove_security_group(security_group['id'])
 
 
 class RemoveServerVolume(command.Command):

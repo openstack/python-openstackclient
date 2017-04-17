@@ -16,11 +16,6 @@
 import argparse
 import logging
 
-try:
-    from novaclient.v2 import security_group_rules as compute_secgroup_rules
-except ImportError:
-    from novaclient.v1_1 import security_group_rules as compute_secgroup_rules
-
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
 from osc_lib import utils
@@ -348,10 +343,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
-        group = utils.find_resource(
-            client.security_groups,
-            parsed_args.group,
-        )
+        group = client.api.security_group_find(parsed_args.group)
         protocol = self._get_protocol(parsed_args)
         if protocol == 'icmp':
             from_port, to_port = -1, -1
@@ -363,10 +355,9 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         remote_ip = None
         if not (parsed_args.remote_group is None and
                 parsed_args.src_group is None):
-            parsed_args.remote_group = utils.find_resource(
-                client.security_groups,
+            parsed_args.remote_group = client.api.security_group_find(
                 parsed_args.remote_group or parsed_args.src_group,
-            ).id
+            )['id']
             if parsed_args.src_group:
                 LOG.warning(
                     _("The %(old)s option is deprecated, "
@@ -384,8 +375,9 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
                 )
         else:
             remote_ip = '0.0.0.0/0'
+
         obj = client.security_group_rules.create(
-            group.id,
+            group['id'],
             protocol,
             from_port,
             to_port,
@@ -567,27 +559,29 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
 
         rules_to_list = []
         if parsed_args.group is not None:
-            group = utils.find_resource(
-                client.security_groups,
+            group = client.api.security_group_find(
                 parsed_args.group,
             )
-            rules_to_list = group.rules
+            rules_to_list = group['rules']
         else:
             columns = columns + ('parent_group_id',)
             search = {'all_tenants': parsed_args.all_projects}
-            for group in client.security_groups.list(search_opts=search):
-                rules_to_list.extend(group.rules)
+            for group in client.api.security_group_list(search_opts=search):
+                rules_to_list.extend(group['rules'])
 
         # NOTE(rtheis): Turn the raw rules into resources.
         rules = []
         for rule in rules_to_list:
-            rules.append(compute_secgroup_rules.SecurityGroupRule(
-                client.security_group_rules,
+            rules.append(
                 network_utils.transform_compute_security_group_rule(rule),
-            ))
+            )
+            # rules.append(compute_secgroup_rules.SecurityGroupRule(
+            #     client.security_group_rules,
+            #     network_utils.transform_compute_security_group_rule(rule),
+            # ))
 
         return (column_headers,
-                (utils.get_item_properties(
+                (utils.get_dict_properties(
                     s, columns,
                 ) for s in rules))
 
@@ -617,8 +611,8 @@ class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
         # the requested rule.
         obj = None
         security_group_rules = []
-        for security_group in client.security_groups.list():
-            security_group_rules.extend(security_group.rules)
+        for security_group in client.api.security_group_list():
+            security_group_rules.extend(security_group['rules'])
         for security_group_rule in security_group_rules:
             if parsed_args.rule == str(security_group_rule.get('id')):
                 obj = security_group_rule

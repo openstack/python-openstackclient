@@ -31,10 +31,14 @@ class TestSecurityGroupCompute(compute_fakes.TestComputev2):
         self.compute = self.app.client_manager.compute
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.security_group_create'
+)
 class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
 
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
+
     # The security group to be shown.
     _security_group = \
         compute_fakes.FakeSecurityGroup.create_one_security_group()
@@ -48,10 +52,10 @@ class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
     )
 
     data = (
-        _security_group.description,
-        _security_group.id,
-        _security_group.name,
-        _security_group.tenant_id,
+        _security_group['description'],
+        _security_group['id'],
+        _security_group['name'],
+        _security_group['tenant_id'],
         '',
     )
 
@@ -60,61 +64,57 @@ class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        self.compute.security_groups.create.return_value = self._security_group
-
         # Get the command object to test
         self.cmd = security_group.CreateSecurityGroup(self.app, None)
 
-    def test_create_no_options(self):
+    def test_security_group_create_no_options(self, sg_mock):
         self.assertRaises(tests_utils.ParserException,
                           self.check_parser, self.cmd, [], [])
 
-    def test_create_network_options(self):
+    def test_security_group_create_min_options(self, sg_mock):
+        sg_mock.return_value = self._security_group
         arglist = [
-            '--project', self.project.name,
-            '--project-domain', self.domain.name,
-            self._security_group.name,
-        ]
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser, self.cmd, arglist, [])
-
-    def test_create_min_options(self):
-        arglist = [
-            self._security_group.name,
+            self._security_group['name'],
         ]
         verifylist = [
-            ('name', self._security_group.name),
+            ('name', self._security_group['name']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute.security_groups.create.assert_called_once_with(
-            self._security_group.name,
-            self._security_group.name)
+        sg_mock.assert_called_once_with(
+            self._security_group['name'],
+            self._security_group['name'],
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-    def test_create_all_options(self):
+    def test_security_group_create_all_options(self, sg_mock):
+        sg_mock.return_value = self._security_group
         arglist = [
-            '--description', self._security_group.description,
-            self._security_group.name,
+            '--description', self._security_group['description'],
+            self._security_group['name'],
         ]
         verifylist = [
-            ('description', self._security_group.description),
-            ('name', self._security_group.name),
+            ('description', self._security_group['description']),
+            ('name', self._security_group['name']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute.security_groups.create.assert_called_once_with(
-            self._security_group.name,
-            self._security_group.description)
+        sg_mock.assert_called_once_with(
+            self._security_group['name'],
+            self._security_group['description'],
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.security_group_delete'
+)
 class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
 
     # The security groups to be deleted.
@@ -126,9 +126,7 @@ class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        self.compute.security_groups.delete = mock.Mock(return_value=None)
-
-        self.compute.security_groups.get = (
+        self.compute.api.security_group_find = (
             compute_fakes.FakeSecurityGroup.get_security_groups(
                 self._security_groups)
         )
@@ -136,27 +134,30 @@ class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
         # Get the command object to test
         self.cmd = security_group.DeleteSecurityGroup(self.app, None)
 
-    def test_security_group_delete(self):
+    def test_security_group_delete(self, sg_mock):
+        sg_mock.return_value = mock.Mock(return_value=None)
         arglist = [
-            self._security_groups[0].id,
+            self._security_groups[0]['id'],
         ]
         verifylist = [
-            ('group', [self._security_groups[0].id]),
+            ('group', [self._security_groups[0]['id']]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute.security_groups.delete.assert_called_once_with(
-            self._security_groups[0].id)
+        sg_mock.assert_called_once_with(
+            self._security_groups[0]['id'],
+        )
         self.assertIsNone(result)
 
-    def test_multi_security_groups_delete(self):
+    def test_security_group_multi_delete(self, sg_mock):
+        sg_mock.return_value = mock.Mock(return_value=None)
         arglist = []
         verifylist = []
 
         for s in self._security_groups:
-            arglist.append(s.id)
+            arglist.append(s['id'])
         verifylist = [
             ('group', arglist),
         ]
@@ -166,27 +167,25 @@ class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
 
         calls = []
         for s in self._security_groups:
-            calls.append(call(s.id))
-        self.compute.security_groups.delete.assert_has_calls(calls)
+            calls.append(call(s['id']))
+        sg_mock.assert_has_calls(calls)
         self.assertIsNone(result)
 
-    def test_multi_security_groups_delete_with_exception(self):
+    def test_security_group_multi_delete_with_exception(self, sg_mock):
+        sg_mock.return_value = mock.Mock(return_value=None)
+        sg_mock.side_effect = ([
+            mock.Mock(return_value=None),
+            exceptions.CommandError,
+        ])
         arglist = [
-            self._security_groups[0].id,
+            self._security_groups[0]['id'],
             'unexist_security_group',
         ]
         verifylist = [
             ('group',
-             [self._security_groups[0].id, 'unexist_security_group']),
+             [self._security_groups[0]['id'], 'unexist_security_group']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        find_mock_result = [self._security_groups[0], exceptions.CommandError]
-        self.compute.security_groups.get = (
-            mock.Mock(side_effect=find_mock_result)
-        )
-        self.compute.security_groups.find.side_effect = (
-            exceptions.NotFound(None))
 
         try:
             self.cmd.take_action(parsed_args)
@@ -194,15 +193,13 @@ class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 groups failed to delete.', str(e))
 
-        self.compute.security_groups.get.assert_any_call(
-            self._security_groups[0].id)
-        self.compute.security_groups.get.assert_any_call(
-            'unexist_security_group')
-        self.compute.security_groups.delete.assert_called_once_with(
-            self._security_groups[0].id
-        )
+        sg_mock.assert_any_call(self._security_groups[0]['id'])
+        sg_mock.assert_any_call('unexist_security_group')
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.security_group_list'
+)
 class TestListSecurityGroupCompute(TestSecurityGroupCompute):
 
     # The security group to be listed.
@@ -224,29 +221,29 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
     data = []
     for grp in _security_groups:
         data.append((
-            grp.id,
-            grp.name,
-            grp.description,
+            grp['id'],
+            grp['name'],
+            grp['description'],
         ))
     data_all_projects = []
     for grp in _security_groups:
         data_all_projects.append((
-            grp.id,
-            grp.name,
-            grp.description,
-            grp.tenant_id,
+            grp['id'],
+            grp['name'],
+            grp['description'],
+            grp['tenant_id'],
         ))
 
     def setUp(self):
         super(TestListSecurityGroupCompute, self).setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
-        self.compute.security_groups.list.return_value = self._security_groups
 
         # Get the command object to test
         self.cmd = security_group.ListSecurityGroup(self.app, None)
 
-    def test_security_group_list_no_options(self):
+    def test_security_group_list_no_options(self, sg_mock):
+        sg_mock.return_value = self._security_groups
         arglist = []
         verifylist = [
             ('all_projects', False),
@@ -256,11 +253,12 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
         columns, data = self.cmd.take_action(parsed_args)
 
         kwargs = {'search_opts': {'all_tenants': False}}
-        self.compute.security_groups.list.assert_called_once_with(**kwargs)
+        sg_mock.assert_called_once_with(**kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
-    def test_security_group_list_all_projects(self):
+    def test_security_group_list_all_projects(self, sg_mock):
+        sg_mock.return_value = self._security_groups
         arglist = [
             '--all-projects',
         ]
@@ -272,11 +270,14 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
         columns, data = self.cmd.take_action(parsed_args)
 
         kwargs = {'search_opts': {'all_tenants': True}}
-        self.compute.security_groups.list.assert_called_once_with(**kwargs)
+        sg_mock.assert_called_once_with(**kwargs)
         self.assertEqual(self.columns_all_projects, columns)
         self.assertEqual(self.data_all_projects, list(data))
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.security_group_set'
+)
 class TestSetSecurityGroupCompute(TestSecurityGroupCompute):
 
     # The security group to be set.
@@ -288,54 +289,54 @@ class TestSetSecurityGroupCompute(TestSecurityGroupCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        self.compute.security_groups.update = mock.Mock(return_value=None)
-
-        self.compute.security_groups.get = mock.Mock(
+        self.compute.api.security_group_find = mock.Mock(
             return_value=self._security_group)
 
         # Get the command object to test
         self.cmd = security_group.SetSecurityGroup(self.app, None)
 
-    def test_set_no_options(self):
+    def test_security_group_set_no_options(self, sg_mock):
         self.assertRaises(tests_utils.ParserException,
                           self.check_parser, self.cmd, [], [])
 
-    def test_set_no_updates(self):
+    def test_security_group_set_no_updates(self, sg_mock):
+        sg_mock.return_value = mock.Mock(return_value=None)
         arglist = [
-            self._security_group.name,
+            self._security_group['name'],
         ]
         verifylist = [
-            ('group', self._security_group.name),
+            ('group', self._security_group['name']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute.security_groups.update.assert_called_once_with(
+        sg_mock.assert_called_once_with(
             self._security_group,
-            self._security_group.name,
-            self._security_group.description
+            self._security_group['name'],
+            self._security_group['description'],
         )
         self.assertIsNone(result)
 
-    def test_set_all_options(self):
-        new_name = 'new-' + self._security_group.name
-        new_description = 'new-' + self._security_group.description
+    def test_security_group_set_all_options(self, sg_mock):
+        sg_mock.return_value = mock.Mock(return_value=None)
+        new_name = 'new-' + self._security_group['name']
+        new_description = 'new-' + self._security_group['description']
         arglist = [
             '--name', new_name,
             '--description', new_description,
-            self._security_group.name,
+            self._security_group['name'],
         ]
         verifylist = [
             ('description', new_description),
-            ('group', self._security_group.name),
+            ('group', self._security_group['name']),
             ('name', new_name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute.security_groups.update.assert_called_once_with(
+        sg_mock.assert_called_once_with(
             self._security_group,
             new_name,
             new_description
@@ -343,6 +344,9 @@ class TestSetSecurityGroupCompute(TestSecurityGroupCompute):
         self.assertIsNone(result)
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.security_group_find'
+)
 class TestShowSecurityGroupCompute(TestSecurityGroupCompute):
 
     # The security group rule to be shown with the group.
@@ -364,10 +368,10 @@ class TestShowSecurityGroupCompute(TestSecurityGroupCompute):
     )
 
     data = (
-        _security_group.description,
-        _security_group.id,
-        _security_group.name,
-        _security_group.tenant_id,
+        _security_group['description'],
+        _security_group['id'],
+        _security_group['name'],
+        _security_group['tenant_id'],
         security_group._format_compute_security_group_rules(
             [_security_group_rule._info]),
     )
@@ -377,27 +381,25 @@ class TestShowSecurityGroupCompute(TestSecurityGroupCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        self.compute.security_groups.get.return_value = self._security_group
-
         # Get the command object to test
         self.cmd = security_group.ShowSecurityGroup(self.app, None)
 
-    def test_show_no_options(self):
+    def test_security_group_show_no_options(self, sg_mock):
         self.assertRaises(tests_utils.ParserException,
                           self.check_parser, self.cmd, [], [])
 
-    def test_show_all_options(self):
+    def test_security_group_show_all_options(self, sg_mock):
+        sg_mock.return_value = self._security_group
         arglist = [
-            self._security_group.id,
+            self._security_group['id'],
         ]
         verifylist = [
-            ('group', self._security_group.id),
+            ('group', self._security_group['id']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute.security_groups.get.assert_called_once_with(
-            self._security_group.id)
+        sg_mock.assert_called_once_with(self._security_group['id'])
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

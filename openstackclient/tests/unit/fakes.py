@@ -228,6 +228,9 @@ class FakeResource(object):
     def get(self, item, default=None):
         return self._info.get(item, default)
 
+    def pop(self, key, default_value=None):
+        return self.info.pop(key, default_value)
+
 
 class FakeResponse(requests.Response):
 
