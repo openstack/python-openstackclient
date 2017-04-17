@@ -145,6 +145,157 @@ class TestFloatingIP(TestComputeAPIv2):
         self.assertEqual(self.LIST_FLOATING_IP_RESP, ret)
 
 
+class TestNetwork(TestComputeAPIv2):
+
+    FAKE_NETWORK_RESP = {
+        'id': '1',
+        'label': 'label1',
+        'cidr': '1.2.3.0/24',
+    }
+
+    FAKE_NETWORK_RESP_2 = {
+        'id': '2',
+        'label': 'label2',
+        'cidr': '4.5.6.0/24',
+    }
+
+    LIST_NETWORK_RESP = [
+        FAKE_NETWORK_RESP,
+        FAKE_NETWORK_RESP_2,
+    ]
+
+    def test_network_create_default(self):
+        self.requests_mock.register_uri(
+            'POST',
+            FAKE_URL + '/os-tenant-networks',
+            json={'network': self.FAKE_NETWORK_RESP},
+            status_code=200,
+        )
+        ret = self.api.network_create('label1')
+        self.assertEqual(self.FAKE_NETWORK_RESP, ret)
+
+    def test_network_create_options(self):
+        self.requests_mock.register_uri(
+            'POST',
+            FAKE_URL + '/os-tenant-networks',
+            json={'network': self.FAKE_NETWORK_RESP},
+            status_code=200,
+        )
+        ret = self.api.network_create(
+            name='label1',
+            subnet='1.2.3.0/24',
+        )
+        self.assertEqual(self.FAKE_NETWORK_RESP, ret)
+
+    def test_network_delete_id(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-tenant-networks/1',
+            json={'network': self.FAKE_NETWORK_RESP},
+            status_code=200,
+        )
+        self.requests_mock.register_uri(
+            'DELETE',
+            FAKE_URL + '/os-tenant-networks/1',
+            status_code=202,
+        )
+        ret = self.api.network_delete('1')
+        self.assertEqual(202, ret.status_code)
+        self.assertEqual("", ret.text)
+
+    def test_network_delete_name(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-tenant-networks/label1',
+            status_code=404,
+        )
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-tenant-networks',
+            json={'networks': self.LIST_NETWORK_RESP},
+            status_code=200,
+        )
+        self.requests_mock.register_uri(
+            'DELETE',
+            FAKE_URL + '/os-tenant-networks/1',
+            status_code=202,
+        )
+        ret = self.api.network_delete('label1')
+        self.assertEqual(202, ret.status_code)
+        self.assertEqual("", ret.text)
+
+    def test_network_delete_not_found(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-tenant-networks/label3',
+            status_code=404,
+        )
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-tenant-networks',
+            json={'networks': self.LIST_NETWORK_RESP},
+            status_code=200,
+        )
+        self.assertRaises(
+            osc_lib_exceptions.NotFound,
+            self.api.network_delete,
+            'label3',
+        )
+
+    def test_network_find_id(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-tenant-networks/1',
+            json={'network': self.FAKE_NETWORK_RESP},
+            status_code=200,
+        )
+        ret = self.api.network_find('1')
+        self.assertEqual(self.FAKE_NETWORK_RESP, ret)
+
+    def test_network_find_name(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-tenant-networks/label2',
+            status_code=404,
+        )
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-tenant-networks',
+            json={'networks': self.LIST_NETWORK_RESP},
+            status_code=200,
+        )
+        ret = self.api.network_find('label2')
+        self.assertEqual(self.FAKE_NETWORK_RESP_2, ret)
+
+    def test_network_find_not_found(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-tenant-networks/label3',
+            status_code=404,
+        )
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-tenant-networks',
+            json={'networks': self.LIST_NETWORK_RESP},
+            status_code=200,
+        )
+        self.assertRaises(
+            osc_lib_exceptions.NotFound,
+            self.api.network_find,
+            'label3',
+        )
+
+    def test_network_list_no_options(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-tenant-networks',
+            json={'networks': self.LIST_NETWORK_RESP},
+            status_code=200,
+        )
+        ret = self.api.network_list()
+        self.assertEqual(self.LIST_NETWORK_RESP, ret)
+
+
 class TestSecurityGroup(TestComputeAPIv2):
 
     FAKE_SECURITY_GROUP_RESP = {

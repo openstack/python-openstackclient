@@ -91,9 +91,6 @@ class TestServerAddFixedIP(TestServer):
     def setUp(self):
         super(TestServerAddFixedIP, self).setUp()
 
-        # Get a shortcut to the compute client ServerManager Mock
-        self.networks_mock = self.app.client_manager.compute.networks
-
         # Get the command object to test
         self.cmd = server.AddFixedIP(self.app, None)
 
@@ -105,25 +102,30 @@ class TestServerAddFixedIP(TestServer):
     def _test_server_add_fixed_ip(self, extralist, fixed_ip_address):
         servers = self.setup_servers_mock(count=1)
         network = compute_fakes.FakeNetwork.create_one_network()
-        self.networks_mock.get.return_value = network
+        with mock.patch(
+            'openstackclient.api.compute_v2.APIv2.network_find'
+        ) as net_mock:
+            net_mock.return_value = network
 
-        arglist = [
-            servers[0].id,
-            network.id,
-        ] + extralist
-        verifylist = [
-            ('server', servers[0].id),
-            ('network', network.id),
-            ('fixed_ip_address', fixed_ip_address)
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+            arglist = [
+                servers[0].id,
+                network['id'],
+            ] + extralist
+            verifylist = [
+                ('server', servers[0].id),
+                ('network', network['id']),
+                ('fixed_ip_address', fixed_ip_address),
+            ]
+            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+            result = self.cmd.take_action(parsed_args)
 
-        servers[0].interface_attach.assert_called_once_with(
-            port_id=None, net_id=network.id, fixed_ip=fixed_ip_address
-        )
-        self.assertIsNone(result)
+            servers[0].interface_attach.assert_called_once_with(
+                port_id=None,
+                net_id=network['id'],
+                fixed_ip=fixed_ip_address,
+            )
+            self.assertIsNone(result)
 
     def test_server_add_fixed_ip(self):
         self._test_server_add_fixed_ip([], None)
@@ -137,9 +139,6 @@ class TestServerAddFloatingIP(TestServer):
 
     def setUp(self):
         super(TestServerAddFloatingIP, self).setUp()
-
-        # Get a shortcut to the compute client ServerManager Mock
-        self.networks_mock = self.app.client_manager.compute.networks
 
         # Get the command object to test
         self.cmd = server.AddFloatingIP(self.app, None)

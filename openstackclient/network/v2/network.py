@@ -171,13 +171,13 @@ def _add_additional_network_options(parser):
 def _get_attrs_compute(client_manager, parsed_args):
     attrs = {}
     if parsed_args.name is not None:
-        attrs['label'] = str(parsed_args.name)
+        attrs['name'] = str(parsed_args.name)
     if parsed_args.share:
-        attrs['share_address'] = True
+        attrs['share_subnet'] = True
     if parsed_args.no_share:
-        attrs['share_address'] = False
+        attrs['share_subnet'] = False
     if parsed_args.subnet is not None:
-        attrs['cidr'] = parsed_args.subnet
+        attrs['subnet'] = parsed_args.subnet
     return attrs
 
 
@@ -302,9 +302,9 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
 
     def take_action_compute(self, client, parsed_args):
         attrs = _get_attrs_compute(self.app.client_manager, parsed_args)
-        obj = client.networks.create(**attrs)
-        display_columns, columns = _get_columns(obj._info)
-        data = utils.get_dict_properties(obj._info, columns)
+        obj = client.api.network_create(**attrs)
+        display_columns, columns = _get_columns(obj)
+        data = utils.get_dict_properties(obj, columns)
         return (display_columns, data)
 
 
@@ -330,8 +330,7 @@ class DeleteNetwork(common.NetworkAndComputeDelete):
         client.delete_network(obj)
 
     def take_action_compute(self, client, parsed_args):
-        network = utils.find_resource(client.networks, self.r)
-        client.networks.delete(network.id)
+        client.api.network_delete(self.r)
 
 
 # TODO(sindhu): Use the SDK resource mapped attribute names once the
@@ -552,10 +551,10 @@ class ListNetwork(common.NetworkAndComputeLister):
             'Subnet',
         )
 
-        data = client.networks.list()
+        data = client.api.network_list()
 
         return (column_headers,
-                (utils.get_item_properties(
+                (utils.get_dict_properties(
                     s, columns,
                     formatters=_formatters,
                 ) for s in data))
@@ -683,10 +682,7 @@ class ShowNetwork(common.NetworkAndComputeShowOne):
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
-        obj = utils.find_resource(
-            client.networks,
-            parsed_args.network,
-        )
-        display_columns, columns = _get_columns(obj._info)
-        data = utils.get_dict_properties(obj._info, columns)
+        obj = client.api.network_find(parsed_args.network)
+        display_columns, columns = _get_columns(obj)
+        data = utils.get_dict_properties(obj, columns)
         return (display_columns, data)

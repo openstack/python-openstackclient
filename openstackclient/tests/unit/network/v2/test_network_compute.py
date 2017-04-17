@@ -32,6 +32,9 @@ class TestNetworkCompute(compute_fakes.TestComputev2):
         self.compute = self.app.client_manager.compute
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.network_create'
+)
 class TestCreateNetworkCompute(TestNetworkCompute):
 
     # The network to create.
@@ -73,38 +76,38 @@ class TestCreateNetworkCompute(TestNetworkCompute):
     )
 
     data = (
-        _network.bridge,
-        _network.bridge_interface,
-        _network.broadcast,
-        _network.cidr,
-        _network.cidr_v6,
-        _network.created_at,
-        _network.deleted,
-        _network.deleted_at,
-        _network.dhcp_server,
-        _network.dhcp_start,
-        _network.dns1,
-        _network.dns2,
-        _network.enable_dhcp,
-        _network.gateway,
-        _network.gateway_v6,
-        _network.host,
-        _network.id,
-        _network.injected,
-        _network.label,
-        _network.mtu,
-        _network.multi_host,
-        _network.netmask,
-        _network.netmask_v6,
-        _network.priority,
-        _network.project_id,
-        _network.rxtx_base,
-        _network.share_address,
-        _network.updated_at,
-        _network.vlan,
-        _network.vpn_private_address,
-        _network.vpn_public_address,
-        _network.vpn_public_port,
+        _network['bridge'],
+        _network['bridge_interface'],
+        _network['broadcast'],
+        _network['cidr'],
+        _network['cidr_v6'],
+        _network['created_at'],
+        _network['deleted'],
+        _network['deleted_at'],
+        _network['dhcp_server'],
+        _network['dhcp_start'],
+        _network['dns1'],
+        _network['dns2'],
+        _network['enable_dhcp'],
+        _network['gateway'],
+        _network['gateway_v6'],
+        _network['host'],
+        _network['id'],
+        _network['injected'],
+        _network['label'],
+        _network['mtu'],
+        _network['multi_host'],
+        _network['netmask'],
+        _network['netmask_v6'],
+        _network['priority'],
+        _network['project_id'],
+        _network['rxtx_base'],
+        _network['share_address'],
+        _network['updated_at'],
+        _network['vlan'],
+        _network['vpn_private_address'],
+        _network['vpn_public_address'],
+        _network['vpn_public_port'],
     )
 
     def setUp(self):
@@ -112,40 +115,48 @@ class TestCreateNetworkCompute(TestNetworkCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        self.compute.networks.create.return_value = self._network
-
         # Get the command object to test
         self.cmd = network.CreateNetwork(self.app, None)
 
-    def test_create_no_options(self):
+    def test_network_create_no_options(self, net_mock):
+        net_mock.return_value = self._network
         arglist = []
         verifylist = []
 
         # Missing required args should raise exception here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
-    def test_create_default_options(self):
+    def test_network_create_default_options(self, net_mock):
+        net_mock.return_value = self._network
         arglist = [
-            "--subnet", self._network.cidr,
-            self._network.label,
+            "--subnet", self._network['cidr'],
+            self._network['label'],
         ]
         verifylist = [
-            ('subnet', self._network.cidr),
-            ('name', self._network.label),
+            ('subnet', self._network['cidr']),
+            ('name', self._network['label']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute.networks.create.assert_called_once_with(**{
-            'cidr': self._network.cidr,
-            'label': self._network.label,
+        net_mock.assert_called_once_with(**{
+            'subnet': self._network['cidr'],
+            'name': self._network['label'],
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.network_delete'
+)
 class TestDeleteNetworkCompute(TestNetworkCompute):
 
     def setUp(self):
@@ -156,34 +167,35 @@ class TestDeleteNetworkCompute(TestNetworkCompute):
         # The networks to delete
         self._networks = compute_fakes.FakeNetwork.create_networks(count=3)
 
-        self.compute.networks.delete.return_value = None
-
         # Return value of utils.find_resource()
-        self.compute.networks.get = \
+        self.compute.api.network_find = \
             compute_fakes.FakeNetwork.get_networks(networks=self._networks)
 
         # Get the command object to test
         self.cmd = network.DeleteNetwork(self.app, None)
 
-    def test_delete_one_network(self):
+    def test_network_delete_one(self, net_mock):
+        net_mock.return_value = mock.Mock(return_value=None)
         arglist = [
-            self._networks[0].label,
+            self._networks[0]['label'],
         ]
         verifylist = [
-            ('network', [self._networks[0].label]),
+            ('network', [self._networks[0]['label']]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute.networks.delete.assert_called_once_with(
-            self._networks[0].id)
+        net_mock.assert_called_once_with(
+            self._networks[0]['label'],
+        )
         self.assertIsNone(result)
 
-    def test_delete_multiple_networks(self):
+    def test_network_delete_multi(self, net_mock):
+        net_mock.return_value = mock.Mock(return_value=None)
         arglist = []
         for n in self._networks:
-            arglist.append(n.label)
+            arglist.append(n['id'])
         verifylist = [
             ('network', arglist),
         ]
@@ -193,53 +205,40 @@ class TestDeleteNetworkCompute(TestNetworkCompute):
 
         calls = []
         for n in self._networks:
-            calls.append(call(n.id))
-        self.compute.networks.delete.assert_has_calls(calls)
+            calls.append(call(n['id']))
+        net_mock.assert_has_calls(calls)
         self.assertIsNone(result)
 
-    def test_delete_multiple_networks_exception(self):
+    def test_network_delete_multi_with_exception(self, net_mock):
+        net_mock.return_value = mock.Mock(return_value=None)
+        net_mock.side_effect = ([
+            mock.Mock(return_value=None),
+            exceptions.CommandError,
+        ])
         arglist = [
-            self._networks[0].id,
+            self._networks[0]['id'],
             'xxxx-yyyy-zzzz',
-            self._networks[1].id,
+            self._networks[1]['id'],
         ]
         verifylist = [
             ('network', arglist),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # Fake exception in utils.find_resource()
-        # In compute v2, we use utils.find_resource() to find a network.
-        # It calls get() several times, but find() only one time. So we
-        # choose to fake get() always raise exception, then pass through.
-        # And fake find() to find the real network or not.
-        self.compute.networks.get.side_effect = Exception()
-        ret_find = [
-            self._networks[0],
-            Exception(),
-            self._networks[1],
-        ]
-        self.compute.networks.find.side_effect = ret_find
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('2 of 3 networks failed to delete.', str(e))
 
-        # Fake exception in delete()
-        ret_delete = [
-            None,
-            Exception(),
-        ]
-        self.compute.networks.delete = mock.Mock(side_effect=ret_delete)
-
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
-
-        # The second call of utils.find_resource() should fail. So delete()
-        # was only called twice.
-        calls = [
-            call(self._networks[0].id),
-            call(self._networks[1].id),
-        ]
-        self.compute.networks.delete.assert_has_calls(calls)
+        net_mock.assert_any_call(self._networks[0]['id'])
+        net_mock.assert_any_call(self._networks[1]['id'])
+        net_mock.assert_any_call('xxxx-yyyy-zzzz')
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.network_list'
+)
 class TestListNetworkCompute(TestNetworkCompute):
 
     # The networks going to be listed up.
@@ -254,9 +253,9 @@ class TestListNetworkCompute(TestNetworkCompute):
     data = []
     for net in _networks:
         data.append((
-            net.id,
-            net.label,
-            net.cidr,
+            net['id'],
+            net['label'],
+            net['cidr'],
         ))
 
     def setUp(self):
@@ -264,12 +263,11 @@ class TestListNetworkCompute(TestNetworkCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        self.compute.networks.list.return_value = self._networks
-
         # Get the command object to test
         self.cmd = network.ListNetwork(self.app, None)
 
-    def test_network_list_no_options(self):
+    def test_network_list_no_options(self, net_mock):
+        net_mock.return_value = self._networks
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -279,11 +277,14 @@ class TestListNetworkCompute(TestNetworkCompute):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute.networks.list.assert_called_once_with()
+        net_mock.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.network_find'
+)
 class TestShowNetworkCompute(TestNetworkCompute):
 
     # The network to show.
@@ -325,38 +326,38 @@ class TestShowNetworkCompute(TestNetworkCompute):
     )
 
     data = (
-        _network.bridge,
-        _network.bridge_interface,
-        _network.broadcast,
-        _network.cidr,
-        _network.cidr_v6,
-        _network.created_at,
-        _network.deleted,
-        _network.deleted_at,
-        _network.dhcp_server,
-        _network.dhcp_start,
-        _network.dns1,
-        _network.dns2,
-        _network.enable_dhcp,
-        _network.gateway,
-        _network.gateway_v6,
-        _network.host,
-        _network.id,
-        _network.injected,
-        _network.label,
-        _network.mtu,
-        _network.multi_host,
-        _network.netmask,
-        _network.netmask_v6,
-        _network.priority,
-        _network.project_id,
-        _network.rxtx_base,
-        _network.share_address,
-        _network.updated_at,
-        _network.vlan,
-        _network.vpn_private_address,
-        _network.vpn_public_address,
-        _network.vpn_public_port,
+        _network['bridge'],
+        _network['bridge_interface'],
+        _network['broadcast'],
+        _network['cidr'],
+        _network['cidr_v6'],
+        _network['created_at'],
+        _network['deleted'],
+        _network['deleted_at'],
+        _network['dhcp_server'],
+        _network['dhcp_start'],
+        _network['dns1'],
+        _network['dns2'],
+        _network['enable_dhcp'],
+        _network['gateway'],
+        _network['gateway_v6'],
+        _network['host'],
+        _network['id'],
+        _network['injected'],
+        _network['label'],
+        _network['mtu'],
+        _network['multi_host'],
+        _network['netmask'],
+        _network['netmask_v6'],
+        _network['priority'],
+        _network['project_id'],
+        _network['rxtx_base'],
+        _network['share_address'],
+        _network['updated_at'],
+        _network['vlan'],
+        _network['vpn_private_address'],
+        _network['vpn_public_address'],
+        _network['vpn_public_port'],
     )
 
     def setUp(self):
@@ -364,29 +365,34 @@ class TestShowNetworkCompute(TestNetworkCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        # Return value of utils.find_resource()
-        self.compute.networks.get.return_value = self._network
-
         # Get the command object to test
         self.cmd = network.ShowNetwork(self.app, None)
 
-    def test_show_no_options(self):
+    def test_show_no_options(self, net_mock):
+        net_mock.return_value = self._network
         arglist = []
         verifylist = []
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
-    def test_show_all_options(self):
+    def test_show_all_options(self, net_mock):
+        net_mock.return_value = self._network
         arglist = [
-            self._network.label,
+            self._network['label'],
         ]
         verifylist = [
-            ('network', self._network.label),
+            ('network', self._network['label']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
+        net_mock.assert_called_once_with(self._network['label'])
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

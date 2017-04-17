@@ -215,11 +215,13 @@ class AddFixedIP(command.Command):
         server = utils.find_resource(
             compute_client.servers, parsed_args.server)
 
-        network = utils.find_resource(
-            compute_client.networks, parsed_args.network)
+        network = compute_client.api.network_find(parsed_args.network)
 
-        server.interface_attach(port_id=None, net_id=network.id,
-                                fixed_ip=parsed_args.fixed_ip_address)
+        server.interface_attach(
+            port_id=None,
+            net_id=network['id'],
+            fixed_ip=parsed_args.fixed_ip_address,
+        )
 
 
 class AddFloatingIP(command.Command):

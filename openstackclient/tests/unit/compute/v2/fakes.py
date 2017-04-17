@@ -190,9 +190,6 @@ class FakeComputev2Client(object):
         self.floating_ip_pools = mock.Mock()
         self.floating_ip_pools.resource_class = fakes.FakeResource(None, {})
 
-        self.networks = mock.Mock()
-        self.networks.resource_class = fakes.FakeResource(None, {})
-
         self.keypairs = mock.Mock()
         self.keypairs.resource_class = fakes.FakeResource(None, {})
 
@@ -1155,10 +1152,7 @@ class FakeNetwork(object):
         # Overwrite default attributes.
         network_attrs.update(attrs)
 
-        network = fakes.FakeResource(info=copy.deepcopy(network_attrs),
-                                     loaded=True)
-
-        return network
+        return network_attrs
 
     @staticmethod
     def create_networks(attrs=None, count=2):

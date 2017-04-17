@@ -175,6 +175,100 @@ class APIv2(api.BaseAPI):
 
         return self.list(url)["floating_ips"]
 
+    # Networks
+
+    def network_create(
+        self,
+        name=None,
+        subnet=None,
+        share_subnet=None,
+    ):
+        """Create a new network
+
+        https://developer.openstack.org/api-ref/compute/#create-project-network
+
+        :param string name:
+            Network label
+        :param integer subnet:
+            Subnet for IPv4 fixed addresses in CIDR notation
+        :param integer share_subnet:
+            Shared subnet between projects, True or False
+        :returns: A dict of the network attributes
+        """
+
+        url = "/os-tenant-networks"
+
+        params = {
+            'label': name,
+            'cidr': subnet,
+            'share_address': share_subnet,
+        }
+
+        return self.create(
+            url,
+            json={'network': params},
+        )['network']
+
+    def network_delete(
+        self,
+        network=None,
+    ):
+        """Delete a network
+
+        https://developer.openstack.org/api-ref/compute/#delete-project-network
+
+        :param string network:
+            Network name or ID
+        """
+
+        url = "/os-tenant-networks"
+
+        network = self.find(
+            url,
+            attr='label',
+            value=network,
+        )['id']
+        if network is not None:
+            return self.delete('/%s/%s' % (url, network))
+
+        return None
+
+    def network_find(
+        self,
+        network=None,
+    ):
+        """Return a network given name or ID
+
+        https://developer.openstack.org/api-ref/compute/#show-project-network-details
+
+        :param string network:
+            Network name or ID
+        :returns: A dict of the network attributes
+        """
+
+        url = "/os-tenant-networks"
+
+        return self.find(
+            url,
+            attr='label',
+            value=network,
+        )
+
+    def network_list(
+        self,
+    ):
+        """Get networks
+
+        https://developer.openstack.org/api-ref/compute/#list-project-networks
+
+        :returns:
+            list of networks
+        """
+
+        url = "/os-tenant-networks"
+
+        return self.list(url)["networks"]
+
     # Security Groups
 
     def security_group_create(
