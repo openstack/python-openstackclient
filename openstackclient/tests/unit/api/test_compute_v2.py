@@ -226,3 +226,84 @@ class TestSecurityGroup(TestComputeAPIv2):
             security_group='sg2',
             description='desc2')
         self.assertEqual(self.FAKE_SECURITY_GROUP_RESP_2, ret)
+
+
+class TestSecurityGroupRule(TestComputeAPIv2):
+
+    FAKE_SECURITY_GROUP_RULE_RESP = {
+        'id': '1',
+        'name': 'sgr1',
+        'tenant_id': 'proj-1',
+        'ip_protocol': 'TCP',
+        'from_port': 1,
+        'to_port': 22,
+        'group': {},
+        # 'ip_range': ,
+        # 'cidr': ,
+        # 'parent_group_id': ,
+    }
+
+    def test_security_group_create_no_options(self):
+        self.requests_mock.register_uri(
+            'POST',
+            FAKE_URL + '/os-security-group-rules',
+            json={'security_group_rule': self.FAKE_SECURITY_GROUP_RULE_RESP},
+            status_code=200,
+        )
+        ret = self.api.security_group_rule_create(
+            security_group_id='1',
+            ip_protocol='tcp',
+        )
+        self.assertEqual(self.FAKE_SECURITY_GROUP_RULE_RESP, ret)
+
+    def test_security_group_create_options(self):
+        self.requests_mock.register_uri(
+            'POST',
+            FAKE_URL + '/os-security-group-rules',
+            json={'security_group_rule': self.FAKE_SECURITY_GROUP_RULE_RESP},
+            status_code=200,
+        )
+        ret = self.api.security_group_rule_create(
+            security_group_id='1',
+            ip_protocol='tcp',
+            from_port=22,
+            to_port=22,
+            remote_ip='1.2.3.4/24',
+        )
+        self.assertEqual(self.FAKE_SECURITY_GROUP_RULE_RESP, ret)
+
+    def test_security_group_create_port_errors(self):
+        self.requests_mock.register_uri(
+            'POST',
+            FAKE_URL + '/os-security-group-rules',
+            json={'security_group_rule': self.FAKE_SECURITY_GROUP_RULE_RESP},
+            status_code=200,
+        )
+        self.assertRaises(
+            compute.InvalidValue,
+            self.api.security_group_rule_create,
+            security_group_id='1',
+            ip_protocol='tcp',
+            from_port='',
+            to_port=22,
+            remote_ip='1.2.3.4/24',
+        )
+        self.assertRaises(
+            compute.InvalidValue,
+            self.api.security_group_rule_create,
+            security_group_id='1',
+            ip_protocol='tcp',
+            from_port=0,
+            to_port=[],
+            remote_ip='1.2.3.4/24',
+        )
+
+    def test_security_group_rule_delete(self):
+        self.requests_mock.register_uri(
+            'DELETE',
+            FAKE_URL + '/os-security-group-rules/1',
+            status_code=202,
+        )
+        ret = self.api.security_group_rule_delete('1')
+        self.assertEqual(202, ret.status_code)
+        self.assertEqual("", ret.text)

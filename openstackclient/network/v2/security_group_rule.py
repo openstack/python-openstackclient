@@ -376,15 +376,15 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         else:
             remote_ip = '0.0.0.0/0'
 
-        obj = client.security_group_rules.create(
-            group['id'],
-            protocol,
-            from_port,
-            to_port,
-            remote_ip,
-            parsed_args.remote_group,
+        obj = client.api.security_group_rule_create(
+            security_group_id=group['id'],
+            ip_protocol=protocol,
+            from_port=from_port,
+            to_port=to_port,
+            remote_ip=remote_ip,
+            remote_group=parsed_args.remote_group,
         )
-        return _format_security_group_rule_show(obj._info)
+        return _format_security_group_rule_show(obj)
 
 
 class DeleteSecurityGroupRule(common.NetworkAndComputeDelete):
@@ -409,7 +409,7 @@ class DeleteSecurityGroupRule(common.NetworkAndComputeDelete):
         client.delete_security_group_rule(obj)
 
     def take_action_compute(self, client, parsed_args):
-        client.security_group_rules.delete(self.r)
+        client.api.security_group_rule_delete(self.r)
 
 
 class ListSecurityGroupRule(common.NetworkAndComputeLister):
