@@ -45,12 +45,12 @@ class ClientManager(clientmanager.ClientManager):
         self,
         cli_options=None,
         api_version=None,
+        pw_func=None,
     ):
         super(ClientManager, self).__init__(
             cli_options=cli_options,
             api_version=api_version,
-            # TODO(dtroyer): Remove this when osc-lib 1.2 is released
-            pw_func=shell.prompt_for_password,
+            pw_func=pw_func,
         )
 
         # TODO(dtroyer): For compatibility; mark this for removal when plugin

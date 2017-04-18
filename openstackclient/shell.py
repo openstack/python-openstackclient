@@ -170,6 +170,7 @@ class OpenStackShell(shell.OpenStackShell):
         self.client_manager = clientmanager.ClientManager(
             cli_options=self.cloud,
             api_version=self.api_version,
+            pw_func=shell.prompt_for_password,
         )
 
     def prepare_to_run_command(self, cmd):
