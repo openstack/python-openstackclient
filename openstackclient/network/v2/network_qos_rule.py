@@ -14,7 +14,6 @@
 #    under the License.
 
 import itertools
-import six
 
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -27,10 +26,14 @@ from openstackclient.network import sdk_utils
 RULE_TYPE_BANDWIDTH_LIMIT = 'bandwidth-limit'
 RULE_TYPE_DSCP_MARKING = 'dscp-marking'
 RULE_TYPE_MINIMUM_BANDWIDTH = 'minimum-bandwidth'
-REQUIRED_PARAMETERS = {
-    RULE_TYPE_MINIMUM_BANDWIDTH: ['min_kbps', 'direction'],
-    RULE_TYPE_DSCP_MARKING: ['dscp_mark'],
-    RULE_TYPE_BANDWIDTH_LIMIT: ['max_kbps', 'max_burst_kbps']}
+MANDATORY_PARAMETERS = {
+    RULE_TYPE_MINIMUM_BANDWIDTH: {'min_kbps', 'direction'},
+    RULE_TYPE_DSCP_MARKING: {'dscp_mark'},
+    RULE_TYPE_BANDWIDTH_LIMIT: {'max_kbps', 'max_burst_kbps'}}
+OPTIONAL_PARAMETERS = {
+    RULE_TYPE_MINIMUM_BANDWIDTH: set(),
+    RULE_TYPE_DSCP_MARKING: set(),
+    RULE_TYPE_BANDWIDTH_LIMIT: {'direction'}}
 DIRECTION_EGRESS = 'egress'
 DIRECTION_INGRESS = 'ingress'
 DSCP_VALID_MARKS = [0, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
@@ -51,17 +54,20 @@ def _get_columns(item):
 
 
 def _check_type_parameters(attrs, type, is_create):
-    req_params = REQUIRED_PARAMETERS[type]
-    notreq_params = list(itertools.chain(
-        *[v for k, v in six.iteritems(REQUIRED_PARAMETERS) if k != type]))
+    req_params = MANDATORY_PARAMETERS[type]
+    opt_params = OPTIONAL_PARAMETERS[type]
+    type_params = req_params | opt_params
+    notreq_params = set(itertools.chain(
+        *[v for k, v in MANDATORY_PARAMETERS.items() if k != type]))
+    notreq_params -= type_params
     if is_create and None in map(attrs.get, req_params):
         msg = (_('"Create" rule command for type "%(rule_type)s" requires '
-                 'arguments %(args)s') % {'rule_type': type,
-                                          'args': ", ".join(req_params)})
+                 'arguments %(args)s') %
+               {'rule_type': type, 'args': ", ".join(sorted(req_params))})
         raise exceptions.CommandError(msg)
-    if set(six.iterkeys(attrs)) & set(notreq_params):
+    if set(attrs.keys()) & notreq_params:
         msg = (_('Rule type "%(rule_type)s" only requires arguments %(args)s')
-               % {'rule_type': type, 'args': ", ".join(req_params)})
+               % {'rule_type': type, 'args': ", ".join(sorted(type_params))})
         raise exceptions.CommandError(msg)
 
 
@@ -183,7 +189,7 @@ class CreateNetworkQosRule(command.ShowOne):
                      RULE_TYPE_DSCP_MARKING,
                      RULE_TYPE_BANDWIDTH_LIMIT],
             help=(_('QoS rule type (%s)') %
-                  ", ".join(six.iterkeys(REQUIRED_PARAMETERS)))
+                  ", ".join(MANDATORY_PARAMETERS.keys()))
         )
         _add_rule_arguments(parser)
         return parser
