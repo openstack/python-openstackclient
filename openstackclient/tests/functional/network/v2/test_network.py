@@ -181,7 +181,7 @@ class NetworkTests(base.TestCase):
             cmd_output["shared"],
         )
         self.assertEqual(
-            None,
+            False,
             cmd_output["is_default"],
         )
         self.assertEqual(
