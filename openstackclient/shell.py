@@ -182,6 +182,12 @@ class OpenStackShell(shell.OpenStackShell):
         #                get_one_Cloud()'s validation to avoid loading plugins
         validate = cmd.auth_required
 
+        # Force skipping auth for commands that do not need it
+        # NOTE(dtroyer): This is here because ClientManager does not have
+        #                visibility into the Command object to get
+        #                auth_required. It needs to move into osc-lib
+        self.client_manager._auth_required = cmd.auth_required
+
         # Validate auth options
         self.cloud = self.cloud_config.get_one_cloud(
             cloud=self.options.cloud,

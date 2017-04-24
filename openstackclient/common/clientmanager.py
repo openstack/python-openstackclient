@@ -41,6 +41,9 @@ class ClientManager(clientmanager.ClientManager):
     # A simple incrementing version for the plugin to know what is available
     PLUGIN_INTERFACE_VERSION = "2"
 
+    # Let the commands set this
+    _auth_required = False
+
     def __init__(
         self,
         cli_options=None,
@@ -72,7 +75,10 @@ class ClientManager(clientmanager.ClientManager):
         #                because openstack_config is an optional argument to
         #                CloudConfig.__init__() and we'll die if it was not
         #                passed.
-        if self._cli_options._openstack_config is not None:
+        if (
+                self._auth_required and
+                self._cli_options._openstack_config is not None
+        ):
             self._cli_options._openstack_config._pw_callback = \
                 shell.prompt_for_password
             try:
@@ -84,6 +90,13 @@ class ClientManager(clientmanager.ClientManager):
                 self._fallback_load_auth_plugin(e)
 
         return super(ClientManager, self).setup_auth()
+
+    @property
+    def auth_ref(self):
+        if not self._auth_required:
+            return None
+        else:
+            return super(ClientManager, self).auth_ref
 
     def _fallback_load_auth_plugin(self, e):
         # NOTES(RuiChen): Hack to avoid auth plugins choking on data they don't

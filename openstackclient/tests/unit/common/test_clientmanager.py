@@ -66,4 +66,6 @@ class TestClientManager(osc_lib_test_utils.TestClientManager):
         )
 
         self.assertFalse(client_manager.is_service_available('network'))
-        self.assertFalse(client_manager.is_network_endpoint_enabled())
+        # This is True because ClientManager.auth_ref returns None in this
+        # test; "no service catalog" means use Network API by default now
+        self.assertTrue(client_manager.is_network_endpoint_enabled())
