@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--network`` and ``--port`` options to ``server create`` command
+    as alternatives to ``--nic`` option.
+    [Bug `1612898 <https://bugs.launchpad.net/bugs/1612898>`_]

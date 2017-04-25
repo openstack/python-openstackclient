@@ -447,14 +447,18 @@ class TestServerCreate(TestServer):
         arglist = [
             '--image', 'image1',
             '--flavor', 'flavor1',
-            '--nic', 'net-id=net1',
-            '--nic', 'port-id=port1',
+            '--network', 'net1',
+            '--nic', 'net-id=net1,v4-fixed-ip=10.0.0.2',
+            '--port', 'port1',
+            '--network', 'net1',
+            '--nic', 'port-id=port2',
             self.new_server.name,
         ]
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
-            ('nic', ['net-id=net1', 'port-id=port1']),
+            ('nic', ['net-id=net1', 'net-id=net1,v4-fixed-ip=10.0.0.2',
+                     'port-id=port1', 'net-id=net1', 'port-id=port2']),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -474,20 +478,28 @@ class TestServerCreate(TestServer):
         network_client.find_port = find_port
         network_resource = mock.Mock()
         network_resource.id = 'net1_uuid'
-        port_resource = mock.Mock()
-        port_resource.id = 'port1_uuid'
+        port1_resource = mock.Mock()
+        port1_resource.id = 'port1_uuid'
+        port2_resource = mock.Mock()
+        port2_resource.id = 'port2_uuid'
         find_network.return_value = network_resource
-        find_port.return_value = port_resource
+        find_port.side_effect = (lambda port_id, ignore_missing:
+                                 {"port1": port1_resource,
+                                  "port2": port2_resource}[port_id])
 
         # Mock sdk APIs.
         _network = mock.Mock()
         _network.id = 'net1_uuid'
-        _port = mock.Mock()
-        _port.id = 'port1_uuid'
+        _port1 = mock.Mock()
+        _port1.id = 'port1_uuid'
+        _port2 = mock.Mock()
+        _port2.id = 'port2_uuid'
         find_network = mock.Mock()
         find_port = mock.Mock()
         find_network.return_value = _network
-        find_port.return_value = _port
+        find_port.side_effect = (lambda port_id, ignore_missing:
+                                 {"port1": _port1,
+                                  "port2": _port2}[port_id])
         self.app.client_manager.network.find_network = find_network
         self.app.client_manager.network.find_port = find_port
 
@@ -512,10 +524,22 @@ class TestServerCreate(TestServer):
                    'v4-fixed-ip': '',
                    'v6-fixed-ip': '',
                    'port-id': ''},
+                  {'net-id': 'net1_uuid',
+                   'v4-fixed-ip': '10.0.0.2',
+                   'v6-fixed-ip': '',
+                   'port-id': ''},
                   {'net-id': '',
                    'v4-fixed-ip': '',
                    'v6-fixed-ip': '',
-                   'port-id': 'port1_uuid'}],
+                   'port-id': 'port1_uuid'},
+                  {'net-id': 'net1_uuid',
+                   'v4-fixed-ip': '',
+                   'v6-fixed-ip': '',
+                   'port-id': ''},
+                  {'net-id': '',
+                   'v4-fixed-ip': '',
+                   'v6-fixed-ip': '',
+                   'port-id': 'port2_uuid'}],
             scheduler_hints={},
             config_drive=None,
         )
