@@ -476,24 +476,18 @@ class TestServerCreate(TestServer):
         network_client = self.app.client_manager.network
         network_client.find_network = find_network
         network_client.find_port = find_port
-        network_resource = mock.Mock()
-        network_resource.id = 'net1_uuid'
-        port1_resource = mock.Mock()
-        port1_resource.id = 'port1_uuid'
-        port2_resource = mock.Mock()
-        port2_resource.id = 'port2_uuid'
+        network_resource = mock.Mock(id='net1_uuid')
+        port1_resource = mock.Mock(id='port1_uuid')
+        port2_resource = mock.Mock(id='port2_uuid')
         find_network.return_value = network_resource
         find_port.side_effect = (lambda port_id, ignore_missing:
                                  {"port1": port1_resource,
                                   "port2": port2_resource}[port_id])
 
         # Mock sdk APIs.
-        _network = mock.Mock()
-        _network.id = 'net1_uuid'
-        _port1 = mock.Mock()
-        _port1.id = 'port1_uuid'
-        _port2 = mock.Mock()
-        _port2.id = 'port2_uuid'
+        _network = mock.Mock(id='net1_uuid')
+        _port1 = mock.Mock(id='port1_uuid')
+        _port2 = mock.Mock(id='port2_uuid')
         find_network = mock.Mock()
         find_port = mock.Mock()
         find_network.return_value = _network
@@ -672,8 +666,7 @@ class TestServerCreate(TestServer):
         find_port = mock.Mock()
         network_client = self.app.client_manager.network
         network_client.find_port = find_port
-        port_resource = mock.Mock()
-        port_resource.id = 'port1_uuid'
+        port_resource = mock.Mock(id='port1_uuid')
         find_port.return_value = port_resource
 
         self.assertRaises(exceptions.CommandError,
