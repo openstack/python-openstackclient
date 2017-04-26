@@ -42,6 +42,18 @@ def execute(cmd, fail_ok=False, merge_stderr=False):
     return result
 
 
+def is_service_enabled(service):
+    """Ask client cloud if service is available"""
+    try:
+        ret = execute('openstack service show -f value -c enabled ' + service)
+    except exceptions.CommandFailed:
+        # We get here for multiple reasons, all of them mean that a working
+        # service is not avilable
+        return False
+
+    return "True" in ret
+
+
 class TestCase(testtools.TestCase):
 
     delimiter_line = re.compile('^\+\-[\+\-]+\-\+$')

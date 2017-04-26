@@ -299,7 +299,6 @@ class SetQuota(command.Command):
         identity_client = self.app.client_manager.identity
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
-        network_client = self.app.client_manager.network
         compute_kwargs = {}
         for k, v in COMPUTE_QUOTAS.items():
             value = getattr(parsed_args, k, None)
@@ -352,7 +351,11 @@ class SetQuota(command.Command):
                 volume_client.quotas.update(
                     project,
                     **volume_kwargs)
-            if network_kwargs:
+            if (
+                    network_kwargs and
+                    self.app.client_manager.is_network_endpoint_enabled()
+            ):
+                network_client = self.app.client_manager.network
                 network_client.update_quota(
                     project,
                     **network_kwargs)
