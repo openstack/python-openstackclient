@@ -18,6 +18,7 @@ from mock import call
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.tests.unit import utils as tests_utils
 from openstackclient.tests.unit.volume.v1 import fakes as volume_fakes
 from openstackclient.volume.v1 import volume_snapshot
 
@@ -98,26 +99,17 @@ class TestSnapshotCreate(TestSnapshot):
     def test_snapshot_create_without_name(self):
         arglist = [
             "--volume", self.new_snapshot.volume_id,
-            "--description", self.new_snapshot.display_description,
-            "--force"
         ]
         verifylist = [
             ("volume", self.new_snapshot.volume_id),
-            ("description", self.new_snapshot.display_description),
-            ("force", True)
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.snapshots_mock.create.assert_called_with(
-            self.new_snapshot.volume_id,
-            True,
-            None,
-            self.new_snapshot.display_description,
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
         )
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
 
     def test_snapshot_create_without_volume(self):
         arglist = [

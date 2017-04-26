@@ -49,7 +49,7 @@ Create new volume snapshot
 .. _volume_snapshot_create-snapshot-name:
 .. describe:: <snapshot-name>
 
-    Name of the new snapshot (default to None)
+    Name of the new snapshot
 
 volume snapshot delete
 ----------------------
