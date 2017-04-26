@@ -207,12 +207,20 @@ class ServerTests(common.ComputeTestCase):
             'floating ip create -f json ' +
             'public'
         ))
-        floating_ip = cmd_output['floating_ip_address']
+
+        # Look for Neutron value first, then nova-net
+        floating_ip = cmd_output.get(
+            'floating_ip_address',
+            cmd_output.get(
+                'ip',
+                None,
+            ),
+        )
         self.assertNotEqual('', cmd_output['id'])
         self.assertNotEqual('', floating_ip)
         self.addCleanup(
             self.openstack,
-            'floating ip delete ' + cmd_output['id']
+            'floating ip delete ' + str(cmd_output['id'])
         )
 
         raw_output = self.openstack(
