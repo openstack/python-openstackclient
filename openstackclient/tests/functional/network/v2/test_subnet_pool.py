@@ -10,46 +10,277 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
+import random
 import uuid
 
 from openstackclient.tests.functional import base
 
 
 class SubnetPoolTests(base.TestCase):
-    """Functional tests for subnet pool. """
-    NAME = uuid.uuid4().hex
-    CREATE_POOL_PREFIX = '10.100.0.0/24'
-    SET_POOL_PREFIX = '10.100.0.0/16'
-    HEADERS = ['Name']
-    FIELDS = ['name']
+    """Functional tests for subnet pool"""
 
-    @classmethod
-    def setUpClass(cls):
-        opts = cls.get_opts(cls.FIELDS)
-        raw_output = cls.openstack('subnet pool create --pool-prefix ' +
-                                   cls.CREATE_POOL_PREFIX + ' ' +
-                                   cls.NAME + opts)
-        cls.assertOutput(cls.NAME + '\n', raw_output)
+    def test_subnet_pool_create_delete(self):
+        """Test create, delete"""
+        name1 = uuid.uuid4().hex
+        cmd_output, pool_prefix = self._subnet_pool_create("", name1)
 
-    @classmethod
-    def tearDownClass(cls):
-        raw_output = cls.openstack('subnet pool delete ' + cls.NAME)
-        cls.assertOutput('', raw_output)
+        self.assertEqual(
+            name1,
+            cmd_output["name"]
+        )
+        self.assertEqual(
+            pool_prefix,
+            cmd_output["prefixes"]
+        )
 
-    def test_subnet_list(self):
-        opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('subnet pool list' + opts)
-        self.assertIn(self.NAME, raw_output)
+        name2 = uuid.uuid4().hex
+        cmd_output, pool_prefix = self._subnet_pool_create("", name2)
 
-    def test_subnet_set(self):
-        self.openstack('subnet pool set --pool-prefix ' +
-                       self.SET_POOL_PREFIX + ' ' + self.NAME)
-        opts = self.get_opts(['prefixes', 'name'])
-        raw_output = self.openstack('subnet pool show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + '\n' + self.SET_POOL_PREFIX + '\n',
-                         raw_output)
+        self.assertEqual(
+            name2,
+            cmd_output["name"]
+        )
+        self.assertEqual(
+            pool_prefix,
+            cmd_output["prefixes"]
+        )
 
-    def test_subnet_show(self):
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack('subnet pool show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + '\n', raw_output)
+        del_output = self.openstack(
+            'subnet pool delete ' + name1 + ' ' + name2,
+        )
+        self.assertOutput('', del_output)
+
+    def test_subnet_pool_list(self):
+        """Test create, list filter"""
+        cmd_output = json.loads(self.openstack('token issue -f json'))
+        auth_project_id = cmd_output['project_id']
+
+        cmd_output = json.loads(self.openstack('project list -f json'))
+        admin_project_id = None
+        demo_project_id = None
+        for p in cmd_output:
+            if p['Name'] == 'admin':
+                admin_project_id = p['ID']
+            if p['Name'] == 'demo':
+                demo_project_id = p['ID']
+
+        # Verify assumptions:
+        # * admin and demo projects are present
+        # * demo and admin are distinct projects
+        # * tests run as admin
+        self.assertIsNotNone(admin_project_id)
+        self.assertIsNotNone(demo_project_id)
+        self.assertNotEqual(admin_project_id, demo_project_id)
+        self.assertEqual(admin_project_id, auth_project_id)
+
+        name1 = uuid.uuid4().hex
+        name2 = uuid.uuid4().hex
+
+        cmd_output, pool_prefix = self._subnet_pool_create(
+            '--project ' + demo_project_id +
+            ' --no-share ',
+            name1,
+        )
+        self.addCleanup(self.openstack, 'subnet pool delete ' + name1)
+        self.assertEqual(
+            name1,
+            cmd_output["name"],
+        )
+        self.assertEqual(
+            False,
+            cmd_output["shared"],
+        )
+        self.assertEqual(
+            demo_project_id,
+            cmd_output["project_id"],
+        )
+        self.assertEqual(
+            pool_prefix,
+            cmd_output["prefixes"],
+        )
+
+        cmd_output, pool_prefix = self._subnet_pool_create(
+            ' --share ',
+            name2,
+        )
+        self.addCleanup(self.openstack, 'subnet pool delete ' + name2)
+        self.assertEqual(
+            name2,
+            cmd_output["name"],
+        )
+        self.assertEqual(
+            True,
+            cmd_output["shared"],
+        )
+        self.assertEqual(
+            admin_project_id,
+            cmd_output["project_id"],
+        )
+        self.assertEqual(
+            pool_prefix,
+            cmd_output["prefixes"],
+        )
+
+        # Test list --project
+        cmd_output = json.loads(self.openstack(
+            'subnet pool list -f json ' +
+            '--project ' + demo_project_id
+        ))
+        names = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, names)
+        self.assertNotIn(name2, names)
+
+        # Test list --share
+        cmd_output = json.loads(self.openstack(
+            'subnet pool list -f json ' +
+            '--share'
+        ))
+        names = [x["Name"] for x in cmd_output]
+        self.assertNotIn(name1, names)
+        self.assertIn(name2, names)
+
+        # Test list --name
+        cmd_output = json.loads(self.openstack(
+            'subnet pool list -f json ' +
+            '--name ' + name1
+        ))
+        names = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, names)
+        self.assertNotIn(name2, names)
+
+        # Test list --long
+        cmd_output = json.loads(self.openstack(
+            'subnet pool list -f json ' +
+            '--long '
+        ))
+        names = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, names)
+        self.assertIn(name2, names)
+
+    def test_subnet_pool_set_show(self):
+        """Test create, set, show, delete"""
+
+        name = uuid.uuid4().hex
+        new_name = name + "_"
+        cmd_output, pool_prefix = self._subnet_pool_create(
+            '--default-prefix-length 16 ' +
+            '--min-prefix-length 16 ' +
+            '--max-prefix-length 32 ' +
+            '--description aaaa ',
+            name,
+        )
+
+        self.addCleanup(self.openstack, 'subnet pool delete ' + new_name)
+        self.assertEqual(
+            name,
+            cmd_output["name"],
+        )
+        self.assertEqual(
+            'aaaa',
+            cmd_output["description"],
+        )
+        self.assertEqual(
+            pool_prefix,
+            cmd_output["prefixes"],
+        )
+        self.assertEqual(
+            16,
+            cmd_output["default_prefixlen"],
+        )
+        self.assertEqual(
+            16,
+            cmd_output["min_prefixlen"],
+        )
+        self.assertEqual(
+            32,
+            cmd_output["max_prefixlen"],
+        )
+
+        # Test set
+        cmd_output = self.openstack(
+            'subnet pool set ' +
+            '--name ' + new_name +
+            ' --description bbbb ' +
+            ' --pool-prefix 10.110.0.0/16 ' +
+            '--default-prefix-length 8 ' +
+            '--min-prefix-length 8 ' +
+            '--max-prefix-length 16 ' +
+            name
+        )
+        self.assertOutput('', cmd_output)
+
+        cmd_output = json.loads(self.openstack(
+            'subnet pool show -f json ' +
+            new_name
+        ))
+        self.assertEqual(
+            new_name,
+            cmd_output["name"],
+        )
+        self.assertEqual(
+            'bbbb',
+            cmd_output["description"],
+        )
+        self.assertInOutput(
+            "10.110.0.0/16",
+            cmd_output["prefixes"],
+        )
+        self.assertEqual(
+            8,
+            cmd_output["default_prefixlen"],
+        )
+        self.assertEqual(
+            8,
+            cmd_output["min_prefixlen"],
+        )
+        self.assertEqual(
+            16,
+            cmd_output["max_prefixlen"],
+        )
+
+    def _subnet_pool_create(self, cmd, name, is_type_ipv4=True):
+        """Make a random subnet pool
+
+        :param string cmd:
+            The options for a subnet pool create command, not including
+            --pool-prefix and <name>
+        :param string name:
+            The name of the subnet pool
+        :param bool is_type_ipv4:
+            Creates an IPv4 pool if True, creates an IPv6 pool otherwise
+
+        Try random subnet ranges because we can not determine ahead of time
+        what subnets are already in use, possibly by another test running in
+        parallel, try 4 times before failing.
+        """
+        for i in range(4):
+            # Create a random prefix
+            if is_type_ipv4:
+                pool_prefix = ".".join(map(
+                    str,
+                    (random.randint(0, 223) for _ in range(2)),
+                )) + ".0.0/16"
+            else:
+                pool_prefix = ":".join(map(
+                    str,
+                    (hex(random.randint(0, 65535))[2:] for _ in range(6)),
+                )) + ":0:0/96"
+
+            try:
+                cmd_output = json.loads(self.openstack(
+                    'subnet pool create -f json ' +
+                    cmd + ' ' +
+                    '--pool-prefix ' + pool_prefix + ' ' +
+                    name
+                ))
+            except Exception:
+                if (i == 3):
+                    # Raise the exception the last time
+                    raise
+                pass
+            else:
+                # Break and no longer retry if create is sucessful
+                break
+
+        return cmd_output, pool_prefix
