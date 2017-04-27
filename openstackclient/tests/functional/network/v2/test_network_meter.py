@@ -16,16 +16,22 @@
 import json
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class TestMeter(base.TestCase):
-    """Functional tests for network meter."""
+class TestMeter(common.NetworkTests):
+    """Functional tests for network meter"""
 
     # NOTE(dtroyer): Do not normalize the setup and teardown of the resource
     #                creation and deletion.  Little is gained when each test
     #                has its own needs and there are collisions when running
     #                tests in parallel.
+
+    def setUp(self):
+        super(TestMeter, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_meter_delete(self):
         """Test create, delete multiple"""
@@ -33,9 +39,10 @@ class TestMeter(base.TestCase):
         name2 = uuid.uuid4().hex
         description = 'fakedescription'
         json_output = json.loads(self.openstack(
-            'network meter create -f json ' + name1 + ' --description '
-            + description)
-        )
+            'network meter create -f json ' +
+            ' --description ' + description + ' ' +
+            name1
+        ))
         self.assertEqual(
             name1,
             json_output.get('name'),
@@ -43,17 +50,18 @@ class TestMeter(base.TestCase):
         # Check if default shared values
         self.assertEqual(
             False,
-            json_output.get('shared')
+            json_output.get('shared'),
         )
         self.assertEqual(
             'fakedescription',
-            json_output.get('description')
+            json_output.get('description'),
         )
 
         json_output_2 = json.loads(self.openstack(
-            'network meter create -f json ' + name2 + ' --description '
-            + description)
-        )
+            'network meter create -f json ' +
+            '--description ' + description + ' ' +
+            name2
+        ))
         self.assertEqual(
             name2,
             json_output_2.get('name'),
@@ -61,11 +69,11 @@ class TestMeter(base.TestCase):
         # Check if default shared values
         self.assertEqual(
             False,
-            json_output_2.get('shared')
+            json_output_2.get('shared'),
         )
         self.assertEqual(
             'fakedescription',
-            json_output_2.get('description')
+            json_output_2.get('description'),
         )
 
         raw_output = self.openstack(
@@ -77,10 +85,15 @@ class TestMeter(base.TestCase):
         """Test create, list filters, delete"""
         name1 = uuid.uuid4().hex
         json_output = json.loads(self.openstack(
-            'network meter create -f json --description Test1 --share '
-            + name1)
+            'network meter create -f json ' +
+            '--description Test1 ' +
+            '--share ' +
+            name1
+        ))
+        self.addCleanup(
+            self.openstack,
+            'network meter delete ' + name1
         )
-        self.addCleanup(self.openstack, 'network meter delete ' + name1)
 
         self.assertEqual(
             'Test1',
@@ -93,18 +106,20 @@ class TestMeter(base.TestCase):
 
         name2 = uuid.uuid4().hex
         json_output_2 = json.loads(self.openstack(
-            'network meter create -f json --description Test2 --no-share '
-            + name2)
-        )
+            'network meter create -f json ' +
+            '--description Test2 ' +
+            '--no-share ' +
+            name2
+        ))
         self.addCleanup(self.openstack, 'network meter delete ' + name2)
 
         self.assertEqual(
             'Test2',
-            json_output_2.get('description')
+            json_output_2.get('description'),
         )
         self.assertEqual(
             False,
-            json_output_2.get('shared')
+            json_output_2.get('shared'),
         )
 
         raw_output = json.loads(self.openstack('network meter list -f json'))
@@ -117,42 +132,43 @@ class TestMeter(base.TestCase):
         name1 = uuid.uuid4().hex
         description = 'fakedescription'
         json_output = json.loads(self.openstack(
-            'network meter create -f json ' + name1 + ' --description '
-            + description)
-        )
+            'network meter create -f json ' +
+            ' --description ' + description + ' ' +
+            name1
+        ))
         meter_id = json_output.get('id')
         self.addCleanup(self.openstack, 'network meter delete ' + name1)
 
         # Test show with ID
         json_output = json.loads(self.openstack(
-            'network meter show -f json ' + meter_id)
-        )
+            'network meter show -f json ' + meter_id
+        ))
         self.assertEqual(
             False,
-            json_output.get('shared')
+            json_output.get('shared'),
         )
         self.assertEqual(
             'fakedescription',
-            json_output.get('description')
+            json_output.get('description'),
         )
         self.assertEqual(
             name1,
-            json_output.get('name')
+            json_output.get('name'),
         )
 
         # Test show with name
         json_output = json.loads(self.openstack(
-            'network meter show -f json ' + name1)
-        )
+            'network meter show -f json ' + name1
+        ))
         self.assertEqual(
             meter_id,
-            json_output.get('id')
+            json_output.get('id'),
         )
         self.assertEqual(
             False,
-            json_output.get('shared')
+            json_output.get('shared'),
         )
         self.assertEqual(
             'fakedescription',
-            json_output.get('description')
+            json_output.get('description'),
         )

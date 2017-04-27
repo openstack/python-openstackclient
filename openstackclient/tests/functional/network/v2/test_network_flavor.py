@@ -14,15 +14,20 @@
 import json
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class NetworkFlavorTests(base.TestCase):
-    """Functional tests for network flavor."""
+class NetworkFlavorTests(common.NetworkTests):
+    """Functional tests for network flavor"""
 
-    def test_add_remove_network_flavor_profile(self):
+    def setUp(self):
+        super(NetworkFlavorTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
+
+    def test_network_flavor_add_remove_profile(self):
         """Test add and remove network flavor to/from profile"""
-
         # Create Flavor
         name1 = uuid.uuid4().hex
         cmd_output1 = json.loads(self.openstack(

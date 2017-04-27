@@ -13,39 +13,85 @@
 import json
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class NetworkAgentTests(base.TestCase):
-    """Functional tests for network agent. """
-    IDs = None
-    HEADERS = ['ID']
-    FIELDS = ['id']
+class NetworkAgentTests(common.NetworkTests):
+    """Functional tests for network agent"""
 
-    @classmethod
-    def test_network_agent_list(cls):
-        opts = cls.get_opts(cls.HEADERS)
-        raw_output = cls.openstack('network agent list' + opts)
-        # get the list of network agent IDs.
-        cls.IDs = raw_output.split('\n')
+    def setUp(self):
+        super(NetworkAgentTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
-    def test_network_agent_show(self):
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack('network agent show ' + self.IDs[0] + opts)
-        self.assertEqual(self.IDs[0] + "\n", raw_output)
+    def test_network_agent_list_show_set(self):
+        """Test network agent list, set, show commands
 
-    def test_network_agent_set(self):
-        opts = self.get_opts(['admin_state_up'])
-        self.openstack('network agent set --disable ' + self.IDs[0])
-        raw_output = self.openstack('network agent show ' + self.IDs[0] + opts)
-        self.assertEqual("DOWN\n", raw_output)
-        self.openstack('network agent set --enable ' + self.IDs[0])
-        raw_output = self.openstack('network agent show ' + self.IDs[0] + opts)
-        self.assertEqual("UP\n", raw_output)
+        Do these serially because show and set rely on the existing agent IDs
+        from the list output and we had races when run in parallel.
+        """
+
+        # agent list
+        agent_list = json.loads(self.openstack(
+            'network agent list -f json'
+        ))
+        self.assertIsNotNone(agent_list[0])
+
+        agent_ids = list([row["ID"] for row in agent_list])
+
+        # agent show
+        cmd_output = json.loads(self.openstack(
+            'network agent show -f json ' +
+            agent_ids[0]
+        ))
+        self.assertEqual(
+            agent_ids[0],
+            cmd_output['id'],
+        )
+
+        # agent set
+        raw_output = self.openstack(
+            'network agent set ' +
+            '--disable ' +
+            agent_ids[0]
+        )
+        self.assertOutput('', raw_output)
+
+        cmd_output = json.loads(self.openstack(
+            'network agent show -f json ' +
+            agent_ids[0]
+        ))
+        self.assertEqual(
+            "DOWN",
+            cmd_output['admin_state_up'],
+        )
+
+        raw_output = self.openstack(
+            'network agent set ' +
+            '--enable ' +
+            agent_ids[0]
+        )
+        self.assertOutput('', raw_output)
+
+        cmd_output = json.loads(self.openstack(
+            'network agent show -f json ' +
+            agent_ids[0]
+        ))
+        self.assertEqual(
+            "UP",
+            cmd_output['admin_state_up'],
+        )
 
 
-class NetworkAgentListTests(base.TestCase):
-    """Functional test for network agent list --network. """
+class NetworkAgentListTests(common.NetworkTests):
+    """Functional test for network agent"""
+
+    def setUp(self):
+        super(NetworkAgentListTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_network_dhcp_agent_list(self):
         """Test network agent list"""

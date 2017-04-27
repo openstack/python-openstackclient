@@ -13,16 +13,22 @@
 import json
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class AddressScopeTests(base.TestCase):
+class AddressScopeTests(common.NetworkTests):
     """Functional tests for address scope. """
 
     # NOTE(dtroyer): Do not normalize the setup and teardown of the resource
     #                creation and deletion.  Little is gained when each test
     #                has its own needs and there are collisions when running
     #                tests in parallel.
+
+    def setUp(self):
+        super(AddressScopeTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_address_scope_delete(self):
         """Test create, delete multiple"""
