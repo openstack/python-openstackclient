@@ -42,7 +42,7 @@ _formatters = {
 }
 
 
-def _get_network_columns(item):
+def _get_columns_network(item):
     column_map = {
         'subnet_ids': 'subnets',
         'is_admin_state_up': 'admin_state_up',
@@ -59,14 +59,14 @@ def _get_network_columns(item):
     return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
-def _get_columns(item):
+def _get_columns_compute(item):
     column_map = {
         'tenant_id': 'project_id',
     }
     return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
-def _get_attrs(client_manager, parsed_args):
+def _get_attrs_network(client_manager, parsed_args):
     attrs = {}
     if parsed_args.name is not None:
         attrs['name'] = str(parsed_args.name)
@@ -135,6 +135,19 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
+def _get_attrs_compute(client_manager, parsed_args):
+    attrs = {}
+    if parsed_args.name is not None:
+        attrs['name'] = str(parsed_args.name)
+    if parsed_args.share:
+        attrs['share_subnet'] = True
+    if parsed_args.no_share:
+        attrs['share_subnet'] = False
+    if parsed_args.subnet is not None:
+        attrs['subnet'] = parsed_args.subnet
+    return attrs
+
+
 def _add_additional_network_options(parser):
     # Add additional network options
 
@@ -166,19 +179,6 @@ def _add_additional_network_options(parser):
         '--no-transparent-vlan',
         action='store_true',
         help=_("Do not make the network VLAN transparent"))
-
-
-def _get_attrs_compute(client_manager, parsed_args):
-    attrs = {}
-    if parsed_args.name is not None:
-        attrs['name'] = str(parsed_args.name)
-    if parsed_args.share:
-        attrs['share_subnet'] = True
-    if parsed_args.no_share:
-        attrs['share_subnet'] = False
-    if parsed_args.subnet is not None:
-        attrs['subnet'] = parsed_args.subnet
-    return attrs
 
 
 # TODO(sindhu): Use the SDK resource mapped attribute names once the
@@ -289,21 +289,22 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
         parser.add_argument(
             '--subnet',
             metavar='<subnet>',
+            required=True,
             help=_("IPv4 subnet for fixed IPs (in CIDR notation)")
         )
         return parser
 
     def take_action_network(self, client, parsed_args):
-        attrs = _get_attrs(self.app.client_manager, parsed_args)
+        attrs = _get_attrs_network(self.app.client_manager, parsed_args)
         obj = client.create_network(**attrs)
-        display_columns, columns = _get_network_columns(obj)
+        display_columns, columns = _get_columns_network(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
         attrs = _get_attrs_compute(self.app.client_manager, parsed_args)
         obj = client.api.network_create(**attrs)
-        display_columns, columns = _get_columns(obj)
+        display_columns, columns = _get_columns_compute(obj)
         data = utils.get_dict_properties(obj, columns)
         return (display_columns, data)
 
@@ -660,7 +661,7 @@ class SetNetwork(command.Command):
         client = self.app.client_manager.network
         obj = client.find_network(parsed_args.network, ignore_missing=False)
 
-        attrs = _get_attrs(self.app.client_manager, parsed_args)
+        attrs = _get_attrs_network(self.app.client_manager, parsed_args)
         client.update_network(obj, **attrs)
 
 
@@ -677,12 +678,12 @@ class ShowNetwork(common.NetworkAndComputeShowOne):
 
     def take_action_network(self, client, parsed_args):
         obj = client.find_network(parsed_args.network, ignore_missing=False)
-        display_columns, columns = _get_network_columns(obj)
+        display_columns, columns = _get_columns_network(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
         obj = client.api.network_find(parsed_args.network)
-        display_columns, columns = _get_columns(obj)
+        display_columns, columns = _get_columns_compute(obj)
         data = utils.get_dict_properties(obj, columns)
         return (display_columns, data)

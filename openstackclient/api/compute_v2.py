@@ -202,24 +202,25 @@ class APIv2(api.BaseAPI):
     ):
         """Create a new network
 
-        https://developer.openstack.org/api-ref/compute/#create-project-network
+        https://developer.openstack.org/api-ref/compute/#create-network
 
         :param string name:
-            Network label
+            Network label (required)
         :param integer subnet:
-            Subnet for IPv4 fixed addresses in CIDR notation
+            Subnet for IPv4 fixed addresses in CIDR notation (required)
         :param integer share_subnet:
             Shared subnet between projects, True or False
         :returns: A dict of the network attributes
         """
 
-        url = "/os-tenant-networks"
+        url = "/os-networks"
 
         params = {
             'label': name,
             'cidr': subnet,
-            'share_address': share_subnet,
         }
+        if share_subnet is not None:
+            params['share_address'] = share_subnet
 
         return self.create(
             url,
@@ -232,13 +233,13 @@ class APIv2(api.BaseAPI):
     ):
         """Delete a network
 
-        https://developer.openstack.org/api-ref/compute/#delete-project-network
+        https://developer.openstack.org/api-ref/compute/#delete-network
 
         :param string network:
             Network name or ID
         """
 
-        url = "/os-tenant-networks"
+        url = "/os-networks"
 
         network = self.find(
             url,
@@ -256,14 +257,14 @@ class APIv2(api.BaseAPI):
     ):
         """Return a network given name or ID
 
-        https://developer.openstack.org/api-ref/compute/#show-project-network-details
+        https://developer.openstack.org/api-ref/compute/#show-network-details
 
         :param string network:
             Network name or ID
         :returns: A dict of the network attributes
         """
 
-        url = "/os-tenant-networks"
+        url = "/os-networks"
 
         return self.find(
             url,
@@ -276,13 +277,13 @@ class APIv2(api.BaseAPI):
     ):
         """Get networks
 
-        https://developer.openstack.org/api-ref/compute/#list-project-networks
+        https://developer.openstack.org/api-ref/compute/#list-networks
 
         :returns:
             list of networks
         """
 
-        url = "/os-tenant-networks"
+        url = "/os-networks"
 
         return self.list(url)["networks"]
 

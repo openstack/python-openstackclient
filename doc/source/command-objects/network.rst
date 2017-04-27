@@ -71,6 +71,8 @@ Create new network
 
     Set network description
 
+    *Network version 2 only*
+
 .. option:: --availability-zone-hint <availability-zone>
 
     Availability Zone in which to create this network
