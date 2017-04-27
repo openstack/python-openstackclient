@@ -655,10 +655,9 @@ class CreateServer(command.ShowOne):
                         nic_info["port-id"] = port.id
                 else:
                     if nic_info["net-id"]:
-                        nic_info["net-id"] = utils.find_resource(
-                            compute_client.networks,
+                        nic_info["net-id"] = compute_client.api.network_find(
                             nic_info["net-id"]
-                        ).id
+                        )['id']
                     if nic_info["port-id"]:
                         msg = _("can't create server with port specified "
                                 "since network endpoint not enabled")
