@@ -12,10 +12,10 @@
 
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class NetworkRBACTests(base.TestCase):
+class NetworkRBACTests(common.NetworkTests):
     """Functional tests for network rbac. """
     NET_NAME = uuid.uuid4().hex
     PROJECT_NAME = uuid.uuid4().hex
@@ -26,24 +26,41 @@ class NetworkRBACTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        opts = cls.get_opts(cls.FIELDS)
-        raw_output = cls.openstack('network create ' + cls.NET_NAME + opts)
-        cls.OBJECT_ID = raw_output.strip('\n')
-        opts = cls.get_opts(['id', 'object_id'])
-        raw_output = cls.openstack('network rbac create ' +
-                                   cls.OBJECT_ID +
-                                   ' --action access_as_shared' +
-                                   ' --target-project admin' +
-                                   ' --type network' + opts)
-        cls.ID, object_id, rol = tuple(raw_output.split('\n'))
-        cls.assertOutput(cls.OBJECT_ID, object_id)
+        common.NetworkTests.setUpClass()
+        if cls.haz_network:
+            opts = cls.get_opts(cls.FIELDS)
+            raw_output = cls.openstack(
+                'network create ' + cls.NET_NAME + opts
+            )
+            cls.OBJECT_ID = raw_output.strip('\n')
+            opts = cls.get_opts(['id', 'object_id'])
+            raw_output = cls.openstack(
+                'network rbac create ' +
+                cls.OBJECT_ID +
+                ' --action access_as_shared' +
+                ' --target-project admin' +
+                ' --type network' + opts
+            )
+            cls.ID, object_id, rol = tuple(raw_output.split('\n'))
+            cls.assertOutput(cls.OBJECT_ID, object_id)
 
     @classmethod
     def tearDownClass(cls):
-        raw_output_rbac = cls.openstack('network rbac delete ' + cls.ID)
-        raw_output_network = cls.openstack('network delete ' + cls.OBJECT_ID)
-        cls.assertOutput('', raw_output_rbac)
-        cls.assertOutput('', raw_output_network)
+        if cls.haz_network:
+            raw_output_rbac = cls.openstack(
+                'network rbac delete ' + cls.ID
+            )
+            raw_output_network = cls.openstack(
+                'network delete ' + cls.OBJECT_ID
+            )
+            cls.assertOutput('', raw_output_rbac)
+            cls.assertOutput('', raw_output_network)
+
+    def setUp(self):
+        super(NetworkRBACTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_network_rbac_list(self):
         opts = self.get_opts(self.HEADERS)

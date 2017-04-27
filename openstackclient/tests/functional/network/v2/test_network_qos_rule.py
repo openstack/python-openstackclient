@@ -15,10 +15,10 @@
 
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class NetworkQosRuleTestsMinimumBandwidth(base.TestCase):
+class NetworkQosRuleTestsMinimumBandwidth(common.NetworkTests):
     """Functional tests for QoS minimum bandwidth rule."""
     RULE_ID = None
     QOS_POLICY_NAME = 'qos_policy_' + uuid.uuid4().hex
@@ -31,6 +31,7 @@ class NetworkQosRuleTestsMinimumBandwidth(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        common.NetworkTests.setUpClass()
         opts = cls.get_opts(cls.FIELDS)
         cls.openstack('network qos policy create ' + cls.QOS_POLICY_NAME)
         cls.RULE_ID = cls.openstack('network qos rule create --type ' +
@@ -46,20 +47,26 @@ class NetworkQosRuleTestsMinimumBandwidth(base.TestCase):
         cls.openstack('network qos policy delete ' + cls.QOS_POLICY_NAME)
         cls.assertOutput('', raw_output)
 
-    def test_qos_policy_list(self):
+    def setUp(self):
+        super(NetworkQosRuleTestsMinimumBandwidth, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
+
+    def test_qos_rule_list(self):
         opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('network qos rule list '
                                     + self.QOS_POLICY_NAME + opts)
         self.assertIn(self.RULE_ID, raw_output)
 
-    def test_qos_policy_show(self):
+    def test_qos_rule_show(self):
         opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('network qos rule show ' +
                                     self.QOS_POLICY_NAME + ' ' + self.RULE_ID +
                                     opts)
         self.assertEqual(self.RULE_ID, raw_output)
 
-    def test_qos_policy_set(self):
+    def test_qos_rule_set(self):
         self.openstack('network qos rule set --min-kbps ' +
                        str(self.MIN_KBPS_MODIFIED) + ' ' +
                        self.QOS_POLICY_NAME + ' ' + self.RULE_ID)
@@ -70,7 +77,7 @@ class NetworkQosRuleTestsMinimumBandwidth(base.TestCase):
         self.assertEqual(str(self.MIN_KBPS_MODIFIED) + "\n", raw_output)
 
 
-class NetworkQosRuleTestsDSCPMarking(base.TestCase):
+class NetworkQosRuleTestsDSCPMarking(common.NetworkTests):
     """Functional tests for QoS DSCP marking rule."""
     RULE_ID = None
     QOS_POLICY_NAME = 'qos_policy_' + uuid.uuid4().hex
@@ -82,6 +89,7 @@ class NetworkQosRuleTestsDSCPMarking(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        common.NetworkTests.setUpClass()
         opts = cls.get_opts(cls.FIELDS)
         cls.openstack('network qos policy create ' + cls.QOS_POLICY_NAME)
         cls.RULE_ID = cls.openstack('network qos rule create --type ' +
@@ -97,20 +105,26 @@ class NetworkQosRuleTestsDSCPMarking(base.TestCase):
         cls.openstack('network qos policy delete ' + cls.QOS_POLICY_NAME)
         cls.assertOutput('', raw_output)
 
-    def test_qos_policy_list(self):
+    def setUp(self):
+        super(NetworkQosRuleTestsDSCPMarking, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
+
+    def test_qos_rule_list(self):
         opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('network qos rule list '
                                     + self.QOS_POLICY_NAME + opts)
         self.assertIn(self.RULE_ID, raw_output)
 
-    def test_qos_policy_show(self):
+    def test_qos_rule_show(self):
         opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('network qos rule show ' +
                                     self.QOS_POLICY_NAME + ' ' + self.RULE_ID +
                                     opts)
         self.assertEqual(self.RULE_ID, raw_output)
 
-    def test_qos_policy_set(self):
+    def test_qos_rule_set(self):
         self.openstack('network qos rule set --dscp-mark ' +
                        str(self.DSCP_MARK_MODIFIED) + ' ' +
                        self.QOS_POLICY_NAME + ' ' + self.RULE_ID)
@@ -121,7 +135,7 @@ class NetworkQosRuleTestsDSCPMarking(base.TestCase):
         self.assertEqual(str(self.DSCP_MARK_MODIFIED) + "\n", raw_output)
 
 
-class NetworkQosRuleTestsBandwidthLimit(base.TestCase):
+class NetworkQosRuleTestsBandwidthLimit(common.NetworkTests):
     """Functional tests for QoS bandwidth limit rule."""
     RULE_ID = None
     QOS_POLICY_NAME = 'qos_policy_' + uuid.uuid4().hex
@@ -135,6 +149,7 @@ class NetworkQosRuleTestsBandwidthLimit(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        common.NetworkTests.setUpClass()
         opts = cls.get_opts(cls.FIELDS)
         cls.openstack('network qos policy create ' + cls.QOS_POLICY_NAME)
         cls.RULE_ID = cls.openstack('network qos rule create --type ' +
@@ -151,20 +166,26 @@ class NetworkQosRuleTestsBandwidthLimit(base.TestCase):
         cls.openstack('network qos policy delete ' + cls.QOS_POLICY_NAME)
         cls.assertOutput('', raw_output)
 
-    def test_qos_policy_list(self):
+    def setUp(self):
+        super(NetworkQosRuleTestsBandwidthLimit, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
+
+    def test_qos_rule_list(self):
         opts = self.get_opts(self.HEADERS)
         raw_output = self.openstack('network qos rule list '
                                     + self.QOS_POLICY_NAME + opts)
         self.assertIn(self.RULE_ID, raw_output)
 
-    def test_qos_policy_show(self):
+    def test_qos_rule_show(self):
         opts = self.get_opts(self.FIELDS)
         raw_output = self.openstack('network qos rule show ' +
                                     self.QOS_POLICY_NAME + ' ' + self.RULE_ID +
                                     opts)
         self.assertEqual(self.RULE_ID, raw_output)
 
-    def test_qos_policy_set(self):
+    def test_qos_rule_set(self):
         self.openstack('network qos rule set --max-kbps ' +
                        str(self.MAX_KBPS_MODIFIED) + ' --max-burst-kbits ' +
                        str(self.MAX_BURST_KBITS_MODIFIED) + ' ' +

@@ -13,14 +13,18 @@
 import json
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class IPAvailabilityTests(base.TestCase):
+class IPAvailabilityTests(common.NetworkTests):
     """Functional tests for IP availability. """
 
     @classmethod
     def setUpClass(cls):
+        common.NetworkTests.setUpClass()
+        if not cls.haz_network:
+            common.NetworkTests.skipTest(cls, "No Network service present")
+
         # Create a network for the subnet.
         cls.NAME = uuid.uuid4().hex
         cls.NETWORK_NAME = uuid.uuid4().hex

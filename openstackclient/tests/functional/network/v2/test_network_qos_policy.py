@@ -15,10 +15,10 @@
 
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class QosPolicyTests(base.TestCase):
+class NetworkQosPolicyTests(common.NetworkTests):
     """Functional tests for QoS policy. """
     NAME = uuid.uuid4().hex
     HEADERS = ['Name']
@@ -26,10 +26,17 @@ class QosPolicyTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        common.NetworkTests.setUpClass()
         opts = cls.get_opts(cls.FIELDS)
         raw_output = cls.openstack('network qos policy create ' + cls.NAME +
                                    opts)
         cls.assertOutput(cls.NAME + "\n", raw_output)
+
+    def setUp(self):
+        super(NetworkQosPolicyTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     @classmethod
     def tearDownClass(cls):

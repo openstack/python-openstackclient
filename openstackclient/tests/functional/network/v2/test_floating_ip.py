@@ -14,10 +14,10 @@ import random
 import re
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class FloatingIpTests(base.TestCase):
+class FloatingIpTests(common.NetworkTests):
     """Functional tests for floating ip"""
     SUBNET_NAME = uuid.uuid4().hex
     NETWORK_NAME = uuid.uuid4().hex
@@ -28,78 +28,97 @@ class FloatingIpTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # Set up some regex for matching below
-        cls.re_id = re.compile("id\s+\|\s+(\S+)")
-        cls.re_floating_ip = re.compile("floating_ip_address\s+\|\s+(\S+)")
-        cls.re_fixed_ip = re.compile("fixed_ip_address\s+\|\s+(\S+)")
-        cls.re_description = re.compile("description\s+\|\s+([^|]+?)\s+\|")
-        cls.re_network_id = re.compile("floating_network_id\s+\|\s+(\S+)")
-        cls.re_port_id = re.compile("\s+id\s+\|\s+(\S+)")
-        cls.re_fp_port_id = re.compile("\s+port_id\s+\|\s+(\S+)")
+        common.NetworkTests.setUpClass()
+        if cls.haz_network:
+            # Set up some regex for matching below
+            cls.re_id = re.compile("id\s+\|\s+(\S+)")
+            cls.re_floating_ip = re.compile("floating_ip_address\s+\|\s+(\S+)")
+            cls.re_fixed_ip = re.compile("fixed_ip_address\s+\|\s+(\S+)")
+            cls.re_description = re.compile("description\s+\|\s+([^|]+?)\s+\|")
+            cls.re_network_id = re.compile("floating_network_id\s+\|\s+(\S+)")
+            cls.re_port_id = re.compile("\s+id\s+\|\s+(\S+)")
+            cls.re_fp_port_id = re.compile("\s+port_id\s+\|\s+(\S+)")
 
-        # Create a network for the floating ip
-        raw_output = cls.openstack(
-            'network create --external ' + cls.NETWORK_NAME
-        )
-        cls.network_id = re.search(cls.re_id, raw_output).group(1)
+            # Create a network for the floating ip
+            raw_output = cls.openstack(
+                'network create --external ' + cls.NETWORK_NAME
+            )
+            cls.network_id = re.search(cls.re_id, raw_output).group(1)
 
-        # Create a private network for the port
-        raw_output = cls.openstack(
-            'network create ' + cls.PRIVATE_NETWORK_NAME
-        )
-        cls.private_network_id = re.search(cls.re_id, raw_output).group(1)
+            # Create a private network for the port
+            raw_output = cls.openstack(
+                'network create ' + cls.PRIVATE_NETWORK_NAME
+            )
+            cls.private_network_id = re.search(cls.re_id, raw_output).group(1)
 
-        # Try random subnet range for subnet creating
-        # Because we can not determine ahead of time what subnets are already
-        # in use, possibly by another test running in parallel, try 4 times
-        for i in range(4):
-            # Make a random subnet
-            cls.subnet = ".".join(map(
-                str,
-                (random.randint(0, 223) for _ in range(3))
-            )) + ".0/26"
-            cls.private_subnet = ".".join(map(
-                str,
-                (random.randint(0, 223) for _ in range(3))
-            )) + ".0/26"
-            try:
-                # Create a subnet for the network
-                raw_output = cls.openstack(
-                    'subnet create ' +
-                    '--network ' + cls.NETWORK_NAME + ' ' +
-                    '--subnet-range ' + cls.subnet + ' ' +
-                    cls.SUBNET_NAME
-                )
-                # Create a subnet for the private network
-                priv_raw_output = cls.openstack(
-                    'subnet create ' +
-                    '--network ' + cls.PRIVATE_NETWORK_NAME + ' ' +
-                    '--subnet-range ' + cls.private_subnet + ' ' +
-                    cls.PRIVATE_SUBNET_NAME
-                )
-            except Exception:
-                if (i == 3):
-                    # raise the exception at the last time
-                    raise
-                pass
-            else:
-                # break and no longer retry if create sucessfully
-                break
+            # Try random subnet range for subnet creating
+            # Because we can not determine ahead of time what subnets are
+            # already in use, possibly by another test running in parallel,
+            # try 4 times
+            for i in range(4):
+                # Make a random subnet
+                cls.subnet = ".".join(map(
+                    str,
+                    (random.randint(0, 223) for _ in range(3))
+                )) + ".0/26"
+                cls.private_subnet = ".".join(map(
+                    str,
+                    (random.randint(0, 223) for _ in range(3))
+                )) + ".0/26"
+                try:
+                    # Create a subnet for the network
+                    raw_output = cls.openstack(
+                        'subnet create ' +
+                        '--network ' + cls.NETWORK_NAME + ' ' +
+                        '--subnet-range ' + cls.subnet + ' ' +
+                        cls.SUBNET_NAME
+                    )
+                    # Create a subnet for the private network
+                    priv_raw_output = cls.openstack(
+                        'subnet create ' +
+                        '--network ' + cls.PRIVATE_NETWORK_NAME + ' ' +
+                        '--subnet-range ' + cls.private_subnet + ' ' +
+                        cls.PRIVATE_SUBNET_NAME
+                    )
+                except Exception:
+                    if (i == 3):
+                        # raise the exception at the last time
+                        raise
+                    pass
+                else:
+                    # break and no longer retry if create sucessfully
+                    break
 
-        cls.subnet_id = re.search(cls.re_id, raw_output).group(1)
-        cls.private_subnet_id = re.search(cls.re_id, priv_raw_output).group(1)
+            cls.subnet_id = re.search(cls.re_id, raw_output).group(1)
+            cls.private_subnet_id = re.search(
+                cls.re_id, priv_raw_output
+            ).group(1)
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack('subnet delete ' + cls.SUBNET_NAME)
-        cls.assertOutput('', raw_output)
-        raw_output = cls.openstack('subnet delete ' + cls.PRIVATE_SUBNET_NAME)
-        cls.assertOutput('', raw_output)
-        raw_output = cls.openstack('network delete ' + cls.NETWORK_NAME)
-        cls.assertOutput('', raw_output)
-        raw_output = cls.openstack(
-            'network delete ' + cls.PRIVATE_NETWORK_NAME)
-        cls.assertOutput('', raw_output)
+        if cls.haz_network:
+            raw_output = cls.openstack(
+                'subnet delete ' + cls.SUBNET_NAME,
+            )
+            cls.assertOutput('', raw_output)
+            raw_output = cls.openstack(
+                'subnet delete ' + cls.PRIVATE_SUBNET_NAME,
+            )
+            cls.assertOutput('', raw_output)
+            raw_output = cls.openstack(
+                'network delete ' + cls.NETWORK_NAME,
+            )
+            cls.assertOutput('', raw_output)
+            raw_output = cls.openstack(
+                'network delete ' + cls.PRIVATE_NETWORK_NAME,
+            )
+            cls.assertOutput('', raw_output)
+
+    def setUp(self):
+        super(FloatingIpTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_floating_ip_delete(self):
         """Test create, delete multiple"""

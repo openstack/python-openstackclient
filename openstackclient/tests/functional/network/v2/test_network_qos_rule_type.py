@@ -13,14 +13,20 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class NetworkQosRuleTypeTests(base.TestCase):
+class NetworkQosRuleTypeTests(common.NetworkTests):
     """Functional tests for Network QoS rule type. """
 
     AVAILABLE_RULE_TYPES = ['dscp_marking',
                             'bandwidth_limit']
+
+    def setUp(self):
+        super(NetworkQosRuleTypeTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_qos_rule_type_list(self):
         raw_output = self.openstack('network qos rule type list')
