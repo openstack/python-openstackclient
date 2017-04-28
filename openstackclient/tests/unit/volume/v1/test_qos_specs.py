@@ -13,6 +13,7 @@
 #   under the License.
 #
 
+import copy
 import mock
 from mock import call
 
@@ -309,13 +310,30 @@ class TestQosDisassociate(TestQos):
 
 class TestQosList(TestQos):
 
-    qos_spec = volume_fakes.FakeQos.create_one_qos()
+    qos_specs = volume_fakes.FakeQos.create_qoses(count=2)
     qos_association = volume_fakes.FakeQos.create_one_qos_association()
+
+    columns = (
+        'ID',
+        'Name',
+        'Consumer',
+        'Associations',
+        'Properties',
+    )
+    data = []
+    for q in qos_specs:
+        data.append((
+            q.id,
+            q.name,
+            q.consumer,
+            qos_association.name,
+            utils.format_dict(q.specs),
+        ))
 
     def setUp(self):
         super(TestQosList, self).setUp()
 
-        self.qos_mock.list.return_value = [self.qos_spec]
+        self.qos_mock.list.return_value = self.qos_specs
         self.qos_mock.get_associations.return_value = [self.qos_association]
 
         # Get the command object to test
@@ -330,22 +348,35 @@ class TestQosList(TestQos):
         columns, data = self.cmd.take_action(parsed_args)
         self.qos_mock.list.assert_called_with()
 
-        collist = (
-            'ID',
-            'Name',
-            'Consumer',
-            'Associations',
-            'Properties',
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_qos_list_no_association(self):
+        self.qos_mock.reset_mock()
+        self.qos_mock.get_associations.side_effect = [
+            [self.qos_association],
+            exceptions.NotFound("NotFound"),
+        ]
+
+        arglist = []
+        verifylist = []
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.qos_mock.list.assert_called_with()
+
+        self.assertEqual(self.columns, columns)
+
+        ex_data = copy.deepcopy(self.data)
+        ex_data[1] = (
+            self.qos_specs[1].id,
+            self.qos_specs[1].name,
+            self.qos_specs[1].consumer,
+            None,
+            utils.format_dict(self.qos_specs[1].specs),
         )
-        self.assertEqual(collist, columns)
-        datalist = ((
-            self.qos_spec.id,
-            self.qos_spec.name,
-            self.qos_spec.consumer,
-            self.qos_association.name,
-            utils.format_dict(self.qos_spec.specs),
-        ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(ex_data, list(data))
 
 
 class TestQosSet(TestQos):

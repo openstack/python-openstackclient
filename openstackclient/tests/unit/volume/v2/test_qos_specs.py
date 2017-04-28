@@ -13,6 +13,7 @@
 #   under the License.
 #
 
+import copy
 import mock
 from mock import call
 
@@ -341,6 +342,33 @@ class TestQosList(TestQos):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
+
+    def test_qos_list_no_association(self):
+        self.qos_mock.reset_mock()
+        self.qos_mock.get_associations.side_effect = [
+            [self.qos_association],
+            exceptions.NotFound("NotFound"),
+        ]
+
+        arglist = []
+        verifylist = []
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.qos_mock.list.assert_called_with()
+
+        self.assertEqual(self.columns, columns)
+
+        ex_data = copy.deepcopy(self.data)
+        ex_data[1] = (
+            self.qos_specs[1].id,
+            self.qos_specs[1].name,
+            self.qos_specs[1].consumer,
+            None,
+            utils.format_dict(self.qos_specs[1].specs),
+        )
+        self.assertEqual(ex_data, list(data))
 
 
 class TestQosSet(TestQos):

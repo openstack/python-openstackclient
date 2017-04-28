@@ -186,11 +186,20 @@ class ListQos(command.Lister):
         qos_specs_list = volume_client.qos_specs.list()
 
         for qos in qos_specs_list:
-            qos_associations = volume_client.qos_specs.get_associations(qos)
-            if qos_associations:
-                associations = [association.name
-                                for association in qos_associations]
-                qos._info.update({'associations': associations})
+            try:
+                qos_associations = volume_client.qos_specs.get_associations(
+                    qos,
+                )
+                if qos_associations:
+                    associations = [
+                        association.name for association in qos_associations
+                    ]
+                    qos._info.update({'associations': associations})
+            except Exception as ex:
+                if type(ex).__name__ == 'NotFound':
+                    qos._info.update({'associations': None})
+                else:
+                    raise
 
         display_columns = (
             'ID', 'Name', 'Consumer', 'Associations', 'Properties')
