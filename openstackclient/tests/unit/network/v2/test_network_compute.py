@@ -132,6 +132,24 @@ class TestCreateNetworkCompute(TestNetworkCompute):
             verifylist,
         )
 
+    def test_network_create_missing_options(self, net_mock):
+        net_mock.return_value = self._network
+        arglist = [
+            self._network['label'],
+        ]
+        verifylist = [
+            ('name', self._network['label']),
+        ]
+
+        # Missing required args should raise exception here
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
+
     def test_network_create_default_options(self, net_mock):
         net_mock.return_value = self._network
         arglist = [

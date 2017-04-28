@@ -30,7 +30,13 @@ Backwards Incompatible Changes
 Release 3.10
 ------------
 
-1. The positional argument ``<snapshot-name>`` of the ``volume snapshot create``
+1. The ``network create`` command now requires the ``--subnet`` option when used
+   with Nova-network clouds.
+
+  * As of: 3.10
+  * Commit: https://review.openstack.org/460679
+
+2. The positional argument ``<snapshot-name>`` of the ``volume snapshot create``
    command is no longer optional.
 
    Previously when the ``--volume`` option was

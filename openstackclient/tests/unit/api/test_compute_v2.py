@@ -185,7 +185,7 @@ class TestNetwork(TestComputeAPIv2):
     def test_network_create_default(self):
         self.requests_mock.register_uri(
             'POST',
-            FAKE_URL + '/os-tenant-networks',
+            FAKE_URL + '/os-networks',
             json={'network': self.FAKE_NETWORK_RESP},
             status_code=200,
         )
@@ -195,7 +195,7 @@ class TestNetwork(TestComputeAPIv2):
     def test_network_create_options(self):
         self.requests_mock.register_uri(
             'POST',
-            FAKE_URL + '/os-tenant-networks',
+            FAKE_URL + '/os-networks',
             json={'network': self.FAKE_NETWORK_RESP},
             status_code=200,
         )
@@ -208,13 +208,13 @@ class TestNetwork(TestComputeAPIv2):
     def test_network_delete_id(self):
         self.requests_mock.register_uri(
             'GET',
-            FAKE_URL + '/os-tenant-networks/1',
+            FAKE_URL + '/os-networks/1',
             json={'network': self.FAKE_NETWORK_RESP},
             status_code=200,
         )
         self.requests_mock.register_uri(
             'DELETE',
-            FAKE_URL + '/os-tenant-networks/1',
+            FAKE_URL + '/os-networks/1',
             status_code=202,
         )
         ret = self.api.network_delete('1')
@@ -224,18 +224,18 @@ class TestNetwork(TestComputeAPIv2):
     def test_network_delete_name(self):
         self.requests_mock.register_uri(
             'GET',
-            FAKE_URL + '/os-tenant-networks/label1',
+            FAKE_URL + '/os-networks/label1',
             status_code=404,
         )
         self.requests_mock.register_uri(
             'GET',
-            FAKE_URL + '/os-tenant-networks',
+            FAKE_URL + '/os-networks',
             json={'networks': self.LIST_NETWORK_RESP},
             status_code=200,
         )
         self.requests_mock.register_uri(
             'DELETE',
-            FAKE_URL + '/os-tenant-networks/1',
+            FAKE_URL + '/os-networks/1',
             status_code=202,
         )
         ret = self.api.network_delete('label1')
@@ -245,12 +245,12 @@ class TestNetwork(TestComputeAPIv2):
     def test_network_delete_not_found(self):
         self.requests_mock.register_uri(
             'GET',
-            FAKE_URL + '/os-tenant-networks/label3',
+            FAKE_URL + '/os-networks/label3',
             status_code=404,
         )
         self.requests_mock.register_uri(
             'GET',
-            FAKE_URL + '/os-tenant-networks',
+            FAKE_URL + '/os-networks',
             json={'networks': self.LIST_NETWORK_RESP},
             status_code=200,
         )
@@ -263,7 +263,7 @@ class TestNetwork(TestComputeAPIv2):
     def test_network_find_id(self):
         self.requests_mock.register_uri(
             'GET',
-            FAKE_URL + '/os-tenant-networks/1',
+            FAKE_URL + '/os-networks/1',
             json={'network': self.FAKE_NETWORK_RESP},
             status_code=200,
         )
@@ -273,12 +273,12 @@ class TestNetwork(TestComputeAPIv2):
     def test_network_find_name(self):
         self.requests_mock.register_uri(
             'GET',
-            FAKE_URL + '/os-tenant-networks/label2',
+            FAKE_URL + '/os-networks/label2',
             status_code=404,
         )
         self.requests_mock.register_uri(
             'GET',
-            FAKE_URL + '/os-tenant-networks',
+            FAKE_URL + '/os-networks',
             json={'networks': self.LIST_NETWORK_RESP},
             status_code=200,
         )
@@ -288,12 +288,12 @@ class TestNetwork(TestComputeAPIv2):
     def test_network_find_not_found(self):
         self.requests_mock.register_uri(
             'GET',
-            FAKE_URL + '/os-tenant-networks/label3',
+            FAKE_URL + '/os-networks/label3',
             status_code=404,
         )
         self.requests_mock.register_uri(
             'GET',
-            FAKE_URL + '/os-tenant-networks',
+            FAKE_URL + '/os-networks',
             json={'networks': self.LIST_NETWORK_RESP},
             status_code=200,
         )
@@ -306,7 +306,7 @@ class TestNetwork(TestComputeAPIv2):
     def test_network_list_no_options(self):
         self.requests_mock.register_uri(
             'GET',
-            FAKE_URL + '/os-tenant-networks',
+            FAKE_URL + '/os-networks',
             json={'networks': self.LIST_NETWORK_RESP},
             status_code=200,
         )
