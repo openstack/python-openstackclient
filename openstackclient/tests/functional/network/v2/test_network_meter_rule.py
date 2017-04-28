@@ -31,7 +31,8 @@ class TestMeterRule(common.NetworkTests):
         common.NetworkTests.setUpClass()
         if cls.haz_network:
             json_output = json.loads(cls.openstack(
-                'network meter create -f json ' + cls.METER_NAME
+                'network meter create -f json ' +
+                cls.METER_NAME
             ))
             cls.METER_ID = json_output.get('id')
 
@@ -39,7 +40,10 @@ class TestMeterRule(common.NetworkTests):
     def tearDownClass(cls):
         common.NetworkTests.tearDownClass()
         if cls.haz_network:
-            raw_output = cls.openstack('network meter delete ' + cls.METER_ID)
+            raw_output = cls.openstack(
+                'network meter delete ' +
+                cls.METER_ID
+            )
             cls.assertOutput('', raw_output)
 
     def setUp(self):

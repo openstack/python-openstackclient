@@ -17,7 +17,7 @@ from openstackclient.tests.functional.network.v2 import common
 
 
 class AddressScopeTests(common.NetworkTests):
-    """Functional tests for address scope. """
+    """Functional tests for address scope"""
 
     # NOTE(dtroyer): Do not normalize the setup and teardown of the resource
     #                creation and deletion.  Little is gained when each test

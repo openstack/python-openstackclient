@@ -13,13 +13,19 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class TestNetworkServiceProvider(base.TestCase):
+class TestNetworkServiceProvider(common.NetworkTests):
     """Functional tests for network service provider"""
 
     SERVICE_TYPE = 'L3_ROUTER_NAT'
+
+    def setUp(self):
+        super(TestNetworkServiceProvider, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_network_service_provider_list(self):
         raw_output = self.openstack('network service provider list')

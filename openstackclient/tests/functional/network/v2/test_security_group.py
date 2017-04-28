@@ -12,11 +12,11 @@
 
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class SecurityGroupTests(base.TestCase):
-    """Functional tests for security group. """
+class SecurityGroupTests(common.NetworkTests):
+    """Functional tests for security group"""
     NAME = uuid.uuid4().hex
     OTHER_NAME = uuid.uuid4().hex
     HEADERS = ['Name']
@@ -24,20 +24,39 @@ class SecurityGroupTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        opts = cls.get_opts(cls.FIELDS)
-        raw_output = cls.openstack('security group create ' + cls.NAME + opts)
-        expected = cls.NAME + '\n'
-        cls.assertOutput(expected, raw_output)
+        common.NetworkTests.setUpClass()
+        if cls.haz_network:
+            opts = cls.get_opts(cls.FIELDS)
+            raw_output = cls.openstack(
+                'security group create ' +
+                cls.NAME +
+                opts
+            )
+            expected = cls.NAME + '\n'
+            cls.assertOutput(expected, raw_output)
 
     @classmethod
     def tearDownClass(cls):
-        # Rename test
-        raw_output = cls.openstack('security group set --name ' +
-                                   cls.OTHER_NAME + ' ' + cls.NAME)
-        cls.assertOutput('', raw_output)
-        # Delete test
-        raw_output = cls.openstack('security group delete ' + cls.OTHER_NAME)
-        cls.assertOutput('', raw_output)
+        if cls.haz_network:
+            # Rename test
+            raw_output = cls.openstack(
+                'security group set --name ' +
+                cls.OTHER_NAME + ' ' +
+                cls.NAME
+            )
+            cls.assertOutput('', raw_output)
+            # Delete test
+            raw_output = cls.openstack(
+                'security group delete ' +
+                cls.OTHER_NAME
+            )
+            cls.assertOutput('', raw_output)
+
+    def setUp(self):
+        super(SecurityGroupTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_security_group_list(self):
         opts = self.get_opts(self.HEADERS)

@@ -14,11 +14,17 @@ import json
 import random
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class SubnetPoolTests(base.TestCase):
+class SubnetPoolTests(common.NetworkTests):
     """Functional tests for subnet pool"""
+
+    def setUp(self):
+        super(SubnetPoolTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_subnet_pool_create_delete(self):
         """Test create, delete"""

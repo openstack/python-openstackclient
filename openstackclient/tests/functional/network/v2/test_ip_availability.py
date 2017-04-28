@@ -17,31 +17,46 @@ from openstackclient.tests.functional.network.v2 import common
 
 
 class IPAvailabilityTests(common.NetworkTests):
-    """Functional tests for IP availability. """
+    """Functional tests for IP availability"""
 
     @classmethod
     def setUpClass(cls):
         common.NetworkTests.setUpClass()
-        if not cls.haz_network:
-            common.NetworkTests.skipTest(cls, "No Network service present")
-
-        # Create a network for the subnet.
-        cls.NAME = uuid.uuid4().hex
-        cls.NETWORK_NAME = uuid.uuid4().hex
-        cls.openstack('network create ' + cls.NETWORK_NAME)
-        cmd_output = json.loads(cls.openstack(
-            'subnet create -f json --network ' + cls.NETWORK_NAME +
-            ' --subnet-range 10.10.10.0/24 ' +
-            cls.NAME
-        ))
-        cls.assertOutput(cls.NAME, cmd_output['name'])
+        if cls.haz_network:
+            # Create a network for the subnet.
+            cls.NAME = uuid.uuid4().hex
+            cls.NETWORK_NAME = uuid.uuid4().hex
+            cls.openstack(
+                'network create ' +
+                cls.NETWORK_NAME
+            )
+            cmd_output = json.loads(cls.openstack(
+                'subnet create -f json ' +
+                '--network ' + cls.NETWORK_NAME + ' ' +
+                '--subnet-range 10.10.10.0/24 ' +
+                cls.NAME
+            ))
+            cls.assertOutput(cls.NAME, cmd_output['name'])
 
     @classmethod
     def tearDownClass(cls):
-        raw_subnet = cls.openstack('subnet delete ' + cls.NAME)
-        raw_network = cls.openstack('network delete ' + cls.NETWORK_NAME)
-        cls.assertOutput('', raw_subnet)
-        cls.assertOutput('', raw_network)
+        if cls.haz_network:
+            raw_subnet = cls.openstack(
+                'subnet delete ' +
+                cls.NAME
+            )
+            raw_network = cls.openstack(
+                'network delete ' +
+                cls.NETWORK_NAME
+            )
+            cls.assertOutput('', raw_subnet)
+            cls.assertOutput('', raw_network)
+
+    def setUp(self):
+        super(IPAvailabilityTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_ip_availability_list(self):
         """Test ip availability list"""

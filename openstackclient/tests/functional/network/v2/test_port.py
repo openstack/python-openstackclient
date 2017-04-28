@@ -13,23 +13,36 @@
 import json
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class PortTests(base.TestCase):
-    """Functional tests for port. """
+class PortTests(common.NetworkTests):
+    """Functional tests for port"""
     NAME = uuid.uuid4().hex
     NETWORK_NAME = uuid.uuid4().hex
 
     @classmethod
     def setUpClass(cls):
-        # Create a network for the port
-        cls.openstack('network create ' + cls.NETWORK_NAME)
+        common.NetworkTests.setUpClass()
+        if cls.haz_network:
+            # Create a network for the port
+            cls.openstack(
+                'network create ' + cls.NETWORK_NAME
+            )
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack('network delete ' + cls.NETWORK_NAME)
-        cls.assertOutput('', raw_output)
+        if cls.haz_network:
+            raw_output = cls.openstack(
+                'network delete ' + cls.NETWORK_NAME
+            )
+            cls.assertOutput('', raw_output)
+
+    def setUp(self):
+        super(PortTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_port_delete(self):
         """Test create, delete multiple"""

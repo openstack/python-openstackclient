@@ -14,27 +14,39 @@ import json
 import random
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class SubnetTests(base.TestCase):
-    """Functional tests for subnet. """
+class SubnetTests(common.NetworkTests):
+    """Functional tests for subnet"""
 
     @classmethod
     def setUpClass(cls):
-        # Create a network for the all subnet tests.
-        cls.NETWORK_NAME = uuid.uuid4().hex
-        cmd_output = json.loads(cls.openstack(
-            'network create -f json ' +
-            cls.NETWORK_NAME
-        ))
-        # Get network_id for assertEqual
-        cls.NETWORK_ID = cmd_output["id"]
+        common.NetworkTests.setUpClass()
+        if cls.haz_network:
+            # Create a network for the all subnet tests
+            cls.NETWORK_NAME = uuid.uuid4().hex
+            cmd_output = json.loads(cls.openstack(
+                'network create -f json ' +
+                cls.NETWORK_NAME
+            ))
+            # Get network_id for assertEqual
+            cls.NETWORK_ID = cmd_output["id"]
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack('network delete ' + cls.NETWORK_NAME)
-        cls.assertOutput('', raw_output)
+        if cls.haz_network:
+            raw_output = cls.openstack(
+                'network delete ' +
+                cls.NETWORK_NAME
+            )
+            cls.assertOutput('', raw_output)
+
+    def setUp(self):
+        super(SubnetTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_subnet_create_and_delete(self):
         """Test create, delete multiple"""

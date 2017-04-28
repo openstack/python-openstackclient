@@ -12,11 +12,11 @@
 
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class SecurityGroupRuleTests(base.TestCase):
-    """Functional tests for security group rule. """
+class SecurityGroupRuleTests(common.NetworkTests):
+    """Functional tests for security group rule"""
     SECURITY_GROUP_NAME = uuid.uuid4().hex
     SECURITY_GROUP_RULE_ID = None
     NAME_FIELD = ['name']
@@ -25,32 +25,49 @@ class SecurityGroupRuleTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # Create the security group to hold the rule.
-        opts = cls.get_opts(cls.NAME_FIELD)
-        raw_output = cls.openstack('security group create ' +
-                                   cls.SECURITY_GROUP_NAME +
-                                   opts)
-        expected = cls.SECURITY_GROUP_NAME + '\n'
-        cls.assertOutput(expected, raw_output)
+        common.NetworkTests.setUpClass()
+        if cls.haz_network:
+            # Create the security group to hold the rule.
+            opts = cls.get_opts(cls.NAME_FIELD)
+            raw_output = cls.openstack(
+                'security group create ' +
+                cls.SECURITY_GROUP_NAME +
+                opts
+            )
+            expected = cls.SECURITY_GROUP_NAME + '\n'
+            cls.assertOutput(expected, raw_output)
 
-        # Create the security group rule.
-        opts = cls.get_opts(cls.ID_FIELD)
-        raw_output = cls.openstack('security group rule create ' +
-                                   cls.SECURITY_GROUP_NAME +
-                                   ' --protocol tcp --dst-port 80:80' +
-                                   ' --ingress --ethertype IPv4' +
-                                   opts)
-        cls.SECURITY_GROUP_RULE_ID = raw_output.strip('\n')
+            # Create the security group rule.
+            opts = cls.get_opts(cls.ID_FIELD)
+            raw_output = cls.openstack(
+                'security group rule create ' +
+                cls.SECURITY_GROUP_NAME + ' ' +
+                '--protocol tcp --dst-port 80:80 ' +
+                '--ingress --ethertype IPv4 ' +
+                opts
+            )
+            cls.SECURITY_GROUP_RULE_ID = raw_output.strip('\n')
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack('security group rule delete ' +
-                                   cls.SECURITY_GROUP_RULE_ID)
-        cls.assertOutput('', raw_output)
+        if cls.haz_network:
+            raw_output = cls.openstack(
+                'security group rule delete ' +
+                cls.SECURITY_GROUP_RULE_ID
+            )
+            cls.assertOutput('', raw_output)
 
-        raw_output = cls.openstack('security group delete ' +
-                                   cls.SECURITY_GROUP_NAME)
-        cls.assertOutput('', raw_output)
+            raw_output = cls.openstack(
+                'security group delete ' +
+                cls.SECURITY_GROUP_NAME
+            )
+            cls.assertOutput('', raw_output)
+
+    def setUp(self):
+        super(SecurityGroupRuleTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_security_group_rule_list(self):
         opts = self.get_opts(self.ID_HEADER)
