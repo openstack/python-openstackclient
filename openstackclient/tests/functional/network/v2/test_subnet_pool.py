@@ -17,8 +17,10 @@ import uuid
 from openstackclient.tests.functional.network.v2 import common
 
 
-class SubnetPoolTests(common.NetworkTests):
+class SubnetPoolTests(common.NetworkTagTests):
     """Functional tests for subnet pool"""
+
+    base_command = 'subnet pool'
 
     def setUp(self):
         super(SubnetPoolTests, self).setUp()
@@ -321,3 +323,7 @@ class SubnetPoolTests(common.NetworkTests):
                 break
 
         return cmd_output, pool_prefix
+
+    def _create_resource_for_tag_test(self, name, args):
+        cmd_output, _pool_prefix = self._subnet_pool_create(args, name)
+        return cmd_output

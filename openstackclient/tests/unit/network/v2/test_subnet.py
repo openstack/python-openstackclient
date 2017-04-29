@@ -19,6 +19,7 @@ from osc_lib import utils
 
 from openstackclient.network.v2 import subnet as subnet_v2
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
+from openstackclient.tests.unit.network.v2 import _test_tag
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -36,7 +37,7 @@ class TestSubnet(network_fakes.TestNetworkV2):
         self.domains_mock = self.app.client_manager.identity.domains
 
 
-class TestCreateSubnet(TestSubnet):
+class TestCreateSubnet(TestSubnet, _test_tag.TestCreateTagMixin):
 
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
@@ -125,6 +126,7 @@ class TestCreateSubnet(TestSubnet):
         'segment_id',
         'service_types',
         'subnetpool_id',
+        'tags',
     )
 
     data = (
@@ -145,6 +147,7 @@ class TestCreateSubnet(TestSubnet):
         _subnet.segment_id,
         utils.format_list(_subnet.service_types),
         _subnet.subnetpool_id,
+        utils.format_list(_subnet.tags),
     )
 
     data_subnet_pool = (
@@ -165,6 +168,7 @@ class TestCreateSubnet(TestSubnet):
         _subnet_from_pool.segment_id,
         utils.format_list(_subnet_from_pool.service_types),
         _subnet_from_pool.subnetpool_id,
+        utils.format_list(_subnet.tags),
     )
 
     data_ipv6 = (
@@ -185,6 +189,7 @@ class TestCreateSubnet(TestSubnet):
         _subnet_ipv6.segment_id,
         utils.format_list(_subnet_ipv6.service_types),
         _subnet_ipv6.subnetpool_id,
+        utils.format_list(_subnet.tags),
     )
 
     def setUp(self):
@@ -197,6 +202,8 @@ class TestCreateSubnet(TestSubnet):
         self.domains_mock.get.return_value = self.domain
 
         # Mock SDK calls for all tests.
+        self.network.create_subnet = mock.Mock(return_value=self._subnet)
+        self.network.set_tags = mock.Mock(return_value=None)
         self.network.find_network = mock.Mock(return_value=self._network)
         self.network.find_segment = mock.Mock(
             return_value=self._network_segment
@@ -204,6 +211,28 @@ class TestCreateSubnet(TestSubnet):
         self.network.find_subnet_pool = mock.Mock(
             return_value=self._subnet_pool
         )
+
+        # TestUnsetTagMixin
+        self._tag_test_resource = self._subnet
+        self._tag_create_resource_mock = self.network.create_subnet
+        self._tag_create_required_arglist = [
+            "--subnet-range", self._subnet.cidr,
+            "--network", self._subnet.network_id,
+            self._subnet.name,
+        ]
+        self._tag_create_required_verifylist = [
+            ('name', self._subnet.name),
+            ('subnet_range', self._subnet.cidr),
+            ('network', self._subnet.network_id),
+            ('ip_version', self._subnet.ip_version),
+            ('gateway', 'auto'),
+        ]
+        self._tag_create_required_attrs = {
+            'cidr': self._subnet.cidr,
+            'ip_version': self._subnet.ip_version,
+            'name': self._subnet.name,
+            'network_id': self._subnet.network_id,
+        }
 
     def test_create_no_options(self):
         arglist = []
@@ -213,10 +242,11 @@ class TestCreateSubnet(TestSubnet):
         # throw a "ParserExecption"
         self.assertRaises(tests_utils.ParserException,
                           self.check_parser, self.cmd, arglist, verifylist)
+        self.assertFalse(self.network.create_subnet.called)
+        self.assertFalse(self.network.set_tags.called)
 
     def test_create_default_options(self):
         # Mock SDK calls for this test.
-        self.network.create_subnet = mock.Mock(return_value=self._subnet)
         self._network.id = self._subnet.network_id
 
         arglist = [
@@ -230,7 +260,6 @@ class TestCreateSubnet(TestSubnet):
             ('network', self._subnet.network_id),
             ('ip_version', self._subnet.ip_version),
             ('gateway', 'auto'),
-
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -242,13 +271,14 @@ class TestCreateSubnet(TestSubnet):
             'name': self._subnet.name,
             'network_id': self._subnet.network_id,
         })
+        self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_from_subnet_pool_options(self):
         # Mock SDK calls for this test.
-        self.network.create_subnet = \
-            mock.Mock(return_value=self._subnet_from_pool)
+        self.network.create_subnet.return_value = self._subnet_from_pool
+        self.network.set_tags = mock.Mock(return_value=None)
         self._network.id = self._subnet_from_pool.network_id
 
         arglist = [
@@ -309,7 +339,7 @@ class TestCreateSubnet(TestSubnet):
 
     def test_create_options_subnet_range_ipv6(self):
         # Mock SDK calls for this test.
-        self.network.create_subnet = mock.Mock(return_value=self._subnet_ipv6)
+        self.network.create_subnet.return_value = self._subnet_ipv6
         self._network.id = self._subnet_ipv6.network_id
 
         arglist = [
@@ -376,12 +406,12 @@ class TestCreateSubnet(TestSubnet):
             'allocation_pools': self._subnet_ipv6.allocation_pools,
             'service_types': self._subnet_ipv6.service_types,
         })
+        self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data_ipv6, data)
 
     def test_create_with_network_segment(self):
         # Mock SDK calls for this test.
-        self.network.create_subnet = mock.Mock(return_value=self._subnet)
         self._network.id = self._subnet.network_id
 
         arglist = [
@@ -410,12 +440,12 @@ class TestCreateSubnet(TestSubnet):
             'network_id': self._subnet.network_id,
             'segment_id': self._network_segment.id,
         })
+        self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_with_description(self):
         # Mock SDK calls for this test.
-        self.network.create_subnet = mock.Mock(return_value=self._subnet)
         self._network.id = self._subnet.network_id
 
         arglist = [
@@ -444,6 +474,7 @@ class TestCreateSubnet(TestSubnet):
             'network_id': self._subnet.network_id,
             'description': self._subnet.description,
         })
+        self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -527,7 +558,7 @@ class TestDeleteSubnet(TestSubnet):
         )
 
 
-class TestListSubnet(TestSubnet):
+class TestListSubnet(TestSubnet, _test_tag.TestListTagMixin):
     # The subnets going to be listed up.
     _subnet = network_fakes.FakeSubnet.create_subnets(count=3)
 
@@ -546,6 +577,7 @@ class TestListSubnet(TestSubnet):
         'IP Version',
         'Gateway',
         'Service Types',
+        'Tags',
     )
 
     data = []
@@ -572,6 +604,7 @@ class TestListSubnet(TestSubnet):
             subnet.ip_version,
             subnet.gateway_ip,
             utils.format_list(subnet.service_types),
+            utils.format_list(subnet.tags),
         ))
 
     def setUp(self):
@@ -581,6 +614,9 @@ class TestListSubnet(TestSubnet):
         self.cmd = subnet_v2.ListSubnet(self.app, self.namespace)
 
         self.network.subnets = mock.Mock(return_value=self._subnet)
+
+        # TestUnsetTagMixin
+        self._tag_list_resource_mock = self.network.subnets
 
     def test_subnet_list_no_options(self):
         arglist = []
@@ -802,15 +838,21 @@ class TestListSubnet(TestSubnet):
         self.assertEqual(self.data, list(data))
 
 
-class TestSetSubnet(TestSubnet):
+class TestSetSubnet(TestSubnet, _test_tag.TestSetTagMixin):
 
-    _subnet = network_fakes.FakeSubnet.create_one_subnet()
+    _subnet = network_fakes.FakeSubnet.create_one_subnet(
+        {'tags': ['green', 'red']})
 
     def setUp(self):
         super(TestSetSubnet, self).setUp()
         self.network.update_subnet = mock.Mock(return_value=None)
+        self.network.set_tags = mock.Mock(return_value=None)
         self.network.find_subnet = mock.Mock(return_value=self._subnet)
         self.cmd = subnet_v2.SetSubnet(self.app, self.namespace)
+        # TestSetTagMixin
+        self._tag_resource_name = 'subnet'
+        self._tag_test_resource = self._subnet
+        self._tag_update_resource_mock = self.network.update_subnet
 
     def test_set_this(self):
         arglist = [
@@ -867,8 +909,8 @@ class TestSetSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        attrs = {}
-        self.network.update_subnet.assert_called_with(self._subnet, **attrs)
+        self.assertFalse(self.network.update_subnet.called)
+        self.assertFalse(self.network.set_tags.called)
         self.assertIsNone(result)
 
     def test_append_options(self):
@@ -982,6 +1024,7 @@ class TestShowSubnet(TestSubnet):
         'segment_id',
         'service_types',
         'subnetpool_id',
+        'tags',
     )
 
     data = (
@@ -1002,6 +1045,7 @@ class TestShowSubnet(TestSubnet):
         _subnet.segment_id,
         utils.format_list(_subnet.service_types),
         _subnet.subnetpool_id,
+        utils.format_list(_subnet.tags),
     )
 
     def setUp(self):
@@ -1039,7 +1083,7 @@ class TestShowSubnet(TestSubnet):
         self.assertEqual(self.data, data)
 
 
-class TestUnsetSubnet(TestSubnet):
+class TestUnsetSubnet(TestSubnet, _test_tag.TestUnsetTagMixin):
 
     def setUp(self):
         super(TestUnsetSubnet, self).setUp()
@@ -1055,11 +1099,17 @@ class TestUnsetSubnet(TestSubnet):
                                   {'start': '8.8.8.160',
                                    'end': '8.8.8.170'}],
              'service_types': ['network:router_gateway',
-                               'network:floatingip_agent_gateway'], })
+                               'network:floatingip_agent_gateway'],
+             'tags': ['green', 'red'], })
         self.network.find_subnet = mock.Mock(return_value=self._testsubnet)
         self.network.update_subnet = mock.Mock(return_value=None)
+        self.network.set_tags = mock.Mock(return_value=None)
         # Get the command object to test
         self.cmd = subnet_v2.UnsetSubnet(self.app, self.namespace)
+        # TestUnsetTagMixin
+        self._tag_resource_name = 'subnet'
+        self._tag_test_resource = self._testsubnet
+        self._tag_update_resource_mock = self.network.update_subnet
 
     def test_unset_subnet_params(self):
         arglist = [

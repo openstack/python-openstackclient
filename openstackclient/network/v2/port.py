@@ -26,6 +26,7 @@ from osc_lib import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import sdk_utils
+from openstackclient.network.v2 import _tag
 
 
 LOG = logging.getLogger(__name__)
@@ -47,6 +48,7 @@ _formatters = {
     'extra_dhcp_opts': utils.format_list_of_dicts,
     'fixed_ips': utils.format_list_of_dicts,
     'security_group_ids': utils.format_list,
+    'tags': utils.format_list,
 }
 
 
@@ -384,6 +386,7 @@ class CreatePort(command.ShowOne):
                    "ip-address=<ip-address>[,mac-address=<mac-address>] "
                    "(repeat option to set multiple allowed-address pairs)")
         )
+        _tag.add_tag_option_to_parser_for_create(parser, _('port'))
         return parser
 
     def take_action(self, parsed_args):
@@ -416,6 +419,8 @@ class CreatePort(command.ShowOne):
             attrs['qos_policy_id'] = client.find_qos_policy(
                 parsed_args.qos_policy, ignore_missing=False).id
         obj = client.create_port(**attrs)
+        # tags cannot be set when created, so tags need to be set later.
+        _tag.update_tags_for_set(client, obj, parsed_args)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
 
@@ -512,6 +517,7 @@ class ListPort(command.Lister):
                    "(name or ID): subnet=<subnet>,ip-address=<ip-address> "
                    "(repeat option to set multiple fixed IP addresses)"),
         )
+        _tag.add_tag_filtering_option_to_parser(parser, _('ports'))
         return parser
 
     def take_action(self, parsed_args):
@@ -535,8 +541,8 @@ class ListPort(command.Lister):
 
         filters = {}
         if parsed_args.long:
-            columns += ('security_group_ids', 'device_owner',)
-            column_headers += ('Security Groups', 'Device Owner',)
+            columns += ('security_group_ids', 'device_owner', 'tags')
+            column_headers += ('Security Groups', 'Device Owner', 'Tags')
         if parsed_args.device_owner is not None:
             filters['device_owner'] = parsed_args.device_owner
         if parsed_args.router:
@@ -565,6 +571,8 @@ class ListPort(command.Lister):
         if parsed_args.fixed_ip:
             filters['fixed_ips'] = _prepare_filter_fixed_ips(
                 self.app.client_manager, parsed_args)
+
+        _tag.get_tag_filtering_args(parsed_args, filters)
 
         data = network_client.ports(**filters)
 
@@ -694,6 +702,7 @@ class SetPort(command.Command):
                    "Unset it to None with the 'port unset' command "
                    "(requires data plane status extension)")
         )
+        _tag.add_tag_option_to_parser_for_set(parser, _('port'))
 
         return parser
 
@@ -750,7 +759,11 @@ class SetPort(command.Command):
         if parsed_args.data_plane_status:
             attrs['data_plane_status'] = parsed_args.data_plane_status
 
-        client.update_port(obj, **attrs)
+        if attrs:
+            client.update_port(obj, **attrs)
+
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_set(client, obj, parsed_args)
 
 
 class ShowPort(command.ShowOne):
@@ -834,6 +847,8 @@ class UnsetPort(command.Command):
             help=_("Clear existing information of data plane status")
         )
 
+        _tag.add_tag_option_to_parser_for_unset(parser, _('port'))
+
         return parser
 
     def take_action(self, parsed_args):
@@ -889,3 +904,6 @@ class UnsetPort(command.Command):
 
         if attrs:
             client.update_port(obj, **attrs)
+
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_unset(client, obj, parsed_args)

@@ -20,6 +20,7 @@ from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 from openstackclient.network import sdk_utils
+from openstackclient.network.v2 import _tag
 
 
 def _format_admin_state(item):
@@ -280,6 +281,7 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             help=_("Do not make the network VLAN transparent"))
 
         _add_additional_network_options(parser)
+        _tag.add_tag_option_to_parser_for_create(parser, _('network'))
         return parser
 
     def update_parser_compute(self, parser):
@@ -299,6 +301,8 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             attrs['vlan_transparent'] = False
 
         obj = client.create_network(**attrs)
+        # tags cannot be set when created, so tags need to be set later.
+        _tag.update_tags_for_set(client, obj, parsed_args)
         display_columns, columns = _get_columns_network(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)
@@ -424,7 +428,9 @@ class ListNetwork(common.NetworkAndComputeLister):
             '--agent',
             metavar='<agent-id>',
             dest='agent_id',
-            help=_('List networks hosted by agent (ID only)'))
+            help=_('List networks hosted by agent (ID only)')
+        )
+        _tag.add_tag_filtering_option_to_parser(parser, _('networks'))
         return parser
 
     def take_action_network(self, client, parsed_args):
@@ -441,6 +447,7 @@ class ListNetwork(common.NetworkAndComputeLister):
                 'provider_network_type',
                 'is_router_external',
                 'availability_zones',
+                'tags',
             )
             column_headers = (
                 'ID',
@@ -453,6 +460,7 @@ class ListNetwork(common.NetworkAndComputeLister):
                 'Network Type',
                 'Router Type',
                 'Availability Zones',
+                'Tags',
             )
         elif parsed_args.agent_id:
             columns = (
@@ -533,6 +541,8 @@ class ListNetwork(common.NetworkAndComputeLister):
         if parsed_args.segmentation_id:
             args['provider:segmentation_id'] = parsed_args.segmentation_id
             args['provider_segmentation_id'] = parsed_args.segmentation_id
+
+        _tag.get_tag_filtering_args(parsed_args, args)
 
         data = client.networks(**args)
 
@@ -656,6 +666,7 @@ class SetNetwork(command.Command):
             action='store_true',
             help=_("Remove the QoS policy attached to this network")
         )
+        _tag.add_tag_option_to_parser_for_set(parser, _('network'))
         _add_additional_network_options(parser)
         return parser
 
@@ -664,7 +675,11 @@ class SetNetwork(command.Command):
         obj = client.find_network(parsed_args.network, ignore_missing=False)
 
         attrs = _get_attrs_network(self.app.client_manager, parsed_args)
-        client.update_network(obj, **attrs)
+        if attrs:
+            client.update_network(obj, **attrs)
+
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_set(client, obj, parsed_args)
 
 
 class ShowNetwork(common.NetworkAndComputeShowOne):
@@ -689,3 +704,27 @@ class ShowNetwork(common.NetworkAndComputeShowOne):
         display_columns, columns = _get_columns_compute(obj)
         data = utils.get_dict_properties(obj, columns)
         return (display_columns, data)
+
+
+class UnsetNetwork(command.Command):
+    _description = _("Unset network properties")
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetNetwork, self).get_parser(prog_name)
+        parser.add_argument(
+            'network',
+            metavar="<network>",
+            help=_("Network to modify (name or ID)")
+        )
+        _tag.add_tag_option_to_parser_for_unset(parser, _('network'))
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        obj = client.find_network(parsed_args.network, ignore_missing=False)
+
+        # NOTE: As of now, UnsetNetwork has no attributes which need
+        # to be updated by update_network().
+
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_unset(client, obj, parsed_args)

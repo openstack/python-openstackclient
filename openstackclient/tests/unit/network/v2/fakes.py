@@ -350,6 +350,7 @@ class FakeNetwork(object):
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
             'ipv4_address_scope': 'ipv4' + uuid.uuid4().hex,
             'ipv6_address_scope': 'ipv6' + uuid.uuid4().hex,
+            'tags': [],
         }
 
         # Overwrite default attributes.
@@ -576,6 +577,7 @@ class FakePort(object):
             'status': 'ACTIVE',
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
+            'tags': [],
         }
 
         # Overwrite default attributes.
@@ -1053,6 +1055,7 @@ class FakeRouter(object):
             'external_gateway_info': {},
             'availability_zone_hints': [],
             'availability_zones': [],
+            'tags': [],
         }
 
         # Overwrite default attributes.
@@ -1294,6 +1297,7 @@ class FakeSubnet(object):
             'service_types': [],
             'subnetpool_id': None,
             'description': 'subnet-description-' + uuid.uuid4().hex,
+            'tags': [],
         }
 
         # Overwrite default attributes.
@@ -1544,6 +1548,7 @@ class FakeSubnetPool(object):
             'default_quota': None,
             'ip_version': '4',
             'description': 'subnet-pool-description-' + uuid.uuid4().hex,
+            'tags': [],
         }
 
         # Overwrite default attributes.

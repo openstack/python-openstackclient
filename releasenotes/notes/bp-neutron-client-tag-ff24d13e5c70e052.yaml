@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    Added support for ``tags`` to the following resources:
+    ``network``, ``subnet``, ``port``, ``router`` and ``subnet pool``.
+    [Blueprint :oscbp:`neutron-client-tag`]
+
+    - Add ``--tag`` and ``--no-tag`` options to corresponding "create" commands.
+    - Add ``--tag`` and ``--no-tag`` options to corresponding "set" commands.
+    - Add ``--tag`` and ``--all-tag`` options to corresponding "unset" commands.
+      (``network unset`` command is introduced to support the tag operation)
+    - Add ``--tags``, ``--any-tags``, ``--not-tags`` and ``--not-any-tags``
+      options to corresponding "list" commands.

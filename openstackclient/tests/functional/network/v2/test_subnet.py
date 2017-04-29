@@ -17,8 +17,10 @@ import uuid
 from openstackclient.tests.functional.network.v2 import common
 
 
-class SubnetTests(common.NetworkTests):
+class SubnetTests(common.NetworkTagTests):
     """Functional tests for subnet"""
+
+    base_command = 'subnet'
 
     @classmethod
     def setUpClass(cls):
@@ -285,3 +287,9 @@ class SubnetTests(common.NetworkTests):
                 # break and no longer retry if create successfully
                 break
         return cmd_output
+
+    def _create_resource_for_tag_test(self, name, args):
+        cmd = ('subnet create -f json --network ' +
+               self.NETWORK_NAME + ' ' + args +
+               ' --subnet-range')
+        return self._subnet_create(cmd, name)

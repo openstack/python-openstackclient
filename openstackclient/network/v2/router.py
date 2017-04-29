@@ -26,6 +26,7 @@ from osc_lib import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import sdk_utils
+from openstackclient.network.v2 import _tag
 
 
 LOG = logging.getLogger(__name__)
@@ -57,6 +58,7 @@ _formatters = {
     'availability_zones': utils.format_list,
     'availability_zone_hints': utils.format_list,
     'routes': _format_routes,
+    'tags': utils.format_list,
 }
 
 
@@ -217,6 +219,7 @@ class CreateRouter(command.ShowOne):
                    "(Router Availability Zone extension required, "
                    "repeat option to set multiple availability zones)")
         )
+        _tag.add_tag_option_to_parser_for_create(parser, _('router'))
 
         return parser
 
@@ -229,6 +232,8 @@ class CreateRouter(command.ShowOne):
         if parsed_args.no_ha:
             attrs['ha'] = False
         obj = client.create_router(**attrs)
+        # tags cannot be set when created, so tags need to be set later.
+        _tag.update_tags_for_set(client, obj, parsed_args)
 
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
@@ -310,6 +315,7 @@ class ListRouter(command.Lister):
             metavar='<agent-id>',
             help=_("List routers hosted by an agent (ID only)")
         )
+        _tag.add_tag_filtering_option_to_parser(parser, _('routers'))
 
         return parser
 
@@ -357,6 +363,8 @@ class ListRouter(command.Lister):
             args['tenant_id'] = project_id
             args['project_id'] = project_id
 
+        _tag.get_tag_filtering_args(parsed_args, args)
+
         if parsed_args.agent is not None:
             agent = client.get_agent(parsed_args.agent)
             data = client.agent_hosted_routers(agent)
@@ -384,6 +392,8 @@ class ListRouter(command.Lister):
                 column_headers = column_headers + (
                     'Availability zones',
                 )
+            columns = columns + ('tags',)
+            column_headers = column_headers + ('Tags',)
 
         return (column_headers,
                 (utils.get_item_properties(
@@ -567,6 +577,7 @@ class SetRouter(command.Command):
             action='store_true',
             help=_("Disable Source NAT on external gateway")
         )
+        _tag.add_tag_option_to_parser_for_set(parser, _('router'))
         return parser
 
     def take_action(self, parsed_args):
@@ -625,7 +636,10 @@ class SetRouter(command.Command):
                     ips.append(ip_spec)
                 gateway_info['external_fixed_ips'] = ips
             attrs['external_gateway_info'] = gateway_info
-        client.update_router(obj, **attrs)
+        if attrs:
+            client.update_router(obj, **attrs)
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_set(client, obj, parsed_args)
 
 
 class ShowRouter(command.ShowOne):
@@ -675,6 +689,7 @@ class UnsetRouter(command.Command):
             metavar="<router>",
             help=_("Router to modify (name or ID)")
         )
+        _tag.add_tag_option_to_parser_for_unset(parser, _('router'))
         return parser
 
     def take_action(self, parsed_args):
@@ -695,3 +710,5 @@ class UnsetRouter(command.Command):
             attrs['external_gateway_info'] = {}
         if attrs:
             client.update_router(obj, **attrs)
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_unset(client, obj, parsed_args)

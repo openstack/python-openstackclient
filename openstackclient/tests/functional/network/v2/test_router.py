@@ -16,8 +16,10 @@ import uuid
 from openstackclient.tests.functional.network.v2 import common
 
 
-class RouterTests(common.NetworkTests):
+class RouterTests(common.NetworkTagTests):
     """Functional tests for router"""
+
+    base_command = 'router'
 
     def setUp(self):
         super(RouterTests, self).setUp()

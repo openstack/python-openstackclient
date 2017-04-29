@@ -25,6 +25,12 @@ class ParserException(Exception):
     pass
 
 
+class CompareBySet(list):
+    """Class to compare value using set."""
+    def __eq__(self, other):
+        return set(self) == set(other)
+
+
 class TestCase(testtools.TestCase):
 
     def setUp(self):
