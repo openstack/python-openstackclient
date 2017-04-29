@@ -10,8 +10,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from openstackclient.tests.functional.volume.v2 import test_qos as v2
 import os
+
+from openstackclient.tests.functional.volume.v2 import test_qos as v2
 
 
 class QosTests(v2.QosTests):
