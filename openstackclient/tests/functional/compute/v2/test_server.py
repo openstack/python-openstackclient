@@ -15,12 +15,17 @@ import uuid
 
 from tempest.lib import exceptions
 
+from openstackclient.tests.functional import base
 from openstackclient.tests.functional.compute.v2 import common
 from openstackclient.tests.functional.volume.v2 import test_volume
 
 
 class ServerTests(common.ComputeTestCase):
     """Functional tests for openstack server commands"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.haz_network = base.is_service_enabled('network')
 
     def test_server_list(self):
         """Test server list, set"""
@@ -201,6 +206,15 @@ class ServerTests(common.ComputeTestCase):
         cmd_output = self.server_create()
         name = cmd_output['name']
         self.wait_for_status(name, "ACTIVE")
+
+        if not self.haz_network:
+            # nova-net needs a public subnet
+            cmd_output = json.loads(self.openstack(
+                'network create -f json ' +
+                '--subnet 8.6.7.5/28 ' +
+                'public'
+            ))
+            self.addCleanup(self.openstack, 'network delete public')
 
         # attach ip
         cmd_output = json.loads(self.openstack(

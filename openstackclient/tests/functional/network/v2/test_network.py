@@ -13,17 +13,17 @@
 import json
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class NetworkTests(base.TestCase):
+class NetworkTests(common.NetworkTests):
     """Functional tests for network"""
 
-    @classmethod
-    def setUpClass(cls):
-        cls.haz_network = base.is_service_enabled('network')
-        cls.PROJECT_NAME =\
-            cls.get_openstack_configuration_value('auth.project_name')
+    def setUp(self):
+        super(NetworkTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_network_create_compute(self):
         """Test Nova-net create options, delete"""

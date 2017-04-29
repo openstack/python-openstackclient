@@ -13,11 +13,17 @@
 import json
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class RouterTests(base.TestCase):
-    """Functional tests for router. """
+class RouterTests(common.NetworkTests):
+    """Functional tests for router"""
+
+    def setUp(self):
+        super(RouterTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_router_create_and_delete(self):
         """Test create options, delete multiple"""

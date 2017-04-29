@@ -12,11 +12,11 @@
 
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.network.v2 import common
 
 
-class NetworkSegmentTests(base.TestCase):
-    """Functional tests for network segment. """
+class NetworkSegmentTests(common.NetworkTests):
+    """Functional tests for network segment"""
     NETWORK_NAME = uuid.uuid4().hex
     PHYSICAL_NETWORK_NAME = uuid.uuid4().hex
     NETWORK_SEGMENT_ID = None
@@ -25,30 +25,46 @@ class NetworkSegmentTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # Create a network for the segment.
-        opts = cls.get_opts(['id'])
-        raw_output = cls.openstack('network create ' + cls.NETWORK_NAME + opts)
-        cls.NETWORK_ID = raw_output.strip('\n')
+        common.NetworkTests.setUpClass()
+        if cls.haz_network:
+            # Create a network for the segment.
+            opts = cls.get_opts(['id'])
+            raw_output = cls.openstack(
+                'network create ' + cls.NETWORK_NAME + opts
+            )
+            cls.NETWORK_ID = raw_output.strip('\n')
 
-        # NOTE(rtheis): The segment extension is not yet enabled by default.
-        # Skip the tests if not enabled.
-        extensions = cls.get_openstack_extention_names()
-        if 'Segment' in extensions:
-            cls.NETWORK_SEGMENT_EXTENSION = 'Segment'
+            # NOTE(rtheis): The segment extension is not yet enabled
+            #               by default.
+            # Skip the tests if not enabled.
+            extensions = cls.get_openstack_extention_names()
+            if 'Segment' in extensions:
+                cls.NETWORK_SEGMENT_EXTENSION = 'Segment'
 
-        if cls.NETWORK_SEGMENT_EXTENSION:
-            # Get the segment for the network.
-            opts = cls.get_opts(['ID', 'Network'])
-            raw_output = cls.openstack('network segment list '
-                                       ' --network ' + cls.NETWORK_NAME +
-                                       ' ' + opts)
-            raw_output_row = raw_output.split('\n')[0]
-            cls.NETWORK_SEGMENT_ID = raw_output_row.split(' ')[0]
+            if cls.NETWORK_SEGMENT_EXTENSION:
+                # Get the segment for the network.
+                opts = cls.get_opts(['ID', 'Network'])
+                raw_output = cls.openstack(
+                    'network segment list '
+                    '--network ' + cls.NETWORK_NAME + ' ' +
+                    opts
+                )
+                raw_output_row = raw_output.split('\n')[0]
+                cls.NETWORK_SEGMENT_ID = raw_output_row.split(' ')[0]
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack('network delete ' + cls.NETWORK_NAME)
-        cls.assertOutput('', raw_output)
+        if cls.haz_network:
+            raw_output = cls.openstack(
+                'network delete ' + cls.NETWORK_NAME
+            )
+            cls.assertOutput('', raw_output)
+
+    def setUp(self):
+        super(NetworkSegmentTests, self).setUp()
+        # Nothing in this class works with Nova Network
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
     def test_network_segment_create_delete(self):
         if self.NETWORK_SEGMENT_EXTENSION:

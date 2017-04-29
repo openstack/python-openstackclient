@@ -27,21 +27,29 @@ class NetworkQosPolicyTests(common.NetworkTests):
     @classmethod
     def setUpClass(cls):
         common.NetworkTests.setUpClass()
-        opts = cls.get_opts(cls.FIELDS)
-        raw_output = cls.openstack('network qos policy create ' + cls.NAME +
-                                   opts)
-        cls.assertOutput(cls.NAME + "\n", raw_output)
+        if cls.haz_network:
+            opts = cls.get_opts(cls.FIELDS)
+            raw_output = cls.openstack(
+                'network qos policy create ' +
+                cls.NAME +
+                opts
+            )
+            cls.assertOutput(cls.NAME + "\n", raw_output)
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls.haz_network:
+            raw_output = cls.openstack(
+                'network qos policy delete ' +
+                cls.NAME
+            )
+            cls.assertOutput('', raw_output)
 
     def setUp(self):
         super(NetworkQosPolicyTests, self).setUp()
         # Nothing in this class works with Nova Network
         if not self.haz_network:
             self.skipTest("No Network service present")
-
-    @classmethod
-    def tearDownClass(cls):
-        raw_output = cls.openstack('network qos policy delete ' + cls.NAME)
-        cls.assertOutput('', raw_output)
 
     def test_qos_policy_list(self):
         opts = self.get_opts(self.HEADERS)
