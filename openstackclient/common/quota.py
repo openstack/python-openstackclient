@@ -132,13 +132,27 @@ class ListQuota(command.Lister):
         if parsed_args.compute:
             compute_client = self.app.client_manager.compute
             for p in project_ids:
-                data = compute_client.quotas.get(p)
-                result_data = _xform_get_quota(data, p,
-                                               COMPUTE_QUOTAS.keys())
+                try:
+                    data = compute_client.quotas.get(p)
+                except Exception as ex:
+                    if type(ex).__name__ == 'NotFound':
+                        # Project not found, move on to next one
+                        LOG.warning("Project %s not found: %s" % (p, ex))
+                        continue
+                    else:
+                        raise
+
+                result_data = _xform_get_quota(
+                    data,
+                    p,
+                    COMPUTE_QUOTAS.keys(),
+                )
                 default_data = compute_client.quotas.defaults(p)
-                result_default = _xform_get_quota(default_data,
-                                                  p,
-                                                  COMPUTE_QUOTAS.keys())
+                result_default = _xform_get_quota(
+                    default_data,
+                    p,
+                    COMPUTE_QUOTAS.keys(),
+                )
                 if result_default != result_data:
                     result += result_data
 
@@ -174,16 +188,31 @@ class ListQuota(command.Lister):
                     (utils.get_dict_properties(
                         s, columns,
                     ) for s in result))
+
         if parsed_args.volume:
             volume_client = self.app.client_manager.volume
             for p in project_ids:
-                data = volume_client.quotas.get(p)
-                result_data = _xform_get_quota(data, p,
-                                               VOLUME_QUOTAS.keys())
+                try:
+                    data = volume_client.quotas.get(p)
+                except Exception as ex:
+                    if type(ex).__name__ == 'NotFound':
+                        # Project not found, move on to next one
+                        LOG.warning("Project %s not found: %s" % (p, ex))
+                        continue
+                    else:
+                        raise
+
+                result_data = _xform_get_quota(
+                    data,
+                    p,
+                    VOLUME_QUOTAS.keys(),
+                )
                 default_data = volume_client.quotas.defaults(p)
-                result_default = _xform_get_quota(default_data,
-                                                  p,
-                                                  VOLUME_QUOTAS.keys())
+                result_default = _xform_get_quota(
+                    default_data,
+                    p,
+                    VOLUME_QUOTAS.keys(),
+                )
                 if result_default != result_data:
                     result += result_data
 
@@ -209,14 +238,31 @@ class ListQuota(command.Lister):
                     (utils.get_dict_properties(
                         s, columns,
                     ) for s in result))
+
         if parsed_args.network:
             client = self.app.client_manager.network
             for p in project_ids:
-                data = client.get_quota(p)
-                result_data = _xform_get_quota(data, p, NETWORK_KEYS)
+                try:
+                    data = client.get_quota(p)
+                except Exception as ex:
+                    if type(ex).__name__ == 'NotFound':
+                        # Project not found, move on to next one
+                        LOG.warning("Project %s not found: %s" % (p, ex))
+                        continue
+                    else:
+                        raise
+
+                result_data = _xform_get_quota(
+                    data,
+                    p,
+                    NETWORK_KEYS,
+                )
                 default_data = client.get_quota_default(p)
-                result_default = _xform_get_quota(default_data,
-                                                  p, NETWORK_KEYS)
+                result_default = _xform_get_quota(
+                    default_data,
+                    p,
+                    NETWORK_KEYS,
+                )
                 if result_default != result_data:
                     result += result_data
 
