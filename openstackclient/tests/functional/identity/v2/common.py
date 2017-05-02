@@ -13,6 +13,7 @@
 import os
 
 from tempest.lib.common.utils import data_utils
+from tempest.lib import exceptions as tempest_exceptions
 
 from openstackclient.tests.functional import base
 
@@ -49,12 +50,22 @@ class IdentityTests(base.TestCase):
         # create dummy project
         cls.project_name = data_utils.rand_name('TestProject')
         cls.project_description = data_utils.rand_name('description')
-        cls.openstack(
-            'project create '
-            '--description %(description)s '
-            '--enable '
-            '%(name)s' % {'description': cls.project_description,
-                          'name': cls.project_name})
+        try:
+            cls.openstack(
+                'project create '
+                '--description %(description)s '
+                '--enable '
+                '%(name)s' % {
+                    'description': cls.project_description,
+                    'name': cls.project_name,
+                }
+            )
+        except tempest_exceptions.CommandFailed:
+            # Good chance this is due to Identity v2 admin not being enabled
+            # TODO(dtroyer): Actually determine if Identity v2 admin is
+            #                enabled in the target cloud.  Tuens out OSC
+            #                doesn't make this easy as it should (yet).
+            raise cls.skipException('No Identity v2 admin endpoint?')
 
     @classmethod
     def tearDownClass(cls):
