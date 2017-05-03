@@ -203,18 +203,18 @@ class ServerTests(common.ComputeTestCase):
 
     def test_server_attach_detach_floating_ip(self):
         """Test floating ip create/delete; server add/remove floating ip"""
+        if not self.haz_network:
+            # NOTE(dtroyer): As of Ocata release Nova forces nova-network to
+            #                run in a cells v1 configuration.  Floating IP
+            #                and network functions currently do not work in
+            #                the gate jobs so we have to skip this.  It is
+            #                known to work tested against a Mitaka nova-net
+            #                DevStack without cells.
+            self.skipTest("No Network service present")
+
         cmd_output = self.server_create()
         name = cmd_output['name']
         self.wait_for_status(name, "ACTIVE")
-
-        if not self.haz_network:
-            # nova-net needs a public subnet
-            cmd_output = json.loads(self.openstack(
-                'network create -f json ' +
-                '--subnet 8.6.7.5/28 ' +
-                'public'
-            ))
-            self.addCleanup(self.openstack, 'network delete public')
 
         # attach ip
         cmd_output = json.loads(self.openstack(
