@@ -15,6 +15,7 @@
 
 import argparse
 
+from cliff import columns as cliff_columns
 from osc_lib import utils
 import six
 
@@ -63,13 +64,23 @@ def _format_compute_security_group_rules(sg_rules):
     return utils.format_list(rules, separator='\n')
 
 
+class NetworkSecurityGroupRulesColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        return _format_network_security_group_rules(self._value)
+
+
+class ComputeSecurityGroupRulesColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        return _format_compute_security_group_rules(self._value)
+
+
 _formatters_network = {
-    'security_group_rules': _format_network_security_group_rules,
+    'security_group_rules': NetworkSecurityGroupRulesColumn,
 }
 
 
 _formatters_compute = {
-    'rules': _format_compute_security_group_rules,
+    'rules': ComputeSecurityGroupRulesColumn,
 }
 
 

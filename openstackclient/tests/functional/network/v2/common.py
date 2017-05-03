@@ -62,21 +62,13 @@ class NetworkTagTests(NetworkTests):
         self._set_resource_and_tag_check('unset', name1, '--all-tag', [])
         self._set_resource_and_tag_check('set', name2, '--no-tag', [])
 
-    def _assertTagsEqual(self, expected, actual):
-        # TODO(amotoki): Should migrate to cliff format columns.
-        # At now, unit test assert method needs to be replaced
-        # to handle format columns, so format_list() is used.
-        # NOTE: The order of tag is undeterminestic.
-        actual_tags = filter(bool, actual.split(', '))
-        self.assertEqual(set(expected), set(actual_tags))
-
     def _list_tag_check(self, project_id, expected):
         cmd_output = json.loads(self.openstack(
             '{} list --long --project {} -f json'.format(self.base_command,
                                                          project_id)))
         for name, tags in expected:
             net = [n for n in cmd_output if n['Name'] == name][0]
-            self._assertTagsEqual(tags, net['Tags'])
+            self.assertEqual(set(tags), set(net['Tags']))
 
     def _create_resource_for_tag_test(self, name, args):
         return json.loads(self.openstack(
@@ -89,7 +81,7 @@ class NetworkTagTests(NetworkTests):
         self.addCleanup(
             self.openstack, '{} delete {}'.format(self.base_command, name))
         self.assertIsNotNone(cmd_output["id"])
-        self._assertTagsEqual(expected, cmd_output['tags'])
+        self.assertEqual(set(expected), set(cmd_output['tags']))
         return name
 
     def _set_resource_and_tag_check(self, command, name, args, expected):
@@ -100,4 +92,4 @@ class NetworkTagTests(NetworkTests):
         cmd_output = json.loads(self.openstack(
             '{} show -f json {}'.format(self.base_command, name)
         ))
-        self._assertTagsEqual(expected, cmd_output['tags'])
+        self.assertEqual(set(expected), set(cmd_output['tags']))

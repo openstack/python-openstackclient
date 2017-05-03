@@ -63,7 +63,7 @@ class NetworkAgentTests(common.NetworkTests):
             agent_ids[0]
         ))
         self.assertEqual(
-            "DOWN",
+            False,
             cmd_output['admin_state_up'],
         )
 
@@ -79,7 +79,7 @@ class NetworkAgentTests(common.NetworkTests):
             agent_ids[0]
         ))
         self.assertEqual(
-            "UP",
+            True,
             cmd_output['admin_state_up'],
         )
 

@@ -14,8 +14,8 @@
 import mock
 from mock import call
 
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
-from osc_lib import utils as osc_utils
 
 from openstackclient.network.v2 import router
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
@@ -132,19 +132,19 @@ class TestCreateRouter(TestRouter):
         'tags',
     )
     data = (
-        router._format_admin_state(new_router.admin_state_up),
-        osc_utils.format_list(new_router.availability_zone_hints),
-        osc_utils.format_list(new_router.availability_zones),
+        router.AdminStateColumn(new_router.admin_state_up),
+        format_columns.ListColumn(new_router.availability_zone_hints),
+        format_columns.ListColumn(new_router.availability_zones),
         new_router.description,
         new_router.distributed,
-        router._format_external_gateway_info(new_router.external_gateway_info),
+        router.ExternalGatewayInfoColumn(new_router.external_gateway_info),
         new_router.ha,
         new_router.id,
         new_router.name,
         new_router.tenant_id,
-        router._format_routes(new_router.routes),
+        router.RoutesColumn(new_router.routes),
         new_router.status,
-        osc_utils.format_list(new_router.tags),
+        format_columns.ListColumn(new_router.tags),
     )
 
     def setUp(self):
@@ -184,7 +184,7 @@ class TestCreateRouter(TestRouter):
         })
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def _test_create_with_ha_options(self, option, ha):
         arglist = [
@@ -208,7 +208,7 @@ class TestCreateRouter(TestRouter):
             'ha': ha,
         })
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_with_ha_option(self):
         self._test_create_with_ha_options('--ha', True)
@@ -237,7 +237,7 @@ class TestCreateRouter(TestRouter):
             'distributed': distributed,
         })
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_with_distributed_option(self):
         self._test_create_with_distributed_options('--distributed', True)
@@ -268,7 +268,7 @@ class TestCreateRouter(TestRouter):
         })
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def _test_create_with_tag(self, add_tags=True):
         arglist = [self.new_router.name]
@@ -301,7 +301,7 @@ class TestCreateRouter(TestRouter):
         else:
             self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_with_tags(self):
         self._test_create_with_tag(add_tags=True)
@@ -422,7 +422,7 @@ class TestListRouter(TestRouter):
             r.id,
             r.name,
             r.status,
-            router._format_admin_state(r.admin_state_up),
+            router.AdminStateColumn(r.admin_state_up),
             r.distributed,
             r.ha,
             r.tenant_id,
@@ -447,10 +447,10 @@ class TestListRouter(TestRouter):
         r = routers[i]
         data_long.append(
             data[i] + (
-                router._format_routes(r.routes),
-                router._format_external_gateway_info(r.external_gateway_info),
-                osc_utils.format_list(r.availability_zones),
-                osc_utils.format_list(r.tags),
+                router.RoutesColumn(r.routes),
+                router.ExternalGatewayInfoColumn(r.external_gateway_info),
+                format_columns.ListColumn(r.availability_zones),
+                format_columns.ListColumn(r.tags),
             )
         )
     data_long_no_az = []
@@ -458,9 +458,9 @@ class TestListRouter(TestRouter):
         r = routers[i]
         data_long_no_az.append(
             data[i] + (
-                router._format_routes(r.routes),
-                router._format_external_gateway_info(r.external_gateway_info),
-                osc_utils.format_list(r.tags),
+                router.RoutesColumn(r.routes),
+                router.ExternalGatewayInfoColumn(r.external_gateway_info),
+                format_columns.ListColumn(r.tags),
             )
         )
 
@@ -494,7 +494,7 @@ class TestListRouter(TestRouter):
 
         self.network.routers.assert_called_once_with()
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_router_list_long(self):
         arglist = [
@@ -512,7 +512,7 @@ class TestListRouter(TestRouter):
 
         self.network.routers.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
-        self.assertEqual(self.data_long, list(data))
+        self.assertListItemEqual(self.data_long, list(data))
 
     def test_router_list_long_no_az(self):
         arglist = [
@@ -533,7 +533,7 @@ class TestListRouter(TestRouter):
 
         self.network.routers.assert_called_once_with()
         self.assertEqual(self.columns_long_no_az, columns)
-        self.assertEqual(self.data_long_no_az, list(data))
+        self.assertListItemEqual(self.data_long_no_az, list(data))
 
     def test_list_name(self):
         test_name = "fakename"
@@ -551,7 +551,7 @@ class TestListRouter(TestRouter):
             **{'name': test_name}
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_router_list_enable(self):
         arglist = [
@@ -568,7 +568,7 @@ class TestListRouter(TestRouter):
             **{'admin_state_up': True, 'is_admin_state_up': True}
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_router_list_disable(self):
         arglist = [
@@ -586,7 +586,7 @@ class TestListRouter(TestRouter):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_router_list_project(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -604,7 +604,7 @@ class TestListRouter(TestRouter):
 
         self.network.routers.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_router_list_project_domain(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -624,7 +624,7 @@ class TestListRouter(TestRouter):
 
         self.network.routers.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_router_list_agents_no_args(self):
         arglist = [
@@ -652,7 +652,7 @@ class TestListRouter(TestRouter):
         self.network.agent_hosted_routers(
             *attrs)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_list_with_tag_options(self):
         arglist = [
@@ -677,7 +677,7 @@ class TestListRouter(TestRouter):
                'not_any_tags': 'black,white'}
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
 
 class TestRemovePortFromRouter(TestRouter):
@@ -1135,19 +1135,19 @@ class TestShowRouter(TestRouter):
         'tags',
     )
     data = (
-        router._format_admin_state(_router.admin_state_up),
-        osc_utils.format_list(_router.availability_zone_hints),
-        osc_utils.format_list(_router.availability_zones),
+        router.AdminStateColumn(_router.admin_state_up),
+        format_columns.ListColumn(_router.availability_zone_hints),
+        format_columns.ListColumn(_router.availability_zones),
         _router.description,
         _router.distributed,
-        router._format_external_gateway_info(_router.external_gateway_info),
+        router.ExternalGatewayInfoColumn(_router.external_gateway_info),
         _router.ha,
         _router.id,
         _router.name,
         _router.tenant_id,
-        router._format_routes(_router.routes),
+        router.RoutesColumn(_router.routes),
         _router.status,
-        osc_utils.format_list(_router.tags),
+        format_columns.ListColumn(_router.tags),
     )
 
     def setUp(self):
@@ -1179,7 +1179,7 @@ class TestShowRouter(TestRouter):
         self.network.find_router.assert_called_once_with(
             self._router.name, ignore_missing=False)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 class TestUnsetRouter(TestRouter):

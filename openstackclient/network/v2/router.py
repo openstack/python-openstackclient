@@ -18,6 +18,8 @@ import copy
 import json
 import logging
 
+from cliff import columns as cliff_columns
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -32,33 +34,36 @@ from openstackclient.network.v2 import _tag
 LOG = logging.getLogger(__name__)
 
 
-def _format_admin_state(state):
-    return 'UP' if state else 'DOWN'
+class AdminStateColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        return 'UP' if self._value else 'DOWN'
 
 
-def _format_external_gateway_info(info):
-    try:
-        return json.dumps(info)
-    except (TypeError, KeyError):
-        return ''
+class ExternalGatewayInfoColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        try:
+            return json.dumps(self._value)
+        except (TypeError, KeyError):
+            return ''
 
 
-def _format_routes(routes):
-    # Map the route keys to match --route option.
-    for route in routes:
-        if 'nexthop' in route:
-            route['gateway'] = route.pop('nexthop')
-    return utils.format_list_of_dicts(routes)
+class RoutesColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        # Map the route keys to match --route option.
+        for route in self._value:
+            if 'nexthop' in route:
+                route['gateway'] = route.pop('nexthop')
+        return utils.format_list_of_dicts(self._value)
 
 
 _formatters = {
-    'admin_state_up': _format_admin_state,
-    'is_admin_state_up': _format_admin_state,
-    'external_gateway_info': _format_external_gateway_info,
-    'availability_zones': utils.format_list,
-    'availability_zone_hints': utils.format_list,
-    'routes': _format_routes,
-    'tags': utils.format_list,
+    'admin_state_up': AdminStateColumn,
+    'is_admin_state_up': AdminStateColumn,
+    'external_gateway_info': ExternalGatewayInfoColumn,
+    'availability_zones': format_columns.ListColumn,
+    'availability_zone_hints': format_columns.ListColumn,
+    'routes': RoutesColumn,
+    'tags': format_columns.ListColumn,
 }
 
 

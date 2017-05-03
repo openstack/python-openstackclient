@@ -13,6 +13,7 @@
 
 """IP Availability Info implementations"""
 
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import utils
 
@@ -21,7 +22,7 @@ from openstackclient.identity import common as identity_common
 from openstackclient.network import sdk_utils
 
 _formatters = {
-    'subnet_ip_availability': utils.format_list_of_dicts,
+    'subnet_ip_availability': format_columns.ListDictColumn,
 }
 
 

@@ -121,7 +121,7 @@ class NetworkTests(common.NetworkTagTests):
             cmd_output["description"],
         )
         self.assertEqual(
-            'UP',
+            True,
             cmd_output["admin_state_up"],
         )
         self.assertEqual(
@@ -129,7 +129,7 @@ class NetworkTests(common.NetworkTagTests):
             cmd_output["shared"],
         )
         self.assertEqual(
-            'Internal',
+            False,
             cmd_output["router:external"],
         )
 
@@ -233,7 +233,7 @@ class NetworkTests(common.NetworkTagTests):
             )
             # Check the default values
             self.assertEqual(
-                'UP',
+                True,
                 cmd_output["admin_state_up"],
             )
             self.assertEqual(
@@ -241,7 +241,7 @@ class NetworkTests(common.NetworkTagTests):
                 cmd_output["shared"],
             )
             self.assertEqual(
-                'Internal',
+                False,
                 cmd_output["router:external"],
             )
             self.assertEqual(
@@ -277,7 +277,7 @@ class NetworkTests(common.NetworkTagTests):
                 cmd_output["description"],
             )
             self.assertEqual(
-                'DOWN',
+                False,
                 cmd_output["admin_state_up"],
             )
             self.assertEqual(
@@ -431,7 +431,7 @@ class NetworkTests(common.NetworkTagTests):
             cmd_output["description"],
         )
         self.assertEqual(
-            'UP',
+            True,
             cmd_output["admin_state_up"],
         )
         self.assertEqual(
@@ -439,7 +439,7 @@ class NetworkTests(common.NetworkTagTests):
             cmd_output["shared"],
         )
         self.assertEqual(
-            'Internal',
+            False,
             cmd_output["router:external"],
         )
 
@@ -472,7 +472,7 @@ class NetworkTests(common.NetworkTagTests):
             cmd_output["description"],
         )
         self.assertEqual(
-            'DOWN',
+            False,
             cmd_output["admin_state_up"],
         )
         self.assertEqual(
@@ -480,7 +480,7 @@ class NetworkTests(common.NetworkTagTests):
             cmd_output["shared"],
         )
         self.assertEqual(
-            'External',
+            True,
             cmd_output["router:external"],
         )
         self.assertEqual(

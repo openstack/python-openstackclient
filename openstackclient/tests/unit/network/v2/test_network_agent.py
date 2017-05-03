@@ -14,8 +14,8 @@
 import mock
 from mock import call
 
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
-from osc_lib import utils
 
 from openstackclient.network.v2 import network_agent
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
@@ -216,8 +216,8 @@ class TestListNetworkAgent(TestNetworkAgent):
             agent.agent_type,
             agent.host,
             agent.availability_zone,
-            network_agent._format_alive(agent.alive),
-            network_agent._format_admin_state(agent.admin_state_up),
+            network_agent.AliveColumn(agent.alive),
+            network_agent.AdminStateColumn(agent.admin_state_up),
             agent.binary,
         ))
 
@@ -255,7 +255,7 @@ class TestListNetworkAgent(TestNetworkAgent):
 
         self.network.agents.assert_called_once_with(**{})
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_network_agents_list_agent_type(self):
         arglist = [
@@ -272,7 +272,7 @@ class TestListNetworkAgent(TestNetworkAgent):
             'agent_type': 'DHCP agent',
         })
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_network_agents_list_host(self):
         arglist = [
@@ -289,7 +289,7 @@ class TestListNetworkAgent(TestNetworkAgent):
             'host': self.network_agents[0].host,
         })
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_network_agents_list_networks(self):
         arglist = [
@@ -307,7 +307,7 @@ class TestListNetworkAgent(TestNetworkAgent):
         self.network.network_hosting_dhcp_agents.assert_called_once_with(
             *attrs)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_network_agents_list_routers(self):
         arglist = [
@@ -327,7 +327,7 @@ class TestListNetworkAgent(TestNetworkAgent):
             *attrs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_network_agents_list_routers_with_long_option(self):
         arglist = [
@@ -352,7 +352,7 @@ class TestListNetworkAgent(TestNetworkAgent):
         router_agent_data = [d + ('',) for d in self.data]
 
         self.assertEqual(router_agent_columns, columns)
-        self.assertEqual(router_agent_data, list(data))
+        self.assertListItemEqual(router_agent_data, list(data))
 
 
 class TestRemoveNetworkFromAgent(TestNetworkAgent):
@@ -540,12 +540,12 @@ class TestShowNetworkAgent(TestNetworkAgent):
         'id',
     )
     data = (
-        network_agent._format_admin_state(_network_agent.is_admin_state_up),
+        network_agent.AdminStateColumn(_network_agent.admin_state_up),
         _network_agent.agent_type,
-        network_agent._format_alive(_network_agent.is_alive),
+        network_agent.AliveColumn(_network_agent.is_alive),
         _network_agent.availability_zone,
         _network_agent.binary,
-        utils.format_dict(_network_agent.configurations),
+        format_columns.DictColumn(_network_agent.configurations),
         _network_agent.host,
         _network_agent.id,
     )
@@ -580,4 +580,4 @@ class TestShowNetworkAgent(TestNetworkAgent):
         self.network.get_agent.assert_called_once_with(
             self._network_agent.id)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(list(self.data), list(data))
+        self.assertItemEqual(list(self.data), list(data))

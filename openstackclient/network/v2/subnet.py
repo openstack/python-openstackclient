@@ -16,6 +16,8 @@
 import copy
 import logging
 
+from cliff import columns as cliff_columns
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -40,23 +42,27 @@ def _update_arguments(obj_list, parsed_args_list, option):
             raise exceptions.CommandError(msg)
 
 
-def _format_allocation_pools(data):
-    pool_formatted = ['%s-%s' % (pool.get('start', ''), pool.get('end', ''))
-                      for pool in data]
-    return ','.join(pool_formatted)
+class AllocationPoolsColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        pool_formatted = ['%s-%s' % (pool.get('start', ''),
+                                     pool.get('end', ''))
+                          for pool in self._value]
+        return ','.join(pool_formatted)
 
 
-def _format_host_routes(data):
-    # Map the host route keys to match --host-route option.
-    return utils.format_list_of_dicts(convert_entries_to_gateway(data))
+class HostRoutesColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        # Map the host route keys to match --host-route option.
+        return utils.format_list_of_dicts(
+            convert_entries_to_gateway(self._value))
 
 
 _formatters = {
-    'allocation_pools': _format_allocation_pools,
-    'dns_nameservers': utils.format_list,
-    'host_routes': _format_host_routes,
-    'service_types': utils.format_list,
-    'tags': utils.format_list,
+    'allocation_pools': AllocationPoolsColumn,
+    'dns_nameservers': format_columns.ListColumn,
+    'host_routes': HostRoutesColumn,
+    'service_types': format_columns.ListColumn,
+    'tags': format_columns.ListColumn,
 }
 
 

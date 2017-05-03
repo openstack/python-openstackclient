@@ -236,7 +236,7 @@ class SubnetTests(common.NetworkTagTests):
             cmd_output["gateway_ip"],
         )
         self.assertEqual(
-            'network:floatingip_agent_gateway',
+            ['network:floatingip_agent_gateway'],
             cmd_output["service_types"],
         )
 
@@ -253,7 +253,7 @@ class SubnetTests(common.NetworkTagTests):
             new_name
         ))
         self.assertEqual(
-            '',
+            [],
             cmd_output["service_types"],
         )
 

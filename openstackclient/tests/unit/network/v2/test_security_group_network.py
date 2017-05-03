@@ -56,7 +56,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
         _security_group.id,
         _security_group.name,
         _security_group.project_id,
-        '',
+        security_group.NetworkSecurityGroupRulesColumn([]),
     )
 
     def setUp(self):
@@ -91,7 +91,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
             'name': self._security_group.name,
         })
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_all_options(self):
         arglist = [
@@ -116,7 +116,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
             'tenant_id': self.project.id,
         })
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
@@ -245,7 +245,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         self.network.security_groups.assert_called_once_with()
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_security_group_list_all_projects(self):
         arglist = [
@@ -260,7 +260,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         self.network.security_groups.assert_called_once_with()
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_security_group_list_project(self):
         project = identity_fakes.FakeProject.create_one_project()
@@ -278,7 +278,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         self.network.security_groups.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_security_group_list_project_domain(self):
         project = identity_fakes.FakeProject.create_one_project()
@@ -298,7 +298,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         self.network.security_groups.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
 
 class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
@@ -392,7 +392,7 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
         _security_group.id,
         _security_group.name,
         _security_group.project_id,
-        security_group._format_network_security_group_rules(
+        security_group.NetworkSecurityGroupRulesColumn(
             [_security_group_rule._info]),
     )
 
@@ -423,4 +423,4 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.network.find_security_group.assert_called_once_with(
             self._security_group.id, ignore_missing=False)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)

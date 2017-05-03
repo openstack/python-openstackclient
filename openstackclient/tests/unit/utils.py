@@ -18,6 +18,8 @@ import fixtures
 import os
 import testtools
 
+from cliff import columns as cliff_columns
+
 from openstackclient.tests.unit import fakes
 
 
@@ -79,3 +81,18 @@ class TestCommand(TestCase):
                 self.assertIn(attr, parsed_args)
                 self.assertEqual(value, getattr(parsed_args, attr))
         return parsed_args
+
+    def assertListItemEqual(self, expected, actual):
+        self.assertEqual(len(expected), len(actual))
+        for item_expected, item_actual in zip(expected, actual):
+            self.assertItemEqual(item_expected, item_actual)
+
+    def assertItemEqual(self, expected, actual):
+        self.assertEqual(len(expected), len(actual))
+        for col_expected, col_actual in zip(expected, actual):
+            if isinstance(col_expected, cliff_columns.FormattableColumn):
+                self.assertIsInstance(col_actual, col_expected.__class__)
+                self.assertEqual(col_expected.human_readable(),
+                                 col_actual.human_readable())
+            else:
+                self.assertEqual(col_expected, col_actual)
