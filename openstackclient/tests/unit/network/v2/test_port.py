@@ -15,6 +15,7 @@ import argparse
 
 import mock
 from mock import call
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -68,22 +69,22 @@ class TestPort(network_fakes.TestNetworkV2):
         )
 
         data = (
-            port._format_admin_state(fake_port.admin_state_up),
-            utils.format_list_of_dicts(fake_port.allowed_address_pairs),
+            port.AdminStateColumn(fake_port.admin_state_up),
+            format_columns.ListDictColumn(fake_port.allowed_address_pairs),
             fake_port.binding_host_id,
-            utils.format_dict(fake_port.binding_profile),
-            utils.format_dict(fake_port.binding_vif_details),
+            format_columns.DictColumn(fake_port.binding_profile),
+            format_columns.DictColumn(fake_port.binding_vif_details),
             fake_port.binding_vif_type,
             fake_port.binding_vnic_type,
             fake_port.data_plane_status,
             fake_port.description,
             fake_port.device_id,
             fake_port.device_owner,
-            utils.format_list_of_dicts(fake_port.dns_assignment),
+            format_columns.ListDictColumn(fake_port.dns_assignment),
             fake_port.dns_domain,
             fake_port.dns_name,
-            utils.format_list_of_dicts(fake_port.extra_dhcp_opts),
-            utils.format_list_of_dicts(fake_port.fixed_ips),
+            format_columns.ListDictColumn(fake_port.extra_dhcp_opts),
+            format_columns.ListDictColumn(fake_port.fixed_ips),
             fake_port.id,
             fake_port.mac_address,
             fake_port.name,
@@ -91,9 +92,9 @@ class TestPort(network_fakes.TestNetworkV2):
             fake_port.port_security_enabled,
             fake_port.project_id,
             fake_port.qos_policy_id,
-            utils.format_list(fake_port.security_group_ids),
+            format_columns.ListColumn(fake_port.security_group_ids),
             fake_port.status,
-            utils.format_list(fake_port.tags),
+            format_columns.ListColumn(fake_port.tags),
             fake_port.uplink_status_propagation,
         )
 
@@ -141,7 +142,7 @@ class TestCreatePort(TestPort):
         self.assertFalse(self.network.set_tags.called)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_full_options(self):
         arglist = [
@@ -199,7 +200,7 @@ class TestCreatePort(TestPort):
         })
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_invalid_json_binding_profile(self):
         arglist = [
@@ -250,7 +251,7 @@ class TestCreatePort(TestPort):
         })
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_with_security_group(self):
         secgroup = network_fakes.FakeSecurityGroup.create_one_security_group()
@@ -279,7 +280,7 @@ class TestCreatePort(TestPort):
         })
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_port_with_dns_name(self):
         arglist = [
@@ -305,7 +306,7 @@ class TestCreatePort(TestPort):
         })
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_with_security_groups(self):
         sg_1 = network_fakes.FakeSecurityGroup.create_one_security_group()
@@ -335,7 +336,7 @@ class TestCreatePort(TestPort):
         })
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_with_no_security_groups(self):
         arglist = [
@@ -361,7 +362,7 @@ class TestCreatePort(TestPort):
         })
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_with_no_fixed_ips(self):
         arglist = [
@@ -387,7 +388,7 @@ class TestCreatePort(TestPort):
         })
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_port_with_allowed_address_pair_ipaddr(self):
         pairs = [{'ip_address': '192.168.1.123'},
@@ -417,7 +418,7 @@ class TestCreatePort(TestPort):
         })
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_port_with_allowed_address_pair(self):
         pairs = [{'ip_address': '192.168.1.123',
@@ -453,7 +454,7 @@ class TestCreatePort(TestPort):
         })
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_port_with_qos(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
@@ -481,7 +482,7 @@ class TestCreatePort(TestPort):
         })
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_port_security_enabled(self):
         arglist = [
@@ -565,7 +566,7 @@ class TestCreatePort(TestPort):
         else:
             self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_with_tags(self):
         self._test_create_with_tag(add_tags=True)
@@ -602,7 +603,7 @@ class TestCreatePort(TestPort):
         })
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_with_uplink_status_propagation_enabled(self):
         self._test_create_with_uplink_status_propagation(enable=True)
@@ -719,7 +720,7 @@ class TestListPort(TestPort):
             prt.id,
             prt.name,
             prt.mac_address,
-            utils.format_list_of_dicts(prt.fixed_ips),
+            format_columns.ListDictColumn(prt.fixed_ips),
             prt.status,
         ))
 
@@ -729,11 +730,11 @@ class TestListPort(TestPort):
             prt.id,
             prt.name,
             prt.mac_address,
-            utils.format_list_of_dicts(prt.fixed_ips),
+            format_columns.ListDictColumn(prt.fixed_ips),
             prt.status,
-            utils.format_list(prt.security_group_ids),
+            format_columns.ListColumn(prt.security_group_ids),
             prt.device_owner,
-            utils.format_list(prt.tags),
+            format_columns.ListColumn(prt.tags),
         ))
 
     def setUp(self):
@@ -762,7 +763,7 @@ class TestListPort(TestPort):
 
         self.network.ports.assert_called_once_with()
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_port_list_router_opt(self):
         arglist = [
@@ -781,7 +782,7 @@ class TestListPort(TestPort):
             'device_id': 'fake-router-id'
         })
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     @mock.patch.object(utils, 'find_resource')
     def test_port_list_with_server_option(self, mock_find):
@@ -801,7 +802,7 @@ class TestListPort(TestPort):
             device_id=fake_server.id)
         mock_find.assert_called_once_with(mock.ANY, 'fake-server-name')
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_port_list_device_id_opt(self):
         arglist = [
@@ -820,7 +821,7 @@ class TestListPort(TestPort):
             'device_id': self._ports[0].device_id
         })
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_port_list_device_owner_opt(self):
         arglist = [
@@ -839,7 +840,7 @@ class TestListPort(TestPort):
             'device_owner': self._ports[0].device_owner
         })
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_port_list_all_opt(self):
         arglist = [
@@ -867,7 +868,7 @@ class TestListPort(TestPort):
             'mac_address': self._ports[0].mac_address
         })
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_port_list_mac_address_opt(self):
         arglist = [
@@ -886,7 +887,7 @@ class TestListPort(TestPort):
             'mac_address': self._ports[0].mac_address
         })
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_port_list_fixed_ip_opt_ip_address(self):
         ip_address = self._ports[0].fixed_ips[0]['ip_address']
@@ -904,7 +905,7 @@ class TestListPort(TestPort):
         self.network.ports.assert_called_once_with(**{
             'fixed_ips': ['ip_address=%s' % ip_address]})
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_port_list_fixed_ip_opt_ip_address_substr(self):
         ip_address_ss = self._ports[0].fixed_ips[0]['ip_address'][:-1]
@@ -922,7 +923,7 @@ class TestListPort(TestPort):
         self.network.ports.assert_called_once_with(**{
             'fixed_ips': ['ip_address_substr=%s' % ip_address_ss]})
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_port_list_fixed_ip_opt_subnet_id(self):
         subnet_id = self._ports[0].fixed_ips[0]['subnet_id']
@@ -942,7 +943,7 @@ class TestListPort(TestPort):
         self.network.ports.assert_called_once_with(**{
             'fixed_ips': ['subnet_id=%s' % subnet_id]})
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_port_list_fixed_ip_opts(self):
         subnet_id = self._ports[0].fixed_ips[0]['subnet_id']
@@ -966,7 +967,7 @@ class TestListPort(TestPort):
             'fixed_ips': ['subnet_id=%s' % subnet_id,
                           'ip_address=%s' % ip_address]})
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_port_list_fixed_ips(self):
         subnet_id = self._ports[0].fixed_ips[0]['subnet_id']
@@ -990,7 +991,7 @@ class TestListPort(TestPort):
             'fixed_ips': ['subnet_id=%s' % subnet_id,
                           'ip_address=%s' % ip_address]})
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_list_port_with_long(self):
         arglist = [
@@ -1007,7 +1008,7 @@ class TestListPort(TestPort):
 
         self.network.ports.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
-        self.assertEqual(self.data_long, list(data))
+        self.assertListItemEqual(self.data_long, list(data))
 
     def test_port_list_project(self):
         project = identity_fakes.FakeProject.create_one_project()
@@ -1025,7 +1026,7 @@ class TestListPort(TestPort):
 
         self.network.ports.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_port_list_project_domain(self):
         project = identity_fakes.FakeProject.create_one_project()
@@ -1045,7 +1046,7 @@ class TestListPort(TestPort):
 
         self.network.ports.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_list_with_tag_options(self):
         arglist = [
@@ -1070,7 +1071,7 @@ class TestListPort(TestPort):
                'not_any_tags': 'black,white'}
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
 
 class TestSetPort(TestPort):
@@ -1644,7 +1645,7 @@ class TestShowPort(TestPort):
             self._port.name, ignore_missing=False)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 class TestUnsetPort(TestPort):

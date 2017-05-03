@@ -14,8 +14,8 @@
 import mock
 from mock import call
 
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
-from osc_lib import utils
 
 from openstackclient.network.v2 import subnet as subnet_v2
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
@@ -131,13 +131,13 @@ class TestCreateSubnet(TestSubnet):
         )
 
         self.data = (
-            subnet_v2._format_allocation_pools(self._subnet.allocation_pools),
+            subnet_v2.AllocationPoolsColumn(self._subnet.allocation_pools),
             self._subnet.cidr,
             self._subnet.description,
-            utils.format_list(self._subnet.dns_nameservers),
+            format_columns.ListColumn(self._subnet.dns_nameservers),
             self._subnet.enable_dhcp,
             self._subnet.gateway_ip,
-            subnet_v2._format_host_routes(self._subnet.host_routes),
+            subnet_v2.HostRoutesColumn(self._subnet.host_routes),
             self._subnet.id,
             self._subnet.ip_version,
             self._subnet.ipv6_address_mode,
@@ -146,20 +146,20 @@ class TestCreateSubnet(TestSubnet):
             self._subnet.network_id,
             self._subnet.project_id,
             self._subnet.segment_id,
-            utils.format_list(self._subnet.service_types),
+            format_columns.ListColumn(self._subnet.service_types),
             self._subnet.subnetpool_id,
-            utils.format_list(self._subnet.tags),
+            format_columns.ListColumn(self._subnet.tags),
         )
 
         self.data_subnet_pool = (
-            subnet_v2._format_allocation_pools(
+            subnet_v2.AllocationPoolsColumn(
                 self._subnet_from_pool.allocation_pools),
             self._subnet_from_pool.cidr,
             self._subnet_from_pool.description,
-            utils.format_list(self._subnet_from_pool.dns_nameservers),
+            format_columns.ListColumn(self._subnet_from_pool.dns_nameservers),
             self._subnet_from_pool.enable_dhcp,
             self._subnet_from_pool.gateway_ip,
-            subnet_v2._format_host_routes(self._subnet_from_pool.host_routes),
+            subnet_v2.HostRoutesColumn(self._subnet_from_pool.host_routes),
             self._subnet_from_pool.id,
             self._subnet_from_pool.ip_version,
             self._subnet_from_pool.ipv6_address_mode,
@@ -168,20 +168,20 @@ class TestCreateSubnet(TestSubnet):
             self._subnet_from_pool.network_id,
             self._subnet_from_pool.project_id,
             self._subnet_from_pool.segment_id,
-            utils.format_list(self._subnet_from_pool.service_types),
+            format_columns.ListColumn(self._subnet_from_pool.service_types),
             self._subnet_from_pool.subnetpool_id,
-            utils.format_list(self._subnet.tags),
+            format_columns.ListColumn(self._subnet_from_pool.tags),
         )
 
         self.data_ipv6 = (
-            subnet_v2._format_allocation_pools(
+            subnet_v2.AllocationPoolsColumn(
                 self._subnet_ipv6.allocation_pools),
             self._subnet_ipv6.cidr,
             self._subnet_ipv6.description,
-            utils.format_list(self._subnet_ipv6.dns_nameservers),
+            format_columns.ListColumn(self._subnet_ipv6.dns_nameservers),
             self._subnet_ipv6.enable_dhcp,
             self._subnet_ipv6.gateway_ip,
-            subnet_v2._format_host_routes(self._subnet_ipv6.host_routes),
+            subnet_v2.HostRoutesColumn(self._subnet_ipv6.host_routes),
             self._subnet_ipv6.id,
             self._subnet_ipv6.ip_version,
             self._subnet_ipv6.ipv6_address_mode,
@@ -190,9 +190,9 @@ class TestCreateSubnet(TestSubnet):
             self._subnet_ipv6.network_id,
             self._subnet_ipv6.project_id,
             self._subnet_ipv6.segment_id,
-            utils.format_list(self._subnet_ipv6.service_types),
+            format_columns.ListColumn(self._subnet_ipv6.service_types),
             self._subnet_ipv6.subnetpool_id,
-            utils.format_list(self._subnet.tags),
+            format_columns.ListColumn(self._subnet_ipv6.tags),
         )
 
     def setUp(self):
@@ -255,7 +255,7 @@ class TestCreateSubnet(TestSubnet):
         })
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_from_subnet_pool_options(self):
         # Mock SDK calls for this test.
@@ -317,7 +317,7 @@ class TestCreateSubnet(TestSubnet):
             'service_types': self._subnet_from_pool.service_types,
         })
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data_subnet_pool, data)
+        self.assertItemEqual(self.data_subnet_pool, data)
 
     def test_create_options_subnet_range_ipv6(self):
         # Mock SDK calls for this test.
@@ -390,7 +390,7 @@ class TestCreateSubnet(TestSubnet):
         })
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data_ipv6, data)
+        self.assertItemEqual(self.data_ipv6, data)
 
     def test_create_with_network_segment(self):
         # Mock SDK calls for this test.
@@ -424,7 +424,7 @@ class TestCreateSubnet(TestSubnet):
         })
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_with_description(self):
         # Mock SDK calls for this test.
@@ -458,7 +458,7 @@ class TestCreateSubnet(TestSubnet):
         })
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def _test_create_with_tag(self, add_tags=True):
         arglist = [
@@ -497,7 +497,7 @@ class TestCreateSubnet(TestSubnet):
         else:
             self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_create_with_tags(self):
         self._test_create_with_tag(add_tags=True)
@@ -625,13 +625,13 @@ class TestListSubnet(TestSubnet):
             subnet.cidr,
             subnet.tenant_id,
             subnet.enable_dhcp,
-            utils.format_list(subnet.dns_nameservers),
-            subnet_v2._format_allocation_pools(subnet.allocation_pools),
-            utils.format_list(subnet.host_routes),
+            format_columns.ListColumn(subnet.dns_nameservers),
+            subnet_v2.AllocationPoolsColumn(subnet.allocation_pools),
+            subnet_v2.HostRoutesColumn(subnet.host_routes),
             subnet.ip_version,
             subnet.gateway_ip,
-            utils.format_list(subnet.service_types),
-            utils.format_list(subnet.tags),
+            format_columns.ListColumn(subnet.service_types),
+            format_columns.ListColumn(subnet.tags),
         ))
 
     def setUp(self):
@@ -653,7 +653,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with()
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_subnet_list_long(self):
         arglist = [
@@ -668,7 +668,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
-        self.assertEqual(self.data_long, list(data))
+        self.assertListItemEqual(self.data_long, list(data))
 
     def test_subnet_list_ip_version(self):
         arglist = [
@@ -684,7 +684,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_subnet_list_dhcp(self):
         arglist = [
@@ -700,7 +700,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_subnet_list_no_dhcp(self):
         arglist = [
@@ -716,7 +716,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_subnet_list_service_type(self):
         arglist = [
@@ -731,7 +731,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_subnet_list_project(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -749,7 +749,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_subnet_list_service_type_multiple(self):
         arglist = [
@@ -767,7 +767,7 @@ class TestListSubnet(TestSubnet):
                                      'network:floatingip_agent_gateway']}
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_subnet_list_project_domain(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -787,7 +787,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_subnet_list_network(self):
         network = network_fakes.FakeNetwork.create_one_network()
@@ -805,7 +805,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_subnet_list_gateway(self):
         subnet = network_fakes.FakeSubnet.create_one_subnet()
@@ -823,7 +823,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_subnet_list_name(self):
         subnet = network_fakes.FakeSubnet.create_one_subnet()
@@ -841,7 +841,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_subnet_list_subnet_range(self):
         subnet = network_fakes.FakeSubnet.create_one_subnet()
@@ -859,7 +859,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_list_with_tag_options(self):
         arglist = [
@@ -1154,13 +1154,13 @@ class TestShowSubnet(TestSubnet):
     )
 
     data = (
-        subnet_v2._format_allocation_pools(_subnet.allocation_pools),
+        subnet_v2.AllocationPoolsColumn(_subnet.allocation_pools),
         _subnet.cidr,
         _subnet.description,
-        utils.format_list(_subnet.dns_nameservers),
+        format_columns.ListColumn(_subnet.dns_nameservers),
         _subnet.enable_dhcp,
         _subnet.gateway_ip,
-        utils.format_list(_subnet.host_routes),
+        subnet_v2.HostRoutesColumn(_subnet.host_routes),
         _subnet.id,
         _subnet.ip_version,
         _subnet.ipv6_address_mode,
@@ -1169,9 +1169,9 @@ class TestShowSubnet(TestSubnet):
         _subnet.network_id,
         _subnet.tenant_id,
         _subnet.segment_id,
-        utils.format_list(_subnet.service_types),
+        format_columns.ListColumn(_subnet.service_types),
         _subnet.subnetpool_id,
-        utils.format_list(_subnet.tags),
+        format_columns.ListColumn(_subnet.tags),
     )
 
     def setUp(self):
@@ -1206,7 +1206,7 @@ class TestShowSubnet(TestSubnet):
             self._subnet.name, ignore_missing=False)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 class TestUnsetSubnet(TestSubnet):

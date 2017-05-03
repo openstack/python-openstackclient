@@ -38,7 +38,7 @@ class SubnetPoolTests(common.NetworkTagTests):
             cmd_output["name"]
         )
         self.assertEqual(
-            pool_prefix,
+            [pool_prefix],
             cmd_output["prefixes"]
         )
 
@@ -50,7 +50,7 @@ class SubnetPoolTests(common.NetworkTagTests):
             cmd_output["name"]
         )
         self.assertEqual(
-            pool_prefix,
+            [pool_prefix],
             cmd_output["prefixes"]
         )
 
@@ -104,7 +104,7 @@ class SubnetPoolTests(common.NetworkTagTests):
             cmd_output["project_id"],
         )
         self.assertEqual(
-            pool_prefix,
+            [pool_prefix],
             cmd_output["prefixes"],
         )
 
@@ -126,7 +126,7 @@ class SubnetPoolTests(common.NetworkTagTests):
             cmd_output["project_id"],
         )
         self.assertEqual(
-            pool_prefix,
+            [pool_prefix],
             cmd_output["prefixes"],
         )
 
@@ -193,7 +193,7 @@ class SubnetPoolTests(common.NetworkTagTests):
             cmd_output["description"],
         )
         self.assertEqual(
-            pool_prefix,
+            [pool_prefix],
             cmd_output["prefixes"],
         )
         self.assertEqual(
@@ -239,9 +239,9 @@ class SubnetPoolTests(common.NetworkTagTests):
             'bbbb',
             cmd_output["description"],
         )
-        self.assertInOutput(
-            "10.110.0.0/16",
-            cmd_output["prefixes"],
+        self.assertEqual(
+            sorted(["10.110.0.0/16", pool_prefix]),
+            sorted(cmd_output["prefixes"]),
         )
         self.assertEqual(
             8,

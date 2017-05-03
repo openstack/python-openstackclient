@@ -56,7 +56,7 @@ class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
         _security_group['id'],
         _security_group['name'],
         _security_group['tenant_id'],
-        '',
+        security_group.ComputeSecurityGroupRulesColumn([]),
     )
 
     def setUp(self):
@@ -88,7 +88,7 @@ class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
             self._security_group['name'],
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_security_group_create_all_options(self, sg_mock):
         sg_mock.return_value = self._security_group
@@ -109,7 +109,7 @@ class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
             self._security_group['description'],
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 @mock.patch(
@@ -255,7 +255,7 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
         kwargs = {'search_opts': {'all_tenants': False}}
         sg_mock.assert_called_once_with(**kwargs)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_security_group_list_all_projects(self, sg_mock):
         sg_mock.return_value = self._security_groups
@@ -272,7 +272,7 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
         kwargs = {'search_opts': {'all_tenants': True}}
         sg_mock.assert_called_once_with(**kwargs)
         self.assertEqual(self.columns_all_projects, columns)
-        self.assertEqual(self.data_all_projects, list(data))
+        self.assertListItemEqual(self.data_all_projects, list(data))
 
 
 @mock.patch(
@@ -372,8 +372,7 @@ class TestShowSecurityGroupCompute(TestSecurityGroupCompute):
         _security_group['id'],
         _security_group['name'],
         _security_group['tenant_id'],
-        security_group._format_compute_security_group_rules(
-            [_security_group_rule]),
+        security_group.ComputeSecurityGroupRulesColumn([_security_group_rule]),
     )
 
     def setUp(self):
@@ -402,4 +401,4 @@ class TestShowSecurityGroupCompute(TestSecurityGroupCompute):
 
         sg_mock.assert_called_once_with(self._security_group['id'])
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)

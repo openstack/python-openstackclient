@@ -15,6 +15,8 @@
 
 import logging
 
+from cliff import columns as cliff_columns
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -26,19 +28,22 @@ from openstackclient.network import sdk_utils
 LOG = logging.getLogger(__name__)
 
 
-def _format_alive(alive):
-    return ":-)" if alive else "XXX"
+class AliveColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        return ":-)" if self._value else "XXX"
 
 
-def _format_admin_state(state):
-    return 'UP' if state else 'DOWN'
+class AdminStateColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        return 'UP' if self._value else 'DOWN'
+
 
 _formatters = {
-    'is_alive': _format_alive,
-    'alive': _format_alive,
-    'admin_state_up': _format_admin_state,
-    'is_admin_state_up': _format_admin_state,
-    'configurations': utils.format_dict,
+    'is_alive': AliveColumn,
+    'alive': AliveColumn,
+    'admin_state_up': AdminStateColumn,
+    'is_admin_state_up': AdminStateColumn,
+    'configurations': format_columns.DictColumn,
 }
 
 

@@ -15,6 +15,7 @@
 
 import logging
 
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -41,8 +42,8 @@ def _get_columns(item):
 
 
 _formatters = {
-    'prefixes': utils.format_list,
-    'tags': utils.format_list,
+    'prefixes': format_columns.ListColumn,
+    'tags': format_columns.ListColumn,
 }
 
 
