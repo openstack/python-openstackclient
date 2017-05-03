@@ -24,6 +24,7 @@ from oslo_utils import timeutils
 from openstackclient.compute.v2 import server
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
+from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 
@@ -414,8 +415,16 @@ class TestServerCreate(TestServer):
         # In base command class ShowOne in cliff, abstract method take_action()
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
+        fake_sg = network_fakes.FakeSecurityGroup.create_security_groups()
+        mock_find_sg = (
+            network_fakes.FakeSecurityGroup.get_security_groups(fake_sg)
+        )
+        self.app.client_manager.network.find_security_group = mock_find_sg
+
         columns, data = self.cmd.take_action(parsed_args)
 
+        mock_find_sg.assert_called_once_with('securitygroup',
+                                             ignore_missing=False)
         # Set expected values
         kwargs = dict(
             meta={'Beta': 'b'},
@@ -423,13 +432,99 @@ class TestServerCreate(TestServer):
             reservation_id=None,
             min_count=1,
             max_count=1,
-            security_groups=['securitygroup'],
+            security_groups=[fake_sg[0].id],
             userdata=None,
             key_name='keyname',
             availability_zone=None,
             block_device_mapping_v2=[],
             nics=[],
             scheduler_hints={'a': ['b', 'c']},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_not_exist_security_group(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--key-name', 'keyname',
+            '--security-group', 'securitygroup',
+            '--security-group', 'not_exist_sg',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('key_name', 'keyname'),
+            ('security_group', ['securitygroup', 'not_exist_sg']),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        fake_sg = network_fakes.FakeSecurityGroup.create_security_groups(
+            count=1)
+        fake_sg.append(exceptions.NotFound(code=404))
+        mock_find_sg = (
+            network_fakes.FakeSecurityGroup.get_security_groups(fake_sg)
+        )
+        self.app.client_manager.network.find_security_group = mock_find_sg
+
+        self.assertRaises(exceptions.NotFound,
+                          self.cmd.take_action,
+                          parsed_args)
+        mock_find_sg.assert_called_with('not_exist_sg',
+                                        ignore_missing=False)
+
+    def test_server_create_with_security_group_in_nova_network(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--key-name', 'keyname',
+            '--security-group', 'securitygroup',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('key_name', 'keyname'),
+            ('security_group', ['securitygroup']),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(self.app.client_manager,
+                               'is_network_endpoint_enabled',
+                               return_value=False):
+            with mock.patch.object(self.app.client_manager.compute.api,
+                                   'security_group_find',
+                                   return_value={'name': 'fake_sg'}
+                                   ) as mock_find:
+                columns, data = self.cmd.take_action(parsed_args)
+                mock_find.assert_called_once_with('securitygroup')
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=['fake_sg'],
+            userdata=None,
+            key_name='keyname',
+            availability_zone=None,
+            block_device_mapping_v2=[],
+            nics=[],
+            scheduler_hints={},
             config_drive=None,
         )
         # ServerManager.create(name, image, flavor, **kwargs)

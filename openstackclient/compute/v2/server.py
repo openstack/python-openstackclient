@@ -407,7 +407,7 @@ class CreateServer(command.ShowOne):
         )
         parser.add_argument(
             '--security-group',
-            metavar='<security-group-name>',
+            metavar='<security-group>',
             action='append',
             default=[],
             help=_('Security group to assign to this server (name or ID) '
@@ -677,6 +677,22 @@ class CreateServer(command.ShowOne):
             # decide the default behavior.
             nics = []
 
+        # Check security group exist and convert ID to name
+        security_group_names = []
+        if self.app.client_manager.is_network_endpoint_enabled():
+            network_client = self.app.client_manager.network
+            for each_sg in parsed_args.security_group:
+                sg = network_client.find_security_group(each_sg,
+                                                        ignore_missing=False)
+                # Use security group ID to avoid multiple security group have
+                # same name in neutron networking backend
+                security_group_names.append(sg.id)
+        else:
+            # Handle nova-network case
+            for each_sg in parsed_args.security_group:
+                sg = compute_client.api.security_group_find(each_sg)
+                security_group_names.append(sg['name'])
+
         hints = {}
         for hint in parsed_args.hint:
             key, _sep, value = hint.partition('=')
@@ -706,7 +722,7 @@ class CreateServer(command.ShowOne):
             reservation_id=None,
             min_count=parsed_args.min,
             max_count=parsed_args.max,
-            security_groups=parsed_args.security_group,
+            security_groups=security_group_names,
             userdata=userdata,
             key_name=parsed_args.key_name,
             availability_zone=parsed_args.availability_zone,
