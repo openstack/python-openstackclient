@@ -519,7 +519,6 @@ class ListPort(command.Lister):
 
     def take_action(self, parsed_args):
         network_client = self.app.client_manager.network
-        compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
         columns = (
@@ -548,6 +547,7 @@ class ListPort(command.Lister):
                                                  ignore_missing=False)
             filters['device_id'] = _router.id
         if parsed_args.server:
+            compute_client = self.app.client_manager.compute
             server = utils.find_resource(compute_client.servers,
                                          parsed_args.server)
             filters['device_id'] = server.id

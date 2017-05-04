@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix issue in ``port list`` command when no Compute endpoint is in the
+    Service Catalog.
+    [Bug `1688194 <https://bugs.launchpad.net/bugs/1688194>`_]
