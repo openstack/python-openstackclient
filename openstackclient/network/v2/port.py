@@ -35,10 +35,6 @@ def _format_admin_state(state):
     return 'UP' if state else 'DOWN'
 
 
-def _format_dns_assignment(dns_assignment):
-    return utils.format_list_of_dicts(dns_assignment) \
-        if dns_assignment else None
-
 _formatters = {
     'admin_state_up': _format_admin_state,
     'is_admin_state_up': _format_admin_state,
@@ -47,7 +43,7 @@ _formatters = {
     'binding_vif_details': utils.format_dict,
     'binding:profile': utils.format_dict,
     'binding:vif_details': utils.format_dict,
-    'dns_assignment': _format_dns_assignment,
+    'dns_assignment': utils.format_list_of_dicts,
     'extra_dhcp_opts': utils.format_list_of_dicts,
     'fixed_ips': utils.format_list_of_dicts,
     'security_group_ids': utils.format_list,
