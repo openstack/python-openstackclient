@@ -135,7 +135,10 @@ class ListQuota(command.Lister):
                 try:
                     data = compute_client.quotas.get(p)
                 except Exception as ex:
-                    if type(ex).__name__ == 'NotFound':
+                    if (
+                        type(ex).__name__ == 'NotFound' or
+                        ex.http_status >= 400 and ex.http_status <= 499
+                    ):
                         # Project not found, move on to next one
                         LOG.warning("Project %s not found: %s" % (p, ex))
                         continue
