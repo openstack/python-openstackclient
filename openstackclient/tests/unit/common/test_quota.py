@@ -242,7 +242,7 @@ class TestQuotaList(TestQuota):
         self.assertEqual(self.compute_reference_data, ret_quotas[0])
         self.assertEqual(1, len(ret_quotas))
 
-    def test_quota_list_compute_no_project(self):
+    def test_quota_list_compute_no_project_not_found(self):
         # Make one of the projects disappear
         self.compute.quotas.get = mock.Mock(
             side_effect=[
@@ -265,6 +265,53 @@ class TestQuotaList(TestQuota):
         self.assertEqual(self.compute_column_header, columns)
         self.assertEqual(self.compute_reference_data, ret_quotas[0])
         self.assertEqual(1, len(ret_quotas))
+
+    def test_quota_list_compute_no_project_4xx(self):
+        # Make one of the projects disappear
+        self.compute.quotas.get = mock.Mock(
+            side_effect=[
+                self.compute_quotas[0],
+                exceptions.BadRequest("Bad request"),
+            ],
+        )
+
+        arglist = [
+            '--compute',
+        ]
+        verifylist = [
+            ('compute', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        ret_quotas = list(data)
+
+        self.assertEqual(self.compute_column_header, columns)
+        self.assertEqual(self.compute_reference_data, ret_quotas[0])
+        self.assertEqual(1, len(ret_quotas))
+
+    def test_quota_list_compute_no_project_5xx(self):
+        # Make one of the projects disappear
+        self.compute.quotas.get = mock.Mock(
+            side_effect=[
+                self.compute_quotas[0],
+                exceptions.HTTPNotImplemented("Not implemented??"),
+            ],
+        )
+
+        arglist = [
+            '--compute',
+        ]
+        verifylist = [
+            ('compute', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.HTTPNotImplemented,
+            self.cmd.take_action,
+            parsed_args,
+        )
 
     def test_quota_list_network(self):
         # Two projects with non-default quotas
