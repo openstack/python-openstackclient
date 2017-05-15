@@ -15,8 +15,10 @@
 
 """Identity v2.0 User action implementations"""
 
+import functools
 import logging
 
+from cliff import columns as cliff_columns
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -27,6 +29,31 @@ from openstackclient.i18n import _
 
 
 LOG = logging.getLogger(__name__)
+
+
+class ProjectColumn(cliff_columns.FormattableColumn):
+    """Formattable column for project column.
+
+    Unlike the parent FormattableColumn class, the initializer of the
+    class takes project_cache as the second argument.
+    osc_lib.utils.get_item_properties instantiate cliff FormattableColumn
+    object with a single parameter "column value", so you need to pass
+    a partially initialized class like
+    ``functools.partial(ProjectColumn, project_cache)``.
+    """
+
+    def __init__(self, value, project_cache=None):
+        super(ProjectColumn, self).__init__(value)
+        self.project_cache = project_cache or {}
+
+    def human_readable(self):
+        project = self._value
+        if not project:
+            return ""
+        if project in self.project_cache.keys():
+            return self.project_cache[project].name
+        else:
+            return project
 
 
 class CreateUser(command.ShowOne):
@@ -187,15 +214,7 @@ class ListUser(command.Lister):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-
-        def _format_project(project):
-            if not project:
-                return ""
-            if project in project_cache.keys():
-                return project_cache[project].name
-            else:
-                return project
-
+        formatters = {}
         project = None
         if parsed_args.project:
             project = utils.find_resource(
@@ -227,6 +246,8 @@ class ListUser(command.Lister):
             except Exception:
                 # Just forget it if there's any trouble
                 pass
+            formatters['tenantId'] = functools.partial(
+                ProjectColumn, project_cache=project_cache)
         else:
             columns = column_headers = ('ID', 'Name')
         data = identity_client.users.list(tenant_id=project)
@@ -251,7 +272,7 @@ class ListUser(command.Lister):
                 (utils.get_item_properties(
                     s, columns,
                     mixed_case_fields=('tenantId',),
-                    formatters={'tenantId': _format_project},
+                    formatters=formatters,
                 ) for s in data))
 
 

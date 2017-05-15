@@ -15,6 +15,7 @@
 
 import logging
 
+from cliff import columns as cliff_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -26,15 +27,16 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _format_endpoints(eps=None):
-    if not eps:
-        return ""
-    ret = ''
-    for ep in eps:
-        region = ep.get('region_id') or ep.get('region') or '<none>'
-        ret += region + '\n'
-        ret += "  %s: %s\n" % (ep['interface'], ep['url'])
-    return ret
+class EndpointsColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        if not self._value:
+            return ""
+        ret = ''
+        for ep in self._value:
+            region = ep.get('region_id') or ep.get('region') or '<none>'
+            ret += region + '\n'
+            ret += "  %s: %s\n" % (ep['interface'], ep['url'])
+        return ret
 
 
 class ListCatalog(command.Lister):
@@ -55,7 +57,7 @@ class ListCatalog(command.Lister):
                 (utils.get_dict_properties(
                     s, columns,
                     formatters={
-                        'Endpoints': _format_endpoints,
+                        'Endpoints': EndpointsColumn,
                     },
                 ) for s in data))
 
@@ -86,7 +88,7 @@ class ShowCatalog(command.ShowOne):
             if (service.get('name') == parsed_args.service or
                     service.get('type') == parsed_args.service):
                 data = dict(service)
-                data['endpoints'] = _format_endpoints(data['endpoints'])
+                data['endpoints'] = EndpointsColumn(data['endpoints'])
                 if 'links' in data:
                     data.pop('links')
                 break

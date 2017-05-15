@@ -16,6 +16,7 @@
 import mock
 
 from keystoneauth1 import exceptions as ks_exc
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -640,9 +641,9 @@ class TestProjectShow(TestProject):
             True,
             self.fake_proj_show.id,
             self.fake_proj_show.name,
-            '',
+            format_columns.DictColumn({}),
         )
-        self.assertEqual(datalist, data)
+        self.assertItemEqual(datalist, data)
 
 
 class TestProjectUnset(TestProject):

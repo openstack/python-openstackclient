@@ -89,7 +89,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_create_identity_provider_description(self):
         arglist = [
@@ -117,7 +117,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_create_identity_provider_remote_id(self):
         arglist = [
@@ -145,7 +145,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_create_identity_provider_remote_ids_multiple(self):
         arglist = [
@@ -174,7 +174,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_create_identity_provider_remote_ids_file(self):
         arglist = [
@@ -207,7 +207,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_create_identity_provider_disabled(self):
 
@@ -250,7 +250,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             identity_fakes.idp_id,
             identity_fakes.formatted_idp_remote_ids
         )
-        self.assertEqual(datalist, data)
+        self.assertItemEqual(datalist, data)
 
     def test_create_identity_provider_domain_name(self):
         arglist = [
@@ -278,7 +278,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_create_identity_provider_domain_id(self):
         arglist = [
@@ -306,7 +306,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
 
 class TestIdentityProviderDelete(TestIdentityProvider):
@@ -382,7 +382,7 @@ class TestIdentityProviderList(TestIdentityProvider):
             identity_fakes.domain_id,
             identity_fakes.idp_description,
         ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertListItemEqual(datalist, tuple(data))
 
 
 class TestIdentityProviderSet(TestIdentityProvider):
@@ -667,4 +667,4 @@ class TestIdentityProviderShow(TestIdentityProvider):
             identity_fakes.idp_id,
             identity_fakes.formatted_idp_remote_ids
         )
-        self.assertEqual(datalist, data)
+        self.assertItemEqual(datalist, data)
