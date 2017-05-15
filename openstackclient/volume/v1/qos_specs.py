@@ -17,6 +17,7 @@
 
 import logging
 
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -95,7 +96,8 @@ class CreateQos(command.ShowOne):
 
         qos_spec = volume_client.qos_specs.create(parsed_args.name, specs)
         qos_spec._info.update(
-            {'properties': utils.format_dict(qos_spec._info.pop('specs'))}
+            {'properties':
+             format_columns.DictColumn(qos_spec._info.pop('specs'))}
         )
         return zip(*sorted(six.iteritems(qos_spec._info)))
 
@@ -208,8 +210,8 @@ class ListQos(command.Lister):
                 (utils.get_dict_properties(
                     s._info, columns,
                     formatters={
-                        'Specs': utils.format_dict,
-                        'Associations': utils.format_list
+                        'Specs': format_columns.DictColumn,
+                        'Associations': format_columns.ListColumn
                     },
                 ) for s in qos_specs_list))
 
@@ -265,10 +267,11 @@ class ShowQos(command.ShowOne):
             associations = [association.name
                             for association in qos_associations]
             qos_spec._info.update({
-                'associations': utils.format_list(associations)
+                'associations': format_columns.ListColumn(associations)
             })
         qos_spec._info.update(
-            {'properties': utils.format_dict(qos_spec._info.pop('specs'))})
+            {'properties':
+             format_columns.DictColumn(qos_spec._info.pop('specs'))})
 
         return zip(*sorted(six.iteritems(qos_spec._info)))
 

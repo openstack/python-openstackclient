@@ -204,7 +204,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             cmd_output["display_description"],
         )
         self.assertEqual(
-            "Alpha='a', Beta='b'",
+            {'Alpha': 'a', 'Beta': 'b'},
             cmd_output["properties"],
         )
 
@@ -221,7 +221,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             new_name
         ))
         self.assertEqual(
-            "Beta='b'",
+            {'Beta': 'b'},
             cmd_output["properties"],
         )
 
@@ -236,7 +236,4 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             'volume snapshot show -f json ' +
             new_name
         ))
-        self.assertNotIn(
-            "Beta='b'",
-            cmd_output["properties"],
-        )
+        self.assertEqual({}, cmd_output["properties"])
