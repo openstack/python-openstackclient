@@ -123,7 +123,7 @@ class VolumeTests(common.BaseVolumeTests):
             cmd_output["display_description"],
         )
         self.assertEqual(
-            "Alpha='a'",
+            {'Alpha': 'a'},
             cmd_output["properties"],
         )
         self.assertEqual(
@@ -165,7 +165,7 @@ class VolumeTests(common.BaseVolumeTests):
             cmd_output["display_description"],
         )
         self.assertEqual(
-            "Beta='b', Gamma='c'",
+            {'Beta': 'b', 'Gamma': 'c'},
             cmd_output["properties"],
         )
         self.assertEqual(
@@ -186,7 +186,7 @@ class VolumeTests(common.BaseVolumeTests):
             new_name
         ))
         self.assertEqual(
-            "Gamma='c'",
+            {'Gamma': 'c'},
             cmd_output["properties"],
         )
 

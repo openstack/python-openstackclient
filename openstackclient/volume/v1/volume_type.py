@@ -15,8 +15,11 @@
 
 """Volume v1 Type action implementations"""
 
+import functools
 import logging
 
+from cliff import columns as cliff_columns
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -27,6 +30,36 @@ from openstackclient.i18n import _
 
 
 LOG = logging.getLogger(__name__)
+
+
+class EncryptionInfoColumn(cliff_columns.FormattableColumn):
+    """Formattable column for encryption info column.
+
+    Unlike the parent FormattableColumn class, the initializer of the
+    class takes encryption_data as the second argument.
+    osc_lib.utils.get_item_properties instantiate cliff FormattableColumn
+    object with a single parameter "column value", so you need to pass
+    a partially initialized class like
+    ``functools.partial(EncryptionInfoColumn encryption_data)``.
+    """
+
+    def __init__(self, value, encryption_data=None):
+        super(EncryptionInfoColumn, self).__init__(value)
+        self._encryption_data = encryption_data or {}
+
+    def _get_encryption_info(self):
+        type_id = self._value
+        return self._encryption_data.get(type_id)
+
+    def human_readable(self):
+        encryption_info = self._get_encryption_info()
+        if encryption_info:
+            return utils.format_dict(encryption_info)
+        else:
+            return '-'
+
+    def machine_readable(self):
+        return self._get_encryption_info()
 
 
 def _create_encryption_type(volume_client, volume_type, parsed_args):
@@ -110,7 +143,8 @@ class CreateVolumeType(command.ShowOne):
         volume_type._info.pop('extra_specs')
         if parsed_args.property:
             result = volume_type.set_keys(parsed_args.property)
-            volume_type._info.update({'properties': utils.format_dict(result)})
+            volume_type._info.update(
+                {'properties': format_columns.DictColumn(result)})
         if (parsed_args.encryption_provider or
                 parsed_args.encryption_cipher or
                 parsed_args.encryption_key_size or
@@ -125,7 +159,7 @@ class CreateVolumeType(command.ShowOne):
             # add encryption info in result
             encryption._info.pop("volume_type_id", None)
             volume_type._info.update(
-                {'encryption': utils.format_dict(encryption._info)})
+                {'encryption': format_columns.DictColumn(encryption._info)})
         volume_type._info.pop("os-volume-type-access:is_public", None)
 
         return zip(*sorted(six.iteritems(volume_type._info)))
@@ -196,12 +230,7 @@ class ListVolumeType(command.Lister):
             column_headers = ['ID', 'Name', 'Is Public']
         data = volume_client.volume_types.list()
 
-        def _format_encryption_info(type_id, encryption_data=None):
-            encryption_data = encryption
-            encryption_info = '-'
-            if type_id in encryption_data.keys():
-                encryption_info = encryption_data[type_id]
-            return encryption_info
+        formatters = {'Extra Specs': format_columns.DictColumn}
 
         if parsed_args.encryption_type:
             encryption = {}
@@ -218,18 +247,21 @@ class ListVolumeType(command.Lister):
                 for key in del_key:
                     d._info.pop(key, None)
                 # save the encryption information with their volume type ID
-                encryption[volume_type_id] = utils.format_dict(d._info)
+                encryption[volume_type_id] = d._info
             # We need to get volume type ID, then show encryption
             # information according to the ID, so use "id" to keep
             # difference to the real "ID" column.
             columns += ['id']
             column_headers += ['Encryption']
 
+            _EncryptionInfoColumn = functools.partial(
+                EncryptionInfoColumn, encryption_data=encryption)
+            formatters['id'] = _EncryptionInfoColumn
+
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
-                    formatters={'Extra Specs': utils.format_dict,
-                                'id': _format_encryption_info},
+                    formatters=formatters,
                 ) for s in data))
 
 
@@ -340,7 +372,8 @@ class ShowVolumeType(command.ShowOne):
         volume_client = self.app.client_manager.volume
         volume_type = utils.find_resource(
             volume_client.volume_types, parsed_args.volume_type)
-        properties = utils.format_dict(volume_type._info.pop('extra_specs'))
+        properties = format_columns.DictColumn(
+            volume_type._info.pop('extra_specs'))
         volume_type._info.update({'properties': properties})
         if parsed_args.encryption_type:
             # show encryption type information for this volume type
@@ -349,7 +382,8 @@ class ShowVolumeType(command.ShowOne):
                     volume_type.id)
                 encryption._info.pop("volume_type_id", None)
                 volume_type._info.update(
-                    {'encryption': utils.format_dict(encryption._info)})
+                    {'encryption':
+                     format_columns.DictColumn(encryption._info)})
             except Exception as e:
                 LOG.error(_("Failed to display the encryption information "
                           "of this volume type: %s"), e)

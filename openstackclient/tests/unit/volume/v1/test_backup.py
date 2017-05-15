@@ -100,7 +100,7 @@ class TestBackupCreate(TestBackup):
             self.new_backup.description,
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_backup_create_without_name(self):
         arglist = [
@@ -124,7 +124,7 @@ class TestBackupCreate(TestBackup):
             self.new_backup.description,
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 class TestBackupDelete(TestBackup):
@@ -240,7 +240,7 @@ class TestBackupList(TestBackup):
             b.status,
             b.size,
             b.availability_zone,
-            b.volume_id,
+            backup.VolumeIdColumn(b.volume_id),
             b.container,
         ))
 
@@ -277,7 +277,7 @@ class TestBackupList(TestBackup):
             search_opts=search_opts,
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_backup_list_with_options(self):
         arglist = [
@@ -309,7 +309,7 @@ class TestBackupList(TestBackup):
             search_opts=search_opts,
         )
         self.assertEqual(self.columns_long, columns)
-        self.assertEqual(self.data_long, list(data))
+        self.assertListItemEqual(self.data_long, list(data))
 
 
 class TestBackupRestore(TestBackup):
@@ -391,4 +391,4 @@ class TestBackupShow(TestBackup):
         self.backups_mock.get.assert_called_with(self.backup.id)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)

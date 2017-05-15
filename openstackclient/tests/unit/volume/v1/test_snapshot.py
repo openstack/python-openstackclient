@@ -15,6 +15,7 @@
 import mock
 from mock import call
 
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -59,7 +60,7 @@ class TestSnapshotCreate(TestSnapshot):
             self.new_snapshot.display_description,
             self.new_snapshot.display_name,
             self.new_snapshot.id,
-            utils.format_dict(self.new_snapshot.metadata),
+            format_columns.DictColumn(self.new_snapshot.metadata),
             self.new_snapshot.size,
             self.new_snapshot.status,
             self.new_snapshot.volume_id,
@@ -94,7 +95,7 @@ class TestSnapshotCreate(TestSnapshot):
             self.new_snapshot.display_description,
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_snapshot_create_without_name(self):
         arglist = [
@@ -135,7 +136,7 @@ class TestSnapshotCreate(TestSnapshot):
             self.new_snapshot.display_description,
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 class TestSnapshotDelete(TestSnapshot):
@@ -252,8 +253,8 @@ class TestSnapshotList(TestSnapshot):
             s.status,
             s.size,
             s.created_at,
-            s.volume_id,
-            utils.format_dict(s.metadata),
+            volume_snapshot.VolumeIdColumn(s.volume_id),
+            format_columns.DictColumn(s.metadata),
         ))
 
     def setUp(self):
@@ -284,7 +285,7 @@ class TestSnapshotList(TestSnapshot):
             }
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_snapshot_list_with_long(self):
         arglist = [
@@ -307,7 +308,7 @@ class TestSnapshotList(TestSnapshot):
             }
         )
         self.assertEqual(self.columns_long, columns)
-        self.assertEqual(self.data_long, list(data))
+        self.assertListItemEqual(self.data_long, list(data))
 
     def test_snapshot_list_name_option(self):
         arglist = [
@@ -331,7 +332,7 @@ class TestSnapshotList(TestSnapshot):
             }
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_snapshot_list_status_option(self):
         arglist = [
@@ -355,7 +356,7 @@ class TestSnapshotList(TestSnapshot):
             }
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_snapshot_list_volumeid_option(self):
         arglist = [
@@ -379,7 +380,7 @@ class TestSnapshotList(TestSnapshot):
             }
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_snapshot_list_all_projects(self):
         arglist = [
@@ -402,7 +403,7 @@ class TestSnapshotList(TestSnapshot):
             }
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
 
 class TestSnapshotSet(TestSnapshot):
@@ -509,7 +510,7 @@ class TestSnapshotShow(TestSnapshot):
             self.snapshot.display_description,
             self.snapshot.display_name,
             self.snapshot.id,
-            utils.format_dict(self.snapshot.metadata),
+            format_columns.DictColumn(self.snapshot.metadata),
             self.snapshot.size,
             self.snapshot.status,
             self.snapshot.volume_id,
@@ -532,7 +533,7 @@ class TestSnapshotShow(TestSnapshot):
         self.snapshots_mock.get.assert_called_with(self.snapshot.id)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 class TestSnapshotUnset(TestSnapshot):

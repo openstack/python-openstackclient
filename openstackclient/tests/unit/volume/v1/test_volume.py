@@ -17,6 +17,7 @@ import argparse
 import mock
 from mock import call
 
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -88,7 +89,7 @@ class TestVolumeCreate(TestVolume):
             self.new_volume.display_description,
             self.new_volume.id,
             self.new_volume.display_name,
-            utils.format_dict(self.new_volume.metadata),
+            format_columns.DictColumn(self.new_volume.metadata),
             self.new_volume.size,
             self.new_volume.snapshot_id,
             self.new_volume.status,
@@ -134,7 +135,7 @@ class TestVolumeCreate(TestVolume):
             None,
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_volume_create_options(self):
         arglist = [
@@ -178,7 +179,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_volume_create_user_project_id(self):
         # Return a project
@@ -225,7 +226,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_volume_create_user_project_name(self):
         # Return a project
@@ -272,7 +273,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_volume_create_properties(self):
         arglist = [
@@ -313,7 +314,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_volume_create_image_id(self):
         image = image_fakes.FakeImage.create_one_image()
@@ -356,7 +357,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_volume_create_image_name(self):
         image = image_fakes.FakeImage.create_one_image()
@@ -399,7 +400,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_volume_create_with_source(self):
         self.volumes_mock.get.return_value = self.new_volume
@@ -429,7 +430,7 @@ class TestVolumeCreate(TestVolume):
             None,
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_volume_create_with_bootable_and_readonly(self):
         arglist = [
@@ -467,7 +468,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
         self.volumes_mock.set_bootable.assert_called_with(
             self.new_volume.id, True)
         self.volumes_mock.update_readonly_flag.assert_called_with(
@@ -509,7 +510,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
         self.volumes_mock.set_bootable.assert_called_with(
             self.new_volume.id, False)
         self.volumes_mock.update_readonly_flag.assert_called_with(
@@ -561,7 +562,7 @@ class TestVolumeCreate(TestVolume):
 
         self.assertEqual(2, mock_error.call_count)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
         self.volumes_mock.set_bootable.assert_called_with(
             self.new_volume.id, True)
         self.volumes_mock.update_readonly_flag.assert_called_with(
@@ -732,16 +733,13 @@ class TestVolumeList(TestVolume):
         'Size',
         'Attached to',
     )
-    server = _volume.attachments[0]['server_id']
-    device = _volume.attachments[0]['device']
-    msg = 'Attached to %s on %s ' % (server, device)
     datalist = (
         (
             _volume.id,
             _volume.display_name,
             _volume.status,
             _volume.size,
-            msg,
+            volume.AttachmentsColumn(_volume.attachments),
         ),
     )
 
@@ -767,7 +765,7 @@ class TestVolumeList(TestVolume):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, tuple(data))
+        self.assertListItemEqual(self.datalist, tuple(data))
 
     def test_volume_list_name(self):
         arglist = [
@@ -784,7 +782,7 @@ class TestVolumeList(TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.assertEqual(self.columns, tuple(columns))
-        self.assertEqual(self.datalist, tuple(data))
+        self.assertListItemEqual(self.datalist, tuple(data))
 
     def test_volume_list_status(self):
         arglist = [
@@ -801,7 +799,7 @@ class TestVolumeList(TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.assertEqual(self.columns, tuple(columns))
-        self.assertEqual(self.datalist, tuple(data))
+        self.assertListItemEqual(self.datalist, tuple(data))
 
     def test_volume_list_all_projects(self):
         arglist = [
@@ -818,7 +816,7 @@ class TestVolumeList(TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.assertEqual(self.columns, tuple(columns))
-        self.assertEqual(self.datalist, tuple(data))
+        self.assertListItemEqual(self.datalist, tuple(data))
 
     def test_volume_list_long(self):
         arglist = [
@@ -855,10 +853,10 @@ class TestVolumeList(TestVolume):
             self._volume.size,
             self._volume.volume_type,
             self._volume.bootable,
-            self.msg,
-            utils.format_dict(self._volume.metadata),
+            volume.AttachmentsColumn(self._volume.attachments),
+            format_columns.DictColumn(self._volume.metadata),
         ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertListItemEqual(datalist, tuple(data))
 
     def test_volume_list_with_limit(self):
         arglist = [
@@ -883,7 +881,7 @@ class TestVolumeList(TestVolume):
                 'all_tenants': False, }
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, tuple(data))
+        self.assertListItemEqual(self.datalist, tuple(data))
 
     def test_volume_list_negative_limit(self):
         arglist = [
@@ -1251,7 +1249,7 @@ class TestVolumeShow(TestVolume):
             self._volume.display_description,
             self._volume.id,
             self._volume.display_name,
-            utils.format_dict(self._volume.metadata),
+            format_columns.DictColumn(self._volume.metadata),
             self._volume.size,
             self._volume.snapshot_id,
             self._volume.status,
@@ -1274,7 +1272,7 @@ class TestVolumeShow(TestVolume):
         self.volumes_mock.get.assert_called_with(self._volume.id)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertItemEqual(self.datalist, data)
 
     def test_volume_show_backward_compatibility(self):
         arglist = [
@@ -1339,3 +1337,31 @@ class TestVolumeUnset(TestVolume):
             self._volume.id, ['myprop']
         )
         self.assertIsNone(result)
+
+
+class TestColumns(TestVolume):
+
+    def test_attachments_column_without_server_cache(self):
+        _volume = volume_fakes.FakeVolume.create_one_volume()
+        server_id = _volume.attachments[0]['server_id']
+        device = _volume.attachments[0]['device']
+
+        col = volume.AttachmentsColumn(_volume.attachments, {})
+        self.assertEqual('Attached to %s on %s ' % (server_id, device),
+                         col.human_readable())
+        self.assertEqual(_volume.attachments, col.machine_readable())
+
+    def test_attachments_column_with_server_cache(self):
+        _volume = volume_fakes.FakeVolume.create_one_volume()
+
+        server_id = _volume.attachments[0]['server_id']
+        device = _volume.attachments[0]['device']
+        fake_server = mock.Mock()
+        fake_server.name = 'fake-server-name'
+        server_cache = {server_id: fake_server}
+
+        col = volume.AttachmentsColumn(_volume.attachments, server_cache)
+        self.assertEqual(
+            'Attached to %s on %s ' % ('fake-server-name', device),
+            col.human_readable())
+        self.assertEqual(_volume.attachments, col.machine_readable())
