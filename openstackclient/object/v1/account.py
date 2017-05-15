@@ -13,9 +13,9 @@
 
 """Account v1 action implementations"""
 
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
-from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
@@ -48,7 +48,8 @@ class ShowAccount(command.ShowOne):
     def take_action(self, parsed_args):
         data = self.app.client_manager.object_store.account_show()
         if 'properties' in data:
-            data['properties'] = utils.format_dict(data.pop('properties'))
+            data['properties'] = format_columns.DictColumn(
+                data.pop('properties'))
         return zip(*sorted(six.iteritems(data)))
 
 
