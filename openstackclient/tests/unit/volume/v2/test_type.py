@@ -15,6 +15,7 @@
 import mock
 from mock import call
 
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -92,7 +93,7 @@ class TestTypeCreate(TestType):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_type_create_private(self):
         arglist = [
@@ -118,7 +119,7 @@ class TestTypeCreate(TestType):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_public_type_create_with_project(self):
         arglist = [
@@ -158,7 +159,7 @@ class TestTypeCreate(TestType):
         )
         encryption_data = (
             self.new_volume_type.description,
-            utils.format_dict(encryption_info),
+            format_columns.DictColumn(encryption_info),
             self.new_volume_type.id,
             True,
             self.new_volume_type.name,
@@ -195,7 +196,7 @@ class TestTypeCreate(TestType):
             body,
         )
         self.assertEqual(encryption_columns, columns)
-        self.assertEqual(encryption_data, data)
+        self.assertItemEqual(encryption_data, data)
 
 
 class TestTypeDelete(TestType):
@@ -305,7 +306,7 @@ class TestTypeList(TestType):
             t.name,
             t.is_public,
             t.description,
-            utils.format_dict(t.extra_specs),
+            format_columns.DictColumn(t.extra_specs),
         ))
 
     def setUp(self):
@@ -329,7 +330,7 @@ class TestTypeList(TestType):
         columns, data = self.cmd.take_action(parsed_args)
         self.types_mock.list.assert_called_once_with(is_public=None)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_type_list_with_options(self):
         arglist = [
@@ -347,7 +348,7 @@ class TestTypeList(TestType):
         columns, data = self.cmd.take_action(parsed_args)
         self.types_mock.list.assert_called_once_with(is_public=True)
         self.assertEqual(self.columns_long, columns)
-        self.assertEqual(self.data_long, list(data))
+        self.assertListItemEqual(self.data_long, list(data))
 
     def test_type_list_with_private_option(self):
         arglist = [
@@ -364,7 +365,7 @@ class TestTypeList(TestType):
         columns, data = self.cmd.take_action(parsed_args)
         self.types_mock.list.assert_called_once_with(is_public=False)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_type_list_with_default_option(self):
         arglist = [
@@ -382,7 +383,7 @@ class TestTypeList(TestType):
         columns, data = self.cmd.take_action(parsed_args)
         self.types_mock.default.assert_called_once_with()
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data_with_default_type, list(data))
+        self.assertListItemEqual(self.data_with_default_type, list(data))
 
     def test_type_list_with_encryption(self):
         encryption_type = volume_fakes.FakeType.create_one_encryption_type(
@@ -401,13 +402,16 @@ class TestTypeList(TestType):
             self.volume_types[0].id,
             self.volume_types[0].name,
             self.volume_types[0].is_public,
-            utils.format_dict(encryption_info),
+            volume_type.EncryptionInfoColumn(
+                self.volume_types[0].id,
+                {self.volume_types[0].id: encryption_info}),
         ))
         encryption_data.append((
             self.volume_types[1].id,
             self.volume_types[1].name,
             self.volume_types[1].is_public,
-            '-',
+            volume_type.EncryptionInfoColumn(
+                self.volume_types[1].id, {}),
         ))
 
         self.encryption_types_mock.list.return_value = [encryption_type]
@@ -423,7 +427,7 @@ class TestTypeList(TestType):
         self.encryption_types_mock.list.assert_called_once_with()
         self.types_mock.list.assert_called_once_with(is_public=None)
         self.assertEqual(encryption_columns, columns)
-        self.assertEqual(encryption_data, list(data))
+        self.assertListItemEqual(encryption_data, list(data))
 
 
 class TestTypeSet(TestType):
@@ -687,7 +691,7 @@ class TestTypeShow(TestType):
             self.volume_type.id,
             True,
             self.volume_type.name,
-            utils.format_dict(self.volume_type.extra_specs)
+            format_columns.DictColumn(self.volume_type.extra_specs)
         )
 
         self.types_mock.get.return_value = self.volume_type
@@ -709,7 +713,7 @@ class TestTypeShow(TestType):
         self.types_mock.get.assert_called_with(self.volume_type.id)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_type_show_with_access(self):
         arglist = [
@@ -735,14 +739,14 @@ class TestTypeShow(TestType):
 
         self.assertEqual(self.columns, columns)
         private_type_data = (
-            utils.format_list([type_access_list.project_id]),
+            format_columns.ListColumn([type_access_list.project_id]),
             private_type.description,
             private_type.id,
             private_type.is_public,
             private_type.name,
-            utils.format_dict(private_type.extra_specs)
+            format_columns.DictColumn(private_type.extra_specs)
         )
-        self.assertEqual(private_type_data, data)
+        self.assertItemEqual(private_type_data, data)
 
     def test_type_show_with_list_access_exec(self):
         arglist = [
@@ -772,9 +776,9 @@ class TestTypeShow(TestType):
             private_type.id,
             private_type.is_public,
             private_type.name,
-            utils.format_dict(private_type.extra_specs)
+            format_columns.DictColumn(private_type.extra_specs)
         )
-        self.assertEqual(private_type_data, data)
+        self.assertItemEqual(private_type_data, data)
 
     def test_type_show_with_encryption(self):
         encryption_type = volume_fakes.FakeType.create_one_encryption_type()
@@ -800,11 +804,11 @@ class TestTypeShow(TestType):
         encryption_data = (
             None,
             self.volume_type.description,
-            utils.format_dict(encryption_info),
+            format_columns.DictColumn(encryption_info),
             self.volume_type.id,
             True,
             self.volume_type.name,
-            utils.format_dict(self.volume_type.extra_specs)
+            format_columns.DictColumn(self.volume_type.extra_specs)
         )
         arglist = [
             '--encryption-type',
@@ -820,7 +824,7 @@ class TestTypeShow(TestType):
         self.types_mock.get.assert_called_with(self.volume_type.id)
         self.encryption_types_mock.get.assert_called_with(self.volume_type.id)
         self.assertEqual(encryption_columns, columns)
-        self.assertEqual(encryption_data, data)
+        self.assertItemEqual(encryption_data, data)
 
 
 class TestTypeUnset(TestType):
@@ -923,3 +927,30 @@ class TestTypeUnset(TestType):
         result = self.cmd.take_action(parsed_args)
         self.encryption_types_mock.delete.assert_called_with(self.volume_type)
         self.assertIsNone(result)
+
+
+class TestColumns(TestType):
+
+    def test_encryption_info_column_with_info(self):
+        fake_volume_type = volume_fakes.FakeType.create_one_type()
+        type_id = fake_volume_type.id
+
+        encryption_info = {
+            'provider': 'LuksEncryptor',
+            'cipher': None,
+            'key_size': None,
+            'control_location': 'front-end',
+        }
+        col = volume_type.EncryptionInfoColumn(type_id,
+                                               {type_id: encryption_info})
+        self.assertEqual(utils.format_dict(encryption_info),
+                         col.human_readable())
+        self.assertEqual(encryption_info, col.machine_readable())
+
+    def test_encryption_info_column_without_info(self):
+        fake_volume_type = volume_fakes.FakeType.create_one_type()
+        type_id = fake_volume_type.id
+
+        col = volume_type.EncryptionInfoColumn(type_id, {})
+        self.assertEqual('-', col.human_readable())
+        self.assertIsNone(col.machine_readable())

@@ -17,7 +17,8 @@ import random
 import uuid
 
 import mock
-from osc_lib import utils as common_utils
+
+from osc_lib.cli import format_columns
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -468,7 +469,7 @@ class FakeVolume(object):
                 if x == 'tags':
                     # The 'tags' should be format_list
                     data_list.append(
-                        common_utils.format_list(volume.info.get(x)))
+                        format_columns.ListColumn(volume.info.get(x)))
                 else:
                     data_list.append(volume.info.get(x))
         return tuple(data_list)

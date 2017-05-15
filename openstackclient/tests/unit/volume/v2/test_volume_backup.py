@@ -271,7 +271,7 @@ class TestBackupList(TestBackup):
             b.status,
             b.size,
             b.availability_zone,
-            b.volume_id,
+            volume_backup.VolumeIdColumn(b.volume_id),
             b.container,
         ))
 
@@ -314,7 +314,7 @@ class TestBackupList(TestBackup):
             limit=None,
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_backup_list_with_options(self):
         arglist = [
@@ -353,7 +353,7 @@ class TestBackupList(TestBackup):
             limit=3,
         )
         self.assertEqual(self.columns_long, columns)
-        self.assertEqual(self.data_long, list(data))
+        self.assertListItemEqual(self.data_long, list(data))
 
 
 class TestBackupRestore(TestBackup):
