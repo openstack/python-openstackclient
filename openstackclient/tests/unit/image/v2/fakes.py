@@ -19,7 +19,7 @@ import random
 import uuid
 
 from glanceclient.v2 import schemas
-from osc_lib import utils as common_utils
+from osc_lib.cli import format_columns
 import warlock
 
 from openstackclient.tests.unit import fakes
@@ -48,7 +48,7 @@ IMAGE_columns = tuple(sorted(IMAGE))
 IMAGE_data = tuple((IMAGE[x] for x in sorted(IMAGE)))
 
 IMAGE_SHOW = copy.copy(IMAGE)
-IMAGE_SHOW['tags'] = ''
+IMAGE_SHOW['tags'] = format_columns.ListColumn(IMAGE_SHOW['tags'])
 IMAGE_SHOW_data = tuple((IMAGE_SHOW[x] for x in sorted(IMAGE_SHOW)))
 
 # Just enough v2 schema to do some testing
@@ -280,7 +280,7 @@ class FakeImage(object):
                 if x == 'tags':
                     # The 'tags' should be format_list
                     data_list.append(
-                        common_utils.format_list(getattr(image, x)))
+                        format_columns.ListColumn(getattr(image, x)))
                 else:
                     data_list.append(getattr(image, x))
         return tuple(data_list)

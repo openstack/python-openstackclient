@@ -122,7 +122,7 @@ class ImageTests(base.TestCase):
             self.NAME
         ))
         self.assertEqual(
-            "a='b', c='d'",
+            {'a': 'b', 'c': 'd'},
             json_output["properties"],
         )
 
@@ -152,7 +152,7 @@ class ImageTests(base.TestCase):
             self.NAME
         ))
         self.assertEqual(
-            '01',
+            ['01'],
             json_output["tags"],
         )
 
@@ -166,7 +166,7 @@ class ImageTests(base.TestCase):
             self.NAME
         ))
         self.assertEqual(
-            '',
+            [],
             json_output["tags"],
         )
 

@@ -107,6 +107,6 @@ class ImageTests(base.TestCase):
             self.NAME
         ))
         self.assertEqual(
-            "a='b', c='d'",
+            {'a': 'b', 'c': 'd'},
             json_output["properties"],
         )

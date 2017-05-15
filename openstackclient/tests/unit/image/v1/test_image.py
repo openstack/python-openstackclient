@@ -16,8 +16,8 @@
 import copy
 import mock
 
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
-from osc_lib import utils
 
 from openstackclient.image.v1 import image
 from openstackclient.tests.unit import fakes
@@ -58,7 +58,7 @@ class TestImageCreate(TestImage):
         new_image.min_ram,
         new_image.name,
         new_image.owner,
-        utils.format_dict(new_image.properties),
+        format_columns.DictColumn(new_image.properties),
         new_image.protected,
     )
 
@@ -106,7 +106,7 @@ class TestImageCreate(TestImage):
         self.assertEqual(self.images_mock.update.call_args_list, [])
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_image_reserve_options(self):
         mock_exception = {
@@ -160,7 +160,7 @@ class TestImageCreate(TestImage):
         self.assertEqual(self.images_mock.update.call_args_list, [])
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     @mock.patch('openstackclient.image.v1.image.io.open', name='Open')
     def test_image_create_file(self, mock_open):
@@ -224,7 +224,7 @@ class TestImageCreate(TestImage):
         self.assertEqual(self.images_mock.update.call_args_list, [])
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 class TestImageDelete(TestImage):
@@ -410,12 +410,13 @@ class TestImageList(TestImage):
             '',
             '',
             '',
-            'public',
+            image.VisibilityColumn(True),
             False,
             self._image.owner,
-            "Alpha='a', Beta='b', Gamma='g'",
+            format_columns.DictColumn(
+                {'Alpha': 'a', 'Beta': 'b', 'Gamma': 'g'}),
         ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertListItemEqual(datalist, tuple(data))
 
     @mock.patch('openstackclient.api.utils.simple_filter')
     def test_image_list_property_option(self, sf_mock):
@@ -716,7 +717,7 @@ class TestImageShow(TestImage):
         _image.min_ram,
         _image.name,
         _image.owner,
-        utils.format_dict(_image.properties),
+        format_columns.DictColumn(_image.properties),
         _image.protected,
         _image.size,
     )
@@ -747,7 +748,7 @@ class TestImageShow(TestImage):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_image_show_human_readable(self):
         arglist = [

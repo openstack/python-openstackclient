@@ -26,7 +26,9 @@ if os.name == "nt":
 else:
     msvcrt = None
 
+from cliff import columns as cliff_columns
 from glanceclient.common import utils as gc_utils
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import utils
@@ -46,19 +48,18 @@ DISK_CHOICES = ["ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2", "vhdx",
 LOG = logging.getLogger(__name__)
 
 
-def _format_visibility(data):
-    """Return a formatted visibility string
+class VisibilityColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        """Return a formatted visibility string
 
-    :param data:
-        The server's visibility (is_public) status value: True, False
-    :rtype:
-        A string formatted to public/private
-    """
+        :rtype:
+            A string formatted to public/private
+        """
 
-    if data:
-        return 'public'
-    else:
-        return 'private'
+        if self._value:
+            return 'public'
+        else:
+            return 'private'
 
 
 class CreateImage(command.ShowOne):
@@ -281,7 +282,8 @@ class CreateImage(command.ShowOne):
                     kwargs['data'].close()
 
             info.update(image._info)
-            info['properties'] = utils.format_dict(info.get('properties', {}))
+            info['properties'] = format_columns.DictColumn(
+                info.get('properties', {}))
         return zip(*sorted(six.iteritems(info)))
 
 
@@ -442,8 +444,8 @@ class ListImage(command.Lister):
                 s,
                 columns,
                 formatters={
-                    'is_public': _format_visibility,
-                    'properties': utils.format_dict,
+                    'is_public': VisibilityColumn,
+                    'properties': format_columns.DictColumn,
                 },
             ) for s in data)
         )
@@ -738,5 +740,6 @@ class ShowImage(command.ShowOne):
         if parsed_args.human_readable:
             if 'size' in info:
                 info['size'] = utils.format_size(info['size'])
-        info['properties'] = utils.format_dict(info.get('properties', {}))
+        info['properties'] = format_columns.DictColumn(
+            info.get('properties', {}))
         return zip(*sorted(six.iteritems(info)))
