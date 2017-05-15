@@ -20,6 +20,7 @@ import uuid
 from keystoneauth1 import access
 from keystoneauth1 import fixture
 import mock
+from osc_lib.cli import format_columns
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit import utils
@@ -300,7 +301,7 @@ TOKEN_WITH_DOMAIN_ID = {
 idp_id = 'test_idp'
 idp_description = 'super exciting IdP description'
 idp_remote_ids = ['entity1', 'entity2']
-formatted_idp_remote_ids = 'entity1, entity2'
+formatted_idp_remote_ids = format_columns.ListColumn(idp_remote_ids)
 
 IDENTITY_PROVIDER = {
     'id': idp_id,

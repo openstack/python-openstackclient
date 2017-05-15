@@ -91,12 +91,9 @@ class TestCatalogList(TestCatalog):
         datalist = ((
             'supernova',
             'compute',
-            'onlyone\n  public: https://public.example.com\n'
-            'onlyone\n  admin: https://admin.example.com\n'
-            '<none>\n  internal: https://internal.example.com\n'
-            '<none>\n  none: https://none.example.com\n',
+            catalog.EndpointsColumn(self.fake_service['endpoints']),
         ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertListItemEqual(datalist, tuple(data))
 
 
 class TestCatalogShow(TestCatalog):
@@ -131,12 +128,20 @@ class TestCatalogShow(TestCatalog):
         collist = ('endpoints', 'id', 'name', 'type')
         self.assertEqual(collist, columns)
         datalist = (
-            'onlyone\n  public: https://public.example.com\nonlyone\n'
-            '  admin: https://admin.example.com\n'
-            '<none>\n  internal: https://internal.example.com\n'
-            '<none>\n  none: https://none.example.com\n',
+            catalog.EndpointsColumn(self.fake_service['endpoints']),
             'qwertyuiop',
             'supernova',
             'compute',
         )
-        self.assertEqual(datalist, data)
+        self.assertItemEqual(datalist, data)
+
+
+class TestFormatColumns(TestCatalog):
+    def test_endpoints_column_human_readabale(self):
+        col = catalog.EndpointsColumn(self.fake_service['endpoints'])
+        self.assertEqual(
+            'onlyone\n  public: https://public.example.com\n'
+            'onlyone\n  admin: https://admin.example.com\n'
+            '<none>\n  internal: https://internal.example.com\n'
+            '<none>\n  none: https://none.example.com\n',
+            col.human_readable())
