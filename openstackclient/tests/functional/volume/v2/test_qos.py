@@ -74,7 +74,7 @@ class QosTests(common.BaseVolumeTests):
             cmd_output['consumer']
         )
         self.assertEqual(
-            "Alpha='a'",
+            {'Alpha': 'a'},
             cmd_output['properties']
         )
 
@@ -97,7 +97,7 @@ class QosTests(common.BaseVolumeTests):
             cmd_output['name']
         )
         self.assertEqual(
-            "Alpha='c', Beta='b'",
+            {'Alpha': 'c', 'Beta': 'b'},
             cmd_output['properties']
         )
 
@@ -118,7 +118,7 @@ class QosTests(common.BaseVolumeTests):
             cmd_output['name']
         )
         self.assertEqual(
-            "Beta='b'",
+            {'Beta': 'b'},
             cmd_output['properties']
         )
 

@@ -15,8 +15,10 @@
 """Volume v2 Backup action implementations"""
 
 import copy
+import functools
 import logging
 
+from cliff import columns as cliff_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -27,6 +29,33 @@ from openstackclient.i18n import _
 
 
 LOG = logging.getLogger(__name__)
+
+
+class VolumeIdColumn(cliff_columns.FormattableColumn):
+    """Formattable column for volume ID column.
+
+    Unlike the parent FormattableColumn class, the initializer of the
+    class takes volume_cache as the second argument.
+    osc_lib.utils.get_item_properties instantiate cliff FormattableColumn
+    object with a single parameter "column value", so you need to pass
+    a partially initialized class like
+    ``functools.partial(VolumeIdColumn, volume_cache)``.
+    """
+
+    def __init__(self, value, volume_cache=None):
+        super(VolumeIdColumn, self).__init__(value)
+        self._volume_cache = volume_cache or {}
+
+    def human_readable(self):
+        """Return a volume name if available
+
+        :rtype: either the volume ID or name
+        """
+        volume_id = self._value
+        volume = volume_id
+        if volume_id in self._volume_cache.keys():
+            volume = self._volume_cache[volume_id].name
+        return volume
 
 
 class CreateVolumeBackup(command.ShowOne):
@@ -223,18 +252,6 @@ class ListVolumeBackup(command.Lister):
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
 
-        def _format_volume_id(volume_id):
-            """Return a volume name if available
-
-            :param volume_id: a volume ID
-            :rtype: either the volume ID or name
-            """
-
-            volume = volume_id
-            if volume_id in volume_cache.keys():
-                volume = volume_cache[volume_id].name
-            return volume
-
         if parsed_args.long:
             columns = ['ID', 'Name', 'Description', 'Status', 'Size',
                        'Availability Zone', 'Volume ID', 'Container']
@@ -252,6 +269,8 @@ class ListVolumeBackup(command.Lister):
         except Exception:
             # Just forget it if there's any trouble
             pass
+        _VolumeIdColumn = functools.partial(VolumeIdColumn,
+                                            volume_cache=volume_cache)
 
         filter_volume_id = None
         if parsed_args.volume:
@@ -276,7 +295,7 @@ class ListVolumeBackup(command.Lister):
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
-                    formatters={'Volume ID': _format_volume_id},
+                    formatters={'Volume ID': _VolumeIdColumn},
                 ) for s in data))
 
 

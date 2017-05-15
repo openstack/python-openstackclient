@@ -15,8 +15,11 @@
 """Volume v2 snapshot action implementations"""
 
 import copy
+import functools
 import logging
 
+from cliff import columns as cliff_columns
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -28,6 +31,33 @@ from openstackclient.identity import common as identity_common
 
 
 LOG = logging.getLogger(__name__)
+
+
+class VolumeIdColumn(cliff_columns.FormattableColumn):
+    """Formattable column for volume ID column.
+
+    Unlike the parent FormattableColumn class, the initializer of the
+    class takes volume_cache as the second argument.
+    osc_lib.utils.get_item_properties instantiate cliff FormattableColumn
+    object with a single parameter "column value", so you need to pass
+    a partially initialized class like
+    ``functools.partial(VolumeIdColumn, volume_cache)``.
+    """
+
+    def __init__(self, value, volume_cache=None):
+        super(VolumeIdColumn, self).__init__(value)
+        self._volume_cache = volume_cache or {}
+
+    def human_readable(self):
+        """Return a volume name if available
+
+        :rtype: either the volume ID or name
+        """
+        volume_id = self._value
+        volume = volume_id
+        if volume_id in self._volume_cache.keys():
+            volume = self._volume_cache[volume_id].name
+        return volume
 
 
 class CreateVolumeSnapshot(command.ShowOne):
@@ -107,7 +137,8 @@ class CreateVolumeSnapshot(command.ShowOne):
                 metadata=parsed_args.property,
             )
         snapshot._info.update(
-            {'properties': utils.format_dict(snapshot._info.pop('metadata'))}
+            {'properties':
+             format_columns.DictColumn(snapshot._info.pop('metadata'))}
         )
         return zip(*sorted(six.iteritems(snapshot._info)))
 
@@ -216,18 +247,6 @@ class ListVolumeSnapshot(command.Lister):
         volume_client = self.app.client_manager.volume
         identity_client = self.app.client_manager.identity
 
-        def _format_volume_id(volume_id):
-            """Return a volume name if available
-
-            :param volume_id: a volume ID
-            :rtype: either the volume ID or name
-            """
-
-            volume = volume_id
-            if volume_id in volume_cache.keys():
-                volume = volume_cache[volume_id].name
-            return volume
-
         if parsed_args.long:
             columns = ['ID', 'Name', 'Description', 'Status',
                        'Size', 'Created At', 'Volume ID', 'Metadata']
@@ -246,6 +265,8 @@ class ListVolumeSnapshot(command.Lister):
         except Exception:
             # Just forget it if there's any trouble
             pass
+        _VolumeIdColumn = functools.partial(VolumeIdColumn,
+                                            volume_cache=volume_cache)
 
         volume_id = None
         if parsed_args.volume:
@@ -279,8 +300,8 @@ class ListVolumeSnapshot(command.Lister):
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
-                    formatters={'Metadata': utils.format_dict,
-                                'Volume ID': _format_volume_id},
+                    formatters={'Metadata': format_columns.DictColumn,
+                                'Volume ID': _VolumeIdColumn},
                 ) for s in data))
 
 
@@ -402,7 +423,8 @@ class ShowVolumeSnapshot(command.ShowOne):
         snapshot = utils.find_resource(
             volume_client.volume_snapshots, parsed_args.snapshot)
         snapshot._info.update(
-            {'properties': utils.format_dict(snapshot._info.pop('metadata'))}
+            {'properties':
+             format_columns.DictColumn(snapshot._info.pop('metadata'))}
         )
         return zip(*sorted(six.iteritems(snapshot._info)))
 

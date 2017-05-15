@@ -16,6 +16,7 @@
 
 import logging
 
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -238,7 +239,7 @@ class ListConsistencyGroup(command.Lister):
         return (columns, (
             utils.get_item_properties(
                 s, columns,
-                formatters={'Volume Types': utils.format_list})
+                formatters={'Volume Types': format_columns.ListColumn})
             for s in consistency_groups))
 
 
