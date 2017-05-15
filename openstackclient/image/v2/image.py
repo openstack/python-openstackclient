@@ -22,6 +22,7 @@ import logging
 from glanceclient.common import utils as gc_utils
 from openstack.image import image_signer
 from osc_lib.api import utils as api_utils
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -65,11 +66,11 @@ def _format_image(image):
             properties[key] = image.get(key)
 
     # format the tags if they are there
-    info['tags'] = utils.format_list(image.get('tags'))
+    info['tags'] = format_columns.ListColumn(image.get('tags'))
 
     # add properties back into the dictionary as a top-level key
     if properties:
-        info['properties'] = utils.format_dict(properties)
+        info['properties'] = format_columns.DictColumn(properties)
 
     return info
 
@@ -656,7 +657,7 @@ class ListImage(command.Lister):
                 s,
                 columns,
                 formatters={
-                    'tags': utils.format_list,
+                    'tags': format_columns.ListColumn,
                 },
             ) for s in data)
         )

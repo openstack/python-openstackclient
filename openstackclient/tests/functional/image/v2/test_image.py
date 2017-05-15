@@ -14,7 +14,6 @@ import json
 import uuid
 
 import fixtures
-# from glanceclient import exc as image_exceptions
 
 from openstackclient.tests.functional.image import base
 
@@ -81,7 +80,7 @@ class ImageTests(base.BaseImageTests):
         json_output = json.loads(self.openstack(
             'image list --tag ' + self.image_tag + ' --long -f json'
         ))
-        for taglist in [img['Tags'].split(', ') for img in json_output]:
+        for taglist in [img['Tags'] for img in json_output]:
             self.assertIn(
                 self.image_tag,
                 taglist
@@ -127,10 +126,8 @@ class ImageTests(base.BaseImageTests):
             'image show -f json ' +
             self.name
         ))
-        # NOTE(dtroyer): Don't do a full-string compare so we are tolerant of
-        #                new artributes in the returned data
-        self.assertIn("a='b'", json_output["properties"])
-        self.assertIn("c='d'", json_output["properties"])
+        self.assertIn("a", json_output["properties"])
+        self.assertIn("c", json_output["properties"])
 
         self.openstack(
             'image unset ' +
@@ -142,15 +139,13 @@ class ImageTests(base.BaseImageTests):
             'image show -f json ' +
             self.name
         ))
-        # NOTE(dtroyer): Don't do a full-string compare so we are tolerant of
-        #                new artributes in the returned data
-        self.assertNotIn("a='b'", json_output["properties"])
-        self.assertNotIn("c='d'", json_output["properties"])
+        self.assertNotIn("a", json_output["properties"])
+        self.assertNotIn("c", json_output["properties"])
 
         # Test tags
         self.assertNotIn(
             '01',
-            json_output["tags"].split(', ')
+            json_output["tags"]
         )
         self.openstack(
             'image set ' +
@@ -163,7 +158,7 @@ class ImageTests(base.BaseImageTests):
         ))
         self.assertIn(
             '01',
-            json_output["tags"].split(', ')
+            json_output["tags"]
         )
 
         self.openstack(
@@ -177,7 +172,7 @@ class ImageTests(base.BaseImageTests):
         ))
         self.assertNotIn(
             '01',
-            json_output["tags"].split(', ')
+            json_output["tags"]
         )
 
     def test_image_set_rename(self):

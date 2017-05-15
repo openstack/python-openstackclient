@@ -18,8 +18,8 @@ import copy
 from glanceclient.common import utils as glanceclient_utils
 from glanceclient.v2 import schemas
 import mock
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
-from osc_lib import utils as common_utils
 import warlock
 
 from openstackclient.image.v2 import image
@@ -116,7 +116,7 @@ class TestImageCreate(TestImage):
         self.assertEqual(
             image_fakes.FakeImage.get_image_columns(self.new_image),
             columns)
-        self.assertEqual(
+        self.assertItemEqual(
             image_fakes.FakeImage.get_image_data(self.new_image),
             data)
 
@@ -184,7 +184,7 @@ class TestImageCreate(TestImage):
         self.assertEqual(
             image_fakes.FakeImage.get_image_columns(self.new_image),
             columns)
-        self.assertEqual(
+        self.assertItemEqual(
             image_fakes.FakeImage.get_image_data(self.new_image),
             data)
 
@@ -284,7 +284,7 @@ class TestImageCreate(TestImage):
         self.assertEqual(
             image_fakes.FakeImage.get_image_columns(self.new_image),
             columns)
-        self.assertEqual(
+        self.assertItemEqual(
             image_fakes.FakeImage.get_image_data(self.new_image),
             data)
 
@@ -508,7 +508,7 @@ class TestImageList(TestImage):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, tuple(data))
+        self.assertListItemEqual(self.datalist, tuple(data))
 
     def test_image_list_public_option(self):
         arglist = [
@@ -533,7 +533,7 @@ class TestImageList(TestImage):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, tuple(data))
+        self.assertListItemEqual(self.datalist, tuple(data))
 
     def test_image_list_private_option(self):
         arglist = [
@@ -558,7 +558,7 @@ class TestImageList(TestImage):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, tuple(data))
+        self.assertListItemEqual(self.datalist, tuple(data))
 
     def test_image_list_community_option(self):
         arglist = [
@@ -608,7 +608,7 @@ class TestImageList(TestImage):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, tuple(data))
+        self.assertListItemEqual(self.datalist, tuple(data))
 
     def test_image_list_shared_member_status_option(self):
         arglist = [
@@ -696,9 +696,9 @@ class TestImageList(TestImage):
             self._image.visibility,
             self._image.protected,
             self._image.owner,
-            common_utils.format_list(self._image.tags),
+            format_columns.ListColumn(self._image.tags),
         ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertListItemEqual(datalist, tuple(data))
 
     @mock.patch('osc_lib.api.utils.simple_filter')
     def test_image_list_property_option(self, sf_mock):
@@ -727,7 +727,7 @@ class TestImageList(TestImage):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, tuple(data))
+        self.assertListItemEqual(self.datalist, tuple(data))
 
     @mock.patch('osc_lib.utils.sort_items')
     def test_image_list_sort_option(self, si_mock):
@@ -750,7 +750,7 @@ class TestImageList(TestImage):
             str,
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, tuple(data))
+        self.assertListItemEqual(self.datalist, tuple(data))
 
     def test_image_list_limit_option(self):
         ret_limit = 1
@@ -1460,7 +1460,7 @@ class TestImageShow(TestImage):
         )
 
         self.assertEqual(image_fakes.IMAGE_columns, columns)
-        self.assertEqual(image_fakes.IMAGE_SHOW_data, data)
+        self.assertItemEqual(image_fakes.IMAGE_SHOW_data, data)
 
     def test_image_show_human_readable(self):
         self.images_mock.get.return_value = self.new_image
