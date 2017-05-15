@@ -17,6 +17,7 @@
 
 import logging
 
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import utils
@@ -230,7 +231,7 @@ class ShowContainer(command.ShowOne):
             container=parsed_args.container,
         )
         if 'properties' in data:
-            data['properties'] = utils.format_dict(data.pop('properties'))
+            data['properties'] = format_columns.DictColumn(data['properties'])
 
         return zip(*sorted(six.iteritems(data)))
 
