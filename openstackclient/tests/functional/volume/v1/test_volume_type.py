@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import time
 import uuid
 
@@ -20,16 +21,13 @@ class VolumeTypeTests(common.BaseVolumeTests):
     """Functional tests for volume type. """
 
     NAME = uuid.uuid4().hex
-    HEADERS = ['"Name"']
-    FIELDS = ['name']
 
     @classmethod
     def setUpClass(cls):
         super(VolumeTypeTests, cls).setUpClass()
-        opts = cls.get_opts(cls.FIELDS)
-        raw_output = cls.openstack('volume type create ' + cls.NAME + opts)
-        expected = cls.NAME + '\n'
-        cls.assertOutput(expected, raw_output)
+        cmd_output = json.loads(cls.openstack(
+            'volume type create -f json ' + cls.NAME))
+        cls.assertOutput(cls.NAME, cmd_output['name'])
 
     @classmethod
     def tearDownClass(cls):
@@ -37,44 +35,45 @@ class VolumeTypeTests(common.BaseVolumeTests):
         cls.assertOutput('', raw_output)
 
     def test_volume_type_list(self):
-        opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('volume type list' + opts)
-        self.assertIn(self.NAME, raw_output)
+        cmd_output = json.loads(self.openstack('volume type list -f json'))
+        self.assertIn(self.NAME, [t['Name'] for t in cmd_output])
 
     def test_volume_type_show(self):
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack('volume type show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + "\n", raw_output)
+        cmd_output = json.loads(self.openstack(
+            'volume type show -f json ' + self.NAME))
+        self.assertEqual(self.NAME, cmd_output['name'])
 
     def test_volume_type_set_unset_properties(self):
         raw_output = self.openstack(
             'volume type set --property a=b --property c=d ' + self.NAME)
         self.assertEqual("", raw_output)
 
-        opts = self.get_opts(["properties"])
-        raw_output = self.openstack('volume type show ' + self.NAME + opts)
-        self.assertEqual("a='b', c='d'\n", raw_output)
+        cmd_output = json.loads(self.openstack(
+            'volume type show -f json ' + self.NAME))
+        self.assertEqual("a='b', c='d'", cmd_output['properties'])
 
         raw_output = self.openstack('volume type unset --property a '
                                     + self.NAME)
         self.assertEqual("", raw_output)
-        raw_output = self.openstack('volume type show ' + self.NAME + opts)
-        self.assertEqual("c='d'\n", raw_output)
+        cmd_output = json.loads(self.openstack(
+            'volume type show -f json ' + self.NAME))
+        self.assertEqual("c='d'", cmd_output['properties'])
 
     def test_volume_type_set_unset_multiple_properties(self):
         raw_output = self.openstack(
             'volume type set --property a=b --property c=d ' + self.NAME)
         self.assertEqual("", raw_output)
 
-        opts = self.get_opts(["properties"])
-        raw_output = self.openstack('volume type show ' + self.NAME + opts)
-        self.assertEqual("a='b', c='d'\n", raw_output)
+        cmd_output = json.loads(self.openstack(
+            'volume type show -f json ' + self.NAME))
+        self.assertEqual("a='b', c='d'", cmd_output['properties'])
 
         raw_output = self.openstack(
             'volume type unset --property a --property c ' + self.NAME)
         self.assertEqual("", raw_output)
-        raw_output = self.openstack('volume type show ' + self.NAME + opts)
-        self.assertEqual("\n", raw_output)
+        cmd_output = json.loads(self.openstack(
+            'volume type show -f json ' + self.NAME))
+        self.assertEqual("", cmd_output['properties'])
 
     def test_multi_delete(self):
         vol_type1 = uuid.uuid4().hex
@@ -84,7 +83,6 @@ class VolumeTypeTests(common.BaseVolumeTests):
         self.openstack('volume type create ' + vol_type2)
         time.sleep(5)
         cmd = 'volume type delete %s %s' % (vol_type1, vol_type2)
-        time.sleep(5)
         raw_output = self.openstack(cmd)
         self.assertOutput('', raw_output)
 
@@ -95,40 +93,41 @@ class VolumeTypeTests(common.BaseVolumeTests):
     def test_encryption_type(self):
         encryption_type = uuid.uuid4().hex
         # test create new encryption type
-        opts = self.get_opts(['encryption'])
-        raw_output = self.openstack(
-            'volume type create '
+        cmd_output = json.loads(self.openstack(
+            'volume type create -f json '
             '--encryption-provider LuksEncryptor '
             '--encryption-cipher aes-xts-plain64 '
             '--encryption-key-size 128 '
             '--encryption-control-location front-end ' +
-            encryption_type + opts)
+            encryption_type))
+        # TODO(amotoki): encryption output should be machine-readable
         expected = ["provider='LuksEncryptor'",
                     "cipher='aes-xts-plain64'",
                     "key_size='128'",
                     "control_location='front-end'"]
         for attr in expected:
-            self.assertIn(attr, raw_output)
+            self.assertIn(attr, cmd_output['encryption'])
         # test show encryption type
-        opts = self.get_opts(['encryption'])
-        raw_output = self.openstack(
-            'volume type show --encryption-type ' + encryption_type + opts)
+        cmd_output = json.loads(self.openstack(
+            'volume type show -f json --encryption-type ' + encryption_type))
         expected = ["provider='LuksEncryptor'",
                     "cipher='aes-xts-plain64'",
                     "key_size='128'",
                     "control_location='front-end'"]
         for attr in expected:
-            self.assertIn(attr, raw_output)
+            self.assertIn(attr, cmd_output['encryption'])
         # test list encryption type
-        opts = self.get_opts(['Encryption'])
-        raw_output = self.openstack(
-            'volume type list --encryption-type ' + opts)
+        cmd_output = json.loads(self.openstack(
+            'volume type list -f json --encryption-type'))
+        encryption_output = [t['Encryption'] for t in cmd_output
+                             if t['Name'] == encryption_type][0]
+        # TODO(amotoki): encryption output should be machine-readable
         expected = ["provider='LuksEncryptor'",
                     "cipher='aes-xts-plain64'",
                     "key_size='128'",
                     "control_location='front-end'"]
         for attr in expected:
-            self.assertIn(attr, raw_output)
+            self.assertIn(attr, encryption_output)
         # test set new encryption type
         raw_output = self.openstack(
             'volume type set '
@@ -138,23 +137,21 @@ class VolumeTypeTests(common.BaseVolumeTests):
             '--encryption-control-location front-end ' +
             self.NAME)
         self.assertEqual('', raw_output)
-        opts = self.get_opts(['encryption'])
-        raw_output = self.openstack(
-            'volume type show --encryption-type ' + self.NAME + opts)
+        cmd_output = json.loads(self.openstack(
+            'volume type show -f json --encryption-type ' + self.NAME))
         expected = ["provider='LuksEncryptor'",
                     "cipher='aes-xts-plain64'",
                     "key_size='128'",
                     "control_location='front-end'"]
         for attr in expected:
-            self.assertIn(attr, raw_output)
+            self.assertIn(attr, cmd_output['encryption'])
         # test unset encryption type
         raw_output = self.openstack(
             'volume type unset --encryption-type ' + self.NAME)
         self.assertEqual('', raw_output)
-        opts = self.get_opts(['encryption'])
-        raw_output = self.openstack(
-            'volume type show --encryption-type ' + self.NAME + opts)
-        self.assertEqual('\n', raw_output)
+        cmd_output = json.loads(self.openstack(
+            'volume type show -f json --encryption-type ' + self.NAME))
+        self.assertEqual('', cmd_output['encryption'])
         # test delete encryption type
         raw_output = self.openstack('volume type delete ' + encryption_type)
         self.assertEqual('', raw_output)
