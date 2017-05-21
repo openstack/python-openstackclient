@@ -12,10 +12,10 @@
 
 import os
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.volume import base
 
 
-class BaseVolumeTests(base.TestCase):
+class BaseVolumeTests(base.BaseVolumeTests):
     """Base class for Volume functional tests. """
 
     @classmethod
