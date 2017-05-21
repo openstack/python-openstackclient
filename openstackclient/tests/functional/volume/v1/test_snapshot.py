@@ -11,7 +11,6 @@
 #    under the License.
 
 import json
-import time
 import uuid
 
 from openstackclient.tests.functional.volume.v1 import common
@@ -23,16 +22,6 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
     VOLLY = uuid.uuid4().hex
 
     @classmethod
-    def wait_for_status(cls, command, status, tries):
-        opts = cls.get_opts(['status'])
-        for attempt in range(tries):
-            time.sleep(1)
-            raw_output = cls.openstack(command + opts)
-            if (raw_output.rstrip() == status):
-                return
-        cls.assertOutput(status, raw_output)
-
-    @classmethod
     def setUpClass(cls):
         super(VolumeSnapshotTests, cls).setUpClass()
         # create a volume for all tests to create snapshot
@@ -41,12 +30,12 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             '--size 1 ' +
             cls.VOLLY
         ))
-        cls.wait_for_status('volume show ' + cls.VOLLY, 'available', 6)
+        cls.wait_for_status('volume', cls.VOLLY, 'available')
         cls.VOLUME_ID = cmd_output['id']
 
     @classmethod
     def tearDownClass(cls):
-        cls.wait_for_status('volume show ' + cls.VOLLY, 'available', 6)
+        cls.wait_for_status('volume', cls.VOLLY, 'available')
         raw_output = cls.openstack('volume delete --force ' + cls.VOLLY)
         cls.assertOutput('', raw_output)
 
@@ -74,14 +63,14 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             cmd_output["display_name"],
         )
 
-        self.wait_for_status(
-            'volume snapshot show ' + name1, 'available', 6)
-        self.wait_for_status(
-            'volume snapshot show ' + name2, 'available', 6)
+        self.wait_for_status('volume snapshot', name1, 'available')
+        self.wait_for_status('volume snapshot', name2, 'available')
 
         del_output = self.openstack(
             'volume snapshot delete ' + name1 + ' ' + name2)
         self.assertOutput('', del_output)
+        self.wait_for_delete('volume snapshot', name1)
+        self.wait_for_delete('volume snapshot', name2)
 
     def test_volume_snapshot_list(self):
         """Test create, list filter"""
@@ -91,6 +80,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             name1 +
             ' --volume ' + self.VOLLY
         ))
+        self.addCleanup(self.wait_for_delete, 'volume snapshot', name1)
         self.addCleanup(self.openstack, 'volume snapshot delete ' + name1)
         self.assertEqual(
             name1,
@@ -104,8 +94,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             1,
             cmd_output["size"],
         )
-        self.wait_for_status(
-            'volume snapshot show ' + name1, 'available', 6)
+        self.wait_for_status('volume snapshot', name1, 'available')
 
         name2 = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
@@ -113,6 +102,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             name2 +
             ' --volume ' + self.VOLLY
         ))
+        self.addCleanup(self.wait_for_delete, 'volume snapshot', name2)
         self.addCleanup(self.openstack, 'volume snapshot delete ' + name2)
         self.assertEqual(
             name2,
@@ -126,8 +116,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             1,
             cmd_output["size"],
         )
-        self.wait_for_status(
-            'volume snapshot show ' + name2, 'available', 6)
+        self.wait_for_status('volume snapshot', name2, 'available')
 
         # Test list --long, --status
         cmd_output = json.loads(self.openstack(
@@ -167,6 +156,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             ' --description aaaa ' +
             name
         ))
+        self.addCleanup(self.wait_for_delete, 'volume snapshot', new_name)
         self.addCleanup(self.openstack, 'volume snapshot delete ' + new_name)
         self.assertEqual(
             name,
@@ -180,8 +170,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             'aaaa',
             cmd_output["display_description"],
         )
-        self.wait_for_status(
-            'volume snapshot show ' + name, 'available', 6)
+        self.wait_for_status('volume snapshot', name, 'available')
 
         # Test volume snapshot set
         raw_output = self.openstack(

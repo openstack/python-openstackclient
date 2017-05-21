@@ -16,7 +16,7 @@ import time
 from tempest.lib.common.utils import data_utils
 
 from openstackclient.tests.functional import base
-from openstackclient.tests.functional.volume.v2 import test_volume
+from openstackclient.tests.functional.volume.v2 import common as volume_common
 from tempest.lib import exceptions
 
 
@@ -331,9 +331,7 @@ class ServerTests(base.TestCase):
         """
         # server_image = self.get_image()
         # get volume status wait function
-        volume_wait_for = test_volume.VolumeTests(
-            methodName='wait_for',
-        ).wait_for
+        volume_wait_for = volume_common.BaseVolumeTests.wait_for_status
 
         # get image size
         cmd_output = json.loads(self.openstack(

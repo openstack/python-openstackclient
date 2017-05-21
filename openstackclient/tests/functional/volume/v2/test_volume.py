@@ -11,7 +11,6 @@
 #    under the License.
 
 import json
-import time
 import uuid
 
 from openstackclient.tests.functional.volume.v2 import common
@@ -44,8 +43,8 @@ class VolumeTests(common.BaseVolumeTests):
             cmd_output["size"],
         )
 
-        self.wait_for("volume", name1, "available")
-        self.wait_for("volume", name2, "available")
+        self.wait_for_status("volume", name1, "available")
+        self.wait_for_status("volume", name2, "available")
         del_output = self.openstack('volume delete ' + name1 + ' ' + name2)
         self.assertOutput('', del_output)
 
@@ -62,7 +61,7 @@ class VolumeTests(common.BaseVolumeTests):
             1,
             cmd_output["size"],
         )
-        self.wait_for("volume", name1, "available")
+        self.wait_for_status("volume", name1, "available")
 
         name2 = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
@@ -75,7 +74,7 @@ class VolumeTests(common.BaseVolumeTests):
             2,
             cmd_output["size"],
         )
-        self.wait_for("volume", name2, "available")
+        self.wait_for_status("volume", name2, "available")
         raw_output = self.openstack(
             'volume set ' +
             '--state error ' +
@@ -136,7 +135,7 @@ class VolumeTests(common.BaseVolumeTests):
             'false',
             cmd_output["bootable"],
         )
-        self.wait_for("volume", name, "available")
+        self.wait_for_status("volume", name, "available")
 
         # Test volume set
         raw_output = self.openstack(
@@ -204,7 +203,7 @@ class VolumeTests(common.BaseVolumeTests):
             '--size 1 ' +
             volume_name
         ))
-        self.wait_for("volume", volume_name, "available")
+        self.wait_for_status("volume", volume_name, "available")
         self.assertEqual(
             volume_name,
             cmd_output["name"],
@@ -214,9 +213,10 @@ class VolumeTests(common.BaseVolumeTests):
             snapshot_name +
             ' --volume ' + volume_name
         ))
-        self.wait_for("volume snapshot", snapshot_name, "available")
+        self.wait_for_status("volume snapshot", snapshot_name, "available")
 
         name = uuid.uuid4().hex
+        # Create volume from snapshot
         cmd_output = json.loads(self.openstack(
             'volume create -f json ' +
             '--snapshot ' + snapshot_name +
@@ -228,26 +228,12 @@ class VolumeTests(common.BaseVolumeTests):
             name,
             cmd_output["name"],
         )
-        self.wait_for("volume", name, "available")
+        self.wait_for_status("volume", name, "available")
 
         # Delete snapshot
         raw_output = self.openstack(
             'volume snapshot delete ' + snapshot_name)
         self.assertOutput('', raw_output)
-
-    def wait_for(self, check_type, check_name, desired_status, wait=120,
-                 interval=5, failures=['ERROR']):
-        status = "notset"
-        total_sleep = 0
-        opts = self.get_opts(['status'])
-        while total_sleep < wait:
-            status = self.openstack(check_type + ' show ' + check_name + opts)
-            status = status.rstrip()
-            print('Checking {} {} Waiting for {} current status: {}'
-                  .format(check_type, check_name, desired_status, status))
-            if status == desired_status:
-                break
-            self.assertNotIn(status, failures)
-            time.sleep(interval)
-            total_sleep += interval
-        self.assertEqual(desired_status, status)
+        # Deleting snapshot may take time. If volume snapshot still exists when
+        # a parent volume delete is requested, the volume deletion will fail.
+        self.wait_for_delete('volume snapshot', snapshot_name)
