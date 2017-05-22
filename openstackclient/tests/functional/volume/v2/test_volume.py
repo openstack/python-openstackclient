@@ -14,6 +14,8 @@ import json
 import time
 import uuid
 
+from tempest.lib import exceptions
+
 from openstackclient.tests.functional.volume.v2 import common
 
 
@@ -253,7 +255,13 @@ class VolumeTests(common.BaseVolumeTests):
         total_sleep = 0
         opts = self.get_opts(['status'])
         while total_sleep < wait:
-            status = self.openstack(check_type + ' show ' + check_name + opts)
+            try:
+                status = self.openstack(
+                    check_type + ' show ' + check_name + opts
+                )
+            except exceptions.CommandFailed:
+                # Show command raise Exception when object had been deleted
+                status = 'disappear'
             status = status.rstrip()
             print('Checking {} {} Waiting for {} current status: {}'
                   .format(check_type, check_name, desired_status, status))

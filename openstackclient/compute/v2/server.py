@@ -446,10 +446,22 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--block-device-mapping',
             metavar='<dev-name=mapping>',
-            action='append',
-            default=[],
-            help=_('Map block devices; map is '
-                   '<id>:<type>:<size(GB)>:<delete_on_terminate> '
+            action=parseractions.KeyValueAction,
+            default={},
+            # NOTE(RuiChen): Add '\n' at the end of line to put each item in
+            #                the separated line, avoid the help message looks
+            #                messy, see _SmartHelpFormatter in cliff.
+            help=_('Create a block device on the server.\n'
+                   'Block device mapping in the format\n'
+                   '<dev-name>=<id>:<type>:<size(GB)>:<delete-on-terminate>\n'
+                   '<dev-name>: block device name, like: vdb, xvdc '
+                   '(required)\n'
+                   '<id>: UUID of the volume or snapshot (required)\n'
+                   '<type>: volume or snapshot; default: volume (optional)\n'
+                   '<size(GB)>: volume size if create from snapshot '
+                   '(optional)\n'
+                   '<delete-on-terminate>: true or false; default: false '
+                   '(optional)\n'
                    '(optional extension)'),
         )
         parser.add_argument(
@@ -593,33 +605,39 @@ class CreateServer(command.ShowOne):
                                         'source_type': 'volume',
                                         'destination_type': 'volume'
                                         }]
-        for dev_map in parsed_args.block_device_mapping:
-            dev_name, dev_map = dev_map.split('=', 1)
-            if dev_map:
-                dev_map = dev_map.split(':')
-                if len(dev_map) > 0:
-                    mapping = {
-                        'device_name': dev_name,
-                        'uuid': utils.find_resource(
-                            volume_client.volumes,
-                            dev_map[0],
-                        ).id}
-                    # Block device mapping v1 compatibility
-                    if len(dev_map) > 1 and \
-                            dev_map[1] in ('volume', 'snapshot'):
-                        mapping['source_type'] = dev_map[1]
-                    else:
-                        mapping['source_type'] = 'volume'
-                    mapping['destination_type'] = 'volume'
-                    if len(dev_map) > 2 and dev_map[2]:
-                        mapping['volume_size'] = dev_map[2]
-                    if len(dev_map) > 3:
-                        mapping['delete_on_termination'] = dev_map[3]
+        # Handle block device by device name order, like: vdb -> vdc -> vdd
+        for dev_name in sorted(six.iterkeys(parsed_args.block_device_mapping)):
+            dev_map = parsed_args.block_device_mapping[dev_name]
+            dev_map = dev_map.split(':')
+            if dev_map[0]:
+                mapping = {'device_name': dev_name}
+                # 1. decide source and destination type
+                if (len(dev_map) > 1 and
+                        dev_map[1] in ('volume', 'snapshot')):
+                    mapping['source_type'] = dev_map[1]
                 else:
-                    msg = _("Volume name or ID must be specified if "
-                            "--block-device-mapping is specified")
-                    raise exceptions.CommandError(msg)
-                block_device_mapping_v2.append(mapping)
+                    mapping['source_type'] = 'volume'
+                mapping['destination_type'] = 'volume'
+                # 2. check target exist, update target uuid according by
+                #    source type
+                if mapping['source_type'] == 'volume':
+                    volume_id = utils.find_resource(
+                        volume_client.volumes, dev_map[0]).id
+                    mapping['uuid'] = volume_id
+                elif mapping['source_type'] == 'snapshot':
+                    snapshot_id = utils.find_resource(
+                        volume_client.volume_snapshots, dev_map[0]).id
+                    mapping['uuid'] = snapshot_id
+                # 3. append size and delete_on_termination if exist
+                if len(dev_map) > 2 and dev_map[2]:
+                    mapping['volume_size'] = dev_map[2]
+                if len(dev_map) > 3 and dev_map[3]:
+                    mapping['delete_on_termination'] = dev_map[3]
+            else:
+                msg = _("Volume or snapshot (name or ID) must be specified if "
+                        "--block-device-mapping is specified")
+                raise exceptions.CommandError(msg)
+            block_device_mapping_v2.append(mapping)
 
         nics = []
         auto_or_none = False

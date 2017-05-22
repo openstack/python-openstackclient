@@ -193,7 +193,23 @@ Create a new server
 
 .. option:: --block-device-mapping <dev-name=mapping>
 
-    Map block devices; map is <id>:<type>:<size(GB)>:<delete_on_terminate> (optional extension)
+    Create a block device on the server.
+
+    Block device mapping in the format
+
+    <dev-name>=<id>:<type>:<size(GB)>:<delete-on-terminate>
+
+    <dev-name>: block device name, like: vdb, xvdc (required)
+
+    <id>: UUID of the volume or snapshot (required)
+
+    <type>: volume or snapshot; default: volume (optional)
+
+    <size(GB)>: volume size if create from snapshot (optional)
+
+    <delete-on-terminate>: true or false; default: false (optional)
+
+    (optional extension)
 
 .. option:: --nic <net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,port-id=port-uuid,auto,none>
 
