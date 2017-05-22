@@ -28,7 +28,7 @@ encryption-type-show,volume type list --encryption-show,Shows encryption type de
 encryption-type-update,volume type set --encryption-provider --enc..,Update encryption type information for a volume type (Admin Only).
 endpoints,catalog list,Discovers endpoints registered by authentication service.
 extend,volume set --size,Attempts to extend size of an existing volume.
-extra-specs-list,volume types list --long,Lists current volume types and extra specs.
+extra-specs-list,volume type list --long,Lists current volume types and extra specs.
 failover-host,volume host failover,Failover a replicating cinder-volume host.
 force-delete,volume delete --force,"Attempts force-delete of volume, regardless of state."
 freeze-host,volume host set --disable,Freeze and disable the specified cinder-volume host.
