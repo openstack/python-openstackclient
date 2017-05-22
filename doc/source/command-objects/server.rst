@@ -164,7 +164,7 @@ Create a new server
 
     Create server with this flavor (name or ID)
 
-.. option:: --security-group <security-group-name>
+.. option:: --security-group <security-group>
 
     Security group to assign to this server (name or ID)
     (repeat option to set multiple groups)

@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Allow security groups in ``server create`` command to be specified by name or ID with
+    the ``--security-group`` option.  This also checks that the security group exist before
+    creating the server.
+    [Bug `1687814 <https://bugs.launchpad.net/python-openstackclient/+bug/1687814>`_]

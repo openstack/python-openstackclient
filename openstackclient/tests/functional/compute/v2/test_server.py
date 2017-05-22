@@ -517,6 +517,52 @@ class ServerTests(common.ComputeTestCase):
         self.assertIsNotNone(server['addresses'])
         self.assertEqual('', server['addresses'])
 
+    def test_server_create_with_security_group(self):
+        """Test server create with security group ID and name"""
+        if not self.haz_network:
+            # NOTE(dtroyer): As of Ocata release Nova forces nova-network to
+            #                run in a cells v1 configuration.  Security group
+            #                and network functions currently do not work in
+            #                the gate jobs so we have to skip this.  It is
+            #                known to work tested against a Mitaka nova-net
+            #                DevStack without cells.
+            self.skipTest("No Network service present")
+        # Create two security group, use name and ID to create server
+        sg_name1 = uuid.uuid4().hex
+        security_group1 = json.loads(self.openstack(
+            'security group create -f json ' + sg_name1
+        ))
+        self.addCleanup(self.openstack, 'security group delete ' + sg_name1)
+        sg_name2 = uuid.uuid4().hex
+        security_group2 = json.loads(self.openstack(
+            'security group create -f json ' + sg_name2
+        ))
+        self.addCleanup(self.openstack, 'security group delete ' + sg_name2)
+
+        server_name = uuid.uuid4().hex
+        server = json.loads(self.openstack(
+            'server create -f json ' +
+            '--flavor ' + self.flavor_name + ' ' +
+            '--image ' + self.image_name + ' ' +
+            # Security group id is integer in nova-network, convert to string
+            '--security-group ' + str(security_group1['id']) + ' ' +
+            '--security-group ' + security_group2['name'] + ' ' +
+            self.network_arg + ' ' +
+            server_name
+        ))
+        self.addCleanup(self.openstack, 'server delete --wait ' + server_name)
+
+        self.assertIsNotNone(server['id'])
+        self.assertEqual(server_name, server['name'])
+        self.assertIn(str(security_group1['id']), server['security_groups'])
+        self.assertIn(str(security_group2['id']), server['security_groups'])
+        self.wait_for_status(server_name, 'ACTIVE')
+        server = json.loads(self.openstack(
+            'server show -f json ' + server_name
+        ))
+        self.assertIn(sg_name1, server['security_groups'])
+        self.assertIn(sg_name2, server['security_groups'])
+
     def test_server_create_with_empty_network_option_latest(self):
         """Test server create with empty network option in nova 2.latest."""
         server_name = uuid.uuid4().hex
