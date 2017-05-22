@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Raise exact exception when extension don't exist in ``extension show``
+    command, and keep the column display order consist in ``extension list``
+    with and without ``--long`` option.
+    [Bug `1689233 <https://bugs.launchpad.net/python-openstackclient/+bug/1689233>`_]

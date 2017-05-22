@@ -15,6 +15,8 @@
 
 import json
 
+from tempest.lib import exceptions as tempest_exc
+
 from openstackclient.tests.functional import base
 
 
@@ -23,7 +25,6 @@ class ExtensionTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # super(NetworkTests, cls).setUp()
         cls.haz_network = base.is_service_enabled('network')
 
     def test_extension_list_compute(self):
@@ -35,6 +36,18 @@ class ExtensionTests(base.TestCase):
         name_list = [item.get('Name') for item in json_output]
         self.assertIn(
             'ImageSize',
+            name_list,
+        )
+
+    def test_extension_list_volume(self):
+        """Test volume extension list"""
+        json_output = json.loads(self.openstack(
+            'extension list -f json ' +
+            '--volume'
+        ))
+        name_list = [item.get('Name') for item in json_output]
+        self.assertIn(
+            'TypesManage',
             name_list,
         )
 
@@ -79,5 +92,19 @@ class ExtensionTests(base.TestCase):
         ))
         self.assertEqual(
             name,
-            json_output.get('Alias'),
+            json_output.get('alias'),
         )
+
+    def test_extension_show_not_exist(self):
+        """Test extension show with not existed name"""
+        if not self.haz_network:
+            self.skipTest("No Network service present")
+
+        name = 'not_existed_ext'
+        try:
+            self.openstack('extension show ' + name)
+        except tempest_exc.CommandFailed as e:
+            self.assertIn('ResourceNotFound', str(e))
+            self.assertIn(name, str(e))
+        else:
+            self.fail('CommandFailed should be raised')

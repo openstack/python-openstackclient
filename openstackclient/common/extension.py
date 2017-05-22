@@ -15,7 +15,6 @@
 
 """Extension action implementations"""
 
-import itertools
 import logging
 
 from osc_lib.command import command
@@ -66,8 +65,8 @@ class ListExtension(command.Lister):
 
     def take_action(self, parsed_args):
         if parsed_args.long:
-            columns = ('Name', 'Namespace', 'Description',
-                       'Alias', 'Updated', 'Links')
+            columns = ('Name', 'Alias', 'Description',
+                       'Namespace', 'Updated', 'Links')
         else:
             columns = ('Name', 'Alias', 'Description')
 
@@ -104,34 +103,21 @@ class ListExtension(command.Lister):
                             "Block Storage API")
                 LOG.warning(message)
 
-        # Resource classes for the above
+        if parsed_args.network or show_all:
+            network_client = self.app.client_manager.network
+            try:
+                data += network_client.extensions()
+            except Exception:
+                message = _("Failed to retrieve extensions list "
+                            "from Network API")
+                LOG.warning(message)
+
         extension_tuples = (
             utils.get_item_properties(
                 s,
                 columns,
-                formatters={},
             ) for s in data
         )
-
-        # Dictionaries for the below
-        if parsed_args.network or show_all:
-            network_client = self.app.client_manager.network
-            try:
-                data = network_client.extensions()
-                dict_tuples = (
-                    utils.get_item_properties(
-                        s,
-                        columns,
-                        formatters={},
-                    ) for s in data
-                )
-                extension_tuples = itertools.chain(
-                    extension_tuples,
-                    dict_tuples
-                )
-            except Exception:
-                message = _("Extensions list not supported by Network API")
-                LOG.warning(message)
 
         return (columns, extension_tuples)
 
@@ -152,14 +138,7 @@ class ShowExtension(command.ShowOne):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        columns = ('Alias', 'Description', 'Links', 'Name',
-                   'Namespace', 'Updated')
         ext = str(parsed_args.extension)
-        obj = client.find_extension(ext)
-        dict_tuples = (utils.get_item_properties(
-                       obj,
-                       columns,
-                       formatters={},)
-                       )
+        obj = client.find_extension(ext, ignore_missing=False).to_dict()
 
-        return columns, dict_tuples
+        return zip(*sorted(obj.items()))
