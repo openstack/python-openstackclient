@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import os
 import uuid
 
@@ -21,16 +22,13 @@ class ImageTests(base.TestCase):
 
     NAME = uuid.uuid4().hex
     OTHER_NAME = uuid.uuid4().hex
-    HEADERS = ['Name']
-    FIELDS = ['name']
 
     @classmethod
     def setUpClass(cls):
         os.environ['OS_IMAGE_API_VERSION'] = '1'
-        opts = cls.get_opts(cls.FIELDS)
-        raw_output = cls.openstack('image create ' + cls.NAME + opts)
-        expected = cls.NAME + '\n'
-        cls.assertOutput(expected, raw_output)
+        cmd_output = json.loads(cls.openstack(
+            'image create -f json ' + cls.NAME))
+        cls.assertOutput(cls.NAME, cmd_output['name'])
 
     @classmethod
     def tearDownClass(cls):
@@ -43,25 +41,29 @@ class ImageTests(base.TestCase):
         cls.assertOutput('', raw_output)
 
     def test_image_list(self):
-        opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('image list' + opts)
-        self.assertIn(self.NAME, raw_output)
+        cmd_output = json.loads(self.openstack('image list -f json'))
+        col_names = [img['Name'] for img in cmd_output]
+        self.assertIn(self.NAME, col_names)
 
     def test_image_show(self):
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack('image show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + "\n", raw_output)
+        cmd_output = json.loads(self.openstack(
+            'image show -f json ' + self.NAME))
+        self.assertEqual(self.NAME, cmd_output['name'])
 
     def test_image_set(self):
-        opts = self.get_opts([
-            "disk_format", "is_public", "min_disk", "min_ram", "name"])
         self.openstack('image set --min-disk 4 --min-ram 5 ' +
-                       '--disk-format qcow2  --public ' + self.NAME)
-        raw_output = self.openstack('image show ' + self.NAME + opts)
-        self.assertEqual("qcow2\nTrue\n4\n5\n" + self.NAME + '\n', raw_output)
+                       '--disk-format qcow2 --public ' + self.NAME)
+        cmd_output = json.loads(self.openstack(
+            'image show -f json ' + self.NAME))
+        self.assertEqual(self.NAME, cmd_output['name'])
+        self.assertEqual(4, cmd_output['min_disk'])
+        self.assertEqual(5, cmd_output['min_ram'])
+        self.assertEqual('qcow2', cmd_output['disk_format'])
+        self.assertEqual(True, cmd_output['is_public'])
 
     def test_image_metadata(self):
-        opts = self.get_opts(["name", "properties"])
         self.openstack('image set --property a=b --property c=d ' + self.NAME)
-        raw_output = self.openstack('image show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + "\na='b', c='d'\n", raw_output)
+        cmd_output = json.loads(self.openstack(
+            'image show -f json ' + self.NAME))
+        self.assertEqual(self.NAME, cmd_output['name'])
+        self.assertEqual("a='b', c='d'", cmd_output['properties'])
