@@ -128,7 +128,8 @@ class ListRoleAssignment(command.Lister):
         if parsed_args.project:
             project = common.find_project(
                 identity_client,
-                parsed_args.project,
+                common._get_token_resource(identity_client, 'project',
+                                           parsed_args.project),
                 parsed_args.project_domain,
             )
         elif parsed_args.authproject:
