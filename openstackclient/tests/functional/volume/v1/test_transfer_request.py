@@ -21,23 +21,19 @@ class TransferRequestTests(common.BaseVolumeTests):
 
     NAME = uuid.uuid4().hex
     VOLUME_NAME = uuid.uuid4().hex
-    HEADERS = ['Name']
-    FIELDS = ['name']
 
     @classmethod
     def setUpClass(cls):
         super(TransferRequestTests, cls).setUpClass()
-        opts = cls.get_opts(['display_name'])
-        raw_output = cls.openstack(
-            'volume create --size 1 ' + cls.VOLUME_NAME + opts)
-        cls.assertOutput(cls.VOLUME_NAME + '\n', raw_output)
+        cmd_output = json.loads(cls.openstack(
+            'volume create -f json --size 1 ' + cls.VOLUME_NAME))
+        cls.assertOutput(cls.VOLUME_NAME, cmd_output['display_name'])
 
-        opts = cls.get_opts(cls.FIELDS)
-        raw_output = cls.openstack(
-            'volume transfer request create ' +
+        cmd_output = json.loads(cls.openstack(
+            'volume transfer request create -f json ' +
             cls.VOLUME_NAME +
-            ' --name ' + cls.NAME + opts)
-        cls.assertOutput(cls.NAME + '\n', raw_output)
+            ' --name ' + cls.NAME))
+        cls.assertOutput(cls.NAME, cmd_output['name'])
 
     @classmethod
     def tearDownClass(cls):
@@ -53,19 +49,18 @@ class TransferRequestTests(common.BaseVolumeTests):
         name = uuid.uuid4().hex
 
         # create a volume
-        opts = self.get_opts(['display_name'])
-        raw_output = self.openstack(
-            'volume create --size 1 ' + volume_name + opts)
-        self.assertEqual(volume_name + '\n', raw_output)
+        cmd_output = json.loads(self.openstack(
+            'volume create -f json --size 1 ' + volume_name))
+        self.assertEqual(volume_name, cmd_output['display_name'])
 
         # create volume transfer request for the volume
         # and get the auth_key of the new transfer request
-        opts = self.get_opts(['auth_key'])
-        auth_key = self.openstack(
-            'volume transfer request create ' +
+        cmd_output = json.loads(self.openstack(
+            'volume transfer request create -f json ' +
             volume_name +
-            ' --name ' + name + opts)
-        self.assertNotEqual('', auth_key)
+            ' --name ' + name))
+        auth_key = cmd_output['auth_key']
+        self.assertTrue(auth_key)
 
         # accept the volume transfer request
         json_output = json.loads(self.openstack(
@@ -82,12 +77,11 @@ class TransferRequestTests(common.BaseVolumeTests):
         self.assertEqual('', raw_output)
 
     def test_volume_transfer_request_list(self):
-        opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('volume transfer request list' + opts)
-        self.assertIn(self.NAME, raw_output)
+        cmd_output = json.loads(self.openstack(
+            'volume transfer request list -f json'))
+        self.assertIn(self.NAME, [req['Name'] for req in cmd_output])
 
     def test_volume_transfer_request_show(self):
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack(
-            'volume transfer request show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + '\n', raw_output)
+        cmd_output = json.loads(self.openstack(
+            'volume transfer request show -f json ' + self.NAME))
+        self.assertEqual(self.NAME, cmd_output['name'])
