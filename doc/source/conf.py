@@ -34,6 +34,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'openstackdocstheme',
               'stevedore.sphinxext',
+              'cliff.sphinxext',
               ]
 
 # openstackdocstheme options
@@ -269,3 +270,12 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
+
+
+# -- Options for cliff.sphinxext plugin ---------------------------------------
+
+autoprogram_cliff_application = 'openstack'
+
+autoprogram_cliff_ignored = [
+    '--help', '--format', '--column', '--max-width', '--fit-width',
+    '--print-empty', '--prefix', '--noindent']

@@ -394,10 +394,13 @@ class CreateServer(command.ShowOne):
         disk_group.add_argument(
             '--volume',
             metavar='<volume>',
-            help=_(
-                'Create server using this volume as the boot disk '
-                '(name or ID)'
-            ),
+            help=_('Create server using this volume as the boot disk (name '
+                   'or ID).\n'
+                   'This option automatically creates a block device mapping '
+                   'with a boot index of 0. On many hypervisors (libvirt/kvm '
+                   'for example) this will be device vda. Do not create a '
+                   'duplicate mapping using --block-device-mapping for this '
+                   'volume.'),
         )
         parser.add_argument(
             '--flavor',
@@ -489,8 +492,11 @@ class CreateServer(command.ShowOne):
             type=_prefix_checked_value('net-id='),
             help=_("Create a NIC on the server and connect it to network. "
                    "Specify option multiple times to create multiple NICs. "
-                   "For more options on NICs see --nic parameter. "
-                   "network: attach NIC to this network "),
+                   "This is a wrapper for the '--nic net-id=<network>' "
+                   "parameter that provides simple syntax for the standard "
+                   "use case of connecting a new server to a given network. "
+                   "For more advanced use cases, refer to the '--nic' "
+                   "parameter."),
         )
         parser.add_argument(
             '--port',
@@ -500,8 +506,10 @@ class CreateServer(command.ShowOne):
             type=_prefix_checked_value('port-id='),
             help=_("Create a NIC on the server and connect it to port. "
                    "Specify option multiple times to create multiple NICs. "
-                   "For more options on NICs see --nic parameter. "
-                   "port: attach NIC this port "),
+                   "This is a wrapper for the '--nic port-id=<pord>' "
+                   "parameter that provides simple syntax for the standard "
+                   "use case of connecting a new server to a given port. For "
+                   "more advanced use cases, refer to the '--nic' parameter."),
         )
         parser.add_argument(
             '--hint',
@@ -1587,7 +1595,13 @@ class RescueServer(command.ShowOne):
 
 
 class ResizeServer(command.Command):
-    _description = _("Scale server to a new flavor")
+    _description = _("""Scale server to a new flavor.
+
+A resize operation is implemented by creating a new server and copying the
+contents of the original disk into a new one. It is also a two-step process for
+the user: the first is to perform the resize, the second is to either confirm
+(verify) success and release the old server, or to declare a revert to release
+the new server and restart the old one.""")
 
     def get_parser(self, prog_name):
         parser = super(ResizeServer, self).get_parser(prog_name)
