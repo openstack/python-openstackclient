@@ -48,7 +48,7 @@ def is_service_enabled(service):
         ret = execute('openstack service show -f value -c enabled ' + service)
     except exceptions.CommandFailed:
         # We get here for multiple reasons, all of them mean that a working
-        # service is not avilable
+        # service is not available
         return False
 
     return "True" in ret
@@ -69,7 +69,7 @@ class TestCase(testtools.TestCase):
         return cls.openstack('configuration show ' + opts)
 
     @classmethod
-    def get_openstack_extention_names(cls):
+    def get_openstack_extension_names(cls):
         opts = cls.get_opts(['Name'])
         return cls.openstack('extension list ' + opts)
 

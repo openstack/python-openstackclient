@@ -128,7 +128,7 @@ class APIv2(api.BaseAPI):
 
         https://developer.openstack.org/api-ref/compute/#delete-deallocate-floating-ip-address
 
-        :param string security_group:
+        :param string floating_ip_id:
             Floating IP ID
         """
 

@@ -503,7 +503,7 @@ class FakeSecurityGroup(object):
         If security groups list is provided, then initialize the Mock object
         with the list. Otherwise create one.
 
-        :param List security groups:
+        :param List security_groups:
             A list of FakeResource objects faking security groups
         :param int count:
             The number of security groups to fake
@@ -1029,7 +1029,7 @@ class FakeFloatingIP(object):
         If floating_ips list is provided, then initialize the Mock object
         with the list. Otherwise create one.
 
-        :param List floating ips:
+        :param List floating_ips:
             A list of FakeResource objects faking floating ips
         :param int count:
             The number of floating ips to fake

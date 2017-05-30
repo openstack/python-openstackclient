@@ -37,7 +37,7 @@ class NetworkSegmentTests(common.NetworkTests):
             # NOTE(rtheis): The segment extension is not yet enabled
             #               by default.
             # Skip the tests if not enabled.
-            extensions = cls.get_openstack_extention_names()
+            extensions = cls.get_openstack_extension_names()
             if 'Segment' in extensions:
                 cls.NETWORK_SEGMENT_EXTENSION = 'Segment'
 

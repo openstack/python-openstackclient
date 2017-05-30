@@ -278,6 +278,6 @@ class SubnetTests(common.NetworkTests):
                     raise
                 pass
             else:
-                # break and no longer retry if create sucessfully
+                # break and no longer retry if create successfully
                 break
         return cmd_output

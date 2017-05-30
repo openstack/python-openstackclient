@@ -144,7 +144,7 @@ class FakeAddressScope(object):
         If address scopes list is provided, then initialize the Mock object
         with the list. Otherwise create one.
 
-        :param List address scopes:
+        :param List address_scopes:
             A list of FakeResource objects faking address scopes
         :param int count:
             The number of address scopes to fake
@@ -883,7 +883,7 @@ class FakeNetworkQosPolicy(object):
         If qos policies list is provided, then initialize the Mock object
         with the list. Otherwise create one.
 
-        :param List address scopes:
+        :param List qos_policies:
             A list of FakeResource objects faking qos policies
         :param int count:
             The number of QoS policies to fake
@@ -961,7 +961,7 @@ class FakeNetworkQosRule(object):
         If Network QoS rules list is provided, then initialize the Mock
         object with the list. Otherwise create one.
 
-        :param List address scopes:
+        :param List qos_rules:
             A list of FakeResource objects faking Network QoS rules
         :param int count:
             The number of QoS minimum bandwidth rules to fake
@@ -1161,7 +1161,7 @@ class FakeSecurityGroup(object):
         If security groups list is provided, then initialize the Mock object
         with the list. Otherwise create one.
 
-        :param List security groups:
+        :param List security_groups:
             A list of FakeResource objects faking security groups
         :param int count:
             The number of security groups to fake
@@ -1241,7 +1241,7 @@ class FakeSecurityGroupRule(object):
         If security group rules list is provided, then initialize the Mock
         object with the list. Otherwise create one.
 
-        :param List security group rules:
+        :param List security_group_rules:
             A list of FakeResource objects faking security group rules
         :param int count:
             The number of security group rules to fake
@@ -1406,7 +1406,7 @@ class FakeFloatingIP(object):
         If floating_ips list is provided, then initialize the Mock object
         with the list. Otherwise create one.
 
-        :param List floating ips:
+        :param List floating_ips:
             A list of FakeResource objects faking floating ips
         :param int count:
             The number of floating ips to fake
@@ -1585,7 +1585,7 @@ class FakeSubnetPool(object):
         If subnet_pools list is provided, then initialize the Mock object
         with the list. Otherwise create one.
 
-        :param List subnet pools:
+        :param List subnet_pools:
             A list of FakeResource objects faking subnet pools
         :param int count:
             The number of subnet pools to fake

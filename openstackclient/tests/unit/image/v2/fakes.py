@@ -287,7 +287,7 @@ class FakeImage(object):
         """Create a fake image member.
 
         :param Dictionary attrs:
-            A dictionary with all attrbutes of image member
+            A dictionary with all attributes of image member
         :return:
             A FakeResource object with member_id, image_id and so on
         """
