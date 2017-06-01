@@ -34,6 +34,7 @@ image_properties = {
 }
 image_properties_str = "Alpha='a', Beta='b', Gamma='g'"
 image_data = 'line 1\nline 2\n'
+image_size = 0
 
 IMAGE = {
     'id': image_id,
@@ -46,6 +47,7 @@ IMAGE = {
     'is_public': image_public,
     'protected': image_protected,
     'properties': image_properties,
+    'size': image_size,
 }
 
 IMAGE_columns = tuple(sorted(IMAGE))

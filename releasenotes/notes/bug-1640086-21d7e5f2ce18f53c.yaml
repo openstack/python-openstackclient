@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--human-readable`` option to ``image show`` to display
+    image size in human readable format (such as K, M, G, T,..)
+    [Bug `1640086 <https://bugs.launchpad.net/bugs/1640086>`_]

@@ -1288,6 +1288,9 @@ class TestImageSet(TestImage):
 
 class TestImageShow(TestImage):
 
+    new_image = image_fakes.FakeImage.create_one_image(
+        attrs={'size': 1000})
+
     def setUp(self):
         super(TestImageShow, self).setUp()
 
@@ -1321,6 +1324,29 @@ class TestImageShow(TestImage):
 
         self.assertEqual(image_fakes.IMAGE_columns, columns)
         self.assertEqual(image_fakes.IMAGE_SHOW_data, data)
+
+    def test_image_show_human_readable(self):
+        self.images_mock.get.return_value = self.new_image
+        arglist = [
+            '--human-readable',
+            self.new_image.id,
+        ]
+        verifylist = [
+            ('human_readable', True),
+            ('image', self.new_image.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+        self.images_mock.get.assert_called_with(
+            self.new_image.id,
+        )
+
+        size_index = columns.index('size')
+        self.assertEqual(data[size_index], '1K')
 
 
 class TestImageUnset(TestImage):
