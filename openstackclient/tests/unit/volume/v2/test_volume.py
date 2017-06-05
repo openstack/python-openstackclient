@@ -790,7 +790,7 @@ class TestVolumeList(TestVolume):
 
     columns = [
         'ID',
-        'Display Name',
+        'Name',
         'Status',
         'Size',
         'Attached to',
@@ -827,7 +827,7 @@ class TestVolumeList(TestVolume):
             'all_tenants': False,
             'project_id': None,
             'user_id': None,
-            'display_name': None,
+            'name': None,
             'status': None,
         }
         self.volumes_mock.list.assert_called_once_with(
@@ -870,7 +870,7 @@ class TestVolumeList(TestVolume):
             'all_tenants': True,
             'project_id': self.project.id,
             'user_id': None,
-            'display_name': None,
+            'name': None,
             'status': None,
         }
         self.volumes_mock.list.assert_called_once_with(
@@ -915,7 +915,7 @@ class TestVolumeList(TestVolume):
             'all_tenants': True,
             'project_id': self.project.id,
             'user_id': None,
-            'display_name': None,
+            'name': None,
             'status': None,
         }
         self.volumes_mock.list.assert_called_once_with(
@@ -958,7 +958,7 @@ class TestVolumeList(TestVolume):
             'all_tenants': False,
             'project_id': None,
             'user_id': self.user.id,
-            'display_name': None,
+            'name': None,
             'status': None,
         }
         self.volumes_mock.list.assert_called_once_with(
@@ -1002,7 +1002,7 @@ class TestVolumeList(TestVolume):
             'all_tenants': False,
             'project_id': None,
             'user_id': self.user.id,
-            'display_name': None,
+            'name': None,
             'status': None,
         }
         self.volumes_mock.list.assert_called_once_with(
@@ -1045,7 +1045,7 @@ class TestVolumeList(TestVolume):
             'all_tenants': False,
             'project_id': None,
             'user_id': None,
-            'display_name': self.mock_volume.name,
+            'name': self.mock_volume.name,
             'status': None,
         }
         self.volumes_mock.list.assert_called_once_with(
@@ -1088,7 +1088,7 @@ class TestVolumeList(TestVolume):
             'all_tenants': False,
             'project_id': None,
             'user_id': None,
-            'display_name': None,
+            'name': None,
             'status': self.mock_volume.status,
         }
         self.volumes_mock.list.assert_called_once_with(
@@ -1131,7 +1131,7 @@ class TestVolumeList(TestVolume):
             'all_tenants': True,
             'project_id': None,
             'user_id': None,
-            'display_name': None,
+            'name': None,
             'status': None,
         }
         self.volumes_mock.list.assert_called_once_with(
@@ -1175,7 +1175,7 @@ class TestVolumeList(TestVolume):
             'all_tenants': False,
             'project_id': None,
             'user_id': None,
-            'display_name': None,
+            'name': None,
             'status': None,
         }
         self.volumes_mock.list.assert_called_once_with(
@@ -1186,7 +1186,7 @@ class TestVolumeList(TestVolume):
 
         collist = [
             'ID',
-            'Display Name',
+            'Name',
             'Status',
             'Size',
             'Type',
@@ -1248,7 +1248,7 @@ class TestVolumeList(TestVolume):
                 'status': None,
                 'project_id': None,
                 'user_id': None,
-                'display_name': None,
+                'name': None,
                 'all_tenants': False, }
         )
         self.assertEqual(datalist, tuple(data))
@@ -1262,6 +1262,42 @@ class TestVolumeList(TestVolume):
         ]
         self.assertRaises(argparse.ArgumentTypeError, self.check_parser,
                           self.cmd, arglist, verifylist)
+
+    def test_volume_list_backward_compatibility(self):
+        arglist = [
+            '-c', 'Display Name',
+        ]
+        verifylist = [
+            ('columns', ['Display Name']),
+            ('long', False),
+            ('all_projects', False),
+            ('name', None),
+            ('status', None),
+            ('marker', None),
+            ('limit', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        search_opts = {
+            'all_tenants': False,
+            'project_id': None,
+            'user_id': None,
+            'name': None,
+            'status': None,
+        }
+        self.volumes_mock.list.assert_called_once_with(
+            search_opts=search_opts,
+            marker=None,
+            limit=None,
+        )
+
+        self.assertIn('Display Name', columns)
+        self.assertNotIn('Name', columns)
+
+        for each_volume in data:
+            self.assertIn(self.mock_volume.name, each_volume)
 
 
 class TestVolumeMigrate(TestVolume):

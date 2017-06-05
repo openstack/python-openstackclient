@@ -211,8 +211,14 @@ class CreateVolume(command.ShowOne):
                 'type': volume._info.pop('volume_type'),
             },
         )
+        # Replace "display_name" by "name", keep consistent in v1 and v2
+        if 'display_name' in volume._info:
+            volume._info.update({'name': volume._info.pop('display_name')})
+        volume_info = utils.backward_compat_col_showone(
+            volume._info, parsed_args.columns, {'display_name': 'name'}
+        )
 
-        return zip(*sorted(six.iteritems(volume._info)))
+        return zip(*sorted(six.iteritems(volume_info)))
 
 
 class DeleteVolume(command.Command):
@@ -330,7 +336,7 @@ class ListVolume(command.Lister):
             )
             column_headers = (
                 'ID',
-                'Display Name',
+                'Name',
                 'Status',
                 'Size',
                 'Type',
@@ -348,7 +354,7 @@ class ListVolume(command.Lister):
             )
             column_headers = (
                 'ID',
-                'Display Name',
+                'Name',
                 'Status',
                 'Size',
                 'Attached to',
@@ -373,6 +379,8 @@ class ListVolume(command.Lister):
             search_opts=search_opts,
             limit=parsed_args.limit,
         )
+        column_headers = utils.backward_compat_col_lister(
+            column_headers, parsed_args.columns, {'Display Name': 'Name'})
 
         return (column_headers,
                 (utils.get_item_properties(
@@ -576,7 +584,15 @@ class ShowVolume(command.ShowOne):
                 {'project_id': volume._info.pop(
                     'os-vol-tenant-attr:tenant_id')}
             )
-        return zip(*sorted(six.iteritems(volume._info)))
+        # Replace "display_name" by "name", keep consistent in v1 and v2
+        if 'display_name' in volume._info:
+            volume._info.update({'name': volume._info.pop('display_name')})
+
+        volume_info = utils.backward_compat_col_showone(
+            volume._info, parsed_args.columns, {'display_name': 'name'}
+        )
+
+        return zip(*sorted(six.iteritems(volume_info)))
 
 
 class UnsetVolume(command.Command):

@@ -81,7 +81,7 @@ class VolumeTests(common.BaseVolumeTests):
         cmd_output = json.loads(self.openstack(
             'volume list -f json '
         ))
-        names = [x["Display Name"] for x in cmd_output]
+        names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertIn(name2, names)
 
@@ -97,7 +97,7 @@ class VolumeTests(common.BaseVolumeTests):
             'volume list -f json ' +
             '--name ' + name1
         ))
-        names = [x["Display Name"] for x in cmd_output]
+        names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertNotIn(name2, names)
 
@@ -113,7 +113,7 @@ class VolumeTests(common.BaseVolumeTests):
         ))
         self.assertEqual(
             name,
-            cmd_output["display_name"],
+            cmd_output["name"],
         )
         self.assertEqual(
             1,
@@ -155,7 +155,7 @@ class VolumeTests(common.BaseVolumeTests):
         ))
         self.assertEqual(
             new_name,
-            cmd_output["display_name"],
+            cmd_output["name"],
         )
         self.assertEqual(
             2,
@@ -190,6 +190,49 @@ class VolumeTests(common.BaseVolumeTests):
             "Gamma='c'",
             cmd_output["properties"],
         )
+
+    def test_volume_create_and_list_and_show_backward_compatibility(self):
+        """Test backward compatibility of create, list, show"""
+        name1 = uuid.uuid4().hex
+        json_output = json.loads(self.openstack(
+            'volume create -f json ' +
+            '-c display_name -c id ' +
+            '--size 1 ' +
+            name1
+        ))
+        self.assertIn('display_name', json_output)
+        self.assertEqual(name1, json_output['display_name'])
+        self.assertIn('id', json_output)
+        volume_id = json_output['id']
+        self.assertIsNotNone(volume_id)
+        self.assertNotIn('name', json_output)
+        self.addCleanup(self.openstack, 'volume delete ' + volume_id)
+
+        self.wait_for("volume", name1, "available")
+
+        json_output = json.loads(self.openstack(
+            'volume list -f json ' +
+            '-c "Display Name"'
+        ))
+        for each_volume in json_output:
+            self.assertIn('Display Name', each_volume)
+
+        json_output = json.loads(self.openstack(
+            'volume list -f json ' +
+            '-c "Name"'
+        ))
+        for each_volume in json_output:
+            self.assertIn('Name', each_volume)
+
+        json_output = json.loads(self.openstack(
+            'volume show -f json ' +
+            '-c display_name -c id ' +
+            name1
+        ))
+        self.assertIn('display_name', json_output)
+        self.assertEqual(name1, json_output['display_name'])
+        self.assertIn('id', json_output)
+        self.assertNotIn('name', json_output)
 
     def wait_for(self, check_type, check_name, desired_status, wait=120,
                  interval=5, failures=['ERROR']):

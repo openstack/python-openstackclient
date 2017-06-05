@@ -68,8 +68,8 @@ class TestVolumeCreate(TestVolume):
         'bootable',
         'created_at',
         'display_description',
-        'display_name',
         'id',
+        'name',
         'properties',
         'size',
         'snapshot_id',
@@ -86,8 +86,8 @@ class TestVolumeCreate(TestVolume):
             self.new_volume.bootable,
             self.new_volume.created_at,
             self.new_volume.display_description,
-            self.new_volume.display_name,
             self.new_volume.id,
+            self.new_volume.display_name,
             utils.format_dict(self.new_volume.metadata),
             self.new_volume.size,
             self.new_volume.snapshot_id,
@@ -598,6 +598,38 @@ class TestVolumeCreate(TestVolume):
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
+    def test_volume_create_backward_compatibility(self):
+        arglist = [
+            '-c', 'display_name',
+            '--size', str(self.new_volume.size),
+            self.new_volume.display_name,
+        ]
+        verifylist = [
+            ('columns', ['display_name']),
+            ('size', self.new_volume.size),
+            ('name', self.new_volume.display_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.create.assert_called_with(
+            self.new_volume.size,
+            None,
+            None,
+            self.new_volume.display_name,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
+        self.assertIn('display_name', columns)
+        self.assertNotIn('name', columns)
+        self.assertIn(self.new_volume.display_name, data)
+
 
 class TestVolumeDelete(TestVolume):
 
@@ -695,7 +727,7 @@ class TestVolumeList(TestVolume):
     _volume = volume_fakes.FakeVolume.create_one_volume()
     columns = (
         'ID',
-        'Display Name',
+        'Name',
         'Status',
         'Size',
         'Attached to',
@@ -806,7 +838,7 @@ class TestVolumeList(TestVolume):
 
         collist = (
             'ID',
-            'Display Name',
+            'Name',
             'Status',
             'Size',
             'Type',
@@ -862,6 +894,27 @@ class TestVolumeList(TestVolume):
         ]
         self.assertRaises(argparse.ArgumentTypeError, self.check_parser,
                           self.cmd, arglist, verifylist)
+
+    def test_volume_list_backward_compatibility(self):
+        arglist = [
+            '-c', 'Display Name',
+        ]
+        verifylist = [
+            ('columns', ['Display Name']),
+            ('long', False),
+            ('all_projects', False),
+            ('name', None),
+            ('status', None),
+            ('limit', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertIn('Display Name', columns)
+        self.assertNotIn('Name', columns)
+        for each_volume in data:
+            self.assertIn(self._volume.display_name, each_volume)
 
 
 class TestVolumeMigrate(TestVolume):
@@ -1178,8 +1231,8 @@ class TestVolumeShow(TestVolume):
         'bootable',
         'created_at',
         'display_description',
-        'display_name',
         'id',
+        'name',
         'properties',
         'size',
         'snapshot_id',
@@ -1196,8 +1249,8 @@ class TestVolumeShow(TestVolume):
             self._volume.bootable,
             self._volume.created_at,
             self._volume.display_description,
-            self._volume.display_name,
             self._volume.id,
+            self._volume.display_name,
             utils.format_dict(self._volume.metadata),
             self._volume.size,
             self._volume.snapshot_id,
@@ -1222,6 +1275,25 @@ class TestVolumeShow(TestVolume):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
+
+    def test_volume_show_backward_compatibility(self):
+        arglist = [
+            '-c', 'display_name',
+            self._volume.id,
+        ]
+        verifylist = [
+            ('columns', ['display_name']),
+            ('volume', self._volume.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.get.assert_called_with(self._volume.id)
+
+        self.assertIn('display_name', columns)
+        self.assertNotIn('name', columns)
+        self.assertIn(self._volume.display_name, data)
 
 
 class TestVolumeUnset(TestVolume):

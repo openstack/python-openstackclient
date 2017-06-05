@@ -387,7 +387,6 @@ class ListVolume(command.Lister):
                 'Metadata',
             ]
             column_headers = copy.deepcopy(columns)
-            column_headers[1] = 'Display Name'
             column_headers[4] = 'Type'
             column_headers[6] = 'Attached to'
             column_headers[7] = 'Properties'
@@ -400,7 +399,6 @@ class ListVolume(command.Lister):
                 'Attachments',
             ]
             column_headers = copy.deepcopy(columns)
-            column_headers[1] = 'Display Name'
             column_headers[4] = 'Attached to'
 
         # Cache the server list
@@ -432,7 +430,7 @@ class ListVolume(command.Lister):
             'all_tenants': all_projects,
             'project_id': project_id,
             'user_id': user_id,
-            'display_name': parsed_args.name,
+            'name': parsed_args.name,
             'status': parsed_args.status,
         }
 
@@ -441,6 +439,8 @@ class ListVolume(command.Lister):
             marker=parsed_args.marker,
             limit=parsed_args.limit,
         )
+        column_headers = utils.backward_compat_col_lister(
+            column_headers, parsed_args.columns, {'Display Name': 'Name'})
 
         return (column_headers,
                 (utils.get_item_properties(
