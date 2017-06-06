@@ -38,20 +38,23 @@ class SecurityGroupTests(common.NetworkTests):
 
     @classmethod
     def tearDownClass(cls):
-        if cls.haz_network:
-            # Rename test
-            raw_output = cls.openstack(
-                'security group set --name ' +
-                cls.OTHER_NAME + ' ' +
-                cls.NAME
-            )
-            cls.assertOutput('', raw_output)
-            # Delete test
-            raw_output = cls.openstack(
-                'security group delete ' +
-                cls.OTHER_NAME
-            )
-            cls.assertOutput('', raw_output)
+        try:
+            if cls.haz_network:
+                # Rename test
+                raw_output = cls.openstack(
+                    'security group set --name ' +
+                    cls.OTHER_NAME + ' ' +
+                    cls.NAME
+                )
+                cls.assertOutput('', raw_output)
+                # Delete test
+                raw_output = cls.openstack(
+                    'security group delete ' +
+                    cls.OTHER_NAME
+                )
+                cls.assertOutput('', raw_output)
+        finally:
+            super(SecurityGroupTests, cls).tearDownClass()
 
     def setUp(self):
         super(SecurityGroupTests, self).setUp()

@@ -41,17 +41,20 @@ class IPAvailabilityTests(common.NetworkTests):
 
     @classmethod
     def tearDownClass(cls):
-        if cls.haz_network:
-            raw_subnet = cls.openstack(
-                'subnet delete ' +
-                cls.NAME
-            )
-            raw_network = cls.openstack(
-                'network delete ' +
-                cls.NETWORK_NAME
-            )
-            cls.assertOutput('', raw_subnet)
-            cls.assertOutput('', raw_network)
+        try:
+            if cls.haz_network:
+                raw_subnet = cls.openstack(
+                    'subnet delete ' +
+                    cls.NAME
+                )
+                raw_network = cls.openstack(
+                    'network delete ' +
+                    cls.NETWORK_NAME
+                )
+                cls.assertOutput('', raw_subnet)
+                cls.assertOutput('', raw_network)
+        finally:
+            super(IPAvailabilityTests, cls).tearDownClass()
 
     def setUp(self):
         super(IPAvailabilityTests, self).setUp()

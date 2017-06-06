@@ -39,12 +39,15 @@ class NetworkQosPolicyTests(common.NetworkTests):
 
     @classmethod
     def tearDownClass(cls):
-        if cls.haz_network:
-            raw_output = cls.openstack(
-                'network qos policy delete ' +
-                cls.NAME
-            )
-            cls.assertOutput('', raw_output)
+        try:
+            if cls.haz_network:
+                raw_output = cls.openstack(
+                    'network qos policy delete ' +
+                    cls.NAME
+                )
+                cls.assertOutput('', raw_output)
+        finally:
+            super(NetworkQosPolicyTests, cls).tearDownClass()
 
     def setUp(self):
         super(NetworkQosPolicyTests, self).setUp()

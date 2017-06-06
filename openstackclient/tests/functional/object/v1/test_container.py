@@ -21,14 +21,18 @@ class ContainerTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(ContainerTests, cls).setUpClass()
         opts = cls.get_opts(['container'])
         raw_output = cls.openstack('container create ' + cls.NAME + opts)
         cls.assertOutput(cls.NAME + '\n', raw_output)
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack('container delete ' + cls.NAME)
-        cls.assertOutput('', raw_output)
+        try:
+            raw_output = cls.openstack('container delete ' + cls.NAME)
+            cls.assertOutput('', raw_output)
+        finally:
+            super(ContainerTests, cls).tearDownClass()
 
     def test_container_list(self):
         opts = self.get_opts(['Name'])

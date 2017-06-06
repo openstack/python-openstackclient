@@ -12,6 +12,7 @@
 
 import os
 
+import fixtures
 from tempest.lib.common.utils import data_utils
 from tempest.lib import exceptions as tempest_exceptions
 
@@ -41,17 +42,13 @@ class IdentityTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # prepare v2 env
-        os.environ['OS_IDENTITY_API_VERSION'] = '2.0'
-        auth_url = os.environ.get('OS_AUTH_URL')
-        if auth_url:
-            os.environ['OS_AUTH_URL'] = auth_url.replace('v3', 'v2.0')
-
+        super(IdentityTests, cls).setUpClass()
         # create dummy project
         cls.project_name = data_utils.rand_name('TestProject')
         cls.project_description = data_utils.rand_name('description')
         try:
             cls.openstack(
+                '--os-identity-api-version 2 '
                 'project create '
                 '--description %(description)s '
                 '--enable '
@@ -69,7 +66,25 @@ class IdentityTests(base.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.openstack('project delete %s' % cls.project_name)
+        try:
+            cls.openstack(
+                '--os-identity-api-version 2 '
+                'project delete %s' % cls.project_name)
+        finally:
+            super(IdentityTests, cls).tearDownClass()
+
+    def setUp(self):
+        super(IdentityTests, self).setUp()
+        # prepare v2 env
+        ver_fixture = fixtures.EnvironmentVariable(
+            'OS_IDENTITY_API_VERSION', '2.0')
+        self.useFixture(ver_fixture)
+        auth_url = os.environ.get('OS_AUTH_URL')
+        if auth_url:
+            auth_url_fixture = fixtures.EnvironmentVariable(
+                'OS_AUTH_URL', auth_url.replace('v3', 'v2.0')
+            )
+            self.useFixture(auth_url_fixture)
 
     def _create_dummy_project(self, add_clean_up=True):
         project_name = data_utils.rand_name('TestProject')

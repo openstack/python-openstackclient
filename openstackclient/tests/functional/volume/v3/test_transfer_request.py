@@ -12,13 +12,8 @@
 
 from openstackclient.tests.functional.volume.v2 import test_transfer_request \
     as v2
-import os
+from openstackclient.tests.functional.volume.v3 import common
 
 
-class TransferRequestTests(v2.TransferRequestTests):
+class TransferRequestTests(common.BaseVolumeTests, v2.TransferRequestTests):
     """Functional tests for transfer request. """
-
-    @classmethod
-    def setUpClass(cls):
-        super(TransferRequestTests, cls).setUpClass()
-        os.environ['OS_VOLUME_API_VERSION'] = '3'

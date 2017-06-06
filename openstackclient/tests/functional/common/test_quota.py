@@ -26,6 +26,7 @@ class QuotaTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(QuotaTests, cls).setUpClass()
         cls.haz_network = base.is_service_enabled('network')
         cls.PROJECT_NAME =\
             cls.get_openstack_configuration_value('auth.project_name')

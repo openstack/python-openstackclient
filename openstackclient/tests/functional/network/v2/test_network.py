@@ -361,7 +361,7 @@ class NetworkTests(common.NetworkTests):
             self.assertNotIn(name2, col_name)
 
     def test_network_dhcp_agent(self):
-        if self.haz_network:
+        if not self.haz_network:
             self.skipTest("No Network service present")
 
         name1 = uuid.uuid4().hex
@@ -408,7 +408,7 @@ class NetworkTests(common.NetworkTests):
 
     def test_network_set(self):
         """Tests create options, set, show, delete"""
-        if self.haz_network:
+        if not self.haz_network:
             self.skipTest("No Network service present")
 
         name = uuid.uuid4().hex

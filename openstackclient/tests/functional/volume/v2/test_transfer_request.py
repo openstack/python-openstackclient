@@ -38,12 +38,15 @@ class TransferRequestTests(common.BaseVolumeTests):
 
     @classmethod
     def tearDownClass(cls):
-        raw_output_transfer = cls.openstack(
-            'volume transfer request delete ' + cls.NAME)
-        raw_output_volume = cls.openstack(
-            'volume delete ' + cls.VOLUME_NAME)
-        cls.assertOutput('', raw_output_transfer)
-        cls.assertOutput('', raw_output_volume)
+        try:
+            raw_output_transfer = cls.openstack(
+                'volume transfer request delete ' + cls.NAME)
+            raw_output_volume = cls.openstack(
+                'volume delete ' + cls.VOLUME_NAME)
+            cls.assertOutput('', raw_output_transfer)
+            cls.assertOutput('', raw_output_volume)
+        finally:
+            super(TransferRequestTests, cls).tearDownClass()
 
     def test_volume_transfer_request_accept(self):
         volume_name = uuid.uuid4().hex

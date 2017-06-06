@@ -55,11 +55,14 @@ class NetworkSegmentTests(common.NetworkTests):
 
     @classmethod
     def tearDownClass(cls):
-        if cls.haz_network:
-            raw_output = cls.openstack(
-                'network delete ' + cls.NETWORK_NAME
-            )
-            cls.assertOutput('', raw_output)
+        try:
+            if cls.haz_network:
+                raw_output = cls.openstack(
+                    'network delete ' + cls.NETWORK_NAME
+                )
+                cls.assertOutput('', raw_output)
+        finally:
+            super(NetworkSegmentTests, cls).tearDownClass()
 
     def setUp(self):
         super(NetworkSegmentTests, self).setUp()

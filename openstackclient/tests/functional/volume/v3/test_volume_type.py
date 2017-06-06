@@ -11,13 +11,8 @@
 #    under the License.
 
 from openstackclient.tests.functional.volume.v2 import test_volume_type as v2
-import os
+from openstackclient.tests.functional.volume.v3 import common
 
 
-class VolumeTypeTests(v2.VolumeTypeTests):
+class VolumeTypeTests(common.BaseVolumeTests, v2.VolumeTypeTests):
     """Functional tests for volume type. """
-
-    @classmethod
-    def setUpClass(cls):
-        super(VolumeTypeTests, cls).setUpClass()
-        os.environ['OS_VOLUME_API_VERSION'] = '3'

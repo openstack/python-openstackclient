@@ -88,19 +88,22 @@ class FloatingIpTests(common.NetworkTests):
 
     @classmethod
     def tearDownClass(cls):
-        if cls.haz_network:
-            del_output = cls.openstack(
-                'subnet delete ' +
-                cls.EXTERNAL_SUBNET_NAME + ' ' +
-                cls.PRIVATE_SUBNET_NAME
-            )
-            cls.assertOutput('', del_output)
-            del_output = cls.openstack(
-                'network delete ' +
-                cls.EXTERNAL_NETWORK_NAME + ' ' +
-                cls.PRIVATE_NETWORK_NAME
-            )
-            cls.assertOutput('', del_output)
+        try:
+            if cls.haz_network:
+                del_output = cls.openstack(
+                    'subnet delete ' +
+                    cls.EXTERNAL_SUBNET_NAME + ' ' +
+                    cls.PRIVATE_SUBNET_NAME
+                )
+                cls.assertOutput('', del_output)
+                del_output = cls.openstack(
+                    'network delete ' +
+                    cls.EXTERNAL_NETWORK_NAME + ' ' +
+                    cls.PRIVATE_NETWORK_NAME
+                )
+                cls.assertOutput('', del_output)
+        finally:
+            super(FloatingIpTests, cls).tearDownClass()
 
     def setUp(self):
         super(FloatingIpTests, self).setUp()

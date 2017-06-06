@@ -23,6 +23,7 @@ class FlavorTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(FlavorTests, cls).setUpClass()
         # Make a project
         cmd_output = json.loads(cls.openstack(
             "project create -f json --enable " + cls.PROJECT_NAME
@@ -31,8 +32,11 @@ class FlavorTests(base.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack("project delete " + cls.PROJECT_NAME)
-        cls.assertOutput('', raw_output)
+        try:
+            raw_output = cls.openstack("project delete " + cls.PROJECT_NAME)
+            cls.assertOutput('', raw_output)
+        finally:
+            super(FlavorTests, cls).tearDownClass()
 
     def test_flavor_delete(self):
         """Test create w/project, delete multiple"""

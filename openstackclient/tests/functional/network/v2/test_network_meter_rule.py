@@ -39,13 +39,15 @@ class TestMeterRule(common.NetworkTests):
 
     @classmethod
     def tearDownClass(cls):
-        common.NetworkTests.tearDownClass()
-        if cls.haz_network:
-            raw_output = cls.openstack(
-                'network meter delete ' +
-                cls.METER_ID
-            )
-            cls.assertOutput('', raw_output)
+        try:
+            if cls.haz_network:
+                raw_output = cls.openstack(
+                    'network meter delete ' +
+                    cls.METER_ID
+                )
+                cls.assertOutput('', raw_output)
+        finally:
+            common.NetworkTests.tearDownClass()
 
     def setUp(self):
         super(TestMeterRule, self).setUp()

@@ -10,7 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
+import fixtures
 
 from openstackclient.tests.functional.volume import base
 
@@ -18,6 +18,9 @@ from openstackclient.tests.functional.volume import base
 class BaseVolumeTests(base.BaseVolumeTests):
     """Base class for Volume functional tests. """
 
-    @classmethod
-    def setUpClass(cls):
-        os.environ['OS_VOLUME_API_VERSION'] = '2'
+    def setUp(self):
+        super(BaseVolumeTests, self).setUp()
+        ver_fixture = fixtures.EnvironmentVariable(
+            'OS_VOLUME_API_VERSION', '2'
+        )
+        self.useFixture(ver_fixture)
