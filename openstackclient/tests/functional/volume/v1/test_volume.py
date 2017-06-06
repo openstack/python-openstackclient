@@ -11,7 +11,6 @@
 #    under the License.
 
 import json
-import time
 import uuid
 
 from openstackclient.tests.functional.volume.v1 import common
@@ -44,8 +43,8 @@ class VolumeTests(common.BaseVolumeTests):
             cmd_output["size"],
         )
 
-        self.wait_for("volume", name1, "available")
-        self.wait_for("volume", name2, "available")
+        self.wait_for_status("volume", name1, "available")
+        self.wait_for_status("volume", name2, "available")
         del_output = self.openstack('volume delete ' + name1 + ' ' + name2)
         self.assertOutput('', del_output)
 
@@ -62,7 +61,7 @@ class VolumeTests(common.BaseVolumeTests):
             1,
             cmd_output["size"],
         )
-        self.wait_for("volume", name1, "available")
+        self.wait_for_status("volume", name1, "available")
 
         name2 = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
@@ -75,7 +74,7 @@ class VolumeTests(common.BaseVolumeTests):
             2,
             cmd_output["size"],
         )
-        self.wait_for("volume", name2, "available")
+        self.wait_for_status("volume", name2, "available")
 
         # Test list
         cmd_output = json.loads(self.openstack(
@@ -131,7 +130,7 @@ class VolumeTests(common.BaseVolumeTests):
             'false',
             cmd_output["bootable"],
         )
-        self.wait_for("volume", name, "available")
+        self.wait_for_status("volume", name, "available")
 
         # Test volume set
         new_name = uuid.uuid4().hex
@@ -208,7 +207,7 @@ class VolumeTests(common.BaseVolumeTests):
         self.assertNotIn('name', json_output)
         self.addCleanup(self.openstack, 'volume delete ' + volume_id)
 
-        self.wait_for("volume", name1, "available")
+        self.wait_for_status("volume", name1, "available")
 
         json_output = json.loads(self.openstack(
             'volume list -f json ' +
@@ -233,20 +232,3 @@ class VolumeTests(common.BaseVolumeTests):
         self.assertEqual(name1, json_output['display_name'])
         self.assertIn('id', json_output)
         self.assertNotIn('name', json_output)
-
-    def wait_for(self, check_type, check_name, desired_status, wait=120,
-                 interval=5, failures=['ERROR']):
-        status = "notset"
-        total_sleep = 0
-        opts = self.get_opts(['status'])
-        while total_sleep < wait:
-            status = self.openstack(check_type + ' show ' + check_name + opts)
-            status = status.rstrip()
-            print('Checking {} {} Waiting for {} current status: {}'
-                  .format(check_type, check_name, desired_status, status))
-            if status == desired_status:
-                break
-            self.assertNotIn(status, failures)
-            time.sleep(interval)
-            total_sleep += interval
-        self.assertEqual(desired_status, status)

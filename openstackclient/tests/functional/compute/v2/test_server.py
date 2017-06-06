@@ -17,7 +17,7 @@ from tempest.lib import exceptions
 
 from openstackclient.tests.functional import base
 from openstackclient.tests.functional.compute.v2 import common
-from openstackclient.tests.functional.volume.v2 import test_volume
+from openstackclient.tests.functional.volume.v2 import common as volume_common
 
 
 class ServerTests(common.ComputeTestCase):
@@ -282,9 +282,7 @@ class ServerTests(common.ComputeTestCase):
     def test_server_boot_from_volume(self):
         """Test server create from volume, server delete"""
         # get volume status wait function
-        volume_wait_for = test_volume.VolumeTests(
-            methodName='wait_for',
-        ).wait_for
+        volume_wait_for = volume_common.BaseVolumeTests.wait_for_status
 
         # get image size
         cmd_output = json.loads(self.openstack(
@@ -391,9 +389,8 @@ class ServerTests(common.ComputeTestCase):
     def test_server_boot_with_bdm_snapshot(self):
         """Test server create from image with bdm snapshot, server delete"""
         # get volume status wait function
-        volume_wait_for = test_volume.VolumeTests(
-            methodName='wait_for',
-        ).wait_for
+        volume_wait_for = volume_common.BaseVolumeTests.wait_for_status
+        volume_wait_for_delete = volume_common.BaseVolumeTests.wait_for_delete
 
         # create source empty volume
         empty_volume_name = uuid.uuid4().hex
@@ -419,6 +416,13 @@ class ServerTests(common.ComputeTestCase):
             empty_snapshot_name
         ))
         self.assertIsNotNone(cmd_output["id"])
+        # Deleting volume snapshot take time, so we need to wait until the
+        # snapshot goes. Entries registered by self.addCleanup will be called
+        # in the reverse order, so we need to register wait_for_delete first.
+        self.addCleanup(volume_wait_for_delete,
+                        'volume snapshot', empty_snapshot_name)
+        self.addCleanup(self.openstack,
+                        'volume snapshot delete ' + empty_snapshot_name)
         self.assertEqual(
             empty_snapshot_name,
             cmd_output['name'],
@@ -488,12 +492,6 @@ class ServerTests(common.ComputeTestCase):
         else:
             # the attached volume had been deleted
             pass
-
-        # clean up volume snapshot manually, make sure the snapshot and volume
-        # can be deleted sequentially, self.addCleanup so fast, that cause
-        # volume service API 400 error and the volume is left over at the end.
-        self.openstack('volume snapshot delete ' + empty_snapshot_name)
-        volume_wait_for('volume snapshot', empty_snapshot_name, 'disappear')
 
     def test_server_create_with_none_network(self):
         """Test server create with none network option."""

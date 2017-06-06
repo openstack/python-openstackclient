@@ -125,12 +125,12 @@ class ComputeTestCase(base.TestCase):
                 name
             ))
             status = cmd_output['status']
-            print('Waiting for {}, current status: {}'.format(
-                expected_status,
-                status,
-            ))
             if status == expected_status:
+                print('Server {} now has status {}'.format(
+                    name, status))
                 break
+            print('Server {}: Waiting for {}, current status: {}'.format(
+                name, expected_status, status))
             self.assertNotIn(status, failures)
             time.sleep(interval)
             total_sleep += interval
