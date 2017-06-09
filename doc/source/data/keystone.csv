@@ -21,7 +21,7 @@ tenant-delete,project delete,Delete tenant.
 tenant-get,proejct show,Display tenant details.
 tenant-list,project list,List all tenants.
 tenant-update,project set,"Update tenant name, description, enabled status."
-token-get,issue token,Display the current user token.
+token-get,token issue,Display the current user token.
 user-create,user create,Create new user.
 user-delete,user delete,Delete user.
 user-get,user show,Display user details.
