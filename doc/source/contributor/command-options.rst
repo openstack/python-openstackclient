@@ -14,8 +14,8 @@ for defining and using options in all situations.  The alternative of only
 using it when necessary leads to errors when copy-n-paste is used for a
 new command without understanding why or why not that instance is correct.
 
-The :doc:`Human Interface Guide <humaninterfaceguide>`
-describes the guildelines for option names and usage.  In short:
+The :ref:`hig` describes the guildelines for option names and usage.
+In short:
 
 * All option names shall be GNU-style long names (two leading dashes).
 * Some global options may have short names, generally limited to those defined

@@ -7,32 +7,19 @@ brings the command set for Compute, Identity, Image, Object Storage and
 Block Storage APIs together in a single shell with a uniform command
 structure.
 
-User Documentation
-------------------
-
-.. toctree::
-   :maxdepth: 1
-
-   Manual Page <man/openstack>
-   command-list
-   commands
-   configuration
-   plugins
-   plugin-commands
-   authentication
-   interactive
-   humaninterfaceguide
-   backwards-incompatible
+Using OpenStackClient
+---------------------
 
 .. toctree::
    :maxdepth: 2
 
-   decoder
+   cli/index
+   configuration/index
 
 Getting Started
 ---------------
 
-* Try :doc:`some commands <command-list>`
+* Try :ref:`some commands <command-list>`
 * Read the source `on OpenStack's Git server`_
 * Install OpenStackClient from `PyPi`_ or a `tarball`_
 
@@ -44,19 +31,13 @@ Release Notes
 
    Release Notes <http://docs.openstack.org/releasenotes/python-openstackclient>
 
-Developer Documentation
------------------------
+Contributor Documentation
+-------------------------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   developing
-   command-beta
-   command-options
-   command-wrappers
-   command-errors
-   command-logs
-   specs/commands
+   contributor/index
    api/modules
 
 Project Goals

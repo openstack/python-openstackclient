@@ -4,6 +4,8 @@ configuration
 
 Available for all services
 
+.. _configuration-show:
+
 configuration show
 ------------------
 

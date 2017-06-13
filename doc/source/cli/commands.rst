@@ -1,3 +1,5 @@
+.. _command-structure:
+
 =================
 Command Structure
 =================
@@ -162,9 +164,10 @@ referring to both Compute and Volume quotas.
 Plugin Objects
 --------------
 
-The following are known `Objects` used by OpenStack :doc:`plugins`. These are
-listed here to avoid name conflicts when creating new plugins. For a complete
-list check out :doc:`plugin-commands`.
+The following are known `Objects` used by OpenStack
+:ref:`plugins`. These are listed here to avoid name
+conflicts when creating new plugins. For a complete list check out
+:ref:`plugin-commands`.
 
 * ``action definition``: (**Workflow Engine (Mistral)**)
 * ``action execution``: (**Workflow Engine (Mistral)**)
@@ -281,7 +284,7 @@ Implementation
 
 The command structure is designed to support seamless addition of plugin
 command modules via ``setuptools`` entry points.  The plugin commands must
-be subclasses of Cliff's ``command.Command`` object.  See :doc:`plugins` for
+be subclasses of Cliff's ``command.Command`` object.  See :ref:`plugins` for
 more information.
 
 

@@ -1,3 +1,5 @@
+.. _hig:
+
 =====================
 Human Interface Guide
 =====================
@@ -202,7 +204,7 @@ dash ('-') to an underscore ('_'), and converting to upper case.
   ('-') internally between words (:code:`--like-this`).  Underscores ('_') shall not
   be used in option names.
 * Authentication options conform to the common CLI authentication guidelines in
-  :doc:`authentication`.
+  :ref:`authentication`.
 
 For example, :code:`--os-username` can be set from the environment via
 :code:`OS_USERNAME`.

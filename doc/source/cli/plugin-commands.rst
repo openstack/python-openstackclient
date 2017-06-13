@@ -1,3 +1,5 @@
+.. _plugin-commands:
+
 ===============
 Plugin Commands
 ===============

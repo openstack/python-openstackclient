@@ -1,3 +1,5 @@
+.. _command-beta:
+
 ============
 Command Beta
 ============

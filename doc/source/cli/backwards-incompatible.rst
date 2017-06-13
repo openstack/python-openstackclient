@@ -10,8 +10,8 @@ Should positional arguments for a command need to change, the OpenStackClient
 team attempts to make the transition as painless as possible. Look for
 deprecation warnings that indicate the new commands (or options) to use.
 
-Commands labeled as a beta according to :doc:`command-beta` are exempt from
-this backwards incompatible change handling.
+Commands labeled as a beta according to :ref:`command-beta` are exempt
+from this backwards incompatible change handling.
 
 Backwards Incompatible Changes
 ==============================

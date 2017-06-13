@@ -1,3 +1,5 @@
+.. _manpage:
+
 ====================
 :program:`openstack`
 ====================
@@ -329,7 +331,7 @@ Logging Settings
 in configuration file. Recording the user operation, it can identify the
 change of the resource and it becomes useful information for troubleshooting.
 
-See :doc:`../configuration` about Logging Settings for more details.
+See :ref:`configuration` about Logging Settings for more details.
 
 
 NOTES

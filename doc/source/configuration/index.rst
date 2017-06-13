@@ -1,3 +1,5 @@
+.. _configuration:
+
 =============
 Configuration
 =============
@@ -22,13 +24,13 @@ names by dropping the ``--os-`` prefix if present.
 Global Options
 --------------
 
-The :doc:`openstack manpage <man/openstack>` lists all of the global
+The :ref:`openstack manpage <manpage>` lists all of the global
 options recognized by OpenStackClient and the default authentication plugins.
 
 Environment Variables
 ---------------------
 
-The :doc:`openstack manpage <man/openstack>` also lists all of the
+The :ref:`openstack manpage <manpage>` also lists all of the
 environment variables recognized by OpenStackClient and the default
 authentication plugins.
 
@@ -156,7 +158,7 @@ that appears in :file:`clouds.yaml`
 
 Debugging
 ~~~~~~~~~
-You may find the :doc:`configuration show <command-objects/configuration>`
+You may find the :ref:`configuration show <configuration-show>`
 command helpful to debug configuration issues.  It will display your current
 configuration.
 
