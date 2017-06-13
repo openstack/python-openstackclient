@@ -38,7 +38,6 @@ Contributor Documentation
    :maxdepth: 2
 
    contributor/index
-   api/modules
 
 Project Goals
 -------------

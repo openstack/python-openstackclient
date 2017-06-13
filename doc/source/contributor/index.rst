@@ -14,3 +14,4 @@
    specs/commands
    plugins
    humaninterfaceguide
+   api/modules
