@@ -56,6 +56,12 @@ ironic-inspector
 .. list-plugins:: openstack.baremetal_introspection.v1
    :detailed:
 
+karbor
+------
+
+.. list-plugins:: openstack.data_protection.v1
+   :detailed:
+
 mistral
 -------
 

@@ -191,6 +191,7 @@ list check out :doc:`plugin-commands`.
 * ``dataprocessing image``: (**Data Processing (Sahara)**)
 * ``dataprocessing image tags``: (**Data Processing (Sahara)**)
 * ``dataprocessing plugin``: (**Data Processing (Sahara)**)
+* ``data protection plan``: (**Data Protection (Karbor)**)
 * ``message-broker cluster``: (**Message Broker (Cue)**)
 * ``messaging``: (**Messaging (Zaqar)**)
 * ``messaging flavor``: (**Messaging (Zaqar)**)

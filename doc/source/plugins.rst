@@ -29,6 +29,7 @@ The following is a list of projects that are an OpenStackClient plugin.
 - python-heatclient
 - python-ironicclient
 - python-ironic-inspector-client
+- python-karborclient
 - python-mistralclient
 - python-muranoclient
 - python-neutronclient\*\*\*
