@@ -795,6 +795,66 @@ class TestServerCreate(TestServer):
                           self.cmd.take_action, parsed_args)
         self.assertNotCalled(self.servers_mock.create)
 
+    def test_server_create_with_invalid_network_key(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'abcdefgh=12324',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('nic', ['abcdefgh=12324']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
+        self.assertNotCalled(self.servers_mock.create)
+
+    def test_server_create_with_empty_network_key_value(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'net-id=',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('nic', ['net-id=']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
+        self.assertNotCalled(self.servers_mock.create)
+
+    def test_server_create_with_only_network_key(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'net-id',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('nic', ['net-id']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
+        self.assertNotCalled(self.servers_mock.create)
+
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_server_create_with_wait_ok(self, mock_wait_for_status):
         arglist = [

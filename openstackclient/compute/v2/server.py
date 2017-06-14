@@ -651,12 +651,16 @@ class CreateServer(command.ShowOne):
             else:
                 nic_info = {"net-id": "", "v4-fixed-ip": "",
                             "v6-fixed-ip": "", "port-id": ""}
-                try:
-                    nic_info.update(dict(kv_str.split("=", 1)
-                                    for kv_str in nic_str.split(",")))
-                except ValueError:
-                    msg = _('Invalid --nic argument %s.') % nic_str
-                    raise exceptions.CommandError(msg)
+                for kv_str in nic_str.split(","):
+                    k, sep, v = kv_str.partition("=")
+                    if k in nic_info and v:
+                        nic_info[k] = v
+                    else:
+                        msg = (_("Invalid nic argument '%s'. Nic arguments "
+                                 "must be of the form --nic <net-id=net-uuid"
+                                 ",v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,"
+                                 "port-id=port-uuid>."))
+                        raise exceptions.CommandError(msg % k)
                 if bool(nic_info["net-id"]) == bool(nic_info["port-id"]):
                     msg = _("either network or port should be specified "
                             "but not both")
