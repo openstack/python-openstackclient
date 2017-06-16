@@ -21,6 +21,7 @@ from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+from openstackclient.identity import common
 
 
 LOG = logging.getLogger(__name__)
@@ -55,6 +56,13 @@ class CreateIdentityProvider(command.ShowOne):
             metavar='<description>',
             help=_('New identity provider description'),
         )
+        parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help=_('Domain to associate with the identity provider. If not '
+                   'specified, a domain will be created automatically. '
+                   '(Name or ID)'),
+        )
         enable_identity_provider = parser.add_mutually_exclusive_group()
         enable_identity_provider.add_argument(
             '--enable',
@@ -81,10 +89,17 @@ class CreateIdentityProvider(command.ShowOne):
         else:
             remote_ids = (parsed_args.remote_id
                           if parsed_args.remote_id else None)
+
+        domain_id = None
+        if parsed_args.domain:
+            domain_id = common.find_domain(identity_client,
+                                           parsed_args.domain).id
+
         idp = identity_client.federation.identity_providers.create(
             id=parsed_args.identity_provider_id,
             remote_ids=remote_ids,
             description=parsed_args.description,
+            domain_id=domain_id,
             enabled=parsed_args.enabled)
 
         idp._info.pop('links', None)
@@ -129,7 +144,7 @@ class ListIdentityProvider(command.Lister):
     _description = _("List identity providers")
 
     def take_action(self, parsed_args):
-        columns = ('ID', 'Enabled', 'Description')
+        columns = ('ID', 'Enabled', 'Domain ID', 'Description')
         identity_client = self.app.client_manager.identity
         data = identity_client.federation.identity_providers.list()
         return (columns,

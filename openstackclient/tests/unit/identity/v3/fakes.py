@@ -284,7 +284,8 @@ IDENTITY_PROVIDER = {
     'id': idp_id,
     'remote_ids': idp_remote_ids,
     'enabled': True,
-    'description': idp_description
+    'description': idp_description,
+    'domain_id': domain_id,
 }
 
 protocol_id = 'protocol'

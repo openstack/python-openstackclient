@@ -17,6 +17,7 @@ Create new identity provider
     openstack identity provider create
         [--remote-id <remote-id> [...] | --remote-id-file <file-name>]
         [--description <description>]
+        [--domain <domain>]
         [--enable | --disable]
         <name>
 
@@ -33,6 +34,11 @@ Create new identity provider
 .. option:: --description
 
     New identity provider description
+
+.. option:: --domain
+
+    Name or ID of the domain to associate with the identity provider. If not
+    specified, one will be created automatically
 
 .. option:: --enable
 

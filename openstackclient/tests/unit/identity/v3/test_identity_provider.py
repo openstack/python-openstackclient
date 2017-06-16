@@ -25,21 +25,33 @@ class TestIdentityProvider(identity_fakes.TestFederatedIdentity):
     def setUp(self):
         super(TestIdentityProvider, self).setUp()
 
+        # Identity Provider mocks
         federation_lib = self.app.client_manager.identity.federation
         self.identity_providers_mock = federation_lib.identity_providers
         self.identity_providers_mock.reset_mock()
+
+        # Domain mocks
+        self.domains_mock = self.app.client_manager.identity.domains
+        self.domains_mock.reset_mock()
+        self.domain = identity_fakes.FakeDomain.create_one_domain(
+            identity_fakes.DOMAIN
+        )
+        self.domains_mock.list.return_value = [self.domain]
+        self.domains_mock.get.return_value = self.domain
 
 
 class TestIdentityProviderCreate(TestIdentityProvider):
 
     columns = (
         'description',
+        'domain_id',
         'enabled',
         'id',
         'remote_ids',
     )
     datalist = (
         identity_fakes.idp_description,
+        identity_fakes.domain_id,
         True,
         identity_fakes.idp_id,
         identity_fakes.formatted_idp_remote_ids,
@@ -68,6 +80,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             'remote_ids': None,
             'enabled': True,
             'description': None,
+            'domain_id': None,
         }
 
         self.identity_providers_mock.create.assert_called_with(
@@ -94,6 +107,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         kwargs = {
             'remote_ids': None,
             'description': identity_fakes.idp_description,
+            'domain_id': None,
             'enabled': True,
         }
 
@@ -121,6 +135,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         kwargs = {
             'remote_ids': identity_fakes.idp_remote_ids[:1],
             'description': None,
+            'domain_id': None,
             'enabled': True,
         }
 
@@ -149,6 +164,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         kwargs = {
             'remote_ids': identity_fakes.idp_remote_ids,
             'description': None,
+            'domain_id': None,
             'enabled': True,
         }
 
@@ -181,6 +197,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         kwargs = {
             'remote_ids': identity_fakes.idp_remote_ids,
             'description': None,
+            'domain_id': None,
             'enabled': True,
         }
 
@@ -217,6 +234,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
             'remote_ids': None,
             'enabled': False,
             'description': None,
+            'domain_id': None,
         }
 
         self.identity_providers_mock.create.assert_called_with(
@@ -227,11 +245,68 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         self.assertEqual(self.columns, columns)
         datalist = (
             None,
+            identity_fakes.domain_id,
             False,
             identity_fakes.idp_id,
             identity_fakes.formatted_idp_remote_ids
         )
         self.assertEqual(datalist, data)
+
+    def test_create_identity_provider_domain_name(self):
+        arglist = [
+            '--domain', identity_fakes.domain_name,
+            identity_fakes.idp_id,
+        ]
+        verifylist = [
+            ('identity_provider_id', identity_fakes.idp_id),
+            ('domain', identity_fakes.domain_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'remote_ids': None,
+            'description': None,
+            'domain_id': identity_fakes.domain_id,
+            'enabled': True,
+        }
+
+        self.identity_providers_mock.create.assert_called_with(
+            id=identity_fakes.idp_id,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_create_identity_provider_domain_id(self):
+        arglist = [
+            '--domain', identity_fakes.domain_id,
+            identity_fakes.idp_id,
+        ]
+        verifylist = [
+            ('identity_provider_id', identity_fakes.idp_id),
+            ('domain', identity_fakes.domain_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'remote_ids': None,
+            'description': None,
+            'domain_id': identity_fakes.domain_id,
+            'enabled': True,
+        }
+
+        self.identity_providers_mock.create.assert_called_with(
+            id=identity_fakes.idp_id,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
 
 class TestIdentityProviderDelete(TestIdentityProvider):
@@ -299,11 +374,12 @@ class TestIdentityProviderList(TestIdentityProvider):
 
         self.identity_providers_mock.list.assert_called_with()
 
-        collist = ('ID', 'Enabled', 'Description')
+        collist = ('ID', 'Enabled', 'Domain ID', 'Description')
         self.assertEqual(collist, columns)
         datalist = ((
             identity_fakes.idp_id,
             True,
+            identity_fakes.domain_id,
             identity_fakes.idp_description,
         ), )
         self.assertEqual(datalist, tuple(data))
@@ -582,10 +658,11 @@ class TestIdentityProviderShow(TestIdentityProvider):
             id='test_idp'
         )
 
-        collist = ('description', 'enabled', 'id', 'remote_ids')
+        collist = ('description', 'domain_id', 'enabled', 'id', 'remote_ids')
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.idp_description,
+            identity_fakes.domain_id,
             True,
             identity_fakes.idp_id,
             identity_fakes.formatted_idp_remote_ids
