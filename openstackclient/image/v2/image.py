@@ -453,6 +453,18 @@ class ListImage(command.Lister):
             help=_('Filter output based on property'),
         )
         parser.add_argument(
+            '--name',
+            metavar='<name>',
+            default=None,
+            help=_("Filter images based on name.")
+        )
+        parser.add_argument(
+            '--status',
+            metavar='<status>',
+            default=None,
+            help=_("Filter images based on status.")
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -505,6 +517,10 @@ class ListImage(command.Lister):
         if parsed_args.marker:
             kwargs['marker'] = utils.find_resource(image_client.images,
                                                    parsed_args.marker).id
+        if parsed_args.name:
+            kwargs['name'] = parsed_args.name
+        if parsed_args.status:
+            kwargs['status'] = parsed_args.status
         if parsed_args.long:
             columns = (
                 'ID',

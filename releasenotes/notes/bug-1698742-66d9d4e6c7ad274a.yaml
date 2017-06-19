@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--name`` and ``--status`` options to ``image list`` command
+    to filter images based on name and status respectively.
+    [Bug `1698742 <https://bugs.launchpad.net/bugs/1698742>`_]

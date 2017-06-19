@@ -51,6 +51,24 @@ class ImageTests(base.TestCase):
             [img['Name'] for img in json_output]
         )
 
+    def test_image_list_with_name_filter(self):
+        json_output = json.loads(self.openstack(
+            'image list --name ' + self.NAME + ' -f json'
+        ))
+        self.assertIn(
+            self.NAME,
+            [img['Name'] for img in json_output]
+        )
+
+    def test_image_list_with_status_filter(self):
+        json_output = json.loads(self.openstack(
+            'image list ' + ' --status active -f json'
+        ))
+        self.assertIn(
+            'active',
+            [img['Status'] for img in json_output]
+        )
+
     def test_image_attributes(self):
         """Test set, unset, show on attributes, tags and properties"""
 

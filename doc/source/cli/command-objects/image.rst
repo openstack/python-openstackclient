@@ -209,6 +209,9 @@ List available images
         [--sort <key>[:<direction>]]
         [--limit <num-images>]
         [--marker <image>]
+        [--name <name>]
+        [--status <status>]
+
 
 .. option:: --public
 
@@ -247,6 +250,15 @@ List available images
 
     The last image of the previous page. Display list of images
     after marker. Display all images if not specified. (name or ID)
+
+.. option:: --name <name>
+
+   Filter images based on name
+
+.. option:: --status <status>
+
+   Filter images based on status
+
 
     *Image version 2 only*
 

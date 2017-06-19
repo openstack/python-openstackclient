@@ -750,6 +750,34 @@ class TestImageList(TestImage):
             marker=image_fakes.image_id,
         )
 
+    def test_image_list_name_option(self):
+        arglist = [
+            '--name', 'abc',
+        ]
+        verifylist = [
+            ('name', 'abc'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.api_mock.image_list.assert_called_with(
+            name='abc', marker=self._image.id
+        )
+
+    def test_image_list_status_option(self):
+        arglist = [
+            '--status', 'active',
+        ]
+        verifylist = [
+            ('status', 'active'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.api_mock.image_list.assert_called_with(
+            status='active', marker=self._image.id
+        )
+
 
 class TestRemoveProjectImage(TestImage):
 
