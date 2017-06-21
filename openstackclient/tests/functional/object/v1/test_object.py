@@ -66,6 +66,10 @@ class ObjectTests(base.TestCase):
                        + ' ' + object_file + ' --file ' + tmp_file)
         # TODO(stevemar): Assert returned fields
 
+        raw_output = self.openstack('object save ' + self.CONTAINER_NAME
+                                    + ' ' + object_file + ' --file -')
+        self.assertEqual(raw_output, 'test content')
+
         self.openstack('object show ' + self.CONTAINER_NAME
                        + ' ' + object_file)
         # TODO(stevemar): Assert returned fields
