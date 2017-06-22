@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Added directionality to Network QoS rule type ``bandwidth-limit`` in
+    ``network qos rule create`` and ``network qos rule set`` commands.
+    This makes the options ``--egress`` and ``--ingress`` valid for the ``bandwidth-limit``
+    rule type.
+    [Bug `1614121 <https://bugs.launchpad.net/python-openstackclient/+bug/1614121>`_]

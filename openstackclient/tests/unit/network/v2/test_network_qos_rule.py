@@ -127,7 +127,7 @@ class TestCreateNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
             msg = ('"Create" rule command for type "minimum-bandwidth" '
-                   'requires arguments min_kbps, direction')
+                   'requires arguments direction, min_kbps')
             self.assertEqual(msg, str(e))
 
 
@@ -229,6 +229,7 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
             attrs)
         self.columns = (
+            'direction',
             'id',
             'max_burst_kbits',
             'max_kbps',
@@ -238,6 +239,7 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
         )
 
         self.data = (
+            self.new_rule.direction,
             self.new_rule.id,
             self.new_rule.max_burst_kbits,
             self.new_rule.max_kbps,
@@ -265,6 +267,7 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
             '--type', RULE_TYPE_BANDWIDTH_LIMIT,
             '--max-kbps', str(self.new_rule.max_kbps),
             '--max-burst-kbits', str(self.new_rule.max_burst_kbits),
+            '--egress',
             self.new_rule.qos_policy_id,
         ]
 
@@ -272,6 +275,7 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
             ('type', RULE_TYPE_BANDWIDTH_LIMIT),
             ('max_kbps', self.new_rule.max_kbps),
             ('max_burst_kbits', self.new_rule.max_burst_kbits),
+            ('egress', True),
             ('qos_policy', self.new_rule.qos_policy_id),
         ]
 
@@ -281,7 +285,8 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
         self.network.create_qos_bandwidth_limit_rule.assert_called_once_with(
             self.qos_policy.id,
             **{'max_kbps': self.new_rule.max_kbps,
-               'max_burst_kbps': self.new_rule.max_burst_kbits}
+               'max_burst_kbps': self.new_rule.max_burst_kbits,
+               'direction': self.new_rule.direction}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -304,7 +309,7 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
             msg = ('"Create" rule command for type "bandwidth-limit" '
-                   'requires arguments max_kbps, max_burst_kbps')
+                   'requires arguments max_burst_kbps, max_kbps')
             self.assertEqual(msg, str(e))
 
 
@@ -574,8 +579,8 @@ class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
             msg = ('Failed to set Network QoS rule ID "%(rule)s": Rule type '
-                   '"minimum-bandwidth" only requires arguments min_kbps, '
-                   'direction' % {'rule': self.new_rule.id})
+                   '"minimum-bandwidth" only requires arguments direction, '
+                   'min_kbps' % {'rule': self.new_rule.id})
             self.assertEqual(msg, str(e))
 
 
@@ -716,9 +721,13 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
     def test_set_max_kbps_to_zero(self):
         self._set_max_kbps(max_kbps=0)
 
+    def _reset_max_kbps(self, max_kbps):
+        self.new_rule.max_kbps = max_kbps
+
     def _set_max_kbps(self, max_kbps=None):
         if max_kbps:
-            previous_max_kbps = self.new_rule.max_kbps
+            self.addCleanup(self._reset_max_kbps,
+                            self.new_rule.max_kbps)
             self.new_rule.max_kbps = max_kbps
 
         arglist = [
@@ -742,18 +751,19 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
             self.new_rule, self.qos_policy.id, **attrs)
         self.assertIsNone(result)
 
-        if max_kbps:
-            self.new_rule.max_kbps = previous_max_kbps
-
     def test_set_max_burst_kbits(self):
         self._set_max_burst_kbits()
 
     def test_set_max_burst_kbits_to_zero(self):
         self._set_max_burst_kbits(max_burst_kbits=0)
 
+    def _reset_max_burst_kbits(self, max_burst_kbits):
+        self.new_rule.max_burst_kbits = max_burst_kbits
+
     def _set_max_burst_kbits(self, max_burst_kbits=None):
         if max_burst_kbits:
-            previous_max_burst_kbits = self.new_rule.max_burst_kbits
+            self.addCleanup(self._reset_max_burst_kbits,
+                            self.new_rule.max_burst_kbits)
             self.new_rule.max_burst_kbits = max_burst_kbits
 
         arglist = [
@@ -777,8 +787,38 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
             self.new_rule, self.qos_policy.id, **attrs)
         self.assertIsNone(result)
 
-        if max_burst_kbits:
-            self.new_rule.max_burst_kbits = previous_max_burst_kbits
+    def test_set_direction_egress(self):
+        self._set_direction('egress')
+
+    def test_set_direction_ingress(self):
+        self._set_direction('ingress')
+
+    def _reset_direction(self, direction):
+        self.new_rule.direction = direction
+
+    def _set_direction(self, direction):
+        self.addCleanup(self._reset_direction, self.new_rule.direction)
+
+        arglist = [
+            '--%s' % direction,
+            self.new_rule.qos_policy_id,
+            self.new_rule.id,
+        ]
+        verifylist = [
+            (direction, True),
+            ('qos_policy', self.new_rule.qos_policy_id),
+            ('id', self.new_rule.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'direction': direction,
+        }
+        self.network.update_qos_bandwidth_limit_rule.assert_called_with(
+            self.new_rule, self.qos_policy.id, **attrs)
+        self.assertIsNone(result)
 
     def test_set_wrong_options(self):
         arglist = [
@@ -797,8 +837,8 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
             msg = ('Failed to set Network QoS rule ID "%(rule)s": Rule type '
-                   '"bandwidth-limit" only requires arguments max_kbps, '
-                   'max_burst_kbps' % {'rule': self.new_rule.id})
+                   '"bandwidth-limit" only requires arguments direction, '
+                   'max_burst_kbps, max_kbps' % {'rule': self.new_rule.id})
             self.assertEqual(msg, str(e))
 
 
@@ -999,6 +1039,7 @@ class TestShowNetworkQosBandwidthLimit(TestNetworkQosRule):
             attrs)
         self.qos_policy.rules = [self.new_rule]
         self.columns = (
+            'direction',
             'id',
             'max_burst_kbits',
             'max_kbps',
@@ -1007,6 +1048,7 @@ class TestShowNetworkQosBandwidthLimit(TestNetworkQosRule):
             'type'
         )
         self.data = (
+            self.new_rule.direction,
             self.new_rule.id,
             self.new_rule.max_burst_kbits,
             self.new_rule.max_kbps,

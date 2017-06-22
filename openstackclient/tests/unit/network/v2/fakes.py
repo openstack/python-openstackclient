@@ -921,6 +921,7 @@ class FakeNetworkQosRule(object):
         if type == RULE_TYPE_BANDWIDTH_LIMIT:
             qos_rule_attrs['max_kbps'] = randint(1, 10000)
             qos_rule_attrs['max_burst_kbits'] = randint(1, 10000)
+            qos_rule_attrs['direction'] = 'egress'
         elif type == RULE_TYPE_DSCP_MARKING:
             qos_rule_attrs['dscp_mark'] = choice(VALID_DSCP_MARKS)
         elif type == RULE_TYPE_MINIMUM_BANDWIDTH:

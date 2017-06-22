@@ -169,6 +169,8 @@ class NetworkQosRuleTestsBandwidthLimit(common.NetworkTests):
     MAX_KBPS_MODIFIED = 15000
     MAX_BURST_KBITS = 1400
     MAX_BURST_KBITS_MODIFIED = 1800
+    RULE_DIRECTION = 'egress'
+    RULE_DIRECTION_MODIFIED = 'ingress'
     HEADERS = ['ID']
     FIELDS = ['id']
     TYPE = 'bandwidth-limit'
@@ -187,6 +189,7 @@ class NetworkQosRuleTestsBandwidthLimit(common.NetworkTests):
                 '--type ' + cls.TYPE + ' ' +
                 '--max-kbps ' + str(cls.MAX_KBPS) + ' ' +
                 '--max-burst-kbits ' + str(cls.MAX_BURST_KBITS) + ' ' +
+                '--' + cls.RULE_DIRECTION + ' ' +
                 cls.QOS_POLICY_NAME +
                 opts
             )
@@ -226,14 +229,13 @@ class NetworkQosRuleTestsBandwidthLimit(common.NetworkTests):
         self.openstack('network qos rule set --max-kbps ' +
                        str(self.MAX_KBPS_MODIFIED) + ' --max-burst-kbits ' +
                        str(self.MAX_BURST_KBITS_MODIFIED) + ' ' +
+                       '--' + self.RULE_DIRECTION_MODIFIED + ' ' +
                        self.QOS_POLICY_NAME + ' ' + self.RULE_ID)
-        opts = self.get_opts(['max_kbps'])
+        opts = self.get_opts(['direction', 'max_burst_kbps', 'max_kbps'])
         raw_output = self.openstack('network qos rule show ' +
                                     self.QOS_POLICY_NAME + ' ' + self.RULE_ID +
                                     opts)
-        self.assertEqual(str(self.MAX_KBPS_MODIFIED) + "\n", raw_output)
-        opts = self.get_opts(['max_burst_kbps'])
-        raw_output = self.openstack('network qos rule show ' +
-                                    self.QOS_POLICY_NAME + ' ' + self.RULE_ID +
-                                    opts)
-        self.assertEqual(str(self.MAX_BURST_KBITS_MODIFIED) + "\n", raw_output)
+        expected = (str(self.RULE_DIRECTION_MODIFIED) + "\n" +
+                    str(self.MAX_BURST_KBITS_MODIFIED) + "\n" +
+                    str(self.MAX_KBPS_MODIFIED) + "\n")
+        self.assertEqual(expected, raw_output)
