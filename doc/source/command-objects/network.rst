@@ -318,7 +318,6 @@ Set network properties
         [--provider-physical-network <provider-physical-network>]
         [--provider-segment <provider-segment>]
         [--qos-policy <qos-policy> | --no-qos-policy]
-        [--transparent-vlan | --no-transparent-vlan]
         <network>
 
 .. option:: --name <name>
@@ -392,14 +391,6 @@ Set network properties
 .. option:: --no-qos-policy
 
     Remove the QoS policy attached to this network
-
-.. option:: --transparent-vlan
-
-    Make the network VLAN transparent
-
-.. option:: --no-transparent-vlan
-
-    Do not make the network VLAN transparent
 
 .. _network_set-network:
 .. describe:: <network>

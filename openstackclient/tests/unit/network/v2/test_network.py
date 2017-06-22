@@ -821,7 +821,6 @@ class TestSetNetwork(TestNetwork):
             '--provider-network-type', 'vlan',
             '--provider-physical-network', 'physnet1',
             '--provider-segment', '400',
-            '--no-transparent-vlan',
             '--enable-port-security',
             '--qos-policy', self.qos_policy.name,
         ]
@@ -836,7 +835,6 @@ class TestSetNetwork(TestNetwork):
             ('provider_network_type', 'vlan'),
             ('physical_network', 'physnet1'),
             ('segmentation_id', '400'),
-            ('no_transparent_vlan', True),
             ('enable_port_security', True),
             ('qos_policy', self.qos_policy.name),
         ]
@@ -854,7 +852,6 @@ class TestSetNetwork(TestNetwork):
             'provider:network_type': 'vlan',
             'provider:physical_network': 'physnet1',
             'provider:segmentation_id': '400',
-            'vlan_transparent': False,
             'port_security_enabled': True,
             'qos_policy_id': self.qos_policy.id,
         }

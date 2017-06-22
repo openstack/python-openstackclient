@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Remove ``--transparent-vlan`` and ``--no-transparent-vlan``
+    from ``network set``, because updating ``vlan-transparent``
+    is not supported in Neutron.
+    [Bug `1691776 <https://bugs.launchpad.net/python-openstackclient/+bug/1691776>`_]

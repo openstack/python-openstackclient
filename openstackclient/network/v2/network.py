@@ -127,11 +127,6 @@ def _get_attrs_network(client_manager, parsed_args):
         attrs['qos_policy_id'] = _qos_policy.id
     if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
         attrs['qos_policy_id'] = None
-    # Update VLAN Transparency for networks
-    if parsed_args.transparent_vlan:
-        attrs['vlan_transparent'] = True
-    if parsed_args.no_transparent_vlan:
-        attrs['vlan_transparent'] = False
     return attrs
 
 
@@ -169,16 +164,6 @@ def _add_additional_network_options(parser):
         dest='segmentation_id',
         help=_("VLAN ID for VLAN networks or Tunnel ID for "
                "GENEVE/GRE/VXLAN networks"))
-
-    vlan_transparent_grp = parser.add_mutually_exclusive_group()
-    vlan_transparent_grp.add_argument(
-        '--transparent-vlan',
-        action='store_true',
-        help=_("Make the network VLAN transparent"))
-    vlan_transparent_grp.add_argument(
-        '--no-transparent-vlan',
-        action='store_true',
-        help=_("Do not make the network VLAN transparent"))
 
 
 # TODO(sindhu): Use the SDK resource mapped attribute names once the
@@ -282,6 +267,16 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             metavar='<qos-policy>',
             help=_("QoS policy to attach to this network (name or ID)")
         )
+        vlan_transparent_grp = parser.add_mutually_exclusive_group()
+        vlan_transparent_grp.add_argument(
+            '--transparent-vlan',
+            action='store_true',
+            help=_("Make the network VLAN transparent"))
+        vlan_transparent_grp.add_argument(
+            '--no-transparent-vlan',
+            action='store_true',
+            help=_("Do not make the network VLAN transparent"))
+
         _add_additional_network_options(parser)
         return parser
 
@@ -296,6 +291,11 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
 
     def take_action_network(self, client, parsed_args):
         attrs = _get_attrs_network(self.app.client_manager, parsed_args)
+        if parsed_args.transparent_vlan:
+            attrs['vlan_transparent'] = True
+        if parsed_args.no_transparent_vlan:
+            attrs['vlan_transparent'] = False
+
         obj = client.create_network(**attrs)
         display_columns, columns = _get_columns_network(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
