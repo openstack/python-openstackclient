@@ -94,7 +94,7 @@ class TestTrustCreate(TestTrust):
         kwargs = {
             'impersonation': False,
             'project': identity_fakes.project_id,
-            'role_names': [identity_fakes.role_name],
+            'role_ids': [identity_fakes.role_id],
             'expires_at': None,
         }
         # TrustManager.create(trustee_id, trustor_id, impersonation=,

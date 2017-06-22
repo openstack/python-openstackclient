@@ -104,16 +104,16 @@ class CreateTrust(command.ShowOne):
                                          parsed_args.project,
                                          parsed_args.project_domain).id
 
-        role_names = []
+        role_ids = []
         for role in parsed_args.role:
             try:
-                role_name = utils.find_resource(
+                role_id = utils.find_resource(
                     identity_client.roles,
                     role,
-                ).name
+                ).id
             except identity_exc.Forbidden:
-                role_name = role
-            role_names.append(role_name)
+                role_id = role
+            role_ids.append(role_id)
 
         expires_at = None
         if parsed_args.expiration:
@@ -124,7 +124,7 @@ class CreateTrust(command.ShowOne):
             trustee_id, trustor_id,
             impersonation=parsed_args.impersonate,
             project=project_id,
-            role_names=role_names,
+            role_ids=role_ids,
             expires_at=expires_at,
         )
 
