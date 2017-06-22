@@ -39,6 +39,7 @@ _formatters = {
     'is_router_external': _format_router_external,
     'availability_zones': utils.format_list,
     'availability_zone_hints': utils.format_list,
+    'tags': utils.format_list,
 }
 
 
@@ -55,6 +56,7 @@ def _get_columns_network(item):
         'ipv4_address_scope_id': 'ipv4_address_scope',
         'ipv6_address_scope_id': 'ipv6_address_scope',
         'tenant_id': 'project_id',
+        'tags': 'tags',
     }
     return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 

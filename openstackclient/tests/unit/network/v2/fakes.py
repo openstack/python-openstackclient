@@ -346,6 +346,7 @@ class FakeNetwork(object):
             'availability_zone_hints': [],
             'is_default': False,
             'port_security_enabled': True,
+            'tags': ['test'],
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
             'ipv4_address_scope': 'ipv4' + uuid.uuid4().hex,
             'ipv6_address_scope': 'ipv6' + uuid.uuid4().hex,
@@ -365,6 +366,7 @@ class FakeNetwork(object):
             network_attrs['port_security_enabled']
         network.subnet_ids = network_attrs['subnets']
         network.is_shared = network_attrs['shared']
+        network.is_tags = network_attrs['tags']
         network.provider_network_type = \
             network_attrs['provider:network_type']
         network.provider_physical_network = \
