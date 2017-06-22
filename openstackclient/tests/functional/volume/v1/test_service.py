@@ -64,10 +64,7 @@ class VolumeServiceTests(common.BaseVolumeTests):
             'enabled',
             cmd_output[0]['Status']
         )
-        self.assertEqual(
-            None,
-            cmd_output[0]['Disabled Reason']
-        )
+        self.assertIsNone(cmd_output[0]['Disabled Reason'])
 
         # Test volume service set --disable and --disable-reason
         disable_reason = 'disable_reason'
