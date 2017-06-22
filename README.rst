@@ -39,14 +39,14 @@ language to describe operations in OpenStack.
 * License: Apache 2.0
 
 .. _PyPi: https://pypi.python.org/pypi/python-openstackclient
-.. _Online Documentation: http://docs.openstack.org/developer/python-openstackclient/
+.. _Online Documentation: http://docs.openstack.org/python-openstackclient/
 .. _Launchpad project: https://launchpad.net/python-openstackclient
 .. _Blueprints: https://blueprints.launchpad.net/python-openstackclient
 .. _Bugs: https://bugs.launchpad.net/python-openstackclient
 .. _Source: https://git.openstack.org/cgit/openstack/python-openstackclient
 .. _Developer: http://docs.openstack.org/project-team-guide/project-setup/python.html
 .. _Contributing: http://docs.openstack.org/infra/manual/developers.html
-.. _Testing: http://docs.openstack.org/developer/python-openstackclient/developing.html#testing
+.. _Testing: http://docs.openstack.org/python-openstackclient/developing.html#testing
 
 Getting Started
 ===============
@@ -79,7 +79,7 @@ Configuration
 =============
 
 The CLI is configured via environment variables and command-line
-options as listed in  http://docs.openstack.org/developer/python-openstackclient/authentication.html.
+options as listed in  http://docs.openstack.org/python-openstackclient/authentication.html.
 
 Authentication using username/password is most commonly used::
 
