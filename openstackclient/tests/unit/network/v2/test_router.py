@@ -137,7 +137,7 @@ class TestCreateRouter(TestRouter):
         osc_utils.format_list(new_router.availability_zones),
         new_router.description,
         new_router.distributed,
-        router._format_external_gateway_info(new_router.external_gateway_info),
+        router._format_router_info(new_router.external_gateway_info),
         new_router.ha,
         new_router.id,
         new_router.name,
@@ -448,7 +448,7 @@ class TestListRouter(TestRouter):
         data_long.append(
             data[i] + (
                 router._format_routes(r.routes),
-                router._format_external_gateway_info(r.external_gateway_info),
+                router._format_router_info(r.external_gateway_info),
                 osc_utils.format_list(r.availability_zones),
                 osc_utils.format_list(r.tags),
             )
@@ -459,7 +459,7 @@ class TestListRouter(TestRouter):
         data_long_no_az.append(
             data[i] + (
                 router._format_routes(r.routes),
-                router._format_external_gateway_info(r.external_gateway_info),
+                router._format_router_info(r.external_gateway_info),
                 osc_utils.format_list(r.tags),
             )
         )
@@ -1118,6 +1118,15 @@ class TestShowRouter(TestRouter):
 
     # The router to set.
     _router = network_fakes.FakeRouter.create_one_router()
+    _port = network_fakes.FakePort.create_one_port({
+        'device_owner': 'network:router_interface',
+        'device_id': _router.id
+    })
+    setattr(_router,
+            'interfaces_info',
+            [{'port_id': _port.id,
+              'ip_address': _port.fixed_ips[0]['ip_address'],
+              'subnet_id': _port.fixed_ips[0]['subnet_id']}])
 
     columns = (
         'admin_state_up',
@@ -1128,6 +1137,7 @@ class TestShowRouter(TestRouter):
         'external_gateway_info',
         'ha',
         'id',
+        'interfaces_info',
         'name',
         'project_id',
         'routes',
@@ -1140,9 +1150,10 @@ class TestShowRouter(TestRouter):
         osc_utils.format_list(_router.availability_zones),
         _router.description,
         _router.distributed,
-        router._format_external_gateway_info(_router.external_gateway_info),
+        router._format_router_info(_router.external_gateway_info),
         _router.ha,
         _router.id,
+        router._format_router_info(_router.interfaces_info),
         _router.name,
         _router.tenant_id,
         router._format_routes(_router.routes),
@@ -1154,6 +1165,7 @@ class TestShowRouter(TestRouter):
         super(TestShowRouter, self).setUp()
 
         self.network.find_router = mock.Mock(return_value=self._router)
+        self.network.ports = mock.Mock(return_value=[self._port])
 
         # Get the command object to test
         self.cmd = router.ShowRouter(self.app, self.namespace)
@@ -1178,6 +1190,9 @@ class TestShowRouter(TestRouter):
 
         self.network.find_router.assert_called_once_with(
             self._router.name, ignore_missing=False)
+        self.network.ports.assert_called_with(**{
+            'device_id': self._router.id
+        })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 

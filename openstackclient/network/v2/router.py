@@ -36,7 +36,7 @@ def _format_admin_state(state):
     return 'UP' if state else 'DOWN'
 
 
-def _format_external_gateway_info(info):
+def _format_router_info(info):
     try:
         return json.dumps(info)
     except (TypeError, KeyError):
@@ -54,7 +54,7 @@ def _format_routes(routes):
 _formatters = {
     'admin_state_up': _format_admin_state,
     'is_admin_state_up': _format_admin_state,
-    'external_gateway_info': _format_external_gateway_info,
+    'external_gateway_info': _format_router_info,
     'availability_zones': utils.format_list,
     'availability_zone_hints': utils.format_list,
     'routes': _format_routes,
@@ -69,6 +69,8 @@ def _get_columns(item):
         'is_distributed': 'distributed',
         'is_admin_state_up': 'admin_state_up',
     }
+    if hasattr(item, 'interfaces_info'):
+        column_map['interfaces_info'] = 'interfaces_info'
     return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
@@ -657,7 +659,22 @@ class ShowRouter(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj = client.find_router(parsed_args.router, ignore_missing=False)
+        interfaces_info = []
+        filters = {}
+        filters['device_id'] = obj.id
+        for port in client.ports(**filters):
+            if port.device_owner != "network:router_gateway":
+                for ip_spec in port.fixed_ips:
+                    int_info = {
+                        'port_id': port.id,
+                        'ip_address': ip_spec.get('ip_address'),
+                        'subnet_id': ip_spec.get('subnet_id')
+                    }
+                    interfaces_info.append(int_info)
+
+        setattr(obj, 'interfaces_info', interfaces_info)
         display_columns, columns = _get_columns(obj)
+        _formatters['interfaces_info'] = _format_router_info
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
 
         return (display_columns, data)
