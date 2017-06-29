@@ -81,6 +81,12 @@ neutron
 .. list-plugins:: openstack.neutronclient.v2
    :detailed:
 
+octavia
+-------
+
+.. list-plugins:: openstack.load_balancer.v2
+   :detailed:
+
 sahara
 ------
 
