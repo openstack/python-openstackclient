@@ -395,6 +395,8 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
+        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_options(self):
         arglist = [
@@ -1457,6 +1459,14 @@ class TestServerList(TestServer):
         'Properties',
     )
 
+    columns_no_name_lookup = (
+        'ID',
+        'Name',
+        'Status',
+        'Image ID',
+        'Flavor ID',
+    )
+
     def setUp(self):
         super(TestServerList, self).setUp()
 
@@ -1515,6 +1525,7 @@ class TestServerList(TestServer):
         # Prepare data returned by fake Nova API.
         self.data = []
         self.data_long = []
+        self.data_no_name_lookup = []
 
         Image = collections.namedtuple('Image', 'id name')
         self.images_mock.list.return_value = [
@@ -1553,6 +1564,13 @@ class TestServerList(TestServer):
                 getattr(s, 'OS-EXT-SRV-ATTR:host'),
                 s.Metadata,
             ))
+            self.data_no_name_lookup.append((
+                s.id,
+                s.name,
+                s.status,
+                s.image['id'],
+                s.flavor['id']
+            ))
 
     def test_server_list_no_option(self):
         arglist = []
@@ -1584,6 +1602,38 @@ class TestServerList(TestServer):
         self.servers_mock.list.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(tuple(self.data_long), tuple(data))
+
+    def test_server_list_no_name_lookup_option(self):
+        arglist = [
+            '--no-name-lookup',
+        ]
+        verifylist = [
+            ('all_projects', False),
+            ('no_name_lookup', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertEqual(self.columns_no_name_lookup, columns)
+        self.assertEqual(tuple(self.data_no_name_lookup), tuple(data))
+
+    def test_server_list_n_option(self):
+        arglist = [
+            '-n',
+        ]
+        verifylist = [
+            ('all_projects', False),
+            ('no_name_lookup', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertEqual(self.columns_no_name_lookup, columns)
+        self.assertEqual(tuple(self.data_no_name_lookup), tuple(data))
 
     def test_server_list_with_image(self):
 

@@ -330,6 +330,7 @@ List servers
         [--all-projects]
         [--project <project> [--project-domain <project-domain>]]
         [--long]
+        [-n | --no-name-lookup]
         [--marker <server>]
         [--limit <num-servers>]
         [--deleted]
@@ -396,6 +397,10 @@ List servers
 .. option:: --long
 
     List additional fields in output
+
+.. option:: --no-name-lookup
+
+    Skips image and flavor names lookup
 
 .. option:: --marker <server>
 
