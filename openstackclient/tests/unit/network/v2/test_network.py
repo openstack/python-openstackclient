@@ -75,6 +75,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         'shared',
         'status',
         'subnets',
+        'tags',
     )
 
     data = (
@@ -97,6 +98,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         _network.shared,
         _network.status,
         utils.format_list(_network.subnets),
+        utils.format_list(_network.tags),
     )
 
     def setUp(self):
@@ -255,6 +257,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         'shared',
         'status',
         'subnets',
+        'tags',
     )
 
     data = (
@@ -277,6 +280,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         _network.shared,
         _network.status,
         utils.format_list(_network.subnets),
+        utils.format_list(_network.tags),
     )
 
     def setUp(self):
@@ -929,6 +933,7 @@ class TestShowNetwork(TestNetwork):
         'shared',
         'status',
         'subnets',
+        'tags',
     )
 
     data = (
@@ -951,6 +956,7 @@ class TestShowNetwork(TestNetwork):
         _network.shared,
         _network.status,
         utils.format_list(_network.subnets),
+        utils.format_list(_network.tags),
     )
 
     def setUp(self):
