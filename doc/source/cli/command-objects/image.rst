@@ -57,7 +57,7 @@ Create/upload an image
         [--force]
         [--checksum <checksum>]
         [--protected | --unprotected]
-        [--public | --private]
+        [--public | --private | --community | --shared]
         [--property <key=value> [...] ]
         [--tag <tag> [...] ]
         [--project <project> [--project-domain <project-domain>]]
@@ -142,6 +142,14 @@ Create/upload an image
 .. option:: --private
 
     Image is inaccessible to the public (default)
+
+.. option:: --community
+
+    Image is accessible to the community
+
+.. option:: --shared
+
+    Image can be shared
 
 .. option:: --property <key=value>
 
@@ -310,7 +318,7 @@ Set image properties
         [--disk-format <disk-format>]
         [--size <size>]
         [--protected | --unprotected]
-        [--public | --private]
+        [--public | --private | --community | --shared]
         [--store <store>]
         [--location <image-url>]
         [--copy-from <image-url>]
@@ -375,6 +383,14 @@ Set image properties
 .. option:: --private
 
     Image is inaccessible to the public (default)
+
+.. option:: --community
+
+    Image is accessible to the community
+
+.. option:: --shared
+
+    Image can be shared
 
 .. option:: --store <store>
 

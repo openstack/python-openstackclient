@@ -205,6 +205,16 @@ class CreateImage(command.ShowOne):
             action="store_true",
             help=_("Image is inaccessible to the public (default)"),
         )
+        public_group.add_argument(
+            "--community",
+            action="store_true",
+            help=_("Image is accessible to the community"),
+        )
+        public_group.add_argument(
+            "--shared",
+            action="store_true",
+            help=_("Image can be shared"),
+        )
         parser.add_argument(
             "--property",
             dest="properties",
@@ -260,7 +270,7 @@ class CreateImage(command.ShowOne):
         kwargs = {}
         copy_attrs = ('name', 'id',
                       'container_format', 'disk_format',
-                      'min_disk', 'min_ram', 'tags')
+                      'min_disk', 'min_ram', 'tags', 'visibility')
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
@@ -288,7 +298,10 @@ class CreateImage(command.ShowOne):
             kwargs['visibility'] = 'public'
         if parsed_args.private:
             kwargs['visibility'] = 'private'
-
+        if parsed_args.community:
+            kwargs['visibility'] = 'community'
+        if parsed_args.shared:
+            kwargs['visibility'] = 'shared'
         # Handle deprecated --owner option
         project_arg = parsed_args.project
         if parsed_args.owner:
@@ -698,6 +711,16 @@ class SetImage(command.Command):
             action="store_true",
             help=_("Image is inaccessible to the public (default)"),
         )
+        public_group.add_argument(
+            "--community",
+            action="store_true",
+            help=_("Image is accessible to the community"),
+        )
+        public_group.add_argument(
+            "--shared",
+            action="store_true",
+            help=_("Image can be shared"),
+        )
         parser.add_argument(
             "--property",
             dest="properties",
@@ -817,7 +840,7 @@ class SetImage(command.Command):
         copy_attrs = ('architecture', 'container_format', 'disk_format',
                       'file', 'instance_id', 'kernel_id', 'locations',
                       'min_disk', 'min_ram', 'name', 'os_distro', 'os_version',
-                      'prefix', 'progress', 'ramdisk_id', 'tags')
+                      'prefix', 'progress', 'ramdisk_id', 'tags', 'visibility')
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
@@ -845,7 +868,10 @@ class SetImage(command.Command):
             kwargs['visibility'] = 'public'
         if parsed_args.private:
             kwargs['visibility'] = 'private'
-
+        if parsed_args.community:
+            kwargs['visibility'] = 'community'
+        if parsed_args.shared:
+            kwargs['visibility'] = 'shared'
         # Handle deprecated --owner option
         project_arg = parsed_args.project
         if parsed_args.owner:

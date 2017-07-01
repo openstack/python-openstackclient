@@ -1,0 +1,7 @@
+---
+fixes:
+  - Add ``--community`` and ``--shared`` options to the ``image create`` and
+    ``image set`` commands to allow image owners to share images across
+    multiple projects without explicitly creating image members.
+    “Community images” will not appear in user’s default
+    image listings.
