@@ -169,6 +169,8 @@ The following are known `Objects` used by OpenStack
 conflicts when creating new plugins. For a complete list check out
 :ref:`plugin-commands`.
 
+* ``acl``: (**Key Manager (Barbican)**)
+* ``acl user``: (**Key Manager (Barbican)**)
 * ``action definition``: (**Workflow Engine (Mistral)**)
 * ``action execution``: (**Workflow Engine (Mistral)**)
 * ``baremetal``: (**Baremetal (Ironic)**)
