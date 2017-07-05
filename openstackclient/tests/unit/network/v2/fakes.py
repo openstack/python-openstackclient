@@ -841,6 +841,7 @@ class FakeNetworkQosPolicy(object):
         qos_policy_attrs = {
             'name': 'qos-policy-name-' + uuid.uuid4().hex,
             'id': qos_id,
+            'is_default': False,
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'shared': False,
             'description': 'qos-policy-description-' + uuid.uuid4().hex,
