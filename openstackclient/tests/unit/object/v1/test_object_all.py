@@ -13,8 +13,10 @@
 
 import copy
 
+import mock
 from osc_lib import exceptions
 from requests_mock.contrib import fixture
+import six
 
 from openstackclient.object.v1 import object as object_cmds
 from openstackclient.tests.unit.object.v1 import fakes as object_fakes
@@ -202,3 +204,44 @@ class TestObjectShow(TestObjectAll):
             'manifest',
         )
         self.assertEqual(datalist, data)
+
+
+class TestObjectSave(TestObjectAll):
+
+    def setUp(self):
+        super(TestObjectSave, self).setUp()
+
+        # Get the command object to test
+        self.cmd = object_cmds.SaveObject(self.app, None)
+
+    def test_save_to_stdout(self):
+        self.requests_mock.register_uri(
+            'GET',
+            object_fakes.ENDPOINT +
+            '/' +
+            object_fakes.container_name +
+            '/' +
+            object_fakes.object_name_1,
+            status_code=200,
+            content=object_fakes.object_1_content
+        )
+
+        arglist = [
+            object_fakes.container_name,
+            object_fakes.object_name_1,
+            '--file',
+            '-'
+        ]
+
+        verifylist = [
+            ('container', object_fakes.container_name),
+            ('object', object_fakes.object_name_1),
+            ('file', '-'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch('sys.stdout', new=six.BytesIO()) as fake_stdout:
+            self.cmd.take_action(parsed_args)
+
+        self.assertEqual(fake_stdout.getvalue(), object_fakes.object_1_content)

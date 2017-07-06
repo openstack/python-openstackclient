@@ -114,7 +114,8 @@ Save object locally
 
 .. option:: --file <filename>
 
-    Destination filename (defaults to object name)
+    Destination filename (defaults to object name);
+    using - as the filename will print the file to stdout
 
 .. describe:: <container>
 

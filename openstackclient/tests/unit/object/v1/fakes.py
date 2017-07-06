@@ -13,6 +13,8 @@
 #   under the License.
 #
 
+import six
+
 from keystoneauth1 import session
 
 from openstackclient.api import object_store_v1 as object_store
@@ -66,6 +68,8 @@ OBJECT = {
     'content_type': object_content_type_1,
     'last_modified': object_modified_1,
 }
+
+object_1_content = six.b('object 1 content')
 
 OBJECT_2 = {
     'name': object_name_2,

@@ -204,7 +204,8 @@ class SaveObject(command.Command):
         parser.add_argument(
             "--file",
             metavar="<filename>",
-            help=_("Destination filename (defaults to object name)"),
+            help=_("Destination filename (defaults to object name); using '-'"
+                   " as the filename will print the file to stdout"),
         )
         parser.add_argument(
             'container',
