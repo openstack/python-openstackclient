@@ -50,6 +50,7 @@ class TestProjectCreate(TestProject):
         'is_domain',
         'name',
         'parent_id',
+        'tags'
     )
 
     def setUp(self):
@@ -67,6 +68,7 @@ class TestProjectCreate(TestProject):
             False,
             self.project.name,
             self.project.parent_id,
+            self.project.tags
         )
         # Get the command object to test
         self.cmd = project.CreateProject(self.app, None)
@@ -80,6 +82,7 @@ class TestProjectCreate(TestProject):
             ('enable', False),
             ('disable', False),
             ('name', self.project.name),
+            ('tags', [])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -95,6 +98,7 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': True,
             'parent': None,
+            'tags': []
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -110,6 +114,7 @@ class TestProjectCreate(TestProject):
             'is_domain',
             'name',
             'parent_id',
+            'tags'
         )
         self.assertEqual(collist, columns)
         datalist = (
@@ -120,6 +125,7 @@ class TestProjectCreate(TestProject):
             False,
             self.project.name,
             self.project.parent_id,
+            self.project.tags
         )
         self.assertEqual(datalist, data)
 
@@ -134,6 +140,7 @@ class TestProjectCreate(TestProject):
             ('disable', False),
             ('name', self.project.name),
             ('parent', None),
+            ('tags', [])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -149,6 +156,7 @@ class TestProjectCreate(TestProject):
             'description': 'new desc',
             'enabled': True,
             'parent': None,
+            'tags': []
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -170,6 +178,7 @@ class TestProjectCreate(TestProject):
             ('disable', False),
             ('name', self.project.name),
             ('parent', None),
+            ('tags', [])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -185,6 +194,7 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': True,
             'parent': None,
+            'tags': []
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -206,6 +216,7 @@ class TestProjectCreate(TestProject):
             ('disable', False),
             ('name', self.project.name),
             ('parent', None),
+            ('tags', [])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         mocker = mock.Mock()
@@ -221,6 +232,7 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': True,
             'parent': None,
+            'tags': []
         }
         self.projects_mock.create.assert_called_with(
             **kwargs
@@ -238,6 +250,7 @@ class TestProjectCreate(TestProject):
             ('disable', False),
             ('name', self.project.name),
             ('parent', None),
+            ('tags', [])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -253,6 +266,7 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': True,
             'parent': None,
+            'tags': []
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -288,6 +302,7 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': False,
             'parent': None,
+            'tags': []
         }
         # ProjectManager.create(name=, domain=,
         #                       description=, enabled=, **kwargs)
@@ -324,6 +339,7 @@ class TestProjectCreate(TestProject):
             'parent': None,
             'fee': 'fi',
             'fo': 'fum',
+            'tags': []
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -352,6 +368,7 @@ class TestProjectCreate(TestProject):
             ('enable', False),
             ('disable', False),
             ('name', self.project.name),
+            ('tags', [])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -363,6 +380,7 @@ class TestProjectCreate(TestProject):
             'parent': self.parent.id,
             'description': None,
             'enabled': True,
+            'tags': []
         }
 
         self.projects_mock.create.assert_called_with(
@@ -377,6 +395,7 @@ class TestProjectCreate(TestProject):
             'is_domain',
             'name',
             'parent_id',
+            'tags'
         )
         self.assertEqual(columns, collist)
         datalist = (
@@ -387,6 +406,7 @@ class TestProjectCreate(TestProject):
             self.project.is_domain,
             self.project.name,
             self.parent.id,
+            self.project.tags
         )
         self.assertEqual(data, datalist)
 
@@ -416,6 +436,43 @@ class TestProjectCreate(TestProject):
             self.cmd.take_action,
             parsed_args,
         )
+
+    def test_project_create_with_tags(self):
+        arglist = [
+            '--domain', self.project.domain_id,
+            '--tag', 'foo',
+            self.project.name,
+        ]
+        verifylist = [
+            ('domain', self.project.domain_id),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.project.name),
+            ('parent', None),
+            ('tags', ['foo'])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.project.name,
+            'domain': self.project.domain_id,
+            'description': None,
+            'enabled': True,
+            'parent': None,
+            'tags': ['foo']
+        }
+        self.projects_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
 
 
 class TestProjectDelete(TestProject):
@@ -816,6 +873,38 @@ class TestProjectSet(TestProject):
         )
         self.assertIsNone(result)
 
+    def test_project_set_tags(self):
+        arglist = [
+            '--name', 'qwerty',
+            '--domain', self.project.domain_id,
+            '--tag', 'foo',
+            self.project.name,
+        ]
+        verifylist = [
+            ('name', 'qwerty'),
+            ('domain', self.project.domain_id),
+            ('enable', False),
+            ('disable', False),
+            ('project', self.project.name),
+            ('tags', ['foo'])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': 'qwerty',
+            'tags': ['foo']
+        }
+        # ProjectManager.update(project, name=, domain=, description=,
+        #                       enabled=, **kwargs)
+        self.projects_mock.update.assert_called_with(
+            self.project.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
 
 class TestProjectShow(TestProject):
 
@@ -867,6 +956,7 @@ class TestProjectShow(TestProject):
             'is_domain',
             'name',
             'parent_id',
+            'tags'
         )
         self.assertEqual(collist, columns)
         datalist = (
@@ -877,6 +967,7 @@ class TestProjectShow(TestProject):
             False,
             self.project.name,
             self.project.parent_id,
+            self.project.tags
         )
         self.assertEqual(datalist, data)
 
@@ -926,6 +1017,7 @@ class TestProjectShow(TestProject):
             'name',
             'parent_id',
             'parents',
+            'tags'
         )
         self.assertEqual(columns, collist)
         datalist = (
@@ -936,7 +1028,8 @@ class TestProjectShow(TestProject):
             self.project.is_domain,
             self.project.name,
             self.project.parent_id,
-            [{'project': {'id': self.project.parent_id}}]
+            [{'project': {'id': self.project.parent_id}}],
+            self.project.tags
         )
         self.assertEqual(data, datalist)
 
@@ -985,6 +1078,7 @@ class TestProjectShow(TestProject):
             'name',
             'parent_id',
             'subtree',
+            'tags'
         )
         self.assertEqual(columns, collist)
         datalist = (
@@ -995,7 +1089,8 @@ class TestProjectShow(TestProject):
             self.project.is_domain,
             self.project.name,
             self.project.parent_id,
-            [{'project': {'id': 'children-id'}}]
+            [{'project': {'id': 'children-id'}}],
+            self.project.tags
         )
         self.assertEqual(data, datalist)
 
@@ -1047,6 +1142,7 @@ class TestProjectShow(TestProject):
             'parent_id',
             'parents',
             'subtree',
+            'tags'
         )
         self.assertEqual(columns, collist)
         datalist = (
@@ -1058,7 +1154,8 @@ class TestProjectShow(TestProject):
             self.project.name,
             self.project.parent_id,
             [{'project': {'id': self.project.parent_id}}],
-            [{'project': {'id': 'children-id'}}]
+            [{'project': {'id': 'children-id'}}],
+            self.project.tags
         )
         self.assertEqual(data, datalist)
 

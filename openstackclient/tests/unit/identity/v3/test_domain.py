@@ -31,6 +31,7 @@ class TestDomainCreate(TestDomain):
         'enabled',
         'id',
         'name',
+        'tags'
     )
 
     def setUp(self):
@@ -43,6 +44,7 @@ class TestDomainCreate(TestDomain):
             True,
             self.domain.id,
             self.domain.name,
+            self.domain.tags
         )
 
         # Get the command object to test
@@ -390,12 +392,13 @@ class TestDomainShow(TestDomain):
             self.domain.id,
         )
 
-        collist = ('description', 'enabled', 'id', 'name')
+        collist = ('description', 'enabled', 'id', 'name', 'tags')
         self.assertEqual(collist, columns)
         datalist = (
             self.domain.description,
             True,
             self.domain.id,
             self.domain.name,
+            self.domain.tags
         )
         self.assertEqual(datalist, data)

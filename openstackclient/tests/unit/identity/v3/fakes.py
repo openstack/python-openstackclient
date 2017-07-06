@@ -34,6 +34,7 @@ DOMAIN = {
     'name': domain_name,
     'description': domain_description,
     'enabled': True,
+    'tags': [],
     'links': base_url + 'domains/' + domain_id,
 }
 
@@ -115,6 +116,7 @@ PROJECT = {
     'description': project_description,
     'enabled': True,
     'domain_id': domain_id,
+    'tags': [],
     'links': base_url + 'projects/' + project_id,
 }
 
@@ -124,6 +126,7 @@ PROJECT_2 = {
     'description': project_description + 'plus four more',
     'enabled': True,
     'domain_id': domain_id,
+    'tags': [],
     'links': base_url + 'projects/' + project_id,
 }
 
@@ -145,6 +148,7 @@ PROJECT_WITH_PARENT = {
     'enabled': True,
     'domain_id': domain_id,
     'parent_id': project_id,
+    'tags': [],
     'links': base_url + 'projects/' + (project_id + '-with-parent'),
 }
 
@@ -155,6 +159,7 @@ PROJECT_WITH_GRANDPARENT = {
     'enabled': True,
     'domain_id': domain_id,
     'parent_id': PROJECT_WITH_PARENT['id'],
+    'tags': [],
     'links': base_url + 'projects/' + (project_id + '-with-grandparent'),
 }
 
@@ -619,6 +624,7 @@ class FakeProject(object):
             'is_domain': False,
             'domain_id': 'domain-id-' + uuid.uuid4().hex,
             'parent_id': 'parent-id-' + uuid.uuid4().hex,
+            'tags': [],
             'links': 'links-' + uuid.uuid4().hex,
         }
         project_info.update(attrs)
@@ -666,6 +672,7 @@ class FakeDomain(object):
             'name': 'domain-name-' + uuid.uuid4().hex,
             'description': 'domain-description-' + uuid.uuid4().hex,
             'enabled': True,
+            'tags': [],
             'links': 'links-' + uuid.uuid4().hex,
         }
         domain_info.update(attrs)

@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add ``--tag`` option to ``project create`` command,  ``--tag``, ``--clear-tags``, and
+    ``--remove-tag`` options to ``project set`` command. Add ``--tags``, ``--tags-any``, 
+    ``--not-tags``, and ``--not-tags-any`` options to ``project list`` command to filter
+    list results by different projects based on their tags.
+    [`blueprint project-tags <https://blueprints.launchpad.net/keystone/+spec/project-tags>`_]

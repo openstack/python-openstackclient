@@ -19,6 +19,7 @@ Create new project
         [--enable | --disable]
         [--property <key=value>]
         [--or-show]
+        [--tag <tag>]
         <name>
 
 .. option:: --domain <domain>
@@ -55,6 +56,13 @@ Create new project
     Return existing project
 
     If the project already exists return the existing project data and do not fail.
+
+.. option:: --tag
+
+    Add a tag to the project
+    (repeat option to set multiple tags)
+
+    .. versionadded:: 3
 
 .. _project_create-name:
 .. describe:: <name>
@@ -98,6 +106,8 @@ List projects
         [--my-projects]
         [--long]
         [--sort <key>[:<direction>,<key>:<direction>,..]]
+        [--tags <tag>[,<tag>,...]] [--tags-any <tag>[,<tag>,...]]
+        [--not-tags <tag>[,<tag>,...]] [--not-tags-any <tag>[,<tag>,...]]
 
 .. option:: --domain <domain>
 
@@ -127,6 +137,30 @@ List projects
     multiple keys and directions can be specified --sort
     <key>[:<direction>,<key>:<direction>,..]
 
+.. option:: --tags <tag>[,<tag>,...]
+
+    List projects which have all given tag(s)
+
+    .. versionadded:: 3
+
+.. option:: --tags-any <tag>[,<tag>,...]
+
+    List projects which have any given tag(s)
+
+    .. versionadded:: 3
+
+.. option:: --not-tags <tag>[,<tag>,...]
+
+    Exclude projects which have all given tag(s)
+
+    .. versionadded:: 3
+
+.. option:: --not-tags-any <tag>[,<tag>,...]
+
+    Exclude projects which have any given tag(s)
+
+    .. versionadded:: 3
+
 project set
 -----------
 
@@ -141,6 +175,7 @@ Set project properties
         [--description <description>]
         [--enable | --disable]
         [--property <key=value>]
+        [--tag <tag> | --clear-tags | --remove-tags <tag>]
         <project>
 
 .. option:: --name <name>
