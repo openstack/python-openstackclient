@@ -18,7 +18,6 @@ import logging
 
 from osc_lib.command import command
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -51,7 +50,7 @@ class ExportBackupRecord(command.ShowOne):
             backup_data['Backup Service'] = backup_data.pop('backup_service')
             backup_data['Metadata'] = backup_data.pop('backup_url')
 
-        return zip(*sorted(six.iteritems(backup_data)))
+        return zip(*sorted(backup_data.items()))
 
 
 class ImportBackupRecord(command.ShowOne):
@@ -79,4 +78,4 @@ class ImportBackupRecord(command.ShowOne):
             parsed_args.backup_service,
             parsed_args.backup_metadata)
         backup_data.pop('links', None)
-        return zip(*sorted(six.iteritems(backup_data)))
+        return zip(*sorted(backup_data.items()))

@@ -23,7 +23,6 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -68,7 +67,7 @@ class AddAggregateHost(command.ShowOne):
                 'properties': format_columns.DictColumn(info.pop('metadata')),
             },
         )
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))
 
 
 class CreateAggregate(command.ShowOne):
@@ -125,7 +124,7 @@ class CreateAggregate(command.ShowOne):
                 'properties': properties,
             },
         )
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))
 
 
 class DeleteAggregate(command.Command):
@@ -255,7 +254,7 @@ class RemoveAggregateHost(command.ShowOne):
                 'properties': format_columns.DictColumn(info.pop('metadata')),
             },
         )
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))
 
 
 class SetAggregate(command.Command):
@@ -372,7 +371,7 @@ class ShowAggregate(command.ShowOne):
 
         info = {}
         info.update(data._info)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))
 
 
 class UnsetAggregate(command.Command):

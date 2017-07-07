@@ -20,7 +20,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -74,7 +73,7 @@ class CreateCredential(command.ShowOne):
             project=project)
 
         credential._info.pop('links')
-        return zip(*sorted(six.iteritems(credential._info)))
+        return zip(*sorted(credential._info.items()))
 
 
 class DeleteCredential(command.Command):
@@ -225,4 +224,4 @@ class ShowCredential(command.ShowOne):
                                          parsed_args.credential)
 
         credential._info.pop('links')
-        return zip(*sorted(six.iteritems(credential._info)))
+        return zip(*sorted(credential._info.items()))

@@ -23,7 +23,6 @@ from cliff import columns as cliff_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -98,7 +97,7 @@ class CreateVolumeBackup(command.ShowOne):
         )
 
         backup._info.pop('links')
-        return zip(*sorted(six.iteritems(backup._info)))
+        return zip(*sorted(backup._info.items()))
 
 
 class DeleteVolumeBackup(command.Command):
@@ -263,4 +262,4 @@ class ShowVolumeBackup(command.ShowOne):
         backup = utils.find_resource(volume_client.backups,
                                      parsed_args.backup)
         backup._info.pop('links')
-        return zip(*sorted(six.iteritems(backup._info)))
+        return zip(*sorted(backup._info.items()))

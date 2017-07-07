@@ -21,7 +21,6 @@ import sys
 
 from osc_lib.command import command
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.network import common
@@ -663,4 +662,4 @@ class ShowQuota(command.ShowOne, BaseQuota):
             project_name = project_info['name']
             info['project_name'] = project_name
 
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))

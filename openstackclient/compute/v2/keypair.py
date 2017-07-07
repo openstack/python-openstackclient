@@ -23,7 +23,6 @@ import sys
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -101,7 +100,7 @@ class CreateKeypair(command.ShowOne):
                 del info['public_key']
             if 'private_key' in info:
                 del info['private_key']
-            return zip(*sorted(six.iteritems(info)))
+            return zip(*sorted(info.items()))
         else:
             sys.stdout.write(keypair.private_key)
             return ({}, {})
@@ -184,7 +183,7 @@ class ShowKeypair(command.ShowOne):
         info.update(keypair._info)
         if not parsed_args.public_key:
             del info['public_key']
-            return zip(*sorted(six.iteritems(info)))
+            return zip(*sorted(info.items()))
         else:
             # NOTE(dtroyer): a way to get the public key in a similar form
             #                as the private key in the create command

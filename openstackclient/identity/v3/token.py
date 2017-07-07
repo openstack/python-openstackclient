@@ -18,7 +18,6 @@
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -62,7 +61,7 @@ class AuthorizeRequestToken(command.ShowOne):
             parsed_args.request_key,
             roles)
 
-        return zip(*sorted(six.iteritems(verifier_pin._info)))
+        return zip(*sorted(verifier_pin._info.items()))
 
 
 class CreateAccessToken(command.ShowOne):
@@ -108,7 +107,7 @@ class CreateAccessToken(command.ShowOne):
             parsed_args.consumer_key, parsed_args.consumer_secret,
             parsed_args.request_key, parsed_args.request_secret,
             parsed_args.verifier)
-        return zip(*sorted(six.iteritems(access_token._info)))
+        return zip(*sorted(access_token._info.items()))
 
 
 class CreateRequestToken(command.ShowOne):
@@ -160,7 +159,7 @@ class CreateRequestToken(command.ShowOne):
             parsed_args.consumer_key,
             parsed_args.consumer_secret,
             project.id)
-        return zip(*sorted(six.iteritems(request_token._info)))
+        return zip(*sorted(request_token._info.items()))
 
 
 class IssueToken(command.ShowOne):
@@ -198,7 +197,7 @@ class IssueToken(command.ShowOne):
             # deployment system. When that happens, this will have to relay
             # scope information and IDs like we do for projects and domains.
             data['system'] = 'all'
-        return zip(*sorted(six.iteritems(data)))
+        return zip(*sorted(data.items()))
 
 
 class RevokeToken(command.Command):

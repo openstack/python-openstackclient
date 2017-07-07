@@ -19,7 +19,6 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 from oslo_utils import importutils
-import six
 
 from openstackclient.i18n import _
 
@@ -129,4 +128,4 @@ class CreateServerBackup(command.ShowOne):
                 ]
             )
             info = image_module._format_image(image)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))

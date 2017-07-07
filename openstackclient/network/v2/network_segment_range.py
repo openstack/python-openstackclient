@@ -61,7 +61,7 @@ def _is_prop_empty(columns, props, prop_name):
 
 def _exchange_dict_keys_with_values(orig_dict):
     updated_dict = dict()
-    for k, v in six.iteritems(orig_dict):
+    for k, v in orig_dict.items():
         k = [k]
         if not updated_dict.get(v):
             updated_dict[v] = k
@@ -80,7 +80,7 @@ def _update_available_from_props(columns, props):
 def _update_used_from_props(columns, props):
     index_used = columns.index('used')
     updated_used = _exchange_dict_keys_with_values(props[index_used])
-    for k, v in six.iteritems(updated_used):
+    for k, v in updated_used.items():
         updated_used[k] = list(_get_ranges(v))
     props = _hack_tuple_value_update_by_index(
         props, index_used, updated_used)

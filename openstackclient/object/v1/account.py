@@ -16,7 +16,6 @@
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
-import six
 
 from openstackclient.i18n import _
 
@@ -50,7 +49,7 @@ class ShowAccount(command.ShowOne):
         if 'properties' in data:
             data['properties'] = format_columns.DictColumn(
                 data.pop('properties'))
-        return zip(*sorted(six.iteritems(data)))
+        return zip(*sorted(data.items()))
 
 
 class UnsetAccount(command.Command):

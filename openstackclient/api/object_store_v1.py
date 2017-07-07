@@ -19,7 +19,6 @@ import os
 import sys
 
 from osc_lib import utils
-import six
 from six.moves import urllib
 
 from openstackclient.api import api
@@ -559,7 +558,7 @@ class APIv1(api.BaseAPI):
         log = logging.getLogger(__name__ + '._set_properties')
 
         headers = {}
-        for k, v in six.iteritems(properties):
+        for k, v in properties.items():
             if not utils.is_ascii(k) or not utils.is_ascii(v):
                 log.error('Cannot set property %s to non-ascii value', k)
                 continue
@@ -572,7 +571,7 @@ class APIv1(api.BaseAPI):
         # Add in properties as a top level key, this is consistent with other
         # OSC commands
         properties = {}
-        for k, v in six.iteritems(headers):
+        for k, v in headers.items():
             if k.lower().startswith(header_tag):
                 properties[k[len(header_tag):]] = v
         return properties

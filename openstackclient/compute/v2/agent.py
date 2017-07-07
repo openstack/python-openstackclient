@@ -20,7 +20,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -77,7 +76,7 @@ class CreateAgent(command.ShowOne):
             parsed_args.hypervisor
         )
         agent = compute_client.agents.create(*args)._info.copy()
-        return zip(*sorted(six.iteritems(agent)))
+        return zip(*sorted(agent.items()))
 
 
 class DeleteAgent(command.Command):

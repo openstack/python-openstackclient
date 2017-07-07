@@ -18,7 +18,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -83,7 +82,7 @@ class CreateServiceProvider(command.ShowOne):
             sp_url=parsed_args.service_provider_url)
 
         sp._info.pop('links', None)
-        return zip(*sorted(six.iteritems(sp._info)))
+        return zip(*sorted(sp._info.items()))
 
 
 class DeleteServiceProvider(command.Command):
@@ -211,4 +210,4 @@ class ShowServiceProvider(command.ShowOne):
             id=parsed_args.service_provider)
 
         service_provider._info.pop('links', None)
-        return zip(*sorted(six.iteritems(service_provider._info)))
+        return zip(*sorted(service_provider._info.items()))

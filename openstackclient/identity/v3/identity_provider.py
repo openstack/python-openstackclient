@@ -19,7 +19,6 @@ from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -106,7 +105,7 @@ class CreateIdentityProvider(command.ShowOne):
         idp._info.pop('links', None)
         remote_ids = format_columns.ListColumn(idp._info.pop('remote_ids', []))
         idp._info['remote_ids'] = remote_ids
-        return zip(*sorted(six.iteritems(idp._info)))
+        return zip(*sorted(idp._info.items()))
 
 
 class DeleteIdentityProvider(command.Command):
@@ -248,4 +247,4 @@ class ShowIdentityProvider(command.ShowOne):
         idp._info.pop('links', None)
         remote_ids = format_columns.ListColumn(idp._info.pop('remote_ids', []))
         idp._info['remote_ids'] = remote_ids
-        return zip(*sorted(six.iteritems(idp._info)))
+        return zip(*sorted(idp._info.items()))

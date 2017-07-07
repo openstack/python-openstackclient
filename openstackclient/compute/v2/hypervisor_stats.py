@@ -15,7 +15,6 @@
 """Hypervisor Stats action implementations"""
 
 from osc_lib.command import command
-import six
 
 from openstackclient.i18n import _
 
@@ -27,4 +26,4 @@ class ShowHypervisorStats(command.ShowOne):
         compute_client = self.app.client_manager.compute
         hypervisor_stats = compute_client.hypervisors.statistics().to_dict()
 
-        return zip(*sorted(six.iteritems(hypervisor_stats)))
+        return zip(*sorted(hypervisor_stats.items()))

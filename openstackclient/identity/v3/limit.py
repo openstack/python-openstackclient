@@ -18,7 +18,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as common_utils
@@ -102,7 +101,7 @@ class CreateLimit(command.ShowOne):
         )
 
         limit._info.pop('links', None)
-        return zip(*sorted(six.iteritems(limit._info)))
+        return zip(*sorted(limit._info.items()))
 
 
 class ListLimit(command.Lister):
@@ -198,7 +197,7 @@ class ShowLimit(command.ShowOne):
         identity_client = self.app.client_manager.identity
         limit = identity_client.limits.get(parsed_args.limit_id)
         limit._info.pop('links', None)
-        return zip(*sorted(six.iteritems(limit._info)))
+        return zip(*sorted(limit._info.items()))
 
 
 class SetLimit(command.ShowOne):
@@ -236,7 +235,7 @@ class SetLimit(command.ShowOne):
 
         limit._info.pop('links', None)
 
-        return zip(*sorted(six.iteritems(limit._info)))
+        return zip(*sorted(limit._info.items()))
 
 
 class DeleteLimit(command.Command):

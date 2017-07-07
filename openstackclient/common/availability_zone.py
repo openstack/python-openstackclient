@@ -19,7 +19,6 @@ import logging
 from novaclient import exceptions as nova_exceptions
 from osc_lib.command import command
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -47,11 +46,11 @@ def _xform_compute_availability_zone(az, include_extra):
         return result
 
     if hasattr(az, 'hosts') and az.hosts:
-        for host, services in six.iteritems(az.hosts):
+        for host, services in az.hosts.items():
             host_info = copy.deepcopy(zone_info)
             host_info['host_name'] = host
 
-            for svc, state in six.iteritems(services):
+            for svc, state in services.items():
                 info = copy.deepcopy(host_info)
                 info['service_name'] = svc
                 info['service_status'] = '%s %s %s' % (

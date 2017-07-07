@@ -22,7 +22,6 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -99,7 +98,7 @@ class CreateQos(command.ShowOne):
             {'properties':
              format_columns.DictColumn(qos_spec._info.pop('specs'))}
         )
-        return zip(*sorted(six.iteritems(qos_spec._info)))
+        return zip(*sorted(qos_spec._info.items()))
 
 
 class DeleteQos(command.Command):
@@ -273,7 +272,7 @@ class ShowQos(command.ShowOne):
             {'properties':
              format_columns.DictColumn(qos_spec._info.pop('specs'))})
 
-        return zip(*sorted(six.iteritems(qos_spec._info)))
+        return zip(*sorted(qos_spec._info.items()))
 
 
 class UnsetQos(command.Command):

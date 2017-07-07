@@ -19,7 +19,6 @@ import sys
 
 from osc_lib.command import command
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -113,4 +112,4 @@ class ListModule(command.ShowOne):
                         # Catch all exceptions, just skip it
                         pass
 
-        return zip(*sorted(six.iteritems(data)))
+        return zip(*sorted(data.items()))

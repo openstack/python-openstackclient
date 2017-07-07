@@ -15,7 +15,6 @@
 
 from keystoneauth1.loading import base
 from osc_lib.command import command
-import six
 
 from openstackclient.i18n import _
 
@@ -59,9 +58,9 @@ class ShowConfiguration(command.ShowOne):
                 if o.secret
             ]
 
-        for key, value in six.iteritems(info.pop('auth', {})):
+        for key, value in info.pop('auth', {}).items():
             if parsed_args.mask and key.lower() in secret_opts:
                 value = REDACTED
             info['auth.' + key] = value
 
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))

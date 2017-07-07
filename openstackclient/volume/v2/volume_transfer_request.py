@@ -19,7 +19,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -64,7 +63,7 @@ class AcceptTransferRequest(command.ShowOne):
         )
         transfer_accept._info.pop("links", None)
 
-        return zip(*sorted(six.iteritems(transfer_accept._info)))
+        return zip(*sorted(transfer_accept._info.items()))
 
 
 class CreateTransferRequest(command.ShowOne):
@@ -96,7 +95,7 @@ class CreateTransferRequest(command.ShowOne):
         )
         volume_transfer_request._info.pop("links", None)
 
-        return zip(*sorted(six.iteritems(volume_transfer_request._info)))
+        return zip(*sorted(volume_transfer_request._info.items()))
 
 
 class DeleteTransferRequest(command.Command):
@@ -186,4 +185,4 @@ class ShowTransferRequest(command.ShowOne):
         )
         volume_transfer_request._info.pop("links", None)
 
-        return zip(*sorted(six.iteritems(volume_transfer_request._info)))
+        return zip(*sorted(volume_transfer_request._info.items()))

@@ -20,7 +20,6 @@ from keystoneclient import exceptions as identity_exc
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -136,7 +135,7 @@ class CreateTrust(command.ShowOne):
         msg = ' '.join(r['name'] for r in roles)
         trust._info['roles'] = msg
 
-        return zip(*sorted(six.iteritems(trust._info)))
+        return zip(*sorted(trust._info.items()))
 
 
 class DeleteTrust(command.Command):
@@ -213,4 +212,4 @@ class ShowTrust(command.ShowOne):
         msg = ' '.join(r['name'] for r in roles)
         trust._info['roles'] = msg
 
-        return zip(*sorted(six.iteritems(trust._info)))
+        return zip(*sorted(trust._info.items()))

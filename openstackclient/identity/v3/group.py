@@ -21,7 +21,6 @@ from keystoneauth1 import exceptions as ks_exc
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -182,7 +181,7 @@ class CreateGroup(command.ShowOne):
                 raise
 
         group._info.pop('links')
-        return zip(*sorted(six.iteritems(group._info)))
+        return zip(*sorted(group._info.items()))
 
 
 class DeleteGroup(command.Command):
@@ -405,4 +404,4 @@ class ShowGroup(command.ShowOne):
                                   domain_name_or_id=parsed_args.domain)
 
         group._info.pop('links')
-        return zip(*sorted(six.iteritems(group._info)))
+        return zip(*sorted(group._info.items()))

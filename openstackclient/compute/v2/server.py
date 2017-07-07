@@ -1069,7 +1069,7 @@ class CreateServer(command.ShowOne):
                 raise SystemExit
 
         details = _prep_server_detail(compute_client, image_client, server)
-        return zip(*sorted(six.iteritems(details)))
+        return zip(*sorted(details.items()))
 
 
 class CreateServerDump(command.Command):
@@ -1967,7 +1967,7 @@ class RebuildServer(command.ShowOne):
 
         details = _prep_server_detail(compute_client, image_client, server,
                                       refresh=False)
-        return zip(*sorted(six.iteritems(details)))
+        return zip(*sorted(details.items()))
 
 
 class RemoveFixedIP(command.Command):
@@ -2537,7 +2537,7 @@ class ShowServer(command.ShowOne):
                                        self.app.client_manager.image, server,
                                        refresh=False)
 
-        return zip(*sorted(six.iteritems(data)))
+        return zip(*sorted(data.items()))
 
 
 class SshServer(command.Command):

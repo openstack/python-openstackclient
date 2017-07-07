@@ -19,7 +19,6 @@ from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -34,7 +33,7 @@ def _format_network_security_group_rules(sg_rules):
     # rules, trim keys with caller known (e.g. security group and tenant ID)
     # or empty values.
     for sg_rule in sg_rules:
-        empty_keys = [k for k, v in six.iteritems(sg_rule) if not v]
+        empty_keys = [k for k, v in sg_rule.items() if not v]
         for key in empty_keys:
             sg_rule.pop(key)
         sg_rule.pop('security_group_id', None)

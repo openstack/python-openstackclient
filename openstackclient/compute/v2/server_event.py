@@ -19,7 +19,6 @@ import logging
 
 from osc_lib.command import command
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -122,4 +121,4 @@ class ShowServerEvent(command.ShowOne):
         action_detail = compute_client.instance_action.get(
             server_id, parsed_args.request_id)
 
-        return zip(*sorted(six.iteritems(action_detail.to_dict())))
+        return zip(*sorted(action_detail.to_dict().items()))

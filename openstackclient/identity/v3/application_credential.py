@@ -21,7 +21,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -123,7 +122,7 @@ class CreateApplicationCredential(command.ShowOne):
         msg = ' '.join(r['name'] for r in roles)
         application_credential._info['roles'] = msg
 
-        return zip(*sorted(six.iteritems(application_credential._info)))
+        return zip(*sorted(application_credential._info.items()))
 
 
 class DeleteApplicationCredential(command.Command):
@@ -217,4 +216,4 @@ class ShowApplicationCredential(command.ShowOne):
         msg = ' '.join(r['name'] for r in roles)
         app_cred._info['roles'] = msg
 
-        return zip(*sorted(six.iteritems(app_cred._info)))
+        return zip(*sorted(app_cred._info.items()))

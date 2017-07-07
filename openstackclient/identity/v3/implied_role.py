@@ -18,7 +18,6 @@
 import logging
 
 from osc_lib.command import command
-import six
 
 from openstackclient.i18n import _
 
@@ -75,7 +74,7 @@ class CreateImpliedRole(command.ShowOne):
             prior_role_id, implied_role_id)
         response._info.pop('links', None)
         return zip(*sorted([(k, v['id'])
-                            for k, v in six.iteritems(response._info)]))
+                            for k, v in response._info.items()]))
 
 
 class DeleteImpliedRole(command.Command):

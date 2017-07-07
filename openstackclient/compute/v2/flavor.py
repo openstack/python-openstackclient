@@ -22,7 +22,6 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -195,7 +194,7 @@ class CreateFlavor(command.ShowOne):
         flavor_info.pop("links")
         flavor_info['properties'] = utils.format_dict(flavor.get_keys())
 
-        return zip(*sorted(six.iteritems(flavor_info)))
+        return zip(*sorted(flavor_info.items()))
 
 
 class DeleteFlavor(command.Command):
@@ -447,7 +446,7 @@ class ShowFlavor(command.ShowOne):
 
         flavor['properties'] = utils.format_dict(resource_flavor.get_keys())
 
-        return zip(*sorted(six.iteritems(flavor)))
+        return zip(*sorted(flavor.items()))
 
 
 class UnsetFlavor(command.Command):

@@ -20,7 +20,6 @@ import re
 from novaclient import exceptions as nova_exceptions
 from osc_lib.command import command
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -126,4 +125,4 @@ class ShowHypervisor(command.ShowOne):
         hypervisor["service_host"] = hypervisor["service"]["host"]
         del hypervisor["service"]
 
-        return zip(*sorted(six.iteritems(hypervisor)))
+        return zip(*sorted(hypervisor.items()))

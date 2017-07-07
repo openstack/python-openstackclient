@@ -18,7 +18,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -62,7 +61,7 @@ class CreateRegion(command.ShowOne):
         region._info['region'] = region._info.pop('id')
         region._info['parent_region'] = region._info.pop('parent_region_id')
         region._info.pop('links', None)
-        return zip(*sorted(six.iteritems(region._info)))
+        return zip(*sorted(region._info.items()))
 
 
 class DeleteRegion(command.Command):
@@ -181,4 +180,4 @@ class ShowRegion(command.ShowOne):
         region._info['region'] = region._info.pop('id')
         region._info['parent_region'] = region._info.pop('parent_region_id')
         region._info.pop('links', None)
-        return zip(*sorted(six.iteritems(region._info)))
+        return zip(*sorted(region._info.items()))

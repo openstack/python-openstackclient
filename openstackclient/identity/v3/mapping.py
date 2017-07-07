@@ -21,7 +21,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -107,7 +106,7 @@ class CreateMapping(command.ShowOne, _RulesReader):
             rules=rules)
 
         mapping._info.pop('links', None)
-        return zip(*sorted(six.iteritems(mapping._info)))
+        return zip(*sorted(mapping._info.items()))
 
 
 class DeleteMapping(command.Command):
@@ -202,4 +201,4 @@ class ShowMapping(command.ShowOne):
         mapping = identity_client.federation.mappings.get(parsed_args.mapping)
 
         mapping._info.pop('links', None)
-        return zip(*sorted(six.iteritems(mapping._info)))
+        return zip(*sorted(mapping._info.items()))

@@ -19,7 +19,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -129,7 +128,7 @@ class CreateEndpointGroup(command.ShowOne, _FiltersReader):
         info = {}
         endpoint_group._info.pop('links')
         info.update(endpoint_group._info)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))
 
 
 class DeleteEndpointGroup(command.Command):
@@ -321,4 +320,4 @@ class ShowEndpointGroup(command.ShowOne):
         info = {}
         endpoint_group._info.pop('links')
         info.update(endpoint_group._info)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))

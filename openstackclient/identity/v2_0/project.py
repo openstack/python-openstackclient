@@ -23,7 +23,6 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -100,7 +99,7 @@ class CreateProject(command.ShowOne):
 
         # TODO(stevemar): Remove the line below when we support multitenancy
         project._info.pop('parent_id', None)
-        return zip(*sorted(six.iteritems(project._info)))
+        return zip(*sorted(project._info.items()))
 
 
 class DeleteProject(command.Command):
@@ -299,7 +298,7 @@ class ShowProject(command.ShowOne):
                     properties[k] = v
 
         info['properties'] = format_columns.DictColumn(properties)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))
 
 
 class UnsetProject(command.Command):

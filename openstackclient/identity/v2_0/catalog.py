@@ -19,7 +19,6 @@ from cliff import columns as cliff_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -102,4 +101,4 @@ class ShowCatalog(command.ShowOne):
             LOG.error(_('service %s not found\n'), parsed_args.service)
             return ((), ())
 
-        return zip(*sorted(six.iteritems(data)))
+        return zip(*sorted(data.items()))

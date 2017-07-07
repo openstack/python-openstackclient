@@ -22,7 +22,6 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -124,7 +123,7 @@ class CreateProject(command.ShowOne):
                 raise
 
         project._info.pop('links')
-        return zip(*sorted(six.iteritems(project._info)))
+        return zip(*sorted(project._info.items()))
 
 
 class DeleteProject(command.Command):
@@ -401,4 +400,4 @@ class ShowProject(command.ShowOne):
                 subtree_as_ids=parsed_args.children)
 
         project._info.pop('links')
-        return zip(*sorted(six.iteritems(project._info)))
+        return zip(*sorted(project._info.items()))

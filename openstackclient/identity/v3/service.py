@@ -20,7 +20,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -77,7 +76,7 @@ class CreateService(command.ShowOne):
         )
 
         service._info.pop('links')
-        return zip(*sorted(six.iteritems(service._info)))
+        return zip(*sorted(service._info.items()))
 
 
 class DeleteService(command.Command):
@@ -218,4 +217,4 @@ class ShowService(command.ShowOne):
         service = common.find_service(identity_client, parsed_args.service)
 
         service._info.pop('links')
-        return zip(*sorted(six.iteritems(service._info)))
+        return zip(*sorted(service._info.items()))

@@ -13,8 +13,6 @@
 
 import mock
 
-import six
-
 from openstackclient.common import availability_zone
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import fakes
@@ -31,8 +29,8 @@ def _build_compute_az_datalist(compute_az, long_datalist=False):
             'available',
         )
     else:
-        for host, services in six.iteritems(compute_az.hosts):
-            for service, state in six.iteritems(services):
+        for host, services in compute_az.hosts.items():
+            for service, state in services.items():
                 datalist += (
                     compute_az.zoneName,
                     'available',

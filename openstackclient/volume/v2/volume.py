@@ -25,7 +25,6 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -252,7 +251,7 @@ class CreateVolume(command.ShowOne):
             }
         )
         volume._info.pop("links", None)
-        return zip(*sorted(six.iteritems(volume._info)))
+        return zip(*sorted(volume._info.items()))
 
 
 class DeleteVolume(command.Command):
@@ -751,7 +750,7 @@ class ShowVolume(command.ShowOne):
 
         # Remove key links from being displayed
         volume._info.pop("links", None)
-        return zip(*sorted(six.iteritems(volume._info)))
+        return zip(*sorted(volume._info.items()))
 
 
 class UnsetVolume(command.Command):

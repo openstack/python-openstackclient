@@ -20,7 +20,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -46,7 +45,7 @@ class CreateConsumer(command.ShowOne):
             parsed_args.description
         )
         consumer._info.pop('links', None)
-        return zip(*sorted(six.iteritems(consumer._info)))
+        return zip(*sorted(consumer._info.items()))
 
 
 class DeleteConsumer(command.Command):
@@ -142,4 +141,4 @@ class ShowConsumer(command.ShowOne):
             identity_client.oauth1.consumers, parsed_args.consumer)
 
         consumer._info.pop('links', None)
-        return zip(*sorted(six.iteritems(consumer._info)))
+        return zip(*sorted(consumer._info.items()))

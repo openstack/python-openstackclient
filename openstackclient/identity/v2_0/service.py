@@ -20,7 +20,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -65,7 +64,7 @@ class CreateService(command.ShowOne):
 
         info = {}
         info.update(service._info)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))
 
 
 class DeleteService(command.Command):
@@ -153,11 +152,11 @@ class ShowService(command.ShowOne):
         if parsed_args.catalog:
             endpoints = auth_ref.service_catalog.get_endpoints(
                 service_type=parsed_args.service)
-            for (service, service_endpoints) in six.iteritems(endpoints):
+            for (service, service_endpoints) in endpoints.items():
                 if service_endpoints:
                     info = {"type": service}
                     info.update(service_endpoints[0])
-                    return zip(*sorted(six.iteritems(info)))
+                    return zip(*sorted(info.items()))
 
             msg = _("No service catalog with a type, name or ID of '%s' "
                     "exists.") % (parsed_args.service)
@@ -166,4 +165,4 @@ class ShowService(command.ShowOne):
             service = common.find_service(identity_client, parsed_args.service)
             info = {}
             info.update(service._info)
-            return zip(*sorted(six.iteritems(info)))
+            return zip(*sorted(info.items()))

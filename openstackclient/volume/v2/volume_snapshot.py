@@ -24,7 +24,6 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -140,7 +139,7 @@ class CreateVolumeSnapshot(command.ShowOne):
             {'properties':
              format_columns.DictColumn(snapshot._info.pop('metadata'))}
         )
-        return zip(*sorted(six.iteritems(snapshot._info)))
+        return zip(*sorted(snapshot._info.items()))
 
 
 class DeleteVolumeSnapshot(command.Command):
@@ -426,7 +425,7 @@ class ShowVolumeSnapshot(command.ShowOne):
             {'properties':
              format_columns.DictColumn(snapshot._info.pop('metadata'))}
         )
-        return zip(*sorted(six.iteritems(snapshot._info)))
+        return zip(*sorted(snapshot._info.items()))
 
 
 class UnsetVolumeSnapshot(command.Command):

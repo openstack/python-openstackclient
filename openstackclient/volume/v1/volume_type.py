@@ -24,7 +24,6 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -162,7 +161,7 @@ class CreateVolumeType(command.ShowOne):
                 {'encryption': format_columns.DictColumn(encryption._info)})
         volume_type._info.pop("os-volume-type-access:is_public", None)
 
-        return zip(*sorted(six.iteritems(volume_type._info)))
+        return zip(*sorted(volume_type._info.items()))
 
 
 class DeleteVolumeType(command.Command):
@@ -388,7 +387,7 @@ class ShowVolumeType(command.ShowOne):
                 LOG.error(_("Failed to display the encryption information "
                           "of this volume type: %s"), e)
         volume_type._info.pop("os-volume-type-access:is_public", None)
-        return zip(*sorted(six.iteritems(volume_type._info)))
+        return zip(*sorted(volume_type._info.items()))
 
 
 class UnsetVolumeType(command.Command):

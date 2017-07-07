@@ -21,7 +21,6 @@ from keystoneauth1 import exceptions as ks_exc
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -85,7 +84,7 @@ class CreateDomain(command.ShowOne):
                 raise
 
         domain._info.pop('links')
-        return zip(*sorted(six.iteritems(domain._info)))
+        return zip(*sorted(domain._info.items()))
 
 
 class DeleteDomain(command.Command):
@@ -206,4 +205,4 @@ class ShowDomain(command.ShowOne):
                                      domain_str)
 
         domain._info.pop('links')
-        return zip(*sorted(six.iteritems(domain._info)))
+        return zip(*sorted(domain._info.items()))

@@ -20,7 +20,6 @@ from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -39,7 +38,7 @@ _formatters = {
 
 def _format_security_group_rule_show(obj):
     data = network_utils.transform_compute_security_group_rule(obj)
-    return zip(*sorted(six.iteritems(data)))
+    return zip(*sorted(data.items()))
 
 
 def _format_network_port_range(rule):

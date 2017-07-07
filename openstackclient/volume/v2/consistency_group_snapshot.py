@@ -19,7 +19,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -68,7 +67,7 @@ class CreateConsistencyGroupSnapshot(command.ShowOne):
             description=parsed_args.description,
         )
 
-        return zip(*sorted(six.iteritems(consistency_group_snapshot._info)))
+        return zip(*sorted(consistency_group_snapshot._info.items()))
 
 
 class DeleteConsistencyGroupSnapshot(command.Command):
@@ -187,4 +186,4 @@ class ShowConsistencyGroupSnapshot(command.ShowOne):
         consistency_group_snapshot = utils.find_resource(
             volume_client.cgsnapshots,
             parsed_args.consistency_group_snapshot)
-        return zip(*sorted(six.iteritems(consistency_group_snapshot._info)))
+        return zip(*sorted(consistency_group_snapshot._info.items()))

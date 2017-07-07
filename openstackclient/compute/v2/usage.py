@@ -21,7 +21,6 @@ import datetime
 from novaclient import api_versions
 from osc_lib.command import command
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -236,4 +235,4 @@ class ShowUsage(command.ShowOne):
         info['Disk GB-Hours'] = (
             float("%.2f" % usage.total_local_gb_usage)
             if hasattr(usage, "total_local_gb_usage") else None)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))

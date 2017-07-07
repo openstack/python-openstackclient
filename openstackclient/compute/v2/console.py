@@ -18,7 +18,6 @@
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -138,4 +137,4 @@ class ShowConsoleURL(command.ShowOne):
         #                 handle for different microversion API.
         console_data = data.get('remote_console', data.get('console'))
         info.update(console_data)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))

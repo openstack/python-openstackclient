@@ -25,7 +25,6 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -253,7 +252,7 @@ class CreateVolume(command.ShowOne):
             volume._info, parsed_args.columns, {'display_name': 'name'}
         )
 
-        return zip(*sorted(six.iteritems(volume_info)))
+        return zip(*sorted(volume_info.items()))
 
 
 class DeleteVolume(command.Command):
@@ -614,7 +613,7 @@ class ShowVolume(command.ShowOne):
             volume._info, parsed_args.columns, {'display_name': 'name'}
         )
 
-        return zip(*sorted(six.iteritems(volume_info)))
+        return zip(*sorted(volume_info.items()))
 
 
 class UnsetVolume(command.Command):

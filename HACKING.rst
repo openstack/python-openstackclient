@@ -93,8 +93,7 @@ OpenStackClient strives to be Python 3.3 compatible.  Common guidelines:
 
 * Convert print statements to functions: print statements should be converted
   to an appropriate log or other output mechanism.
-* Use six where applicable: x.iteritems is converted to six.iteritems(x)
-  for example.
+* Prefer to x.items() over six.iteritems(x).
 
 Running Tests
 -------------

@@ -20,7 +20,6 @@ from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 
@@ -161,7 +160,7 @@ class CreateConsistencyGroup(command.ShowOne):
                 )
             )
 
-        return zip(*sorted(six.iteritems(consistency_group._info)))
+        return zip(*sorted(consistency_group._info.items()))
 
 
 class DeleteConsistencyGroup(command.Command):
@@ -335,4 +334,4 @@ class ShowConsistencyGroup(command.ShowOne):
         consistency_group = utils.find_resource(
             volume_client.consistencygroups,
             parsed_args.consistency_group)
-        return zip(*sorted(six.iteritems(consistency_group._info)))
+        return zip(*sorted(consistency_group._info.items()))

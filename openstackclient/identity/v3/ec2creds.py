@@ -17,7 +17,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -108,7 +107,7 @@ class CreateEC2Creds(command.ShowOne):
                 {'project_id': info.pop('tenant_id')}
             )
 
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))
 
 
 class DeleteEC2Creds(command.Command):
@@ -209,4 +208,4 @@ class ShowEC2Creds(command.ShowOne):
                 {'project_id': info.pop('tenant_id')}
             )
 
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))

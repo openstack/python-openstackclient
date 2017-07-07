@@ -20,7 +20,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -76,7 +75,7 @@ class CreateEndpoint(command.ShowOne):
         info.update(endpoint._info)
         info['service_name'] = service.name
         info['service_type'] = service.type
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))
 
 
 class DeleteEndpoint(command.Command):
@@ -178,4 +177,4 @@ class ShowEndpoint(command.ShowOne):
         info.update(match._info)
         info['service_name'] = service.name
         info['service_type'] = service.type
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))

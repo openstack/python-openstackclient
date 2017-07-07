@@ -21,7 +21,6 @@ from keystoneauth1 import exceptions as ks_exc
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -211,7 +210,7 @@ class CreateRole(command.ShowOne):
                 raise
 
         role._info.pop('links')
-        return zip(*sorted(six.iteritems(role._info)))
+        return zip(*sorted(role._info.items()))
 
 
 class DeleteRole(command.Command):
@@ -403,4 +402,4 @@ class ShowRole(command.ShowOne):
                                    domain_id=domain_id)
 
         role._info.pop('links')
-        return zip(*sorted(six.iteritems(role._info)))
+        return zip(*sorted(role._info.items()))

@@ -18,7 +18,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as common_utils
@@ -92,7 +91,7 @@ class CreateRegisteredLimit(command.ShowOne):
         )
 
         registered_limit._info.pop('links', None)
-        return zip(*sorted(six.iteritems(registered_limit._info)))
+        return zip(*sorted(registered_limit._info.items()))
 
 
 class DeleteRegisteredLimit(command.Command):
@@ -275,7 +274,7 @@ class SetRegisteredLimit(command.ShowOne):
         )
 
         registered_limit._info.pop('links', None)
-        return zip(*sorted(six.iteritems(registered_limit._info)))
+        return zip(*sorted(registered_limit._info.items()))
 
 
 class ShowRegisteredLimit(command.ShowOne):
@@ -296,4 +295,4 @@ class ShowRegisteredLimit(command.ShowOne):
             parsed_args.registered_limit_id
         )
         registered_limit._info.pop('links', None)
-        return zip(*sorted(six.iteritems(registered_limit._info)))
+        return zip(*sorted(registered_limit._info.items()))

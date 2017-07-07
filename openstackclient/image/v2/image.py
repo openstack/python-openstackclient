@@ -110,7 +110,7 @@ class AddProjectToImage(command.ShowOne):
             project_id,
         )
 
-        return zip(*sorted(six.iteritems(image_member)))
+        return zip(*sorted(image_member.items()))
 
 
 class CreateImage(command.ShowOne):
@@ -292,7 +292,7 @@ class CreateImage(command.ShowOne):
 
         # properties should get flattened into the general kwargs
         if getattr(parsed_args, 'properties', None):
-            for k, v in six.iteritems(parsed_args.properties):
+            for k, v in parsed_args.properties.items():
                 kwargs[k] = str(v)
 
         # Handle exclusive booleans with care
@@ -417,7 +417,7 @@ class CreateImage(command.ShowOne):
         if not info:
             info = _format_image(image)
 
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))
 
 
 class DeleteImage(command.Command):
@@ -969,7 +969,7 @@ class SetImage(command.Command):
 
         # Properties should get flattened into the general kwargs
         if getattr(parsed_args, 'properties', None):
-            for k, v in six.iteritems(parsed_args.properties):
+            for k, v in parsed_args.properties.items():
                 kwargs[k] = str(v)
 
         # Handle exclusive booleans with care
@@ -1066,7 +1066,7 @@ class ShowImage(command.ShowOne):
             image['size'] = utils.format_size(image['size'])
 
         info = _format_image(image)
-        return zip(*sorted(six.iteritems(info)))
+        return zip(*sorted(info.items()))
 
 
 class UnsetImage(command.Command):

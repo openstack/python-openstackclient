@@ -17,7 +17,6 @@
 
 from osc_lib.command import command
 from osc_lib import exceptions
-import six
 
 from openstackclient.i18n import _
 
@@ -49,7 +48,7 @@ class IssueToken(command.ShowOne):
             data['project_id'] = auth_ref.project_id
         if auth_ref.user_id:
             data['user_id'] = auth_ref.user_id
-        return zip(*sorted(six.iteritems(data)))
+        return zip(*sorted(data.items()))
 
 
 class RevokeToken(command.Command):

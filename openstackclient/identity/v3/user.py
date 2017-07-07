@@ -22,7 +22,6 @@ from keystoneauth1 import exceptions as ks_exc
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -135,7 +134,7 @@ class CreateUser(command.ShowOne):
                 raise
 
         user._info.pop('links')
-        return zip(*sorted(six.iteritems(user._info)))
+        return zip(*sorted(user._info.items()))
 
 
 class DeleteUser(command.Command):
@@ -486,4 +485,4 @@ class ShowUser(command.ShowOne):
                                        user_str)
 
         user._info.pop('links')
-        return zip(*sorted(six.iteritems(user._info)))
+        return zip(*sorted(user._info.items()))
