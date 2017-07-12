@@ -397,14 +397,14 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
         Run 1 has --os-password on CLI
         """
 
-        config_mock.return_value = (
-            'file.yaml',
-            copy.deepcopy(test_shell.CLOUD_2),
-        )
-        vendor_mock.return_value = (
-            'file.yaml',
-            copy.deepcopy(test_shell.PUBLIC_1),
-        )
+        def config_mock_return():
+            return ('file.yaml', copy.deepcopy(test_shell.CLOUD_2))
+        config_mock.side_effect = config_mock_return
+
+        def vendor_mock_return():
+            return ('file.yaml', copy.deepcopy(test_shell.PUBLIC_1))
+        vendor_mock.side_effect = vendor_mock_return
+
         _shell = shell.OpenStackShell()
         _shell.run(
             "--os-password qaz configuration show".split(),
@@ -466,14 +466,14 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
         Run 2 has --os-username, --os-password, --os-project-domain-id on CLI
         """
 
-        config_mock.return_value = (
-            'file.yaml',
-            copy.deepcopy(test_shell.CLOUD_2),
-        )
-        vendor_mock.return_value = (
-            'file.yaml',
-            copy.deepcopy(test_shell.PUBLIC_1),
-        )
+        def config_mock_return():
+            return ('file.yaml', copy.deepcopy(test_shell.CLOUD_2))
+        config_mock.side_effect = config_mock_return
+
+        def vendor_mock_return():
+            return ('file.yaml', copy.deepcopy(test_shell.PUBLIC_1))
+        vendor_mock.side_effect = vendor_mock_return
+
         _shell = shell.OpenStackShell()
         _shell.run(
             "--os-username zarquon --os-password qaz "

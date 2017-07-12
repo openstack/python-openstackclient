@@ -45,7 +45,6 @@ class TestFindResourceVolumes(test_utils.TestCase):
         resp = mock.Mock()
         body = {"volumes": [{"id": ID, 'display_name': NAME}]}
         api.client.get.side_effect = [Exception("Not found"),
-                                      Exception("Not found"),
                                       (resp, body)]
         self.manager = volumes.VolumeManager(api)
 
@@ -69,7 +68,6 @@ class TestFindResourceVolumeSnapshots(test_utils.TestCase):
         resp = mock.Mock()
         body = {"snapshots": [{"id": ID, 'display_name': NAME}]}
         api.client.get.side_effect = [Exception("Not found"),
-                                      Exception("Not found"),
                                       (resp, body)]
         self.manager = volume_snapshots.SnapshotManager(api)
 
