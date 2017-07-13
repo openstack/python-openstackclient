@@ -248,9 +248,10 @@ def _add_updatable_args(parser):
         '--vnic-type',
         metavar='<vnic-type>',
         choices=['direct', 'direct-physical', 'macvtap',
-                 'normal', 'baremetal'],
+                 'normal', 'baremetal', 'virtio-forwarder'],
         help=_("VNIC type for this port (direct | direct-physical | "
-               "macvtap | normal | baremetal, default: normal)")
+               "macvtap | normal | baremetal | virtio-forwarder, "
+               " default: normal)")
     )
     # NOTE(dtroyer): --host-id is deprecated in Mar 2016.  Do not
     #                remove before 3.x release or Mar 2017.
