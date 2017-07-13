@@ -232,6 +232,7 @@ Set port properties
         [--dns-name <dns-name>]
         [--allowed-address ip-address=<ip-address>[,mac-address=<mac-address>]]
         [--no-allowed-address]
+        [--data-plane-status <status>]
         <port>
 
 .. option:: --description <description>
@@ -335,6 +336,12 @@ Set port properties
     (Specify both --allowed-address and --no-allowed-address
     to overwrite the current allowed-address pairs)
 
+.. option:: --data-plane-status
+
+    Set data plane status of this port (ACTIVE | DOWN).
+    Unset it to None with the 'port unset' command
+    (requires data plane status extension)
+
 .. _port_set-port:
 .. describe:: <port>
 
@@ -370,6 +377,7 @@ Unset port properties
         [--security-group <security-group> [...]]
         [--allowed-address ip-address=<ip-address>[,mac-address=<mac-address>] [...]]
         [--qos-policy]
+        [--data-plane-status]
         <port>
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
@@ -397,6 +405,10 @@ Unset port properties
 .. option:: --qos-policy
 
     Remove the QoS policy attached to the port
+
+.. option:: --data-plane-status
+
+    Clear existing information of data plane status
 
 .. _port_unset-port:
 .. describe:: <port>

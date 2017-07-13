@@ -1,0 +1,5 @@
+---
+features:
+  - Add ``--data-plane-status`` option to ``port set`` and ``port unset``
+    commands.
+    [Bug `1684989 <https://bugs.launchpad.net/bugs/1684989>`_]

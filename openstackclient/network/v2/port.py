@@ -685,6 +685,15 @@ class SetPort(command.Command):
                    "(Specify both --allowed-address and --no-allowed-address"
                    "to overwrite the current allowed-address pairs)")
         )
+        parser.add_argument(
+            '--data-plane-status',
+            metavar='<status>',
+            choices=['ACTIVE', 'DOWN'],
+            help=_("Set data plane status of this port (ACTIVE | DOWN). "
+                   "Unset it to None with the 'port unset' command "
+                   "(requires data plane status extension)")
+        )
+
         return parser
 
     def take_action(self, parsed_args):
@@ -737,6 +746,8 @@ class SetPort(command.Command):
             attrs['allowed_address_pairs'].extend(
                 _convert_address_pairs(parsed_args)
             )
+        if parsed_args.data_plane_status:
+            attrs['data_plane_status'] = parsed_args.data_plane_status
 
         client.update_port(obj, **attrs)
 
@@ -816,6 +827,11 @@ class UnsetPort(command.Command):
             default=False,
             help=_("Remove the QoS policy attached to the port")
         )
+        parser.add_argument(
+            '--data-plane-status',
+            action='store_true',
+            help=_("Clear existing information of data plane status")
+        )
 
         return parser
 
@@ -867,6 +883,8 @@ class UnsetPort(command.Command):
             attrs['allowed_address_pairs'] = tmp_addr_pairs
         if parsed_args.qos_policy:
             attrs['qos_policy_id'] = None
+        if parsed_args.data_plane_status:
+            attrs['data_plane_status'] = None
 
         if attrs:
             client.update_port(obj, **attrs)
