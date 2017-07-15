@@ -12,8 +12,8 @@
 #
 
 import copy
-import mock
 
+import mock
 from osc_lib import exceptions
 
 from openstackclient.identity.v2_0 import role_assignment

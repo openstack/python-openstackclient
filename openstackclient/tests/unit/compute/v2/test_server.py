@@ -15,9 +15,9 @@
 import argparse
 import collections
 import getpass
+
 import mock
 from mock import call
-
 from osc_lib import exceptions
 from osc_lib import utils as common_utils
 from oslo_utils import timeutils

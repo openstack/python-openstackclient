@@ -14,6 +14,7 @@
 #
 
 import copy
+
 import mock
 
 from openstackclient.api import object_store_v1 as object_store

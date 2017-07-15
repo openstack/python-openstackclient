@@ -12,6 +12,7 @@
 #
 
 import argparse
+
 import mock
 
 import openstack

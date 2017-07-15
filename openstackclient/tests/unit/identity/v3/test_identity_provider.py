@@ -13,6 +13,7 @@
 #   under the License.
 
 import copy
+
 import mock
 
 from openstackclient.identity.v3 import identity_provider

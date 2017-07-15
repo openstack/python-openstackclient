@@ -13,8 +13,8 @@
 #   under the License.
 
 import copy
-import mock
 
+import mock
 from osc_lib import exceptions
 
 from openstackclient.identity.v3 import mapping

@@ -12,6 +12,7 @@
 #
 
 import datetime
+
 import mock
 
 from openstackclient.compute.v2 import usage
