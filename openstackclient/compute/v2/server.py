@@ -1060,26 +1060,33 @@ class ListServer(command.Lister):
                 'OS-EXT-AZ:availability_zone',
                 'OS-EXT-SRV-ATTR:host',
             ]
-        elif parsed_args.no_name_lookup:
-            columns = (
-                'ID',
-                'Name',
-                'Status',
-                'Image ID',
-                'Flavor ID',
-            )
-            column_headers = tuple(columns)
-            mixed_case_fields = []
-
         else:
-            columns = (
+            if parsed_args.no_name_lookup:
+                columns = (
+                    'ID',
+                    'Name',
+                    'Status',
+                    'Networks',
+                    'Image ID',
+                    'Flavor ID',
+                )
+            else:
+                columns = (
+                    'ID',
+                    'Name',
+                    'Status',
+                    'Networks',
+                    'Image Name',
+                    'Flavor Name',
+                )
+            column_headers = (
                 'ID',
                 'Name',
                 'Status',
                 'Networks',
-                'Image Name',
+                'Image',
+                'Flavor',
             )
-            column_headers = tuple(columns)
             mixed_case_fields = []
 
         marker_id = None

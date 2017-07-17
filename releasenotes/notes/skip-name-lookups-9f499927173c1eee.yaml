@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--no-name-lookup`` option to ``server list`` command to skip the lookup of
+    flavor and image names.  This can save a significant amount of time on clouds with
+    a large number of images.  ``-n`` is an alias for this option.
