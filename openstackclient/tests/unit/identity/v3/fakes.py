@@ -175,6 +175,7 @@ ids_for_children = [PROJECT_WITH_GRANDPARENT['id']]
 
 role_id = 'r1'
 role_name = 'roller'
+role_description = 'role description'
 
 ROLE = {
     'id': role_id,

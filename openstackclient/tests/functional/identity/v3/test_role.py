@@ -20,6 +20,21 @@ class RoleTests(common.IdentityTests):
     def test_role_create(self):
         self._create_dummy_role()
 
+    def test_role_create_with_description(self):
+        role_name = data_utils.rand_name('TestRole')
+        description = data_utils.rand_name('description')
+        raw_output = self.openstack(
+            'role create '
+            '--description %(description)s '
+            '%(name)s' % {'description': description,
+                          'name': role_name})
+        role = self.parse_show_as_object(raw_output)
+        self.addCleanup(self.openstack, 'role delete %s' % role['id'])
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.ROLE_FIELDS)
+        self.assertEqual(description, role['description'])
+        return role_name
+
     def test_role_delete(self):
         role_name = self._create_dummy_role(add_clean_up=False)
         raw_output = self.openstack('role delete %s' % role_name)
@@ -87,6 +102,16 @@ class RoleTests(common.IdentityTests):
         raw_output = self.openstack('role show %s' % new_role_name)
         role = self.parse_show_as_object(raw_output)
         self.assertEqual(new_role_name, role['name'])
+
+    def test_role_set_description(self):
+        role_name = self._create_dummy_role()
+        description = data_utils.rand_name("NewDescription")
+        raw_output = self.openstack('role set --description %s %s'
+                                    % (description, role_name))
+        self.assertEqual(0, len(raw_output))
+        raw_output = self.openstack('role show %s' % role_name)
+        role = self.parse_show_as_object(raw_output)
+        self.assertEqual(description, role['description'])
 
     def test_role_add(self):
         role_name = self._create_dummy_role()

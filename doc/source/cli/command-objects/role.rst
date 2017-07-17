@@ -115,6 +115,10 @@ Create new role
 
     New role name
 
+.. option:: --description <description>
+
+    Add description about the role
+
 role delete
 -----------
 
