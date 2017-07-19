@@ -23,9 +23,10 @@ class IPAvailabilityTests(common.NetworkTests):
     def setUpClass(cls):
         common.NetworkTests.setUpClass()
         if cls.haz_network:
-            # Create a network for the subnet.
             cls.NAME = uuid.uuid4().hex
             cls.NETWORK_NAME = uuid.uuid4().hex
+
+            # Create a network for the subnet
             cls.openstack(
                 'network create ' +
                 cls.NETWORK_NAME

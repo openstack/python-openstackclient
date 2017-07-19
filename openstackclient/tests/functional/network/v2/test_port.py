@@ -18,14 +18,15 @@ from openstackclient.tests.functional.network.v2 import common
 
 class PortTests(common.NetworkTests):
     """Functional tests for port"""
-    NAME = uuid.uuid4().hex
-    NETWORK_NAME = uuid.uuid4().hex
 
     @classmethod
     def setUpClass(cls):
         common.NetworkTests.setUpClass()
         if cls.haz_network:
-            # Create a network for the port
+            cls.NAME = uuid.uuid4().hex
+            cls.NETWORK_NAME = uuid.uuid4().hex
+
+            # Create a network for the port tests
             cls.openstack(
                 'network create ' + cls.NETWORK_NAME
             )

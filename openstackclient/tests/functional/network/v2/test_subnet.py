@@ -24,8 +24,9 @@ class SubnetTests(common.NetworkTests):
     def setUpClass(cls):
         common.NetworkTests.setUpClass()
         if cls.haz_network:
-            # Create a network for the all subnet tests
             cls.NETWORK_NAME = uuid.uuid4().hex
+
+            # Create a network for the all subnet tests
             cmd_output = json.loads(cls.openstack(
                 'network create -f json ' +
                 cls.NETWORK_NAME

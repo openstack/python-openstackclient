@@ -17,7 +17,6 @@ from openstackclient.tests.functional.network.v2 import common
 
 class SecurityGroupRuleTests(common.NetworkTests):
     """Functional tests for security group rule"""
-    SECURITY_GROUP_NAME = uuid.uuid4().hex
     SECURITY_GROUP_RULE_ID = None
     NAME_FIELD = ['name']
     ID_FIELD = ['id']
@@ -27,7 +26,9 @@ class SecurityGroupRuleTests(common.NetworkTests):
     def setUpClass(cls):
         common.NetworkTests.setUpClass()
         if cls.haz_network:
-            # Create the security group to hold the rule.
+            cls.SECURITY_GROUP_NAME = uuid.uuid4().hex
+
+            # Create the security group to hold the rule
             opts = cls.get_opts(cls.NAME_FIELD)
             raw_output = cls.openstack(
                 'security group create ' +

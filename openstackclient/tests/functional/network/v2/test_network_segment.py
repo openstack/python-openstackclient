@@ -17,8 +17,6 @@ from openstackclient.tests.functional.network.v2 import common
 
 class NetworkSegmentTests(common.NetworkTests):
     """Functional tests for network segment"""
-    NETWORK_NAME = uuid.uuid4().hex
-    PHYSICAL_NETWORK_NAME = uuid.uuid4().hex
     NETWORK_SEGMENT_ID = None
     NETWORK_ID = None
     NETWORK_SEGMENT_EXTENSION = None
@@ -27,7 +25,10 @@ class NetworkSegmentTests(common.NetworkTests):
     def setUpClass(cls):
         common.NetworkTests.setUpClass()
         if cls.haz_network:
-            # Create a network for the segment.
+            cls.NETWORK_NAME = uuid.uuid4().hex
+            cls.PHYSICAL_NETWORK_NAME = uuid.uuid4().hex
+
+            # Create a network for the segment
             opts = cls.get_opts(['id'])
             raw_output = cls.openstack(
                 'network create ' + cls.NETWORK_NAME + opts
