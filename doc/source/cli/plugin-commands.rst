@@ -58,11 +58,11 @@ ironic-inspector
 .. list-plugins:: openstack.baremetal_introspection.v1
    :detailed:
 
-karbor
-------
-
-.. list-plugins:: openstack.data_protection.v1
-   :detailed:
+.. karbor
+.. ------
+.. bug 1705258: Exclude karborclient 0.4.0 until a fixed version is released.
+.. .. list-plugins:: openstack.data_protection.v1
+..    :detailed:
 
 mistral
 -------
