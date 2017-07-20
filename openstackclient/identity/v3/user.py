@@ -358,7 +358,8 @@ class SetUser(command.Command):
                           "when a user does not have a password."))
 
         user_str = common._get_token_resource(identity_client, 'user',
-                                              parsed_args.user)
+                                              parsed_args.user,
+                                              parsed_args.domain)
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
             user = utils.find_resource(identity_client.users,
@@ -473,7 +474,8 @@ class ShowUser(command.ShowOne):
         identity_client = self.app.client_manager.identity
 
         user_str = common._get_token_resource(identity_client, 'user',
-                                              parsed_args.user)
+                                              parsed_args.user,
+                                              parsed_args.domain)
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
             user = utils.find_resource(identity_client.users,

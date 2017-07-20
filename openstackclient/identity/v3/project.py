@@ -360,7 +360,8 @@ class ShowProject(command.ShowOne):
         identity_client = self.app.client_manager.identity
 
         project_str = common._get_token_resource(identity_client, 'project',
-                                                 parsed_args.project)
+                                                 parsed_args.project,
+                                                 parsed_args.domain)
 
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)

@@ -58,7 +58,7 @@ def find_service(identity_client, name_type_or_id):
         raise exceptions.CommandError(msg % name_type_or_id)
 
 
-def _get_token_resource(client, resource, parsed_name):
+def _get_token_resource(client, resource, parsed_name, parsed_domain=None):
     """Peek into the user's auth token to get resource IDs
 
     Look into a user's token to try and find the ID of a domain, project or
@@ -71,6 +71,8 @@ def _get_token_resource(client, resource, parsed_name):
                      `project_domain`, `user_domain`, `project`, or `user`.
     :param parsed_name: This is input from parsed_args that the user is hoping
                         to find in the token.
+    :param parsed_domain: This is domain filter from parsed_args that used to
+                          filter the results.
 
     :returns: The ID of the resource from the token, or the original value from
               parsed_args if it does not match.
@@ -85,6 +87,10 @@ def _get_token_resource(client, resource, parsed_name):
         if resource == 'domain':
             token_dict = token_dict['project']
         obj = token_dict[resource]
+
+        # user/project under different domain may has a same name
+        if parsed_domain and parsed_domain not in obj['domain'].values():
+            return parsed_name
         return obj['id'] if obj['name'] == parsed_name else parsed_name
     # diaper defense in case parsing the token fails
     except Exception:  # noqa
