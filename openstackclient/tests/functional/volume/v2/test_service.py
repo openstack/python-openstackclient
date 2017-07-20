@@ -64,8 +64,7 @@ class VolumeServiceTests(common.BaseVolumeTests):
             'enabled',
             cmd_output[0]['Status']
         )
-        self.assertEqual(
-            None,
+        self.assertIsNone(
             cmd_output[0]['Disabled Reason']
         )
 
