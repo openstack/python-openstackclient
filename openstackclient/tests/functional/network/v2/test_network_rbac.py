@@ -16,9 +16,7 @@ from openstackclient.tests.functional.network.v2 import common
 
 
 class NetworkRBACTests(common.NetworkTests):
-    """Functional tests for network rbac. """
-    NET_NAME = uuid.uuid4().hex
-    PROJECT_NAME = uuid.uuid4().hex
+    """Functional tests for network rbac"""
     OBJECT_ID = None
     ID = None
     HEADERS = ['ID']
@@ -28,6 +26,9 @@ class NetworkRBACTests(common.NetworkTests):
     def setUpClass(cls):
         common.NetworkTests.setUpClass()
         if cls.haz_network:
+            cls.NET_NAME = uuid.uuid4().hex
+            cls.PROJECT_NAME = uuid.uuid4().hex
+
             opts = cls.get_opts(cls.FIELDS)
             raw_output = cls.openstack(
                 'network create ' + cls.NET_NAME + opts

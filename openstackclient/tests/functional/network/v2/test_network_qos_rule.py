@@ -21,7 +21,6 @@ from openstackclient.tests.functional.network.v2 import common
 class NetworkQosRuleTestsMinimumBandwidth(common.NetworkTests):
     """Functional tests for QoS minimum bandwidth rule"""
     RULE_ID = None
-    QOS_POLICY_NAME = 'qos_policy_' + uuid.uuid4().hex
     MIN_KBPS = 2800
     MIN_KBPS_MODIFIED = 7500
     DIRECTION = '--egress'
@@ -33,6 +32,8 @@ class NetworkQosRuleTestsMinimumBandwidth(common.NetworkTests):
     def setUpClass(cls):
         common.NetworkTests.setUpClass()
         if cls.haz_network:
+            cls.QOS_POLICY_NAME = 'qos_policy_' + uuid.uuid4().hex
+
             opts = cls.get_opts(cls.FIELDS)
             cls.openstack(
                 'network qos policy create ' +

@@ -17,8 +17,6 @@ from openstackclient.tests.functional.network.v2 import common
 
 class SecurityGroupTests(common.NetworkTests):
     """Functional tests for security group"""
-    NAME = uuid.uuid4().hex
-    OTHER_NAME = uuid.uuid4().hex
     HEADERS = ['Name']
     FIELDS = ['name']
 
@@ -26,6 +24,9 @@ class SecurityGroupTests(common.NetworkTests):
     def setUpClass(cls):
         common.NetworkTests.setUpClass()
         if cls.haz_network:
+            cls.NAME = uuid.uuid4().hex
+            cls.OTHER_NAME = uuid.uuid4().hex
+
             opts = cls.get_opts(cls.FIELDS)
             raw_output = cls.openstack(
                 'security group create ' +

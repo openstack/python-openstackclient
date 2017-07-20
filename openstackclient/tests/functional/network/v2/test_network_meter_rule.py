@@ -22,7 +22,6 @@ from openstackclient.tests.functional.network.v2 import common
 class TestMeterRule(common.NetworkTests):
     """Functional tests for meter rule"""
 
-    METER_NAME = uuid.uuid4().hex
     METER_ID = None
     METER_RULE_ID = None
 
@@ -30,6 +29,8 @@ class TestMeterRule(common.NetworkTests):
     def setUpClass(cls):
         common.NetworkTests.setUpClass()
         if cls.haz_network:
+            cls.METER_NAME = uuid.uuid4().hex
+
             json_output = json.loads(cls.openstack(
                 'network meter create -f json ' +
                 cls.METER_NAME

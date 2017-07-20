@@ -19,8 +19,7 @@ from openstackclient.tests.functional.network.v2 import common
 
 
 class NetworkQosPolicyTests(common.NetworkTests):
-    """Functional tests for QoS policy. """
-    NAME = uuid.uuid4().hex
+    """Functional tests for QoS policy"""
     HEADERS = ['Name']
     FIELDS = ['name']
 
@@ -28,6 +27,8 @@ class NetworkQosPolicyTests(common.NetworkTests):
     def setUpClass(cls):
         common.NetworkTests.setUpClass()
         if cls.haz_network:
+            cls.NAME = uuid.uuid4().hex
+
             opts = cls.get_opts(cls.FIELDS)
             raw_output = cls.openstack(
                 'network qos policy create ' +

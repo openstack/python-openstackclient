@@ -19,17 +19,18 @@ from openstackclient.tests.functional.network.v2 import common
 
 class FloatingIpTests(common.NetworkTests):
     """Functional tests for floating ip"""
-    EXTERNAL_NETWORK_NAME = uuid.uuid4().hex
-    EXTERNAL_SUBNET_NAME = uuid.uuid4().hex
-    PRIVATE_NETWORK_NAME = uuid.uuid4().hex
-    PRIVATE_SUBNET_NAME = uuid.uuid4().hex
-    ROUTER = uuid.uuid4().hex
-    PORT_NAME = uuid.uuid4().hex
 
     @classmethod
     def setUpClass(cls):
         common.NetworkTests.setUpClass()
         if cls.haz_network:
+            cls.EXTERNAL_NETWORK_NAME = uuid.uuid4().hex
+            cls.EXTERNAL_SUBNET_NAME = uuid.uuid4().hex
+            cls.PRIVATE_NETWORK_NAME = uuid.uuid4().hex
+            cls.PRIVATE_SUBNET_NAME = uuid.uuid4().hex
+            cls.ROUTER = uuid.uuid4().hex
+            cls.PORT_NAME = uuid.uuid4().hex
+
             # Create a network for the floating ip
             json_output = json.loads(cls.openstack(
                 'network create -f json ' +
