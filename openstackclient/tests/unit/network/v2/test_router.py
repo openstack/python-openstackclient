@@ -381,6 +381,21 @@ class TestListRouter(TestRouter):
             r.ha,
             r.tenant_id,
         ))
+
+    router_agent_data = []
+    for r in routers:
+        router_agent_data.append((
+            r.id,
+            r.name,
+            r.external_gateway_info,
+        ))
+
+    agents_columns = (
+        'ID',
+        'Name',
+        'External Gateway Info',
+    )
+
     data_long = []
     for i in range(0, len(routers)):
         r = routers[i]
@@ -407,8 +422,15 @@ class TestListRouter(TestRouter):
         # Get the command object to test
         self.cmd = router.ListRouter(self.app, self.namespace)
 
+        self.network.agent_hosted_routers = mock.Mock(
+            return_value=self.routers)
         self.network.routers = mock.Mock(return_value=self.routers)
         self.network.find_extension = mock.Mock(return_value=self._extensions)
+        self.network.find_router = mock.Mock(return_value=self.routers[0])
+        self._testagent = \
+            network_fakes.FakeNetworkAgent.create_one_network_agent()
+        self.network.get_agent = mock.Mock(return_value=self._testagent)
+        self.network.get_router = mock.Mock(return_value=self.routers[0])
 
     def test_router_list_no_options(self):
         arglist = []
@@ -553,6 +575,34 @@ class TestListRouter(TestRouter):
         filters = {'tenant_id': project.id, 'project_id': project.id}
 
         self.network.routers.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_router_list_agents_no_args(self):
+        arglist = [
+            '--agents',
+        ]
+        verifylist = []
+
+        # Missing required router ID should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_router_list_agents(self):
+        arglist = [
+            '--agent', self._testagent.id,
+        ]
+        verifylist = [
+            ('agent', self._testagent.id),
+        ]
+
+        attrs = {self._testagent.id, }
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.agent_hosted_routers(
+            *attrs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 

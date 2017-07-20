@@ -305,11 +305,18 @@ class ListRouter(command.Lister):
             help=_("List routers according to their project (name or ID)")
         )
         identity_common.add_project_domain_option_to_parser(parser)
+        parser.add_argument(
+            '--agent',
+            metavar='<agent-id>',
+            help=_("List routers hosted by an agent (ID only)")
+        )
+
         return parser
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         client = self.app.client_manager.network
+
         columns = (
             'id',
             'name',
@@ -349,6 +356,16 @@ class ListRouter(command.Lister):
             ).id
             args['tenant_id'] = project_id
             args['project_id'] = project_id
+
+        if parsed_args.agent is not None:
+            agent = client.get_agent(parsed_args.agent)
+            data = client.agent_hosted_routers(agent)
+            # NOTE: Networking API does not support filtering by parameters,
+            # so we need filtering in the client side.
+            data = [d for d in data if self._filter_match(d, args)]
+        else:
+            data = client.routers(**args)
+
         if parsed_args.long:
             columns = columns + (
                 'routes',
@@ -368,12 +385,25 @@ class ListRouter(command.Lister):
                     'Availability zones',
                 )
 
-        data = client.routers(**args)
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
                     formatters=_formatters,
                 ) for s in data))
+
+    @staticmethod
+    def _filter_match(data, conditions):
+        for key, value in conditions.items():
+            try:
+                if getattr(data, key) != value:
+                    return False
+            except AttributeError:
+                # Some filter attributes like tenant_id or admin_state_up
+                # are backward compatibility in older OpenStack SDK support.
+                # They does not exist in the latest release.
+                # In this case we just skip checking such filter condition.
+                continue
+        return True
 
 
 class RemovePortFromRouter(command.Command):

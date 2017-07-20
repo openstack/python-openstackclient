@@ -155,6 +155,11 @@ List routers
         [--enable | --disable]
         [--long]
         [--project <project> [--project-domain <project-domain>]]
+        [--agent <agent-id>]
+
+.. option:: --agent <agent-id>
+
+    List routers hosted by an agent (ID only)
 
 .. option:: --long
 

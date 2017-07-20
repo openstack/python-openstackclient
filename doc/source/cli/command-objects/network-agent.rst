@@ -33,7 +33,34 @@ Add network to an agent
 
 .. describe:: <network>
 
-    Network to be added to an agent (ID or name)
+    Network to be added to an agent (name or ID)
+
+network agent add router
+------------------------
+
+Add router to an agent
+
+.. program:: network agent add router
+.. code:: bash
+
+    openstack network agent add router
+        [--l3]
+        <agent-id>
+        <router>
+
+.. option:: --l3
+
+    Add router to L3 agent
+
+.. _network_agent_add_router-agent-id:
+.. describe:: <agent-id>
+
+   Agent to which a router is added (ID only)
+
+.. _network_agent_add_router-router:
+.. describe:: <router>
+
+   Router to be added to an agent (name or ID)
 
 network agent delete
 --------------------
@@ -62,7 +89,8 @@ List network agents
     openstack network agent list
         [--agent-type <agent-type>]
         [--host <host>]
-        [--network <network>]
+        [--network <network> | --router <router>]
+        [--long]
 
 .. option:: --agent-type <agent-type>
 
@@ -77,7 +105,69 @@ List network agents
 
 .. option:: --network <network>
 
-    List agents hosting a network (ID or name)
+    List agents hosting a network (name or ID)
+
+.. option:: --router <router>
+
+    List agents hosting this router (name or ID)
+
+.. option:: --long
+
+    List additional fields in output
+
+network agent remove network
+----------------------------
+
+Remove network from an agent
+
+.. program:: network agent remove network
+.. code:: bash
+
+    openstack network agent remove network
+        [--dhcp]
+        <agent-id>
+        <network>
+
+.. option:: --dhcp
+
+    Remove network from DHCP agent
+
+.. _network_agent_remove_network-agent-id:
+.. describe:: <agent-id>
+
+    Agent to which a network is removed (ID only)
+
+.. _network_agent_remove_network-network:
+.. describe:: <network>
+
+    Network to be removed from an agent (name or ID)
+
+network agent remove router
+---------------------------
+
+Remove router from an agent
+
+.. program:: network agent remove router
+.. code:: bash
+
+    openstack agent remove router
+        [--l3]
+        <agent-id>
+        <router>
+
+.. option:: --l3
+
+    Remove router from L3 agent
+
+.. _network_agent_remove_router-agent-id:
+.. describe:: <agent-id>
+
+   Agent from which router will be removed (ID only)
+
+.. _network_agent_remove_router-router:
+.. describe:: <router>
+
+   Router to be removed from an agent (name or ID)
 
 network agent set
 -----------------
@@ -124,28 +214,3 @@ Display network agent details
 .. describe:: <network-agent>
 
     Network agent to display (ID only)
-
-network agent remove network
-----------------------------
-
-Remove network from an agent
-
-.. program:: network agent remove network
-.. code:: bash
-
-    openstack network agent remove network
-        [--dhcp]
-        <agent-id>
-        <network>
-
-.. describe:: --dhcp
-
-    Remove network from DHCP agent.
-
-.. describe:: <agent-id>
-
-    Agent to which a network is removed (ID only)
-
-.. describe:: <network>
-
-    Network to be removed from an agent (ID or name)
