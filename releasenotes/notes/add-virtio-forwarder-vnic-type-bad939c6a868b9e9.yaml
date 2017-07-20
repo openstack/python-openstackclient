@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    The ``virtio-forwarder`` VNIC type has been added as another option for
+    setting the ``--vnic-type`` property on the ``port set`` and
+    ``port create`` commands. This requests a low-latency virtio port inside
+    the instance, likely backed by hardware acceleration. Currently the
+    Agilio OVS external plugin provides support for this, with support from
+    other vendors following soon.

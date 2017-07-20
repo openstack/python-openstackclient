@@ -60,8 +60,8 @@ Create new port
 
 .. option:: --vnic-type <vnic-type>
 
-    VNIC type for this port (direct | direct-physical | macvtap | normal | baremetal,
-    default: normal)
+    VNIC type for this port (direct | direct-physical | macvtap | normal | baremetal |
+    virtio-forwarder, default: normal)
 
 .. option:: --binding-profile <binding-profile>
 
@@ -262,8 +262,8 @@ Set port properties
 
 .. option:: --vnic-type <vnic-type>
 
-    VNIC type for this port (direct | direct-physical | macvtap | normal | baremetal,
-    default: normal)
+    VNIC type for this port (direct | direct-physical | macvtap | normal | baremetal |
+    virtio-forwarder, default: normal)
 
 .. option:: --binding-profile <binding-profile>
 
