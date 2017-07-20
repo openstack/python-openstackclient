@@ -23,7 +23,7 @@ Add network to an agent
         <agent-id>
         <network>
 
-.. describe:: --dhcp
+.. option:: --dhcp
 
     Add a network to DHCP agent
 
@@ -50,7 +50,7 @@ Add router to an agent
 
 .. option:: --l3
 
-    Add router to L3 agent
+    Add router to an L3 agent
 
 .. _network_agent_add_router-agent-id:
 .. describe:: <agent-id>
@@ -157,7 +157,7 @@ Remove router from an agent
 
 .. option:: --l3
 
-    Remove router from L3 agent
+    Remove router from an L3 agent
 
 .. _network_agent_remove_router-agent-id:
 .. describe:: <agent-id>
