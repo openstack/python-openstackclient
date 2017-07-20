@@ -1441,7 +1441,8 @@ class TestServerList(TestServer):
         'Name',
         'Status',
         'Networks',
-        'Image Name',
+        'Image',
+        'Flavor',
     )
     columns_long = (
         'ID',
@@ -1457,14 +1458,6 @@ class TestServerList(TestServer):
         'Availability Zone',
         'Host',
         'Properties',
-    )
-
-    columns_no_name_lookup = (
-        'ID',
-        'Name',
-        'Status',
-        'Image ID',
-        'Flavor ID',
     )
 
     def setUp(self):
@@ -1546,6 +1539,7 @@ class TestServerList(TestServer):
                 s.status,
                 server._format_servers_list_networks(s.networks),
                 self.image.name,
+                self.flavor.name,
             ))
             self.data_long.append((
                 s.id,
@@ -1568,6 +1562,7 @@ class TestServerList(TestServer):
                 s.id,
                 s.name,
                 s.status,
+                server._format_servers_list_networks(s.networks),
                 s.image['id'],
                 s.flavor['id']
             ))
@@ -1616,7 +1611,7 @@ class TestServerList(TestServer):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
-        self.assertEqual(self.columns_no_name_lookup, columns)
+        self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data_no_name_lookup), tuple(data))
 
     def test_server_list_n_option(self):
@@ -1632,7 +1627,7 @@ class TestServerList(TestServer):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
-        self.assertEqual(self.columns_no_name_lookup, columns)
+        self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data_no_name_lookup), tuple(data))
 
     def test_server_list_with_image(self):

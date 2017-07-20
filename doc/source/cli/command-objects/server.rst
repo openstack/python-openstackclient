@@ -330,7 +330,7 @@ List servers
         [--all-projects]
         [--project <project> [--project-domain <project-domain>]]
         [--long]
-        [-n | --no-name-lookup]
+        [--no-name-lookup | -n]
         [--marker <server>]
         [--limit <num-servers>]
         [--deleted]
@@ -401,6 +401,8 @@ List servers
 .. option:: --no-name-lookup
 
     Skips image and flavor names lookup
+
+    ``-n`` may be used as an alias for this option.
 
 .. option:: --marker <server>
 
