@@ -2,4 +2,4 @@
 features:
   - |
     Add support for streaming Swift objects to stdout when using the ``object
-    save`` command, by specifying ``--filename -``.
+    save`` command by specifying ``-`` as a file name: ``--filename -``.

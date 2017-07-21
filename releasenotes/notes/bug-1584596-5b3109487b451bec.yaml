@@ -1,5 +1,5 @@
 ---
-fixes:
+features:
   - |
     Add command ``openstack project purge`` to clean a project's resources.
     [Bug `1584596 <https://bugs.launchpad.net/bugs/1584596>`_]

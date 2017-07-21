@@ -1,9 +1,8 @@
 ---
 fixes:
   - |
-    Fix an issue when run commands `project show`, `user show` and `user set`
-    with `--domain` specific, the domain filter won't work if the login user's
-    project name or user name is same with the resource name user hoping to
-    get.
-
+    Fix an issue with the ``--domain`` option when used with the ``project show``,
+    ``user show`` and ``user set`` commands.  The domain filter did not work when
+    the login user's project name or user name is the same as the requested resource
+    name in the specified domain.
     [Bug `1704097 <https://bugs.launchpad.net/python-openstackclient/+bug/1704097>`_]

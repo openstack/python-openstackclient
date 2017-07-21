@@ -27,8 +27,8 @@ Backwards Incompatible Changes
 ..   * Remove in: <5.0>
 ..   * Commit: <tbd>
 
-Release 3.12.0
---------------
+Release 3.12
+------------
 
 1. Replace ``Display Name`` by ``Name`` in volume list.
 
