@@ -47,15 +47,18 @@ class NetworkRBACTests(common.NetworkTests):
 
     @classmethod
     def tearDownClass(cls):
-        if cls.haz_network:
-            raw_output_rbac = cls.openstack(
-                'network rbac delete ' + cls.ID
-            )
-            raw_output_network = cls.openstack(
-                'network delete ' + cls.OBJECT_ID
-            )
-            cls.assertOutput('', raw_output_rbac)
-            cls.assertOutput('', raw_output_network)
+        try:
+            if cls.haz_network:
+                raw_output_rbac = cls.openstack(
+                    'network rbac delete ' + cls.ID
+                )
+                raw_output_network = cls.openstack(
+                    'network delete ' + cls.OBJECT_ID
+                )
+                cls.assertOutput('', raw_output_rbac)
+                cls.assertOutput('', raw_output_network)
+        finally:
+            super(NetworkRBACTests, cls).tearDownClass()
 
     def setUp(self):
         super(NetworkRBACTests, self).setUp()

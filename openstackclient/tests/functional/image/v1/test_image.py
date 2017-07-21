@@ -11,8 +11,9 @@
 #    under the License.
 
 import json
-import os
 import uuid
+
+import fixtures
 
 from openstackclient.tests.functional import base
 
@@ -25,8 +26,9 @@ class ImageTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        os.environ['OS_IMAGE_API_VERSION'] = '1'
+        super(ImageTests, cls).setUpClass()
         json_output = json.loads(cls.openstack(
+            '--os-image-api-version 1 '
             'image create -f json ' +
             cls.NAME
         ))
@@ -35,10 +37,21 @@ class ImageTests(base.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.openstack(
-            'image delete ' +
-            cls.image_id
+        try:
+            cls.openstack(
+                '--os-image-api-version 1 '
+                'image delete ' +
+                cls.image_id
+            )
+        finally:
+            super(ImageTests, cls).tearDownClass()
+
+    def setUp(self):
+        super(ImageTests, self).setUp()
+        ver_fixture = fixtures.EnvironmentVariable(
+            'OS_IMAGE_API_VERSION', '1'
         )
+        self.useFixture(ver_fixture)
 
     def test_image_list(self):
         json_output = json.loads(self.openstack(

@@ -25,6 +25,7 @@ class ServerTests(common.ComputeTestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(ServerTests, cls).setUpClass()
         cls.haz_network = base.is_service_enabled('network')
 
     def test_server_list(self):

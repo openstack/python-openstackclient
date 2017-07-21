@@ -25,6 +25,7 @@ class ExtensionTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(ExtensionTests, cls).setUpClass()
         cls.haz_network = base.is_service_enabled('network')
 
     def test_extension_list_compute(self):

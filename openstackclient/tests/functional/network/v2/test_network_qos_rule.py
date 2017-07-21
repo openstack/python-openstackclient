@@ -51,17 +51,20 @@ class NetworkQosRuleTestsMinimumBandwidth(common.NetworkTests):
 
     @classmethod
     def tearDownClass(cls):
-        if cls.haz_network:
-            raw_output = cls.openstack(
-                'network qos rule delete ' +
-                cls.QOS_POLICY_NAME + ' ' +
-                cls.RULE_ID
-            )
-            cls.openstack(
-                'network qos policy delete ' +
-                cls.QOS_POLICY_NAME
-            )
-            cls.assertOutput('', raw_output)
+        try:
+            if cls.haz_network:
+                raw_output = cls.openstack(
+                    'network qos rule delete ' +
+                    cls.QOS_POLICY_NAME + ' ' +
+                    cls.RULE_ID
+                )
+                cls.openstack(
+                    'network qos policy delete ' +
+                    cls.QOS_POLICY_NAME
+                )
+                cls.assertOutput('', raw_output)
+        finally:
+            super(NetworkQosRuleTestsMinimumBandwidth, cls).tearDownClass()
 
     def setUp(self):
         super(NetworkQosRuleTestsMinimumBandwidth, self).setUp()
@@ -123,14 +126,18 @@ class NetworkQosRuleTestsDSCPMarking(common.NetworkTests):
 
     @classmethod
     def tearDownClass(cls):
-        if cls.haz_network:
-            raw_output = cls.openstack(
-                'network qos rule delete ' +
-                cls.QOS_POLICY_NAME + ' ' +
-                cls.RULE_ID
-            )
-            cls.openstack('network qos policy delete ' + cls.QOS_POLICY_NAME)
-            cls.assertOutput('', raw_output)
+        try:
+            if cls.haz_network:
+                raw_output = cls.openstack(
+                    'network qos rule delete ' +
+                    cls.QOS_POLICY_NAME + ' ' +
+                    cls.RULE_ID
+                )
+                cls.openstack(
+                    'network qos policy delete ' + cls.QOS_POLICY_NAME)
+                cls.assertOutput('', raw_output)
+        finally:
+            super(NetworkQosRuleTestsDSCPMarking, cls).tearDownClass()
 
     def setUp(self):
         super(NetworkQosRuleTestsDSCPMarking, self).setUp()
@@ -198,14 +205,18 @@ class NetworkQosRuleTestsBandwidthLimit(common.NetworkTests):
 
     @classmethod
     def tearDownClass(cls):
-        if cls.haz_network:
-            raw_output = cls.openstack(
-                'network qos rule delete ' +
-                cls.QOS_POLICY_NAME + ' ' +
-                cls.RULE_ID
-            )
-            cls.openstack('network qos policy delete ' + cls.QOS_POLICY_NAME)
-            cls.assertOutput('', raw_output)
+        try:
+            if cls.haz_network:
+                raw_output = cls.openstack(
+                    'network qos rule delete ' +
+                    cls.QOS_POLICY_NAME + ' ' +
+                    cls.RULE_ID
+                )
+                cls.openstack(
+                    'network qos policy delete ' + cls.QOS_POLICY_NAME)
+                cls.assertOutput('', raw_output)
+        finally:
+            super(NetworkQosRuleTestsBandwidthLimit, cls).tearDownClass()
 
     def setUp(self):
         super(NetworkQosRuleTestsBandwidthLimit, self).setUp()

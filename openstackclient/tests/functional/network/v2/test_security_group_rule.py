@@ -51,18 +51,20 @@ class SecurityGroupRuleTests(common.NetworkTests):
 
     @classmethod
     def tearDownClass(cls):
-        if cls.haz_network:
-            raw_output = cls.openstack(
-                'security group rule delete ' +
-                cls.SECURITY_GROUP_RULE_ID
-            )
-            cls.assertOutput('', raw_output)
-
-            raw_output = cls.openstack(
-                'security group delete ' +
-                cls.SECURITY_GROUP_NAME
-            )
-            cls.assertOutput('', raw_output)
+        try:
+            if cls.haz_network:
+                raw_output = cls.openstack(
+                    'security group rule delete ' +
+                    cls.SECURITY_GROUP_RULE_ID
+                )
+                cls.assertOutput('', raw_output)
+                raw_output = cls.openstack(
+                    'security group delete ' +
+                    cls.SECURITY_GROUP_NAME
+                )
+                cls.assertOutput('', raw_output)
+        finally:
+            super(SecurityGroupRuleTests, cls).tearDownClass()
 
     def setUp(self):
         super(SecurityGroupRuleTests, self).setUp()

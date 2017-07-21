@@ -11,13 +11,8 @@
 #    under the License.
 
 from openstackclient.tests.functional.volume.v2 import test_snapshot as v2
-import os
+from openstackclient.tests.functional.volume.v3 import common
 
 
-class VolumeSnapshotTests(v2.VolumeSnapshotTests):
+class VolumeSnapshotTests(common.BaseVolumeTests, v2.VolumeSnapshotTests):
     """Functional tests for volume snapshot. """
-
-    @classmethod
-    def setUpClass(cls):
-        super(VolumeSnapshotTests, cls).setUpClass()
-        os.environ['OS_VOLUME_API_VERSION'] = '3'

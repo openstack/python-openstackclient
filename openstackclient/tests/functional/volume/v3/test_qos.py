@@ -10,15 +10,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
-
 from openstackclient.tests.functional.volume.v2 import test_qos as v2
+from openstackclient.tests.functional.volume.v3 import common
 
 
-class QosTests(v2.QosTests):
+class QosTests(common.BaseVolumeTests, v2.QosTests):
     """Functional tests for volume qos. """
-
-    @classmethod
-    def setUpClass(cls):
-        super(QosTests, cls).setUpClass()
-        os.environ['OS_VOLUME_API_VERSION'] = '3'

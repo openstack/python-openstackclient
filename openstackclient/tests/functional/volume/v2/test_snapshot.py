@@ -35,10 +35,13 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
 
     @classmethod
     def tearDownClass(cls):
-        cls.wait_for_status('volume', cls.VOLLY, 'available')
-        raw_output = cls.openstack(
-            'volume delete --force ' + cls.VOLLY)
-        cls.assertOutput('', raw_output)
+        try:
+            cls.wait_for_status('volume', cls.VOLLY, 'available')
+            raw_output = cls.openstack(
+                'volume delete --force ' + cls.VOLLY)
+            cls.assertOutput('', raw_output)
+        finally:
+            super(VolumeSnapshotTests, cls).tearDownClass()
 
     def test_volume_snapshot__delete(self):
         """Test create, delete multiple"""

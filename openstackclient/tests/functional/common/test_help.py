@@ -12,6 +12,8 @@
 
 import os
 
+import fixtures
+
 from openstackclient.tests.functional import base
 
 
@@ -76,10 +78,11 @@ class HelpTests(base.TestCase):
 
     def test_commands_help_no_auth(self):
         """Check help commands without auth info."""
-        # Pop all auth info
-        auth_info = {key: os.environ.pop(key)
-                     for key in os.environ.keys()
-                     if key.startswith('OS_')}
+        # Pop all auth info. os.environ will be changed in loop, so do not
+        # replace os.environ.keys() to os.environ
+        for key in os.environ.keys():
+            if key.startswith('OS_'):
+                self.useFixture(fixtures.EnvironmentVariable(key, None))
 
         raw_output = self.openstack('help')
         self.assertIn('usage: openstack', raw_output)
@@ -115,6 +118,3 @@ class HelpTests(base.TestCase):
         self.assertIn('List containers', raw_output)
         raw_output = self.openstack('container list --help')
         self.assertIn('List containers', raw_output)
-
-        # Restore auth info
-        os.environ.update(auth_info)

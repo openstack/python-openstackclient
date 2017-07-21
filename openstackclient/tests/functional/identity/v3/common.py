@@ -12,6 +12,7 @@
 
 import os
 
+import fixtures
 from tempest.lib.common.utils import data_utils
 
 from openstackclient.tests.functional import base
@@ -53,16 +54,12 @@ class IdentityTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # prepare v3 env
-        os.environ['OS_IDENTITY_API_VERSION'] = '3'
-        auth_url = os.environ.get('OS_AUTH_URL')
-        if auth_url:
-            os.environ['OS_AUTH_URL'] = auth_url.replace('v2.0', 'v3')
-
+        super(IdentityTests, cls).setUpClass()
         # create dummy domain
         cls.domain_name = data_utils.rand_name('TestDomain')
         cls.domain_description = data_utils.rand_name('description')
         cls.openstack(
+            '--os-identity-api-version 3 '
             'domain create '
             '--description %(description)s '
             '--enable '
@@ -73,6 +70,7 @@ class IdentityTests(base.TestCase):
         cls.project_name = data_utils.rand_name('TestProject')
         cls.project_description = data_utils.rand_name('description')
         cls.openstack(
+            '--os-identity-api-version 3 '
             'project create '
             '--domain %(domain)s '
             '--description %(description)s '
@@ -83,11 +81,30 @@ class IdentityTests(base.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # delete dummy project
-        cls.openstack('project delete %s' % cls.project_name)
-        # disable and delete dummy domain
-        cls.openstack('domain set --disable %s' % cls.domain_name)
-        cls.openstack('domain delete %s' % cls.domain_name)
+        try:
+            # delete dummy project
+            cls.openstack('--os-identity-api-version 3 '
+                          'project delete %s' % cls.project_name)
+            # disable and delete dummy domain
+            cls.openstack('--os-identity-api-version 3 '
+                          'domain set --disable %s' % cls.domain_name)
+            cls.openstack('--os-identity-api-version 3 '
+                          'domain delete %s' % cls.domain_name)
+        finally:
+            super(IdentityTests, cls).tearDownClass()
+
+    def setUp(self):
+        super(IdentityTests, self).setUp()
+        # prepare v3 env
+        ver_fixture = fixtures.EnvironmentVariable(
+            'OS_IDENTITY_API_VERSION', '3')
+        self.useFixture(ver_fixture)
+        auth_url = os.environ.get('OS_AUTH_URL')
+        if auth_url:
+            auth_url_fixture = fixtures.EnvironmentVariable(
+                'OS_AUTH_URL', auth_url.replace('v2.0', 'v3')
+            )
+            self.useFixture(auth_url_fixture)
 
     def _create_dummy_user(self, add_clean_up=True):
         username = data_utils.rand_name('TestUser')

@@ -31,8 +31,11 @@ class VolumeTypeTests(common.BaseVolumeTests):
 
     @classmethod
     def tearDownClass(cls):
-        raw_output = cls.openstack('volume type delete ' + cls.NAME)
-        cls.assertOutput('', raw_output)
+        try:
+            raw_output = cls.openstack('volume type delete ' + cls.NAME)
+            cls.assertOutput('', raw_output)
+        finally:
+            super(VolumeTypeTests, cls).tearDownClass()
 
     def test_volume_type_list(self):
         cmd_output = json.loads(self.openstack('volume type list -f json'))
