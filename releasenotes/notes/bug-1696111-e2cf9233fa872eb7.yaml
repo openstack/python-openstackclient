@@ -3,5 +3,4 @@ fixes:
   - |
     Fixed an issue where a trust could not be created if multiple roles had
     the same name. A role's ID is now sent to the identity service instead.
-
-    [Bug '1696111 <https://bugs.launchpad.net/keystone/+bug/1696111>'_]
+    [Bug `1696111 <https://bugs.launchpad.net/keystone/+bug/1696111>`_]

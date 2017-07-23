@@ -1,6 +1,6 @@
 ---
 fixes:
   - |
-    Make ``role assignment list`` callable without administrator permissions
-    if restricted to own project with ``--project`` parameter.
+    Make the ``role assignment list`` command callable without administrator
+    permissions if restricted to the user's own project with the ``--project`` option.
     [Bug `1658189 <https://bugs.launchpad.net/python-openstackclient/+bug/1658189>`_]

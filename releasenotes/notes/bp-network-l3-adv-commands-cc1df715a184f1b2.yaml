@@ -1,8 +1,10 @@
 ---
 features:
   - |
-    Add network l3-agent related commands ``network agent add router``,
-    ``network agent remove router`` for adding/removing routers to l3 agents.
-    Add ``network agent list --router``, and ``router list --agent`` for
-    listing agents on routers and routers on specific agents.
+    Add  ``network agent add router`` and ``network agent remove router``
+    commands for adding/removing routers to network l3 agents.
+    [Blueprint :oscbp:`network-l3-commands`]
+  - |
+    Add ``--router`` option to ``network agent list`` to filter by router,
+    and ``--agent`` option to ``router list`` command to filter by agent.
     [Blueprint :oscbp:`network-l3-commands`]
