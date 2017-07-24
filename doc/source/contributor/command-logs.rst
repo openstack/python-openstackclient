@@ -10,7 +10,7 @@ OpenStack projects. The following basic rules should be followed.
 
 2. All logs except debug log need to be translated. The log message strings
    that need to be translated should follow the rule of i18n guidelines:
-   http://docs.openstack.org/developer/oslo.i18n/guidelines.html
+   https://docs.openstack.org/oslo.i18n/latest/user/guidelines.html
 
 3. There are mainly two kinds of logs in OpenStackClient: command specific
    log and general log. Use different logger to record them. The examples

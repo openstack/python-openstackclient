@@ -243,4 +243,4 @@ Changes to python-openstackclient
 #. Update ``test-requirements.txt`` to include fooclient. This is necessary
    to auto-document the commands in the previous step.
 
-.. _sphinxext: http://docs.openstack.org/developer/stevedore/sphinxext.html
+.. _sphinxext: https://docs.openstack.org/stevedore/latest/user/sphinxext.html
