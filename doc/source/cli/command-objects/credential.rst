@@ -19,7 +19,7 @@ Create new credential
 
 .. option:: --type <type>
 
-    New credential type
+    New credential type: cert, ec2
 
 .. option:: --project <project>
 
@@ -59,6 +59,21 @@ List credentials
 .. code:: bash
 
     openstack credential list
+        [--user <user> [--user-domain <user-domain>]]
+        [--type <type>]
+
+.. option:: --user <user>
+
+    Filter credentials by <user> (name or ID)
+
+.. option:: --user-domain <user-domain>
+
+    Domain the user belongs to (name or ID). This can be
+    used in case collisions between user names exist.
+
+.. option:: --type <type>
+
+    Filter credentials by type: cert, ec2
 
 credential set
 --------------
@@ -81,7 +96,7 @@ Set credential properties
 
 .. option:: --type <type>
 
-    New credential type
+    New credential type: cert, ec2
 
 .. option:: --data <data>
 
