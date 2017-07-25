@@ -84,15 +84,21 @@ options as listed in  http://docs.openstack.org/python-openstackclient/authentic
 Authentication using username/password is most commonly used::
 
    export OS_AUTH_URL=<url-to-openstack-identity>
+   export OS_IDENTITY_API_VERSION=3
    export OS_PROJECT_NAME=<project-name>
+   export OS_PROJECT_DOMAIN_NAME=<project-domain-name>
    export OS_USERNAME=<username>
+   export OS_USER_DOMAIN_NAME=<user-domain-name>
    export OS_PASSWORD=<password>  # (optional)
 
 The corresponding command-line options look very similar::
 
    --os-auth-url <url>
+   --os-identity-api-version 3
    --os-project-name <project-name>
+   --os-project-domain-name <project-domain-name>
    --os-username <username>
+   --os-user-domain-name <user-domain-name>
    [--os-password <password>]
 
 If a password is not provided above (in plaintext), you will be interactively
