@@ -444,20 +444,30 @@ class ShowQuota(command.ShowOne):
             project = utils.find_resource(
                 identity_client.projects,
                 parsed_args.project,
-            ).id
+            )
+            project_id = project.id
+            project_name = project.name
         elif self.app.client_manager.auth_ref:
             # Get the project from the current auth
-            project = self.app.client_manager.auth_ref.project_id
+            project = self.app.client_manager.auth_ref
+            project_id = project.project_id
+            project_name = project.project_name
         else:
             project = None
-        return project
+            project_id = None
+            project_name = None
+        project_info = {}
+        project_info['id'] = project_id
+        project_info['name'] = project_name
+        return project_info
 
     def get_compute_volume_quota(self, client, parsed_args):
         try:
             if parsed_args.quota_class:
                 quota = client.quota_classes.get(parsed_args.project)
             else:
-                project = self._get_project(parsed_args)
+                project_info = self._get_project(parsed_args)
+                project = project_info['id']
                 if parsed_args.default:
                     quota = client.quotas.defaults(project)
                 else:
@@ -473,7 +483,8 @@ class ShowQuota(command.ShowOne):
         if parsed_args.quota_class:
             return {}
         if self.app.client_manager.is_network_endpoint_enabled():
-            project = self._get_project(parsed_args)
+            project_info = self._get_project(parsed_args)
+            project = project_info['id']
             client = self.app.client_manager.network
             if parsed_args.default:
                 network_quota = client.get_quota_default(project)
@@ -523,5 +534,10 @@ class ShowQuota(command.ShowOne):
         # Handle project ID special as it only appears in output
         if 'id' in info:
             info['project'] = info.pop('id')
+            if 'project_id' in info:
+                del info['project_id']
+            project_info = self._get_project(parsed_args)
+            project_name = project_info['name']
+            info['project_name'] = project_name
 
         return zip(*sorted(six.iteritems(info)))
