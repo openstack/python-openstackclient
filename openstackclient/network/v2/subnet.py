@@ -24,6 +24,7 @@ from osc_lib import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import sdk_utils
+from openstackclient.network.v2 import _tag
 
 
 LOG = logging.getLogger(__name__)
@@ -55,6 +56,7 @@ _formatters = {
     'dns_nameservers': utils.format_list,
     'host_routes': _format_host_routes,
     'service_types': utils.format_list,
+    'tags': utils.format_list,
 }
 
 
@@ -336,12 +338,15 @@ class CreateSubnet(command.ShowOne):
             help=_("Set subnet description")
         )
         _get_common_parse_arguments(parser)
+        _tag.add_tag_option_to_parser_for_create(parser, _('subnet'))
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_subnet(**attrs)
+        # tags cannot be set when created, so tags need to be set later.
+        _tag.update_tags_for_set(client, obj, parsed_args)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)
@@ -454,6 +459,7 @@ class ListSubnet(command.Lister):
                    "(in CIDR notation) in output "
                    "e.g.: --subnet-range 10.10.0.0/16")
         )
+        _tag.add_tag_filtering_option_to_parser(parser, _('subnets'))
         return parser
 
     def take_action(self, parsed_args):
@@ -488,6 +494,7 @@ class ListSubnet(command.Lister):
             filters['name'] = parsed_args.name
         if parsed_args.subnet_range:
             filters['cidr'] = parsed_args.subnet_range
+        _tag.get_tag_filtering_args(parsed_args, filters)
         data = network_client.subnets(**filters)
 
         headers = ('ID', 'Name', 'Network', 'Subnet')
@@ -495,10 +502,10 @@ class ListSubnet(command.Lister):
         if parsed_args.long:
             headers += ('Project', 'DHCP', 'Name Servers',
                         'Allocation Pools', 'Host Routes', 'IP Version',
-                        'Gateway', 'Service Types')
+                        'Gateway', 'Service Types', 'Tags')
             columns += ('project_id', 'is_dhcp_enabled', 'dns_nameservers',
                         'allocation_pools', 'host_routes', 'ip_version',
-                        'gateway_ip', 'service_types')
+                        'gateway_ip', 'service_types', 'tags')
 
         return (headers,
                 (utils.get_item_properties(
@@ -549,6 +556,7 @@ class SetSubnet(command.Command):
             metavar='<description>',
             help=_("Set subnet description")
         )
+        _tag.add_tag_option_to_parser_for_set(parser, _('subnet'))
         _get_common_parse_arguments(parser, is_create=False)
         return parser
 
@@ -574,7 +582,10 @@ class SetSubnet(command.Command):
             attrs['allocation_pools'] = []
         if 'service_types' in attrs:
             attrs['service_types'] += obj.service_types
-        client.update_subnet(obj, **attrs)
+        if attrs:
+            client.update_subnet(obj, **attrs)
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_set(client, obj, parsed_args)
         return
 
 
@@ -643,6 +654,7 @@ class UnsetSubnet(command.Command):
                    'Must be a valid device owner value for a network port '
                    '(repeat option to unset multiple service types)')
         )
+        _tag.add_tag_option_to_parser_for_unset(parser, _('subnet'))
         parser.add_argument(
             'subnet',
             metavar="<subnet>",
@@ -678,3 +690,6 @@ class UnsetSubnet(command.Command):
             attrs['service_types'] = tmp_obj.service_types
         if attrs:
             client.update_subnet(obj, **attrs)
+
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_unset(client, obj, parsed_args)

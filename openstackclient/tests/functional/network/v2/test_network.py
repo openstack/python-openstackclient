@@ -16,8 +16,10 @@ import uuid
 from openstackclient.tests.functional.network.v2 import common
 
 
-class NetworkTests(common.NetworkTests):
+class NetworkTests(common.NetworkTagTests):
     """Functional tests for network"""
+
+    base_command = 'network'
 
     def setUp(self):
         super(NetworkTests, self).setUp()

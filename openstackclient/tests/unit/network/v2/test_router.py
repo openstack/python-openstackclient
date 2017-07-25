@@ -19,6 +19,7 @@ from osc_lib import utils as osc_utils
 
 from openstackclient.network.v2 import router
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
+from openstackclient.tests.unit.network.v2 import _test_tag
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -111,7 +112,7 @@ class TestAddSubnetToRouter(TestRouter):
         self.assertIsNone(result)
 
 
-class TestCreateRouter(TestRouter):
+class TestCreateRouter(TestRouter, _test_tag.TestCreateTagMixin):
 
     # The new router created.
     new_router = network_fakes.FakeRouter.create_one_router()
@@ -129,6 +130,7 @@ class TestCreateRouter(TestRouter):
         'project_id',
         'routes',
         'status',
+        'tags',
     )
     data = (
         router._format_admin_state(new_router.admin_state_up),
@@ -143,15 +145,34 @@ class TestCreateRouter(TestRouter):
         new_router.tenant_id,
         router._format_routes(new_router.routes),
         new_router.status,
+        osc_utils.format_list(new_router.tags),
     )
 
     def setUp(self):
         super(TestCreateRouter, self).setUp()
 
         self.network.create_router = mock.Mock(return_value=self.new_router)
+        self.network.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = router.CreateRouter(self.app, self.namespace)
+
+        # TestCreateTagMixin
+        self._tag_test_resource = self.new_router
+        self._tag_create_resource_mock = self.network.create_router
+        self._tag_create_required_arglist = [
+            self.new_router.name,
+        ]
+        self._tag_create_required_verifylist = [
+            ('name', self.new_router.name),
+            ('enable', True),
+            ('distributed', False),
+            ('ha', False),
+        ]
+        self._tag_create_required_attrs = {
+            'admin_state_up': True,
+            'name': self.new_router.name,
+        }
 
     def test_create_no_options(self):
         arglist = []
@@ -159,6 +180,7 @@ class TestCreateRouter(TestRouter):
 
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
+        self.assertFalse(self.network.set_tags.called)
 
     def test_create_default_options(self):
         arglist = [
@@ -178,6 +200,7 @@ class TestCreateRouter(TestRouter):
             'admin_state_up': True,
             'name': self.new_router.name,
         })
+        self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -345,7 +368,7 @@ class TestDeleteRouter(TestRouter):
         )
 
 
-class TestListRouter(TestRouter):
+class TestListRouter(TestRouter, _test_tag.TestListTagMixin):
 
     # The routers going to be listed up.
     routers = network_fakes.FakeRouter.create_routers(count=3)
@@ -363,11 +386,13 @@ class TestListRouter(TestRouter):
     columns_long = columns + (
         'Routes',
         'External gateway info',
-        'Availability zones'
+        'Availability zones',
+        'Tags',
     )
     columns_long_no_az = columns + (
         'Routes',
         'External gateway info',
+        'Tags',
     )
 
     data = []
@@ -404,6 +429,7 @@ class TestListRouter(TestRouter):
                 router._format_routes(r.routes),
                 router._format_external_gateway_info(r.external_gateway_info),
                 osc_utils.format_list(r.availability_zones),
+                osc_utils.format_list(r.tags),
             )
         )
     data_long_no_az = []
@@ -413,6 +439,7 @@ class TestListRouter(TestRouter):
             data[i] + (
                 router._format_routes(r.routes),
                 router._format_external_gateway_info(r.external_gateway_info),
+                osc_utils.format_list(r.tags),
             )
         )
 
@@ -431,6 +458,9 @@ class TestListRouter(TestRouter):
             network_fakes.FakeNetworkAgent.create_one_network_agent()
         self.network.get_agent = mock.Mock(return_value=self._testagent)
         self.network.get_router = mock.Mock(return_value=self.routers[0])
+
+        # TestListTagMixin
+        self._tag_list_resource_mock = self.network.routers
 
     def test_router_list_no_options(self):
         arglist = []
@@ -684,25 +714,32 @@ class TestRemoveSubnetFromRouter(TestRouter):
         self.assertIsNone(result)
 
 
-class TestSetRouter(TestRouter):
+class TestSetRouter(TestRouter, _test_tag.TestSetTagMixin):
 
     # The router to set.
     _default_route = {'destination': '10.20.20.0/24', 'nexthop': '10.20.30.1'}
     _network = network_fakes.FakeNetwork.create_one_network()
     _subnet = network_fakes.FakeSubnet.create_one_subnet()
     _router = network_fakes.FakeRouter.create_one_router(
-        attrs={'routes': [_default_route]}
+        attrs={'routes': [_default_route],
+               'tags': ['green', 'red']}
     )
 
     def setUp(self):
         super(TestSetRouter, self).setUp()
         self.network.router_add_gateway = mock.Mock()
         self.network.update_router = mock.Mock(return_value=None)
+        self.network.set_tags = mock.Mock(return_value=None)
         self.network.find_router = mock.Mock(return_value=self._router)
         self.network.find_network = mock.Mock(return_value=self._network)
         self.network.find_subnet = mock.Mock(return_value=self._subnet)
         # Get the command object to test
         self.cmd = router.SetRouter(self.app, self.namespace)
+
+        # TestSetTagMixin
+        self._tag_resource_name = 'router'
+        self._tag_test_resource = self._router
+        self._tag_update_resource_mock = self.network.update_router
 
     def test_set_this(self):
         arglist = [
@@ -902,9 +939,8 @@ class TestSetRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        attrs = {}
-        self.network.update_router.assert_called_once_with(
-            self._router, **attrs)
+        self.assertFalse(self.network.update_router.called)
+        self.assertFalse(self.network.set_tags.called)
         self.assertIsNone(result)
 
     def test_wrong_gateway_params(self):
@@ -1030,6 +1066,7 @@ class TestShowRouter(TestRouter):
         'project_id',
         'routes',
         'status',
+        'tags',
     )
     data = (
         router._format_admin_state(_router.admin_state_up),
@@ -1044,6 +1081,7 @@ class TestShowRouter(TestRouter):
         _router.tenant_id,
         router._format_routes(_router.routes),
         _router.status,
+        osc_utils.format_list(_router.tags),
     )
 
     def setUp(self):
@@ -1086,12 +1124,18 @@ class TestUnsetRouter(TestRouter):
             {'routes': [{"destination": "192.168.101.1/24",
                          "nexthop": "172.24.4.3"},
                         {"destination": "192.168.101.2/24",
-                         "nexthop": "172.24.4.3"}], })
+                         "nexthop": "172.24.4.3"}],
+             'tags': ['green', 'red'], })
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet()
         self.network.find_router = mock.Mock(return_value=self._testrouter)
         self.network.update_router = mock.Mock(return_value=None)
+        self.network.set_tags = mock.Mock(return_value=None)
         # Get the command object to test
         self.cmd = router.UnsetRouter(self.app, self.namespace)
+        # TestUnsetTagMixin
+        self._tag_resource_name = 'router'
+        self._tag_test_resource = self._testrouter
+        self._tag_update_resource_mock = self.network.update_router
 
     def test_unset_router_params(self):
         arglist = [

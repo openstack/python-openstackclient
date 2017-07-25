@@ -32,6 +32,7 @@ Create new network
         [--provider-segment <provider-segment>]
         [--qos-policy <qos-policy>]
         [--transparent-vlan | --no-transparent-vlan]
+        [--tag <tag> | --no-tag]
         <name>
 
 .. option:: --project <project>
@@ -165,6 +166,18 @@ Create new network
 
     *Network version 2 only*
 
+.. option:: --tag <tag>
+
+    Tag to be added to the network (repeat option to set multiple tags)
+
+    *Network version 2 only*
+
+.. option:: --no-tag
+
+    No tags associated with the network
+
+    *Network version 2 only*
+
 .. _network_create-name:
 .. describe:: <name>
 
@@ -206,6 +219,8 @@ List networks
         [--provider-physical-network <provider-physical-network>]
         [--provider-segment <provider-segment>]
         [--agent <agent-id>]
+        [--tags <tag>[,<tag>,...]] [--any-tags <tag>[,<tag>,...]]
+        [--not-tags <tag>[,<tag>,...]] [--not-any-tags <tag>[,<tag>,...]]
 
 .. option:: --external
 
@@ -297,6 +312,32 @@ List networks
 
     List networks hosted by agent (ID only)
 
+    *Network version 2 only*
+
+.. option:: --tags <tag>[,<tag>,...]
+
+    List networks which have all given tag(s)
+
+    *Network version 2 only*
+
+.. option:: --any-tags <tag>[,<tag>,...]
+
+    List networks which have any given tag(s)
+
+    *Network version 2 only*
+
+.. option:: --not-tags <tag>[,<tag>,...]
+
+    Exclude networks which have all given tag(s)
+
+    *Network version 2 only*
+
+.. option:: --not-any-tags <tag>[,<tag>,...]
+
+    Exclude networks which have any given tag(s)
+
+    *Network version 2 only*
+
 network set
 -----------
 
@@ -318,6 +359,7 @@ Set network properties
         [--provider-physical-network <provider-physical-network>]
         [--provider-segment <provider-segment>]
         [--qos-policy <qos-policy> | --no-qos-policy]
+        [--tag <tag>] [--no-tag]
         <network>
 
 .. option:: --name <name>
@@ -392,6 +434,15 @@ Set network properties
 
     Remove the QoS policy attached to this network
 
+.. option:: --tag <tag>
+
+    Tag to be added to the network (repeat option to set multiple tags)
+
+.. option:: --no-tag
+
+    Clear tags associated with the network. Specify both --tag
+    and --no-tag to overwrite current tags
+
 .. _network_set-network:
 .. describe:: <network>
 
@@ -412,3 +463,31 @@ Display network details
 .. describe:: <network>
 
     Network to display (name or ID)
+
+network unset
+-------------
+
+Unset network properties
+
+*Network version 2 only*
+
+.. program:: network unset
+.. code:: bash
+
+    openstack network unset
+        [--tag <tag> | --all-tag]
+        <network>
+
+.. option:: --tag <tag>
+
+    Tag to be removed from the network
+    (repeat option to remove multiple tags)
+
+.. option:: --all-tag
+
+    Clear all tags associated with the network
+
+.. _network_unset-network:
+.. describe:: <network>
+
+    Network to modify (name or ID)

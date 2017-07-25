@@ -16,8 +16,13 @@ import uuid
 from openstackclient.tests.functional.network.v2 import common
 
 
-class PortTests(common.NetworkTests):
+class PortTests(common.NetworkTagTests):
     """Functional tests for port"""
+
+    base_command = 'port'
+
+    NAME = uuid.uuid4().hex
+    NETWORK_NAME = uuid.uuid4().hex
 
     @classmethod
     def setUpClass(cls):
@@ -250,3 +255,9 @@ class PortTests(common.NetworkTests):
             sg_id2,
             json_output.get('security_group_ids'),
         )
+
+    def _create_resource_for_tag_test(self, name, args):
+        return json.loads(self.openstack(
+            '{} create -f json --network {} {} {}'
+            .format(self.base_command, self.NETWORK_NAME, args, name)
+        ))

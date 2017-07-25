@@ -21,6 +21,7 @@ from osc_lib import utils
 from openstackclient.network.v2 import port
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
+from openstackclient.tests.unit.network.v2 import _test_tag
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -35,7 +36,8 @@ class TestPort(network_fakes.TestNetworkV2):
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.app.client_manager.identity.projects
 
-    def _get_common_cols_data(self, fake_port):
+    @staticmethod
+    def _get_common_cols_data(fake_port):
         columns = (
             'admin_state_up',
             'allowed_address_pairs',
@@ -61,6 +63,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'qos_policy_id',
             'security_group_ids',
             'status',
+            'tags',
         )
 
         data = (
@@ -88,19 +91,22 @@ class TestPort(network_fakes.TestNetworkV2):
             fake_port.qos_policy_id,
             utils.format_list(fake_port.security_group_ids),
             fake_port.status,
+            utils.format_list(fake_port.tags),
         )
 
         return columns, data
 
 
-class TestCreatePort(TestPort):
+class TestCreatePort(TestPort, _test_tag.TestCreateTagMixin):
 
     _port = network_fakes.FakePort.create_one_port()
+    columns, data = TestPort._get_common_cols_data(_port)
 
     def setUp(self):
         super(TestCreatePort, self).setUp()
 
         self.network.create_port = mock.Mock(return_value=self._port)
+        self.network.set_tags = mock.Mock(return_value=None)
         fake_net = network_fakes.FakeNetwork.create_one_network({
             'id': self._port.network_id,
         })
@@ -109,6 +115,24 @@ class TestCreatePort(TestPort):
         self.network.find_subnet = mock.Mock(return_value=self.fake_subnet)
         # Get the command object to test
         self.cmd = port.CreatePort(self.app, self.namespace)
+
+        # TestUnsetTagMixin
+        self._tag_test_resource = self._port
+        self._tag_create_resource_mock = self.network.create_port
+        self._tag_create_required_arglist = [
+            '--network', self._port.network_id,
+            'test-port',
+        ]
+        self._tag_create_required_verifylist = [
+            ('network', self._port.network_id,),
+            ('enable', True),
+            ('name', 'test-port'),
+        ]
+        self._tag_create_required_attrs = {
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'name': 'test-port',
+        }
 
     def test_create_default_options(self):
         arglist = [
@@ -129,10 +153,10 @@ class TestCreatePort(TestPort):
             'network_id': self._port.network_id,
             'name': 'test-port',
         })
+        self.assertFalse(self.network.set_tags.called)
 
-        ref_columns, ref_data = self._get_common_cols_data(self._port)
-        self.assertEqual(ref_columns, columns)
-        self.assertEqual(ref_data, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_create_full_options(self):
         arglist = [
@@ -166,7 +190,6 @@ class TestCreatePort(TestPort):
             ('network', self._port.network_id),
             ('dns_name', '8.8.8.8'),
             ('name', 'test-port'),
-
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -187,9 +210,8 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        ref_columns, ref_data = self._get_common_cols_data(self._port)
-        self.assertEqual(ref_columns, columns)
-        self.assertEqual(ref_data, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_create_invalid_json_binding_profile(self):
         arglist = [
@@ -239,9 +261,8 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        ref_columns, ref_data = self._get_common_cols_data(self._port)
-        self.assertEqual(ref_columns, columns)
-        self.assertEqual(ref_data, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_create_with_security_group(self):
         secgroup = network_fakes.FakeSecurityGroup.create_one_security_group()
@@ -269,9 +290,8 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        ref_columns, ref_data = self._get_common_cols_data(self._port)
-        self.assertEqual(ref_columns, columns)
-        self.assertEqual(ref_data, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_create_port_with_dns_name(self):
         arglist = [
@@ -296,9 +316,8 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        ref_columns, ref_data = self._get_common_cols_data(self._port)
-        self.assertEqual(ref_columns, columns)
-        self.assertEqual(ref_data, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_create_with_security_groups(self):
         sg_1 = network_fakes.FakeSecurityGroup.create_one_security_group()
@@ -327,9 +346,8 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        ref_columns, ref_data = self._get_common_cols_data(self._port)
-        self.assertEqual(ref_columns, columns)
-        self.assertEqual(ref_data, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_create_with_no_security_groups(self):
         arglist = [
@@ -354,9 +372,8 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        ref_columns, ref_data = self._get_common_cols_data(self._port)
-        self.assertEqual(ref_columns, columns)
-        self.assertEqual(ref_data, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_create_port_with_allowed_address_pair_ipaddr(self):
         pairs = [{'ip_address': '192.168.1.123'},
@@ -385,9 +402,8 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        ref_columns, ref_data = self._get_common_cols_data(self._port)
-        self.assertEqual(ref_columns, columns)
-        self.assertEqual(ref_data, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_create_port_with_allowed_address_pair(self):
         pairs = [{'ip_address': '192.168.1.123',
@@ -422,9 +438,8 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        ref_columns, ref_data = self._get_common_cols_data(self._port)
-        self.assertEqual(ref_columns, columns)
-        self.assertEqual(ref_data, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_create_port_with_qos(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
@@ -451,9 +466,8 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        ref_columns, ref_data = self._get_common_cols_data(self._port)
-        self.assertEqual(ref_columns, columns)
-        self.assertEqual(ref_data, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_create_port_security_enabled(self):
         arglist = [
@@ -583,7 +597,7 @@ class TestDeletePort(TestPort):
         )
 
 
-class TestListPort(TestPort):
+class TestListPort(TestPort, _test_tag.TestListTagMixin):
 
     _ports = network_fakes.FakePort.create_ports(count=3)
 
@@ -603,6 +617,7 @@ class TestListPort(TestPort):
         'Status',
         'Security Groups',
         'Device Owner',
+        'Tags',
     )
 
     data = []
@@ -625,6 +640,7 @@ class TestListPort(TestPort):
             prt.status,
             utils.format_list(prt.security_group_ids),
             prt.device_owner,
+            utils.format_list(prt.tags),
         ))
 
     def setUp(self):
@@ -642,6 +658,8 @@ class TestListPort(TestPort):
         self.network.find_router = mock.Mock(return_value=fake_router)
         self.network.find_network = mock.Mock(return_value=fake_network)
         self.app.client_manager.compute = mock.Mock()
+        # TestUnsetTagMixin
+        self._tag_list_resource_mock = self.network.ports
 
     def test_port_list_no_options(self):
         arglist = []
@@ -902,9 +920,9 @@ class TestListPort(TestPort):
         self.assertEqual(self.data, list(data))
 
 
-class TestSetPort(TestPort):
+class TestSetPort(TestPort, _test_tag.TestSetTagMixin):
 
-    _port = network_fakes.FakePort.create_one_port()
+    _port = network_fakes.FakePort.create_one_port({'tags': ['green', 'red']})
 
     def setUp(self):
         super(TestSetPort, self).setUp()
@@ -912,9 +930,14 @@ class TestSetPort(TestPort):
         self.network.find_subnet = mock.Mock(return_value=self.fake_subnet)
         self.network.find_port = mock.Mock(return_value=self._port)
         self.network.update_port = mock.Mock(return_value=None)
+        self.network.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = port.SetPort(self.app, self.namespace)
+        # TestSetTagMixin
+        self._tag_resource_name = 'port'
+        self._tag_test_resource = self._port
+        self._tag_update_resource_mock = self.network.update_port
 
     def test_set_port_defaults(self):
         arglist = [
@@ -926,8 +949,8 @@ class TestSetPort(TestPort):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        attrs = {}
-        self.network.update_port.assert_called_once_with(self._port, **attrs)
+        self.assertFalse(self.network.update_port.called)
+        self.assertFalse(self.network.set_tags.called)
         self.assertIsNone(result)
 
     def test_set_port_fixed_ip(self):
@@ -1412,6 +1435,7 @@ class TestShowPort(TestPort):
 
     # The port to show.
     _port = network_fakes.FakePort.create_one_port()
+    columns, data = TestPort._get_common_cols_data(_port)
 
     def setUp(self):
         super(TestShowPort, self).setUp()
@@ -1442,12 +1466,11 @@ class TestShowPort(TestPort):
         self.network.find_port.assert_called_once_with(
             self._port.name, ignore_missing=False)
 
-        ref_columns, ref_data = self._get_common_cols_data(self._port)
-        self.assertEqual(ref_columns, columns)
-        self.assertEqual(ref_data, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
 
-class TestUnsetPort(TestPort):
+class TestUnsetPort(TestPort, _test_tag.TestUnsetTagMixin):
 
     def setUp(self):
         super(TestUnsetPort, self).setUp()
@@ -1456,14 +1479,20 @@ class TestUnsetPort(TestPort):
                             'ip_address': '0.0.0.1'},
                            {'subnet_id': '042eb10a-3a18-4658-ab-cf47c8d03152',
                             'ip_address': '1.0.0.0'}],
-             'binding:profile': {'batman': 'Joker', 'Superman': 'LexLuthor'}})
+             'binding:profile': {'batman': 'Joker', 'Superman': 'LexLuthor'},
+             'tags': ['green', 'red'], })
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet(
             {'id': '042eb10a-3a18-4658-ab-cf47c8d03152'})
         self.network.find_subnet = mock.Mock(return_value=self.fake_subnet)
         self.network.find_port = mock.Mock(return_value=self._testport)
         self.network.update_port = mock.Mock(return_value=None)
+        self.network.set_tags = mock.Mock(return_value=None)
         # Get the command object to test
         self.cmd = port.UnsetPort(self.app, self.namespace)
+        # TestUnsetTagMixin
+        self._tag_resource_name = 'port'
+        self._tag_test_resource = self._testport
+        self._tag_update_resource_mock = self.network.update_port
 
     def test_unset_port_parameters(self):
         arglist = [

@@ -33,6 +33,7 @@ Create new port
         [--qos-policy <qos-policy>]
         [--project <project> [--project-domain <project-domain>]]
         [--enable-port-security | --disable-port-security]
+        [--tag <tag> | --no-tag]
         <name>
 
 .. option:: --network <network>
@@ -126,6 +127,14 @@ Create new port
 
     Disable port security for this port
 
+.. option:: --tag <tag>
+
+    Tag to be added to the port (repeat option to set multiple tags)
+
+.. option:: --no-tag
+
+    No tags associated with the port
+
 .. _port_create-name:
 .. describe:: <name>
 
@@ -163,6 +172,8 @@ List ports
         [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]
         [--long]
         [--project <project> [--project-domain <project-domain>]]
+        [--tags <tag>[,<tag>,...]] [--any-tags <tag>[,<tag>,...]]
+        [--not-tags <tag>[,<tag>,...]] [--not-any-tags <tag>[,<tag>,...]]
 
 .. option:: --device-owner <device-owner>
 
@@ -204,6 +215,22 @@ List ports
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
 
+.. option:: --tags <tag>[,<tag>,...]
+
+    List ports which have all given tag(s)
+
+.. option:: --any-tags <tag>[,<tag>,...]
+
+    List ports which have any given tag(s)
+
+.. option:: --not-tags <tag>[,<tag>,...]
+
+    Exclude ports which have all given tag(s)
+
+.. option:: --not-any-tags <tag>[,<tag>,...]
+
+    Exclude ports which have any given tag(s)
+
 port set
 --------
 
@@ -233,6 +260,7 @@ Set port properties
         [--allowed-address ip-address=<ip-address>[,mac-address=<mac-address>]]
         [--no-allowed-address]
         [--data-plane-status <status>]
+        [--tag <tag>] [--no-tag]
         <port>
 
 .. option:: --description <description>
@@ -342,6 +370,15 @@ Set port properties
     Unset it to None with the 'port unset' command
     (requires data plane status extension)
 
+.. option:: --tag <tag>
+
+    Tag to be added to the port (repeat option to set multiple tags)
+
+.. option:: --no-tag
+
+    Clear tags associated with the port. Specify both --tag
+    and --no-tag to overwrite current tags
+
 .. _port_set-port:
 .. describe:: <port>
 
@@ -378,6 +415,7 @@ Unset port properties
         [--allowed-address ip-address=<ip-address>[,mac-address=<mac-address>] [...]]
         [--qos-policy]
         [--data-plane-status]
+        [--tag <tag> | --all-tag]
         <port>
 
 .. option:: --fixed-ip subnet=<subnet>,ip-address=<ip-address>
@@ -409,6 +447,15 @@ Unset port properties
 .. option:: --data-plane-status
 
     Clear existing information of data plane status
+
+.. option:: --tag <tag>
+
+    Tag to be removed from the port
+    (repeat option to remove multiple tags)
+
+.. option:: --all-tag
+
+    Clear all tags associated with the port
 
 .. _port_unset-port:
 .. describe:: <port>

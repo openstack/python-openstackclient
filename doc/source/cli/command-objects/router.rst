@@ -67,6 +67,7 @@ Create new router
         [--ha | --no-ha]
         [--description <description>]
         [--availability-zone-hint <availability-zone>]
+        [--tag <tag> | --no-tag]
         <name>
 
 .. option:: --project <project>
@@ -121,6 +122,14 @@ Create new router
     (Router Availability Zone extension required,
     repeat option to set multiple availability zones)
 
+.. option:: --tag <tag>
+
+    Tag to be added to the router (repeat option to set multiple tags)
+
+.. option:: --no-tag
+
+    No tags associated with the router
+
 .. _router_create-name:
 .. describe:: <name>
 
@@ -156,6 +165,8 @@ List routers
         [--long]
         [--project <project> [--project-domain <project-domain>]]
         [--agent <agent-id>]
+        [--tags <tag>[,<tag>,...]] [--any-tags <tag>[,<tag>,...]]
+        [--not-tags <tag>[,<tag>,...]] [--not-any-tags <tag>[,<tag>,...]]
 
 .. option:: --agent <agent-id>
 
@@ -185,6 +196,22 @@ List routers
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
+
+.. option:: --tags <tag>[,<tag>,...]
+
+    List routers which have all given tag(s)
+
+.. option:: --any-tags <tag>[,<tag>,...]
+
+    List routers which have any given tag(s)
+
+.. option:: --not-tags <tag>[,<tag>,...]
+
+    Exclude routers which have all given tag(s)
+
+.. option:: --not-any-tags <tag>[,<tag>,...]
+
+    Exclude routers which have any given tag(s)
 
 router remove port
 ------------------
@@ -246,6 +273,7 @@ Set router properties
         [--route destination=<subnet>,gateway=<ip-address> | --no-route]
         [--ha | --no-ha]
         [--external-gateway <network> [--enable-snat|--disable-snat] [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]]
+        [--tag <tag>] [--no-tag]
         <router>
 
 .. option:: --name <name>
@@ -311,6 +339,15 @@ Set router properties
     subnet=<subnet>,ip-address=<ip-address>
     (repeat option to set multiple fixed IP addresses)
 
+.. option:: --tag <tag>
+
+    Tag to be added to the router (repeat option to set multiple tags)
+
+.. option:: --no-tag
+
+    Clear tags associated with the router. Specify both --tag
+    and --no-tag to overwrite current tags
+
 .. _router_set-router:
 .. describe:: <router>
 
@@ -343,6 +380,7 @@ Unset router properties
     openstack router unset
         [--route destination=<subnet>,gateway=<ip-address>]
         [--external-gateway]
+        [--tag <tag> | --all-tag]
         <router>
 
 .. option:: --route destination=<subnet>,gateway=<ip-address>
@@ -355,6 +393,15 @@ Unset router properties
 .. option:: --external-gateway
 
     Remove external gateway information from the router
+
+.. option:: --tag <tag>
+
+    Tag to be removed from the router
+    (repeat option to remove multiple tags)
+
+.. option:: --all-tag
+
+    Clear all tags associated with the router
 
 .. _router_unset-router:
 .. describe:: <router>

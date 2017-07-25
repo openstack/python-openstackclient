@@ -22,6 +22,7 @@ from openstackclient.network.v2 import network
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes_v2
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
+from openstackclient.tests.unit.network.v2 import _test_tag
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -41,7 +42,7 @@ class TestNetwork(network_fakes.TestNetworkV2):
         self.domains_mock = self.app.client_manager.identity.domains
 
 
-class TestCreateNetworkIdentityV3(TestNetwork):
+class TestCreateNetworkIdentityV3(TestNetwork, _test_tag.TestCreateTagMixin):
 
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
@@ -105,6 +106,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         super(TestCreateNetworkIdentityV3, self).setUp()
 
         self.network.create_network = mock.Mock(return_value=self._network)
+        self.network.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = network.CreateNetwork(self.app, self.namespace)
@@ -112,6 +114,22 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
         self.network.find_qos_policy = mock.Mock(return_value=self.qos_policy)
+
+        # TestCreateTagMixin
+        self._tag_test_resource = self._network
+        self._tag_create_resource_mock = self.network.create_network
+        self._tag_create_required_arglist = [self._network.name]
+        self._tag_create_required_verifylist = [
+            ('name', self._network.name),
+            ('enable', True),
+            ('share', None),
+            ('project', None),
+            ('external', False),
+        ]
+        self._tag_create_required_attrs = {
+            'admin_state_up': True,
+            'name': self._network.name,
+        }
 
     def test_create_no_options(self):
         arglist = []
@@ -139,6 +157,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'admin_state_up': True,
             'name': self._network.name,
         })
+        self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -287,6 +306,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         super(TestCreateNetworkIdentityV2, self).setUp()
 
         self.network.create_network = mock.Mock(return_value=self._network)
+        self.network.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = network.CreateNetwork(self.app, self.namespace)
@@ -328,6 +348,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
             'tenant_id': self.project.id,
             'project_id': self.project.id,
         })
+        self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -440,7 +461,7 @@ class TestDeleteNetwork(TestNetwork):
         self.network.delete_network.assert_has_calls(calls)
 
 
-class TestListNetwork(TestNetwork):
+class TestListNetwork(TestNetwork, _test_tag.TestListTagMixin):
 
     # The networks going to be listed up.
     _network = network_fakes.FakeNetwork.create_networks(count=3)
@@ -461,6 +482,7 @@ class TestListNetwork(TestNetwork):
         'Network Type',
         'Router Type',
         'Availability Zones',
+        'Tags',
     )
 
     data = []
@@ -484,6 +506,7 @@ class TestListNetwork(TestNetwork):
             net.provider_network_type,
             network._format_router_external(net.is_router_external),
             utils.format_list(net.availability_zones),
+            utils.format_list(net.tags),
         ))
 
     def setUp(self):
@@ -500,6 +523,9 @@ class TestListNetwork(TestNetwork):
 
         self.network.dhcp_agent_hosting_networks = mock.Mock(
             return_value=self._network)
+
+        # TestListTagMixin
+        self._tag_list_resource_mock = self.network.networks
 
     def test_network_list_no_options(self):
         arglist = []
@@ -795,10 +821,11 @@ class TestListNetwork(TestNetwork):
         self.assertEqual(list(data), list(self.data))
 
 
-class TestSetNetwork(TestNetwork):
+class TestSetNetwork(TestNetwork, _test_tag.TestSetTagMixin):
 
     # The network to set.
-    _network = network_fakes.FakeNetwork.create_one_network()
+    _network = network_fakes.FakeNetwork.create_one_network(
+        {'tags': ['green', 'red']})
     qos_policy = (network_fakes.FakeNetworkQosPolicy.
                   create_one_qos_policy(attrs={'id': _network.qos_policy_id}))
 
@@ -806,12 +833,18 @@ class TestSetNetwork(TestNetwork):
         super(TestSetNetwork, self).setUp()
 
         self.network.update_network = mock.Mock(return_value=None)
+        self.network.set_tags = mock.Mock(return_value=None)
 
         self.network.find_network = mock.Mock(return_value=self._network)
         self.network.find_qos_policy = mock.Mock(return_value=self.qos_policy)
 
         # Get the command object to test
         self.cmd = network.SetNetwork(self.app, self.namespace)
+
+        # TestSetTagMixin
+        self._tag_resource_name = 'network'
+        self._tag_test_resource = self._network
+        self._tag_update_resource_mock = self.network.update_network
 
     def test_set_this(self):
         arglist = [
@@ -902,9 +935,8 @@ class TestSetNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        attrs = {}
-        self.network.update_network.assert_called_once_with(
-            self._network, **attrs)
+        self.assertFalse(self.network.update_network.called)
+        self.assertFalse(self.network.set_tags.called)
         self.assertIsNone(result)
 
 
@@ -990,3 +1022,40 @@ class TestShowNetwork(TestNetwork):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+
+class TestUnsetNetwork(TestNetwork, _test_tag.TestUnsetTagMixin):
+
+    # The network to set.
+    _network = network_fakes.FakeNetwork.create_one_network(
+        {'tags': ['green', 'red']})
+    qos_policy = (network_fakes.FakeNetworkQosPolicy.
+                  create_one_qos_policy(attrs={'id': _network.qos_policy_id}))
+
+    def setUp(self):
+        super(TestUnsetNetwork, self).setUp()
+
+        self.network.update_network = mock.Mock(return_value=None)
+        self.network.set_tags = mock.Mock(return_value=None)
+
+        self.network.find_network = mock.Mock(return_value=self._network)
+        self.network.find_qos_policy = mock.Mock(return_value=self.qos_policy)
+
+        # Get the command object to test
+        self.cmd = network.UnsetNetwork(self.app, self.namespace)
+
+        # TestUnsetNetwork
+        self._tag_resource_name = 'network'
+        self._tag_test_resource = self._network
+        self._tag_update_resource_mock = self.network.update_network
+
+    def test_unset_nothing(self):
+        arglist = [self._network.name, ]
+        verifylist = [('network', self._network.name), ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertFalse(self.network.update_network.called)
+        self.assertFalse(self.network.set_tags.called)
+        self.assertIsNone(result)

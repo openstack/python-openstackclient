@@ -25,6 +25,7 @@ Create subnet pool
         [--default | --no-default]
         [--share | --no-share]
         [--default-quota <num-ip-addresses>]
+        [--tag <tag> | --no-tag]
         --pool-prefix <pool-prefix> [...]
         <name>
 
@@ -79,6 +80,14 @@ Create subnet pool
     Set default quota for subnet pool as the number of
     IP addresses allowed in a subnet
 
+.. option:: --tag <tag>
+
+    Tag to be added to the subnet pool (repeat option to set multiple tags)
+
+.. option:: --no-tag
+
+    No tags associated with the subnet pool
+
 .. option:: --pool-prefix <pool-prefix>
 
     Set subnet pool prefixes (in CIDR notation)
@@ -120,6 +129,8 @@ List subnet pools
         [--project <project> [--project-domain <project-domain>]]
         [--name <name>]
         [--address-scope <address-scope>]
+        [--tags <tag>[,<tag>,...]] [--any-tags <tag>[,<tag>,...]]
+        [--not-tags <tag>[,<tag>,...]] [--not-any-tags <tag>[,<tag>,...]]
 
 .. option:: --long
 
@@ -158,6 +169,22 @@ List subnet pools
 
     List only subnet pools of given address scope in output (name or ID)
 
+.. option:: --tags <tag>[,<tag>,...]
+
+    List subnet pools which have all given tag(s)
+
+.. option:: --any-tags <tag>[,<tag>,...]
+
+    List subnet pools which have any given tag(s)
+
+.. option:: --not-tags <tag>[,<tag>,...]
+
+    Exclude subnet pools which have all given tag(s)
+
+.. option:: --not-any-tags <tag>[,<tag>,...]
+
+    Exclude subnet pools which have any given tag(s)
+
 subnet pool set
 ---------------
 
@@ -176,6 +203,7 @@ Set subnet pool properties
         [--default | --no-default]
         [--description <description>]
         [--default-quota <num-ip-addresses>]
+        [--tag <tag>] [--no-tag]
         <subnet-pool>
 
 .. option:: --name <name>
@@ -225,6 +253,15 @@ Set subnet pool properties
     Set default quota for subnet pool as the number of
     IP addresses allowed in a subnet
 
+.. option:: --tag <tag>
+
+    Tag to be added to the subnet pool (repeat option to set multiple tags)
+
+.. option:: --no-tag
+
+    Clear tags associated with the subnet pool. Specify both --tag
+    and --no-tag to overwrite current tags
+
 .. _subnet_pool_set-subnet-pool:
 .. describe:: <subnet-pool>
 
@@ -256,12 +293,22 @@ Unset subnet pool properties
 
     openstack subnet pool unset
         [--pool-prefix <pool-prefix> [...]]
+        [--tag <tag> | --all-tag]
         <subnet-pool>
 
 .. option:: --pool-prefix <pool-prefix>
 
     Remove subnet pool prefixes (in CIDR notation).
     (repeat option to unset multiple prefixes).
+
+.. option:: --tag <tag>
+
+    Tag to be removed from the subnet pool
+    (repeat option to remove multiple tags)
+
+.. option:: --all-tag
+
+    Clear all tags associated with the subnet pool
 
 .. _subnet_pool_unset-subnet-pool:
 .. describe:: <subnet-pool>

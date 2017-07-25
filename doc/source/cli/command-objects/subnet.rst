@@ -31,6 +31,7 @@ Create new subnet
         [--ipv6-address-mode {dhcpv6-stateful,dhcpv6-stateless,slaac}]
         [--network-segment <network-segment>]
         [--service-type <service-type>]
+        [--tag <tag> | --no-tag]
         --network <network>
         <name>
 
@@ -125,6 +126,14 @@ Create new subnet
      Must be a valid device owner value for a network port
      (repeat option to set multiple service types)
 
+.. option:: --tag <tag>
+
+    Tag to be added to the subnet (repeat option to set multiple tags)
+
+.. option:: --no-tag
+
+    No tags associated with the subnet
+
 .. option:: --network <network>
 
      Network this subnet belongs to (name or ID)
@@ -167,6 +176,8 @@ List subnets
         [--gateway <gateway>]
         [--name <name>]
         [--subnet-range <subnet-range>]
+        [--tags <tag>[,<tag>,...]] [--any-tags <tag>[,<tag>,...]]
+        [--not-tags <tag>[,<tag>,...]] [--not-any-tags <tag>[,<tag>,...]]
 
 .. option:: --long
 
@@ -218,6 +229,22 @@ List subnets
     List only subnets of given subnet range (in CIDR notation) in output
     e.g.: ``--subnet-range 10.10.0.0/16``
 
+.. option:: --tags <tag>[,<tag>,...]
+
+    List subnets which have all given tag(s)
+
+.. option:: --any-tags <tag>[,<tag>,...]
+
+    List subnets which have any given tag(s)
+
+.. option:: --not-tags <tag>[,<tag>,...]
+
+    Exclude subnets which have all given tag(s)
+
+.. option:: --not-any-tags <tag>[,<tag>,...]
+
+    Exclude subnets which have any given tag(s)
+
 subnet set
 ----------
 
@@ -238,6 +265,7 @@ Set subnet properties
         [--service-type <service-type>]
         [--name <new-name>]
         [--description <description>]
+        [--tag <tag>] [--no-tag]
         <subnet>
 
 .. option:: --allocation-pool start=<ip-address>,end=<ip-address>
@@ -305,6 +333,15 @@ Set subnet properties
 
      Updated name of the subnet
 
+.. option:: --tag <tag>
+
+    Tag to be added to the subnet (repeat option to set multiple tags)
+
+.. option:: --no-tag
+
+    Clear tags associated with the subnet. Specify both --tag
+    and --no-tag to overwrite current tags
+
 .. _subnet_set-subnet:
 .. describe:: <subnet>
 
@@ -340,6 +377,7 @@ Unset subnet properties
         [--dns-nameserver <dns-nameserver> [...]]
         [--host-route destination=<subnet>,gateway=<ip-address> [...]]
         [--service-type <service-type>]
+        [--tag <tag> | --all-tag]
         <subnet>
 
 .. option:: --dns-nameserver <dns-nameserver>
@@ -367,6 +405,15 @@ Unset subnet properties
      ``network:floatingip_agent_gateway``.
      Must be a valid device owner value for a network port
      (repeat option to unset multiple service types)
+
+.. option:: --tag <tag>
+
+    Tag to be removed from the subnet
+    (repeat option to remove multiple tags)
+
+.. option:: --all-tag
+
+    Clear all tags associated with the subnet
 
 .. _subnet_unset-subnet:
 .. describe:: <subnet>

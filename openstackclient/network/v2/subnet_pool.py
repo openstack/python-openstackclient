@@ -24,6 +24,7 @@ from osc_lib import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import sdk_utils
+from openstackclient.network.v2 import _tag
 
 
 LOG = logging.getLogger(__name__)
@@ -42,6 +43,7 @@ def _get_columns(item):
 
 _formatters = {
     'prefixes': utils.format_list,
+    'tags': utils.format_list,
 }
 
 
@@ -191,6 +193,7 @@ class CreateSubnetPool(command.ShowOne):
             metavar='<num-ip-addresses>',
             help=_("Set default quota for subnet pool as the number of"
                    "IP addresses allowed in a subnet")),
+        _tag.add_tag_option_to_parser_for_create(parser, _('subnet pool'))
         return parser
 
     def take_action(self, parsed_args):
@@ -200,6 +203,8 @@ class CreateSubnetPool(command.ShowOne):
         if "prefixes" not in attrs:
             attrs['prefixes'] = []
         obj = client.create_subnet_pool(**attrs)
+        # tags cannot be set when created, so tags need to be set later.
+        _tag.update_tags_for_set(client, obj, parsed_args)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)
@@ -293,6 +298,7 @@ class ListSubnetPool(command.Lister):
             help=_("List only subnet pools of given address scope "
                    "in output (name or ID)")
         )
+        _tag.add_tag_filtering_option_to_parser(parser, _('subnet pools'))
         return parser
 
     def take_action(self, parsed_args):
@@ -324,15 +330,16 @@ class ListSubnetPool(command.Lister):
                 parsed_args.address_scope,
                 ignore_missing=False)
             filters['address_scope_id'] = address_scope.id
+        _tag.get_tag_filtering_args(parsed_args, filters)
         data = network_client.subnet_pools(**filters)
 
         headers = ('ID', 'Name', 'Prefixes')
         columns = ('id', 'name', 'prefixes')
         if parsed_args.long:
             headers += ('Default Prefix Length', 'Address Scope',
-                        'Default Subnet Pool', 'Shared')
+                        'Default Subnet Pool', 'Shared', 'Tags')
             columns += ('default_prefix_length', 'address_scope_id',
-                        'is_default', 'is_shared')
+                        'is_default', 'is_shared', 'tags')
 
         return (headers,
                 (utils.get_item_properties(
@@ -384,6 +391,8 @@ class SetSubnetPool(command.Command):
             metavar='<num-ip-addresses>',
             help=_("Set default quota for subnet pool as the number of"
                    "IP addresses allowed in a subnet")),
+        _tag.add_tag_option_to_parser_for_set(parser, _('subnet pool'))
+
         return parser
 
     def take_action(self, parsed_args):
@@ -397,7 +406,10 @@ class SetSubnetPool(command.Command):
         if 'prefixes' in attrs:
             attrs['prefixes'].extend(obj.prefixes)
 
-        client.update_subnet_pool(obj, **attrs)
+        if attrs:
+            client.update_subnet_pool(obj, **attrs)
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_set(client, obj, parsed_args)
 
 
 class ShowSubnetPool(command.ShowOne):
@@ -441,6 +453,7 @@ class UnsetSubnetPool(command.Command):
             metavar="<subnet-pool>",
             help=_("Subnet pool to modify (name or ID)")
         )
+        _tag.add_tag_option_to_parser_for_unset(parser, _('subnet pool'))
         return parser
 
     def take_action(self, parsed_args):
@@ -461,3 +474,5 @@ class UnsetSubnetPool(command.Command):
             attrs['prefixes'] = tmp_prefixes
         if attrs:
             client.update_subnet_pool(obj, **attrs)
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_unset(client, obj, parsed_args)
