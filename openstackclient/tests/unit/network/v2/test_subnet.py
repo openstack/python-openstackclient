@@ -19,7 +19,6 @@ from osc_lib import utils
 
 from openstackclient.network.v2 import subnet as subnet_v2
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
-from openstackclient.tests.unit.network.v2 import _test_tag
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -37,7 +36,7 @@ class TestSubnet(network_fakes.TestNetworkV2):
         self.domains_mock = self.app.client_manager.identity.domains
 
 
-class TestCreateSubnet(TestSubnet, _test_tag.TestCreateTagMixin):
+class TestCreateSubnet(TestSubnet):
 
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
@@ -211,28 +210,6 @@ class TestCreateSubnet(TestSubnet, _test_tag.TestCreateTagMixin):
         self.network.find_subnet_pool = mock.Mock(
             return_value=self._subnet_pool
         )
-
-        # TestUnsetTagMixin
-        self._tag_test_resource = self._subnet
-        self._tag_create_resource_mock = self.network.create_subnet
-        self._tag_create_required_arglist = [
-            "--subnet-range", self._subnet.cidr,
-            "--network", self._subnet.network_id,
-            self._subnet.name,
-        ]
-        self._tag_create_required_verifylist = [
-            ('name', self._subnet.name),
-            ('subnet_range', self._subnet.cidr),
-            ('network', self._subnet.network_id),
-            ('ip_version', self._subnet.ip_version),
-            ('gateway', 'auto'),
-        ]
-        self._tag_create_required_attrs = {
-            'cidr': self._subnet.cidr,
-            'ip_version': self._subnet.ip_version,
-            'name': self._subnet.name,
-            'network_id': self._subnet.network_id,
-        }
 
     def test_create_no_options(self):
         arglist = []
@@ -478,6 +455,51 @@ class TestCreateSubnet(TestSubnet, _test_tag.TestCreateTagMixin):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def _test_create_with_tag(self, add_tags=True):
+        arglist = [
+            "--subnet-range", self._subnet.cidr,
+            "--network", self._subnet.network_id,
+            self._subnet.name,
+        ]
+        if add_tags:
+            arglist += ['--tag', 'red', '--tag', 'blue']
+        else:
+            arglist += ['--no-tag']
+        verifylist = [
+            ('name', self._subnet.name),
+            ('subnet_range', self._subnet.cidr),
+            ('network', self._subnet.network_id),
+            ('ip_version', self._subnet.ip_version),
+            ('gateway', 'auto'),
+        ]
+        if add_tags:
+            verifylist.append(('tags', ['red', 'blue']))
+        else:
+            verifylist.append(('no_tag', True))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_subnet.assert_called_once_with(
+            cidr=self._subnet.cidr,
+            ip_version=self._subnet.ip_version,
+            name=self._subnet.name,
+            network_id=self._subnet.network_id)
+        if add_tags:
+            self.network.set_tags.assert_called_once_with(
+                self._subnet,
+                tests_utils.CompareBySet(['red', 'blue']))
+        else:
+            self.assertFalse(self.network.set_tags.called)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_with_tags(self):
+        self._test_create_with_tag(add_tags=True)
+
+    def test_create_with_no_tag(self):
+        self._test_create_with_tag(add_tags=False)
+
 
 class TestDeleteSubnet(TestSubnet):
 
@@ -558,7 +580,7 @@ class TestDeleteSubnet(TestSubnet):
         )
 
 
-class TestListSubnet(TestSubnet, _test_tag.TestListTagMixin):
+class TestListSubnet(TestSubnet):
     # The subnets going to be listed up.
     _subnet = network_fakes.FakeSubnet.create_subnets(count=3)
 
@@ -614,9 +636,6 @@ class TestListSubnet(TestSubnet, _test_tag.TestListTagMixin):
         self.cmd = subnet_v2.ListSubnet(self.app, self.namespace)
 
         self.network.subnets = mock.Mock(return_value=self._subnet)
-
-        # TestUnsetTagMixin
-        self._tag_list_resource_mock = self.network.subnets
 
     def test_subnet_list_no_options(self):
         arglist = []
@@ -837,8 +856,33 @@ class TestListSubnet(TestSubnet, _test_tag.TestListTagMixin):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_list_with_tag_options(self):
+        arglist = [
+            '--tags', 'red,blue',
+            '--any-tags', 'red,green',
+            '--not-tags', 'orange,yellow',
+            '--not-any-tags', 'black,white',
+        ]
+        verifylist = [
+            ('tags', ['red', 'blue']),
+            ('any_tags', ['red', 'green']),
+            ('not_tags', ['orange', 'yellow']),
+            ('not_any_tags', ['black', 'white']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
 
-class TestSetSubnet(TestSubnet, _test_tag.TestSetTagMixin):
+        self.network.subnets.assert_called_once_with(
+            **{'tags': 'red,blue',
+               'any_tags': 'red,green',
+               'not_tags': 'orange,yellow',
+               'not_any_tags': 'black,white'}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+
+class TestSetSubnet(TestSubnet):
 
     _subnet = network_fakes.FakeSubnet.create_one_subnet(
         {'tags': ['green', 'red']})
@@ -849,10 +893,6 @@ class TestSetSubnet(TestSubnet, _test_tag.TestSetTagMixin):
         self.network.set_tags = mock.Mock(return_value=None)
         self.network.find_subnet = mock.Mock(return_value=self._subnet)
         self.cmd = subnet_v2.SetSubnet(self.app, self.namespace)
-        # TestSetTagMixin
-        self._tag_resource_name = 'subnet'
-        self._tag_test_resource = self._subnet
-        self._tag_update_resource_mock = self.network.update_subnet
 
     def test_set_this(self):
         arglist = [
@@ -1001,6 +1041,34 @@ class TestSetSubnet(TestSubnet, _test_tag.TestSetTagMixin):
             _testsubnet, **attrs)
         self.assertIsNone(result)
 
+    def _test_set_tags(self, with_tags=True):
+        if with_tags:
+            arglist = ['--tag', 'red', '--tag', 'blue']
+            verifylist = [('tags', ['red', 'blue'])]
+            expected_args = ['red', 'blue', 'green']
+        else:
+            arglist = ['--no-tag']
+            verifylist = [('no_tag', True)]
+            expected_args = []
+        arglist.append(self._subnet.name)
+        verifylist.append(
+            ('subnet', self._subnet.name))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertFalse(self.network.update_subnet.called)
+        self.network.set_tags.assert_called_once_with(
+            self._subnet,
+            tests_utils.CompareBySet(expected_args))
+        self.assertIsNone(result)
+
+    def test_set_with_tags(self):
+        self._test_set_tags(with_tags=True)
+
+    def test_set_with_no_tag(self):
+        self._test_set_tags(with_tags=False)
+
 
 class TestShowSubnet(TestSubnet):
     # The subnets to be shown
@@ -1083,7 +1151,7 @@ class TestShowSubnet(TestSubnet):
         self.assertEqual(self.data, data)
 
 
-class TestUnsetSubnet(TestSubnet, _test_tag.TestUnsetTagMixin):
+class TestUnsetSubnet(TestSubnet):
 
     def setUp(self):
         super(TestUnsetSubnet, self).setUp()
@@ -1106,10 +1174,6 @@ class TestUnsetSubnet(TestSubnet, _test_tag.TestUnsetTagMixin):
         self.network.set_tags = mock.Mock(return_value=None)
         # Get the command object to test
         self.cmd = subnet_v2.UnsetSubnet(self.app, self.namespace)
-        # TestUnsetTagMixin
-        self._tag_resource_name = 'subnet'
-        self._tag_test_resource = self._testsubnet
-        self._tag_update_resource_mock = self.network.update_subnet
 
     def test_unset_subnet_params(self):
         arglist = [
@@ -1219,3 +1283,31 @@ class TestUnsetSubnet(TestSubnet, _test_tag.TestUnsetTagMixin):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(exceptions.CommandError,
                           self.cmd.take_action, parsed_args)
+
+    def _test_unset_tags(self, with_tags=True):
+        if with_tags:
+            arglist = ['--tag', 'red', '--tag', 'blue']
+            verifylist = [('tags', ['red', 'blue'])]
+            expected_args = ['green']
+        else:
+            arglist = ['--all-tag']
+            verifylist = [('all_tag', True)]
+            expected_args = []
+        arglist.append(self._testsubnet.name)
+        verifylist.append(
+            ('subnet', self._testsubnet.name))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertFalse(self.network.update_subnet.called)
+        self.network.set_tags.assert_called_once_with(
+            self._testsubnet,
+            tests_utils.CompareBySet(expected_args))
+        self.assertIsNone(result)
+
+    def test_unset_with_tags(self):
+        self._test_unset_tags(with_tags=True)
+
+    def test_unset_with_all_tag(self):
+        self._test_unset_tags(with_tags=False)

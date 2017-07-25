@@ -21,7 +21,6 @@ from osc_lib import utils
 from openstackclient.network.v2 import port
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
-from openstackclient.tests.unit.network.v2 import _test_tag
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -97,7 +96,7 @@ class TestPort(network_fakes.TestNetworkV2):
         return columns, data
 
 
-class TestCreatePort(TestPort, _test_tag.TestCreateTagMixin):
+class TestCreatePort(TestPort):
 
     _port = network_fakes.FakePort.create_one_port()
     columns, data = TestPort._get_common_cols_data(_port)
@@ -115,24 +114,6 @@ class TestCreatePort(TestPort, _test_tag.TestCreateTagMixin):
         self.network.find_subnet = mock.Mock(return_value=self.fake_subnet)
         # Get the command object to test
         self.cmd = port.CreatePort(self.app, self.namespace)
-
-        # TestUnsetTagMixin
-        self._tag_test_resource = self._port
-        self._tag_create_resource_mock = self.network.create_port
-        self._tag_create_required_arglist = [
-            '--network', self._port.network_id,
-            'test-port',
-        ]
-        self._tag_create_required_verifylist = [
-            ('network', self._port.network_id,),
-            ('enable', True),
-            ('name', 'test-port'),
-        ]
-        self._tag_create_required_attrs = {
-            'admin_state_up': True,
-            'network_id': self._port.network_id,
-            'name': 'test-port',
-        }
 
     def test_create_default_options(self):
         arglist = [
@@ -517,6 +498,48 @@ class TestCreatePort(TestPort, _test_tag.TestCreateTagMixin):
             'name': 'test-port',
         })
 
+    def _test_create_with_tag(self, add_tags=True):
+        arglist = [
+            '--network', self._port.network_id,
+            'test-port',
+        ]
+        if add_tags:
+            arglist += ['--tag', 'red', '--tag', 'blue']
+        else:
+            arglist += ['--no-tag']
+        verifylist = [
+            ('network', self._port.network_id,),
+            ('enable', True),
+            ('name', 'test-port'),
+        ]
+        if add_tags:
+            verifylist.append(('tags', ['red', 'blue']))
+        else:
+            verifylist.append(('no_tag', True))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_port.assert_called_once_with(
+            admin_state_up=True,
+            network_id=self._port.network_id,
+            name='test-port'
+        )
+        if add_tags:
+            self.network.set_tags.assert_called_once_with(
+                self._port,
+                tests_utils.CompareBySet(['red', 'blue']))
+        else:
+            self.assertFalse(self.network.set_tags.called)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_with_tags(self):
+        self._test_create_with_tag(add_tags=True)
+
+    def test_create_with_no_tag(self):
+        self._test_create_with_tag(add_tags=False)
+
 
 class TestDeletePort(TestPort):
 
@@ -597,7 +620,7 @@ class TestDeletePort(TestPort):
         )
 
 
-class TestListPort(TestPort, _test_tag.TestListTagMixin):
+class TestListPort(TestPort):
 
     _ports = network_fakes.FakePort.create_ports(count=3)
 
@@ -658,8 +681,6 @@ class TestListPort(TestPort, _test_tag.TestListTagMixin):
         self.network.find_router = mock.Mock(return_value=fake_router)
         self.network.find_network = mock.Mock(return_value=fake_network)
         self.app.client_manager.compute = mock.Mock()
-        # TestUnsetTagMixin
-        self._tag_list_resource_mock = self.network.ports
 
     def test_port_list_no_options(self):
         arglist = []
@@ -919,8 +940,33 @@ class TestListPort(TestPort, _test_tag.TestListTagMixin):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_list_with_tag_options(self):
+        arglist = [
+            '--tags', 'red,blue',
+            '--any-tags', 'red,green',
+            '--not-tags', 'orange,yellow',
+            '--not-any-tags', 'black,white',
+        ]
+        verifylist = [
+            ('tags', ['red', 'blue']),
+            ('any_tags', ['red', 'green']),
+            ('not_tags', ['orange', 'yellow']),
+            ('not_any_tags', ['black', 'white']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
 
-class TestSetPort(TestPort, _test_tag.TestSetTagMixin):
+        self.network.ports.assert_called_once_with(
+            **{'tags': 'red,blue',
+               'any_tags': 'red,green',
+               'not_tags': 'orange,yellow',
+               'not_any_tags': 'black,white'}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+
+class TestSetPort(TestPort):
 
     _port = network_fakes.FakePort.create_one_port({'tags': ['green', 'red']})
 
@@ -934,10 +980,6 @@ class TestSetPort(TestPort, _test_tag.TestSetTagMixin):
 
         # Get the command object to test
         self.cmd = port.SetPort(self.app, self.namespace)
-        # TestSetTagMixin
-        self._tag_resource_name = 'port'
-        self._tag_test_resource = self._port
-        self._tag_update_resource_mock = self.network.update_port
 
     def test_set_port_defaults(self):
         arglist = [
@@ -1430,6 +1472,34 @@ class TestSetPort(TestPort, _test_tag.TestSetTagMixin):
                           arglist,
                           None)
 
+    def _test_set_tags(self, with_tags=True):
+        if with_tags:
+            arglist = ['--tag', 'red', '--tag', 'blue']
+            verifylist = [('tags', ['red', 'blue'])]
+            expected_args = ['red', 'blue', 'green']
+        else:
+            arglist = ['--no-tag']
+            verifylist = [('no_tag', True)]
+            expected_args = []
+        arglist.append(self._port.name)
+        verifylist.append(
+            ('port', self._port.name))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertFalse(self.network.update_port.called)
+        self.network.set_tags.assert_called_once_with(
+            self._port,
+            tests_utils.CompareBySet(expected_args))
+        self.assertIsNone(result)
+
+    def test_set_with_tags(self):
+        self._test_set_tags(with_tags=True)
+
+    def test_set_with_no_tag(self):
+        self._test_set_tags(with_tags=False)
+
 
 class TestShowPort(TestPort):
 
@@ -1470,7 +1540,7 @@ class TestShowPort(TestPort):
         self.assertEqual(self.data, data)
 
 
-class TestUnsetPort(TestPort, _test_tag.TestUnsetTagMixin):
+class TestUnsetPort(TestPort):
 
     def setUp(self):
         super(TestUnsetPort, self).setUp()
@@ -1489,10 +1559,6 @@ class TestUnsetPort(TestPort, _test_tag.TestUnsetTagMixin):
         self.network.set_tags = mock.Mock(return_value=None)
         # Get the command object to test
         self.cmd = port.UnsetPort(self.app, self.namespace)
-        # TestUnsetTagMixin
-        self._tag_resource_name = 'port'
-        self._tag_test_resource = self._testport
-        self._tag_update_resource_mock = self.network.update_port
 
     def test_unset_port_parameters(self):
         arglist = [
@@ -1661,3 +1727,31 @@ class TestUnsetPort(TestPort, _test_tag.TestUnsetTagMixin):
 
         self.network.update_port.assert_called_once_with(_fake_port, **attrs)
         self.assertIsNone(result)
+
+    def _test_unset_tags(self, with_tags=True):
+        if with_tags:
+            arglist = ['--tag', 'red', '--tag', 'blue']
+            verifylist = [('tags', ['red', 'blue'])]
+            expected_args = ['green']
+        else:
+            arglist = ['--all-tag']
+            verifylist = [('all_tag', True)]
+            expected_args = []
+        arglist.append(self._testport.name)
+        verifylist.append(
+            ('port', self._testport.name))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertFalse(self.network.update_port.called)
+        self.network.set_tags.assert_called_once_with(
+            self._testport,
+            tests_utils.CompareBySet(expected_args))
+        self.assertIsNone(result)
+
+    def test_unset_with_tags(self):
+        self._test_unset_tags(with_tags=True)
+
+    def test_unset_with_all_tag(self):
+        self._test_unset_tags(with_tags=False)

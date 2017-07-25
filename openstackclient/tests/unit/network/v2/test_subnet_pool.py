@@ -20,7 +20,6 @@ from osc_lib import utils
 
 from openstackclient.network.v2 import subnet_pool
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
-from openstackclient.tests.unit.network.v2 import _test_tag
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -38,7 +37,7 @@ class TestSubnetPool(network_fakes.TestNetworkV2):
         self.domains_mock = self.app.client_manager.identity.domains
 
 
-class TestCreateSubnetPool(TestSubnetPool, _test_tag.TestCreateTagMixin):
+class TestCreateSubnetPool(TestSubnetPool):
 
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
@@ -95,22 +94,6 @@ class TestCreateSubnetPool(TestSubnetPool, _test_tag.TestCreateTagMixin):
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
-
-        # TestUnsetTagMixin
-        self._tag_test_resource = self._subnet_pool
-        self._tag_create_resource_mock = self.network.create_subnet_pool
-        self._tag_create_required_arglist = [
-            '--pool-prefix', '10.0.10.0/24',
-            self._subnet_pool.name,
-        ]
-        self._tag_create_required_verifylist = [
-            ('prefixes', ['10.0.10.0/24']),
-            ('name', self._subnet_pool.name),
-        ]
-        self._tag_create_required_attrs = {
-            'prefixes': ['10.0.10.0/24'],
-            'name': self._subnet_pool.name,
-        }
 
     def test_create_no_options(self):
         arglist = []
@@ -313,6 +296,46 @@ class TestCreateSubnetPool(TestSubnetPool, _test_tag.TestCreateTagMixin):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def _test_create_with_tag(self, add_tags=True):
+        arglist = [
+            '--pool-prefix', '10.0.10.0/24',
+            self._subnet_pool.name,
+        ]
+        if add_tags:
+            arglist += ['--tag', 'red', '--tag', 'blue']
+        else:
+            arglist += ['--no-tag']
+        verifylist = [
+            ('prefixes', ['10.0.10.0/24']),
+            ('name', self._subnet_pool.name),
+        ]
+        if add_tags:
+            verifylist.append(('tags', ['red', 'blue']))
+        else:
+            verifylist.append(('no_tag', True))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_subnet_pool.assert_called_once_with(
+            prefixes=['10.0.10.0/24'],
+            name=self._subnet_pool.name
+        )
+        if add_tags:
+            self.network.set_tags.assert_called_once_with(
+                self._subnet_pool,
+                tests_utils.CompareBySet(['red', 'blue']))
+        else:
+            self.assertFalse(self.network.set_tags.called)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_with_tags(self):
+        self._test_create_with_tag(add_tags=True)
+
+    def test_create_with_no_tag(self):
+        self._test_create_with_tag(add_tags=False)
+
 
 class TestDeleteSubnetPool(TestSubnetPool):
 
@@ -396,7 +419,7 @@ class TestDeleteSubnetPool(TestSubnetPool):
         )
 
 
-class TestListSubnetPool(TestSubnetPool, _test_tag.TestListTagMixin):
+class TestListSubnetPool(TestSubnetPool):
     # The subnet pools going to be listed up.
     _subnet_pools = network_fakes.FakeSubnetPool.create_subnet_pools(count=3)
 
@@ -441,9 +464,6 @@ class TestListSubnetPool(TestSubnetPool, _test_tag.TestListTagMixin):
         self.cmd = subnet_pool.ListSubnetPool(self.app, self.namespace)
 
         self.network.subnet_pools = mock.Mock(return_value=self._subnet_pools)
-
-        # TestUnsetTagMixin
-        self._tag_list_resource_mock = self.network.subnet_pools
 
     def test_subnet_pool_list_no_option(self):
         arglist = []
@@ -611,8 +631,33 @@ class TestListSubnetPool(TestSubnetPool, _test_tag.TestListTagMixin):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_list_with_tag_options(self):
+        arglist = [
+            '--tags', 'red,blue',
+            '--any-tags', 'red,green',
+            '--not-tags', 'orange,yellow',
+            '--not-any-tags', 'black,white',
+        ]
+        verifylist = [
+            ('tags', ['red', 'blue']),
+            ('any_tags', ['red', 'green']),
+            ('not_tags', ['orange', 'yellow']),
+            ('not_any_tags', ['black', 'white']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
 
-class TestSetSubnetPool(TestSubnetPool, _test_tag.TestSetTagMixin):
+        self.network.subnet_pools.assert_called_once_with(
+            **{'tags': 'red,blue',
+               'any_tags': 'red,green',
+               'not_tags': 'orange,yellow',
+               'not_any_tags': 'black,white'}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+
+class TestSetSubnetPool(TestSubnetPool):
 
     # The subnet_pool to set.
     _subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool(
@@ -636,11 +681,6 @@ class TestSetSubnetPool(TestSubnetPool, _test_tag.TestSetTagMixin):
 
         # Get the command object to test
         self.cmd = subnet_pool.SetSubnetPool(self.app, self.namespace)
-
-        # TestUnsetTagMixin
-        self._tag_resource_name = 'subnet_pool'
-        self._tag_test_resource = self._subnet_pool
-        self._tag_update_resource_mock = self.network.update_subnet_pool
 
     def test_set_this(self):
         arglist = [
@@ -867,6 +907,34 @@ class TestSetSubnetPool(TestSubnetPool, _test_tag.TestSetTagMixin):
         )
         self.assertIsNone(result)
 
+    def _test_set_tags(self, with_tags=True):
+        if with_tags:
+            arglist = ['--tag', 'red', '--tag', 'blue']
+            verifylist = [('tags', ['red', 'blue'])]
+            expected_args = ['red', 'blue', 'green']
+        else:
+            arglist = ['--no-tag']
+            verifylist = [('no_tag', True)]
+            expected_args = []
+        arglist.append(self._subnet_pool.name)
+        verifylist.append(
+            ('subnet_pool', self._subnet_pool.name))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertFalse(self.network.update_subnet_pool.called)
+        self.network.set_tags.assert_called_once_with(
+            self._subnet_pool,
+            tests_utils.CompareBySet(expected_args))
+        self.assertIsNone(result)
+
+    def test_set_with_tags(self):
+        self._test_set_tags(with_tags=True)
+
+    def test_set_with_no_tag(self):
+        self._test_set_tags(with_tags=False)
+
 
 class TestShowSubnetPool(TestSubnetPool):
 
@@ -943,7 +1011,7 @@ class TestShowSubnetPool(TestSubnetPool):
         self.assertEqual(self.data, data)
 
 
-class TestUnsetSubnetPool(TestSubnetPool, _test_tag.TestUnsetTagMixin):
+class TestUnsetSubnetPool(TestSubnetPool):
 
     def setUp(self):
         super(TestUnsetSubnetPool, self).setUp()
@@ -957,11 +1025,6 @@ class TestUnsetSubnetPool(TestSubnetPool, _test_tag.TestUnsetTagMixin):
         self.network.set_tags = mock.Mock(return_value=None)
         # Get the command object to test
         self.cmd = subnet_pool.UnsetSubnetPool(self.app, self.namespace)
-
-        # TestUnsetTagMixin
-        self._tag_resource_name = 'subnet_pool'
-        self._tag_test_resource = self._subnetpool
-        self._tag_update_resource_mock = self.network.update_subnet_pool
 
     def test_unset_subnet_pool(self):
         arglist = [
@@ -993,3 +1056,31 @@ class TestUnsetSubnetPool(TestSubnetPool, _test_tag.TestUnsetTagMixin):
         self.assertRaises(exceptions.CommandError,
                           self.cmd.take_action,
                           parsed_args)
+
+    def _test_unset_tags(self, with_tags=True):
+        if with_tags:
+            arglist = ['--tag', 'red', '--tag', 'blue']
+            verifylist = [('tags', ['red', 'blue'])]
+            expected_args = ['green']
+        else:
+            arglist = ['--all-tag']
+            verifylist = [('all_tag', True)]
+            expected_args = []
+        arglist.append(self._subnetpool.name)
+        verifylist.append(
+            ('subnet_pool', self._subnetpool.name))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertFalse(self.network.update_subnet_pool.called)
+        self.network.set_tags.assert_called_once_with(
+            self._subnetpool,
+            tests_utils.CompareBySet(expected_args))
+        self.assertIsNone(result)
+
+    def test_unset_with_tags(self):
+        self._test_unset_tags(with_tags=True)
+
+    def test_unset_with_all_tag(self):
+        self._test_unset_tags(with_tags=False)

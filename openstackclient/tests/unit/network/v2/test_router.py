@@ -19,7 +19,6 @@ from osc_lib import utils as osc_utils
 
 from openstackclient.network.v2 import router
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
-from openstackclient.tests.unit.network.v2 import _test_tag
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -112,7 +111,7 @@ class TestAddSubnetToRouter(TestRouter):
         self.assertIsNone(result)
 
 
-class TestCreateRouter(TestRouter, _test_tag.TestCreateTagMixin):
+class TestCreateRouter(TestRouter):
 
     # The new router created.
     new_router = network_fakes.FakeRouter.create_one_router()
@@ -156,23 +155,6 @@ class TestCreateRouter(TestRouter, _test_tag.TestCreateTagMixin):
 
         # Get the command object to test
         self.cmd = router.CreateRouter(self.app, self.namespace)
-
-        # TestCreateTagMixin
-        self._tag_test_resource = self.new_router
-        self._tag_create_resource_mock = self.network.create_router
-        self._tag_create_required_arglist = [
-            self.new_router.name,
-        ]
-        self._tag_create_required_verifylist = [
-            ('name', self.new_router.name),
-            ('enable', True),
-            ('distributed', False),
-            ('ha', False),
-        ]
-        self._tag_create_required_attrs = {
-            'admin_state_up': True,
-            'name': self.new_router.name,
-        }
 
     def test_create_no_options(self):
         arglist = []
@@ -288,6 +270,45 @@ class TestCreateRouter(TestRouter, _test_tag.TestCreateTagMixin):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def _test_create_with_tag(self, add_tags=True):
+        arglist = [self.new_router.name]
+        if add_tags:
+            arglist += ['--tag', 'red', '--tag', 'blue']
+        else:
+            arglist += ['--no-tag']
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable', True),
+            ('distributed', False),
+            ('ha', False),
+        ]
+        if add_tags:
+            verifylist.append(('tags', ['red', 'blue']))
+        else:
+            verifylist.append(('no_tag', True))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_router.assert_called_once_with(
+            name=self.new_router.name,
+            admin_state_up=True
+        )
+        if add_tags:
+            self.network.set_tags.assert_called_once_with(
+                self.new_router,
+                tests_utils.CompareBySet(['red', 'blue']))
+        else:
+            self.assertFalse(self.network.set_tags.called)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_with_tags(self):
+        self._test_create_with_tag(add_tags=True)
+
+    def test_create_with_no_tag(self):
+        self._test_create_with_tag(add_tags=False)
+
 
 class TestDeleteRouter(TestRouter):
 
@@ -368,7 +389,7 @@ class TestDeleteRouter(TestRouter):
         )
 
 
-class TestListRouter(TestRouter, _test_tag.TestListTagMixin):
+class TestListRouter(TestRouter):
 
     # The routers going to be listed up.
     routers = network_fakes.FakeRouter.create_routers(count=3)
@@ -458,9 +479,6 @@ class TestListRouter(TestRouter, _test_tag.TestListTagMixin):
             network_fakes.FakeNetworkAgent.create_one_network_agent()
         self.network.get_agent = mock.Mock(return_value=self._testagent)
         self.network.get_router = mock.Mock(return_value=self.routers[0])
-
-        # TestListTagMixin
-        self._tag_list_resource_mock = self.network.routers
 
     def test_router_list_no_options(self):
         arglist = []
@@ -636,6 +654,31 @@ class TestListRouter(TestRouter, _test_tag.TestListTagMixin):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_list_with_tag_options(self):
+        arglist = [
+            '--tags', 'red,blue',
+            '--any-tags', 'red,green',
+            '--not-tags', 'orange,yellow',
+            '--not-any-tags', 'black,white',
+        ]
+        verifylist = [
+            ('tags', ['red', 'blue']),
+            ('any_tags', ['red', 'green']),
+            ('not_tags', ['orange', 'yellow']),
+            ('not_any_tags', ['black', 'white']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.routers.assert_called_once_with(
+            **{'tags': 'red,blue',
+               'any_tags': 'red,green',
+               'not_tags': 'orange,yellow',
+               'not_any_tags': 'black,white'}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
 
 class TestRemovePortFromRouter(TestRouter):
     '''Remove port from a Router '''
@@ -714,7 +757,7 @@ class TestRemoveSubnetFromRouter(TestRouter):
         self.assertIsNone(result)
 
 
-class TestSetRouter(TestRouter, _test_tag.TestSetTagMixin):
+class TestSetRouter(TestRouter):
 
     # The router to set.
     _default_route = {'destination': '10.20.20.0/24', 'nexthop': '10.20.30.1'}
@@ -735,11 +778,6 @@ class TestSetRouter(TestRouter, _test_tag.TestSetTagMixin):
         self.network.find_subnet = mock.Mock(return_value=self._subnet)
         # Get the command object to test
         self.cmd = router.SetRouter(self.app, self.namespace)
-
-        # TestSetTagMixin
-        self._tag_resource_name = 'router'
-        self._tag_test_resource = self._router
-        self._tag_update_resource_mock = self.network.update_router
 
     def test_set_this(self):
         arglist = [
@@ -1047,6 +1085,34 @@ class TestSetRouter(TestRouter, _test_tag.TestSetTagMixin):
                 'enable_snat': True, }})
         self.assertIsNone(result)
 
+    def _test_set_tags(self, with_tags=True):
+        if with_tags:
+            arglist = ['--tag', 'red', '--tag', 'blue']
+            verifylist = [('tags', ['red', 'blue'])]
+            expected_args = ['red', 'blue', 'green']
+        else:
+            arglist = ['--no-tag']
+            verifylist = [('no_tag', True)]
+            expected_args = []
+        arglist.append(self._router.name)
+        verifylist.append(
+            ('router', self._router.name))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertFalse(self.network.update_router.called)
+        self.network.set_tags.assert_called_once_with(
+            self._router,
+            tests_utils.CompareBySet(expected_args))
+        self.assertIsNone(result)
+
+    def test_set_with_tags(self):
+        self._test_set_tags(with_tags=True)
+
+    def test_set_with_no_tag(self):
+        self._test_set_tags(with_tags=False)
+
 
 class TestShowRouter(TestRouter):
 
@@ -1132,10 +1198,6 @@ class TestUnsetRouter(TestRouter):
         self.network.set_tags = mock.Mock(return_value=None)
         # Get the command object to test
         self.cmd = router.UnsetRouter(self.app, self.namespace)
-        # TestUnsetTagMixin
-        self._tag_resource_name = 'router'
-        self._tag_test_resource = self._testrouter
-        self._tag_update_resource_mock = self.network.update_router
 
     def test_unset_router_params(self):
         arglist = [
@@ -1184,3 +1246,31 @@ class TestUnsetRouter(TestRouter):
         self.network.update_router.assert_called_once_with(
             self._testrouter, **attrs)
         self.assertIsNone(result)
+
+    def _test_unset_tags(self, with_tags=True):
+        if with_tags:
+            arglist = ['--tag', 'red', '--tag', 'blue']
+            verifylist = [('tags', ['red', 'blue'])]
+            expected_args = ['green']
+        else:
+            arglist = ['--all-tag']
+            verifylist = [('all_tag', True)]
+            expected_args = []
+        arglist.append(self._testrouter.name)
+        verifylist.append(
+            ('router', self._testrouter.name))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertFalse(self.network.update_router.called)
+        self.network.set_tags.assert_called_once_with(
+            self._testrouter,
+            tests_utils.CompareBySet(expected_args))
+        self.assertIsNone(result)
+
+    def test_unset_with_tags(self):
+        self._test_unset_tags(with_tags=True)
+
+    def test_unset_with_all_tag(self):
+        self._test_unset_tags(with_tags=False)
