@@ -23,6 +23,7 @@ from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+from openstackclient.identity import common
 
 
 LOG = logging.getLogger(__name__)
@@ -43,7 +44,7 @@ class CreateCredential(command.ShowOne):
             default="cert",
             metavar='<type>',
             choices=['ec2', 'cert'],
-            help=_('New credential type'),
+            help=_('New credential type: cert, ec2'),
         )
         parser.add_argument(
             'data',
@@ -112,10 +113,40 @@ class DeleteCredential(command.Command):
 class ListCredential(command.Lister):
     _description = _("List credentials")
 
+    def get_parser(self, prog_name):
+        parser = super(ListCredential, self).get_parser(prog_name)
+        parser.add_argument(
+            '--user',
+            metavar='<user>',
+            help=_('Filter credentials by <user> (name or ID)'),
+        )
+        common.add_user_domain_option_to_parser(parser)
+        parser.add_argument(
+            '--type',
+            metavar='<type>',
+            choices=['ec2', 'cert'],
+            help=_('Filter credentials by type: cert, ec2'),
+        )
+        return parser
+
     def take_action(self, parsed_args):
+        identity_client = self.app.client_manager.identity
+
+        kwargs = {}
+        if parsed_args.user:
+            user_id = common.find_user(
+                identity_client,
+                parsed_args.user,
+                parsed_args.user_domain,
+            ).id
+            kwargs["user_id"] = user_id
+
+        if parsed_args.type:
+            kwargs["type"] = parsed_args.type
+
         columns = ('ID', 'Type', 'User ID', 'Blob', 'Project ID')
         column_headers = ('ID', 'Type', 'User ID', 'Data', 'Project ID')
-        data = self.app.client_manager.identity.credentials.list()
+        data = self.app.client_manager.identity.credentials.list(**kwargs)
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
@@ -144,7 +175,7 @@ class SetCredential(command.Command):
             metavar='<type>',
             choices=['ec2', 'cert'],
             required=True,
-            help=_('New credential type'),
+            help=_('New credential type: cert, ec2'),
         )
         parser.add_argument(
             '--data',
