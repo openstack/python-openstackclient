@@ -380,15 +380,8 @@ class ShowProject(command.ShowOne):
             #                identity manager.get() with kwargs directly.
             project = identity_client.projects.get(
                 project.id,
-                parents_as_list=parsed_args.parents,
-                subtree_as_list=parsed_args.children)
-
-        if project._info.get('parents'):
-            project._info['parents'] = [str(p['project']['id'])
-                                        for p in project._info['parents']]
-        if project._info.get('subtree'):
-            project._info['subtree'] = [str(p['project']['id'])
-                                        for p in project._info['subtree']]
+                parents_as_ids=parsed_args.parents,
+                subtree_as_ids=parsed_args.children)
 
         project._info.pop('links')
         return zip(*sorted(six.iteritems(project._info)))

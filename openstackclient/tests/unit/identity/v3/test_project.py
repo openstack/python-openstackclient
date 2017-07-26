@@ -913,8 +913,8 @@ class TestProjectShow(TestProject):
 
         self.projects_mock.get.assert_has_calls([call(self.project.id),
                                                  call(self.project.id,
-                                                      parents_as_list=True,
-                                                      subtree_as_list=False,
+                                                      parents_as_ids=True,
+                                                      subtree_as_ids=False,
                                                       )])
 
         collist = (
@@ -936,7 +936,7 @@ class TestProjectShow(TestProject):
             self.project.is_domain,
             self.project.name,
             self.project.parent_id,
-            [self.project.parent_id],
+            [{'project': {'id': self.project.parent_id}}]
         )
         self.assertEqual(data, datalist)
 
@@ -972,8 +972,8 @@ class TestProjectShow(TestProject):
         columns, data = self.cmd.take_action(parsed_args)
         self.projects_mock.get.assert_has_calls([call(self.project.id),
                                                  call(self.project.id,
-                                                      parents_as_list=False,
-                                                      subtree_as_list=True,
+                                                      parents_as_ids=False,
+                                                      subtree_as_ids=True,
                                                       )])
 
         collist = (
@@ -995,7 +995,7 @@ class TestProjectShow(TestProject):
             self.project.is_domain,
             self.project.name,
             self.project.parent_id,
-            ['children-id'],
+            [{'project': {'id': 'children-id'}}]
         )
         self.assertEqual(data, datalist)
 
@@ -1033,8 +1033,8 @@ class TestProjectShow(TestProject):
         columns, data = self.cmd.take_action(parsed_args)
         self.projects_mock.get.assert_has_calls([call(self.project.id),
                                                  call(self.project.id,
-                                                      parents_as_list=True,
-                                                      subtree_as_list=True,
+                                                      parents_as_ids=True,
+                                                      subtree_as_ids=True,
                                                       )])
 
         collist = (
@@ -1057,8 +1057,8 @@ class TestProjectShow(TestProject):
             self.project.is_domain,
             self.project.name,
             self.project.parent_id,
-            [self.project.parent_id],
-            ['children-id'],
+            [{'project': {'id': self.project.parent_id}}],
+            [{'project': {'id': 'children-id'}}]
         )
         self.assertEqual(data, datalist)
 
