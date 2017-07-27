@@ -38,160 +38,165 @@ class TestSubnet(network_fakes.TestNetworkV2):
 
 class TestCreateSubnet(TestSubnet):
 
-    project = identity_fakes_v3.FakeProject.create_one_project()
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
-    # An IPv4 subnet to be created with mostly default values
-    _subnet = network_fakes.FakeSubnet.create_one_subnet(
-        attrs={
-            'tenant_id': project.id,
-        }
-    )
-
-    # Subnet pool to be used to create a subnet from a pool
-    _subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
-
-    # An IPv4 subnet to be created using a specific subnet pool
-    _subnet_from_pool = network_fakes.FakeSubnet.create_one_subnet(
-        attrs={
-            'tenant_id': project.id,
-            'subnetpool_id': _subnet_pool.id,
-            'dns_nameservers': ['8.8.8.8',
-                                '8.8.4.4'],
-            'host_routes': [{'destination': '10.20.20.0/24',
-                             'nexthop': '10.20.20.1'},
-                            {'destination': '10.30.30.0/24',
-                             'nexthop': '10.30.30.1'}],
-            'service_types': ['network:router_gateway',
-                              'network:floatingip_agent_gateway'],
-        }
-    )
-
-    # An IPv6 subnet to be created with most options specified
-    _subnet_ipv6 = network_fakes.FakeSubnet.create_one_subnet(
-        attrs={
-            'tenant_id': project.id,
-            'cidr': 'fe80:0:0:a00a::/64',
-            'enable_dhcp': True,
-            'dns_nameservers': ['fe80:27ff:a00a:f00f::ffff',
-                                'fe80:37ff:a00a:f00f::ffff'],
-            'allocation_pools': [{'start': 'fe80::a00a:0:c0de:0:100',
-                                  'end': 'fe80::a00a:0:c0de:0:f000'},
-                                 {'start': 'fe80::a00a:0:c0de:1:100',
-                                  'end': 'fe80::a00a:0:c0de:1:f000'}],
-            'host_routes': [{'destination': 'fe80:27ff:a00a:f00f::/64',
-                             'nexthop': 'fe80:27ff:a00a:f00f::1'},
-                            {'destination': 'fe80:37ff:a00a:f00f::/64',
-                             'nexthop': 'fe80:37ff:a00a:f00f::1'}],
-            'ip_version': 6,
-            'gateway_ip': 'fe80::a00a:0:c0de:0:1',
-            'ipv6_address_mode': 'slaac',
-            'ipv6_ra_mode': 'slaac',
-            'subnetpool_id': 'None',
-            'service_types': ['network:router_gateway',
-                              'network:floatingip_agent_gateway'],
-        }
-    )
-
-    # The network to be returned from find_network
-    _network = network_fakes.FakeNetwork.create_one_network(
-        attrs={
-            'id': _subnet.network_id,
-        }
-    )
-
-    # The network segment to be returned from find_segment
-    _network_segment = \
-        network_fakes.FakeNetworkSegment.create_one_network_segment(
+    def _init_subnet_variables(self):
+        self.project = identity_fakes_v3.FakeProject.create_one_project()
+        self.domain = identity_fakes_v3.FakeDomain.create_one_domain()
+        # An IPv4 subnet to be created with mostly default values
+        self._subnet = network_fakes.FakeSubnet.create_one_subnet(
             attrs={
-                'network_id': _subnet.network_id,
+                'tenant_id': self.project.id,
             }
         )
 
-    columns = (
-        'allocation_pools',
-        'cidr',
-        'description',
-        'dns_nameservers',
-        'enable_dhcp',
-        'gateway_ip',
-        'host_routes',
-        'id',
-        'ip_version',
-        'ipv6_address_mode',
-        'ipv6_ra_mode',
-        'name',
-        'network_id',
-        'project_id',
-        'segment_id',
-        'service_types',
-        'subnetpool_id',
-        'tags',
-    )
+        # Subnet pool to be used to create a subnet from a pool
+        self._subnet_pool = \
+            network_fakes.FakeSubnetPool.create_one_subnet_pool()
 
-    data = (
-        subnet_v2._format_allocation_pools(_subnet.allocation_pools),
-        _subnet.cidr,
-        _subnet.description,
-        utils.format_list(_subnet.dns_nameservers),
-        _subnet.enable_dhcp,
-        _subnet.gateway_ip,
-        subnet_v2._format_host_routes(_subnet.host_routes),
-        _subnet.id,
-        _subnet.ip_version,
-        _subnet.ipv6_address_mode,
-        _subnet.ipv6_ra_mode,
-        _subnet.name,
-        _subnet.network_id,
-        _subnet.project_id,
-        _subnet.segment_id,
-        utils.format_list(_subnet.service_types),
-        _subnet.subnetpool_id,
-        utils.format_list(_subnet.tags),
-    )
+        # An IPv4 subnet to be created using a specific subnet pool
+        self._subnet_from_pool = network_fakes.FakeSubnet.create_one_subnet(
+            attrs={
+                'tenant_id': self.project.id,
+                'subnetpool_id': self._subnet_pool.id,
+                'dns_nameservers': ['8.8.8.8',
+                                    '8.8.4.4'],
+                'host_routes': [{'destination': '10.20.20.0/24',
+                                 'nexthop': '10.20.20.1'},
+                                {'destination': '10.30.30.0/24',
+                                 'nexthop': '10.30.30.1'}],
+                'service_types': ['network:router_gateway',
+                                  'network:floatingip_agent_gateway'],
+            }
+        )
 
-    data_subnet_pool = (
-        subnet_v2._format_allocation_pools(_subnet_from_pool.allocation_pools),
-        _subnet_from_pool.cidr,
-        _subnet_from_pool.description,
-        utils.format_list(_subnet_from_pool.dns_nameservers),
-        _subnet_from_pool.enable_dhcp,
-        _subnet_from_pool.gateway_ip,
-        subnet_v2._format_host_routes(_subnet_from_pool.host_routes),
-        _subnet_from_pool.id,
-        _subnet_from_pool.ip_version,
-        _subnet_from_pool.ipv6_address_mode,
-        _subnet_from_pool.ipv6_ra_mode,
-        _subnet_from_pool.name,
-        _subnet_from_pool.network_id,
-        _subnet_from_pool.project_id,
-        _subnet_from_pool.segment_id,
-        utils.format_list(_subnet_from_pool.service_types),
-        _subnet_from_pool.subnetpool_id,
-        utils.format_list(_subnet.tags),
-    )
+        # An IPv6 subnet to be created with most options specified
+        self._subnet_ipv6 = network_fakes.FakeSubnet.create_one_subnet(
+            attrs={
+                'tenant_id': self.project.id,
+                'cidr': 'fe80:0:0:a00a::/64',
+                'enable_dhcp': True,
+                'dns_nameservers': ['fe80:27ff:a00a:f00f::ffff',
+                                    'fe80:37ff:a00a:f00f::ffff'],
+                'allocation_pools': [{'start': 'fe80::a00a:0:c0de:0:100',
+                                      'end': 'fe80::a00a:0:c0de:0:f000'},
+                                     {'start': 'fe80::a00a:0:c0de:1:100',
+                                      'end': 'fe80::a00a:0:c0de:1:f000'}],
+                'host_routes': [{'destination': 'fe80:27ff:a00a:f00f::/64',
+                                 'nexthop': 'fe80:27ff:a00a:f00f::1'},
+                                {'destination': 'fe80:37ff:a00a:f00f::/64',
+                                 'nexthop': 'fe80:37ff:a00a:f00f::1'}],
+                'ip_version': 6,
+                'gateway_ip': 'fe80::a00a:0:c0de:0:1',
+                'ipv6_address_mode': 'slaac',
+                'ipv6_ra_mode': 'slaac',
+                'subnetpool_id': 'None',
+                'service_types': ['network:router_gateway',
+                                  'network:floatingip_agent_gateway'],
+            }
+        )
 
-    data_ipv6 = (
-        subnet_v2._format_allocation_pools(_subnet_ipv6.allocation_pools),
-        _subnet_ipv6.cidr,
-        _subnet_ipv6.description,
-        utils.format_list(_subnet_ipv6.dns_nameservers),
-        _subnet_ipv6.enable_dhcp,
-        _subnet_ipv6.gateway_ip,
-        subnet_v2._format_host_routes(_subnet_ipv6.host_routes),
-        _subnet_ipv6.id,
-        _subnet_ipv6.ip_version,
-        _subnet_ipv6.ipv6_address_mode,
-        _subnet_ipv6.ipv6_ra_mode,
-        _subnet_ipv6.name,
-        _subnet_ipv6.network_id,
-        _subnet_ipv6.project_id,
-        _subnet_ipv6.segment_id,
-        utils.format_list(_subnet_ipv6.service_types),
-        _subnet_ipv6.subnetpool_id,
-        utils.format_list(_subnet.tags),
-    )
+        # The network to be returned from find_network
+        self._network = network_fakes.FakeNetwork.create_one_network(
+            attrs={
+                'id': self._subnet.network_id,
+            }
+        )
+
+        # The network segment to be returned from find_segment
+        self._network_segment = \
+            network_fakes.FakeNetworkSegment.create_one_network_segment(
+                attrs={
+                    'network_id': self._subnet.network_id,
+                }
+            )
+
+        self.columns = (
+            'allocation_pools',
+            'cidr',
+            'description',
+            'dns_nameservers',
+            'enable_dhcp',
+            'gateway_ip',
+            'host_routes',
+            'id',
+            'ip_version',
+            'ipv6_address_mode',
+            'ipv6_ra_mode',
+            'name',
+            'network_id',
+            'project_id',
+            'segment_id',
+            'service_types',
+            'subnetpool_id',
+            'tags',
+        )
+
+        self.data = (
+            subnet_v2._format_allocation_pools(self._subnet.allocation_pools),
+            self._subnet.cidr,
+            self._subnet.description,
+            utils.format_list(self._subnet.dns_nameservers),
+            self._subnet.enable_dhcp,
+            self._subnet.gateway_ip,
+            subnet_v2._format_host_routes(self._subnet.host_routes),
+            self._subnet.id,
+            self._subnet.ip_version,
+            self._subnet.ipv6_address_mode,
+            self._subnet.ipv6_ra_mode,
+            self._subnet.name,
+            self._subnet.network_id,
+            self._subnet.project_id,
+            self._subnet.segment_id,
+            utils.format_list(self._subnet.service_types),
+            self._subnet.subnetpool_id,
+            utils.format_list(self._subnet.tags),
+        )
+
+        self.data_subnet_pool = (
+            subnet_v2._format_allocation_pools(
+                self._subnet_from_pool.allocation_pools),
+            self._subnet_from_pool.cidr,
+            self._subnet_from_pool.description,
+            utils.format_list(self._subnet_from_pool.dns_nameservers),
+            self._subnet_from_pool.enable_dhcp,
+            self._subnet_from_pool.gateway_ip,
+            subnet_v2._format_host_routes(self._subnet_from_pool.host_routes),
+            self._subnet_from_pool.id,
+            self._subnet_from_pool.ip_version,
+            self._subnet_from_pool.ipv6_address_mode,
+            self._subnet_from_pool.ipv6_ra_mode,
+            self._subnet_from_pool.name,
+            self._subnet_from_pool.network_id,
+            self._subnet_from_pool.project_id,
+            self._subnet_from_pool.segment_id,
+            utils.format_list(self._subnet_from_pool.service_types),
+            self._subnet_from_pool.subnetpool_id,
+            utils.format_list(self._subnet.tags),
+        )
+
+        self.data_ipv6 = (
+            subnet_v2._format_allocation_pools(
+                self._subnet_ipv6.allocation_pools),
+            self._subnet_ipv6.cidr,
+            self._subnet_ipv6.description,
+            utils.format_list(self._subnet_ipv6.dns_nameservers),
+            self._subnet_ipv6.enable_dhcp,
+            self._subnet_ipv6.gateway_ip,
+            subnet_v2._format_host_routes(self._subnet_ipv6.host_routes),
+            self._subnet_ipv6.id,
+            self._subnet_ipv6.ip_version,
+            self._subnet_ipv6.ipv6_address_mode,
+            self._subnet_ipv6.ipv6_ra_mode,
+            self._subnet_ipv6.name,
+            self._subnet_ipv6.network_id,
+            self._subnet_ipv6.project_id,
+            self._subnet_ipv6.segment_id,
+            utils.format_list(self._subnet_ipv6.service_types),
+            self._subnet_ipv6.subnetpool_id,
+            utils.format_list(self._subnet.tags),
+        )
 
     def setUp(self):
+        self._init_subnet_variables()
         super(TestCreateSubnet, self).setUp()
 
         # Get the command object to test
