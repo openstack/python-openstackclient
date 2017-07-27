@@ -12,27 +12,36 @@
 
 import uuid
 
-from openstackclient.tests.functional import base
+# from openstackclient.tests.functional import base
+from openstackclient.tests.functional.object.v1 import common
 
 
-class ContainerTests(base.TestCase):
-    """Functional tests for object containers. """
+class ContainerTests(common.ObjectStoreTests):
+    """Functional tests for Object Store container commands"""
     NAME = uuid.uuid4().hex
 
     @classmethod
     def setUpClass(cls):
         super(ContainerTests, cls).setUpClass()
-        opts = cls.get_opts(['container'])
-        raw_output = cls.openstack('container create ' + cls.NAME + opts)
-        cls.assertOutput(cls.NAME + '\n', raw_output)
+        if cls.haz_object_store:
+            opts = cls.get_opts(['container'])
+            raw_output = cls.openstack('container create ' + cls.NAME + opts)
+            cls.assertOutput(cls.NAME + '\n', raw_output)
 
     @classmethod
     def tearDownClass(cls):
         try:
-            raw_output = cls.openstack('container delete ' + cls.NAME)
-            cls.assertOutput('', raw_output)
+            if cls.haz_object_store:
+                raw_output = cls.openstack('container delete ' + cls.NAME)
+                cls.assertOutput('', raw_output)
         finally:
             super(ContainerTests, cls).tearDownClass()
+
+    def setUp(self):
+        super(ContainerTests, self).setUp()
+        # Skip tests if no object-store is present
+        if not self.haz_object_store:
+            self.skipTest("No object-store service present")
 
     def test_container_list(self):
         opts = self.get_opts(['Name'])

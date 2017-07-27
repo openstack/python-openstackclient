@@ -14,17 +14,23 @@ import os
 import tempfile
 import uuid
 
-from openstackclient.tests.functional import base
+from openstackclient.tests.functional.object.v1 import common
 
 BASIC_LIST_HEADERS = ['Name']
 CONTAINER_FIELDS = ['account', 'container', 'x-trans-id']
 OBJECT_FIELDS = ['object', 'container', 'etag']
 
 
-class ObjectTests(base.TestCase):
-    """Functional tests for Object commands. """
+class ObjectTests(common.ObjectStoreTests):
+    """Functional tests for Object Store object commands"""
 
     CONTAINER_NAME = uuid.uuid4().hex
+
+    def setUp(self):
+        super(ObjectTests, self).setUp()
+        # Skip tests if no object-store is present
+        if not self.haz_object_store:
+            self.skipTest("No object-store service present")
 
     def test_object(self):
         with tempfile.NamedTemporaryFile() as f:
