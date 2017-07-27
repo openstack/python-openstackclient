@@ -502,7 +502,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 SEE ALSO
 ========
 
-The `OpenStackClient page <http://docs.openstack.org/developer/python-openstackclient/>`_
+The `OpenStackClient page <https://docs.openstack.org/python-openstackclient/latest/>`_
 in the `OpenStack Docs <https://docs.openstack.org/>`_ contains further
 documentation.
 

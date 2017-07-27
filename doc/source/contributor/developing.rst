@@ -177,7 +177,7 @@ or
 Standardize Import Format
 =========================
 
-.. _`Import Order Guide`: http://docs.openstack.org/developer/hacking/#imports
+.. _`Import Order Guide`: https://docs.openstack.org/hacking/latest/user/hacking.html#imports
 
 The import order shows below:
 
