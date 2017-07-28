@@ -17,52 +17,6 @@ from openstackclient.tests.functional.network.v2 import common
 
 class NetworkSegmentTests(common.NetworkTests):
     """Functional tests for network segment"""
-    NETWORK_SEGMENT_ID = None
-    NETWORK_ID = None
-    NETWORK_SEGMENT_EXTENSION = None
-
-    @classmethod
-    def setUpClass(cls):
-        common.NetworkTests.setUpClass()
-        if cls.haz_network:
-            cls.NETWORK_NAME = uuid.uuid4().hex
-            cls.PHYSICAL_NETWORK_NAME = uuid.uuid4().hex
-
-            # Create a network for the segment
-            opts = cls.get_opts(['id'])
-            raw_output = cls.openstack(
-                'network create ' + cls.NETWORK_NAME + opts
-            )
-            cls.NETWORK_ID = raw_output.strip('\n')
-
-            # NOTE(rtheis): The segment extension is not yet enabled
-            #               by default.
-            # Skip the tests if not enabled.
-            extensions = cls.get_openstack_extension_names()
-            if 'Segment' in extensions:
-                cls.NETWORK_SEGMENT_EXTENSION = 'Segment'
-
-            if cls.NETWORK_SEGMENT_EXTENSION:
-                # Get the segment for the network.
-                opts = cls.get_opts(['ID', 'Network'])
-                raw_output = cls.openstack(
-                    'network segment list '
-                    '--network ' + cls.NETWORK_NAME + ' ' +
-                    opts
-                )
-                raw_output_row = raw_output.split('\n')[0]
-                cls.NETWORK_SEGMENT_ID = raw_output_row.split(' ')[0]
-
-    @classmethod
-    def tearDownClass(cls):
-        try:
-            if cls.haz_network:
-                raw_output = cls.openstack(
-                    'network delete ' + cls.NETWORK_NAME
-                )
-                cls.assertOutput('', raw_output)
-        finally:
-            super(NetworkSegmentTests, cls).tearDownClass()
 
     def setUp(self):
         super(NetworkSegmentTests, self).setUp()
@@ -70,48 +24,58 @@ class NetworkSegmentTests(common.NetworkTests):
         if not self.haz_network:
             self.skipTest("No Network service present")
 
+        self.NETWORK_NAME = uuid.uuid4().hex
+        self.PHYSICAL_NETWORK_NAME = uuid.uuid4().hex
+
+        # Create a network for the segment
+        opts = self.get_opts(['id'])
+        raw_output = self.openstack(
+            'network create ' + self.NETWORK_NAME + opts
+        )
+        self.addCleanup(self.openstack,
+                        'network delete ' + self.NETWORK_NAME)
+        self.NETWORK_ID = raw_output.strip('\n')
+
+        # Get the segment for the network.
+        opts = self.get_opts(['ID', 'Network'])
+        raw_output = self.openstack(
+            'network segment list '
+            '--network ' + self.NETWORK_NAME + ' ' +
+            opts
+        )
+        raw_output_row = raw_output.split('\n')[0]
+        self.NETWORK_SEGMENT_ID = raw_output_row.split(' ')[0]
+
     def test_network_segment_create_delete(self):
-        if self.NETWORK_SEGMENT_EXTENSION:
-            opts = self.get_opts(['id'])
-            raw_output = self.openstack(
-                ' network segment create --network ' + self.NETWORK_ID +
-                ' --network-type geneve ' +
-                ' --segment 2055 test_segment ' + opts
-            )
-            network_segment_id = raw_output.strip('\n')
-            raw_output = self.openstack('network segment delete ' +
-                                        network_segment_id)
-            self.assertOutput('', raw_output)
-        else:
-            self.skipTest('Segment extension disabled')
+        opts = self.get_opts(['id'])
+        raw_output = self.openstack(
+            ' network segment create --network ' + self.NETWORK_ID +
+            ' --network-type geneve ' +
+            ' --segment 2055 test_segment ' + opts
+        )
+        network_segment_id = raw_output.strip('\n')
+        raw_output = self.openstack('network segment delete ' +
+                                    network_segment_id)
+        self.assertOutput('', raw_output)
 
     def test_network_segment_list(self):
-        if self.NETWORK_SEGMENT_EXTENSION:
-            opts = self.get_opts(['ID'])
-            raw_output = self.openstack('network segment list' + opts)
-            self.assertIn(self.NETWORK_SEGMENT_ID, raw_output)
-        else:
-            self.skipTest('Segment extension disabled')
+        opts = self.get_opts(['ID'])
+        raw_output = self.openstack('network segment list' + opts)
+        self.assertIn(self.NETWORK_SEGMENT_ID, raw_output)
 
     def test_network_segment_set(self):
-        if self.NETWORK_SEGMENT_EXTENSION:
-            new_description = 'new_description'
-            raw_output = self.openstack('network segment set ' +
-                                        '--description ' + new_description +
-                                        ' ' + self.NETWORK_SEGMENT_ID)
-            self.assertOutput('', raw_output)
-            opts = self.get_opts(['description'])
-            raw_output = self.openstack('network segment show ' +
-                                        self.NETWORK_SEGMENT_ID + opts)
-            self.assertEqual(new_description + "\n", raw_output)
-        else:
-            self.skipTest('Segment extension disabled')
+        new_description = 'new_description'
+        raw_output = self.openstack('network segment set ' +
+                                    '--description ' + new_description +
+                                    ' ' + self.NETWORK_SEGMENT_ID)
+        self.assertOutput('', raw_output)
+        opts = self.get_opts(['description'])
+        raw_output = self.openstack('network segment show ' +
+                                    self.NETWORK_SEGMENT_ID + opts)
+        self.assertEqual(new_description + "\n", raw_output)
 
     def test_network_segment_show(self):
-        if self.NETWORK_SEGMENT_EXTENSION:
-            opts = self.get_opts(['network_id'])
-            raw_output = self.openstack('network segment show ' +
-                                        self.NETWORK_SEGMENT_ID + opts)
-            self.assertEqual(self.NETWORK_ID + "\n", raw_output)
-        else:
-            self.skipTest('Segment extension disabled')
+        opts = self.get_opts(['network_id'])
+        raw_output = self.openstack('network segment show ' +
+                                    self.NETWORK_SEGMENT_ID + opts)
+        self.assertEqual(self.NETWORK_ID + "\n", raw_output)
