@@ -204,6 +204,7 @@ conflicts when creating new plugins. For a complete list check out
 * ``data protection trigger``: (**Data Protection (Karbor)**)
 * ``data protection checkpoint``: (**Data Protection (Karbor)**)
 * ``data protection scheduledoperation``: (**Data Protection (Karbor)**)
+* ``data protection operationlog``: (**Data Protection (Karbor)**)
 * ``loadbalancer``: (**Load Balancer (Octavia)**)
 * ``loadbalancer healthmonitor``: (**Load Balancer (Octavia)**)
 * ``loadbalancer l7policy``: (**Load Balancer (Octavia)**)
