@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -18,64 +19,117 @@ from openstackclient.tests.functional.network.v2 import common
 class NetworkSegmentTests(common.NetworkTests):
     """Functional tests for network segment"""
 
+    @classmethod
+    def setUpClass(cls):
+        common.NetworkTests.setUpClass()
+        if cls.haz_network:
+            cls.NETWORK_NAME = uuid.uuid4().hex
+            cls.PHYSICAL_NETWORK_NAME = uuid.uuid4().hex
+
+            # Create a network for the all subnet tests
+            cmd_output = json.loads(cls.openstack(
+                'network create -f json ' +
+                cls.NETWORK_NAME
+            ))
+            # Get network_id for assertEqual
+            cls.NETWORK_ID = cmd_output["id"]
+
+    @classmethod
+    def tearDownClass(cls):
+        try:
+            if cls.haz_network:
+                raw_output = cls.openstack(
+                    'network delete ' +
+                    cls.NETWORK_NAME
+                )
+                cls.assertOutput('', raw_output)
+        finally:
+            super(NetworkSegmentTests, cls).tearDownClass()
+
     def setUp(self):
         super(NetworkSegmentTests, self).setUp()
         # Nothing in this class works with Nova Network
         if not self.haz_network:
             self.skipTest("No Network service present")
 
-        self.NETWORK_NAME = uuid.uuid4().hex
-        self.PHYSICAL_NETWORK_NAME = uuid.uuid4().hex
-
-        # Create a network for the segment
-        opts = self.get_opts(['id'])
-        raw_output = self.openstack(
-            'network create ' + self.NETWORK_NAME + opts
-        )
-        self.addCleanup(self.openstack,
-                        'network delete ' + self.NETWORK_NAME)
-        self.NETWORK_ID = raw_output.strip('\n')
-
-        # Get the segment for the network.
-        opts = self.get_opts(['ID', 'Network'])
-        raw_output = self.openstack(
-            'network segment list '
-            '--network ' + self.NETWORK_NAME + ' ' +
-            opts
-        )
-        raw_output_row = raw_output.split('\n')[0]
-        self.NETWORK_SEGMENT_ID = raw_output_row.split(' ')[0]
-
     def test_network_segment_create_delete(self):
-        opts = self.get_opts(['id'])
-        raw_output = self.openstack(
-            ' network segment create --network ' + self.NETWORK_ID +
-            ' --network-type geneve ' +
-            ' --segment 2055 test_segment ' + opts
+        name = uuid.uuid4().hex
+        json_output = json.loads(self.openstack(
+            ' network segment create -f json ' +
+            '--network ' + self.NETWORK_ID + ' ' +
+            '--network-type geneve ' +
+            '--segment 2055 ' +
+            name
+        ))
+        self.assertEqual(
+            name,
+            json_output["name"],
         )
-        network_segment_id = raw_output.strip('\n')
-        raw_output = self.openstack('network segment delete ' +
-                                    network_segment_id)
+
+        raw_output = self.openstack(
+            'network segment delete ' + name,
+        )
         self.assertOutput('', raw_output)
 
     def test_network_segment_list(self):
-        opts = self.get_opts(['ID'])
-        raw_output = self.openstack('network segment list' + opts)
-        self.assertIn(self.NETWORK_SEGMENT_ID, raw_output)
+        name = uuid.uuid4().hex
+        json_output = json.loads(self.openstack(
+            ' network segment create -f json ' +
+            '--network ' + self.NETWORK_ID + ' ' +
+            '--network-type geneve ' +
+            '--segment 2055 ' +
+            name
+        ))
+        network_segment_id = json_output.get('id')
+        network_segment_name = json_output.get('name')
+        self.addCleanup(
+            self.openstack,
+            'network segment delete ' + network_segment_id
+        )
+        self.assertEqual(
+            name,
+            json_output["name"],
+        )
 
-    def test_network_segment_set(self):
+        json_output = json.loads(self.openstack(
+            'network segment list -f json'
+        ))
+        item_map = {
+            item.get('ID'): item.get('Name') for item in json_output
+        }
+        self.assertIn(network_segment_id, item_map.keys())
+        self.assertIn(network_segment_name, item_map.values())
+
+    def test_network_segment_set_show(self):
+        name = uuid.uuid4().hex
+        json_output = json.loads(self.openstack(
+            ' network segment create -f json ' +
+            '--network ' + self.NETWORK_ID + ' ' +
+            '--network-type geneve ' +
+            '--segment 2055 ' +
+            name
+        ))
+        self.addCleanup(
+            self.openstack,
+            'network segment delete ' + name
+        )
+        self.assertIsNone(
+            json_output["description"],
+        )
+
         new_description = 'new_description'
-        raw_output = self.openstack('network segment set ' +
-                                    '--description ' + new_description +
-                                    ' ' + self.NETWORK_SEGMENT_ID)
-        self.assertOutput('', raw_output)
-        opts = self.get_opts(['description'])
-        raw_output = self.openstack('network segment show ' +
-                                    self.NETWORK_SEGMENT_ID + opts)
-        self.assertEqual(new_description + "\n", raw_output)
+        cmd_output = self.openstack(
+            'network segment set ' +
+            '--description ' + new_description + ' ' +
+            name
+        )
+        self.assertOutput('', cmd_output)
 
-    def test_network_segment_show(self):
-        opts = self.get_opts(['network_id'])
-        raw_output = self.openstack('network segment show ' +
-                                    self.NETWORK_SEGMENT_ID + opts)
-        self.assertEqual(self.NETWORK_ID + "\n", raw_output)
+        json_output = json.loads(self.openstack(
+            'network segment show -f json ' +
+            name
+        ))
+        self.assertEqual(
+            new_description,
+            json_output["description"],
+        )
