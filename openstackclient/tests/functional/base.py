@@ -14,10 +14,10 @@ import os
 import re
 import shlex
 import subprocess
-import testtools
 
 from tempest.lib.cli import output_parser
 from tempest.lib import exceptions
+import testtools
 
 
 COMMON_DIR = os.path.dirname(os.path.abspath(__file__))

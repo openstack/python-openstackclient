@@ -12,9 +12,9 @@
 #
 
 import argparse
+
 import mock
 from mock import call
-
 from osc_lib import exceptions
 from osc_lib import utils
 

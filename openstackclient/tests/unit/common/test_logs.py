@@ -15,6 +15,7 @@
 #                or Jun 2017.
 
 import logging
+
 import mock
 
 from openstackclient.common import logs

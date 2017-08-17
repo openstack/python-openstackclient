@@ -13,10 +13,10 @@
 #   under the License.
 #
 
-import mock
-from mock import call
 import uuid
 
+import mock
+from mock import call
 from osc_lib import exceptions
 from osc_lib import utils
 

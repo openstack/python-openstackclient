@@ -14,11 +14,11 @@
 #
 
 import copy
-import mock
 import random
 import uuid
 
 from glanceclient.v2 import schemas
+import mock
 from osc_lib import utils as common_utils
 import warlock
 
