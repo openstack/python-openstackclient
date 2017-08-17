@@ -2,44 +2,14 @@
 object store account
 ====================
 
-Object Storage v1
+An **object store account** represents the top-level of the hierarchy that
+is comprised of **containers** and **objects**. Applies to Object Storage v1.
 
-object store account set
-------------------------
+.. autoprogram-cliff:: openstack.object_store.v1
+   :command: object store account set
 
-Set account properties
+.. autoprogram-cliff:: openstack.object_store.v1
+   :command: object store account show
 
-.. program:: object store account set
-.. code:: bash
-
-    openstack object store account set
-        [--property <key=value> [...] ]
-
-.. option:: --property <key=value>
-
-    Set a property on this account (repeat option to set multiple properties)
-
-object store account show
--------------------------
-
-Display account details
-
-.. program:: object store account show
-.. code:: bash
-
-    openstack object store account show
-
-object store account unset
---------------------------
-
-Unset account properties
-
-.. program:: object store account unset
-.. code:: bash
-
-    openstack object store account unset
-        [--property <key>]
-
-.. option:: --property <key>
-
-    Property to remove from account (repeat option to remove multiple properties)
+.. autoprogram-cliff:: openstack.object_store.v1
+   :command: object store account unset
