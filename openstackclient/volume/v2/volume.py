@@ -15,8 +15,11 @@
 """Volume V2 Volume action implementations"""
 
 import copy
+import functools
 import logging
 
+from cliff import columns as cliff_columns
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -28,6 +31,37 @@ from openstackclient.identity import common as identity_common
 
 
 LOG = logging.getLogger(__name__)
+
+
+class AttachmentsColumn(cliff_columns.FormattableColumn):
+    """Formattable column for attachments column.
+
+    Unlike the parent FormattableColumn class, the initializer of the
+    class takes server_cache as the second argument.
+    osc_lib.utils.get_item_properties instantiate cliff FormattableColumn
+    object with a single parameter "column value", so you need to pass
+    a partially initialized class like
+    ``functools.partial(AttachmentsColumn, server_cache)``.
+    """
+
+    def __init__(self, value, server_cache=None):
+        super(AttachmentsColumn, self).__init__(value)
+        self._server_cache = server_cache or {}
+
+    def human_readable(self):
+        """Return a formatted string of a volume's attached instances
+
+        :rtype: a string of formatted instances
+        """
+
+        msg = ''
+        for attachment in self._value:
+            server = attachment['server_id']
+            if server in self._server_cache.keys():
+                server = self._server_cache[server].name
+            device = attachment['device']
+            msg += 'Attached to %s on %s ' % (server, device)
+        return msg
 
 
 def _check_size_arg(args):
@@ -240,7 +274,8 @@ class CreateVolume(command.ShowOne):
         # Remove key links from being displayed
         volume._info.update(
             {
-                'properties': utils.format_dict(volume._info.pop('metadata')),
+                'properties':
+                format_columns.DictColumn(volume._info.pop('metadata')),
                 'type': volume._info.pop('volume_type')
             }
         )
@@ -359,22 +394,6 @@ class ListVolume(command.Lister):
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
-        def _format_attach(attachments):
-            """Return a formatted string of a volume's attached instances
-
-            :param attachments: a volume.attachments field
-            :rtype: a string of formatted instances
-            """
-
-            msg = ''
-            for attachment in attachments:
-                server = attachment['server_id']
-                if server in server_cache:
-                    server = server_cache[server].name
-                device = attachment['device']
-                msg += 'Attached to %s on %s ' % (server, device)
-            return msg
-
         if parsed_args.long:
             columns = [
                 'ID',
@@ -409,6 +428,8 @@ class ListVolume(command.Lister):
         except Exception:
             # Just forget it if there's any trouble
             pass
+        AttachmentsColumnWithCache = functools.partial(
+            AttachmentsColumn, server_cache=server_cache)
 
         project_id = None
         if parsed_args.project:
@@ -445,8 +466,8 @@ class ListVolume(command.Lister):
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
-                    formatters={'Metadata': utils.format_dict,
-                                'Attachments': _format_attach},
+                    formatters={'Metadata': format_columns.DictColumn,
+                                'Attachments': AttachmentsColumnWithCache},
                 ) for s in data))
 
 
@@ -723,7 +744,8 @@ class ShowVolume(command.ShowOne):
         # 'volume_type' --> 'type'
         volume._info.update(
             {
-                'properties': utils.format_dict(volume._info.pop('metadata')),
+                'properties':
+                format_columns.DictColumn(volume._info.pop('metadata')),
                 'type': volume._info.pop('volume_type'),
             },
         )
