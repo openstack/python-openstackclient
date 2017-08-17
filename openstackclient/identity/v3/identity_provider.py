@@ -15,6 +15,7 @@
 
 import logging
 
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -103,7 +104,7 @@ class CreateIdentityProvider(command.ShowOne):
             enabled=parsed_args.enabled)
 
         idp._info.pop('links', None)
-        remote_ids = utils.format_list(idp._info.pop('remote_ids', []))
+        remote_ids = format_columns.ListColumn(idp._info.pop('remote_ids', []))
         idp._info['remote_ids'] = remote_ids
         return zip(*sorted(six.iteritems(idp._info)))
 
@@ -245,6 +246,6 @@ class ShowIdentityProvider(command.ShowOne):
             id=parsed_args.identity_provider)
 
         idp._info.pop('links', None)
-        remote_ids = utils.format_list(idp._info.pop('remote_ids', []))
+        remote_ids = format_columns.ListColumn(idp._info.pop('remote_ids', []))
         idp._info['remote_ids'] = remote_ids
         return zip(*sorted(six.iteritems(idp._info)))

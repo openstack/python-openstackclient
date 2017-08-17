@@ -71,17 +71,9 @@ class TestCatalogList(TestCatalog):
         datalist = ((
             'supernova',
             'compute',
-            'one\n  publicURL: https://public.one.example.com\n  '
-            'internalURL: https://internal.one.example.com\n  '
-            'adminURL: https://admin.one.example.com\n'
-            'two\n  publicURL: https://public.two.example.com\n  '
-            'internalURL: https://internal.two.example.com\n  '
-            'adminURL: https://admin.two.example.com\n'
-            '<none>\n  publicURL: https://public.none.example.com\n  '
-            'internalURL: https://internal.none.example.com\n  '
-            'adminURL: https://admin.none.example.com\n',
+            catalog.EndpointsColumn(self.service_catalog['endpoints']),
         ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertListItemEqual(datalist, tuple(data))
 
     def test_catalog_list_with_endpoint_url(self):
         attr = {
@@ -121,11 +113,9 @@ class TestCatalogList(TestCatalog):
         datalist = ((
             'supernova',
             'compute',
-            'one\n  publicURL: https://public.one.example.com\n'
-            'two\n  publicURL: https://public.two.example.com\n  '
-            'internalURL: https://internal.two.example.com\n'
+            catalog.EndpointsColumn(service_catalog['endpoints']),
         ), )
-        self.assertEqual(datalist, tuple(data))
+        self.assertListItemEqual(datalist, tuple(data))
 
 
 class TestCatalogShow(TestCatalog):
@@ -160,6 +150,18 @@ class TestCatalogShow(TestCatalog):
         collist = ('endpoints', 'id', 'name', 'type')
         self.assertEqual(collist, columns)
         datalist = (
+            catalog.EndpointsColumn(self.service_catalog['endpoints']),
+            self.service_catalog.id,
+            'supernova',
+            'compute',
+        )
+        self.assertItemEqual(datalist, data)
+
+
+class TestFormatColumns(TestCatalog):
+    def test_endpoints_column_human_readabale(self):
+        col = catalog.EndpointsColumn(self.service_catalog['endpoints'])
+        self.assertEqual(
             'one\n  publicURL: https://public.one.example.com\n  '
             'internalURL: https://internal.one.example.com\n  '
             'adminURL: https://admin.one.example.com\n'
@@ -169,8 +171,23 @@ class TestCatalogShow(TestCatalog):
             '<none>\n  publicURL: https://public.none.example.com\n  '
             'internalURL: https://internal.none.example.com\n  '
             'adminURL: https://admin.none.example.com\n',
-            self.service_catalog.id,
-            'supernova',
-            'compute',
-        )
-        self.assertEqual(datalist, data)
+            col.human_readable())
+
+    def test_endpoints_column_human_readable_with_partial_endpoint_urls(self):
+        endpoints = [
+            {
+                'region': 'one',
+                'publicURL': 'https://public.one.example.com',
+            },
+            {
+                'region': 'two',
+                'publicURL': 'https://public.two.example.com',
+                'internalURL': 'https://internal.two.example.com',
+            },
+        ]
+        col = catalog.EndpointsColumn(endpoints)
+        self.assertEqual(
+            'one\n  publicURL: https://public.one.example.com\n'
+            'two\n  publicURL: https://public.two.example.com\n  '
+            'internalURL: https://internal.two.example.com\n',
+            col.human_readable())

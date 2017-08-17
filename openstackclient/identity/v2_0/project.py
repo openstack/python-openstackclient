@@ -18,6 +18,7 @@
 import logging
 
 from keystoneauth1 import exceptions as ks_exc
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -297,7 +298,7 @@ class ShowProject(command.ShowOne):
                 if v is not None:
                     properties[k] = v
 
-        info['properties'] = utils.format_dict(properties)
+        info['properties'] = format_columns.DictColumn(properties)
         return zip(*sorted(six.iteritems(info)))
 
 
