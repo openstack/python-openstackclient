@@ -18,7 +18,7 @@ Create new subnet
 
     openstack subnet create
         [--project <project> [--project-domain <project-domain>]]
-        [--subnet-pool <subnet-pool> | --use-default-subnet-pool [--prefix-length <prefix-length>]]
+        [--subnet-pool <subnet-pool> | --use-default-subnet-pool [--prefix-length <prefix-length>] | --use-prefix-delegation]
         [--subnet-range <subnet-range>]
         [--allocation-pool start=<ip-address>,end=<ip-address>]
         [--dhcp | --no-dhcp]
@@ -47,6 +47,11 @@ Create new subnet
 .. option:: --subnet-pool <subnet-pool>
 
     Subnet pool from which this subnet will obtain a CIDR (name or ID)
+
+.. option:: --use-prefix-delegation
+
+    Use 'prefix-delegation' if IP is IPv6 format and IP would be delegated
+    externally
 
 .. option:: --use-default-subnet-pool
 

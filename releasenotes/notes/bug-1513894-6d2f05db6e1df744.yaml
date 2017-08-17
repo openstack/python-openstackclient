@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--use-prefix-delegation`` option to the ``subnet create`` command to
+    specify 'Prefix Delegation' as a subnetpool when creating subnets.
+    [Bug `1513894 <https://bugs.launchpad.net/bugs/1513894>`_]
