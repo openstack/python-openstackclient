@@ -2,82 +2,21 @@
 consumer
 ========
 
-Identity v3
+An **consumer** is used by the Identity service's OS-OAUTH1 extension. It
+is used to create a **request token** and **access token**. Applicable to
+Identity v3.
 
-`Requires: OS-OAUTH1 extension`
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: consumer create
 
-consumer create
----------------
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: consumer delete
 
-Create new consumer
+.. autoprogram-cliff:: openstack.identity.v3
+  :command: consumer list
 
-.. program:: consumer create
-.. code:: bash
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: consumer set
 
-    openstack consumer create
-        [--description <description>]
-
-.. option:: --description <description>
-
-    New consumer description
-
-consumer delete
----------------
-
-Delete consumer(s)
-
-.. program:: consumer delete
-.. code:: bash
-
-    openstack consumer delete
-        <consumer> [<consumer> ...]
-
-.. describe:: <consumer>
-
-    Consumer(s) to delete
-
-consumer list
--------------
-
-List consumers
-
-.. program:: consumer list
-.. code:: bash
-
-    openstack consumer list
-
-consumer set
-------------
-
-Set consumer properties
-
-.. program:: consumer set
-.. code:: bash
-
-    openstack consumer set
-        [--description <description>]
-        <consumer>
-
-.. option:: --description <description>
-
-    New consumer description
-
-.. describe:: <consumer>
-
-    Consumer to modify
-
-consumer show
--------------
-
-Display consumer details
-
-.. program:: consumer show
-.. code:: bash
-
-    openstack consumer show
-        <consumer>
-
-.. _consumer_show-consumer:
-.. describe:: <consumer>
-
-    Consumer to display
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: consumer show

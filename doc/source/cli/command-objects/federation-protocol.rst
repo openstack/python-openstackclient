@@ -2,111 +2,21 @@
 federation protocol
 ===================
 
-Identity v3
+A **federation protocol** is used by the Identity service's OS-FEDERATION
+extension. It is used by **identity providers** and **mappings**. Applicable to
+Identity v3.
 
-`Requires: OS-FEDERATION extension`
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: federation protocol create
 
-federation protocol create
---------------------------
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: federation protocol delete
 
-Create new federation protocol
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: federation protocol list
 
-.. program:: federation protocol create
-.. code:: bash
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: federation protocol set
 
-    openstack federation protocol create
-        --identity-provider <identity-provider>
-        --mapping <mapping>
-        <name>
-
-.. option:: --identity-provider <identity-provider>
-
-    Identity provider that will support the new federation protocol (name or ID) (required)
-
-.. option:: --mapping <mapping>
-
-    Mapping that is to be used (name or ID) (required)
-
-.. describe:: <name>
-
-    New federation protocol name (must be unique per identity provider)
-
-federation protocol delete
---------------------------
-
-Delete federation protocol(s)
-
-.. program:: federation protocol delete
-.. code:: bash
-
-    openstack federation protocol delete
-        --identity-provider <identity-provider>
-        <federation-protocol> [<federation-protocol> ...]
-
-.. option:: --identity-provider <identity-provider>
-
-    Identity provider that supports <federation-protocol> (name or ID) (required)
-
-.. describe:: <federation-protocol>
-
-    Federation protocol(s) to delete (name or ID)
-
-federation protocol list
-------------------------
-
-List federation protocols
-
-.. program:: federation protocol list
-.. code:: bash
-
-    openstack federation protocol list
-        --identity-provider <identity-provider>
-
-.. option:: --identity-provider <identity-provider>
-
-    Identity provider to list (name or ID) (required)
-
-federation protocol set
------------------------
-
-Set federation protocol properties
-
-.. program:: federation protocol set
-.. code:: bash
-
-    openstack federation protocol set
-        --identity-provider <identity-provider>
-        [--mapping <mapping>]
-        <federation-protocol>
-
-.. option:: --identity-provider <identity-provider>
-
-    Identity provider that supports <federation-protocol> (name or ID) (required)
-
-.. option:: --mapping <mapping>
-
-    Mapping that is to be used (name or ID)
-
-.. describe:: <federation-protocol>
-
-    Federation protocol to modify (name or ID)
-
-federation protocol show
-------------------------
-
-Display federation protocol details
-
-.. program:: federation protocol show
-.. code:: bash
-
-    openstack federation protocol show
-        --identity-provider <identity-provider>
-        <federation-protocol>
-
-.. option:: --identity-provider <identity-provider>
-
-    Identity provider that supports <federation-protocol> (name or ID) (required)
-
-.. describe:: <federation-protocol>
-
-    Federation protocol to display (name or ID)
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: federation protocol show

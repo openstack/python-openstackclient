@@ -2,29 +2,11 @@
 catalog
 =======
 
-Identity v2, v3
+A **catalog** lists OpenStack services that are available on the cloud.
+Applicable to Identity v2 and v3
 
-catalog list
-------------
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: catalog list
 
-List services in the service catalog
-
-.. program:: catalog list
-.. code:: bash
-
-    openstack catalog list
-
-catalog show
-------------
-
-Display service catalog details
-
-.. program:: catalog show
-.. code:: bash
-
-    openstack catalog show
-        <service>
-
-.. describe:: <service>
-
-    Service to display (type or name)
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: catalog show
