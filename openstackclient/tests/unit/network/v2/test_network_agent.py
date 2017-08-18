@@ -39,10 +39,6 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
     def setUp(self):
         super(TestDeleteNetworkAgent, self).setUp()
         self.network.delete_agent = mock.Mock(return_value=None)
-        self.network.get_agent = (
-            network_fakes.FakeNetworkAgent.get_network_agents(
-                agents=self.network_agents)
-        )
 
         # Get the command object to test
         self.cmd = network_agent.DeleteNetworkAgent(self.app, self.namespace)
@@ -58,10 +54,8 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.get_agent.assert_called_once_with(
-            self.network_agents[0].id, ignore_missing=False)
         self.network.delete_agent.assert_called_once_with(
-            self.network_agents[0])
+            self.network_agents[0].id, ignore_missing=False)
         self.assertIsNone(result)
 
     def test_multi_network_agents_delete(self):
@@ -79,7 +73,7 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
 
         calls = []
         for n in self.network_agents:
-            calls.append(call(n))
+            calls.append(call(n.id, ignore_missing=False))
         self.network.delete_agent.assert_has_calls(calls)
         self.assertIsNone(result)
 
@@ -94,9 +88,9 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        find_mock_result = [self.network_agents[0], exceptions.CommandError]
-        self.network.get_agent = (
-            mock.Mock(side_effect=find_mock_result)
+        delete_mock_result = [True, exceptions.CommandError]
+        self.network.delete_agent = (
+            mock.Mock(side_effect=delete_mock_result)
         )
 
         try:
@@ -105,13 +99,10 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 network agents failed to delete.', str(e))
 
-        self.network.get_agent.assert_any_call(
+        self.network.delete_agent.assert_any_call(
             self.network_agents[0].id, ignore_missing=False)
-        self.network.get_agent.assert_any_call(
+        self.network.delete_agent.assert_any_call(
             'unexist_network_agent', ignore_missing=False)
-        self.network.delete_agent.assert_called_once_with(
-            self.network_agents[0]
-        )
 
 
 class TestListNetworkAgent(TestNetworkAgent):

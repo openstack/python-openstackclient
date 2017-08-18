@@ -64,8 +64,7 @@ class DeleteNetworkAgent(command.Command):
 
         for agent in parsed_args.network_agent:
             try:
-                obj = client.get_agent(agent, ignore_missing=False)
-                client.delete_agent(obj)
+                client.delete_agent(agent, ignore_missing=False)
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete network agent with "
