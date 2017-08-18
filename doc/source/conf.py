@@ -281,4 +281,4 @@ autoprogram_cliff_application = 'openstack'
 
 autoprogram_cliff_ignored = [
     '--help', '--format', '--column', '--max-width', '--fit-width',
-    '--print-empty', '--prefix', '--noindent']
+    '--print-empty', '--prefix', '--noindent', '--quote']
