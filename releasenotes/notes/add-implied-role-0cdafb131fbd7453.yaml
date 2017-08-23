@@ -1,0 +1,16 @@
+---
+features:
+  - |
+    Support for creating, deleting, and listing implied roles has been added.
+    This allows users to create an inference rule between two roles. The
+    first, called the prior role is the role explicitly assigned to an
+    individual. The second, called the implied role, is one that the user
+    is assgined implicitly.  Additionally, these rules can be chained, such
+    that an implied role from the first inference rule can be the implied role
+    in the second.  Thus one explicitly assigned role can lead to multiple
+    implied roles.
+    ``implied role create <role> --implied-role <implied-role>`` creates an
+    association between prior and implied roles.
+    ``implied role delete <role> --implied-role <implied-role>`` removes an
+    association between prior and implied roles.
+    ``implied role list`` Lists all implied roles that currently exist.
