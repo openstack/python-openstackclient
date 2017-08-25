@@ -995,7 +995,7 @@ class UnsetImage(command.Command):
         parser.add_argument(
             "--property",
             dest="properties",
-            metavar="<property_key>",
+            metavar="<property-key>",
             default=[],
             action='append',
             help=_("Unset a property on this image "
