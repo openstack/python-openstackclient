@@ -28,6 +28,7 @@ Create new port
         [--enable | --disable]
         [--mac-address <mac-address>]
         [--security-group <security-group> | --no-security-group]
+        [--dns-domain <dns-domain>]
         [--dns-name <dns-name>]
         [--allowed-address ip-address=<ip-address>[,mac-address=<mac-address>]]
         [--qos-policy <qos-policy>]
@@ -95,9 +96,14 @@ Create new port
 
     Associate no security groups with this port
 
+.. option:: --dns-domain <dns-name>
+
+    Set DNS domain for this port
+    (requires dns_domain for ports extension)
+
 .. option:: --dns-name <dns-name>
 
-    Set DNS name to this port
+    Set DNS name for this port
     (requires DNS integration extension)
 
 .. option:: --allowed-address ip-address=<ip-address>[,mac-address=<mac-address>]
@@ -256,6 +262,7 @@ Set port properties
         [--security-group <security-group>]
         [--no-security-group]
         [--enable-port-security | --disable-port-security]
+        [--dns-domain <dns-domain>]
         [--dns-name <dns-name>]
         [--allowed-address ip-address=<ip-address>[,mac-address=<mac-address>]]
         [--no-allowed-address]
@@ -346,9 +353,14 @@ Set port properties
 
     Disable port security for this port
 
+.. option:: --dns-domain <dns-domain>
+
+    Set DNS domain for this port
+    (requires dns_domain for ports extension)
+
 .. option:: --dns-name <dns-name>
 
-    Set DNS name to this port
+    Set DNS name for this port
     (requires DNS integration extension)
 
 .. option:: --allowed-address ip-address=<ip-address>[,mac-address=<mac-address>]

@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add ``--dns-domain`` option to ``port create`` and ``port set`` commands.
+    Requires the ``dns_domain for ports`` extension to be enabled. See the
+    `Neutron DNS integration <https://docs.openstack.org/neutron/latest/admin/config-dns-int.html>`_
+    documentation for information how to use this.
+    [Bug `1714878 <https://bugs.launchpad.net/python-openstackclient/+bug/1714878>`_]
