@@ -978,7 +978,7 @@ class FakeSecurityGroup(object):
             'id': 'security-group-id-' + uuid.uuid4().hex,
             'name': 'security-group-name-' + uuid.uuid4().hex,
             'description': 'security-group-description-' + uuid.uuid4().hex,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'security_group_rules': [],
         }
 
@@ -990,7 +990,7 @@ class FakeSecurityGroup(object):
             loaded=True)
 
         # Set attributes with special mapping in OpenStack SDK.
-        security_group.project_id = security_group_attrs['tenant_id']
+        security_group.project_id = security_group_attrs['project_id']
 
         return security_group
 

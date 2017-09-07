@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    ``security group list`` command now can display project IDs in the ``Project`` column
+    of the command output.
+    [Bug `1659967 <https://bugs.launchpad.net/bugs/1659967>`_]

@@ -210,21 +210,6 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
         )
         return parser
 
-    def _get_return_data(self, data, include_project=True):
-        columns = (
-            "ID",
-            "Name",
-            "Description",
-        )
-        column_headers = columns
-        if include_project:
-            columns = columns + ('Tenant ID',)
-            column_headers = column_headers + ('Project',)
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
-
     def take_action_network(self, client, parsed_args):
         filters = {}
         if parsed_args.project:
@@ -236,13 +221,42 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             ).id
             filters['tenant_id'] = project_id
             filters['project_id'] = project_id
-        return self._get_return_data(client.security_groups(**filters))
+        data = client.security_groups(**filters)
+
+        columns = (
+            "ID",
+            "Name",
+            "Description",
+            "Project ID"
+        )
+        column_headers = (
+            "ID",
+            "Name",
+            "Description",
+            "Project"
+        )
+        return (column_headers,
+                (utils.get_item_properties(
+                    s, columns,
+                ) for s in data))
 
     def take_action_compute(self, client, parsed_args):
         search = {'all_tenants': parsed_args.all_projects}
         data = client.security_groups.list(search_opts=search)
-        return self._get_return_data(data,
-                                     include_project=parsed_args.all_projects)
+
+        columns = (
+            "ID",
+            "Name",
+            "Description",
+        )
+        column_headers = columns
+        if parsed_args.all_projects:
+            columns = columns + ('Tenant ID',)
+            column_headers = column_headers + ('Project',)
+        return (column_headers,
+                (utils.get_item_properties(
+                    s, columns,
+                ) for s in data))
 
 
 class SetSecurityGroup(common.NetworkAndComputeCommand):
