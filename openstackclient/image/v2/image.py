@@ -749,7 +749,7 @@ class SetImage(command.Command):
             "--tag",
             dest="tags",
             metavar="<tag>",
-            default=[],
+            default=None,
             action='append',
             help=_("Set a tag on this image "
                    "(repeat option to set multiple tags)"),
@@ -860,7 +860,7 @@ class SetImage(command.Command):
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
-                if val:
+                if val is not None:
                     # Only include a value in kwargs for attributes that are
                     # actually present on the command line
                     kwargs[attr] = val

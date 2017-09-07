@@ -689,6 +689,32 @@ class TestImageSet(TestImage):
         )
         self.assertIsNone(result)
 
+    def test_image_set_numeric_options_to_zero(self):
+        arglist = [
+            '--min-disk', '0',
+            '--min-ram', '0',
+            self._image.name,
+        ]
+        verifylist = [
+            ('min_disk', 0),
+            ('min_ram', 0),
+            ('image', self._image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'min_disk': 0,
+            'min_ram': 0,
+        }
+        # ImageManager.update(image, **kwargs)
+        self.images_mock.update.assert_called_with(
+            self._image.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
 
 class TestImageShow(TestImage):
 
