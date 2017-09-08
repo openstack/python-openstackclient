@@ -21,15 +21,12 @@ import sys
 
 from osc_lib.api import auth
 from osc_lib import shell
-from oslo_utils import importutils
 import six
 
 import openstackclient
 from openstackclient.common import client_config as cloud_config
 from openstackclient.common import clientmanager
 from openstackclient.common import commandmanager
-
-osprofiler_profiler = importutils.try_import("osprofiler.profiler")
 
 
 DEFAULT_DOMAIN = 'default'
