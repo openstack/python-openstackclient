@@ -13,7 +13,7 @@
 
 """Compute v2 API Library Tests"""
 
-from keystoneclient import session
+from keystoneauth1 import session
 from osc_lib import exceptions as osc_lib_exceptions
 from requests_mock.contrib import fixture
 
