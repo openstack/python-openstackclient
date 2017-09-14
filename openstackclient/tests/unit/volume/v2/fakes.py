@@ -13,10 +13,10 @@
 #
 
 import copy
-import mock
 import random
 import uuid
 
+import mock
 from osc_lib.cli import format_columns
 
 from openstackclient.tests.unit import fakes

@@ -5,16 +5,17 @@ hacking!=0.13.0,<0.14,>=0.12.0 # Apache-2.0
 
 coverage!=4.4,>=4.0 # Apache-2.0
 fixtures>=3.0.0 # Apache-2.0/BSD
-mock>=2.0 # BSD
-openstackdocstheme>=1.16.0 # Apache-2.0
+flake8-import-order==0.13 # LGPLv3
+mock>=2.0.0 # BSD
+openstackdocstheme>=1.17.0 # Apache-2.0
 oslotest>=1.10.0 # Apache-2.0
-reno!=2.3.1,>=1.8.0 # Apache-2.0
+reno>=2.5.0 # Apache-2.0
 requests>=2.14.2 # Apache-2.0
-requests-mock>=1.1 # Apache-2.0
+requests-mock>=1.1.0 # Apache-2.0
 sphinx>=1.6.2 # BSD
 stevedore>=1.20.0 # Apache-2.0
 os-client-config>=1.28.0 # Apache-2.0
-os-testr>=0.8.0 # Apache-2.0
+os-testr>=1.0.0 # Apache-2.0
 testrepository>=0.0.18 # Apache-2.0/BSD
 testtools>=1.4.0 # MIT
 tempest>=16.1.0 # Apache-2.0
@@ -23,12 +24,12 @@ bandit>=1.1.0 # Apache-2.0
 wrapt>=1.7.0 # BSD License
 
 # Install these to generate sphinx autodocs
-aodhclient>=0.7.0 # Apache-2.0
-gnocchiclient>=2.7.0 # Apache-2.0
-python-barbicanclient!=4.5.0,>=4.0.0 # Apache-2.0
+aodhclient>=0.9.0 # Apache-2.0
+gnocchiclient>=3.3.1 # Apache-2.0
+python-barbicanclient!=4.5.0,!=4.5.1,>=4.0.0 # Apache-2.0
 python-congressclient<2000,>=1.3.0 # Apache-2.0
-python-designateclient>=1.5.0 # Apache-2.0
-python-heatclient>=1.6.1 # Apache-2.0
+python-designateclient>=2.7.0 # Apache-2.0
+python-heatclient>=1.10.0 # Apache-2.0
 python-ironicclient>=1.14.0 # Apache-2.0
 python-ironic-inspector-client>=1.5.0 # Apache-2.0
 python-karborclient>=0.6.0 # Apache-2.0
@@ -36,7 +37,7 @@ python-mistralclient>=3.1.0 # Apache-2.0
 python-muranoclient>=0.8.2 # Apache-2.0
 python-neutronclient>=6.3.0 # Apache-2.0
 python-octaviaclient>=1.0.0 # Apache-2.0
-python-saharaclient>=1.1.0 # Apache-2.0
+python-saharaclient>=1.2.0 # Apache-2.0
 python-searchlightclient>=1.0.0 #Apache-2.0
 python-senlinclient>=1.1.0 # Apache-2.0
 python-troveclient>=2.2.0 # Apache-2.0

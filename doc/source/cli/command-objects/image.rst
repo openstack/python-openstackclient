@@ -16,7 +16,8 @@ Associate project with image
 
     openstack image add project
         [--project-domain <project-domain>]
-        <image> <project>
+        <image>
+        <project>
 
 .. option:: --project-domain <project-domain>
 
@@ -60,7 +61,8 @@ Create/upload an image
         [--public | --private | --community | --shared]
         [--property <key=value> [...] ]
         [--tag <tag> [...] ]
-        [--project <project> [--project-domain <project-domain>]]
+        [--project <project>]
+        [--project-domain <project-domain>]
         <image-name>
 
 .. option:: --id <id>
@@ -153,11 +155,11 @@ Create/upload an image
 
 .. option:: --property <key=value>
 
-    Set a property on this image (repeat for multiple values)
+    Set a property on this image (repeat option to set multiple properties)
 
 .. option:: --tag <tag>
 
-    Set a tag on this image (repeat for multiple values)
+    Set a tag on this image (repeat option to set multiple tags)
 
     .. versionadded:: 2
 
@@ -205,13 +207,12 @@ List available images
     openstack image list
         [--public | --private | --shared]
         [--property <key=value>]
+        [--name <name>]
+        [--status <status>]
         [--long]
         [--sort <key>[:<direction>]]
         [--limit <num-images>]
         [--marker <image>]
-        [--name <name>]
-        [--status <status>]
-
 
 .. option:: --public
 
@@ -230,6 +231,18 @@ List available images
 .. option:: --property <key=value>
 
     Filter output based on property
+
+.. option:: --name <name>
+
+    Filter images based on name
+
+    *Image version 2 only.*
+
+.. option:: --status <status>
+
+    Filter images based on status
+
+    *Image version 2 only*
 
 .. option:: --long
 
@@ -251,15 +264,6 @@ List available images
     The last image of the previous page. Display list of images
     after marker. Display all images if not specified. (name or ID)
 
-.. option:: --name <name>
-
-   Filter images based on name
-
-.. option:: --status <status>
-
-   Filter images based on status
-
-
     *Image version 2 only*
 
 image remove project
@@ -272,7 +276,7 @@ Disassociate project with image
 .. program:: image remove project
 .. code:: bash
 
-    openstack image remove remove
+    openstack image remove project
         [--project-domain <project-domain>]
         <image>
         <project>
@@ -347,8 +351,9 @@ Set image properties
         [--os-distro <os-distro>]
         [--os-version <os-version>]
         [--ramdisk-id <ramdisk-id>]
-        [--activate|--deactivate]
-        [--project <project> [--project-domain <project-domain>]]
+        [--deactivate | --activate]
+        [--project <project>]
+        [--project-domain <project-domain>]
         [--accept | --reject | --pending]
         <image>
 
@@ -460,7 +465,7 @@ Set image properties
 
 .. option:: --tag <tag>
 
-    Set a tag on this image (repeat for multiple values)
+    Set a tag on this image (repeat option to set multiple tags)
 
     .. versionadded:: 2
 
@@ -500,15 +505,15 @@ Set image properties
 
     .. versionadded:: 2
 
-.. option:: --activate
-
-    Activate the image.
-
-    .. versionadded:: 2
-
 .. option:: --deactivate
 
     Deactivate the image.
+
+    .. versionadded:: 2
+
+.. option:: --activate
+
+    Activate the image.
 
     .. versionadded:: 2
 
@@ -568,7 +573,12 @@ Display image details
 .. code:: bash
 
     openstack image show
+        [--human-readable]
         <image>
+
+.. option:: --human-readable
+
+    Print image size in a human-friendly format.
 
 .. _image_show-image:
 .. describe:: <image>
@@ -585,16 +595,16 @@ Unset image tags or properties
 .. program:: image unset
 .. code:: bash
 
-    openstack image set
+    openstack image unset
         [--tag <tag>]
-        [--property <property>]
+        [--property <property-key>]
         <image>
 
 .. option:: --tag <tag>
 
     Unset a tag on this image (repeat option to unset multiple tags)
 
-.. option:: --property <property>
+.. option:: --property <property-key>
 
     Unset a property on this image (repeat option to unset multiple properties)
 

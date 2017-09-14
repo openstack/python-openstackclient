@@ -6,6 +6,7 @@ OpenStackClient Release Notes
    :maxdepth: 1
 
    unreleased
+   pike
    ocata
    newton
    mitaka
@@ -23,6 +24,7 @@ OpenStack release was made is shown below:
 =================  =======================
 OpenStack Release  OpenStackClient Release
 =================  =======================
+Pike               3.12.0
 Ocata              3.8.1
 Newton             3.2.0
 Mitaka             2.3.0

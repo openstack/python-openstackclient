@@ -12,9 +12,10 @@
 #
 
 import argparse
-import mock
 
+import mock
 import openstack
+
 from openstackclient.common import exceptions
 from openstackclient.network import common
 from openstackclient.tests.unit import utils

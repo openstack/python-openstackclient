@@ -14,9 +14,9 @@
 #
 
 import copy
-import mock
 
 from glanceclient.v2 import schemas
+import mock
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 import warlock

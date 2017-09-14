@@ -14,11 +14,11 @@
 #
 
 import copy
-import mock
 import uuid
 
 from keystoneauth1 import access
 from keystoneauth1 import fixture
+import mock
 from osc_lib.cli import format_columns
 
 from openstackclient.tests.unit import fakes
@@ -184,6 +184,8 @@ ROLE_2 = {
     'domain': domain_id,
     'links': base_url + 'roles/' + 'r2',
 }
+
+ROLES = [ROLE, ROLE_2]
 
 service_id = 's-123'
 service_name = 'Texaco'
@@ -969,3 +971,25 @@ class FakeRoleAssignment(object):
             info=copy.deepcopy(role_assignment_info), loaded=True)
 
         return role_assignment
+
+
+class FakeImpliedRoleResponse(object):
+    """Fake one or more role assignment."""
+    def __init__(self, prior_role, implied_roles):
+        self.prior_role = prior_role
+        self.implies = [role for role in implied_roles]
+
+    @staticmethod
+    def create_list():
+        """Create a fake implied role list response.
+
+        :return:
+            A list of FakeImpliedRoleResponse objects
+        """
+
+        # set default attributes.
+        implied_roles = [
+            FakeImpliedRoleResponse(ROLES[0], [ROLES[1]])
+        ]
+
+        return implied_roles

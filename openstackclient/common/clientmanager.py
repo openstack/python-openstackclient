@@ -16,11 +16,11 @@
 """Manage access to the clients, including authenticating when needed."""
 
 import logging
-import pkg_resources
 import sys
 
 from osc_lib import clientmanager
 from osc_lib import shell
+import pkg_resources
 
 
 LOG = logging.getLogger(__name__)

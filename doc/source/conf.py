@@ -187,6 +187,9 @@ html_last_updated_fmt = '%Y-%m-%d %H:%M'
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'OpenStackCommandLineClientdoc'
 
+# Add any paths that contain "extra" files, such as .htaccess or robots.txt
+html_extra_path = ['_extra']
+
 
 # -- Options for LaTeX output -------------------------------------------------
 
@@ -278,4 +281,4 @@ autoprogram_cliff_application = 'openstack'
 
 autoprogram_cliff_ignored = [
     '--help', '--format', '--column', '--max-width', '--fit-width',
-    '--print-empty', '--prefix', '--noindent']
+    '--print-empty', '--prefix', '--noindent', '--quote']

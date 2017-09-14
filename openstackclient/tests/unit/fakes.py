@@ -14,10 +14,10 @@
 #
 
 import json
-import mock
 import sys
 
 from keystoneauth1 import fixture
+import mock
 import requests
 import six
 

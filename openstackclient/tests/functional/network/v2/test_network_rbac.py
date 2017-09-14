@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -22,69 +23,51 @@ class NetworkRBACTests(common.NetworkTests):
     HEADERS = ['ID']
     FIELDS = ['id']
 
-    @classmethod
-    def setUpClass(cls):
-        common.NetworkTests.setUpClass()
-        if cls.haz_network:
-            cls.NET_NAME = uuid.uuid4().hex
-            cls.PROJECT_NAME = uuid.uuid4().hex
-
-            opts = cls.get_opts(cls.FIELDS)
-            raw_output = cls.openstack(
-                'network create ' + cls.NET_NAME + opts
-            )
-            cls.OBJECT_ID = raw_output.strip('\n')
-            opts = cls.get_opts(['id', 'object_id'])
-            raw_output = cls.openstack(
-                'network rbac create ' +
-                cls.OBJECT_ID +
-                ' --action access_as_shared' +
-                ' --target-project admin' +
-                ' --type network' + opts
-            )
-            cls.ID, object_id, rol = tuple(raw_output.split('\n'))
-            cls.assertOutput(cls.OBJECT_ID, object_id)
-
-    @classmethod
-    def tearDownClass(cls):
-        try:
-            if cls.haz_network:
-                raw_output_rbac = cls.openstack(
-                    'network rbac delete ' + cls.ID
-                )
-                raw_output_network = cls.openstack(
-                    'network delete ' + cls.OBJECT_ID
-                )
-                cls.assertOutput('', raw_output_rbac)
-                cls.assertOutput('', raw_output_network)
-        finally:
-            super(NetworkRBACTests, cls).tearDownClass()
-
     def setUp(self):
         super(NetworkRBACTests, self).setUp()
         # Nothing in this class works with Nova Network
         if not self.haz_network:
             self.skipTest("No Network service present")
 
+        self.NET_NAME = uuid.uuid4().hex
+        self.PROJECT_NAME = uuid.uuid4().hex
+
+        cmd_output = json.loads(self.openstack(
+            'network create -f json ' + self.NET_NAME
+        ))
+        self.addCleanup(self.openstack,
+                        'network delete ' + cmd_output['id'])
+        self.OBJECT_ID = cmd_output['id']
+
+        cmd_output = json.loads(self.openstack(
+            'network rbac create -f json ' +
+            self.OBJECT_ID +
+            ' --action access_as_shared' +
+            ' --target-project admin' +
+            ' --type network'
+        ))
+        self.addCleanup(self.openstack,
+                        'network rbac delete ' + cmd_output['id'])
+        self.ID = cmd_output['id']
+        self.assertEqual(self.OBJECT_ID, cmd_output['object_id'])
+
     def test_network_rbac_list(self):
-        opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('network rbac list' + opts)
-        self.assertIn(self.ID, raw_output)
+        cmd_output = json.loads(self.openstack('network rbac list -f json'))
+        self.assertIn(self.ID, [rbac['ID'] for rbac in cmd_output])
 
     def test_network_rbac_show(self):
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack('network rbac show ' + self.ID + opts)
-        self.assertEqual(self.ID + "\n", raw_output)
+        cmd_output = json.loads(self.openstack(
+            'network rbac show -f json ' + self.ID))
+        self.assertEqual(self.ID, cmd_output['id'])
 
     def test_network_rbac_set(self):
-        opts = self.get_opts(self.FIELDS)
-        project_id = self.openstack(
-            'project create ' + self.PROJECT_NAME + opts)
+        project_id = json.loads(self.openstack(
+            'project create -f json ' + self.PROJECT_NAME))['id']
         self.openstack('network rbac set ' + self.ID +
                        ' --target-project ' + self.PROJECT_NAME)
-        opts = self.get_opts(['target_project_id'])
-        raw_output_rbac = self.openstack('network rbac show ' + self.ID + opts)
+        cmd_output_rbac = json.loads(self.openstack(
+            'network rbac show -f json ' + self.ID))
+        self.assertEqual(project_id, cmd_output_rbac['target_project_id'])
         raw_output_project = self.openstack(
             'project delete ' + self.PROJECT_NAME)
-        self.assertEqual(project_id, raw_output_rbac)
-        self.assertOutput('', raw_output_project)
+        self.assertEqual('', raw_output_project)

@@ -11,8 +11,8 @@
 #   under the License.
 
 import copy
-import mock
 
+import mock
 from osc_lib.tests import utils as osc_lib_utils
 
 from openstackclient import shell

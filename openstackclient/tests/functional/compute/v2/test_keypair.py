@@ -13,10 +13,10 @@
 import json
 import tempfile
 
-from openstackclient.tests.functional import base
-
 from tempest.lib.common.utils import data_utils
 from tempest.lib import exceptions
+
+from openstackclient.tests.functional import base
 
 
 class KeypairBase(base.TestCase):

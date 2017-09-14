@@ -14,7 +14,7 @@ for defining and using options in all situations.  The alternative of only
 using it when necessary leads to errors when copy-n-paste is used for a
 new command without understanding why or why not that instance is correct.
 
-The :ref:`hig` describes the guildelines for option names and usage.
+The :ref:`hig` describes the guidelines for option names and usage.
 In short:
 
 * All option names shall be GNU-style long names (two leading dashes).

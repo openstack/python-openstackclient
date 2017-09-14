@@ -10,8 +10,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from openstackclient.tests.functional.identity.v3 import common
 from tempest.lib.common.utils import data_utils
+
+from openstackclient.tests.functional.identity.v3 import common
 
 
 class ServiceProviderTests(common.IdentityTests):

@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -20,34 +21,6 @@ from openstackclient.tests.functional.network.v2 import common
 
 class NetworkQosPolicyTests(common.NetworkTests):
     """Functional tests for QoS policy"""
-    HEADERS = ['Name']
-    FIELDS = ['name']
-
-    @classmethod
-    def setUpClass(cls):
-        common.NetworkTests.setUpClass()
-        if cls.haz_network:
-            cls.NAME = uuid.uuid4().hex
-
-            opts = cls.get_opts(cls.FIELDS)
-            raw_output = cls.openstack(
-                'network qos policy create ' +
-                cls.NAME +
-                opts
-            )
-            cls.assertOutput(cls.NAME + "\n", raw_output)
-
-    @classmethod
-    def tearDownClass(cls):
-        try:
-            if cls.haz_network:
-                raw_output = cls.openstack(
-                    'network qos policy delete ' +
-                    cls.NAME
-                )
-                cls.assertOutput('', raw_output)
-        finally:
-            super(NetworkQosPolicyTests, cls).tearDownClass()
 
     def setUp(self):
         super(NetworkQosPolicyTests, self).setUp()
@@ -55,33 +28,46 @@ class NetworkQosPolicyTests(common.NetworkTests):
         if not self.haz_network:
             self.skipTest("No Network service present")
 
+        self.NAME = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'network qos policy create -f json ' +
+            self.NAME
+        ))
+        self.addCleanup(self.openstack,
+                        'network qos policy delete ' + self.NAME)
+        self.assertEqual(self.NAME, cmd_output['name'])
+
+    def test_qos_rule_create_delete(self):
+        # This is to check the output of qos policy delete
+        policy_name = uuid.uuid4().hex
+        self.openstack('network qos policy create -f json ' + policy_name)
+        raw_output = self.openstack(
+            'network qos policy delete ' + policy_name)
+        self.assertEqual('', raw_output)
+
     def test_qos_policy_list(self):
-        opts = self.get_opts(self.HEADERS)
-        raw_output = self.openstack('network qos policy list' + opts)
-        self.assertIn(self.NAME, raw_output)
+        cmd_output = json.loads(self.openstack(
+            'network qos policy list -f json'))
+        self.assertIn(self.NAME, [p['Name'] for p in cmd_output])
 
     def test_qos_policy_show(self):
-        opts = self.get_opts(self.FIELDS)
-        raw_output = self.openstack('network qos policy show ' + self.NAME +
-                                    opts)
-        self.assertEqual(self.NAME + "\n", raw_output)
+        cmd_output = json.loads(self.openstack(
+            'network qos policy show -f json ' + self.NAME))
+        self.assertEqual(self.NAME, cmd_output['name'])
 
     def test_qos_policy_set(self):
         self.openstack('network qos policy set --share ' + self.NAME)
-        opts = self.get_opts(['shared'])
-        raw_output = self.openstack('network qos policy show ' + self.NAME +
-                                    opts)
-        self.assertEqual("True\n", raw_output)
+        cmd_output = json.loads(self.openstack(
+            'network qos policy show -f json ' + self.NAME))
+        self.assertTrue(cmd_output['shared'])
 
     def test_qos_policy_default(self):
         self.openstack('network qos policy set --default ' + self.NAME)
-        opts = self.get_opts(['is_default'])
-        raw_output = self.openstack('network qos policy show ' + self.NAME +
-                                    opts)
-        self.assertEqual("True\n", raw_output)
+        cmd_output = json.loads(self.openstack(
+            'network qos policy show -f json ' + self.NAME))
+        self.assertTrue(cmd_output['is_default'])
 
         self.openstack('network qos policy set --no-default ' + self.NAME)
-        opts = self.get_opts(['is_default'])
-        raw_output = self.openstack('network qos policy show ' + self.NAME +
-                                    opts)
-        self.assertEqual("False\n", raw_output)
+        cmd_output = json.loads(self.openstack(
+            'network qos policy show -f json ' + self.NAME))
+        self.assertFalse(cmd_output['is_default'])

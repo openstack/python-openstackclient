@@ -991,16 +991,16 @@ class UnsetImage(command.Command):
             default=[],
             action='append',
             help=_("Unset a tag on this image "
-                   "(repeat option to set multiple tags)"),
+                   "(repeat option to unset multiple tags)"),
         )
         parser.add_argument(
             "--property",
             dest="properties",
-            metavar="<property_key>",
+            metavar="<property-key>",
             default=[],
             action='append',
             help=_("Unset a property on this image "
-                   "(repeat option to set multiple properties)"),
+                   "(repeat option to unset multiple properties)"),
         )
         return parser
 
