@@ -15,6 +15,14 @@ function generate_testr_results {
         sudo gzip -9 $BASE/logs/testr_results.html
         sudo chown jenkins:jenkins $BASE/logs/testrepository.subunit.gz $BASE/logs/testr_results.html.gz
         sudo chmod a+r $BASE/logs/testrepository.subunit.gz $BASE/logs/testr_results.html.gz
+    elif [ -f .stestr/0 ]; then
+        sudo .tox/functional/bin/stestr last --subunit > $WORKSPACE/testrepository.subunit
+        sudo mv $WORKSPACE/testrepository.subunit $BASE/logs/testrepository.subunit
+        sudo .tox/functional/bin/subunit2html $BASE/logs/testrepository.subunit $BASE/logs/testr_results.html
+        sudo gzip -9 $BASE/logs/testrepository.subunit
+        sudo gzip -9 $BASE/logs/testr_results.html
+        sudo chown jenkins:jenkins $BASE/logs/testrepository.subunit.gz $BASE/logs/testr_results.html.gz
+        sudo chmod a+r $BASE/logs/testrepository.subunit.gz $BASE/logs/testr_results.html.gz
     fi
 }
 
