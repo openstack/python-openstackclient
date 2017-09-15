@@ -126,3 +126,9 @@ zaqar
 
 .. list-plugins:: openstack.messaging.v2
    :detailed:
+
+zun
+---
+
+.. list-plugins:: openstack.container.v1
+   :detailed:
