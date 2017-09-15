@@ -33,8 +33,11 @@ class NetworkQosPolicyTests(common.NetworkTests):
             'network qos policy create -f json ' +
             self.NAME
         ))
-        self.addCleanup(self.openstack,
-                        'network qos policy delete ' + self.NAME)
+        self.addCleanup(
+            self.openstack,
+            'network qos policy delete ' + self.NAME,
+            fail_ok=True,
+        )
         self.assertEqual(self.NAME, cmd_output['name'])
 
     def test_qos_rule_create_delete(self):
