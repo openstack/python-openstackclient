@@ -67,7 +67,11 @@ class AggregateTests(base.TestCase):
             '--property a=b ' +
             name1
         )
-        self.addCleanup(self.openstack, 'aggregate delete ' + name1)
+        self.addCleanup(
+            self.openstack,
+            'aggregate delete ' + name1,
+            fail_ok=True,
+        )
 
         name2 = uuid.uuid4().hex
         self.openstack(
@@ -76,7 +80,11 @@ class AggregateTests(base.TestCase):
             '--property c=d ' +
             name2
         )
-        self.addCleanup(self.openstack, 'aggregate delete ' + name2)
+        self.addCleanup(
+            self.openstack,
+            'aggregate delete ' + name2,
+            fail_ok=True,
+        )
 
         cmd_output = json.loads(self.openstack(
             'aggregate list -f json'
