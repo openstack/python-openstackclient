@@ -122,4 +122,96 @@ class QosTests(common.BaseVolumeTests):
             cmd_output['properties']
         )
 
-    # TODO(qiangjiahui): Add tests for associate and disassociate volume type
+    def test_volume_qos_asso_disasso(self):
+        """Tests associate and disassociate qos with volume type"""
+        vol_type1 = uuid.uuid4().hex
+        vol_type2 = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'volume type create -f json ' +
+            vol_type1
+        ))
+        self.assertEqual(
+            vol_type1,
+            cmd_output['name']
+        )
+        cmd_output = json.loads(self.openstack(
+            'volume type create -f json ' +
+            vol_type2
+        ))
+        self.assertEqual(
+            vol_type2,
+            cmd_output['name']
+        )
+        self.addCleanup(self.openstack, 'volume type delete ' + vol_type1)
+        self.addCleanup(self.openstack, 'volume type delete ' + vol_type2)
+
+        name = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'volume qos create -f json ' +
+            name
+        ))
+        self.assertEqual(
+            name,
+            cmd_output['name']
+        )
+        self.addCleanup(self.openstack, 'volume qos delete ' + name)
+
+        # Test associate
+        raw_output = self.openstack(
+            'volume qos associate ' +
+            name + ' ' + vol_type1
+        )
+        self.assertOutput('', raw_output)
+        raw_output = self.openstack(
+            'volume qos associate ' +
+            name + ' ' + vol_type2
+        )
+        self.assertOutput('', raw_output)
+
+        cmd_output = json.loads(self.openstack(
+            'volume qos show -f json ' +
+            name
+        ))
+        types = cmd_output["associations"]
+        self.assertIn(vol_type1, types)
+        self.assertIn(vol_type2, types)
+
+        # Test disassociate
+        raw_output = self.openstack(
+            'volume qos disassociate ' +
+            '--volume-type ' + vol_type1 +
+            ' ' + name
+        )
+        self.assertOutput('', raw_output)
+        cmd_output = json.loads(self.openstack(
+            'volume qos show -f json ' +
+            name
+        ))
+        types = cmd_output["associations"]
+        self.assertNotIn(vol_type1, types)
+        self.assertIn(vol_type2, types)
+
+        # Test disassociate --all
+        raw_output = self.openstack(
+            'volume qos associate ' +
+            name + ' ' + vol_type1
+        )
+        self.assertOutput('', raw_output)
+        cmd_output = json.loads(self.openstack(
+            'volume qos show -f json ' +
+            name
+        ))
+        types = cmd_output["associations"]
+        self.assertIn(vol_type1, types)
+        self.assertIn(vol_type2, types)
+
+        raw_output = self.openstack(
+            'volume qos disassociate ' +
+            '--all ' + name
+        )
+        self.assertOutput('', raw_output)
+        cmd_output = json.loads(self.openstack(
+            'volume qos show -f json ' +
+            name
+        ))
+        self.assertNotIn("associations", cmd_output.keys())
