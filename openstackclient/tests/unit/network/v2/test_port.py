@@ -356,6 +356,32 @@ class TestCreatePort(TestPort):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def test_create_with_no_fixed_ips(self):
+        arglist = [
+            '--network', self._port.network_id,
+            '--no-fixed-ip',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id),
+            ('enable', True),
+            ('no_fixed_ip', True),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_port.assert_called_once_with(**{
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'fixed_ips': [],
+            'name': 'test-port',
+        })
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
     def test_create_port_with_allowed_address_pair_ipaddr(self):
         pairs = [{'ip_address': '192.168.1.123'},
                  {'ip_address': '192.168.1.45'}]

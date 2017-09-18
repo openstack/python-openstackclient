@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Add ``--no-fixed-ip`` option to ``port create`` command.
+    [Bug `1717829 <https://launchpad.net/bugs/1717829>`_]

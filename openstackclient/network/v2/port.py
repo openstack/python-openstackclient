@@ -302,7 +302,8 @@ class CreatePort(command.ShowOne):
             help=_("Network this port belongs to (name or ID)")
         )
         _add_updatable_args(parser)
-        parser.add_argument(
+        fixed_ip = parser.add_mutually_exclusive_group()
+        fixed_ip.add_argument(
             '--fixed-ip',
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
@@ -310,6 +311,11 @@ class CreatePort(command.ShowOne):
             help=_("Desired IP and/or subnet for this port (name or ID): "
                    "subnet=<subnet>,ip-address=<ip-address> "
                    "(repeat option to set multiple fixed IP addresses)")
+        )
+        fixed_ip.add_argument(
+            '--no-fixed-ip',
+            action='store_true',
+            help=_("No IP or subnet for this port.")
         )
         parser.add_argument(
             '--binding-profile',
@@ -402,6 +408,8 @@ class CreatePort(command.ShowOne):
 
         if parsed_args.fixed_ip:
             attrs['fixed_ips'] = parsed_args.fixed_ip
+        elif parsed_args.no_fixed_ip:
+            attrs['fixed_ips'] = []
 
         if parsed_args.security_group:
             attrs['security_group_ids'] = [client.find_security_group(

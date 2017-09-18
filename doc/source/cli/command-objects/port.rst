@@ -19,7 +19,7 @@ Create new port
     openstack port create
         --network <network>
         [--description <description>]
-        [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]
+        [--fixed-ip subnet=<subnet>,ip-address=<ip-address> | --no-fixed-ip]
         [--device <device-id>]
         [--device-owner <device-owner>]
         [--vnic-type <vnic-type>]
@@ -49,6 +49,10 @@ Create new port
     Desired IP and/or subnet for this port (name or ID):
     subnet=<subnet>,ip-address=<ip-address>
     (repeat option to set multiple fixed IP addresses)
+
+.. option:: --no-fixed-ip
+
+    No IP or subnet for this port
 
 .. option:: --device <device-id>
 
