@@ -43,6 +43,7 @@ The following is a list of projects that are an OpenStackClient plugin.
 - python-troveclient
 - python-watcherclient
 - python-zaqarclient
+- python-zunclient
 
 \*\* Note that some clients are not listed in global-requirements.
 
