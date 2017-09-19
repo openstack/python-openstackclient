@@ -24,6 +24,7 @@ class VolumeServiceTests(common.BaseVolumeTests):
 
         # Get the nonredundant services and hosts
         services = list(set([x['Binary'] for x in cmd_output]))
+        hosts = list(set([x['Host'] for x in cmd_output]))
 
         # Test volume service list --service
         cmd_output = json.loads(self.openstack(
@@ -37,8 +38,17 @@ class VolumeServiceTests(common.BaseVolumeTests):
                 x['Binary']
             )
 
-        # TODO(zhiyong.dai): test volume service list --host after solving
-        # https://bugs.launchpad.net/python-openstackclient/+bug/1664451
+        # Test volume service list --host
+        cmd_output = json.loads(self.openstack(
+            'volume service list -f json ' +
+            '--host ' +
+            hosts[0]
+        ))
+        for x in cmd_output:
+            self.assertIn(
+                hosts[0],
+                x['Host']
+            )
 
     def test_volume_service_set(self):
 
