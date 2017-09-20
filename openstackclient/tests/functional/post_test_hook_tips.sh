@@ -4,7 +4,7 @@
 # OpenStack cloud. It will attempt to create an instance if one is not
 # available. Do not run this script unless you know what you're doing.
 # For more information refer to:
-# http://docs.openstack.org/developer/python-openstackclient/
+# https://docs.openstack.org/python-openstackclient/latest/
 
 # This particular script differs from the normal post_test_hook because
 # it installs the master (tip) version of osc-lib, os-client-config

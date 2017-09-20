@@ -62,7 +62,7 @@ extlinks = {
         '',
     ),
     'oscdoc': (
-        'http://docs.openstack.org/developer/python-openstackclient/%s.html',
+        'https://docs.openstack.org/python-openstackclient/latest/%s.html',
         '',
     ),
 }
