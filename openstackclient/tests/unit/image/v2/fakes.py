@@ -156,6 +156,7 @@ class FakeImagev2Client(object):
         self.image_tags.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
+        self.version = 2.0
 
 
 class TestImagev2(utils.TestCommand):
