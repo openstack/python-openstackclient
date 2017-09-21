@@ -407,6 +407,78 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                           parsed_args)
 
+    def test_create_icmp_code_zero(self):
+        self._setup_security_group_rule({
+            'port_range_min': 15,
+            'port_range_max': 0,
+            'protocol': 'icmp',
+            'remote_ip_prefix': '0.0.0.0/0',
+        })
+        arglist = [
+            '--protocol', self._security_group_rule.protocol,
+            '--icmp-type', str(self._security_group_rule.port_range_min),
+            '--icmp-code', str(self._security_group_rule.port_range_max),
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('protocol', self._security_group_rule.protocol),
+            ('icmp_code', self._security_group_rule.port_range_max),
+            ('icmp_type', self._security_group_rule.port_range_min),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
+    def test_create_icmp_code_greater_than_zero(self):
+        self._setup_security_group_rule({
+            'port_range_min': 15,
+            'port_range_max': 18,
+            'protocol': 'icmp',
+            'remote_ip_prefix': '0.0.0.0/0',
+        })
+        arglist = [
+            '--protocol', self._security_group_rule.protocol,
+            '--icmp-type', str(self._security_group_rule.port_range_min),
+            '--icmp-code', str(self._security_group_rule.port_range_max),
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('protocol', self._security_group_rule.protocol),
+            ('icmp_type', self._security_group_rule.port_range_min),
+            ('icmp_code', self._security_group_rule.port_range_max),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
+    def test_create_icmp_code_negative_value(self):
+        self._setup_security_group_rule({
+            'port_range_min': 15,
+            'port_range_max': None,
+            'protocol': 'icmp',
+            'remote_ip_prefix': '0.0.0.0/0',
+        })
+        arglist = [
+            '--protocol', self._security_group_rule.protocol,
+            '--icmp-type', str(self._security_group_rule.port_range_min),
+            '--icmp-code', '-2',
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('protocol', self._security_group_rule.protocol),
+            ('icmp_type', self._security_group_rule.port_range_min),
+            ('icmp_code', -2),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
     def test_create_icmp_type(self):
         self._setup_security_group_rule({
             'port_range_min': 15,
@@ -433,6 +505,104 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'direction': self._security_group_rule.direction,
             'ethertype': self._security_group_rule.ether_type,
             'port_range_min': self._security_group_rule.port_range_min,
+            'protocol': self._security_group_rule.protocol,
+            'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
+            'security_group_id': self._security_group.id,
+        })
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
+    def test_create_icmp_type_zero(self):
+        self._setup_security_group_rule({
+            'port_range_min': 0,
+            'protocol': 'icmp',
+            'remote_ip_prefix': '0.0.0.0/0',
+        })
+        arglist = [
+            '--icmp-type', str(self._security_group_rule.port_range_min),
+            '--protocol', self._security_group_rule.protocol,
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('dst_port', None),
+            ('icmp_type', self._security_group_rule.port_range_min),
+            ('icmp_code', None),
+            ('protocol', self._security_group_rule.protocol),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_security_group_rule.assert_called_once_with(**{
+            'direction': self._security_group_rule.direction,
+            'ethertype': self._security_group_rule.ether_type,
+            'port_range_min': self._security_group_rule.port_range_min,
+            'protocol': self._security_group_rule.protocol,
+            'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
+            'security_group_id': self._security_group.id,
+        })
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
+    def test_create_icmp_type_greater_than_zero(self):
+        self._setup_security_group_rule({
+            'port_range_min': 13,     # timestamp
+            'protocol': 'icmp',
+            'remote_ip_prefix': '0.0.0.0/0',
+        })
+        arglist = [
+            '--icmp-type', str(self._security_group_rule.port_range_min),
+            '--protocol', self._security_group_rule.protocol,
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('dst_port', None),
+            ('icmp_type', self._security_group_rule.port_range_min),
+            ('icmp_code', None),
+            ('protocol', self._security_group_rule.protocol),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_security_group_rule.assert_called_once_with(**{
+            'direction': self._security_group_rule.direction,
+            'ethertype': self._security_group_rule.ether_type,
+            'port_range_min': self._security_group_rule.port_range_min,
+            'protocol': self._security_group_rule.protocol,
+            'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
+            'security_group_id': self._security_group.id,
+        })
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
+    def test_create_icmp_type_negative_value(self):
+        self._setup_security_group_rule({
+            'port_range_min': None,     # timestamp
+            'protocol': 'icmp',
+            'remote_ip_prefix': '0.0.0.0/0',
+        })
+        arglist = [
+            '--icmp-type', '-13',
+            '--protocol', self._security_group_rule.protocol,
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('dst_port', None),
+            ('icmp_type', -13),
+            ('icmp_code', None),
+            ('protocol', self._security_group_rule.protocol),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_security_group_rule.assert_called_once_with(**{
+            'direction': self._security_group_rule.direction,
+            'ethertype': self._security_group_rule.ether_type,
             'protocol': self._security_group_rule.protocol,
             'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
             'security_group_id': self._security_group.id,
