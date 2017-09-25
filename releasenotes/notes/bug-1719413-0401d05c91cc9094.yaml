@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Fix an issue with ``endpoint list`` working slow because it is issuing one GET
+    request to /v3/services/<id> Keystone API for each endpoint. In case of HTTPS
+    keystone endpoint and multiple regions it can take significant amount of time.
+    [Bug `1719413 <https://bugs.launchpad.net/python-openstackclient/+bug/1719413>`_]
+

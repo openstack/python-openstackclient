@@ -295,6 +295,7 @@ class TestEndpointList(TestEndpoint):
 
         # This is the return value for common.find_resource(service)
         self.services_mock.get.return_value = self.service
+        self.services_mock.list.return_value = [self.service]
 
         # Get the command object to test
         self.cmd = endpoint.ListEndpoint(self.app, None)
@@ -726,6 +727,7 @@ class TestEndpointListServiceWithoutName(TestEndpointList):
 
         # This is the return value for common.find_resource(service)
         self.services_mock.get.return_value = self.service
+        self.services_mock.list.return_value = [self.service]
 
         # Get the command object to test
         self.cmd = endpoint.ListEndpoint(self.app, None)
