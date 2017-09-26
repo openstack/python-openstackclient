@@ -7,7 +7,7 @@ Authentication
 OpenStackClient leverages `python-keystoneclient`_ authentication
 plugins to support a number of different authentication methods.
 
-.. _`python-keystoneclient`: http://docs.openstack.org/developer/python-keystoneclient/authentication-plugins.html
+.. _`python-keystoneclient`: https://docs.openstack.org/python-keystoneclient/latest/using-sessions.html#sharing-authentication-plugins
 
 Authentication Process
 ----------------------
