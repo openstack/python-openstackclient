@@ -294,9 +294,9 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         if parsed_args.dst_port and not is_icmp_protocol:
             attrs['port_range_min'] = parsed_args.dst_port[0]
             attrs['port_range_max'] = parsed_args.dst_port[1]
-        if parsed_args.icmp_type:
+        if parsed_args.icmp_type is not None and parsed_args.icmp_type >= 0:
             attrs['port_range_min'] = parsed_args.icmp_type
-        if parsed_args.icmp_code:
+        if parsed_args.icmp_code is not None and parsed_args.icmp_code >= 0:
             attrs['port_range_max'] = parsed_args.icmp_code
 
         # NOTE(dtroyer): --src-ip and --src-group were deprecated in Nov 2016.

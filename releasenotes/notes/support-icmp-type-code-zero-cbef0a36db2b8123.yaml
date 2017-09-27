@@ -1,0 +1,5 @@
+---
+fixes:
+  - Add support to set ``--icmp-type`` and ``--icmp-code`` to 0 in the
+    ``security group rule`` command.
+    [Bug `1703704 <https://bugs.launchpad.net/python-openstackclient/+bug/1703704>`_]
