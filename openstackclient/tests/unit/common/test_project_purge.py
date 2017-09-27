@@ -118,8 +118,8 @@ class TestProjectPurge(TestProjectPurgeInit):
         self.projects_mock.delete.assert_called_once_with(self.project.id)
         self.servers_mock.list.assert_called_once_with(
             search_opts={'tenant_id': self.project.id})
-        self.images_mock.list.assert_called_once_with(
-            owner=self.project.id)
+        kwargs = {'filters': {'owner': self.project.id}}
+        self.images_mock.list.assert_called_once_with(**kwargs)
         volume_search_opts = {'project_id': self.project.id}
         self.volumes_mock.list.assert_called_once_with(
             search_opts=volume_search_opts)
@@ -153,8 +153,8 @@ class TestProjectPurge(TestProjectPurgeInit):
         self.projects_mock.delete.assert_not_called()
         self.servers_mock.list.assert_called_once_with(
             search_opts={'tenant_id': self.project.id})
-        self.images_mock.list.assert_called_once_with(
-            owner=self.project.id)
+        kwargs = {'filters': {'owner': self.project.id}}
+        self.images_mock.list.assert_called_once_with(**kwargs)
         volume_search_opts = {'project_id': self.project.id}
         self.volumes_mock.list.assert_called_once_with(
             search_opts=volume_search_opts)
@@ -188,8 +188,8 @@ class TestProjectPurge(TestProjectPurgeInit):
         self.projects_mock.delete.assert_not_called()
         self.servers_mock.list.assert_called_once_with(
             search_opts={'tenant_id': self.project.id})
-        self.images_mock.list.assert_called_once_with(
-            owner=self.project.id)
+        kwargs = {'filters': {'owner': self.project.id}}
+        self.images_mock.list.assert_called_once_with(**kwargs)
         volume_search_opts = {'project_id': self.project.id}
         self.volumes_mock.list.assert_called_once_with(
             search_opts=volume_search_opts)
@@ -224,8 +224,8 @@ class TestProjectPurge(TestProjectPurgeInit):
         self.projects_mock.delete.assert_called_once_with(self.project.id)
         self.servers_mock.list.assert_called_once_with(
             search_opts={'tenant_id': self.project.id})
-        self.images_mock.list.assert_called_once_with(
-            owner=self.project.id)
+        kwargs = {'filters': {'owner': self.project.id}}
+        self.images_mock.list.assert_called_once_with(**kwargs)
         volume_search_opts = {'project_id': self.project.id}
         self.volumes_mock.list.assert_called_once_with(
             search_opts=volume_search_opts)
@@ -260,8 +260,8 @@ class TestProjectPurge(TestProjectPurgeInit):
         self.projects_mock.delete.assert_called_once_with(self.project.id)
         self.servers_mock.list.assert_called_once_with(
             search_opts={'tenant_id': self.project.id})
-        self.images_mock.list.assert_called_once_with(
-            owner=self.project.id)
+        kwargs = {'filters': {'owner': self.project.id}}
+        self.images_mock.list.assert_called_once_with(**kwargs)
         volume_search_opts = {'project_id': self.project.id}
         self.volumes_mock.list.assert_called_once_with(
             search_opts=volume_search_opts)
@@ -296,8 +296,8 @@ class TestProjectPurge(TestProjectPurgeInit):
         self.projects_mock.delete.assert_called_once_with(self.project.id)
         self.servers_mock.list.assert_called_once_with(
             search_opts={'tenant_id': self.project.id})
-        self.images_mock.list.assert_called_once_with(
-            owner=self.project.id)
+        kwargs = {'filters': {'owner': self.project.id}}
+        self.images_mock.list.assert_called_once_with(**kwargs)
         volume_search_opts = {'project_id': self.project.id}
         self.volumes_mock.list.assert_called_once_with(
             search_opts=volume_search_opts)

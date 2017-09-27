@@ -64,6 +64,7 @@ class FakeImagev1Client(object):
         self.images.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
+        self.version = 1.0
 
 
 class TestImagev1(utils.TestCommand):

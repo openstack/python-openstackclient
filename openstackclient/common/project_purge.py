@@ -95,7 +95,14 @@ class ProjectPurge(command.Command):
         # images
         try:
             image_client = self.app.client_manager.image
-            data = image_client.images.list(owner=project_id)
+            api_version = int(image_client.version)
+            if api_version == 1:
+                data = image_client.images.list(owner=project_id)
+            elif api_version == 2:
+                kwargs = {'filters': {'owner': project_id}}
+                data = image_client.images.list(**kwargs)
+            else:
+                raise NotImplementedError
             self.delete_objects(
                 image_client.images.delete, data, 'image', dry_run)
         except Exception:

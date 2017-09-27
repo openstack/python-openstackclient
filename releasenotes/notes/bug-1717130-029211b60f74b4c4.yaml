@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix the ``project purge`` command to correctly delete only images owned by the
+    specified project ID when run by an administrative user.
+    [Bug `1717130 <https://bugs.launchpad.net/python-openstackclient/+bug/1717130>`_]
