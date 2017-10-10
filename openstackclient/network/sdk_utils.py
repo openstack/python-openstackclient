@@ -16,7 +16,7 @@ import six
 def get_osc_show_columns_for_sdk_resource(
     sdk_resource,
     osc_column_map,
-    invisible_columns=[]
+    invisible_columns=None
 ):
     """Get and filter the display and attribute columns for an SDK resource.
 
@@ -40,6 +40,7 @@ def get_osc_show_columns_for_sdk_resource(
     # Build the OSC column names to display for the SDK resource.
     attr_map = {}
     display_columns = list(resource_dict.keys())
+    invisible_columns = [] if invisible_columns is None else invisible_columns
     for col_name in invisible_columns:
         if col_name in display_columns:
             display_columns.remove(col_name)
