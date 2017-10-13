@@ -167,9 +167,10 @@ class ListEndpoint(command.Lister):
         if parsed_args.region:
             kwargs['region'] = parsed_args.region
         data = identity_client.endpoints.list(**kwargs)
+        service_list = identity_client.services.list()
 
         for ep in data:
-            service = common.find_service(identity_client, ep.service_id)
+            service = common.find_service_in_list(service_list, ep.service_id)
             ep.service_name = get_service_name(service)
             ep.service_type = service.type
         return (columns,

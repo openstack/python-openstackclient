@@ -26,6 +26,16 @@ from osc_lib import utils
 from openstackclient.i18n import _
 
 
+def find_service_in_list(service_list, service_id):
+    """Find a service by id in service list."""
+
+    for service in service_list:
+        if service.id == service_id:
+            return service
+    raise exceptions.CommandError(
+        "No service with a type, name or ID of '%s' exists." % service_id)
+
+
 def find_service(identity_client, name_type_or_id):
     """Find a service by id, name or type."""
 
