@@ -13,7 +13,7 @@ function generate_testr_results {
         sudo .tox/functional/bin/subunit2html $BASE/logs/testrepository.subunit $BASE/logs/testr_results.html
         sudo gzip -9 $BASE/logs/testrepository.subunit
         sudo gzip -9 $BASE/logs/testr_results.html
-        sudo chown jenkins:jenkins $BASE/logs/testrepository.subunit.gz $BASE/logs/testr_results.html.gz
+        sudo chown $USER:$USER $BASE/logs/testrepository.subunit.gz $BASE/logs/testr_results.html.gz
         sudo chmod a+r $BASE/logs/testrepository.subunit.gz $BASE/logs/testr_results.html.gz
     elif [ -f .stestr/0 ]; then
         sudo .tox/functional/bin/stestr last --subunit > $WORKSPACE/testrepository.subunit
@@ -21,13 +21,13 @@ function generate_testr_results {
         sudo .tox/functional/bin/subunit2html $BASE/logs/testrepository.subunit $BASE/logs/testr_results.html
         sudo gzip -9 $BASE/logs/testrepository.subunit
         sudo gzip -9 $BASE/logs/testr_results.html
-        sudo chown jenkins:jenkins $BASE/logs/testrepository.subunit.gz $BASE/logs/testr_results.html.gz
+        sudo chown $USER:$USER $BASE/logs/testrepository.subunit.gz $BASE/logs/testr_results.html.gz
         sudo chmod a+r $BASE/logs/testrepository.subunit.gz $BASE/logs/testr_results.html.gz
     fi
 }
 
 export OPENSTACKCLIENT_DIR="$BASE/new/python-openstackclient"
-sudo chown -R jenkins:stack $OPENSTACKCLIENT_DIR
+sudo chown -R $USER:stack $OPENSTACKCLIENT_DIR
 
 # Go to the openstackclient dir
 cd $OPENSTACKCLIENT_DIR
@@ -42,7 +42,7 @@ echo 'Running tests with:'
 env | grep OS
 
 # Preserve env for OS_ credentials
-sudo -E -H -u jenkins tox -efunctional
+sudo -E -H -u $USER tox -efunctional
 EXIT_CODE=$?
 set -e
 
