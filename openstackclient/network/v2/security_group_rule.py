@@ -159,8 +159,8 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             help=_("IP protocol (ah, dccp, egp, esp, gre, icmp, igmp, "
                    "ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt, "
                    "ipv6-opts, ipv6-route, ospf, pgm, rsvp, sctp, tcp, "
-                   "udp, udplite, vrrp and integer representations [0-255]; "
-                   "default: tcp)")
+                   "udp, udplite, vrrp and integer representations [0-255] "
+                   "or any; default: tcp)")
         )
         protocol_group.add_argument(
             '--proto',
@@ -230,6 +230,8 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             protocol = parsed_args.protocol
         if parsed_args.proto is not None:
             protocol = parsed_args.proto
+        if protocol == 'any':
+            protocol = None
         return protocol
 
     def _is_ipv6_protocol(self, protocol):
@@ -237,7 +239,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         # However, while the OSC CLI doesn't document the protocol,
         # the code must still handle it. In addition, handle both
         # protocol names and numbers.
-        if (protocol.startswith('ipv6-') or
+        if (protocol is not None and protocol.startswith('ipv6-') or
                 protocol in ['icmpv6', '41', '43', '44', '58', '59', '60']):
             return True
         else:
