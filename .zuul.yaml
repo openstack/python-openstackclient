@@ -1,4 +1,5 @@
 # from zuul.d/zuul-legacy-jobs.yaml legacy-osc-dsvm-functional
+
 - job:
     name: osc-functional-devstack
     parent: legacy-dsvm-base
@@ -9,11 +10,48 @@
       - openstack-infra/devstack-gate
       - openstack/python-openstackclient
 
+- job:
+    name: osc-functional-devstack-n-net
+    parent: legacy-dsvm-base
+    run: playbooks/osc-functional-devstack-n-net/run
+    post-run: playbooks/osc-functional-devstack-n-net/post
+    timeout: 7800
+    required-projects:
+      - openstack-infra/devstack-gate
+      - openstack/python-openstackclient
+
+- job:
+    name: osc-functional-devstack-tips
+    parent: legacy-dsvm-base
+    run: playbooks/osc-functional-devstack-tips/run
+    post-run: playbooks/osc-functional-devstack-tips/post
+    timeout: 7800
+    required-projects:
+      - openstack-infra/devstack-gate
+      - openstack/os-client-config
+      - openstack/osc-lib
+      - openstack/python-openstackclient
+      - openstack/python-openstacksdk
+
+
 - project:
     name: openstack/python-openstackclient
+    templates:
+      - openstackclient-plugin-jobs
     check:
       jobs:
         - osc-functional-devstack
+        - osc-functional-devstack-n-net:
+            voting: false
+            # The job testing nova-network no longer works before Pike, and
+            # should be disabled until the New Way of testing against old clouds
+            # is ready and backported
+            branches: ^(?!stable/(newton|ocata)).*$
+        - osc-functional-devstack-tips:
+            voting: false
+            # The functional-tips job only tests the latest and shouldn't be run
+            # on the stable branches
+            branches: ^(?!stable)
     gate:
       jobs:
         - osc-functional-devstack

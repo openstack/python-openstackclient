@@ -1,0 +1,85 @@
+- hosts: all
+  name: Autoconverted job legacy-osc-dsvm-functional-n-net from old job gate-osc-dsvm-functional-n-net-ubuntu-xenial-nv
+  tasks:
+
+    - name: Ensure legacy workspace directory
+      file:
+        path: '{{ ansible_user_dir }}/workspace'
+        state: directory
+
+    - shell:
+        cmd: |
+          set -e
+          set -x
+          cat > clonemap.yaml << EOF
+          clonemap:
+            - name: openstack-infra/devstack-gate
+              dest: devstack-gate
+          EOF
+          /usr/zuul-env/bin/zuul-cloner -m clonemap.yaml --cache-dir /opt/git \
+              git://git.openstack.org \
+              openstack-infra/devstack-gate
+        executable: /bin/bash
+        chdir: '{{ ansible_user_dir }}/workspace'
+      environment: '{{ zuul | zuul_legacy_vars }}'
+
+    - shell:
+        cmd: |
+          set -e
+          set -x
+          cat << 'EOF' >>"/tmp/dg-local.conf"
+          [[local|localrc]]
+          # NOTE(RuiChen): nova-network only can be enable in nova cell v1
+          enable_service n-net n-cell
+          disable_service neutron q-svc q-agt q-dhcp q-l3 q-meta q-metering
+          # NOTE(dtroyer): OSC needs to support Image v1 for a while yet so re-enable
+          GLANCE_V1_ENABLED=True
+          # NOTE(dtroyer): Functional tests need a bit more volume headroom
+          VOLUME_BACKING_FILE_SIZE=20G
+          # NOTE(dtroyer): OSC needs to support Volume v1 for a while yet so re-enable
+          [[post-config|$CINDER_CONF]]
+          [DEFAULT]
+          enable_v1_api = True
+
+          EOF
+        executable: /bin/bash
+        chdir: '{{ ansible_user_dir }}/workspace'
+      environment: '{{ zuul | zuul_legacy_vars }}'
+
+    - shell:
+        cmd: |
+          set -e
+          set -x
+          export PYTHONUNBUFFERED=true
+          export DEVSTACK_GATE_UNSTACK=0
+          export DEVSTACK_GATE_TEMPEST=0
+          export DEVSTACK_GATE_EXERCISES=0
+          export DEVSTACK_GATE_INSTALL_TESTONLY=1
+          # NOTE(RuiChen): Explicitly tell devstack-gate that we need to run
+          # the nova-network job with cell v1.
+          export DEVSTACK_GATE_NEUTRON=0
+          export DEVSTACK_GATE_CELLS=1
+          export BRANCH_OVERRIDE=default
+          export DEVSTACK_PROJECT_FROM_GIT=python-openstackclient
+          if [ "$BRANCH_OVERRIDE" != "default" ] ; then
+              export OVERRIDE_ZUUL_BRANCH=$BRANCH_OVERRIDE
+          fi
+
+          function post_test_hook {
+              # NOTE(stevemar): After the newton release was tagged the file was moved.
+              # But, we run functional tests for various stable releases
+              # (mitaka, and newton).
+              # TODO(stevemar): Remove this check when Newton hits EOL.
+              hook_location=$BASE/new/python-openstackclient/openstackclient/tests/functional/post_test_hook.sh
+              if [ ! -f "$hook_location" ]; then
+                  hook_location=$BASE/new/python-openstackclient/post_test_hook.sh
+              fi
+              bash -xe $hook_location
+          }
+          export -f post_test_hook
+
+          cp devstack-gate/devstack-vm-gate-wrap.sh ./safe-devstack-vm-gate-wrap.sh
+          ./safe-devstack-vm-gate-wrap.sh
+        executable: /bin/bash
+        chdir: '{{ ansible_user_dir }}/workspace'
+      environment: '{{ zuul | zuul_legacy_vars }}'

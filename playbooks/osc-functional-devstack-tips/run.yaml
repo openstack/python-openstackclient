@@ -1,0 +1,90 @@
+- hosts: all
+  name: Autoconverted job legacy-osc-dsvm-functional-tips from old job gate-osc-dsvm-functional-tips-ubuntu-xenial-nv
+  tasks:
+
+    - name: Ensure legacy workspace directory
+      file:
+        path: '{{ ansible_user_dir }}/workspace'
+        state: directory
+
+    - shell:
+        cmd: |
+          set -e
+          set -x
+          cat > clonemap.yaml << EOF
+          clonemap:
+            - name: openstack-infra/devstack-gate
+              dest: devstack-gate
+          EOF
+          /usr/zuul-env/bin/zuul-cloner -m clonemap.yaml --cache-dir /opt/git \
+              git://git.openstack.org \
+              openstack-infra/devstack-gate
+        executable: /bin/bash
+        chdir: '{{ ansible_user_dir }}/workspace'
+      environment: '{{ zuul | zuul_legacy_vars }}'
+
+    - shell:
+        cmd: |
+          set -e
+          set -x
+          cat << 'EOF' >>"/tmp/dg-local.conf"
+          [[local|localrc]]
+          # NOTE(amotoki): Some neutron features are enabled by devstack plugin
+          enable_plugin neutron https://git.openstack.org/openstack/neutron
+          enable_service q-qos
+          enable_service neutron-segments
+          # NOTE(dtroyer): OSC needs to support Image v1 for a while yet so re-enable
+          GLANCE_V1_ENABLED=True
+          # NOTE(dtroyer): Functional tests need a bit more volume headroom
+          VOLUME_BACKING_FILE_SIZE=20G
+          # Swift is not ready for python3 yet: At a minimum keystonemiddleware needs
+          # to be installed in the py2 env, there are probably other things too...
+          disable_service s-account
+          disable_service s-container
+          disable_service s-object
+          disable_service s-proxy
+          # This is insufficient, but leaving it here as a reminder of what may
+          # someday be all we need to make this work
+          disable_python3_package swift
+          # NOTE(dtroyer): OSC needs to support Volume v1 for a while yet so re-enable
+          [[post-config|$CINDER_CONF]]
+          [DEFAULT]
+          enable_v1_api = True
+
+          EOF
+        executable: /bin/bash
+        chdir: '{{ ansible_user_dir }}/workspace'
+      environment: '{{ zuul | zuul_legacy_vars }}'
+
+    - shell:
+        cmd: |
+          set -e
+          set -x
+          export PYTHONUNBUFFERED=true
+          export DEVSTACK_GATE_USE_PYTHON3=True
+          export DEVSTACK_GATE_UNSTACK=0
+          export DEVSTACK_GATE_TEMPEST=0
+          export DEVSTACK_GATE_EXERCISES=0
+          export DEVSTACK_GATE_INSTALL_TESTONLY=1
+          export DEVSTACK_GATE_NEUTRON=1
+          export BRANCH_OVERRIDE=default
+          export DEVSTACK_PROJECT_FROM_GIT="python-openstackclient,python-openstacksdk,osc-lib,os-client-config"
+          if [ "$BRANCH_OVERRIDE" != "default" ] ; then
+              export OVERRIDE_ZUUL_BRANCH=$BRANCH_OVERRIDE
+          fi
+
+          function post_test_hook {
+              # This test hook will install the master version of the following:
+              # - osc-lib
+              # - openstacksdk
+              # - os-client-config
+              hook_location=$BASE/new/python-openstackclient/openstackclient/tests/functional/post_test_hook_tips.sh
+              bash -xe $hook_location
+          }
+          export -f post_test_hook
+
+          cp devstack-gate/devstack-vm-gate-wrap.sh ./safe-devstack-vm-gate-wrap.sh
+          ./safe-devstack-vm-gate-wrap.sh
+        executable: /bin/bash
+        chdir: '{{ ansible_user_dir }}/workspace'
+      environment: '{{ zuul | zuul_legacy_vars }}'
