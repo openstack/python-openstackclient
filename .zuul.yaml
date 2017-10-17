@@ -1,0 +1,19 @@
+# from zuul.d/zuul-legacy-jobs.yaml legacy-osc-dsvm-functional
+- job:
+    name: osc-functional-devstack
+    parent: legacy-dsvm-base
+    run: playbooks/osc-functional-devstack/run
+    post-run: playbooks/osc-functional-devstack/post
+    timeout: 7800
+    required-projects:
+      - openstack-infra/devstack-gate
+      - openstack/python-openstackclient
+
+- project:
+    name: openstack/python-openstackclient
+    check:
+      jobs:
+        - osc-functional-devstack
+    gate:
+      jobs:
+        - osc-functional-devstack
