@@ -66,7 +66,6 @@ class NetworkQosPolicyTests(common.NetworkTests):
         self.openstack(
             'network qos policy set ' +
             '--share ' +
-            '--default ' +
             policy_name
         )
 
@@ -75,11 +74,16 @@ class NetworkQosPolicyTests(common.NetworkTests):
             policy_name
         ))
         self.assertTrue(json_output['shared'])
-        self.assertTrue(json_output['is_default'])
 
-        self.openstack('network qos policy set --no-default ' + policy_name)
+        self.openstack(
+            'network qos policy set ' +
+            '--no-share ' +
+            '--no-default ' +
+            policy_name
+        )
         json_output = json.loads(self.openstack(
             'network qos policy show -f json ' +
             policy_name
         ))
+        self.assertFalse(json_output['shared'])
         self.assertFalse(json_output['is_default'])
