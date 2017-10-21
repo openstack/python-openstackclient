@@ -2,90 +2,21 @@
 mapping
 =======
 
-Identity v3
+A **mapping** is used by the Identity service's OS-FEDERATION
+extension. It is used by **federation protocols** and **identity providers**.
+Applicable to Identity v3.
 
-`Requires: OS-FEDERATION extension`
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: mapping create
 
-mapping create
---------------
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: mapping delete
 
-Create new mapping
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: mapping list
 
-.. program:: mapping create
-.. code:: bash
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: mapping set
 
-    openstack mapping create
-        --rules <filename>
-        <name>
-
-.. option:: --rules <filename>
-
-    Filename that contains a set of mapping rules (required)
-
-.. _mapping_create-mapping:
-.. describe:: <name>
-
-    New mapping name (must be unique)
-
-mapping delete
---------------
-
-Delete mapping(s)
-
-.. program:: mapping delete
-.. code:: bash
-
-    openstack mapping delete
-        <mapping> [<mapping> ...]
-
-.. _mapping_delete-mapping:
-.. describe:: <mapping>
-
-    Mapping(s) to delete
-
-mapping list
-------------
-
-List mappings
-
-.. program:: mapping list
-.. code:: bash
-
-    openstack mapping list
-
-mapping set
------------
-
-Set mapping properties
-
-.. program:: mapping set
-.. code:: bash
-
-    openstack mapping set
-        [--rules <filename>]
-        <mapping>
-
-.. option:: --rules <filename>
-
-    Filename that contains a new set of mapping rules
-
-.. _mapping_set-mapping:
-.. describe:: <mapping>
-
-    Mapping to modify
-
-mapping show
-------------
-
-Display mapping details
-
-.. program:: mapping show
-.. code:: bash
-
-    openstack mapping show
-        <mapping>
-
-.. _mapping_show-mapping:
-.. describe:: <mapping>
-
-    Mapping to display
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: mapping show

@@ -2,94 +2,20 @@
 policy
 ======
 
-Identity v3
+A **policy** is an arbitrarily serialized policy engine rule set to be consumed
+by a remote service. Applies to Identity v3.
 
-policy create
--------------
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: policy create
 
-Create new policy
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: policy delete
 
-.. program:: policy create
-.. code:: bash
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: policy list
 
-    openstack policy create
-        [--type <type>]
-        <filename>
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: policy set
 
-.. option:: --type <type>
-
-    New MIME type of the policy rules file (defaults to application/json)
-
-.. describe:: <filename>
-
-    New serialized policy rules file
-
-policy delete
--------------
-
-Delete policy(s)
-
-.. program:: policy delete
-.. code:: bash
-
-    openstack policy delete
-        <policy> [<policy> ...]
-
-.. describe:: <policy>
-
-    Policy(s) to delete
-
-policy list
------------
-
-List policies
-
-.. program:: policy list
-.. code:: bash
-
-    openstack policy list
-        [--long]
-
-.. option:: --long
-
-    List additional fields in output
-
-policy set
-----------
-
-Set policy properties
-
-.. program:: policy set
-.. code:: bash
-
-    openstack policy set
-        [--type <type>]
-        [--rules <filename>]
-        <policy>
-
-.. option:: --type <type>
-
-    New MIME type of the policy rules file
-
-.. describe:: --rules <filename>
-
-    New serialized policy rules file
-
-.. describe:: <policy>
-
-    Policy to modify
-
-policy show
------------
-
-Display policy details
-
-.. program:: policy show
-.. code:: bash
-
-    openstack policy show
-        <policy>
-
-.. describe:: <policy>
-
-    Policy to display
+.. autoprogram-cliff:: openstack.identity.v3
+   :command: policy show
