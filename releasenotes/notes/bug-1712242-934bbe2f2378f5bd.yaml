@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    Add ``any`` as a ``--protocol`` option to ``security group rule create``
+    command.
+    [Bug `1517134 <https://bugs.launchpad.net/bugs/1712242>`_]
+fixes:
+  - |
+    It is now possible to create a security rule without specifying protocol
+    (using ``--protocol any``), which skips sending the protocol to the API
+    server entirely. Previously TCP was forced as default protocol when none
+    was specified.

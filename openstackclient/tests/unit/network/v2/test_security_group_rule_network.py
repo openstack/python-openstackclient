@@ -211,6 +211,36 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, data)
 
+    def test_create_protocol_any(self):
+        self._setup_security_group_rule({
+            'protocol': None,
+            'remote_ip_prefix': '10.0.2.0/24',
+        })
+        arglist = [
+            '--proto', 'any',
+            '--src-ip', self._security_group_rule.remote_ip_prefix,
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('proto', 'any'),
+            ('protocol', None),
+            ('src_ip', self._security_group_rule.remote_ip_prefix),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_security_group_rule.assert_called_once_with(**{
+            'direction': self._security_group_rule.direction,
+            'ethertype': self._security_group_rule.ether_type,
+            'protocol': self._security_group_rule.protocol,
+            'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
+            'security_group_id': self._security_group.id,
+        })
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
     def test_create_remote_group(self):
         self._setup_security_group_rule({
             'port_range_max': 22,
