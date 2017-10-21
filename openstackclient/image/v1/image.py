@@ -625,11 +625,11 @@ class SetImage(command.Command):
         kwargs = {}
         copy_attrs = ('name', 'owner', 'min_disk', 'min_ram', 'properties',
                       'container_format', 'disk_format', 'size', 'store',
-                      'location', 'copy_from', 'volume', 'force', 'checksum')
+                      'location', 'copy_from', 'volume', 'checksum')
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
-                if val:
+                if val is not None:
                     # Only include a value in kwargs for attributes that are
                     # actually present on the command line
                     kwargs[attr] = val
@@ -653,6 +653,8 @@ class SetImage(command.Command):
             kwargs['is_public'] = True
         if parsed_args.private:
             kwargs['is_public'] = False
+        if parsed_args.force:
+            kwargs['force'] = True
 
         # Wrap the call to catch exceptions in order to close files
         try:

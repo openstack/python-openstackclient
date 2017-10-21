@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Accept ``0`` as a valid value in the ``image set`` ``--min-disk`` and ``--min-ram`` options.
+    .. _bug 1719499: https://bugs.launchpad.net/python-openstackclient/+bug/1719499
