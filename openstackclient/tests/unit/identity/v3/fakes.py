@@ -223,6 +223,20 @@ ENDPOINT = {
     'links': base_url + 'endpoints/' + endpoint_id,
 }
 
+endpoint_group_id = 'eg-123'
+endpoint_group_description = 'eg 123 description'
+endpoint_group_filters = {
+    'service_id': service_id,
+    'region_id': endpoint_region,
+}
+
+ENDPOINT_GROUP = {
+    'id': endpoint_group_id,
+    'filters': endpoint_group_filters,
+    'description': endpoint_group_description,
+    'links': base_url + 'endpoint_groups/' + endpoint_group_id,
+}
+
 user_id = 'bbbbbbb-aaaa-aaaa-aaaa-bbbbbbbaaaa'
 user_name = 'paul'
 user_description = 'Sir Paul'
@@ -495,6 +509,8 @@ class FakeIdentityv3Client(object):
         self.endpoints.resource_class = fakes.FakeResource(None, {})
         self.endpoint_filter = mock.Mock()
         self.endpoint_filter.resource_class = fakes.FakeResource(None, {})
+        self.endpoint_groups = mock.Mock()
+        self.endpoint_groups.resource_class = fakes.FakeResource(None, {})
         self.groups = mock.Mock()
         self.groups.resource_class = fakes.FakeResource(None, {})
         self.oauth1 = mock.Mock()
