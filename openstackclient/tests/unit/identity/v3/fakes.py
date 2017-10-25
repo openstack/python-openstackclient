@@ -493,6 +493,8 @@ class FakeIdentityv3Client(object):
         self.credentials.resource_class = fakes.FakeResource(None, {})
         self.endpoints = mock.Mock()
         self.endpoints.resource_class = fakes.FakeResource(None, {})
+        self.endpoint_filter = mock.Mock()
+        self.endpoint_filter.resource_class = fakes.FakeResource(None, {})
         self.groups = mock.Mock()
         self.groups.resource_class = fakes.FakeResource(None, {})
         self.oauth1 = mock.Mock()
@@ -910,6 +912,31 @@ class FakeEndpoint(object):
         endpoint = fakes.FakeResource(info=copy.deepcopy(endpoint_info),
                                       loaded=True)
         return endpoint
+
+    @staticmethod
+    def create_one_endpoint_filter(attrs=None):
+        """Create a fake endpoint project relationship.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes of endpoint filter
+        :return:
+            A FakeResource object with project, endpoint and so on
+        """
+        attrs = attrs or {}
+
+        # Set default attribute
+        endpoint_filter_info = {
+            'project': 'project-id-' + uuid.uuid4().hex,
+            'endpoint': 'endpoint-id-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        endpoint_filter_info.update(attrs)
+
+        endpoint_filter = fakes.FakeModel(
+            copy.deepcopy(endpoint_filter_info))
+
+        return endpoint_filter
 
 
 class FakeService(object):

@@ -36,6 +36,42 @@ def get_service_name(service):
         return ''
 
 
+class AddProjectToEndpoint(command.Command):
+    _description = _("Associate a project to an endpoint")
+
+    def get_parser(self, prog_name):
+        parser = super(
+            AddProjectToEndpoint, self).get_parser(prog_name)
+        parser.add_argument(
+            'endpoint',
+            metavar='<endpoint>',
+            help=_('Endpoint to associate with '
+                   'specified project (name or ID)'),
+        )
+        parser.add_argument(
+            'project',
+            metavar='<project>',
+            help=_('Project to associate with '
+                   'specified endpoint name or ID)'),
+        )
+        common.add_project_domain_option_to_parser(parser)
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.identity
+
+        endpoint = utils.find_resource(client.endpoints,
+                                       parsed_args.endpoint)
+
+        project = common.find_project(client,
+                                      parsed_args.project,
+                                      parsed_args.project_domain)
+
+        client.endpoint_filter.add_endpoint_to_project(
+            project=project.id,
+            endpoint=endpoint.id)
+
+
 class CreateEndpoint(command.ShowOne):
     _description = _("Create new endpoint")
 
@@ -152,32 +188,109 @@ class ListEndpoint(command.Lister):
             metavar='<region-id>',
             help=_('Filter by region ID'),
         )
+        list_group = parser.add_mutually_exclusive_group()
+        list_group.add_argument(
+            '--endpoint',
+            metavar='<endpoint-group>',
+            help=_('Endpoint to list filters'),
+        )
+        list_group.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_('Project to list filters (name or ID)'),
+        )
+        common.add_project_domain_option_to_parser(list_group)
         return parser
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        columns = ('ID', 'Region', 'Service Name', 'Service Type',
-                   'Enabled', 'Interface', 'URL')
-        kwargs = {}
-        if parsed_args.service:
-            service = common.find_service(identity_client, parsed_args.service)
-            kwargs['service'] = service.id
-        if parsed_args.interface:
-            kwargs['interface'] = parsed_args.interface
-        if parsed_args.region:
-            kwargs['region'] = parsed_args.region
-        data = identity_client.endpoints.list(**kwargs)
-        service_list = identity_client.services.list()
 
-        for ep in data:
-            service = common.find_service_in_list(service_list, ep.service_id)
-            ep.service_name = get_service_name(service)
-            ep.service_type = service.type
+        endpoint = None
+        if parsed_args.endpoint:
+            endpoint = utils.find_resource(identity_client.endpoints,
+                                           parsed_args.endpoint)
+        project = None
+        if parsed_args.project:
+            project = common.find_project(identity_client,
+                                          parsed_args.project,
+                                          parsed_args.project_domain)
+
+        if endpoint:
+            columns = ('ID', 'Name')
+            data = (
+                identity_client.endpoint_filter
+                .list_projects_for_endpoint(endpoint=endpoint.id)
+            )
+        else:
+            columns = ('ID', 'Region', 'Service Name', 'Service Type',
+                       'Enabled', 'Interface', 'URL')
+            kwargs = {}
+            if parsed_args.service:
+                service = common.find_service(identity_client,
+                                              parsed_args.service)
+                kwargs['service'] = service.id
+            if parsed_args.interface:
+                kwargs['interface'] = parsed_args.interface
+            if parsed_args.region:
+                kwargs['region'] = parsed_args.region
+
+            if project:
+                data = (
+                    identity_client.endpoint_filter
+                    .list_endpoints_for_project(project=project.id)
+                )
+            else:
+                data = identity_client.endpoints.list(**kwargs)
+
+            service_list = identity_client.services.list()
+
+            for ep in data:
+                service = common.find_service_in_list(service_list,
+                                                      ep.service_id)
+                ep.service_name = get_service_name(service)
+                ep.service_type = service.type
+
         return (columns,
                 (utils.get_item_properties(
                     s, columns,
                     formatters={},
                 ) for s in data))
+
+
+class RemoveProjectFromEndpoint(command.Command):
+    _description = _("Dissociate a project from an endpoint")
+
+    def get_parser(self, prog_name):
+        parser = super(
+            RemoveProjectFromEndpoint, self).get_parser(prog_name)
+        parser.add_argument(
+            'endpoint',
+            metavar='<endpoint>',
+            help=_('Endpoint to dissociate from '
+                   'specified project (name or ID)'),
+        )
+        parser.add_argument(
+            'project',
+            metavar='<project>',
+            help=_('Project to dissociate from '
+                   'specified endpoint name or ID)'),
+        )
+        common.add_project_domain_option_to_parser(parser)
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.identity
+
+        endpoint = utils.find_resource(client.endpoints,
+                                       parsed_args.endpoint)
+
+        project = common.find_project(client,
+                                      parsed_args.project,
+                                      parsed_args.project_domain)
+
+        client.endpoint_filter.delete_endpoint_from_project(
+            project=project.id,
+            endpoint=endpoint.id)
 
 
 class SetEndpoint(command.Command):
