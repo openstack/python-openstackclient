@@ -1,38 +1,112 @@
-# from zuul.d/zuul-legacy-jobs.yaml legacy-osc-dsvm-functional
+- job:
+    name: osc-functional-devstack-base
+    parent: devstack
+    description: |
+      Base job for devstack-based functional tests
+    pre-run: playbooks/osc-devstack/pre
+    run: playbooks/osc-devstack/run
+    post-run: playbooks/osc-devstack/post
+    required-projects:
+      - name: openstack/swift
+    roles:
+      - zuul: openstack-infra/devstack
+    timeout: 9000
+    vars:
+      devstack_localrc:
+        SWIFT_HASH: "1234123412341234"
+        LIBS_FROM_GIT: 'python-openstackclient'
+        # NOTE(dtroyer): OSC needs to support Image v1 for a while yet so re-enable
+        GLANCE_V1_ENABLED: True
+        # NOTE(dtroyer): Functional tests need a bit more volume headroom
+        VOLUME_BACKING_FILE_SIZE: 20G
+      devstack_local_conf:
+        post-config:
+          "$CINDER_CONF":
+            DEFAULT:
+              # NOTE(dtroyer): OSC needs to support Volume v1 for a while yet so re-enable
+              enable_v1_api: True
+      devstack_services:
+        ceilometer-acentral: False
+        ceilometer-acompute: False
+        ceilometer-alarm-evaluator: False
+        ceilometer-alarm-notifier: False
+        ceilometer-anotification: False
+        ceilometer-api: False
+        ceilometer-collector: False
+        horizon: False
+        s-account: True
+        s-container: True
+        s-object: True
+        s-proxy: True
+      osc_environment:
+        PYTHONUNBUFFERED: 'true'
+        OS_CLOUD: 'devstack-admin'
+      tox_install_siblings: False
+      zuul_work_dir: src/git.openstack.org/openstack/python-openstackclient
 
+# The Neutron bits are here rather than in osc-functional-devstack-base to
+# simplify removing Neutron in the osc-functional-devstack-n-net job.
 - job:
     name: osc-functional-devstack
-    parent: legacy-dsvm-base
-    run: playbooks/osc-functional-devstack/run
-    post-run: playbooks/osc-functional-devstack/post
+    parent: osc-functional-devstack-base
     timeout: 7800
-    required-projects:
-      - openstack-infra/devstack-gate
-      - openstack/python-openstackclient
+    vars:
+      devstack_plugins:
+        # NOTE(amotoki): Some neutron features are enabled by devstack plugin
+        neutron: https://git.openstack.org/openstack/neutron
+      devstack_services:
+        neutron-segments: True
+        q-metering: True
+        q-qos: True
+      tox_envlist: functional
 
 - job:
     name: osc-functional-devstack-n-net
-    parent: legacy-dsvm-base
-    run: playbooks/osc-functional-devstack-n-net/run
-    post-run: playbooks/osc-functional-devstack-n-net/post
+    parent: osc-functional-devstack-base
     timeout: 7800
-    required-projects:
-      - openstack-infra/devstack-gate
-      - openstack/python-openstackclient
+    vars:
+      devstack_localrc:
+        FLAT_INTERFACE: 'br_flat'
+        PUBLIC_INTERFACE: 'br_pub'
+      devstack_services:
+        n-cell: True
+        n-net: True
+        neutron: False
+        neutron-segments: False
+        q-agt: False
+        q-dhcp: False
+        q-l3: False
+        q-meta: False
+        q-metering: False
+        q-qos: False
+        q-svc: False
+      tox_envlist: functional
 
 - job:
     name: osc-functional-devstack-tips
-    parent: legacy-dsvm-base
-    run: playbooks/osc-functional-devstack-tips/run
-    post-run: playbooks/osc-functional-devstack-tips/post
+    parent: osc-functional-devstack
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
       - openstack/os-client-config
       - openstack/osc-lib
       - openstack/python-openstackclient
       - openstack/python-openstacksdk
-
+    vars:
+      devstack_localrc:
+        USE_PYTHON3: True
+        LIBS_FROM_GIT: 'python-openstackclient,python-openstacksdk,osc-lib,os-client-config'
+        # This is insufficient, but leaving it here as a reminder of what may
+        # someday be all we need to make this work
+        # disable_python3_package swift
+        DISABLED_PYTHON3_PACKAGES: 'swift'
+      devstack_services:
+        # Swift is not ready for python3 yet: At a minimum keystonemiddleware needs
+        # to be installed in the py2 env, there are probably other things too...
+        s-account: False
+        s-container: False
+        s-object: False
+        s-proxy: False
+      tox_envlist: functional-tips
 
 - project:
     name: openstack/python-openstackclient

@@ -217,16 +217,13 @@ more steps needed to fully integrate the client with openstackclient.
 Add the command checker to your CI
 ----------------------------------
 
-#. Modify the section of ``zuul/layout.yaml`` related to your repository to
-   add ``osc-plugin-jobs`` to the list of job templates for your project.
-   This job checks that to see if any new commands are: duplicated, missing
-   entry points, or have overlap; across all openstackclient plugins.
+#. Add ``openstackclient-plugin-jobs`` to the list of job templates for your project.
+   These jobs ensures that all plugin libraries are co-installable with
+   ``python-openstackclient`` and checks for conflicts across all OpenStackClient
+   plugins, such as duplicated commands, missing entry points, or other overlaps.
 
-#. Update  ``jenkins/scripts/check-osc-plugins.sh`` to include your new
-   library to be installed from source. This is essential in running the
-   previously mentioned check job. Simply add
-   ``install_from_source python-fooclient`` to the block of code where all
-   other clients are installed.
+#. Add your project to the ``required-projects`` list in the ``.zuul.yaml`` file
+   in the ``openstack/openstackclient`` repo.
 
 Changes to python-openstackclient
 ---------------------------------
