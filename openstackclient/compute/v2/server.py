@@ -1576,7 +1576,7 @@ class RemoveServerVolume(command.Command):
         )
 
 
-class RescueServer(command.ShowOne):
+class RescueServer(command.Command):
     _description = _("Put server in rescue mode")
 
     def get_parser(self, prog_name):
@@ -1586,16 +1586,35 @@ class RescueServer(command.ShowOne):
             metavar='<server>',
             help=_('Server (name or ID)'),
         )
+        parser.add_argument(
+            '--image',
+            metavar='<image>',
+            help=_('Image (name or ID) to use for the rescue mode.'
+                   ' Defaults to the currently used one.'),
+        )
+        parser.add_argument(
+            '--password',
+            metavar='<password>',
+            help=_("Set the password on the rescued instance"),
+        )
         return parser
 
     def take_action(self, parsed_args):
-
         compute_client = self.app.client_manager.compute
-        _, body = utils.find_resource(
+        image_client = self.app.client_manager.image
+
+        image = None
+        if parsed_args.image:
+            image = utils.find_resource(
+                image_client.images,
+                parsed_args.image,
+            )
+
+        utils.find_resource(
             compute_client.servers,
             parsed_args.server,
-        ).rescue()
-        return zip(*sorted(six.iteritems(body)))
+        ).rescue(image=image,
+                 password=parsed_args.password)
 
 
 class ResizeServer(command.Command):

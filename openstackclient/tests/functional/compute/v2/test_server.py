@@ -184,7 +184,18 @@ class ServerTests(common.ComputeTestCase):
 
         # rescue
         raw_output = self.openstack('server rescue ' + name)
-        self.assertNotEqual("", raw_output)
+        self.assertEqual("", raw_output)
+        self.wait_for_status(name, "RESCUE")
+
+        # unrescue
+        raw_output = self.openstack('server unrescue ' + name)
+        self.assertEqual("", raw_output)
+        self.wait_for_status(name, "ACTIVE")
+
+        # rescue with image
+        raw_output = self.openstack('server rescue --image ' +
+                                    self.image_name + ' ' + name)
+        self.assertEqual("", raw_output)
         self.wait_for_status(name, "RESCUE")
 
         # unrescue
