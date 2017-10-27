@@ -2170,6 +2170,91 @@ class TestServerRemoveFixedIP(TestServer):
         self.assertIsNone(result)
 
 
+class TestServerRescue(TestServer):
+
+    def setUp(self):
+        super(TestServerRescue, self).setUp()
+
+        # Return value for utils.find_resource for image
+        self.image = image_fakes.FakeImage.create_one_image()
+        self.images_mock.get.return_value = self.image
+
+        new_server = compute_fakes.FakeServer.create_one_server()
+        attrs = {
+            'id': new_server.id,
+            'image': {
+                'id': self.image.id,
+            },
+            'networks': {},
+            'adminPass': 'passw0rd',
+        }
+        methods = {
+            'rescue': new_server,
+        }
+        self.server = compute_fakes.FakeServer.create_one_server(
+            attrs=attrs,
+            methods=methods,
+        )
+
+        # Return value for utils.find_resource for server
+        self.servers_mock.get.return_value = self.server
+
+        self.cmd = server.RescueServer(self.app, None)
+
+    def test_rescue_with_current_image(self):
+        arglist = [
+            self.server.id,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Get the command object to test
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.rescue.assert_called_with(image=None, password=None)
+
+    def test_rescue_with_new_image(self):
+        new_image = image_fakes.FakeImage.create_one_image()
+        self.images_mock.get.return_value = new_image
+        arglist = [
+            '--image', new_image.id,
+            self.server.id,
+        ]
+        verifylist = [
+            ('image', new_image.id),
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Get the command object to test
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.images_mock.get.assert_called_with(new_image.id)
+        self.server.rescue.assert_called_with(image=new_image, password=None)
+
+    def test_rescue_with_current_image_and_password(self):
+        password = 'password-xxx'
+        arglist = [
+            '--password', password,
+            self.server.id,
+        ]
+        verifylist = [
+            ('password', password),
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Get the command object to test
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.rescue.assert_called_with(image=None, password=password)
+
+
 class TestServerRemoveFloatingIP(TestServer):
 
     def setUp(self):
