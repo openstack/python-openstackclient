@@ -300,6 +300,39 @@ class AddPort(command.Command):
         server.interface_attach(port_id=port_id, net_id=None, fixed_ip=None)
 
 
+class AddNetwork(command.Command):
+    _description = _("Add network to server")
+
+    def get_parser(self, prog_name):
+        parser = super(AddNetwork, self).get_parser(prog_name)
+        parser.add_argument(
+            "server",
+            metavar="<server>",
+            help=_("Server to add the network to (name or ID)"),
+        )
+        parser.add_argument(
+            "network",
+            metavar="<network>",
+            help=_("Network to add to the server (name or ID)"),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+
+        server = utils.find_resource(
+            compute_client.servers, parsed_args.server)
+
+        if self.app.client_manager.is_network_endpoint_enabled():
+            network_client = self.app.client_manager.network
+            net_id = network_client.find_network(
+                parsed_args.network, ignore_missing=False).id
+        else:
+            net_id = parsed_args.network
+
+        server.interface_attach(port_id=None, net_id=net_id, fixed_ip=None)
+
+
 class AddServerSecurityGroup(command.Command):
     _description = _("Add security group to server")
 

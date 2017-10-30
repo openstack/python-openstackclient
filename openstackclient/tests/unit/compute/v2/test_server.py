@@ -232,6 +232,53 @@ class TestServerAddPort(TestServer):
         self.find_port.assert_not_called()
 
 
+class TestServerAddNetwork(TestServer):
+
+    def setUp(self):
+        super(TestServerAddNetwork, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.AddNetwork(self.app, None)
+
+        # Set add_fixed_ip method to be tested.
+        self.methods = {
+            'interface_attach': None,
+        }
+
+        self.find_network = mock.Mock()
+        self.app.client_manager.network.find_network = self.find_network
+
+    def _test_server_add_network(self, net_id):
+        servers = self.setup_servers_mock(count=1)
+        network = 'fake-network'
+
+        arglist = [
+            servers[0].id,
+            network,
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('network', network)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        servers[0].interface_attach.assert_called_once_with(
+            port_id=None, net_id=net_id, fixed_ip=None)
+        self.assertIsNone(result)
+
+    def test_server_add_network(self):
+        self._test_server_add_network(self.find_network.return_value.id)
+        self.find_network.assert_called_once_with(
+            'fake-network', ignore_missing=False)
+
+    def test_server_add_network_no_neutron(self):
+        self.app.client_manager.network_endpoint_enabled = False
+        self._test_server_add_network('fake-network')
+        self.find_network.assert_not_called()
+
+
 @mock.patch(
     'openstackclient.api.compute_v2.APIv2.security_group_find'
 )

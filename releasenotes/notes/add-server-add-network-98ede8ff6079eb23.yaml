@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``server add network`` command. This command will create a neutron
+    port from the specified neutron network and attach the port to the
+    specified instance.
