@@ -25,6 +25,7 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import common
 from openstackclient.network import sdk_utils
 from openstackclient.network.v2 import _tag
 
@@ -278,8 +279,8 @@ def _add_updatable_args(parser):
     )
     parser.add_argument(
         '--dns-name',
-        metavar='dns-name',
-        help=_("Set DNS name to this port "
+        metavar='<dns-name>',
+        help=_("Set DNS name for this port "
                "(requires DNS integration extension)")
     )
 
@@ -434,7 +435,10 @@ class CreatePort(command.ShowOne):
         if parsed_args.qos_policy:
             attrs['qos_policy_id'] = client.find_qos_policy(
                 parsed_args.qos_policy, ignore_missing=False).id
-        obj = client.create_port(**attrs)
+        with common.check_missing_extension_if_error(
+                self.app.client_manager.network, attrs):
+            obj = client.create_port(**attrs)
+
         # tags cannot be set when created, so tags need to be set later.
         _tag.update_tags_for_set(client, obj, parsed_args)
         display_columns, columns = _get_columns(obj)
@@ -785,7 +789,9 @@ class SetPort(command.Command):
             attrs['data_plane_status'] = parsed_args.data_plane_status
 
         if attrs:
-            client.update_port(obj, **attrs)
+            with common.check_missing_extension_if_error(
+                    self.app.client_manager.network, attrs):
+                client.update_port(obj, **attrs)
 
         # tags is a subresource and it needs to be updated separately.
         _tag.update_tags_for_set(client, obj, parsed_args)

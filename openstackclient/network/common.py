@@ -12,6 +12,7 @@
 #
 
 import abc
+import contextlib
 import logging
 
 import openstack.exceptions
@@ -23,6 +24,30 @@ from openstackclient.i18n import _
 
 
 LOG = logging.getLogger(__name__)
+
+_required_opt_extensions_map = {
+    'allowed_address_pairs': 'allowed-address-pairs',
+    'dns_domain': 'dns-integration',
+    'dns_name': 'dns-integration',
+    'extra_dhcp_opts': 'extra_dhcp_opt',
+    'qos_policy_id': 'qos',
+    'security_groups': 'security-groups',
+}
+
+
+@contextlib.contextmanager
+def check_missing_extension_if_error(client_manager, attrs):
+    # If specified option requires extension, then try to
+    # find out if it exists. If it does not exist,
+    # then an exception with the appropriate message
+    # will be thrown from within client.find_extension
+    try:
+        yield
+    except openstack.exceptions.HttpException:
+        for opt, ext in _required_opt_extensions_map.items():
+            if opt in attrs:
+                client_manager.find_extension(ext, ignore_missing=False)
+        raise
 
 
 @six.add_metaclass(abc.ABCMeta)

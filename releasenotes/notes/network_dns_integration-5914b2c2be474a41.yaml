@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Add dns-domain support for network commands.
+    The new parameter ``--dns-domain`` is added to the ``network create``
+    and ``network set`` commands. This parameter sets
+    the domain name for the network.
+    Check backend available extension and return an error
+    message if it is missing (instead of a Bad Request HTTP 400).
