@@ -1,4 +1,24 @@
 - job:
+    name: osc-tox-unit-tips
+    parent: openstack-tox
+    description: |
+      Run unit tests for OpenStackClient with master branch of important libs.
+
+      Uses tox with the ``unit-tips`` environment and master branch of
+      the required-projects below.
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^releasenotes/.*$
+    required-projects:
+      - openstack/os-client-config
+      - openstack/osc-lib
+      - openstack/python-openstackclient
+      - openstack/python-openstacksdk
+    vars:
+      tox_envlist: unit-tips
+
+- job:
     name: osc-functional-devstack-base
     parent: devstack
     description: |
@@ -11,6 +31,10 @@
     roles:
       - zuul: openstack-infra/devstack
     timeout: 9000
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^releasenotes/.*$
     vars:
       devstack_localrc:
         SWIFT_HASH: '1234123412341234'
@@ -114,13 +138,17 @@
       - openstackclient-plugin-jobs
     check:
       jobs:
+        - osc-tox-unit-tips:
+            # The functional-tips job only tests the latest and shouldn't be run
+            # on the stable branches
+            branches: ^(?!stable)
         - osc-functional-devstack
-        - osc-functional-devstack-n-net:
-            voting: false
-            # The job testing nova-network no longer works before Pike, and
-            # should be disabled until the New Way of testing against old clouds
-            # is ready and backported
-            branches: ^(?!stable/(newton|ocata)).*$
+        # - osc-functional-devstack-n-net:
+        #     voting: false
+        #     # The job testing nova-network no longer works before Pike, and
+        #     # should be disabled until the New Way of testing against old clouds
+        #     # is ready and backported
+        #     branches: ^(?!stable/(newton|ocata)).*$
         - osc-functional-devstack-tips:
             voting: false
             # The functional-tips job only tests the latest and shouldn't be run
