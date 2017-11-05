@@ -67,6 +67,10 @@ def _get_attrs(client_manager, parsed_args):
     if parsed_args.fixed_ip_address:
         attrs['fixed_ip_address'] = parsed_args.fixed_ip_address
 
+    if parsed_args.qos_policy:
+        attrs['qos_policy_id'] = network_client.find_qos_policy(
+            parsed_args.qos_policy, ignore_missing=False).id
+
     if parsed_args.description is not None:
         attrs['description'] = parsed_args.description
 
@@ -168,6 +172,11 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
             metavar='<ip-address>',
             dest='fixed_ip_address',
             help=_("Fixed IP address mapped to the floating IP")
+        )
+        parser.add_argument(
+            '--qos-policy',
+            metavar='<qos-policy>',
+            help=_("Attach QoS policy to the floating IP (name or ID)")
         )
         parser.add_argument(
             '--description',
@@ -462,6 +471,17 @@ class SetFloatingIP(command.Command):
             help=_("Fixed IP of the port "
                    "(required only if port has multiple IPs)")
         )
+        qos_policy_group = parser.add_mutually_exclusive_group()
+        qos_policy_group.add_argument(
+            '--qos-policy',
+            metavar='<qos-policy>',
+            help=_("Attach QoS policy to the floating IP (name or ID)")
+        )
+        qos_policy_group.add_argument(
+            '--no-qos-policy',
+            action='store_true',
+            help=_("Remove the QoS policy attached to the floating IP")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -478,6 +498,13 @@ class SetFloatingIP(command.Command):
         attrs['port_id'] = port.id
         if parsed_args.fixed_ip_address:
             attrs['fixed_ip_address'] = parsed_args.fixed_ip_address
+
+        if parsed_args.qos_policy:
+            attrs['qos_policy_id'] = client.find_qos_policy(
+                parsed_args.qos_policy, ignore_missing=False).id
+
+        if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
+            attrs['qos_policy_id'] = None
 
         client.update_ip(obj, **attrs)
 
@@ -549,6 +576,12 @@ class UnsetFloatingIP(command.Command):
             default=False,
             help=_("Disassociate any port associated with the floating IP")
         )
+        parser.add_argument(
+            '--qos-policy',
+            action='store_true',
+            default=False,
+            help=_("Remove the QoS policy attached to the floating IP")
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -559,8 +592,11 @@ class UnsetFloatingIP(command.Command):
             parsed_args.floating_ip,
             ignore_missing=False,
         )
+        attrs = {}
         if parsed_args.port:
-            attrs = {
-                'port_id': None,
-            }
+            attrs['port_id'] = None
+        if parsed_args.qos_policy:
+            attrs['qos_policy_id'] = None
+
+        if attrs:
             client.update_ip(obj, **attrs)
