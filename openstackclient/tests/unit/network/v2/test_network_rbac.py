@@ -163,6 +163,30 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_network_rbac_create_with_target_all_projects(self):
+        arglist = [
+            '--type', self.rbac_policy.object_type,
+            '--action', self.rbac_policy.action,
+            '--target-all-projects',
+            self.rbac_policy.object_id,
+        ]
+        verifylist = [
+            ('type', self.rbac_policy.object_type),
+            ('action', self.rbac_policy.action),
+            ('target_all_projects', True),
+            ('rbac_object', self.rbac_policy.object_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_rbac_policy.assert_called_with(**{
+            'object_id': self.rbac_policy.object_id,
+            'object_type': self.rbac_policy.object_type,
+            'action': self.rbac_policy.action,
+            'target_tenant': '*',
+        })
+
     def test_network_rbac_create_all_options(self):
         arglist = [
             '--type', self.rbac_policy.object_type,

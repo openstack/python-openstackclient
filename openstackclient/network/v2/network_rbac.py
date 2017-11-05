@@ -51,11 +51,14 @@ def _get_attrs(client_manager, parsed_args):
     attrs['object_id'] = object_id
 
     identity_client = client_manager.identity
-    project_id = identity_common.find_project(
-        identity_client,
-        parsed_args.target_project,
-        parsed_args.target_project_domain,
-    ).id
+    if parsed_args.target_project is not None:
+        project_id = identity_common.find_project(
+            identity_client,
+            parsed_args.target_project,
+            parsed_args.target_project_domain,
+        ).id
+    elif parsed_args.target_all_projects:
+        project_id = '*'
     attrs['target_tenant'] = project_id
     if parsed_args.project is not None:
         project_id = identity_common.find_project(
@@ -96,12 +99,18 @@ class CreateNetworkRBAC(command.ShowOne):
             help=_('Action for the RBAC policy '
                    '("access_as_external" or "access_as_shared")')
         )
-        parser.add_argument(
+        target_project_group = parser.add_mutually_exclusive_group(
+            required=True)
+        target_project_group.add_argument(
             '--target-project',
-            required=True,
             metavar="<target-project>",
             help=_('The project to which the RBAC policy '
                    'will be enforced (name or ID)')
+        )
+        target_project_group.add_argument(
+            '--target-all-projects',
+            action='store_true',
+            help=_('Allow creating RBAC policy for all projects.')
         )
         parser.add_argument(
             '--target-project-domain',
