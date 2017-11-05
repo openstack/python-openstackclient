@@ -1,0 +1,159 @@
+- job:
+    name: osc-tox-unit-tips
+    parent: openstack-tox
+    description: |
+      Run unit tests for OpenStackClient with master branch of important libs.
+
+      Uses tox with the ``unit-tips`` environment and master branch of
+      the required-projects below.
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^releasenotes/.*$
+    required-projects:
+      - openstack/os-client-config
+      - openstack/osc-lib
+      - openstack/python-openstackclient
+      - openstack/python-openstacksdk
+    vars:
+      tox_envlist: unit-tips
+
+- job:
+    name: osc-functional-devstack-base
+    parent: devstack
+    description: |
+      Base job for devstack-based functional tests
+    pre-run: playbooks/osc-devstack/pre.yaml
+    run: playbooks/osc-devstack/run.yaml
+    post-run: playbooks/osc-devstack/post.yaml
+    required-projects:
+      - name: openstack/swift
+    roles:
+      - zuul: openstack-infra/devstack
+    timeout: 9000
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^releasenotes/.*$
+    vars:
+      devstack_localrc:
+        SWIFT_HASH: '1234123412341234'
+        LIBS_FROM_GIT: python-openstackclient
+        # NOTE(dtroyer): OSC needs to support Image v1 for a while yet so re-enable
+        GLANCE_V1_ENABLED: true
+        # NOTE(dtroyer): Functional tests need a bit more volume headroom
+        VOLUME_BACKING_FILE_SIZE: 20G
+      devstack_local_conf:
+        post-config:
+          $CINDER_CONF:
+            DEFAULT:
+              # NOTE(dtroyer): OSC needs to support Volume v1 for a while yet so re-enable
+              enable_v1_api: true
+      devstack_services:
+        ceilometer-acentral: false
+        ceilometer-acompute: false
+        ceilometer-alarm-evaluator: false
+        ceilometer-alarm-notifier: false
+        ceilometer-anotification: false
+        ceilometer-api: false
+        ceilometer-collector: false
+        horizon: false
+        s-account: true
+        s-container: true
+        s-object: true
+        s-proxy: true
+      osc_environment:
+        PYTHONUNBUFFERED: 'true'
+        OS_CLOUD: devstack-admin
+      tox_install_siblings: false
+      zuul_work_dir: src/git.openstack.org/openstack/python-openstackclient
+
+# The Neutron bits are here rather than in osc-functional-devstack-base to
+# simplify removing Neutron in the osc-functional-devstack-n-net job.
+- job:
+    name: osc-functional-devstack
+    parent: osc-functional-devstack-base
+    timeout: 7800
+    vars:
+      devstack_plugins:
+        # NOTE(amotoki): Some neutron features are enabled by devstack plugin
+        neutron: https://git.openstack.org/openstack/neutron
+      devstack_services:
+        neutron-segments: true
+        q-metering: true
+        q-qos: true
+      tox_envlist: functional
+
+- job:
+    name: osc-functional-devstack-n-net
+    parent: osc-functional-devstack-base
+    timeout: 7800
+    vars:
+      devstack_localrc:
+        FLAT_INTERFACE: br_flat
+        PUBLIC_INTERFACE: br_pub
+      devstack_services:
+        n-cell: true
+        n-net: true
+        neutron: false
+        neutron-segments: false
+        q-agt: false
+        q-dhcp: false
+        q-l3: false
+        q-meta: false
+        q-metering: false
+        q-qos: false
+        q-svc: false
+      tox_envlist: functional
+
+- job:
+    name: osc-functional-devstack-tips
+    parent: osc-functional-devstack
+    timeout: 7800
+    required-projects:
+      - openstack/os-client-config
+      - openstack/osc-lib
+      - openstack/python-openstackclient
+      - openstack/python-openstacksdk
+    vars:
+      devstack_localrc:
+        USE_PYTHON3: true
+        LIBS_FROM_GIT: python-openstackclient,python-openstacksdk,osc-lib,os-client-config
+        # This is insufficient, but leaving it here as a reminder of what may
+        # someday be all we need to make this work
+        # disable_python3_package swift
+        DISABLED_PYTHON3_PACKAGES: swift
+      devstack_services:
+        # Swift is not ready for python3 yet: At a minimum keystonemiddleware needs
+        # to be installed in the py2 env, there are probably other things too...
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+      tox_envlist: functional-tips
+
+- project:
+    name: openstack/python-openstackclient
+    templates:
+      - openstackclient-plugin-jobs
+    check:
+      jobs:
+        - osc-tox-unit-tips:
+            # The functional-tips job only tests the latest and shouldn't be run
+            # on the stable branches
+            branches: ^(?!stable)
+        - osc-functional-devstack
+        # - osc-functional-devstack-n-net:
+        #     voting: false
+        #     # The job testing nova-network no longer works before Pike, and
+        #     # should be disabled until the New Way of testing against old clouds
+        #     # is ready and backported
+        #     branches: ^(?!stable/(newton|ocata)).*$
+        - osc-functional-devstack-tips:
+            voting: false
+            # The functional-tips job only tests the latest and shouldn't be run
+            # on the stable branches
+            branches: ^(?!stable)
+    gate:
+      jobs:
+        - osc-functional-devstack
