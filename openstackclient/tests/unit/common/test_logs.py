@@ -18,7 +18,8 @@ import logging
 
 import mock
 
-from openstackclient.common import logs
+from osc_lib import logs
+
 from openstackclient.tests.unit import utils
 
 
