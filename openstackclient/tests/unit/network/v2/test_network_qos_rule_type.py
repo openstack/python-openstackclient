@@ -17,6 +17,7 @@ import mock
 
 from openstackclient.network.v2 import network_qos_rule_type as _qos_rule_type
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
+from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestNetworkQosRuleType(network_fakes.TestNetworkV2):
@@ -25,6 +26,60 @@ class TestNetworkQosRuleType(network_fakes.TestNetworkV2):
         super(TestNetworkQosRuleType, self).setUp()
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
+
+
+class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
+
+    attrs = {
+        'drivers': [{
+            'name': 'driver 1',
+            'supported_parameters': []
+        }]
+    }
+    # The QoS policies to show.
+    qos_rule_type = (
+        network_fakes.FakeNetworkQosRuleType.create_one_qos_rule_type(attrs))
+    columns = (
+        'drivers',
+        'rule_type_name'
+    )
+    data = [
+        qos_rule_type.drivers,
+        qos_rule_type.type
+    ]
+
+    def setUp(self):
+        super(TestShowNetworkQosRuleType, self).setUp()
+        self.network.get_qos_rule_type = mock.Mock(
+            return_value=self.qos_rule_type)
+
+        # Get the command object to test
+        self.cmd = _qos_rule_type.ShowNetworkQosRuleType(self.app,
+                                                         self.namespace)
+
+    def test_show_no_options(self):
+        arglist = []
+        verifylist = []
+
+        # Missing required args should bail here
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_show_all_options(self):
+        arglist = [
+            self.qos_rule_type.type,
+        ]
+        verifylist = [
+            ('rule_type', self.qos_rule_type.type),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.get_qos_rule_type.assert_called_once_with(
+            self.qos_rule_type.type)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(list(self.data), list(data))
 
 
 class TestListNetworkQosRuleType(TestNetworkQosRuleType):

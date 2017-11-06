@@ -35,3 +35,10 @@ class NetworkQosRuleTypeTests(common.NetworkTests):
             'network qos rule type list -f json'))
         for rule_type in self.AVAILABLE_RULE_TYPES:
             self.assertIn(rule_type, [x['Type'] for x in cmd_output])
+
+    def test_qos_rule_type_details(self):
+        for rule_type in self.AVAILABLE_RULE_TYPES:
+            cmd_output = json.loads(self.openstack(
+                'network qos rule type show %s -f json' % rule_type))
+            self.assertEqual(rule_type, cmd_output['rule_type_name'])
+            self.assertIn("drivers", cmd_output.keys())

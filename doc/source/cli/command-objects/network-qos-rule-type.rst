@@ -16,3 +16,18 @@ List Network QoS rule types
 .. code:: bash
 
     openstack network qos rule type list
+
+network qos rule type show
+--------------------------
+
+Display Network QoS rule type details
+
+.. program:: network qos rule type show
+.. code:: bash
+
+    openstack network qos rule type show
+        <rule-type-name>
+
+.. describe:: <rule-type-name>
+
+    Name of QoS rule type (minimum-bandwidth, dscp-marking, bandwidth-limit)
