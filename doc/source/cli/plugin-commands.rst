@@ -87,6 +87,12 @@ octavia
 .. list-plugins:: openstack.load_balancer.v2
    :detailed:
 
+rsd
+---
+
+.. list-plugins:: openstack.rsd.v1
+   :detailed:
+
 sahara
 ------
 

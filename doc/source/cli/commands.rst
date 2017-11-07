@@ -228,6 +228,7 @@ conflicts when creating new plugins. For a complete list check out
 * ``ptr record``: (**DNS (Designate)**)
 * ``queue``: (**Messaging (Zaqar)**)
 * ``recordset``: (**DNS (Designate)**)
+* ``rsd``: (**Disaggregated Hardware Resource Management (RSD)**)
 * ``search`` (**Search (Searchlight)**)
 * ``search facet`` (**Search (Searchlight)**)
 * ``search resource type`` (**Search (Searchlight)**)
