@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Add ``target-all-projects`` option in ``rbac create`` command.
+    [Bug `1728525 <https://bugs.launchpad.net/python-openstackclient/+bug/1728525>`_]

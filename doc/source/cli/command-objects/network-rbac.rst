@@ -19,7 +19,8 @@ Create network RBAC policy
     openstack network rbac create
         --type <type>
         --action <action>
-        --target-project <target-project> [--target-project-domain <target-project-domain>]
+        [--target-project <target-project> | --target-all-projects]
+        [--target-project-domain <target-project-domain>]
         [--project <project> [--project-domain <project-domain>]]
         <rbac-policy>
 
@@ -33,7 +34,11 @@ Create network RBAC policy
 
 .. option:: --target-project <target-project>
 
-    The project to which the RBAC policy will be enforced (name or ID) (required)
+    The project to which the RBAC policy will be enforced (name or ID)
+
+.. option:: --target-all-projects
+
+    Allow creating RBAC policy for all projects.
 
 .. option:: --target-project-domain <target-project-domain>
 
