@@ -134,7 +134,13 @@ def get_plugin_modules(group):
     for ep in pkg_resources.iter_entry_points(group):
         LOG.debug('Found plugin %r', ep.name)
 
-        __import__(ep.module_name)
+        try:
+            __import__(ep.module_name)
+        except Exception:
+            sys.stderr.write(
+                "WARNING: Failed to import plugin %r.\n" % ep.name)
+            continue
+
         module = sys.modules[ep.module_name]
         mod_list.append(module)
         init_func = getattr(module, 'Initialize', None)
