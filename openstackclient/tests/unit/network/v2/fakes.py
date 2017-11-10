@@ -1305,7 +1305,7 @@ class FakeSecurityGroupRule(object):
             'id': 'security-group-rule-id-' + uuid.uuid4().hex,
             'port_range_max': None,
             'port_range_min': None,
-            'protocol': 'tcp',
+            'protocol': None,
             'remote_group_id': None,
             'remote_ip_prefix': '0.0.0.0/0',
             'security_group_id': 'security-group-id-' + uuid.uuid4().hex,

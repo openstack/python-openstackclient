@@ -177,10 +177,12 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
     def test_create_default_rule(self):
         self._setup_security_group_rule({
+            'protocol': 'tcp',
             'port_range_max': 443,
             'port_range_min': 443,
         })
         arglist = [
+            '--protocol', 'tcp',
             '--dst-port', str(self._security_group_rule.port_range_min),
             self._security_group.id,
         ]
@@ -267,11 +269,13 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
     def test_create_remote_group(self):
         self._setup_security_group_rule({
+            'protocol': 'tcp',
             'port_range_max': 22,
             'port_range_min': 22,
             'remote_group_id': self._security_group.id,
         })
         arglist = [
+            '--protocol', 'tcp',
             '--dst-port', str(self._security_group_rule.port_range_min),
             '--ingress',
             '--src-group', self._security_group.name,

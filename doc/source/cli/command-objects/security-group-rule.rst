@@ -61,8 +61,8 @@ Create a new security group rule
     IP protocol (ah, dccp, egp, esp, gre, icmp, igmp,
     ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt,
     ipv6-opts, ipv6-route, ospf, pgm, rsvp, sctp, tcp,
-    udp, udplite, vrrp and integer representations [0-255];
-    default: tcp)
+    udp, udplite, vrrp and integer representations [0-255]
+    or any; default: any (all protocols))
 
     *Network version 2*
 
@@ -157,7 +157,7 @@ List security group rules
     List rules by the IP protocol (ah, dhcp, egp, esp, gre, icmp, igmp,
     ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt,ipv6-opts, ipv6-route,
     ospf, pgm, rsvp, sctp, tcp, udp, udplite, vrrp and integer
-    representations [0-255])
+    representations [0-255] or any; default: any (all protocols))
 
     *Network version 2*
 
