@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix the operation of the ``--changes-since`` option to the ``server list`` command.
+    [Bug `1732216 <https://bugs.launchpad.net/python-openstackclient/+bug/1732216>`_]
