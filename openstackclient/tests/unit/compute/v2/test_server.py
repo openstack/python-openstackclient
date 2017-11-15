@@ -2380,6 +2380,57 @@ class TestServerRemovePort(TestServer):
         self.find_port.assert_not_called()
 
 
+class TestServerRemoveNetwork(TestServer):
+
+    def setUp(self):
+        super(TestServerRemoveNetwork, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.RemoveNetwork(self.app, None)
+
+        # Set method to be tested.
+        self.fake_inf = mock.Mock()
+        self.methods = {
+            'interface_list': [self.fake_inf],
+            'interface_detach': None,
+        }
+
+        self.find_network = mock.Mock()
+        self.app.client_manager.network.find_network = self.find_network
+
+    def _test_server_remove_network(self, network_id):
+        self.fake_inf.net_id = network_id
+        self.fake_inf.port_id = 'fake-port'
+        servers = self.setup_servers_mock(count=1)
+        network = 'fake-network'
+
+        arglist = [
+            servers[0].id,
+            network,
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('network', network),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        servers[0].interface_list.assert_called_once_with()
+        servers[0].interface_detach.assert_called_once_with('fake-port')
+        self.assertIsNone(result)
+
+    def test_server_remove_network(self):
+        self._test_server_remove_network(self.find_network.return_value.id)
+        self.find_network.assert_called_once_with(
+            'fake-network', ignore_missing=False)
+
+    def test_server_remove_network_no_neutron(self):
+        self.app.client_manager.network_endpoint_enabled = False
+        self._test_server_remove_network('fake-network')
+        self.find_network.assert_not_called()
+
+
 @mock.patch(
     'openstackclient.api.compute_v2.APIv2.security_group_find'
 )
