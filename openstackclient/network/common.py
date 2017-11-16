@@ -191,6 +191,8 @@ class NetworkAndComputeShowOne(command.ShowOne):
                     self.app.client_manager.compute, parsed_args)
         except openstack.exceptions.HttpException as exc:
             msg = _("Error while executing command: %s") % exc.message
+            if exc.details:
+                msg += ", " + six.text_type(exc.details)
             raise exceptions.CommandError(msg)
 
     def get_parser(self, prog_name):
