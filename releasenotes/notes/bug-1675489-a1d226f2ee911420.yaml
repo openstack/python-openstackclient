@@ -1,0 +1,6 @@
+---
+features:
+  - Add router interfaces info (as field ``interfaces_info``) to ``router show`` command.
+    The information of router interface include port's ID, IP address,
+    the subnet ID it belongs.
+    [Bug `1675489 <https://bugs.launchpad.net/python-openstackclient/+bug/1675489>`_]
