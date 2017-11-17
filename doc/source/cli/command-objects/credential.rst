@@ -19,7 +19,7 @@ Create new credential
 
 .. option:: --type <type>
 
-    New credential type: cert, ec2
+    New credential type: cert, ec2, totp and so on
 
 .. option:: --project <project>
 
@@ -73,7 +73,7 @@ List credentials
 
 .. option:: --type <type>
 
-    Filter credentials by type: cert, ec2
+    Filter credentials by type: cert, ec2, totp and so on
 
 credential set
 --------------
@@ -96,7 +96,7 @@ Set credential properties
 
 .. option:: --type <type>
 
-    New credential type: cert, ec2
+    New credential type: cert, ec2, totp and so on.
 
 .. option:: --data <data>
 

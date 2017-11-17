@@ -124,20 +124,6 @@ class TestCredentialCreate(TestCredential):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-    def test_credential_create_with_invalid_type(self):
-        arglist = [
-            self.credential.user_id,
-            self.credential.blob,
-            '--type', 'invalid_type',
-        ]
-        verifylist = [
-            ('user', self.credential.user_id),
-            ('data', self.credential.blob),
-            ('type', 'invalid_type'),
-        ]
-        self.assertRaises(utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
-
 
 class TestCredentialDelete(TestCredential):
 
