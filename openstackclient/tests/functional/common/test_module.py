@@ -27,7 +27,6 @@ class ModuleTest(base.TestCase):
                'openstack']
 
     LIBS = ['osc_lib',
-            'os_client_config',
             'keystoneauth1']
 
     def test_module_list(self):
