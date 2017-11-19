@@ -55,11 +55,12 @@ class CreateServerGroup(command.ShowOne):
         parser.add_argument(
             '--policy',
             metavar='<policy>',
-            choices=['affinity', 'anti-affinity'],
             default='affinity',
             help=_("Add a policy to <name> "
                    "('affinity' or 'anti-affinity', "
-                   "default to 'affinity')")
+                   "defaults to 'affinity'). Specify --os-compute-api-version "
+                   "2.15 or higher for the 'soft-affinity' or "
+                   "'soft-anti-affinity' policy.")
         )
         return parser
 
