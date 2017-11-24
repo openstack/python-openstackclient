@@ -131,6 +131,16 @@ class PortTests(common.NetworkTagTests):
         self.assertNotIn(mac1, item_map.values())
         self.assertIn(mac2, item_map.values())
 
+        # Test list with unknown fields
+        json_output = json.loads(self.openstack(
+            'port list -f json -c ID -c Name -c device_id'
+        ))
+        id_list = [p['ID'] for p in json_output]
+        self.assertIn(id1, id_list)
+        self.assertIn(id2, id_list)
+        # Check an unknown field exists
+        self.assertIn('device_id', json_output[0])
+
     def test_port_set(self):
         """Test create, set, show, delete"""
         name = uuid.uuid4().hex

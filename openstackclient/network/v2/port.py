@@ -584,9 +584,11 @@ class ListPort(command.Lister):
 
         data = network_client.ports(**filters)
 
-        return (column_headers,
+        headers, attrs = utils.calculate_header_and_attrs(
+            column_headers, columns, parsed_args)
+        return (headers,
                 (utils.get_item_properties(
-                    s, columns,
+                    s, attrs,
                     formatters=_formatters,
                 ) for s in data))
 
