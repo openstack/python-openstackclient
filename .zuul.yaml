@@ -17,6 +17,9 @@
       - openstack/python-openstacksdk
     vars:
       tox_envlist: unit-tips
+      # Set work dir to openstackclient so that if it's triggered by one of the
+      # other repos the tests will run in the same place
+      zuul_work_dir: src/git.openstack.org/openstack/python-openstackclient
 
 - job:
     name: osc-functional-devstack-base
