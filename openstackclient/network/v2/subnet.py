@@ -167,6 +167,7 @@ def convert_entries_to_gateway(entries):
 
 def _get_attrs(client_manager, parsed_args, is_create=True):
     attrs = {}
+    client = client_manager.network
     if 'name' in parsed_args and parsed_args.name is not None:
         attrs['name'] = str(parsed_args.name)
 
@@ -179,7 +180,6 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
                 parsed_args.project_domain,
             ).id
             attrs['tenant_id'] = project_id
-        client = client_manager.network
         attrs['network_id'] = client.find_network(parsed_args.network,
                                                   ignore_missing=False).id
         if parsed_args.subnet_pool is not None:
@@ -200,10 +200,10 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
             attrs['ipv6_ra_mode'] = parsed_args.ipv6_ra_mode
         if parsed_args.ipv6_address_mode is not None:
             attrs['ipv6_address_mode'] = parsed_args.ipv6_address_mode
-        if parsed_args.network_segment is not None:
-            attrs['segment_id'] = client.find_segment(
-                parsed_args.network_segment, ignore_missing=False).id
 
+    if parsed_args.network_segment is not None:
+        attrs['segment_id'] = client.find_segment(
+            parsed_args.network_segment, ignore_missing=False).id
     if 'gateway' in parsed_args and parsed_args.gateway is not None:
         gateway = parsed_args.gateway.lower()
 
@@ -557,6 +557,14 @@ class SetSubnet(command.Command):
                    "<ip-address>: Specific IP address to use as the gateway, "
                    "'none': This subnet will not use a gateway, "
                    "e.g.: --gateway 192.168.9.1, --gateway none.")
+        )
+        parser.add_argument(
+            '--network-segment',
+            metavar='<network-segment>',
+            help=_("Network segment to associate with this subnet (name or "
+                   "ID). It is only allowed to set the segment if the current "
+                   "value is `None`, the network must also have only one "
+                   "segment and only one subnet can exist on the network.")
         )
         parser.add_argument(
             '--description',

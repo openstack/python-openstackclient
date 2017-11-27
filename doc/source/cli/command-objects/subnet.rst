@@ -265,6 +265,7 @@ Set subnet properties
         [--dns-nameserver <dns-nameserver>]
         [--no-dns-nameserver]
         [--gateway <gateway-ip>]
+        [--network-segment <network-segment>]
         [--host-route destination=<subnet>,gateway=<ip-address>]
         [--no-host-route]
         [--service-type <service-type>]
@@ -309,6 +310,13 @@ Set subnet properties
      <ip-address>: Specific IP address to use as the gateway,
      'none': This subnet will not use a gateway,
      e.g.: ``--gateway 192.168.9.1``, ``--gateway none``.
+
+.. option:: --network-segment <network-segment>
+
+     Network segment to associate with this subnet (name or ID). It is only
+     allowed to set the segment if the current value is `None`, the network
+     must also have only one segment and only one subnet can exist on the
+     network.
 
 .. option:: --host-route destination=<subnet>,gateway=<ip-address>
 

@@ -1,0 +1,5 @@
+---
+features:
+  - Add ``--network-segment`` option to ``subnet set`` command. This
+    enables the possiblity to set the ``segment_id`` of a subnet on
+    update.
