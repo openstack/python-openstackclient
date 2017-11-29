@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix occurrences of the ``network agent delete`` command failing with newer
+    releases of python-openstacksdk.
+    [Bug `1711301 <https://bugs.launchpad.net/python-openstackclient/+bug/1711301>`_]
