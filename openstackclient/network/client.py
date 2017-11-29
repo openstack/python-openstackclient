@@ -14,10 +14,15 @@
 import logging
 
 from openstack import connection
+
+
+# NOTE(dtroyer): Attempt an import to detect if the SDK installed is new
+#                enough to not use Profile.  If so, use that.
 try:
-    from openstack import profile
-except ImportError:
+    from openstack.config import loader as config   # noqa
     profile = None
+except ImportError:
+    from openstack import profile
 from osc_lib import utils
 
 from openstackclient.i18n import _
@@ -39,7 +44,7 @@ def make_client(instance):
     if profile is None:
         # New SDK
         conn = connection.Connection(
-            cloud_config=instance._cli_options,
+            config=instance._cli_options,
             session=instance.session)
     else:
         prof = profile.Profile()
