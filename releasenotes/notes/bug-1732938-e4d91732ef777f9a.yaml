@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Remove the client-side check for valid ``--policy`` values in the
+    ``server group create`` command.  Specify ``--os-compute-api-version 2.15``
+    or higher for the ``soft-affinity`` or ``soft-anti-affinity`` policy.
+    [Bug `1732938 <https://bugs.launchpad.net/python-openstackclient/+bug/1732938>`_]
