@@ -27,8 +27,9 @@ Create a new security group rule
 
 .. option:: --remote-ip <ip-address>
 
-    Remote IP address block
-    (may use CIDR notation; default for IPv4 rule: 0.0.0.0/0)
+    Remote IP address block (may use CIDR notation;
+    default for IPv4 rule: 0.0.0.0/0,
+    default for IPv6 rule: ::/0)
 
 .. option:: --remote-group <group>
 
@@ -134,6 +135,7 @@ List security group rules
     openstack security group rule list
         [--all-projects]
         [--protocol <protocol>]
+        [--ethertype <ethertype>]
         [--ingress | --egress]
         [--long]
         [<group>]
@@ -151,13 +153,18 @@ List security group rules
 
     *Compute version 2 does not have additional fields to display.*
 
-
 .. option:: --protocol
 
     List rules by the IP protocol (ah, dhcp, egp, esp, gre, icmp, igmp,
     ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt,ipv6-opts, ipv6-route,
     ospf, pgm, rsvp, sctp, tcp, udp, udplite, vrrp and integer
     representations [0-255] or any; default: any (all protocols))
+
+    *Network version 2*
+
+.. option:: --ethertype
+
+    List rules by the Ethertype (IPv4 or IPv6)
 
     *Network version 2*
 

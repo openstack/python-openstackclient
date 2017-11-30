@@ -1,0 +1,15 @@
+---
+features:
+  - |
+    Security group rules can now be filtered by Ethertype in
+    ``security group rule list`` using ``--ethertype`` with either
+    ``ipv4`` or ``ipv6`` as an argument.
+upgrade:
+  - |
+    Security group rule listings now have the ``Ethertype`` field displayed
+    by default to more easily differentiate between IPv4 and IPv6 rules.
+    In addition, the ``IP Range`` field of a security group will be
+    changed to ``0.0.0.0/0`` for IPv4 and ``::/0`` for IPv6 if no
+    value is returned for the address, based on the Ethertype field of
+    the rule. For further information see
+    [Bug `1735575 <https://bugs.launchpad.net/bugs/1735575>`_]
