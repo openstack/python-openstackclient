@@ -63,11 +63,11 @@ class TestServerGroupCreate(TestServerGroup):
 
     def test_server_group_create(self):
         arglist = [
-            '--policy', 'anti-affinity',
+            '--policy', 'soft-anti-affinity',
             'affinity_group',
         ]
         verifylist = [
-            ('policy', 'anti-affinity'),
+            ('policy', 'soft-anti-affinity'),
             ('name', 'affinity_group'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
