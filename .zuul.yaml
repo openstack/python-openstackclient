@@ -11,6 +11,8 @@
       - ^doc/.*$
       - ^releasenotes/.*$
     required-projects:
+      - openstack/cliff
+      - openstack/keystoneauth
       - openstack/os-client-config
       - openstack/osc-lib
       - openstack/python-openstackclient
@@ -114,6 +116,8 @@
     parent: osc-functional-devstack
     timeout: 7800
     required-projects:
+      - openstack/cliff
+      - openstack/keystoneauth
       - openstack/os-client-config
       - openstack/osc-lib
       - openstack/python-openstackclient
