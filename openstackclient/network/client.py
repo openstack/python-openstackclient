@@ -41,28 +41,35 @@ API_VERSIONS = {
 
 def make_client(instance):
     """Returns a network proxy"""
-    if profile is None:
-        # New SDK
-        conn = connection.Connection(
-            config=instance._cli_options,
-            session=instance.session)
-    else:
-        prof = profile.Profile()
-        prof.set_region(API_NAME, instance.region_name)
-        prof.set_version(API_NAME, instance._api_version[API_NAME])
-        prof.set_interface(API_NAME, instance.interface)
-        conn = connection.Connection(authenticator=instance.session.auth,
-                                     verify=instance.session.verify,
-                                     cert=instance.session.cert,
-                                     profile=prof)
+    if getattr(instance, "sdk_connection", None) is None:
+        if profile is None:
+            # If the installed OpenStackSDK is new enough to not require a
+            # Profile obejct and osc-lib is not new enough to have created
+            # it for us, make an SDK Connection.
+            # NOTE(dtroyer): This can be removed when this bit is in the
+            #                released osc-lib in requirements.txt.
+            conn = connection.Connection(
+                config=instance._cli_options,
+                session=instance.session,
+            )
+        else:
+            # Fall back to the original Connection creation
+            prof = profile.Profile()
+            prof.set_region(API_NAME, instance.region_name)
+            prof.set_version(API_NAME, instance._api_version[API_NAME])
+            prof.set_interface(API_NAME, instance.interface)
+            conn = connection.Connection(
+                authenticator=instance.session.auth,
+                verify=instance.session.verify,
+                cert=instance.session.cert,
+                profile=prof,
+            )
+
+        instance.sdk_connection = conn
+
     LOG.debug('Connection: %s', conn)
     LOG.debug('Network client initialized using OpenStack SDK: %s',
               conn.network)
-
-    # NOTE(dtroyer): Horrible ugly hack since we don't actually save
-    #                the connection anywhere yet, so stash it in the
-    #                instance directly from here for other uses
-    instance.sdk_connection = conn
     return conn.network
 
 
