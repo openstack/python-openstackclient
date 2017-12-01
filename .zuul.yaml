@@ -4,12 +4,7 @@
     description: |
       Run unit tests for OpenStackClient with master branch of important libs.
 
-      Uses tox with the ``unit-tips`` environment and master branch of
-      the required-projects below.
-    irrelevant-files:
-      - ^.*\.rst$
-      - ^doc/.*$
-      - ^releasenotes/.*$
+      Takes advantage of the base tox job's install-siblings feature.
     required-projects:
       - openstack/cliff
       - openstack/keystoneauth
@@ -18,7 +13,49 @@
       - openstack/python-openstackclient
       - openstack/python-openstacksdk
     vars:
-      tox_envlist: unit-tips
+      tox_envlist: py27
+      # Set work dir to openstackclient so that if it's triggered by one of the
+      # other repos the tests will run in the same place
+      zuul_work_dir: src/git.openstack.org/openstack/python-openstackclient
+
+- job:
+    name: osc-tox-py27-tips
+    parent: openstack-tox-py27
+    description: |
+      Run unit tests for OpenStackClient with master branch of important libs.
+
+      Takes advantage of the base tox job's install-siblings feature.
+    # The job only tests the latest and shouldn't be run on the stable branches
+    branches: ^(?!stable)
+    required-projects:
+      - openstack/cliff
+      - openstack/keystoneauth
+      - openstack/os-client-config
+      - openstack/osc-lib
+      - openstack/python-openstackclient
+      - openstack/python-openstacksdk
+    vars:
+      # Set work dir to openstackclient so that if it's triggered by one of the
+      # other repos the tests will run in the same place
+      zuul_work_dir: src/git.openstack.org/openstack/python-openstackclient
+
+- job:
+    name: osc-tox-py35-tips
+    parent: openstack-tox-py35
+    description: |
+      Run unit tests for OpenStackClient with master branch of important libs.
+
+      Takes advantage of the base tox job's install-siblings feature.
+    # The job only tests the latest and shouldn't be run on the stable branches
+    branches: ^(?!stable)
+    required-projects:
+      - openstack/cliff
+      - openstack/keystoneauth
+      - openstack/os-client-config
+      - openstack/osc-lib
+      - openstack/python-openstackclient
+      - openstack/python-openstacksdk
+    vars:
       # Set work dir to openstackclient so that if it's triggered by one of the
       # other repos the tests will run in the same place
       zuul_work_dir: src/git.openstack.org/openstack/python-openstackclient
@@ -137,18 +174,26 @@
         s-container: false
         s-object: false
         s-proxy: false
-      tox_envlist: functional-tips
+      tox_envlist: functional
+
+- project-template:
+    name: osc-tox-unit-tips
+    check:
+      jobs:
+        - osc-tox-py27-tips
+        - osc-tox-py35-tips
+    gate:
+      jobs:
+        - osc-tox-py27-tips
+        - osc-tox-py35-tips
 
 - project:
     name: openstack/python-openstackclient
     templates:
       - openstackclient-plugin-jobs
+      - osc-tox-unit-tips
     check:
       jobs:
-        - osc-tox-unit-tips:
-            # The functional-tips job only tests the latest and shouldn't be run
-            # on the stable branches
-            branches: ^(?!stable)
         - osc-functional-devstack
         # - osc-functional-devstack-n-net:
         #     voting: false
