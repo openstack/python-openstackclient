@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    ``openstack subnet create`` failed with a NoneType exception when
+    there were no tags.
+    [Bug `1735836 <https://bugs.launchpad.net/python-openstackclient/+bug/1735836>`_]

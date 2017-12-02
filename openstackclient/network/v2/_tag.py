@@ -102,10 +102,10 @@ def update_tags_for_set(client, obj, parsed_args):
     if parsed_args.no_tag:
         tags = set()
     else:
-        tags = set(obj.tags)
+        tags = set(obj.tags or [])
     if parsed_args.tags:
         tags |= set(parsed_args.tags)
-    if set(obj.tags) != tags:
+    if set(obj.tags or []) != tags:
         client.set_tags(obj, list(tags))
 
 
