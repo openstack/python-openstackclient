@@ -62,16 +62,9 @@
 
 - job:
     name: osc-functional-devstack-base
-    parent: devstack
+    parent: devstack-tox-functional
     description: |
       Base job for devstack-based functional tests
-    pre-run: playbooks/osc-devstack/pre.yaml
-    run: playbooks/osc-devstack/run.yaml
-    post-run: playbooks/osc-devstack/post.yaml
-    required-projects:
-      - name: openstack/swift
-    roles:
-      - zuul: openstack-infra/devstack
     timeout: 9000
     irrelevant-files:
       - ^.*\.rst$
@@ -79,7 +72,6 @@
       - ^releasenotes/.*$
     vars:
       devstack_localrc:
-        SWIFT_HASH: '1234123412341234'
         LIBS_FROM_GIT: python-openstackclient
         # NOTE(dtroyer): OSC needs to support Image v1 for a while yet so re-enable
         GLANCE_V1_ENABLED: true
@@ -99,7 +91,6 @@
         ceilometer-anotification: false
         ceilometer-api: false
         ceilometer-collector: false
-        horizon: false
         s-account: true
         s-container: true
         s-object: true
@@ -107,7 +98,6 @@
       osc_environment:
         PYTHONUNBUFFERED: 'true'
         OS_CLOUD: devstack-admin
-      tox_install_siblings: false
       zuul_work_dir: src/git.openstack.org/openstack/python-openstackclient
 
 # The Neutron bits are here rather than in osc-functional-devstack-base to
