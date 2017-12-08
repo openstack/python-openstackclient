@@ -759,6 +759,25 @@ class TestListPort(TestPort):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_port_list_device_id_opt(self):
+        arglist = [
+            '--device-id', self._ports[0].device_id,
+        ]
+
+        verifylist = [
+            ('device_id', self._ports[0].device_id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ports.assert_called_once_with(**{
+            'device_id': self._ports[0].device_id
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
     def test_port_list_device_owner_opt(self):
         arglist = [
             '--device-owner', self._ports[0].device_owner,

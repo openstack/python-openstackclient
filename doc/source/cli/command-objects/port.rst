@@ -170,7 +170,7 @@ List ports
 
     openstack port list
         [--device-owner <device-owner>]
-        [--router <router> | --server <server>]
+        [--router <router> | --server <server> | --device-id <device-id>]
         [--network <network>]
         [--mac-address <mac-address>]
         [--fixed-ip subnet=<subnet>,ip-address=<ip-address>]
@@ -191,6 +191,10 @@ List ports
 .. option:: --server <server>
 
     List only ports attached to this server (name or ID)
+
+.. option:: --device-id <device-id>
+
+    List only ports with the specified device ID
 
 .. option:: --network <network>
 

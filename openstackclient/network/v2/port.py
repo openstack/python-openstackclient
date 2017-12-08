@@ -499,6 +499,11 @@ class ListPort(command.Lister):
             metavar='<server>',
             help=_("List only ports attached to this server (name or ID)"),
         )
+        device_group.add_argument(
+            '--device-id',
+            metavar='<device-id>',
+            help=_("List only ports with the specified device ID")
+        )
         parser.add_argument(
             '--mac-address',
             metavar='<mac-address>',
@@ -553,6 +558,8 @@ class ListPort(command.Lister):
             column_headers += ('Security Groups', 'Device Owner', 'Tags')
         if parsed_args.device_owner is not None:
             filters['device_owner'] = parsed_args.device_owner
+        if parsed_args.device_id is not None:
+            filters['device_id'] = parsed_args.device_id
         if parsed_args.router:
             _router = network_client.find_router(parsed_args.router,
                                                  ignore_missing=False)

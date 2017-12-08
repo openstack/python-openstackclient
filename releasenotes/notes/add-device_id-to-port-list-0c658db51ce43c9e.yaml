@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add ``--device-id`` option to the ``port list`` command.
