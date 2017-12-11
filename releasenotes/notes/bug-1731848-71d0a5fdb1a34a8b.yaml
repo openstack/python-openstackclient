@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Remove the type value limit in credentials when do create,
+    reset or list. Now 'totp' method is supported in keystone
+    project and we could create credentials with 'totp' type.
+    [Bug `1731848 <https://bugs.launchpad.net/bugs/1731848>`_]

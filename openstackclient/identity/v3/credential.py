@@ -43,8 +43,7 @@ class CreateCredential(command.ShowOne):
             '--type',
             default="cert",
             metavar='<type>',
-            choices=['ec2', 'cert'],
-            help=_('New credential type: cert, ec2'),
+            help=_('New credential type: cert, ec2, totp and so on'),
         )
         parser.add_argument(
             'data',
@@ -124,8 +123,7 @@ class ListCredential(command.Lister):
         parser.add_argument(
             '--type',
             metavar='<type>',
-            choices=['ec2', 'cert'],
-            help=_('Filter credentials by type: cert, ec2'),
+            help=_('Filter credentials by type: cert, ec2, totp and so on'),
         )
         return parser
 
@@ -173,9 +171,8 @@ class SetCredential(command.Command):
         parser.add_argument(
             '--type',
             metavar='<type>',
-            choices=['ec2', 'cert'],
             required=True,
-            help=_('New credential type: cert, ec2'),
+            help=_('New credential type: cert, ec2, totp and so on'),
         )
         parser.add_argument(
             '--data',
