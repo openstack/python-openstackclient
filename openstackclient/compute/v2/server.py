@@ -1056,17 +1056,18 @@ class ListServer(command.Lister):
             'all_tenants': parsed_args.all_projects,
             'user_id': user_id,
             'deleted': parsed_args.deleted,
-            'changes_since': parsed_args.changes_since,
+            'changes-since': parsed_args.changes_since,
         }
         LOG.debug('search options: %s', search_opts)
 
-        if search_opts['changes_since']:
+        if search_opts['changes-since']:
             try:
-                timeutils.parse_isotime(search_opts['changes_since'])
+                timeutils.parse_isotime(search_opts['changes-since'])
             except ValueError:
-                raise exceptions.CommandError(_('Invalid changes-since value:'
-                                              ' %s') % search_opts['changes'
-                                                                   '_since'])
+                raise exceptions.CommandError(
+                    _('Invalid changes-since value: %s') %
+                    search_opts['changes-since']
+                )
 
         if parsed_args.long:
             columns = (

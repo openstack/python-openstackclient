@@ -1584,7 +1584,7 @@ class TestServerList(TestServer):
             'all_tenants': False,
             'user_id': None,
             'deleted': False,
-            'changes_since': None,
+            'changes-since': None,
         }
 
         # Default params of the core function of the command in the case of no
@@ -1791,7 +1791,7 @@ class TestServerList(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['changes_since'] = '2016-03-04T06:27:59Z'
+        self.search_opts['changes-since'] = '2016-03-04T06:27:59Z'
         self.search_opts['deleted'] = True
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
