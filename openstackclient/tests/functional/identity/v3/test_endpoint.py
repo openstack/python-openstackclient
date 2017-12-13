@@ -42,6 +42,29 @@ class EndpointTests(common.IdentityTests):
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ENDPOINT_LIST_HEADERS)
 
+    def test_endpoint_list_filter(self):
+        endpoint_id = self._create_dummy_endpoint(add_clean_up=False)
+        project_id = self._create_dummy_project(add_clean_up=False)
+        raw_output = self.openstack(
+            'endpoint add project '
+            '%(endpoint_id)s '
+            '%(project_id)s' % {
+                'project_id': project_id,
+                'endpoint_id': endpoint_id})
+        self.assertEqual(0, len(raw_output))
+        raw_output = self.openstack(
+            'endpoint list --endpoint %s' % endpoint_id)
+        self.assertIn(project_id, raw_output)
+        items = self.parse_listing(raw_output)
+        self.assert_table_structure(items,
+                                    self.ENDPOINT_LIST_PROJECT_HEADERS)
+
+        raw_output = self.openstack(
+            'endpoint list --project %s' % project_id)
+        self.assertIn(endpoint_id, raw_output)
+        items = self.parse_listing(raw_output)
+        self.assert_table_structure(items, self.ENDPOINT_LIST_HEADERS)
+
     def test_endpoint_set(self):
         endpoint_id = self._create_dummy_endpoint()
         new_endpoint_url = data_utils.rand_url()
@@ -65,3 +88,22 @@ class EndpointTests(common.IdentityTests):
         raw_output = self.openstack('endpoint show %s' % endpoint_id)
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.ENDPOINT_FIELDS)
+
+    def test_endpoint_add_remove_project(self):
+        endpoint_id = self._create_dummy_endpoint(add_clean_up=False)
+        project_id = self._create_dummy_project(add_clean_up=False)
+        raw_output = self.openstack(
+            'endpoint add project '
+            '%(endpoint_id)s '
+            '%(project_id)s' % {
+                'project_id': project_id,
+                'endpoint_id': endpoint_id})
+        self.assertEqual(0, len(raw_output))
+
+        raw_output = self.openstack(
+            'endpoint remove project '
+            '%(endpoint_id)s '
+            '%(project_id)s' % {
+                'project_id': project_id,
+                'endpoint_id': endpoint_id})
+        self.assertEqual(0, len(raw_output))

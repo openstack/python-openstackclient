@@ -4,6 +4,34 @@ endpoint
 
 Identity v2, v3
 
+endpoint add project
+--------------------
+
+Associate a project to and endpoint for endpoint filtering
+
+.. program:: endpoint add project
+.. code:: bash
+
+    openstack endpoint add project
+        [--project-domain <project-domain>]
+        <endpoint>
+        <project>
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+.. _endpoint_add_project-endpoint:
+.. describe:: <endpoint>
+
+    Endpoint to associate with specified project (name or ID)
+
+.. _endpoint_add_project-project:
+.. describe:: <project>
+
+    Project to associate with specified endpoint (name or ID)
+
 endpoint create
 ---------------
 
@@ -107,6 +135,8 @@ List endpoints
         [--interface <interface>]
         [--region <region-id>]
         [--long]
+        [--endpoint <endpoint> |
+        --project <project> [--project-domain <project-domain>]]
 
 .. option:: --service <service>
 
@@ -131,6 +161,55 @@ List endpoints
     List additional fields in output
 
     *Identity version 2 only*
+
+.. option:: --endpoint
+
+    List projects that have access to that endpoint using
+    endpoint filtering
+
+    *Identity version 3 only*
+
+.. option:: --project
+
+    List endpoints available for the project using
+    endpoint filtering
+
+    *Identity version 3 only*
+
+.. option:: --project-domain
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+    *Identity version 3 only*
+
+endpoint remove project
+-----------------------
+
+Dissociate a project from an endpoint.
+
+.. program:: endpoint remove project
+.. code:: bash
+
+    openstack endpoint remove project
+        [--project-domain <project-domain>]
+        <endpoint>
+        <project>
+
+.. option:: --project-domain <project-domain>
+
+    Domain the project belongs to (name or ID).
+    This can be used in case collisions between project names exist.
+
+.. _endpoint_remove_project-endpoint:
+.. describe:: <endpoint>
+
+    Endpoint to dissociate with specified project (name or ID)
+
+.. _endpoint_remove_project-project:
+.. describe:: <project>
+
+    Project to dissociate with specified endpoint (name or ID)
 
 endpoint set
 ------------
