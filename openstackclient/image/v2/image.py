@@ -585,7 +585,7 @@ class ListImage(command.Lister):
                 property_field='properties',
             )
 
-        data = utils.sort_items(data, parsed_args.sort)
+        data = utils.sort_items(data, parsed_args.sort, str)
 
         return (
             column_headers,

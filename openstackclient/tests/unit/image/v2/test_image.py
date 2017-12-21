@@ -708,7 +708,8 @@ class TestImageList(TestImage):
         )
         si_mock.assert_called_with(
             [self._image],
-            'name:asc'
+            'name:asc',
+            str,
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
