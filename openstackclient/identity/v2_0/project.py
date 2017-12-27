@@ -289,7 +289,7 @@ class ShowProject(command.ShowOne):
         # the API has and handle the extra top level properties.
         reserved = ('name', 'id', 'enabled', 'description')
         properties = {}
-        for k, v in info.items():
+        for k, v in list(info.items()):
             if k not in reserved:
                 # If a key is not in `reserved` it's a property, pop it
                 info.pop(k)
