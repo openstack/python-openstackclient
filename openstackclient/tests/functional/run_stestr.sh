@@ -13,4 +13,4 @@ fi
 echo 'Running tests with:'
 env | grep OS
 
-ostestr $*
+stestr run $*
