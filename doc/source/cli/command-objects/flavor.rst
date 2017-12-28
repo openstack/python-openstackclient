@@ -44,7 +44,7 @@ Create new flavor
 
 .. option:: --swap <size-mb>
 
-    Swap space size in MB (default 0M)
+    Additional swap space size in MB (default 0M)
 
 .. option:: --vcpus <num-cpu>
 

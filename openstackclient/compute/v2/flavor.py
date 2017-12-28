@@ -91,7 +91,7 @@ class CreateFlavor(command.ShowOne):
             type=int,
             metavar="<size-mb>",
             default=0,
-            help=_("Swap space size in MB (default 0M)")
+            help=_("Additional swap space size in MB (default 0M)")
         )
         parser.add_argument(
             "--vcpus",
