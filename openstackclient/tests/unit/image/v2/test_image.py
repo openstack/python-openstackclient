@@ -15,6 +15,7 @@
 
 import copy
 
+from glanceclient.common import utils as glanceclient_utils
 from glanceclient.v2 import schemas
 import mock
 from osc_lib import exceptions
@@ -1505,3 +1506,53 @@ class TestImageUnset(TestImage):
             self.image.id, 'test'
         )
         self.assertIsNone(result)
+
+
+class TestImageSave(TestImage):
+
+    image = image_fakes.FakeImage.create_one_image({})
+
+    def setUp(self):
+        super(TestImageSave, self).setUp()
+
+        # Generate a request id
+        self.resp = mock.MagicMock()
+        self.resp.headers['x-openstack-request-id'] = 'req_id'
+
+        # Get the command object to test
+        self.cmd = image.SaveImage(self.app, None)
+
+    def test_save_data(self):
+        req_id_proxy = glanceclient_utils.RequestIdProxy(
+            ['some_data', self.resp]
+        )
+        self.images_mock.data.return_value = req_id_proxy
+
+        arglist = ['--file', '/path/to/file', self.image.id]
+
+        verifylist = [
+            ('file', '/path/to/file'),
+            ('image', self.image.id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch('glanceclient.common.utils.save_image') as mocked_save:
+            self.cmd.take_action(parsed_args)
+            mocked_save.assert_called_once_with(req_id_proxy, '/path/to/file')
+
+    def test_save_no_data(self):
+        req_id_proxy = glanceclient_utils.RequestIdProxy(
+            [None, self.resp]
+        )
+        self.images_mock.data.return_value = req_id_proxy
+
+        arglist = ['--file', '/path/to/file', self.image.id]
+
+        verifylist = [
+            ('file', '/path/to/file'),
+            ('image', self.image.id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Raise SystemExit if no data was provided.
+        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
