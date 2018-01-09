@@ -215,6 +215,9 @@ def _prepare_filter_fixed_ips(client_manager, parsed_args):
 
         if 'ip-address' in ip_spec:
             ips.append('ip_address=%s' % ip_spec['ip-address'])
+
+        if 'ip-substring' in ip_spec:
+            ips.append('ip_address_substr=%s' % ip_spec['ip-substring'])
     return ips
 
 
@@ -531,11 +534,13 @@ class ListPort(command.Lister):
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--fixed-ip',
-            metavar='subnet=<subnet>,ip-address=<ip-address>',
+            metavar=('subnet=<subnet>,ip-address=<ip-address>,'
+                     'ip-substring=<ip-substring>'),
             action=parseractions.MultiKeyValueAction,
-            optional_keys=['subnet', 'ip-address'],
+            optional_keys=['subnet', 'ip-address', 'ip-substring'],
             help=_("Desired IP and/or subnet for filtering ports "
-                   "(name or ID): subnet=<subnet>,ip-address=<ip-address> "
+                   "(name or ID): subnet=<subnet>,ip-address=<ip-address>,"
+                   "ip-substring=<ip-substring> "
                    "(repeat option to set multiple fixed IP addresses)"),
         )
         _tag.add_tag_filtering_option_to_parser(parser, _('ports'))
