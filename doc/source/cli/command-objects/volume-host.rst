@@ -2,7 +2,7 @@
 volume host
 ===========
 
-Volume v2
+Block Storage v2
 
 volume host failover
 --------------------
