@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Add support for attaching and removing qos policy to floating IPs.
+    
+    Add option ``--qos-policy`` to the ``floating ip create`` and
+    ``floating ip set`` commands to add qos policy to a floating IP.
+
+    Add option ``--no-qos-policy`` to the ``floating ip set`` and option
+    ``--qos-policy`` to the ``floating ip unset`` command to remove the
+    qos policy from a floating IP.

@@ -62,6 +62,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         'id',
         'port_id',
         'project_id',
+        'qos_policy_id',
         'router_id',
         'status',
     )
@@ -76,6 +77,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         floating_ip.id,
         floating_ip.port_id,
         floating_ip.project_id,
+        floating_ip.qos_policy_id,
         floating_ip.router_id,
         floating_ip.status,
     )
@@ -193,6 +195,28 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         self.network.create_ip.assert_called_once_with(**{
             'floating_network_id': self.floating_ip.floating_network_id,
             'tenant_id': project.id,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_floating_ip_with_qos(self):
+        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        arglist = [
+            '--qos-policy', qos_policy.id,
+            self.floating_ip.floating_network_id,
+        ]
+        verifylist = [
+            ('network', self.floating_ip.floating_network_id),
+            ('qos_policy', qos_policy.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_ip.assert_called_once_with(**{
+            'floating_network_id': self.floating_ip.floating_network_id,
+            'qos_policy_id': qos_policy.id,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -538,6 +562,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
         'id',
         'port_id',
         'project_id',
+        'qos_policy_id',
         'router_id',
         'status',
     )
@@ -552,6 +577,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
         floating_ip.id,
         floating_ip.port_id,
         floating_ip.project_id,
+        floating_ip.qos_policy_id,
         floating_ip.router_id,
         floating_ip.status,
     )
@@ -677,6 +703,76 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
         self.network.update_ip.assert_called_once_with(
             self.floating_ip, **attrs)
 
+    @mock.patch(
+        "openstackclient.tests.unit.network.v2.test_floating_ip_network." +
+        "fip._find_floating_ip"
+    )
+    def test_port_and_qos_policy_option(self, find_floating_ip_mock):
+        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        find_floating_ip_mock.side_effect = [
+            self.floating_ip,
+        ]
+        arglist = [
+            "--qos-policy", qos_policy.id,
+            '--port', self.floating_ip.port_id,
+            self.floating_ip.id,
+        ]
+        verifylist = [
+            ('qos_policy', qos_policy.id),
+            ('port', self.floating_ip.port_id),
+            ('floating_ip', self.floating_ip.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'qos_policy_id': qos_policy.id,
+            'port_id': self.floating_ip.port_id,
+        }
+        find_floating_ip_mock.assert_called_once_with(
+            mock.ANY,
+            self.floating_ip.id,
+            ignore_missing=False,
+        )
+        self.network.update_ip.assert_called_once_with(
+            self.floating_ip, **attrs)
+
+    @mock.patch(
+        "openstackclient.tests.unit.network.v2.test_floating_ip_network." +
+        "fip._find_floating_ip"
+    )
+    def test_port_and_no_qos_policy_option(self, find_floating_ip_mock):
+        find_floating_ip_mock.side_effect = [
+            self.floating_ip,
+        ]
+        arglist = [
+            "--no-qos-policy",
+            '--port', self.floating_ip.port_id,
+            self.floating_ip.id,
+        ]
+        verifylist = [
+            ('no_qos_policy', True),
+            ('port', self.floating_ip.port_id),
+            ('floating_ip', self.floating_ip.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'qos_policy_id': None,
+            'port_id': self.floating_ip.port_id,
+        }
+        find_floating_ip_mock.assert_called_once_with(
+            mock.ANY,
+            self.floating_ip.id,
+            ignore_missing=False,
+        )
+        self.network.update_ip.assert_called_once_with(
+            self.floating_ip, **attrs)
+
 
 class TestUnsetFloatingIP(TestFloatingIPNetwork):
 
@@ -722,6 +818,39 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
 
         attrs = {
             'port_id': None,
+        }
+        find_floating_ip_mock.assert_called_once_with(
+            mock.ANY,
+            self.floating_ip.id,
+            ignore_missing=False,
+        )
+        self.network.update_ip.assert_called_once_with(
+            self.floating_ip, **attrs)
+
+        self.assertIsNone(result)
+
+    @mock.patch(
+        "openstackclient.tests.unit.network.v2.test_floating_ip_network." +
+        "fip._find_floating_ip"
+    )
+    def test_floating_ip_unset_qos_policy(self, find_floating_ip_mock):
+        find_floating_ip_mock.side_effect = [
+            self.floating_ip,
+        ]
+        arglist = [
+            self.floating_ip.id,
+            "--qos-policy",
+        ]
+        verifylist = [
+            ('floating_ip', self.floating_ip.id),
+            ('qos_policy', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'qos_policy_id': None,
         }
         find_floating_ip_mock.assert_called_once_with(
             mock.ANY,

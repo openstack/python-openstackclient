@@ -18,6 +18,7 @@ Create floating IP
         [--floating-ip-address <ip-address>]
         [--fixed-ip-address <ip-address>]
         [--description <description>]
+        [--qos-policy <qos-policy>]
         [--project <project> [--project-domain <project-domain>]]
         <network>
 
@@ -44,6 +45,12 @@ Create floating IP
 .. option:: --description <description>
 
     Set floating IP description
+    *Network version 2 only*
+
+.. option:: --qos-policy <qos-policy>
+
+    QoS policy to attach to the floating IP (name or ID)
+
     *Network version 2 only*
 
 .. option:: --project <project>
@@ -154,6 +161,7 @@ Set floating IP properties
     openstack floating ip set
         --port <port>
         [--fixed-ip-address <ip-address>]
+        [--qos-policy <qos-policy> | --no-qos-policy]
         <floating-ip>
 
 .. option:: --port <port>
@@ -163,6 +171,14 @@ Set floating IP properties
 .. option:: --fixed-ip-address <ip-address>
 
     Fixed IP of the port (required only if port has multiple IPs)
+
+.. option:: --qos-policy <qos-policy>
+
+    Attach QoS policy to the floating IP (name or ID)
+
+.. option:: --no-qos-policy
+
+    Remove the QoS policy attached to the floating IP
 
 .. _floating_ip_set-floating-ip:
 .. describe:: <floating-ip>
@@ -193,11 +209,16 @@ Unset floating IP Properties
 
     openstack floating ip unset
         --port
+        --qos-policy
         <floating-ip>
 
 .. option:: --port
 
     Disassociate any port associated with the floating IP
+
+.. option:: --qos-policy
+
+    Remove the QoS policy attached to the floating IP
 
 .. _floating_ip_unset-floating-ip:
 .. describe:: <floating-ip>
