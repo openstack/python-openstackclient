@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``image list`` command now properly filters images on multiple
+    ``--property`` options.
+    [Bug `2004290 <https://storyboard.openstack.org/#!/story/2004290>`_]
