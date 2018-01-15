@@ -23,7 +23,7 @@ wrapt>=1.7.0 # BSD License
 aodhclient>=0.9.0 # Apache-2.0
 gnocchiclient>=3.3.1 # Apache-2.0
 python-barbicanclient!=4.5.0,!=4.5.1,>=4.0.0 # Apache-2.0
-python-congressclient<2000,>=1.3.0 # Apache-2.0
+python-congressclient<2000,>=1.9.0 # Apache-2.0
 python-designateclient>=2.7.0 # Apache-2.0
 python-heatclient>=1.10.0 # Apache-2.0
 python-ironicclient>=1.14.0 # Apache-2.0
