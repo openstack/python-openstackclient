@@ -25,6 +25,11 @@ from openstackclient.network import sdk_utils
 from openstackclient.network.v2 import _tag
 
 
+_formatters = {
+    'port_details': utils.format_dict,
+}
+
+
 def _get_network_columns(item):
     column_map = {
         'tenant_id': 'project_id',
@@ -489,7 +494,7 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
             ignore_missing=False,
         )
         display_columns, columns = _get_network_columns(obj)
-        data = utils.get_item_properties(obj, columns)
+        data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
