@@ -114,22 +114,22 @@ to tell the client in which domain the user and project exists.
 If using a user name and password to authenticate, specify either it's owning
 domain name or ID.
 
-  * ``--os-user-domain-name`` or ``OS_USER_DOMAIN_NAME``
+* ``--os-user-domain-name`` or ``OS_USER_DOMAIN_NAME``
 
-  * ``--os-user-domain-id`` or ``OS_USER_DOMAIN_ID``
+* ``--os-user-domain-id`` or ``OS_USER_DOMAIN_ID``
 
 If using a project name as authorization scope, specify either it's owning
 domain name or ID.
 
-  * ``--os-project-domain-name`` or ``OS_PROJECT_DOMAIN_NAME``
+* ``--os-project-domain-name`` or ``OS_PROJECT_DOMAIN_NAME``
 
-  * ``--os-project-domain-id`` or ``OS_PROJECT_DOMAIN_ID``
+* ``--os-project-domain-id`` or ``OS_PROJECT_DOMAIN_ID``
 
 If using a domain as authorization scope, set either it's name or ID.
 
-  * ``--os-domain-name`` or ``OS_DOMAIN_NAME``
+* ``--os-domain-name`` or ``OS_DOMAIN_NAME``
 
-  * ``--os-domain-id`` or ``OS_DOMAIN_ID``
+* ``--os-domain-id`` or ``OS_DOMAIN_ID``
 
 Note that if the user and project share the same domain, then simply setting
 ``--os-default-domain`` or ``OS_DEFAULT_DOMAIN`` to the domain ID is sufficient.
