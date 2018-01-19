@@ -142,7 +142,7 @@ class SetService(command.Command):
             "--disable-reason",
             default=None,
             metavar="<reason>",
-            help=_("Reason for disabling the service (in quotas). "
+            help=_("Reason for disabling the service (in quotes). "
                    "Should be used with --disable option.")
         )
         up_down_group = parser.add_mutually_exclusive_group()
