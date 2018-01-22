@@ -1031,9 +1031,7 @@ class UnsetImage(command.Command):
 
         if parsed_args.properties:
             for k in parsed_args.properties:
-                try:
-                    assert(k in image.keys())
-                except AssertionError:
+                if k not in image:
                     LOG.error(_("property unset failed, '%s' is a "
                                 "nonexistent property "), k)
                     propret += 1
