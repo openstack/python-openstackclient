@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    'NoneType' object is not iterable when Glance cannot find image data in its
+    backend.
+    [Bug `1741223 <https://bugs.launchpad.net/ironic/+bug/1741223>`_]
