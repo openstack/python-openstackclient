@@ -67,6 +67,7 @@ def make_client(instance):
 
         instance.sdk_connection = conn
 
+    conn = instance.sdk_connection
     LOG.debug('Connection: %s', conn)
     LOG.debug('Network client initialized using OpenStack SDK: %s',
               conn.network)
