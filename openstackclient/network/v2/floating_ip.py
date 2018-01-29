@@ -15,8 +15,6 @@
 
 import logging
 
-from openstack import exceptions as sdk_exceptions
-from openstack.network.v2 import floating_ip as _floating_ip
 from osc_lib.command import command
 from osc_lib import utils
 
@@ -84,54 +82,6 @@ def _get_attrs(client_manager, parsed_args):
         attrs['tenant_id'] = project_id
 
     return attrs
-
-
-def _find_floating_ip(
-    session,
-    name_or_id,
-    ignore_missing=True,
-    **params
-):
-    """Find a floating IP by IP or ID
-
-    The SDK's find_ip() can only locate a floating IP by ID so we have
-    to do this ourselves.
-    """
-    def _get_one_match(name_or_id):
-        """Given a list of results, return the match"""
-        the_result = None
-        ip_list = list(_floating_ip.FloatingIP.list(session, **params))
-        for maybe_result in ip_list:
-            id_value = maybe_result.id
-            ip_value = maybe_result.floating_ip_address
-
-            if (id_value == name_or_id) or (ip_value == name_or_id):
-                # Only allow one resource to be found. If we already
-                # found a match, raise an exception to show it.
-                if the_result is None:
-                    the_result = maybe_result
-                else:
-                    msg = "More than one %s exists with the name '%s'."
-                    msg = (msg % (_floating_ip.FloatingIP, name_or_id))
-                    raise sdk_exceptions.DuplicateResource(msg)
-
-        return the_result
-
-    # Try to short-circuit by looking directly for a matching ID.
-    try:
-        match = _floating_ip.FloatingIP.existing(id=name_or_id, **params)
-        return match.get(session)
-    except sdk_exceptions.NotFoundException:
-        pass
-
-    result = _get_one_match(name_or_id)
-    if result is not None:
-        return result
-
-    if ignore_missing:
-        return None
-    raise sdk_exceptions.ResourceNotFound(
-        "No %s found for %s" % (_floating_ip.FloatingIP.__name__, name_or_id))
 
 
 class CreateFloatingIP(common.NetworkAndComputeShowOne):
@@ -246,8 +196,7 @@ class DeleteFloatingIP(common.NetworkAndComputeDelete):
         return parser
 
     def take_action_network(self, client, parsed_args):
-        obj = _find_floating_ip(
-            self.app.client_manager.sdk_connection.session,
+        obj = client.find_ip(
             self.r,
             ignore_missing=False,
         )
@@ -487,9 +436,7 @@ class SetFloatingIP(command.Command):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         attrs = {}
-        # TODO(sindhu) Use client.find_ip() once SDK 0.9.15 is released
-        obj = _find_floating_ip(
-            self.app.client_manager.sdk_connection.session,
+        obj = client.find_ip(
             parsed_args.floating_ip,
             ignore_missing=False,
         )
@@ -521,8 +468,7 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
         return parser
 
     def take_action_network(self, client, parsed_args):
-        obj = _find_floating_ip(
-            self.app.client_manager.sdk_connection.session,
+        obj = client.find_ip(
             parsed_args.floating_ip,
             ignore_missing=False,
         )
@@ -586,9 +532,7 @@ class UnsetFloatingIP(command.Command):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        # TODO(sindhu) Use client.find_ip() once SDK  0.9.15 is released
-        obj = _find_floating_ip(
-            self.app.client_manager.sdk_connection.session,
+        obj = client.find_ip(
             parsed_args.floating_ip,
             ignore_missing=False,
         )
