@@ -278,6 +278,24 @@ class TestCreateNetworkIdentityV3(TestNetwork):
     def test_create_with_no_tag(self):
         self._test_create_with_tag(add_tags=False)
 
+    def test_create_default_internal(self):
+        arglist = [
+            self._network.name,
+            "--default",
+        ]
+        verifylist = [
+            ('name', self._network.name),
+            ('enable', True),
+            ('share', None),
+            ('project', None),
+            ('external', False),
+            ('default', True),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
 
 class TestCreateNetworkIdentityV2(TestNetwork):
 
@@ -1024,6 +1042,21 @@ class TestSetNetwork(TestNetwork):
 
     def test_set_with_no_tag(self):
         self._test_set_tags(with_tags=False)
+
+    def test_set_default_internal(self):
+        arglist = [
+            self._network.name,
+            '--internal',
+            '--default',
+        ]
+        verifylist = [
+            ('internal', True),
+            ('default', True),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
 
 
 class TestShowNetwork(TestNetwork):

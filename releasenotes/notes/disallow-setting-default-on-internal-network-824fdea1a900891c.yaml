@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    For ``network create`` the
+    `--default`` option should be only used for external networks.
+    After this release, we enforce this scenario. If a users attempts
+    to create an internal default network or update a network to be
+    internal default, the command will be denied.
+    [Bug `1745658 <https://bugs.launchpad.net/bugs/1745658>`_]

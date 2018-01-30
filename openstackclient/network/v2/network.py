@@ -16,6 +16,7 @@
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
@@ -125,6 +126,9 @@ def _get_attrs_network(client_manager, parsed_args):
         attrs['is_default'] = False
     if parsed_args.default:
         attrs['is_default'] = True
+    if attrs.get('is_default') and not attrs.get('router:external'):
+        msg = _("Cannot set default for internal network")
+        raise exceptions.CommandError(msg)
     # Update Provider network options
     if parsed_args.provider_network_type:
         attrs['provider:network_type'] = parsed_args.provider_network_type
@@ -702,7 +706,8 @@ class SetNetwork(command.Command):
         default_router_grp.add_argument(
             '--default',
             action='store_true',
-            help=_("Set the network as the default external network")
+            help=_("Set the network as the default external network "
+                   "(cannot be used with internal network).")
         )
         default_router_grp.add_argument(
             '--no-default',
