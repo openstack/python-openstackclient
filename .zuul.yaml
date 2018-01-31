@@ -202,7 +202,6 @@
         #     # is ready and backported
         #     branches: ^(?!stable/(newton|ocata)).*$
         - osc-functional-devstack-tips:
-            voting: false
             # The functional-tips job only tests the latest and shouldn't be run
             # on the stable branches
             branches: ^(?!stable)
