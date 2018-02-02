@@ -175,6 +175,7 @@
         s-object: false
         s-proxy: false
       tox_envlist: functional
+      tox_install_siblings: true
 
 - project-template:
     name: osc-tox-unit-tips

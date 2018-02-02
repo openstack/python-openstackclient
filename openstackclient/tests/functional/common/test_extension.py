@@ -105,7 +105,7 @@ class ExtensionTests(base.TestCase):
         try:
             self.openstack('extension show ' + name)
         except tempest_exc.CommandFailed as e:
-            self.assertIn('ResourceNotFound', str(e))
+            self.assertIn('No Extension found for', str(e))
             self.assertIn(name, str(e))
         else:
             self.fail('CommandFailed should be raised')
