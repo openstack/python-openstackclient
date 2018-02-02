@@ -13,16 +13,6 @@
 
 import logging
 
-from openstack import connection
-
-
-# NOTE(dtroyer): Attempt an import to detect if the SDK installed is new
-#                enough to not use Profile.  If so, use that.
-try:
-    from openstack.config import loader as config   # noqa
-    profile = None
-except ImportError:
-    from openstack import profile
 from osc_lib import utils
 
 from openstackclient.i18n import _
@@ -41,37 +31,17 @@ API_VERSIONS = {
 
 def make_client(instance):
     """Returns a network proxy"""
-    if getattr(instance, "sdk_connection", None) is None:
-        if profile is None:
-            # If the installed OpenStackSDK is new enough to not require a
-            # Profile obejct and osc-lib is not new enough to have created
-            # it for us, make an SDK Connection.
-            # NOTE(dtroyer): This can be removed when this bit is in the
-            #                released osc-lib in requirements.txt.
-            conn = connection.Connection(
-                config=instance._cli_options,
-                session=instance.session,
-            )
-        else:
-            # Fall back to the original Connection creation
-            prof = profile.Profile()
-            prof.set_region(API_NAME, instance.region_name)
-            prof.set_version(API_NAME, instance._api_version[API_NAME])
-            prof.set_interface(API_NAME, instance.interface)
-            conn = connection.Connection(
-                authenticator=instance.session.auth,
-                verify=instance.session.verify,
-                cert=instance.session.cert,
-                profile=prof,
-            )
-
-        instance.sdk_connection = conn
-
-    conn = instance.sdk_connection
-    LOG.debug('Connection: %s', conn)
-    LOG.debug('Network client initialized using OpenStack SDK: %s',
-              conn.network)
-    return conn.network
+    # NOTE(dtroyer): As of osc-lib 1.8.0 and OpenStackSDK 0.10.0 the
+    #                old Profile interface and separate client creation
+    #                for each API that uses the SDK is unnecessary.  This
+    #                callback remains as a remnant of the original plugin
+    #                interface and to avoid the code churn of changing all
+    #                of the existing references.
+    LOG.debug(
+        'Network client initialized using OpenStack SDK: %s',
+        instance.sdk_connection.network,
+    )
+    return instance.sdk_connection.network
 
 
 def build_option_parser(parser):
