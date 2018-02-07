@@ -15,8 +15,6 @@
 
 """Compute v2 Console action implementations"""
 
-import sys
-
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import utils
@@ -60,7 +58,10 @@ class ShowConsoleLog(command.Command):
             length += 1
 
         data = server.get_console_output(length=length)
-        sys.stdout.write(data)
+
+        if data and data[-1] != '\n':
+            data += '\n'
+        self.app.stdout.write(data)
 
 
 class ShowConsoleURL(command.ShowOne):
