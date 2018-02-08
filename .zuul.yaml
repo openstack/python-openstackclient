@@ -189,7 +189,6 @@
         - osc-tox-py35-tips
 
 - project:
-    name: openstack/python-openstackclient
     templates:
       - openstackclient-plugin-jobs
       - osc-tox-unit-tips
