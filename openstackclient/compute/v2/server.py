@@ -755,9 +755,14 @@ class CreateServer(command.ShowOne):
                     raise exceptions.CommandError(msg)
                 nics = nics[0]
         else:
-            # Default to empty list if nothing was specified, let nova side to
-            # decide the default behavior.
-            nics = []
+            # Compute API version >= 2.37 requires a value, so default to
+            # 'auto' to maintain legacy behavior if a nic wasn't specified.
+            if compute_client.api_version >= api_versions.APIVersion('2.37'):
+                nics = 'auto'
+            else:
+                # Default to empty list if nothing was specified, let nova
+                # side to decide the default behavior.
+                nics = []
 
         # Check security group exist and convert ID to name
         security_group_names = []
