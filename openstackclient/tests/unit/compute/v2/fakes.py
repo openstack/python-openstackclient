@@ -17,6 +17,7 @@ import copy
 import uuid
 
 import mock
+from novaclient import api_versions
 
 from openstackclient.api import compute_v2
 from openstackclient.tests.unit import fakes
@@ -200,6 +201,8 @@ class FakeComputev2Client(object):
         self.auth_token = kwargs['token']
 
         self.management_url = kwargs['endpoint']
+
+        self.api_version = api_versions.APIVersion('2.1')
 
 
 class TestComputev2(utils.TestCommand):
