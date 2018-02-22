@@ -1,0 +1,4 @@
+---
+other:
+  - |
+    Remove deprecated ``ip floating`` and ``ip floating pool`` commands.
