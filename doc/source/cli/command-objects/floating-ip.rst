@@ -20,6 +20,7 @@ Create floating IP
         [--description <description>]
         [--qos-policy <qos-policy>]
         [--project <project> [--project-domain <project-domain>]]
+        [--tag <tag> | --no-tag]
         <network>
 
 .. option:: --subnet <subnet>
@@ -66,6 +67,18 @@ Create floating IP
 
     *Network version 2 only*
 
+.. option:: --tag <tag>
+
+    Tag to be added to the floating IP (repeat option to set multiple tags)
+
+    *Network version 2 only*
+
+.. option:: --no-tag
+
+    No tags associated with the floating IP
+
+    *Network version 2 only*
+
 .. describe:: <network>
 
     Network to allocate floating IP from (name or ID)
@@ -100,6 +113,8 @@ List floating IP(s)
         [--status <status>]
         [--project <project> [--project-domain <project-domain>]]
         [--router <router>]
+        [--tags <tag>[,<tag>,...]] [--any-tags <tag>[,<tag>,...]]
+        [--not-tags <tag>[,<tag>,...]] [--not-any-tags <tag>[,<tag>,...]]
 
 .. option:: --network <network>
 
@@ -150,6 +165,30 @@ List floating IP(s)
 
     *Network version 2 only*
 
+.. option:: --tags <tag>[,<tag>,...]
+
+    List floating IP(s) which have all given tag(s)
+
+    *Network version 2 only*
+
+.. option:: --any-tags <tag>[,<tag>,...]
+
+    List floating IP(s) which have any given tag(s)
+
+    *Network version 2 only*
+
+.. option:: --not-tags <tag>[,<tag>,...]
+
+    Exclude floating IP(s) which have all given tag(s)
+
+    *Network version 2 only*
+
+.. option:: --not-any-tags <tag>[,<tag>,...]
+
+    Exclude floating IP(s) which have any given tag(s)
+
+    *Network version 2 only*
+
 floating ip set
 ---------------
 
@@ -162,6 +201,7 @@ Set floating IP properties
         --port <port>
         [--fixed-ip-address <ip-address>]
         [--qos-policy <qos-policy> | --no-qos-policy]
+        [--tag <tag>] [--no-tag]
         <floating-ip>
 
 .. option:: --port <port>
@@ -179,6 +219,15 @@ Set floating IP properties
 .. option:: --no-qos-policy
 
     Remove the QoS policy attached to the floating IP
+
+.. option:: --tag <tag>
+
+    Tag to be added to the floating IP (repeat option to set multiple tags)
+
+.. option:: --no-tag
+
+    Clear tags associated with the floating IP. Specify both --tag
+    and --no-tag to overwrite current tags
 
 .. _floating_ip_set-floating-ip:
 .. describe:: <floating-ip>
@@ -210,6 +259,7 @@ Unset floating IP Properties
     openstack floating ip unset
         --port
         --qos-policy
+        [--tag <tag> | --all-tag]
         <floating-ip>
 
 .. option:: --port
@@ -219,6 +269,15 @@ Unset floating IP Properties
 .. option:: --qos-policy
 
     Remove the QoS policy attached to the floating IP
+
+.. option:: --tag <tag>
+
+    Tag to be removed from the floating IP
+    (repeat option to remove multiple tags)
+
+.. option:: --all-tag
+
+    Clear all tags associated with the floating IP
 
 .. _floating_ip_unset-floating-ip:
 .. describe:: <floating-ip>
