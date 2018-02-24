@@ -19,6 +19,7 @@ Create a new security group
     openstack security group create
         [--description <description>]
         [--project <project> [--project-domain <project-domain>]]
+        [--tag <tag> | --no-tag]
         <name>
 
 .. option:: --description <description>
@@ -35,6 +36,18 @@ Create a new security group
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
+
+    *Network version 2 only*
+
+.. option:: --tag <tag>
+
+    Tag to be added to the security group (repeat option to set multiple tags)
+
+    *Network version 2 only*
+
+.. option:: --no-tag
+
+    No tags associated with the security group
 
     *Network version 2 only*
 
@@ -68,6 +81,8 @@ List security groups
     openstack security group list
         [--all-projects]
         [--project <project> [--project-domain <project-domain>]]
+        [--tags <tag>[,<tag>,...]] [--any-tags <tag>[,<tag>,...]]
+        [--not-tags <tag>[,<tag>,...]] [--not-any-tags <tag>[,<tag>,...]]
 
 .. option:: --all-projects
 
@@ -89,6 +104,30 @@ List security groups
 
     *Network version 2 only*
 
+.. option:: --tags <tag>[,<tag>,...]
+
+    List security groups which have all given tag(s)
+
+    *Network version 2 only*
+
+.. option:: --any-tags <tag>[,<tag>,...]
+
+    List security groups which have any given tag(s)
+
+    *Network version 2 only*
+
+.. option:: --not-tags <tag>[,<tag>,...]
+
+    Exclude security groups which have all given tag(s)
+
+    *Network version 2 only*
+
+.. option:: --not-any-tags <tag>[,<tag>,...]
+
+    Exclude security groups which have any given tag(s)
+
+    *Network version 2 only*
+
 security group set
 ------------------
 
@@ -100,6 +139,7 @@ Set security group properties
     openstack security group set
         [--name <new-name>]
         [--description <description>]
+        [--tag <tag>] [--no-tag]
         <group>
 
 .. option:: --name <new-name>
@@ -109,6 +149,15 @@ Set security group properties
 .. option:: --description <description>
 
     New security group description
+
+.. option:: --tag <tag>
+
+    Tag to be added to the security group (repeat option to set multiple tags)
+
+.. option:: --no-tag
+
+    Clear tags associated with the security group. Specify both --tag
+    and --no-tag to overwrite current tags
 
 .. describe:: <group>
 
@@ -128,3 +177,28 @@ Display security group details
 .. describe:: <group>
 
     Security group to display (name or ID)
+
+security group unset
+--------------------
+
+Unset security group properties
+
+.. program:: security group unset
+.. code:: bash
+
+    openstack security group unset
+        [--tag <tag> | --all-tag]
+        <group>
+
+.. option:: --tag <tag>
+
+    Tag to be removed from the security group
+    (repeat option to remove multiple tags)
+
+.. option:: --all-tag
+
+    Clear all tags associated with the security group
+
+.. describe:: <group>
+
+    Security group to modify (name or ID)
