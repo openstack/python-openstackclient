@@ -565,6 +565,7 @@ class FakePort(object):
             'device_id': 'device-id-' + uuid.uuid4().hex,
             'device_owner': 'compute:nova',
             'dns_assignment': [{}],
+            'dns_domain': 'dns-domain-' + uuid.uuid4().hex,
             'dns_name': 'dns-name-' + uuid.uuid4().hex,
             'extra_dhcp_opts': [{}],
             'fixed_ips': [{'ip_address': '10.0.0.3',

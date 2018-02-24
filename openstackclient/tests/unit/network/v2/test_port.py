@@ -50,6 +50,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'device_id',
             'device_owner',
             'dns_assignment',
+            'dns_domain',
             'dns_name',
             'extra_dhcp_opts',
             'fixed_ips',
@@ -78,6 +79,7 @@ class TestPort(network_fakes.TestNetworkV2):
             fake_port.device_id,
             fake_port.device_owner,
             utils.format_list_of_dicts(fake_port.dns_assignment),
+            fake_port.dns_domain,
             fake_port.dns_name,
             utils.format_list_of_dicts(fake_port.extra_dhcp_opts),
             utils.format_list_of_dicts(fake_port.fixed_ips),
@@ -152,6 +154,7 @@ class TestCreatePort(TestPort):
             '--binding-profile', 'foo=bar',
             '--binding-profile', 'foo2=bar2',
             '--network', self._port.network_id,
+            '--dns-domain', 'example.org',
             '--dns-name', '8.8.8.8',
             'test-port',
 
@@ -169,6 +172,7 @@ class TestCreatePort(TestPort):
             ('vnic_type', 'macvtap'),
             ('binding_profile', {'foo': 'bar', 'foo2': 'bar2'}),
             ('network', self._port.network_id),
+            ('dns_domain', 'example.org'),
             ('dns_name', '8.8.8.8'),
             ('name', 'test-port'),
         ]
@@ -187,6 +191,7 @@ class TestCreatePort(TestPort):
             'binding:vnic_type': 'macvtap',
             'binding:profile': {'foo': 'bar', 'foo2': 'bar2'},
             'network_id': self._port.network_id,
+            'dns_domain': 'example.org',
             'dns_name': '8.8.8.8',
             'name': 'test-port',
         })

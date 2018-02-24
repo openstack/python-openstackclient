@@ -127,6 +127,8 @@ def _get_attrs(client_manager, parsed_args):
     if parsed_args.mac_address is not None:
         attrs['mac_address'] = parsed_args.mac_address
 
+    if parsed_args.dns_domain is not None:
+        attrs['dns_domain'] = parsed_args.dns_domain
     if parsed_args.dns_name is not None:
         attrs['dns_name'] = parsed_args.dns_name
     # It is possible that name is not updated during 'port set'
@@ -267,6 +269,12 @@ def _add_updatable_args(parser):
         '--host-id',
         metavar='<host-id>',
         help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        '--dns-domain',
+        metavar='dns-domain',
+        help=_("Set DNS domain to this port "
+               "(requires dns_domain extension for ports)")
     )
     parser.add_argument(
         '--dns-name',
