@@ -347,7 +347,6 @@ class FakeNetwork(object):
             'availability_zone_hints': [],
             'is_default': False,
             'port_security_enabled': True,
-            'tags': ['test'],
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
             'ipv4_address_scope': 'ipv4' + uuid.uuid4().hex,
             'ipv6_address_scope': 'ipv6' + uuid.uuid4().hex,
