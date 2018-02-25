@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add endpoint group commands: ``endpoint group add project``, ``endpoint group create``,
+    ``endpoint group delete``, ``endpoint group list``, ``endpoint group remove project``,
+    ``endpoint group set`` and ``endpoint group show``.
+    [Blueprint `keystone-endpoint-filter <https://blueprints.launchpad.net/python-openstackclient/+spec/keystone-endpoint-filter>`_]
