@@ -26,7 +26,7 @@ import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
-
+from openstackclient.identity.v3 import tag
 
 LOG = logging.getLogger(__name__)
 
@@ -79,6 +79,7 @@ class CreateProject(command.ShowOne):
             action='store_true',
             help=_('Return existing project'),
         )
+        tag.add_tag_option_to_parser_for_create(parser, _('project'))
         return parser
 
     def take_action(self, parsed_args):
@@ -102,6 +103,7 @@ class CreateProject(command.ShowOne):
         kwargs = {}
         if parsed_args.property:
             kwargs = parsed_args.property.copy()
+        kwargs['tags'] = list(set(parsed_args.tags))
 
         try:
             project = identity_client.projects.create(
@@ -207,6 +209,7 @@ class ListProject(command.Lister):
                    '(default: asc), repeat this option to specify multiple '
                    'keys and directions.'),
         )
+        tag.add_tag_filtering_option_to_parser(parser, _('projects'))
         return parser
 
     def take_action(self, parsed_args):
@@ -233,6 +236,8 @@ class ListProject(command.Lister):
                                               parsed_args.user).id
 
             kwargs['user'] = user_id
+
+        tag.get_tag_filtering_args(parsed_args, kwargs)
 
         if parsed_args.my_projects:
             # NOTE(adriant): my-projects supersedes all the other filters.
@@ -303,6 +308,7 @@ class SetProject(command.Command):
             help=_('Set a property on <project> '
                    '(repeat option to set multiple properties)'),
         )
+        tag.add_tag_option_to_parser_for_set(parser, _('project'))
         return parser
 
     def take_action(self, parsed_args):
@@ -323,6 +329,7 @@ class SetProject(command.Command):
             kwargs['enabled'] = False
         if parsed_args.property:
             kwargs.update(parsed_args.property)
+        tag.update_tags_in_args(parsed_args, project, kwargs)
 
         identity_client.projects.update(project.id, **kwargs)
 
