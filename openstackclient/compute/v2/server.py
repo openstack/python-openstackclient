@@ -32,6 +32,7 @@ import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import common as network_common
 
 
 LOG = logging.getLogger(__name__)
@@ -234,11 +235,10 @@ class AddFixedIP(command.Command):
         )
 
 
-class AddFloatingIP(command.Command):
+class AddFloatingIP(network_common.NetworkAndComputeCommand):
     _description = _("Add floating IP address to server")
 
-    def get_parser(self, prog_name):
-        parser = super(AddFloatingIP, self).get_parser(prog_name)
+    def update_parser_common(self, parser):
         parser.add_argument(
             "server",
             metavar="<server>",
@@ -252,19 +252,37 @@ class AddFloatingIP(command.Command):
         parser.add_argument(
             "--fixed-ip-address",
             metavar="<ip-address>",
-            help=_("Fixed IP address to associate with this floating IP "
-                   "address"),
+            help=_(
+                "Fixed IP address to associate with this floating IP address"
+            ),
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action_network(self, client, parsed_args):
         compute_client = self.app.client_manager.compute
 
+        attrs = {}
+        obj = client.find_ip(
+            parsed_args.ip_address,
+            ignore_missing=False,
+        )
         server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
+            compute_client.servers,
+            parsed_args.server,
+        )
+        port = list(client.ports(device_id=server.id))[0]
+        attrs['port_id'] = port.id
+        if parsed_args.fixed_ip_address:
+            attrs['fixed_ip_address'] = parsed_args.fixed_ip_address
 
-        server.add_floating_ip(parsed_args.ip_address,
-                               parsed_args.fixed_ip_address)
+        client.update_ip(obj, **attrs)
+
+    def take_action_compute(self, client, parsed_args):
+        client.api.floating_ip_add(
+            parsed_args.server,
+            parsed_args.ip_address,
+            fixed_address=parsed_args.fixed_ip_address,
+        )
 
 
 class AddPort(command.Command):
@@ -1482,11 +1500,10 @@ class RemoveFixedIP(command.Command):
         server.remove_fixed_ip(parsed_args.ip_address)
 
 
-class RemoveFloatingIP(command.Command):
+class RemoveFloatingIP(network_common.NetworkAndComputeCommand):
     _description = _("Remove floating IP address from server")
 
-    def get_parser(self, prog_name):
-        parser = super(RemoveFloatingIP, self).get_parser(prog_name)
+    def update_parser_common(self, parser):
         parser.add_argument(
             "server",
             metavar="<server>",
@@ -1501,13 +1518,21 @@ class RemoveFloatingIP(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+    def take_action_network(self, client, parsed_args):
+        attrs = {}
+        obj = client.find_ip(
+            parsed_args.ip_address,
+            ignore_missing=False,
+        )
+        attrs['port_id'] = None
 
-        server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
+        client.update_ip(obj, **attrs)
 
-        server.remove_floating_ip(parsed_args.ip_address)
+    def take_action_compute(self, client, parsed_args):
+        client.api.floating_ip_remove(
+            parsed_args.server,
+            parsed_args.ip_address,
+        )
 
 
 class RemovePort(command.Command):

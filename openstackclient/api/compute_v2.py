@@ -93,7 +93,51 @@ class APIv2(api.BaseAPI):
 
         return ret
 
-    # Flaoting IPs
+    # Floating IPs
+
+    def floating_ip_add(
+        self,
+        server,
+        address,
+        fixed_address=None,
+    ):
+        """Add a floating IP to a server
+
+        :param server:
+            The :class:`Server` (or its ID) to add an IP to.
+        :param address:
+            The FloatingIP or string floating address to add.
+        :param fixed_address:
+            The FixedIP the floatingIP should be associated with (optional)
+        """
+
+        url = '/servers'
+
+        server = self.find(
+            url,
+            attr='name',
+            value=server,
+        )
+
+        address = address.ip if hasattr(address, 'ip') else address
+        if fixed_address:
+            if hasattr(fixed_address, 'ip'):
+                fixed_address = fixed_address.ip
+
+            body = {
+                'address': address,
+                'fixed_address': fixed_address,
+            }
+        else:
+            body = {
+                'address': address,
+            }
+
+        return self._request(
+            "POST",
+            "/%s/%s/action" % (url, server['id']),
+            json={'addFloatingIp': body},
+        )
 
     def floating_ip_create(
         self,
@@ -175,6 +219,38 @@ class APIv2(api.BaseAPI):
 
         return self.list(url)["floating_ips"]
 
+    def floating_ip_remove(
+        self,
+        server,
+        address,
+    ):
+        """Remove a floating IP from a server
+
+        :param server:
+            The :class:`Server` (or its ID) to add an IP to.
+        :param address:
+            The FloatingIP or string floating address to add.
+        """
+
+        url = '/servers'
+
+        server = self.find(
+            url,
+            attr='name',
+            value=server,
+        )
+
+        address = address.ip if hasattr(address, 'ip') else address
+        body = {
+            'address': address,
+        }
+
+        return self._request(
+            "POST",
+            "/%s/%s/action" % (url, server['id']),
+            json={'removeFloatingIp': body},
+        )
+
     # Floating IP Pools
 
     def floating_ip_pool_list(
@@ -191,6 +267,84 @@ class APIv2(api.BaseAPI):
         url = "/os-floating-ip-pools"
 
         return self.list(url)["floating_ip_pools"]
+
+    # Hosts
+
+    def host_list(
+        self,
+        zone=None,
+    ):
+        """Lists hypervisor Hosts
+
+        https://developer.openstack.org/api-ref/compute/#list-hosts
+        Valid for Compute 2.0 - 2.42
+
+        :param string zone:
+            Availability zone
+        :returns: A dict of the floating IP attributes
+        """
+
+        url = "/os-hosts"
+        if zone:
+            url = '/os-hosts?zone=%s' % zone
+
+        return self.list(url)["hosts"]
+
+    def host_set(
+        self,
+        host=None,
+        status=None,
+        maintenance_mode=None,
+        **params
+    ):
+        """Modify host properties
+
+        https://developer.openstack.org/api-ref/compute/#update-host-status
+        Valid for Compute 2.0 - 2.42
+
+        status
+        maintenance_mode
+        """
+
+        url = "/os-hosts"
+
+        params = {}
+        if status:
+            params['status'] = status
+        if maintenance_mode:
+            params['maintenance_mode'] = maintenance_mode
+        if params == {}:
+            # Don't bother calling if nothing given
+            return None
+        else:
+            return self._request(
+                "PUT",
+                "/%s/%s" % (url, host),
+                json=params,
+            ).json()
+
+    def host_show(
+        self,
+        host=None,
+    ):
+        """Show host
+
+        https://developer.openstack.org/api-ref/compute/#show-host-details
+        Valid for Compute 2.0 - 2.42
+        """
+
+        url = "/os-hosts"
+
+        r_host = self.find(
+            url,
+            attr='host_name',
+            value=host,
+        )
+
+        data = []
+        for h in r_host:
+            data.append(h['resource'])
+        return data
 
     # Networks
 

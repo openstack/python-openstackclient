@@ -55,6 +55,43 @@ class TestFloatingIP(TestComputeAPIv2):
         FAKE_FLOATING_IP_RESP_2,
     ]
 
+    FAKE_SERVER_RESP_1 = {
+        'id': 1,
+        'name': 'server1',
+    }
+
+    def test_floating_ip_add_id(self):
+        self.requests_mock.register_uri(
+            'POST',
+            FAKE_URL + '/servers/1/action',
+            json={'server': {}},
+            status_code=200,
+        )
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/servers/1',
+            json={'server': self.FAKE_SERVER_RESP_1},
+            status_code=200,
+        )
+        ret = self.api.floating_ip_add('1', '1.0.1.0')
+        self.assertEqual(200, ret.status_code)
+
+    def test_floating_ip_add_name(self):
+        self.requests_mock.register_uri(
+            'POST',
+            FAKE_URL + '/servers/1/action',
+            json={'server': {}},
+            status_code=200,
+        )
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/servers/server1',
+            json={'server': self.FAKE_SERVER_RESP_1},
+            status_code=200,
+        )
+        ret = self.api.floating_ip_add('server1', '1.0.1.0')
+        self.assertEqual(200, ret.status_code)
+
     def test_floating_ip_create(self):
         self.requests_mock.register_uri(
             'POST',
@@ -144,6 +181,36 @@ class TestFloatingIP(TestComputeAPIv2):
         ret = self.api.floating_ip_list()
         self.assertEqual(self.LIST_FLOATING_IP_RESP, ret)
 
+    def test_floating_ip_remove_id(self):
+        self.requests_mock.register_uri(
+            'POST',
+            FAKE_URL + '/servers/1/action',
+            status_code=200,
+        )
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/servers/1',
+            json={'server': self.FAKE_SERVER_RESP_1},
+            status_code=200,
+        )
+        ret = self.api.floating_ip_remove('1', '1.0.1.0')
+        self.assertEqual(200, ret.status_code)
+
+    def test_floating_ip_remove_name(self):
+        self.requests_mock.register_uri(
+            'POST',
+            FAKE_URL + '/servers/1/action',
+            status_code=200,
+        )
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/servers/server1',
+            json={'server': self.FAKE_SERVER_RESP_1},
+            status_code=200,
+        )
+        ret = self.api.floating_ip_remove('server1', '1.0.1.0')
+        self.assertEqual(200, ret.status_code)
+
 
 class TestFloatingIPPool(TestComputeAPIv2):
 
@@ -161,6 +228,115 @@ class TestFloatingIPPool(TestComputeAPIv2):
         )
         ret = self.api.floating_ip_pool_list()
         self.assertEqual(self.LIST_FLOATING_IP_POOL_RESP, ret)
+
+
+class TestHost(TestComputeAPIv2):
+
+    FAKE_HOST_RESP_1 = {
+        "zone": "internal",
+        "host_name": "myhost",
+        "service": "conductor",
+    }
+
+    FAKE_HOST_RESP_2 = {
+        "zone": "internal",
+        "host_name": "myhost",
+        "service": "scheduler",
+    }
+
+    FAKE_HOST_RESP_3 = {
+        "zone": "nova",
+        "host_name": "myhost",
+        "service": "compute",
+    }
+
+    LIST_HOST_RESP = [
+        FAKE_HOST_RESP_1,
+        FAKE_HOST_RESP_2,
+        FAKE_HOST_RESP_3,
+    ]
+
+    def test_host_list_no_options(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-hosts',
+            json={'hosts': self.LIST_HOST_RESP},
+            status_code=200,
+        )
+        ret = self.api.host_list()
+        self.assertEqual(self.LIST_HOST_RESP, ret)
+
+    def test_host_list_zone(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-hosts?zone=nova',
+            json={'hosts': [self.FAKE_HOST_RESP_3]},
+            status_code=200,
+        )
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-hosts',
+            json={'hosts': [self.FAKE_HOST_RESP_3]},
+            status_code=200,
+        )
+        ret = self.api.host_list(zone='nova')
+        self.assertEqual([self.FAKE_HOST_RESP_3], ret)
+
+    def test_host_set_none(self):
+        ret = self.api.host_set(host='myhost')
+        self.assertIsNone(ret)
+
+    def test_host_set(self):
+        self.requests_mock.register_uri(
+            'PUT',
+            FAKE_URL + '/os-hosts/myhost',
+            json={},
+            status_code=200,
+        )
+        ret = self.api.host_set(host='myhost', status='enabled')
+        self.assertEqual({}, ret)
+
+    def test_host_show(self):
+        FAKE_RESOURCE_1 = {
+            "cpu": 2,
+            "disk_gb": 1028,
+            "host": "c1a7de0ac9d94e4baceae031d05caae3",
+            "memory_mb": 8192,
+            "project": "(total)",
+        }
+        FAKE_RESOURCE_2 = {
+            "cpu": 0,
+            "disk_gb": 0,
+            "host": "c1a7de0ac9d94e4baceae031d05caae3",
+            "memory_mb": 512,
+            "project": "(used_now)",
+        }
+        FAKE_RESOURCE_3 = {
+            "cpu": 0,
+            "disk_gb": 0,
+            "host": "c1a7de0ac9d94e4baceae031d05caae3",
+            "memory_mb": 0,
+            "project": "(used_max)",
+        }
+        FAKE_HOST_RESP = [
+            {'resource': FAKE_RESOURCE_1},
+            {'resource': FAKE_RESOURCE_2},
+            {'resource': FAKE_RESOURCE_3},
+        ]
+        FAKE_HOST_LIST = [
+            FAKE_RESOURCE_1,
+            FAKE_RESOURCE_2,
+            FAKE_RESOURCE_3,
+        ]
+
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '/os-hosts/myhost',
+            json={'host': FAKE_HOST_RESP},
+            status_code=200,
+        )
+        ret = self.api.host_show(host='myhost')
+        self.assertEqual(FAKE_HOST_LIST, ret)
 
 
 class TestNetwork(TestComputeAPIv2):
