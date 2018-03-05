@@ -141,48 +141,148 @@ class TestServerAddFixedIP(TestServer):
         self._test_server_add_fixed_ip(extralist, '5.6.7.8')
 
 
-class TestServerAddFloatingIP(TestServer):
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.floating_ip_add'
+)
+class TestServerAddFloatingIPCompute(compute_fakes.TestComputev2):
 
     def setUp(self):
-        super(TestServerAddFloatingIP, self).setUp()
+        super(TestServerAddFloatingIPCompute, self).setUp()
+
+        self.app.client_manager.network_endpoint_enabled = False
 
         # Get the command object to test
         self.cmd = server.AddFloatingIP(self.app, None)
 
-        # Set add_floating_ip method to be tested.
-        self.methods = {
-            'add_floating_ip': None,
-        }
-
-        self.find_port = mock.Mock()
-        self.app.client_manager.network.find_port = self.find_port
-
-    def _test_server_add_floating_ip(self, extralist, fixed_ip_address):
-        servers = self.setup_servers_mock(count=1)
-
+    def test_server_add_floating_ip_default(self, fip_mock):
+        _floating_ip = compute_fakes.FakeFloatingIP.create_one_floating_ip()
         arglist = [
-            servers[0].id,
-            '1.2.3.4',
-        ] + extralist
+            'server1',
+            _floating_ip['ip'],
+        ]
         verifylist = [
-            ('server', servers[0].id),
-            ('ip_address', '1.2.3.4'),
-            ('fixed_ip_address', fixed_ip_address),
+            ('server', 'server1'),
+            ('ip_address', _floating_ip['ip']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
 
-        servers[0].add_floating_ip.assert_called_once_with('1.2.3.4',
-                                                           fixed_ip_address)
-        self.assertIsNone(result)
+        fip_mock.assert_called_once_with(
+            'server1',
+            _floating_ip['ip'],
+            fixed_address=None,
+        )
 
-    def test_server_add_floating_ip(self):
-        self._test_server_add_floating_ip([], None)
+    def test_server_add_floating_ip_fixed(self, fip_mock):
+        _floating_ip = compute_fakes.FakeFloatingIP.create_one_floating_ip()
+        arglist = [
+            '--fixed-ip-address', _floating_ip['fixed_ip'],
+            'server1',
+            _floating_ip['ip'],
+        ]
+        verifylist = [
+            ('fixed_ip_address', _floating_ip['fixed_ip']),
+            ('server', 'server1'),
+            ('ip_address', _floating_ip['ip']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-    def test_server_add_floating_ip_to_fixed_ip(self):
-        extralist = ['--fixed-ip-address', '5.6.7.8']
-        self._test_server_add_floating_ip(extralist, '5.6.7.8')
+        self.cmd.take_action(parsed_args)
+
+        fip_mock.assert_called_once_with(
+            'server1',
+            _floating_ip['ip'],
+            fixed_address=_floating_ip['fixed_ip'],
+        )
+
+
+class TestServerAddFloatingIPNetwork(
+    TestServer,
+    network_fakes.TestNetworkV2,
+):
+
+    def setUp(self):
+        super(TestServerAddFloatingIPNetwork, self).setUp()
+
+        self.app.client_manager.network = mock.Mock()
+        self.network = self.app.client_manager.network
+        self.network.update_ip = mock.Mock(return_value=None)
+
+        # Get the command object to test
+        self.cmd = server.AddFloatingIP(self.app, self.namespace)
+
+    def test_server_add_floating_ip_default(self):
+        _server = compute_fakes.FakeServer.create_one_server()
+        self.servers_mock.get.return_value = _server
+        _port = network_fakes.FakePort.create_one_port()
+        _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
+        self.network.find_ip = mock.Mock(return_value=_floating_ip)
+        self.network.ports = mock.Mock(return_value=[_port])
+        arglist = [
+            _server.id,
+            _floating_ip['ip'],
+        ]
+        verifylist = [
+            ('server', _server.id),
+            ('ip_address', _floating_ip['ip']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'port_id': _port.id,
+        }
+
+        self.network.find_ip.assert_called_once_with(
+            _floating_ip['ip'],
+            ignore_missing=False,
+        )
+        self.network.ports.assert_called_once_with(
+            device_id=_server.id,
+        )
+        self.network.update_ip.assert_called_once_with(
+            _floating_ip,
+            **attrs
+        )
+
+    def test_server_add_floating_ip_fixed(self):
+        _server = compute_fakes.FakeServer.create_one_server()
+        self.servers_mock.get.return_value = _server
+        _port = network_fakes.FakePort.create_one_port()
+        _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
+        self.network.find_ip = mock.Mock(return_value=_floating_ip)
+        self.network.ports = mock.Mock(return_value=[_port])
+        arglist = [
+            '--fixed-ip-address', _floating_ip['fixed_ip'],
+            _server.id,
+            _floating_ip['ip'],
+        ]
+        verifylist = [
+            ('fixed_ip_address', _floating_ip['fixed_ip']),
+            ('server', _server.id),
+            ('ip_address', _floating_ip['ip']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'port_id': _port.id,
+        }
+
+        self.network.find_ip.assert_called_once_with(
+            _floating_ip['ip'],
+            ignore_missing=False,
+        )
+        self.network.ports.assert_called_once_with(
+            device_id=_server.id,
+        )
+        self.network.update_ip.assert_called_once_with(
+            _floating_ip,
+            **attrs
+        )
 
 
 class TestServerAddPort(TestServer):
@@ -2302,36 +2402,80 @@ class TestServerRescue(TestServer):
         self.server.rescue.assert_called_with(image=None, password=password)
 
 
-class TestServerRemoveFloatingIP(TestServer):
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.floating_ip_remove'
+)
+class TestServerRemoveFloatingIPCompute(compute_fakes.TestComputev2):
 
     def setUp(self):
-        super(TestServerRemoveFloatingIP, self).setUp()
+        super(TestServerRemoveFloatingIPCompute, self).setUp()
+
+        self.app.client_manager.network_endpoint_enabled = False
 
         # Get the command object to test
         self.cmd = server.RemoveFloatingIP(self.app, None)
 
-        # Set unshelve method to be tested.
-        self.methods = {
-            'remove_floating_ip': None,
-        }
-
-    def test_server_remove_floating_ip(self):
-        servers = self.setup_servers_mock(count=1)
+    def test_server_remove_floating_ip(self, fip_mock):
+        _floating_ip = compute_fakes.FakeFloatingIP.create_one_floating_ip()
 
         arglist = [
-            servers[0].id,
-            '1.2.3.4',
+            'server1',
+            _floating_ip['ip'],
         ]
         verifylist = [
-            ('server', servers[0].id),
-            ('ip_address', '1.2.3.4'),
+            ('server', 'server1'),
+            ('ip_address', _floating_ip['ip']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
 
-        servers[0].remove_floating_ip.assert_called_once_with('1.2.3.4')
-        self.assertIsNone(result)
+        fip_mock.assert_called_once_with(
+            'server1',
+            _floating_ip['ip'],
+        )
+
+
+class TestServerRemoveFloatingIPNetwork(network_fakes.TestNetworkV2):
+
+    def setUp(self):
+        super(TestServerRemoveFloatingIPNetwork, self).setUp()
+
+        self.app.client_manager.network = mock.Mock()
+        self.network = self.app.client_manager.network
+        self.network.update_ip = mock.Mock(return_value=None)
+
+        # Get the command object to test
+        self.cmd = server.RemoveFloatingIP(self.app, self.namespace)
+
+    def test_server_remove_floating_ip_default(self):
+        _server = compute_fakes.FakeServer.create_one_server()
+        _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
+        self.network.find_ip = mock.Mock(return_value=_floating_ip)
+        arglist = [
+            _server.id,
+            _floating_ip['ip'],
+        ]
+        verifylist = [
+            ('server', _server.id),
+            ('ip_address', _floating_ip['ip']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'port_id': None,
+        }
+
+        self.network.find_ip.assert_called_once_with(
+            _floating_ip['ip'],
+            ignore_missing=False,
+        )
+        self.network.update_ip.assert_called_once_with(
+            _floating_ip,
+            **attrs
+        )
 
 
 class TestServerRemovePort(TestServer):

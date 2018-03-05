@@ -48,7 +48,10 @@ class NetworkAndComputeCommand(command.Command):
         parser = super(NetworkAndComputeCommand, self).get_parser(prog_name)
         parser = self.update_parser_common(parser)
         LOG.debug('common parser: %s', parser)
-        if self.app.client_manager.is_network_endpoint_enabled():
+        if (
+            self.app is None or
+            self.app.client_manager.is_network_endpoint_enabled()
+        ):
             return self.update_parser_network(parser)
         else:
             return self.update_parser_compute(parser)

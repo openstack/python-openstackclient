@@ -1230,10 +1230,7 @@ class FakeHost(object):
             'project': 'project-' + uuid.uuid4().hex,
         }
         host_info.update(attrs)
-        host = fakes.FakeResource(
-            info=copy.deepcopy(host_info),
-            loaded=True)
-        return host
+        return host_info
 
 
 class FakeServerGroup(object):
