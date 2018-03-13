@@ -40,9 +40,9 @@ class ListHost(command.Lister):
             "Service",
             "Zone"
         )
-        data = compute_client.hosts.list_all(parsed_args.zone)
+        data = compute_client.api.host_list(parsed_args.zone)
         return (columns,
-                (utils.get_item_properties(
+                (utils.get_dict_properties(
                     s, columns,
                 ) for s in data))
 
@@ -95,13 +95,7 @@ class SetHost(command.Command):
 
         compute_client = self.app.client_manager.compute
 
-        # More than one hosts will be returned by using find_resource()
-        # so that the return value cannot be used in host update() method.
-        # find_resource() is just used for checking existence of host and
-        # keeping the exception message consistent with other commands.
-        utils.find_resource(compute_client.hosts, parsed_args.host)
-
-        compute_client.hosts.update(
+        compute_client.api.host_set(
             parsed_args.host,
             kwargs
         )
@@ -128,8 +122,10 @@ class ShowHost(command.Lister):
             "Memory MB",
             "Disk GB"
         )
-        data = compute_client.hosts.get(parsed_args.host)
+
+        data = compute_client.api.host_show(parsed_args.host)
+
         return (columns,
-                (utils.get_item_properties(
+                (utils.get_dict_properties(
                     s, columns,
                 ) for s in data))

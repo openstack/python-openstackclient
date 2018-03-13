@@ -13,6 +13,8 @@
 #   under the License.
 #
 
+import mock
+
 from openstackclient.compute.v2 import host
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import utils as tests_utils
@@ -23,11 +25,13 @@ class TestHost(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestHost, self).setUp()
 
-        # Get a shortcut to the FlavorManager Mock
-        self.host_mock = self.app.client_manager.compute.hosts
-        self.host_mock.reset_mock()
+        # Get a shortcut to the compute client
+        self.compute = self.app.client_manager.compute
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.host_list'
+)
 class TestHostList(TestHost):
 
     host = compute_fakes.FakeHost.create_one_host()
@@ -39,19 +43,18 @@ class TestHostList(TestHost):
     )
 
     data = [(
-        host.host_name,
-        host.service,
-        host.zone,
+        host['host_name'],
+        host['service'],
+        host['zone'],
     )]
 
     def setUp(self):
         super(TestHostList, self).setUp()
 
-        self.host_mock.list_all.return_value = [self.host]
-
         self.cmd = host.ListHost(self.app, None)
 
-    def test_host_list_no_option(self):
+    def test_host_list_no_option(self, h_mock):
+        h_mock.return_value = [self.host]
         arglist = []
         verifylist = []
 
@@ -59,44 +62,48 @@ class TestHostList(TestHost):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.host_mock.list_all.assert_called_with(None)
+        h_mock.assert_called_with(None)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
-    def test_host_list_with_option(self):
+    def test_host_list_with_option(self, h_mock):
+        h_mock.return_value = [self.host]
         arglist = [
-            '--zone', self.host.zone,
+            '--zone', self.host['zone'],
         ]
         verifylist = [
-            ('zone', self.host.zone),
+            ('zone', self.host['zone']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.host_mock.list_all.assert_called_with(self.host.zone)
+        h_mock.assert_called_with(self.host['zone'])
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.host_set'
+)
 class TestHostSet(TestHost):
 
     def setUp(self):
         super(TestHostSet, self).setUp()
 
         self.host = compute_fakes.FakeHost.create_one_host()
-        self.host_mock.get.return_value = self.host
-        self.host_mock.update.return_value = None
 
         self.cmd = host.SetHost(self.app, None)
 
-    def test_host_set_no_option(self):
+    def test_host_set_no_option(self, h_mock):
+        h_mock.return_value = self.host
+        h_mock.update.return_value = None
         arglist = [
-            self.host.host
+            self.host['host'],
         ]
         verifylist = [
-            ('host', self.host.host)
+            ('host', self.host['host']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -105,18 +112,20 @@ class TestHostSet(TestHost):
         self.assertIsNone(result)
 
         body = {}
-        self.host_mock.update.assert_called_with(self.host.host, body)
+        h_mock.assert_called_with(self.host['host'], body)
 
-    def test_host_set(self):
+    def test_host_set(self, h_mock):
+        h_mock.return_value = self.host
+        h_mock.update.return_value = None
         arglist = [
             '--enable',
             '--disable-maintenance',
-            self.host.host
+            self.host['host'],
         ]
         verifylist = [
             ('enable', True),
             ('enable_maintenance', False),
-            ('host', self.host.host)
+            ('host', self.host['host']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -125,9 +134,12 @@ class TestHostSet(TestHost):
         self.assertIsNone(result)
 
         body = {'status': 'enable', 'maintenance_mode': 'disable'}
-        self.host_mock.update.assert_called_with(self.host.host, body)
+        h_mock.assert_called_with(self.host['host'], body)
 
 
+@mock.patch(
+    'openstackclient.api.compute_v2.APIv2.host_show'
+)
 class TestHostShow(TestHost):
 
     host = compute_fakes.FakeHost.create_one_host()
@@ -139,22 +151,22 @@ class TestHostShow(TestHost):
         'Memory MB',
         'Disk GB',
     )
+
     data = [(
-        host.host,
-        host.project,
-        host.cpu,
-        host.memory_mb,
-        host.disk_gb,
+        host['host'],
+        host['project'],
+        host['cpu'],
+        host['memory_mb'],
+        host['disk_gb'],
     )]
 
     def setUp(self):
         super(TestHostShow, self).setUp()
 
-        self.host_mock.get.return_value = [self.host]
-
         self.cmd = host.ShowHost(self.app, None)
 
-    def test_host_show_no_option(self):
+    def test_host_show_no_option(self, h_mock):
+        h_mock.host_show.return_value = [self.host]
         arglist = []
         verifylist = []
 
@@ -162,18 +174,19 @@ class TestHostShow(TestHost):
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
 
-    def test_host_show_with_option(self):
+    def test_host_show_with_option(self, h_mock):
+        h_mock.return_value = [self.host]
         arglist = [
-            self.host.host_name,
+            self.host['host_name'],
         ]
         verifylist = [
-            ('host', self.host.host_name),
+            ('host', self.host['host_name']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.host_mock.get.assert_called_with(self.host.host_name)
+        h_mock.assert_called_with(self.host['host_name'])
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
