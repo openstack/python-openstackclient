@@ -105,7 +105,14 @@ class ExtensionTests(base.TestCase):
         try:
             self.openstack('extension show ' + name)
         except tempest_exc.CommandFailed as e:
-            self.assertIn('ResourceNotFound', str(e))
+            # NOTE(dtroyer): We have to test for both strings because the
+            #                change in the SDK between 0.9.19 and 0.11.x
+            #                spans our allowed range in stable/queens.
+            not_found = (
+                'ResourceNotFound' in str(e) or
+                'No Extension found for' in str(e)
+            )
+            self.assertTrue(not_found)
             self.assertIn(name, str(e))
         else:
             self.fail('CommandFailed should be raised')
