@@ -101,6 +101,13 @@ def _get_token_resource(client, resource, parsed_name, parsed_domain=None):
         # user/project under different domain may has a same name
         if parsed_domain and parsed_domain not in obj['domain'].values():
             return parsed_name
+        if isinstance(obj, list):
+            for item in obj:
+                if item['name'] == parsed_name:
+                    return item['id']
+                if item['id'] == parsed_name:
+                    return parsed_name
+            return parsed_name
         return obj['id'] if obj['name'] == parsed_name else parsed_name
     # diaper defense in case parsing the token fails
     except Exception:  # noqa

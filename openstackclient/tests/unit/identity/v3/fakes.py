@@ -14,6 +14,7 @@
 #
 
 import copy
+import datetime
 import uuid
 
 from keystoneauth1 import access
@@ -457,6 +458,34 @@ OAUTH_VERIFIER = {
     'oauth_verifier': oauth_verifier_pin
 }
 
+app_cred_id = 'app-cred-id'
+app_cred_name = 'testing_app_cred'
+app_cred_role = {"id": role_id, "name": role_name, "domain": None},
+app_cred_description = 'app credential for testing'
+app_cred_expires = datetime.datetime(2022, 1, 1, 0, 0)
+app_cred_expires_str = app_cred_expires.strftime('%Y-%m-%dT%H:%M:%S%z')
+app_cred_secret = 'moresecuresecret'
+APP_CRED_BASIC = {
+    'id': app_cred_id,
+    'name': app_cred_name,
+    'project_id': project_id,
+    'roles': app_cred_role,
+    'description': None,
+    'expires_at': None,
+    'unrestricted': False,
+    'secret': app_cred_secret
+}
+APP_CRED_OPTIONS = {
+    'id': app_cred_id,
+    'name': app_cred_name,
+    'project_id': project_id,
+    'roles': app_cred_role,
+    'description': app_cred_description,
+    'expires_at': app_cred_expires_str,
+    'unrestricted': False,
+    'secret': app_cred_secret
+}
+
 
 def fake_auth_ref(fake_token, fake_service=None):
     """Create an auth_ref using keystoneauth's fixtures"""
@@ -544,6 +573,9 @@ class FakeIdentityv3Client(object):
         self.auth = FakeAuth()
         self.auth.client = mock.Mock()
         self.auth.client.resource_class = fakes.FakeResource(None, {})
+        self.application_credentials = mock.Mock()
+        self.application_credentials.resource_class = fakes.FakeResource(None,
+                                                                         {})
 
 
 class FakeFederationManager(object):
