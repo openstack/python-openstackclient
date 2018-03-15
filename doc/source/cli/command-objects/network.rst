@@ -24,6 +24,7 @@ Create new network
         [--enable | --disable]
         [--share | --no-share]
         [--description <description>]
+        [--mtu <mtu>]
         [--availability-zone-hint <availability-zone>]
         [--enable-port-security | --disable-port-security]
         [--external [--default | --no-default] | --internal]
@@ -71,6 +72,12 @@ Create new network
 .. option:: --description <description>
 
     Set network description
+
+    *Network version 2 only*
+
+.. option:: --mtu <mtu>
+
+    Set network mtu
 
     *Network version 2 only*
 
@@ -353,6 +360,7 @@ Set network properties
         [--enable | --disable]
         [--share | --no-share]
         [--description <description>]
+        [--mtu <mtu>]
         [--enable-port-security | --disable-port-security]
         [--external [--default | --no-default] | --internal]
         [--provider-network-type <provider-network-type>]
@@ -385,6 +393,10 @@ Set network properties
 .. option:: --description <description>
 
     Set network description
+
+.. option:: --mtu <mtu>
+
+    Set network mtu
 
 .. option:: --enable-port-security
 

@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--mtu`` option to ``network create`` and ``network set``
+    commands, allowing CLI users to set the MTU for Neutron networks.
