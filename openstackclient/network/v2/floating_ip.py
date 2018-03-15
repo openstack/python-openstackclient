@@ -412,7 +412,7 @@ class SetFloatingIP(command.Command):
             '--port',
             metavar='<port>',
             required=True,
-            help=_("Assocaite the floating IP with port (name or ID)")),
+            help=_("Associate the floating IP with port (name or ID)")),
         parser.add_argument(
             '--fixed-ip-address',
             metavar='<ip-address>',

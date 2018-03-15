@@ -166,7 +166,7 @@ Set floating IP properties
 
 .. option:: --port <port>
 
-    Assocaite the floating IP with port (name or ID)
+    Associate the floating IP with port (name or ID)
 
 .. option:: --fixed-ip-address <ip-address>
 
