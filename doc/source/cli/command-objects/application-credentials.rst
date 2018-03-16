@@ -21,7 +21,7 @@ Create new application credential
         [--role <role>]
         [--expiration <expiration>]
         [--description <description>]
-        [--unrestricted]
+        [--restricted|--unrestricted]
         <name>
 
 .. option:: --secret <secret>
