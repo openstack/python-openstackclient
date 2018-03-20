@@ -16,7 +16,6 @@
 """Usage action implementations"""
 
 import datetime
-import sys
 
 from osc_lib.command import command
 from osc_lib import utils
@@ -96,7 +95,7 @@ class ListUsage(command.Lister):
             pass
 
         if parsed_args.formatter == 'table' and len(usage_list) > 0:
-            sys.stdout.write(_("Usage from %(start)s to %(end)s: \n") % {
+            self.app.stdout.write(_("Usage from %(start)s to %(end)s: \n") % {
                 "start": start.strftime(dateformat),
                 "end": end.strftime(dateformat),
             })
@@ -168,8 +167,9 @@ class ShowUsage(command.ShowOne):
         usage = compute_client.usage.get(project, start, end)
 
         if parsed_args.formatter == 'table':
-            sys.stdout.write(_("Usage from %(start)s to %(end)s on "
-                               "project %(project)s: \n") % {
+            self.app.stdout.write(_(
+                "Usage from %(start)s to %(end)s on project %(project)s: \n"
+            ) % {
                 "start": start.strftime(dateformat),
                 "end": end.strftime(dateformat),
                 "project": project,

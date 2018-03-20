@@ -925,7 +925,7 @@ class TestServerCreate(TestServer):
         mock_wait_for_status.assert_called_once_with(
             self.servers_mock.get,
             self.new_server.id,
-            callback=server._show_progress,
+            callback=mock.ANY,
         )
 
         kwargs = dict(
@@ -975,7 +975,7 @@ class TestServerCreate(TestServer):
         mock_wait_for_status.assert_called_once_with(
             self.servers_mock.get,
             self.new_server.id,
-            callback=server._show_progress,
+            callback=mock.ANY,
         )
 
         kwargs = dict(
@@ -1494,7 +1494,7 @@ class TestServerDelete(TestServer):
         mock_wait_for_delete.assert_called_once_with(
             self.servers_mock,
             servers[0].id,
-            callback=server._show_progress
+            callback=mock.ANY,
         )
         self.assertIsNone(result)
 
@@ -1516,7 +1516,7 @@ class TestServerDelete(TestServer):
         mock_wait_for_delete.assert_called_once_with(
             self.servers_mock,
             servers[0].id,
-            callback=server._show_progress
+            callback=mock.ANY,
         )
 
 
@@ -2152,7 +2152,7 @@ class TestServerRebuild(TestServer):
         mock_wait_for_status.assert_called_once_with(
             self.servers_mock.get,
             self.server.id,
-            callback=server._show_progress,
+            callback=mock.ANY,
             # **kwargs
         )
 
@@ -2177,7 +2177,7 @@ class TestServerRebuild(TestServer):
         mock_wait_for_status.assert_called_once_with(
             self.servers_mock.get,
             self.server.id,
-            callback=server._show_progress
+            callback=mock.ANY,
         )
 
         self.servers_mock.get.assert_called_with(self.server.id)
@@ -2619,7 +2619,7 @@ class TestServerResize(TestServer):
         mock_wait_for_status.assert_called_once_with(
             self.servers_mock.get,
             self.server.id,
-            callback=server._show_progress,
+            callback=mock.ANY,
             **kwargs
         )
 
@@ -2659,7 +2659,7 @@ class TestServerResize(TestServer):
         mock_wait_for_status.assert_called_once_with(
             self.servers_mock.get,
             self.server.id,
-            callback=server._show_progress,
+            callback=mock.ANY,
             **kwargs
         )
 
