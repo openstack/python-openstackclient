@@ -592,6 +592,39 @@ class ListImage(command.Lister):
         )
 
 
+class ListImageProjects(command.Lister):
+    _description = _("List projects associated with image")
+
+    def get_parser(self, prog_name):
+        parser = super(ListImageProjects, self).get_parser(prog_name)
+        parser.add_argument(
+            "image",
+            metavar="<image>",
+            help=_("Image (name or ID)"),
+        )
+        common.add_project_domain_option_to_parser(parser)
+        return parser
+
+    def take_action(self, parsed_args):
+        image_client = self.app.client_manager.image
+        columns = (
+            "Image ID",
+            "Member ID",
+            "Status"
+        )
+
+        image_id = utils.find_resource(
+            image_client.images,
+            parsed_args.image).id
+
+        data = image_client.image_members.list(image_id)
+
+        return (columns,
+                (utils.get_item_properties(
+                    s, columns,
+                ) for s in data))
+
+
 class RemoveProjectImage(command.Command):
     _description = _("Disassociate project with image")
 

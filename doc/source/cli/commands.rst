@@ -104,6 +104,7 @@ referring to both Compute and Volume quotas.
 * ``hypervisor stats``: (**Compute**) hypervisor statistics over all compute nodes
 * ``identity provider``: (**Identity**) a source of users and authentication
 * ``image``: (**Image**) a disk image
+* ``image member``: (**Image**) a project that is a member of an Image
 * ``ip availability``: (**Network**) - details of IP usage of a network
 * ``ip fixed``: (**Compute**, **Network**) - an internal IP address assigned to a server
 * ``ip floating``: (**Compute**, **Network**) - a public IP address that can be mapped to a server
