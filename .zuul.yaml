@@ -14,7 +14,7 @@
       - openstack/os-client-config
       - openstack/osc-lib
       - openstack/python-openstackclient
-      - openstack/python-openstacksdk
+      - openstack/openstacksdk
     vars:
       tox_envlist: unit-tips
 
@@ -114,11 +114,11 @@
       - openstack/os-client-config
       - openstack/osc-lib
       - openstack/python-openstackclient
-      - openstack/python-openstacksdk
+      - openstack/openstacksdk
     vars:
       devstack_localrc:
         USE_PYTHON3: true
-        LIBS_FROM_GIT: python-openstackclient,python-openstacksdk,osc-lib,os-client-config
+        LIBS_FROM_GIT: python-openstackclient,openstacksdk,osc-lib,os-client-config
         # This is insufficient, but leaving it here as a reminder of what may
         # someday be all we need to make this work
         # disable_python3_package swift
