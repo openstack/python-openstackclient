@@ -11,7 +11,7 @@
       - openstack/os-client-config
       - openstack/osc-lib
       - openstack/python-openstackclient
-      - openstack/python-openstacksdk
+      - openstack/openstacksdk
     vars:
       tox_envlist: py27
       # Set work dir to openstackclient so that if it's triggered by one of the
@@ -33,7 +33,7 @@
       - openstack/os-client-config
       - openstack/osc-lib
       - openstack/python-openstackclient
-      - openstack/python-openstacksdk
+      - openstack/openstacksdk
     vars:
       # Set work dir to openstackclient so that if it's triggered by one of the
       # other repos the tests will run in the same place
@@ -54,7 +54,7 @@
       - openstack/os-client-config
       - openstack/osc-lib
       - openstack/python-openstackclient
-      - openstack/python-openstacksdk
+      - openstack/openstacksdk
     vars:
       # Set work dir to openstackclient so that if it's triggered by one of the
       # other repos the tests will run in the same place
@@ -158,11 +158,11 @@
       - openstack/os-client-config
       - openstack/osc-lib
       - openstack/python-openstackclient
-      - openstack/python-openstacksdk
+      - openstack/openstacksdk
     vars:
       devstack_localrc:
         USE_PYTHON3: true
-        LIBS_FROM_GIT: python-openstackclient,python-openstacksdk,osc-lib,os-client-config
+        LIBS_FROM_GIT: python-openstackclient,openstacksdk,osc-lib,os-client-config
         # This is insufficient, but leaving it here as a reminder of what may
         # someday be all we need to make this work
         # disable_python3_package swift
