@@ -576,6 +576,8 @@ class FakeIdentityv3Client(object):
         self.application_credentials = mock.Mock()
         self.application_credentials.resource_class = fakes.FakeResource(None,
                                                                          {})
+        self.inference_rules = mock.Mock()
+        self.inference_rules.resource_class = fakes.FakeResource(None, {})
 
 
 class FakeFederationManager(object):

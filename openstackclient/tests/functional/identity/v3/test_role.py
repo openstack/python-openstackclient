@@ -143,3 +143,28 @@ class RoleTests(common.IdentityTests):
                           'role': role_name})
         self.assertEqual(0, len(add_raw_output))
         self.assertEqual(0, len(remove_raw_output))
+
+    def test_implied_role_list(self):
+        self._create_dummy_implied_role()
+        raw_output = self.openstack('implied role list')
+        items = self.parse_listing(raw_output)
+        self.assert_table_structure(items, self.IMPLIED_ROLE_LIST_HEADERS)
+        self.assertEqual(3, len(items))
+
+    def test_implied_role_create(self):
+        role_name = self._create_dummy_role()
+        implied_role_name = self._create_dummy_role()
+        self.openstack(
+            'implied role create '
+            '--implied-role %(implied_role)s '
+            '%(role)s' % {'implied_role': implied_role_name,
+                          'role': role_name})
+
+    def test_implied_role_delete(self):
+        implied_role_name, role_name = self._create_dummy_implied_role()
+        raw_output = self.openstack(
+            'implied role delete '
+            '--implied-role %(implied_role)s '
+            '%(role)s' % {'implied_role': implied_role_name,
+                          'role': role_name})
+        self.assertEqual(0, len(raw_output))
