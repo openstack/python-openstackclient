@@ -52,6 +52,8 @@ class IdentityTests(base.TestCase):
                                'id', 'relay_state_prefix', 'sp_url']
     SERVICE_PROVIDER_LIST_HEADERS = ['ID', 'Enabled', 'Description',
                                      'Auth URL']
+    IMPLIED_ROLE_LIST_HEADERS = ['Prior Role ID', 'Prior Role Name',
+                                 'Implied Role ID', 'Implied Role Name']
 
     @classmethod
     def setUpClass(cls):
@@ -148,6 +150,17 @@ class IdentityTests(base.TestCase):
         self.assert_show_fields(items, self.ROLE_FIELDS)
         self.assertEqual(role_name, role['name'])
         return role_name
+
+    def _create_dummy_implied_role(self, add_clean_up=True):
+        role_name = self._create_dummy_role(add_clean_up)
+        implied_role_name = self._create_dummy_role(add_clean_up)
+        self.openstack(
+            'implied role create '
+            '--implied-role %(implied_role)s '
+            '%(role)s' % {'implied_role': implied_role_name,
+                          'role': role_name})
+
+        return implied_role_name, role_name
 
     def _create_dummy_group(self, add_clean_up=True):
         group_name = data_utils.rand_name('TestGroup')
