@@ -16,7 +16,6 @@
 """Group action implementations"""
 
 import logging
-import sys
 
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib.command import command
@@ -122,7 +121,7 @@ class CheckUserInGroup(command.Command):
                     'user': parsed_args.user,
                     'group': parsed_args.group,
                 }
-                sys.stderr.write(msg)
+                self.app.stderr.write(msg)
             else:
                 raise e
         else:
@@ -130,7 +129,7 @@ class CheckUserInGroup(command.Command):
                 'user': parsed_args.user,
                 'group': parsed_args.group,
             }
-            sys.stdout.write(msg)
+            self.app.stdout.write(msg)
 
 
 class CreateGroup(command.ShowOne):

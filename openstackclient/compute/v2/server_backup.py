@@ -15,8 +15,6 @@
 
 """Compute v2 Server action implementations"""
 
-import sys
-
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -24,12 +22,6 @@ from oslo_utils import importutils
 import six
 
 from openstackclient.i18n import _
-
-
-def _show_progress(progress):
-    if progress:
-        sys.stderr.write('\rProgress: %s' % progress)
-        sys.stderr.flush()
 
 
 class CreateServerBackup(command.ShowOne):
@@ -74,6 +66,12 @@ class CreateServerBackup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
+
+        def _show_progress(progress):
+            if progress:
+                self.app.stderr.write('\rProgress: %s' % progress)
+                self.app.stderr.flush()
+
         compute_client = self.app.client_manager.compute
 
         server = utils.find_resource(
@@ -114,7 +112,7 @@ class CreateServerBackup(command.ShowOne):
                 image.id,
                 callback=_show_progress,
             ):
-                sys.stdout.write('\n')
+                self.app.stdout.write('\n')
             else:
                 msg = _('Error creating server backup: %s') % parsed_args.name
                 raise exceptions.CommandError(msg)

@@ -20,7 +20,6 @@ import getpass
 import io
 import logging
 import os
-import sys
 
 from novaclient.v2 import servers
 from osc_lib.cli import parseractions
@@ -188,12 +187,6 @@ def _prep_server_detail(compute_client, image_client, server):
     info.pop('links', None)
 
     return info
-
-
-def _show_progress(progress):
-    if progress:
-        sys.stdout.write('\rProgress: %s' % progress)
-        sys.stdout.flush()
 
 
 class AddFixedIP(command.Command):
@@ -598,6 +591,12 @@ class CreateServer(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
+
+        def _show_progress(progress):
+            if progress:
+                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.flush()
+
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
         image_client = self.app.client_manager.image
@@ -832,11 +831,11 @@ class CreateServer(command.ShowOne):
                 server.id,
                 callback=_show_progress,
             ):
-                sys.stdout.write('\n')
+                self.app.stdout.write('\n')
             else:
                 LOG.error(_('Error creating server: %s'),
                           parsed_args.server_name)
-                sys.stdout.write(_('Error creating server\n'))
+                self.app.stdout.write(_('Error creating server\n'))
                 raise SystemExit
 
         details = _prep_server_detail(compute_client, image_client, server)
@@ -890,6 +889,12 @@ class DeleteServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
+
+        def _show_progress(progress):
+            if progress:
+                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.flush()
+
         compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_obj = utils.find_resource(
@@ -901,11 +906,11 @@ class DeleteServer(command.Command):
                     server_obj.id,
                     callback=_show_progress,
                 ):
-                    sys.stdout.write('\n')
+                    self.app.stdout.write('\n')
                 else:
                     LOG.error(_('Error deleting server: %s'),
                               server_obj.id)
-                    sys.stdout.write(_('Error deleting server\n'))
+                    self.app.stdout.write(_('Error deleting server\n'))
                     raise SystemExit
 
 
@@ -1308,6 +1313,11 @@ class MigrateServer(command.Command):
 
     def take_action(self, parsed_args):
 
+        def _show_progress(progress):
+            if progress:
+                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.flush()
+
         compute_client = self.app.client_manager.compute
 
         server = utils.find_resource(
@@ -1333,11 +1343,11 @@ class MigrateServer(command.Command):
                 server.id,
                 callback=_show_progress,
             ):
-                sys.stdout.write(_('Complete\n'))
+                self.app.stdout.write(_('Complete\n'))
             else:
                 LOG.error(_('Error migrating server: %s'),
                           server.id)
-                sys.stdout.write(_('Error migrating server\n'))
+                self.app.stdout.write(_('Error migrating server\n'))
                 raise SystemExit
 
 
@@ -1398,6 +1408,12 @@ class RebootServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
+
+        def _show_progress(progress):
+            if progress:
+                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.flush()
+
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(
             compute_client.servers, parsed_args.server)
@@ -1409,11 +1425,11 @@ class RebootServer(command.Command):
                 server.id,
                 callback=_show_progress,
             ):
-                sys.stdout.write(_('Complete\n'))
+                self.app.stdout.write(_('Complete\n'))
             else:
                 LOG.error(_('Error rebooting server: %s'),
                           server.id)
-                sys.stdout.write(_('Error rebooting server\n'))
+                self.app.stdout.write(_('Error rebooting server\n'))
                 raise SystemExit
 
 
@@ -1446,6 +1462,12 @@ class RebuildServer(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
+
+        def _show_progress(progress):
+            if progress:
+                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.flush()
+
         compute_client = self.app.client_manager.compute
         image_client = self.app.client_manager.image
 
@@ -1463,11 +1485,11 @@ class RebuildServer(command.ShowOne):
                 server.id,
                 callback=_show_progress,
             ):
-                sys.stdout.write(_('Complete\n'))
+                self.app.stdout.write(_('Complete\n'))
             else:
                 LOG.error(_('Error rebuilding server: %s'),
                           server.id)
-                sys.stdout.write(_('Error rebuilding server\n'))
+                self.app.stdout.write(_('Error rebuilding server\n'))
                 raise SystemExit
 
         details = _prep_server_detail(compute_client, image_client, server)
@@ -1752,6 +1774,11 @@ the new server and restart the old one.""")
 
     def take_action(self, parsed_args):
 
+        def _show_progress(progress):
+            if progress:
+                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.flush()
+
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(
             compute_client.servers,
@@ -1770,11 +1797,11 @@ the new server and restart the old one.""")
                     success_status=['active', 'verify_resize'],
                     callback=_show_progress,
                 ):
-                    sys.stdout.write(_('Complete\n'))
+                    self.app.stdout.write(_('Complete\n'))
                 else:
                     LOG.error(_('Error resizing server: %s'),
                               server.id)
-                    sys.stdout.write(_('Error resizing server\n'))
+                    self.app.stdout.write(_('Error resizing server\n'))
                     raise SystemExit
         elif parsed_args.confirm:
             compute_client.servers.confirm_resize(server)
@@ -1940,7 +1967,9 @@ class ShowServer(command.ShowOne):
         if parsed_args.diagnostics:
             (resp, data) = server.diagnostics()
             if not resp.status_code == 200:
-                sys.stderr.write(_("Error retrieving diagnostics data\n"))
+                self.app.stderr.write(_(
+                    "Error retrieving diagnostics data\n"
+                ))
                 return ({}, {})
         else:
             data = _prep_server_detail(compute_client,

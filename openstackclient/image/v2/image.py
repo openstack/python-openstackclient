@@ -17,7 +17,6 @@
 
 import argparse
 import logging
-import sys
 
 from glanceclient.common import utils as gc_utils
 from osc_lib.cli import parseractions
@@ -653,7 +652,7 @@ class SaveImage(command.Command):
         if data.wrapped is None:
             msg = _('Image %s has no data.') % image.id
             LOG.error(msg)
-            sys.stdout.write(msg + '\n')
+            self.app.stdout.write(msg + '\n')
             raise SystemExit
 
         gc_utils.save_image(data, parsed_args.file)

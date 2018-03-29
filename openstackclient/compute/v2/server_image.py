@@ -16,7 +16,6 @@
 """Compute v2 Server action implementations"""
 
 import logging
-import sys
 
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -28,12 +27,6 @@ from openstackclient.i18n import _
 
 
 LOG = logging.getLogger(__name__)
-
-
-def _show_progress(progress):
-    if progress:
-        sys.stdout.write('\rProgress: %s' % progress)
-        sys.stdout.flush()
 
 
 class CreateServerImage(command.ShowOne):
@@ -64,6 +57,12 @@ class CreateServerImage(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
+
+        def _show_progress(progress):
+            if progress:
+                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.flush()
+
         compute_client = self.app.client_manager.compute
 
         server = utils.find_resource(
@@ -92,7 +91,7 @@ class CreateServerImage(command.ShowOne):
                 image_id,
                 callback=_show_progress,
             ):
-                sys.stdout.write('\n')
+                self.app.stdout.write('\n')
             else:
                 LOG.error(_('Error creating server image: %s'),
                           parsed_args.server)
