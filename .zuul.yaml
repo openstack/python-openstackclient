@@ -205,6 +205,8 @@
             # The functional-tips job only tests the latest and shouldn't be run
             # on the stable branches
             branches: ^(?!stable)
+        - openstack-tox-lower-constraints
     gate:
       jobs:
         - osc-functional-devstack
+        - openstack-tox-lower-constraints
