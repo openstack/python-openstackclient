@@ -70,8 +70,8 @@ class CreateVolumeType(command.ShowOne):
         parser.add_argument(
             '--encryption-provider',
             metavar='<provider>',
-            help=_('Set the class that provides encryption support for '
-                   'this volume type (e.g "LuksEncryptor") (admin only) '
+            help=_('Set the encryption provider format for '
+                   'this volume type (e.g "luks" or "plain") (admin only) '
                    '(This option is required when setting encryption type '
                    'of a volume. Consider using other encryption options '
                    'such as: "--encryption-cipher", "--encryption-key-size" '
@@ -254,8 +254,8 @@ class SetVolumeType(command.Command):
         parser.add_argument(
             '--encryption-provider',
             metavar='<provider>',
-            help=_('Set the class that provides encryption support for '
-                   'this volume type (e.g "LuksEncryptor") (admin only) '
+            help=_('Set the encryption provider format for '
+                   'this volume type (e.g "luks" or "plain") (admin only) '
                    '(This option is required when setting encryption type '
                    'of a volume. Consider using other encryption options '
                    'such as: "--encryption-cipher", "--encryption-key-size" '

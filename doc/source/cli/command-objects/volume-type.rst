@@ -62,8 +62,8 @@ Create new volume type
 
 .. option:: --encryption-provider <provider>
 
-    Set the class that provides encryption support for this volume type
-    (e.g "LuksEncryptor") (admin only)
+    Set the encryption provider format for this volume type
+    (e.g "luks" or "plain") (admin only)
 
     This option is required when setting encryption type of a volume.
     Consider using other encryption options such as: :option:`--encryption-cipher`,
@@ -197,8 +197,8 @@ Set volume type properties
 
 .. option:: --encryption-provider <provider>
 
-    Set the class that provides encryption support for this volume type
-    (e.g "LuksEncryptor") (admin only)
+    Set the encryption provider format for this volume type
+    (e.g "luks" or "plain") (admin only)
 
     This option is required when setting encryption type of a volume for the first time.
     Consider using other encryption options such as: :option:`--encryption-cipher`,
