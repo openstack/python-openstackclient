@@ -436,6 +436,12 @@ class CreateServer(command.ShowOne):
             help=_('Create server boot disk from this image (name or ID)'),
         )
         disk_group.add_argument(
+            '--image-property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            help=_("Image property to be matched"),
+        )
+        disk_group.add_argument(
             '--volume',
             metavar='<volume>',
             help=_('Create server using this volume as the boot disk (name '
@@ -608,6 +614,45 @@ class CreateServer(command.ShowOne):
                 image_client.images,
                 parsed_args.image,
             )
+
+        if not image and parsed_args.image_property:
+            def emit_duplicated_warning(img, image_property):
+                img_uuid_list = [str(image.id) for image in img]
+                LOG.warning(_('Multiple matching images: %(img_uuid_list)s\n'
+                              'Using image: %(chosen_one)s') %
+                            {'img_uuid_list': img_uuid_list,
+                             'chosen_one': img_uuid_list[0]})
+
+            def _match_image(image_api, wanted_properties):
+                image_list = image_api.image_list()
+                images_matched = []
+                for img in image_list:
+                    img_dict = {}
+                    # exclude any unhashable entries
+                    for key, value in img.items():
+                        try:
+                            set([key, value])
+                        except TypeError:
+                            pass
+                        else:
+                            img_dict[key] = value
+                    if all(k in img_dict and img_dict[k] == v
+                           for k, v in wanted_properties.items()):
+                        images_matched.append(img)
+                    else:
+                        return []
+                return images_matched
+
+            images = _match_image(image_client.api, parsed_args.image_property)
+            if len(images) > 1:
+                emit_duplicated_warning(images,
+                                        parsed_args.image_property)
+            if images:
+                image = images[0]
+            else:
+                raise exceptions.CommandError(_("No images match the "
+                                                "property expected by "
+                                                "--image-property"))
 
         # Lookup parsed_args.volume
         volume = None

@@ -1528,6 +1528,164 @@ class TestServerCreate(TestServer):
                           self.cmd.take_action,
                           parsed_args)
 
+    def test_server_create_image_property(self):
+        arglist = [
+            '--image-property', 'hypervisor_type=qemu',
+            '--flavor', 'flavor1',
+            '--nic', 'none',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image_property', {'hypervisor_type': 'qemu'}),
+            ('flavor', 'flavor1'),
+            ('nic', ['none']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        _image = image_fakes.FakeImage.create_one_image()
+        # create a image_info as the side_effect of the fake image_list()
+        image_info = {
+            'id': _image.id,
+            'name': _image.name,
+            'owner': _image.owner,
+            'hypervisor_type': 'qemu',
+        }
+        self.api_mock = mock.Mock()
+        self.api_mock.image_list.side_effect = [
+            [image_info], [],
+        ]
+        self.app.client_manager.image.api = self.api_mock
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[],
+            nics='none',
+            meta=None,
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            image_info,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_image_property_multi(self):
+        arglist = [
+            '--image-property', 'hypervisor_type=qemu',
+            '--image-property', 'hw_disk_bus=ide',
+            '--flavor', 'flavor1',
+            '--nic', 'none',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image_property', {'hypervisor_type': 'qemu',
+             'hw_disk_bus': 'ide'}),
+            ('flavor', 'flavor1'),
+            ('nic', ['none']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        _image = image_fakes.FakeImage.create_one_image()
+        # create a image_info as the side_effect of the fake image_list()
+        image_info = {
+            'id': _image.id,
+            'name': _image.name,
+            'owner': _image.owner,
+            'hypervisor_type': 'qemu',
+            'hw_disk_bus': 'ide',
+        }
+        self.api_mock = mock.Mock()
+        self.api_mock.image_list.side_effect = [
+            [image_info], [],
+        ]
+        self.app.client_manager.image.api = self.api_mock
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[],
+            nics='none',
+            meta=None,
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            image_info,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_image_property_missed(self):
+        arglist = [
+            '--image-property', 'hypervisor_type=qemu',
+            '--image-property', 'hw_disk_bus=virtio',
+            '--flavor', 'flavor1',
+            '--nic', 'none',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image_property', {'hypervisor_type': 'qemu',
+             'hw_disk_bus': 'virtio'}),
+            ('flavor', 'flavor1'),
+            ('nic', ['none']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        _image = image_fakes.FakeImage.create_one_image()
+        # create a image_info as the side_effect of the fake image_list()
+        image_info = {
+            'id': _image.id,
+            'name': _image.name,
+            'owner': _image.owner,
+            'hypervisor_type': 'qemu',
+            'hw_disk_bus': 'ide',
+        }
+        self.api_mock = mock.Mock()
+        self.api_mock.image_list.side_effect = [
+            [image_info], [],
+        ]
+        self.app.client_manager.image.api = self.api_mock
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)
+
 
 class TestServerDelete(TestServer):
 
