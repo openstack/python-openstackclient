@@ -1,0 +1,4 @@
+---
+features:
+  - The OpenStack client now has the ability to list all members of an image
+    in order to faciliate management of member projects for images.

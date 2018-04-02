@@ -266,6 +266,22 @@ List available images
 
     *Image version 2 only*
 
+image member list
+-----------------
+
+List projects associated with image
+
+.. program:: image member list
+.. code:: bash
+
+    openstack image member list
+        <image>
+
+.. _image_member_list-image:
+.. describe:: <image>
+
+    Image(s) to view members for (name or ID)
+
 image remove project
 --------------------
 

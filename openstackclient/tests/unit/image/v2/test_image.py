@@ -780,6 +780,52 @@ class TestImageList(TestImage):
         )
 
 
+class TestListImageProjects(TestImage):
+
+    project = identity_fakes.FakeProject.create_one_project()
+    _image = image_fakes.FakeImage.create_one_image()
+    member = image_fakes.FakeImage.create_one_image_member(
+        attrs={'image_id': _image.id,
+               'member_id': project.id}
+    )
+
+    columns = (
+        "Image ID",
+        "Member ID",
+        "Status"
+    )
+
+    datalist = ((
+        _image.id,
+        member.member_id,
+        member.status,
+    ))
+
+    def setUp(self):
+        super(TestListImageProjects, self).setUp()
+
+        self.images_mock.get.return_value = self._image
+        self.image_members_mock.list.return_value = self.datalist
+
+        self.cmd = image.ListImageProjects(self.app, None)
+
+    def test_image_member_list(self):
+        arglist = [
+            self._image.id
+        ]
+        verifylist = [
+            ('image', self._image.id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.image_members_mock.list.assert_called_with(self._image.id)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(len(self.datalist), len(tuple(data)))
+
+
 class TestRemoveProjectImage(TestImage):
 
     project = identity_fakes.FakeProject.create_one_project()
