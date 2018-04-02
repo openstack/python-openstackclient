@@ -200,6 +200,8 @@ class FakeVolumeClient(object):
         self.volumes.resource_class = fakes.FakeResource(None, {})
         self.extensions = mock.Mock()
         self.extensions.resource_class = fakes.FakeResource(None, {})
+        self.limits = mock.Mock()
+        self.limits.resource_class = fakes.FakeResource(None, {})
         self.volume_snapshots = mock.Mock()
         self.volume_snapshots.resource_class = fakes.FakeResource(None, {})
         self.backups = mock.Mock()
@@ -1004,3 +1006,101 @@ class FakeQuota(object):
         quota.project_id = quota_attrs['id']
 
         return quota
+
+
+class FakeLimits(object):
+    """Fake limits"""
+
+    def __init__(self, absolute_attrs=None):
+        self.absolute_limits_attrs = {
+            'totalSnapshotsUsed': 1,
+            'maxTotalBackups': 10,
+            'maxTotalVolumeGigabytes': 1000,
+            'maxTotalSnapshots': 10,
+            'maxTotalBackupGigabytes': 1000,
+            'totalBackupGigabytesUsed': 0,
+            'maxTotalVolumes': 10,
+            'totalVolumesUsed': 4,
+            'totalBackupsUsed': 0,
+            'totalGigabytesUsed': 35
+        }
+        absolute_attrs = absolute_attrs or {}
+        self.absolute_limits_attrs.update(absolute_attrs)
+
+        self.rate_limits_attrs = [{
+            "uri": "*",
+            "limit": [
+                {
+                    "value": 10,
+                    "verb": "POST",
+                    "remaining": 2,
+                    "unit": "MINUTE",
+                    "next-available": "2011-12-15T22:42:45Z"
+                },
+                {
+                    "value": 10,
+                    "verb": "PUT",
+                    "remaining": 2,
+                    "unit": "MINUTE",
+                    "next-available": "2011-12-15T22:42:45Z"
+                },
+                {
+                    "value": 100,
+                    "verb": "DELETE",
+                    "remaining": 100,
+                    "unit": "MINUTE",
+                    "next-available": "2011-12-15T22:42:45Z"
+                }
+            ]
+        }]
+
+    @property
+    def absolute(self):
+        for (name, value) in self.absolute_limits_attrs.items():
+            yield FakeAbsoluteLimit(name, value)
+
+    def absolute_limits(self):
+        reference_data = []
+        for (name, value) in self.absolute_limits_attrs.items():
+            reference_data.append((name, value))
+        return reference_data
+
+    @property
+    def rate(self):
+        for group in self.rate_limits_attrs:
+            uri = group['uri']
+            for rate in group['limit']:
+                yield FakeRateLimit(rate['verb'], uri, rate['value'],
+                                    rate['remaining'], rate['unit'],
+                                    rate['next-available'])
+
+    def rate_limits(self):
+        reference_data = []
+        for group in self.rate_limits_attrs:
+            uri = group['uri']
+            for rate in group['limit']:
+                reference_data.append((rate['verb'], uri, rate['value'],
+                                       rate['remaining'], rate['unit'],
+                                       rate['next-available']))
+        return reference_data
+
+
+class FakeAbsoluteLimit(object):
+    """Data model that represents an absolute limit."""
+
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+
+class FakeRateLimit(object):
+    """Data model that represents a flattened view of a single rate limit."""
+
+    def __init__(self, verb, uri, value, remain,
+                 unit, next_available):
+        self.verb = verb
+        self.uri = uri
+        self.value = value
+        self.remain = remain
+        self.unit = unit
+        self.next_available = next_available
