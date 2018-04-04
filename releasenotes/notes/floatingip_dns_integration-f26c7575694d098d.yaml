@@ -1,0 +1,14 @@
+---
+features:
+  - |
+    Add ``--dns-domain`` and ``--dns-name`` options to the 
+    ``floating ip create`` commands. These options
+    set the DNS domain and name for the floating IP.
+
+    Check backend available extension and return an error
+    message if it is missing (instead of a Bad Request HTTP 400).
+    [Bug `1547736 <https://storyboard.openstack.org/#!/story/1547736>`_]
+  - |
+    Add ``--long`` option to the ``floating ip list`` command.  This adds
+    ``DNS Name`` and ``DNS Domain`` columns to the floating IP list.
+    [Bug `1547736 <https://storyboard.openstack.org/#!/story/1547736>`_]

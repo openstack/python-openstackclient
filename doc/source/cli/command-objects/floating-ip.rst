@@ -21,6 +21,8 @@ Create floating IP
         [--qos-policy <qos-policy>]
         [--project <project> [--project-domain <project-domain>]]
         [--tag <tag> | --no-tag]
+        [--dns-domain <dns-domain>]
+        [--dns-name <dns-name>]
         <network>
 
 .. option:: --subnet <subnet>
@@ -78,6 +80,14 @@ Create floating IP
     No tags associated with the floating IP
 
     *Network version 2 only*
+
+.. option:: --dns-domain <dns-domain>
+
+    Set DNS domain for this floating IP (requires DNS integration extension).
+
+.. option:: --dns-name <dns-name>
+
+    Set DNS name for this floating IP (requires DNS integration extension).
 
 .. describe:: <network>
 

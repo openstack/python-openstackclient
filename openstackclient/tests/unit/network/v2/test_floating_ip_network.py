@@ -49,6 +49,8 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         attrs={
             'floating_network_id': floating_network.id,
             'port_id': port.id,
+            'dns_domain': 'example.org.',
+            'dns_name': 'fip1',
         }
     )
 
@@ -129,6 +131,8 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
             '--floating-ip-address', self.floating_ip.floating_ip_address,
             '--fixed-ip-address', self.floating_ip.fixed_ip_address,
             '--description', self.floating_ip.description,
+            '--dns-domain', self.floating_ip.dns_domain,
+            '--dns-name', self.floating_ip.dns_name,
             self.floating_ip.floating_network_id,
         ]
         verifylist = [
@@ -137,6 +141,8 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
             ('fixed_ip_address', self.floating_ip.fixed_ip_address),
             ('network', self.floating_ip.floating_network_id),
             ('description', self.floating_ip.description),
+            ('dns_domain', self.floating_ip.dns_domain),
+            ('dns_name', self.floating_ip.dns_name),
             ('floating_ip_address', self.floating_ip.floating_ip_address),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -150,6 +156,8 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
             'fixed_ip_address': self.floating_ip.fixed_ip_address,
             'floating_network_id': self.floating_ip.floating_network_id,
             'description': self.floating_ip.description,
+            'dns_domain': self.floating_ip.dns_domain,
+            'dns_name': self.floating_ip.dns_name,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -393,6 +401,8 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         'Status',
         'Description',
         'Tags',
+        'DNS Name',
+        'DNS Domain',
     )
 
     data = []
@@ -417,6 +427,8 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
             ip.status,
             ip.description,
             ip.tags,
+            ip.dns_domain,
+            ip.dns_name,
         ))
 
     def setUp(self):

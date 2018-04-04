@@ -82,6 +82,12 @@ def _get_attrs(client_manager, parsed_args):
         ).id
         attrs['tenant_id'] = project_id
 
+    if parsed_args.dns_domain:
+        attrs['dns_domain'] = parsed_args.dns_domain
+
+    if parsed_args.dns_name:
+        attrs['dns_name'] = parsed_args.dns_name
+
     return attrs
 
 
@@ -139,15 +145,32 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
             metavar='<project>',
             help=_("Owner's project (name or ID)")
         )
+        parser.add_argument(
+            '--dns-domain',
+            metavar='<dns-domain>',
+            dest='dns_domain',
+            help=_("Set DNS domain for this floating IP")
+        )
+        parser.add_argument(
+            '--dns-name',
+            metavar='<dns-name>',
+            dest='dns_name',
+            help=_("Set DNS name for this floating IP")
+        )
+
         identity_common.add_project_domain_option_to_parser(parser)
         _tag.add_tag_option_to_parser_for_create(parser, _('floating IP'))
         return parser
 
     def take_action_network(self, client, parsed_args):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
-        obj = client.create_ip(**attrs)
+        with common.check_missing_extension_if_error(
+                self.app.client_manager.network, attrs):
+            obj = client.create_ip(**attrs)
+
         # tags cannot be set when created, so tags need to be set later.
         _tag.update_tags_for_set(client, obj, parsed_args)
+
         display_columns, columns = _get_network_columns(obj)
         data = utils.get_item_properties(obj, columns)
         return (display_columns, data)
@@ -314,12 +337,16 @@ class ListFloatingIP(common.NetworkAndComputeLister):
                 'status',
                 'description',
                 'tags',
+                'dns_name',
+                'dns_domain',
             )
             headers = headers + (
                 'Router',
                 'Status',
                 'Description',
                 'Tags',
+                'DNS Name',
+                'DNS Domain',
             )
 
         query = {}
