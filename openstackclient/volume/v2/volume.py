@@ -472,20 +472,12 @@ class MigrateVolume(command.Command):
             help=_("Enable generic host-based force-migration, "
                    "which bypasses driver optimizations")
         )
-        lock_group = parser.add_mutually_exclusive_group()
-        lock_group.add_argument(
+        parser.add_argument(
             '--lock-volume',
             action="store_true",
             help=_("If specified, the volume state will be locked "
                    "and will not allow a migration to be aborted "
                    "(possibly by another operation)")
-        )
-        lock_group.add_argument(
-            '--unlock-volume',
-            action="store_true",
-            help=_("If specified, the volume state will not be "
-                   "locked and the a migration can be aborted "
-                   "(default) (possibly by another operation)")
         )
         return parser
 

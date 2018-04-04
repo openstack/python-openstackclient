@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    The ``volume migrate --unlock`` argument did not actually do anything and
+    has now been removed.
