@@ -60,7 +60,7 @@ instance-action,,Show an action.
 instance-action-list,,List actions on a server.
 interface-attach,,Attach a network interface to a server.
 interface-detach,,Detach a network interface from a server.
-interface-list,,List interfaces attached to a server.
+interface-list,port list --server,List interfaces attached to a server.
 keypair-add,keypair create,Create a new key pair for use with servers.
 keypair-delete,keypair delete,Delete keypair given by its name.
 keypair-list,keypair list,Print a list of keypairs for a user
