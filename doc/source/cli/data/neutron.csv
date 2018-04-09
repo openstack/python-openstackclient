@@ -11,25 +11,25 @@ auto-allocated-topology-delete,network auto allocated topology delete,Delete the
 auto-allocated-topology-show,network auto allocated topology create,Show the auto-allocated topology of a given tenant.
 availability-zone-list,availability zone list,List availability zones.
 bash-completion,complete,Prints all of the commands and options for bash-completion.
-bgp-dragent-list-hosting-speaker,,List Dynamic Routing agents hosting a BGP speaker.
-bgp-dragent-speaker-add,,Add a BGP speaker to a Dynamic Routing agent.
-bgp-dragent-speaker-remove,,Removes a BGP speaker from a Dynamic Routing agent.
-bgp-peer-create,,Create a BGP Peer.
-bgp-peer-delete,,Delete a BGP peer.
-bgp-peer-list,,List BGP peers.
-bgp-peer-show,,Show information of a given BGP peer.
-bgp-peer-update,,Update BGP Peer's information.
-bgp-speaker-advertiseroute-list,,List routes advertised by a given BGP speaker.
-bgp-speaker-create,,Create a BGP Speaker.
-bgp-speaker-delete,,Delete a BGP speaker.
-bgp-speaker-list,,List BGP speakers.
-bgp-speaker-list-on-dragent,,List BGP speakers hosted by a Dynamic Routing agent.
-bgp-speaker-network-add,,Add a network to the BGP speaker.
-bgp-speaker-network-remove,,Remove a network from the BGP speaker.
-bgp-speaker-peer-add,,Add a peer to the BGP speaker.
-bgp-speaker-peer-remove,,Remove a peer from the BGP speaker.
-bgp-speaker-show,,Show information of a given BGP speaker.
-bgp-speaker-update,,Update BGP Speaker's information.
+bgp-dragent-list-hosting-speaker,bgp speaker show dragents,List Dynamic Routing agents hosting a BGP speaker.
+bgp-dragent-speaker-add,bgp dragent add speaker,Add a BGP speaker to a Dynamic Routing agent.
+bgp-dragent-speaker-remove,bgp dragent remove speaker,Removes a BGP speaker from a Dynamic Routing agent.
+bgp-peer-create,bgp peer create,Create a BGP Peer.
+bgp-peer-delete,bgp peer delete,Delete a BGP peer.
+bgp-peer-list,bgp peer list,List BGP peers.
+bgp-peer-show,bgp peer show,Show information of a given BGP peer.
+bgp-peer-update,bgp peer set,Update BGP Peer's information.
+bgp-speaker-advertiseroute-list,bgp speaker list advertised routes,List routes advertised by a given BGP speaker.
+bgp-speaker-create,bgp speaker create,Create a BGP Speaker.
+bgp-speaker-delete,bgp speaker delete,Delete a BGP speaker.
+bgp-speaker-list,bgp speaker list,List BGP speakers.
+bgp-speaker-list-on-dragent,bgp speaker list --agent,List BGP speakers hosted by a Dynamic Routing agent.
+bgp-speaker-network-add,bgp speaker add network,Add a network to the BGP speaker.
+bgp-speaker-network-remove,bgp speaker remove network,Remove a network from the BGP speaker.
+bgp-speaker-peer-add,bgp speaker add peer,Add a peer to the BGP speaker.
+bgp-speaker-peer-remove,bgp speaker remove peer,Remove a peer from the BGP speaker.
+bgp-speaker-show,bgp speaker show,Show information of a given BGP speaker.
+bgp-speaker-update,bgp speaker set,Update BGP Speaker's information.
 dhcp-agent-list-hosting-net,network agent list --network,List DHCP agents hosting a network.
 dhcp-agent-network-add,network agent add network,Add a network to a DHCP agent.
 dhcp-agent-network-remove,network agent remove network,Remove a network from a DHCP agent.
