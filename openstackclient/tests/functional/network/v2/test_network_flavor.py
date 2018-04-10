@@ -39,13 +39,13 @@ class NetworkFlavorTests(common.NetworkTests):
         # Create Service Flavor
         cmd_output2 = json.loads(self.openstack(
             'network flavor profile create -f json --description '
-            + 'fakedescription' + ' --enable --metainfo ' + 'Extrainfo'
+            'fakedescription --enable --metainfo Extrainfo'
         ))
         service_profile_id = cmd_output2.get('id')
 
-        self.addCleanup(self.openstack, 'network flavor delete ' +
+        self.addCleanup(self.openstack, 'network flavor delete %s' %
                         flavor_id)
-        self.addCleanup(self.openstack, 'network flavor profile delete ' +
+        self.addCleanup(self.openstack, 'network flavor profile delete %s' %
                         service_profile_id)
         # Add flavor to service profile
         self.openstack(

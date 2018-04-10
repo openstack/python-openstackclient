@@ -53,39 +53,39 @@ class ObjectTests(common.ObjectStoreTests):
         self.openstack('container save ' + self.CONTAINER_NAME)
         # TODO(stevemar): Assert returned fields
 
-        raw_output = self.openstack('object create ' + self.CONTAINER_NAME
-                                    + ' ' + object_file)
+        raw_output = self.openstack('object create %s %s' %
+                                    (self.CONTAINER_NAME, object_file))
         items = self.parse_listing(raw_output)
         self.assert_show_fields(items, OBJECT_FIELDS)
 
-        raw_output = self.openstack('object list ' + self.CONTAINER_NAME)
+        raw_output = self.openstack('object list %s' % self.CONTAINER_NAME)
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, BASIC_LIST_HEADERS)
 
-        self.openstack('object save ' + self.CONTAINER_NAME
-                       + ' ' + object_file)
+        self.openstack('object save %s %s' %
+                       (self.CONTAINER_NAME, object_file))
         # TODO(stevemar): Assert returned fields
 
         tmp_file = 'tmp.txt'
         self.addCleanup(os.remove, tmp_file)
-        self.openstack('object save ' + self.CONTAINER_NAME
-                       + ' ' + object_file + ' --file ' + tmp_file)
+        self.openstack('object save %s %s --file %s' %
+                       (self.CONTAINER_NAME, object_file, tmp_file))
         # TODO(stevemar): Assert returned fields
 
-        raw_output = self.openstack('object save ' + self.CONTAINER_NAME
-                                    + ' ' + object_file + ' --file -')
+        raw_output = self.openstack('object save %s %s --file -' %
+                                    (self.CONTAINER_NAME, object_file))
         self.assertEqual(raw_output, 'test content')
 
-        self.openstack('object show ' + self.CONTAINER_NAME
-                       + ' ' + object_file)
+        self.openstack('object show %s %s' %
+                       (self.CONTAINER_NAME, object_file))
         # TODO(stevemar): Assert returned fields
 
-        raw_output = self.openstack('object delete ' + self.CONTAINER_NAME
-                                    + ' ' + object_file)
+        raw_output = self.openstack('object delete %s %s' %
+                                    (self.CONTAINER_NAME, object_file))
         self.assertEqual(0, len(raw_output))
 
-        self.openstack('object create ' + self.CONTAINER_NAME
-                       + ' ' + object_file)
-        raw_output = self.openstack('container delete -r ' +
+        self.openstack('object create %s %s' %
+                       (self.CONTAINER_NAME, object_file))
+        raw_output = self.openstack('container delete -r %s' %
                                     self.CONTAINER_NAME)
         self.assertEqual(0, len(raw_output))

@@ -209,7 +209,7 @@ class NetworkTests(common.NetworkTagTests):
             cmd_output["description"],
         )
 
-        del_output = self.openstack('network delete ' + name1 + ' ' + name2)
+        del_output = self.openstack('network delete %s %s' % (name1, name2))
         self.assertOutput('', del_output)
 
     def test_network_list(self):
@@ -224,7 +224,7 @@ class NetworkTests(common.NetworkTagTests):
             network_options +
             name1
         ))
-        self.addCleanup(self.openstack, 'network delete ' + name1)
+        self.addCleanup(self.openstack, 'network delete %s' % name1)
         self.assertIsNotNone(cmd_output["id"])
         if self.haz_network:
             self.assertEqual(
@@ -264,10 +264,8 @@ class NetworkTests(common.NetworkTagTests):
         else:
             network_options = '--subnet 4.5.6.7/28 '
         cmd_output = json.loads(self.openstack(
-            'network create -f json ' +
-            '--share ' +
-            network_options +
-            name2
+            'network create -f json --share %s%s' %
+            (network_options, name2)
         ))
         self.addCleanup(self.openstack, 'network delete ' + name2)
         self.assertIsNotNone(cmd_output["id"])
@@ -313,8 +311,7 @@ class NetworkTests(common.NetworkTagTests):
         # Test list --long
         if self.haz_network:
             cmd_output = json.loads(self.openstack(
-                "network list -f json " +
-                "--long"
+                "network list -f json --long"
             ))
             col_name = [x["Name"] for x in cmd_output]
             self.assertIn(name1, col_name)
@@ -323,9 +320,7 @@ class NetworkTests(common.NetworkTagTests):
         # Test list --long --enable
         if self.haz_network:
             cmd_output = json.loads(self.openstack(
-                "network list -f json " +
-                "--enable " +
-                "--long"
+                "network list -f json --enable --long"
             ))
             col_name = [x["Name"] for x in cmd_output]
             self.assertIn(name1, col_name)
@@ -334,9 +329,7 @@ class NetworkTests(common.NetworkTagTests):
         # Test list --long --disable
         if self.haz_network:
             cmd_output = json.loads(self.openstack(
-                "network list -f json " +
-                "--disable " +
-                "--long"
+                "network list -f json --disable --long"
             ))
             col_name = [x["Name"] for x in cmd_output]
             self.assertNotIn(name1, col_name)
@@ -345,8 +338,7 @@ class NetworkTests(common.NetworkTagTests):
         # Test list --share
         if self.haz_network:
             cmd_output = json.loads(self.openstack(
-                "network list -f json " +
-                "--share "
+                "network list -f json --share "
             ))
             col_name = [x["Name"] for x in cmd_output]
             self.assertNotIn(name1, col_name)
@@ -355,8 +347,7 @@ class NetworkTests(common.NetworkTagTests):
         # Test list --no-share
         if self.haz_network:
             cmd_output = json.loads(self.openstack(
-                "network list -f json " +
-                "--no-share "
+                "network list -f json --no-share "
             ))
             col_name = [x["Name"] for x in cmd_output]
             self.assertIn(name1, col_name)
@@ -368,12 +359,10 @@ class NetworkTests(common.NetworkTagTests):
 
         name1 = uuid.uuid4().hex
         cmd_output1 = json.loads(self.openstack(
-            'network create -f json ' +
-            '--description aaaa ' +
-            name1
+            'network create -f json --description aaaa %s' % name1
         ))
 
-        self.addCleanup(self.openstack, 'network delete ' + name1)
+        self.addCleanup(self.openstack, 'network delete %s' % name1)
 
         # Get network ID
         network_id = cmd_output1['id']
@@ -386,20 +375,19 @@ class NetworkTests(common.NetworkTagTests):
 
         # Add Agent to Network
         self.openstack(
-            'network agent add network --dhcp '
-            + agent_id + ' ' + network_id
+            'network agent add network --dhcp %s %s' % (agent_id, network_id)
         )
 
         # Test network list --agent
         cmd_output3 = json.loads(self.openstack(
-            'network list -f json --agent ' + agent_id
+            'network list -f json --agent %s' % agent_id
         ))
 
         # Cleanup
         # Remove Agent from Network
         self.openstack(
-            'network agent remove network --dhcp '
-            + agent_id + ' ' + network_id
+            'network agent remove network --dhcp %s %s' %
+            (agent_id, network_id)
         )
 
         # Assert
@@ -415,16 +403,16 @@ class NetworkTests(common.NetworkTagTests):
 
         name = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
-            'network create -f json ' +
-            '--description aaaa ' +
-            '--enable ' +
-            '--no-share ' +
-            '--internal ' +
-            '--no-default ' +
-            '--enable-port-security ' +
+            'network create -f json '
+            '--description aaaa '
+            '--enable '
+            '--no-share '
+            '--internal '
+            '--no-default '
+            '--enable-port-security %s' %
             name
         ))
-        self.addCleanup(self.openstack, 'network delete ' + name)
+        self.addCleanup(self.openstack, 'network delete %s' % name)
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
             'aaaa',
@@ -453,12 +441,12 @@ class NetworkTests(common.NetworkTagTests):
         )
 
         raw_output = self.openstack(
-            'network set ' +
-            '--description cccc ' +
-            '--disable ' +
-            '--share ' +
-            '--external ' +
-            '--disable-port-security ' +
+            'network set '
+            '--description cccc '
+            '--disable '
+            '--share '
+            '--external '
+            '--disable-port-security %s' %
             name
         )
         self.assertOutput('', raw_output)

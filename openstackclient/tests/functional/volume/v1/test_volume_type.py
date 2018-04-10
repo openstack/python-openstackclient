@@ -26,13 +26,13 @@ class VolumeTypeTests(common.BaseVolumeTests):
     def setUpClass(cls):
         super(VolumeTypeTests, cls).setUpClass()
         cmd_output = json.loads(cls.openstack(
-            'volume type create -f json ' + cls.NAME))
+            'volume type create -f json %s' % cls.NAME))
         cls.assertOutput(cls.NAME, cmd_output['name'])
 
     @classmethod
     def tearDownClass(cls):
         try:
-            raw_output = cls.openstack('volume type delete ' + cls.NAME)
+            raw_output = cls.openstack('volume type delete %s' % cls.NAME)
             cls.assertOutput('', raw_output)
         finally:
             super(VolumeTypeTests, cls).tearDownClass()
@@ -43,47 +43,47 @@ class VolumeTypeTests(common.BaseVolumeTests):
 
     def test_volume_type_show(self):
         cmd_output = json.loads(self.openstack(
-            'volume type show -f json ' + self.NAME))
+            'volume type show -f json %s' % self.NAME))
         self.assertEqual(self.NAME, cmd_output['name'])
 
     def test_volume_type_set_unset_properties(self):
         raw_output = self.openstack(
-            'volume type set --property a=b --property c=d ' + self.NAME)
+            'volume type set --property a=b --property c=d %s' % self.NAME)
         self.assertEqual("", raw_output)
 
         cmd_output = json.loads(self.openstack(
             'volume type show -f json ' + self.NAME))
         self.assertEqual("a='b', c='d'", cmd_output['properties'])
 
-        raw_output = self.openstack('volume type unset --property a '
-                                    + self.NAME)
+        raw_output = self.openstack('volume type unset --property a %s' %
+                                    self.NAME)
         self.assertEqual("", raw_output)
         cmd_output = json.loads(self.openstack(
-            'volume type show -f json ' + self.NAME))
+            'volume type show -f json %s' % self.NAME))
         self.assertEqual("c='d'", cmd_output['properties'])
 
     def test_volume_type_set_unset_multiple_properties(self):
         raw_output = self.openstack(
-            'volume type set --property a=b --property c=d ' + self.NAME)
+            'volume type set --property a=b --property c=d %s' % self.NAME)
         self.assertEqual("", raw_output)
 
         cmd_output = json.loads(self.openstack(
-            'volume type show -f json ' + self.NAME))
+            'volume type show -f json %s' % self.NAME))
         self.assertEqual("a='b', c='d'", cmd_output['properties'])
 
         raw_output = self.openstack(
-            'volume type unset --property a --property c ' + self.NAME)
+            'volume type unset --property a --property c %s' % self.NAME)
         self.assertEqual("", raw_output)
         cmd_output = json.loads(self.openstack(
-            'volume type show -f json ' + self.NAME))
+            'volume type show -f json %s' % self.NAME))
         self.assertEqual("", cmd_output['properties'])
 
     def test_multi_delete(self):
         vol_type1 = uuid.uuid4().hex
         vol_type2 = uuid.uuid4().hex
-        self.openstack('volume type create ' + vol_type1)
+        self.openstack('volume type create %s' % vol_type1)
         time.sleep(5)
-        self.openstack('volume type create ' + vol_type2)
+        self.openstack('volume type create %s' % vol_type2)
         time.sleep(5)
         cmd = 'volume type delete %s %s' % (vol_type1, vol_type2)
         raw_output = self.openstack(cmd)
