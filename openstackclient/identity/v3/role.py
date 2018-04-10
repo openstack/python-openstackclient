@@ -126,8 +126,8 @@ class AddRole(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        if (not parsed_args.user and not parsed_args.domain
-                and not parsed_args.group and not parsed_args.project):
+        if (not parsed_args.user and not parsed_args.domain and
+                not parsed_args.group and not parsed_args.project):
             msg = _("Role not added, incorrect set of arguments "
                     "provided. See openstack --help for more details")
             raise exceptions.CommandError(msg)
@@ -399,8 +399,8 @@ class RemoveRole(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        if (not parsed_args.user and not parsed_args.domain
-                and not parsed_args.group and not parsed_args.project):
+        if (not parsed_args.user and not parsed_args.domain and
+                not parsed_args.group and not parsed_args.project):
             msg = _("Incorrect set of arguments provided. "
                     "See openstack --help for more details")
             raise exceptions.CommandError(msg)

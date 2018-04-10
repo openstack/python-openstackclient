@@ -42,8 +42,7 @@ class NetworkAgentTests(common.NetworkTests):
 
         # agent show
         cmd_output = json.loads(self.openstack(
-            'network agent show -f json ' +
-            agent_ids[0]
+            'network agent show -f json %s' % agent_ids[0]
         ))
         self.assertEqual(
             agent_ids[0],
@@ -52,15 +51,12 @@ class NetworkAgentTests(common.NetworkTests):
 
         # agent set
         raw_output = self.openstack(
-            'network agent set ' +
-            '--disable ' +
-            agent_ids[0]
+            'network agent set --disable %s' % agent_ids[0]
         )
         self.assertOutput('', raw_output)
 
         cmd_output = json.loads(self.openstack(
-            'network agent show -f json ' +
-            agent_ids[0]
+            'network agent show -f json %s' % agent_ids[0]
         ))
         self.assertEqual(
             "DOWN",
@@ -68,15 +64,12 @@ class NetworkAgentTests(common.NetworkTests):
         )
 
         raw_output = self.openstack(
-            'network agent set ' +
-            '--enable ' +
-            agent_ids[0]
+            'network agent set --enable %s' % agent_ids[0]
         )
         self.assertOutput('', raw_output)
 
         cmd_output = json.loads(self.openstack(
-            'network agent show -f json ' +
-            agent_ids[0]
+            'network agent show -f json %s' % agent_ids[0]
         ))
         self.assertEqual(
             "UP",
@@ -98,12 +91,10 @@ class NetworkAgentListTests(common.NetworkTests):
 
         name1 = uuid.uuid4().hex
         cmd_output1 = json.loads(self.openstack(
-            'network create -f json ' +
-            '--description aaaa ' +
-            name1
+            'network create -f json --description aaaa %s' % name1
         ))
 
-        self.addCleanup(self.openstack, 'network delete ' + name1)
+        self.addCleanup(self.openstack, 'network delete %s' % name1)
 
         # Get network ID
         network_id = cmd_output1['id']
@@ -116,20 +107,20 @@ class NetworkAgentListTests(common.NetworkTests):
 
         # Add Agent to Network
         self.openstack(
-            'network agent add network --dhcp '
-            + agent_id + ' ' + network_id
+            'network agent add network --dhcp %s %s' %
+            (agent_id, network_id)
         )
 
         # Test network agent list --network
         cmd_output3 = json.loads(self.openstack(
-            'network agent list -f json --network ' + network_id
+            'network agent list -f json --network %s' % network_id
         ))
 
         # Cleanup
         # Remove Agent from Network
         self.openstack(
-            'network agent remove network --dhcp '
-            + agent_id + ' ' + network_id
+            'network agent remove network --dhcp %s %s' %
+            (agent_id, network_id)
         )
 
         # Assert
@@ -142,9 +133,9 @@ class NetworkAgentListTests(common.NetworkTests):
         """Add agent to router, list agents on router, delete."""
         name = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
-            'router create -f json ' + name))
+            'router create -f json %s' % name))
 
-        self.addCleanup(self.openstack, 'router delete ' + name)
+        self.addCleanup(self.openstack, 'router delete %s' % name)
         # Get router ID
         router_id = cmd_output['id']
         # Get l3 agent id
@@ -157,19 +148,19 @@ class NetworkAgentListTests(common.NetworkTests):
 
         # Add router to agent
         self.openstack(
-            'network agent add router --l3 ' + agent_id + ' ' + router_id)
+            'network agent add router --l3 %s %s' % (agent_id, router_id))
 
         # Test router list --agent
         cmd_output = json.loads(self.openstack(
-            'network agent list -f json --router ' + router_id))
+            'network agent list -f json --router %s' % router_id))
 
         agent_ids = [x['ID'] for x in cmd_output]
         self.assertIn(agent_id, agent_ids)
 
         # Remove router from agent
         self.openstack(
-            'network agent remove router --l3 ' + agent_id + ' ' + router_id)
+            'network agent remove router --l3 %s %s' % (agent_id, router_id))
         cmd_output = json.loads(self.openstack(
-            'network agent list -f json --router ' + router_id))
+            'network agent list -f json --router %s' % router_id))
         agent_ids = [x['ID'] for x in cmd_output]
         self.assertNotIn(agent_id, agent_ids)
