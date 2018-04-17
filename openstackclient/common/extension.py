@@ -75,8 +75,10 @@ class ListExtension(command.Lister):
         # by default we want to show everything, unless the
         # user specifies one or more of the APIs to show
         # for now, only identity and compute are supported.
-        show_all = (not parsed_args.identity and not parsed_args.compute
-                    and not parsed_args.volume and not parsed_args.network)
+        show_all = (not parsed_args.identity and
+                    not parsed_args.compute and
+                    not parsed_args.volume and
+                    not parsed_args.network)
 
         if parsed_args.identity or show_all:
             identity_client = self.app.client_manager.identity

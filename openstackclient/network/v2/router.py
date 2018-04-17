@@ -86,8 +86,8 @@ def _get_attrs(client_manager, parsed_args):
         attrs['distributed'] = False
     if parsed_args.distributed:
         attrs['distributed'] = True
-    if ('availability_zone_hints' in parsed_args
-            and parsed_args.availability_zone_hints is not None):
+    if ('availability_zone_hints' in parsed_args and
+            parsed_args.availability_zone_hints is not None):
         attrs['availability_zone_hints'] = parsed_args.availability_zone_hints
     if parsed_args.description is not None:
         attrs['description'] = parsed_args.description

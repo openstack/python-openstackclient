@@ -21,11 +21,6 @@ import logging
 import os
 import sys
 
-if os.name == "nt":
-    import msvcrt
-else:
-    msvcrt = None
-
 from glanceclient.common import utils as gc_utils
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -34,6 +29,11 @@ import six
 
 from openstackclient.api import utils as api_utils
 from openstackclient.i18n import _
+
+if os.name == "nt":
+    import msvcrt
+else:
+    msvcrt = None
 
 
 CONTAINER_CHOICES = ["ami", "ari", "aki", "bare", "docker", "ova", "ovf"]
