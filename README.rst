@@ -12,11 +12,11 @@ OpenStackClient
 ===============
 
 .. image:: https://img.shields.io/pypi/v/python-openstackclient.svg
-    :target: https://pypi.python.org/pypi/python-openstackclient/
+    :target: https://pypi.org/project/python-openstackclient/
     :alt: Latest Version
 
 .. image:: https://img.shields.io/pypi/dm/python-openstackclient.svg
-    :target: https://pypi.python.org/pypi/python-openstackclient/
+    :target: https://pypi.org/project/python-openstackclient/
     :alt: Downloads
 
 OpenStackClient (aka OSC) is a command-line client for OpenStack that brings
@@ -38,7 +38,7 @@ language to describe operations in OpenStack.
 * IRC: #openstack-sdks on Freenode (irc.freenode.net)
 * License: Apache 2.0
 
-.. _PyPi: https://pypi.python.org/pypi/python-openstackclient
+.. _PyPi: https://pypi.org/project/python-openstackclient
 .. _Online Documentation: https://docs.openstack.org/python-openstackclient/latest/
 .. _Launchpad project: https://launchpad.net/python-openstackclient
 .. _Blueprints: https://blueprints.launchpad.net/python-openstackclient
