@@ -113,9 +113,20 @@ class NetworkSegmentTests(common.NetworkTests):
             self.openstack,
             'network segment delete ' + name
         )
-        self.assertIsNone(
-            json_output["description"],
-        )
+
+        extension_output = json.loads(self.openstack(
+            "extension list -f json "
+        ))
+        ext_alias = [x["Alias"] for x in extension_output]
+        if "standard-attr-segment" in ext_alias:
+            self.assertEqual(
+                '',
+                json_output["description"],
+            )
+        else:
+            self.assertIsNone(
+                json_output["description"],
+            )
 
         new_description = 'new_description'
         cmd_output = self.openstack(
