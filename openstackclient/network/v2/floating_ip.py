@@ -22,6 +22,7 @@ from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 from openstackclient.network import sdk_utils
+from openstackclient.network.v2 import _tag
 
 
 def _get_network_columns(item):
@@ -139,11 +140,14 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
             help=_("Owner's project (name or ID)")
         )
         identity_common.add_project_domain_option_to_parser(parser)
+        _tag.add_tag_option_to_parser_for_create(parser, _('floating IP'))
         return parser
 
     def take_action_network(self, client, parsed_args):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_ip(**attrs)
+        # tags cannot be set when created, so tags need to be set later.
+        _tag.update_tags_for_set(client, obj, parsed_args)
         display_columns, columns = _get_network_columns(obj)
         data = utils.get_item_properties(obj, columns)
         return (display_columns, data)
@@ -280,6 +284,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             help=_("List floating IP(s) according to "
                    "given router (name or ID)")
         )
+        _tag.add_tag_filtering_option_to_parser(parser, _('floating IP'))
 
         return parser
 
@@ -308,11 +313,13 @@ class ListFloatingIP(common.NetworkAndComputeLister):
                 'router_id',
                 'status',
                 'description',
+                'tags',
             )
             headers = headers + (
                 'Router',
                 'Status',
                 'Description',
+                'Tags',
             )
 
         query = {}
@@ -341,6 +348,8 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             router = network_client.find_router(parsed_args.router,
                                                 ignore_missing=False)
             query['router_id'] = router.id
+
+        _tag.get_tag_filtering_args(parsed_args, query)
 
         data = client.ips(**query)
 
@@ -431,6 +440,9 @@ class SetFloatingIP(command.Command):
             action='store_true',
             help=_("Remove the QoS policy attached to the floating IP")
         )
+
+        _tag.add_tag_option_to_parser_for_set(parser, _('floating IP'))
+
         return parser
 
     def take_action(self, parsed_args):
@@ -453,7 +465,11 @@ class SetFloatingIP(command.Command):
         if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
             attrs['qos_policy_id'] = None
 
-        client.update_ip(obj, **attrs)
+        if attrs:
+            client.update_ip(obj, **attrs)
+
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_set(client, obj, parsed_args)
 
 
 class ShowFloatingIP(common.NetworkAndComputeShowOne):
@@ -528,6 +544,8 @@ class UnsetFloatingIP(command.Command):
             default=False,
             help=_("Remove the QoS policy attached to the floating IP")
         )
+        _tag.add_tag_option_to_parser_for_unset(parser, _('floating IP'))
+
         return parser
 
     def take_action(self, parsed_args):
@@ -544,3 +562,6 @@ class UnsetFloatingIP(command.Command):
 
         if attrs:
             client.update_ip(obj, **attrs)
+
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_unset(client, obj, parsed_args)

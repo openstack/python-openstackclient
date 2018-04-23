@@ -44,7 +44,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
     subnet = network_fakes.FakeSubnet.create_one_subnet()
     port = network_fakes.FakePort.create_one_port()
 
-    # The floating ip to be deleted.
+    # The floating ip created.
     floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip(
         attrs={
             'floating_network_id': floating_network.id,
@@ -65,6 +65,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         'qos_policy_id',
         'router_id',
         'status',
+        'tags',
     )
 
     data = (
@@ -80,12 +81,14 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         floating_ip.qos_policy_id,
         floating_ip.router_id,
         floating_ip.status,
+        floating_ip.tags,
     )
 
     def setUp(self):
         super(TestCreateFloatingIPNetwork, self).setUp()
 
         self.network.create_ip = mock.Mock(return_value=self.floating_ip)
+        self.network.set_tags = mock.Mock(return_value=None)
 
         self.network.find_network = mock.Mock(
             return_value=self.floating_network)
@@ -221,6 +224,42 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def _test_create_with_tag(self, add_tags=True):
+        arglist = [self.floating_ip.floating_network_id]
+        if add_tags:
+            arglist += ['--tag', 'red', '--tag', 'blue']
+        else:
+            arglist += ['--no-tag']
+
+        verifylist = [
+            ('network', self.floating_ip.floating_network_id),
+        ]
+        if add_tags:
+            verifylist.append(('tags', ['red', 'blue']))
+        else:
+            verifylist.append(('no_tag', True))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_ip.assert_called_once_with(**{
+            'floating_network_id': self.floating_ip.floating_network_id,
+        })
+        if add_tags:
+            self.network.set_tags.assert_called_once_with(
+                self.floating_ip,
+                tests_utils.CompareBySet(['red', 'blue']))
+        else:
+            self.assertFalse(self.network.set_tags.called)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_with_tags(self):
+        self._test_create_with_tag(add_tags=True)
+
+    def test_create_with_no_tag(self):
+        self._test_create_with_tag(add_tags=False)
+
 
 class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
 
@@ -353,6 +392,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         'Router',
         'Status',
         'Description',
+        'Tags',
     )
 
     data = []
@@ -376,6 +416,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
             ip.router_id,
             ip.status,
             ip.description,
+            ip.tags,
         ))
 
     def setUp(self):
@@ -539,6 +580,31 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
+    def test_list_with_tag_options(self):
+        arglist = [
+            '--tags', 'red,blue',
+            '--any-tags', 'red,green',
+            '--not-tags', 'orange,yellow',
+            '--not-any-tags', 'black,white',
+        ]
+        verifylist = [
+            ('tags', ['red', 'blue']),
+            ('any_tags', ['red', 'green']),
+            ('not_tags', ['orange', 'yellow']),
+            ('not_any_tags', ['black', 'white']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ips.assert_called_once_with(
+            **{'tags': 'red,blue',
+               'any_tags': 'red,green',
+               'not_tags': 'orange,yellow',
+               'not_any_tags': 'black,white'}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
 
 class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
 
@@ -558,6 +624,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
         'qos_policy_id',
         'router_id',
         'status',
+        'tags',
     )
 
     data = (
@@ -573,6 +640,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
         floating_ip.qos_policy_id,
         floating_ip.router_id,
         floating_ip.status,
+        floating_ip.tags,
     )
 
     def setUp(self):
@@ -609,11 +677,12 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
     subnet = network_fakes.FakeSubnet.create_one_subnet()
     port = network_fakes.FakePort.create_one_port()
 
-    # The floating ip to be deleted.
+    # The floating ip to be set.
     floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip(
         attrs={
             'floating_network_id': floating_network.id,
             'port_id': port.id,
+            'tags': ['green', 'red'],
         }
     )
 
@@ -622,6 +691,7 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
         self.network.find_ip = mock.Mock(return_value=self.floating_ip)
         self.network.find_port = mock.Mock(return_value=self.port)
         self.network.update_ip = mock.Mock(return_value=None)
+        self.network.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = fip.SetFloatingIP(self.app, self.namespace)
@@ -731,6 +801,36 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
         self.network.update_ip.assert_called_once_with(
             self.floating_ip, **attrs)
 
+    def _test_set_tags(self, with_tags=True):
+        if with_tags:
+            arglist = ['--tag', 'red', '--tag', 'blue']
+            verifylist = [('tags', ['red', 'blue'])]
+            expected_args = ['red', 'blue', 'green']
+        else:
+            arglist = ['--no-tag']
+            verifylist = [('no_tag', True)]
+            expected_args = []
+        arglist.extend(['--port', self.floating_ip.port_id,
+                       self.floating_ip.id])
+        verifylist.extend([
+            ('port', self.floating_ip.port_id),
+            ('floating_ip', self.floating_ip.id)])
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertTrue(self.network.update_ip.called)
+        self.network.set_tags.assert_called_once_with(
+            self.floating_ip,
+            tests_utils.CompareBySet(expected_args))
+        self.assertIsNone(result)
+
+    def test_set_with_tags(self):
+        self._test_set_tags(with_tags=True)
+
+    def test_set_with_no_tag(self):
+        self._test_set_tags(with_tags=False)
+
 
 class TestUnsetFloatingIP(TestFloatingIPNetwork):
 
@@ -738,11 +838,12 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
     subnet = network_fakes.FakeSubnet.create_one_subnet()
     port = network_fakes.FakePort.create_one_port()
 
-    # The floating ip to be deleted.
+    # The floating ip to be unset.
     floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip(
         attrs={
             'floating_network_id': floating_network.id,
             'port_id': port.id,
+            'tags': ['green', 'red'],
         }
     )
 
@@ -750,6 +851,7 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
         super(TestUnsetFloatingIP, self).setUp()
         self.network.find_ip = mock.Mock(return_value=self.floating_ip)
         self.network.update_ip = mock.Mock(return_value=None)
+        self.network.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = fip.UnsetFloatingIP(self.app, self.namespace)
@@ -803,3 +905,31 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
             self.floating_ip, **attrs)
 
         self.assertIsNone(result)
+
+    def _test_unset_tags(self, with_tags=True):
+        if with_tags:
+            arglist = ['--tag', 'red', '--tag', 'blue']
+            verifylist = [('tags', ['red', 'blue'])]
+            expected_args = ['green']
+        else:
+            arglist = ['--all-tag']
+            verifylist = [('all_tag', True)]
+            expected_args = []
+        arglist.append(self.floating_ip.id)
+        verifylist.append(
+            ('floating_ip', self.floating_ip.id))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertFalse(self.network.update_ip.called)
+        self.network.set_tags.assert_called_once_with(
+            self.floating_ip,
+            tests_utils.CompareBySet(expected_args))
+        self.assertIsNone(result)
+
+    def test_unset_with_tags(self):
+        self._test_unset_tags(with_tags=True)
+
+    def test_unset_with_all_tag(self):
+        self._test_unset_tags(with_tags=False)

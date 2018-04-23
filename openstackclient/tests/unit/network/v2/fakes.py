@@ -1380,6 +1380,7 @@ class FakeFloatingIP(object):
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'description': 'floating-ip-description-' + uuid.uuid4().hex,
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
+            'tags': [],
         }
 
         # Overwrite default attributes.
