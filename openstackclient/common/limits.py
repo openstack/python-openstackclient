@@ -83,24 +83,34 @@ class ShowLimits(command.Lister):
                 project_id = utils.find_resource(identity_client.projects,
                                                  parsed_args.project).id
 
-        compute_limits = compute_client.limits.get(parsed_args.is_reserved,
-                                                   tenant_id=project_id)
-        volume_limits = volume_client.limits.get()
+        compute_limits = None
+        volume_limits = None
 
+        if self.app.client_manager.is_compute_endpoint_enabled():
+            compute_limits = compute_client.limits.get(parsed_args.is_reserved,
+                                                       tenant_id=project_id)
+
+        if self.app.client_manager.is_volume_endpoint_enabled(volume_client):
+            volume_limits = volume_client.limits.get()
+
+        data = []
         if parsed_args.is_absolute:
-            compute_limits = compute_limits.absolute
-            volume_limits = volume_limits.absolute
+            if compute_limits:
+                data.append(compute_limits.absolute)
+            if volume_limits:
+                data.append(volume_limits.absolute)
             columns = ["Name", "Value"]
             return (columns, (utils.get_item_properties(s, columns)
-                    for s in itertools.chain(compute_limits, volume_limits)))
+                              for s in itertools.chain(*data)))
 
         elif parsed_args.is_rate:
-            compute_limits = compute_limits.rate
-            volume_limits = volume_limits.rate
+            if compute_limits:
+                data.append(compute_limits.rate)
+            if volume_limits:
+                data.append(volume_limits.rate)
             columns = ["Verb", "URI", "Value", "Remain", "Unit",
                        "Next Available"]
             return (columns, (utils.get_item_properties(s, columns)
-                    for s in itertools.chain(compute_limits, volume_limits)))
-
+                              for s in itertools.chain(*data)))
         else:
-            return ({}, {})
+            return {}, {}

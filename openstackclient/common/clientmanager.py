@@ -125,6 +125,25 @@ class ClientManager(clientmanager.ClientManager):
         #                use Network API by default
         return self.is_service_available('network') is not False
 
+    def is_compute_endpoint_enabled(self):
+        """Check if Compute endpoint is enabled"""
+
+        return self.is_service_available('compute') is not False
+
+    def is_volume_endpoint_enabled(self, volume_client):
+        """Check if volume endpoint is enabled"""
+        # NOTE(jcross): Cinder did some interesting things with their service
+        #               name so we need to figure out which version to look
+        #               for when calling is_service_available()
+        volume_version = volume_client.api_version.ver_major
+        if self.is_service_available(
+                "volumev%s" % volume_version) is not False:
+            return True
+        elif self.is_service_available('volume') is not False:
+            return True
+        else:
+            return False
+
 
 # Plugin Support
 

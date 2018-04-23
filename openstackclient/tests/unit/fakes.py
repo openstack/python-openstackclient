@@ -140,6 +140,8 @@ class FakeClientManager(object):
         self.auth_ref = None
         self.auth_plugin_name = None
         self.network_endpoint_enabled = True
+        self.compute_endpoint_enabled = True
+        self.volume_endpoint_enabled = True
 
     def get_configuration(self):
         return {
@@ -154,6 +156,12 @@ class FakeClientManager(object):
 
     def is_network_endpoint_enabled(self):
         return self.network_endpoint_enabled
+
+    def is_compute_endpoint_enabled(self):
+        return self.compute_endpoint_enabled
+
+    def is_volume_endpoint_enabled(self, client):
+        return self.volume_endpoint_enabled
 
 
 class FakeModule(object):
