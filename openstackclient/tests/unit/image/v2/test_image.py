@@ -527,6 +527,7 @@ class TestImageList(TestImage):
         verifylist = [
             ('public', False),
             ('private', False),
+            ('community', False),
             ('shared', False),
             ('long', False),
         ]
@@ -550,6 +551,7 @@ class TestImageList(TestImage):
         verifylist = [
             ('public', True),
             ('private', False),
+            ('community', False),
             ('shared', False),
             ('long', False),
         ]
@@ -574,6 +576,7 @@ class TestImageList(TestImage):
         verifylist = [
             ('public', False),
             ('private', True),
+            ('community', False),
             ('shared', False),
             ('long', False),
         ]
@@ -591,6 +594,31 @@ class TestImageList(TestImage):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
+    def test_image_list_community_option(self):
+        arglist = [
+            '--community',
+        ]
+        verifylist = [
+            ('public', False),
+            ('private', False),
+            ('community', True),
+            ('shared', False),
+            ('long', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+        self.api_mock.image_list.assert_called_with(
+            community=True,
+            marker=self._image.id,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
+
     def test_image_list_shared_option(self):
         arglist = [
             '--shared',
@@ -598,6 +626,7 @@ class TestImageList(TestImage):
         verifylist = [
             ('public', False),
             ('private', False),
+            ('community', False),
             ('shared', True),
             ('long', False),
         ]

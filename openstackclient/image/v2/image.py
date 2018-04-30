@@ -440,6 +440,13 @@ class ListImage(command.Lister):
             help=_("List only private images"),
         )
         public_group.add_argument(
+            "--community",
+            dest="community",
+            action="store_true",
+            default=False,
+            help=_("List only community images"),
+        )
+        public_group.add_argument(
             "--shared",
             dest="shared",
             action="store_true",
@@ -516,6 +523,8 @@ class ListImage(command.Lister):
             kwargs['public'] = True
         if parsed_args.private:
             kwargs['private'] = True
+        if parsed_args.community:
+            kwargs['community'] = True
         if parsed_args.shared:
             kwargs['shared'] = True
         if parsed_args.limit:

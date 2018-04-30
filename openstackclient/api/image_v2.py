@@ -31,6 +31,7 @@ class APIv2(image_v1.APIv1):
         detailed=False,
         public=False,
         private=False,
+        community=False,
         shared=False,
         **filter
     ):
@@ -44,25 +45,29 @@ class APIv2(image_v1.APIv1):
             Return public images if True
         :param private:
             Return private images if True
+        :param community:
+            Return commuity images if True
         :param shared:
             Return shared images if True
 
-        If public, private and shared are all True or all False then all
-        images are returned.  All arguments False is equivalent to no filter
-        and all images are returned.  All arguments True is a filter that
-        includes all public, private and shared images which is the same set
-        as all images.
+        If public, private, community and shared are all True or all False
+        then all images are returned.  All arguments False is equivalent to no
+        filter and all images are returned.  All arguments True is a filter
+        that includes all public, private, community and shared images which
+        is the same set as all images.
 
         http://docs.openstack.org/api/openstack-image-service/2.0/content/list-images.html
         """
 
-        if not public and not private and not shared:
+        if not public and not private and not community and not shared:
             # No filtering for all False
             filter.pop('visibility', None)
         elif public:
             filter['visibility'] = 'public'
         elif private:
             filter['visibility'] = 'private'
+        elif community:
+            filter['visibility'] = 'community'
         elif shared:
             filter['visibility'] = 'shared'
 
