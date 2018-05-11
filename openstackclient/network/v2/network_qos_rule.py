@@ -29,11 +29,11 @@ RULE_TYPE_MINIMUM_BANDWIDTH = 'minimum-bandwidth'
 MANDATORY_PARAMETERS = {
     RULE_TYPE_MINIMUM_BANDWIDTH: {'min_kbps', 'direction'},
     RULE_TYPE_DSCP_MARKING: {'dscp_mark'},
-    RULE_TYPE_BANDWIDTH_LIMIT: {'max_kbps', 'max_burst_kbps'}}
+    RULE_TYPE_BANDWIDTH_LIMIT: {'max_kbps'}}
 OPTIONAL_PARAMETERS = {
     RULE_TYPE_MINIMUM_BANDWIDTH: set(),
     RULE_TYPE_DSCP_MARKING: set(),
-    RULE_TYPE_BANDWIDTH_LIMIT: {'direction'}}
+    RULE_TYPE_BANDWIDTH_LIMIT: {'direction', 'max_burst_kbps'}}
 DIRECTION_EGRESS = 'egress'
 DIRECTION_INGRESS = 'ingress'
 DSCP_VALID_MARKS = [0, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
@@ -62,11 +62,11 @@ def _check_type_parameters(attrs, type, is_create):
     notreq_params -= type_params
     if is_create and None in map(attrs.get, req_params):
         msg = (_('"Create" rule command for type "%(rule_type)s" requires '
-                 'arguments %(args)s') %
+                 'arguments: %(args)s') %
                {'rule_type': type, 'args': ", ".join(sorted(req_params))})
         raise exceptions.CommandError(msg)
     if set(attrs.keys()) & notreq_params:
-        msg = (_('Rule type "%(rule_type)s" only requires arguments %(args)s')
+        msg = (_('Rule type "%(rule_type)s" only requires arguments: %(args)s')
                % {'rule_type': type, 'args': ", ".join(sorted(type_params))})
         raise exceptions.CommandError(msg)
 
