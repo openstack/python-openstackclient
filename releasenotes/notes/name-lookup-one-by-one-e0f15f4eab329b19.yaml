@@ -1,0 +1,14 @@
+---
+features:
+  - |
+    Add ``--name-lookup-one-by-one`` option to the ``server list`` command
+    that is (mutually exclusive with ``-n | --no-name-lookup``).
+    When provided, the names of images and flavors will be resolved one by one
+    only for those images and flavors that are needed to display the obtained
+    list of servers instead of fetching all the images and flavors.
+    Depending on amount of images in your deployment this can speed up the
+    execution of this command.
+  - |
+    When given ``--image`` or ``--flavor`` argument, the ``server list``
+    command now resolves only single image or flavor instead of fetching
+    all the images or flavors for name lookup purposes.
