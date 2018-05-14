@@ -1947,6 +1947,25 @@ class TestServerList(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
+    def test_server_list_no_servers(self):
+        arglist = []
+        verifylist = [
+            ('all_projects', False),
+            ('long', False),
+            ('deleted', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.servers_mock.list.return_value = []
+        self.data = ()
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertEqual(0, self.images_mock.list.call_count)
+        self.assertEqual(0, self.flavors_mock.list.call_count)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
     def test_server_list_long_option(self):
         arglist = [
             '--long',

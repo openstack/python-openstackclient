@@ -1226,7 +1226,7 @@ class ListServer(command.Lister):
         # Create a dict that maps image_id to image object.
         # Needed so that we can display the "Image Name" column.
         # "Image Name" is not crucial, so we swallow any exceptions.
-        if not parsed_args.no_name_lookup:
+        if data and not parsed_args.no_name_lookup:
             try:
                 images_list = self.app.client_manager.image.images.list()
                 for i in images_list:
@@ -1238,7 +1238,7 @@ class ListServer(command.Lister):
         # Create a dict that maps flavor_id to flavor object.
         # Needed so that we can display the "Flavor Name" column.
         # "Flavor Name" is not crucial, so we swallow any exceptions.
-        if not parsed_args.no_name_lookup:
+        if data and not parsed_args.no_name_lookup:
             try:
                 flavors_list = compute_client.flavors.list(is_public=None)
                 for i in flavors_list:
