@@ -1044,11 +1044,22 @@ class ListServer(command.Lister):
             default=False,
             help=_('List additional fields in output'),
         )
-        parser.add_argument(
+        name_lookup_group = parser.add_mutually_exclusive_group()
+        name_lookup_group.add_argument(
             '-n', '--no-name-lookup',
             action='store_true',
             default=False,
-            help=_('Skip flavor and image name lookup.'),
+            help=_('Skip flavor and image name lookup.'
+                   'Mutually exclusive with "--name-lookup-one-by-one"'
+                   ' option.'),
+        )
+        name_lookup_group.add_argument(
+            '--name-lookup-one-by-one',
+            action='store_true',
+            default=False,
+            help=_('When looking up flavor and image names, look them up'
+                   'one by one as needed instead of all together (default). '
+                   'Mutually exclusive with "--no-name-lookup|-n" option.'),
         )
         parser.add_argument(
             '--marker',
@@ -1223,28 +1234,43 @@ class ListServer(command.Lister):
                                            limit=parsed_args.limit)
 
         images = {}
-        # Create a dict that maps image_id to image object.
-        # Needed so that we can display the "Image Name" column.
-        # "Image Name" is not crucial, so we swallow any exceptions.
-        if data and not parsed_args.no_name_lookup:
-            try:
-                images_list = self.app.client_manager.image.images.list()
-                for i in images_list:
-                    images[i.id] = i
-            except Exception:
-                pass
-
         flavors = {}
-        # Create a dict that maps flavor_id to flavor object.
-        # Needed so that we can display the "Flavor Name" column.
-        # "Flavor Name" is not crucial, so we swallow any exceptions.
         if data and not parsed_args.no_name_lookup:
-            try:
-                flavors_list = compute_client.flavors.list(is_public=None)
-                for i in flavors_list:
-                    flavors[i.id] = i
-            except Exception:
-                pass
+            # Create a dict that maps image_id to image object.
+            # Needed so that we can display the "Image Name" column.
+            # "Image Name" is not crucial, so we swallow any exceptions.
+            if parsed_args.name_lookup_one_by_one or image_id:
+                for i_id in set(filter(lambda x: x is not None,
+                                       (s.image.get('id') for s in data))):
+                    try:
+                        images[i_id] = image_client.images.get(i_id)
+                    except Exception:
+                        pass
+            else:
+                try:
+                    images_list = image_client.images.list()
+                    for i in images_list:
+                        images[i.id] = i
+                except Exception:
+                    pass
+
+            # Create a dict that maps flavor_id to flavor object.
+            # Needed so that we can display the "Flavor Name" column.
+            # "Flavor Name" is not crucial, so we swallow any exceptions.
+            if parsed_args.name_lookup_one_by_one or flavor_id:
+                for f_id in set(filter(lambda x: x is not None,
+                                       (s.flavor.get('id') for s in data))):
+                    try:
+                        flavors[f_id] = compute_client.flavors.get(f_id)
+                    except Exception:
+                        pass
+            else:
+                try:
+                    flavors_list = compute_client.flavors.list(is_public=None)
+                    for i in flavors_list:
+                        flavors[i.id] = i
+                except Exception:
+                    pass
 
         # Populate image_name, image_id, flavor_name and flavor_id attributes
         # of server objects so that we can display those columns.

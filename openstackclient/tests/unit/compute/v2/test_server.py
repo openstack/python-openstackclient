@@ -1938,12 +1938,18 @@ class TestServerList(TestServer):
             ('all_projects', False),
             ('long', False),
             ('deleted', False),
+            ('name_lookup_one_by_one', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.images_mock.list.assert_called()
+        self.flavors_mock.list.assert_called()
+        # we did not pass image or flavor, so gets on those must be absent
+        self.assertFalse(self.flavors_mock.get.call_count)
+        self.assertFalse(self.images_mock.get.call_count)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -2014,6 +2020,28 @@ class TestServerList(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data_no_name_lookup), tuple(data))
 
+    def test_server_list_name_lookup_one_by_one(self):
+        arglist = [
+            '--name-lookup-one-by-one'
+        ]
+        verifylist = [
+            ('all_projects', False),
+            ('no_name_lookup', False),
+            ('name_lookup_one_by_one', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertFalse(self.images_mock.list.call_count)
+        self.assertFalse(self.flavors_mock.list.call_count)
+        self.images_mock.get.assert_called()
+        self.flavors_mock.get.assert_called()
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
     def test_server_list_with_image(self):
 
         arglist = [
@@ -2046,7 +2074,7 @@ class TestServerList(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.flavors_mock.get.assert_called_with(self.flavor.id)
+        self.flavors_mock.get.has_calls(self.flavor.id)
 
         self.search_opts['flavor'] = self.flavor.id
         self.servers_mock.list.assert_called_with(**self.kwargs)
