@@ -125,7 +125,8 @@ unlock,server unlock,Unlock a server.
 unpause,server unpause,Unpause a server.
 unrescue,server unrescue,Restart the server from normal boot disk again.
 unshelve,server unshelve,Unshelve a server.
-update,server set / unset,Update the name or the description for a server.
+update,server set / unset --description,Update or unset the description for a server.
+update,server set --name,Update the name for a server.
 usage,usage show,Show usage data for a single tenant.
 usage-list,usage list,List usage data for all tenants.
 version-list,,List all API versions.

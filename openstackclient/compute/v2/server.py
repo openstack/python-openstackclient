@@ -503,6 +503,12 @@ class CreateServer(command.ShowOne):
             help=_('User data file to serve from the metadata server'),
         )
         parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('Set description for the server (supported by '
+                   '--os-compute-api-version 2.19 or above)'),
+        )
+        parser.add_argument(
             '--availability-zone',
             metavar='<zone-name>',
             help=_('Select an availability zone for the server'),
@@ -712,6 +718,12 @@ class CreateServer(command.ShowOne):
                            "exception": e}
                 )
 
+        if parsed_args.description:
+            if compute_client.api_version < api_versions.APIVersion("2.19"):
+                msg = _("Description is not supported for "
+                        "--os-compute-api-version less than 2.19")
+                raise exceptions.CommandError(msg)
+
         block_device_mapping_v2 = []
         if volume:
             block_device_mapping_v2 = [{'uuid': volume,
@@ -871,6 +883,9 @@ class CreateServer(command.ShowOne):
             nics=nics,
             scheduler_hints=hints,
             config_drive=config_drive)
+
+        if parsed_args.description:
+            boot_kwargs['description'] = parsed_args.description
 
         LOG.debug('boot_args: %s', boot_args)
         LOG.debug('boot_kwargs: %s', boot_kwargs)
@@ -1530,6 +1545,12 @@ class RebuildServer(command.ShowOne):
                    '(repeat option to set multiple values)'),
         )
         parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('New description for the server (supported by '
+                   '--os-compute-api-version 2.19 or above'),
+        )
+        parser.add_argument(
             '--wait',
             action='store_true',
             help=_('Wait for rebuild to complete'),
@@ -1557,6 +1578,12 @@ class RebuildServer(command.ShowOne):
         kwargs = {}
         if parsed_args.property:
             kwargs['meta'] = parsed_args.property
+        if parsed_args.description:
+            if server.api_version < api_versions.APIVersion("2.19"):
+                msg = _("Description is not supported for "
+                        "--os-compute-api-version less than 2.19")
+                raise exceptions.CommandError(msg)
+            kwargs['description'] = parsed_args.description
 
         server = server.rebuild(image, parsed_args.password, **kwargs)
         if parsed_args.wait:
@@ -1968,6 +1995,12 @@ class SetServer(command.Command):
             choices=['active', 'error'],
             help=_('New server state (valid value: active, error)'),
         )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('New server description (supported by '
+                   '--os-compute-api-version 2.19 or above)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -1998,6 +2031,13 @@ class SetServer(command.Command):
             else:
                 msg = _("Passwords do not match, password unchanged")
                 raise exceptions.CommandError(msg)
+
+        if parsed_args.description:
+            if server.api_version < api_versions.APIVersion("2.19"):
+                msg = _("Description is not supported for "
+                        "--os-compute-api-version less than 2.19")
+                raise exceptions.CommandError(msg)
+            server.update(description=parsed_args.description)
 
 
 class ShelveServer(command.Command):
@@ -2358,6 +2398,13 @@ class UnsetServer(command.Command):
             help=_('Property key to remove from server '
                    '(repeat option to remove multiple values)'),
         )
+        parser.add_argument(
+            '--description',
+            dest='description',
+            action='store_true',
+            help=_('Unset server description (supported by '
+                   '--os-compute-api-version 2.19 or above)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -2371,6 +2418,16 @@ class UnsetServer(command.Command):
             compute_client.servers.delete_meta(
                 server,
                 parsed_args.property,
+            )
+
+        if parsed_args.description:
+            if compute_client.api_version < api_versions.APIVersion("2.19"):
+                msg = _("Description is not supported for "
+                        "--os-compute-api-version less than 2.19")
+                raise exceptions.CommandError(msg)
+            compute_client.servers.update(
+                server,
+                description="",
             )
 
 
