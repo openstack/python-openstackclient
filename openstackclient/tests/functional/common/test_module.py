@@ -46,7 +46,7 @@ class ModuleTest(base.TestCase):
 class CommandTest(base.TestCase):
     """Functional tests for openstackclient command list."""
     GROUPS = [
-        'openstack.volume.v2',
+        'openstack.volume.v3',
         'openstack.network.v2',
         'openstack.image.v2',
         'openstack.identity.v3',
