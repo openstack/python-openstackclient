@@ -1,0 +1,14 @@
+---
+features:
+  - Add ``--tag`` option to ``server create`` command to add tags when creating
+    a server.
+    Only available starting with ``--os-compute-api-version 2.52``.
+  - Add ``--tag`` option to ``server set`` command to add a tag to an
+    existing server.
+    Only available starting with ``--os-compute-api-version 2.26``.
+  - Add ``--tag`` options to ``server unset`` command to remove a tag from an
+    existing server.
+    Only available starting with ``--os-compute-api-version 2.26``.
+  - Add ``--tags`` and ``--not-tags`` options to ``server list`` command to
+    list instances with and without the specified tag(s), respectively.
+    Only available starting with ``--os-compute-api-version 2.26``.

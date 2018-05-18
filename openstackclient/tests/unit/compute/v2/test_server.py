@@ -2434,6 +2434,87 @@ class TestServerCreate(TestServer):
             self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                               parsed_args)
 
+    def test_server_create_with_tag(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.52')
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--tag', 'tag1',
+            '--tag', 'tag2',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('tags', ['tag1', 'tag2']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'meta': None,
+            'files': {},
+            'reservation_id': None,
+            'min_count': 1,
+            'max_count': 1,
+            'security_groups': [],
+            'userdata': None,
+            'key_name': None,
+            'availability_zone': None,
+            'block_device_mapping_v2': [],
+            'admin_pass': None,
+            'nics': 'auto',
+            'scheduler_hints': {},
+            'config_drive': None,
+            'tags': ['tag1', 'tag2'],
+        }
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.flavors_mock.called)
+
+    def test_server_create_with_tag_pre_v252(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.51')
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--tag', 'tag1',
+            '--tag', 'tag2',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('tags', ['tag1', 'tag2']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.52 or greater is required',
+            str(ex))
+
     def test_server_create_with_host_v274(self):
 
         # Explicit host is supported for nova api version 2.74 or above
@@ -3206,6 +3287,7 @@ class TestServerList(TestServer):
 
         self.search_opts['changes-before'] = '2016-03-05T06:27:59Z'
         self.search_opts['deleted'] = True
+
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns, columns)
@@ -3297,6 +3379,92 @@ class TestServerList(TestServer):
             'server-id-95a56bfc4xxxxxx28d7e418bfd97813a', '',
             'UNKNOWN', '', '', '')
         self.assertEqual(expected_row, partial_server)
+
+    def test_server_list_with_tag(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.26')
+
+        arglist = [
+            '--tag', 'tag1',
+            '--tag', 'tag2',
+        ]
+        verifylist = [
+            ('tags', ['tag1', 'tag2']),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['tags'] = ['tag1', 'tag2']
+
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_with_tag_pre_v225(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.25')
+
+        arglist = [
+            '--tag', 'tag1',
+            '--tag', 'tag2',
+        ]
+        verifylist = [
+            ('tags', ['tag1', 'tag2']),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.26 or greater is required',
+            str(ex))
+
+    def test_server_list_with_not_tag(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.26')
+
+        arglist = [
+            '--not-tag', 'tag1',
+            '--not-tag', 'tag2',
+        ]
+        verifylist = [
+            ('not_tags', ['tag1', 'tag2']),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['not-tags'] = ['tag1', 'tag2']
+
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_with_not_tag_pre_v226(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.25')
+
+        arglist = [
+            '--not-tag', 'tag1',
+            '--not-tag', 'tag2',
+        ]
+        verifylist = [
+            ('not_tags', ['tag1', 'tag2']),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.26 or greater is required',
+            str(ex))
 
 
 class TestServerLock(TestServer):
@@ -5388,6 +5556,8 @@ class TestServerSet(TestServer):
             'update': None,
             'reset_state': None,
             'change_password': None,
+            'add_tag': None,
+            'set_tags': None,
         }
 
         self.fake_servers = self.setup_servers_mock(2)
@@ -5527,6 +5697,50 @@ class TestServerSet(TestServer):
                                return_value=2.19):
             self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                               parsed_args)
+
+    def test_server_set_with_tag(self):
+        self.fake_servers[0].api_version = api_versions.APIVersion('2.26')
+
+        arglist = [
+            '--tag', 'tag1',
+            '--tag', 'tag2',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('tags', ['tag1', 'tag2']),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.fake_servers[0].add_tag.assert_has_calls([
+            mock.call(tag='tag1'),
+            mock.call(tag='tag2'),
+        ])
+        self.assertIsNone(result)
+
+    def test_server_set_with_tag_pre_v226(self):
+        self.fake_servers[0].api_version = api_versions.APIVersion('2.25')
+
+        arglist = [
+            '--tag', 'tag1',
+            '--tag', 'tag2',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('tags', ['tag1', 'tag2']),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.26 or greater is required',
+            str(ex))
 
 
 class TestServerShelve(TestServer):
@@ -5852,6 +6066,52 @@ class TestServerUnset(TestServer):
                                return_value=2.19):
             self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                               parsed_args)
+
+    def test_server_unset_with_tag(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.26')
+
+        arglist = [
+            '--tag', 'tag1',
+            '--tag', 'tag2',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('tags', ['tag1', 'tag2']),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.servers_mock.delete_tag.assert_has_calls([
+            mock.call(self.fake_server, tag='tag1'),
+            mock.call(self.fake_server, tag='tag2'),
+        ])
+
+    def test_server_unset_with_tag_pre_v226(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.25')
+
+        arglist = [
+            '--tag', 'tag1',
+            '--tag', 'tag2',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('tags', ['tag1', 'tag2']),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.26 or greater is required',
+            str(ex))
 
 
 class TestServerUnshelve(TestServer):

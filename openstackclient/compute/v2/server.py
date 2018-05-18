@@ -828,6 +828,18 @@ class CreateServer(command.ShowOne):
             action='store_true',
             help=_('Wait for build to complete'),
         )
+        parser.add_argument(
+            '--tag',
+            metavar='<tag>',
+            action='append',
+            default=[],
+            dest='tags',
+            help=_(
+                'Tags for the server. '
+                'Specify multiple times to add multiple tags. '
+                '(supported by --os-compute-api-version 2.52 or above)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -1141,6 +1153,16 @@ class CreateServer(command.ShowOne):
         if parsed_args.description:
             boot_kwargs['description'] = parsed_args.description
 
+        if parsed_args.tags:
+            if compute_client.api_version < api_versions.APIVersion('2.52'):
+                msg = _(
+                    '--os-compute-api-version 2.52 or greater is required to '
+                    'support the --tag option'
+                )
+                raise exceptions.CommandError(msg)
+
+            boot_kwargs['tags'] = parsed_args.tags
+
         if parsed_args.host:
             if compute_client.api_version < api_versions.APIVersion("2.74"):
                 msg = _("Specifying --host is not supported for "
@@ -1408,6 +1430,30 @@ class ListServer(command.Lister):
             help=_('Only display unlocked servers. '
                    'Requires ``--os-compute-api-version`` 2.73 or greater.'),
         )
+        parser.add_argument(
+            '--tags',
+            metavar='<tag>',
+            action='append',
+            default=[],
+            dest='tags',
+            help=_(
+                'Only list servers with the specified tag. '
+                'Specify multiple times to filter on multiple tags. '
+                '(supported by --os-compute-api-version 2.26 or above)'
+            ),
+        )
+        parser.add_argument(
+            '--not-tags',
+            metavar='<tag>',
+            action='append',
+            default=[],
+            dest='not_tags',
+            help=_(
+                'Only list servers without the specified tag. '
+                'Specify multiple times to filter on multiple tags. '
+                '(supported by --os-compute-api-version 2.26 or above)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -1463,6 +1509,27 @@ class ListServer(command.Lister):
             'changes-before': parsed_args.changes_before,
             'changes-since': parsed_args.changes_since,
         }
+
+        if parsed_args.tags:
+            if compute_client.api_version < api_versions.APIVersion('2.26'):
+                msg = _(
+                    '--os-compute-api-version 2.26 or greater is required to '
+                    'support the --tag option'
+                )
+                raise exceptions.CommandError(msg)
+
+            search_opts['tags'] = parsed_args.tags
+
+        if parsed_args.not_tags:
+            if compute_client.api_version < api_versions.APIVersion('2.26'):
+                msg = _(
+                    '--os-compute-api-version 2.26 or greater is required to '
+                    'support the --not-tag option'
+                )
+                raise exceptions.CommandError(msg)
+
+            search_opts['not-tags'] = parsed_args.not_tags
+
         support_locked = (compute_client.api_version >=
                           api_versions.APIVersion('2.73'))
         if not support_locked and (parsed_args.locked or parsed_args.unlocked):
@@ -2795,6 +2862,18 @@ class SetServer(command.Command):
             help=_('New server description (supported by '
                    '--os-compute-api-version 2.19 or above)'),
         )
+        parser.add_argument(
+            '--tag',
+            metavar='<tag>',
+            action='append',
+            default=[],
+            dest='tags',
+            help=_(
+                'Tag for the server. '
+                'Specify multiple times to add multiple tags. '
+                '(supported by --os-compute-api-version 2.26 or above)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -2832,6 +2911,17 @@ class SetServer(command.Command):
                         "--os-compute-api-version less than 2.19")
                 raise exceptions.CommandError(msg)
             server.update(description=parsed_args.description)
+
+        if parsed_args.tags:
+            if server.api_version < api_versions.APIVersion('2.26'):
+                msg = _(
+                    '--os-compute-api-version 2.26 or greater is required to '
+                    'support the --tag option'
+                )
+                raise exceptions.CommandError(msg)
+
+            for tag in parsed_args.tags:
+                server.add_tag(tag=tag)
 
 
 class ShelveServer(command.Command):
@@ -3174,7 +3264,7 @@ class UnrescueServer(command.Command):
 
 
 class UnsetServer(command.Command):
-    _description = _("Unset server properties")
+    _description = _("Unset server properties and tags")
 
     def get_parser(self, prog_name):
         parser = super(UnsetServer, self).get_parser(prog_name)
@@ -3197,6 +3287,18 @@ class UnsetServer(command.Command):
             action='store_true',
             help=_('Unset server description (supported by '
                    '--os-compute-api-version 2.19 or above)'),
+        )
+        parser.add_argument(
+            '--tag',
+            metavar='<tag>',
+            action='append',
+            default=[],
+            dest='tags',
+            help=_(
+                'Tag to remove from the server. '
+                'Specify multiple times to remove multiple tags. '
+                '(supported by --os-compute-api-version 2.26 or later'
+            ),
         )
         return parser
 
@@ -3222,6 +3324,17 @@ class UnsetServer(command.Command):
                 server,
                 description="",
             )
+
+        if parsed_args.tags:
+            if compute_client.api_version < api_versions.APIVersion('2.26'):
+                msg = _(
+                    '--os-compute-api-version 2.26 or greater is required to '
+                    'support the --tag option'
+                )
+                raise exceptions.CommandError(msg)
+
+            for tag in parsed_args.tags:
+                compute_client.servers.delete_tag(server, tag=tag)
 
 
 class UnshelveServer(command.Command):
