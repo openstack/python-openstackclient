@@ -19,7 +19,7 @@ In short:
 
 * All option names shall be GNU-style long names (two leading dashes).
 * Some global options may have short names, generally limited to those defined
-  in support libraries such as ``cliff``.
+  in support libraries such as `cliff <https://docs.openstack.org/cliff/latest>`__.
 
 General Command Options
 =======================
