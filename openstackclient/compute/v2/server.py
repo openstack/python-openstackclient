@@ -1386,6 +1386,7 @@ class MigrateServer(command.Command):
             if utils.wait_for_status(
                 compute_client.servers.get,
                 server.id,
+                success_status=['active', 'verify_resize'],
                 callback=_show_progress,
             ):
                 self.app.stdout.write(_('Complete\n'))
