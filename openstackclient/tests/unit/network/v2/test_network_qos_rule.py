@@ -127,7 +127,7 @@ class TestCreateNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
             msg = ('"Create" rule command for type "minimum-bandwidth" '
-                   'requires arguments direction, min_kbps')
+                   'requires arguments: direction, min_kbps')
             self.assertEqual(msg, str(e))
 
 
@@ -213,7 +213,7 @@ class TestCreateNetworkQosRuleDSCPMarking(TestNetworkQosRule):
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
             msg = ('"Create" rule command for type "dscp-marking" '
-                   'requires arguments dscp_mark')
+                   'requires arguments: dscp_mark')
             self.assertEqual(msg, str(e))
 
 
@@ -266,6 +266,49 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
         arglist = [
             '--type', RULE_TYPE_BANDWIDTH_LIMIT,
             '--max-kbps', str(self.new_rule.max_kbps),
+            '--egress',
+            self.new_rule.qos_policy_id,
+        ]
+
+        verifylist = [
+            ('type', RULE_TYPE_BANDWIDTH_LIMIT),
+            ('max_kbps', self.new_rule.max_kbps),
+            ('egress', True),
+            ('qos_policy', self.new_rule.qos_policy_id),
+        ]
+
+        rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
+            {'qos_policy_id': self.qos_policy.id,
+             'type': RULE_TYPE_BANDWIDTH_LIMIT})
+        rule.max_burst_kbits = 0
+        expected_data = (
+            rule.direction,
+            rule.id,
+            rule.max_burst_kbits,
+            rule.max_kbps,
+            rule.project_id,
+            rule.qos_policy_id,
+            rule.type,
+        )
+
+        with mock.patch.object(
+                self.network, "create_qos_bandwidth_limit_rule",
+                return_value=rule) as create_qos_bandwidth_limit_rule:
+            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+            columns, data = (self.cmd.take_action(parsed_args))
+
+        create_qos_bandwidth_limit_rule.assert_called_once_with(
+            self.qos_policy.id,
+            **{'max_kbps': self.new_rule.max_kbps,
+               'direction': self.new_rule.direction}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(expected_data, data)
+
+    def test_create_all_options(self):
+        arglist = [
+            '--type', RULE_TYPE_BANDWIDTH_LIMIT,
+            '--max-kbps', str(self.new_rule.max_kbps),
             '--max-burst-kbits', str(self.new_rule.max_burst_kbits),
             '--egress',
             self.new_rule.qos_policy_id,
@@ -309,7 +352,7 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
             msg = ('"Create" rule command for type "bandwidth-limit" '
-                   'requires arguments max_burst_kbps, max_kbps')
+                   'requires arguments: max_kbps')
             self.assertEqual(msg, str(e))
 
 
@@ -579,7 +622,7 @@ class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
             msg = ('Failed to set Network QoS rule ID "%(rule)s": Rule type '
-                   '"minimum-bandwidth" only requires arguments direction, '
+                   '"minimum-bandwidth" only requires arguments: direction, '
                    'min_kbps' % {'rule': self.new_rule.id})
             self.assertEqual(msg, str(e))
 
@@ -673,7 +716,7 @@ class TestSetNetworkQosRuleDSCPMarking(TestNetworkQosRule):
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
             msg = ('Failed to set Network QoS rule ID "%(rule)s": Rule type '
-                   '"dscp-marking" only requires arguments dscp_mark' %
+                   '"dscp-marking" only requires arguments: dscp_mark' %
                    {'rule': self.new_rule.id})
             self.assertEqual(msg, str(e))
 
@@ -837,7 +880,7 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
             msg = ('Failed to set Network QoS rule ID "%(rule)s": Rule type '
-                   '"bandwidth-limit" only requires arguments direction, '
+                   '"bandwidth-limit" only requires arguments: direction, '
                    'max_burst_kbps, max_kbps' % {'rule': self.new_rule.id})
             self.assertEqual(msg, str(e))
 

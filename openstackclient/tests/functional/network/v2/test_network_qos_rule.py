@@ -167,7 +167,6 @@ class NetworkQosRuleTestsBandwidthLimit(common.NetworkTests):
             'network qos rule create -f json '
             '--type bandwidth-limit '
             '--max-kbps 10000 '
-            '--max-burst-kbits 1400 '
             '--egress %s' %
             self.QOS_POLICY_NAME
         ))
