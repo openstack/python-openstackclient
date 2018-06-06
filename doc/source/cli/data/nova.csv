@@ -45,7 +45,7 @@ get-vnc-console,console url show --novnc | --xvpvnc,Get a vnc console to a serve
 host-action,,Perform a power action on a host.
 host-describe,host show,Describe a specific host.
 host-evacuate,,Evacuate all instances from failed host.
-host-evacuate-live,,Live migrate all instances of the specified host to other available hosts.
+host-evacuate-live,,Live migrate all instances off the specified host to other available hosts.
 host-list,host list,List all hosts by service.
 host-meta,,Set or Delete metadata on all instances of a host.
 host-servers-migrate,,Cold migrate all instances off the specified host to other available hosts.
