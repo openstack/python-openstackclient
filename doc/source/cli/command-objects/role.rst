@@ -13,11 +13,20 @@ Add role assignment to a user or group in a project or domain
 .. code:: bash
 
     openstack role add
-        --domain <domain> | --project <project> [--project-domain <project-domain>]
+        --system <system> | --domain <domain> | --project <project> [--project-domain <project-domain>]
         --user <user> [--user-domain <user-domain>] | --group <group> [--group-domain <group-domain>]
         --role-domain <role-domain>
         --inherited
         <role>
+
+.. option:: --system <system>
+
+    Include <system>
+
+    System or service to grant authorization to. Currently only ``all`` is
+    supported which encompasses the entire deployment system.
+
+    .. versionadded:: 3
 
 .. option:: --domain <domain>
 
@@ -210,11 +219,20 @@ Remove role assignment from domain/project : user/group
 .. code:: bash
 
     openstack role remove
-        --domain <domain> | --project <project> [--project-domain <project-domain>]
+        --system <system> | --domain <domain> | --project <project> [--project-domain <project-domain>]
         --user <user> [--user-domain <user-domain>] | --group <group> [--group-domain <group-domain>]
         --role-domain <role-domain>
         --inherited
         <role>
+
+.. option:: --system <system>
+
+    Include <system>
+
+    System or service to remove authorization from. Currently only ``all`` is
+    supported which encompasses the entire deployment system.
+
+    .. versionadded:: 3
 
 .. option:: --domain <domain>
 
