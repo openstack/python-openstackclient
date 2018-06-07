@@ -378,8 +378,9 @@ class APIv1(api.BaseAPI):
         )
         if response.status_code == 200:
             if file == '-':
-                for chunk in response.iter_content(64 * 1024):
-                    sys.stdout.write(chunk)
+                with os.fdopen(sys.stdout.fileno(), 'wb') as f:
+                    for chunk in response.iter_content(64 * 1024):
+                        f.write(chunk)
             else:
                 if not os.path.exists(os.path.dirname(file)):
                     if len(os.path.dirname(file)) > 0:

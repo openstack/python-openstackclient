@@ -241,7 +241,25 @@ class TestObjectSave(TestObjectAll):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch('sys.stdout', new=six.BytesIO()) as fake_stdout:
+        class FakeStdout(six.BytesIO):
+            def __init__(self):
+                six.BytesIO.__init__(self)
+                self.context_manager_calls = []
+
+            def __enter__(self):
+                self.context_manager_calls.append('__enter__')
+                return self
+
+            def __exit__(self, *a):
+                self.context_manager_calls.append('__exit__')
+
+        with mock.patch('sys.stdout') as fake_stdout, mock.patch(
+                'os.fdopen', return_value=FakeStdout()) as fake_fdopen:
+            fake_stdout.fileno.return_value = 123
             self.cmd.take_action(parsed_args)
 
-        self.assertEqual(fake_stdout.getvalue(), object_fakes.object_1_content)
+        self.assertEqual(fake_fdopen.return_value.getvalue(),
+                         object_fakes.object_1_content)
+        self.assertEqual(fake_fdopen.mock_calls, [mock.call(123, 'wb')])
+        self.assertEqual(fake_fdopen.return_value.context_manager_calls,
+                         ['__enter__', '__exit__'])
