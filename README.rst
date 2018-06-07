@@ -15,10 +15,6 @@ OpenStackClient
     :target: https://pypi.org/project/python-openstackclient/
     :alt: Latest Version
 
-.. image:: https://img.shields.io/pypi/dm/python-openstackclient.svg
-    :target: https://pypi.org/project/python-openstackclient/
-    :alt: Downloads
-
 OpenStackClient (aka OSC) is a command-line client for OpenStack that brings
 the command set for Compute, Identity, Image, Object Store and Block Storage
 APIs together in a single shell with a uniform command structure.
@@ -32,9 +28,9 @@ language to describe operations in OpenStack.
 * `Blueprints`_ - feature specifications
 * `Bugs`_ - issue tracking
 * `Source`_
-* `Developer` - getting started as a developer
-* `Contributing` - contributing code
-* `Testing` - testing code
+* `Developer`_ - getting started as a developer
+* `Contributing`_ - contributing code
+* `Testing`_ - testing code
 * IRC: #openstack-sdks on Freenode (irc.freenode.net)
 * License: Apache 2.0
 
@@ -42,7 +38,7 @@ language to describe operations in OpenStack.
 .. _Online Documentation: https://docs.openstack.org/python-openstackclient/latest/
 .. _Launchpad project: https://launchpad.net/python-openstackclient
 .. _Blueprints: https://blueprints.launchpad.net/python-openstackclient
-.. _Bugs: https://bugs.launchpad.net/python-openstackclient
+.. _Bugs: https://storyboard.openstack.org/#!/project/975
 .. _Source: https://git.openstack.org/cgit/openstack/python-openstackclient
 .. _Developer: https://docs.openstack.org/project-team-guide/project-setup/python.html
 .. _Contributing: https://docs.openstack.org/infra/manual/developers.html
