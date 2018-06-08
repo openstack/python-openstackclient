@@ -148,12 +148,18 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
 
     # Convert the flavor blob to a name
     flavor_info = info.get('flavor', {})
-    flavor_id = flavor_info.get('id', '')
-    try:
-        flavor = utils.find_resource(compute_client.flavors, flavor_id)
-        info['flavor'] = "%s (%s)" % (flavor.name, flavor_id)
-    except Exception:
-        info['flavor'] = flavor_id
+    # Microversion 2.47 puts the embedded flavor into the server response
+    # body but omits the id, so if not present we just expose the flavor
+    # dict in the server output.
+    if 'id' in flavor_info:
+        flavor_id = flavor_info.get('id', '')
+        try:
+            flavor = utils.find_resource(compute_client.flavors, flavor_id)
+            info['flavor'] = "%s (%s)" % (flavor.name, flavor_id)
+        except Exception:
+            info['flavor'] = flavor_id
+    else:
+        info['flavor'] = utils.format_dict(flavor_info)
 
     if 'os-extended-volumes:volumes_attached' in info:
         info.update(
@@ -1257,6 +1263,10 @@ class ListServer(command.Lister):
                     s.flavor_name = flavor.name
                 s.flavor_id = s.flavor['id']
             else:
+                # TODO(mriedem): Fix this for microversion >= 2.47 where the
+                # flavor is embedded in the server response without the id.
+                # We likely need to drop the Flavor ID column in that case if
+                # --long is specified.
                 s.flavor_name = ''
                 s.flavor_id = ''
 
@@ -1994,7 +2004,9 @@ class ShelveServer(command.Command):
 
 
 class ShowServer(command.ShowOne):
-    _description = _("Show server details")
+    _description = _(
+        "Show server details. Specify ``--os-compute-api-version 2.47`` "
+        "or higher to see the embedded flavor information for the server.")
 
     def get_parser(self, prog_name):
         parser = super(ShowServer, self).get_parser(prog_name)

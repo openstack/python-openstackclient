@@ -3217,6 +3217,33 @@ class TestServerShow(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def test_show_embedded_flavor(self):
+        # Tests using --os-compute-api-version >= 2.47 where the flavor
+        # details are embedded in the server response body excluding the id.
+        arglist = [
+            self.server.name,
+        ]
+        verifylist = [
+            ('diagnostics', False),
+            ('server', self.server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.server.info['flavor'] = {
+            'ephemeral': 0,
+            'ram': 512,
+            'original_name': 'm1.tiny',
+            'vcpus': 1,
+            'extra_specs': {},
+            'swap': 0,
+            'disk': 1
+        }
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+        # Since the flavor details are in a dict we can't be sure of the
+        # ordering so just assert that one of the keys is in the output.
+        self.assertIn('original_name', data[2])
+
     def test_show_diagnostics(self):
         arglist = [
             '--diagnostics',
