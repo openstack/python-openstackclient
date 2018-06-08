@@ -570,7 +570,10 @@ class SetQuota(command.Command):
 
 
 class ShowQuota(command.ShowOne, BaseQuota):
-    _description = _("Show quotas for project or class")
+    _description = _(
+        "Show quotas for project or class. Specify "
+        "``--os-compute-api-version 2.50`` or higher to see ``server-groups`` "
+        "and ``server-group-members`` output for a given quota class.")
 
     def get_parser(self, prog_name):
         parser = super(ShowQuota, self).get_parser(prog_name)
