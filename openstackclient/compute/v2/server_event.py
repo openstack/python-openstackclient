@@ -91,7 +91,9 @@ class ListServerEvent(command.Lister):
 
 
 class ShowServerEvent(command.ShowOne):
-    _description = _("Show server event details")
+    _description = _(
+        "Show server event details. Specify ``--os-compute-api-version 2.51`` "
+        "or higher to show events for non-admin users.")
 
     def get_parser(self, prog_name):
         parser = super(ShowServerEvent, self).get_parser(prog_name)
@@ -114,4 +116,4 @@ class ShowServerEvent(command.ShowOne):
         action_detail = compute_client.instance_action.get(
             server_id, parsed_args.request_id)
 
-        return zip(*sorted(six.iteritems(action_detail._info)))
+        return zip(*sorted(six.iteritems(action_detail.to_dict())))
