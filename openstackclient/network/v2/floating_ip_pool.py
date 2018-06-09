@@ -13,7 +13,6 @@
 
 """Floating IP Pool action implementations"""
 
-import logging
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -40,27 +39,3 @@ class ListFloatingIPPool(common.NetworkAndComputeLister):
                 (utils.get_dict_properties(
                     s, columns,
                 ) for s in data))
-
-
-class ListIPFloatingPool(ListFloatingIPPool):
-    _description = _("List pools of floating IP addresses")
-
-    # TODO(tangchen): Remove this class and ``ip floating pool list`` command
-    #                 two cycles after Mitaka.
-
-    # This notifies cliff to not display the help for this command
-    deprecated = True
-
-    log = logging.getLogger('deprecated')
-
-    def take_action_network(self, client, parsed_args):
-        self.log.warning(_('This command has been deprecated. '
-                           'Please use "floating ip pool list" instead.'))
-        return super(ListIPFloatingPool, self).take_action_network(
-            client, parsed_args)
-
-    def take_action_compute(self, client, parsed_args):
-        self.log.warning(_('This command has been deprecated. '
-                           'Please use "floating ip pool list" instead.'))
-        return super(ListIPFloatingPool, self).take_action_compute(
-            client, parsed_args)
