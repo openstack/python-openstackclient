@@ -31,13 +31,18 @@ LOG = logging.getLogger(__name__)
 
 
 def _add_identity_and_resource_options_to_parser(parser):
-    domain_or_project = parser.add_mutually_exclusive_group()
-    domain_or_project.add_argument(
+    system_or_domain_or_project = parser.add_mutually_exclusive_group()
+    system_or_domain_or_project.add_argument(
+        '--system',
+        metavar='<system>',
+        help=_('Include <system> (all)'),
+    )
+    system_or_domain_or_project.add_argument(
         '--domain',
         metavar='<domain>',
         help=_('Include <domain> (name or ID)'),
     )
-    domain_or_project.add_argument(
+    system_or_domain_or_project.add_argument(
         '--project',
         metavar='<project>',
         help=_('Include <project> (name or ID)'),
@@ -62,7 +67,14 @@ def _add_identity_and_resource_options_to_parser(parser):
 def _process_identity_and_resource_options(parsed_args,
                                            identity_client_manager):
     kwargs = {}
-    if parsed_args.user and parsed_args.domain:
+    if parsed_args.user and parsed_args.system:
+        kwargs['user'] = common.find_user(
+            identity_client_manager,
+            parsed_args.user,
+            parsed_args.user_domain,
+        ).id
+        kwargs['system'] = parsed_args.system
+    elif parsed_args.user and parsed_args.domain:
         kwargs['user'] = common.find_user(
             identity_client_manager,
             parsed_args.user,
@@ -83,6 +95,13 @@ def _process_identity_and_resource_options(parsed_args,
             parsed_args.project,
             parsed_args.project_domain,
         ).id
+    elif parsed_args.group and parsed_args.system:
+        kwargs['group'] = common.find_group(
+            identity_client_manager,
+            parsed_args.group,
+            parsed_args.group_domain,
+        ).id
+        kwargs['system'] = parsed_args.system
     elif parsed_args.group and parsed_args.domain:
         kwargs['group'] = common.find_group(
             identity_client_manager,
@@ -109,8 +128,8 @@ def _process_identity_and_resource_options(parsed_args,
 
 
 class AddRole(command.Command):
-    _description = _("Adds a role assignment to a user or group on a domain "
-                     "or project")
+    _description = _("Adds a role assignment to a user or group on the "
+                     "system, a domain, or a project")
 
     def get_parser(self, prog_name):
         parser = super(AddRole, self).get_parser(prog_name)
@@ -381,7 +400,7 @@ class ListRole(command.Lister):
 
 
 class RemoveRole(command.Command):
-    _description = _("Removes a role assignment from domain/project : "
+    _description = _("Removes a role assignment from system/domain/project : "
                      "user/group")
 
     def get_parser(self, prog_name):

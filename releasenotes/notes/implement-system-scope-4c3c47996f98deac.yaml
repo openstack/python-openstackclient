@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Added support for system-scope. This includes support for the ability to
+    generate system-scoped tokens using ``system_scope: all`` in ``cloud.yaml``
+    or ``OS_SYSTEM_SCOPE=all`` in an environment variable. Support is also
+    included for managing role assignments on the system using ``--system``
+    when adding and removing roles.

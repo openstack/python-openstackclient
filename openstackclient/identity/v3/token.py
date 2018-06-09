@@ -192,6 +192,12 @@ class IssueToken(command.ShowOne):
             data['user_id'] = auth_ref.user_id
         if auth_ref.domain_id:
             data['domain_id'] = auth_ref.domain_id
+        if auth_ref.system_scoped:
+            # NOTE(lbragstad): This could change in the future when, or if,
+            # keystone supports the ability to scope to a subset of the entire
+            # deployment system. When that happens, this will have to relay
+            # scope information and IDs like we do for projects and domains.
+            data['system'] = 'all'
         return zip(*sorted(six.iteritems(data)))
 
 

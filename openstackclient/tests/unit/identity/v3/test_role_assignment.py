@@ -34,6 +34,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
         'Group',
         'Project',
         'Domain',
+        'System',
         'Inherited',
     )
 
@@ -95,6 +96,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
 
         self.role_assignments_mock.list.assert_called_with(
             domain=None,
+            system=None,
             group=None,
             effective=False,
             role=None,
@@ -110,11 +112,13 @@ class TestRoleAssignmentList(TestRoleAssignment):
             '',
             identity_fakes.project_id,
             '',
+            '',
             False
         ), (identity_fakes.role_id,
             '',
             identity_fakes.group_id,
             identity_fakes.project_id,
+            '',
             '',
             False
             ),)
@@ -143,6 +147,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
         verifylist = [
             ('user', identity_fakes.user_name),
             ('group', None),
+            ('system', None),
             ('domain', None),
             ('project', None),
             ('role', None),
@@ -159,6 +164,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
 
         self.role_assignments_mock.list.assert_called_with(
             domain=None,
+            system=None,
             user=self.users_mock.get(),
             group=None,
             project=None,
@@ -174,11 +180,13 @@ class TestRoleAssignmentList(TestRoleAssignment):
             '',
             '',
             identity_fakes.domain_id,
+            '',
             False
         ), (identity_fakes.role_id,
             identity_fakes.user_id,
             '',
             identity_fakes.project_id,
+            '',
             '',
             False
             ),)
@@ -207,6 +215,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
         verifylist = [
             ('user', None),
             ('group', identity_fakes.group_name),
+            ('system', None),
             ('domain', None),
             ('project', None),
             ('role', None),
@@ -223,6 +232,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
 
         self.role_assignments_mock.list.assert_called_with(
             domain=None,
+            system=None,
             group=self.groups_mock.get(),
             effective=False,
             project=None,
@@ -238,11 +248,13 @@ class TestRoleAssignmentList(TestRoleAssignment):
             identity_fakes.group_id,
             '',
             identity_fakes.domain_id,
+            '',
             False
         ), (identity_fakes.role_id,
             '',
             identity_fakes.group_id,
             identity_fakes.project_id,
+            '',
             '',
             False
             ),)
@@ -271,6 +283,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
         verifylist = [
             ('user', None),
             ('group', None),
+            ('system', None),
             ('domain', identity_fakes.domain_name),
             ('project', None),
             ('role', None),
@@ -287,6 +300,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
 
         self.role_assignments_mock.list.assert_called_with(
             domain=self.domains_mock.get(),
+            system=None,
             group=None,
             effective=False,
             project=None,
@@ -302,12 +316,14 @@ class TestRoleAssignmentList(TestRoleAssignment):
             '',
             '',
             identity_fakes.domain_id,
+            '',
             False
         ), (identity_fakes.role_id,
             '',
             identity_fakes.group_id,
             '',
             identity_fakes.domain_id,
+            '',
             False
             ),)
         self.assertEqual(datalist, tuple(data))
@@ -335,6 +351,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
         verifylist = [
             ('user', None),
             ('group', None),
+            ('system', None),
             ('domain', None),
             ('project', identity_fakes.project_name),
             ('role', None),
@@ -351,6 +368,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
 
         self.role_assignments_mock.list.assert_called_with(
             domain=None,
+            system=None,
             group=None,
             effective=False,
             project=self.projects_mock.get(),
@@ -366,11 +384,13 @@ class TestRoleAssignmentList(TestRoleAssignment):
             '',
             identity_fakes.project_id,
             '',
+            '',
             False
         ), (identity_fakes.role_id,
             '',
             identity_fakes.group_id,
             identity_fakes.project_id,
+            '',
             '',
             False
             ),)
@@ -398,6 +418,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
         verifylist = [
             ('user', None),
             ('group', None),
+            ('system', None),
             ('domain', None),
             ('project', None),
             ('role', None),
@@ -416,6 +437,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
 
         self.role_assignments_mock.list.assert_called_with(
             domain=None,
+            system=None,
             user=self.users_mock.get(),
             group=None,
             project=self.projects_mock.get(),
@@ -430,6 +452,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             identity_fakes.user_id,
             '',
             identity_fakes.project_id,
+            '',
             '',
             False
         ),)
@@ -456,6 +479,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
         verifylist = [
             ('user', None),
             ('group', None),
+            ('system', None),
             ('domain', None),
             ('project', None),
             ('role', None),
@@ -472,6 +496,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
 
         self.role_assignments_mock.list.assert_called_with(
             domain=None,
+            system=None,
             group=None,
             effective=True,
             project=None,
@@ -487,12 +512,14 @@ class TestRoleAssignmentList(TestRoleAssignment):
             '',
             identity_fakes.project_id,
             '',
+            '',
             False
         ), (identity_fakes.role_id,
             identity_fakes.user_id,
             '',
             '',
             identity_fakes.domain_id,
+            '',
             False
             ),)
         self.assertEqual(tuple(data), datalist)
@@ -520,6 +547,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
         verifylist = [
             ('user', None),
             ('group', None),
+            ('system', None),
             ('domain', None),
             ('project', None),
             ('role', None),
@@ -536,6 +564,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
 
         self.role_assignments_mock.list.assert_called_with(
             domain=None,
+            system=None,
             group=None,
             effective=False,
             project=None,
@@ -551,12 +580,14 @@ class TestRoleAssignmentList(TestRoleAssignment):
             '',
             identity_fakes.project_id,
             '',
+            '',
             True
         ), (identity_fakes.role_id,
             identity_fakes.user_id,
             '',
             '',
             identity_fakes.domain_id,
+            '',
             True
             ),)
         self.assertEqual(datalist, tuple(data))
@@ -584,6 +615,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
         verifylist = [
             ('user', None),
             ('group', None),
+            ('system', None),
             ('domain', None),
             ('project', None),
             ('role', None),
@@ -602,6 +634,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
 
         self.role_assignments_mock.list.assert_called_with(
             domain=None,
+            system=None,
             group=None,
             effective=False,
             project=None,
@@ -610,7 +643,9 @@ class TestRoleAssignmentList(TestRoleAssignment):
             os_inherit_extension_inherited_to=None,
             include_names=True)
 
-        collist = ('Role', 'User', 'Group', 'Project', 'Domain', 'Inherited')
+        collist = (
+            'Role', 'User', 'Group', 'Project', 'Domain', 'System', 'Inherited'
+        )
         self.assertEqual(columns, collist)
 
         datalist1 = ((
@@ -620,12 +655,14 @@ class TestRoleAssignmentList(TestRoleAssignment):
             '@'.join([identity_fakes.project_name,
                       identity_fakes.domain_name]),
             '',
+            '',
             False
         ), (identity_fakes.role_name,
             '@'.join([identity_fakes.user_name, identity_fakes.domain_name]),
             '',
             '',
             identity_fakes.domain_name,
+            '',
             False
             ),)
         self.assertEqual(tuple(data), datalist1)
@@ -648,6 +685,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
         verifylist = [
             ('user', None),
             ('group', None),
+            ('system', None),
             ('domain', None),
             ('project', None),
             ('role', identity_fakes.ROLE_2['name']),
@@ -664,6 +702,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
 
         self.role_assignments_mock.list.assert_called_with(
             domain=None,
+            system=None,
             user=None,
             group=None,
             project=None,
@@ -679,6 +718,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             '',
             '',
             identity_fakes.domain_id,
+            '',
             False
         ),)
         self.assertEqual(datalist, tuple(data))

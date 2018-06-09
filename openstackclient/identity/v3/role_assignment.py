@@ -55,16 +55,21 @@ class ListRoleAssignment(command.Lister):
             help=_('Group to filter (name or ID)'),
         )
         common.add_group_domain_option_to_parser(parser)
-        domain_or_project = parser.add_mutually_exclusive_group()
-        domain_or_project.add_argument(
+        system_or_domain_or_project = parser.add_mutually_exclusive_group()
+        system_or_domain_or_project.add_argument(
             '--domain',
             metavar='<domain>',
             help=_('Domain to filter (name or ID)'),
         )
-        domain_or_project.add_argument(
+        system_or_domain_or_project.add_argument(
             '--project',
             metavar='<project>',
             help=_('Project to filter (name or ID)'),
+        )
+        system_or_domain_or_project.add_argument(
+            '--system',
+            metavar='<system>',
+            help=_('Filter based on system role assignments'),
         )
         common.add_project_domain_option_to_parser(parser)
         common.add_inherited_option_to_parser(parser)
@@ -85,7 +90,8 @@ class ListRoleAssignment(command.Lister):
 
     def _as_tuple(self, assignment):
         return (assignment.role, assignment.user, assignment.group,
-                assignment.project, assignment.domain, assignment.inherited)
+                assignment.project, assignment.domain, assignment.system,
+                assignment.inherited)
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
@@ -116,6 +122,10 @@ class ListRoleAssignment(command.Lister):
                     identity_client,
                     auth_ref.user_id
                 )
+
+        system = None
+        if parsed_args.system:
+            system = parsed_args.system
 
         domain = None
         if parsed_args.domain:
@@ -149,7 +159,9 @@ class ListRoleAssignment(command.Lister):
 
         include_names = True if parsed_args.names else False
         effective = True if parsed_args.effective else False
-        columns = ('Role', 'User', 'Group', 'Project', 'Domain', 'Inherited')
+        columns = (
+            'Role', 'User', 'Group', 'Project', 'Domain', 'System', 'Inherited'
+        )
 
         inherited_to = 'projects' if parsed_args.inherited else None
         data = identity_client.role_assignments.list(
@@ -157,6 +169,7 @@ class ListRoleAssignment(command.Lister):
             user=user,
             group=group,
             project=project,
+            system=system,
             role=role,
             effective=effective,
             os_inherit_extension_inherited_to=inherited_to,
@@ -174,14 +187,24 @@ class ListRoleAssignment(command.Lister):
                 else:
                     setattr(assignment, 'project', scope['project']['id'])
                 assignment.domain = ''
+                assignment.system = ''
             elif 'domain' in scope:
                 if include_names:
                     setattr(assignment, 'domain', scope['domain']['name'])
                 else:
                     setattr(assignment, 'domain', scope['domain']['id'])
                 assignment.project = ''
-
+                assignment.system = ''
+            elif 'system' in scope:
+                # NOTE(lbragstad): If, or when, keystone supports role
+                # assignments on subsets of a system, this will have to evolve
+                # to handle that case instead of hardcoding to the entire
+                # system.
+                setattr(assignment, 'system', 'all')
+                assignment.domain = ''
+                assignment.project = ''
             else:
+                assignment.system = ''
                 assignment.domain = ''
                 assignment.project = ''
 
