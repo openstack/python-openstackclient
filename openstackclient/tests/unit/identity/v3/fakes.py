@@ -486,6 +486,27 @@ APP_CRED_OPTIONS = {
     'secret': app_cred_secret
 }
 
+registered_limit_id = 'registered-limit-id'
+registered_limit_default_limit = 10
+registered_limit_description = 'default limit of foobars'
+registered_limit_resource_name = 'foobars'
+REGISTERED_LIMIT = {
+    'id': registered_limit_id,
+    'default_limit': registered_limit_default_limit,
+    'resource_name': registered_limit_resource_name,
+    'service_id': service_id,
+    'description': None,
+    'region_id': None
+}
+REGISTERED_LIMIT_OPTIONS = {
+    'id': registered_limit_id,
+    'default_limit': registered_limit_default_limit,
+    'resource_name': registered_limit_resource_name,
+    'service_id': service_id,
+    'description': registered_limit_description,
+    'region_id': region_id
+}
+
 
 def fake_auth_ref(fake_token, fake_service=None):
     """Create an auth_ref using keystoneauth's fixtures"""
@@ -578,6 +599,8 @@ class FakeIdentityv3Client(object):
                                                                          {})
         self.inference_rules = mock.Mock()
         self.inference_rules.resource_class = fakes.FakeResource(None, {})
+        self.registered_limits = mock.Mock()
+        self.registered_limits.resource_class = fakes.FakeResource(None, {})
 
 
 class FakeFederationManager(object):
