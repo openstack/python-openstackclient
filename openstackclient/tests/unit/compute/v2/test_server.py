@@ -2331,17 +2331,17 @@ class TestServerRebuild(TestServer):
         self.images_mock.get.return_value = self.image
 
         # Fake the rebuilt new server.
-        new_server = compute_fakes.FakeServer.create_one_server()
-
-        # Fake the server to be rebuilt. The IDs of them should be the same.
         attrs = {
-            'id': new_server.id,
             'image': {
                 'id': self.image.id
             },
             'networks': {},
             'adminPass': 'passw0rd',
         }
+        new_server = compute_fakes.FakeServer.create_one_server(attrs=attrs)
+
+        # Fake the server to be rebuilt. The IDs of them should be the same.
+        attrs['id'] = new_server.id
         methods = {
             'rebuild': new_server,
         }

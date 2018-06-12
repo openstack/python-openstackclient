@@ -120,18 +120,21 @@ def _prefix_checked_value(prefix):
     return func
 
 
-def _prep_server_detail(compute_client, image_client, server):
+def _prep_server_detail(compute_client, image_client, server, refresh=True):
     """Prepare the detailed server dict for printing
 
     :param compute_client: a compute client instance
     :param image_client: an image client instance
     :param server: a Server resource
+    :param refresh: Flag indicating if ``server`` is already the latest version
+                    or if it needs to be refreshed, for example when showing
+                    the latest details of a server after creating it.
     :rtype: a dict of server details
     """
     info = server.to_dict()
-
-    server = utils.find_resource(compute_client.servers, info['id'])
-    info.update(server.to_dict())
+    if refresh:
+        server = utils.find_resource(compute_client.servers, info['id'])
+        info.update(server.to_dict())
 
     # Convert the image blob to a name
     image_info = info.get('image', {})
@@ -1540,7 +1543,8 @@ class RebuildServer(command.ShowOne):
                 self.app.stdout.write(_('Error rebuilding server\n'))
                 raise SystemExit
 
-        details = _prep_server_detail(compute_client, image_client, server)
+        details = _prep_server_detail(compute_client, image_client, server,
+                                      refresh=False)
         return zip(*sorted(six.iteritems(details)))
 
 
@@ -2021,7 +2025,8 @@ class ShowServer(command.ShowOne):
                 return ({}, {})
         else:
             data = _prep_server_detail(compute_client,
-                                       self.app.client_manager.image, server)
+                                       self.app.client_manager.image, server,
+                                       refresh=False)
 
         return zip(*sorted(six.iteritems(data)))
 
