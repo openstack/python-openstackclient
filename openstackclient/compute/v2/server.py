@@ -124,13 +124,14 @@ def _prep_server_detail(compute_client, image_client, server):
     """Prepare the detailed server dict for printing
 
     :param compute_client: a compute client instance
+    :param image_client: an image client instance
     :param server: a Server resource
     :rtype: a dict of server details
     """
-    info = server._info.copy()
+    info = server.to_dict()
 
     server = utils.find_resource(compute_client.servers, info['id'])
-    info.update(server._info)
+    info.update(server.to_dict())
 
     # Convert the image blob to a name
     image_info = info.get('image', {})
@@ -178,7 +179,7 @@ def _prep_server_detail(compute_client, image_client, server):
     if 'tenant_id' in info:
         info['project_id'] = info.pop('tenant_id')
 
-    # Map power state num to meanful string
+    # Map power state num to meaningful string
     if 'OS-EXT-STS:power_state' in info:
         info['OS-EXT-STS:power_state'] = _format_servers_list_power_state(
             info['OS-EXT-STS:power_state'])
@@ -1521,7 +1522,8 @@ class RebuildServer(command.ShowOne):
             compute_client.servers, parsed_args.server)
 
         # If parsed_args.image is not set, default to the currently used one.
-        image_id = parsed_args.image or server._info.get('image', {}).get('id')
+        image_id = parsed_args.image or server.to_dict().get(
+            'image', {}).get('id')
         image = utils.find_resource(image_client.images, image_id)
 
         server = server.rebuild(image, parsed_args.password)
