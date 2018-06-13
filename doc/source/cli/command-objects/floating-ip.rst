@@ -159,14 +159,14 @@ Set floating IP properties
 .. code:: bash
 
     openstack floating ip set
-        --port <port>
+        [--port <port>]
         [--fixed-ip-address <ip-address>]
         [--qos-policy <qos-policy> | --no-qos-policy]
         <floating-ip>
 
 .. option:: --port <port>
 
-    Assocaite the floating IP with port (name or ID)
+    Associate the floating IP with port (name or ID)
 
 .. option:: --fixed-ip-address <ip-address>
 
@@ -208,8 +208,8 @@ Unset floating IP Properties
 .. code:: bash
 
     openstack floating ip unset
-        --port
-        --qos-policy
+        [--port]
+        [--qos-policy]
         <floating-ip>
 
 .. option:: --port
