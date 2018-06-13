@@ -747,6 +747,31 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
         self.network.update_ip.assert_called_once_with(
             self.floating_ip, **attrs)
 
+    def test_qos_policy_option(self):
+        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        arglist = [
+            "--qos-policy", qos_policy.id,
+            self.floating_ip.id,
+        ]
+        verifylist = [
+            ('qos_policy', qos_policy.id),
+            ('floating_ip', self.floating_ip.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'qos_policy_id': qos_policy.id,
+        }
+        self.network.find_ip.assert_called_once_with(
+            self.floating_ip.id,
+            ignore_missing=False,
+        )
+        self.network.update_ip.assert_called_once_with(
+            self.floating_ip, **attrs)
+
     def test_port_and_qos_policy_option(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
         self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
@@ -767,6 +792,29 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
         attrs = {
             'qos_policy_id': qos_policy.id,
             'port_id': self.floating_ip.port_id,
+        }
+        self.network.find_ip.assert_called_once_with(
+            self.floating_ip.id,
+            ignore_missing=False,
+        )
+        self.network.update_ip.assert_called_once_with(
+            self.floating_ip, **attrs)
+
+    def test_no_qos_policy_option(self):
+        arglist = [
+            "--no-qos-policy",
+            self.floating_ip.id,
+        ]
+        verifylist = [
+            ('no_qos_policy', True),
+            ('floating_ip', self.floating_ip.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'qos_policy_id': None,
         }
         self.network.find_ip.assert_called_once_with(
             self.floating_ip.id,
@@ -810,16 +858,13 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
             arglist = ['--no-tag']
             verifylist = [('no_tag', True)]
             expected_args = []
-        arglist.extend(['--port', self.floating_ip.port_id,
-                       self.floating_ip.id])
-        verifylist.extend([
-            ('port', self.floating_ip.port_id),
-            ('floating_ip', self.floating_ip.id)])
+        arglist.extend([self.floating_ip.id])
+        verifylist.extend([('floating_ip', self.floating_ip.id)])
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.assertTrue(self.network.update_ip.called)
+        self.assertFalse(self.network.update_ip.called)
         self.network.set_tags.assert_called_once_with(
             self.floating_ip,
             tests_utils.CompareBySet(expected_args))
