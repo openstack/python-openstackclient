@@ -465,6 +465,12 @@ class ListImage(command.Lister):
             help=_("Filter images based on status.")
         )
         parser.add_argument(
+            '--tag',
+            metavar='<tag>',
+            default=None,
+            help=_('Filter images based on tag.'),
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -521,6 +527,8 @@ class ListImage(command.Lister):
             kwargs['name'] = parsed_args.name
         if parsed_args.status:
             kwargs['status'] = parsed_args.status
+        if parsed_args.tag:
+            kwargs['tag'] = parsed_args.tag
         if parsed_args.long:
             columns = (
                 'ID',
