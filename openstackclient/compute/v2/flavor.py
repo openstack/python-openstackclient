@@ -17,6 +17,7 @@
 
 import logging
 
+from novaclient import api_versions
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -134,6 +135,12 @@ class CreateFlavor(command.ShowOne):
             help=_("Allow <project> to access private flavor (name or ID) "
                    "(Must be used with --private option)"),
         )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_("Description for the flavor.(Supported by API versions "
+                   "'2.55' - '2.latest'")
+        )
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
@@ -145,6 +152,11 @@ class CreateFlavor(command.ShowOne):
             msg = _("--project is only allowed with --private")
             raise exceptions.CommandError(msg)
 
+        if parsed_args.description:
+            if compute_client.api_version < api_versions.APIVersion("2.55"):
+                msg = _("--os-compute-api-version 2.55 or later is required")
+                raise exceptions.CommandError(msg)
+
         args = (
             parsed_args.name,
             parsed_args.ram,
@@ -154,7 +166,8 @@ class CreateFlavor(command.ShowOne):
             parsed_args.ephemeral,
             parsed_args.swap,
             parsed_args.rxtx_factor,
-            parsed_args.public
+            parsed_args.public,
+            parsed_args.description
         )
 
         flavor = compute_client.flavors.create(*args)
@@ -332,6 +345,12 @@ class SetFlavor(command.Command):
             help=_('Set flavor access to project (name or ID) '
                    '(admin only)'),
         )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_("Set description for the flavor.(Supported by API "
+                   "versions '2.55' - '2.latest'")
+        )
         identity_common.add_project_domain_option_to_parser(parser)
 
         return parser
@@ -379,6 +398,13 @@ class SetFlavor(command.Command):
         if result > 0:
             raise exceptions.CommandError(_("Command Failed: One or more of"
                                             " the operations failed"))
+
+        if parsed_args.description:
+            if compute_client.api_version < api_versions.APIVersion("2.55"):
+                msg = _("--os-compute-api-version 2.55 or later is required")
+                raise exceptions.CommandError(msg)
+            compute_client.flavors.update(flavor=parsed_args.flavor,
+                                          description=parsed_args.description)
 
 
 class ShowFlavor(command.ShowOne):

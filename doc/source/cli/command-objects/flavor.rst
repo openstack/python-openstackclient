@@ -24,6 +24,7 @@ Create new flavor
         [--property <key=value> [...] ]
         [--project <project>]
         [--project-domain <project-domain>]
+        [--description <description>]
         <flavor-name>
 
 .. option:: --id <id>
@@ -75,6 +76,10 @@ Create new flavor
 
     Domain the project belongs to (name or ID).
     This can be used in case collisions between project names exist.
+
+.. option:: --description <description>
+
+    Description to add for this flavor
 
 .. _flavor_create-flavor-name:
 .. describe:: <flavor-name>
@@ -148,6 +153,7 @@ Set flavor properties
         [--property <key=value> [...] ]
         [--project <project>]
         [--project-domain <project-domain>]
+        [--description <description>]
         <flavor>
 
 .. option:: --property <key=value>
@@ -167,6 +173,10 @@ Set flavor properties
 
     Remove all properties from this flavor (specify both --no-property and --property
     to remove the current properties before setting new properties.)
+
+.. option:: --description <description>
+
+    Set description to this flavor
 
 .. describe:: <flavor>
 

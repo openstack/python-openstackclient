@@ -16,6 +16,7 @@
 import mock
 from mock import call
 
+import novaclient
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -50,6 +51,7 @@ class TestFlavorCreate(TestFlavor):
     columns = (
         'OS-FLV-DISABLED:disabled',
         'OS-FLV-EXT-DATA:ephemeral',
+        'description',
         'disk',
         'id',
         'name',
@@ -63,6 +65,7 @@ class TestFlavorCreate(TestFlavor):
     data = (
         flavor.disabled,
         flavor.ephemeral,
+        flavor.description,
         flavor.disk,
         flavor.id,
         flavor.name,
@@ -101,7 +104,8 @@ class TestFlavorCreate(TestFlavor):
             0,
             0,
             1.0,
-            True
+            True,
+            None,
         )
         columns, data = self.cmd.take_action(parsed_args)
         self.flavors_mock.create.assert_called_once_with(*default_args)
@@ -120,6 +124,7 @@ class TestFlavorCreate(TestFlavor):
             '--vcpus', str(self.flavor.vcpus),
             '--rxtx-factor', str(self.flavor.rxtx_factor),
             '--public',
+            '--description', str(self.flavor.description),
             '--property', 'property=value',
             self.flavor.name,
         ]
@@ -132,6 +137,7 @@ class TestFlavorCreate(TestFlavor):
             ('vcpus', self.flavor.vcpus),
             ('rxtx_factor', self.flavor.rxtx_factor),
             ('public', True),
+            ('description', self.flavor.description),
             ('property', {'property': 'value'}),
             ('name', self.flavor.name),
         ]
@@ -147,8 +153,13 @@ class TestFlavorCreate(TestFlavor):
             self.flavor.swap,
             self.flavor.rxtx_factor,
             self.flavor.is_public,
+            self.flavor.description,
         )
-        columns, data = self.cmd.take_action(parsed_args)
+        self.app.client_manager.compute.api_version = 2.55
+        with mock.patch.object(novaclient.api_versions,
+                               'APIVersion',
+                               return_value=2.55):
+            columns, data = self.cmd.take_action(parsed_args)
         self.flavors_mock.create.assert_called_once_with(*args)
         self.flavor.set_keys.assert_called_once_with({'property': 'value'})
         self.flavor.get_keys.assert_called_once_with()
@@ -168,6 +179,7 @@ class TestFlavorCreate(TestFlavor):
             '--vcpus', str(self.flavor.vcpus),
             '--rxtx-factor', str(self.flavor.rxtx_factor),
             '--private',
+            '--description', str(self.flavor.description),
             '--project', self.project.id,
             '--property', 'key1=value1',
             '--property', 'key2=value2',
@@ -181,6 +193,7 @@ class TestFlavorCreate(TestFlavor):
             ('vcpus', self.flavor.vcpus),
             ('rxtx_factor', self.flavor.rxtx_factor),
             ('public', False),
+            ('description', 'description'),
             ('project', self.project.id),
             ('property', {'key1': 'value1', 'key2': 'value2'}),
             ('name', self.flavor.name),
@@ -197,8 +210,13 @@ class TestFlavorCreate(TestFlavor):
             self.flavor.swap,
             self.flavor.rxtx_factor,
             self.flavor.is_public,
+            self.flavor.description,
         )
-        columns, data = self.cmd.take_action(parsed_args)
+        self.app.client_manager.compute.api_version = 2.55
+        with mock.patch.object(novaclient.api_versions,
+                               'APIVersion',
+                               return_value=2.55):
+            columns, data = self.cmd.take_action(parsed_args)
         self.flavors_mock.create.assert_called_once_with(*args)
         self.flavor_access_mock.add_tenant_access.assert_called_with(
             self.flavor.id,
@@ -233,6 +251,79 @@ class TestFlavorCreate(TestFlavor):
                           self.cmd,
                           arglist,
                           verifylist)
+
+    def test_flavor_create_with_description_api_newer(self):
+        arglist = [
+            '--id', self.flavor.id,
+            '--ram', str(self.flavor.ram),
+            '--disk', str(self.flavor.disk),
+            '--ephemeral', str(self.flavor.ephemeral),
+            '--swap', str(self.flavor.swap),
+            '--vcpus', str(self.flavor.vcpus),
+            '--rxtx-factor', str(self.flavor.rxtx_factor),
+            '--private',
+            '--description', 'fake description',
+            self.flavor.name,
+        ]
+        verifylist = [
+            ('id', self.flavor.id),
+            ('ram', self.flavor.ram),
+            ('disk', self.flavor.disk),
+            ('ephemeral', self.flavor.ephemeral),
+            ('swap', self.flavor.swap),
+            ('vcpus', self.flavor.vcpus),
+            ('rxtx_factor', self.flavor.rxtx_factor),
+            ('public', False),
+            ('description', 'fake description'),
+            ('name', self.flavor.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.compute.api_version = 2.55
+        with mock.patch.object(novaclient.api_versions,
+                               'APIVersion',
+                               return_value=2.55):
+            columns, data = self.cmd.take_action(parsed_args)
+
+        args = (
+            self.flavor.name,
+            self.flavor.ram,
+            self.flavor.vcpus,
+            self.flavor.disk,
+            self.flavor.id,
+            self.flavor.ephemeral,
+            self.flavor.swap,
+            self.flavor.rxtx_factor,
+            False,
+            'fake description',
+        )
+
+        self.flavors_mock.create.assert_called_once_with(*args)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_flavor_create_with_description_api_older(self):
+        arglist = [
+            '--id', self.flavor.id,
+            '--ram', str(self.flavor.ram),
+            '--vcpus', str(self.flavor.vcpus),
+            '--description', 'description',
+            self.flavor.name,
+        ]
+        verifylist = [
+            ('ram', self.flavor.ram),
+            ('vcpus', self.flavor.vcpus),
+            ('description', 'description'),
+            ('name', self.flavor.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.app.client_manager.compute.api_version = 2.54
+        with mock.patch.object(novaclient.api_versions,
+                               'APIVersion',
+                               return_value=2.55):
+            self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                              parsed_args)
 
 
 class TestFlavorDelete(TestFlavor):
@@ -622,6 +713,42 @@ class TestFlavorSet(TestFlavor):
         self.flavor_access_mock.add_tenant_access.assert_not_called()
         self.assertIsNone(result)
 
+    def test_flavor_set_description_api_newer(self):
+        arglist = [
+            '--description', 'description',
+            self.flavor.id,
+        ]
+        verifylist = [
+            ('description', 'description'),
+            ('flavor', self.flavor.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.compute.api_version = 2.55
+        with mock.patch.object(novaclient.api_versions,
+                               'APIVersion',
+                               return_value=2.55):
+            result = self.cmd.take_action(parsed_args)
+            self.flavors_mock.update.assert_called_with(
+                flavor=self.flavor.id, description='description')
+            self.assertIsNone(result)
+
+    def test_flavor_set_description_api_older(self):
+        arglist = [
+            '--description', 'description',
+            self.flavor.id,
+        ]
+        verifylist = [
+            ('description', 'description'),
+            ('flavor', self.flavor.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.compute.api_version = 2.54
+        with mock.patch.object(novaclient.api_versions,
+                               'APIVersion',
+                               return_value=2.55):
+            self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                              parsed_args)
+
 
 class TestFlavorShow(TestFlavor):
 
@@ -633,6 +760,7 @@ class TestFlavorShow(TestFlavor):
         'OS-FLV-DISABLED:disabled',
         'OS-FLV-EXT-DATA:ephemeral',
         'access_project_ids',
+        'description',
         'disk',
         'id',
         'name',
@@ -648,6 +776,7 @@ class TestFlavorShow(TestFlavor):
         flavor.disabled,
         flavor.ephemeral,
         None,
+        flavor.description,
         flavor.disk,
         flavor.id,
         flavor.name,
@@ -710,6 +839,7 @@ class TestFlavorShow(TestFlavor):
             private_flavor.disabled,
             private_flavor.ephemeral,
             self.flavor_access.tenant_id,
+            private_flavor.description,
             private_flavor.disk,
             private_flavor.id,
             private_flavor.name,
