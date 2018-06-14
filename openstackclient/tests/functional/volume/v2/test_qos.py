@@ -125,7 +125,6 @@ class QosTests(common.BaseVolumeTests):
     def test_volume_qos_asso_disasso(self):
         """Tests associate and disassociate qos with volume type"""
         vol_type1 = uuid.uuid4().hex
-        vol_type2 = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
             'volume type create -f json ' +
             vol_type1
@@ -134,6 +133,9 @@ class QosTests(common.BaseVolumeTests):
             vol_type1,
             cmd_output['name']
         )
+        self.addCleanup(self.openstack, 'volume type delete ' + vol_type1)
+
+        vol_type2 = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
             'volume type create -f json ' +
             vol_type2
@@ -142,7 +144,6 @@ class QosTests(common.BaseVolumeTests):
             vol_type2,
             cmd_output['name']
         )
-        self.addCleanup(self.openstack, 'volume type delete ' + vol_type1)
         self.addCleanup(self.openstack, 'volume type delete ' + vol_type2)
 
         name = uuid.uuid4().hex
