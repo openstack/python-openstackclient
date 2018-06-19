@@ -38,6 +38,15 @@ class TestKeypair(compute_fakes.TestComputev2):
         self.keypairs_mock = self.app.client_manager.compute.keypairs
         self.keypairs_mock.reset_mock()
 
+        # Initialize the user mock
+        self.users_mock = self.app.client_manager.identity.users
+        self.users_mock.reset_mock()
+        self.users_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.USER),
+            loaded=True,
+        )
+
 
 class TestKeypairCreate(TestKeypair):
 
@@ -226,6 +235,54 @@ class TestKeypairCreate(TestKeypair):
                 '--os-compute-api-version 2.2 or greater is required',
                 str(ex))
 
+    def test_key_pair_create_with_user(self):
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.10')
+
+        arglist = [
+            '--user', identity_fakes.user_name,
+            self.keypair.name,
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('name', self.keypair.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.keypairs_mock.create.assert_called_with(
+            name=self.keypair.name,
+            public_key=None,
+            user_id=identity_fakes.user_id,
+        )
+
+        self.assertEqual({}, columns)
+        self.assertEqual({}, data)
+
+    def test_key_pair_create_with_user_pre_v210(self):
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.9')
+
+        arglist = [
+            '--user', identity_fakes.user_name,
+            self.keypair.name,
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('name', self.keypair.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.10 or greater is required', str(ex))
+
 
 class TestKeypairDelete(TestKeypair):
 
@@ -301,6 +358,51 @@ class TestKeypairDelete(TestKeypair):
                 self.keypairs[0].name
             )
 
+    def test_keypair_delete_with_user(self):
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.10')
+
+        arglist = [
+            '--user', identity_fakes.user_name,
+            self.keypairs[0].name
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('name', [self.keypairs[0].name]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ret = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(ret)
+        self.keypairs_mock.delete.assert_called_with(
+            self.keypairs[0].name,
+            user_id=identity_fakes.user_id,
+        )
+
+    def test_keypair_delete_with_user_pre_v210(self):
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.9')
+
+        arglist = [
+            '--user', identity_fakes.user_name,
+            self.keypairs[0].name
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('name', [self.keypairs[0].name]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.10 or greater is required', str(ex))
+
 
 class TestKeypairList(TestKeypair):
 
@@ -309,14 +411,6 @@ class TestKeypairList(TestKeypair):
 
     def setUp(self):
         super(TestKeypairList, self).setUp()
-
-        self.users_mock = self.app.client_manager.identity.users
-        self.users_mock.reset_mock()
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
 
         self.keypairs_mock.list.return_value = self.keypairs
 
@@ -477,10 +571,13 @@ class TestKeypairShow(TestKeypair):
         verifylist = [
             ('name', self.keypair.name)
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
+
+        self.keypairs_mock.get.assert_called_with(
+            self.keypair.name,
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -502,3 +599,59 @@ class TestKeypairShow(TestKeypair):
 
         self.assertEqual({}, columns)
         self.assertEqual({}, data)
+
+    def test_keypair_show_with_user(self):
+
+        # overwrite the setup one because we want to omit private_key
+        self.keypair = compute_fakes.FakeKeypair.create_one_keypair(
+            no_pri=True)
+        self.keypairs_mock.get.return_value = self.keypair
+
+        self.data = (
+            self.keypair.fingerprint,
+            self.keypair.name,
+            self.keypair.type,
+            self.keypair.user_id
+        )
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.10')
+
+        arglist = [
+            '--user', identity_fakes.user_name,
+            self.keypair.name,
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('name', self.keypair.name)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.users_mock.get.assert_called_with(identity_fakes.user_name)
+        self.keypairs_mock.get.assert_called_with(
+            self.keypair.name,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_keypair_show_with_user_pre_v210(self):
+
+        arglist = [
+            '--user', identity_fakes.user_name,
+            self.keypair.name,
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('name', self.keypair.name)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.10 or greater is required', str(ex))
