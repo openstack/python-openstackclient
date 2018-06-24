@@ -589,7 +589,7 @@ class SetSubnet(command.Command):
             if not parsed_args.no_host_route:
                 attrs['host_routes'] += obj.host_routes
         elif parsed_args.no_host_route:
-            attrs['host_routes'] = ''
+            attrs['host_routes'] = []
         if 'allocation_pools' in attrs:
             if not parsed_args.no_allocation_pool:
                 attrs['allocation_pools'] += obj.allocation_pools
