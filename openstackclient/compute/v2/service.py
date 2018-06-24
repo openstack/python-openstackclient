@@ -17,6 +17,7 @@
 
 import logging
 
+from novaclient import api_versions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -192,18 +193,23 @@ class SetService(command.Command):
             result += 1
 
         force_down = None
-        try:
-            if parsed_args.down:
-                force_down = True
-            if parsed_args.up:
-                force_down = False
-            if force_down is not None:
+        if parsed_args.down:
+            force_down = True
+        if parsed_args.up:
+            force_down = False
+        if force_down is not None:
+            if compute_client.api_version < api_versions.APIVersion(
+                    '2.11'):
+                msg = _('--os-compute-api-version 2.11 or later is '
+                        'required')
+                raise exceptions.CommandError(msg)
+            try:
                 cs.force_down(parsed_args.host, parsed_args.service,
                               force_down=force_down)
-        except Exception:
-            state = "down" if force_down else "up"
-            LOG.error("Failed to set service state to %s", state)
-            result += 1
+            except Exception:
+                state = "down" if force_down else "up"
+                LOG.error("Failed to set service state to %s", state)
+                result += 1
 
         if result > 0:
             msg = _("Compute service %(service)s of host %(host)s failed to "

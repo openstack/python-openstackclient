@@ -15,7 +15,7 @@
 
 import mock
 from mock import call
-
+from novaclient import api_versions
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import service
@@ -340,6 +340,8 @@ class TestServiceSet(TestService):
             ('service', self.service.binary),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.11')
         result = self.cmd.take_action(parsed_args)
         self.service_mock.force_down.assert_called_once_with(
             self.service.host, self.service.binary, force_down=False)
@@ -359,6 +361,8 @@ class TestServiceSet(TestService):
             ('service', self.service.binary),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.11')
         result = self.cmd.take_action(parsed_args)
         self.service_mock.force_down.assert_called_once_with(
             self.service.host, self.service.binary, force_down=True)
@@ -380,6 +384,8 @@ class TestServiceSet(TestService):
             ('service', self.service.binary),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.11')
         result = self.cmd.take_action(parsed_args)
         self.service_mock.enable.assert_called_once_with(
             self.service.host, self.service.binary)
@@ -402,6 +408,8 @@ class TestServiceSet(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.11')
         with mock.patch.object(self.service_mock, 'enable',
                                side_effect=Exception()):
             self.assertRaises(exceptions.CommandError,
