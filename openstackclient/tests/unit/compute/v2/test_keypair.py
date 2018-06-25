@@ -17,6 +17,7 @@ from unittest import mock
 from unittest.mock import call
 import uuid
 
+from novaclient import api_versions
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -45,11 +46,13 @@ class TestKeypairCreate(TestKeypair):
         self.columns = (
             'fingerprint',
             'name',
+            'type',
             'user_id'
         )
         self.data = (
             self.keypair.fingerprint,
             self.keypair.name,
+            self.keypair.type,
             self.keypair.user_id
         )
 
@@ -71,7 +74,7 @@ class TestKeypairCreate(TestKeypair):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.keypairs_mock.create.assert_called_with(
-            self.keypair.name,
+            name=self.keypair.name,
             public_key=None
         )
 
@@ -87,6 +90,7 @@ class TestKeypairCreate(TestKeypair):
         self.data = (
             self.keypair.fingerprint,
             self.keypair.name,
+            self.keypair.type,
             self.keypair.user_id
         )
 
@@ -96,7 +100,7 @@ class TestKeypairCreate(TestKeypair):
         ]
         verifylist = [
             ('public_key', self.keypair.public_key),
-            ('name', self.keypair.name)
+            ('name', self.keypair.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -109,8 +113,8 @@ class TestKeypairCreate(TestKeypair):
             columns, data = self.cmd.take_action(parsed_args)
 
             self.keypairs_mock.create.assert_called_with(
-                self.keypair.name,
-                public_key=self.keypair.public_key
+                name=self.keypair.name,
+                public_key=self.keypair.public_key,
             )
 
             self.assertEqual(self.columns, columns)
@@ -124,7 +128,7 @@ class TestKeypairCreate(TestKeypair):
         ]
         verifylist = [
             ('private_key', tmp_pk_file),
-            ('name', self.keypair.name)
+            ('name', self.keypair.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -136,8 +140,8 @@ class TestKeypairCreate(TestKeypair):
             columns, data = self.cmd.take_action(parsed_args)
 
             self.keypairs_mock.create.assert_called_with(
-                self.keypair.name,
-                public_key=None
+                name=self.keypair.name,
+                public_key=None,
             )
 
             mock_open.assert_called_once_with(tmp_pk_file, 'w+')
@@ -145,6 +149,79 @@ class TestKeypairCreate(TestKeypair):
 
             self.assertEqual(self.columns, columns)
             self.assertEqual(self.data, data)
+
+    def test_keypair_create_with_key_type(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.2')
+
+        for key_type in ['x509', 'ssh']:
+            self.keypair = compute_fakes.FakeKeypair.create_one_keypair(
+                no_pri=True)
+            self.keypairs_mock.create.return_value = self.keypair
+
+            self.data = (
+                self.keypair.fingerprint,
+                self.keypair.name,
+                self.keypair.type,
+                self.keypair.user_id,
+            )
+            arglist = [
+                '--public-key', self.keypair.public_key,
+                self.keypair.name,
+                '--type', key_type,
+            ]
+            verifylist = [
+                ('public_key', self.keypair.public_key),
+                ('name', self.keypair.name),
+                ('type', key_type),
+            ]
+            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+            with mock.patch('io.open') as mock_open:
+                mock_open.return_value = mock.MagicMock()
+                m_file = mock_open.return_value.__enter__.return_value
+                m_file.read.return_value = 'dummy'
+                columns, data = self.cmd.take_action(parsed_args)
+
+            self.keypairs_mock.create.assert_called_with(
+                name=self.keypair.name,
+                public_key=self.keypair.public_key,
+                key_type=key_type,
+            )
+
+            self.assertEqual(self.columns, columns)
+            self.assertEqual(self.data, data)
+
+    def test_keypair_create_with_key_type_pre_v22(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.1')
+
+        for key_type in ['x509', 'ssh']:
+            arglist = [
+                '--public-key', self.keypair.public_key,
+                self.keypair.name,
+                '--type', 'ssh',
+            ]
+            verifylist = [
+                ('public_key', self.keypair.public_key),
+                ('name', self.keypair.name),
+                ('type', 'ssh'),
+            ]
+            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+            with mock.patch('io.open') as mock_open:
+                mock_open.return_value = mock.MagicMock()
+                m_file = mock_open.return_value.__enter__.return_value
+                m_file.read.return_value = 'dummy'
+
+                ex = self.assertRaises(
+                    exceptions.CommandError,
+                    self.cmd.take_action,
+                    parsed_args)
+
+            self.assertIn(
+                '--os-compute-api-version 2.2 or greater is required',
+                str(ex))
 
 
 class TestKeypairDelete(TestKeypair):
@@ -227,16 +304,6 @@ class TestKeypairList(TestKeypair):
     # Return value of self.keypairs_mock.list().
     keypairs = compute_fakes.FakeKeypair.create_keypairs(count=1)
 
-    columns = (
-        "Name",
-        "Fingerprint"
-    )
-
-    data = ((
-        keypairs[0].name,
-        keypairs[0].fingerprint
-    ), )
-
     def setUp(self):
         super(TestKeypairList, self).setUp()
 
@@ -247,8 +314,7 @@ class TestKeypairList(TestKeypair):
 
     def test_keypair_list_no_options(self):
         arglist = []
-        verifylist = [
-        ]
+        verifylist = []
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -261,8 +327,39 @@ class TestKeypairList(TestKeypair):
 
         self.keypairs_mock.list.assert_called_with()
 
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertEqual(('Name', 'Fingerprint'), columns)
+        self.assertEqual(
+            ((self.keypairs[0].name, self.keypairs[0].fingerprint), ),
+            tuple(data)
+        )
+
+    def test_keypair_list_v22(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.2')
+
+        arglist = []
+        verifylist = []
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+
+        self.keypairs_mock.list.assert_called_with()
+
+        self.assertEqual(('Name', 'Fingerprint', 'Type'), columns)
+        self.assertEqual(
+            ((
+                self.keypairs[0].name,
+                self.keypairs[0].fingerprint,
+                self.keypairs[0].type,
+            ), ),
+            tuple(data)
+        )
 
 
 class TestKeypairShow(TestKeypair):
@@ -279,16 +376,18 @@ class TestKeypairShow(TestKeypair):
         self.columns = (
             "fingerprint",
             "name",
+            "type",
             "user_id"
         )
 
         self.data = (
             self.keypair.fingerprint,
             self.keypair.name,
+            self.keypair.type,
             self.keypair.user_id
         )
 
-    def test_show_no_options(self):
+    def test_keypair_show_no_options(self):
 
         arglist = []
         verifylist = []
@@ -306,6 +405,7 @@ class TestKeypairShow(TestKeypair):
         self.data = (
             self.keypair.fingerprint,
             self.keypair.name,
+            self.keypair.type,
             self.keypair.user_id
         )
 

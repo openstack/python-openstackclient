@@ -877,6 +877,7 @@ class FakeKeypair(object):
         # Set default attributes.
         keypair_info = {
             'name': 'keypair-name-' + uuid.uuid4().hex,
+            'type': 'ssh',
             'fingerprint': 'dummy',
             'public_key': 'dummy',
             'user_id': 'user'
