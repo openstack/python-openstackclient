@@ -1132,6 +1132,7 @@ class FakeSecurityGroup(object):
             'description': 'security-group-description-' + uuid.uuid4().hex,
             'project_id': 'project-id-' + uuid.uuid4().hex,
             'security_group_rules': [],
+            'tags': []
         }
 
         # Overwrite default attributes.

@@ -15,6 +15,7 @@
 
 import argparse
 
+from osc_lib.command import command
 from osc_lib import utils
 import six
 
@@ -23,6 +24,7 @@ from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 from openstackclient.network import sdk_utils
 from openstackclient.network import utils as network_utils
+from openstackclient.network.v2 import _tag
 
 
 def _format_network_security_group_rules(sg_rules):
@@ -106,6 +108,7 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
             help=_("Owner's project (name or ID)")
         )
         identity_common.add_project_domain_option_to_parser(parser)
+        _tag.add_tag_option_to_parser_for_create(parser, _('security group'))
         return parser
 
     def _get_description(self, parsed_args):
@@ -130,6 +133,8 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
 
         # Create the security group and display the results.
         obj = client.create_security_group(**attrs)
+        # tags cannot be set when created, so tags need to be set later.
+        _tag.update_tags_for_set(client, obj, parsed_args)
         display_columns, property_columns = _get_columns(obj)
         data = utils.get_item_properties(
             obj,
@@ -198,6 +203,7 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
                    "(name or ID)")
         )
         identity_common.add_project_domain_option_to_parser(parser)
+        _tag.add_tag_filtering_option_to_parser(parser, _('security group'))
         return parser
 
     def update_parser_compute(self, parser):
@@ -220,19 +226,23 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             ).id
             filters['tenant_id'] = project_id
             filters['project_id'] = project_id
+
+        _tag.get_tag_filtering_args(parsed_args, filters)
         data = client.security_groups(**filters)
 
         columns = (
             "ID",
             "Name",
             "Description",
-            "Project ID"
+            "Project ID",
+            "tags"
         )
         column_headers = (
             "ID",
             "Name",
             "Description",
-            "Project"
+            "Project",
+            "Tags"
         )
         return (column_headers,
                 (utils.get_item_properties(
@@ -282,6 +292,10 @@ class SetSecurityGroup(common.NetworkAndComputeCommand):
         )
         return parser
 
+    def update_parser_network(self, parser):
+        _tag.add_tag_option_to_parser_for_set(parser, _('security group'))
+        return parser
+
     def take_action_network(self, client, parsed_args):
         obj = client.find_security_group(parsed_args.group,
                                          ignore_missing=False)
@@ -294,6 +308,9 @@ class SetSecurityGroup(common.NetworkAndComputeCommand):
         # if there were no updates. Maintain this behavior and issue
         # the update.
         client.update_security_group(obj, **attrs)
+
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_set(client, obj, parsed_args)
 
     def take_action_compute(self, client, parsed_args):
         data = client.api.security_group_find(parsed_args.group)
@@ -344,3 +361,25 @@ class ShowSecurityGroup(common.NetworkAndComputeShowOne):
             formatters=_formatters_compute
         )
         return (display_columns, data)
+
+
+class UnsetSecurityGroup(command.Command):
+    _description = _("Unset security group properties")
+
+    def get_parser(self, prog_name):
+        parser = super(UnsetSecurityGroup, self).get_parser(prog_name)
+        parser.add_argument(
+            'group',
+            metavar="<group>",
+            help=_("Security group to modify (name or ID)")
+        )
+        _tag.add_tag_option_to_parser_for_unset(parser, _('security group'))
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        obj = client.find_security_group(parsed_args.group,
+                                         ignore_missing=False)
+
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_unset(client, obj, parsed_args)
