@@ -63,7 +63,7 @@ Developers may also be found in the `IRC channel`_ ``#openstack-sdks``.
 .. _`on OpenStack's Git server`: https://git.openstack.org/cgit/openstack/python-openstackclient/tree
 .. _Launchpad: https://launchpad.net/python-openstackclient
 .. _Gerrit: http://docs.openstack.org/infra/manual/developers.html#development-workflow
-.. _Bug reports: https://bugs.launchpad.net/python-openstackclient/+bugs
+.. _Bug reports: https://storyboard.openstack.org/#!/project/975
 .. _blueprints: https://blueprints.launchpad.net/python-openstackclient
 .. _PyPi: https://pypi.org/project/python-openstackclient
 .. _tarball: http://tarballs.openstack.org/python-openstackclient

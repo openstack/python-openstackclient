@@ -477,8 +477,8 @@ The following environment variables can be set to alter the behaviour of :progra
 BUGS
 ====
 
-Bug reports are accepted at the python-openstackclient LaunchPad project
-"https://bugs.launchpad.net/python-openstackclient/+bugs".
+Bug reports are accepted at the python-openstackclient StoryBoard project
+"https://storyboard.openstack.org/#!/project/975".
 
 
 AUTHORS
