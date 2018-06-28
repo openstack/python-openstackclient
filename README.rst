@@ -43,6 +43,7 @@ language to describe operations in OpenStack.
 .. _Developer: https://docs.openstack.org/project-team-guide/project-setup/python.html
 .. _Contributing: https://docs.openstack.org/infra/manual/developers.html
 .. _Testing: https://docs.openstack.org/python-openstackclient/latest/contributor/developing.html#testing
+.. _Release Notes: https://docs.openstack.org/releasenotes/python-openstackclient
 
 Getting Started
 ===============
