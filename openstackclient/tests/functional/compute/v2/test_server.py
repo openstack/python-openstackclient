@@ -11,6 +11,7 @@
 #    under the License.
 
 import json
+import time
 import uuid
 
 from tempest.lib import exceptions
@@ -255,10 +256,24 @@ class ServerTests(common.ComputeTestCase):
             floating_ip
         )
         self.assertEqual("", raw_output)
-        cmd_output = json.loads(self.openstack(
-            'server show -f json ' +
-            name
-        ))
+
+        # Loop a few times since this is timing-sensitive
+        # Just hard-code it for now, since there is no pause and it is
+        # racy we shouldn't have to wait too long, a minute seems reasonable
+        wait_time = 0
+        while wait_time < 60:
+            cmd_output = json.loads(self.openstack(
+                'server show -f json ' +
+                name
+            ))
+            if floating_ip not in cmd_output['addresses']:
+                # Hang out for a bit and try again
+                print('retrying floating IP check')
+                wait_time += 10
+                time.sleep(10)
+            else:
+                break
+
         self.assertIn(
             floating_ip,
             cmd_output['addresses'],
@@ -271,6 +286,23 @@ class ServerTests(common.ComputeTestCase):
             floating_ip
         )
         self.assertEqual("", raw_output)
+
+        # Loop a few times since this is timing-sensitive
+        # Just hard-code it for now, since there is no pause and it is
+        # racy we shouldn't have to wait too long, a minute seems reasonable
+        wait_time = 0
+        while wait_time < 60:
+            cmd_output = json.loads(self.openstack(
+                'server show -f json ' +
+                name
+            ))
+            if floating_ip in cmd_output['addresses']:
+                # Hang out for a bit and try again
+                print('retrying floating IP check')
+                wait_time += 10
+                time.sleep(10)
+            else:
+                break
 
         cmd_output = json.loads(self.openstack(
             'server show -f json ' +
