@@ -765,6 +765,7 @@ class FakeFlavor(object):
             'rxtx_factor': 1.0,
             'OS-FLV-DISABLED:disabled': False,
             'os-flavor-access:is_public': True,
+            'description': 'description',
             'OS-FLV-EXT-DATA:ephemeral': 0,
             'properties': {'property': 'value'},
         }
