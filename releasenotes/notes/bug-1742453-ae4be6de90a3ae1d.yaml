@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    The ``server list --all`` command now resolves non-public flavor names,
+    too, so that the ``Flavor`` column will be properly populated.
+    [Bug `1742453 <https://bugs.launchpad.net/bugs/1742453>`_]

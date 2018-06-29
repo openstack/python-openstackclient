@@ -1240,7 +1240,7 @@ class ListServer(command.Lister):
         # "Flavor Name" is not crucial, so we swallow any exceptions.
         if not parsed_args.no_name_lookup:
             try:
-                flavors_list = compute_client.flavors.list()
+                flavors_list = compute_client.flavors.list(is_public=None)
                 for i in flavors_list:
                     flavors[i.id] = i
             except Exception:
