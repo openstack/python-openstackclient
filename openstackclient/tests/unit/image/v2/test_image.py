@@ -779,6 +779,20 @@ class TestImageList(TestImage):
             status='active', marker=self._image.id
         )
 
+    def test_image_list_tag_option(self):
+        arglist = [
+            '--tag', 'abc',
+        ]
+        verifylist = [
+            ('tag', 'abc'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.api_mock.image_list.assert_called_with(
+            tag='abc', marker=self._image.id
+        )
+
 
 class TestListImageProjects(TestImage):
 

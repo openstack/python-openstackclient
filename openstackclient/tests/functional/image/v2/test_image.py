@@ -28,10 +28,11 @@ class ImageTests(base.TestCase):
     @classmethod
     def setUpClass(cls):
         super(ImageTests, cls).setUpClass()
+        cls.image_tag = 'my_tag'
         json_output = json.loads(cls.openstack(
             '--os-image-api-version 2 '
-            'image create -f json ' +
-            cls.NAME
+            'image create -f json --tag {tag} {name}'.format(
+                tag=cls.image_tag, name=cls.NAME)
         ))
         cls.image_id = json_output["id"]
         cls.assertOutput(cls.NAME, json_output['name'])
@@ -80,6 +81,16 @@ class ImageTests(base.TestCase):
             'active',
             [img['Status'] for img in json_output]
         )
+
+    def test_image_list_with_tag_filter(self):
+        json_output = json.loads(self.openstack(
+            'image list --tag ' + self.image_tag + ' --long -f json'
+        ))
+        for taglist in [img['Tags'].split(', ') for img in json_output]:
+            self.assertIn(
+                self.image_tag,
+                taglist
+            )
 
     def test_image_attributes(self):
         """Test set, unset, show on attributes, tags and properties"""
@@ -142,6 +153,10 @@ class ImageTests(base.TestCase):
         )
 
         # Test tags
+        self.assertNotIn(
+            '01',
+            json_output["tags"].split(', ')
+        )
         self.openstack(
             'image set ' +
             '--tag 01 ' +
@@ -151,9 +166,9 @@ class ImageTests(base.TestCase):
             'image show -f json ' +
             self.NAME
         ))
-        self.assertEqual(
+        self.assertIn(
             '01',
-            json_output["tags"],
+            json_output["tags"].split(', ')
         )
 
         self.openstack(
@@ -165,9 +180,9 @@ class ImageTests(base.TestCase):
             'image show -f json ' +
             self.NAME
         ))
-        self.assertEqual(
-            '',
-            json_output["tags"],
+        self.assertNotIn(
+            '01',
+            json_output["tags"].split(', ')
         )
 
     def test_image_set_rename(self):
