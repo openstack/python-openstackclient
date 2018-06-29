@@ -106,6 +106,7 @@ class FakeApp(object):
     def __init__(self, _stdout, _log):
         self.stdout = _stdout
         self.client_manager = None
+        self.api_version = {}
         self.stdin = sys.stdin
         self.stdout = _stdout or sys.stdout
         self.stderr = sys.stderr
