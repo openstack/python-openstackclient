@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Add options ``--sign-key-path`` and ``--sign-cert-id`` to the ``image create``
+    command.  Tthe image must be present on disk, therefore the ``file`` option
+    is required:
+
+    ``image create --file <filename> --sign-key-path <key-path> --sign-cert-id <secret-id>``.
+
+    A prompt for a password ensures, that the private key can be protected too.
+    [Bug `2002128 <https://storyboard.openstack.org/#!/story/2002128>`_]
