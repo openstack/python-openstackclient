@@ -1,0 +1,5 @@
+---
+features:
+  - Add ``--tag`` option to ``server add volume`` command when
+    add a volume to server. Only available starting with
+    ``--os-compute-api-version 2.49``.
