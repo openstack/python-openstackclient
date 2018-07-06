@@ -11,6 +11,7 @@
 #    under the License.
 
 import json
+import time
 import uuid
 
 from openstackclient.tests.functional import base
@@ -50,6 +51,23 @@ class AggregateTests(base.TestCase):
             'nova',
             cmd_output['availability_zone']
         )
+
+        # Loop a few times since this is timing-sensitive
+        # Just hard-code it for now, since there is no pause and it is
+        # racy we shouldn't have to wait too long, a minute seems reasonable
+        wait_time = 0
+        while wait_time < 60:
+            cmd_output = json.loads(self.openstack(
+                'aggregate show -f json ' +
+                name2
+            ))
+            if cmd_output['name'] != name2:
+                # Hang out for a bit and try again
+                print('retrying aggregate check')
+                wait_time += 10
+                time.sleep(10)
+            else:
+                break
 
         del_output = self.openstack(
             'aggregate delete ' +
