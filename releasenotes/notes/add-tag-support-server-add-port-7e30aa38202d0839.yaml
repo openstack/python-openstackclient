@@ -1,0 +1,5 @@
+---
+features:
+  - Add ``--tag`` option to ``server add port`` command when
+    add a port to server. Only available starting with
+    ``--os-compute-api-version 2.49``.

@@ -354,6 +354,14 @@ class AddPort(command.Command):
             metavar="<port>",
             help=_("Port to add to the server (name or ID)"),
         )
+        parser.add_argument(
+            '--tag',
+            metavar='<tag>',
+            help=_(
+                "Tag for the attached interface. "
+                "(Supported by API versions '2.49' - '2.latest')"
+            )
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -369,7 +377,22 @@ class AddPort(command.Command):
         else:
             port_id = parsed_args.port
 
-        server.interface_attach(port_id=port_id, net_id=None, fixed_ip=None)
+        kwargs = {
+            'port_id': port_id,
+            'net_id': None,
+            'fixed_ip': None,
+        }
+
+        if parsed_args.tag:
+            if compute_client.api_version < api_versions.APIVersion("2.49"):
+                msg = _(
+                    '--os-compute-api-version 2.49 or greater is required to '
+                    'support the --tag option'
+                )
+                raise exceptions.CommandError(msg)
+            kwargs['tag'] = parsed_args.tag
+
+        server.interface_attach(**kwargs)
 
 
 class AddNetwork(command.Command):
