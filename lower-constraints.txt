@@ -55,7 +55,7 @@ os-client-config==1.28.0
 os-service-types==1.2.0
 os-testr==1.0.0
 osc-lib==1.8.0
-oslo.concurrency==3.25.0
+oslo.concurrency==3.26.0
 oslo.config==5.2.0
 oslo.context==2.19.2
 oslo.i18n==3.15.3
