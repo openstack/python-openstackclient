@@ -387,6 +387,14 @@ class AddNetwork(command.Command):
             metavar="<network>",
             help=_("Network to add to the server (name or ID)"),
         )
+        parser.add_argument(
+            '--tag',
+            metavar='<tag>',
+            help=_(
+                'Tag for the attached interface. '
+                '(supported by --os-compute-api-version 2.49 or above)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -402,7 +410,23 @@ class AddNetwork(command.Command):
         else:
             net_id = parsed_args.network
 
-        server.interface_attach(port_id=None, net_id=net_id, fixed_ip=None)
+        kwargs = {
+            'port_id': None,
+            'net_id': net_id,
+            'fixed_ip': None,
+        }
+
+        if parsed_args.tag:
+            if compute_client.api_version < api_versions.APIVersion('2.49'):
+                msg = _(
+                    '--os-compute-api-version 2.49 or greater is required to '
+                    'support the --tag option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['tag'] = parsed_args.tag
+
+        server.interface_attach(**kwargs)
 
 
 class AddServerSecurityGroup(command.Command):
