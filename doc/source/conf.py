@@ -12,15 +12,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import os
-import sys
-
 import pbr.version
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 # -- General configuration ----------------------------------------------------
 
@@ -35,6 +27,7 @@ extensions = ['sphinx.ext.autodoc',
               'openstackdocstheme',
               'stevedore.sphinxext',
               'cliff.sphinxext',
+              'sphinxcontrib.apidoc',
               ]
 
 # openstackdocstheme options
@@ -282,3 +275,13 @@ autoprogram_cliff_application = 'openstack'
 autoprogram_cliff_ignored = [
     '--help', '--format', '--column', '--max-width', '--fit-width',
     '--print-empty', '--prefix', '--noindent', '--quote']
+
+
+# -- Options for sphinxcontrib.apidoc ----------------------------------------
+
+apidoc_module_dir = '../../openstackclient'
+apidoc_excluded_paths = [
+    'volume/v3',
+    'tests',
+]
+apidoc_output_dir = 'contributor/api'
