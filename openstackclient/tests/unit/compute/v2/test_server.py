@@ -18,6 +18,7 @@ import getpass
 
 import mock
 from mock import call
+from novaclient import api_versions
 from osc_lib import exceptions
 from osc_lib import utils as common_utils
 from oslo_utils import timeutils
@@ -2030,6 +2031,9 @@ class TestServerMigrate(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.24')
+
         result = self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
@@ -2051,6 +2055,9 @@ class TestServerMigrate(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.24')
+
         result = self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
@@ -2071,6 +2078,9 @@ class TestServerMigrate(TestServer):
             ('wait', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.24')
 
         result = self.cmd.take_action(parsed_args)
 
@@ -2094,11 +2104,36 @@ class TestServerMigrate(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.24')
+
         result = self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
         self.server.live_migrate.assert_called_with(block_migration=False,
                                                     disk_over_commit=False,
+                                                    host='fakehost')
+        self.assertNotCalled(self.servers_mock.migrate)
+        self.assertIsNone(result)
+
+    def test_server_live_migrate_225(self):
+        arglist = [
+            '--live', 'fakehost', self.server.id,
+        ]
+        verifylist = [
+            ('live', 'fakehost'),
+            ('block_migration', False),
+            ('wait', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.25')
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.live_migrate.assert_called_with(block_migration=False,
                                                     host='fakehost')
         self.assertNotCalled(self.servers_mock.migrate)
         self.assertIsNone(result)
