@@ -1,6 +1,8 @@
 ---
 features:
   - Add ``--description`` option to ``flavor set`` command to update the
-    description of the server.
+    description of the flavor. Only available starting with
+    ``--os-compute-api-version 2.55``.
   - Add ``--description`` option to ``flavor create`` command to set the
-    description of the server.
+    description of the flavor. Only available starting with
+    ``--os-compute-api-version 2.55``.

@@ -79,7 +79,8 @@ Create new flavor
 
 .. option:: --description <description>
 
-    Description to add for this flavor
+    Description to add for this flavor. Only available starting with
+    ``--os-compute-api-version 2.55``.
 
 .. _flavor_create-flavor-name:
 .. describe:: <flavor-name>
@@ -176,7 +177,8 @@ Set flavor properties
 
 .. option:: --description <description>
 
-    Set description to this flavor
+    Description to set for this flavor. Only available starting with
+    ``--os-compute-api-version 2.55``.
 
 .. describe:: <flavor>
 
