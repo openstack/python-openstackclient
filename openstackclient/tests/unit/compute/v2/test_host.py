@@ -111,8 +111,7 @@ class TestHostSet(TestHost):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        body = {}
-        h_mock.assert_called_with(self.host['host'], body)
+        h_mock.assert_called_with(self.host['host'])
 
     def test_host_set(self, h_mock):
         h_mock.return_value = self.host
@@ -133,8 +132,8 @@ class TestHostSet(TestHost):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        body = {'status': 'enable', 'maintenance_mode': 'disable'}
-        h_mock.assert_called_with(self.host['host'], body)
+        h_mock.assert_called_with(self.host['host'], status='enable',
+                                  maintenance_mode='disable')
 
 
 @mock.patch(
