@@ -278,14 +278,14 @@ The keys match the :program:`openstack` global options but without the
     clouds:
       devstack:
         auth:
-          auth_url: http://192.168.122.10:35357/
+          auth_url: http://192.168.122.10:5000/
           project_name: demo
           username: demo
           password: 0penstack
         region_name: RegionOne
       ds-admin:
         auth:
-          auth_url: http://192.168.122.10:35357/
+          auth_url: http://192.168.122.10:5000/
           project_name: admin
           username: admin
           password: 0penstack
