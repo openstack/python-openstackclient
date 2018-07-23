@@ -430,7 +430,7 @@ class TestVolumeCreate(TestVolume):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.volumes_mock.create.assert_called_once_with(
-            size=None,
+            size=snapshot.size,
             snapshot_id=snapshot.id,
             name=self.new_volume.name,
             description=None,

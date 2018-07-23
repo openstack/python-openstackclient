@@ -186,11 +186,21 @@ class CreateVolume(command.ShowOne):
                 image_client.images,
                 parsed_args.image).id
 
+        size = parsed_args.size
+
         snapshot = None
         if parsed_args.snapshot:
-            snapshot = utils.find_resource(
+            snapshot_obj = utils.find_resource(
                 volume_client.volume_snapshots,
-                parsed_args.snapshot).id
+                parsed_args.snapshot)
+            snapshot = snapshot_obj.id
+            # Cinder requires a value for size when creating a volume
+            # even if creating from a snapshot. Cinder will create the
+            # volume with at least the same size as the snapshot anyway,
+            # so since we have the object here, just override the size
+            # value if it's either not given or is smaller than the
+            # snapshot size.
+            size = max(size or 0, snapshot_obj.size)
 
         project = None
         if parsed_args.project:
@@ -205,7 +215,7 @@ class CreateVolume(command.ShowOne):
                 parsed_args.user).id
 
         volume = volume_client.volumes.create(
-            size=parsed_args.size,
+            size=size,
             snapshot_id=snapshot,
             name=parsed_args.name,
             description=parsed_args.description,
