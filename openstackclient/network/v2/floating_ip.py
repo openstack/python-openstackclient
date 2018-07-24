@@ -347,11 +347,10 @@ class SetFloatingIP(command.Command):
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',
-            help=_("Floating IP to associate (IP address or ID)"))
+            help=_("Floating IP to modify (IP address or ID)"))
         parser.add_argument(
             '--port',
             metavar='<port>',
-            required=True,
             help=_("Associate the floating IP with port (name or ID)")),
         parser.add_argument(
             '--fixed-ip-address',
@@ -383,9 +382,11 @@ class SetFloatingIP(command.Command):
             parsed_args.floating_ip,
             ignore_missing=False,
         )
-        port = client.find_port(parsed_args.port,
-                                ignore_missing=False)
-        attrs['port_id'] = port.id
+        if parsed_args.port:
+            port = client.find_port(parsed_args.port,
+                                    ignore_missing=False)
+            attrs['port_id'] = port.id
+
         if parsed_args.fixed_ip_address:
             attrs['fixed_ip_address'] = parsed_args.fixed_ip_address
 

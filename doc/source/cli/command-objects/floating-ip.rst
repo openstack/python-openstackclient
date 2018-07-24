@@ -198,7 +198,7 @@ Set floating IP properties
 .. code:: bash
 
     openstack floating ip set
-        --port <port>
+        [--port <port>]
         [--fixed-ip-address <ip-address>]
         [--qos-policy <qos-policy> | --no-qos-policy]
         [--tag <tag>] [--no-tag]
@@ -257,8 +257,8 @@ Unset floating IP Properties
 .. code:: bash
 
     openstack floating ip unset
-        --port
-        --qos-policy
+        [--port]
+        [--qos-policy]
         [--tag <tag> | --all-tag]
         <floating-ip>
 
