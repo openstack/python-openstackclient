@@ -205,7 +205,7 @@ List available images
 .. code:: bash
 
     openstack image list
-        [--public | --private | --shared]
+        [--public | --private | --community | --shared]
         [--property <key=value>]
         [--name <name>]
         [--status <status>]
@@ -222,6 +222,12 @@ List available images
 .. option:: --private
 
     List only private images
+
+.. option:: --community
+
+    List only community images
+
+    *Image version 2 only.*
 
 .. option:: --shared
 

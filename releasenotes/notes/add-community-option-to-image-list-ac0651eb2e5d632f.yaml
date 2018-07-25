@@ -1,0 +1,4 @@
+---
+fixes:
+  - Add ``--community`` option to ``image list`` command.
+    [Bug `2001925 <https://storyboard.openstack.org/#!/story/2001925>`_]
