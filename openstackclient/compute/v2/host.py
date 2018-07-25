@@ -97,7 +97,7 @@ class SetHost(command.Command):
 
         compute_client.api.host_set(
             parsed_args.host,
-            kwargs
+            **kwargs
         )
 
 
