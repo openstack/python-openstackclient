@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    A new command, ``openstack versions show`` was added, which will
+    provide a list of all versions of all services in the cloud. It
+    includes relevant metadata, such as min/max microversion, endpoint,
+    status and region.
