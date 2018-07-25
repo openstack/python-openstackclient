@@ -21,6 +21,7 @@ import io
 import logging
 import os
 
+from novaclient import api_versions
 from novaclient.v2 import servers
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -1384,11 +1385,13 @@ class MigrateServer(command.Command):
             parsed_args.server,
         )
         if parsed_args.live:
-            server.live_migrate(
-                host=parsed_args.live,
-                block_migration=parsed_args.block_migration,
-                disk_over_commit=parsed_args.disk_overcommit,
-            )
+            kwargs = {
+                'host': parsed_args.live,
+                'block_migration': parsed_args.block_migration
+            }
+            if compute_client.api_version < api_versions.APIVersion('2.25'):
+                kwargs['disk_over_commit'] = parsed_args.disk_overcommit
+            server.live_migrate(**kwargs)
         else:
             if parsed_args.block_migration or parsed_args.disk_overcommit:
                 raise exceptions.CommandError("--live must be specified if "
