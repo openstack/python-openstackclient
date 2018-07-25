@@ -54,6 +54,11 @@ class IdentityTests(base.TestCase):
                                      'Auth URL']
     IMPLIED_ROLE_LIST_HEADERS = ['Prior Role ID', 'Prior Role Name',
                                  'Implied Role ID', 'Implied Role Name']
+    REGISTERED_LIMIT_FIELDS = ['id', 'service_id', 'resource_name',
+                               'default_limit', 'description', 'region_id']
+    REGISTERED_LIMIT_LIST_HEADERS = ['ID', 'Service ID', 'Resource Name',
+                                     'Default Limit', 'Description',
+                                     'Region ID']
 
     @classmethod
     def setUpClass(cls):
@@ -319,3 +324,35 @@ class IdentityTests(base.TestCase):
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.SERVICE_PROVIDER_FIELDS)
         return service_provider
+
+    def _create_dummy_registered_limit(self, add_clean_up=True):
+        service_name = self._create_dummy_service()
+        resource_name = data_utils.rand_name('resource_name')
+        params = {
+            'service_name': service_name,
+            'default_limit': 10,
+            'resource_name': resource_name
+        }
+        raw_output = self.openstack(
+            'registered limit create'
+            ' --service %(service_name)s'
+            ' --default-limit %(default_limit)s'
+            ' %(resource_name)s' % params
+        )
+        items = self.parse_show(raw_output)
+        registered_limit_id = self._extract_value_from_items('id', items)
+
+        if add_clean_up:
+            self.addCleanup(
+                self.openstack,
+                'registered limit delete %s' % registered_limit_id
+            )
+
+        self.assert_show_fields(items, self.REGISTERED_LIMIT_FIELDS)
+        return registered_limit_id
+
+    def _extract_value_from_items(self, key, items):
+        for d in items:
+            for k, v in d.iteritems():
+                if k == key:
+                    return v
