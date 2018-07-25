@@ -1,6 +1,6 @@
 ---
 fixes:
   - |
-    The ``openstack server show`` command will now properly show the server's
+    The ``server show`` command will now properly show the server's
     flavor information when using ``--os-compute-api-version 2.47`` or higher.
-    See: https://storyboard.openstack.org/#!/story/1751104
+    [Bug `1751104 <https://storyboard.openstack.org/#!/story/1751104>`_]

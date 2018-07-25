@@ -1,7 +1,7 @@
 ---
 features:
   - |
+    Add ``limit`` commands for managing project-specific limits in keystone.
+    Limits define limits of resources for projects to consume once a limit
+    has been registered.
     [`bp unified-limits <https://blueprints.launchpad.net/keystone/+spec/unified-limit>`_]
-    Support has been added for managing project-specific limits in keystone via
-    the ``limit`` command. Limits define limits of resources for projects to
-    consume once a limit has been registered.
