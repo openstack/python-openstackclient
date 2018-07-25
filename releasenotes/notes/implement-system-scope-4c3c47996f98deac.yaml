@@ -1,8 +1,9 @@
 ---
 features:
   - |
-    Added support for system-scope. This includes support for the ability to
+    Add support for system-scope to ``role`` commands. This includes the ability to
     generate system-scoped tokens using ``system_scope: all`` in ``cloud.yaml``
     or ``OS_SYSTEM_SCOPE=all`` in an environment variable. Support is also
     included for managing role assignments on the system using ``--system``
     when adding and removing roles.
+    [`bp system-scope <https://blueprints.launchpad.net/keystone/+spec/system-scope>`_]

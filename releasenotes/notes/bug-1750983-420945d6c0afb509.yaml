@@ -1,8 +1,13 @@
 ---
-fixes:
+features:
   - |
-    Add supports tagging for Network security group.
-    Add ``tag``, ``no-tag`` to ``security group create`` and ``security group set`` commands.
-    Add ``tags``, ``any-tags``, ``not-tags``, ``not-any-tags`` to ``security group list`` command.
-    Add ``tag`` and ``all-tag`` to ``security group unset`` command.
+    Add ``--tag`` and ``--no-tag`` options to ``security group create`` and
+    ``security group set`` commands.
+    [Bug `1750983 <https://bugs.launchpad.net/python-openstackclient/+bug/1750983>`_]
+  - |
+    Add ``--tags``, ``--any-tags``, ``--not-tags`` and ``--not-any-tags`` options
+    to ``security group list`` command.
+    [Bug `1750983 <https://bugs.launchpad.net/python-openstackclient/+bug/1750983>`_]
+  - |
+    Add ``--tag`` and ``--all-tag`` options to ``security group unset`` command.
     [Bug `1750983 <https://bugs.launchpad.net/python-openstackclient/+bug/1750983>`_]
