@@ -507,6 +507,29 @@ REGISTERED_LIMIT_OPTIONS = {
     'region_id': region_id
 }
 
+limit_id = 'limit-id'
+limit_resource_limit = 15
+limit_description = 'limit of foobars'
+limit_resource_name = 'foobars'
+LIMIT = {
+    'id': limit_id,
+    'project_id': project_id,
+    'resource_limit': limit_resource_limit,
+    'resource_name': limit_resource_name,
+    'service_id': service_id,
+    'description': None,
+    'region_id': None
+}
+LIMIT_OPTIONS = {
+    'id': limit_id,
+    'project_id': project_id,
+    'resource_limit': limit_resource_limit,
+    'resource_name': limit_resource_name,
+    'service_id': service_id,
+    'description': limit_description,
+    'region_id': region_id
+}
+
 
 def fake_auth_ref(fake_token, fake_service=None):
     """Create an auth_ref using keystoneauth's fixtures"""
@@ -601,6 +624,8 @@ class FakeIdentityv3Client(object):
         self.inference_rules.resource_class = fakes.FakeResource(None, {})
         self.registered_limits = mock.Mock()
         self.registered_limits.resource_class = fakes.FakeResource(None, {})
+        self.limits = mock.Mock()
+        self.limits.resource_class = fakes.FakeResource(None, {})
 
 
 class FakeFederationManager(object):
