@@ -867,6 +867,24 @@ class TestListPort(TestPort):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_port_list_fixed_ip_opt_ip_address_substr(self):
+        ip_address_ss = self._ports[0].fixed_ips[0]['ip_address'][:-1]
+        arglist = [
+            '--fixed-ip', "ip-substring=%s" % ip_address_ss,
+        ]
+        verifylist = [
+            ('fixed_ip', [{'ip-substring': ip_address_ss}])
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ports.assert_called_once_with(**{
+            'fixed_ips': ['ip_address_substr=%s' % ip_address_ss]})
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
     def test_port_list_fixed_ip_opt_subnet_id(self):
         subnet_id = self._ports[0].fixed_ips[0]['subnet_id']
         arglist = [

@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add an ``ip-substring`` key to the ``--fixed-ip`` option of the
+    ``port list`` command.  This allows filtering ports by a substring
+    match of an IP address.
+    [Bug `1718605 <https://bugs.launchpad.net/bugs/1718605>`_]
