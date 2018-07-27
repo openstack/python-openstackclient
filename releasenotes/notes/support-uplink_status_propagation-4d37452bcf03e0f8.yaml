@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--enable-uplink-status-propagation`` option and
+    ``--disable-uplink-status-propagation`` option to ``port create`` command.
