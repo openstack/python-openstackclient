@@ -14,6 +14,7 @@
 
 """Volume V2 Volume action implementations"""
 
+import argparse
 import copy
 import logging
 
@@ -37,7 +38,7 @@ def _check_size_arg(args):
     volume is not specified.
     """
 
-    if ((args.snapshot or args.source or args.source_replicated)
+    if ((args.snapshot or args.source)
             is None and args.size is None):
         msg = _("--size is a required option if snapshot "
                 "or source volume is not specified.")
@@ -59,7 +60,7 @@ class CreateVolume(command.ShowOne):
             metavar="<size>",
             type=int,
             help=_("Volume size in GB (Required unless --snapshot or "
-                   "--source or --source-replicated is specified)"),
+                   "--source is specified)"),
         )
         parser.add_argument(
             "--type",
@@ -85,7 +86,7 @@ class CreateVolume(command.ShowOne):
         source_group.add_argument(
             "--source-replicated",
             metavar="<replicated-volume>",
-            help=_("Replicated volume to clone (name or ID)"),
+            help=argparse.SUPPRESS,
         )
         parser.add_argument(
             "--description",
@@ -168,12 +169,6 @@ class CreateVolume(command.ShowOne):
                 volume_client.volumes,
                 parsed_args.source).id
 
-        replicated_source_volume = None
-        if parsed_args.source_replicated:
-            replicated_source_volume = utils.find_resource(
-                volume_client.volumes,
-                parsed_args.source_replicated).id
-
         consistency_group = None
         if parsed_args.consistency_group:
             consistency_group = utils.find_resource(
@@ -227,7 +222,6 @@ class CreateVolume(command.ShowOne):
             imageRef=image,
             source_volid=source_volume,
             consistencygroup_id=consistency_group,
-            source_replica=replicated_source_volume,
             multiattach=parsed_args.multi_attach,
             scheduler_hints=parsed_args.hint,
         )

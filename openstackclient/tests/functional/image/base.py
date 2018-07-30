@@ -10,12 +10,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from openstackclient.tests.functional.volume.v2 import test_transfer_request \
-    as v2
-from openstackclient.tests.functional.volume.v3 import common
+from openstackclient.tests.functional import base
 
 
-class TransferRequestTests(common.BaseVolumeTests, v2.TransferRequestTests):
-    """Functional tests for transfer request. """
+class BaseImageTests(base.TestCase):
+    """Functional tests for Image commands"""
 
-    API_VERSION = '3'
+    @classmethod
+    def setUpClass(cls):
+        super(BaseImageTests, cls).setUpClass()
+        # TODO(dtroyer): maybe do image API discovery here to determine
+        #                what is available, it isn't in the service catalog
+        cls.haz_v1_api = False
