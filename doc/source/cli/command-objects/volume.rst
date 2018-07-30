@@ -15,7 +15,7 @@ Create new volume
     openstack volume create
         [--size <size>]
         [--type <volume-type>]
-        [--image <image> | --snapshot <snapshot> | --source <volume> | --source-replicated <replicated-volume>]
+        [--image <image> | --snapshot <snapshot> | --source <volume> ]
         [--description <description>]
         [--user <user>]
         [--project <project>]
@@ -31,7 +31,7 @@ Create new volume
 .. option:: --size <size>
 
     Volume size in GB
-    (Required unless --snapshot or --source or --source-replicated is specified)
+    (Required unless --snapshot or --source is specified)
 
 .. option:: --type <volume-type>
 
@@ -53,10 +53,6 @@ Create new volume
 .. option:: --source <volume>
 
     Volume to clone (name or ID)
-
-.. option:: --source-replicated <replicated-volume>
-
-    Replicated volume to clone (name or ID)
 
 .. option:: --description <description>
 
