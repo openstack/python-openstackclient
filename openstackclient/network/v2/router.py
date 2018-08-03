@@ -563,7 +563,7 @@ class SetRouter(command.Command):
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
-            help=_("Desired IP and/or subnet (name or ID)"
+            help=_("Desired IP and/or subnet (name or ID) "
                    "on external gateway: "
                    "subnet=<subnet>,ip-address=<ip-address> "
                    "(repeat option to set multiple fixed IP addresses)")

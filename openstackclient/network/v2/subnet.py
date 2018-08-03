@@ -412,7 +412,7 @@ class ListSubnet(command.Lister):
             choices=[4, 6],
             metavar='<ip-version>',
             dest='ip_version',
-            help=_("List only subnets of given IP version in output."
+            help=_("List only subnets of given IP version in output. "
                    "Allowed values for IP version are 4 and 6."),
         )
         dhcp_enable_group = parser.add_mutually_exclusive_group()
