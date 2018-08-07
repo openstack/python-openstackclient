@@ -133,7 +133,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            source_replica=None,
             multiattach=False,
             scheduler_hints=None,
         )
@@ -185,7 +184,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=consistency_group.id,
-            source_replica=None,
             multiattach=True,
             scheduler_hints={'k': 'v'},
         )
@@ -231,7 +229,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            source_replica=None,
             multiattach=False,
             scheduler_hints=None,
         )
@@ -277,7 +274,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            source_replica=None,
             multiattach=False,
             scheduler_hints=None,
         )
@@ -317,7 +313,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            source_replica=None,
             multiattach=False,
             scheduler_hints=None,
         )
@@ -359,7 +354,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=image.id,
             source_volid=None,
             consistencygroup_id=None,
-            source_replica=None,
             multiattach=False,
             scheduler_hints=None,
         )
@@ -401,7 +395,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=image.id,
             source_volid=None,
             consistencygroup_id=None,
-            source_replica=None,
             multiattach=False,
             scheduler_hints=None,
         )
@@ -442,7 +435,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            source_replica=None,
             multiattach=False,
             scheduler_hints=None,
         )
@@ -484,7 +476,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            source_replica=None,
             multiattach=False,
             scheduler_hints=None,
         )
@@ -530,7 +521,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            source_replica=None,
             multiattach=False,
             scheduler_hints=None,
         )
@@ -585,7 +575,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            source_replica=None,
             multiattach=False,
             scheduler_hints=None,
         )
@@ -597,40 +586,6 @@ class TestVolumeCreate(TestVolume):
             self.new_volume.id, True)
         self.volumes_mock.update_readonly_flag.assert_called_with(
             self.new_volume.id, True)
-
-    def test_volume_create_with_source_replicated(self):
-        self.volumes_mock.get.return_value = self.new_volume
-        arglist = [
-            '--source-replicated', self.new_volume.id,
-            self.new_volume.name,
-        ]
-        verifylist = [
-            ('source_replicated', self.new_volume.id),
-            ('name', self.new_volume.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-        self.volumes_mock.create.assert_called_once_with(
-            size=None,
-            snapshot_id=None,
-            name=self.new_volume.name,
-            description=None,
-            volume_type=None,
-            user_id=None,
-            project_id=None,
-            availability_zone=None,
-            metadata=None,
-            imageRef=None,
-            source_volid=None,
-            consistencygroup_id=None,
-            source_replica=self.new_volume.id,
-            multiattach=False,
-            scheduler_hints=None,
-        )
-
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
 
     def test_volume_create_without_size(self):
         arglist = [
@@ -649,7 +604,6 @@ class TestVolumeCreate(TestVolume):
             '--image', 'source_image',
             '--source', 'source_volume',
             '--snapshot', 'source_snapshot',
-            '--source-replicated', 'source_replicated_volume',
             '--size', str(self.new_volume.size),
             self.new_volume.name,
         ]
@@ -657,7 +611,6 @@ class TestVolumeCreate(TestVolume):
             ('image', 'source_image'),
             ('source', 'source_volume'),
             ('snapshot', 'source_snapshot'),
-            ('source-replicated', 'source_replicated_volume'),
             ('size', self.new_volume.size),
             ('name', self.new_volume.name),
         ]
