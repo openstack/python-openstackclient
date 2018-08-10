@@ -126,8 +126,6 @@ class TestVolumeCreate(TestVolume):
             name=self.new_volume.name,
             description=None,
             volume_type=None,
-            user_id=None,
-            project_id=None,
             availability_zone=None,
             metadata=None,
             imageRef=None,
@@ -177,8 +175,6 @@ class TestVolumeCreate(TestVolume):
             name=self.new_volume.name,
             description=self.new_volume.description,
             volume_type=self.new_volume.volume_type,
-            user_id=None,
-            project_id=None,
             availability_zone=self.new_volume.availability_zone,
             metadata=None,
             imageRef=None,
@@ -191,95 +187,39 @@ class TestVolumeCreate(TestVolume):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
-    def test_volume_create_user_project_id(self):
-        # Return a project
-        self.projects_mock.get.return_value = self.project
-        # Return a user
-        self.users_mock.get.return_value = self.user
-
+    def test_volume_create_user(self):
         arglist = [
             '--size', str(self.new_volume.size),
-            '--project', self.project.id,
             '--user', self.user.id,
             self.new_volume.name,
         ]
         verifylist = [
             ('size', self.new_volume.size),
-            ('project', self.project.id),
             ('user', self.user.id),
             ('name', self.new_volume.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # In base command class ShowOne in cliff, abstract method take_action()
-        # returns a two-part tuple with a tuple of column names and a tuple of
-        # data to be shown.
-        columns, data = self.cmd.take_action(parsed_args)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+        self.volumes_mock.create.assert_not_called()
 
-        self.volumes_mock.create.assert_called_with(
-            size=self.new_volume.size,
-            snapshot_id=None,
-            name=self.new_volume.name,
-            description=None,
-            volume_type=None,
-            user_id=self.user.id,
-            project_id=self.project.id,
-            availability_zone=None,
-            metadata=None,
-            imageRef=None,
-            source_volid=None,
-            consistencygroup_id=None,
-            multiattach=False,
-            scheduler_hints=None,
-        )
-
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
-
-    def test_volume_create_user_project_name(self):
-        # Return a project
-        self.projects_mock.get.return_value = self.project
-        # Return a user
-        self.users_mock.get.return_value = self.user
-
+    def test_volume_create_project(self):
         arglist = [
             '--size', str(self.new_volume.size),
-            '--project', self.project.name,
-            '--user', self.user.name,
+            '--project', self.project.id,
             self.new_volume.name,
         ]
         verifylist = [
             ('size', self.new_volume.size),
-            ('project', self.project.name),
-            ('user', self.user.name),
+            ('project', self.project.id),
             ('name', self.new_volume.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # In base command class ShowOne in cliff, abstract method take_action()
-        # returns a two-part tuple with a tuple of column names and a tuple of
-        # data to be shown.
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.volumes_mock.create.assert_called_with(
-            size=self.new_volume.size,
-            snapshot_id=None,
-            name=self.new_volume.name,
-            description=None,
-            volume_type=None,
-            user_id=self.user.id,
-            project_id=self.project.id,
-            availability_zone=None,
-            metadata=None,
-            imageRef=None,
-            source_volid=None,
-            consistencygroup_id=None,
-            multiattach=False,
-            scheduler_hints=None,
-        )
-
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+        self.volumes_mock.create.assert_not_called()
 
     def test_volume_create_properties(self):
         arglist = [
@@ -306,8 +246,6 @@ class TestVolumeCreate(TestVolume):
             name=self.new_volume.name,
             description=None,
             volume_type=None,
-            user_id=None,
-            project_id=None,
             availability_zone=None,
             metadata={'Alpha': 'a', 'Beta': 'b'},
             imageRef=None,
@@ -347,8 +285,6 @@ class TestVolumeCreate(TestVolume):
             name=self.new_volume.name,
             description=None,
             volume_type=None,
-            user_id=None,
-            project_id=None,
             availability_zone=None,
             metadata=None,
             imageRef=image.id,
@@ -388,8 +324,6 @@ class TestVolumeCreate(TestVolume):
             name=self.new_volume.name,
             description=None,
             volume_type=None,
-            user_id=None,
-            project_id=None,
             availability_zone=None,
             metadata=None,
             imageRef=image.id,
@@ -428,8 +362,6 @@ class TestVolumeCreate(TestVolume):
             name=self.new_volume.name,
             description=None,
             volume_type=None,
-            user_id=None,
-            project_id=None,
             availability_zone=None,
             metadata=None,
             imageRef=None,
@@ -469,8 +401,6 @@ class TestVolumeCreate(TestVolume):
             name=self.new_volume.name,
             description=None,
             volume_type=None,
-            user_id=None,
-            project_id=None,
             availability_zone=None,
             metadata=None,
             imageRef=None,
@@ -514,8 +444,6 @@ class TestVolumeCreate(TestVolume):
             name=self.new_volume.name,
             description=None,
             volume_type=None,
-            user_id=None,
-            project_id=None,
             availability_zone=None,
             metadata=None,
             imageRef=None,
@@ -568,8 +496,6 @@ class TestVolumeCreate(TestVolume):
             name=self.new_volume.name,
             description=None,
             volume_type=None,
-            user_id=None,
-            project_id=None,
             availability_zone=None,
             metadata=None,
             imageRef=None,

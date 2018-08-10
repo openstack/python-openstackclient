@@ -1,0 +1,15 @@
+---
+deprecations:
+  - |
+    The ``--project`` and ``--user`` options for the ``volume create``
+    command have been deprecated. They are deprecated because Cinder's
+    volume create API ignores the corresponding API inputs.
+fixes:
+  - |
+    Fix ``volume create`` by removing two broken options. The ``--project``
+    and ``--user`` options were intended to specify an alternate project
+    and/or user for the volume, but the Volume service's API does not
+    support this behavior. This caused the volume to be created, but
+    without the expected project/user values. However, an alternate
+    project and/or user may be specified using identity overrides (e.g.
+    --os-username, --os-project-id).
