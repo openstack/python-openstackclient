@@ -141,7 +141,10 @@ def _add_rule_arguments(parser):
         dest='max_burst_kbits',
         metavar='<max-burst-kbits>',
         type=int,
-        help=_('Maximum burst in kilobits, 0 means automatic')
+        help=_('Maximum burst in kilobits, 0 or not specified means '
+               'automatic, which is 80%% of the bandwidth limit, which works '
+               'for typical TCP traffic. For details check the QoS user '
+               'workflow.')
     )
     parser.add_argument(
         '--dscp-mark',
