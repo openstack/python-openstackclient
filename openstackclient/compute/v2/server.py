@@ -711,7 +711,12 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--availability-zone',
             metavar='<zone-name>',
-            help=_('Select an availability zone for the server'),
+            help=_('Select an availability zone for the server. '
+                   'Host and node are optional parameters. '
+                   'Availability zone in the format '
+                   '<zone-name>:<host-name>:<node-name>, '
+                   '<zone-name>::<node-name>, <zone-name>:<host-name> '
+                   'or <zone-name>'),
         )
         parser.add_argument(
             '--host',
