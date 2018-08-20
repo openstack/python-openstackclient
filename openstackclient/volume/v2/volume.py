@@ -96,12 +96,12 @@ class CreateVolume(command.ShowOne):
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help=_('Specify an alternate user (name or ID)'),
+            help=argparse.SUPPRESS,
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Specify an alternate project (name or ID)'),
+            help=argparse.SUPPRESS,
         )
         parser.add_argument(
             "--availability-zone",
@@ -159,7 +159,6 @@ class CreateVolume(command.ShowOne):
 
     def take_action(self, parsed_args):
         _check_size_arg(parsed_args)
-        identity_client = self.app.client_manager.identity
         volume_client = self.app.client_manager.volume
         image_client = self.app.client_manager.image
 
@@ -197,17 +196,22 @@ class CreateVolume(command.ShowOne):
             # snapshot size.
             size = max(size or 0, snapshot_obj.size)
 
-        project = None
+        # NOTE(abishop): Cinder's volumes.create() has 'project_id' and
+        # 'user_id' args, but they're not wired up to anything. The only way
+        # to specify an alternate project or user for the volume is to use
+        # the identity overrides (e.g. "--os-project-id").
+        #
+        # Now, if the project or user arg is specified then the command is
+        # rejected. Otherwise, Cinder would actually create a volume, but
+        # without the specified property.
         if parsed_args.project:
-            project = utils.find_resource(
-                identity_client.projects,
-                parsed_args.project).id
-
-        user = None
+            raise exceptions.CommandError(
+                _("ERROR: --project is deprecated, please use"
+                  " --os-project-name or --os-project-id instead."))
         if parsed_args.user:
-            user = utils.find_resource(
-                identity_client.users,
-                parsed_args.user).id
+            raise exceptions.CommandError(
+                _("ERROR: --user is deprecated, please use"
+                  " --os-username instead."))
 
         volume = volume_client.volumes.create(
             size=size,
@@ -215,8 +219,6 @@ class CreateVolume(command.ShowOne):
             name=parsed_args.name,
             description=parsed_args.description,
             volume_type=parsed_args.type,
-            user_id=user,
-            project_id=project,
             availability_zone=parsed_args.availability_zone,
             metadata=parsed_args.property,
             imageRef=image,
