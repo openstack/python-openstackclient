@@ -51,5 +51,10 @@ fi
 # install will be constrained and we need to unconstrain it.
 edit-constraints $localfile -- $CLIENT_NAME "-e file://$PWD#egg=$CLIENT_NAME"
 
+if [ -z "$*" ]; then
+    echo "No packages to be installed."
+    exit 0
+fi
+
 $install_cmd -U $*
 exit $?
