@@ -194,9 +194,9 @@
       - osc-tox-unit-tips
       - openstack-python-jobs
       - openstack-python35-jobs
-      - publish-openstack-sphinx-docs
+      - publish-openstack-docs-pti
       - check-requirements
-      - release-notes-jobs
+      - release-notes-jobs-python3
       - lib-forward-testing
     check:
       jobs:
