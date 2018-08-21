@@ -199,6 +199,7 @@
       - check-requirements
       - release-notes-jobs-python3
       - lib-forward-testing
+      - lib-forward-testing-python3
     check:
       jobs:
         - osc-functional-devstack
