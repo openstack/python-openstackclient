@@ -1016,46 +1016,13 @@ class TestUnsetSubnetPool(TestSubnetPool):
     def setUp(self):
         super(TestUnsetSubnetPool, self).setUp()
         self._subnetpool = network_fakes.FakeSubnetPool.create_one_subnet_pool(
-            {'prefixes': ['10.0.10.0/24', '10.1.10.0/24',
-                          '10.2.10.0/24'],
-             'tags': ['green', 'red']})
+            {'tags': ['green', 'red']})
         self.network.find_subnet_pool = mock.Mock(
             return_value=self._subnetpool)
         self.network.update_subnet_pool = mock.Mock(return_value=None)
         self.network.set_tags = mock.Mock(return_value=None)
         # Get the command object to test
         self.cmd = subnet_pool.UnsetSubnetPool(self.app, self.namespace)
-
-    def test_unset_subnet_pool(self):
-        arglist = [
-            '--pool-prefix', '10.0.10.0/24',
-            '--pool-prefix', '10.1.10.0/24',
-            self._subnetpool.name,
-        ]
-        verifylist = [
-            ('prefixes', ['10.0.10.0/24', '10.1.10.0/24']),
-            ('subnet_pool', self._subnetpool.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = self.cmd.take_action(parsed_args)
-        attrs = {'prefixes': ['10.2.10.0/24']}
-        self.network.update_subnet_pool.assert_called_once_with(
-            self._subnetpool, **attrs)
-        self.assertIsNone(result)
-
-    def test_unset_subnet_pool_prefix_not_existent(self):
-        arglist = [
-            '--pool-prefix', '10.100.1.1/25',
-            self._subnetpool.name,
-        ]
-        verifylist = [
-            ('prefixes', ['10.100.1.1/25']),
-            ('subnet_pool', self._subnetpool.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action,
-                          parsed_args)
 
     def _test_unset_tags(self, with_tags=True):
         if with_tags:

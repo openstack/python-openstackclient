@@ -292,14 +292,8 @@ Unset subnet pool properties
 .. code:: bash
 
     openstack subnet pool unset
-        [--pool-prefix <pool-prefix> [...]]
         [--tag <tag> | --all-tag]
         <subnet-pool>
-
-.. option:: --pool-prefix <pool-prefix>
-
-    Remove subnet pool prefixes (in CIDR notation).
-    (repeat option to unset multiple prefixes).
 
 .. option:: --tag <tag>
 
