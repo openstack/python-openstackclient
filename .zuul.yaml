@@ -192,6 +192,8 @@
     templates:
       - openstackclient-plugin-jobs
       - osc-tox-unit-tips
+      - openstack-cover-jobs
+      - openstack-lower-constraints-jobs
       - openstack-python-jobs
       - openstack-python35-jobs
       - openstack-python36-jobs
@@ -213,11 +215,6 @@
             # The functional-tips job only tests the latest and shouldn't be run
             # on the stable branches
             branches: ^(?!stable)
-        - openstack-tox-lower-constraints
     gate:
       jobs:
         - osc-functional-devstack
-        - openstack-tox-lower-constraints
-    post:
-      jobs:
-        - openstack-tox-cover
