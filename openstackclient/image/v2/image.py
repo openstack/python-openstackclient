@@ -16,9 +16,11 @@
 """Image V2 Action Implementations"""
 
 import argparse
+from base64 import b64encode
 import logging
 
 from glanceclient.common import utils as gc_utils
+from openstack.image import image_signer
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -183,6 +185,22 @@ class CreateImage(command.ShowOne):
             help=_("Force image creation if volume is in use "
                    "(only meaningful with --volume)"),
         )
+        parser.add_argument(
+            '--sign-key-path',
+            metavar="<sign-key-path>",
+            default=[],
+            help=_("Sign the image using the specified private key. "
+                   "Only use in combination with --sign-cert-id")
+        )
+        parser.add_argument(
+            '--sign-cert-id',
+            metavar="<sign-cert-id>",
+            default=[],
+            help=_("The specified certificate UUID is a reference to "
+                   "the certificate in the key manager that corresponds "
+                   "to the public key and is used for signature validation. "
+                   "Only use in combination with --sign-key-path")
+        )
         protected_group = parser.add_mutually_exclusive_group()
         protected_group.add_argument(
             "--protected",
@@ -334,6 +352,46 @@ class CreateImage(command.ShowOne):
                 parsed_args.owner,
                 parsed_args.project_domain,
             ).id
+
+        # sign an image using a given local private key file
+        if parsed_args.sign_key_path or parsed_args.sign_cert_id:
+            if not parsed_args.file:
+                msg = (_("signing an image requires the --file option, "
+                         "passing files via stdin when signing is not "
+                         "supported."))
+                raise exceptions.CommandError(msg)
+            if (len(parsed_args.sign_key_path) < 1 or
+                    len(parsed_args.sign_cert_id) < 1):
+                msg = (_("'sign-key-path' and 'sign-cert-id' must both be "
+                         "specified when attempting to sign an image."))
+                raise exceptions.CommandError(msg)
+            else:
+                sign_key_path = parsed_args.sign_key_path
+                sign_cert_id = parsed_args.sign_cert_id
+                signer = image_signer.ImageSigner()
+                try:
+                    pw = utils.get_password(
+                        self.app.stdin,
+                        prompt=("Please enter private key password, leave "
+                                "empty if none: "),
+                        confirm=False)
+                    if not pw or len(pw) < 1:
+                        pw = None
+                    signer.load_private_key(
+                        sign_key_path,
+                        password=pw)
+                except Exception:
+                    msg = (_("Error during sign operation: private key could "
+                             "not be loaded."))
+                    raise exceptions.CommandError(msg)
+
+                signature = signer.generate_signature(fp)
+                signature_b64 = b64encode(signature)
+                kwargs['img_signature'] = signature_b64
+                kwargs['img_signature_certificate_uuid'] = sign_cert_id
+                kwargs['img_signature_hash_method'] = signer.hash_method
+                if signer.padding_method:
+                    kwargs['img_signature_key_type'] = signer.padding_method
 
         # If a volume is specified.
         if parsed_args.volume:
