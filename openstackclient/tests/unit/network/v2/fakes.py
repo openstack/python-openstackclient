@@ -1816,3 +1816,80 @@ class FakeQuota(object):
             info=copy.deepcopy(quota_attrs),
             loaded=True)
         return quota
+
+
+class FakeFloatingIPPortForwarding(object):
+    """"Fake one or more Port forwarding"""
+
+    @staticmethod
+    def create_one_port_forwarding(attrs=None):
+        """Create a fake Port Forwarding.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with name, id, etc.
+        """
+        attrs = attrs or {}
+        floatingip_id = (
+            attrs.get('floatingip_id') or'floating-ip-id-' + uuid.uuid4().hex
+        )
+        # Set default attributes.
+        port_forwarding_attrs = {
+            'id': uuid.uuid4().hex,
+            'floatingip_id': floatingip_id,
+            'internal_port_id': 'internal-port-id-' + uuid.uuid4().hex,
+            'internal_ip_address': '192.168.1.2',
+            'internal_port': randint(1, 65535),
+            'external_port': randint(1, 65535),
+            'protocol': 'tcp',
+        }
+
+        # Overwrite default attributes.
+        port_forwarding_attrs.update(attrs)
+
+        port_forwarding = fakes.FakeResource(
+            info=copy.deepcopy(port_forwarding_attrs),
+            loaded=True
+        )
+        return port_forwarding
+
+    @staticmethod
+    def create_port_forwardings(attrs=None, count=2):
+        """Create multiple fake Port Forwarding.
+
+          :param Dictionary attrs:
+              A dictionary with all attributes
+          :param int count:
+              The number of Port Forwarding rule to fake
+          :return:
+              A list of FakeResource objects faking the Port Forwardings
+          """
+        port_forwardings = []
+        for i in range(0, count):
+            port_forwardings.append(
+                FakeFloatingIPPortForwarding.create_one_port_forwarding(attrs)
+            )
+        return port_forwardings
+
+    @staticmethod
+    def get_port_forwardings(port_forwardings=None, count=2):
+        """Get a list of faked Port Forwardings.
+
+        If port forwardings list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List port forwardings:
+            A list of FakeResource objects faking port forwardings
+        :param int count:
+            The number of Port Forwardings to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            Port Forwardings
+        """
+        if port_forwardings is None:
+            port_forwardings = (
+                FakeFloatingIPPortForwarding.create_port_forwardings(count)
+            )
+
+        return mock.Mock(side_effect=port_forwardings)
