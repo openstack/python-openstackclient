@@ -85,7 +85,7 @@ class ProjectPurge(command.Command):
         # servers
         try:
             compute_client = self.app.client_manager.compute
-            search_opts = {'tenant_id': project_id}
+            search_opts = {'tenant_id': project_id, 'all_tenants': True}
             data = compute_client.servers.list(search_opts=search_opts)
             self.delete_objects(
                 compute_client.servers.delete, data, 'server', dry_run)
@@ -110,7 +110,7 @@ class ProjectPurge(command.Command):
 
         # volumes, snapshots, backups
         volume_client = self.app.client_manager.volume
-        search_opts = {'project_id': project_id}
+        search_opts = {'project_id': project_id, 'all_tenants': True}
         try:
             data = volume_client.volume_snapshots.list(search_opts=search_opts)
             self.delete_objects(
