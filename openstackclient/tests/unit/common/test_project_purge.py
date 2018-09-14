@@ -117,10 +117,11 @@ class TestProjectPurge(TestProjectPurgeInit):
         self.projects_mock.get.assert_called_once_with(self.project.id)
         self.projects_mock.delete.assert_called_once_with(self.project.id)
         self.servers_mock.list.assert_called_once_with(
-            search_opts={'tenant_id': self.project.id})
+            search_opts={'tenant_id': self.project.id, 'all_tenants': True})
         kwargs = {'filters': {'owner': self.project.id}}
         self.images_mock.list.assert_called_once_with(**kwargs)
-        volume_search_opts = {'project_id': self.project.id}
+        volume_search_opts = {'project_id': self.project.id,
+                              'all_tenants': True}
         self.volumes_mock.list.assert_called_once_with(
             search_opts=volume_search_opts)
         self.snapshots_mock.list.assert_called_once_with(
@@ -152,10 +153,11 @@ class TestProjectPurge(TestProjectPurgeInit):
         self.projects_mock.get.assert_called_once_with(self.project.id)
         self.projects_mock.delete.assert_not_called()
         self.servers_mock.list.assert_called_once_with(
-            search_opts={'tenant_id': self.project.id})
+            search_opts={'tenant_id': self.project.id, 'all_tenants': True})
         kwargs = {'filters': {'owner': self.project.id}}
         self.images_mock.list.assert_called_once_with(**kwargs)
-        volume_search_opts = {'project_id': self.project.id}
+        volume_search_opts = {'project_id': self.project.id,
+                              'all_tenants': True}
         self.volumes_mock.list.assert_called_once_with(
             search_opts=volume_search_opts)
         self.snapshots_mock.list.assert_called_once_with(
@@ -187,10 +189,11 @@ class TestProjectPurge(TestProjectPurgeInit):
         self.projects_mock.get.assert_called_once_with(self.project.id)
         self.projects_mock.delete.assert_not_called()
         self.servers_mock.list.assert_called_once_with(
-            search_opts={'tenant_id': self.project.id})
+            search_opts={'tenant_id': self.project.id, 'all_tenants': True})
         kwargs = {'filters': {'owner': self.project.id}}
         self.images_mock.list.assert_called_once_with(**kwargs)
-        volume_search_opts = {'project_id': self.project.id}
+        volume_search_opts = {'project_id': self.project.id,
+                              'all_tenants': True}
         self.volumes_mock.list.assert_called_once_with(
             search_opts=volume_search_opts)
         self.snapshots_mock.list.assert_called_once_with(
@@ -223,10 +226,11 @@ class TestProjectPurge(TestProjectPurgeInit):
         self.projects_mock.get.assert_not_called()
         self.projects_mock.delete.assert_called_once_with(self.project.id)
         self.servers_mock.list.assert_called_once_with(
-            search_opts={'tenant_id': self.project.id})
+            search_opts={'tenant_id': self.project.id, 'all_tenants': True})
         kwargs = {'filters': {'owner': self.project.id}}
         self.images_mock.list.assert_called_once_with(**kwargs)
-        volume_search_opts = {'project_id': self.project.id}
+        volume_search_opts = {'project_id': self.project.id,
+                              'all_tenants': True}
         self.volumes_mock.list.assert_called_once_with(
             search_opts=volume_search_opts)
         self.snapshots_mock.list.assert_called_once_with(
@@ -259,10 +263,11 @@ class TestProjectPurge(TestProjectPurgeInit):
         self.projects_mock.get.assert_called_once_with(self.project.id)
         self.projects_mock.delete.assert_called_once_with(self.project.id)
         self.servers_mock.list.assert_called_once_with(
-            search_opts={'tenant_id': self.project.id})
+            search_opts={'tenant_id': self.project.id, 'all_tenants': True})
         kwargs = {'filters': {'owner': self.project.id}}
         self.images_mock.list.assert_called_once_with(**kwargs)
-        volume_search_opts = {'project_id': self.project.id}
+        volume_search_opts = {'project_id': self.project.id,
+                              'all_tenants': True}
         self.volumes_mock.list.assert_called_once_with(
             search_opts=volume_search_opts)
         self.snapshots_mock.list.assert_called_once_with(
@@ -295,10 +300,11 @@ class TestProjectPurge(TestProjectPurgeInit):
         self.projects_mock.get.assert_called_once_with(self.project.id)
         self.projects_mock.delete.assert_called_once_with(self.project.id)
         self.servers_mock.list.assert_called_once_with(
-            search_opts={'tenant_id': self.project.id})
+            search_opts={'tenant_id': self.project.id, 'all_tenants': True})
         kwargs = {'filters': {'owner': self.project.id}}
         self.images_mock.list.assert_called_once_with(**kwargs)
-        volume_search_opts = {'project_id': self.project.id}
+        volume_search_opts = {'project_id': self.project.id,
+                              'all_tenants': True}
         self.volumes_mock.list.assert_called_once_with(
             search_opts=volume_search_opts)
         self.snapshots_mock.list.assert_called_once_with(
