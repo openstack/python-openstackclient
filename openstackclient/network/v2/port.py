@@ -259,7 +259,7 @@ def _add_updatable_args(parser):
                  'normal', 'baremetal', 'virtio-forwarder'],
         help=_("VNIC type for this port (direct | direct-physical | "
                "macvtap | normal | baremetal | virtio-forwarder, "
-               " default: normal)")
+               "default: normal)")
     )
     # NOTE(dtroyer): --host-id is deprecated in Mar 2016.  Do not
     #                remove before 3.x release or Mar 2017.
@@ -669,7 +669,7 @@ class SetPort(command.Command):
         parser.add_argument(
             '--no-binding-profile',
             action='store_true',
-            help=_("Clear existing information of binding:profile."
+            help=_("Clear existing information of binding:profile. "
                    "Specify both --binding-profile and --no-binding-profile "
                    "to overwrite the current binding:profile information.")
         )
@@ -723,9 +723,9 @@ class SetPort(command.Command):
             '--no-allowed-address',
             dest='no_allowed_address_pair',
             action='store_true',
-            help=_("Clear existing allowed-address pairs associated"
-                   "with this port."
-                   "(Specify both --allowed-address and --no-allowed-address"
+            help=_("Clear existing allowed-address pairs associated "
+                   "with this port. "
+                   "(Specify both --allowed-address and --no-allowed-address "
                    "to overwrite the current allowed-address pairs)")
         )
         parser.add_argument(
@@ -843,7 +843,7 @@ class UnsetPort(command.Command):
             '--binding-profile',
             metavar='<binding-profile-key>',
             action='append',
-            help=_("Desired key which should be removed from binding:profile"
+            help=_("Desired key which should be removed from binding:profile "
                    "(repeat option to unset multiple binding:profile data)"))
         parser.add_argument(
             '--security-group',
@@ -867,8 +867,8 @@ class UnsetPort(command.Command):
             required_keys=['ip-address'],
             optional_keys=['mac-address'],
             help=_("Desired allowed-address pair which should be removed "
-                   "from this port: ip-address=<ip-address> "
-                   "[,mac-address=<mac-address>] (repeat option to set "
+                   "from this port: ip-address=<ip-address>"
+                   "[,mac-address=<mac-address>] (repeat option to unset "
                    "multiple allowed-address pairs)")
         )
         parser.add_argument(

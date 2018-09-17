@@ -611,10 +611,10 @@ class SetRouter(command.Command):
         elif parsed_args.no_route or parsed_args.clear_routes:
             attrs['routes'] = []
         if (parsed_args.disable_snat or parsed_args.enable_snat or
-           parsed_args.fixed_ip) and not parsed_args.external_gateway:
-                msg = (_("You must specify '--external-gateway' in order"
-                         "to update the SNAT or fixed-ip values"))
-                raise exceptions.CommandError(msg)
+                parsed_args.fixed_ip) and not parsed_args.external_gateway:
+            msg = (_("You must specify '--external-gateway' in order "
+                     "to update the SNAT or fixed-ip values"))
+            raise exceptions.CommandError(msg)
         if parsed_args.external_gateway:
             gateway_info = {}
             network = client.find_network(
