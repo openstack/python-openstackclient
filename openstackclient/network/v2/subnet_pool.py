@@ -191,8 +191,9 @@ class CreateSubnetPool(command.ShowOne):
             '--default-quota',
             type=int,
             metavar='<num-ip-addresses>',
-            help=_("Set default quota for subnet pool as the number of"
-                   "IP addresses allowed in a subnet")),
+            help=_("Set default per-project quota for this subnet pool "
+                   "as the number of IP addresses that can be allocated "
+                   "from the subnet pool")),
         _tag.add_tag_option_to_parser_for_create(parser, _('subnet pool'))
         return parser
 
@@ -389,8 +390,9 @@ class SetSubnetPool(command.Command):
             '--default-quota',
             type=int,
             metavar='<num-ip-addresses>',
-            help=_("Set default quota for subnet pool as the number of"
-                   "IP addresses allowed in a subnet")),
+            help=_("Set default per-project quota for this subnet pool "
+                   "as the number of IP addresses that can be allocated "
+                   "from the subnet pool")),
         _tag.add_tag_option_to_parser_for_set(parser, _('subnet pool'))
 
         return parser

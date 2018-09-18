@@ -77,8 +77,8 @@ Create subnet pool
 
 .. option:: --default-quota <num-ip-addresses>
 
-    Set default quota for subnet pool as the number of
-    IP addresses allowed in a subnet
+    Set default per-project quota for this subnet pool as the number of
+    IP addresses that can be allocated from the subnet pool
 
 .. option:: --tag <tag>
 
@@ -250,8 +250,8 @@ Set subnet pool properties
 
 .. option:: --default-quota <num-ip-addresses>
 
-    Set default quota for subnet pool as the number of
-    IP addresses allowed in a subnet
+    Set default per-project quota for this subnet pool as the number of
+    IP addresses that can be allocated from the subnet pool
 
 .. option:: --tag <tag>
 
