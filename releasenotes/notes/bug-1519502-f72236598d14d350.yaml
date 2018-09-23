@@ -9,4 +9,4 @@ features:
 upgrade:
   - Output of command ``ip floating list`` for nova network has been changed.
     And it is different from the output of neutron network.
-    [Ref `<http://docs.openstack.org/developer/python-openstackclient/backwards-incompatible.html>`_]
+    [Ref `<https://docs.openstack.org/python-openstackclient/latest/cli/backwards-incompatible.html>`_]
