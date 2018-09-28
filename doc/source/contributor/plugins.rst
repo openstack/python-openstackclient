@@ -53,7 +53,6 @@ The following is a list of projects that are an OpenStackClient plugin.
 The following is a list of projects that are not an OpenStackClient plugin.
 
 - python-magnumclient
-- python-ceilometerclient
 - python-monascaclient
 - python-solumclient
 
