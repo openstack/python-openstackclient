@@ -186,7 +186,6 @@ class BaseAPI(KeystoneSession):
             ret = self._request(
                 'POST',
                 path,
-                # service=self.service_type,
                 json=body,
                 params=params,
             )
@@ -194,7 +193,6 @@ class BaseAPI(KeystoneSession):
             ret = self._request(
                 'GET',
                 path,
-                # service=self.service_type,
                 params=params,
             )
         try:
