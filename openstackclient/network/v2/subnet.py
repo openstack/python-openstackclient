@@ -247,6 +247,7 @@ class CreateSubnet(command.ShowOne):
         parser = super(CreateSubnet, self).get_parser(prog_name)
         parser.add_argument(
             'name',
+            metavar='<name>',
             help=_("New subnet name")
         )
         parser.add_argument(
