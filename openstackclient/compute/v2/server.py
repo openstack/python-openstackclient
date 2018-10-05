@@ -1518,6 +1518,13 @@ class RebuildServer(command.ShowOne):
             help=_("Set the password on the rebuilt instance"),
         )
         parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            help=_('Set a property on the rebuilt instance '
+                   '(repeat option to set multiple values)'),
+        )
+        parser.add_argument(
             '--wait',
             action='store_true',
             help=_('Wait for rebuild to complete'),
@@ -1542,7 +1549,11 @@ class RebuildServer(command.ShowOne):
             'image', {}).get('id')
         image = utils.find_resource(image_client.images, image_id)
 
-        server = server.rebuild(image, parsed_args.password)
+        kwargs = {}
+        if parsed_args.property:
+            kwargs['meta'] = parsed_args.property
+
+        server = server.rebuild(image, parsed_args.password, **kwargs)
         if parsed_args.wait:
             if utils.wait_for_status(
                 compute_client.servers.get,

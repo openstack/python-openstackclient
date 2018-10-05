@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--property`` option to the ``server rebuild`` command, to provide
+    the ability to specify properties of the rebuilt instance.
+    [Story `2003979 <https://storyboard.openstack.org/#!/story/2003979>`_]

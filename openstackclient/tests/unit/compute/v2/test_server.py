@@ -2496,6 +2496,27 @@ class TestServerRebuild(TestServer):
         self.images_mock.get.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
 
+    def test_rebuild_with_property(self):
+        arglist = [
+            self.server.id,
+            '--property', 'key1=value1',
+            '--property', 'key2=value2'
+        ]
+        expected_property = {'key1': 'value1', 'key2': 'value2'}
+        verifylist = [
+            ('server', self.server.id),
+            ('property', expected_property)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Get the command object to test
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.images_mock.get.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(
+            self.image, None, meta=expected_property)
+
 
 class TestServerRemoveFixedIP(TestServer):
 
