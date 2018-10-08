@@ -71,3 +71,98 @@ class TestShowVolumeCapability(volume_fakes.TestVolume):
         self.capability_mock.get.assert_called_with(
             'fake',
         )
+
+
+class TestListVolumePool(volume_fakes.TestVolume):
+    """Tests for volume backend pool listing."""
+
+    # The pool to be listed
+    pools = volume_fakes.FakePool.create_one_pool()
+
+    def setUp(self):
+        super(TestListVolumePool, self).setUp()
+
+        self.pool_mock = self.app.client_manager.volume.pools
+        self.pool_mock.list.return_value = [self.pools]
+
+        # Get the command object to test
+        self.cmd = volume_backend.ListPool(self.app, None)
+
+    def test_pool_list(self):
+        arglist = []
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        expected_columns = [
+            'Name',
+        ]
+
+        # confirming if all expected columns are present in the result.
+        self.assertEqual(expected_columns, columns)
+
+        datalist = ((
+            self.pools.name,
+        ), )
+
+        # confirming if all expected values are present in the result.
+        self.assertEqual(datalist, tuple(data))
+
+        # checking if proper call was made to list pools
+        self.pool_mock.list.assert_called_with(
+            detailed=False,
+        )
+
+        # checking if long columns are present in output
+        self.assertNotIn("total_volumes", columns)
+        self.assertNotIn("storage_protocol", columns)
+
+    def test_service_list_with_long_option(self):
+        arglist = [
+            '--long'
+        ]
+        verifylist = [
+            ('long', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        expected_columns = [
+            'Name',
+            'Protocol',
+            'Thick',
+            'Thin',
+            'Volumes',
+            'Capacity',
+            'Allocated',
+            'Max Over Ratio',
+        ]
+
+        # confirming if all expected columns are present in the result.
+        self.assertEqual(expected_columns, columns)
+
+        datalist = ((
+            self.pools.name,
+            self.pools.storage_protocol,
+            self.pools.thick_provisioning_support,
+            self.pools.thin_provisioning_support,
+            self.pools.total_volumes,
+            self.pools.total_capacity_gb,
+            self.pools.allocated_capacity_gb,
+            self.pools.max_over_subscription_ratio,
+        ), )
+
+        # confirming if all expected values are present in the result.
+        self.assertEqual(datalist, tuple(data))
+
+        self.pool_mock.list.assert_called_with(
+            detailed=True,
+        )
