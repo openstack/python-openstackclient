@@ -156,6 +156,7 @@ referring to both Compute and Volume quotas.
 * ``user role``: (**Identity**) roles assigned to a user
 * ``volume``: (**Volume**) block volumes
 * ``volume backup``: (**Volume**) backup for volumes
+* ``volume backend``: (**volume**) volume backend storage
 * ``volume host``: (**Volume**) the physical computer for volumes
 * ``volume qos``: (**Volume**) quality-of-service (QoS) specification for volumes
 * ``volume snapshot``: (**Volume**) a point-in-time copy of a volume

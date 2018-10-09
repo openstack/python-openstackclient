@@ -32,7 +32,7 @@ extra-specs-list,volume type list --long,Lists current volume types and extra sp
 failover-host,volume host failover,Failover a replicating cinder-volume host.
 force-delete,volume delete --force,"Attempts force-delete of volume, regardless of state."
 freeze-host,volume host set --disable,Freeze and disable the specified cinder-volume host.
-get-capabilities,,Show backend volume stats and properties. Admin only.
+get-capabilities,volume backend capability show,Show capabilities of a volume backend. Admin only.
 get-pools,,Show pool information for backends. Admin only.
 image-metadata,volume set --image-property,Sets or deletes volume image metadata.
 image-metadata-show,volume show,Shows volume image metadata.

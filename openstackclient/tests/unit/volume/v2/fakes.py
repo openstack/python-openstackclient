@@ -193,6 +193,65 @@ class FakeService(object):
         return services
 
 
+class FakeCapability(object):
+    """Fake capability."""
+
+    @staticmethod
+    def create_one_capability(attrs=None):
+        """Create a fake volume backend capability.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes of the Capabilities.
+        :return:
+            A FakeResource object with capability name and attrs.
+        """
+        # Set default attribute
+        capability_info = {
+            "namespace": "OS::Storage::Capabilities::fake",
+            "vendor_name": "OpenStack",
+            "volume_backend_name": "lvmdriver-1",
+            "pool_name": "pool",
+            "driver_version": "2.0.0",
+            "storage_protocol": "iSCSI",
+            "display_name": "Capabilities of Cinder LVM driver",
+            "description": "Blah, blah.",
+            "visibility": "public",
+            "replication_targets": [],
+            "properties": {
+                "compression": {
+                    "title": "Compression",
+                    "description": "Enables compression.",
+                    "type": "boolean"
+                },
+                "qos": {
+                    "title": "QoS",
+                    "description": "Enables QoS.",
+                    "type": "boolean"
+                },
+                "replication": {
+                    "title": "Replication",
+                    "description": "Enables replication.",
+                    "type": "boolean"
+                },
+                "thin_provisioning": {
+                    "title": "Thin Provisioning",
+                    "description": "Sets thin provisioning.",
+                    "type": "boolean"
+                }
+            }
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        capability_info.update(attrs or {})
+
+        capability = fakes.FakeResource(
+            None,
+            capability_info,
+            loaded=True)
+
+        return capability
+
+
 class FakeVolumeClient(object):
 
     def __init__(self, **kwargs):
@@ -233,6 +292,8 @@ class FakeVolumeClient(object):
         self.cgsnapshots.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
+        self.capabilities = mock.Mock()
+        self.capabilities.resource_class = fakes.FakeResource(None, {})
 
 
 class TestVolume(utils.TestCommand):
