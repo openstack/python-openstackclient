@@ -199,7 +199,7 @@ class ListEndpoint(command.Lister):
             metavar='<project>',
             help=_('Project to list filters (name or ID)'),
         )
-        common.add_project_domain_option_to_parser(list_group)
+        common.add_project_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
