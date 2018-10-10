@@ -212,6 +212,9 @@ class CreateVolume(command.ShowOne):
             raise exceptions.CommandError(
                 _("ERROR: --user is deprecated, please use"
                   " --os-username instead."))
+        if parsed_args.multi_attach:
+            LOG.warning(_("'--multi-attach' option is no longer supported by "
+                          "the block storage service."))
 
         volume = volume_client.volumes.create(
             size=size,
@@ -224,7 +227,6 @@ class CreateVolume(command.ShowOne):
             imageRef=image,
             source_volid=source_volume,
             consistencygroup_id=consistency_group,
-            multiattach=parsed_args.multi_attach,
             scheduler_hints=parsed_args.hint,
         )
 
