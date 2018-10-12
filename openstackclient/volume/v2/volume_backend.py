@@ -12,7 +12,7 @@
 #   under the License.
 #
 
-"""Capability action implementations"""
+"""Storage backend action implementations"""
 
 from osc_lib.command import command
 from osc_lib import utils
@@ -59,3 +59,55 @@ class ShowCapability(command.Lister):
                 (utils.get_dict_properties(
                     s, columns,
                 ) for s in print_data))
+
+
+class ListPool(command.Lister):
+    _description = _("List pool command")
+
+    def get_parser(self, prog_name):
+        parser = super(ListPool, self).get_parser(prog_name)
+        parser.add_argument(
+            "--long",
+            action="store_true",
+            default=False,
+            help=_("Show detailed information about pools.")
+        )
+        # TODO(smcginnis): Starting with Cinder microversion 3.33, user is also
+        # able to pass in --filters with a <key>=<value> pair to filter on.
+        return parser
+
+    def take_action(self, parsed_args):
+        volume_client = self.app.client_manager.volume
+
+        if parsed_args.long:
+            columns = [
+                'name',
+                'storage_protocol',
+                'thick_provisioning_support',
+                'thin_provisioning_support',
+                'total_volumes',
+                'total_capacity_gb',
+                'allocated_capacity_gb',
+                'max_over_subscription_ratio',
+            ]
+            headers = [
+                'Name',
+                'Protocol',
+                'Thick',
+                'Thin',
+                'Volumes',
+                'Capacity',
+                'Allocated',
+                'Max Over Ratio'
+            ]
+        else:
+            columns = [
+                'Name',
+            ]
+            headers = columns
+
+        data = volume_client.pools.list(detailed=parsed_args.long)
+        return (headers,
+                (utils.get_item_properties(
+                    s, columns,
+                ) for s in data))

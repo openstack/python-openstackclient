@@ -252,6 +252,41 @@ class FakeCapability(object):
         return capability
 
 
+class FakePool(object):
+    """Fake Pools."""
+
+    @staticmethod
+    def create_one_pool(attrs=None):
+        """Create a fake pool.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes of the pool
+        :return:
+            A FakeResource object with pool name and attrs.
+        """
+        # Set default attribute
+        pool_info = {
+            'name': 'host@lvmdriver-1#lvmdriver-1',
+            'storage_protocol': 'iSCSI',
+            'thick_provisioning_support': False,
+            'thin_provisioning_support': True,
+            'total_volumes': 99,
+            'total_capacity_gb': 1000.00,
+            'allocated_capacity_gb': 100,
+            'max_over_subscription_ratio': 200.0,
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        pool_info.update(attrs or {})
+
+        pool = fakes.FakeResource(
+            None,
+            pool_info,
+            loaded=True)
+
+        return pool
+
+
 class FakeVolumeClient(object):
 
     def __init__(self, **kwargs):
@@ -294,6 +329,8 @@ class FakeVolumeClient(object):
         self.management_url = kwargs['endpoint']
         self.capabilities = mock.Mock()
         self.capabilities.resource_class = fakes.FakeResource(None, {})
+        self.pools = mock.Mock()
+        self.pools.resource_class = fakes.FakeResource(None, {})
 
 
 class TestVolume(utils.TestCommand):
