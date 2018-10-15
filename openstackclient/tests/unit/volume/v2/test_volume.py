@@ -131,7 +131,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            multiattach=False,
             scheduler_hints=None,
         )
 
@@ -149,7 +148,6 @@ class TestVolumeCreate(TestVolume):
             '--availability-zone', self.new_volume.availability_zone,
             '--consistency-group', consistency_group.id,
             '--hint', 'k=v',
-            '--multi-attach',
             self.new_volume.name,
         ]
         verifylist = [
@@ -159,7 +157,6 @@ class TestVolumeCreate(TestVolume):
             ('availability_zone', self.new_volume.availability_zone),
             ('consistency_group', consistency_group.id),
             ('hint', {'k': 'v'}),
-            ('multi_attach', True),
             ('name', self.new_volume.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -180,7 +177,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=consistency_group.id,
-            multiattach=True,
             scheduler_hints={'k': 'v'},
         )
 
@@ -251,7 +247,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            multiattach=False,
             scheduler_hints=None,
         )
 
@@ -290,7 +285,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=image.id,
             source_volid=None,
             consistencygroup_id=None,
-            multiattach=False,
             scheduler_hints=None,
         )
 
@@ -329,7 +323,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=image.id,
             source_volid=None,
             consistencygroup_id=None,
-            multiattach=False,
             scheduler_hints=None,
         )
 
@@ -367,7 +360,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            multiattach=False,
             scheduler_hints=None,
         )
 
@@ -406,7 +398,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            multiattach=False,
             scheduler_hints=None,
         )
 
@@ -449,7 +440,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            multiattach=False,
             scheduler_hints=None,
         )
 
@@ -501,7 +491,6 @@ class TestVolumeCreate(TestVolume):
             imageRef=None,
             source_volid=None,
             consistencygroup_id=None,
-            multiattach=False,
             scheduler_hints=None,
         )
 

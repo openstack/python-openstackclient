@@ -37,13 +37,20 @@ def make_client(instance):
 
     # Defer client imports until we actually need them
     from cinderclient import extension
-    from cinderclient.v1.contrib import list_extensions
-    from cinderclient.v1 import volume_snapshots
-    from cinderclient.v1 import volumes
+    from cinderclient.v3.contrib import list_extensions
+    from cinderclient.v3 import volume_snapshots
+    from cinderclient.v3 import volumes
 
-    # Monkey patch for v1 cinderclient
-    volumes.Volume.NAME_ATTR = 'display_name'
-    volume_snapshots.Snapshot.NAME_ATTR = 'display_name'
+    # Try a small import to check if cinderclient v1 is supported
+    try:
+        from cinderclient.v1 import services  # noqa
+    except Exception:
+        del API_VERSIONS['1']
+
+    if instance._api_version[API_NAME] == '1':
+        # Monkey patch for v1 cinderclient
+        volumes.Volume.NAME_ATTR = 'display_name'
+        volume_snapshots.Snapshot.NAME_ATTR = 'display_name'
 
     volume_client = utils.get_client_class(
         API_NAME,

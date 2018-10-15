@@ -15,8 +15,8 @@
 
 import mock
 
-from cinderclient.v1 import volume_snapshots
-from cinderclient.v1 import volumes
+from cinderclient.v3 import volume_snapshots
+from cinderclient.v3 import volumes
 from osc_lib import exceptions
 from osc_lib import utils
 
