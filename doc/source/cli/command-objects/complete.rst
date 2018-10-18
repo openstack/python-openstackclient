@@ -11,8 +11,11 @@ Typical usage for this command is::
 
   openstack complete | sudo tee /etc/bash_completion.d/osc.bash_completion > /dev/null
 
-If installing ``python-openstackclient`` from a package (``apt-get`` or ``yum``),
-then this command will likely be run for you.
+It is highly recommended to install ``python-openstackclient`` from a package
+(``apt-get`` or ``yum``). In some distributions the package ``bash-completion`` is shipped
+as dependency, and the `openstack complete` command will be run as a post-install action,
+however not every distribution include this dependency and you might need to install
+``bash-completion`` package to enable autocomplete feature.
 
 complete
 --------
