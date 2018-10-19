@@ -116,6 +116,11 @@ class ListLimit(command.Lister):
             metavar='<region>',
             help=_('Region for the registered limit to affect.'),
         )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_('List resource limits associated with project'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -131,11 +136,17 @@ class ListLimit(command.Lister):
             region = utils.find_resource(
                 identity_client.regions, parsed_args.region
             )
+        project = None
+        if parsed_args.project:
+            project = utils.find_resource(
+                identity_client.projects, parsed_args.project
+            )
 
         limits = identity_client.limits.list(
             service=service,
             resource_name=parsed_args.resource_name,
-            region=region
+            region=region,
+            project=project
         )
 
         columns = (

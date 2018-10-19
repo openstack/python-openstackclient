@@ -362,7 +362,8 @@ class TestLimitList(TestLimit):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.limit_mock.list.assert_called_with(
-            service=None, resource_name=None, region=None
+            service=None, resource_name=None, region=None,
+            project=None
         )
 
         collist = (
