@@ -1700,3 +1700,26 @@ class FakeQuota(object):
             info=copy.deepcopy(quota_attrs),
             loaded=True)
         return quota
+
+    @staticmethod
+    def create_one_net_detailed_quota(attrs=None):
+        """Create one quota"""
+        attrs = attrs or {}
+
+        quota_attrs = {
+            'floating_ips': {'used': 0, 'reserved': 0, 'limit': 20},
+            'networks': {'used': 0, 'reserved': 0, 'limit': 25},
+            'ports': {'used': 0, 'reserved': 0, 'limit': 11},
+            'rbac_policies': {'used': 0, 'reserved': 0, 'limit': 15},
+            'routers': {'used': 0, 'reserved': 0, 'limit': 40},
+            'security_groups': {'used': 0, 'reserved': 0, 'limit': 10},
+            'security_group_rules': {'used': 0, 'reserved': 0, 'limit': 100},
+            'subnets': {'used': 0, 'reserved': 0, 'limit': 20},
+            'subnet_pools': {'used': 0, 'reserved': 0, 'limit': 30}}
+
+        quota_attrs.update(attrs)
+
+        quota = fakes.FakeResource(
+            info=copy.deepcopy(quota_attrs),
+            loaded=True)
+        return quota

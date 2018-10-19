@@ -31,6 +31,38 @@ class QuotaTests(base.TestCase):
         cls.PROJECT_NAME =\
             cls.get_openstack_configuration_value('auth.project_name')
 
+    def test_quota_list_details_compute(self):
+        expected_headers = ["Resource", "In Use", "Reserved", "Limit"]
+        cmd_output = json.loads(self.openstack(
+            'quota list -f json --detail --compute'
+        ))
+        self.assertIsNotNone(cmd_output)
+        resources = []
+        for row in cmd_output:
+            row_headers = [str(r) for r in row.keys()]
+            self.assertEqual(sorted(expected_headers), sorted(row_headers))
+            resources.append(row['Resource'])
+        # Ensure that returned quota is compute quota
+        self.assertIn("instances", resources)
+        # and that there is no network quota here
+        self.assertNotIn("networks", resources)
+
+    def test_quota_list_details_network(self):
+        expected_headers = ["Resource", "In Use", "Reserved", "Limit"]
+        cmd_output = json.loads(self.openstack(
+            'quota list -f json --detail --network'
+        ))
+        self.assertIsNotNone(cmd_output)
+        resources = []
+        for row in cmd_output:
+            row_headers = [str(r) for r in row.keys()]
+            self.assertEqual(sorted(expected_headers), sorted(row_headers))
+            resources.append(row['Resource'])
+        # Ensure that returned quota is network quota
+        self.assertIn("networks", resources)
+        # and that there is no compute quota here
+        self.assertNotIn("instances", resources)
+
     def test_quota_list_network_option(self):
         if not self.haz_network:
             self.skipTest("No Network service present")

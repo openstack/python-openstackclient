@@ -1400,6 +1400,38 @@ class FakeQuota(object):
 
         return quota
 
+    @staticmethod
+    def create_one_comp_detailed_quota(attrs=None):
+        """Create one quota"""
+
+        attrs = attrs or {}
+
+        quota_attrs = {
+            'id': 'project-id-' + uuid.uuid4().hex,
+            'cores': {'reserved': 0, 'in_use': 0, 'limit': 20},
+            'fixed_ips': {'reserved': 0, 'in_use': 0, 'limit': 30},
+            'injected_files': {'reserved': 0, 'in_use': 0, 'limit': 100},
+            'injected_file_content_bytes': {
+                'reserved': 0, 'in_use': 0, 'limit': 10240},
+            'injected_file_path_bytes': {
+                'reserved': 0, 'in_use': 0, 'limit': 255},
+            'instances': {'reserved': 0, 'in_use': 0, 'limit': 50},
+            'key_pairs': {'reserved': 0, 'in_use': 0, 'limit': 20},
+            'metadata_items': {'reserved': 0, 'in_use': 0, 'limit': 10},
+            'ram': {'reserved': 0, 'in_use': 0, 'limit': 51200},
+            'server_groups': {'reserved': 0, 'in_use': 0, 'limit': 10},
+            'server_group_members': {'reserved': 0, 'in_use': 0, 'limit': 10}
+        }
+
+        quota_attrs.update(attrs)
+        quota = fakes.FakeResource(
+            info=copy.deepcopy(quota_attrs),
+            loaded=True)
+
+        quota.project_id = quota_attrs['id']
+
+        return quota
+
 
 class FakeLimits(object):
     """Fake limits"""
