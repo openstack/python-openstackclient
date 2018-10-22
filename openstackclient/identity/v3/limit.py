@@ -78,9 +78,19 @@ class CreateLimit(command.ShowOne):
         )
         region = None
         if parsed_args.region:
-            region = utils.find_resource(
-                identity_client.regions, parsed_args.region
-            )
+            val = getattr(parsed_args, 'region', None)
+            if 'None' not in val:
+                # NOTE (vishakha): Due to bug #1799153 and for any another
+                # related case where GET resource API does not support the
+                # filter by name, osc_lib.utils.find_resource() method cannot
+                # be used because that method try to fall back to list all the
+                # resource if requested resource cannot be get via name. Which
+                # ends up with NoUniqueMatch error.
+                # So osc_lib.utils.find_resource() function cannot be used for
+                # 'regions', using common_utils.get_resource() instead.
+                region = common_utils.get_resource(
+                    identity_client.regions, parsed_args.region
+                )
 
         limit = identity_client.limits.create(
             project,
@@ -136,6 +146,19 @@ class ListLimit(command.Lister):
             region = utils.find_resource(
                 identity_client.regions, parsed_args.region
             )
+            val = getattr(parsed_args, 'region', None)
+            if 'None' not in val:
+                # NOTE (vishakha): Due to bug #1799153 and for any another
+                # related case where GET resource API does not support the
+                # filter by name, osc_lib.utils.find_resource() method cannot
+                # be used because that method try to fall back to list all the
+                # resource if requested resource cannot be get via name. Which
+                # ends up with NoUniqueMatch error.
+                # So osc_lib.utils.find_resource() function cannot be used for
+                # 'regions', using common_utils.get_resource() instead.
+                region = common_utils.get_resource(
+                    identity_client.regions, parsed_args.region
+                )
         project = None
         if parsed_args.project:
             project = utils.find_resource(

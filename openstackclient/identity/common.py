@@ -68,6 +68,25 @@ def find_service(identity_client, name_type_or_id):
         raise exceptions.CommandError(msg % name_type_or_id)
 
 
+def get_resource(manager, name_type_or_id):
+    # NOTE (vishakha): Due to bug #1799153 and for any another related case
+    # where GET resource API does not support the filter by name,
+    # osc_lib.utils.find_resource() method cannot be used because that method
+    # try to fall back to list all the resource if requested resource cannot
+    # be get via name. Which ends up with NoUniqueMatch error.
+    # This new function is the replacement for osc_lib.utils.find_resource()
+    # for resources does not support GET by name.
+    # For example: identity GET /regions.
+    """Find a resource by id or name."""
+
+    try:
+        return manager.get(name_type_or_id)
+    except identity_exc.NotFound:
+        # raise NotFound exception
+        msg = _("No resource with name or id of '%s' exists")
+        raise exceptions.CommandError(msg % name_type_or_id)
+
+
 def _get_token_resource(client, resource, parsed_name, parsed_domain=None):
     """Peek into the user's auth token to get resource IDs
 
