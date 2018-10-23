@@ -55,43 +55,14 @@ class TestServiceCreate(TestService):
         # Get the command object to test
         self.cmd = service.CreateService(self.app, None)
 
-    def test_service_create_with_type_positional(self):
+    def test_service_create(self):
         arglist = [
             self.fake_service_c.type,
         ]
         verifylist = [
-            ('type_or_name', self.fake_service_c.type),
-            ('type', None),
-            ('description', None),
-            ('name', None),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # In base command class ShowOne in cliff, abstract method take_action()
-        # returns a two-part tuple with a tuple of column names and a tuple of
-        # data to be shown.
-        columns, data = self.cmd.take_action(parsed_args)
-
-        # ServiceManager.create(name, service_type, description)
-        self.services_mock.create.assert_called_with(
-            None,
-            self.fake_service_c.type,
-            None,
-        )
-
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
-
-    def test_service_create_with_type_option(self):
-        arglist = [
-            '--type', self.fake_service_c.type,
-            self.fake_service_c.name,
-        ]
-        verifylist = [
-            ('type_or_name', self.fake_service_c.name),
             ('type', self.fake_service_c.type),
-            ('description', None),
             ('name', None),
+            ('description', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -102,7 +73,7 @@ class TestServiceCreate(TestService):
 
         # ServiceManager.create(name, service_type, description)
         self.services_mock.create.assert_called_with(
-            self.fake_service_c.name,
+            None,
             self.fake_service_c.type,
             None,
         )
@@ -116,10 +87,9 @@ class TestServiceCreate(TestService):
             self.fake_service_c.type,
         ]
         verifylist = [
-            ('type_or_name', self.fake_service_c.type),
-            ('type', None),
-            ('description', None),
+            ('type', self.fake_service_c.type),
             ('name', self.fake_service_c.name),
+            ('description', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -145,10 +115,9 @@ class TestServiceCreate(TestService):
             self.fake_service_c.type,
         ]
         verifylist = [
-            ('type_or_name', self.fake_service_c.type),
-            ('type', None),
-            ('description', self.fake_service_c.description),
+            ('type', self.fake_service_c.type),
             ('name', self.fake_service_c.name),
+            ('description', self.fake_service_c.description),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

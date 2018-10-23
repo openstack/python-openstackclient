@@ -15,7 +15,6 @@
 
 """Service action implementations"""
 
-import argparse
 import logging
 
 from osc_lib.command import command
@@ -36,17 +35,11 @@ class CreateService(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(CreateService, self).get_parser(prog_name)
         parser.add_argument(
-            'type_or_name',
+            'type',
             metavar='<type>',
             help=_('New service type (compute, image, identity, volume, etc)'),
         )
-        type_or_name_group = parser.add_mutually_exclusive_group()
-        type_or_name_group.add_argument(
-            '--type',
-            metavar='<type>',
-            help=argparse.SUPPRESS,
-        )
-        type_or_name_group.add_argument(
+        parser.add_argument(
             '--name',
             metavar='<name>',
             help=_('New service name'),
@@ -61,29 +54,14 @@ class CreateService(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        type_or_name = parsed_args.type_or_name
         name = parsed_args.name
         type = parsed_args.type
-
-        # If only a single positional is present, it's a <type>.
-        # This is not currently legal so it is considered a new case.
-        if not type and not name:
-            type = type_or_name
-        # If --type option is present then positional is handled as <name>;
-        # display deprecation message.
-        elif type:
-            name = type_or_name
-            LOG.warning(_('The argument --type is deprecated, use service'
-                          ' create --name <service-name> type instead.'))
-        # If --name option is present the positional is handled as <type>.
-        # Making --type optional is new, but back-compatible
-        elif name:
-            type = type_or_name
 
         service = identity_client.services.create(
             name,
             type,
-            parsed_args.description)
+            parsed_args.description,
+        )
 
         info = {}
         info.update(service._info)

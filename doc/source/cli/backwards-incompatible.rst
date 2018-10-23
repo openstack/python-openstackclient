@@ -31,6 +31,24 @@ Release 4.0
   * Removed in: 4.0
   * Commit: https://review.opendev.org/612781
 
+3. Remove ``service create`` option ``--type``.  Service type is
+   a positional argument.
+
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/612798
+
+4. Remove ``role list`` options ``--project`` and ``--user``.
+   Use ``role assignment list`` options ``--project`` and ``--user`` instead.
+
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/612798
+
+5. Remove ``user role list`` command.
+   Use ``role assignment list`` options ``--project`` and ``--user`` instead.
+
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/612798
+
 .. 1. Change ``volume transfer request accept`` to use new option ``--auth-key``
 ..    rather than a second positional argument.
 
