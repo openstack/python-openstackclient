@@ -10,7 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from openstackclient.tests.functional.volume.v2 import test_snapshot as v2
+from openstackclient.tests.functional.volume.v2 import test_volume_snapshot as v2  # noqa
 from openstackclient.tests.functional.volume.v3 import common
 
 

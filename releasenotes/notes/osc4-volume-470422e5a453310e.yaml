@@ -1,0 +1,14 @@
+---
+upgrade:
+  - |
+    Remove deprecated ``backup`` commands.
+    Use ``volume backup`` commands instead.
+  - |
+    Remove deprecated ``snapshot`` commands.
+    Use ``volume snapshot`` commands instead.
+  - |
+    Remove deprecated ``volume create`` options ``--project``, ``--user``
+    and ``--multi-attach``.
+  - |
+    Change ``volume transfer request accept`` to use new required option
+    ``--auth-key`` rather than a second positional argument.

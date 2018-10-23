@@ -14,7 +14,6 @@
 
 """Volume v2 transfer action implementations"""
 
-import argparse
 import logging
 
 from osc_lib.command import command
@@ -39,14 +38,9 @@ class AcceptTransferRequest(command.ShowOne):
             help=_('Volume transfer request to accept (ID only)'),
         )
         parser.add_argument(
-            'old_auth_key',
-            metavar="<key>",
-            nargs="?",
-            help=argparse.SUPPRESS,
-        )
-        parser.add_argument(
             '--auth-key',
             metavar="<key>",
+            required=True,
             help=_('Volume transfer request authentication key'),
         )
         return parser
@@ -63,21 +57,6 @@ class AcceptTransferRequest(command.ShowOne):
             # Non-admin users will fail to lookup name -> ID so we just
             # move on and attempt with the user-supplied information
             transfer_request_id = parsed_args.transfer_request
-
-        # Remain backward-compatible for the previous command layout
-        # TODO(dtroyer): Remove this back-compat in 4.0 or Oct 2017
-        if not parsed_args.auth_key:
-            if parsed_args.old_auth_key:
-                # Move the old one into the correct place
-                parsed_args.auth_key = parsed_args.old_auth_key
-                self.log.warning(_(
-                    'Specifying the auth-key as a positional argument '
-                    'has been deprecated.  Please use the --auth-key '
-                    'option in the future.'
-                ))
-            else:
-                msg = _("argument --auth-key is required")
-                raise exceptions.CommandError(msg)
 
         transfer_accept = volume_client.transfers.accept(
             transfer_request_id,

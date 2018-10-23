@@ -73,12 +73,28 @@ Release 4.0
   * Removed in: 4.0
   * Commit: https://review.opendev.org/613644
 
-.. 1. Change ``volume transfer request accept`` to use new option ``--auth-key``
-..    rather than a second positional argument.
+10. Remove ``backup`` commands.
+    Use ``volume backup`` commands instead.
 
-..   * As of: 4.0
-..   * Remove in: <5.0>
-..   * Commit: <tbd>
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/612751
+
+11. Remove ``snapshot`` commands.
+    Use ``volume snapshot`` commands instead.
+
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/612751
+
+12. Remove ``volume create`` options ``--project``, ``--user``, ``--multi-attach``.
+
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/612751
+
+13. Change ``volume transfer request accept`` to use new option ``--auth-key``
+    rather than a second positional argument.
+
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/612751
 
 Release 3.12
 ------------
