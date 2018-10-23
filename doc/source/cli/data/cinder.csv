@@ -2,8 +2,8 @@ absolute-limits,limits show --absolute,Lists absolute limits for a user.
 availability-zone-list,availability zone list --volume,Lists all availability zones.
 backup-create,volume backup create,Creates a volume backup.
 backup-delete,volume backup delete,Removes a backup.
-backup-export,volume backup export,Export backup metadata record.
-backup-import,volume backup import,Import backup metadata record.
+backup-export,volume backup record export,Export backup metadata record.
+backup-import,volume backup record import,Import backup metadata record.
 backup-list,volume backup list,Lists all backups.
 backup-reset-state,volume backup set --state,Explicitly updates the backup state.
 backup-restore,volume backup restore,Restores a backup.

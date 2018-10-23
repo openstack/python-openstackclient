@@ -596,6 +596,35 @@ class FakeBackup(object):
 
         return mock.Mock(side_effect=backups)
 
+    @staticmethod
+    def create_backup_record():
+        """Gets a fake backup record for a given backup.
+
+        :return: An "exported" backup record.
+        """
+
+        return {
+            'backup_service': 'cinder.backup.drivers.swift.SwiftBackupDriver',
+            'backup_url': 'eyJzdGF0dXMiOiAiYXZh',
+        }
+
+    @staticmethod
+    def import_backup_record():
+        """Creates a fake backup record import response from a backup.
+
+        :return: The fake backup object that was encoded.
+        """
+        return {
+            'backup': {
+                'id': 'backup.id',
+                'name': 'backup.name',
+                'links': [
+                    {'href': 'link1', 'rel': 'self'},
+                    {'href': 'link2', 'rel': 'bookmark'},
+                ],
+            },
+        }
+
 
 class FakeConsistencyGroup(object):
     """Fake one or more consistency group."""

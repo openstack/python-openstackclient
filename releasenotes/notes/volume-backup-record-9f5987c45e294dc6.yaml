@@ -1,0 +1,15 @@
+---
+features:
+  - |
+    Add ``openstack volume backup record export <backup>`` command that
+    provides encrypted backup record metadata that can then be used to import
+    and restore on a different or rebuilt block storage service. Information
+    about volume backup export and import can be found in the `Cinder block
+    storage service documentation <https://docs.openstack.org/cinder/latest/admin/blockstorage-volume-backups-export-import.html>`_.
+  - |
+    Add ``openstack volume backup record import <backup_service>
+    <backup_matadata>`` command that can be used to import and restore on a
+    different or rebuilt block storage service. Information about volume backup
+    export and import can be found in the `Cinder block storage service
+    documentation <https://docs.openstack.org/cinder/latest/admin/blockstorage-volume-backups-export-import.html>`_.
+
