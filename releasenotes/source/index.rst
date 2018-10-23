@@ -26,6 +26,8 @@ OpenStack release was made is shown below:
 =================  =======================
 OpenStack Release  OpenStackClient Release
 =================  =======================
+Rocky              3.16.0
+Queens             3.14.0
 Pike               3.12.0
 Ocata              3.8.1
 Newton             3.2.0
