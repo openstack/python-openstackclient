@@ -2,7 +2,7 @@
 floating ip
 ===========
 
-Compute v2, Network v2
+Network v2
 
 floating ip create
 ------------------
