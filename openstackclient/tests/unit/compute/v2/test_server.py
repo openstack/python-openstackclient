@@ -845,6 +845,55 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
+    def test_server_create_with_auto_network_default_v2_37(self):
+        """Tests creating a server without specifying --nic using 2.37."""
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Since check_parser doesn't handle compute global options like
+        # --os-compute-api-version, we have to mock the construction of
+        # the novaclient client object with our own APIVersion.
+        with mock.patch.object(self.app.client_manager.compute, 'api_version',
+                               api_versions.APIVersion('2.37')):
+            columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[],
+            nics='auto',
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
     def test_server_create_with_none_network(self):
         arglist = [
             '--image', 'image1',

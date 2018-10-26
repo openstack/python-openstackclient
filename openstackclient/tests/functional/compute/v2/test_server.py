@@ -618,7 +618,9 @@ class ServerTests(common.ComputeTestCase):
                 server_name
             )
         except exceptions.CommandFailed as e:
-            self.assertIn('nics are required after microversion 2.36',
-                          e.stderr)
-        else:
-            self.fail('CommandFailed should be raised.')
+            # If we got here, it shouldn't be because a nics value wasn't
+            # provided to the server; it is likely due to something else in
+            # the functional tests like there being multiple available
+            # networks and the test didn't specify a specific network.
+            self.assertNotIn('nics are required after microversion 2.36',
+                             e.stderr)
