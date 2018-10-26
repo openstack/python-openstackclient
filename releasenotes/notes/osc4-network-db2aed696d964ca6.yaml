@@ -1,0 +1,12 @@
+---
+upgrade:
+  - |
+    Remove deprecated ``port create|set`` options ``--device-id`` and ``--host-id``.
+    Use ``--device`` and ``--host`` options instead.
+  - |
+    Remove deprecated ``router set`` option ``--clear-routes``.
+    Use ``--no-route`` option instead.
+  - |
+    Remove deprecated ``security group rule create`` options ``--src-ip`` and
+    ``--src-group``.
+    Use ``--remote-ip`` and ``--remote-group`` options instead.

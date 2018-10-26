@@ -55,6 +55,24 @@ Release 4.0
   * Removed in: 4.0
   * Commit: https://review.opendev.org/659431
 
+7. Remove ``port create|set`` options ``--device-id`` and ``--host-id``.
+   Use ``--device`` and ``--host`` instead.
+
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/613644
+
+8. Remove ``router set`` option ``--clear-routes``.
+   Use ``no-route`` option instead.
+
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/613644
+
+9. Remove ``security group rule create`` options ``--src-ip`` and ``--src-group``.
+   Use ``--remote-ip`` and ``--remote-group`` options instead.
+
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/613644
+
 .. 1. Change ``volume transfer request accept`` to use new option ``--auth-key``
 ..    rather than a second positional argument.
 

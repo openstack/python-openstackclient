@@ -939,52 +939,6 @@ class TestSetRouter(TestRouter):
             _testrouter, **attrs)
         self.assertIsNone(result)
 
-    def test_set_clear_routes(self):
-        arglist = [
-            self._router.name,
-            '--clear-routes',
-        ]
-        verifylist = [
-            ('router', self._router.name),
-            ('clear_routes', True),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        result = self.cmd.take_action(parsed_args)
-
-        attrs = {
-            'routes': [],
-        }
-        self.network.update_router.assert_called_once_with(
-            self._router, **attrs)
-        self.assertIsNone(result)
-
-    def test_overwrite_route_clear_routes(self):
-        _testrouter = network_fakes.FakeRouter.create_one_router(
-            {'routes': [{"destination": "10.0.0.2",
-                         "nexthop": "1.1.1.1"}]})
-        self.network.find_router = mock.Mock(return_value=_testrouter)
-        arglist = [
-            _testrouter.name,
-            '--route', 'destination=10.20.30.0/24,gateway=10.20.30.1',
-            '--clear-routes',
-        ]
-        verifylist = [
-            ('router', _testrouter.name),
-            ('routes', [{'destination': '10.20.30.0/24',
-                         'gateway': '10.20.30.1'}]),
-            ('clear_routes', True),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = self.cmd.take_action(parsed_args)
-        attrs = {
-            'routes': [{'destination': '10.20.30.0/24',
-                        'nexthop': '10.20.30.1'}]
-        }
-        self.network.update_router.assert_called_once_with(
-            _testrouter, **attrs)
-        self.assertIsNone(result)
-
     def test_set_nothing(self):
         arglist = [
             self._router.name,
