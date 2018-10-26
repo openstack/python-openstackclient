@@ -50,7 +50,7 @@ flavor-update,network flavor set,Update a Neutron service flavor.
 floatingip-associate,floating ip set port --fixed-ip,Create a mapping between a floating IP and a fixed IP.
 floatingip-create,floating ip create,Create a floating IP for a given tenant.
 floatingip-delete,floating ip delete,Delete a given floating IP.
-floatingip-disassociate,floating ip unset port,Remove a mapping from a floating IP to a fixed IP.
+floatingip-disassociate,floating ip unset --port,Remove a mapping from a floating IP to a fixed IP.
 floatingip-list,floating ip list,List floating IPs that belong to a given tenant.
 floatingip-show,floating ip show,Show information of a given floating IP.
 help,help,print detailed help for another command
@@ -142,12 +142,12 @@ net-ip-availability-show,ip availability show,Show IP usage of specific network
 net-list,network list,List networks that belong to a given tenant.
 net-list-on-dhcp-agent,network list --agent,List the networks on a DHCP agent.
 net-show,network show,Show information of a given network.
-net-update,network set,Update network's information.
+net-update,network set / network unset,Update network's information.
 port-create,port create,Create a port for a given tenant.
 port-delete,port delete,Delete a given port.
 port-list,port list,List ports that belong to a given tenant.
 port-show,port show,Show information of a given port.
-port-update,port set/port unset,Update port's information.
+port-update,port set / port unset,Update port's information.
 purge,,Delete all resources that belong to a given tenant.
 qos-available-rule-types,network qos rule type list,List available qos rule types.
 qos-bandwidth-limit-rule-create,network qos rule create --type bandwidth-limit,Create a qos bandwidth limit rule.
@@ -183,7 +183,7 @@ rbac-update,network rbac set,Update RBAC policy for given tenant.
 router-create,router create,Create a router for a given tenant.
 router-delete,router delete,Delete a given router.
 router-gateway-clear,router unset,Remove an external network gateway from a router.
-router-gateway-set,router set,Set the external network gateway for a router.
+router-gateway-set,router set / router unset,Set the external network gateway for a router.
 router-interface-add,router add subnet / router add port,Add an internal network interface to a router.
 router-interface-delete,router remove subnet / router remove port,Remove an internal network interface from a router.
 router-list,router list,List routers that belong to a given tenant.
@@ -199,7 +199,7 @@ security-group-rule-delete,security group rule delete,Delete a given security gr
 security-group-rule-list,security group rule list,List security group rules that belong to a given tenant.
 security-group-rule-show,security group rule show,Show information of a given security group rule.
 security-group-show,security group show,Show information of a given security group.
-security-group-update,security group set,Update a given security group.
+security-group-update,security group set / security group unset,Update a given security group.
 service-provider-list,network service provider list,List service providers.
 subnet-create,subnet create,Create a subnet for a given tenant.
 subnet-delete,subnet delete,Delete a given subnet.
