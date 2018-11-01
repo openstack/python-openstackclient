@@ -18,7 +18,7 @@ service-get,service show,Display service from Service Catalog.
 service-list,service list,List all services in Service Catalog.
 tenant-create,project create,Create new tenant.
 tenant-delete,project delete,Delete tenant.
-tenant-get,proejct show,Display tenant details.
+tenant-get,project show,Display tenant details.
 tenant-list,project list,List all tenants.
 tenant-update,project set,"Update tenant name, description, enabled status."
 token-get,token issue,Display the current user token.
