@@ -14,7 +14,6 @@
 
 """Versions Action Implementation"""
 
-import os_service_types
 from osc_lib.command import command
 
 from openstackclient.i18n import _
@@ -67,7 +66,8 @@ class ShowVersions(command.Lister):
         session = self.app.client_manager.session
         version_data = session.get_all_version_data(
             interface=interface,
-            region_name=parsed_args.region_name)
+            region_name=parsed_args.region_name,
+            service_type=parsed_args.service)
 
         columns = [
             "Region Name",
@@ -83,22 +83,10 @@ class ShowVersions(command.Lister):
         if status:
             status = status.upper()
 
-        service = parsed_args.service
-        if service:
-            # Normalize service type argument to official type
-            service_type_manager = os_service_types.ServiceTypes()
-            service = service_type_manager.get_service_type(service)
-
         versions = []
         for region_name, interfaces in version_data.items():
             for interface, services in interfaces.items():
                 for service_type, service_versions in services.items():
-                    if service and service != service_type:
-                        # TODO(mordred) Once there is a version of
-                        # keystoneauth that can do this filtering
-                        # before making all the discovery calls, switch
-                        # to that.
-                        continue
                     for data in service_versions:
                         if status and status != data['status']:
                             continue
