@@ -1534,6 +1534,22 @@ class RebuildServer(command.ShowOne):
             action='store_true',
             help=_('Wait for rebuild to complete'),
         )
+        key_group = parser.add_mutually_exclusive_group()
+        key_group.add_argument(
+            '--key-name',
+            metavar='<key-name>',
+            help=_("Set the key name of key pair on the rebuilt instance."
+                   " Cannot be specified with the '--key-unset' option."
+                   " (Supported by API versions '2.54' - '2.latest')"),
+        )
+        key_group.add_argument(
+            '--key-unset',
+            action='store_true',
+            default=False,
+            help=_("Unset the key name of key pair on the rebuilt instance."
+                   " Cannot be specified with the '--key-name' option."
+                   " (Supported by API versions '2.54' - '2.latest')"),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -1557,6 +1573,16 @@ class RebuildServer(command.ShowOne):
         kwargs = {}
         if parsed_args.property:
             kwargs['meta'] = parsed_args.property
+
+        if parsed_args.key_name or parsed_args.key_unset:
+            if compute_client.api_version < api_versions.APIVersion('2.54'):
+                msg = _('--os-compute-api-version 2.54 or later is required')
+                raise exceptions.CommandError(msg)
+
+        if parsed_args.key_unset:
+            kwargs['key_name'] = None
+        if parsed_args.key_name:
+            kwargs['key_name'] = parsed_args.key_name
 
         server = server.rebuild(image, parsed_args.password, **kwargs)
         if parsed_args.wait:

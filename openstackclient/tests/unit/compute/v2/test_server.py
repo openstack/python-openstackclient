@@ -2566,6 +2566,96 @@ class TestServerRebuild(TestServer):
         self.server.rebuild.assert_called_with(
             self.image, None, meta=expected_property)
 
+    def test_rebuild_with_keypair_name(self):
+        self.server.key_name = 'mykey'
+        arglist = [
+            self.server.id,
+            '--key-name', self.server.key_name,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('key_name', self.server.key_name)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.app.client_manager.compute.api_version = 2.54
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.54):
+            self.cmd.take_action(parsed_args)
+            args = (
+                self.image,
+                None,
+            )
+            kwargs = dict(
+                key_name=self.server.key_name,
+            )
+            self.servers_mock.get.assert_called_with(self.server.id)
+            self.images_mock.get.assert_called_with(self.image.id)
+            self.server.rebuild.assert_called_with(*args, **kwargs)
+
+    def test_rebuild_with_keypair_name_older_version(self):
+        self.server.key_name = 'mykey'
+        arglist = [
+            self.server.id,
+            '--key-name', self.server.key_name,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('key_name', self.server.key_name)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.app.client_manager.compute.api_version = 2.53
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.54):
+            self.assertRaises(exceptions.CommandError,
+                              self.cmd.take_action,
+                              parsed_args)
+
+    def test_rebuild_with_keypair_unset(self):
+        self.server.key_name = 'mykey'
+        arglist = [
+            self.server.id,
+            '--key-unset',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.app.client_manager.compute.api_version = 2.54
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.54):
+            self.cmd.take_action(parsed_args)
+            args = (
+                self.image,
+                None,
+            )
+            kwargs = dict(
+                key_name=None,
+            )
+            self.servers_mock.get.assert_called_with(self.server.id)
+            self.images_mock.get.assert_called_with(self.image.id)
+            self.server.rebuild.assert_called_with(*args, **kwargs)
+
+    def test_rebuild_with_key_name_and_unset(self):
+        self.server.key_name = 'mykey'
+        arglist = [
+            self.server.id,
+            '--key-name', self.server.key_name,
+            '--key-unset',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('key_name', self.server.key_name)
+        ]
+        self.assertRaises(utils.ParserException,
+                          self.check_parser,
+                          self.cmd, arglist, verifylist)
+
 
 class TestServerRemoveFixedIP(TestServer):
 

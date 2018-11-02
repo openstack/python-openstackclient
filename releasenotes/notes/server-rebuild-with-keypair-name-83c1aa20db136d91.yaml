@@ -1,0 +1,6 @@
+---
+features:
+  - Add ``--key-name`` option to ``server rebuild`` command to set keypair of
+    the server. Note that it requires --os-compute-api-version 2.54 or later.
+  - Add ``--key-unset`` option to ``server rebuild`` command to unset
+    keypair. Note that it requires --os-compute-api-version 2.54 or later.
