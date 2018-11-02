@@ -1,11 +1,11 @@
 ---
 features:
   - |
-    A new command, ``openstack volume backend capability show <host>`` was
-    added which will provide a list of all capabilities that can be configured
+    Add ``openstack volume backend capability show <host>`` command that
+    provides a list of all capabilities that can be configured
     for the requested backend. The required `<host>` parameter takes the form
     `host@backend-name`.
   - |
-    A new command, ``openstack volume backend pool list`` was added which will
-    provide a list of all backend storage pools. The optional ``-long``
+    Add ``openstack volume backend pool list`` command that provides
+    a list of all backend storage pools. The optional ``--long``
     parameter includes some basic configuration and stats for each pool.
