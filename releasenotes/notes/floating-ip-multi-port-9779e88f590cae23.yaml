@@ -1,0 +1,14 @@
+---
+fixes:
+  - |
+    The ``openstack server add floating ip`` command has been fixed to handle
+    servers with multiple ports attached. Previously, the command was using
+    the first port in the port list when attempting to associate the floating
+    ip. This could fail if the server had multiple ports and the first port
+    in the list was not attached to an external gateway. Another way it could
+    fail is if the ``--fixed-ip-address`` option was passed and the first port
+    did not have the specified fixed IP address attached to it.
+    Now, the ``openstack server add floating ip`` command will find the port
+    attached to the specified ``--fixed-ip-address``, if provided, else it will
+    try multiple ports until one is found attached to an external gateway. If
+    a suitable port is not found in the port list, an error will be returned.

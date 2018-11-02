@@ -23,6 +23,7 @@ import os
 
 from novaclient import api_versions
 from novaclient.v2 import servers
+from openstack import exceptions as sdk_exceptions
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -251,13 +252,16 @@ class AddFloatingIP(network_common.NetworkAndComputeCommand):
         parser.add_argument(
             "ip_address",
             metavar="<ip-address>",
-            help=_("Floating IP address to assign to server (IP only)"),
+            help=_("Floating IP address to assign to the first available "
+                   "server port (IP only)"),
         )
         parser.add_argument(
             "--fixed-ip-address",
             metavar="<ip-address>",
             help=_(
-                "Fixed IP address to associate with this floating IP address"
+                "Fixed IP address to associate with this floating IP address. "
+                "The first server port containing the fixed IP address will "
+                "be used"
             ),
         )
         return parser
@@ -274,12 +278,45 @@ class AddFloatingIP(network_common.NetworkAndComputeCommand):
             compute_client.servers,
             parsed_args.server,
         )
-        port = list(client.ports(device_id=server.id))[0]
-        attrs['port_id'] = port.id
+        ports = list(client.ports(device_id=server.id))
+        # If the fixed IP address was specified, we need to find the
+        # corresponding port.
         if parsed_args.fixed_ip_address:
-            attrs['fixed_ip_address'] = parsed_args.fixed_ip_address
-
-        client.update_ip(obj, **attrs)
+            fip_address = parsed_args.fixed_ip_address
+            attrs['fixed_ip_address'] = fip_address
+            for port in ports:
+                for ip in port.fixed_ips:
+                    if ip['ip_address'] == fip_address:
+                        attrs['port_id'] = port.id
+                        break
+                else:
+                    continue
+                break
+            if 'port_id' not in attrs:
+                msg = _('No port found for fixed IP address %s')
+                raise exceptions.CommandError(msg % fip_address)
+            client.update_ip(obj, **attrs)
+        else:
+            # It's possible that one or more ports are not connected to a
+            # router and thus could fail association with a floating IP.
+            # Try each port until one succeeds. If none succeed, re-raise the
+            # last exception.
+            error = None
+            for port in ports:
+                attrs['port_id'] = port.id
+                try:
+                    client.update_ip(obj, **attrs)
+                except sdk_exceptions.NotFoundException as exp:
+                    # 404 ExternalGatewayForFloatingIPNotFound from neutron
+                    LOG.info('Skipped port %s because it is not attached to '
+                             'an external gateway', port.id)
+                    error = exp
+                    continue
+                else:
+                    error = None
+                    break
+            if error:
+                raise error
 
     def take_action_compute(self, client, parsed_args):
         client.api.floating_ip_add(
