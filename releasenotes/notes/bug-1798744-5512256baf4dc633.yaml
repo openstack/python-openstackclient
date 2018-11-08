@@ -1,0 +1,4 @@
+---
+features:
+  - Add ``--project`` option to ``limit list`` command.
+    [Bug `1798744 <https://bugs.launchpad.net/python-openstackclient/+bug/1798744>`_]

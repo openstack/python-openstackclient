@@ -73,6 +73,7 @@ List project-specific limits
         [--service <service>]
         [--resource-name <resource-name>]
         [--region <region>]
+        [--project <project>]
 
 .. option:: --service <service>
 
@@ -85,6 +86,10 @@ List project-specific limits
 .. option:: --region <region>
 
    The region name to filter the response by
+
+.. option:: --project <project>
+
+   List resource limits associated with project
 
 limit show
 ----------
