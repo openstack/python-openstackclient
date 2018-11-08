@@ -515,7 +515,8 @@ class ListImage(command.Lister):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Filter output based on property'),
+            help=_('Filter output based on property '
+                   '(repeat option to filter on multiple properties)'),
         )
         parser.add_argument(
             '--name',
@@ -643,14 +644,13 @@ class ListImage(command.Lister):
                 marker = page[-1]['id']
 
         if parsed_args.property:
-            # NOTE(dtroyer): coerce to a list to subscript it in py3
-            attr, value = list(parsed_args.property.items())[0]
-            api_utils.simple_filter(
-                data,
-                attr=attr,
-                value=value,
-                property_field='properties',
-            )
+            for attr, value in parsed_args.property.items():
+                api_utils.simple_filter(
+                    data,
+                    attr=attr,
+                    value=value,
+                    property_field='properties',
+                )
 
         data = utils.sort_items(data, parsed_args.sort, str)
 
