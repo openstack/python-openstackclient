@@ -222,7 +222,7 @@ Migrate volume to a new host
     openstack volume migrate
         --host <host>
         [--force-host-copy]
-        [--lock-volume | --unlock-volume]
+        [--lock-volume]
         <volume>
 
 .. option:: --host <host>
@@ -238,13 +238,6 @@ Migrate volume to a new host
 
     If specified, the volume state will be locked and will not allow
     a migration to be aborted (possibly by another operation)
-
-    *Volume version 2 only*
-
-.. option:: --unlock-volume
-
-    If specified, the volume state will not be locked and the a
-    migration can be aborted (default) (possibly by another operation)
 
     *Volume version 2 only*
 

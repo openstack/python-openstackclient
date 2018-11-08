@@ -1188,7 +1188,6 @@ class TestVolumeMigrate(TestVolume):
         verifylist = [
             ("force_host_copy", False),
             ("lock_volume", False),
-            ("unlock_volume", False),
             ("host", "host@backend-name#pool"),
             ("volume", self._volume.id),
         ]
@@ -1210,7 +1209,6 @@ class TestVolumeMigrate(TestVolume):
         verifylist = [
             ("force_host_copy", True),
             ("lock_volume", True),
-            ("unlock_volume", False),
             ("host", "host@backend-name#pool"),
             ("volume", self._volume.id),
         ]
@@ -1222,27 +1220,6 @@ class TestVolumeMigrate(TestVolume):
             self._volume.id, "host@backend-name#pool", True, True)
         self.assertIsNone(result)
 
-    def test_volume_migrate_with_unlock_volume(self):
-        arglist = [
-            "--unlock-volume",
-            "--host", "host@backend-name#pool",
-            self._volume.id,
-        ]
-        verifylist = [
-            ("force_host_copy", False),
-            ("lock_volume", False),
-            ("unlock_volume", True),
-            ("host", "host@backend-name#pool"),
-            ("volume", self._volume.id),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        result = self.cmd.take_action(parsed_args)
-        self.volumes_mock.get.assert_called_once_with(self._volume.id)
-        self.volumes_mock.migrate_volume.assert_called_once_with(
-            self._volume.id, "host@backend-name#pool", False, False)
-        self.assertIsNone(result)
-
     def test_volume_migrate_without_host(self):
         arglist = [
             self._volume.id,
@@ -1250,7 +1227,6 @@ class TestVolumeMigrate(TestVolume):
         verifylist = [
             ("force_host_copy", False),
             ("lock_volume", False),
-            ("unlock_volume", False),
             ("volume", self._volume.id),
         ]
 
