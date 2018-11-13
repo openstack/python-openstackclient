@@ -52,7 +52,7 @@ class APIv2(api.BaseAPI):
             value = int(value)
         except (TypeError, ValueError):
             if not msg:
-                msg = "%s is not an integer" % value
+                msg = _("%s is not an integer") % value
             raise InvalidValue(msg)
         return value
 
