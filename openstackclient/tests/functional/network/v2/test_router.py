@@ -247,10 +247,7 @@ class RouterTests(common.NetworkTagTests):
             'router show -f json ' +
             new_name
         ))
-        self.assertEqual(
-            True,
-            cmd_output["distributed"],
-        )
+        self.assertTrue(cmd_output["distributed"])
         self.assertIsNotNone(cmd_output["external_gateway_info"])
 
         # Test unset

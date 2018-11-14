@@ -42,10 +42,7 @@ class AddressScopeTests(common.NetworkTests):
             cmd_output['name'],
         )
         # Check the default values
-        self.assertEqual(
-            False,
-            cmd_output['shared'],
-        )
+        self.assertFalse(cmd_output['shared'])
 
         name2 = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
@@ -80,10 +77,7 @@ class AddressScopeTests(common.NetworkTests):
             4,
             cmd_output['ip_version'],
         )
-        self.assertEqual(
-            True,
-            cmd_output['shared'],
-        )
+        self.assertTrue(cmd_output['shared'])
 
         name2 = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
@@ -101,10 +95,7 @@ class AddressScopeTests(common.NetworkTests):
             6,
             cmd_output['ip_version'],
         )
-        self.assertEqual(
-            False,
-            cmd_output['shared'],
-        )
+        self.assertFalse(cmd_output['shared'])
 
         # Test list
         cmd_output = json.loads(self.openstack(
@@ -149,10 +140,7 @@ class AddressScopeTests(common.NetworkTests):
             4,
             cmd_output['ip_version'],
         )
-        self.assertEqual(
-            False,
-            cmd_output['shared'],
-        )
+        self.assertFalse(cmd_output['shared'])
 
         raw_output = self.openstack(
             'address scope set ' +
@@ -174,7 +162,4 @@ class AddressScopeTests(common.NetworkTests):
             4,
             cmd_output['ip_version'],
         )
-        self.assertEqual(
-            True,
-            cmd_output['shared'],
-        )
+        self.assertTrue(cmd_output['shared'])

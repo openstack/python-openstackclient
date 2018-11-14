@@ -87,10 +87,7 @@ class NetworkFlavorTests(common.NetworkTests):
             name1,
             cmd_output['name'],
         )
-        self.assertEqual(
-            True,
-            cmd_output['enabled'],
-        )
+        self.assertTrue(cmd_output['enabled'])
         self.assertEqual(
             'testdescription',
             cmd_output['description'],
@@ -105,10 +102,7 @@ class NetworkFlavorTests(common.NetworkTests):
             name2,
             cmd_output['name'],
         )
-        self.assertEqual(
-            False,
-            cmd_output['enabled'],
-        )
+        self.assertFalse(cmd_output['enabled'])
         self.assertEqual(
             'testdescription1',
             cmd_output['description'],
