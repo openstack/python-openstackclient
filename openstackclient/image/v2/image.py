@@ -630,6 +630,9 @@ class ListImage(command.Lister):
 
         # List of image data received
         data = []
+        limit = None
+        if 'limit' in kwargs:
+            limit = kwargs['limit']
         if 'marker' in kwargs:
             data = image_client.api.image_list(**kwargs)
         else:
@@ -642,6 +645,8 @@ class ListImage(command.Lister):
                 data.extend(page)
                 # Set the marker to the id of the last item we received
                 marker = page[-1]['id']
+                if limit:
+                    break
 
         if parsed_args.property:
             for attr, value in parsed_args.property.items():
