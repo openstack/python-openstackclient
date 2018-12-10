@@ -400,9 +400,9 @@ class TestListRouter(TestRouter):
         'Name',
         'Status',
         'State',
+        'Project',
         'Distributed',
         'HA',
-        'Project',
     )
     columns_long = columns + (
         'Routes',
@@ -423,9 +423,9 @@ class TestListRouter(TestRouter):
             r.name,
             r.status,
             router._format_admin_state(r.admin_state_up),
+            r.tenant_id,
             r.distributed,
             r.ha,
-            r.tenant_id,
         ))
 
     router_agent_data = []
@@ -495,6 +495,25 @@ class TestListRouter(TestRouter):
         self.network.routers.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
+
+    def test_router_list_no_ha_no_distributed(self):
+        _routers = network_fakes.FakeRouter.create_routers({
+            'ha': None,
+            'distributed': None},
+            count=3)
+
+        arglist = []
+        verifylist = [
+            ('long', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(
+                self.network, "routers", return_value=_routers):
+            columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertNotIn("is_distributed", columns)
+        self.assertNotIn("is_ha", columns)
 
     def test_router_list_long(self):
         arglist = [
@@ -1195,6 +1214,26 @@ class TestShowRouter(TestRouter):
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+    def test_show_no_ha_no_distributed(self):
+        _router = network_fakes.FakeRouter.create_one_router({
+            'ha': None,
+            'distributed': None})
+
+        arglist = [
+            _router.name,
+        ]
+        verifylist = [
+            ('router', _router.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(
+                self.network, "find_router", return_value=_router):
+            columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertNotIn("is_distributed", columns)
+        self.assertNotIn("is_ha", columns)
 
 
 class TestUnsetRouter(TestRouter):

@@ -71,7 +71,15 @@ def _get_columns(item):
     }
     if hasattr(item, 'interfaces_info'):
         column_map['interfaces_info'] = 'interfaces_info'
-    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
+    invisible_columns = []
+    if item.is_ha is None:
+        invisible_columns.append('is_ha')
+        column_map.pop('is_ha')
+    if item.is_distributed is None:
+        invisible_columns.append('is_distributed')
+        column_map.pop('is_distributed')
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(
+        item, column_map, invisible_columns)
 
 
 def _get_attrs(client_manager, parsed_args):
@@ -330,8 +338,6 @@ class ListRouter(command.Lister):
             'name',
             'status',
             'is_admin_state_up',
-            'is_distributed',
-            'is_ha',
             'project_id',
         )
         column_headers = (
@@ -339,8 +345,6 @@ class ListRouter(command.Lister):
             'Name',
             'Status',
             'State',
-            'Distributed',
-            'HA',
             'Project',
         )
 
@@ -376,6 +380,16 @@ class ListRouter(command.Lister):
         else:
             data = client.routers(**args)
 
+        # check if "HA" and "Distributed" columns should be displayed also
+        data = list(data)
+        for d in data:
+            if (d.is_distributed is not None and
+                    'is_distributed' not in columns):
+                columns = columns + ('is_distributed',)
+                column_headers = column_headers + ('Distributed',)
+            if d.is_ha is not None and 'is_ha' not in columns:
+                columns = columns + ('is_ha',)
+                column_headers = column_headers + ('HA',)
         if parsed_args.long:
             columns = columns + (
                 'routes',
