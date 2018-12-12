@@ -35,10 +35,7 @@ class NetworkFlavorProfileTests(common.NetworkTests):
         ))
         ID = json_output.get('id')
         self.assertIsNotNone(ID)
-        self.assertEqual(
-            True,
-            json_output.get('enabled'),
-        )
+        self.assertTrue(json_output.get('enabled'))
         self.assertEqual(
             'fakedescription',
             json_output.get('description'),
@@ -61,10 +58,7 @@ class NetworkFlavorProfileTests(common.NetworkTests):
         ))
         ID1 = json_output.get('id')
         self.assertIsNotNone(ID1)
-        self.assertEqual(
-            True,
-            json_output.get('enabled'),
-        )
+        self.assertTrue(json_output.get('enabled'))
         self.assertEqual(
             'fakedescription',
             json_output.get('description'),
@@ -82,10 +76,7 @@ class NetworkFlavorProfileTests(common.NetworkTests):
         ))
         ID2 = json_output.get('id')
         self.assertIsNotNone(ID2)
-        self.assertEqual(
-            False,
-            json_output.get('enabled'),
-        )
+        self.assertFalse(json_output.get('enabled'))
         self.assertEqual(
             'fakedescription',
             json_output.get('description'),
@@ -120,10 +111,7 @@ class NetworkFlavorProfileTests(common.NetworkTests):
         ))
         ID = json_output_1.get('id')
         self.assertIsNotNone(ID)
-        self.assertEqual(
-            True,
-            json_output_1.get('enabled'),
-        )
+        self.assertTrue(json_output_1.get('enabled'))
         self.assertEqual(
             'fakedescription',
             json_output_1.get('description'),
@@ -138,10 +126,7 @@ class NetworkFlavorProfileTests(common.NetworkTests):
         json_output = json.loads(self.openstack(
             'network flavor profile show -f json ' + ID
         ))
-        self.assertEqual(
-            False,
-            json_output.get('enabled'),
-        )
+        self.assertFalse(json_output.get('enabled'))
         self.assertEqual(
             'fakedescription',
             json_output.get('description'),
@@ -171,10 +156,7 @@ class NetworkFlavorProfileTests(common.NetworkTests):
             ID,
             json_output["id"],
         )
-        self.assertEqual(
-            True,
-            json_output["enabled"],
-        )
+        self.assertTrue(json_output["enabled"])
         self.assertEqual(
             'fakedescription',
             json_output["description"],

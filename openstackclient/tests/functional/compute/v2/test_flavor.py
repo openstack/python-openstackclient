@@ -112,8 +112,7 @@ class FlavorTests(base.TestCase):
             0,
             cmd_output["disk"],
         )
-        self.assertEqual(
-            False,
+        self.assertFalse(
             cmd_output["os-flavor-access:is_public"],
         )
         self.assertEqual(
@@ -199,8 +198,7 @@ class FlavorTests(base.TestCase):
             20,
             cmd_output["disk"],
         )
-        self.assertEqual(
-            False,
+        self.assertFalse(
             cmd_output["os-flavor-access:is_public"],
         )
         self.assertEqual(

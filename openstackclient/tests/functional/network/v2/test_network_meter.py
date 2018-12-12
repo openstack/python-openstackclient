@@ -48,10 +48,7 @@ class TestMeter(common.NetworkTests):
             json_output.get('name'),
         )
         # Check if default shared values
-        self.assertEqual(
-            False,
-            json_output.get('shared'),
-        )
+        self.assertFalse(json_output.get('shared'))
         self.assertEqual(
             'fakedescription',
             json_output.get('description'),
@@ -67,10 +64,7 @@ class TestMeter(common.NetworkTests):
             json_output_2.get('name'),
         )
         # Check if default shared values
-        self.assertEqual(
-            False,
-            json_output_2.get('shared'),
-        )
+        self.assertFalse(json_output_2.get('shared'))
         self.assertEqual(
             'fakedescription',
             json_output_2.get('description'),
@@ -99,10 +93,7 @@ class TestMeter(common.NetworkTests):
             'Test1',
             json_output.get('description'),
         )
-        self.assertEqual(
-            True,
-            json_output.get('shared'),
-        )
+        self.assertTrue(json_output.get('shared'))
 
         name2 = uuid.uuid4().hex
         json_output_2 = json.loads(self.openstack(
@@ -117,8 +108,7 @@ class TestMeter(common.NetworkTests):
             'Test2',
             json_output_2.get('description'),
         )
-        self.assertEqual(
-            False,
+        self.assertFalse(
             json_output_2.get('shared'),
         )
 
@@ -143,10 +133,7 @@ class TestMeter(common.NetworkTests):
         json_output = json.loads(self.openstack(
             'network meter show -f json ' + meter_id
         ))
-        self.assertEqual(
-            False,
-            json_output.get('shared'),
-        )
+        self.assertFalse(json_output.get('shared'))
         self.assertEqual(
             'fakedescription',
             json_output.get('description'),
@@ -164,10 +151,7 @@ class TestMeter(common.NetworkTests):
             meter_id,
             json_output.get('id'),
         )
-        self.assertEqual(
-            False,
-            json_output.get('shared'),
-        )
+        self.assertFalse(json_output.get('shared'))
         self.assertEqual(
             'fakedescription',
             json_output.get('description'),

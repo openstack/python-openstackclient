@@ -70,8 +70,7 @@ class NetworkTests(common.NetworkTagTests):
             '1.2.4.0/28',
             cmd_output["cidr"],
         )
-        self.assertEqual(
-            True,
+        self.assertTrue(
             cmd_output["share_address"],
         )
 
@@ -124,8 +123,7 @@ class NetworkTests(common.NetworkTagTests):
             'UP',
             cmd_output["admin_state_up"],
         )
-        self.assertEqual(
-            False,
+        self.assertFalse(
             cmd_output["shared"],
         )
         self.assertEqual(
@@ -236,21 +234,14 @@ class NetworkTests(common.NetworkTagTests):
                 'UP',
                 cmd_output["admin_state_up"],
             )
-            self.assertEqual(
-                False,
-                cmd_output["shared"],
-            )
+            self.assertFalse(cmd_output["shared"])
             self.assertEqual(
                 'Internal',
                 cmd_output["router:external"],
             )
-            self.assertEqual(
-                False,
-                cmd_output["is_default"],
-            )
-            self.assertEqual(
-                True,
-                cmd_output["port_security_enabled"],
+            self.assertFalse(cmd_output["is_default"])
+            self.assertTrue(
+                cmd_output["port_security_enabled"]
             )
         else:
             self.assertEqual(
@@ -278,27 +269,15 @@ class NetworkTests(common.NetworkTagTests):
                 'DOWN',
                 cmd_output["admin_state_up"],
             )
-            self.assertEqual(
-                True,
-                cmd_output["shared"],
-            )
-            self.assertEqual(
-                False,
-                cmd_output["is_default"],
-            )
-            self.assertEqual(
-                True,
-                cmd_output["port_security_enabled"],
-            )
+            self.assertTrue(cmd_output["shared"])
+            self.assertFalse(cmd_output["is_default"])
+            self.assertTrue(cmd_output["port_security_enabled"])
         else:
             self.assertEqual(
                 '4.5.6.0/28',
                 cmd_output["cidr"],
             )
-            self.assertEqual(
-                True,
-                cmd_output["share_address"],
-            )
+            self.assertTrue(cmd_output["share_address"])
 
         # Test list
         cmd_output = json.loads(self.openstack(
@@ -422,22 +401,15 @@ class NetworkTests(common.NetworkTagTests):
             'UP',
             cmd_output["admin_state_up"],
         )
-        self.assertEqual(
-            False,
-            cmd_output["shared"],
-        )
+        self.assertFalse(cmd_output["shared"])
         self.assertEqual(
             'Internal',
             cmd_output["router:external"],
         )
 
-        self.assertEqual(
-            False,
-            cmd_output["is_default"],
-        )
-        self.assertEqual(
-            True,
-            cmd_output["port_security_enabled"],
+        self.assertFalse(cmd_output["is_default"])
+        self.assertTrue(
+            cmd_output["port_security_enabled"]
         )
 
         raw_output = self.openstack(
@@ -463,19 +435,12 @@ class NetworkTests(common.NetworkTagTests):
             'DOWN',
             cmd_output["admin_state_up"],
         )
-        self.assertEqual(
-            True,
-            cmd_output["shared"],
-        )
+        self.assertTrue(cmd_output["shared"])
         self.assertEqual(
             'External',
             cmd_output["router:external"],
         )
-        self.assertEqual(
-            False,
-            cmd_output["is_default"],
-        )
-        self.assertEqual(
-            False,
-            cmd_output["port_security_enabled"],
+        self.assertFalse(cmd_output["is_default"])
+        self.assertFalse(
+            cmd_output["port_security_enabled"]
         )

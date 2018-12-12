@@ -72,7 +72,7 @@ class ProjectTests(common.IdentityTests):
         self.assert_show_fields(items, fields)
         project = self.parse_show_as_object(raw_output)
         self.assertEqual(new_project_name, project['name'])
-        self.assertEqual('False', project['enabled'])
+        self.assertFalse(project['enabled'])
         self.assertEqual("k0='v0'", project['properties'])
 
     def test_project_show(self):
