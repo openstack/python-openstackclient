@@ -1132,6 +1132,102 @@ class TestSetRouter(TestRouter):
     def test_set_with_no_tag(self):
         self._test_set_tags(with_tags=False)
 
+    def test_set_gateway_ip_qos(self):
+        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        arglist = [
+            "--external-gateway", self._network.id,
+            "--qos-policy", qos_policy.id,
+            self._router.id,
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('external_gateway', self._network.id),
+            ('qos_policy', qos_policy.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.network.update_router.assert_called_with(
+            self._router, **{'external_gateway_info': {
+                'network_id': self._network.id,
+                'qos_policy_id': qos_policy.id, }})
+        self.assertIsNone(result)
+
+    def test_unset_gateway_ip_qos(self):
+        arglist = [
+            "--external-gateway", self._network.id,
+            "--no-qos-policy",
+            self._router.id,
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('external_gateway', self._network.id),
+            ('no_qos_policy', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.network.update_router.assert_called_with(
+            self._router, **{'external_gateway_info': {
+                'network_id': self._network.id,
+                'qos_policy_id': None, }})
+        self.assertIsNone(result)
+
+    def test_set_unset_gateway_ip_qos(self):
+        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        arglist = [
+            "--external-gateway", self._network.id,
+            "--qos-policy", qos_policy.id,
+            "--no-qos-policy",
+            self._router.id,
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('external_gateway', self._network.id),
+            ('qos_policy', qos_policy.id),
+            ('no_qos_policy', True),
+        ]
+
+        self.assertRaises(tests_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
+
+    def test_set_gateway_ip_qos_no_gateway(self):
+        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        router = network_fakes.FakeRouter.create_one_router()
+        self.network.find_router = mock.Mock(return_value=router)
+        arglist = [
+            "--qos-policy", qos_policy.id,
+            router.id,
+        ]
+        verifylist = [
+            ('router', router.id),
+            ('qos_policy', qos_policy.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
+
+    def test_unset_gateway_ip_qos_no_gateway(self):
+        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        router = network_fakes.FakeRouter.create_one_router()
+        self.network.find_router = mock.Mock(return_value=router)
+        arglist = [
+            "--no-qos-policy",
+            router.id,
+        ]
+        verifylist = [
+            ('router', router.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
+
 
 class TestShowRouter(TestRouter):
 
@@ -1240,12 +1336,19 @@ class TestUnsetRouter(TestRouter):
 
     def setUp(self):
         super(TestUnsetRouter, self).setUp()
+        self.fake_network = network_fakes.FakeNetwork.create_one_network()
+        self.fake_qos_policy = (
+            network_fakes.FakeNetworkQosPolicy.create_one_qos_policy())
         self._testrouter = network_fakes.FakeRouter.create_one_router(
             {'routes': [{"destination": "192.168.101.1/24",
                          "nexthop": "172.24.4.3"},
                         {"destination": "192.168.101.2/24",
                          "nexthop": "172.24.4.3"}],
-             'tags': ['green', 'red'], })
+             'tags': ['green', 'red'],
+             'external_gateway_info': {
+                 'network_id': self.fake_network.id,
+                 'qos_policy_id': self.fake_qos_policy.id
+            }})
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet()
         self.network.find_router = mock.Mock(return_value=self._testrouter)
         self.network.update_router = mock.Mock(return_value=None)
@@ -1328,3 +1431,54 @@ class TestUnsetRouter(TestRouter):
 
     def test_unset_with_all_tag(self):
         self._test_unset_tags(with_tags=False)
+
+    def test_unset_router_qos_policy(self):
+        arglist = [
+            '--qos-policy',
+            self._testrouter.name,
+        ]
+        verifylist = [
+            ('qos_policy', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        attrs = {'external_gateway_info': {"network_id": self.fake_network.id,
+                                           "qos_policy_id": None}}
+        self.network.update_router.assert_called_once_with(
+            self._testrouter, **attrs)
+        self.assertIsNone(result)
+
+    def test_unset_gateway_ip_qos_no_network(self):
+        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        router = network_fakes.FakeRouter.create_one_router()
+        self.network.find_router = mock.Mock(return_value=router)
+        arglist = [
+            "--qos-policy",
+            router.id,
+        ]
+        verifylist = [
+            ('router', router.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)
+
+    def test_unset_gateway_ip_qos_no_qos(self):
+        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        router = network_fakes.FakeRouter.create_one_router(
+            {"external_gateway_info": {"network_id": "fake-id"}})
+        self.network.find_router = mock.Mock(return_value=router)
+        arglist = [
+            "--qos-policy",
+            router.id,
+        ]
+        verifylist = [
+            ('router', router.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action, parsed_args)

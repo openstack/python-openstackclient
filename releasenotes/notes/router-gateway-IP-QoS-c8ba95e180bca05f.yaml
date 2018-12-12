@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Add support for attaching and removing qos policy to router gateway IPs.
+
+    Add ``--qos-policy`` and ``--no-qos-policy`` options to the
+    ``router set`` command.
+
+    Add ``--qos-policy`` option to the ``router unset`` command.

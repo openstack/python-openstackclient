@@ -593,6 +593,17 @@ class SetRouter(command.Command):
             action='store_true',
             help=_("Disable Source NAT on external gateway")
         )
+        qos_policy_group = parser.add_mutually_exclusive_group()
+        qos_policy_group.add_argument(
+            '--qos-policy',
+            metavar='<qos-policy>',
+            help=_("Attach QoS policy to router gateway IPs")
+        )
+        qos_policy_group.add_argument(
+            '--no-qos-policy',
+            action='store_true',
+            help=_("Remove QoS policy from router gateway IPs")
+        )
         _tag.add_tag_option_to_parser_for_set(parser, _('router'))
         return parser
 
@@ -652,6 +663,27 @@ class SetRouter(command.Command):
                     ips.append(ip_spec)
                 gateway_info['external_fixed_ips'] = ips
             attrs['external_gateway_info'] = gateway_info
+
+        if ((parsed_args.qos_policy or parsed_args.no_qos_policy) and
+                not parsed_args.external_gateway):
+            try:
+                original_net_id = obj.external_gateway_info['network_id']
+            except (KeyError, TypeError):
+                msg = (_("You must specify '--external-gateway' or the router "
+                         "must already have an external network in order to "
+                         "set router gateway IP QoS"))
+                raise exceptions.CommandError(msg)
+            else:
+                if not attrs.get('external_gateway_info'):
+                    attrs['external_gateway_info'] = {}
+                attrs['external_gateway_info']['network_id'] = original_net_id
+        if parsed_args.qos_policy:
+            check_qos_id = client.find_qos_policy(
+                parsed_args.qos_policy, ignore_missing=False).id
+            attrs['external_gateway_info']['qos_policy_id'] = check_qos_id
+
+        if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
+            attrs['external_gateway_info']['qos_policy_id'] = None
         if attrs:
             client.update_router(obj, **attrs)
         # tags is a subresource and it needs to be updated separately.
@@ -716,6 +748,12 @@ class UnsetRouter(command.Command):
             default=False,
             help=_("Remove external gateway information from the router"))
         parser.add_argument(
+            '--qos-policy',
+            action='store_true',
+            default=False,
+            help=_("Remove QoS policy from router gateway IPs")
+        )
+        parser.add_argument(
             'router',
             metavar="<router>",
             help=_("Router to modify (name or ID)")
@@ -727,6 +765,7 @@ class UnsetRouter(command.Command):
         client = self.app.client_manager.network
         obj = client.find_router(parsed_args.router, ignore_missing=False)
         tmp_routes = copy.deepcopy(obj.routes)
+        tmp_external_gateway_info = copy.deepcopy(obj.external_gateway_info)
         attrs = {}
         if parsed_args.routes:
             try:
@@ -737,6 +776,20 @@ class UnsetRouter(command.Command):
                 msg = (_("Router does not contain route %s") % route)
                 raise exceptions.CommandError(msg)
             attrs['routes'] = tmp_routes
+        if parsed_args.qos_policy:
+            try:
+                if (tmp_external_gateway_info['network_id'] and
+                        tmp_external_gateway_info['qos_policy_id']):
+                    pass
+            except (KeyError, TypeError):
+                msg = _("Router does not have external network or qos policy")
+                raise exceptions.CommandError(msg)
+            else:
+                attrs['external_gateway_info'] = {
+                    'network_id': tmp_external_gateway_info['network_id'],
+                    'qos_policy_id': None
+                }
+
         if parsed_args.external_gateway:
             attrs['external_gateway_info'] = {}
         if attrs:
