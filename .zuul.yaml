@@ -166,11 +166,11 @@
         s-container: false
         s-object: false
         s-proxy: false
-        # As swift is not available for this job, c-backup service won't be functional.
+        # As swift is not available for this job, c-bak service won't be functional.
         # The backup related tests can be handled by other jobs having swift enabled.
         # The backup service along with swift services can be enabled once swift is
         # compatible with py3
-        c-backup: false
+        c-bak: false
       tox_envlist: functional
       tox_install_siblings: true
 

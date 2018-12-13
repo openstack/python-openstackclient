@@ -319,7 +319,9 @@ class RestoreVolumeBackup(command.ShowOne):
         backup = utils.find_resource(volume_client.backups, parsed_args.backup)
         destination_volume = utils.find_resource(volume_client.volumes,
                                                  parsed_args.volume)
-        return volume_client.restores.restore(backup.id, destination_volume.id)
+        backup = volume_client.restores.restore(backup.id,
+                                                destination_volume.id)
+        return zip(*sorted(six.iteritems(backup._info)))
 
 
 class RestoreBackup(RestoreVolumeBackup):
