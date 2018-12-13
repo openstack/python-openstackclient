@@ -367,7 +367,9 @@ class TestBackupRestore(TestBackup):
 
         self.backups_mock.get.return_value = self.backup
         self.volumes_mock.get.return_value = self.volume
-        self.restores_mock.restore.return_value = None
+        self.restores_mock.restore.return_value = (
+            volume_fakes.FakeVolume.create_one_volume(
+                {'id': self.volume['id']}))
         # Get the command object to mock
         self.cmd = backup.RestoreVolumeBackup(self.app, None)
 
@@ -385,7 +387,7 @@ class TestBackupRestore(TestBackup):
         result = self.cmd.take_action(parsed_args)
         self.restores_mock.restore.assert_called_with(self.backup.id,
                                                       self.backup.volume_id)
-        self.assertIsNone(result)
+        self.assertIsNotNone(result)
 
 
 class TestBackupSet(TestBackup):
