@@ -206,12 +206,18 @@ class SetRegisteredLimit(command.ShowOne):
         parser.add_argument(
             '--service',
             metavar='<service>',
-            help=_('Service responsible for the resource to limit'),
+            help=_('Service to be updated responsible for the resource to '
+                   'limit. Either --service, --resource-name or --region must '
+                   'be different than existing value otherwise it will be '
+                   'duplicate entry')
         )
         parser.add_argument(
             '--resource-name',
             metavar='<resource-name>',
-            help=_('The name of the resource to limit'),
+            help=_('Resource to be updated responsible for the resource to '
+                   'limit. Either --service, --resource-name or --region must '
+                   'be different than existing value otherwise it will be '
+                   'duplicate entry'),
         )
         parser.add_argument(
             '--default-limit',
@@ -222,12 +228,15 @@ class SetRegisteredLimit(command.ShowOne):
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_('Description of the registered limit'),
+            help=_('Description to update of the registered limit'),
         )
         parser.add_argument(
             '--region',
             metavar='<region>',
-            help=_('Region for the registered limit to affect.'),
+            help=_('Region for the registered limit to affect. Either '
+                   '--service, --resource-name or --region must be '
+                   'different than existing value otherwise it will be '
+                   'duplicate entry'),
         )
         return parser
 
