@@ -70,6 +70,8 @@
       - ^.*\.rst$
       - ^doc/.*$
       - ^releasenotes/.*$
+    required-projects:
+      - openstack/python-openstackclient
     vars:
       devstack_localrc:
         LIBS_FROM_GIT: python-openstackclient
