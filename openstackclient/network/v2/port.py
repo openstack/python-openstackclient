@@ -163,6 +163,13 @@ def _get_attrs(client_manager, parsed_args):
         attrs['qos_policy_id'] = client_manager.network.find_qos_policy(
             parsed_args.qos_policy, ignore_missing=False).id
 
+    if ('enable_uplink_status_propagation' in parsed_args and
+            parsed_args.enable_uplink_status_propagation):
+        attrs['propagate_uplink_status'] = True
+    if ('disable_uplink_status_propagation' in parsed_args and
+            parsed_args.disable_uplink_status_propagation):
+        attrs['propagate_uplink_status'] = False
+
     return attrs
 
 
@@ -348,6 +355,17 @@ class CreatePort(command.ShowOne):
             '--disable',
             action='store_true',
             help=_("Disable port")
+        )
+        uplink_status_group = parser.add_mutually_exclusive_group()
+        uplink_status_group.add_argument(
+            '--enable-uplink-status-propagation',
+            action='store_true',
+            help=_("Enable uplink status propagate")
+        )
+        uplink_status_group.add_argument(
+            '--disable-uplink-status-propagation',
+            action='store_true',
+            help=_("Disable uplink status propagate (default)")
         )
         parser.add_argument(
             '--project',

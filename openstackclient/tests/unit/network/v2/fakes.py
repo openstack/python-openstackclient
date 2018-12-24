@@ -581,6 +581,7 @@ class FakePort(object):
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
             'tags': [],
+            'uplink_status_propagation': False,
         }
 
         # Overwrite default attributes.
@@ -600,6 +601,8 @@ class FakePort(object):
         port.project_id = port_attrs['tenant_id']
         port.security_group_ids = port_attrs['security_group_ids']
         port.qos_policy_id = port_attrs['qos_policy_id']
+        port.uplink_status_propagation = port_attrs[
+            'uplink_status_propagation']
 
         return port
 

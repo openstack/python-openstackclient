@@ -26,6 +26,7 @@ Create new port
         [--binding-profile <binding-profile>]
         [--host <host-id>]
         [--enable | --disable]
+        [--enable-uplink-status-propagation | --disable-uplink-status-propagation]
         [--mac-address <mac-address>]
         [--security-group <security-group> | --no-security-group]
         [--dns-domain <dns-domain>]
@@ -86,6 +87,14 @@ Create new port
 .. option:: --disable
 
     Disable port
+
+.. option:: --enable-uplink-status-propagation
+
+    Enable uplink status propagate
+
+.. option:: --disable-uplink-status-propagation
+
+    Disable uplink status propagate (default)
 
 .. option:: --mac-address <mac-address>
 

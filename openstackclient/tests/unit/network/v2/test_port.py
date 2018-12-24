@@ -64,6 +64,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'security_group_ids',
             'status',
             'tags',
+            'uplink_status_propagation',
         )
 
         data = (
@@ -93,6 +94,7 @@ class TestPort(network_fakes.TestNetworkV2):
             utils.format_list(fake_port.security_group_ids),
             fake_port.status,
             utils.format_list(fake_port.tags),
+            fake_port.uplink_status_propagation,
         )
 
         return columns, data
@@ -570,6 +572,43 @@ class TestCreatePort(TestPort):
 
     def test_create_with_no_tag(self):
         self._test_create_with_tag(add_tags=False)
+
+    def _test_create_with_uplink_status_propagation(self, enable=True):
+        arglist = [
+            '--network', self._port.network_id,
+            'test-port',
+        ]
+        if enable:
+            arglist += ['--enable-uplink-status-propagation']
+        else:
+            arglist += ['--disable-uplink-status-propagation']
+        verifylist = [
+            ('network', self._port.network_id,),
+            ('name', 'test-port'),
+        ]
+        if enable:
+            verifylist.append(('enable_uplink_status_propagation', True))
+        else:
+            verifylist.append(('disable_uplink_status_propagation', True))
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_port.assert_called_once_with(**{
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'propagate_uplink_status': enable,
+            'name': 'test-port',
+        })
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_with_uplink_status_propagation_enabled(self):
+        self._test_create_with_uplink_status_propagation(enable=True)
+
+    def test_create_with_uplink_status_propagation_disabled(self):
+        self._test_create_with_uplink_status_propagation(enable=False)
 
 
 class TestDeletePort(TestPort):
