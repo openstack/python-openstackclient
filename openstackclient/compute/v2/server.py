@@ -999,13 +999,9 @@ class DeleteServer(command.Command):
                 compute_client.servers, server)
             compute_client.servers.delete(server_obj.id)
             if parsed_args.wait:
-                if utils.wait_for_delete(
-                    compute_client.servers,
-                    server_obj.id,
-                    callback=_show_progress,
-                ):
-                    self.app.stdout.write('\n')
-                else:
+                if not utils.wait_for_delete(compute_client.servers,
+                                             server_obj.id,
+                                             callback=_show_progress):
                     LOG.error(_('Error deleting server: %s'),
                               server_obj.id)
                     self.app.stdout.write(_('Error deleting server\n'))
