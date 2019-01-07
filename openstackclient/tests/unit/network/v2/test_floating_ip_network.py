@@ -504,6 +504,23 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_floating_ip_list_floating_ip_address(self):
+        arglist = [
+            '--floating-ip-address', self.floating_ips[0].floating_ip_address,
+        ]
+        verifylist = [
+            ('floating_ip_address', self.floating_ips[0].floating_ip_address),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.ips.assert_called_once_with(**{
+            'floating_ip_address': self.floating_ips[0].floating_ip_address,
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
     def test_floating_ip_list_long(self):
         arglist = ['--long', ]
         verifylist = [('long', True), ]
