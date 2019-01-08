@@ -24,6 +24,7 @@ COMMON_DIR = os.path.dirname(os.path.abspath(__file__))
 FUNCTIONAL_DIR = os.path.normpath(os.path.join(COMMON_DIR, '..'))
 ROOT_DIR = os.path.normpath(os.path.join(FUNCTIONAL_DIR, '..'))
 EXAMPLE_DIR = os.path.join(ROOT_DIR, 'examples')
+ADMIN_CLOUD = os.environ.get('OS_ADMIN_CLOUD', 'devstack-admin')
 
 
 def execute(cmd, fail_ok=False, merge_stderr=False):
@@ -59,9 +60,11 @@ class TestCase(testtools.TestCase):
     delimiter_line = re.compile('^\+\-[\+\-]+\-\+$')
 
     @classmethod
-    def openstack(cls, cmd, fail_ok=False):
+    def openstack(cls, cmd, cloud=ADMIN_CLOUD, fail_ok=False):
         """Executes openstackclient command for the given action."""
-        return execute('openstack ' + cmd, fail_ok=fail_ok)
+        return execute(
+            'openstack --os-cloud={cloud} '.format(cloud=cloud) +
+            cmd, fail_ok=fail_ok)
 
     @classmethod
     def get_openstack_configuration_value(cls, configuration):

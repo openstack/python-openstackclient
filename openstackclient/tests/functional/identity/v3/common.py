@@ -19,6 +19,7 @@ from openstackclient.tests.functional import base
 
 
 BASIC_LIST_HEADERS = ['ID', 'Name']
+SYSTEM_CLOUD = os.environ.get('OS_SYSTEM_CLOUD', 'devstack-system-admin')
 
 
 class IdentityTests(base.TestCase):
@@ -341,7 +342,8 @@ class IdentityTests(base.TestCase):
             'registered limit create'
             ' --service %(service_name)s'
             ' --default-limit %(default_limit)s'
-            ' %(resource_name)s' % params
+            ' %(resource_name)s' % params,
+            cloud=SYSTEM_CLOUD
         )
         items = self.parse_show(raw_output)
         registered_limit_id = self._extract_value_from_items('id', items)
@@ -349,7 +351,8 @@ class IdentityTests(base.TestCase):
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
-                'registered limit delete %s' % registered_limit_id
+                'registered limit delete %s' % registered_limit_id,
+                cloud=SYSTEM_CLOUD
             )
 
         self.assert_show_fields(items, self.REGISTERED_LIMIT_FIELDS)
@@ -365,7 +368,8 @@ class IdentityTests(base.TestCase):
         registered_limit_id = self._create_dummy_registered_limit()
 
         raw_output = self.openstack(
-            'registered limit show %s' % registered_limit_id
+            'registered limit show %s' % registered_limit_id,
+            cloud=SYSTEM_CLOUD
         )
         items = self.parse_show(raw_output)
         resource_name = self._extract_value_from_items('resource_name', items)
@@ -389,13 +393,17 @@ class IdentityTests(base.TestCase):
             ' --project %(project_id)s'
             ' --service %(service_id)s'
             ' --resource-limit %(resource_limit)s'
-            ' %(resource_name)s' % params
+            ' %(resource_name)s' % params,
+            cloud=SYSTEM_CLOUD
         )
         items = self.parse_show(raw_output)
         limit_id = self._extract_value_from_items('id', items)
 
         if add_clean_up:
-            self.addCleanup(self.openstack, 'limit delete %s' % limit_id)
+            self.addCleanup(
+                self.openstack, 'limit delete %s' % limit_id,
+                cloud=SYSTEM_CLOUD
+            )
 
         self.assert_show_fields(items, self.LIMIT_FIELDS)
         return limit_id
