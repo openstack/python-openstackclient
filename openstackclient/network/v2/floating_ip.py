@@ -237,6 +237,12 @@ class ListFloatingIP(common.NetworkAndComputeLister):
                    "given fixed IP address")
         )
         parser.add_argument(
+            '--floating-ip-address',
+            metavar='<ip-address>',
+            help=_("List floating IP(s) according to "
+                   "given floating IP address")
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -316,6 +322,8 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             query['port_id'] = port.id
         if parsed_args.fixed_ip_address is not None:
             query['fixed_ip_address'] = parsed_args.fixed_ip_address
+        if parsed_args.floating_ip_address is not None:
+            query['floating_ip_address'] = parsed_args.floating_ip_address
         if parsed_args.status:
             query['status'] = parsed_args.status
         if parsed_args.project is not None:

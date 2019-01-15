@@ -144,6 +144,12 @@ List floating IP(s)
 
     *Network version 2 only*
 
+.. option:: --floating-ip-address <ip-address>
+
+    List floating IP(s) according to given floating IP address
+
+    *Network version 2 only*
+
 .. option:: --long
 
     List additional fields in output
