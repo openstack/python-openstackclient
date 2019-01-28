@@ -1314,6 +1314,14 @@ class ListServer(command.Lister):
         # Populate image_name, image_id, flavor_name and flavor_id attributes
         # of server objects so that we can display those columns.
         for s in data:
+            if compute_client.api_version >= api_versions.APIVersion('2.69'):
+                # NOTE(tssurya): From 2.69, we will have the keys 'flavor'
+                # and 'image' missing in the server response during
+                # infrastructure failure situations.
+                # For those servers with partial constructs we just skip the
+                # processing of the image and flavor informations.
+                if not hasattr(s, 'image') or not hasattr(s, 'flavor'):
+                    continue
             if 'id' in s.image:
                 image = images.get(s.image['id'])
                 if image:

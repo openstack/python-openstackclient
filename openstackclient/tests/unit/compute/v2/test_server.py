@@ -2272,6 +2272,50 @@ class TestServerList(TestServer):
             'Invalid time value'
         )
 
+    def test_server_list_v269_with_partial_constructs(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.69')
+        arglist = []
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        # include "partial results" from non-responsive part of
+        # infrastructure.
+        server_dict = {
+            "id": "server-id-95a56bfc4xxxxxx28d7e418bfd97813a",
+            "status": "UNKNOWN",
+            "tenant_id": "6f70656e737461636b20342065766572",
+            "created": "2018-12-03T21:06:18Z",
+            "links": [
+                {
+                    "href": "http://fake/v2.1/",
+                    "rel": "self"
+                },
+                {
+                    "href": "http://fake",
+                    "rel": "bookmark"
+                }
+            ],
+            # We need to pass networks as {} because its defined as a property
+            # of the novaclient Server class which gives {} by default. If not
+            # it will fail at formatting the networks info later on.
+            "networks": {}
+        }
+        server = compute_fakes.fakes.FakeResource(
+            info=server_dict,
+        )
+        self.servers.append(server)
+        columns, data = self.cmd.take_action(parsed_args)
+        # get the first three servers out since our interest is in the partial
+        # server.
+        next(data)
+        next(data)
+        next(data)
+        partial_server = next(data)
+        expected_row = (
+            'server-id-95a56bfc4xxxxxx28d7e418bfd97813a', '',
+            'UNKNOWN', '', '', '')
+        self.assertEqual(expected_row, partial_server)
+
 
 class TestServerLock(TestServer):
 
