@@ -52,7 +52,7 @@ def _get_attrs(client_manager, parsed_args):
     network_client = client_manager.network
 
     if parsed_args.name is not None:
-        attrs['name'] = str(parsed_args.name)
+        attrs['name'] = parsed_args.name
     if parsed_args.prefixes is not None:
         attrs['prefixes'] = parsed_args.prefixes
     if parsed_args.default_prefix_length is not None:

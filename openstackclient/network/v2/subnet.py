@@ -169,7 +169,7 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
     attrs = {}
     client = client_manager.network
     if 'name' in parsed_args and parsed_args.name is not None:
-        attrs['name'] = str(parsed_args.name)
+        attrs['name'] = parsed_args.name
 
     if is_create:
         if 'project' in parsed_args and parsed_args.project is not None:
