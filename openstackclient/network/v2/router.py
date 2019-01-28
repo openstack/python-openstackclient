@@ -77,7 +77,7 @@ def _get_columns(item):
 def _get_attrs(client_manager, parsed_args):
     attrs = {}
     if parsed_args.name is not None:
-        attrs['name'] = str(parsed_args.name)
+        attrs['name'] = parsed_args.name
     if parsed_args.enable:
         attrs['admin_state_up'] = True
     if parsed_args.disable:

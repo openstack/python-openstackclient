@@ -38,7 +38,7 @@ def _get_columns(item):
 def _get_attrs(client_manager, parsed_args):
     attrs = {}
     if 'name' in parsed_args and parsed_args.name is not None:
-        attrs['name'] = str(parsed_args.name)
+        attrs['name'] = parsed_args.name
     if 'description' in parsed_args and parsed_args.description is not None:
         attrs['description'] = parsed_args.description
     if parsed_args.share:

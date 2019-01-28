@@ -351,7 +351,7 @@ class SetNetworkAgent(command.Command):
         obj = client.get_agent(parsed_args.network_agent)
         attrs = {}
         if parsed_args.description is not None:
-            attrs['description'] = str(parsed_args.description)
+            attrs['description'] = parsed_args.description
         if parsed_args.enable:
             attrs['is_admin_state_up'] = True
             attrs['admin_state_up'] = True
