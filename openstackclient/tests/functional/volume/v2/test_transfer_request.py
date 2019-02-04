@@ -49,17 +49,20 @@ class TransferRequestTests(common.BaseVolumeTests):
             volume_name
         ))
         self.assertEqual(xfer_name, cmd_output['name'])
+        xfer_id = cmd_output['id']
         auth_key = cmd_output['auth_key']
         self.assertTrue(auth_key)
+        self.wait_for_status("volume", volume_name, "awaiting-transfer")
 
         # accept the volume transfer request
         cmd_output = json.loads(self.openstack(
             '--os-volume-api-version ' + self.API_VERSION + ' ' +
             'volume transfer request accept -f json ' +
             '--auth-key ' + auth_key + ' ' +
-            xfer_name
+            xfer_id
         ))
         self.assertEqual(xfer_name, cmd_output['name'])
+        self.wait_for_status("volume", volume_name, "available")
 
     def test_volume_transfer_request_list_show(self):
         volume_name = uuid.uuid4().hex
@@ -86,15 +89,11 @@ class TransferRequestTests(common.BaseVolumeTests):
             ' --name ' + xfer_name + ' ' +
             volume_name
         ))
-        self.addCleanup(
-            self.openstack,
-            '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume transfer request delete ' +
-            xfer_name
-        )
         self.assertEqual(xfer_name, cmd_output['name'])
+        xfer_id = cmd_output['id']
         auth_key = cmd_output['auth_key']
         self.assertTrue(auth_key)
+        self.wait_for_status("volume", volume_name, "awaiting-transfer")
 
         cmd_output = json.loads(self.openstack(
             '--os-volume-api-version ' + self.API_VERSION + ' ' +
@@ -105,6 +104,18 @@ class TransferRequestTests(common.BaseVolumeTests):
         cmd_output = json.loads(self.openstack(
             '--os-volume-api-version ' + self.API_VERSION + ' ' +
             'volume transfer request show -f json ' +
-            xfer_name
+            xfer_id
         ))
         self.assertEqual(xfer_name, cmd_output['name'])
+
+        # NOTE(dtroyer): We need to delete the transfer request to allow the
+        #                volume to be deleted. The addCleanup() route does
+        #                not have a mechanism to wait for the volume status
+        #                to become 'available' before attempting to  delete
+        #                the volume.
+        cmd_output = self.openstack(
+            '--os-volume-api-version ' + self.API_VERSION + ' ' +
+            'volume transfer request delete ' +
+            xfer_id
+        )
+        self.wait_for_status("volume", volume_name, "available")
