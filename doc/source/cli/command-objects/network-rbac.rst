@@ -26,7 +26,7 @@ Create network RBAC policy
 
 .. option:: --type <type>
 
-    Type of the object that RBAC policy affects ("qos_policy" or "network") (required)
+    Type of the object that RBAC policy affects ("security_group", "qos_policy" or "network") (required)
 
 .. option:: --action <action>
 
@@ -90,7 +90,7 @@ List network RBAC policies
 
 .. option:: --type <type>
 
-    List network RBAC policies according to given object type ("qos_policy" or "network")
+    List network RBAC policies according to given object type ("security_group", "qos_policy" or "network")
 
 .. option:: --action <action>
 

@@ -37,6 +37,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
 
     network_object = network_fakes.FakeNetwork.create_one_network()
     qos_object = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+    sg_object = network_fakes.FakeNetworkSecGroup.create_one_security_group()
     project = identity_fakes_v3.FakeProject.create_one_project()
     rbac_policy = network_fakes.FakeNetworkRBAC.create_one_network_rbac(
         attrs={'tenant_id': project.id,
@@ -74,6 +75,8 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             return_value=self.network_object)
         self.network.find_qos_policy = mock.Mock(
             return_value=self.qos_object)
+        self.network.find_security_group = mock.Mock(
+            return_value=self.sg_object)
         self.projects_mock.get.return_value = self.project
 
     def test_network_rbac_create_no_type(self):
@@ -252,6 +255,43 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             self.rbac_policy.id,
             self.qos_object.id,
             'qos_policy',
+            self.rbac_policy.tenant_id,
+            self.rbac_policy.target_tenant,
+        ]
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_rbac_create_security_group_object(self):
+        self.rbac_policy.object_type = 'security_group'
+        self.rbac_policy.object_id = self.sg_object.id
+        arglist = [
+            '--type', 'security_group',
+            '--action', self.rbac_policy.action,
+            '--target-project', self.rbac_policy.target_tenant,
+            self.sg_object.name,
+        ]
+        verifylist = [
+            ('type', 'security_group'),
+            ('action', self.rbac_policy.action),
+            ('target_project', self.rbac_policy.target_tenant),
+            ('rbac_object', self.sg_object.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_rbac_policy.assert_called_with(**{
+            'object_id': self.sg_object.id,
+            'object_type': 'security_group',
+            'action': self.rbac_policy.action,
+            'target_tenant': self.rbac_policy.target_tenant,
+        })
+        self.data = [
+            self.rbac_policy.action,
+            self.rbac_policy.id,
+            self.sg_object.id,
+            'security_group',
             self.rbac_policy.tenant_id,
             self.rbac_policy.target_tenant,
         ]

@@ -908,6 +908,39 @@ class FakeNetworkQosPolicy(object):
         return mock.Mock(side_effect=qos_policies)
 
 
+class FakeNetworkSecGroup(object):
+    """Fake one security group."""
+
+    @staticmethod
+    def create_one_security_group(attrs=None):
+        """Create a fake security group.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with name, id, etc.
+        """
+        attrs = attrs or {}
+        sg_id = attrs.get('id') or 'security-group-id-' + uuid.uuid4().hex
+
+        # Set default attributes.
+        security_group_attrs = {
+            'name': 'security-group-name-' + uuid.uuid4().hex,
+            'id': sg_id,
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'description': 'security-group-description-' + uuid.uuid4().hex
+        }
+
+        security_group = fakes.FakeResource(
+            info=copy.deepcopy(security_group_attrs),
+            loaded=True)
+
+        # Set attributes with special mapping in OpenStack SDK.
+        security_group.project_id = security_group_attrs['tenant_id']
+
+        return security_group
+
+
 class FakeNetworkQosRule(object):
     """Fake one or more Network QoS rules."""
 
