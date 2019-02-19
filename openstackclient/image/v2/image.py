@@ -86,7 +86,7 @@ class AddProjectToImage(command.ShowOne):
         parser.add_argument(
             "project",
             metavar="<project>",
-            help=_("Project to associate with image (name or ID)"),
+            help=_("Project to associate with image (ID)"),
         )
         common.add_project_domain_option_to_parser(parser)
         return parser
