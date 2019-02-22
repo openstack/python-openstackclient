@@ -262,6 +262,7 @@ Set volume properties
         [--property <key=value> [...] ]
         [--image-property <key=value> [...] ]
         [--state <state>]
+        [--attached | --detached ]
         [--type <volume-type>]
         [--retype-policy <retype-policy>]
         [--bootable | --non-bootable]
@@ -336,6 +337,22 @@ Set volume properties
     New volume state
     ("available", "error", "creating", "deleting", "in-use",
     "attaching", "detaching", "error_deleting" or "maintenance") (admin only)
+    (This option simply changes the state of the volume in the database with
+    no regard to actual status, exercise caution when using)
+
+    *Volume version 2 only*
+
+.. option:: --attached
+
+    Set volume attachment status to "attached" (admin only)
+    (This option simply changes the state of the volume in the database with
+    no regard to actual status, exercise caution when using)
+
+    *Volume version 2 only*
+
+.. option:: --deattach
+
+    Set volume attachment status to "detached" (admin only)
     (This option simply changes the state of the volume in the database with
     no regard to actual status, exercise caution when using)
 

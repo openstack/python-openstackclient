@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``--attached`` and ``--detached`` options to ``volume set`` command to set the
+    volume status in the database.  This is the functional equivalent to
+    ``cinder reset-state --attach-status``.
+    [`bug 1745699 <https://bugs.launchpad.net/python-openstackclient/+bug/1745699>`_
