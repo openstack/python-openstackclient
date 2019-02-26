@@ -1,0 +1,4 @@
+---
+features:
+  - The ``os_hash_algo`` and ``os_hash_value image`` attributes are now shown
+    in the ``image list --long`` output.

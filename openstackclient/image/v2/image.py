@@ -98,6 +98,9 @@ def _format_image(image, human_readable=False):
         'virtual_size',
         'min_ram',
         'schema',
+        'is_hidden',
+        'hash_algo',
+        'hash_value',
     ]
 
     # TODO(gtema/anybody): actually it should be possible to drop this method,
@@ -903,6 +906,8 @@ class ListImage(command.Lister):
                 'visibility',
                 'is_protected',
                 'owner_id',
+                'hash_algo',
+                'hash_value',
                 'tags',
             )
             column_headers: tuple[str, ...] = (
@@ -916,6 +921,8 @@ class ListImage(command.Lister):
                 'Visibility',
                 'Protected',
                 'Project',
+                'Hash Algorithm',
+                'Hash Value',
                 'Tags',
             )
         else:

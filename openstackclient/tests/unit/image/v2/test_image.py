@@ -822,6 +822,8 @@ class TestImageList(TestImage):
             'Visibility',
             'Protected',
             'Project',
+            'Hash Algorithm',
+            'Hash Value',
             'Tags',
         )
 
@@ -830,14 +832,16 @@ class TestImageList(TestImage):
             (
                 self._image.id,
                 self._image.name,
-                None,
-                None,
-                None,
-                None,
-                None,
+                self._image.disk_format,
+                self._image.container_format,
+                self._image.size,
+                self._image.checksum,
+                self._image.status,
                 self._image.visibility,
                 self._image.is_protected,
                 self._image.owner_id,
+                self._image.hash_algo,
+                self._image.hash_value,
                 format_columns.ListColumn(self._image.tags),
             ),
         )
@@ -1356,15 +1360,17 @@ class TestImageSet(TestImage):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-    def test_image_set_bools1(self):
+    def test_image_set_bools_true(self):
         arglist = [
             '--protected',
             '--private',
+            '--hidden',
             'graven',
         ]
         verifylist = [
             ('is_protected', True),
             ('visibility', 'private'),
+            ('is_hidden', True),
             ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1374,6 +1380,7 @@ class TestImageSet(TestImage):
         kwargs = {
             'is_protected': True,
             'visibility': 'private',
+            'is_hidden': True,
         }
         # ImageManager.update(image, **kwargs)
         self.image_client.update_image.assert_called_with(
@@ -1381,15 +1388,17 @@ class TestImageSet(TestImage):
         )
         self.assertIsNone(result)
 
-    def test_image_set_bools2(self):
+    def test_image_set_bools_false(self):
         arglist = [
             '--unprotected',
             '--public',
+            '--unhidden',
             'graven',
         ]
         verifylist = [
             ('is_protected', False),
             ('visibility', 'public'),
+            ('is_hidden', False),
             ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1399,6 +1408,7 @@ class TestImageSet(TestImage):
         kwargs = {
             'is_protected': False,
             'visibility': 'public',
+            'is_hidden': False,
         }
         # ImageManager.update(image, **kwargs)
         self.image_client.update_image.assert_called_with(
