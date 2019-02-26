@@ -1,0 +1,3 @@
+---
+features:
+  - Add ``--member-status`` option to ``image list`` command.

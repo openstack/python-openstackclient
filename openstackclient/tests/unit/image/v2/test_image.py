@@ -644,6 +644,49 @@ class TestImageList(TestImage):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
+    def test_image_list_shared_member_status_option(self):
+        arglist = [
+            '--shared',
+            '--member-status', 'all'
+        ]
+        verifylist = [
+            ('public', False),
+            ('private', False),
+            ('community', False),
+            ('shared', True),
+            ('long', False),
+            ('member_status', 'all')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+        self.api_mock.image_list.assert_called_with(
+            shared=True,
+            member_status='all',
+            marker=self._image.id,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
+
+    def test_image_list_shared_member_status_lower(self):
+        arglist = [
+            '--shared',
+            '--member-status', 'ALl'
+        ]
+        verifylist = [
+            ('public', False),
+            ('private', False),
+            ('community', False),
+            ('shared', True),
+            ('long', False),
+            ('member_status', 'all')
+        ]
+        self.check_parser(self.cmd, arglist, verifylist)
+
     def test_image_list_long_option(self):
         arglist = [
             '--long',

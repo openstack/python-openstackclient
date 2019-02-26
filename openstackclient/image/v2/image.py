@@ -37,6 +37,7 @@ DEFAULT_CONTAINER_FORMAT = 'bare'
 DEFAULT_DISK_FORMAT = 'raw'
 DISK_CHOICES = ["ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2", "vhdx",
                 "vdi", "iso", "ploop"]
+MEMBER_STATUS_CHOICES = ["accepted", "pending", "rejected", "all"]
 
 
 LOG = logging.getLogger(__name__)
@@ -531,6 +532,16 @@ class ListImage(command.Lister):
             help=_("Filter images based on status.")
         )
         parser.add_argument(
+            '--member-status',
+            metavar='<member-status>',
+            default=None,
+            type=lambda s: s.lower(),
+            choices=MEMBER_STATUS_CHOICES,
+            help=(_("Filter images based on member status. "
+                    "The supported options are: %s. ") %
+                  ', '.join(MEMBER_STATUS_CHOICES))
+        )
+        parser.add_argument(
             '--tag',
             metavar='<tag>',
             default=None,
@@ -595,6 +606,8 @@ class ListImage(command.Lister):
             kwargs['name'] = parsed_args.name
         if parsed_args.status:
             kwargs['status'] = parsed_args.status
+        if parsed_args.member_status:
+            kwargs['member_status'] = parsed_args.member_status
         if parsed_args.tag:
             kwargs['tag'] = parsed_args.tag
         if parsed_args.long:

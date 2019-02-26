@@ -209,6 +209,7 @@ List available images
         [--property <key=value>]
         [--name <name>]
         [--status <status>]
+        [--member-status <member-status>]
         [--tag <tag>]
         [--long]
         [--sort <key>[:<direction>]]
@@ -248,6 +249,12 @@ List available images
 .. option:: --status <status>
 
     Filter images based on status
+
+    *Image version 2 only*
+
+.. option:: --member-status <member-status>
+
+    Filter images based on member status
 
     *Image version 2 only*
 
