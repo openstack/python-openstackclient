@@ -32,7 +32,7 @@ Associate project with image
 .. _image_add_project-project:
 .. describe:: <project>
 
-    Project to associate with image (name or ID)
+    Project to associate with image (ID)
 
 image create
 ------------
