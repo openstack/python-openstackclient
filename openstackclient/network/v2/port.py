@@ -134,7 +134,7 @@ def _get_attrs(client_manager, parsed_args):
         attrs['dns_name'] = parsed_args.dns_name
     # It is possible that name is not updated during 'port set'
     if parsed_args.name is not None:
-        attrs['name'] = str(parsed_args.name)
+        attrs['name'] = parsed_args.name
     # The remaining options do not support 'port set' command, so they require
     # additional check
     if 'network' in parsed_args and parsed_args.network is not None:
