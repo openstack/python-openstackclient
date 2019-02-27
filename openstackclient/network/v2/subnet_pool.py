@@ -13,7 +13,6 @@
 
 """Subnet pool action implementations"""
 
-import copy
 import logging
 
 from osc_lib.cli import parseractions
@@ -443,14 +442,6 @@ class UnsetSubnetPool(command.Command):
     def get_parser(self, prog_name):
         parser = super(UnsetSubnetPool, self).get_parser(prog_name)
         parser.add_argument(
-            '--pool-prefix',
-            metavar='<pool-prefix>',
-            action='append',
-            dest='prefixes',
-            help=_('Remove subnet pool prefixes (in CIDR notation). '
-                   '(repeat option to unset multiple prefixes).'),
-        )
-        parser.add_argument(
             'subnet_pool',
             metavar="<subnet-pool>",
             help=_("Subnet pool to modify (name or ID)")
@@ -462,19 +453,5 @@ class UnsetSubnetPool(command.Command):
         client = self.app.client_manager.network
         obj = client.find_subnet_pool(
             parsed_args.subnet_pool, ignore_missing=False)
-        tmp_prefixes = copy.deepcopy(obj.prefixes)
-        attrs = {}
-        if parsed_args.prefixes:
-            for prefix in parsed_args.prefixes:
-                try:
-                    tmp_prefixes.remove(prefix)
-                except ValueError:
-                    msg = _(
-                        "Subnet pool does not "
-                        "contain prefix %s") % prefix
-                    raise exceptions.CommandError(msg)
-            attrs['prefixes'] = tmp_prefixes
-        if attrs:
-            client.update_subnet_pool(obj, **attrs)
         # tags is a subresource and it needs to be updated separately.
         _tag.update_tags_for_unset(client, obj, parsed_args)
