@@ -538,6 +538,66 @@ class FakeNetworkSegment(object):
         return network_segments
 
 
+class FakeNetworkSegmentRange(object):
+    """Fake one or more network segment ranges."""
+
+    @staticmethod
+    def create_one_network_segment_range(attrs=None):
+        """Create a fake network segment range.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object faking the network segment range
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        fake_uuid = uuid.uuid4().hex
+        network_segment_range_attrs = {
+            'id': 'network-segment-range-id-' + fake_uuid,
+            'name': 'network-segment-name-' + fake_uuid,
+            'default': False,
+            'shared': False,
+            'project_id': 'project-id-' + fake_uuid,
+            'network_type': 'vlan',
+            'physical_network': 'physical-network-name-' + fake_uuid,
+            'minimum': 100,
+            'maximum': 106,
+            'used': {104: '3312e4ba67864b2eb53f3f41432f8efc',
+                     106: '3312e4ba67864b2eb53f3f41432f8efc'},
+            'available': [100, 101, 102, 103, 105],
+        }
+
+        # Overwrite default attributes.
+        network_segment_range_attrs.update(attrs)
+
+        network_segment_range = fakes.FakeResource(
+            info=copy.deepcopy(network_segment_range_attrs),
+            loaded=True
+        )
+
+        return network_segment_range
+
+    @staticmethod
+    def create_network_segment_ranges(attrs=None, count=2):
+        """Create multiple fake network segment ranges.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of network segment ranges to fake
+        :return:
+            A list of FakeResource objects faking the network segment ranges
+        """
+        network_segment_ranges = []
+        for i in range(0, count):
+            network_segment_ranges.append(
+                FakeNetworkSegmentRange.create_one_network_segment_range(attrs)
+            )
+        return network_segment_ranges
+
+
 class FakePort(object):
     """Fake one or more ports."""
 

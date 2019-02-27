@@ -113,6 +113,7 @@
         # NOTE(amotoki): Some neutron features are enabled by devstack plugin
         neutron: https://git.openstack.org/openstack/neutron
       devstack_services:
+        neutron-network-segment-range: true
         neutron-segments: true
         q-metering: true
         q-qos: true
