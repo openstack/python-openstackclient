@@ -14,6 +14,7 @@
 import datetime
 
 import mock
+from novaclient import api_versions
 
 from openstackclient.compute.v2 import usage
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -101,6 +102,31 @@ class TestUsageList(TestUsage):
             datetime.datetime(2016, 12, 20, 0, 0),
             detailed=True)
 
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_usage_list_with_pagination(self):
+        arglist = []
+        verifylist = [
+            ('start', None),
+            ('end', None),
+        ]
+
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.40')
+        self.usage_mock.list.reset_mock()
+        self.usage_mock.list.side_effect = [self.usages, []]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.projects_mock.list.assert_called_with()
+        self.usage_mock.list.assert_has_calls([
+            mock.call(mock.ANY, mock.ANY, detailed=True),
+            mock.call(mock.ANY, mock.ANY, detailed=True,
+                      marker=self.usages[0]['server_usages'][0]['instance_id'])
+        ])
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 

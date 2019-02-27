@@ -1304,6 +1304,7 @@ class FakeUsage(object):
                     'local_gb': 1,
                     'memory_mb': 512,
                     'name': 'usage-name-' + uuid.uuid4().hex,
+                    'instance_id': uuid.uuid4().hex,
                     'state': 'active',
                     'uptime': 3600,
                     'vcpus': 1

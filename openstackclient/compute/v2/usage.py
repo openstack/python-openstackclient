@@ -15,13 +15,45 @@
 
 """Usage action implementations"""
 
+import collections
 import datetime
 
+from novaclient import api_versions
 from osc_lib.command import command
 from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+
+
+def _get_usage_marker(usage):
+    marker = None
+    if hasattr(usage, 'server_usages') and usage.server_usages:
+        marker = usage.server_usages[-1]['instance_id']
+    return marker
+
+
+def _get_usage_list_marker(usage_list):
+    marker = None
+    if usage_list:
+        marker = _get_usage_marker(usage_list[-1])
+    return marker
+
+
+def _merge_usage(usage, next_usage):
+    usage.server_usages.extend(next_usage.server_usages)
+    usage.total_hours += next_usage.total_hours
+    usage.total_memory_mb_usage += next_usage.total_memory_mb_usage
+    usage.total_vcpus_usage += next_usage.total_vcpus_usage
+    usage.total_local_gb_usage += next_usage.total_local_gb_usage
+
+
+def _merge_usage_list(usages, next_usage_list):
+    for next_usage in next_usage_list:
+        if next_usage.tenant_id in usages:
+            _merge_usage(usages[next_usage.tenant_id], next_usage)
+        else:
+            usages[next_usage.tenant_id] = next_usage
 
 
 class ListUsage(command.Lister):
@@ -83,7 +115,23 @@ class ListUsage(command.Lister):
         else:
             end = now + datetime.timedelta(days=1)
 
-        usage_list = compute_client.usage.list(start, end, detailed=True)
+        if compute_client.api_version < api_versions.APIVersion("2.40"):
+            usage_list = compute_client.usage.list(start, end, detailed=True)
+        else:
+            # If the number of instances used to calculate the usage is greater
+            # than CONF.api.max_limit, the usage will be split across multiple
+            # requests and the responses will need to be merged back together.
+            usages = collections.OrderedDict()
+            usage_list = compute_client.usage.list(start, end, detailed=True)
+            _merge_usage_list(usages, usage_list)
+            marker = _get_usage_list_marker(usage_list)
+            while marker:
+                next_usage_list = compute_client.usage.list(
+                    start, end, detailed=True, marker=marker)
+                marker = _get_usage_list_marker(next_usage_list)
+                if marker:
+                    _merge_usage_list(usages, next_usage_list)
+            usage_list = list(usages.values())
 
         # Cache the project list
         project_cache = {}
