@@ -42,7 +42,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         finally:
             super(VolumeSnapshotTests, cls).tearDownClass()
 
-    def test_volume_snapshot__delete(self):
+    def test_volume_snapshot_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
