@@ -604,7 +604,7 @@ class CreateServer(command.ShowOne):
             type=_prefix_checked_value('port-id='),
             help=_("Create a NIC on the server and connect it to port. "
                    "Specify option multiple times to create multiple NICs. "
-                   "This is a wrapper for the '--nic port-id=<pord>' "
+                   "This is a wrapper for the '--nic port-id=<port>' "
                    "parameter that provides simple syntax for the standard "
                    "use case of connecting a new server to a given port. For "
                    "more advanced use cases, refer to the '--nic' parameter."),
