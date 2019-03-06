@@ -1327,6 +1327,42 @@ class TestVolumeSet(TestVolume):
         self.volumes_mock.reset_state.assert_called_with(
             self.new_volume.id, 'error')
 
+    def test_volume_set_attached(self):
+        arglist = [
+            '--attached',
+            self.new_volume.id
+        ]
+        verifylist = [
+            ('attached', True),
+            ('detached', False),
+            ('volume', self.new_volume.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.volumes_mock.reset_state.assert_called_with(
+            self.new_volume.id, attach_status='attached', state=None)
+        self.assertIsNone(result)
+
+    def test_volume_set_detached(self):
+        arglist = [
+            '--detached',
+            self.new_volume.id
+        ]
+        verifylist = [
+            ('attached', False),
+            ('detached', True),
+            ('volume', self.new_volume.id)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.volumes_mock.reset_state.assert_called_with(
+            self.new_volume.id, attach_status='detached', state=None)
+        self.assertIsNone(result)
+
     def test_volume_set_bootable(self):
         arglist = [
             ['--bootable', self.new_volume.id],

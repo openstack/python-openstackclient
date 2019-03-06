@@ -559,6 +559,25 @@ class SetVolume(command.Command):
                    'in the database with no regard to actual status, '
                    'exercise caution when using)'),
         )
+        attached_group = parser.add_mutually_exclusive_group()
+        attached_group.add_argument(
+            "--attached",
+            action="store_true",
+            help=_('Set volume attachment status to "attached" '
+                   '(admin only) '
+                   '(This option simply changes the state of the volume '
+                   'in the database with no regard to actual status, '
+                   'exercise caution when using)'),
+        )
+        attached_group.add_argument(
+            "--detached",
+            action="store_true",
+            help=_('Set volume attachment status to "detached" '
+                   '(admin only) '
+                   '(This option simply changes the state of the volume '
+                   'in the database with no regard to actual status, '
+                   'exercise caution when using)'),
+        )
         parser.add_argument(
             '--type',
             metavar='<volume-type>',
@@ -644,6 +663,22 @@ class SetVolume(command.Command):
                     volume.id, parsed_args.state)
             except Exception as e:
                 LOG.error(_("Failed to set volume state: %s"), e)
+                result += 1
+        if parsed_args.attached:
+            try:
+                volume_client.volumes.reset_state(
+                    volume.id, state=None,
+                    attach_status="attached")
+            except Exception as e:
+                LOG.error(_("Failed to set volume attach-status: %s"), e)
+                result += 1
+        if parsed_args.detached:
+            try:
+                volume_client.volumes.reset_state(
+                    volume.id, state=None,
+                    attach_status="detached")
+            except Exception as e:
+                LOG.error(_("Failed to set volume attach-status: %s"), e)
                 result += 1
         if parsed_args.bootable or parsed_args.non_bootable:
             try:
