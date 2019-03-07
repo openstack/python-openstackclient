@@ -1026,7 +1026,9 @@ class ListServer(command.Lister):
         parser.add_argument(
             '--ip6',
             metavar='<ip-address-regex>',
-            help=_('Regular expression to match IPv6 addresses'),
+            help=_('Regular expression to match IPv6 addresses. Note '
+                   'that this option only applies for non-admin users '
+                   'when using ``--os-compute-api-version`` 2.5 or greater.'),
         )
         parser.add_argument(
             '--name',
