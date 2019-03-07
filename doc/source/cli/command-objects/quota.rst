@@ -244,7 +244,9 @@ Set quotas for class
 quota show
 ----------
 
-Show quotas for project or class
+Show quotas for project or class. Specify ``--os-compute-api-version 2.50`` or
+higher to see ``server-groups`` and ``server-group-members`` output for a given
+quota class.
 
 .. program:: quota show
 .. code:: bash
