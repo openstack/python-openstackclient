@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add support for list detailed ``quota`` usage for project.
+    This can be done by passing ``--detail`` parameter to `quota list` command.
+    [Bug `1716043 <https://bugs.launchpad.net/neutron/+bug/1716043>`_]

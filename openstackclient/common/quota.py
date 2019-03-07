@@ -97,12 +97,164 @@ def _xform_get_quota(data, value, keys):
     return res
 
 
-class ListQuota(command.Lister):
-    _description = _("List quotas for all projects "
-                     "with non-default quota values")
+class BaseQuota(object):
+    def _get_project(self, parsed_args):
+        if parsed_args.project is not None:
+            identity_client = self.app.client_manager.identity
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+            )
+            project_id = project.id
+            project_name = project.name
+        elif self.app.client_manager.auth_ref:
+            # Get the project from the current auth
+            project = self.app.client_manager.auth_ref
+            project_id = project.project_id
+            project_name = project.project_name
+        else:
+            project = None
+            project_id = None
+            project_name = None
+        project_info = {}
+        project_info['id'] = project_id
+        project_info['name'] = project_name
+        return project_info
+
+    def get_compute_quota(self, client, parsed_args):
+        quota_class = (
+            parsed_args.quota_class if 'quota_class' in parsed_args else False)
+        detail = parsed_args.detail if 'detail' in parsed_args else False
+        default = parsed_args.default if 'default' in parsed_args else False
+        try:
+            if quota_class:
+                quota = client.quota_classes.get(parsed_args.project)
+            else:
+                project_info = self._get_project(parsed_args)
+                project = project_info['id']
+                if default:
+                    quota = client.quotas.defaults(project)
+                else:
+                    quota = client.quotas.get(project, detail=detail)
+        except Exception as e:
+            if type(e).__name__ == 'EndpointNotFound':
+                return {}
+            else:
+                raise
+        return quota._info
+
+    def get_volume_quota(self, client, parsed_args):
+        quota_class = (
+            parsed_args.quota_class if 'quota_class' in parsed_args else False)
+        default = parsed_args.default if 'default' in parsed_args else False
+        try:
+            if quota_class:
+                quota = client.quota_classes.get(parsed_args.project)
+            else:
+                project_info = self._get_project(parsed_args)
+                project = project_info['id']
+                if default:
+                    quota = client.quotas.defaults(project)
+                else:
+                    quota = client.quotas.get(project)
+        except Exception as e:
+            if type(e).__name__ == 'EndpointNotFound':
+                return {}
+            else:
+                raise
+        return quota._info
+
+    def get_network_quota(self, parsed_args):
+        quota_class = (
+            parsed_args.quota_class if 'quota_class' in parsed_args else False)
+        detail = parsed_args.detail if 'detail' in parsed_args else False
+        default = parsed_args.default if 'default' in parsed_args else False
+        if quota_class:
+            return {}
+        if self.app.client_manager.is_network_endpoint_enabled():
+            project_info = self._get_project(parsed_args)
+            project = project_info['id']
+            client = self.app.client_manager.network
+            if default:
+                network_quota = client.get_quota_default(project)
+                if type(network_quota) is not dict:
+                    network_quota = network_quota.to_dict()
+            else:
+                network_quota = client.get_quota(project,
+                                                 details=detail)
+                if type(network_quota) is not dict:
+                    network_quota = network_quota.to_dict()
+                if detail:
+                    # NOTE(slaweq): Neutron returns values with key "used" but
+                    # Nova for example returns same data with key "in_use"
+                    # instead.
+                    # Because of that we need to convert Neutron key to
+                    # the same as is returned from Nova to make result
+                    # more consistent
+                    for key, values in network_quota.items():
+                        if type(values) is dict and "used" in values:
+                            values[u'in_use'] = values.pop("used")
+                        network_quota[key] = values
+            return network_quota
+        else:
+            return {}
+
+
+class ListQuota(command.Lister, BaseQuota):
+    _description = _(
+        "List quotas for all projects with non-default quota values or "
+        "list detailed quota informations for requested project")
+
+    def _get_detailed_quotas(self, parsed_args):
+        columns = (
+            'resource',
+            'in_use',
+            'reserved',
+            'limit'
+        )
+        column_headers = (
+            'Resource',
+            'In Use',
+            'Reserved',
+            'Limit'
+        )
+        quotas = {}
+        if parsed_args.compute:
+            quotas.update(self.get_compute_quota(
+                self.app.client_manager.compute, parsed_args))
+        if parsed_args.network:
+            quotas.update(self.get_network_quota(parsed_args))
+
+        result = []
+        for resource, values in quotas.items():
+            # NOTE(slaweq): there is no detailed quotas info for some resources
+            # and it should't be displayed here
+            if type(values) is dict:
+                result.append({
+                    'resource': resource,
+                    'in_use': values.get('in_use'),
+                    'reserved': values.get('reserved'),
+                    'limit': values.get('limit')
+                })
+        return (column_headers,
+                (utils.get_dict_properties(
+                    s, columns,
+                ) for s in result))
 
     def get_parser(self, prog_name):
         parser = super(ListQuota, self).get_parser(prog_name)
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_('List quotas for this project <project> (name or ID)'),
+        )
+        parser.add_argument(
+            '--detail',
+            dest='detail',
+            action='store_true',
+            default=False,
+            help=_('Show details about quotas usage')
+        )
         option = parser.add_mutually_exclusive_group(required=True)
         option.add_argument(
             '--compute',
@@ -130,6 +282,8 @@ class ListQuota(command.Lister):
         project_ids = [getattr(p, 'id', '') for p in projects]
 
         if parsed_args.compute:
+            if parsed_args.detail:
+                return self._get_detailed_quotas(parsed_args)
             compute_client = self.app.client_manager.compute
             for p in project_ids:
                 try:
@@ -193,6 +347,9 @@ class ListQuota(command.Lister):
                     ) for s in result))
 
         if parsed_args.volume:
+            if parsed_args.detail:
+                LOG.warning("Volume service doesn't provide detailed quota"
+                            " information")
             volume_client = self.app.client_manager.volume
             for p in project_ids:
                 try:
@@ -243,6 +400,8 @@ class ListQuota(command.Lister):
                     ) for s in result))
 
         if parsed_args.network:
+            if parsed_args.detail:
+                return self._get_detailed_quotas(parsed_args)
             client = self.app.client_manager.network
             for p in project_ids:
                 try:
@@ -410,7 +569,7 @@ class SetQuota(command.Command):
                     **network_kwargs)
 
 
-class ShowQuota(command.ShowOne):
+class ShowQuota(command.ShowOne, BaseQuota):
     _description = _("Show quotas for project or class")
 
     def get_parser(self, prog_name):
@@ -438,62 +597,6 @@ class ShowQuota(command.ShowOne):
         )
         return parser
 
-    def _get_project(self, parsed_args):
-        if parsed_args.project is not None:
-            identity_client = self.app.client_manager.identity
-            project = utils.find_resource(
-                identity_client.projects,
-                parsed_args.project,
-            )
-            project_id = project.id
-            project_name = project.name
-        elif self.app.client_manager.auth_ref:
-            # Get the project from the current auth
-            project = self.app.client_manager.auth_ref
-            project_id = project.project_id
-            project_name = project.project_name
-        else:
-            project = None
-            project_id = None
-            project_name = None
-        project_info = {}
-        project_info['id'] = project_id
-        project_info['name'] = project_name
-        return project_info
-
-    def get_compute_volume_quota(self, client, parsed_args):
-        try:
-            if parsed_args.quota_class:
-                quota = client.quota_classes.get(parsed_args.project)
-            else:
-                project_info = self._get_project(parsed_args)
-                project = project_info['id']
-                if parsed_args.default:
-                    quota = client.quotas.defaults(project)
-                else:
-                    quota = client.quotas.get(project)
-        except Exception as e:
-            if type(e).__name__ == 'EndpointNotFound':
-                return {}
-            else:
-                raise
-        return quota._info
-
-    def get_network_quota(self, parsed_args):
-        if parsed_args.quota_class:
-            return {}
-        if self.app.client_manager.is_network_endpoint_enabled():
-            project_info = self._get_project(parsed_args)
-            project = project_info['id']
-            client = self.app.client_manager.network
-            if parsed_args.default:
-                network_quota = client.get_quota_default(project)
-            else:
-                network_quota = client.get_quota(project)
-            return network_quota
-        else:
-            return {}
-
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute
@@ -504,10 +607,10 @@ class ShowQuota(command.ShowOne):
         #                does not exist. If this is determined to be the
         #                intended behaviour of the API we will validate
         #                the argument with Identity ourselves later.
-        compute_quota_info = self.get_compute_volume_quota(compute_client,
-                                                           parsed_args)
-        volume_quota_info = self.get_compute_volume_quota(volume_client,
-                                                          parsed_args)
+        compute_quota_info = self.get_compute_quota(compute_client,
+                                                    parsed_args)
+        volume_quota_info = self.get_volume_quota(volume_client,
+                                                  parsed_args)
         network_quota_info = self.get_network_quota(parsed_args)
         # NOTE(reedip): Remove the below check once requirement for
         #               Openstack SDK is fixed to version 0.9.12 and above

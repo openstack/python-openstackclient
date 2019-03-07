@@ -17,6 +17,8 @@ List quotas for all projects with non-default quota values
 
     openstack quota list
         --compute | --network | --volume
+        [--project <project>]
+        [--detail]
 
 .. option:: --network
 
@@ -29,6 +31,14 @@ List quotas for all projects with non-default quota values
 .. option:: --volume
 
     List volume quotas
+
+.. option:: --project <project>
+
+    List quotas for this project <project> (name or ID)
+
+.. option:: --detail
+
+    Show details about quotas usage
 
 quota set
 ---------
