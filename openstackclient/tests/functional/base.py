@@ -11,7 +11,6 @@
 #    under the License.
 
 import os
-import re
 import shlex
 import subprocess
 
@@ -30,8 +29,6 @@ ADMIN_CLOUD = os.environ.get('OS_ADMIN_CLOUD', 'devstack-admin')
 def execute(cmd, fail_ok=False, merge_stderr=False):
     """Executes specified command for the given action."""
     cmdlist = shlex.split(cmd)
-    result = ''
-    result_err = ''
     stdout = subprocess.PIPE
     stderr = subprocess.STDOUT if merge_stderr else subprocess.PIPE
     proc = subprocess.Popen(cmdlist, stdout=stdout, stderr=stderr)
@@ -43,21 +40,7 @@ def execute(cmd, fail_ok=False, merge_stderr=False):
     return result
 
 
-def is_service_enabled(service):
-    """Ask client cloud if service is available"""
-    try:
-        ret = execute('openstack service show -f value -c enabled ' + service)
-    except exceptions.CommandFailed:
-        # We get here for multiple reasons, all of them mean that a working
-        # service is not available
-        return False
-
-    return "True" in ret
-
-
 class TestCase(testtools.TestCase):
-
-    delimiter_line = re.compile('^\+\-[\+\-]+\-\+$')
 
     @classmethod
     def openstack(cls, cmd, cloud=ADMIN_CLOUD, fail_ok=False):
@@ -65,6 +48,24 @@ class TestCase(testtools.TestCase):
         return execute(
             'openstack --os-cloud={cloud} '.format(cloud=cloud) +
             cmd, fail_ok=fail_ok)
+
+    @classmethod
+    def is_service_enabled(cls, service):
+        """Ask client cloud if service is available"""
+        cmd = ('service show -f value -c enabled {service}'
+               .format(service=service))
+        try:
+            return "True" in cls.openstack(cmd)
+        except exceptions.CommandFailed as e:
+            if "No service with a type, name or ID of" in str(e):
+                return False
+            else:
+                raise  # Unable to determine if service is enabled
+
+    @classmethod
+    def is_extension_enabled(cls, alias):
+        """Ask client cloud if extension is enabled"""
+        return alias in cls.openstack('extension list -f value -c Alias')
 
     @classmethod
     def get_openstack_configuration_value(cls, configuration):
