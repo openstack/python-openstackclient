@@ -1,0 +1,6 @@
+---
+features:
+  - Add ``network segment range create``, ``network segment range delete``,
+    ``network segment range list``, ``network segment range show`` and
+    ``network segment range set`` commands.
+    [Blueprint `network-segment-range-management <https://blueprints.launchpad.net/neutron/+spec/network-segment-range-management>`_]

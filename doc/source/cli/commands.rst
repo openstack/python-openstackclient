@@ -125,6 +125,7 @@ referring to both Compute and Volume quotas.
 * ``network qos policy``: (**Network**) - a QoS policy for network resources
 * ``network qos rule type``: (**Network**) - list of QoS available rule types
 * ``network segment``: (**Network**) - a segment of a virtual network
+* ``network segment range``: (**Network**) - a segment range for tenant network segment allocation
 * ``network service provider``: (**Network**) - a driver providing a network service
 * ``object``: (**Object Storage**) a single file in the Object Storage
 * ``object store account``: (**Object Storage**) owns a group of Object Storage resources
