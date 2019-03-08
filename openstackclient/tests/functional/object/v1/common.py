@@ -19,4 +19,4 @@ class ObjectStoreTests(base.TestCase):
     @classmethod
     def setUpClass(cls):
         super(ObjectStoreTests, cls).setUpClass()
-        cls.haz_object_store = base.is_service_enabled('object-store')
+        cls.haz_object_store = cls.is_service_enabled('object-store')
