@@ -168,7 +168,7 @@ class CreateNetworkSegmentRange(command.ShowOne):
 
         identity_client = self.app.client_manager.identity
 
-        if parsed_args.shared and parsed_args.project:
+        if not parsed_args.private and parsed_args.project:
             msg = _("--project is only allowed with --private")
             raise exceptions.CommandError(msg)
 
@@ -202,7 +202,7 @@ class CreateNetworkSegmentRange(command.ShowOne):
                 msg = (_("Failed to create the network segment range for "
                          "project %(project_id)s") % parsed_args.project_id)
                 raise exceptions.CommandError(msg)
-        elif not parsed_args.shared:
+        elif not attrs['shared']:
             # default to the current project if no project specified and shared
             # is not specified.
             # Get the project id from the current auth.

@@ -98,6 +98,27 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, [])
 
+    def test_create_default_with_project_id(self):
+        arglist = [
+            '--project', self._network_segment_range.project_id,
+            '--network-type', 'vxlan',
+            '--minimum', str(self._network_segment_range.minimum),
+            '--maximum', str(self._network_segment_range.maximum),
+            self._network_segment_range.name,
+        ]
+        verifylist = [
+            ('project', self._network_segment_range.project_id),
+            ('network_type', 'vxlan'),
+            ('minimum', self._network_segment_range.minimum),
+            ('maximum', self._network_segment_range.maximum),
+            ('name', self._network_segment_range.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)
+
     def test_create_shared_with_project_id(self):
         arglist = [
             '--shared',
@@ -143,6 +164,34 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         self.assertRaises(exceptions.CommandError,
                           self.cmd.take_action,
                           parsed_args)
+
+    def test_create_minimum_options(self):
+        arglist = [
+            '--network-type', 'vxlan',
+            '--minimum', str(self._network_segment_range.minimum),
+            '--maximum', str(self._network_segment_range.maximum),
+            self._network_segment_range.name,
+        ]
+        verifylist = [
+            ('network_type', 'vxlan'),
+            ('minimum', self._network_segment_range.minimum),
+            ('maximum', self._network_segment_range.maximum),
+            ('name', self._network_segment_range.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_network_segment_range.assert_called_once_with(**{
+            'shared': True,
+            'network_type': 'vxlan',
+            'minimum': self._network_segment_range.minimum,
+            'maximum': self._network_segment_range.maximum,
+            'name': self._network_segment_range.name,
+        })
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_create_private_minimum_options(self):
         arglist = [
