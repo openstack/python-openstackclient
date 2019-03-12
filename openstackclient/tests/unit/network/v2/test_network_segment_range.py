@@ -144,19 +144,19 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
                           self.cmd.take_action,
                           parsed_args)
 
-    def test_create_minimum_options(self):
+    def test_create_private_minimum_options(self):
         arglist = [
             '--private',
             '--project', self._network_segment_range.project_id,
-            '--network-type', self._network_segment_range.network_type,
+            '--network-type', 'vxlan',
             '--minimum', str(self._network_segment_range.minimum),
             '--maximum', str(self._network_segment_range.maximum),
             self._network_segment_range.name,
         ]
         verifylist = [
-            ('shared', self._network_segment_range.shared),
+            ('shared', False),
             ('project', self._network_segment_range.project_id),
-            ('network_type', self._network_segment_range.network_type),
+            ('network_type', 'vxlan'),
             ('minimum', self._network_segment_range.minimum),
             ('maximum', self._network_segment_range.maximum),
             ('name', self._network_segment_range.name),
@@ -166,9 +166,39 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_network_segment_range.assert_called_once_with(**{
-            'shared': self._network_segment_range.shared,
+            'shared': False,
             'project_id': mock.ANY,
-            'network_type': self._network_segment_range.network_type,
+            'network_type': 'vxlan',
+            'minimum': self._network_segment_range.minimum,
+            'maximum': self._network_segment_range.maximum,
+            'name': self._network_segment_range.name,
+        })
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_shared_minimum_options(self):
+        arglist = [
+            '--shared',
+            '--network-type', 'vxlan',
+            '--minimum', str(self._network_segment_range.minimum),
+            '--maximum', str(self._network_segment_range.maximum),
+            self._network_segment_range.name,
+        ]
+        verifylist = [
+            ('shared', True),
+            ('network_type', 'vxlan'),
+            ('minimum', self._network_segment_range.minimum),
+            ('maximum', self._network_segment_range.maximum),
+            ('name', self._network_segment_range.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_network_segment_range.assert_called_once_with(**{
+            'shared': True,
+            'network_type': 'vxlan',
             'minimum': self._network_segment_range.minimum,
             'maximum': self._network_segment_range.maximum,
             'name': self._network_segment_range.name,
