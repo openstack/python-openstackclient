@@ -80,10 +80,7 @@ Set quotas for project
         [--ports <num-ports>]
         [--routers <num-routers>]
         [--rbac-policies <num-rbac-policies>]
-        [--vips <num-vips>]
         [--subnetpools <num-subnetpools>]
-        [--members <num-members>]
-        [--health-monitors <num-health-monitors>]
 
         <project>
 

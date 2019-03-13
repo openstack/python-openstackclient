@@ -75,10 +75,7 @@ NETWORK_QUOTAS = {
     'port': 'ports',
     'router': 'routers',
     'rbac_policy': 'rbac-policies',
-    'vip': 'vips',
     'subnetpool': 'subnetpools',
-    'healthmonitor': 'health-monitors',
-    'l7policy': 'l7policies',
 }
 
 NETWORK_KEYS = ['floating_ips', 'networks', 'rbac_policies', 'routers',

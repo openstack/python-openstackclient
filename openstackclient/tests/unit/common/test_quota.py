@@ -723,9 +723,6 @@ class TestQuotaSet(TestQuota):
             '--routers', str(network_fakes.QUOTA['router']),
             '--rbac-policies', str(network_fakes.QUOTA['rbac_policy']),
             '--ports', str(network_fakes.QUOTA['port']),
-            '--vips', str(network_fakes.QUOTA['vip']),
-            '--health-monitors', str(network_fakes.QUOTA['healthmonitor']),
-            '--l7policies', str(network_fakes.QUOTA['l7policy']),
             self.projects[0].name,
         ]
         verifylist = [
@@ -739,9 +736,6 @@ class TestQuotaSet(TestQuota):
             ('router', network_fakes.QUOTA['router']),
             ('rbac_policy', network_fakes.QUOTA['rbac_policy']),
             ('port', network_fakes.QUOTA['port']),
-            ('vip', network_fakes.QUOTA['vip']),
-            ('healthmonitor', network_fakes.QUOTA['healthmonitor']),
-            ('l7policy', network_fakes.QUOTA['l7policy']),
             ('project', self.projects[0].name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -758,9 +752,6 @@ class TestQuotaSet(TestQuota):
             'router': network_fakes.QUOTA['router'],
             'rbac_policy': network_fakes.QUOTA['rbac_policy'],
             'port': network_fakes.QUOTA['port'],
-            'vip': network_fakes.QUOTA['vip'],
-            'healthmonitor': network_fakes.QUOTA['healthmonitor'],
-            'l7policy': network_fakes.QUOTA['l7policy'],
         }
         self.network_mock.update_quota.assert_called_once_with(
             self.projects[0].id,
