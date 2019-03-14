@@ -204,11 +204,11 @@ class ListEndpointGroup(command.Lister):
 
         if endpointgroup:
             # List projects associated to the endpoint group
-            columns = ('ID', 'Name')
+            columns = ('ID', 'Name', 'Description')
             data = client.endpoint_filter.list_projects_for_endpoint_group(
                 endpoint_group=endpointgroup.id)
         elif project:
-            columns = ('ID', 'Name')
+            columns = ('ID', 'Name', 'Description')
             data = client.endpoint_filter.list_endpoint_groups_for_project(
                 project=project.id)
         else:
@@ -251,7 +251,7 @@ class RemoveProjectFromEndpointGroup(command.Command):
                                       parsed_args.project,
                                       parsed_args.project_domain)
 
-        client.endpoint_filter.delete_endpoint_group_to_project(
+        client.endpoint_filter.delete_endpoint_group_from_project(
             endpoint_group=endpointgroup.id,
             project=project.id)
 
