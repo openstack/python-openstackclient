@@ -12,7 +12,6 @@
 
 import fixtures
 
-from openstackclient.tests.functional import base
 from openstackclient.tests.functional.volume import base as volume_base
 
 
@@ -25,7 +24,7 @@ class BaseVolumeTests(volume_base.BaseVolumeTests):
         # TODO(dtroyer): This needs to be updated to specifically check for
         #                Volume v1 rather than just 'volume', but for now
         #                that is enough until we get proper version negotiation
-        cls.haz_volume_v1 = base.is_service_enabled('volume')
+        cls.haz_volume_v1 = cls.is_service_enabled('volume')
 
     def setUp(self):
         super(BaseVolumeTests, self).setUp()
