@@ -207,8 +207,6 @@ class CreateNetworkSegmentRange(command.ShowOne):
             # is not specified.
             # Get the project id from the current auth.
             attrs['project_id'] = self.app.client_manager.auth_ref.project_id
-        else:
-            attrs['project_id'] = None
 
         if parsed_args.physical_network:
             attrs['physical_network'] = parsed_args.physical_network
