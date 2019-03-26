@@ -16,7 +16,6 @@ import uuid
 
 from tempest.lib import exceptions
 
-from openstackclient.tests.functional import base
 from openstackclient.tests.functional.compute.v2 import common
 from openstackclient.tests.functional.volume.v2 import common as volume_common
 
@@ -27,7 +26,7 @@ class ServerTests(common.ComputeTestCase):
     @classmethod
     def setUpClass(cls):
         super(ServerTests, cls).setUpClass()
-        cls.haz_network = base.is_service_enabled('network')
+        cls.haz_network = cls.is_service_enabled('network')
 
     def test_server_list(self):
         """Test server list, set"""

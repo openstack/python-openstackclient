@@ -28,6 +28,8 @@ class NetworkSegmentRangeTests(common.NetworkTests):
         # Nothing in this class works with Nova Network
         if not self.haz_network:
             self.skipTest("No Network service present")
+        if not self.is_extension_enabled('network-segment-range'):
+            self.skipTest("No network-segment-range extension present")
         self.PROJECT_NAME = uuid.uuid4().hex
 
     def test_network_segment_range_create_delete(self):
@@ -83,7 +85,7 @@ class NetworkSegmentRangeTests(common.NetworkTests):
         )
 
         json_output = json.loads(self.openstack(
-            'network segment list -f json'
+            'network segment range list -f json'
         ))
         item_map = {
             item.get('ID'): item.get('Name') for item in json_output
@@ -117,13 +119,11 @@ class NetworkSegmentRangeTests(common.NetworkTests):
             json_output["project_id"],
         )
 
-        new_minimum = '2010'
-        new_maximum = '2060'
+        new_minimum = 2010
+        new_maximum = 2060
         cmd_output = self.openstack(
-            'network segment range set ' +
-            '--minimum ' + new_minimum + ' ' +
-            '--maximum ' + new_maximum + ' ' +
-            name
+            'network segment range set --minimum {min} --maximum {max} {name}'
+            .format(min=new_minimum, max=new_maximum, name=name)
         )
         self.assertOutput('', cmd_output)
 

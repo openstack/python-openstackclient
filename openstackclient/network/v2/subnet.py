@@ -681,29 +681,30 @@ class UnsetSubnet(command.Command):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj = client.find_subnet(parsed_args.subnet, ignore_missing=False)
-        tmp_obj = copy.deepcopy(obj)
+
         attrs = {}
         if parsed_args.dns_nameservers:
-            _update_arguments(tmp_obj.dns_nameservers,
+            attrs['dns_nameservers'] = copy.deepcopy(obj.dns_nameservers)
+            _update_arguments(attrs['dns_nameservers'],
                               parsed_args.dns_nameservers,
                               'dns-nameserver')
-            attrs['dns_nameservers'] = tmp_obj.dns_nameservers
         if parsed_args.host_routes:
+            attrs['host_routes'] = copy.deepcopy(obj.host_routes)
             _update_arguments(
-                tmp_obj.host_routes,
+                attrs['host_routes'],
                 convert_entries_to_nexthop(parsed_args.host_routes),
                 'host-route')
-            attrs['host_routes'] = tmp_obj.host_routes
         if parsed_args.allocation_pools:
-            _update_arguments(tmp_obj.allocation_pools,
+            attrs['allocation_pools'] = copy.deepcopy(obj.allocation_pools)
+            _update_arguments(attrs['allocation_pools'],
                               parsed_args.allocation_pools,
                               'allocation-pool')
-            attrs['allocation_pools'] = tmp_obj.allocation_pools
+
         if parsed_args.service_types:
-            _update_arguments(tmp_obj.service_types,
+            attrs['service_types'] = copy.deepcopy(obj.service_types)
+            _update_arguments(attrs['service_types'],
                               parsed_args.service_types,
                               'service-type')
-            attrs['service_types'] = tmp_obj.service_types
         if attrs:
             client.update_subnet(obj, **attrs)
 

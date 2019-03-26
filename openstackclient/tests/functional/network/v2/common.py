@@ -22,7 +22,7 @@ class NetworkTests(base.TestCase):
     @classmethod
     def setUpClass(cls):
         super(NetworkTests, cls).setUpClass()
-        cls.haz_network = base.is_service_enabled('network')
+        cls.haz_network = cls.is_service_enabled('network')
 
 
 class NetworkTagTests(NetworkTests):
