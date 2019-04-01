@@ -125,6 +125,30 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertRaises(tests_utils.ParserException,
                           self.check_parser, self.cmd, arglist, [])
 
+    def test_lowercase_ethertype(self):
+        arglist = [
+            '--ethertype', 'ipv4',
+            self._security_group.id,
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        self.assertEqual('IPv4', parsed_args.ethertype)
+
+    def test_lowercase_v6_ethertype(self):
+        arglist = [
+            '--ethertype', 'ipv6',
+            self._security_group.id,
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        self.assertEqual('IPv6', parsed_args.ethertype)
+
+    def test_proper_case_ethertype(self):
+        arglist = [
+            '--ethertype', 'IPv6',
+            self._security_group.id,
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        self.assertEqual('IPv6', parsed_args.ethertype)
+
     def test_create_all_protocol_options(self):
         arglist = [
             '--protocol', 'tcp',

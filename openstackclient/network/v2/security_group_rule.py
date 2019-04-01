@@ -73,6 +73,14 @@ def _convert_to_lowercase(string):
     return string.lower()
 
 
+def _convert_ipvx_case(string):
+    if string.lower() == 'ipv4':
+        return 'IPv4'
+    if string.lower() == 'ipv6':
+        return 'IPv6'
+    return string
+
+
 def _is_icmp_protocol(protocol):
     # NOTE(rtheis): Neutron has deprecated protocol icmpv6.
     # However, while the OSC CLI doesn't document the protocol,
@@ -183,6 +191,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             '--ethertype',
             metavar='<ethertype>',
             choices=['IPv4', 'IPv6'],
+            type=_convert_ipvx_case,
             help=_("Ethertype of network traffic "
                    "(IPv4, IPv6; default: based on IP protocol)")
         )
