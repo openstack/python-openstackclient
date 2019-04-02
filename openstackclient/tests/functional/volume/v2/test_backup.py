@@ -39,14 +39,15 @@ class VolumeBackupTests(common.BaseVolumeTests):
             '--size 1 ' +
             vol_id
         ))
+        self.wait_for_status("volume", vol_id, "available")
+
         # create a backup
         backup = json.loads(self.openstack(
             'volume backup create -f json ' +
             vol_id
         ))
-
-        self.wait_for_status("volume", vol_id, "available")
         self.wait_for_status("backup", backup['id'], "available")
+
         # restore the backup
         backup_restored = json.loads(self.openstack(
             'volume backup restore -f json %s %s'
