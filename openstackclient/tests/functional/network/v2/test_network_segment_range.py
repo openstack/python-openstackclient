@@ -42,8 +42,8 @@ class NetworkSegmentRangeTests(common.NetworkTests):
             '--private ' +
             "--project " + self.PROJECT_NAME + " " +
             '--network-type vxlan ' +
-            '--minimum 2018 ' +
-            '--maximum 2055 ' +
+            '--minimum 2005 ' +
+            '--maximum 2009 ' +
             name
         ))
         self.assertEqual(
@@ -69,8 +69,8 @@ class NetworkSegmentRangeTests(common.NetworkTests):
             ' network segment range create -f json ' +
             '--shared ' +
             '--network-type geneve ' +
-            '--minimum 2018 ' +
-            '--maximum 2055 ' +
+            '--minimum 2013 ' +
+            '--maximum 2017 ' +
             name
         ))
         network_segment_range_id = json_output.get('id')
@@ -102,8 +102,8 @@ class NetworkSegmentRangeTests(common.NetworkTests):
             '--private ' +
             "--project " + self.PROJECT_NAME + " " +
             '--network-type geneve ' +
-            '--minimum 2018 ' +
-            '--maximum 2055 ' +
+            '--minimum 2021 ' +
+            '--maximum 2025 ' +
             name
         ))
         self.addCleanup(
@@ -119,8 +119,8 @@ class NetworkSegmentRangeTests(common.NetworkTests):
             json_output["project_id"],
         )
 
-        new_minimum = 2010
-        new_maximum = 2060
+        new_minimum = 2020
+        new_maximum = 2029
         cmd_output = self.openstack(
             'network segment range set --minimum {min} --maximum {max} {name}'
             .format(min=new_minimum, max=new_maximum, name=name)
