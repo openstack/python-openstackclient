@@ -16,7 +16,7 @@
       tox_envlist: py27
       # Set work dir to openstackclient so that if it's triggered by one of the
       # other repos the tests will run in the same place
-      zuul_work_dir: src/git.openstack.org/openstack/python-openstackclient
+      zuul_work_dir: src/opendev.org/openstack/python-openstackclient
 
 - job:
     name: osc-tox-py27-tips
@@ -37,7 +37,7 @@
     vars:
       # Set work dir to openstackclient so that if it's triggered by one of the
       # other repos the tests will run in the same place
-      zuul_work_dir: src/git.openstack.org/openstack/python-openstackclient
+      zuul_work_dir: src/opendev.org/openstack/python-openstackclient
 
 - job:
     name: osc-tox-py35-tips
@@ -58,7 +58,7 @@
     vars:
       # Set work dir to openstackclient so that if it's triggered by one of the
       # other repos the tests will run in the same place
-      zuul_work_dir: src/git.openstack.org/openstack/python-openstackclient
+      zuul_work_dir: src/opendev.org/openstack/python-openstackclient
 
 - job:
     name: osc-functional-devstack-base
@@ -108,7 +108,7 @@
         PYTHONUNBUFFERED: 'true'
         OS_CLOUD: devstack-admin
       tox_install_siblings: false
-      zuul_work_dir: src/git.openstack.org/openstack/python-openstackclient
+      zuul_work_dir: src/opendev.org/openstack/python-openstackclient
 
 # The Neutron bits are here rather than in osc-functional-devstack-base to
 # simplify removing Neutron in the osc-functional-devstack-n-net job.
@@ -119,7 +119,7 @@
     vars:
       devstack_plugins:
         # NOTE(amotoki): Some neutron features are enabled by devstack plugin
-        neutron: https://git.openstack.org/openstack/neutron
+        neutron: https://opendev.org/openstack/neutron
       devstack_services:
         neutron-segments: true
         q-metering: true
