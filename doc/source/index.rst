@@ -60,7 +60,7 @@ on `Launchpad`_.  Code may be submitted to the
 :code:`openstack/python-openstackclient` project using `Gerrit`_.
 Developers may also be found in the `IRC channel`_ ``#openstack-sdks``.
 
-.. _`on OpenStack's Git server`: https://git.openstack.org/cgit/openstack/python-openstackclient/tree
+.. _`on OpenStack's Git server`: https://opendev.org/openstack/python-openstackclient/tree
 .. _Launchpad: https://launchpad.net/python-openstackclient
 .. _Gerrit: http://docs.openstack.org/infra/manual/developers.html#development-workflow
 .. _Bug reports: https://storyboard.openstack.org/#!/project/975
