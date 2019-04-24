@@ -45,8 +45,7 @@ extensions = [
 
 # openstackdocstheme options
 repository_name = 'openstack/python-openstackclient'
-bug_project = 'python-openstackclient'
-bug_tag = ''
+use_storyboard = True
 
 # Set aliases for extlinks
 # * lpbug - generic Launchpad bug        :lpbug:`123456`

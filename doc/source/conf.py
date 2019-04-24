@@ -32,8 +32,7 @@ extensions = ['sphinx.ext.autodoc',
 
 # openstackdocstheme options
 repository_name = 'openstack/python-openstackclient'
-bug_project = 'python-openstackclient'
-bug_tag = ''
+use_storyboard = True
 
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
