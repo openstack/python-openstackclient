@@ -486,6 +486,7 @@ class TestImageList(TestImage):
             ('private', False),
             ('community', False),
             ('shared', False),
+            ('all', False),
             ('long', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -510,6 +511,7 @@ class TestImageList(TestImage):
             ('private', False),
             ('community', False),
             ('shared', False),
+            ('all', False),
             ('long', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -534,6 +536,7 @@ class TestImageList(TestImage):
             ('private', True),
             ('community', False),
             ('shared', False),
+            ('all', False),
             ('long', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -558,6 +561,7 @@ class TestImageList(TestImage):
             ('private', False),
             ('community', True),
             ('shared', False),
+            ('all', False),
             ('long', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -582,6 +586,7 @@ class TestImageList(TestImage):
             ('private', False),
             ('community', False),
             ('shared', True),
+            ('all', False),
             ('long', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -597,6 +602,31 @@ class TestImageList(TestImage):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.datalist, tuple(data))
 
+    def test_image_list_all_option(self):
+        arglist = [
+            '--all',
+        ]
+        verifylist = [
+            ('public', False),
+            ('private', False),
+            ('community', False),
+            ('shared', False),
+            ('all', True),
+            ('long', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+        self.client.images.assert_called_with(
+            visibility='all',
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.datalist, tuple(data))
+
     def test_image_list_shared_member_status_option(self):
         arglist = [
             '--shared',
@@ -607,6 +637,7 @@ class TestImageList(TestImage):
             ('private', False),
             ('community', False),
             ('shared', True),
+            ('all', False),
             ('long', False),
             ('member_status', 'all')
         ]
@@ -634,6 +665,7 @@ class TestImageList(TestImage):
             ('private', False),
             ('community', False),
             ('shared', True),
+            ('all', False),
             ('long', False),
             ('member_status', 'all')
         ]
