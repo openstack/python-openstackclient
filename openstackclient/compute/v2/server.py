@@ -947,6 +947,8 @@ class CreateServerDump(command.Command):
     It will create a dump file in the server(s) dumping the server(s)'
     memory, and also crash the server(s). OSC sees the dump file
     (server dump) as a kind of resource.
+
+    This command requires ``--os-compute-api-version`` 2.17 or greater.
     """
 
     def get_parser(self, prog_name):
