@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add the ``--relay-state-prefix`` option to the ``service provider create``
+    and ``service provider set`` commands to configure the prefix for the
+    RelayState value in ECP-wrapped SAML messages.
