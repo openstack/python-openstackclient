@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--changes-before`` option to the ``server list`` command.
+    This requires Compute API version '2.66' or later.
+    [:lpbug: `1827844`]

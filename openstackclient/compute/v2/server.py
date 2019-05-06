@@ -1129,12 +1129,21 @@ class ListServer(command.Lister):
             help=_('Only display deleted servers (Admin only).')
         )
         parser.add_argument(
+            '--changes-before',
+            metavar='<changes-before>',
+            default=None,
+            help=_("List only servers changed before a certain point of time. "
+                   "The provided time should be an ISO 8061 formatted time "
+                   "(e.g., 2016-03-05T06:27:59Z). "
+                   "(Supported by API versions '2.66' - '2.latest')")
+        )
+        parser.add_argument(
             '--changes-since',
             metavar='<changes-since>',
             default=None,
             help=_("List only servers changed after a certain point of time."
-                   " The provided time should be an ISO 8061 formatted time."
-                   " ex 2016-03-04T06:27:59Z .")
+                   " The provided time should be an ISO 8061 formatted time"
+                   " (e.g., 2016-03-04T06:27:59Z).")
         )
         return parser
 
@@ -1188,9 +1197,23 @@ class ListServer(command.Lister):
             'all_tenants': parsed_args.all_projects,
             'user_id': user_id,
             'deleted': parsed_args.deleted,
+            'changes-before': parsed_args.changes_before,
             'changes-since': parsed_args.changes_since,
         }
         LOG.debug('search options: %s', search_opts)
+
+        if search_opts['changes-before']:
+            if compute_client.api_version < api_versions.APIVersion('2.66'):
+                msg = _('--os-compute-api-version 2.66 or later is required')
+                raise exceptions.CommandError(msg)
+
+            try:
+                timeutils.parse_isotime(search_opts['changes-before'])
+            except ValueError:
+                raise exceptions.CommandError(
+                    _('Invalid changes-before value: %s') %
+                    search_opts['changes-before']
+                )
 
         if search_opts['changes-since']:
             try:
