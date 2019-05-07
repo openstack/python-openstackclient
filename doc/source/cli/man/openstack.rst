@@ -205,6 +205,10 @@ OPTIONS
 
     Show help message and exit
 
+.. option:: --timing
+
+    Print API call timing information
+
 COMMANDS
 ========
 
