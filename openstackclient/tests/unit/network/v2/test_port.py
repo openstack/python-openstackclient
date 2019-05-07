@@ -611,6 +611,48 @@ class TestCreatePort(TestPort):
     def test_create_with_uplink_status_propagation_disabled(self):
         self._test_create_with_uplink_status_propagation(enable=False)
 
+    def test_create_port_with_extra_dhcp_option(self):
+        extra_dhcp_options = [{'opt_name': 'classless-static-route',
+                               'opt_value': '169.254.169.254/32,22.2.0.2,'
+                                            '0.0.0.0/0,22.2.0.1',
+                               'ip_version': '4'},
+                              {'opt_name': 'dns-server',
+                               'opt_value': '240C::6666',
+                               'ip_version': '6'}]
+        arglist = [
+            '--network', self._port.network_id,
+            '--extra-dhcp-option', 'name=classless-static-route,'
+                                   'value=169.254.169.254/32,22.2.0.2,'
+                                   '0.0.0.0/0,22.2.0.1,'
+                                   'ip-version=4',
+            '--extra-dhcp-option', 'name=dns-server,value=240C::6666,'
+                                   'ip-version=6',
+            'test-port',
+        ]
+
+        verifylist = [
+            ('network', self._port.network_id,),
+            ('extra_dhcp_options', [{'name': 'classless-static-route',
+                                     'value': '169.254.169.254/32,22.2.0.2,'
+                                              '0.0.0.0/0,22.2.0.1',
+                                     'ip-version': '4'},
+                                    {'name': 'dns-server',
+                                     'value': '240C::6666',
+                                     'ip-version': '6'}]),
+            ('name', 'test-port'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.network.create_port.assert_called_once_with(**{
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'extra_dhcp_opts': extra_dhcp_options,
+            'name': 'test-port',
+        })
+
 
 class TestDeletePort(TestPort):
 

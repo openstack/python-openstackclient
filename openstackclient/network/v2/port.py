@@ -280,6 +280,19 @@ def _convert_address_pairs(parsed_args):
     return ops
 
 
+def _convert_extra_dhcp_options(parsed_args):
+    dhcp_options = []
+    for opt in parsed_args.extra_dhcp_options:
+        option = {}
+        option['opt_name'] = opt['name']
+        if 'value' in opt:
+            option['opt_value'] = opt['value']
+        if 'ip-version' in opt:
+            option['ip_version'] = opt['ip-version']
+        dhcp_options.append(option)
+    return dhcp_options
+
+
 class CreatePort(command.ShowOne):
     _description = _("Create a new port")
 
@@ -350,8 +363,18 @@ class CreatePort(command.ShowOne):
             metavar='<name>',
             help=_("Name of this port")
         )
-        # TODO(singhj): Add support for extended options:
-        # dhcp
+        parser.add_argument(
+            '--extra-dhcp-option',
+            metavar='name=<name>[,value=<value>,ip-version={4,6}]',
+            default=[],
+            action=parseractions.MultiKeyValueCommaAction,
+            dest='extra_dhcp_options',
+            required_keys=['name'],
+            optional_keys=['value', "ip-version"],
+            help=_('Extra DHCP options to be assigned to this port: '
+                   'name=<name>[,value=<value>,ip-version={4,6}] '
+                   '(repeat option to set multiple extra DHCP options)'))
+
         secgroups = parser.add_mutually_exclusive_group()
         secgroups.add_argument(
             '--security-group',
@@ -424,6 +447,9 @@ class CreatePort(command.ShowOne):
         if parsed_args.allowed_address_pairs:
             attrs['allowed_address_pairs'] = (
                 _convert_address_pairs(parsed_args))
+
+        if parsed_args.extra_dhcp_options:
+            attrs["extra_dhcp_opts"] = _convert_extra_dhcp_options(parsed_args)
 
         if parsed_args.qos_policy:
             attrs['qos_policy_id'] = client.find_qos_policy(
