@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    The ``--limit`` option of the ``image list`` command was previously ignored.
+    [Bug `https://storyboard.openstack.org/#!/story/2004314`]

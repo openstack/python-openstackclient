@@ -787,21 +787,22 @@ class TestImageList(TestImage):
         self.assertEqual(self.datalist, tuple(data))
 
     def test_image_list_limit_option(self):
+        ret_limit = 1
         arglist = [
-            '--limit', str(1),
+            '--limit', str(ret_limit),
         ]
         verifylist = [
-            ('limit', 1),
+            ('limit', ret_limit),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
         self.api_mock.image_list.assert_called_with(
-            limit=1, marker=self._image.id
+            limit=ret_limit, marker=None
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(len(self.datalist), len(tuple(data)))
+        self.assertEqual(ret_limit, len(tuple(data)))
 
     @mock.patch('osc_lib.utils.find_resource')
     def test_image_list_marker_option(self, fr_mock):
