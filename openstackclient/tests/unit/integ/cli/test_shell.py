@@ -12,6 +12,7 @@
 
 import copy
 
+import fixtures
 import mock
 from osc_lib.tests import utils as osc_lib_utils
 
@@ -399,6 +400,16 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
         test_shell.PUBLIC_1['public-clouds']['megadodo']['auth']['auth_url'] \
             = test_base.V3_AUTH_URL
 
+    def get_temp_file_path(self, filename):
+        """Returns an absolute path for a temporary file.
+
+        :param filename: filename
+        :type filename: string
+        :returns: absolute file path string
+        """
+        temp_dir = self.useFixture(fixtures.TempDir())
+        return temp_dir.join(filename)
+
     @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_vendor_file")
     @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_config_file")
     def test_shell_args_precedence_1(self, config_mock, vendor_mock):
@@ -408,7 +419,9 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
         """
 
         def config_mock_return():
-            return ('file.yaml', copy.deepcopy(test_shell.CLOUD_2))
+            log_file = self.get_temp_file_path('test_log_file')
+            cloud2 = test_shell.get_cloud(log_file)
+            return ('file.yaml', cloud2)
         config_mock.side_effect = config_mock_return
 
         def vendor_mock_return():
@@ -478,7 +491,9 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
         """
 
         def config_mock_return():
-            return ('file.yaml', copy.deepcopy(test_shell.CLOUD_2))
+            log_file = self.get_temp_file_path('test_log_file')
+            cloud2 = test_shell.get_cloud(log_file)
+            return ('file.yaml', cloud2)
         config_mock.side_effect = config_mock_return
 
         def vendor_mock_return():

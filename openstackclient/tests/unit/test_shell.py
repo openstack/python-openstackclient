@@ -70,23 +70,6 @@ CLOUD_1 = {
     }
 }
 
-CLOUD_2 = {
-    'clouds': {
-        'megacloud': {
-            'cloud': 'megadodo',
-            'auth': {
-                'project_name': 'heart-o-gold',
-                'username': 'zaphod',
-            },
-            'region_name': 'occ-cloud,krikkit,occ-env',
-            'log_file': '/tmp/test_log_file',
-            'log_level': 'debug',
-            'cert': 'mycert',
-            'key': 'mickey',
-        }
-    }
-}
-
 PUBLIC_1 = {
     'public-clouds': {
         'megadodo': {
@@ -116,6 +99,26 @@ global_options = {
     '--os-profile': ('SECRET_KEY', True, False),
     '--os-interface': (DEFAULT_INTERFACE, True, True)
 }
+
+
+def get_cloud(log_file):
+    CLOUD = {
+        'clouds': {
+            'megacloud': {
+                'cloud': 'megadodo',
+                'auth': {
+                    'project_name': 'heart-o-gold',
+                    'username': 'zaphod',
+                },
+                'region_name': 'occ-cloud,krikkit,occ-env',
+                'log_file': log_file,
+                'log_level': 'debug',
+                'cert': 'mycert',
+                'key': 'mickey',
+            }
+        }
+    }
+    return CLOUD
 
 
 # Wrap the osc_lib make_shell() function to set the shell class since
