@@ -407,7 +407,7 @@ class ServerTests(common.ComputeTestCase):
             cmd_output['status'],
         )
 
-        # NOTE(dtroyer): Prior to https://review.openstack.org/#/c/407111
+        # NOTE(dtroyer): Prior to https://review.opendev.org/#/c/407111
         #                --block-device-mapping was ignored if --volume
         #                present on the command line.  Now we should see the
         #                attachment.

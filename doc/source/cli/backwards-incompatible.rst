@@ -46,7 +46,7 @@ Release 3.12
   * As of: 3.12.0
   * Removed in: n/a
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1657956
-  * Commit: https://review.openstack.org/#/c/423081/
+  * Commit: https://review.opendev.org/#/c/423081/
 
 Release 3.10
 ------------
@@ -55,7 +55,7 @@ Release 3.10
    with Nova-network clouds.
 
   * As of: 3.10
-  * Commit: https://review.openstack.org/460679
+  * Commit: https://review.opendev.org/460679
 
 2. The positional argument ``<snapshot-name>`` of the ``volume snapshot create``
    command is no longer optional.
@@ -67,7 +67,7 @@ Release 3.10
 
   * As of: 3.10
   * Bug: 1659894
-  * Commit: https://review.openstack.org/440497
+  * Commit: https://review.opendev.org/440497
 
 Release 3.0
 -----------
@@ -81,7 +81,7 @@ Release 3.0
   * As of: 3.0
   * Removed in: n/a
   * Bug: n/a
-  * Commit: https://review.openstack.org/332938
+  * Commit: https://review.opendev.org/332938
 
 
 Releases Before 3.0
@@ -95,7 +95,7 @@ Releases Before 3.0
   * As of: 1.0.2
   * Removed in: TBD
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1406654
-  * Commit: https://review.openstack.org/#/c/147379/
+  * Commit: https://review.opendev.org/#/c/147379/
 
 2. <type> should not be optional for command `openstack service create`
 
@@ -107,7 +107,7 @@ Releases Before 3.0
   * As of: 1.0.2
   * Removed in: TBD
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1404073
-  * Commit: https://review.openstack.org/#/c/143242/
+  * Commit: https://review.opendev.org/#/c/143242/
 
 3. Command `openstack security group rule delete` now requires rule id
 
@@ -119,7 +119,7 @@ Releases Before 3.0
   * As of: 1.2.1
   * Removed in: NA
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1450872
-  * Commit: https://review.openstack.org/#/c/179446/
+  * Commit: https://review.opendev.org/#/c/179446/
 
 4. Command `openstack image create` does not update already existing image
 
@@ -133,7 +133,7 @@ Releases Before 3.0
   * As of: 1.5.0
   * Removed in: NA
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1461817
-  * Commit: https://review.openstack.org/#/c/194654/
+  * Commit: https://review.opendev.org/#/c/194654/
 
 5. Command `openstack network list --dhcp` has been removed
 
@@ -147,7 +147,7 @@ Releases Before 3.0
   * As of: 1.6.0
   * Removed in: NA
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/472613
-  * Commit: https://review.openstack.org/#/c/194654/
+  * Commit: https://review.opendev.org/#/c/194654/
 
 6. Plugin interface change for default API versions
 
@@ -162,7 +162,7 @@ Releases Before 3.0
   * As of: 1.2.1
   * Removed in: NA
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1453229
-  * Commit: https://review.openstack.org/#/c/181514/
+  * Commit: https://review.opendev.org/#/c/181514/
 
 7. `image set` commands will no longer return the modified resource
 
@@ -186,7 +186,7 @@ Releases Before 3.0
   * As of 1.9.0
   * Removed in: NA
   * Bug: https://launchpad.net/bugs/1506841
-  * Commit: https://review.openstack.org/#/c/236736/
+  * Commit: https://review.opendev.org/#/c/236736/
 
 9. `flavor set/unset` commands will no longer return the modified resource
 
@@ -198,7 +198,7 @@ Releases Before 3.0
   * As of: NA
   * Removed in: NA
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1546065
-  * Commit: https://review.openstack.org/#/c/280663/
+  * Commit: https://review.opendev.org/#/c/280663/
 
 10. `security group set` commands will no longer return the modified resource
 
@@ -210,7 +210,7 @@ Releases Before 3.0
   * As of: NA
   * Removed in: NA
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1546065
-  * Commit: https://review.openstack.org/#/c/281087/
+  * Commit: https://review.opendev.org/#/c/281087/
 
 11. `compute agent set` commands will no longer return the modified resource
 
@@ -222,7 +222,7 @@ Releases Before 3.0
   * As of: NA
   * Removed in: NA
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1546065
-  * Commit: https://review.openstack.org/#/c/281088/
+  * Commit: https://review.opendev.org/#/c/281088/
 
 12. `<version> <url> <md5hash>` should be optional for command `openstack
     compute agent set`
@@ -235,7 +235,7 @@ Releases Before 3.0
   * As of: NA
   * Removed in: NA
   * Bug: NA
-  * Commit: https://review.openstack.org/#/c/328819/
+  * Commit: https://review.opendev.org/#/c/328819/
 
 13. `aggregate set` commands will no longer return the modified resource
 
@@ -247,7 +247,7 @@ Releases Before 3.0
   * As of: NA
   * Removed in: NA
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1546065
-  * Commit: https://review.openstack.org/#/c/281089/
+  * Commit: https://review.opendev.org/#/c/281089/
 
 14. Output of `ip floating list` command has changed.
 
@@ -291,7 +291,7 @@ Releases Before 3.0
   * As of: NA
   * Removed in: NA
   * Bug: https://bugs.launchpad.net/python-openstackclient/+bug/1519502
-  * Commit: https://review.openstack.org/#/c/277720/
+  * Commit: https://review.opendev.org/#/c/277720/
 
 For Developers
 ==============
@@ -302,4 +302,4 @@ update this file.
 
 To review all changes that are affected, use the following query:
 
-https://review.openstack.org/#/q/project:openstack/python-openstackclient+AND+message:BackwardsIncompatibleImpact,n,z
+https://review.opendev.org/#/q/project:openstack/python-openstackclient+AND+message:BackwardsIncompatibleImpact,n,z

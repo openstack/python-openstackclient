@@ -184,7 +184,7 @@ class TestObject(TestObjectAPIv1):
         }
         # TODO(dtroyer): When requests_mock gains the ability to
         #                match against request.body add this check
-        #                https://review.openstack.org/127316
+        #                https://review.opendev.org/127316
         self.requests_mock.register_uri(
             'PUT',
             FAKE_URL + '/qaz/counter.txt',

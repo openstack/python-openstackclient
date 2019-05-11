@@ -501,7 +501,7 @@ class ShowVolumeType(command.ShowOne):
                 project_ids = [utils.get_field(item, 'project_id')
                                for item in volume_type_access]
                 # TODO(Rui Chen): This format list case can be removed after
-                # patch https://review.openstack.org/#/c/330223/ merged.
+                # patch https://review.opendev.org/#/c/330223/ merged.
                 access_project_ids = utils.format_list(project_ids)
             except Exception as e:
                 msg = _('Failed to get access project list for volume type '
