@@ -1136,6 +1136,21 @@ class ListServer(command.Lister):
                    " The provided time should be an ISO 8061 formatted time."
                    " ex 2016-03-04T06:27:59Z .")
         )
+        lock_group = parser.add_mutually_exclusive_group()
+        lock_group.add_argument(
+            '--locked',
+            action='store_true',
+            default=False,
+            help=_('Only display locked servers. '
+                   'Requires ``--os-compute-api-version`` 2.73 or greater.'),
+        )
+        lock_group.add_argument(
+            '--unlocked',
+            action='store_true',
+            default=False,
+            help=_('Only display unlocked servers. '
+                   'Requires ``--os-compute-api-version`` 2.73 or greater.'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -1190,6 +1205,18 @@ class ListServer(command.Lister):
             'deleted': parsed_args.deleted,
             'changes-since': parsed_args.changes_since,
         }
+        support_locked = (compute_client.api_version >=
+                          api_versions.APIVersion('2.73'))
+        if not support_locked and (parsed_args.locked or parsed_args.unlocked):
+            msg = _('--os-compute-api-version 2.73 or greater is required to '
+                    'use the (un)locked filter option.')
+            raise exceptions.CommandError(msg)
+        elif support_locked:
+            # Only from 2.73.
+            if parsed_args.locked:
+                search_opts['locked'] = True
+            if parsed_args.unlocked:
+                search_opts['locked'] = False
         LOG.debug('search options: %s', search_opts)
 
         if search_opts['changes-since']:
@@ -1374,16 +1401,28 @@ class LockServer(command.Command):
             nargs='+',
             help=_('Server(s) to lock (name or ID)'),
         )
+        parser.add_argument(
+            '--reason',
+            metavar='<reason>',
+            default=None,
+            help=_("Reason for locking the server(s). Requires "
+                   "``--os-compute-api-version`` 2.73 or greater.")
+        )
         return parser
 
     def take_action(self, parsed_args):
 
         compute_client = self.app.client_manager.compute
+        support_reason = compute_client.api_version >= api_versions.APIVersion(
+            '2.73')
+        if not support_reason and parsed_args.reason:
+            msg = _('--os-compute-api-version 2.73 or greater is required to '
+                    'use the --reason option.')
+            raise exceptions.CommandError(msg)
         for server in parsed_args.server:
-            utils.find_resource(
-                compute_client.servers,
-                server,
-            ).lock()
+            serv = utils.find_resource(compute_client.servers, server)
+            (serv.lock(reason=parsed_args.reason) if support_reason
+                else serv.lock())
 
 
 # FIXME(dtroyer): Here is what I want, how with argparse/cliff?
