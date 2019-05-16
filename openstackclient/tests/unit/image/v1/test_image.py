@@ -417,7 +417,7 @@ class TestImageList(TestImage):
         ), )
         self.assertEqual(datalist, tuple(data))
 
-    @mock.patch('openstackclient.api.utils.simple_filter')
+    @mock.patch('osc_lib.api.utils.simple_filter')
     def test_image_list_property_option(self, sf_mock):
         sf_mock.side_effect = [
             [self.image_info], [],

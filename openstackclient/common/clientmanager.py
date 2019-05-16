@@ -91,13 +91,6 @@ class ClientManager(clientmanager.ClientManager):
 
         return super(ClientManager, self).setup_auth()
 
-    @property
-    def auth_ref(self):
-        if not self._auth_required:
-            return None
-        else:
-            return super(ClientManager, self).auth_ref
-
     def _fallback_load_auth_plugin(self, e):
         # NOTES(RuiChen): Hack to avoid auth plugins choking on data they don't
         #                 expect, delete fake token and endpoint, then try to

@@ -20,13 +20,13 @@ import locale
 import sys
 
 from osc_lib.api import auth
+from osc_lib.command import commandmanager
 from osc_lib import shell
 import six
 
 import openstackclient
 from openstackclient.common import client_config as cloud_config
 from openstackclient.common import clientmanager
-from openstackclient.common import commandmanager
 
 
 DEFAULT_DOMAIN = 'default'
