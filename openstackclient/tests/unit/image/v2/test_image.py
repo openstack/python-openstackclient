@@ -188,40 +188,6 @@ class TestImageCreate(TestImage):
             image_fakes.FakeImage.get_image_data(self.new_image),
             data)
 
-    def test_image_create_with_unexist_owner(self):
-        self.project_mock.get.side_effect = exceptions.NotFound(None)
-        self.project_mock.find.side_effect = exceptions.NotFound(None)
-
-        arglist = [
-            '--container-format', 'ovf',
-            '--disk-format', 'ami',
-            '--min-disk', '10',
-            '--min-ram', '4',
-            '--owner', 'unexist_owner',
-            '--protected',
-            '--private',
-            image_fakes.image_name,
-        ]
-        verifylist = [
-            ('container_format', 'ovf'),
-            ('disk_format', 'ami'),
-            ('min_disk', 10),
-            ('min_ram', 4),
-            ('owner', 'unexist_owner'),
-            ('protected', True),
-            ('unprotected', False),
-            ('public', False),
-            ('private', True),
-            ('name', image_fakes.image_name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args,
-        )
-
     def test_image_create_with_unexist_project(self):
         self.project_mock.get.side_effect = exceptions.NotFound(None)
         self.project_mock.find.side_effect = exceptions.NotFound(None)
@@ -1145,24 +1111,6 @@ class TestImageSet(TestImage):
         self.images_mock.update.assert_called_with(
             image_fakes.image_id, **kwargs)
         self.assertIsNone(result)
-
-    def test_image_set_with_unexist_owner(self):
-        self.project_mock.get.side_effect = exceptions.NotFound(None)
-        self.project_mock.find.side_effect = exceptions.NotFound(None)
-
-        arglist = [
-            '--owner', 'unexist_owner',
-            image_fakes.image_id,
-        ]
-        verifylist = [
-            ('owner', 'unexist_owner'),
-            ('image', image_fakes.image_id),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action, parsed_args)
 
     def test_image_set_with_unexist_project(self):
         self.project_mock.get.side_effect = exceptions.NotFound(None)

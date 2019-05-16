@@ -182,28 +182,15 @@ class CreateImage(command.ShowOne):
             help=_("Set a property on this image "
                    "(repeat option to set multiple properties)"),
         )
-        # NOTE(dtroyer): --owner is deprecated in Jan 2016 in an early
-        #                2.x release.  Do not remove before Jan 2017
-        #                and a 3.x release.
-        project_group = parser.add_mutually_exclusive_group()
-        project_group.add_argument(
+        parser.add_argument(
             "--project",
             metavar="<project>",
             help=_("Set an alternate project on this image (name or ID)"),
-        )
-        project_group.add_argument(
-            "--owner",
-            metavar="<project>",
-            help=argparse.SUPPRESS,
         )
         return parser
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-
-        if getattr(parsed_args, 'owner', None) is not None:
-            LOG.warning(_('The --owner option is deprecated, '
-                          'please use --project instead.'))
 
         # Build an attribute dict from the parsed args, only include
         # attributes that were actually set on the command line
@@ -599,28 +586,15 @@ class SetImage(command.Command):
             metavar="<checksum>",
             help=_("Image hash used for verification"),
         )
-        # NOTE(dtroyer): --owner is deprecated in Jan 2016 in an early
-        #                2.x release.  Do not remove before Jan 2017
-        #                and a 3.x release.
-        project_group = parser.add_mutually_exclusive_group()
-        project_group.add_argument(
+        parser.add_argument(
             "--project",
             metavar="<project>",
             help=_("Set an alternate project on this image (name or ID)"),
-        )
-        project_group.add_argument(
-            "--owner",
-            metavar="<project>",
-            help=argparse.SUPPRESS,
         )
         return parser
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-
-        if getattr(parsed_args, 'owner', None) is not None:
-            LOG.warning(_('The --owner option is deprecated, '
-                          'please use --project instead.'))
 
         kwargs = {}
         copy_attrs = ('name', 'owner', 'min_disk', 'min_ram', 'properties',

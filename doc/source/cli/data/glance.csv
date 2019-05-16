@@ -6,8 +6,8 @@ image-download,image save,Download a specific image.
 image-list,image list,List images you can access.
 image-reactivate,image set --activate,Reactivate specified image.
 image-show,image show,Describe a specific image.
-image-tag-delete,image set --tag <tag>,Delete the tag associated with the given image.
-image-tag-update,image unset --tag <tag>,Update an image with the given tag.
+image-tag-delete,image unset --tag <tag>,Delete the tag associated with the given image.
+image-tag-update,image set --tag <tag>,Update an image with the given tag.
 image-update,image set,Update an existing image.
 image-upload,,Upload data for a specific image.
 location-add,,Add a location (and related metadata) to an image.
