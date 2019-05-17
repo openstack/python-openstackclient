@@ -54,9 +54,10 @@ class AggregateTests(base.TestCase):
 
         # Loop a few times since this is timing-sensitive
         # Just hard-code it for now, since there is no pause and it is
-        # racy we shouldn't have to wait too long, a minute seems reasonable
+        # racy we shouldn't have to wait too long, a minute or two
+        # seems reasonable
         wait_time = 0
-        while wait_time < 60:
+        while wait_time <= 120:
             cmd_output = json.loads(self.openstack(
                 'aggregate show -f json ' +
                 name2
