@@ -347,7 +347,7 @@ Pre-2.0 Releases
   ``--proto ICMP`` is selected.
   Bug `1443963 <https://bugs.launchpad.net/bugs/1443963>`_
 
-* Correctly pass ``--location`` arguemnt in ``image create`` command.
+* Correctly pass ``--location`` argument in ``image create`` command.
   Bug `1445460 <https://bugs.launchpad.net/bugs/1445460>`_
 
 * Correctly handle use of ``role`` commands for project admins.  Using IDs will

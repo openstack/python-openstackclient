@@ -83,7 +83,7 @@ class FloatingIpTests(common.NetworkTests):
                         raise
                     pass
                 else:
-                    # break and no longer retry if create sucessfully
+                    # break and no longer retry if create successfully
                     break
 
     @classmethod
