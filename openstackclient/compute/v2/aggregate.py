@@ -101,6 +101,8 @@ class CreateAggregate(command.ShowOne):
                 parsed_args.property,
             )._info)
 
+        # TODO(dtroyer): re-format metadata field to properites as
+        #                in the set command
         return zip(*sorted(six.iteritems(info)))
 
 
