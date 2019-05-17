@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix RuntimeError in ``project show`` command running under Python 3.
+    [Bug `1740232 <https://bugs.launchpad.net/python-openstackclient/+bug/1740232>`_]
