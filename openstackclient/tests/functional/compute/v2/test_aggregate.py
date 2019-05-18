@@ -11,6 +11,7 @@
 #    under the License.
 
 import json
+import time
 import uuid
 
 from openstackclient.tests.functional import base
@@ -18,6 +19,32 @@ from openstackclient.tests.functional import base
 
 class AggregateTests(base.TestCase):
     """Functional tests for aggregate"""
+
+    @classmethod
+    def wait_for_status(cls, check_type, check_name, desired_status,
+                        wait=120, interval=5, failures=None):
+        current_status = "notset"
+        if failures is None:
+            failures = ['error']
+        total_sleep = 0
+        while total_sleep < wait:
+            output = json.loads(cls.openstack(
+                check_type + ' show -f json ' + check_name))
+            current_status = output['name']
+            if (current_status == desired_status):
+                print('{} {} now has status {}'
+                      .format(check_type, check_name, current_status))
+                return
+            print('Checking {} {} Waiting for {} current status: {}'
+                  .format(check_type, check_name,
+                          desired_status, current_status))
+            if current_status in failures:
+                raise Exception(
+                    'Current status {} of {} {} is one of failures {}'
+                    .format(current_status, check_type, check_name, failures))
+            time.sleep(interval)
+            total_sleep += interval
+        cls.assertOutput(desired_status, current_status)
 
     def test_aggregate_crud(self):
         """Test create, delete multiple"""
@@ -36,12 +63,16 @@ class AggregateTests(base.TestCase):
             'nova',
             cmd_output['availability_zone']
         )
-        # TODO(dtroyer): enable the following once the properties field
-        #                is correctly formatted in the create output
-        # self.assertIn(
-        #     "a='b'",
-        #     cmd_output['properties']
-        # )
+        self.assertIn(
+            'a',
+            cmd_output['properties']
+        )
+        self.wait_for_status('aggregate', name1, name1)
+        self.addCleanup(
+            self.openstack,
+            'aggregate delete ' + name1,
+            fail_ok=True,
+        )
 
         name2 = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
@@ -57,6 +88,12 @@ class AggregateTests(base.TestCase):
             'external',
             cmd_output['availability_zone']
         )
+        self.wait_for_status('aggregate', name2, name2)
+        self.addCleanup(
+            self.openstack,
+            'aggregate delete ' + name2,
+            fail_ok=True,
+        )
 
         # Test aggregate set
         name3 = uuid.uuid4().hex
@@ -69,6 +106,12 @@ class AggregateTests(base.TestCase):
             name1
         )
         self.assertOutput('', raw_output)
+        self.wait_for_status('aggregate', name3, name3)
+        self.addCleanup(
+            self.openstack,
+            'aggregate delete ' + name3,
+            fail_ok=True,
+        )
 
         cmd_output = json.loads(self.openstack(
             'aggregate show -f json ' +
@@ -83,11 +126,11 @@ class AggregateTests(base.TestCase):
             cmd_output['availability_zone']
         )
         self.assertIn(
-            "c='d'",
+            'c',
             cmd_output['properties']
         )
         self.assertNotIn(
-            "a='b'",
+            'a',
             cmd_output['properties']
         )
 

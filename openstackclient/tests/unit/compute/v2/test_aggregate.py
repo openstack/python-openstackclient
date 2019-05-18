@@ -16,6 +16,7 @@
 import mock
 from mock import call
 
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -31,16 +32,16 @@ class TestAggregate(compute_fakes.TestComputev2):
         'availability_zone',
         'hosts',
         'id',
-        'metadata',
         'name',
+        'properties',
     )
 
     data = (
         fake_ag.availability_zone,
-        fake_ag.hosts,
+        format_columns.ListColumn(fake_ag.hosts),
         fake_ag.id,
-        fake_ag.metadata,
         fake_ag.name,
+        format_columns.DictColumn(fake_ag.metadata),
     )
 
     def setUp(self):
@@ -75,7 +76,7 @@ class TestAggregateAddHost(TestAggregate):
         self.aggregate_mock.add_host.assert_called_once_with(self.fake_ag,
                                                              parsed_args.host)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 class TestAggregateCreate(TestAggregate):
@@ -99,7 +100,7 @@ class TestAggregateCreate(TestAggregate):
         self.aggregate_mock.create.assert_called_once_with(parsed_args.name,
                                                            None)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_aggregate_create_with_zone(self):
         arglist = [
@@ -116,7 +117,7 @@ class TestAggregateCreate(TestAggregate):
         self.aggregate_mock.create.assert_called_once_with(parsed_args.name,
                                                            parsed_args.zone)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_aggregate_create_with_property(self):
         arglist = [
@@ -135,7 +136,7 @@ class TestAggregateCreate(TestAggregate):
         self.aggregate_mock.set_metadata.assert_called_once_with(
             self.fake_ag, parsed_args.property)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 class TestAggregateDelete(TestAggregate):
@@ -234,8 +235,11 @@ class TestAggregateList(TestAggregate):
         TestAggregate.fake_ag.id,
         TestAggregate.fake_ag.name,
         TestAggregate.fake_ag.availability_zone,
-        {key: value for key, value in TestAggregate.fake_ag.metadata.items()
-         if key != 'availability_zone'},
+        format_columns.DictColumn({
+            key: value
+            for key, value in TestAggregate.fake_ag.metadata.items()
+            if key != 'availability_zone'
+        }),
     ), )
 
     def setUp(self):
@@ -250,7 +254,7 @@ class TestAggregateList(TestAggregate):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.list_columns, columns)
-        self.assertEqual(self.list_data, tuple(data))
+        self.assertItemEqual(self.list_data, tuple(data))
 
     def test_aggregate_list_with_long(self):
         arglist = [
@@ -263,7 +267,7 @@ class TestAggregateList(TestAggregate):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.list_columns_long, columns)
-        self.assertEqual(self.list_data_long, tuple(data))
+        self.assertListItemEqual(self.list_data_long, tuple(data))
 
 
 class TestAggregateRemoveHost(TestAggregate):
@@ -290,7 +294,7 @@ class TestAggregateRemoveHost(TestAggregate):
         self.aggregate_mock.remove_host.assert_called_once_with(
             self.fake_ag, parsed_args.host)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
 
 class TestAggregateSet(TestAggregate):
@@ -440,13 +444,14 @@ class TestAggregateShow(TestAggregate):
 
     data = (
         TestAggregate.fake_ag.availability_zone,
-        TestAggregate.fake_ag.hosts,
+        format_columns.ListColumn(TestAggregate.fake_ag.hosts),
         TestAggregate.fake_ag.id,
         TestAggregate.fake_ag.name,
-        utils.format_dict(
-            {key: value
-             for key, value in TestAggregate.fake_ag.metadata.items()
-             if key != 'availability_zone'}),
+        format_columns.DictColumn({
+            key: value
+            for key, value in TestAggregate.fake_ag.metadata.items()
+            if key != 'availability_zone'
+        }),
     )
 
     def setUp(self):
@@ -467,7 +472,7 @@ class TestAggregateShow(TestAggregate):
         self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, tuple(data))
 
 
 class TestAggregateUnset(TestAggregate):
