@@ -11,7 +11,6 @@
 #    under the License.
 
 import json
-import time
 import uuid
 
 from openstackclient.tests.functional import base
@@ -20,12 +19,13 @@ from openstackclient.tests.functional import base
 class AggregateTests(base.TestCase):
     """Functional tests for aggregate"""
 
-    def test_aggregate_create_and_delete(self):
+    def test_aggregate_crud(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
             'aggregate create -f json ' +
             '--zone nova ' +
+            '--property a=b ' +
             name1
         ))
         self.assertEqual(
@@ -36,11 +36,17 @@ class AggregateTests(base.TestCase):
             'nova',
             cmd_output['availability_zone']
         )
+        # TODO(dtroyer): enable the following once the properties field
+        #                is correctly formatted in the create output
+        # self.assertIn(
+        #     "a='b'",
+        #     cmd_output['properties']
+        # )
 
         name2 = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
             'aggregate create -f json ' +
-            '--zone nova ' +
+            '--zone external ' +
             name2
         ))
         self.assertEqual(
@@ -48,102 +54,15 @@ class AggregateTests(base.TestCase):
             cmd_output['name']
         )
         self.assertEqual(
-            'nova',
+            'external',
             cmd_output['availability_zone']
         )
 
-        # Loop a few times since this is timing-sensitive
-        # Just hard-code it for now, since there is no pause and it is
-        # racy we shouldn't have to wait too long, a minute or two
-        # seems reasonable
-        wait_time = 0
-        while wait_time <= 120:
-            cmd_output = json.loads(self.openstack(
-                'aggregate show -f json ' +
-                name2
-            ))
-            if cmd_output['name'] != name2:
-                # Hang out for a bit and try again
-                print('retrying aggregate check')
-                wait_time += 10
-                time.sleep(10)
-            else:
-                break
-
-        del_output = self.openstack(
-            'aggregate delete ' +
-            name1 + ' ' +
-            name2
-        )
-        self.assertOutput('', del_output)
-
-    def test_aggregate_list(self):
-        """Test aggregate list"""
-        name1 = uuid.uuid4().hex
-        self.openstack(
-            'aggregate create ' +
-            '--zone nova ' +
-            '--property a=b ' +
-            name1
-        )
-        self.addCleanup(
-            self.openstack,
-            'aggregate delete ' + name1,
-            fail_ok=True,
-        )
-
-        name2 = uuid.uuid4().hex
-        self.openstack(
-            'aggregate create ' +
-            '--zone internal ' +
-            '--property c=d ' +
-            name2
-        )
-        self.addCleanup(
-            self.openstack,
-            'aggregate delete ' + name2,
-            fail_ok=True,
-        )
-
-        cmd_output = json.loads(self.openstack(
-            'aggregate list -f json'
-        ))
-        names = [x['Name'] for x in cmd_output]
-        self.assertIn(name1, names)
-        self.assertIn(name2, names)
-        zones = [x['Availability Zone'] for x in cmd_output]
-        self.assertIn('nova', zones)
-        self.assertIn('internal', zones)
-
-        # Test aggregate list --long
-        cmd_output = json.loads(self.openstack(
-            'aggregate list --long -f json'
-        ))
-        names = [x['Name'] for x in cmd_output]
-        self.assertIn(name1, names)
-        self.assertIn(name2, names)
-        zones = [x['Availability Zone'] for x in cmd_output]
-        self.assertIn('nova', zones)
-        self.assertIn('internal', zones)
-        properties = [x['Properties'] for x in cmd_output]
-        self.assertIn({'a': 'b'}, properties)
-        self.assertIn({'c': 'd'}, properties)
-
-    def test_aggregate_set_and_unset(self):
-        """Test aggregate set, show and unset"""
-        name1 = uuid.uuid4().hex
-        name2 = uuid.uuid4().hex
-        self.openstack(
-            'aggregate create ' +
-            '--zone nova ' +
-            '--property a=b ' +
-            name1
-        )
-        self.addCleanup(self.openstack, 'aggregate delete ' + name2)
-
+        # Test aggregate set
+        name3 = uuid.uuid4().hex
         raw_output = self.openstack(
             'aggregate set ' +
-            '--name ' + name2 + ' ' +
+            '--name ' + name3 + ' ' +
             '--zone internal ' +
             '--no-property ' +
             '--property c=d ' +
@@ -153,10 +72,10 @@ class AggregateTests(base.TestCase):
 
         cmd_output = json.loads(self.openstack(
             'aggregate show -f json ' +
-            name2
+            name3
         ))
         self.assertEqual(
-            name2,
+            name3,
             cmd_output['name']
         )
         self.assertEqual(
@@ -172,22 +91,55 @@ class AggregateTests(base.TestCase):
             cmd_output['properties']
         )
 
+        # Test aggregate list
+        cmd_output = json.loads(self.openstack(
+            'aggregate list -f json'
+        ))
+        names = [x['Name'] for x in cmd_output]
+        self.assertIn(name3, names)
+        self.assertIn(name2, names)
+        zones = [x['Availability Zone'] for x in cmd_output]
+        self.assertIn('external', zones)
+        self.assertIn('internal', zones)
+
+        # Test aggregate list --long
+        cmd_output = json.loads(self.openstack(
+            'aggregate list --long -f json'
+        ))
+        names = [x['Name'] for x in cmd_output]
+        self.assertIn(name3, names)
+        self.assertIn(name2, names)
+        zones = [x['Availability Zone'] for x in cmd_output]
+        self.assertIn('external', zones)
+        self.assertIn('internal', zones)
+        properties = [x['Properties'] for x in cmd_output]
+        self.assertNotIn({'a': 'b'}, properties)
+        self.assertIn({'c': 'd'}, properties)
+
         # Test unset
         raw_output = self.openstack(
             'aggregate unset ' +
             '--property c ' +
-            name2
+            name3
         )
         self.assertOutput('', raw_output)
 
         cmd_output = json.loads(self.openstack(
             'aggregate show -f json ' +
-            name2
+            name3
         ))
         self.assertNotIn(
             "c='d'",
             cmd_output['properties']
         )
+
+        # test aggregate delete
+        del_output = self.openstack(
+            'aggregate delete ' +
+            name3 + ' ' +
+            name2
+        )
+        self.assertOutput('', del_output)
 
     def test_aggregate_add_and_remove_host(self):
         """Test aggregate add and remove host"""
