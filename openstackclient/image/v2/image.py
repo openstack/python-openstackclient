@@ -21,13 +21,13 @@ import logging
 
 from glanceclient.common import utils as gc_utils
 from openstack.image import image_signer
+from osc_lib.api import utils as api_utils
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 import six
 
-from openstackclient.api import utils as api_utils
 from openstackclient.i18n import _
 from openstackclient.identity import common
 
