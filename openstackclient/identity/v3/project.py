@@ -106,6 +106,14 @@ class CreateProject(command.ShowOne):
         kwargs = {}
         if parsed_args.property:
             kwargs = parsed_args.property.copy()
+        if 'is_domain' in kwargs.keys():
+            if kwargs['is_domain'].lower() == "true":
+                kwargs['is_domain'] = True
+            elif kwargs['is_domain'].lower() == "false":
+                kwargs['is_domain'] = False
+            elif kwargs['is_domain'].lower() == "none":
+                kwargs['is_domain'] = None
+
         kwargs['tags'] = list(set(parsed_args.tags))
 
         try:

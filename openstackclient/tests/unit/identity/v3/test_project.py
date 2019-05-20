@@ -357,6 +357,126 @@ class TestProjectCreate(TestProject):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
+    def test_project_create_is_domain_false_property(self):
+        arglist = [
+            '--property', 'is_domain=false',
+            self.project.name,
+        ]
+        verifylist = [
+            ('parent', None),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.project.name),
+            ('tags', []),
+            ('property', {'is_domain': 'false'}),
+            ('name', self.project.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.project.name,
+            'domain': None,
+            'description': None,
+            'enabled': True,
+            'parent': None,
+            'is_domain': False,
+            'tags': [],
+            'options': {},
+        }
+        self.projects_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_project_create_is_domain_true_property(self):
+        arglist = [
+            '--property', 'is_domain=true',
+            self.project.name,
+        ]
+        verifylist = [
+            ('parent', None),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.project.name),
+            ('tags', []),
+            ('property', {'is_domain': 'true'}),
+            ('name', self.project.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.project.name,
+            'domain': None,
+            'description': None,
+            'enabled': True,
+            'parent': None,
+            'is_domain': True,
+            'tags': [],
+            'options': {},
+        }
+        self.projects_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_project_create_is_domain_none_property(self):
+        arglist = [
+            '--property', 'is_domain=none',
+            self.project.name,
+        ]
+        verifylist = [
+            ('parent', None),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.project.name),
+            ('tags', []),
+            ('property', {'is_domain': 'none'}),
+            ('name', self.project.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.project.name,
+            'domain': None,
+            'description': None,
+            'enabled': True,
+            'parent': None,
+            'is_domain': None,
+            'tags': [],
+            'options': {},
+        }
+        self.projects_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
     def test_project_create_parent(self):
         self.parent = identity_fakes.FakeProject.create_one_project()
         self.project = identity_fakes.FakeProject.create_one_project(

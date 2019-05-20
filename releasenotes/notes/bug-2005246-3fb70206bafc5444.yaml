@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    [Story `2005246 <https://storyboard.openstack.org/#!/story/2005246>`_]
+    The `is_domain` property safely handles type checking.
