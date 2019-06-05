@@ -1834,6 +1834,90 @@ class TestServerCreate(TestServer):
                           self.cmd.take_action,
                           parsed_args)
 
+    def test_server_create_with_description_api_newer(self):
+
+        # Description is supported for nova api version 2.19 or above
+        self.app.client_manager.compute.api_version = 2.19
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--description', 'description1',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('description', 'description1'),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.19):
+            # In base command class ShowOne in cliff, abstract method
+            # take_action() returns a two-part tuple with a tuple of
+            # column names and a tuple of data to be shown.
+            columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[],
+            nics='auto',
+            scheduler_hints={},
+            config_drive=None,
+            description='description1',
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.flavors_mock.called)
+
+    def test_server_create_with_description_api_older(self):
+
+        # Description is not supported for nova api version below 2.19
+        self.app.client_manager.compute.api_version = 2.18
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--description', 'description1',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('description', 'description1'),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.19):
+            self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                              parsed_args)
+
 
 class TestServerDelete(TestServer):
 
@@ -2663,6 +2747,55 @@ class TestServerRebuild(TestServer):
         self.images_mock.get.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, password)
 
+    def test_rebuild_with_description_api_older(self):
+
+        # Description is not supported for nova api version below 2.19
+        self.server.api_version = 2.18
+
+        description = 'description1'
+        arglist = [
+            self.server.id,
+            '--description', description
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('description', description)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.19):
+            self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                              parsed_args)
+
+    def test_rebuild_with_description_api_newer(self):
+
+        # Description is supported for nova api version 2.19 or above
+        self.server.api_version = 2.19
+
+        description = 'description1'
+        arglist = [
+            self.server.id,
+            '--description', description
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('description', description)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.19):
+            # Get the command object to test
+            self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.images_mock.get.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(self.image, None,
+                                               description=description)
+
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_rebuild_with_wait_ok(self, mock_wait_for_status):
         arglist = [
@@ -3400,6 +3533,10 @@ class TestServerSet(TestServer):
     def setUp(self):
         super(TestServerSet, self).setUp()
 
+        self.attrs = {
+            'api_version': None,
+        }
+
         self.methods = {
             'update': None,
             'reset_state': None,
@@ -3501,6 +3638,48 @@ class TestServerSet(TestServer):
         self.fake_servers[0].change_password.assert_called_once_with(
             mock.sentinel.fake_pass)
         self.assertIsNone(result)
+
+    def test_server_set_with_description_api_newer(self):
+
+        # Description is supported for nova api version 2.19 or above
+        self.fake_servers[0].api_version = 2.19
+
+        arglist = [
+            '--description', 'foo_description',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('description', 'foo_description'),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.19):
+            result = self.cmd.take_action(parsed_args)
+            self.fake_servers[0].update.assert_called_once_with(
+                description='foo_description')
+            self.assertIsNone(result)
+
+    def test_server_set_with_description_api_older(self):
+
+        # Description is not supported for nova api version below 2.19
+        self.fake_servers[0].api_version = 2.18
+
+        arglist = [
+            '--description', 'foo_description',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('description', 'foo_description'),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.19):
+            self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                              parsed_args)
 
 
 class TestServerShelve(TestServer):
@@ -3782,6 +3961,50 @@ class TestServerUnset(TestServer):
         self.servers_mock.delete_meta.assert_called_once_with(
             self.fake_server, ['key1', 'key2'])
         self.assertIsNone(result)
+
+    def test_server_unset_with_description_api_newer(self):
+
+        # Description is supported for nova api version 2.19 or above
+        self.app.client_manager.compute.api_version = 2.19
+
+        arglist = [
+            '--description',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('description', True),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.19):
+            result = self.cmd.take_action(parsed_args)
+        self.servers_mock.update.assert_called_once_with(
+            self.fake_server, description="")
+        self.assertIsNone(result)
+
+    def test_server_unset_with_description_api_older(self):
+
+        # Description is not supported for nova api version below 2.19
+        self.app.client_manager.compute.api_version = 2.18
+
+        arglist = [
+            '--description',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('description', True),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.19):
+            self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                              parsed_args)
 
 
 class TestServerUnshelve(TestServer):
