@@ -63,6 +63,84 @@ class ServerTests(common.ComputeTestCase):
         self.assertNotIn(name1, col_name)
         self.assertIn(name2, col_name)
 
+    def test_server_list_with_changes_before(self):
+        """Test server list.
+
+        Getting the servers list with updated_at time equal or
+        before than changes-before.
+        """
+        cmd_output = self.server_create()
+        server_name1 = cmd_output['name']
+
+        cmd_output = self.server_create()
+        server_name2 = cmd_output['name']
+        updated_at2 = cmd_output['updated']
+
+        cmd_output = self.server_create()
+        server_name3 = cmd_output['name']
+
+        cmd_output = json.loads(self.openstack(
+            '--os-compute-api-version 2.66 ' +
+            'server list -f json '
+            '--changes-before ' + updated_at2
+        ))
+
+        col_updated = [server["Name"] for server in cmd_output]
+        self.assertIn(server_name1, col_updated)
+        self.assertIn(server_name2, col_updated)
+        self.assertNotIn(server_name3, col_updated)
+
+    def test_server_list_with_changes_since(self):
+        """Test server list.
+
+        Getting the servers list with updated_at time equal or
+        later than changes-since.
+        """
+        cmd_output = self.server_create()
+        server_name1 = cmd_output['name']
+        cmd_output = self.server_create()
+        server_name2 = cmd_output['name']
+        updated_at2 = cmd_output['updated']
+        cmd_output = self.server_create()
+        server_name3 = cmd_output['name']
+
+        cmd_output = json.loads(self.openstack(
+            'server list -f json '
+            '--changes-since ' + updated_at2
+        ))
+
+        col_updated = [server["Name"] for server in cmd_output]
+        self.assertNotIn(server_name1, col_updated)
+        self.assertIn(server_name2, col_updated)
+        self.assertIn(server_name3, col_updated)
+
+    def test_server_list_with_changes_before_and_changes_since(self):
+        """Test server list.
+
+        Getting the servers list with updated_at time equal or before than
+        changes-before and equal or later than changes-since.
+        """
+        cmd_output = self.server_create()
+        server_name1 = cmd_output['name']
+        cmd_output = self.server_create()
+        server_name2 = cmd_output['name']
+        updated_at2 = cmd_output['updated']
+        cmd_output = self.server_create()
+        server_name3 = cmd_output['name']
+        updated_at3 = cmd_output['updated']
+
+        cmd_output = json.loads(self.openstack(
+            '--os-compute-api-version 2.66 ' +
+            'server list -f json ' +
+            '--changes-since ' + updated_at2 +
+            ' --changes-before ' + updated_at3
+        ))
+
+        col_updated = [server["Name"] for server in cmd_output]
+        self.assertNotIn(server_name1, col_updated)
+        self.assertIn(server_name2, col_updated)
+        self.assertIn(server_name3, col_updated)
+
     def test_server_set(self):
         """Test server create, delete, set, show"""
         cmd_output = self.server_create()

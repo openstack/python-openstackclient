@@ -2075,6 +2075,7 @@ class TestServerList(TestServer):
             'user_id': None,
             'deleted': False,
             'changes-since': None,
+            'changes-before': None,
         }
 
         # Default params of the core function of the command in the case of no
@@ -2355,6 +2356,71 @@ class TestServerList(TestServer):
         mock_parse_isotime.assert_called_once_with(
             'Invalid time value'
         )
+
+    def test_server_list_v266_with_changes_before(self):
+        self.app.client_manager.compute.api_version = (
+            api_versions.APIVersion('2.66'))
+        arglist = [
+            '--changes-before', '2016-03-05T06:27:59Z',
+            '--deleted'
+        ]
+        verifylist = [
+            ('changes_before', '2016-03-05T06:27:59Z'),
+            ('deleted', True),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['changes-before'] = '2016-03-05T06:27:59Z'
+        self.search_opts['deleted'] = True
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    @mock.patch.object(timeutils, 'parse_isotime', side_effect=ValueError)
+    def test_server_list_v266_with_invalid_changes_before(
+            self, mock_parse_isotime):
+        self.app.client_manager.compute.api_version = (
+            api_versions.APIVersion('2.66'))
+
+        arglist = [
+            '--changes-before', 'Invalid time value',
+        ]
+        verifylist = [
+            ('changes_before', 'Invalid time value'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('Invalid changes-before value: Invalid time '
+                             'value', str(e))
+        mock_parse_isotime.assert_called_once_with(
+            'Invalid time value'
+        )
+
+    def test_server_with_changes_before_older_version(self):
+        self.app.client_manager.compute.api_version = (
+            api_versions.APIVersion('2.65'))
+
+        arglist = [
+            '--changes-before', '2016-03-05T06:27:59Z',
+            '--deleted'
+        ]
+        verifylist = [
+            ('changes_before', '2016-03-05T06:27:59Z'),
+            ('deleted', True),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)
 
     def test_server_list_v269_with_partial_constructs(self):
         self.app.client_manager.compute.api_version = \
