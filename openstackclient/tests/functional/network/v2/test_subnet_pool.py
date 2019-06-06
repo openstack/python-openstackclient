@@ -266,7 +266,7 @@ class SubnetPoolTests(common.NetworkTagTests):
         #                pool.  The error appears to be in a lower layer,
         #                once that is fixed add a test for subnet pool unset
         #                --default-quota.
-        #                The unset command of --pool-prefixes also doesnt work
+        #                The unset command of --pool-prefixes also doesn't work
         #                right now. It would be fixed in a separate patch once
         #                the lower layer is fixed.
         # cmd_output = self.openstack(
@@ -319,7 +319,7 @@ class SubnetPoolTests(common.NetworkTagTests):
                     raise
                 pass
             else:
-                # Break and no longer retry if create is sucessful
+                # Break and no longer retry if create is successful
                 break
 
         return cmd_output, pool_prefix
