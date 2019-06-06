@@ -1,0 +1,27 @@
+---
+deprecations:
+  - |
+    The ``--live`` option on the ``openstack server migrate`` command has
+    been deprecated and is being replaced with two new options:
+
+    * ``--live-migration``: This will signal that the migration is a live
+      migration.
+    * ``--host``: This can be used to request a target host for the live
+      migration but requires ``--os-compute-api-version`` 2.30 or greater
+      so the requested host can be validated by the scheduler.
+
+    The ``--live`` option is problematic in that it requires a host and
+    prior to compute API version 2.30, specifying a host during live migration
+    will bypass validation by the scheduler which could result in failures to
+    actually migrate the server to the specified host or over-subscribe the
+    host.
+
+    The ``--live`` and ``--host`` options are mutually exclusive. Furthermore,
+    if both the ``--live`` and ``--live-migration`` options are used the
+    ``--live-migration`` option takes priority.
+fixes:
+  - |
+    `Bug 1411190`_ has been fixed by providing a ``--live-migration`` and
+    ``--host`` option to the ``openstack server migrate`` command.
+
+    .. _Bug 1411190: https://bugs.launchpad.net/python-openstackclient/+bug/1411190

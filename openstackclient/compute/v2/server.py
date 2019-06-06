@@ -1445,9 +1445,38 @@ class MigrateServer(command.Command):
             help=_('Server (name or ID)'),
         )
         parser.add_argument(
+            '--live-migration',
+            dest='live_migration',
+            action='store_true',
+            help=_('Live migrate the server. Use the ``--host`` option to '
+                   'specify a target host for the migration which will be '
+                   'validated by the scheduler.'),
+        )
+        # The --live and --host options are mutually exclusive ways of asking
+        # for a target host during a live migration.
+        host_group = parser.add_mutually_exclusive_group()
+        # TODO(mriedem): Remove --live in the next major version bump after
+        #  the Train release.
+        host_group.add_argument(
             '--live',
             metavar='<hostname>',
-            help=_('Target hostname'),
+            help=_('**Deprecated** This option is problematic in that it '
+                   'requires a host and prior to compute API version 2.30, '
+                   'specifying a host during live migration will bypass '
+                   'validation by the scheduler which could result in '
+                   'failures to actually migrate the server to the specified '
+                   'host or over-subscribe the host. Use the '
+                   '``--live-migration`` option instead. If both this option '
+                   'and ``--live-migration`` are used, ``--live-migration`` '
+                   'takes priority.'),
+        )
+        # TODO(mriedem): Add support for --os-compute-api-version >= 2.56 where
+        # you can cold migrate to a specified target host.
+        host_group.add_argument(
+            '--host',
+            metavar='<hostname>',
+            help=_('Live migrate the server to the specified host. Requires '
+                   '``--os-compute-api-version`` 2.30 or greater.'),
         )
         migration_group = parser.add_mutually_exclusive_group()
         migration_group.add_argument(
@@ -1485,6 +1514,15 @@ class MigrateServer(command.Command):
         )
         return parser
 
+    def _log_warning_for_live(self, parsed_args):
+        if parsed_args.live:
+            # NOTE(mriedem): The --live option requires a host and if
+            # --os-compute-api-version is less than 2.30 it will forcefully
+            # bypass the scheduler which is dangerous.
+            self.log.warning(_(
+                'The --live option has been deprecated. Please use the '
+                '--live-migration option instead.'))
+
     def take_action(self, parsed_args):
 
         def _show_progress(progress):
@@ -1498,19 +1536,45 @@ class MigrateServer(command.Command):
             compute_client.servers,
             parsed_args.server,
         )
-        if parsed_args.live:
+        # Check for live migration.
+        if parsed_args.live or parsed_args.live_migration:
+            # Always log a warning if --live is used.
+            self._log_warning_for_live(parsed_args)
             kwargs = {
-                'host': parsed_args.live,
                 'block_migration': parsed_args.block_migration
             }
+            # Prefer --live-migration over --live if both are specified.
+            if parsed_args.live_migration:
+                # Technically we could pass a non-None host with
+                # --os-compute-api-version < 2.30 but that is the same thing
+                # as the --live option bypassing the scheduler which we don't
+                # want to support, so if the user is using --live-migration
+                # and --host, we want to enforce that they are using version
+                # 2.30 or greater.
+                if (parsed_args.host and
+                        compute_client.api_version <
+                        api_versions.APIVersion('2.30')):
+                    raise exceptions.CommandError(
+                        '--os-compute-api-version 2.30 or greater is required '
+                        'when using --host')
+                # The host parameter is required in the API even if None.
+                kwargs['host'] = parsed_args.host
+            else:
+                kwargs['host'] = parsed_args.live
+
             if compute_client.api_version < api_versions.APIVersion('2.25'):
                 kwargs['disk_over_commit'] = parsed_args.disk_overcommit
             server.live_migrate(**kwargs)
         else:
-            if parsed_args.block_migration or parsed_args.disk_overcommit:
-                raise exceptions.CommandError("--live must be specified if "
-                                              "--block-migration or "
-                                              "--disk-overcommit is specified")
+            if (parsed_args.block_migration or parsed_args.disk_overcommit or
+                    parsed_args.host):
+                # TODO(mriedem): Allow --host for cold migration if
+                # --os-compute-api-version >= 2.56.
+                raise exceptions.CommandError(
+                    "--live-migration must be specified if "
+                    "--block-migration, --disk-overcommit or --host is "
+                    "specified")
+
             server.migrate()
 
         if parsed_args.wait:
