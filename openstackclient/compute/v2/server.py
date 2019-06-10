@@ -1555,7 +1555,15 @@ class LockServer(command.Command):
 # then adding the groups doesn't seem to work
 
 class MigrateServer(command.Command):
-    _description = _("Migrate server to different host")
+    _description = _("""Migrate server to different host.
+
+A migrate operation is implemented as a resize operation using the same flavor
+as the old server. This means that, like resize, migrate works by creating a
+new server using the same flavor and copying the contents of the original disk
+into a new one. As with resize, the migrate operation is a two-step process for
+the user: the first step is to perform the migrate, and the second step is to
+either confirm (verify) success and release the old server, or to declare a
+revert to release the new server and restart the old one.""")
 
     def get_parser(self, prog_name):
         parser = super(MigrateServer, self).get_parser(prog_name)
@@ -2159,10 +2167,10 @@ class ResizeServer(command.Command):
     _description = _("""Scale server to a new flavor.
 
 A resize operation is implemented by creating a new server and copying the
-contents of the original disk into a new one. It is also a two-step process for
-the user: the first is to perform the resize, the second is to either confirm
-(verify) success and release the old server, or to declare a revert to release
-the new server and restart the old one.""")
+contents of the original disk into a new one. It is a two-step process for the
+user: the first step is to perform the resize, and the second step is to either
+confirm (verify) success and release the old server or to declare a revert to
+release the new server and restart the old one.""")
 
     def get_parser(self, prog_name):
         parser = super(ResizeServer, self).get_parser(prog_name)
@@ -2261,6 +2269,12 @@ Confirm (verify) success of resize operation and release the old server.""")
         server.confirm_resize()
 
 
+class MigrateConfirm(ResizeConfirm):
+    _description = _("""Confirm server migrate.
+
+Confirm (verify) success of migrate operation and release the old server.""")
+
+
 class ResizeRevert(command.Command):
     _description = _("""Revert server resize.
 
@@ -2284,6 +2298,13 @@ one.""")
             parsed_args.server,
         )
         server.revert_resize()
+
+
+class MigrateRevert(ResizeRevert):
+    _description = _("""Revert server migrate.
+
+Revert the migrate operation. Release the new server and restart the old
+one.""")
 
 
 class RestoreServer(command.Command):
