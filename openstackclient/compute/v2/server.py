@@ -424,7 +424,10 @@ class AddServerSecurityGroup(command.Command):
 
 
 class AddServerVolume(command.Command):
-    _description = _("Add volume to server")
+    _description = _(
+        "Add volume to server. "
+        "Specify ``--os-compute-api-version 2.20`` or higher to add a volume "
+        "to a server with status ``SHELVED`` or ``SHELVED_OFFLOADED``.")
 
     def get_parser(self, prog_name):
         parser = super(AddServerVolume, self).get_parser(prog_name)
@@ -1949,7 +1952,11 @@ class RemoveServerSecurityGroup(command.Command):
 
 
 class RemoveServerVolume(command.Command):
-    _description = _("Remove volume from server")
+    _description = _(
+        "Remove volume from server. "
+        "Specify ``--os-compute-api-version 2.20`` or higher to remove a "
+        "volume from a server with status ``SHELVED`` or "
+        "``SHELVED_OFFLOADED``.")
 
     def get_parser(self, prog_name):
         parser = super(RemoveServerVolume, self).get_parser(prog_name)
