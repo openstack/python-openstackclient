@@ -2096,9 +2096,64 @@ the new server and restart the old one.""")
                     self.app.stdout.write(_('Error resizing server\n'))
                     raise SystemExit
         elif parsed_args.confirm:
+            self.log.warning(_(
+                "The --confirm option has been deprecated. Please use the "
+                "'openstack server resize confirm' command instead."))
             compute_client.servers.confirm_resize(server)
         elif parsed_args.revert:
+            self.log.warning(_(
+                "The --revert option has been deprecated. Please use the "
+                "'openstack server resize revert' command instead."))
             compute_client.servers.revert_resize(server)
+
+
+class ResizeConfirm(command.Command):
+    _description = _("""Confirm server resize.
+
+Confirm (verify) success of resize operation and release the old server.""")
+
+    def get_parser(self, prog_name):
+        parser = super(ResizeConfirm, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help=_('Server (name or ID)'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+
+        compute_client = self.app.client_manager.compute
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+        server.confirm_resize()
+
+
+class ResizeRevert(command.Command):
+    _description = _("""Revert server resize.
+
+Revert the resize operation. Release the new server and restart the old
+one.""")
+
+    def get_parser(self, prog_name):
+        parser = super(ResizeRevert, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help=_('Server (name or ID)'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+
+        compute_client = self.app.client_manager.compute
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+        server.revert_resize()
 
 
 class RestoreServer(command.Command):

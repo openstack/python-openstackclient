@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    Add ``server resize confirm`` and ``server resize revert`` commands.
+    These replace the now deprecated ``--confirm`` and ``--revert``
+    options to the ``server resize`` commands, respectively.
+deprecations:
+  - |
+    Deprecate the ``--confirm`` and ``--revert`` options for the
+    ``server resize`` command. They have been replaced with the
+    ``server resize confirm`` and `server resize revert`` commands,
+    respectively.
