@@ -432,7 +432,7 @@ class ShowFlavor(command.ShowOne):
                 projects = [utils.get_field(access, 'tenant_id')
                             for access in flavor_access]
                 # TODO(Huanxuan Ao): This format case can be removed after
-                # patch https://review.openstack.org/#/c/330223/ merged.
+                # patch https://review.opendev.org/#/c/330223/ merged.
                 access_projects = utils.format_list(projects)
             except Exception as e:
                 msg = _("Failed to get access projects list "
