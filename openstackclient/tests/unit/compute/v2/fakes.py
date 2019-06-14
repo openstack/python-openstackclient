@@ -505,7 +505,7 @@ class FakeSecurityGroup(object):
 
     @staticmethod
     def get_security_groups(security_groups=None, count=2):
-        """Get an iterable MagicMock object with a list of faked security groups.
+        """Get an iterable MagicMock with a list of faked security groups.
 
         If security groups list is provided, then initialize the Mock object
         with the list. Otherwise create one.

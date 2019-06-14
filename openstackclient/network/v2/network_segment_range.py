@@ -358,7 +358,7 @@ class ListNetworkSegmentRange(command.Lister):
                parsed_args.used and _is_prop_empty(columns, props, 'used') or \
                parsed_args.unused and \
                     not _is_prop_empty(columns, props, 'used'):
-                    continue
+                continue
             if parsed_args.long:
                 props = _update_additional_fields_from_props(columns, props)
             display_props += (props,)

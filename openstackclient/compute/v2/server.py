@@ -79,37 +79,37 @@ def _format_servers_list_power_state(state):
 
 
 def _get_ip_address(addresses, address_type, ip_address_family):
-        # Old style addresses
-        if address_type in addresses:
-            for addy in addresses[address_type]:
+    # Old style addresses
+    if address_type in addresses:
+        for addy in addresses[address_type]:
+            if int(addy['version']) in ip_address_family:
+                return addy['addr']
+
+    # New style addresses
+    new_address_type = address_type
+    if address_type == 'public':
+        new_address_type = 'floating'
+    if address_type == 'private':
+        new_address_type = 'fixed'
+    for network in addresses:
+        for addy in addresses[network]:
+            # Case where it is list of strings
+            if isinstance(addy, six.string_types):
+                if new_address_type == 'fixed':
+                    return addresses[network][0]
+                else:
+                    return addresses[network][-1]
+            # Case where it is a dict
+            if 'OS-EXT-IPS:type' not in addy:
+                continue
+            if addy['OS-EXT-IPS:type'] == new_address_type:
                 if int(addy['version']) in ip_address_family:
                     return addy['addr']
-
-        # New style addresses
-        new_address_type = address_type
-        if address_type == 'public':
-            new_address_type = 'floating'
-        if address_type == 'private':
-            new_address_type = 'fixed'
-        for network in addresses:
-            for addy in addresses[network]:
-                # Case where it is list of strings
-                if isinstance(addy, six.string_types):
-                    if new_address_type == 'fixed':
-                        return addresses[network][0]
-                    else:
-                        return addresses[network][-1]
-                # Case where it is a dict
-                if 'OS-EXT-IPS:type' not in addy:
-                    continue
-                if addy['OS-EXT-IPS:type'] == new_address_type:
-                    if int(addy['version']) in ip_address_family:
-                        return addy['addr']
-        msg = _("ERROR: No %(type)s IP version %(family)s address found")
-        raise exceptions.CommandError(
-            msg % {"type": address_type,
-                   "family": ip_address_family}
-        )
+    msg = _("ERROR: No %(type)s IP version %(family)s address found")
+    raise exceptions.CommandError(
+        msg % {"type": address_type,
+               "family": ip_address_family}
+    )
 
 
 def _prefix_checked_value(prefix):

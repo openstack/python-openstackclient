@@ -52,6 +52,6 @@ class ShowConfiguration(command.ShowOne):
         info = self.app.client_manager.get_configuration()
         for key, value in six.iteritems(info.pop('auth', {})):
             if parsed_args.mask and key.lower() in secret_opts:
-                    value = REDACTED
+                value = REDACTED
             info['auth.' + key] = value
         return zip(*sorted(six.iteritems(info)))

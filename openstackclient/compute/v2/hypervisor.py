@@ -112,7 +112,7 @@ class ShowHypervisor(command.ShowOne):
             # example: 17:37:14 up  2:33,  3 users,
             #          load average: 0.33, 0.36, 0.34
             m = re.match(
-                "\s*(.+)\sup\s+(.+),\s+(.+)\susers?,\s+load average:\s(.+)",
+                r"\s*(.+)\sup\s+(.+),\s+(.+)\susers?,\s+load average:\s(.+)",
                 uptime['uptime'])
             if m:
                 hypervisor["host_time"] = m.group(1)
