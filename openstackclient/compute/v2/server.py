@@ -1470,13 +1470,13 @@ class MigrateServer(command.Command):
                    'and ``--live-migration`` are used, ``--live-migration`` '
                    'takes priority.'),
         )
-        # TODO(mriedem): Add support for --os-compute-api-version >= 2.56 where
-        # you can cold migrate to a specified target host.
         host_group.add_argument(
             '--host',
             metavar='<hostname>',
-            help=_('Live migrate the server to the specified host. Requires '
-                   '``--os-compute-api-version`` 2.30 or greater.'),
+            help=_('Migrate the server to the specified host. Requires '
+                   '``--os-compute-api-version`` 2.30 or greater when used '
+                   'with the ``--live-migration`` option, otherwise requires '
+                   '``--os-compute-api-version`` 2.56 or greater.'),
         )
         migration_group = parser.add_mutually_exclusive_group()
         migration_group.add_argument(
@@ -1566,16 +1566,22 @@ class MigrateServer(command.Command):
                 kwargs['disk_over_commit'] = parsed_args.disk_overcommit
             server.live_migrate(**kwargs)
         else:
-            if (parsed_args.block_migration or parsed_args.disk_overcommit or
-                    parsed_args.host):
-                # TODO(mriedem): Allow --host for cold migration if
-                # --os-compute-api-version >= 2.56.
+            if parsed_args.block_migration or parsed_args.disk_overcommit:
                 raise exceptions.CommandError(
                     "--live-migration must be specified if "
-                    "--block-migration, --disk-overcommit or --host is "
+                    "--block-migration or --disk-overcommit is "
                     "specified")
+            if parsed_args.host:
+                if (compute_client.api_version <
+                        api_versions.APIVersion('2.56')):
+                    msg = _(
+                        '--os-compute-api-version 2.56 or greater is '
+                        'required to use --host without --live-migration.'
+                    )
+                    raise exceptions.CommandError(msg)
 
-            server.migrate()
+            kwargs = {'host': parsed_args.host} if parsed_args.host else {}
+            server.migrate(**kwargs)
 
         if parsed_args.wait:
             if utils.wait_for_status(
