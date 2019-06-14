@@ -1,0 +1,7 @@
+---
+features:
+  - Add ``--availability-zone`` option to ``server unshelve``
+    command to enable users to specify an availability zone during
+    unshelve of a shelved offloaded server. Note that it requires
+    ``--os-compute-api-version 2.77`` or greater.
+    [Blueprint ` <https://blueprints.launchpad.net/nova/+spec/support-specifying-az-when-restore-shelved-server`_]

@@ -2811,12 +2811,32 @@ class UnshelveServer(command.Command):
             nargs='+',
             help=_('Server(s) to unshelve (name or ID)'),
         )
+        parser.add_argument(
+            '--availability-zone',
+            default=None,
+            help=_('Name of the availability zone in which to unshelve a '
+                   'SHELVED_OFFLOADED server (supported by '
+                   '--os-compute-api-version 2.77 or above)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
+        support_az = compute_client.api_version >= api_versions.APIVersion(
+            '2.77')
+        if not support_az and parsed_args.availability_zone:
+            msg = _("--os-compute-api-version 2.77 or greater is required "
+                    "to support the '--availability-zone' option.")
+            raise exceptions.CommandError(msg)
+
         for server in parsed_args.server:
-            utils.find_resource(
-                compute_client.servers,
-                server,
-            ).unshelve()
+            if support_az:
+                utils.find_resource(
+                    compute_client.servers,
+                    server
+                ).unshelve(availability_zone=parsed_args.availability_zone)
+            else:
+                utils.find_resource(
+                    compute_client.servers,
+                    server,
+                ).unshelve()

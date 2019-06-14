@@ -109,6 +109,10 @@ class TestServer(compute_fakes.TestComputev2):
                 version = self.app.client_manager.compute.api_version
                 if version >= api_versions.APIVersion('2.73'):
                     method.assert_called_with(reason=None)
+            elif method_name == 'unshelve':
+                version = self.app.client_manager.compute.api_version
+                if version >= api_versions.APIVersion('2.77'):
+                    method.assert_called_with(availability_zone=None)
                 else:
                     method.assert_called_with()
             else:
@@ -4776,6 +4780,56 @@ class TestServerUnshelve(TestServer):
 
     def test_unshelve_multi_servers(self):
         self.run_method_with_servers('unshelve', 3)
+
+    def test_unshelve_server_with_specified_az(self):
+        server = compute_fakes.FakeServer.create_one_server()
+        arglist = [
+            server.id,
+            '--availability-zone', "foo-az",
+        ]
+        verifylist = [
+            ('availability_zone', "foo-az"),
+            ('server', [server.id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(exceptions.CommandError,
+                               self.cmd.take_action,
+                               parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.77 or greater is required', str(ex))
+
+
+class TestServerUnshelveV277(TestServerUnshelve):
+
+    def setUp(self):
+        super(TestServerUnshelveV277, self).setUp()
+
+        self.server = compute_fakes.FakeServer.create_one_server(
+            methods=self.methods)
+
+        # This is the return value for utils.find_resource()
+        self.servers_mock.get.return_value = self.server
+
+        # Get the command object to test
+        self.cmd = server.UnshelveServer(self.app, None)
+
+    def test_specified_az_to_unshelve_with_v277(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.77')
+
+        arglist = [
+            '--availability-zone', "foo-az",
+            self.server.id,
+        ]
+        verifylist = [
+            ('availability_zone', "foo-az"),
+            ('server', [self.server.id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.unshelve.assert_called_with(availability_zone="foo-az")
 
 
 class TestServerGeneral(TestServer):
