@@ -249,7 +249,7 @@ class TestServerAddFloatingIPNetwork(
         # Get the command object to test
         self.cmd = server.AddFloatingIP(self.app, self.namespace)
 
-    def test_server_add_floating_ip_default(self):
+    def test_server_add_floating_ip(self):
         _server = compute_fakes.FakeServer.create_one_server()
         self.servers_mock.get.return_value = _server
         _port = network_fakes.FakePort.create_one_port()
@@ -284,8 +284,41 @@ class TestServerAddFloatingIPNetwork(
             **attrs
         )
 
-    def test_server_add_floating_ip_default_no_external_gateway(self,
-                                                                success=False):
+    def test_server_add_floating_ip_no_ports(self):
+        server = compute_fakes.FakeServer.create_one_server()
+        floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
+
+        self.servers_mock.get.return_value = server
+        self.network.find_ip = mock.Mock(return_value=floating_ip)
+        self.network.ports = mock.Mock(return_value=[])
+
+        arglist = [
+            server.id,
+            floating_ip['floating_ip_address'],
+        ]
+        verifylist = [
+            ('server', server.id),
+            ('ip_address', floating_ip['floating_ip_address']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            'No attached ports found to associate floating IP with',
+            str(ex))
+
+        self.network.find_ip.assert_called_once_with(
+            floating_ip['floating_ip_address'],
+            ignore_missing=False,
+        )
+        self.network.ports.assert_called_once_with(
+            device_id=server.id,
+        )
+
+    def test_server_add_floating_ip_no_external_gateway(self, success=False):
         _server = compute_fakes.FakeServer.create_one_server()
         self.servers_mock.get.return_value = _server
         _port = network_fakes.FakePort.create_one_port()
@@ -338,11 +371,10 @@ class TestServerAddFloatingIPNetwork(
                 **attrs
             )
 
-    def test_server_add_floating_ip_default_one_external_gateway(self):
-        self.test_server_add_floating_ip_default_no_external_gateway(
-            success=True)
+    def test_server_add_floating_ip_one_external_gateway(self):
+        self.test_server_add_floating_ip_no_external_gateway(success=True)
 
-    def test_server_add_floating_ip_fixed(self):
+    def test_server_add_floating_ip_with_fixed_ip(self):
         _server = compute_fakes.FakeServer.create_one_server()
         self.servers_mock.get.return_value = _server
         _port = network_fakes.FakePort.create_one_port()
@@ -384,7 +416,7 @@ class TestServerAddFloatingIPNetwork(
             **attrs
         )
 
-    def test_server_add_floating_ip_fixed_no_port_found(self):
+    def test_server_add_floating_ip_with_fixed_ip_no_port_found(self):
         _server = compute_fakes.FakeServer.create_one_server()
         self.servers_mock.get.return_value = _server
         _port = network_fakes.FakePort.create_one_port()

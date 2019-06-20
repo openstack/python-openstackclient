@@ -292,6 +292,10 @@ class AddFloatingIP(network_common.NetworkAndComputeCommand):
             parsed_args.server,
         )
         ports = list(client.ports(device_id=server.id))
+        if not ports:
+            msg = _('No attached ports found to associate floating IP with')
+            raise exceptions.CommandError(msg)
+
         # If the fixed IP address was specified, we need to find the
         # corresponding port.
         if parsed_args.fixed_ip_address:

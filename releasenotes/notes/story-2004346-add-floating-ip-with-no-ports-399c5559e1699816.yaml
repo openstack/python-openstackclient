@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Associating a floating IP with a server using the ``server add floating
+    ip`` command requires the server have at least one port associated with it.
+    Previously, this was not validated, meaning the operation would silently
+    fail. This has been resolved.
