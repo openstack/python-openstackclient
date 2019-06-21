@@ -250,19 +250,10 @@ class CreateImage(command.ShowOne):
             help=_("Set a tag on this image "
                    "(repeat option to set multiple tags)"),
         )
-        # NOTE(dtroyer): --owner is deprecated in Jan 2016 in an early
-        #                2.x release.  Do not remove before Jan 2017
-        #                and a 3.x release.
-        project_group = parser.add_mutually_exclusive_group()
-        project_group.add_argument(
+        parser.add_argument(
             "--project",
             metavar="<project>",
             help=_("Set an alternate project on this image (name or ID)"),
-        )
-        project_group.add_argument(
-            "--owner",
-            metavar="<project>",
-            help=argparse.SUPPRESS,
         )
         common.add_project_domain_option_to_parser(parser)
         for deadopt in self.deadopts:
@@ -321,16 +312,10 @@ class CreateImage(command.ShowOne):
             kwargs['visibility'] = 'community'
         if parsed_args.shared:
             kwargs['visibility'] = 'shared'
-        # Handle deprecated --owner option
-        project_arg = parsed_args.project
-        if parsed_args.owner:
-            project_arg = parsed_args.owner
-            LOG.warning(_('The --owner option is deprecated, '
-                          'please use --project instead.'))
-        if project_arg:
+        if parsed_args.project:
             kwargs['owner'] = common.find_project(
                 identity_client,
-                project_arg,
+                parsed_args.project,
                 parsed_args.project_domain,
             ).id
 
@@ -346,13 +331,6 @@ class CreateImage(command.ShowOne):
         if fp is None and parsed_args.file:
             LOG.warning(_("Failed to get an image file."))
             return {}, {}
-
-        if parsed_args.owner:
-            kwargs['owner'] = common.find_project(
-                identity_client,
-                parsed_args.owner,
-                parsed_args.project_domain,
-            ).id
 
         # sign an image using a given local private key file
         if parsed_args.sign_key_path or parsed_args.sign_cert_id:
@@ -933,19 +911,10 @@ class SetImage(command.Command):
             action="store_true",
             help=_("Activate the image"),
         )
-        # NOTE(dtroyer): --owner is deprecated in Jan 2016 in an early
-        #                2.x release.  Do not remove before Jan 2017
-        #                and a 3.x release.
-        project_group = parser.add_mutually_exclusive_group()
-        project_group.add_argument(
+        parser.add_argument(
             "--project",
             metavar="<project>",
             help=_("Set an alternate project on this image (name or ID)"),
-        )
-        project_group.add_argument(
-            "--owner",
-            metavar="<project>",
-            help=argparse.SUPPRESS,
         )
         common.add_project_domain_option_to_parser(parser)
         for deadopt in self.deadopts:
@@ -1020,17 +989,11 @@ class SetImage(command.Command):
             kwargs['visibility'] = 'community'
         if parsed_args.shared:
             kwargs['visibility'] = 'shared'
-        # Handle deprecated --owner option
-        project_arg = parsed_args.project
-        if parsed_args.owner:
-            project_arg = parsed_args.owner
-            LOG.warning(_('The --owner option is deprecated, '
-                          'please use --project instead.'))
         project_id = None
-        if project_arg:
+        if parsed_args.project:
             project_id = common.find_project(
                 identity_client,
-                project_arg,
+                parsed_args.project,
                 parsed_args.project_domain,
             ).id
             kwargs['owner'] = project_id

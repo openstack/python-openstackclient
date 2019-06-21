@@ -49,6 +49,12 @@ Release 4.0
   * Removed in: 4.0
   * Commit: https://review.opendev.org/612798
 
+6. Remove ``image create|set`` option ``--owner``.
+   Use ``--project`` option instead.
+
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/659431
+
 .. 1. Change ``volume transfer request accept`` to use new option ``--auth-key``
 ..    rather than a second positional argument.
 
