@@ -28,7 +28,10 @@ LOG = logging.getLogger(__name__)
 
 
 class ListServerEvent(command.Lister):
-    _description = _("List recent events of a server")
+    _description = _(
+        "List recent events of a server. "
+        "Specify ``--os-compute-api-version 2.21`` "
+        "or higher to show events for a deleted server.")
 
     def get_parser(self, prog_name):
         parser = super(ListServerEvent, self).get_parser(prog_name)
@@ -92,8 +95,11 @@ class ListServerEvent(command.Lister):
 
 class ShowServerEvent(command.ShowOne):
     _description = _(
-        "Show server event details. Specify ``--os-compute-api-version 2.51`` "
-        "or higher to show events for non-admin users.")
+        "Show server event details. "
+        "Specify ``--os-compute-api-version 2.21`` "
+        "or higher to show event details for a deleted server. "
+        "Specify ``--os-compute-api-version 2.51`` "
+        "or higher to show event details for non-admin users.")
 
     def get_parser(self, prog_name):
         parser = super(ShowServerEvent, self).get_parser(prog_name)
