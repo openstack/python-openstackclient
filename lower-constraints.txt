@@ -100,7 +100,7 @@ python-mimeparse==1.6.0
 python-mistralclient==3.1.0
 python-muranoclient==0.8.2
 python-neutronclient==6.7.0
-python-novaclient==10.0.0
+python-novaclient==14.1.0
 python-octaviaclient==1.3.0
 python-rsdclient==0.1.0
 python-saharaclient==1.4.0

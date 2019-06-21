@@ -1,0 +1,13 @@
+---
+features:
+  - Add ``--reason`` option to the ``server lock`` command to specify a reason
+    when locking a server.
+    Requires ``–os-compute-api-version`` 2.73 or greater.
+  - Add ``--locked`` option to the ``server list`` command to list only locked
+    servers.
+    Requires ``–os-compute-api-version`` 2.73 or greater.
+  - Add ``--unlocked`` option to the ``server list`` command list only unlocked
+    servers.
+    Requires ``–os-compute-api-version`` 2.73 or greater.
+    [Blueprint `add-locked-reason <https://blueprints.launchpad.net/nova/+spec/add-locked-reason>`_]
+ 

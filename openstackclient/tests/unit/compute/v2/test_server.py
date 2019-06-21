@@ -91,7 +91,14 @@ class TestServer(compute_fakes.TestComputev2):
 
         for s in servers:
             method = getattr(s, method_name)
-            method.assert_called_with()
+            if method_name == 'lock':
+                version = self.app.client_manager.compute.api_version
+                if version >= api_versions.APIVersion('2.73'):
+                    method.assert_called_with(reason=None)
+                else:
+                    method.assert_called_with()
+            else:
+                method.assert_called_with()
         self.assertIsNone(result)
 
 
@@ -2296,6 +2303,80 @@ class TestServerList(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
+    def test_server_list_with_locked_pre_v273(self):
+
+        arglist = [
+            '--locked'
+        ]
+        verifylist = [
+            ('locked', True)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(exceptions.CommandError,
+                               self.cmd.take_action,
+                               parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.73 or greater is required', str(ex))
+
+    def test_server_list_with_locked_v273(self):
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.73')
+        arglist = [
+            '--locked'
+        ]
+        verifylist = [
+            ('locked', True)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['locked'] = True
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_with_unlocked_v273(self):
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.73')
+        arglist = [
+            '--unlocked'
+        ]
+        verifylist = [
+            ('unlocked', True)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['locked'] = False
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_with_locked_and_unlocked_v273(self):
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.73')
+        arglist = [
+            '--locked',
+            '--unlocked'
+        ]
+        verifylist = [
+            ('locked', True),
+            ('unlocked', True)
+        ]
+
+        ex = self.assertRaises(
+            utils.ParserException,
+            self.check_parser, self.cmd, arglist, verifylist)
+        self.assertIn('Argument parse failed', str(ex))
+
     def test_server_list_with_flavor(self):
 
         arglist = [
@@ -2486,6 +2567,72 @@ class TestServerLock(TestServer):
 
     def test_server_lock_multi_servers(self):
         self.run_method_with_servers('lock', 3)
+
+    def test_server_lock_with_reason(self):
+        server = compute_fakes.FakeServer.create_one_server()
+        arglist = [
+            server.id,
+            '--reason', "blah",
+        ]
+        verifylist = [
+            ('reason', "blah"),
+            ('server', [server.id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(exceptions.CommandError,
+                               self.cmd.take_action,
+                               parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.73 or greater is required', str(ex))
+
+
+class TestServerLockV273(TestServerLock):
+
+    def setUp(self):
+        super(TestServerLockV273, self).setUp()
+
+        self.server = compute_fakes.FakeServer.create_one_server(
+            methods=self.methods)
+
+        # This is the return value for utils.find_resource()
+        self.servers_mock.get.return_value = self.server
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.73')
+
+        # Get the command object to test
+        self.cmd = server.LockServer(self.app, None)
+
+    def test_server_lock_with_reason(self):
+        arglist = [
+            self.server.id,
+            '--reason', "blah",
+        ]
+        verifylist = [
+            ('reason', "blah"),
+            ('server', [self.server.id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.lock.assert_called_with(reason="blah")
+
+    def test_server_lock_multi_servers_with_reason(self):
+        server2 = compute_fakes.FakeServer.create_one_server(
+            methods=self.methods)
+        arglist = [
+            self.server.id, server2.id,
+            '--reason', "choo..choo",
+        ]
+        verifylist = [
+            ('reason', "choo..choo"),
+            ('server', [self.server.id, server2.id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+        self.assertEqual(2, self.servers_mock.get.call_count)
+        self.server.lock.assert_called_with(reason="choo..choo")
+        self.assertEqual(2, self.server.lock.call_count)
 
 
 class TestServerMigrate(TestServer):
