@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    Remove deprecated ``ip fixed add|remove`` commands.
+    Use ``server add|remove fixed ip`` commands instead.
+  - |
+    Remove deprecated ``ip floating add|remove`` commands.
+    Use ``server add|remove floating ip`` commands instead.

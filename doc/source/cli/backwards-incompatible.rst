@@ -16,9 +16,20 @@ from this backwards incompatible change handling.
 Backwards Incompatible Changes
 ==============================
 
-.. Carry this section as comments until 4.0 release
-.. Release 4.0
-.. -----------
+Release 4.0
+-----------
+
+1. Remove ``ip fixed add|remove`` commands.
+   Use ``server add|remove fixed ip`` commands instead.
+
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/612781
+
+2. Remove ``ip floating add|remove`` commands.
+   Use ``server add|remove floating ip`` commands instead.
+
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/612781
 
 .. 1. Change ``volume transfer request accept`` to use new option ``--auth-key``
 ..    rather than a second positional argument.

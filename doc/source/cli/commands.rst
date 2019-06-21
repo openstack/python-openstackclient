@@ -95,9 +95,9 @@ referring to both Compute and Volume quotas.
 * ``extension``: (**Compute**, **Identity**, **Network**, **Volume**) OpenStack server API extensions
 * ``federation protocol``: (**Identity**) the underlying protocol used while federating identities
 * ``flavor``: (**Compute**) predefined server configurations: ram, root disk and so on
-* ``fixed ip``: (**Compute**, **Network**) - an internal IP address assigned to a server
-* ``floating ip``: (**Compute**, **Network**) - a public IP address that can be mapped to a server
-* ``floating ip pool``: (**Compute**, **Network**) - a pool of public IP addresses
+* ``fixed ip``: (**Compute**) - an internal IP address assigned to a server
+* ``floating ip``: (**Network**) - a public IP address that can be mapped to a server
+* ``floating ip pool``: (**Network**) - a pool of public IP addresses
 * ``group``: (**Identity**) a grouping of users
 * ``host``: (**Compute**) - the physical computer running compute services
 * ``hypervisor``: (**Compute**) the virtual machine manager
@@ -106,9 +106,6 @@ referring to both Compute and Volume quotas.
 * ``image``: (**Image**) a disk image
 * ``image member``: (**Image**) a project that is a member of an Image
 * ``ip availability``: (**Network**) - details of IP usage of a network
-* ``ip fixed``: (**Compute**, **Network**) - an internal IP address assigned to a server
-* ``ip floating``: (**Compute**, **Network**) - a public IP address that can be mapped to a server
-* ``ip floating pool``: (**Compute**, **Network**) - a pool of public IP addresses
 * ``keypair``: (**Compute**) an SSH public key
 * ``limits``: (**Compute**, **Volume**) resource usage limits
 * ``mapping``: (**Identity**) a definition to translate identity provider attributes to Identity concepts
