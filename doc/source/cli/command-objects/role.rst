@@ -146,67 +146,11 @@ List roles
 .. code:: bash
 
     openstack role list
-        --domain <domain> | --project <project> [--project-domain <project-domain>]
-        --user <user> [--user-domain <user-domain>] | --group <group> [--group-domain <group-domain>]
-        --inherited
+        [--domain <domain>]
 
 .. option:: --domain <domain>
 
     Filter roles by <domain> (name or ID)
-
-    (Deprecated if being used to list assignments in conjunction with the
-    ``--user <user>``, option, please use ``role assignment list`` instead)
-
-.. option:: --project <project>
-
-    Filter roles by <project> (name or ID)
-
-    (Deprecated, please use ``role assignment list`` instead)
-
-.. option:: --user <user>
-
-    Filter roles by <user> (name or ID)
-
-    (Deprecated, please use ``role assignment list`` instead)
-
-.. option:: --group <group>
-
-    Filter roles by <group> (name or ID)
-
-    (Deprecated, please use ``role assignment list`` instead)
-
-.. option:: --user-domain <user-domain>
-
-    Domain the user belongs to (name or ID).
-    This can be used in case collisions between user names exist.
-
-    (Deprecated, please use ``role assignment list`` instead)
-
-    .. versionadded:: 3
-
-.. option:: --group-domain <group-domain>
-
-    Domain the group belongs to (name or ID).
-    This can be used in case collisions between group names exist.
-
-    (Deprecated, please use ``role assignment list`` instead)
-
-    .. versionadded:: 3
-
-.. option:: --project-domain <project-domain>
-
-    Domain the project belongs to (name or ID).
-    This can be used in case collisions between project names exist.
-
-    (Deprecated, please use ``role assignment list`` instead)
-
-    .. versionadded:: 3
-
-.. option:: --inherited
-
-    Specifies if the role grant is inheritable to the sub projects.
-
-    (Deprecated, please use ``role assignment list`` instead)
 
     .. versionadded:: 3
 

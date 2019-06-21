@@ -266,131 +266,28 @@ class ListRole(command.Lister):
 
     def get_parser(self, prog_name):
         parser = super(ListRole, self).get_parser(prog_name)
-
-        # TODO(henry-nash): The use of the List Role command to list
-        # assignments (as well as roles) has been deprecated. In order
-        # to support domain specific roles, we are overriding the domain
-        # option to allow specification of the domain for the role. This does
-        # not conflict with any existing commands, since for the deprecated
-        # assignments listing you were never allowed to only specify a domain
-        # (you also needed to specify a user).
-        #
-        # Once we have removed the deprecated options entirely, we must
-        # replace the call to _add_identity_and_resource_options_to_parser()
-        # below with just adding the domain option into the parser.
-        _add_identity_and_resource_options_to_parser(parser)
+        parser.add_argument(
+            '--domain',
+            metavar='<domain>',
+            help=_('Include <domain> (name or ID)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-
-        if parsed_args.user:
-            user = common.find_user(
-                identity_client,
-                parsed_args.user,
-                parsed_args.user_domain,
-            )
-        elif parsed_args.group:
-            group = common.find_group(
-                identity_client,
-                parsed_args.group,
-                parsed_args.group_domain,
-            )
 
         if parsed_args.domain:
             domain = common.find_domain(
                 identity_client,
                 parsed_args.domain,
             )
-        elif parsed_args.project:
-            project = common.find_project(
-                identity_client,
-                parsed_args.project,
-                parsed_args.project_domain,
-            )
-
-        # no user or group specified, list all roles in the system
-        if not parsed_args.user and not parsed_args.group:
-            if not parsed_args.domain:
-                columns = ('ID', 'Name')
-                data = identity_client.roles.list()
-            else:
-                columns = ('ID', 'Name', 'Domain')
-                data = identity_client.roles.list(domain_id=domain.id)
-                for role in data:
-                    role.domain = domain.name
-        elif parsed_args.user and parsed_args.domain:
-            columns = ('ID', 'Name', 'Domain', 'User')
-            data = identity_client.roles.list(
-                user=user,
-                domain=domain,
-                os_inherit_extension_inherited=parsed_args.inherited
-            )
-            for user_role in data:
-                user_role.user = user.name
-                user_role.domain = domain.name
-            self.log.warning(_('Listing assignments using role list is '
-                               'deprecated. Use role assignment list --user '
-                               '<user-name> --domain <domain-name> --names '
-                               'instead.'))
-        elif parsed_args.user and parsed_args.project:
-            columns = ('ID', 'Name', 'Project', 'User')
-            data = identity_client.roles.list(
-                user=user,
-                project=project,
-                os_inherit_extension_inherited=parsed_args.inherited
-            )
-            for user_role in data:
-                user_role.user = user.name
-                user_role.project = project.name
-            self.log.warning(_('Listing assignments using role list is '
-                               'deprecated. Use role assignment list --user '
-                               '<user-name> --project <project-name> --names '
-                               'instead.'))
-        elif parsed_args.user:
-            columns = ('ID', 'Name')
-            data = identity_client.roles.list(
-                user=user,
-                domain='default',
-                os_inherit_extension_inherited=parsed_args.inherited
-            )
-            self.log.warning(_('Listing assignments using role list is '
-                               'deprecated. Use role assignment list --user '
-                               '<user-name> --domain default --names '
-                               'instead.'))
-        elif parsed_args.group and parsed_args.domain:
-            columns = ('ID', 'Name', 'Domain', 'Group')
-            data = identity_client.roles.list(
-                group=group,
-                domain=domain,
-                os_inherit_extension_inherited=parsed_args.inherited
-            )
-            for group_role in data:
-                group_role.group = group.name
-                group_role.domain = domain.name
-            self.log.warning(_('Listing assignments using role list is '
-                               'deprecated. Use role assignment list --group '
-                               '<group-name> --domain <domain-name> --names '
-                               'instead.'))
-        elif parsed_args.group and parsed_args.project:
-            columns = ('ID', 'Name', 'Project', 'Group')
-            data = identity_client.roles.list(
-                group=group,
-                project=project,
-                os_inherit_extension_inherited=parsed_args.inherited
-            )
-            for group_role in data:
-                group_role.group = group.name
-                group_role.project = project.name
-            self.log.warning(_('Listing assignments using role list is '
-                               'deprecated. Use role assignment list --group '
-                               '<group-name> --project <project-name> --names '
-                               'instead.'))
+            columns = ('ID', 'Name', 'Domain')
+            data = identity_client.roles.list(domain_id=domain.id)
+            for role in data:
+                role.domain = domain.name
         else:
-            msg = _("Error: If a user or group is specified, "
-                    "either --domain or --project must also be "
-                    "specified to list role grants.")
-            raise exceptions.CommandError(msg)
+            columns = ('ID', 'Name')
+            data = identity_client.roles.list()
 
         return (columns,
                 (utils.get_item_properties(

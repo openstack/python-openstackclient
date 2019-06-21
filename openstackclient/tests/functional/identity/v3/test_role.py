@@ -31,47 +31,6 @@ class RoleTests(common.IdentityTests):
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
 
-    def test_role_list_with_user_project(self):
-        role_name = self._create_dummy_role()
-        username = self._create_dummy_user()
-        raw_output = self.openstack(
-            'role add '
-            '--project %(project)s '
-            '--project-domain %(project_domain)s '
-            '--user %(user)s '
-            '--user-domain %(user_domain)s '
-            '%(role)s' % {'project': self.project_name,
-                          'project_domain': self.domain_name,
-                          'user': username,
-                          'user_domain': self.domain_name,
-                          'role': role_name})
-        self.addCleanup(
-            self.openstack,
-            'role remove '
-            '--project %(project)s '
-            '--project-domain %(project_domain)s '
-            '--user %(user)s '
-            '--user-domain %(user_domain)s '
-            '%(role)s' % {'project': self.project_name,
-                          'project_domain': self.domain_name,
-                          'user': username,
-                          'user_domain': self.domain_name,
-                          'role': role_name})
-        self.assertEqual(0, len(raw_output))
-        raw_output = self.openstack(
-            'role list '
-            '--project %(project)s '
-            '--project-domain %(project_domain)s '
-            '--user %(user)s '
-            '--user-domain %(user_domain)s '
-            '' % {'project': self.project_name,
-                  'project_domain': self.domain_name,
-                  'user': username,
-                  'user_domain': self.domain_name})
-        items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
-        self.assertEqual(1, len(items))
-
     def test_role_show(self):
         role_name = self._create_dummy_role()
         raw_output = self.openstack('role show %s' % role_name)

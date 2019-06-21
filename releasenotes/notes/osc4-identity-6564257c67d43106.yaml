@@ -1,0 +1,12 @@
+---
+upgrade:
+  - |
+    Remove deprecated ``role list`` options ``--project`` and ``--user``.
+    Use ``role assignment list`` options ``--project`` and ``--user`` instead.
+  - |
+    Remove deprecated ``user role list`` command.
+    Use ``role assignment list`` options ``--project`` and ``--user`` instead.
+  - |
+    Remove deprecated ``service create`` option ``--type``.  
+    The type is supplied as a positional argument in The
+    ``service create --name <service-name> type`` command.

@@ -278,7 +278,7 @@ class TestRoleList(TestRole):
         # Get the command object to test
         self.cmd = role.ListRole(self.app, None)
 
-    def test_role_list_no_options(self):
+    def test_role_list(self):
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -295,137 +295,6 @@ class TestRoleList(TestRole):
         datalist = ((
             self.fake_role.id,
             self.fake_role.name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
-
-
-class TestUserRoleList(TestRole):
-
-    columns = (
-        'ID',
-        'Name',
-        'Project',
-        'User'
-    )
-
-    def setUp(self):
-        super(TestUserRoleList, self).setUp()
-
-        self.projects_mock.get.return_value = self.fake_project
-
-        self.users_mock.get.return_value = self.fake_user
-
-        self.roles_mock.roles_for_user.return_value = [self.fake_role]
-
-        # Get the command object to test
-        self.cmd = role.ListUserRole(self.app, None)
-
-    def test_user_role_list_no_options_unscoped_token(self):
-        auth_ref = identity_fakes.fake_auth_ref(
-            identity_fakes.UNSCOPED_TOKEN,
-            fake_service=self.fake_service,
-        )
-        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = self.ar_mock
-
-        arglist = []
-        verifylist = []
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # This argument combination should raise a CommandError
-        self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args,
-        )
-
-    def test_user_role_list_no_options_scoped_token(self):
-        arglist = []
-        verifylist = []
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # In base command class Lister in cliff, abstract method take_action()
-        # returns a tuple containing the column names and an iterable
-        # containing the data to be listed.
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.roles_mock.roles_for_user.assert_called_with(
-            self.fake_user.id,
-            self.fake_project.id,
-        )
-
-        collist = ('ID', 'Name', 'Project', 'User')
-        self.assertEqual(collist, columns)
-        datalist = ((
-            self.fake_role.id,
-            self.fake_role.name,
-            self.fake_project.name,
-            self.fake_user.name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
-
-    def test_user_role_list_project_unscoped_token(self):
-        auth_ref = identity_fakes.fake_auth_ref(
-            identity_fakes.UNSCOPED_TOKEN,
-            fake_service=self.fake_service,
-        )
-        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = self.ar_mock
-
-        self.projects_mock.get.return_value = self.fake_project
-        arglist = [
-            '--project', self.fake_project.name,
-        ]
-        verifylist = [
-            ('project', self.fake_project.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # In base command class Lister in cliff, abstract method take_action()
-        # returns a tuple containing the column names and an iterable
-        # containing the data to be listed.
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.roles_mock.roles_for_user.assert_called_with(
-            self.fake_user.id,
-            self.fake_project.id,
-        )
-
-        self.assertEqual(columns, columns)
-        datalist = ((
-            self.fake_role.id,
-            self.fake_role.name,
-            self.fake_project.name,
-            self.fake_user.name,
-        ), )
-        self.assertEqual(datalist, tuple(data))
-
-    def test_user_role_list_project_scoped_token(self):
-        self.projects_mock.get.return_value = self.fake_project
-        arglist = [
-            '--project', self.fake_project.name,
-        ]
-        verifylist = [
-            ('project', self.fake_project.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # In base command class Lister in cliff, abstract method take_action()
-        # returns a tuple containing the column names and an iterable
-        # containing the data to be listed.
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.roles_mock.roles_for_user.assert_called_with(
-            self.fake_user.id,
-            self.fake_project.id,
-        )
-
-        self.assertEqual(columns, columns)
-        datalist = ((
-            self.fake_role.id,
-            self.fake_role.name,
-            self.fake_project.name,
-            self.fake_user.name,
         ), )
         self.assertEqual(datalist, tuple(data))
 

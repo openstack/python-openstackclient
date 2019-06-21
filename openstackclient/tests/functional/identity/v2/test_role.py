@@ -29,38 +29,6 @@ class RoleTests(common.IdentityTests):
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
 
-    def test_role_list_with_user_project(self):
-        project_name = self._create_dummy_project()
-        role_name = self._create_dummy_role()
-        username = self._create_dummy_user()
-        raw_output = self.openstack(
-            'role add '
-            '--project %(project)s '
-            '--user %(user)s '
-            '%(role)s' % {'project': project_name,
-                          'user': username,
-                          'role': role_name})
-        self.addCleanup(
-            self.openstack,
-            'role remove '
-            '--project %(project)s '
-            '--user %(user)s '
-            '%(role)s' % {'project': project_name,
-                          'user': username,
-                          'role': role_name})
-        items = self.parse_show(raw_output)
-        self.assert_show_fields(items, self.ROLE_FIELDS)
-
-        raw_output = self.openstack(
-            'role list '
-            '--project %(project)s '
-            '--user %(user)s '
-            '' % {'project': project_name,
-                  'user': username})
-        items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
-        self.assertEqual(1, len(items))
-
     def test_role_show(self):
         role_name = self._create_dummy_role()
         raw_output = self.openstack('role show %s' % role_name)
