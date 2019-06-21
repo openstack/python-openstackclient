@@ -115,19 +115,6 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             metavar="<group>",
             help=_("Remote security group (name or ID)"),
         )
-        # Handle deprecated options
-        # NOTE(dtroyer): --src-ip and --src-group were deprecated in Nov 2016.
-        #                Do not remove before 4.x release or Nov 2017.
-        remote_group.add_argument(
-            "--src-ip",
-            metavar="<ip-address>",
-            help=argparse.SUPPRESS,
-        )
-        remote_group.add_argument(
-            "--src-group",
-            metavar="<group>",
-            help=argparse.SUPPRESS,
-        )
         return parser
 
     def update_parser_network(self, parser):
@@ -310,31 +297,13 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         if parsed_args.icmp_code is not None and parsed_args.icmp_code >= 0:
             attrs['port_range_max'] = parsed_args.icmp_code
 
-        # NOTE(dtroyer): --src-ip and --src-group were deprecated in Nov 2016.
-        #                Do not remove before 4.x release or Nov 2017.
-        if not (parsed_args.remote_group is None and
-                parsed_args.src_group is None):
+        if parsed_args.remote_group is not None:
             attrs['remote_group_id'] = client.find_security_group(
-                parsed_args.remote_group or parsed_args.src_group,
+                parsed_args.remote_group,
                 ignore_missing=False
             ).id
-            if parsed_args.src_group:
-                LOG.warning(
-                    _("The %(old)s option is deprecated, "
-                      "please use %(new)s instead."),
-                    {'old': '--src-group', 'new': '--remote-group'},
-                )
-        elif not (parsed_args.remote_ip is None and
-                  parsed_args.src_ip is None):
-            attrs['remote_ip_prefix'] = (
-                parsed_args.remote_ip or parsed_args.src_ip
-            )
-            if parsed_args.src_ip:
-                LOG.warning(
-                    _("The %(old)s option is deprecated, "
-                      "please use %(new)s instead."),
-                    {'old': '--src-ip', 'new': '--remote-ip'},
-                )
+        elif parsed_args.remote_ip is not None:
+            attrs['remote_ip_prefix'] = parsed_args.remote_ip
         elif attrs['ethertype'] == 'IPv4':
             attrs['remote_ip_prefix'] = '0.0.0.0/0'
         attrs['security_group_id'] = security_group_id
@@ -361,29 +330,13 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         else:
             from_port, to_port = parsed_args.dst_port
 
-        # NOTE(dtroyer): --src-ip and --src-group were deprecated in Nov 2016.
-        #                Do not remove before 4.x release or Nov 2017.
         remote_ip = None
-        if not (parsed_args.remote_group is None and
-                parsed_args.src_group is None):
+        if parsed_args.remote_group is not None:
             parsed_args.remote_group = client.api.security_group_find(
-                parsed_args.remote_group or parsed_args.src_group,
+                parsed_args.remote_group,
             )['id']
-            if parsed_args.src_group:
-                LOG.warning(
-                    _("The %(old)s option is deprecated, "
-                      "please use %(new)s instead."),
-                    {'old': '--src-group', 'new': '--remote-group'},
-                )
-        if not (parsed_args.remote_ip is None and
-                parsed_args.src_ip is None):
-            remote_ip = parsed_args.remote_ip or parsed_args.src_ip
-            if parsed_args.src_ip:
-                LOG.warning(
-                    _("The %(old)s option is deprecated, "
-                      "please use %(new)s instead."),
-                    {'old': '--src-ip', 'new': '--remote-ip'},
-                )
+        if parsed_args.remote_ip is not None:
+            remote_ip = parsed_args.remote_ip
         else:
             remote_ip = '0.0.0.0/0'
 

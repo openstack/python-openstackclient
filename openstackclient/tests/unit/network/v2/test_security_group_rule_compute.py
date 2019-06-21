@@ -72,15 +72,6 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         self.assertRaises(tests_utils.ParserException,
                           self.check_parser, self.cmd, [], [])
 
-    def test_security_group_rule_create_all_source_options(self, sgr_mock):
-        arglist = [
-            '--src-ip', '10.10.0.0/24',
-            '--src-group', self._security_group['id'],
-            self._security_group['id'],
-        ]
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser, self.cmd, arglist, [])
-
     def test_security_group_rule_create_all_remote_options(self, sgr_mock):
         arglist = [
             '--remote-ip', '10.10.0.0/24',
@@ -151,41 +142,6 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
 
-    def test_security_group_rule_create_source_group(self, sgr_mock):
-        expected_columns, expected_data = self._setup_security_group_rule({
-            'from_port': 22,
-            'to_port': 22,
-            'group': {'name': self._security_group['name']},
-        })
-        sgr_mock.return_value = self._security_group_rule
-        arglist = [
-            '--dst-port', str(self._security_group_rule['from_port']),
-            '--src-group', self._security_group['name'],
-            self._security_group['id'],
-        ]
-        verifylist = [
-            ('dst_port', (self._security_group_rule['from_port'],
-                          self._security_group_rule['to_port'])),
-            ('src_group', self._security_group['name']),
-            ('group', self._security_group['id']),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-
-        # TODO(dtroyer): save this for the security group rule changes
-        # self.compute.api.security_group_rule_create.assert_called_once_with(
-        sgr_mock.assert_called_once_with(
-            security_group_id=self._security_group['id'],
-            ip_protocol=self._security_group_rule['ip_protocol'],
-            from_port=self._security_group_rule['from_port'],
-            to_port=self._security_group_rule['to_port'],
-            remote_ip=self._security_group_rule['ip_range']['cidr'],
-            remote_group=self._security_group['id'],
-        )
-        self.assertEqual(expected_columns, columns)
-        self.assertEqual(expected_data, data)
-
     def test_security_group_rule_create_remote_group(self, sgr_mock):
         expected_columns, expected_data = self._setup_security_group_rule({
             'from_port': 22,
@@ -217,41 +173,6 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
             to_port=self._security_group_rule['to_port'],
             remote_ip=self._security_group_rule['ip_range']['cidr'],
             remote_group=self._security_group['id'],
-        )
-        self.assertEqual(expected_columns, columns)
-        self.assertEqual(expected_data, data)
-
-    def test_security_group_rule_create_source_ip(self, sgr_mock):
-        expected_columns, expected_data = self._setup_security_group_rule({
-            'ip_protocol': 'icmp',
-            'from_port': -1,
-            'to_port': -1,
-            'ip_range': {'cidr': '10.0.2.0/24'},
-        })
-        sgr_mock.return_value = self._security_group_rule
-        arglist = [
-            '--protocol', self._security_group_rule['ip_protocol'],
-            '--src-ip', self._security_group_rule['ip_range']['cidr'],
-            self._security_group['id'],
-        ]
-        verifylist = [
-            ('protocol', self._security_group_rule['ip_protocol']),
-            ('src_ip', self._security_group_rule['ip_range']['cidr']),
-            ('group', self._security_group['id']),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-
-        # TODO(dtroyer): save this for the security group rule changes
-        # self.compute.api.security_group_rule_create.assert_called_once_with(
-        sgr_mock.assert_called_once_with(
-            security_group_id=self._security_group['id'],
-            ip_protocol=self._security_group_rule['ip_protocol'],
-            from_port=self._security_group_rule['from_port'],
-            to_port=self._security_group_rule['to_port'],
-            remote_ip=self._security_group_rule['ip_range']['cidr'],
-            remote_group=None,
         )
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
@@ -301,13 +222,13 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         sgr_mock.return_value = self._security_group_rule
         arglist = [
             '--proto', self._security_group_rule['ip_protocol'],
-            '--src-ip', self._security_group_rule['ip_range']['cidr'],
+            '--remote-ip', self._security_group_rule['ip_range']['cidr'],
             self._security_group['id'],
         ]
         verifylist = [
             ('proto', self._security_group_rule['ip_protocol']),
             ('protocol', None),
-            ('src_ip', self._security_group_rule['ip_range']['cidr']),
+            ('remote_ip', self._security_group_rule['ip_range']['cidr']),
             ('group', self._security_group['id']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

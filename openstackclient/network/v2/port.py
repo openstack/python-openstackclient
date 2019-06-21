@@ -96,21 +96,6 @@ class JSONKeyValueAction(argparse.Action):
 def _get_attrs(client_manager, parsed_args):
     attrs = {}
 
-    # Handle deprecated options
-    # NOTE(dtroyer): --device-id and --host-id were deprecated in Mar 2016.
-    #                Do not remove before 3.x release or Mar 2017.
-    if parsed_args.device_id:
-        attrs['device_id'] = parsed_args.device_id
-        LOG.warning(_(
-            'The --device-id option is deprecated, '
-            'please use --device instead.'
-        ))
-    if parsed_args.host_id:
-        attrs['binding:host_id'] = parsed_args.host_id
-        LOG.warning(_(
-            'The --host-id option is deprecated, '
-            'please use --host instead.'
-        ))
     if parsed_args.description is not None:
         attrs['description'] = parsed_args.description
     if parsed_args.device:
@@ -235,18 +220,10 @@ def _add_updatable_args(parser):
         metavar='<description>',
         help=_("Description of this port")
     )
-    # NOTE(dtroyer): --device-id is deprecated in Mar 2016.  Do not
-    #                remove before 3.x release or Mar 2017.
-    device_group = parser.add_mutually_exclusive_group()
-    device_group.add_argument(
+    parser.add_argument(
         '--device',
         metavar='<device-id>',
         help=_("Port device ID")
-    )
-    device_group.add_argument(
-        '--device-id',
-        metavar='<device-id>',
-        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         '--mac-address',
@@ -268,18 +245,10 @@ def _add_updatable_args(parser):
                "macvtap | normal | baremetal | virtio-forwarder, "
                "default: normal)")
     )
-    # NOTE(dtroyer): --host-id is deprecated in Mar 2016.  Do not
-    #                remove before 3.x release or Mar 2017.
-    host_group = parser.add_mutually_exclusive_group()
-    host_group.add_argument(
+    parser.add_argument(
         '--host',
         metavar='<host-id>',
         help=_("Allocate port on host <host-id> (ID only)")
-    )
-    host_group.add_argument(
-        '--host-id',
-        metavar='<host-id>',
-        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         '--dns-domain',
