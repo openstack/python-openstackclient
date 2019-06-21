@@ -2528,6 +2528,32 @@ class TestServerMigrate(TestServer):
         self.assertNotCalled(self.servers_mock.live_migrate)
         self.assertIsNone(result)
 
+    def test_server_migrate_with_host_2_56(self):
+        # Tests that --host is allowed for a cold migration
+        # for microversion 2.56 and greater.
+        arglist = [
+            '--host', 'fakehost', self.server.id,
+        ]
+        verifylist = [
+            ('live', None),
+            ('live_migration', False),
+            ('host', 'fakehost'),
+            ('block_migration', False),
+            ('disk_overcommit', False),
+            ('wait', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.56')
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.migrate.assert_called_with(host='fakehost')
+        self.assertNotCalled(self.servers_mock.live_migrate)
+        self.assertIsNone(result)
+
     def test_server_migrate_with_block_migration(self):
         arglist = [
             '--block-migration', self.server.id,
@@ -2566,8 +2592,9 @@ class TestServerMigrate(TestServer):
         self.assertNotCalled(self.servers_mock.live_migrate)
         self.assertNotCalled(self.servers_mock.migrate)
 
-    def test_server_migrate_with_host(self):
-        # Tests that --host is not allowed for a cold migration.
+    def test_server_migrate_with_host_pre_2_56(self):
+        # Tests that --host is not allowed for a cold migration
+        # before microversion 2.56 (the test defaults to 2.1).
         arglist = [
             '--host', 'fakehost', self.server.id,
         ]
@@ -2585,9 +2612,10 @@ class TestServerMigrate(TestServer):
                                parsed_args)
 
         # Make sure it's the error we expect.
-        self.assertIn("--live-migration must be specified if "
-                      "--block-migration, --disk-overcommit or --host is "
-                      "specified", six.text_type(ex))
+        self.assertIn('--os-compute-api-version 2.56 or greater is required '
+                      'to use --host without --live-migration.',
+                      six.text_type(ex))
+
         self.servers_mock.get.assert_called_with(self.server.id)
         self.assertNotCalled(self.servers_mock.live_migrate)
         self.assertNotCalled(self.servers_mock.migrate)
