@@ -183,40 +183,6 @@ class TestVolumeCreate(TestVolume):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
-    def test_volume_create_user(self):
-        arglist = [
-            '--size', str(self.new_volume.size),
-            '--user', self.user.id,
-            self.new_volume.name,
-        ]
-        verifylist = [
-            ('size', self.new_volume.size),
-            ('user', self.user.id),
-            ('name', self.new_volume.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
-        self.volumes_mock.create.assert_not_called()
-
-    def test_volume_create_project(self):
-        arglist = [
-            '--size', str(self.new_volume.size),
-            '--project', self.project.id,
-            self.new_volume.name,
-        ]
-        verifylist = [
-            ('size', self.new_volume.size),
-            ('project', self.project.id),
-            ('name', self.new_volume.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
-        self.volumes_mock.create.assert_not_called()
-
     def test_volume_create_properties(self):
         arglist = [
             '--property', 'Alpha=a',

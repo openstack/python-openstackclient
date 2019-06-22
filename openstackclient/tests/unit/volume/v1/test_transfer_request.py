@@ -85,26 +85,6 @@ class TestTransferAccept(TestTransfer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-    def test_transfer_accept_deprecated(self):
-        arglist = [
-            self.volume_transfer.id,
-            'key_value',
-        ]
-        verifylist = [
-            ('transfer_request', self.volume_transfer.id),
-            ('old_auth_key', 'key_value'),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.transfer_mock.accept.assert_called_once_with(
-            self.volume_transfer.id,
-            'key_value',
-        )
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
-
     def test_transfer_accept_no_option(self):
         arglist = [
             self.volume_transfer.id,

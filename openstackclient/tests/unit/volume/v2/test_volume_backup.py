@@ -19,7 +19,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
-from openstackclient.volume.v2 import backup
+from openstackclient.volume.v2 import volume_backup
 
 
 class TestBackup(volume_fakes.TestVolume):
@@ -77,7 +77,7 @@ class TestBackupCreate(TestBackup):
         self.backups_mock.create.return_value = self.new_backup
 
         # Get the command object to test
-        self.cmd = backup.CreateVolumeBackup(self.app, None)
+        self.cmd = volume_backup.CreateVolumeBackup(self.app, None)
 
     def test_backup_create(self):
         arglist = [
@@ -154,7 +154,7 @@ class TestBackupDelete(TestBackup):
         self.backups_mock.delete.return_value = None
 
         # Get the command object to mock
-        self.cmd = backup.DeleteVolumeBackup(self.app, None)
+        self.cmd = volume_backup.DeleteVolumeBackup(self.app, None)
 
     def test_backup_delete(self):
         arglist = [
@@ -283,7 +283,7 @@ class TestBackupList(TestBackup):
         self.volumes_mock.get.return_value = self.volume
         self.backups_mock.get.return_value = self.backups[0]
         # Get the command to test
-        self.cmd = backup.ListVolumeBackup(self.app, None)
+        self.cmd = volume_backup.ListVolumeBackup(self.app, None)
 
     def test_backup_list_without_options(self):
         arglist = []
@@ -371,7 +371,7 @@ class TestBackupRestore(TestBackup):
             volume_fakes.FakeVolume.create_one_volume(
                 {'id': self.volume['id']}))
         # Get the command object to mock
-        self.cmd = backup.RestoreVolumeBackup(self.app, None)
+        self.cmd = volume_backup.RestoreVolumeBackup(self.app, None)
 
     def test_backup_restore(self):
         arglist = [
@@ -400,7 +400,7 @@ class TestBackupSet(TestBackup):
         self.backups_mock.get.return_value = self.backup
 
         # Get the command object to test
-        self.cmd = backup.SetVolumeBackup(self.app, None)
+        self.cmd = volume_backup.SetVolumeBackup(self.app, None)
 
     def test_backup_set_name(self):
         arglist = [
@@ -517,7 +517,7 @@ class TestBackupShow(TestBackup):
 
         self.backups_mock.get.return_value = self.backup
         # Get the command object to test
-        self.cmd = backup.ShowVolumeBackup(self.app, None)
+        self.cmd = volume_backup.ShowVolumeBackup(self.app, None)
 
     def test_backup_show(self):
         arglist = [

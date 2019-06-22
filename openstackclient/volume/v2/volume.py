@@ -94,16 +94,6 @@ class CreateVolume(command.ShowOne):
             help=_("Volume description"),
         )
         parser.add_argument(
-            '--user',
-            metavar='<user>',
-            help=argparse.SUPPRESS,
-        )
-        parser.add_argument(
-            '--project',
-            metavar='<project>',
-            help=argparse.SUPPRESS,
-        )
-        parser.add_argument(
             "--availability-zone",
             metavar="<availability-zone>",
             help=_("Create volume in <availability-zone>"),
@@ -126,12 +116,6 @@ class CreateVolume(command.ShowOne):
             action=parseractions.KeyValueAction,
             help=_("Arbitrary scheduler hint key-value pairs to help boot "
                    "an instance (repeat option to set multiple hints)"),
-        )
-        parser.add_argument(
-            "--multi-attach",
-            action="store_true",
-            help=_("Allow volume to be attached more than once "
-                   "(default to False)")
         )
         bootable_group = parser.add_mutually_exclusive_group()
         bootable_group.add_argument(
@@ -195,26 +179,6 @@ class CreateVolume(command.ShowOne):
             # value if it's either not given or is smaller than the
             # snapshot size.
             size = max(size or 0, snapshot_obj.size)
-
-        # NOTE(abishop): Cinder's volumes.create() has 'project_id' and
-        # 'user_id' args, but they're not wired up to anything. The only way
-        # to specify an alternate project or user for the volume is to use
-        # the identity overrides (e.g. "--os-project-id").
-        #
-        # Now, if the project or user arg is specified then the command is
-        # rejected. Otherwise, Cinder would actually create a volume, but
-        # without the specified property.
-        if parsed_args.project:
-            raise exceptions.CommandError(
-                _("ERROR: --project is deprecated, please use"
-                  " --os-project-name or --os-project-id instead."))
-        if parsed_args.user:
-            raise exceptions.CommandError(
-                _("ERROR: --user is deprecated, please use"
-                  " --os-username instead."))
-        if parsed_args.multi_attach:
-            LOG.warning(_("'--multi-attach' option is no longer supported by "
-                          "the block storage service."))
 
         volume = volume_client.volumes.create(
             size=size,

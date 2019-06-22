@@ -1,4 +1,3 @@
-#   Copyright 2012-2013 OpenStack Foundation
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -13,11 +12,12 @@
 #   under the License.
 #
 
-"""Volume v1 Backup action implementations"""
+"""Volume v2 Backup action implementations"""
 
 import copy
 import logging
 
+from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -35,58 +35,63 @@ class CreateVolumeBackup(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(CreateVolumeBackup, self).get_parser(prog_name)
         parser.add_argument(
-            'volume',
-            metavar='<volume>',
-            help=_('Volume to backup (name or ID)'),
+            "volume",
+            metavar="<volume>",
+            help=_("Volume to backup (name or ID)")
         )
         parser.add_argument(
-            '--container',
-            metavar='<container>',
-            required=False,
-            help=_('Optional backup container name'),
+            "--name",
+            metavar="<name>",
+            help=_("Name of the backup")
         )
         parser.add_argument(
-            '--name',
-            metavar='<name>',
-            help=_('Name of the backup'),
+            "--description",
+            metavar="<description>",
+            help=_("Description of the backup")
         )
         parser.add_argument(
-            '--description',
-            metavar='<description>',
-            help=_('Description of the backup'),
+            "--container",
+            metavar="<container>",
+            help=_("Optional backup container name")
+        )
+        parser.add_argument(
+            "--snapshot",
+            metavar="<snapshot>",
+            help=_("Snapshot to backup (name or ID)")
+        )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            default=False,
+            help=_("Allow to back up an in-use volume")
+        )
+        parser.add_argument(
+            '--incremental',
+            action='store_true',
+            default=False,
+            help=_("Perform an incremental backup")
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        volume_id = utils.find_resource(volume_client.volumes,
-                                        parsed_args.volume).id
+        volume_id = utils.find_resource(
+            volume_client.volumes, parsed_args.volume).id
+        snapshot_id = None
+        if parsed_args.snapshot:
+            snapshot_id = utils.find_resource(
+                volume_client.volume_snapshots, parsed_args.snapshot).id
         backup = volume_client.backups.create(
             volume_id,
-            parsed_args.container,
-            parsed_args.name,
-            parsed_args.description
+            container=parsed_args.container,
+            name=parsed_args.name,
+            description=parsed_args.description,
+            force=parsed_args.force,
+            incremental=parsed_args.incremental,
+            snapshot_id=snapshot_id,
         )
-
-        backup._info.pop('links')
+        backup._info.pop("links", None)
         return zip(*sorted(six.iteritems(backup._info)))
-
-
-class CreateBackup(CreateVolumeBackup):
-    _description = _("Create new backup")
-
-    # TODO(Huanxuan Ao): Remove this class and ``backup create`` command
-    #                    two cycles after Newton.
-
-    # This notifies cliff to not display the help for this command
-    deprecated = True
-
-    log = logging.getLogger('deprecated')
-
-    def take_action(self, parsed_args):
-        self.log.warning(_('This command has been deprecated. '
-                           'Please use "volume backup create" instead.'))
-        return super(CreateBackup, self).take_action(parsed_args)
 
 
 class DeleteVolumeBackup(command.Command):
@@ -95,10 +100,16 @@ class DeleteVolumeBackup(command.Command):
     def get_parser(self, prog_name):
         parser = super(DeleteVolumeBackup, self).get_parser(prog_name)
         parser.add_argument(
-            'backups',
-            metavar='<backup>',
+            "backups",
+            metavar="<backup>",
             nargs="+",
-            help=_('Backup(s) to delete (name or ID)'),
+            help=_("Backup(s) to delete (name or ID)")
+        )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            default=False,
+            help=_("Allow delete in state other than error or available")
         )
         return parser
 
@@ -110,12 +121,12 @@ class DeleteVolumeBackup(command.Command):
             try:
                 backup_id = utils.find_resource(
                     volume_client.backups, i).id
-                volume_client.backups.delete(backup_id)
+                volume_client.backups.delete(backup_id, parsed_args.force)
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete backup with "
-                            "name or ID '%(backup)s': %(e)s"),
-                          {'backup': i, 'e': e})
+                            "name or ID '%(backup)s': %(e)s")
+                          % {'backup': i, 'e': e})
 
         if result > 0:
             total = len(parsed_args.backups)
@@ -124,33 +135,16 @@ class DeleteVolumeBackup(command.Command):
             raise exceptions.CommandError(msg)
 
 
-class DeleteBackup(DeleteVolumeBackup):
-    _description = _("Delete backup(s)")
-
-    # TODO(Huanxuan Ao): Remove this class and ``backup delete`` command
-    #                    two cycles after Newton.
-
-    # This notifies cliff to not display the help for this command
-    deprecated = True
-
-    log = logging.getLogger('deprecated')
-
-    def take_action(self, parsed_args):
-        self.log.warning(_('This command has been deprecated. '
-                           'Please use "volume backup delete" instead.'))
-        return super(DeleteBackup, self).take_action(parsed_args)
-
-
 class ListVolumeBackup(command.Lister):
     _description = _("List volume backups")
 
     def get_parser(self, prog_name):
         parser = super(ListVolumeBackup, self).get_parser(prog_name)
         parser.add_argument(
-            '--long',
-            action='store_true',
+            "--long",
+            action="store_true",
             default=False,
-            help=_('List additional fields in output'),
+            help=_("List additional fields in output")
         )
         parser.add_argument(
             "--name",
@@ -173,6 +167,18 @@ class ListVolumeBackup(command.Lister):
                    "backup (name or ID)")
         )
         parser.add_argument(
+            '--marker',
+            metavar='<volume-backup>',
+            help=_('The last backup of the previous page (name or ID)'),
+        )
+        parser.add_argument(
+            '--limit',
+            type=int,
+            action=parseractions.NonNegativeAction,
+            metavar='<num-backups>',
+            help=_('Maximum number of backups to display'),
+        )
+        parser.add_argument(
             '--all-projects',
             action='store_true',
             default=False,
@@ -192,7 +198,7 @@ class ListVolumeBackup(command.Lister):
 
             volume = volume_id
             if volume_id in volume_cache.keys():
-                volume = volume_cache[volume_id].display_name
+                volume = volume_cache[volume_id].name
             return volume
 
         if parsed_args.long:
@@ -217,6 +223,10 @@ class ListVolumeBackup(command.Lister):
         if parsed_args.volume:
             filter_volume_id = utils.find_resource(volume_client.volumes,
                                                    parsed_args.volume).id
+        marker_backup_id = None
+        if parsed_args.marker:
+            marker_backup_id = utils.find_resource(volume_client.backups,
+                                                   parsed_args.marker).id
         search_opts = {
             'name': parsed_args.name,
             'status': parsed_args.status,
@@ -225,6 +235,8 @@ class ListVolumeBackup(command.Lister):
         }
         data = volume_client.backups.list(
             search_opts=search_opts,
+            marker=marker_backup_id,
+            limit=parsed_args.limit,
         )
 
         return (column_headers,
@@ -234,37 +246,61 @@ class ListVolumeBackup(command.Lister):
                 ) for s in data))
 
 
-class ListBackup(ListVolumeBackup):
-    _description = _("List backups")
-
-    # TODO(Huanxuan Ao): Remove this class and ``backup list`` command
-    #                    two cycles after Newton.
-
-    # This notifies cliff to not display the help for this command
-    deprecated = True
-
-    log = logging.getLogger('deprecated')
-
-    def take_action(self, parsed_args):
-        self.log.warning(_('This command has been deprecated. '
-                           'Please use "volume backup list" instead.'))
-        return super(ListBackup, self).take_action(parsed_args)
-
-
-class RestoreVolumeBackup(command.Command):
+class RestoreVolumeBackup(command.ShowOne):
     _description = _("Restore volume backup")
 
     def get_parser(self, prog_name):
         parser = super(RestoreVolumeBackup, self).get_parser(prog_name)
         parser.add_argument(
-            'backup',
-            metavar='<backup>',
-            help=_('Backup to restore (name or ID)')
+            "backup",
+            metavar="<backup>",
+            help=_("Backup to restore (name or ID)")
         )
         parser.add_argument(
-            'volume',
-            metavar='<volume>',
-            help=_('Volume to restore to (name or ID)')
+            "volume",
+            metavar="<volume>",
+            help=_("Volume to restore to (name or ID)")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        volume_client = self.app.client_manager.volume
+        backup = utils.find_resource(volume_client.backups, parsed_args.backup)
+        destination_volume = utils.find_resource(volume_client.volumes,
+                                                 parsed_args.volume)
+        backup = volume_client.restores.restore(backup.id,
+                                                destination_volume.id)
+        return zip(*sorted(six.iteritems(backup._info)))
+
+
+class SetVolumeBackup(command.Command):
+    _description = _("Set volume backup properties")
+
+    def get_parser(self, prog_name):
+        parser = super(SetVolumeBackup, self).get_parser(prog_name)
+        parser.add_argument(
+            "backup",
+            metavar="<backup>",
+            help=_("Backup to modify (name or ID)")
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_('New backup name')
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('New backup description')
+        )
+        parser.add_argument(
+            '--state',
+            metavar='<state>',
+            choices=['available', 'error'],
+            help=_('New backup state ("available" or "error") (admin only) '
+                   '(This option simply changes the state of the backup '
+                   'in the database with no regard to actual status, '
+                   'exercise caution when using)'),
         )
         return parser
 
@@ -272,27 +308,31 @@ class RestoreVolumeBackup(command.Command):
         volume_client = self.app.client_manager.volume
         backup = utils.find_resource(volume_client.backups,
                                      parsed_args.backup)
-        destination_volume = utils.find_resource(volume_client.volumes,
-                                                 parsed_args.volume)
-        return volume_client.restores.restore(backup.id,
-                                              destination_volume.id)
+        result = 0
+        if parsed_args.state:
+            try:
+                volume_client.backups.reset_state(
+                    backup.id, parsed_args.state)
+            except Exception as e:
+                LOG.error(_("Failed to set backup state: %s"), e)
+                result += 1
 
+        kwargs = {}
+        if parsed_args.name:
+            kwargs['name'] = parsed_args.name
+        if parsed_args.description:
+            kwargs['description'] = parsed_args.description
+        if kwargs:
+            try:
+                volume_client.backups.update(backup.id, **kwargs)
+            except Exception as e:
+                LOG.error(_("Failed to update backup name "
+                          "or description: %s"), e)
+                result += 1
 
-class RestoreBackup(RestoreVolumeBackup):
-    _description = _("Restore backup")
-
-    # TODO(Huanxuan Ao): Remove this class and ``backup restore`` command
-    #                    two cycles after Newton.
-
-    # This notifies cliff to not display the help for this command
-    deprecated = True
-
-    log = logging.getLogger('deprecated')
-
-    def take_action(self, parsed_args):
-        self.log.warning(_('This command has been deprecated. '
-                           'Please use "volume backup restore" instead.'))
-        return super(RestoreBackup, self).take_action(parsed_args)
+        if result > 0:
+            raise exceptions.CommandError(_("One or more of the "
+                                          "set operations failed"))
 
 
 class ShowVolumeBackup(command.ShowOne):
@@ -301,9 +341,9 @@ class ShowVolumeBackup(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ShowVolumeBackup, self).get_parser(prog_name)
         parser.add_argument(
-            'backup',
-            metavar='<backup>',
-            help=_('Backup to display (name or ID)')
+            "backup",
+            metavar="<backup>",
+            help=_("Backup to display (name or ID)")
         )
         return parser
 
@@ -311,22 +351,5 @@ class ShowVolumeBackup(command.ShowOne):
         volume_client = self.app.client_manager.volume
         backup = utils.find_resource(volume_client.backups,
                                      parsed_args.backup)
-        backup._info.pop('links')
+        backup._info.pop("links", None)
         return zip(*sorted(six.iteritems(backup._info)))
-
-
-class ShowBackup(ShowVolumeBackup):
-    _description = _("Display backup details")
-
-    # TODO(Huanxuan Ao): Remove this class and ``backup show`` command
-    #                    two cycles after Newton.
-
-    # This notifies cliff to not display the help for this command
-    deprecated = True
-
-    log = logging.getLogger('deprecated')
-
-    def take_action(self, parsed_args):
-        self.log.warning(_('This command has been deprecated. '
-                           'Please use "volume backup show" instead.'))
-        return super(ShowBackup, self).take_action(parsed_args)
