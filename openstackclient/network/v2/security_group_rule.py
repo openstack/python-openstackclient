@@ -155,7 +155,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
                    "ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt, "
                    "ipv6-opts, ipv6-route, ospf, pgm, rsvp, sctp, tcp, "
                    "udp, udplite, vrrp and integer representations [0-255] "
-                   "or any; default: tcp)")
+                   "or any; default: any (all protocols))")
         )
         protocol_group.add_argument(
             '--proto',
@@ -220,8 +220,8 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         )
         return parser
 
-    def _get_protocol(self, parsed_args):
-        protocol = 'tcp'
+    def _get_protocol(self, parsed_args, default_protocol='any'):
+        protocol = default_protocol
         if parsed_args.protocol is not None:
             protocol = parsed_args.protocol
         if parsed_args.proto is not None:
@@ -324,7 +324,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
 
     def take_action_compute(self, client, parsed_args):
         group = client.api.security_group_find(parsed_args.group)
-        protocol = self._get_protocol(parsed_args)
+        protocol = self._get_protocol(parsed_args, default_protocol='tcp')
         if protocol == 'icmp':
             from_port, to_port = -1, -1
         else:
@@ -415,8 +415,8 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
                    "ah, dhcp, egp, esp, gre, icmp, igmp, "
                    "ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt, "
                    "ipv6-opts, ipv6-route, ospf, pgm, rsvp, sctp, tcp, "
-                   "udp, udplite, vrrp and integer representations [0-255])."
-                   )
+                   "udp, udplite, vrrp and integer representations [0-255] "
+                   "or any; default: any (all protocols))")
         )
         direction_group = parser.add_mutually_exclusive_group()
         direction_group.add_argument(
