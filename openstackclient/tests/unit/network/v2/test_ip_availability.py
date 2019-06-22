@@ -13,7 +13,7 @@
 
 import mock
 
-from osc_lib import utils as common_utils
+from osc_lib.cli import format_columns
 
 from openstackclient.network.v2 import ip_availability
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -75,7 +75,7 @@ class TestListIPAvailability(TestIPAvailability):
         self.network.network_ip_availabilities.assert_called_once_with(
             **filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_list_ip_version(self):
         arglist = [
@@ -93,7 +93,7 @@ class TestListIPAvailability(TestIPAvailability):
         self.network.network_ip_availabilities.assert_called_once_with(
             **filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
     def test_list_project(self):
         arglist = [
@@ -113,7 +113,7 @@ class TestListIPAvailability(TestIPAvailability):
         self.network.network_ip_availabilities.assert_called_once_with(
             **filters)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
+        self.assertListItemEqual(self.data, list(data))
 
 
 class TestShowIPAvailability(TestIPAvailability):
@@ -135,7 +135,7 @@ class TestShowIPAvailability(TestIPAvailability):
         _ip_availability.network_id,
         _ip_availability.network_name,
         _ip_availability.tenant_id,
-        common_utils.format_list(
+        format_columns.ListDictColumn(
             _ip_availability.subnet_ip_availability),
         _ip_availability.total_ips,
         _ip_availability.used_ips,
@@ -176,4 +176,4 @@ class TestShowIPAvailability(TestIPAvailability):
             self._ip_availability.network_name,
             ignore_missing=False)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)

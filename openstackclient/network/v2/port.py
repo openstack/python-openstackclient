@@ -18,6 +18,8 @@ import copy
 import json
 import logging
 
+from cliff import columns as cliff_columns
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -33,23 +35,24 @@ from openstackclient.network.v2 import _tag
 LOG = logging.getLogger(__name__)
 
 
-def _format_admin_state(state):
-    return 'UP' if state else 'DOWN'
+class AdminStateColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        return 'UP' if self._value else 'DOWN'
 
 
 _formatters = {
-    'admin_state_up': _format_admin_state,
-    'is_admin_state_up': _format_admin_state,
-    'allowed_address_pairs': utils.format_list_of_dicts,
-    'binding_profile': utils.format_dict,
-    'binding_vif_details': utils.format_dict,
-    'binding:profile': utils.format_dict,
-    'binding:vif_details': utils.format_dict,
-    'dns_assignment': utils.format_list_of_dicts,
-    'extra_dhcp_opts': utils.format_list_of_dicts,
-    'fixed_ips': utils.format_list_of_dicts,
-    'security_group_ids': utils.format_list,
-    'tags': utils.format_list,
+    'admin_state_up': AdminStateColumn,
+    'is_admin_state_up': AdminStateColumn,
+    'allowed_address_pairs': format_columns.ListDictColumn,
+    'binding_profile': format_columns.DictColumn,
+    'binding_vif_details': format_columns.DictColumn,
+    'binding:profile': format_columns.DictColumn,
+    'binding:vif_details': format_columns.DictColumn,
+    'dns_assignment': format_columns.ListDictColumn,
+    'extra_dhcp_opts': format_columns.ListDictColumn,
+    'fixed_ips': format_columns.ListDictColumn,
+    'security_group_ids': format_columns.ListColumn,
+    'tags': format_columns.ListColumn,
 }
 
 

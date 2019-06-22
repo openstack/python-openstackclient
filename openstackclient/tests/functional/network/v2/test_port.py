@@ -155,7 +155,7 @@ class PortTests(common.NetworkTagTests):
         self.addCleanup(self.openstack, 'port delete %s' % id1)
         self.assertEqual(name, json_output.get('name'))
         self.assertEqual('xyzpdq', json_output.get('description'))
-        self.assertEqual('DOWN', json_output.get('admin_state_up'))
+        self.assertEqual(False, json_output.get('admin_state_up'))
 
         raw_output = self.openstack(
             'port set --enable %s' %
@@ -166,11 +166,11 @@ class PortTests(common.NetworkTagTests):
         json_output = json.loads(self.openstack(
             'port show -f json %s' % name
         ))
-        sg_id = json_output.get('security_group_ids')
+        sg_id = json_output.get('security_group_ids')[0]
 
         self.assertEqual(name, json_output.get('name'))
         self.assertEqual('xyzpdq', json_output.get('description'))
-        self.assertEqual('UP', json_output.get('admin_state_up'))
+        self.assertEqual(True, json_output.get('admin_state_up'))
         self.assertIsNotNone(json_output.get('mac_address'))
 
         raw_output = self.openstack(
@@ -180,7 +180,7 @@ class PortTests(common.NetworkTagTests):
         json_output = json.loads(self.openstack(
             'port show -f json %s' % name
         ))
-        self.assertEqual('', json_output.get('security_group_ids'))
+        self.assertEqual([], json_output.get('security_group_ids'))
 
     def test_port_admin_set(self):
         """Test create, set (as admin), show, delete"""
@@ -229,7 +229,7 @@ class PortTests(common.NetworkTagTests):
         id1 = json_output.get('id')
         self.addCleanup(self.openstack, 'port delete %s' % id1)
         self.assertEqual(name, json_output.get('name'))
-        self.assertEqual(sg_id1, json_output.get('security_group_ids'))
+        self.assertEqual([sg_id1], json_output.get('security_group_ids'))
 
         raw_output = self.openstack(
             'port set '
@@ -242,16 +242,10 @@ class PortTests(common.NetworkTagTests):
             'port show -f json %s' % name
         ))
         self.assertEqual(name, json_output.get('name'))
-        self.assertIn(
-            # TODO(dtroyer): output formatters should not mess with JSON!
-            sg_id1,
-            json_output.get('security_group_ids'),
-        )
-        self.assertIn(
-            # TODO(dtroyer): output formatters should not mess with JSON!
-            sg_id2,
-            json_output.get('security_group_ids'),
-        )
+        # NOTE(amotoki): The order of the field is not predictable,
+        self.assertIsInstance(json_output.get('security_group_ids'), list)
+        self.assertEqual(sorted([sg_id1, sg_id2]),
+                         sorted(json_output.get('security_group_ids')))
 
         raw_output = self.openstack(
             'port unset --security-group %s %s' % (sg_id1, id1))
@@ -261,9 +255,8 @@ class PortTests(common.NetworkTagTests):
             'port show -f json %s' % name
         ))
         self.assertEqual(
-            # TODO(dtroyer): output formatters should do this on JSON!
-            sg_id2,
-            json_output.get('security_group_ids'),
+            [sg_id2],
+            json_output.get('security_group_ids')
         )
 
     def _create_resource_for_tag_test(self, name, args):

@@ -120,14 +120,14 @@ class NetworkTests(common.NetworkTagTests):
             cmd_output["description"],
         )
         self.assertEqual(
-            'UP',
+            True,
             cmd_output["admin_state_up"],
         )
         self.assertFalse(
             cmd_output["shared"],
         )
         self.assertEqual(
-            'Internal',
+            False,
             cmd_output["router:external"],
         )
 
@@ -231,12 +231,12 @@ class NetworkTests(common.NetworkTagTests):
             )
             # Check the default values
             self.assertEqual(
-                'UP',
+                True,
                 cmd_output["admin_state_up"],
             )
             self.assertFalse(cmd_output["shared"])
             self.assertEqual(
-                'Internal',
+                False,
                 cmd_output["router:external"],
             )
             self.assertFalse(cmd_output["is_default"])
@@ -266,7 +266,7 @@ class NetworkTests(common.NetworkTagTests):
                 cmd_output["description"],
             )
             self.assertEqual(
-                'DOWN',
+                False,
                 cmd_output["admin_state_up"],
             )
             self.assertTrue(cmd_output["shared"])
@@ -398,12 +398,12 @@ class NetworkTests(common.NetworkTagTests):
             cmd_output["description"],
         )
         self.assertEqual(
-            'UP',
+            True,
             cmd_output["admin_state_up"],
         )
         self.assertFalse(cmd_output["shared"])
         self.assertEqual(
-            'Internal',
+            False,
             cmd_output["router:external"],
         )
 
@@ -432,12 +432,12 @@ class NetworkTests(common.NetworkTagTests):
             cmd_output["description"],
         )
         self.assertEqual(
-            'DOWN',
+            False,
             cmd_output["admin_state_up"],
         )
         self.assertTrue(cmd_output["shared"])
         self.assertEqual(
-            'External',
+            True,
             cmd_output["router:external"],
         )
         self.assertFalse(cmd_output["is_default"])

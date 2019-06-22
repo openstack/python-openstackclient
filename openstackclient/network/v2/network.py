@@ -13,6 +13,8 @@
 
 """Network action implementations"""
 
+from cliff import columns as cliff_columns
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import utils
 
@@ -23,24 +25,26 @@ from openstackclient.network import sdk_utils
 from openstackclient.network.v2 import _tag
 
 
-def _format_admin_state(item):
-    return 'UP' if item else 'DOWN'
+class AdminStateColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        return 'UP' if self._value else 'DOWN'
 
 
-def _format_router_external(item):
-    return 'External' if item else 'Internal'
+class RouterExternalColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        return 'External' if self._value else 'Internal'
 
 
 _formatters = {
-    'subnets': utils.format_list,
-    'subnet_ids': utils.format_list,
-    'admin_state_up': _format_admin_state,
-    'is_admin_state_up': _format_admin_state,
-    'router:external': _format_router_external,
-    'is_router_external': _format_router_external,
-    'availability_zones': utils.format_list,
-    'availability_zone_hints': utils.format_list,
-    'tags': utils.format_list,
+    'subnets': format_columns.ListColumn,
+    'subnet_ids': format_columns.ListColumn,
+    'admin_state_up': AdminStateColumn,
+    'is_admin_state_up': AdminStateColumn,
+    'router:external': RouterExternalColumn,
+    'is_router_external': RouterExternalColumn,
+    'availability_zones': format_columns.ListColumn,
+    'availability_zone_hints': format_columns.ListColumn,
+    'tags': format_columns.ListColumn,
 }
 
 
