@@ -15,6 +15,7 @@
 
 import logging
 
+from cliff import columns as cliff_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -26,20 +27,21 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _format_endpoints(eps=None):
-    if not eps:
-        return ""
-    ret = ''
-    for index, ep in enumerate(eps):
-        region = eps[index].get('region')
-        if region is None:
-            region = '<none>'
-        ret += region + '\n'
-        for endpoint_type in ['publicURL', 'internalURL', 'adminURL']:
-            url = eps[index].get(endpoint_type)
-            if url:
-                ret += "  %s: %s\n" % (endpoint_type, url)
-    return ret
+class EndpointsColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        if not self._value:
+            return ""
+        ret = ''
+        for ep in self._value:
+            region = ep.get('region')
+            if region is None:
+                region = '<none>'
+            ret += region + '\n'
+            for endpoint_type in ['publicURL', 'internalURL', 'adminURL']:
+                url = ep.get(endpoint_type)
+                if url:
+                    ret += "  %s: %s\n" % (endpoint_type, url)
+        return ret
 
 
 class ListCatalog(command.Lister):
@@ -60,7 +62,7 @@ class ListCatalog(command.Lister):
                 (utils.get_dict_properties(
                     s, columns,
                     formatters={
-                        'Endpoints': _format_endpoints,
+                        'Endpoints': EndpointsColumn,
                     },
                 ) for s in data))
 
@@ -91,7 +93,7 @@ class ShowCatalog(command.ShowOne):
             if (service.get('name') == parsed_args.service or
                     service.get('type') == parsed_args.service):
                 data = service
-                data['endpoints'] = _format_endpoints(data['endpoints'])
+                data['endpoints'] = EndpointsColumn(data['endpoints'])
                 if 'endpoints_links' in data:
                     data.pop('endpoints_links')
                 break
