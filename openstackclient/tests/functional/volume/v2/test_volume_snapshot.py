@@ -182,7 +182,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             cmd_output["description"],
         )
         self.assertEqual(
-            "Alpha='a'",
+            {'Alpha': 'a'},
             cmd_output["properties"],
         )
         self.wait_for_status('volume snapshot', name, 'available')
@@ -216,7 +216,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             cmd_output["description"],
         )
         self.assertEqual(
-            "Alpha='c', Beta='b'",
+            {'Alpha': 'c', 'Beta': 'b'},
             cmd_output["properties"],
         )
 
@@ -233,7 +233,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             new_name
         ))
         self.assertEqual(
-            "Beta='b'",
+            {'Beta': 'b'},
             cmd_output["properties"],
         )
 
@@ -249,6 +249,6 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             new_name
         ))
         self.assertNotIn(
-            "Beta='b'",
+            {'Beta': 'b'},
             cmd_output["properties"],
         )
