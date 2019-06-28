@@ -14,6 +14,7 @@
 #
 import argparse
 import collections
+import copy
 import getpass
 
 import mock
@@ -64,9 +65,22 @@ class TestServer(compute_fakes.TestComputev2):
         self.methods = {}
 
     def setup_servers_mock(self, count):
-        servers = compute_fakes.FakeServer.create_servers(attrs=self.attrs,
-                                                          methods=self.methods,
-                                                          count=count)
+        # If we are creating more than one server, make one of them
+        # boot-from-volume
+        include_bfv = count > 1
+        servers = compute_fakes.FakeServer.create_servers(
+            attrs=self.attrs,
+            methods=self.methods,
+            count=count - 1 if include_bfv else count
+        )
+        if include_bfv:
+            attrs = copy.deepcopy(self.attrs)
+            attrs['image'] = ''
+            bfv_server = compute_fakes.FakeServer.create_one_server(
+                attrs=attrs,
+                methods=self.methods
+            )
+            servers.append(bfv_server)
 
         # This is the return value for utils.find_resource()
         self.servers_mock.get = compute_fakes.FakeServer.get_servers(servers,
@@ -2036,7 +2050,8 @@ class TestServerList(TestServer):
         Image = collections.namedtuple('Image', 'id name')
         self.images_mock.list.return_value = [
             Image(id=s.image['id'], name=self.image.name)
-            for s in self.servers
+            # Image will be an empty string if boot-from-volume
+            for s in self.servers if s.image
         ]
 
         Flavor = collections.namedtuple('Flavor', 'id name')
@@ -2051,7 +2066,8 @@ class TestServerList(TestServer):
                 s.name,
                 s.status,
                 server._format_servers_list_networks(s.networks),
-                self.image.name,
+                # Image will be an empty string if boot-from-volume
+                self.image.name if s.image else s.image,
                 self.flavor.name,
             ))
             self.data_long.append((
@@ -2063,8 +2079,9 @@ class TestServerList(TestServer):
                     getattr(s, 'OS-EXT-STS:power_state')
                 ),
                 server._format_servers_list_networks(s.networks),
-                self.image.name,
-                s.image['id'],
+                # Image will be an empty string if boot-from-volume
+                self.image.name if s.image else s.image,
+                s.image['id'] if s.image else s.image,
                 self.flavor.name,
                 s.flavor['id'],
                 getattr(s, 'OS-EXT-AZ:availability_zone'),
@@ -2076,7 +2093,8 @@ class TestServerList(TestServer):
                 s.name,
                 s.status,
                 server._format_servers_list_networks(s.networks),
-                s.image['id'],
+                # Image will be an empty string if boot-from-volume
+                s.image['id'] if s.image else s.image,
                 s.flavor['id']
             ))
 

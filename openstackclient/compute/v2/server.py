@@ -1280,9 +1280,12 @@ class ListServer(command.Lister):
             # Create a dict that maps image_id to image object.
             # Needed so that we can display the "Image Name" column.
             # "Image Name" is not crucial, so we swallow any exceptions.
+            # The 'image' attribute can be an empty string if the server was
+            # booted from a volume.
             if parsed_args.name_lookup_one_by_one or image_id:
                 for i_id in set(filter(lambda x: x is not None,
-                                       (s.image.get('id') for s in data))):
+                                       (s.image.get('id') for s in data
+                                        if s.image))):
                     try:
                         images[i_id] = image_client.images.get(i_id)
                     except Exception:
