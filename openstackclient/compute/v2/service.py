@@ -72,7 +72,8 @@ class ListService(command.Lister):
         parser.add_argument(
             "--service",
             metavar="<service>",
-            help=_("List only specified service (name only)")
+            help=_("List only specified service binaries (name only). For "
+                   "example, ``nova-compute``, ``nova-conductor``, etc.")
         )
         parser.add_argument(
             "--long",
@@ -126,7 +127,8 @@ class SetService(command.Command):
         parser.add_argument(
             "service",
             metavar="<service>",
-            help=_("Name of service (Binary name)")
+            help=_("Name of service (Binary name), for example "
+                   "``nova-compute``")
         )
         enabled_group = parser.add_mutually_exclusive_group()
         enabled_group.add_argument(
