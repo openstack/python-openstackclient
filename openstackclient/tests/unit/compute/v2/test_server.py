@@ -1926,6 +1926,237 @@ class TestServerCreate(TestServer):
             self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                               parsed_args)
 
+    def test_server_create_with_host_v274(self):
+
+        # Explicit host is supported for nova api version 2.74 or above
+        self.app.client_manager.compute.api_version = 2.74
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--host', 'host1',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('host', 'host1'),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.74):
+            # In base command class ShowOne in cliff, abstract method
+            # take_action() returns a two-part tuple with a tuple of
+            # column names and a tuple of data to be shown.
+            columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[],
+            nics='auto',
+            scheduler_hints={},
+            config_drive=None,
+            host='host1',
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.flavors_mock.called)
+
+    def test_server_create_with_host_pre_v274(self):
+
+        # Host is not supported for nova api version below 2.74
+        self.app.client_manager.compute.api_version = 2.73
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--host', 'host1',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('host', 'host1'),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.74):
+            self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                              parsed_args)
+
+    def test_server_create_with_hypervisor_hostname_v274(self):
+
+        # Explicit hypervisor_hostname is supported for nova api version
+        # 2.74 or above
+        self.app.client_manager.compute.api_version = 2.74
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--hypervisor-hostname', 'node1',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('hypervisor_hostname', 'node1'),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.74):
+            # In base command class ShowOne in cliff, abstract method
+            # take_action() returns a two-part tuple with a tuple of
+            # column names and a tuple of data to be shown.
+            columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[],
+            nics='auto',
+            scheduler_hints={},
+            config_drive=None,
+            hypervisor_hostname='node1',
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.flavors_mock.called)
+
+    def test_server_create_with_hypervisor_hostname_pre_v274(self):
+
+        # Hypervisor_hostname is not supported for nova api version below 2.74
+        self.app.client_manager.compute.api_version = 2.73
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--hypervisor-hostname', 'node1',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('hypervisor_hostname', 'node1'),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.74):
+            self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                              parsed_args)
+
+    def test_server_create_with_host_and_hypervisor_hostname_v274(self):
+
+        # Explicit host and hypervisor_hostname is supported for nova api
+        # version 2.74 or above
+        self.app.client_manager.compute.api_version = 2.74
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--host', 'host1',
+            '--hypervisor-hostname', 'node1',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('host', 'host1'),
+            ('hypervisor_hostname', 'node1'),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(api_versions,
+                               'APIVersion',
+                               return_value=2.74):
+            # In base command class ShowOne in cliff, abstract method
+            # take_action() returns a two-part tuple with a tuple of
+            # column names and a tuple of data to be shown.
+            columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[],
+            nics='auto',
+            scheduler_hints={},
+            config_drive=None,
+            host='host1',
+            hypervisor_hostname='node1',
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.flavors_mock.called)
+
 
 class TestServerDelete(TestServer):
 

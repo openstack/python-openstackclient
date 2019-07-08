@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--host`` and ``--hypervisor-hostname`` options to
+    ``server create`` command.
+    [Blueprint `add-host-and-hypervisor-hostname-flag-to-create-server <https://blueprints.launchpad.net/nova/+spec/add-host-and-hypervisor-hostname-flag-to-create-server>`_]
