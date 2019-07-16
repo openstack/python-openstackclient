@@ -39,7 +39,8 @@ List compute services
 
 .. option:: --service <service>
 
-    List only specified service (name only)
+    List only specified service binaries (name only). For example,
+    ``nova-compute``, ``nova-conductor``, etc.
 
 .. option:: --long
 
@@ -86,4 +87,4 @@ Set compute service properties
 
 .. describe:: <service>
 
-    Name of service (Binary name)
+    Name of service (Binary name), for example ``nova-compute``
