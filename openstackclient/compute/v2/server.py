@@ -554,6 +554,20 @@ class CreateServer(command.ShowOne):
             help=_('Select an availability zone for the server'),
         )
         parser.add_argument(
+            '--host',
+            metavar='<host>',
+            help=_('Requested host to create servers. Admin only '
+                   'by default. (supported by --os-compute-api-version 2.74 '
+                   'or above)'),
+        )
+        parser.add_argument(
+            '--hypervisor-hostname',
+            metavar='<hypervisor-hostname>',
+            help=_('Requested hypervisor hostname to create servers. Admin '
+                   'only by default. (supported by --os-compute-api-version '
+                   '2.74 or above)'),
+        )
+        parser.add_argument(
             '--block-device-mapping',
             metavar='<dev-name=mapping>',
             action=parseractions.KeyValueAction,
@@ -926,6 +940,21 @@ class CreateServer(command.ShowOne):
 
         if parsed_args.description:
             boot_kwargs['description'] = parsed_args.description
+
+        if parsed_args.host:
+            if compute_client.api_version < api_versions.APIVersion("2.74"):
+                msg = _("Specifying --host is not supported for "
+                        "--os-compute-api-version less than 2.74")
+                raise exceptions.CommandError(msg)
+            boot_kwargs['host'] = parsed_args.host
+
+        if parsed_args.hypervisor_hostname:
+            if compute_client.api_version < api_versions.APIVersion("2.74"):
+                msg = _("Specifying --hypervisor-hostname is not supported "
+                        "for --os-compute-api-version less than 2.74")
+                raise exceptions.CommandError(msg)
+            boot_kwargs['hypervisor_hostname'] = (
+                parsed_args.hypervisor_hostname)
 
         LOG.debug('boot_args: %s', boot_args)
         LOG.debug('boot_kwargs: %s', boot_kwargs)
