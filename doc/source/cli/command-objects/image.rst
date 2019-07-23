@@ -585,7 +585,7 @@ Unset image tags or properties
 .. program:: image unset
 .. code:: bash
 
-    openstack image set
+    openstack image unset
         [--tag <tag>]
         [--property <property>]
         <image>
