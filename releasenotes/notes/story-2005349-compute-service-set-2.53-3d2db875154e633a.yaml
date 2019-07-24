@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    The ``compute service set`` command now properly handles
+    ``--os-compute-api-version`` 2.53 and greater.
+    [Story `2005349 <https://storyboard.openstack.org/#!/story/2005349>`_]
