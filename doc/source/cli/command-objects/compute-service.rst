@@ -74,11 +74,12 @@ Set compute service properties
 
 .. option:: --up
 
-    Force up service
+    Force up service. Requires ``--os-compute-api-version`` 2.11 or greater.
 
 .. option:: --down
 
-    Force down service
+    Force down service. . Requires ``--os-compute-api-version`` 2.11 or
+    greater.
 
 .. _compute_service_set-host:
 .. describe:: <host>
