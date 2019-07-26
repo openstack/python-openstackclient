@@ -45,9 +45,17 @@ class TestCase(testtools.TestCase):
     @classmethod
     def openstack(cls, cmd, cloud=ADMIN_CLOUD, fail_ok=False):
         """Executes openstackclient command for the given action."""
-        return execute(
-            'openstack --os-cloud={cloud} '.format(cloud=cloud) +
-            cmd, fail_ok=fail_ok)
+        if cloud is not None:
+            return execute(
+                'openstack --os-cloud={cloud} '.format(cloud=cloud) + cmd,
+                fail_ok=fail_ok
+            )
+        else:
+            # Execute command with no auth
+            return execute(
+                'openstack --os-auth-type none ' + cmd,
+                fail_ok=fail_ok
+            )
 
     @classmethod
     def is_service_enabled(cls, service):

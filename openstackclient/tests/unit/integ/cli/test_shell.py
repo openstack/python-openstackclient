@@ -31,6 +31,51 @@ except ImportError:
     CONFIG_MOCK_BASE = "os_client_config.config"
 
 
+class TestIntegShellCliNoAuth(test_base.TestInteg):
+
+    def setUp(self):
+        super(TestIntegShellCliNoAuth, self).setUp()
+        env = {}
+        self.useFixture(osc_lib_utils.EnvFixture(copy.deepcopy(env)))
+
+        # self.token = test_base.make_v2_token(self.requests_mock)
+
+    def test_shell_args_no_options(self):
+        _shell = shell.OpenStackShell()
+        _shell.run("configuration show".split())
+
+        # Check general calls
+        self.assertEqual(len(self.requests_mock.request_history), 0)
+
+    def test_shell_args_verify(self):
+        _shell = shell.OpenStackShell()
+        _shell.run("--verify configuration show".split())
+
+        # Check general calls
+        self.assertEqual(len(self.requests_mock.request_history), 0)
+
+    def test_shell_args_insecure(self):
+        _shell = shell.OpenStackShell()
+        _shell.run("--insecure configuration show".split())
+
+        # Check general calls
+        self.assertEqual(len(self.requests_mock.request_history), 0)
+
+    def test_shell_args_cacert(self):
+        _shell = shell.OpenStackShell()
+        _shell.run("--os-cacert xyzpdq configuration show".split())
+
+        # Check general calls
+        self.assertEqual(len(self.requests_mock.request_history), 0)
+
+    def test_shell_args_cacert_insecure(self):
+        _shell = shell.OpenStackShell()
+        _shell.run("--os-cacert xyzpdq --insecure configuration show".split())
+
+        # Check general calls
+        self.assertEqual(len(self.requests_mock.request_history), 0)
+
+
 class TestIntegShellCliV2(test_base.TestInteg):
 
     def setUp(self):
@@ -48,10 +93,10 @@ class TestIntegShellCliV2(test_base.TestInteg):
 
     def test_shell_args_no_options(self):
         _shell = shell.OpenStackShell()
-        _shell.run("configuration show".split())
+        _shell.run("extension list".split())
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check discovery request
         self.assertEqual(
@@ -77,30 +122,30 @@ class TestIntegShellCliV2(test_base.TestInteg):
 
     def test_shell_args_verify(self):
         _shell = shell.OpenStackShell()
-        _shell.run("--verify configuration show".split())
+        _shell.run("--verify extension list".split())
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check verify
         self.assertTrue(self.requests_mock.request_history[0].verify)
 
     def test_shell_args_insecure(self):
         _shell = shell.OpenStackShell()
-        _shell.run("--insecure configuration show".split())
+        _shell.run("--insecure extension list".split())
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check verify
         self.assertFalse(self.requests_mock.request_history[0].verify)
 
     def test_shell_args_cacert(self):
         _shell = shell.OpenStackShell()
-        _shell.run("--os-cacert xyzpdq configuration show".split())
+        _shell.run("--os-cacert xyzpdq extension list".split())
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check verify
         self.assertEqual(
@@ -110,10 +155,10 @@ class TestIntegShellCliV2(test_base.TestInteg):
 
     def test_shell_args_cacert_insecure(self):
         _shell = shell.OpenStackShell()
-        _shell.run("--os-cacert xyzpdq --insecure configuration show".split())
+        _shell.run("--os-cacert xyzpdq --insecure extension list".split())
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check verify
         self.assertFalse(self.requests_mock.request_history[0].verify)
@@ -138,10 +183,10 @@ class TestIntegShellCliV2Ignore(test_base.TestInteg):
 
     def test_shell_args_ignore_v3(self):
         _shell = shell.OpenStackShell()
-        _shell.run("configuration show".split())
+        _shell.run("extension list".split())
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check discovery request
         self.assertEqual(
@@ -184,10 +229,10 @@ class TestIntegShellCliV3(test_base.TestInteg):
 
     def test_shell_args_no_options(self):
         _shell = shell.OpenStackShell()
-        _shell.run("configuration show".split())
+        _shell.run("extension list".split())
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check discovery request
         self.assertEqual(
@@ -213,30 +258,30 @@ class TestIntegShellCliV3(test_base.TestInteg):
 
     def test_shell_args_verify(self):
         _shell = shell.OpenStackShell()
-        _shell.run("--verify configuration show".split())
+        _shell.run("--verify extension list".split())
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check verify
         self.assertTrue(self.requests_mock.request_history[0].verify)
 
     def test_shell_args_insecure(self):
         _shell = shell.OpenStackShell()
-        _shell.run("--insecure configuration show".split())
+        _shell.run("--insecure extension list".split())
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check verify
         self.assertFalse(self.requests_mock.request_history[0].verify)
 
     def test_shell_args_cacert(self):
         _shell = shell.OpenStackShell()
-        _shell.run("--os-cacert xyzpdq configuration show".split())
+        _shell.run("--os-cacert xyzpdq extension list".split())
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check verify
         self.assertEqual(
@@ -248,10 +293,10 @@ class TestIntegShellCliV3(test_base.TestInteg):
         # This test verifies the outcome of bug 1447784
         # https://bugs.launchpad.net/python-openstackclient/+bug/1447784
         _shell = shell.OpenStackShell()
-        _shell.run("--os-cacert xyzpdq --insecure configuration show".split())
+        _shell.run("--os-cacert xyzpdq --insecure extension list".split())
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check verify
         self.assertFalse(self.requests_mock.request_history[0].verify)
@@ -276,10 +321,10 @@ class TestIntegShellCliV3Prompt(test_base.TestInteg):
     def test_shell_callback(self, mock_prompt):
         mock_prompt.return_value = "qaz"
         _shell = shell.OpenStackShell()
-        _shell.run("configuration show".split())
+        _shell.run("extension list".split())
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check password callback set correctly
         self.assertEqual(
@@ -332,11 +377,11 @@ class TestIntegShellCliPrecedence(test_base.TestInteg):
         _shell = shell.OpenStackShell()
         _shell.run(
             "--os-username zarquon --os-password qaz "
-            "configuration show".split(),
+            "extension list".split(),
         )
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check discovery request
         self.assertEqual(
@@ -431,11 +476,11 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
         print("CONFIG_MOCK_BASE=%s" % CONFIG_MOCK_BASE)
         _shell = shell.OpenStackShell()
         _shell.run(
-            "--os-password qaz configuration show".split(),
+            "--os-password qaz extension list".split(),
         )
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check discovery request
         self.assertEqual(
@@ -504,11 +549,11 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
         _shell = shell.OpenStackShell()
         _shell.run(
             "--os-username zarquon --os-password qaz "
-            "--os-project-domain-id 5678 configuration show".split(),
+            "--os-project-domain-id 5678 extension list".split(),
         )
 
         # Check general calls
-        self.assertEqual(len(self.requests_mock.request_history), 2)
+        self.assertNotEqual(len(self.requests_mock.request_history), 0)
 
         # Check discovery request
         self.assertEqual(
