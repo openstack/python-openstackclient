@@ -575,14 +575,17 @@ class CreateServer(command.ShowOne):
             # NOTE(RuiChen): Add '\n' at the end of line to put each item in
             #                the separated line, avoid the help message looks
             #                messy, see _SmartHelpFormatter in cliff.
+            # FIXME(mriedem): Technically <id> can be the name or ID.
             help=_('Create a block device on the server.\n'
                    'Block device mapping in the format\n'
                    '<dev-name>=<id>:<type>:<size(GB)>:<delete-on-terminate>\n'
                    '<dev-name>: block device name, like: vdb, xvdc '
                    '(required)\n'
-                   '<id>: UUID of the volume or snapshot (required)\n'
-                   '<type>: volume or snapshot; default: volume (optional)\n'
-                   '<size(GB)>: volume size if create from snapshot '
+                   '<id>: UUID of the volume, volume snapshot or image '
+                   '(required)\n'
+                   '<type>: volume, snapshot or image; default: volume '
+                   '(optional)\n'
+                   '<size(GB)>: volume size if create from image or snapshot '
                    '(optional)\n'
                    '<delete-on-terminate>: true or false; default: false '
                    '(optional)\n'
@@ -793,7 +796,7 @@ class CreateServer(command.ShowOne):
                 mapping = {'device_name': dev_name}
                 # 1. decide source and destination type
                 if (len(dev_map) > 1 and
-                        dev_map[1] in ('volume', 'snapshot')):
+                        dev_map[1] in ('volume', 'snapshot', 'image')):
                     mapping['source_type'] = dev_map[1]
                 else:
                     mapping['source_type'] = 'volume'
@@ -808,14 +811,29 @@ class CreateServer(command.ShowOne):
                     snapshot_id = utils.find_resource(
                         volume_client.volume_snapshots, dev_map[0]).id
                     mapping['uuid'] = snapshot_id
+                elif mapping['source_type'] == 'image':
+                    # NOTE(mriedem): In case --image is specified with the same
+                    # image, that becomes the root disk for the server. If the
+                    # block device is specified with a root device name, e.g.
+                    # vda, then the compute API will likely fail complaining
+                    # that there is a conflict. So if using the same image ID,
+                    # which doesn't really make sense but it's allowed, the
+                    # device name would need to be a non-root device, e.g. vdb.
+                    # Otherwise if the block device image is different from the
+                    # one specified by --image, then the compute service will
+                    # create a volume from the image and attach it to the
+                    # server as a non-root volume.
+                    image_id = utils.find_resource(
+                        image_client.images, dev_map[0]).id
+                    mapping['uuid'] = image_id
                 # 3. append size and delete_on_termination if exist
                 if len(dev_map) > 2 and dev_map[2]:
                     mapping['volume_size'] = dev_map[2]
                 if len(dev_map) > 3 and dev_map[3]:
                     mapping['delete_on_termination'] = dev_map[3]
             else:
-                msg = _("Volume or snapshot (name or ID) must be specified if "
-                        "--block-device-mapping is specified")
+                msg = _("Volume, volume snapshot or image (name or ID) must "
+                        "be specified if --block-device-mapping is specified")
                 raise exceptions.CommandError(msg)
             block_device_mapping_v2.append(mapping)
 

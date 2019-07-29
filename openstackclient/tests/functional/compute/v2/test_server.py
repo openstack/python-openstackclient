@@ -614,6 +614,93 @@ class ServerTests(common.ComputeTestCase):
             # the attached volume had been deleted
             pass
 
+    def test_server_boot_with_bdm_image(self):
+        # Tests creating a server where the root disk is backed by the given
+        # --image but a --block-device-mapping with type=image is provided so
+        # that the compute service creates a volume from that image and
+        # attaches it as a non-root volume on the server. The block device is
+        # marked as delete_on_termination=True so it will be automatically
+        # deleted when the server is deleted.
+
+        # create server with bdm type=image
+        # NOTE(mriedem): This test is a bit unrealistic in that specifying the
+        # same image in the block device as the --image option does not really
+        # make sense, but we just want to make sure everything is processed
+        # as expected where nova creates a volume from the image and attaches
+        # that volume to the server.
+        server_name = uuid.uuid4().hex
+        server = json.loads(self.openstack(
+            'server create -f json ' +
+            '--flavor ' + self.flavor_name + ' ' +
+            '--image ' + self.image_name + ' ' +
+            '--block-device-mapping '
+            # This means create a 1GB volume from the specified image, attach
+            # it to the server at /dev/vdb and delete the volume when the
+            # server is deleted.
+            'vdb=' + self.image_name + ':image:1:true ' +
+            self.network_arg + ' ' +
+            '--wait ' +
+            server_name
+        ))
+        self.assertIsNotNone(server["id"])
+        self.assertEqual(
+            server_name,
+            server['name'],
+        )
+        self.wait_for_status(server_name, 'ACTIVE')
+
+        # check server volumes_attached, format is
+        # {"volumes_attached": "id='2518bc76-bf0b-476e-ad6b-571973745bb5'",}
+        cmd_output = json.loads(self.openstack(
+            'server show -f json ' +
+            server_name
+        ))
+        volumes_attached = cmd_output['volumes_attached']
+        self.assertTrue(volumes_attached.startswith('id='))
+        attached_volume_id = volumes_attached.replace('id=', '')
+
+        # check the volume that attached on server
+        cmd_output = json.loads(self.openstack(
+            'volume show -f json ' +
+            attached_volume_id
+        ))
+        attachments = cmd_output['attachments']
+        self.assertEqual(
+            1,
+            len(attachments),
+        )
+        self.assertEqual(
+            server['id'],
+            attachments[0]['server_id'],
+        )
+        self.assertEqual(
+            "in-use",
+            cmd_output['status'],
+        )
+        # TODO(mriedem): If we can parse the volume_image_metadata field from
+        # the volume show output we could assert the image_name is what we
+        # specified. volume_image_metadata is something like this:
+        # {u'container_format': u'bare', u'min_ram': u'0',
+        # u'disk_format': u'qcow2', u'image_name': u'cirros-0.4.0-x86_64-disk',
+        # u'image_id': u'05496c83-e2df-4c2f-9e48-453b6e49160d',
+        # u'checksum': u'443b7623e27ecf03dc9e01ee93f67afe', u'min_disk': u'0',
+        # u'size': u'12716032'}
+
+        # delete server, then check the attached volume has been deleted
+        self.openstack('server delete --wait ' + server_name)
+        cmd_output = json.loads(self.openstack(
+            'volume list -f json'
+        ))
+        target_volume = [each_volume
+                         for each_volume in cmd_output
+                         if each_volume['ID'] == attached_volume_id]
+        if target_volume:
+            # check the attached volume is 'deleting' status
+            self.assertEqual('deleting', target_volume[0]['Status'])
+        else:
+            # the attached volume had been deleted
+            pass
+
     def test_server_create_with_none_network(self):
         """Test server create with none network option."""
         server_name = uuid.uuid4().hex
