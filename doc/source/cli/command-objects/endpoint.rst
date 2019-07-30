@@ -7,7 +7,7 @@ Identity v2, v3
 endpoint add project
 --------------------
 
-Associate a project to and endpoint for endpoint filtering
+Associate a project to an endpoint for endpoint filtering
 
 .. program:: endpoint add project
 .. code:: bash
