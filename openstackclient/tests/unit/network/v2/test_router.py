@@ -776,6 +776,146 @@ class TestRemoveSubnetFromRouter(TestRouter):
         self.assertIsNone(result)
 
 
+class TestAddExtraRoutesToRouter(TestRouter):
+
+    _router = network_fakes.FakeRouter.create_one_router()
+
+    def setUp(self):
+        super(TestAddExtraRoutesToRouter, self).setUp()
+        self.network.add_extra_routes_to_router = mock.Mock(
+            return_value=self._router)
+        self.cmd = router.AddExtraRoutesToRouter(self.app, self.namespace)
+        self.network.find_router = mock.Mock(return_value=self._router)
+
+    def test_add_no_extra_route(self):
+        arglist = [
+            self._router.id,
+        ]
+        verifylist = [
+            ('router', self._router.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.add_extra_routes_to_router.assert_called_with(
+            self._router, body={'router': {'routes': []}})
+        self.assertEqual(2, len(result))
+
+    def test_add_one_extra_route(self):
+        arglist = [
+            self._router.id,
+            '--route', 'destination=dst1,gateway=gw1',
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('routes', [{'destination': 'dst1', 'gateway': 'gw1'}]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.add_extra_routes_to_router.assert_called_with(
+            self._router, body={'router': {'routes': [
+                {'destination': 'dst1', 'nexthop': 'gw1'},
+            ]}})
+        self.assertEqual(2, len(result))
+
+    def test_add_multiple_extra_routes(self):
+        arglist = [
+            self._router.id,
+            '--route', 'destination=dst1,gateway=gw1',
+            '--route', 'destination=dst2,gateway=gw2',
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('routes', [
+                {'destination': 'dst1', 'gateway': 'gw1'},
+                {'destination': 'dst2', 'gateway': 'gw2'},
+            ]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.add_extra_routes_to_router.assert_called_with(
+            self._router, body={'router': {'routes': [
+                {'destination': 'dst1', 'nexthop': 'gw1'},
+                {'destination': 'dst2', 'nexthop': 'gw2'},
+            ]}})
+        self.assertEqual(2, len(result))
+
+
+class TestRemoveExtraRoutesFromRouter(TestRouter):
+
+    _router = network_fakes.FakeRouter.create_one_router()
+
+    def setUp(self):
+        super(TestRemoveExtraRoutesFromRouter, self).setUp()
+        self.network.remove_extra_routes_from_router = mock.Mock(
+            return_value=self._router)
+        self.cmd = router.RemoveExtraRoutesFromRouter(self.app, self.namespace)
+        self.network.find_router = mock.Mock(return_value=self._router)
+
+    def test_remove_no_extra_route(self):
+        arglist = [
+            self._router.id,
+        ]
+        verifylist = [
+            ('router', self._router.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.remove_extra_routes_from_router.assert_called_with(
+            self._router, body={'router': {'routes': []}})
+        self.assertEqual(2, len(result))
+
+    def test_remove_one_extra_route(self):
+        arglist = [
+            self._router.id,
+            '--route', 'destination=dst1,gateway=gw1',
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('routes', [{'destination': 'dst1', 'gateway': 'gw1'}]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.remove_extra_routes_from_router.assert_called_with(
+            self._router, body={'router': {'routes': [
+                {'destination': 'dst1', 'nexthop': 'gw1'},
+            ]}})
+        self.assertEqual(2, len(result))
+
+    def test_remove_multiple_extra_routes(self):
+        arglist = [
+            self._router.id,
+            '--route', 'destination=dst1,gateway=gw1',
+            '--route', 'destination=dst2,gateway=gw2',
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('routes', [
+                {'destination': 'dst1', 'gateway': 'gw1'},
+                {'destination': 'dst2', 'gateway': 'gw2'},
+            ]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.remove_extra_routes_from_router.assert_called_with(
+            self._router, body={'router': {'routes': [
+                {'destination': 'dst1', 'nexthop': 'gw1'},
+                {'destination': 'dst2', 'nexthop': 'gw2'},
+            ]}})
+        self.assertEqual(2, len(result))
+
+
 class TestSetRouter(TestRouter):
 
     # The router to set.

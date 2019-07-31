@@ -12,11 +12,11 @@ contextlib2==0.4.0
 coverage==4.0
 cryptography==2.1
 debtcollector==1.2.0
-decorator==3.4.0
+decorator==4.4.1
 deprecation==1.0
 docker-pycreds==0.2.1
 docker==2.4.2
-dogpile.cache==0.6.2
+dogpile.cache==0.6.5
 eventlet==0.18.2
 extras==1.0.0
 fasteners==0.7.0
@@ -38,7 +38,7 @@ jmespath==0.9.0
 jsonpatch==1.16
 jsonpointer==1.13
 jsonschema==2.6.0
-keystoneauth1==3.16.0
+keystoneauth1==3.18.0
 kombu==4.0.0
 linecache2==1.0.0
 MarkupSafe==1.1.0
@@ -50,7 +50,7 @@ msgpack-python==0.4.0
 munch==2.1.0
 netaddr==0.7.18
 netifaces==0.10.4
-openstacksdk==0.36.0
+openstacksdk==0.38.0
 os-client-config==1.28.0
 os-service-types==1.7.0
 os-testr==1.0.0
