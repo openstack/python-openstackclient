@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Add ``--disable-delete-on-termination`` and
+    ``--enable-delete-on-termination`` options to the ``server add volume``
+    command to indicate when to delete the attached volume when the server
+    is deleted.
+    Note that it requires ``--os-compute-api-version 2.79`` or greater.
+    [Blueprint support-specifying-az-when-restore-shelved-server `<https://blueprints.launchpad.net/nova/+spec/support-delete-on-termination-in-server-attach-volume>`_]

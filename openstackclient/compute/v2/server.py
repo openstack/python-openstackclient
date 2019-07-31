@@ -446,6 +446,21 @@ class AddServerVolume(command.Command):
             metavar='<device>',
             help=_('Server internal device name for volume'),
         )
+        termination_group = parser.add_mutually_exclusive_group()
+        termination_group.add_argument(
+            '--enable-delete-on-termination',
+            action='store_true',
+            help=_("Specify if the attached volume should be deleted when "
+                   "the server is destroyed. (Supported with "
+                   "``--os-compute-api-version`` 2.79 or greater.)"),
+        )
+        termination_group.add_argument(
+            '--disable-delete-on-termination',
+            action='store_true',
+            help=_("Specify if the attached volume should not be deleted "
+                   "when the server is destroyed. (Supported with "
+                   "``--os-compute-api-version`` 2.79 or greater.)"),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -461,10 +476,34 @@ class AddServerVolume(command.Command):
             parsed_args.volume,
         )
 
+        support_set_delete_on_termination = (compute_client.api_version >=
+                                             api_versions.APIVersion('2.79'))
+
+        if not support_set_delete_on_termination:
+            if parsed_args.enable_delete_on_termination:
+                msg = _('--os-compute-api-version 2.79 or greater '
+                        'is required to support the '
+                        '--enable-delete-on-termination option.')
+                raise exceptions.CommandError(msg)
+            if parsed_args.disable_delete_on_termination:
+                msg = _('--os-compute-api-version 2.79 or greater '
+                        'is required to support the '
+                        '--disable-delete-on-termination option.')
+                raise exceptions.CommandError(msg)
+
+        kwargs = {
+            "device": parsed_args.device
+        }
+
+        if parsed_args.enable_delete_on_termination:
+            kwargs['delete_on_termination'] = True
+        if parsed_args.disable_delete_on_termination:
+            kwargs['delete_on_termination'] = False
+
         compute_client.volumes.create_server_volume(
             server.id,
             volume.id,
-            parsed_args.device,
+            **kwargs
         )
 
 

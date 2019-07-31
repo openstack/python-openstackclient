@@ -43,6 +43,10 @@ class TestServer(compute_fakes.TestComputev2):
         self.servers_mock = self.app.client_manager.compute.servers
         self.servers_mock.reset_mock()
 
+        # Get a shortcut to the compute client volumeManager Mock
+        self.servers_volumes_mock = self.app.client_manager.compute.volumes
+        self.servers_volumes_mock.reset_mock()
+
         # Get a shortcut to the compute client FlavorManager Mock
         self.flavors_mock = self.app.client_manager.compute.flavors
         self.flavors_mock.reset_mock()
@@ -455,6 +459,174 @@ class TestServerAddPort(TestServer):
         self.app.client_manager.network_endpoint_enabled = False
         self._test_server_add_port('fake-port')
         self.find_port.assert_not_called()
+
+
+class TestServerVolume(TestServer):
+
+    def setUp(self):
+        super(TestServerVolume, self).setUp()
+
+        self.volume = volume_fakes.FakeVolume.create_one_volume()
+        self.volumes_mock.get.return_value = self.volume
+
+        self.methods = {
+            'create_server_volume': None,
+        }
+
+        # Get the command object to test
+        self.cmd = server.AddServerVolume(self.app, None)
+
+    def test_server_add_volume(self):
+        servers = self.setup_servers_mock(count=1)
+        arglist = [
+            '--device', '/dev/sdb',
+            servers[0].id,
+            self.volume.id,
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('volume', self.volume.id),
+            ('device', '/dev/sdb'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_volumes_mock.create_server_volume.assert_called_once_with(
+            servers[0].id, self.volume.id, device='/dev/sdb')
+        self.assertIsNone(result)
+
+
+class TestServerVolumeV279(TestServerVolume):
+
+    def test_server_add_volume_with_enable_delete_on_termination(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.79')
+
+        servers = self.setup_servers_mock(count=1)
+        arglist = [
+            '--enable-delete-on-termination',
+            '--device', '/dev/sdb',
+            servers[0].id,
+            self.volume.id,
+        ]
+
+        verifylist = [
+            ('server', servers[0].id),
+            ('volume', self.volume.id),
+            ('device', '/dev/sdb'),
+            ('enable_delete_on_termination', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_volumes_mock.create_server_volume.assert_called_once_with(
+            servers[0].id, self.volume.id,
+            device='/dev/sdb', delete_on_termination=True)
+        self.assertIsNone(result)
+
+    def test_server_add_volume_with_disable_delete_on_termination(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.79')
+
+        servers = self.setup_servers_mock(count=1)
+        arglist = [
+            '--disable-delete-on-termination',
+            '--device', '/dev/sdb',
+            servers[0].id,
+            self.volume.id,
+        ]
+
+        verifylist = [
+            ('server', servers[0].id),
+            ('volume', self.volume.id),
+            ('device', '/dev/sdb'),
+            ('disable_delete_on_termination', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_volumes_mock.create_server_volume.assert_called_once_with(
+            servers[0].id, self.volume.id,
+            device='/dev/sdb', delete_on_termination=False)
+        self.assertIsNone(result)
+
+    def test_server_add_volume_with_enable_delete_on_termination_pre_v279(
+            self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.78')
+
+        servers = self.setup_servers_mock(count=1)
+        arglist = [
+            servers[0].id,
+            self.volume.id,
+            '--enable-delete-on-termination',
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('volume', self.volume.id),
+            ('enable_delete_on_termination', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(exceptions.CommandError,
+                               self.cmd.take_action,
+                               parsed_args)
+        self.assertIn('--os-compute-api-version 2.79 or greater is required',
+                      str(ex))
+
+    def test_server_add_volume_with_disable_delete_on_termination_pre_v279(
+            self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.78')
+
+        servers = self.setup_servers_mock(count=1)
+        arglist = [
+            servers[0].id,
+            self.volume.id,
+            '--disable-delete-on-termination',
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('volume', self.volume.id),
+            ('disable_delete_on_termination', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(exceptions.CommandError,
+                               self.cmd.take_action,
+                               parsed_args)
+        self.assertIn('--os-compute-api-version 2.79 or greater is required',
+                      str(ex))
+
+    def test_server_add_volume_with_disable_and_enable_delete_on_termination(
+            self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.79')
+
+        servers = self.setup_servers_mock(count=1)
+        arglist = [
+            '--enable-delete-on-termination',
+            '--disable-delete-on-termination',
+            '--device', '/dev/sdb',
+            servers[0].id,
+            self.volume.id,
+        ]
+
+        verifylist = [
+            ('server', servers[0].id),
+            ('volume', self.volume.id),
+            ('device', '/dev/sdb'),
+            ('enable_delete_on_termination', True),
+            ('disable_delete_on_termination', True),
+        ]
+        ex = self.assertRaises(utils.ParserException,
+                               self.check_parser,
+                               self.cmd, arglist, verifylist)
+        self.assertIn('Argument parse failed', str(ex))
 
 
 class TestServerAddNetwork(TestServer):
