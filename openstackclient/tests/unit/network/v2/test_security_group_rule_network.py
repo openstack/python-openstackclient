@@ -388,7 +388,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'port_range_min': 443,
             'protocol': '6',
             'remote_group_id': None,
-            'remote_ip_prefix': None,
+            'remote_ip_prefix': '::/0',
         })
         arglist = [
             '--dst-port', str(self._security_group_rule.port_range_min),
@@ -419,6 +419,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'port_range_max': self._security_group_rule.port_range_max,
             'port_range_min': self._security_group_rule.port_range_min,
             'protocol': self._security_group_rule.protocol,
+            'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
             'security_group_id': self._security_group.id,
             'tenant_id': self.project.id,
         })
@@ -664,6 +665,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'port_range_min': 139,
             'port_range_max': 2,
             'protocol': 'ipv6-icmp',
+            'remote_ip_prefix': '::/0',
         })
         arglist = [
             '--icmp-type', str(self._security_group_rule.port_range_min),
@@ -688,6 +690,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'port_range_min': self._security_group_rule.port_range_min,
             'port_range_max': self._security_group_rule.port_range_max,
             'protocol': self._security_group_rule.protocol,
+            'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
             'security_group_id': self._security_group.id,
         })
         self.assertEqual(self.expected_columns, columns)
@@ -698,6 +701,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'ether_type': 'IPv6',
             'port_range_min': 139,
             'protocol': 'icmpv6',
+            'remote_ip_prefix': '::/0',
         })
         arglist = [
             '--icmp-type', str(self._security_group_rule.port_range_min),
@@ -720,6 +724,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'ethertype': self._security_group_rule.ether_type,
             'port_range_min': self._security_group_rule.port_range_min,
             'protocol': self._security_group_rule.protocol,
+            'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
             'security_group_id': self._security_group.id,
         })
         self.assertEqual(self.expected_columns, columns)
@@ -868,15 +873,16 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     expected_columns_with_group_and_long = (
         'ID',
         'IP Protocol',
+        'Ethertype',
         'IP Range',
         'Port Range',
         'Direction',
-        'Ethertype',
         'Remote Security Group',
     )
     expected_columns_no_group = (
         'ID',
         'IP Protocol',
+        'Ethertype',
         'IP Range',
         'Port Range',
         'Remote Security Group',
@@ -889,16 +895,17 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         expected_data_with_group_and_long.append((
             _security_group_rule.id,
             _security_group_rule.protocol,
+            _security_group_rule.ether_type,
             _security_group_rule.remote_ip_prefix,
             security_group_rule._format_network_port_range(
                 _security_group_rule),
             _security_group_rule.direction,
-            _security_group_rule.ether_type,
             _security_group_rule.remote_group_id,
         ))
         expected_data_no_group.append((
             _security_group_rule.id,
             _security_group_rule.protocol,
+            _security_group_rule.ether_type,
             _security_group_rule.remote_ip_prefix,
             security_group_rule._format_network_port_range(
                 _security_group_rule),

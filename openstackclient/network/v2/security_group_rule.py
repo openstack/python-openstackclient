@@ -62,6 +62,17 @@ def _format_network_port_range(rule):
     return port_range
 
 
+def _format_remote_ip_prefix(rule):
+    remote_ip_prefix = rule['remote_ip_prefix']
+    if remote_ip_prefix is None:
+        ethertype = rule['ether_type']
+        if ethertype == 'IPv4':
+            remote_ip_prefix = '0.0.0.0/0'
+        elif ethertype == 'IPv6':
+            remote_ip_prefix = '::/0'
+    return remote_ip_prefix
+
+
 def _get_columns(item):
     column_map = {
         'tenant_id': 'project_id',
@@ -108,7 +119,8 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             "--remote-ip",
             metavar="<ip-address>",
             help=_("Remote IP address block (may use CIDR notation; "
-                   "default for IPv4 rule: 0.0.0.0/0)"),
+                   "default for IPv4 rule: 0.0.0.0/0, "
+                   "default for IPv6 rule: ::/0)"),
         )
         remote_group.add_argument(
             "--remote-group",
@@ -230,6 +242,14 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             protocol = None
         return protocol
 
+    def _get_ethertype(self, parsed_args, protocol):
+        ethertype = 'IPv4'
+        if parsed_args.ethertype is not None:
+            ethertype = parsed_args.ethertype
+        elif self._is_ipv6_protocol(protocol):
+            ethertype = 'IPv6'
+        return ethertype
+
     def _is_ipv6_protocol(self, protocol):
         # NOTE(rtheis): Neutron has deprecated protocol icmpv6.
         # However, while the OSC CLI doesn't document the protocol,
@@ -264,12 +284,8 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
 
         # NOTE(rtheis): Use ethertype specified else default based
         # on IP protocol.
-        if parsed_args.ethertype:
-            attrs['ethertype'] = parsed_args.ethertype
-        elif self._is_ipv6_protocol(attrs['protocol']):
-            attrs['ethertype'] = 'IPv6'
-        else:
-            attrs['ethertype'] = 'IPv4'
+        attrs['ethertype'] = self._get_ethertype(parsed_args,
+                                                 attrs['protocol'])
 
         # NOTE(rtheis): Validate the port range and ICMP type and code.
         # It would be ideal if argparse could do this.
@@ -306,6 +322,8 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             attrs['remote_ip_prefix'] = parsed_args.remote_ip
         elif attrs['ethertype'] == 'IPv4':
             attrs['remote_ip_prefix'] = '0.0.0.0/0'
+        elif attrs['ethertype'] == 'IPv6':
+            attrs['remote_ip_prefix'] = '::/0'
         attrs['security_group_id'] = security_group_id
         if parsed_args.project is not None:
             identity_client = self.app.client_manager.identity
@@ -387,6 +405,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         """
         rule = rule.to_dict()
         rule['port_range'] = _format_network_port_range(rule)
+        rule['remote_ip_prefix'] = _format_remote_ip_prefix(rule)
         return rule
 
     def update_parser_common(self, parser):
@@ -417,6 +436,12 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
                    "ipv6-opts, ipv6-route, ospf, pgm, rsvp, sctp, tcp, "
                    "udp, udplite, vrrp and integer representations [0-255] "
                    "or any; default: any (all protocols))")
+        )
+        parser.add_argument(
+            '--ethertype',
+            metavar='<ethertype>',
+            type=_convert_to_lowercase,
+            help=_("List rules by the Ethertype (IPv4 or IPv6)")
         )
         direction_group = parser.add_mutually_exclusive_group()
         direction_group.add_argument(
@@ -458,11 +483,12 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         column_headers = (
             'ID',
             'IP Protocol',
+            'Ethertype',
             'IP Range',
             'Port Range',
         )
         if parsed_args.long:
-            column_headers = column_headers + ('Direction', 'Ethertype',)
+            column_headers = column_headers + ('Direction',)
         column_headers = column_headers + ('Remote Security Group',)
         if parsed_args.group is None:
             column_headers = column_headers + ('Security Group',)
@@ -473,11 +499,12 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         columns = (
             'id',
             'protocol',
+            'ether_type',
             'remote_ip_prefix',
             'port_range',
         )
         if parsed_args.long:
-            columns = columns + ('direction', 'ether_type',)
+            columns = columns + ('direction',)
         columns = columns + ('remote_group_id',)
 
         # Get the security group rules using the requested query.
@@ -516,6 +543,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         columns = (
             "ID",
             "IP Protocol",
+            "Ethertype",
             "IP Range",
             "Port Range",
             "Remote Security Group",
@@ -564,6 +592,9 @@ class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
     def take_action_network(self, client, parsed_args):
         obj = client.find_security_group_rule(parsed_args.rule,
                                               ignore_missing=False)
+        # necessary for old rules that have None in this field
+        if not obj['remote_ip_prefix']:
+            obj['remote_ip_prefix'] = _format_remote_ip_prefix(obj)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
         return (display_columns, data)
