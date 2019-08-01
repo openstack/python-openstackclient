@@ -568,6 +568,19 @@ class CreateServer(command.ShowOne):
                    '2.74 or above)'),
         )
         parser.add_argument(
+            '--boot-from-volume',
+            metavar='<volume-size>',
+            type=int,
+            help=_('When used in conjunction with the ``--image`` or '
+                   '``--image-property`` option, this option automatically '
+                   'creates a block device mapping with a boot index of 0 '
+                   'and tells the compute service to create a volume of the '
+                   'given size (in GB) from the specified image and use it '
+                   'as the root disk of the server. The root volume will not '
+                   'be deleted when the server is deleted. This option is '
+                   'mutually exclusive with the ``--volume`` option.')
+        )
+        parser.add_argument(
             '--block-device-mapping',
             metavar='<dev-name=mapping>',
             action=parseractions.KeyValueAction,
@@ -730,6 +743,10 @@ class CreateServer(command.ShowOne):
         # Lookup parsed_args.volume
         volume = None
         if parsed_args.volume:
+            # --volume and --boot-from-volume are mutually exclusive.
+            if parsed_args.boot_from_volume:
+                raise exceptions.CommandError(
+                    _('--volume is not allowed with --boot-from-volume'))
             volume = utils.find_resource(
                 volume_client.volumes,
                 parsed_args.volume,
@@ -738,8 +755,6 @@ class CreateServer(command.ShowOne):
         # Lookup parsed_args.flavor
         flavor = utils.find_resource(compute_client.flavors,
                                      parsed_args.flavor)
-
-        boot_args = [parsed_args.server_name, image, flavor]
 
         files = {}
         for f in parsed_args.file:
@@ -787,6 +802,20 @@ class CreateServer(command.ShowOne):
                                         'source_type': 'volume',
                                         'destination_type': 'volume'
                                         }]
+        elif parsed_args.boot_from_volume:
+            # Tell nova to create a root volume from the image provided.
+            block_device_mapping_v2 = [{
+                'uuid': image.id,
+                'boot_index': '0',
+                'source_type': 'image',
+                'destination_type': 'volume',
+                'volume_size': parsed_args.boot_from_volume
+            }]
+            # If booting from volume we do not pass an image to compute.
+            image = None
+
+        boot_args = [parsed_args.server_name, image, flavor]
+
         # Handle block device by device name order, like: vdb -> vdc -> vdd
         for dev_name in sorted(six.iterkeys(parsed_args.block_device_mapping)):
             dev_map = parsed_args.block_device_mapping[dev_name]

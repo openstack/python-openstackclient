@@ -701,6 +701,82 @@ class ServerTests(common.ComputeTestCase):
             # the attached volume had been deleted
             pass
 
+    def test_boot_from_volume(self):
+        # Tests creating a server using --image and --boot-from-volume where
+        # the compute service will create a root volume of the specified size
+        # using the provided image, attach it as the root disk for the server
+        # and not delete the volume when the server is deleted.
+        server_name = uuid.uuid4().hex
+        server = json.loads(self.openstack(
+            'server create -f json ' +
+            '--flavor ' + self.flavor_name + ' ' +
+            '--image ' + self.image_name + ' ' +
+            '--boot-from-volume 1 ' +  # create a 1GB volume from the image
+            self.network_arg + ' ' +
+            '--wait ' +
+            server_name
+        ))
+        self.assertIsNotNone(server["id"])
+        self.assertEqual(
+            server_name,
+            server['name'],
+        )
+        self.wait_for_status(server_name, 'ACTIVE')
+
+        # check server volumes_attached, format is
+        # {"volumes_attached": "id='2518bc76-bf0b-476e-ad6b-571973745bb5'",}
+        cmd_output = json.loads(self.openstack(
+            'server show -f json ' +
+            server_name
+        ))
+        volumes_attached = cmd_output['volumes_attached']
+        self.assertTrue(volumes_attached.startswith('id='))
+        attached_volume_id = volumes_attached.replace('id=', '')
+        # Don't leak the volume when the test exits.
+        self.addCleanup(self.openstack, 'volume delete ' + attached_volume_id)
+
+        # Since the server is volume-backed the GET /servers/{server_id}
+        # response will have image=''.
+        self.assertEqual('', cmd_output['image'])
+
+        # check the volume that attached on server
+        cmd_output = json.loads(self.openstack(
+            'volume show -f json ' +
+            attached_volume_id
+        ))
+        # The volume size should be what we specified on the command line.
+        self.assertEqual(1, int(cmd_output['size']))
+        attachments = cmd_output['attachments']
+        self.assertEqual(
+            1,
+            len(attachments),
+        )
+        self.assertEqual(
+            server['id'],
+            attachments[0]['server_id'],
+        )
+        self.assertEqual(
+            "in-use",
+            cmd_output['status'],
+        )
+        # TODO(mriedem): If we can parse the volume_image_metadata field from
+        # the volume show output we could assert the image_name is what we
+        # specified. volume_image_metadata is something like this:
+        # {u'container_format': u'bare', u'min_ram': u'0',
+        # u'disk_format': u'qcow2', u'image_name': u'cirros-0.4.0-x86_64-disk',
+        # u'image_id': u'05496c83-e2df-4c2f-9e48-453b6e49160d',
+        # u'checksum': u'443b7623e27ecf03dc9e01ee93f67afe', u'min_disk': u'0',
+        # u'size': u'12716032'}
+
+        # delete server, then check the attached volume was not deleted
+        self.openstack('server delete --wait ' + server_name)
+        cmd_output = json.loads(self.openstack(
+            'volume show -f json ' +
+            attached_volume_id
+        ))
+        # check the volume is in 'available' status
+        self.assertEqual('available', cmd_output['status'])
+
     def test_server_create_with_none_network(self):
         """Test server create with none network option."""
         server_name = uuid.uuid4().hex

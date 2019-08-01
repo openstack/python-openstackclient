@@ -1698,6 +1698,33 @@ class TestServerCreate(TestServer):
                           self.cmd.take_action,
                           parsed_args)
 
+    def test_server_create_volume_boot_from_volume_conflict(self):
+        # Tests that specifying --volume and --boot-from-volume results in
+        # an error. Since --boot-from-volume requires --image or
+        # --image-property but those are in a mutex group with --volume, we
+        # only specify --volume and --boot-from-volume for this test since
+        # the validation is not handled with argparse.
+        arglist = [
+            '--flavor', self.flavor.id,
+            '--volume', 'volume1',
+            '--boot-from-volume', '1',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('flavor', self.flavor.id),
+            ('volume', 'volume1'),
+            ('boot_from_volume', 1),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(exceptions.CommandError,
+                               self.cmd.take_action, parsed_args)
+        # Assert it is the error we expect.
+        self.assertIn('--volume is not allowed with --boot-from-volume',
+                      six.text_type(ex))
+
     def test_server_create_image_property(self):
         arglist = [
             '--image-property', 'hypervisor_type=qemu',
