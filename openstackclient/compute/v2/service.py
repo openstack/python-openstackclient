@@ -152,12 +152,14 @@ class SetService(command.Command):
         up_down_group.add_argument(
             '--up',
             action='store_true',
-            help=_('Force up service'),
+            help=_('Force up service. Requires ``--os-compute-api-version`` '
+                   '2.11 or greater.'),
         )
         up_down_group.add_argument(
             '--down',
             action='store_true',
-            help=_('Force down service'),
+            help=_('Force down service. Requires ``--os-compute-api-version`` '
+                   '2.11 or greater.'),
         )
         return parser
 
