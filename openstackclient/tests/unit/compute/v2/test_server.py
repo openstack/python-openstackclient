@@ -3523,6 +3523,490 @@ class TestServerMigrate(TestServer):
         self.assertNotCalled(self.servers_mock.live_migrate)
 
 
+class TestServerMigration(TestServer):
+
+    def setUp(self):
+        super(TestServerMigration, self).setUp()
+
+        # Get a shortcut to the compute client ServerManager Mock
+        self.servers_mock = self.app.client_manager.compute.servers
+        self.servers_mock.reset_mock()
+
+        self.migrations_mock = (
+            self.app.client_manager.compute.migrations)
+        self.migrations_mock.reset_mock()
+
+        self.server = self.setup_servers_mock(1)[0]
+
+    def setup_servers_mock(self, count):
+        servers = compute_fakes.FakeServer.create_servers(count=count)
+
+        # This is the return value for utils.find_resource()
+        self.servers_mock.get = compute_fakes.FakeServer.get_servers(servers)
+        return servers
+
+    def setup_server_migrations_mock(self, count):
+        return compute_fakes.FakeServerMigration.create_server_migrations(
+            count=count)
+
+
+class TestListMigration(TestServerMigration):
+    """Test fetch all migrations."""
+
+    MIGRATION_COLUMNS = [
+        'Source Node', 'Dest Node', 'Source Compute',
+        'Dest Compute', 'Dest Host', 'Status', 'Server UUID',
+        'Old Flavor', 'New Flavor', 'Created At', 'Updated At'
+    ]
+
+    def setUp(self):
+        super(TestListMigration, self).setUp()
+
+        self.cmd = server.ListMigration(self.app, None)
+        self.migrations = self.setup_server_migrations_mock(3)
+        self.migrations_mock.list.return_value = self.migrations
+        self.setup_server_migrations_data(self.migrations)
+
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.20')
+
+    def setup_server_migrations_data(self, migrations):
+        self.data = (common_utils.get_item_properties(
+            s, self.MIGRATION_COLUMNS) for s in migrations)
+
+    def test_server_migraton_list(self):
+        arglist = [
+            '--status', 'migrating'
+        ]
+        verifylist = [
+            ('status', 'migrating')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'status': 'migrating',
+            'host': None,
+            'server': None,
+        }
+
+        self.migrations_mock.list.assert_called_with(**kwargs)
+
+        self.assertEqual(self.MIGRATION_COLUMNS, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+
+class TestListMigrationV223(TestListMigration):
+    """Test fetch all migrations. """
+
+    MIGRATION_COLUMNS = [
+        'Source Node', 'Dest Node', 'Source Compute',
+        'Dest Compute', 'Dest Host', 'Status', 'Server UUID',
+        'Old Flavor', 'New Flavor', 'Created At', 'Updated At'
+    ]
+
+    def setUp(self):
+        super(TestListMigrationV223, self).setUp()
+        self.cmd = server.ListMigration(self.app, None)
+        self.migrations = self.setup_server_migrations_mock(3)
+        self.migrations_mock.list.return_value = self.migrations
+        self.setup_server_migrations_data(self.migrations)
+
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.23')
+
+    def test_server_migraton_list(self):
+        arglist = [
+            '--status', 'migrating'
+        ]
+        verifylist = [
+            ('status', 'migrating')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'status': 'migrating',
+            'host': None,
+            'server': None,
+        }
+
+        self.migrations_mock.list.assert_called_with(**kwargs)
+
+        self.MIGRATION_COLUMNS.insert(0, "Id")
+        self.MIGRATION_COLUMNS.insert(
+            len(self.MIGRATION_COLUMNS) - 2, 'Type')
+        self.assertEqual(self.MIGRATION_COLUMNS, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+
+class TestListMigrationV259(TestListMigration):
+    """Test fetch all migrations. """
+
+    MIGRATION_COLUMNS = [
+        'Id', 'UUID', 'Source Node', 'Dest Node', 'Source Compute',
+        'Dest Compute', 'Dest Host', 'Status', 'Server UUID',
+        'Old Flavor', 'New Flavor', 'Type', 'Created At', 'Updated At'
+    ]
+
+    def setUp(self):
+        super(TestListMigrationV259, self).setUp()
+        self.cmd = server.ListMigration(self.app, None)
+        self.migrations = self.setup_server_migrations_mock(3)
+        self.migrations_mock.list.return_value = self.migrations
+        self.setup_server_migrations_data(self.migrations)
+
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.59')
+
+    def test_server_migraton_list(self):
+        arglist = [
+            '--status', 'migrating',
+            '--limit', '1',
+            '--marker', 'test_kp',
+            '--changes-since', '2019-08-09T08:03:25Z'
+        ]
+        verifylist = [
+            ('status', 'migrating'),
+            ('limit', 1),
+            ('marker', 'test_kp'),
+            ('changes_since', '2019-08-09T08:03:25Z')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'status': 'migrating',
+            'limit': 1,
+            'marker': 'test_kp',
+            'host': None,
+            'server': None,
+            'changes_since': '2019-08-09T08:03:25Z',
+        }
+
+        self.migrations_mock.list.assert_called_with(**kwargs)
+
+        self.assertEqual(self.MIGRATION_COLUMNS, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_migraton_list_with_limit_pre_v259(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.58')
+        arglist = [
+            '--status', 'migrating',
+            '--limit', '1'
+        ]
+        verifylist = [
+            ('status', 'migrating'),
+            ('limit', 1)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+    def test_server_migraton_list_with_marker_pre_v259(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.58')
+        arglist = [
+            '--status', 'migrating',
+            '--marker', 'test_kp'
+        ]
+        verifylist = [
+            ('status', 'migrating'),
+            ('marker', 'test_kp')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+    def test_server_migraton_list_with_changes_since_pre_v259(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.58')
+        arglist = [
+            '--status', 'migrating',
+            '--changes-since', '2019-08-09T08:03:25Z'
+        ]
+        verifylist = [
+            ('status', 'migrating'),
+            ('changes_since', '2019-08-09T08:03:25Z')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+
+class TestListMigrationV266(TestListMigration):
+    """Test fetch all migrations by changes-before. """
+
+    MIGRATION_COLUMNS = [
+        'Id', 'UUID', 'Source Node', 'Dest Node', 'Source Compute',
+        'Dest Compute', 'Dest Host', 'Status', 'Server UUID',
+        'Old Flavor', 'New Flavor', 'Type', 'Created At', 'Updated At'
+    ]
+
+    def setUp(self):
+        super(TestListMigrationV266, self).setUp()
+        self.cmd = server.ListMigration(self.app, None)
+        self.migrations = self.setup_server_migrations_mock(3)
+        self.migrations_mock.list.return_value = self.migrations
+        self.setup_server_migrations_data(self.migrations)
+
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.66')
+
+    def test_server_migraton_list_with_changes_before(self):
+        arglist = [
+            '--status', 'migrating',
+            '--limit', '1',
+            '--marker', 'test_kp',
+            '--changes-since', '2019-08-07T08:03:25Z',
+            '--changes-before', '2019-08-09T08:03:25Z'
+        ]
+        verifylist = [
+            ('status', 'migrating'),
+            ('limit', 1),
+            ('marker', 'test_kp'),
+            ('changes_since', '2019-08-07T08:03:25Z'),
+            ('changes_before', '2019-08-09T08:03:25Z')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'status': 'migrating',
+            'limit': 1,
+            'marker': 'test_kp',
+            'host': None,
+            'server': None,
+            'changes_since': '2019-08-07T08:03:25Z',
+            'changes_before': '2019-08-09T08:03:25Z',
+        }
+
+        self.migrations_mock.list.assert_called_with(**kwargs)
+
+        self.assertEqual(self.MIGRATION_COLUMNS, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_migraton_list_with_changes_before_pre_v266(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.65')
+        arglist = [
+            '--status', 'migrating',
+            '--changes-before', '2019-08-09T08:03:25Z'
+        ]
+        verifylist = [
+            ('status', 'migrating'),
+            ('changes_before', '2019-08-09T08:03:25Z')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+
+class TestListMigrationV280(TestListMigration):
+    """Test fetch all migrations by user-id and/or project-id. """
+
+    MIGRATION_COLUMNS = [
+        'Id', 'UUID', 'Source Node', 'Dest Node', 'Source Compute',
+        'Dest Compute', 'Dest Host', 'Status', 'Server UUID',
+        'Old Flavor', 'New Flavor', 'Type', 'Created At', 'Updated At'
+    ]
+
+    def setUp(self):
+        super(TestListMigrationV280, self).setUp()
+        self.cmd = server.ListMigration(self.app, None)
+        self.migrations = self.setup_server_migrations_mock(3)
+        self.migrations_mock.list.return_value = self.migrations
+        self.setup_server_migrations_data(self.migrations)
+
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.80')
+
+    def test_server_migraton_list_with_project(self):
+        arglist = [
+            '--status', 'migrating',
+            '--limit', '1',
+            '--marker', 'test_kp',
+            '--changes-since', '2019-08-07T08:03:25Z',
+            '--changes-before', '2019-08-09T08:03:25Z',
+            '--project', '0c2accde-644a-45fa-8c10-e76debc7fbc3'
+        ]
+        verifylist = [
+            ('status', 'migrating'),
+            ('limit', 1),
+            ('marker', 'test_kp'),
+            ('changes_since', '2019-08-07T08:03:25Z'),
+            ('changes_before', '2019-08-09T08:03:25Z'),
+            ('project_id', '0c2accde-644a-45fa-8c10-e76debc7fbc3')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'status': 'migrating',
+            'limit': 1,
+            'marker': 'test_kp',
+            'host': None,
+            'server': None,
+            'project_id': '0c2accde-644a-45fa-8c10-e76debc7fbc3',
+            'changes_since': '2019-08-07T08:03:25Z',
+            'changes_before': "2019-08-09T08:03:25Z",
+        }
+
+        self.migrations_mock.list.assert_called_with(**kwargs)
+
+        self.MIGRATION_COLUMNS.insert(
+            len(self.MIGRATION_COLUMNS) - 2, "Project")
+        self.assertEqual(self.MIGRATION_COLUMNS, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+        # Clean up global variables MIGRATION_COLUMNS
+        self.MIGRATION_COLUMNS.remove('Project')
+
+    def test_get_migrations_with_project_pre_v280(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.79')
+        arglist = [
+            '--status', 'migrating',
+            '--changes-before', '2019-08-09T08:03:25Z',
+            '--project', '0c2accde-644a-45fa-8c10-e76debc7fbc3'
+        ]
+        verifylist = [
+            ('status', 'migrating'),
+            ('changes_before', '2019-08-09T08:03:25Z'),
+            ('project_id', '0c2accde-644a-45fa-8c10-e76debc7fbc3')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+    def test_server_migraton_list_with_user(self):
+        arglist = [
+            '--status', 'migrating',
+            '--limit', '1',
+            '--marker', 'test_kp',
+            '--changes-since', '2019-08-07T08:03:25Z',
+            '--changes-before', '2019-08-09T08:03:25Z',
+            '--user', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6'
+        ]
+        verifylist = [
+            ('status', 'migrating'),
+            ('limit', 1),
+            ('marker', 'test_kp'),
+            ('changes_since', '2019-08-07T08:03:25Z'),
+            ('changes_before', '2019-08-09T08:03:25Z'),
+            ('user_id', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'status': 'migrating',
+            'limit': 1,
+            'marker': 'test_kp',
+            'host': None,
+            'server': None,
+            'user_id': 'dd214878-ca12-40fb-b035-fa7d2c1e86d6',
+            'changes_since': '2019-08-07T08:03:25Z',
+            'changes_before': "2019-08-09T08:03:25Z",
+        }
+
+        self.migrations_mock.list.assert_called_with(**kwargs)
+
+        self.MIGRATION_COLUMNS.insert(
+            len(self.MIGRATION_COLUMNS) - 2, "User")
+        self.assertEqual(self.MIGRATION_COLUMNS, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+        # Clean up global variables MIGRATION_COLUMNS
+        self.MIGRATION_COLUMNS.remove('User')
+
+    def test_get_migrations_with_user_pre_v280(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.79')
+        arglist = [
+            '--status', 'migrating',
+            '--changes-before', '2019-08-09T08:03:25Z',
+            '--user', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6'
+        ]
+        verifylist = [
+            ('status', 'migrating'),
+            ('changes_before', '2019-08-09T08:03:25Z'),
+            ('user_id', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+    def test_server_migraton_list_with_project_and_user(self):
+        arglist = [
+            '--status', 'migrating',
+            '--limit', '1',
+            '--changes-since', '2019-08-07T08:03:25Z',
+            '--changes-before', '2019-08-09T08:03:25Z',
+            '--project', '0c2accde-644a-45fa-8c10-e76debc7fbc3',
+            '--user', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6'
+        ]
+        verifylist = [
+            ('status', 'migrating'),
+            ('limit', 1),
+            ('changes_since', '2019-08-07T08:03:25Z'),
+            ('changes_before', '2019-08-09T08:03:25Z'),
+            ('project_id', '0c2accde-644a-45fa-8c10-e76debc7fbc3'),
+            ('user_id', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'status': 'migrating',
+            'limit': 1,
+            'host': None,
+            'server': None,
+            'project_id': '0c2accde-644a-45fa-8c10-e76debc7fbc3',
+            'user_id': 'dd214878-ca12-40fb-b035-fa7d2c1e86d6',
+            'changes_since': '2019-08-07T08:03:25Z',
+            'changes_before': "2019-08-09T08:03:25Z",
+        }
+
+        self.migrations_mock.list.assert_called_with(**kwargs)
+
+        self.MIGRATION_COLUMNS.insert(
+            len(self.MIGRATION_COLUMNS) - 2, "Project")
+        self.MIGRATION_COLUMNS.insert(
+            len(self.MIGRATION_COLUMNS) - 2, "User")
+        self.assertEqual(self.MIGRATION_COLUMNS, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+        # Clean up global variables MIGRATION_COLUMNS
+        self.MIGRATION_COLUMNS.remove('Project')
+        self.MIGRATION_COLUMNS.remove('User')
+
+    def test_get_migrations_with_project_and_user_pre_v280(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.79')
+        arglist = [
+            '--status', 'migrating',
+            '--changes-before', '2019-08-09T08:03:25Z',
+            '--project', '0c2accde-644a-45fa-8c10-e76debc7fbc3',
+            '--user', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6'
+        ]
+        verifylist = [
+            ('status', 'migrating'),
+            ('changes_before', '2019-08-09T08:03:25Z'),
+            ('project_id', '0c2accde-644a-45fa-8c10-e76debc7fbc3'),
+            ('user_id', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+
 class TestServerPause(TestServer):
 
     def setUp(self):

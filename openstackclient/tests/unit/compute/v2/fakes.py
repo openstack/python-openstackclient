@@ -14,6 +14,7 @@
 #
 
 import copy
+import random
 from unittest import mock
 import uuid
 
@@ -197,6 +198,9 @@ class FakeComputev2Client(object):
 
         self.instance_action = mock.Mock()
         self.instance_action.resource_class = fakes.FakeResource(None, {})
+
+        self.migrations = mock.Mock()
+        self.migrations.resource_class = fakes.FakeResource(None, {})
 
         self.auth_token = kwargs['token']
 
@@ -1539,3 +1543,89 @@ class FakeRateLimit(object):
         self.remain = remain
         self.unit = unit
         self.next_available = next_available
+
+
+class FakeServerMigration(object):
+    """Fake one or more server migrations."""
+
+    @staticmethod
+    def create_one_server_migration(attrs=None, methods=None):
+        """Create a fake server migration.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object, with id, type, and so on
+        """
+        attrs = attrs or {}
+        methods = methods or {}
+
+        # Set default attributes.
+        migration_info = {
+            "dest_host": "10.0.2.15",
+            "status": "migrating",
+            "type": "migration",
+            "updated_at": "2017-01-31T08:03:25.000000",
+            "created_at": "2017-01-31T08:03:21.000000",
+            "dest_compute": "compute-" + uuid.uuid4().hex,
+            "id": random.randint(1, 999),
+            "source_node": "node-" + uuid.uuid4().hex,
+            "server": uuid.uuid4().hex,
+            "dest_node": "node-" + uuid.uuid4().hex,
+            "source_compute": "compute-" + uuid.uuid4().hex,
+            "uuid": uuid.uuid4().hex,
+            "old_instance_type_id": uuid.uuid4().hex,
+            "new_instance_type_id": uuid.uuid4().hex,
+            "project": uuid.uuid4().hex,
+            "user": uuid.uuid4().hex
+        }
+
+        # Overwrite default attributes.
+        migration_info.update(attrs)
+
+        migration = fakes.FakeResource(info=copy.deepcopy(migration_info),
+                                       methods=methods,
+                                       loaded=True)
+        return migration
+
+    @staticmethod
+    def create_server_migrations(attrs=None, methods=None, count=2):
+        """Create multiple fake server migrations.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of server migrations to fake
+        :return:
+            A list of FakeResource objects faking the server migrations
+        """
+        migrations = []
+        for i in range(0, count):
+            migrations.append(
+                FakeServerMigration.create_one_server_migration(
+                    attrs, methods))
+
+        return migrations
+
+    @staticmethod
+    def get_server_migrations(migrations=None, count=2):
+        """Get an iterable MagicMock object with a list of faked migrations.
+
+        If server migrations list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List migrations:
+            A list of FakeResource objects faking server migrations
+        :param int count:
+            The number of server migrations to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            server migrations
+        """
+        if migrations is None:
+            migrations = FakeServerMigration.create_server_migrations(count)
+        return mock.Mock(side_effect=migrations)
