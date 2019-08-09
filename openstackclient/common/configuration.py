@@ -25,6 +25,8 @@ REDACTED = "<redacted>"
 class ShowConfiguration(command.ShowOne):
     _description = _("Display configuration details")
 
+    auth_required = False
+
     def get_parser(self, prog_name):
         parser = super(ShowConfiguration, self).get_parser(prog_name)
         mask_group = parser.add_mutually_exclusive_group()
@@ -45,13 +47,21 @@ class ShowConfiguration(command.ShowOne):
 
     def take_action(self, parsed_args):
 
-        auth_plg_name = self.app.client_manager.auth_plugin_name
-        secret_opts = [o.dest for o in base.get_plugin_options(auth_plg_name)
-                       if o.secret]
-
         info = self.app.client_manager.get_configuration()
+
+        # Assume a default secret list in case we do not have an auth_plugin
+        secret_opts = ["password", "token"]
+
+        if getattr(self.app.client_manager, "auth_plugin_name", None):
+            auth_plg_name = self.app.client_manager.auth_plugin_name
+            secret_opts = [
+                o.dest for o in base.get_plugin_options(auth_plg_name)
+                if o.secret
+            ]
+
         for key, value in six.iteritems(info.pop('auth', {})):
             if parsed_args.mask and key.lower() in secret_opts:
-                    value = REDACTED
+                value = REDACTED
             info['auth.' + key] = value
+
         return zip(*sorted(six.iteritems(info)))

@@ -37,6 +37,10 @@ class ConfigurationTests(base.TestCase):
             configuration.REDACTED,
             cmd_output['auth.password']
         )
+        self.assertIn(
+            'auth.password',
+            cmd_output.keys(),
+        )
 
         # Test show --mask
         cmd_output = json.loads(self.openstack(
@@ -65,3 +69,26 @@ class ConfigurationTests(base.TestCase):
                 configuration.REDACTED,
                 cmd_output['auth.password']
             )
+
+
+class ConfigurationTestsNoAuth(base.TestCase):
+    """Functional test for configuration with no auth"""
+
+    def test_configuration_show(self):
+
+        # Test show without option
+        raw_output = self.openstack(
+            'configuration show',
+            cloud=None,
+        )
+        items = self.parse_listing(raw_output)
+        self.assert_table_structure(items, BASIC_CONFIG_HEADERS)
+
+        cmd_output = json.loads(self.openstack(
+            'configuration show -f json',
+            cloud=None,
+        ))
+        self.assertNotIn(
+            'auth.password',
+            cmd_output,
+        )
