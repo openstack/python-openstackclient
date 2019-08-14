@@ -22,7 +22,7 @@ from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
 
-DEFAULT_API_VERSION = '2'
+DEFAULT_API_VERSION = '3'
 API_VERSION_OPTION = 'os_volume_api_version'
 API_NAME = "volume"
 API_VERSIONS = {
