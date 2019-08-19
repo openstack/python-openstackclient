@@ -645,6 +645,28 @@ class TestProjectList(TestProject):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
+    def test_project_list_parent(self):
+        self.parent = identity_fakes.FakeProject.create_one_project()
+        self.project = identity_fakes.FakeProject.create_one_project(
+            attrs={'domain_id': self.domain.id, 'parent_id': self.parent.id})
+
+        arglist = [
+            '--parent', self.parent.id,
+        ]
+        verifylist = [
+            ('parent', self.parent.id),
+        ]
+
+        self.projects_mock.get.return_value = self.parent
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.projects_mock.list.assert_called_with(parent=self.parent.id)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
+
     def test_project_list_sort(self):
         self.projects_mock.list.return_value = self.projects
 

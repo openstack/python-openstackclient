@@ -186,6 +186,11 @@ class ListProject(command.Lister):
             help=_('Filter projects by <domain> (name or ID)'),
         )
         parser.add_argument(
+            '--parent',
+            metavar='<parent>',
+            help=_('Filter projects whose parent is <parent> (name or ID)'),
+        )
+        parser.add_argument(
             '--user',
             metavar='<user>',
             help=_('Filter projects by <user> (name or ID)'),
@@ -225,6 +230,11 @@ class ListProject(command.Lister):
             domain_id = common.find_domain(identity_client,
                                            parsed_args.domain).id
             kwargs['domain'] = domain_id
+
+        if parsed_args.parent:
+            parent_id = common.find_project(identity_client,
+                                            parsed_args.parent).id
+            kwargs['parent'] = parent_id
 
         if parsed_args.user:
             if parsed_args.domain:
