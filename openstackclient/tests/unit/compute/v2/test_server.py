@@ -4054,13 +4054,18 @@ class TestServerResize(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
+            result = self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
         self.assertNotCalled(self.servers_mock.resize)
         self.servers_mock.confirm_resize.assert_called_with(self.server)
         self.assertNotCalled(self.servers_mock.revert_resize)
         self.assertIsNone(result)
+        # A warning should have been logged for using --confirm.
+        mock_warning.assert_called_once()
+        self.assertIn('The --confirm option has been deprecated.',
+                      six.text_type(mock_warning.call_args[0][0]))
 
     def test_server_resize_revert(self):
         arglist = [
@@ -4074,13 +4079,18 @@ class TestServerResize(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
+            result = self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
         self.assertNotCalled(self.servers_mock.resize)
         self.assertNotCalled(self.servers_mock.confirm_resize)
         self.servers_mock.revert_resize.assert_called_with(self.server)
         self.assertIsNone(result)
+        # A warning should have been logged for using --revert.
+        mock_warning.assert_called_once()
+        self.assertIn('The --revert option has been deprecated.',
+                      six.text_type(mock_warning.call_args[0][0]))
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_server_resize_with_wait_ok(self, mock_wait_for_status):
@@ -4159,6 +4169,74 @@ class TestServerResize(TestServer):
             self.server,
             self.flavors_get_return_value
         )
+
+
+class TestServerResizeConfirm(TestServer):
+
+    def setUp(self):
+        super(TestServerResizeConfirm, self).setUp()
+
+        methods = {
+            'confirm_resize': None,
+        }
+        self.server = compute_fakes.FakeServer.create_one_server(
+            methods=methods)
+
+        # This is the return value for utils.find_resource()
+        self.servers_mock.get.return_value = self.server
+
+        self.servers_mock.confirm_resize.return_value = None
+
+        # Get the command object to test
+        self.cmd = server.ResizeConfirm(self.app, None)
+
+    def test_resize_confirm(self):
+        arglist = [
+            self.server.id,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.confirm_resize.assert_called_with()
+
+
+class TestServerResizeRevert(TestServer):
+
+    def setUp(self):
+        super(TestServerResizeRevert, self).setUp()
+
+        methods = {
+            'revert_resize': None,
+        }
+        self.server = compute_fakes.FakeServer.create_one_server(
+            methods=methods)
+
+        # This is the return value for utils.find_resource()
+        self.servers_mock.get.return_value = self.server
+
+        self.servers_mock.revert_resize.return_value = None
+
+        # Get the command object to test
+        self.cmd = server.ResizeRevert(self.app, None)
+
+    def test_resize_revert(self):
+        arglist = [
+            self.server.id,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.revert_resize.assert_called_with()
 
 
 class TestServerRestore(TestServer):
