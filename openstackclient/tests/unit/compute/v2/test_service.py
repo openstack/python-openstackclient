@@ -17,6 +17,7 @@ import mock
 from mock import call
 from novaclient import api_versions
 from osc_lib import exceptions
+import six
 
 from openstackclient.compute.v2 import service
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -344,7 +345,7 @@ class TestServiceSet(TestService):
             '2.11')
         result = self.cmd.take_action(parsed_args)
         self.service_mock.force_down.assert_called_once_with(
-            self.service.host, self.service.binary, force_down=False)
+            self.service.host, self.service.binary, False)
         self.assertNotCalled(self.service_mock.enable)
         self.assertNotCalled(self.service_mock.disable)
         self.assertIsNone(result)
@@ -365,7 +366,7 @@ class TestServiceSet(TestService):
             '2.11')
         result = self.cmd.take_action(parsed_args)
         self.service_mock.force_down.assert_called_once_with(
-            self.service.host, self.service.binary, force_down=True)
+            self.service.host, self.service.binary, True)
         self.assertNotCalled(self.service_mock.enable)
         self.assertNotCalled(self.service_mock.disable)
         self.assertIsNone(result)
@@ -390,7 +391,7 @@ class TestServiceSet(TestService):
         self.service_mock.enable.assert_called_once_with(
             self.service.host, self.service.binary)
         self.service_mock.force_down.assert_called_once_with(
-            self.service.host, self.service.binary, force_down=True)
+            self.service.host, self.service.binary, True)
         self.assertIsNone(result)
 
     def test_service_set_enable_and_state_down_with_exception(self):
@@ -415,4 +416,99 @@ class TestServiceSet(TestService):
             self.assertRaises(exceptions.CommandError,
                               self.cmd.take_action, parsed_args)
             self.service_mock.force_down.assert_called_once_with(
-                self.service.host, self.service.binary, force_down=True)
+                self.service.host, self.service.binary, True)
+
+    def test_service_set_2_53_disable_down(self):
+        # Tests disabling and forcing down a compute service with microversion
+        # 2.53 which requires looking up the service by host and binary.
+        arglist = [
+            '--disable',
+            '--down',
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('disable', True),
+            ('down', True),
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.53')
+        service_id = '339478d0-0b95-4a94-be63-d5be05dfeb1c'
+        self.service_mock.list.return_value = [mock.Mock(id=service_id)]
+        result = self.cmd.take_action(parsed_args)
+        self.service_mock.disable.assert_called_once_with(service_id)
+        self.service_mock.force_down.assert_called_once_with(service_id, True)
+        self.assertIsNone(result)
+
+    def test_service_set_2_53_disable_reason(self):
+        # Tests disabling with reason a compute service with microversion
+        # 2.53 which requires looking up the service by host and binary.
+        reason = 'earthquake'
+        arglist = [
+            '--disable',
+            '--disable-reason', reason,
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('disable', True),
+            ('disable_reason', reason),
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.53')
+        service_id = '339478d0-0b95-4a94-be63-d5be05dfeb1c'
+        self.service_mock.list.return_value = [mock.Mock(id=service_id)]
+        result = self.cmd.take_action(parsed_args)
+        self.service_mock.disable_log_reason.assert_called_once_with(
+            service_id, reason)
+        self.assertIsNone(result)
+
+    def test_service_set_2_53_enable_up(self):
+        # Tests enabling and bringing up a compute service with microversion
+        # 2.53 which requires looking up the service by host and binary.
+        arglist = [
+            '--enable',
+            '--up',
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('enable', True),
+            ('up', True),
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.53')
+        service_id = '339478d0-0b95-4a94-be63-d5be05dfeb1c'
+        self.service_mock.list.return_value = [mock.Mock(id=service_id)]
+        result = self.cmd.take_action(parsed_args)
+        self.service_mock.enable.assert_called_once_with(service_id)
+        self.service_mock.force_down.assert_called_once_with(service_id, False)
+        self.assertIsNone(result)
+
+    def test_service_set_find_service_by_host_and_binary_no_results(self):
+        # Tests that no compute services are found by host and binary.
+        self.service_mock.list.return_value = []
+        ex = self.assertRaises(exceptions.CommandError,
+                               self.cmd._find_service_by_host_and_binary,
+                               self.service_mock, 'fake-host', 'nova-compute')
+        self.assertIn('Compute service for host "fake-host" and binary '
+                      '"nova-compute" not found.', six.text_type(ex))
+
+    def test_service_set_find_service_by_host_and_binary_many_results(self):
+        # Tests that more than one compute service is found by host and binary.
+        self.service_mock.list.return_value = [mock.Mock(), mock.Mock()]
+        ex = self.assertRaises(exceptions.CommandError,
+                               self.cmd._find_service_by_host_and_binary,
+                               self.service_mock, 'fake-host', 'nova-compute')
+        self.assertIn('Multiple compute services found for host "fake-host" '
+                      'and binary "nova-compute". Unable to proceed.',
+                      six.text_type(ex))
