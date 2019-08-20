@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    The ``server create --block-device-mapping`` option now supports
+    an ``image`` type in addition to ``volume`` and ``snapshot``. When
+    specifying an image block device the compute service will create a volume
+    from the image of the specified size and attach it to the server.
+    [Story `2006302 <https://storyboard.openstack.org/#!/story/2006302>`_]
