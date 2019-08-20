@@ -575,13 +575,12 @@ class CreateServer(command.ShowOne):
             # NOTE(RuiChen): Add '\n' at the end of line to put each item in
             #                the separated line, avoid the help message looks
             #                messy, see _SmartHelpFormatter in cliff.
-            # FIXME(mriedem): Technically <id> can be the name or ID.
             help=_('Create a block device on the server.\n'
                    'Block device mapping in the format\n'
                    '<dev-name>=<id>:<type>:<size(GB)>:<delete-on-terminate>\n'
                    '<dev-name>: block device name, like: vdb, xvdc '
                    '(required)\n'
-                   '<id>: UUID of the volume, volume snapshot or image '
+                   '<id>: Name or ID of the volume, volume snapshot or image '
                    '(required)\n'
                    '<type>: volume, snapshot or image; default: volume '
                    '(optional)\n'
