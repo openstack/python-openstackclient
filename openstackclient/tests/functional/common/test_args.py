@@ -12,6 +12,8 @@
 
 import json
 
+from tempest.lib import exceptions as tempest_exc
+
 from openstackclient.tests.functional import base
 
 
@@ -49,19 +51,17 @@ class ArgumentTests(base.TestCase):
         )
 
     def test_auth_type_token_endpoint_opt(self):
-        cmd_output = json.loads(self.openstack(
-            'configuration show -f json --os-auth-type token_endpoint',
-            cloud=None,
-        ))
-        self.assertIsNotNone(cmd_output)
-        self.assertIn(
-            'auth_type',
-            cmd_output.keys(),
-        )
-        self.assertEqual(
-            'token_endpoint',
-            cmd_output['auth_type'],
-        )
+        # Make sure token_endpoint is really gone
+        try:
+            self.openstack(
+                'configuration show -f json --os-auth-type token_endpoint',
+                cloud=None,
+            )
+        except tempest_exc.CommandFailed as e:
+            self.assertIn('--os-auth-type: invalid choice:', str(e))
+            self.assertIn('token_endpoint', str(e))
+        else:
+            self.fail('CommandFailed should be raised')
 
     def test_auth_type_password_opt(self):
         cmd_output = json.loads(self.openstack(

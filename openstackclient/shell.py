@@ -58,10 +58,10 @@ class OpenStackShell(shell.OpenStackShell):
     def _final_defaults(self):
         super(OpenStackShell, self)._final_defaults()
 
-        # Set the default plugin to token_endpoint if url and token are given
-        if (self.options.url and self.options.token):
-            # Use service token authentication
-            self._auth_type = 'token_endpoint'
+        # Set the default plugin to admin_token if endpoint and token are given
+        if (self.options.endpoint and self.options.token):
+            # Use token authentication
+            self._auth_type = 'admin_token'
         else:
             self._auth_type = 'password'
 

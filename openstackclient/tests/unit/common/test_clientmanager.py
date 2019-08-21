@@ -28,19 +28,19 @@ class TestClientManager(osc_lib_test_utils.TestClientManager):
         """Allow subclasses to override the ClientManager class"""
         return clientmanager.ClientManager
 
-    def test_client_manager_token_endpoint(self):
+    def test_client_manager_admin_token(self):
         token_auth = {
-            'url': fakes.AUTH_URL,
+            'endpoint': fakes.AUTH_URL,
             'token': fakes.AUTH_TOKEN,
         }
         client_manager = self._make_clientmanager(
             auth_args=token_auth,
-            auth_plugin_name='token_endpoint',
+            auth_plugin_name='admin_token',
         )
 
         self.assertEqual(
             fakes.AUTH_URL,
-            client_manager._cli_options.config['auth']['url'],
+            client_manager._cli_options.config['auth']['endpoint'],
         )
         self.assertEqual(
             fakes.AUTH_TOKEN,

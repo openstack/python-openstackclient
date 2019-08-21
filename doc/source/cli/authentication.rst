@@ -39,15 +39,6 @@ There are at least three authentication types that are always available:
   (described below as token/endpoint) in that a token and an authentication
   URL are supplied and the plugin retrieves a new token.
   [Required: ``--os-auth-url``, ``--os-token``]
-* **Token/Endpoint**: This is the original token authentication (known as 'token
-  flow' in the early CLI documentation in the OpenStack wiki).  It requires
-  a token and a direct endpoint that is used in the API call.  The difference
-  from the new Token type is this token is used as-is, no call is made
-  to the Identity service from the client.  This type is most often used to
-  bootstrap a Keystone server where the token is the ``admin_token`` configured
-  in ``keystone.conf``.  It will also work with other services and a regular
-  scoped token such as one obtained from a ``token issue`` command.
-  [Required: ``--os-url``, ``--os-token``]
 * **Others**: Other authentication plugins such as SAML, Kerberos, and OAuth1.0
   are under development and also supported. To use them, they must be selected
   by supplying the ``--os-auth-type`` option.

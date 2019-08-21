@@ -96,6 +96,14 @@ Release 4.0
   * Removed in: 4.0
   * Commit: https://review.opendev.org/612751
 
+14. Remove 'Token/Endpoint' auth plugin support (type ``token_endpoint``).
+    This remained as a compatibility for the ``admin_token`` auth type to
+    support the ``--url`` global option.  That option is also now removed,
+    use ``--endpoint`` instead.
+
+  * Removed in: 4.0
+  * Commit: https://review.opendev.org/<tbd>
+
 Release 3.12
 ------------
 
