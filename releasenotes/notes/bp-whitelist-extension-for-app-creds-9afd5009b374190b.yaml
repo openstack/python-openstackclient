@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    [`blueprint whitelist-extension-for-app-creds <https://blueprints.launchpad.net/keystone/+spec/whitelist-extension-for-app-creds>`_]
+    Added support for creating access rules as an attribute of application
+    credentials as well as for listing, showing, and deleting access rules.

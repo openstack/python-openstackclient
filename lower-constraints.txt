@@ -95,7 +95,7 @@ python-heatclient==1.10.0
 python-ironic-inspector-client==1.5.0
 python-ironicclient==2.3.0
 python-karborclient==0.6.0
-python-keystoneclient==3.17.0
+python-keystoneclient==3.22.0
 python-mimeparse==1.6.0
 python-mistralclient==3.1.0
 python-muranoclient==0.8.2

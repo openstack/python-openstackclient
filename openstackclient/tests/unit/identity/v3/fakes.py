@@ -470,6 +470,14 @@ app_cred_description = 'app credential for testing'
 app_cred_expires = datetime.datetime(2022, 1, 1, 0, 0)
 app_cred_expires_str = app_cred_expires.strftime('%Y-%m-%dT%H:%M:%S%z')
 app_cred_secret = 'moresecuresecret'
+app_cred_access_rules = (
+    '[{"path": "/v2.1/servers", "method": "GET", "service": "compute"}]'
+)
+app_cred_access_rules_path = '/tmp/access_rules.json'
+access_rule_id = 'access-rule-id'
+access_rule_service = 'compute'
+access_rule_path = '/v2.1/servers'
+access_rule_method = 'GET'
 APP_CRED_BASIC = {
     'id': app_cred_id,
     'name': app_cred_name,
@@ -478,7 +486,8 @@ APP_CRED_BASIC = {
     'description': None,
     'expires_at': None,
     'unrestricted': False,
-    'secret': app_cred_secret
+    'secret': app_cred_secret,
+    'access_rules': None
 }
 APP_CRED_OPTIONS = {
     'id': app_cred_id,
@@ -488,7 +497,25 @@ APP_CRED_OPTIONS = {
     'description': app_cred_description,
     'expires_at': app_cred_expires_str,
     'unrestricted': False,
-    'secret': app_cred_secret
+    'secret': app_cred_secret,
+    'access_rules': None,
+}
+ACCESS_RULE = {
+    'id': access_rule_id,
+    'service': access_rule_service,
+    'path': access_rule_path,
+    'method': access_rule_method,
+}
+APP_CRED_ACCESS_RULES = {
+    'id': app_cred_id,
+    'name': app_cred_name,
+    'project_id': project_id,
+    'roles': app_cred_role,
+    'description': None,
+    'expires_at': None,
+    'unrestricted': False,
+    'secret': app_cred_secret,
+    'access_rules': app_cred_access_rules
 }
 
 registered_limit_id = 'registered-limit-id'
@@ -625,6 +652,8 @@ class FakeIdentityv3Client(object):
         self.application_credentials = mock.Mock()
         self.application_credentials.resource_class = fakes.FakeResource(None,
                                                                          {})
+        self.access_rules = mock.Mock()
+        self.access_rules.resource_class = fakes.FakeResource(None, {})
         self.inference_rules = mock.Mock()
         self.inference_rules.resource_class = fakes.FakeResource(None, {})
         self.registered_limits = mock.Mock()

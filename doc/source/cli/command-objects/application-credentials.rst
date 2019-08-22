@@ -22,6 +22,7 @@ Create new application credential
         [--expiration <expiration>]
         [--description <description>]
         [--restricted|--unrestricted]
+        [--access-rules <access-rules>]
         <name>
 
 .. option:: --secret <secret>
@@ -51,6 +52,12 @@ Create new application credential
 
     Prohibit application credential from creating and deleting other
     application credentials and trusts (this is the default behavior)
+
+.. option:: --access-rules
+
+   Either a string or file path containing a JSON-formatted list of access
+   rules, each containing a request method, path, and service, for example
+   '[{"method": "GET", "path": "/v2.1/servers", "service": "compute"}]'
 
 .. describe:: <name>
 

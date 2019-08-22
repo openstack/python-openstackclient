@@ -16,6 +16,7 @@
 """Identity v3 Application Credential action implementations"""
 
 import datetime
+import json
 import logging
 
 from osc_lib.command import command
@@ -79,6 +80,17 @@ class CreateApplicationCredential(command.ShowOne):
                    ' other application credentials and trusts (this is the'
                    ' default behavior)'),
         )
+        parser.add_argument(
+            '--access-rules',
+            metavar='<access-rules>',
+            help=_('Either a string or file path containing a JSON-formatted '
+                   'list of access rules, each containing a request method, '
+                   'path, and service, for example '
+                   '\'[{"method": "GET", '
+                   '"path": "/v2.1/servers", '
+                   '"service": "compute"}]\''),
+
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -105,6 +117,20 @@ class CreateApplicationCredential(command.ShowOne):
         else:
             unrestricted = parsed_args.unrestricted
 
+        if parsed_args.access_rules:
+            try:
+                access_rules = json.loads(parsed_args.access_rules)
+            except ValueError:
+                try:
+                    with open(parsed_args.access_rules) as f:
+                        access_rules = json.load(f)
+                except IOError:
+                    raise exceptions.CommandError(
+                        _("Access rules is not valid JSON string or file does"
+                          " not exist."))
+        else:
+            access_rules = None
+
         app_cred_manager = identity_client.application_credentials
         application_credential = app_cred_manager.create(
             parsed_args.name,
@@ -113,6 +139,7 @@ class CreateApplicationCredential(command.ShowOne):
             description=parsed_args.description,
             secret=parsed_args.secret,
             unrestricted=unrestricted,
+            access_rules=access_rules,
         )
 
         application_credential._info.pop('links', None)
