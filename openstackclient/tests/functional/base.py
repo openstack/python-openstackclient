@@ -44,16 +44,30 @@ class TestCase(testtools.TestCase):
 
     @classmethod
     def openstack(cls, cmd, cloud=ADMIN_CLOUD, fail_ok=False):
-        """Executes openstackclient command for the given action."""
-        if cloud is not None:
-            return execute(
-                'openstack --os-cloud={cloud} '.format(cloud=cloud) + cmd,
-                fail_ok=fail_ok
-            )
-        else:
+        """Executes openstackclient command for the given action
+
+        NOTE(dtroyer): There is a subtle distinction between pasing
+        cloud=None and cloud='': for compatibility reasons passing
+        cloud=None continues to include the option '--os-auth-type none'
+        in the command while passing cloud='' omits the '--os-auth-type'
+         option completely to let the default handlers be invoked.
+        """
+        if cloud is None:
             # Execute command with no auth
             return execute(
                 'openstack --os-auth-type none ' + cmd,
+                fail_ok=fail_ok
+            )
+        elif cloud == '':
+            # Execute command with no auth options at all
+            return execute(
+                'openstack ' + cmd,
+                fail_ok=fail_ok
+            )
+        else:
+            # Execure command with an explicit cloud specified
+            return execute(
+                'openstack --os-cloud=' + cloud + ' ' + cmd,
                 fail_ok=fail_ok
             )
 
