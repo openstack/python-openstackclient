@@ -18,6 +18,7 @@
 
 import logging
 
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -58,6 +59,15 @@ class AddAggregateHost(command.ShowOne):
 
         info = {}
         info.update(data._info)
+
+        # Special mapping for columns to make the output easier to read:
+        # 'metadata' --> 'properties'
+        info.update(
+            {
+                'hosts': format_columns.ListColumn(info.pop('hosts')),
+                'properties': format_columns.DictColumn(info.pop('metadata')),
+            },
+        )
         return zip(*sorted(six.iteritems(info)))
 
 
@@ -101,8 +111,20 @@ class CreateAggregate(command.ShowOne):
                 parsed_args.property,
             )._info)
 
-        # TODO(dtroyer): re-format metadata field to properites as
-        #                in the set command
+        # Special mapping for columns to make the output easier to read:
+        # 'metadata' --> 'properties'
+        hosts = None
+        properties = None
+        if 'hosts' in info.keys():
+            hosts = format_columns.ListColumn(info.pop('hosts'))
+        if 'metadata' in info.keys():
+            properties = format_columns.DictColumn(info.pop('metadata'))
+        info.update(
+            {
+                'hosts': hosts,
+                'properties': properties,
+            },
+        )
         return zip(*sorted(six.iteritems(info)))
 
 
@@ -186,6 +208,10 @@ class ListAggregate(command.Lister):
         return (column_headers,
                 (utils.get_item_properties(
                     s, columns,
+                    formatters={
+                        'Hosts': format_columns.ListColumn,
+                        'Metadata': format_columns.DictColumn,
+                    },
                 ) for s in data))
 
 
@@ -220,6 +246,15 @@ class RemoveAggregateHost(command.ShowOne):
 
         info = {}
         info.update(data._info)
+
+        # Special mapping for columns to make the output easier to read:
+        # 'metadata' --> 'properties'
+        info.update(
+            {
+                'hosts': format_columns.ListColumn(info.pop('hosts')),
+                'properties': format_columns.DictColumn(info.pop('metadata')),
+            },
+        )
         return zip(*sorted(six.iteritems(info)))
 
 
@@ -326,7 +361,12 @@ class ShowAggregate(command.ShowOne):
         # 'metadata' --> 'properties'
         data._info.update(
             {
-                'properties': utils.format_dict(data._info.pop('metadata')),
+                'hosts': format_columns.ListColumn(
+                    data._info.pop('hosts')
+                ),
+                'properties': format_columns.DictColumn(
+                    data._info.pop('metadata')
+                ),
             },
         )
 
