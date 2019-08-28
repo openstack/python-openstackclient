@@ -1344,7 +1344,7 @@ class FakeSecurityGroupRule(object):
 
     @staticmethod
     def get_security_group_rules(security_group_rules=None, count=2):
-        """Get an iterable Mock object with a list of faked security group rules.
+        """Get an iterable Mock with a list of faked security group rules.
 
         If security group rules list is provided, then initialize the Mock
         object with the list. Otherwise create one.
