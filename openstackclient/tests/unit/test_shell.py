@@ -153,7 +153,7 @@ class TestShell(osc_lib_test_utils.TestShell):
         #                released in osc-lib
         self.shell_class = importutils.import_class(self.shell_class_name)
 
-    def _assert_token_endpoint_auth(self, cmd_options, default_args):
+    def _assert_admin_token_auth(self, cmd_options, default_args):
         with mock.patch(
                 self.shell_class_name + ".initialize_app",
                 self.app,
@@ -172,9 +172,9 @@ class TestShell(osc_lib_test_utils.TestShell):
                 "token",
             )
             self.assertEqual(
-                default_args.get("url", ''),
-                _shell.options.url,
-                "url",
+                default_args.get("endpoint", ''),
+                _shell.options.endpoint,
+                "endpoint",
             )
 
     def _assert_token_auth(self, cmd_options, default_args):
@@ -338,7 +338,7 @@ class TestShellTokenEndpointAuthEnv(TestShell):
         super(TestShellTokenEndpointAuthEnv, self).setUp()
         env = {
             "OS_TOKEN": DEFAULT_TOKEN,
-            "OS_URL": DEFAULT_SERVICE_URL,
+            "OS_ENDPOINT": DEFAULT_SERVICE_URL,
         }
         self.useFixture(osc_lib_test_utils.EnvFixture(env.copy()))
 
@@ -346,23 +346,23 @@ class TestShellTokenEndpointAuthEnv(TestShell):
         flag = ""
         kwargs = {
             "token": DEFAULT_TOKEN,
-            "url": DEFAULT_SERVICE_URL,
+            "endpoint": DEFAULT_SERVICE_URL,
         }
-        self._assert_token_endpoint_auth(flag, kwargs)
+        self._assert_admin_token_auth(flag, kwargs)
 
     def test_only_token(self):
         flag = "--os-token xyzpdq"
         kwargs = {
             "token": "xyzpdq",
-            "url": DEFAULT_SERVICE_URL,
+            "endpoint": DEFAULT_SERVICE_URL,
         }
         self._assert_token_auth(flag, kwargs)
 
     def test_only_url(self):
-        flag = "--os-url http://cloud.local:555"
+        flag = "--os-endpoint http://cloud.local:555"
         kwargs = {
             "token": DEFAULT_TOKEN,
-            "url": "http://cloud.local:555",
+            "endpoint": "http://cloud.local:555",
         }
         self._assert_token_auth(flag, kwargs)
 
@@ -371,7 +371,7 @@ class TestShellTokenEndpointAuthEnv(TestShell):
         flag = ""
         kwargs = {
             "token": '',
-            "url": '',
+            "endpoint": '',
         }
         self._assert_token_auth(flag, kwargs)
 
