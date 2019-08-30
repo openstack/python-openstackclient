@@ -10,6 +10,8 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import munch
+
 
 def get_osc_show_columns_for_sdk_resource(
     sdk_resource,
@@ -38,6 +40,9 @@ def get_osc_show_columns_for_sdk_resource(
     # Build the OSC column names to display for the SDK resource.
     attr_map = {}
     display_columns = list(resource_dict.keys())
+    for col_name in display_columns:
+        if isinstance(resource_dict[col_name], munch.Munch):
+            display_columns.remove(col_name)
     invisible_columns = [] if invisible_columns is None else invisible_columns
     for col_name in invisible_columns:
         if col_name in display_columns:
