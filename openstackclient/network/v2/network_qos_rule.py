@@ -15,6 +15,7 @@
 
 import itertools
 
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -44,6 +45,11 @@ ACTION_DELETE = 'delete'
 ACTION_FIND = 'find'
 ACTION_SET = 'update'
 ACTION_SHOW = 'get'
+
+
+_formatters = {
+    'location': format_columns.DictColumn,
+}
 
 
 def _get_columns(item):
@@ -208,7 +214,7 @@ class CreateNetworkQosRule(command.ShowOne):
             msg = (_('Failed to create Network QoS rule: %(e)s') % {'e': e})
             raise exceptions.CommandError(msg)
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns)
+        data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return display_columns, data
 
 
@@ -358,5 +364,5 @@ class ShowNetworkQosRule(command.ShowOne):
                    {'rule': rule_id, 'e': e})
             raise exceptions.CommandError(msg)
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns)
+        data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return display_columns, data

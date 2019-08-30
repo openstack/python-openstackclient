@@ -15,6 +15,7 @@
 
 import logging
 
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import utils
 
@@ -23,6 +24,11 @@ from openstackclient.identity import common as identity_common
 from openstackclient.network import sdk_utils
 
 LOG = logging.getLogger(__name__)
+
+
+_formatters = {
+    'location': format_columns.DictColumn,
+}
 
 
 def _get_columns(item):
@@ -93,16 +99,17 @@ class CreateAutoAllocatedTopology(command.ShowOne):
         obj = client.validate_auto_allocated_topology(parsed_args.project)
 
         columns = _format_check_resource_columns()
-        data = utils.get_item_properties(_format_check_resource(obj),
-                                         columns,
-                                         formatters={})
-
+        data = utils.get_item_properties(
+            _format_check_resource(obj),
+            columns,
+            formatters=_formatters,
+        )
         return (columns, data)
 
     def get_topology(self, client, parsed_args):
         obj = client.get_auto_allocated_topology(parsed_args.project)
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns, formatters={})
+        data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)
 
     def take_action(self, parsed_args):

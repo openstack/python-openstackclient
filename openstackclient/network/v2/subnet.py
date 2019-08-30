@@ -61,6 +61,7 @@ _formatters = {
     'allocation_pools': AllocationPoolsColumn,
     'dns_nameservers': format_columns.ListColumn,
     'host_routes': HostRoutesColumn,
+    'location': format_columns.DictColumn,
     'service_types': format_columns.ListColumn,
     'tags': format_columns.ListColumn,
 }

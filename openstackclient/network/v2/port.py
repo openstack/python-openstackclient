@@ -51,6 +51,7 @@ _formatters = {
     'dns_assignment': format_columns.ListDictColumn,
     'extra_dhcp_opts': format_columns.ListDictColumn,
     'fixed_ips': format_columns.ListDictColumn,
+    'location': format_columns.DictColumn,
     'security_group_ids': format_columns.ListColumn,
     'tags': format_columns.ListColumn,
 }

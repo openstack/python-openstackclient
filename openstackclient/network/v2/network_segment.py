@@ -15,6 +15,7 @@
 
 import logging
 
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -24,6 +25,11 @@ from openstackclient.network import sdk_utils
 
 
 LOG = logging.getLogger(__name__)
+
+
+_formatters = {
+    'location': format_columns.DictColumn,
+}
 
 
 def _get_columns(item):
@@ -90,7 +96,7 @@ class CreateNetworkSegment(command.ShowOne):
             attrs['segmentation_id'] = parsed_args.segment
         obj = client.create_segment(**attrs)
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns)
+        data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)
 
 
@@ -242,5 +248,5 @@ class ShowNetworkSegment(command.ShowOne):
             ignore_missing=False
         )
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns)
+        data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)
