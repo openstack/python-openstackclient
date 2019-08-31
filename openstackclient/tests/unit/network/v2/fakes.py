@@ -1346,11 +1346,13 @@ class FakeFloatingIPPortForwarding(object):
     """"Fake one or more Port forwarding"""
 
     @staticmethod
-    def create_one_port_forwarding(attrs=None):
+    def create_one_port_forwarding(attrs=None, use_range=False):
         """Create a fake Port Forwarding.
 
         :param Dictionary attrs:
             A dictionary with all attributes
+        :param Boolean use_range:
+            A boolean which defines if we will use ranges or not
         :return:
             A FakeResource object with name, id, etc.
         """
@@ -1364,12 +1366,28 @@ class FakeFloatingIPPortForwarding(object):
             'floatingip_id': floatingip_id,
             'internal_port_id': 'internal-port-id-' + uuid.uuid4().hex,
             'internal_ip_address': '192.168.1.2',
-            'internal_port': randint(1, 65535),
-            'external_port': randint(1, 65535),
             'protocol': 'tcp',
             'description': 'some description',
             'location': 'MUNCHMUNCHMUNCH',
         }
+
+        if use_range:
+            port_range = randint(0, 100)
+            internal_start = randint(1, 65535 - port_range)
+            internal_end = internal_start + port_range
+            internal_range = ':'.join(map(str, [internal_start, internal_end]))
+            external_start = randint(1, 65535 - port_range)
+            external_end = external_start + port_range
+            external_range = ':'.join(map(str, [external_start, external_end]))
+            port_forwarding_attrs['internal_port_range'] = internal_range
+            port_forwarding_attrs['external_port_range'] = external_range
+            port_forwarding_attrs['internal_port'] = None
+            port_forwarding_attrs['external_port'] = None
+        else:
+            port_forwarding_attrs['internal_port'] = randint(1, 65535)
+            port_forwarding_attrs['external_port'] = randint(1, 65535)
+            port_forwarding_attrs['internal_port_range'] = ''
+            port_forwarding_attrs['external_port_range'] = ''
 
         # Overwrite default attributes.
         port_forwarding_attrs.update(attrs)
@@ -1381,25 +1399,28 @@ class FakeFloatingIPPortForwarding(object):
         return port_forwarding
 
     @staticmethod
-    def create_port_forwardings(attrs=None, count=2):
+    def create_port_forwardings(attrs=None, count=2, use_range=False):
         """Create multiple fake Port Forwarding.
 
           :param Dictionary attrs:
               A dictionary with all attributes
           :param int count:
               The number of Port Forwarding rule to fake
+          :param Boolean use_range:
+              A boolean which defines if we will use ranges or not
           :return:
               A list of FakeResource objects faking the Port Forwardings
           """
         port_forwardings = []
         for i in range(0, count):
             port_forwardings.append(
-                FakeFloatingIPPortForwarding.create_one_port_forwarding(attrs)
+                FakeFloatingIPPortForwarding.create_one_port_forwarding(
+                    attrs, use_range=use_range)
             )
         return port_forwardings
 
     @staticmethod
-    def get_port_forwardings(port_forwardings=None, count=2):
+    def get_port_forwardings(port_forwardings=None, count=2, use_range=False):
         """Get a list of faked Port Forwardings.
 
         If port forwardings list is provided, then initialize the Mock object
@@ -1409,13 +1430,16 @@ class FakeFloatingIPPortForwarding(object):
             A list of FakeResource objects faking port forwardings
         :param int count:
             The number of Port Forwardings to fake
+        :param Boolean use_range:
+            A boolean which defines if we will use ranges or not
         :return:
             An iterable Mock object with side_effect set to a list of faked
             Port Forwardings
         """
         if port_forwardings is None:
             port_forwardings = (
-                FakeFloatingIPPortForwarding.create_port_forwardings(count)
+                FakeFloatingIPPortForwarding.create_port_forwardings(
+                    count, use_range=use_range)
             )
 
         return mock.Mock(side_effect=port_forwardings)

@@ -49,6 +49,18 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
                 }
             )
         )
+
+        self.new_port_forwarding_with_ranges = (
+            network_fakes.FakeFloatingIPPortForwarding.
+            create_one_port_forwarding(
+                use_range=True,
+                attrs={
+                    'internal_port_id': self.port.id,
+                    'floatingip_id': self.floating_ip.id,
+                }
+            )
+        )
+
         self.network.create_floating_ip_port_forwarding = mock.Mock(
             return_value=self.new_port_forwarding)
 
@@ -63,22 +75,26 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         self.columns = (
             'description',
             'external_port',
+            'external_port_range',
             'floatingip_id',
             'id',
             'internal_ip_address',
             'internal_port',
             'internal_port_id',
+            'internal_port_range',
             'protocol'
         )
 
         self.data = (
             self.new_port_forwarding.description,
             self.new_port_forwarding.external_port,
+            self.new_port_forwarding.external_port_range,
             self.new_port_forwarding.floatingip_id,
             self.new_port_forwarding.id,
             self.new_port_forwarding.internal_ip_address,
             self.new_port_forwarding.internal_port,
             self.new_port_forwarding.internal_port_id,
+            self.new_port_forwarding.internal_port_range,
             self.new_port_forwarding.protocol,
         )
 
@@ -89,6 +105,160 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         # Missing required args should bail here
         self.assertRaises(tests_utils.ParserException, self.check_parser,
                           self.cmd, arglist, verifylist)
+
+    def test_create_all_options_with_range(self):
+        arglist = [
+            '--port', self.new_port_forwarding_with_ranges.internal_port_id,
+            '--internal-protocol-port',
+            self.new_port_forwarding_with_ranges.internal_port_range,
+            '--external-protocol-port',
+            self.new_port_forwarding_with_ranges.external_port_range,
+            '--protocol', self.new_port_forwarding_with_ranges.protocol,
+            self.new_port_forwarding_with_ranges.floatingip_id,
+            '--internal-ip-address',
+            self.new_port_forwarding_with_ranges.internal_ip_address,
+            '--description',
+            self.new_port_forwarding_with_ranges.description,
+        ]
+        verifylist = [
+            ('port', self.new_port_forwarding_with_ranges.internal_port_id),
+            ('internal_protocol_port',
+             self.new_port_forwarding_with_ranges.internal_port_range),
+            ('external_protocol_port',
+             self.new_port_forwarding_with_ranges.external_port_range),
+            ('protocol', self.new_port_forwarding_with_ranges.protocol),
+            ('floating_ip',
+             self.new_port_forwarding_with_ranges.floatingip_id),
+            ('internal_ip_address', self.new_port_forwarding_with_ranges.
+                internal_ip_address),
+            ('description', self.new_port_forwarding_with_ranges.description),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_floating_ip_port_forwarding.\
+            assert_called_once_with(
+                self.new_port_forwarding.floatingip_id,
+                **{
+                    'external_port_range':
+                        self.new_port_forwarding_with_ranges.
+                        external_port_range,
+                    'internal_ip_address':
+                        self.new_port_forwarding_with_ranges.
+                    internal_ip_address,
+                    'internal_port_range':
+                        self.new_port_forwarding_with_ranges.
+                        internal_port_range,
+                    'internal_port_id':
+                        self.new_port_forwarding_with_ranges.internal_port_id,
+                    'protocol': self.new_port_forwarding_with_ranges.protocol,
+                    'description':
+                        self.new_port_forwarding_with_ranges.description,
+                })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_create_all_options_with_range_invalid_port_exception(self):
+        invalid_port_range = '999999:999999'
+        arglist = [
+            '--port', self.new_port_forwarding_with_ranges.internal_port_id,
+            '--internal-protocol-port', invalid_port_range,
+            '--external-protocol-port', invalid_port_range,
+            '--protocol', self.new_port_forwarding_with_ranges.protocol,
+            self.new_port_forwarding_with_ranges.floatingip_id,
+            '--internal-ip-address',
+            self.new_port_forwarding_with_ranges.internal_ip_address,
+            '--description',
+            self.new_port_forwarding_with_ranges.description,
+        ]
+        verifylist = [
+            ('port', self.new_port_forwarding_with_ranges.internal_port_id),
+            ('internal_protocol_port', invalid_port_range),
+            ('external_protocol_port', invalid_port_range),
+            ('protocol', self.new_port_forwarding_with_ranges.protocol),
+            ('floating_ip',
+             self.new_port_forwarding_with_ranges.floatingip_id),
+            ('internal_ip_address', self.new_port_forwarding_with_ranges.
+                internal_ip_address),
+            ('description', self.new_port_forwarding_with_ranges.description),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        msg = 'The port number range is <1-65535>'
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual(msg, str(e))
+            self.network.create_floating_ip_port_forwarding.assert_not_called()
+
+    def test_create_all_options_with_invalid_range_exception(self):
+        invalid_port_range = '80:70'
+        arglist = [
+            '--port', self.new_port_forwarding_with_ranges.internal_port_id,
+            '--internal-protocol-port', invalid_port_range,
+            '--external-protocol-port', invalid_port_range,
+            '--protocol', self.new_port_forwarding_with_ranges.protocol,
+            self.new_port_forwarding_with_ranges.floatingip_id,
+            '--internal-ip-address',
+            self.new_port_forwarding_with_ranges.internal_ip_address,
+            '--description',
+            self.new_port_forwarding_with_ranges.description,
+        ]
+        verifylist = [
+            ('port', self.new_port_forwarding_with_ranges.internal_port_id),
+            ('internal_protocol_port', invalid_port_range),
+            ('external_protocol_port', invalid_port_range),
+            ('protocol', self.new_port_forwarding_with_ranges.protocol),
+            ('floating_ip',
+             self.new_port_forwarding_with_ranges.floatingip_id),
+            ('internal_ip_address', self.new_port_forwarding_with_ranges.
+                internal_ip_address),
+            ('description', self.new_port_forwarding_with_ranges.description),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        msg = 'The last number in port range must be greater or equal to ' \
+              'the first'
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual(msg, str(e))
+            self.network.create_floating_ip_port_forwarding.assert_not_called()
+
+    def test_create_all_options_with_unmatch_ranges_exception(self):
+        internal_range = '80:90'
+        external_range = '8080:8100'
+        arglist = [
+            '--port', self.new_port_forwarding_with_ranges.internal_port_id,
+            '--internal-protocol-port', internal_range,
+            '--external-protocol-port', external_range,
+            '--protocol', self.new_port_forwarding_with_ranges.protocol,
+            self.new_port_forwarding_with_ranges.floatingip_id,
+            '--internal-ip-address',
+            self.new_port_forwarding_with_ranges.internal_ip_address,
+            '--description',
+            self.new_port_forwarding_with_ranges.description,
+        ]
+        verifylist = [
+            ('port', self.new_port_forwarding_with_ranges.internal_port_id),
+            ('internal_protocol_port', internal_range),
+            ('external_protocol_port', external_range),
+            ('protocol', self.new_port_forwarding_with_ranges.protocol),
+            ('floating_ip',
+             self.new_port_forwarding_with_ranges.floatingip_id),
+            ('internal_ip_address', self.new_port_forwarding_with_ranges.
+                internal_ip_address),
+            ('description', self.new_port_forwarding_with_ranges.description),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        msg = "The relation between internal and external ports does not " \
+              "match the pattern 1:N and N:N"
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual(msg, str(e))
+            self.network.create_floating_ip_port_forwarding.assert_not_called()
 
     def test_create_all_options(self):
         arglist = [
@@ -106,8 +276,10 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         ]
         verifylist = [
             ('port', self.new_port_forwarding.internal_port_id),
-            ('internal_protocol_port', self.new_port_forwarding.internal_port),
-            ('external_protocol_port', self.new_port_forwarding.external_port),
+            ('internal_protocol_port',
+             str(self.new_port_forwarding.internal_port)),
+            ('external_protocol_port',
+             str(self.new_port_forwarding.external_port)),
             ('protocol', self.new_port_forwarding.protocol),
             ('floating_ip', self.new_port_forwarding.floatingip_id),
             ('internal_ip_address', self.new_port_forwarding.
@@ -253,7 +425,9 @@ class TestListFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         'Internal Port ID',
         'Internal IP Address',
         'Internal Port',
+        'Internal Port Range',
         'External Port',
+        'External Port Range',
         'Protocol',
         'Description',
     )
@@ -275,7 +449,9 @@ class TestListFloatingIPPortForwarding(TestFloatingIPPortForwarding):
                 port_forwarding.internal_port_id,
                 port_forwarding.internal_ip_address,
                 port_forwarding.internal_port,
+                port_forwarding.internal_port_range,
                 port_forwarding.external_port,
+                port_forwarding.external_port_range,
                 port_forwarding.protocol,
                 port_forwarding.description,
             ))
@@ -330,7 +506,7 @@ class TestListFloatingIPPortForwarding(TestFloatingIPPortForwarding):
 
         query = {
             'internal_port_id': self.port_forwardings[0].internal_port_id,
-            'external_port': str(self.port_forwardings[0].external_port),
+            'external_port': self.port_forwardings[0].external_port,
             'protocol': self.port_forwardings[0].protocol,
         }
 
@@ -392,7 +568,7 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         self.assertIsNone(result)
 
     def test_set_all_thing(self):
-        arglist = [
+        arglist_single = [
             '--port', self.port.id,
             '--internal-ip-address', 'new_internal_ip_address',
             '--internal-protocol-port', '100',
@@ -402,21 +578,23 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             self._port_forwarding.floatingip_id,
             self._port_forwarding.id,
         ]
-        verifylist = [
+        arglist_range = list(arglist_single)
+        arglist_range[5] = '100:110'
+        arglist_range[7] = '200:210'
+        verifylist_single = [
             ('port', self.port.id),
             ('internal_ip_address', 'new_internal_ip_address'),
-            ('internal_protocol_port', 100),
-            ('external_protocol_port', 200),
+            ('internal_protocol_port', '100'),
+            ('external_protocol_port', '200'),
             ('protocol', 'tcp'),
             ('description', 'some description'),
             ('floating_ip', self._port_forwarding.floatingip_id),
             ('port_forwarding_id', self._port_forwarding.id),
         ]
-
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        result = self.cmd.take_action(parsed_args)
-        attrs = {
+        verifylist_range = list(verifylist_single)
+        verifylist_range[2] = ('internal_protocol_port', '100:110')
+        verifylist_range[3] = ('external_protocol_port', '200:210')
+        attrs_single = {
             'internal_port_id': self.port.id,
             'internal_ip_address': 'new_internal_ip_address',
             'internal_port': 100,
@@ -424,12 +602,25 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             'protocol': 'tcp',
             'description': 'some description',
         }
-        self.network.update_floating_ip_port_forwarding.assert_called_with(
-            self._port_forwarding.floatingip_id,
-            self._port_forwarding.id,
-            **attrs
-        )
-        self.assertIsNone(result)
+        attrs_range = dict(attrs_single, internal_port_range='100:110',
+                           external_port_range='200:210')
+        attrs_range.pop('internal_port')
+        attrs_range.pop('external_port')
+
+        def run_and_validate(arglist, verifylist, attrs):
+            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+            result = self.cmd.take_action(parsed_args)
+
+            self.network.update_floating_ip_port_forwarding.assert_called_with(
+                self._port_forwarding.floatingip_id,
+                self._port_forwarding.id,
+                **attrs
+            )
+            self.assertIsNone(result)
+
+        run_and_validate(arglist_single, verifylist_single, attrs_single)
+        run_and_validate(arglist_range, verifylist_range, attrs_range)
 
 
 class TestShowFloatingIPPortForwarding(TestFloatingIPPortForwarding):
@@ -438,11 +629,13 @@ class TestShowFloatingIPPortForwarding(TestFloatingIPPortForwarding):
     columns = (
         'description',
         'external_port',
+        'external_port_range',
         'floatingip_id',
         'id',
         'internal_ip_address',
         'internal_port',
         'internal_port_id',
+        'internal_port_range',
         'protocol',
     )
 
@@ -459,11 +652,13 @@ class TestShowFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         self.data = (
             self._port_forwarding.description,
             self._port_forwarding.external_port,
+            self._port_forwarding.external_port_range,
             self._port_forwarding.floatingip_id,
             self._port_forwarding.id,
             self._port_forwarding.internal_ip_address,
             self._port_forwarding.internal_port,
             self._port_forwarding.internal_port_id,
+            self._port_forwarding.internal_port_range,
             self._port_forwarding.protocol,
         )
         self.network.find_floating_ip_port_forwarding = mock.Mock(
