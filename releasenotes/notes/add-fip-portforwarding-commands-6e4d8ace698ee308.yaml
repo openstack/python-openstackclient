@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Add floating IP Port Forwarding commands:
+    ``floating ip port forwarding create``,
+    ``floating ip port forwarding delete``,
+    ``floating ip port forwarding list``,
+    ``floating ip port forwarding set`` and
+    ``floating ip port forwarding show``.
