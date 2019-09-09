@@ -16,8 +16,8 @@ OpenStackClient
     :alt: Latest Version
 
 OpenStackClient (aka OSC) is a command-line client for OpenStack that brings
-the command set for Compute, Identity, Image, Object Store and Block Storage
-APIs together in a single shell with a uniform command structure.
+the command set for Compute, Identity, Image, Network, Object Store and Block
+Storage APIs together in a single shell with a uniform command structure.
 
 The primary goal is to provide a unified shell command structure and a common
 language to describe operations in OpenStack.
@@ -100,15 +100,3 @@ The corresponding command-line options look very similar::
 
 If a password is not provided above (in plaintext), you will be interactively
 prompted to provide one securely.
-
-Authentication may also be performed using an already-acquired token
-and a URL pointing directly to the service API that presumably was acquired
-from the Service Catalog::
-
-    export OS_TOKEN=<token>
-    export OS_URL=<url-to-openstack-service>
-
-The corresponding command-line options look very similar::
-
-    --os-token <token>
-    --os-url <url-to-openstack-service>

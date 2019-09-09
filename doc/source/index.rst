@@ -55,7 +55,7 @@ Contributing
 
 OpenStackClient utilizes all of the usual OpenStack processes and requirements for
 contributions.  The code is hosted `on OpenStack's Git server`_. `Bug reports`_
-and `blueprints`_ may be submitted to the :code:`python-openstackclient` project
+may be submitted to the :code:`python-openstackclient` Storyboard project
 on `Launchpad`_.  Code may be submitted to the
 :code:`openstack/python-openstackclient` project using `Gerrit`_.
 Developers may also be found in the `IRC channel`_ ``#openstack-sdks``.
@@ -64,7 +64,6 @@ Developers may also be found in the `IRC channel`_ ``#openstack-sdks``.
 .. _Launchpad: https://launchpad.net/python-openstackclient
 .. _Gerrit: http://docs.openstack.org/infra/manual/developers.html#development-workflow
 .. _Bug reports: https://storyboard.openstack.org/#!/project/975
-.. _blueprints: https://blueprints.launchpad.net/python-openstackclient
 .. _PyPi: https://pypi.org/project/python-openstackclient
 .. _tarball: http://tarballs.openstack.org/python-openstackclient
 .. _IRC channel: https://wiki.openstack.org/wiki/IRC

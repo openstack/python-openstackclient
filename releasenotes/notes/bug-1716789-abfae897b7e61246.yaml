@@ -1,17 +1,10 @@
 ---
-features:
-  - |
-    Change to use ``any`` as the default ``--protocol`` option to
-    ``security group rule create`` command when using the Neutron v2 API.
-    [Bug `1716789 <https://bugs.launchpad.net/bugs/1716789>`_]
 fixes:
   - |
-    The default protocol used to create a security rule was changed to
-    ``tcp``, which was a regression from the neutron client when using
-    the Neutron v2 API.  Change it back to ``any``, which skips sending
-    the protocol to the API server entirely.
+    Change the default value of ``--protocol`` option to ``any`` in
+    ``security group rule create`` command when using the Neutron v2 API.
+    [Bug `1716789 <https://bugs.launchpad.net/bugs/1716789>`_]
 upgrade:
   - |
-    Users that had been creating rules without specifying a protocol
-    and expecting ``tcp`` need to change to use ``--protocol tcp``
-    explicitly when using the Neutron v2 API.
+    Commands that assumed the default value of ``--protocol`` to be ``tcp``
+    now must include ``--protocol tcp`` explicitly in Network commands.
