@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Compute API v2.40+ returns all matching entities rather than being
+    limited to the API server configured maximum (``CONF.api.max_limit``).
+    [Story `2005099 <https://storyboard.openstack.org/#!/story/2005099>`_]
