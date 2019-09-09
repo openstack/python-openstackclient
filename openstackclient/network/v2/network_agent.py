@@ -43,6 +43,7 @@ _formatters = {
     'alive': AliveColumn,
     'admin_state_up': AdminStateColumn,
     'is_admin_state_up': AdminStateColumn,
+    'location': format_columns.DictColumn,
     'configurations': format_columns.DictColumn,
 }
 

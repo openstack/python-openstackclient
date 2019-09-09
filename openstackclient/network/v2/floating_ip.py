@@ -13,6 +13,7 @@
 
 """IP Floating action implementations"""
 
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import utils
 
@@ -24,6 +25,7 @@ from openstackclient.network.v2 import _tag
 
 
 _formatters = {
+    'location': format_columns.DictColumn,
     'port_details': utils.format_dict,
 }
 

@@ -40,6 +40,7 @@ _formatters = {
     'subnet_ids': format_columns.ListColumn,
     'admin_state_up': AdminStateColumn,
     'is_admin_state_up': AdminStateColumn,
+    'location': format_columns.DictColumn,
     'router:external': RouterExternalColumn,
     'is_router_external': RouterExternalColumn,
     'availability_zones': format_columns.ListColumn,

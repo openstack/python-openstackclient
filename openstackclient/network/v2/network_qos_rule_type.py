@@ -13,11 +13,17 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.network import sdk_utils
+
+
+_formatters = {
+    'location': format_columns.DictColumn,
+}
 
 
 def _get_columns(item):
@@ -65,5 +71,5 @@ class ShowNetworkQosRuleType(command.ShowOne):
         client = self.app.client_manager.network
         obj = client.get_qos_rule_type(parsed_args.rule_type)
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns)
+        data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return display_columns, data
