@@ -3383,7 +3383,8 @@ class ShelveServer(command.Command):
 class ShowServer(command.ShowOne):
     _description = _(
         "Show server details. Specify ``--os-compute-api-version 2.47`` "
-        "or higher to see the embedded flavor information for the server.")
+        "or higher to see the embedded flavor information for the server."
+    )
 
     def get_parser(self, prog_name):
         parser = super(ShowServer, self).get_parser(prog_name)
@@ -3392,18 +3393,29 @@ class ShowServer(command.ShowOne):
             metavar='<server>',
             help=_('Server (name or ID)'),
         )
-        parser.add_argument(
+        # TODO(stephenfin): This should be a separate command, not a flag
+        diagnostics_group = parser.add_mutually_exclusive_group()
+        diagnostics_group.add_argument(
             '--diagnostics',
             action='store_true',
             default=False,
             help=_('Display server diagnostics information'),
         )
+        diagnostics_group.add_argument(
+            '--topology',
+            action='store_true',
+            default=False,
+            help=_(
+                'Include topology information in the output '
+                '(supported by --os-compute-api-version 2.78 or above)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        server = utils.find_resource(compute_client.servers,
-                                     parsed_args.server)
+        server = utils.find_resource(
+            compute_client.servers, parsed_args.server)
 
         if parsed_args.diagnostics:
             (resp, data) = server.diagnostics()
@@ -3412,10 +3424,26 @@ class ShowServer(command.ShowOne):
                     "Error retrieving diagnostics data\n"
                 ))
                 return ({}, {})
-        else:
-            data = _prep_server_detail(compute_client,
-                                       self.app.client_manager.image, server,
-                                       refresh=False)
+            return zip(*sorted(data.items()))
+
+        topology = None
+        if parsed_args.topology:
+            if compute_client.api_version < api_versions.APIVersion('2.78'):
+                msg = _(
+                    '--os-compute-api-version 2.78 or greater is required to '
+                    'support the --topology option'
+                )
+                raise exceptions.CommandError(msg)
+
+            topology = server.topology()
+
+        data = _prep_server_detail(
+            compute_client, self.app.client_manager.image, server,
+            refresh=False)
+
+        if topology:
+            data['topology'] = format_columns.DictColumn(topology)
+
         return zip(*sorted(data.items()))
 
 
@@ -3731,7 +3759,7 @@ class UnsetServer(command.Command):
             help=_(
                 'Tag to remove from the server. '
                 'Specify multiple times to remove multiple tags. '
-                '(supported by --os-compute-api-version 2.26 or later'
+                '(supported by --os-compute-api-version 2.26 or above)'
             ),
         )
         return parser

@@ -121,6 +121,7 @@ start,server start,Start the server(s).
 stop,server stop,Stop the server(s).
 suspend,server suspend,Suspend a server.
 trigger-crash-dump,server dump create,Trigger crash dump in an instance.
+topology,openstack server show --topology,Retrieve server NUMA topology.
 unlock,server unlock,Unlock a server.
 unpause,server unpause,Unpause a server.
 unrescue,server unrescue,Restart the server from normal boot disk again.

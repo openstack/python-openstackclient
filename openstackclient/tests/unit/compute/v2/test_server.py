@@ -6285,6 +6285,10 @@ class TestServerShow(TestServer):
 
         self.image = image_fakes.FakeImage.create_one_image()
         self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
+        self.topology = {
+            'nodes': [{'vcpu_set': [0, 1]}, {'vcpu_set': [2, 3]}],
+            'pagesize_kb': None,
+        }
         server_info = {
             'image': {'id': self.image.id},
             'flavor': {'id': self.flavor.id},
@@ -6298,6 +6302,7 @@ class TestServerShow(TestServer):
         resp.status_code = 200
         server_method = {
             'diagnostics': (resp, {'test': 'test'}),
+            'topology': self.topology,
         }
         self.server = compute_fakes.FakeServer.create_one_server(
             attrs=server_info, methods=server_method)
@@ -6348,6 +6353,7 @@ class TestServerShow(TestServer):
         ]
         verifylist = [
             ('diagnostics', False),
+            ('topology', False),
             ('server', self.server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -6365,6 +6371,7 @@ class TestServerShow(TestServer):
         ]
         verifylist = [
             ('diagnostics', False),
+            ('topology', False),
             ('server', self.server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -6391,6 +6398,7 @@ class TestServerShow(TestServer):
         ]
         verifylist = [
             ('diagnostics', True),
+            ('topology', False),
             ('server', self.server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -6399,6 +6407,47 @@ class TestServerShow(TestServer):
 
         self.assertEqual(('test',), columns)
         self.assertEqual(('test',), data)
+
+    def test_show_topology(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.78')
+
+        arglist = [
+            '--topology',
+            self.server.name,
+        ]
+        verifylist = [
+            ('diagnostics', False),
+            ('topology', True),
+            ('server', self.server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.columns += ('topology',)
+        self.data += (format_columns.DictColumn(self.topology),)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertCountEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
+
+    def test_show_topology_pre_v278(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.77')
+
+        arglist = [
+            '--topology',
+            self.server.name,
+        ]
+        verifylist = [
+            ('diagnostics', False),
+            ('topology', True),
+            ('server', self.server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args)
 
 
 class TestServerStart(TestServer):
