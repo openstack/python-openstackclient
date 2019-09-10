@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    Volume commands now default to Volume API 3.  On older clouds
+    that do not support Volume 3.x ``--os-volume-api-version 2``
+    of the adition of ``volume_api_version: '2' in ``clouds.yaml``
+    will be required.
