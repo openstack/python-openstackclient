@@ -9,6 +9,9 @@ usage list
 
 List resource usage per project
 
+Compute API v2.40+ returns all matching entities rather than being
+limited to the API server configured maximum (``CONF.api.max_limit``).
+
 .. program:: usage list
 .. code:: bash
 
