@@ -20,15 +20,14 @@ from openstackclient.tests.functional import base
 class AggregateTests(base.TestCase):
     """Functional tests for aggregate"""
 
-    @classmethod
-    def wait_for_status(cls, check_type, check_name, desired_status,
+    def wait_for_status(self, check_type, check_name, desired_status,
                         wait=120, interval=5, failures=None):
         current_status = "notset"
         if failures is None:
             failures = ['error']
         total_sleep = 0
         while total_sleep < wait:
-            output = json.loads(cls.openstack(
+            output = json.loads(self.openstack(
                 check_type + ' show -f json ' + check_name))
             current_status = output['name']
             if (current_status == desired_status):
@@ -44,7 +43,7 @@ class AggregateTests(base.TestCase):
                     .format(current_status, check_type, check_name, failures))
             time.sleep(interval)
             total_sleep += interval
-        cls.assertOutput(desired_status, current_status)
+        self.assertOutput(desired_status, current_status)
 
     def test_aggregate_crud(self):
         """Test create, delete multiple"""
@@ -106,7 +105,6 @@ class AggregateTests(base.TestCase):
             name1
         )
         self.assertOutput('', raw_output)
-        self.wait_for_status('aggregate', name3, name3)
         self.addCleanup(
             self.openstack,
             'aggregate delete ' + name3,
