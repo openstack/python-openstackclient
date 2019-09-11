@@ -67,8 +67,6 @@ by the ``ClientManager`` object.
     is selected based on the existing options.  This is a short-circuit
     evaluation, the first match wins.
 
-    * If ``--os-url`` and ``--os-token`` are both present ``token_endpoint``
-      is selected
     * If ``--os-username`` is supplied ``password`` is selected
     * If ``--os-token`` is supplied ``token`` is selected
     * If no selection has been made by now exit with error

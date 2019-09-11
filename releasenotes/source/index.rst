@@ -27,6 +27,8 @@ OpenStack release was made is shown below:
 =================  =======================
 OpenStack Release  OpenStackClient Release
 =================  =======================
+Train              4.0.0
+Stein              3.18.0
 Rocky              3.16.0
 Queens             3.14.0
 Pike               3.12.0

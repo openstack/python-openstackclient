@@ -1,9 +1,8 @@
 ---
 features:
   - |
-    Security group rules can now be filtered by Ethertype in
-    ``security group rule list`` using ``--ethertype`` with either
-    ``ipv4`` or ``ipv6`` as an argument.
+    Add ``--ethertype`` option to ``security group rule list`` command.
+    Valid values are ``ipv4`` and ``ipv6``.
 upgrade:
   - |
     Security group rule listings now have the ``Ethertype`` field displayed
