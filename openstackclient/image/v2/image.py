@@ -18,8 +18,9 @@
 import argparse
 from base64 import b64encode
 import logging
+import os
+import sys
 
-from glanceclient.common import utils as gc_utils
 from openstack.image import image_signer
 from osc_lib.api import utils as api_utils
 from osc_lib.cli import format_columns
@@ -27,10 +28,15 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
+from openstackclient.common import sdk_utils
 from openstackclient.i18n import _
 from openstackclient.identity import common
+
+if os.name == "nt":
+    import msvcrt
+else:
+    msvcrt = None
 
 
 CONTAINER_CHOICES = ["ami", "ari", "aki", "bare", "docker", "ova", "ovf"]
@@ -44,7 +50,7 @@ MEMBER_STATUS_CHOICES = ["accepted", "pending", "rejected", "all"]
 LOG = logging.getLogger(__name__)
 
 
-def _format_image(image):
+def _format_image(image, human_readable=False):
     """Format an image to make it more consistent with OSC operations."""
 
     info = {}
@@ -56,14 +62,24 @@ def _format_image(image):
                       'min_disk', 'protected', 'id', 'file', 'checksum',
                       'owner', 'virtual_size', 'min_ram', 'schema']
 
+    # TODO(gtema/anybody): actually it should be possible to drop this method,
+    # since SDK already delivers a proper object
+    image = image.to_dict(ignore_none=True, original_names=True)
+
     # split out the usual key and the properties which are top-level
-    for key in six.iterkeys(image):
+    for key in image:
         if key in fields_to_show:
             info[key] = image.get(key)
         elif key == 'tags':
             continue  # handle this later
-        else:
+        elif key == 'properties':
+            # NOTE(gtema): flatten content of properties
+            properties.update(image.get(key))
+        elif key != 'location':
             properties[key] = image.get(key)
+
+    if human_readable:
+        info['size'] = utils.format_size(image['size'])
 
     # format the tags if they are there
     info['tags'] = format_columns.ListColumn(image.get('tags'))
@@ -73,6 +89,51 @@ def _format_image(image):
         info['properties'] = format_columns.DictColumn(properties)
 
     return info
+
+
+_formatters = {
+    'tags': format_columns.ListColumn,
+}
+
+
+def _get_member_columns(item):
+    # Trick sdk_utils to return URI attribute
+    column_map = {
+        'image_id': 'image_id'
+    }
+    hidden_columns = ['id', 'location', 'name']
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(
+        item.to_dict(), column_map, hidden_columns)
+
+
+def get_data_file(args):
+    if args.file:
+        return (open(args.file, 'rb'), args.file)
+    else:
+        # distinguish cases where:
+        # (1) stdin is not valid (as in cron jobs):
+        #    openstack ... <&-
+        # (2) image data is provided through stdin:
+        #    openstack ... < /tmp/file
+        # (3) no image data provided
+        #    openstack ...
+        try:
+            os.fstat(0)
+        except OSError:
+            # (1) stdin is not valid
+            return (None, None)
+        if not sys.stdin.isatty():
+            # (2) image data is provided through stdin
+            image = sys.stdin
+            if hasattr(sys.stdin, 'buffer'):
+                image = sys.stdin.buffer
+            if msvcrt:
+                msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
+
+            return (image, None)
+        else:
+            # (3)
+            return (None, None)
 
 
 class AddProjectToImage(command.ShowOne):
@@ -101,16 +162,18 @@ class AddProjectToImage(command.ShowOne):
                                          parsed_args.project,
                                          parsed_args.project_domain).id
 
-        image_id = utils.find_resource(
-            image_client.images,
-            parsed_args.image).id
+        image = image_client.find_image(parsed_args.image,
+                                        ignore_missing=False)
 
-        image_member = image_client.image_members.create(
-            image_id,
-            project_id,
+        obj = image_client.add_member(
+            image=image.id,
+            member_id=project_id,
         )
 
-        return zip(*sorted(image_member.items()))
+        display_columns, columns = _get_member_columns(obj)
+        data = utils.get_item_properties(obj, columns, formatters={})
+
+        return (display_columns, data)
 
 
 class CreateImage(command.ShowOne):
@@ -302,9 +365,9 @@ class CreateImage(command.ShowOne):
         # to do nothing when no options are present as opposed to always
         # setting a default.
         if parsed_args.protected:
-            kwargs['protected'] = True
+            kwargs['is_protected'] = True
         if parsed_args.unprotected:
-            kwargs['protected'] = False
+            kwargs['is_protected'] = False
         if parsed_args.public:
             kwargs['visibility'] = 'public'
         if parsed_args.private:
@@ -314,24 +377,30 @@ class CreateImage(command.ShowOne):
         if parsed_args.shared:
             kwargs['visibility'] = 'shared'
         if parsed_args.project:
-            kwargs['owner'] = common.find_project(
+            kwargs['owner_id'] = common.find_project(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
 
         # open the file first to ensure any failures are handled before the
-        # image is created
-        fp = gc_utils.get_data_file(parsed_args)
+        # image is created. Get the file name (if it is file, and not stdin)
+        # for easier further handling.
+        (fp, fname) = get_data_file(parsed_args)
         info = {}
+
         if fp is not None and parsed_args.volume:
             raise exceptions.CommandError(_("Uploading data and using "
                                             "container are not allowed at "
                                             "the same time"))
-
         if fp is None and parsed_args.file:
             LOG.warning(_("Failed to get an image file."))
             return {}, {}
+        elif fname:
+            kwargs['filename'] = fname
+        elif fp:
+            kwargs['validate_checksum'] = False
+            kwargs['data'] = fp
 
         # sign an image using a given local private key file
         if parsed_args.sign_key_path or parsed_args.sign_cert_id:
@@ -361,8 +430,8 @@ class CreateImage(command.ShowOne):
                         sign_key_path,
                         password=pw)
                 except Exception:
-                    msg = (_("Error during sign operation: private key could "
-                             "not be loaded."))
+                    msg = (_("Error during sign operation: private key "
+                             "could not be loaded."))
                     raise exceptions.CommandError(msg)
 
                 signature = signer.generate_signature(fp)
@@ -371,7 +440,8 @@ class CreateImage(command.ShowOne):
                 kwargs['img_signature_certificate_uuid'] = sign_cert_id
                 kwargs['img_signature_hash_method'] = signer.hash_method
                 if signer.padding_method:
-                    kwargs['img_signature_key_type'] = signer.padding_method
+                    kwargs['img_signature_key_type'] = \
+                        signer.padding_method
 
         # If a volume is specified.
         if parsed_args.volume:
@@ -393,26 +463,7 @@ class CreateImage(command.ShowOne):
             except TypeError:
                 info['volume_type'] = None
         else:
-            image = image_client.images.create(**kwargs)
-
-        if fp is not None:
-            with fp:
-                try:
-                    image_client.images.upload(image.id, fp)
-                except Exception:
-                    # If the upload fails for some reason attempt to remove the
-                    # dangling queued image made by the create() call above but
-                    # only if the user did not specify an id which indicates
-                    # the Image already exists and should be left alone.
-                    try:
-                        if 'id' not in kwargs:
-                            image_client.images.delete(image.id)
-                    except Exception:
-                        pass  # we don't care about this one
-                    raise  # now, throw the upload exception again
-
-                # update the image after the data has been uploaded
-                image = image_client.images.get(image.id)
+            image = image_client.create_image(**kwargs)
 
         if not info:
             info = _format_image(image)
@@ -439,11 +490,9 @@ class DeleteImage(command.Command):
         image_client = self.app.client_manager.image
         for image in parsed_args.images:
             try:
-                image_obj = utils.find_resource(
-                    image_client.images,
-                    image,
-                )
-                image_client.images.delete(image_obj.id)
+                image_obj = image_client.find_image(image,
+                                                    ignore_missing=False)
+                image_client.delete_image(image_obj.id)
             except Exception as e:
                 del_result += 1
                 LOG.error(_("Failed to delete image with name or "
@@ -569,18 +618,17 @@ class ListImage(command.Lister):
 
         kwargs = {}
         if parsed_args.public:
-            kwargs['public'] = True
+            kwargs['visibility'] = 'public'
         if parsed_args.private:
-            kwargs['private'] = True
+            kwargs['visibility'] = 'private'
         if parsed_args.community:
-            kwargs['community'] = True
+            kwargs['visibility'] = 'community'
         if parsed_args.shared:
-            kwargs['shared'] = True
+            kwargs['visibility'] = 'shared'
         if parsed_args.limit:
             kwargs['limit'] = parsed_args.limit
         if parsed_args.marker:
-            kwargs['marker'] = utils.find_resource(image_client.images,
-                                                   parsed_args.marker).id
+            kwargs['marker'] = image_client.find_image(parsed_args.marker).id
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
         if parsed_args.status:
@@ -599,8 +647,8 @@ class ListImage(command.Lister):
                 'Checksum',
                 'Status',
                 'visibility',
-                'protected',
-                'owner',
+                'is_protected',
+                'owner_id',
                 'tags',
             )
             column_headers = (
@@ -621,24 +669,10 @@ class ListImage(command.Lister):
             column_headers = columns
 
         # List of image data received
-        data = []
-        limit = None
         if 'limit' in kwargs:
-            limit = kwargs['limit']
-        if 'marker' in kwargs:
-            data = image_client.api.image_list(**kwargs)
-        else:
-            # No pages received yet, so start the page marker at None.
-            marker = None
-            while True:
-                page = image_client.api.image_list(marker=marker, **kwargs)
-                if not page:
-                    break
-                data.extend(page)
-                # Set the marker to the id of the last item we received
-                marker = page[-1]['id']
-                if limit:
-                    break
+            # Disable automatic pagination in SDK
+            kwargs['paginated'] = False
+        data = list(image_client.images(**kwargs))
 
         if parsed_args.property:
             for attr, value in parsed_args.property.items():
@@ -653,12 +687,10 @@ class ListImage(command.Lister):
 
         return (
             column_headers,
-            (utils.get_dict_properties(
+            (utils.get_item_properties(
                 s,
                 columns,
-                formatters={
-                    'tags': format_columns.ListColumn,
-                },
+                formatters=_formatters,
             ) for s in data)
         )
 
@@ -684,11 +716,9 @@ class ListImageProjects(command.Lister):
             "Status"
         )
 
-        image_id = utils.find_resource(
-            image_client.images,
-            parsed_args.image).id
+        image_id = image_client.find_image(parsed_args.image).id
 
-        data = image_client.image_members.list(image_id)
+        data = image_client.members(image=image_id)
 
         return (columns,
                 (utils.get_item_properties(
@@ -722,11 +752,12 @@ class RemoveProjectImage(command.Command):
                                          parsed_args.project,
                                          parsed_args.project_domain).id
 
-        image_id = utils.find_resource(
-            image_client.images,
-            parsed_args.image).id
+        image = image_client.find_image(parsed_args.image,
+                                        ignore_missing=False)
 
-        image_client.image_members.delete(image_id, project_id)
+        image_client.remove_member(
+            member=project_id,
+            image=image.id)
 
 
 class SaveImage(command.Command):
@@ -748,19 +779,9 @@ class SaveImage(command.Command):
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        image = utils.find_resource(
-            image_client.images,
-            parsed_args.image,
-        )
-        data = image_client.images.data(image.id)
+        image = image_client.find_image(parsed_args.image)
 
-        if data.wrapped is None:
-            msg = _('Image %s has no data.') % image.id
-            LOG.error(msg)
-            self.app.stdout.write(msg + '\n')
-            raise SystemExit
-
-        gc_utils.save_image(data, parsed_args.file)
+        image_client.download_image(image.id, output=parsed_args.file)
 
 
 class SetImage(command.Command):
@@ -979,9 +1000,9 @@ class SetImage(command.Command):
         # to do nothing when no options are present as opposed to always
         # setting a default.
         if parsed_args.protected:
-            kwargs['protected'] = True
+            kwargs['is_protected'] = True
         if parsed_args.unprotected:
-            kwargs['protected'] = False
+            kwargs['is_protected'] = False
         if parsed_args.public:
             kwargs['visibility'] = 'public'
         if parsed_args.private:
@@ -997,17 +1018,20 @@ class SetImage(command.Command):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            kwargs['owner'] = project_id
+            kwargs['owner_id'] = project_id
 
-        image = utils.find_resource(
-            image_client.images, parsed_args.image)
+        image = image_client.find_image(parsed_args.image,
+                                        ignore_missing=False)
+
+        # image = utils.find_resource(
+        #     image_client.images, parsed_args.image)
 
         activation_status = None
         if parsed_args.deactivate:
-            image_client.images.deactivate(image.id)
+            image_client.deactivate_image(image.id)
             activation_status = "deactivated"
         if parsed_args.activate:
-            image_client.images.reactivate(image.id)
+            image_client.reactivate_image(image.id)
             activation_status = "activated"
 
         membership_group_args = ('accept', 'reject', 'pending')
@@ -1022,15 +1046,15 @@ class SetImage(command.Command):
             # most one item in the membership_status list.
             if membership_status[0] != 'pending':
                 membership_status[0] += 'ed'  # Glance expects the past form
-            image_client.image_members.update(
-                image.id, project_id, membership_status[0])
+            image_client.update_member(
+                image=image.id, member=project_id, status=membership_status[0])
 
         if parsed_args.tags:
             # Tags should be extended, but duplicates removed
             kwargs['tags'] = list(set(image.tags).union(set(parsed_args.tags)))
 
         try:
-            image = image_client.images.update(image.id, **kwargs)
+            image = image_client.update_image(image.id, **kwargs)
         except Exception:
             if activation_status is not None:
                 LOG.info(_("Image %(id)s was %(status)s."),
@@ -1058,14 +1082,11 @@ class ShowImage(command.ShowOne):
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        image = utils.find_resource(
-            image_client.images,
-            parsed_args.image,
-        )
-        if parsed_args.human_readable:
-            image['size'] = utils.format_size(image['size'])
 
-        info = _format_image(image)
+        image = image_client.find_image(parsed_args.image,
+                                        ignore_missing=False)
+
+        info = _format_image(image, parsed_args.human_readable)
         return zip(*sorted(info.items()))
 
 
@@ -1101,10 +1122,8 @@ class UnsetImage(command.Command):
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        image = utils.find_resource(
-            image_client.images,
-            parsed_args.image,
-        )
+        image = image_client.find_image(parsed_args.image,
+                                        ignore_missing=False)
 
         kwargs = {}
         tagret = 0
@@ -1112,7 +1131,7 @@ class UnsetImage(command.Command):
         if parsed_args.tags:
             for k in parsed_args.tags:
                 try:
-                    image_client.image_tags.delete(image.id, k)
+                    image_client.remove_tag(image.id, k)
                 except Exception:
                     LOG.error(_("tag unset failed, '%s' is a "
                                 "nonexistent tag "), k)
@@ -1120,13 +1139,26 @@ class UnsetImage(command.Command):
 
         if parsed_args.properties:
             for k in parsed_args.properties:
-                if k not in image:
+                if k in image:
+                    kwargs[k] = None
+                elif k in image.properties:
+                    # Since image is an "evil" object from SDK POV we need to
+                    # pass modified properties object, so that SDK can figure
+                    # out, what was changed inside
+                    # NOTE: ping gtema to improve that in SDK
+                    new_props = kwargs.get('properties',
+                                           image.get('properties').copy())
+                    new_props.pop(k, None)
+                    kwargs['properties'] = new_props
+                else:
                     LOG.error(_("property unset failed, '%s' is a "
                                 "nonexistent property "), k)
                     propret += 1
-            image_client.images.update(
-                image.id,
-                parsed_args.properties,
+
+            # We must give to update a current image for the reference on what
+            # has changed
+            image_client.update_image(
+                image,
                 **kwargs)
 
         tagtotal = len(parsed_args.tags)

@@ -38,7 +38,7 @@ jmespath==0.9.0
 jsonpatch==1.16
 jsonpointer==1.13
 jsonschema==2.6.0
-keystoneauth1==3.14.0
+keystoneauth1==3.16.0
 kombu==4.0.0
 linecache2==1.0.0
 MarkupSafe==1.0
@@ -50,9 +50,9 @@ msgpack-python==0.4.0
 munch==2.1.0
 netaddr==0.7.18
 netifaces==0.10.4
-openstacksdk==0.17.0
+openstacksdk==0.36.0
 os-client-config==1.28.0
-os-service-types==1.2.0
+os-service-types==1.7.0
 os-testr==1.0.0
 osc-lib==2.0.0
 osc-placement==1.7.0

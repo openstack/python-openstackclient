@@ -143,7 +143,7 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
     if image_info:
         image_id = image_info.get('id', '')
         try:
-            image = utils.find_resource(image_client.images, image_id)
+            image = image_client.get_image(image_id)
             info['image'] = "%s (%s)" % (image.name, image_id)
         except Exception:
             info['image'] = image_id
@@ -735,10 +735,8 @@ class CreateServer(command.ShowOne):
         # Lookup parsed_args.image
         image = None
         if parsed_args.image:
-            image = utils.find_resource(
-                image_client.images,
-                parsed_args.image,
-            )
+            image = image_client.find_image(
+                parsed_args.image, ignore_missing=False)
 
         if not image and parsed_args.image_property:
             def emit_duplicated_warning(img, image_property):
@@ -749,7 +747,7 @@ class CreateServer(command.ShowOne):
                              'chosen_one': img_uuid_list[0]})
 
             def _match_image(image_api, wanted_properties):
-                image_list = image_api.image_list()
+                image_list = image_api.images()
                 images_matched = []
                 for img in image_list:
                     img_dict = {}
@@ -768,7 +766,7 @@ class CreateServer(command.ShowOne):
                         return []
                 return images_matched
 
-            images = _match_image(image_client.api, parsed_args.image_property)
+            images = _match_image(image_client, parsed_args.image_property)
             if len(images) > 1:
                 emit_duplicated_warning(images,
                                         parsed_args.image_property)
@@ -890,8 +888,8 @@ class CreateServer(command.ShowOne):
                     # one specified by --image, then the compute service will
                     # create a volume from the image and attach it to the
                     # server as a non-root volume.
-                    image_id = utils.find_resource(
-                        image_client.images, dev_map[0]).id
+                    image_id = image_client.find_image(dev_map[0],
+                                                       ignore_missing=False).id
                     mapping['uuid'] = image_id
                 # 3. append size and delete_on_termination if exist
                 if len(dev_map) > 2 and dev_map[2]:
@@ -1324,8 +1322,8 @@ class ListServer(command.Lister):
         # image name is given, map it to ID.
         image_id = None
         if parsed_args.image:
-            image_id = utils.find_resource(image_client.images,
-                                           parsed_args.image).id
+            image_id = image_client.find_image(parsed_args.image,
+                                               ignore_missing=False).id
 
         search_opts = {
             'reservation_id': parsed_args.reservation_id,
@@ -1476,12 +1474,12 @@ class ListServer(command.Lister):
                                        (s.image.get('id') for s in data
                                         if s.image))):
                     try:
-                        images[i_id] = image_client.images.get(i_id)
+                        images[i_id] = image_client.get_image(i_id)
                     except Exception:
                         pass
             else:
                 try:
-                    images_list = image_client.images.list()
+                    images_list = image_client.images()
                     for i in images_list:
                         images[i.id] = i
                 except Exception:
@@ -1925,7 +1923,7 @@ class RebuildServer(command.ShowOne):
         # If parsed_args.image is not set, default to the currently used one.
         image_id = parsed_args.image or server.to_dict().get(
             'image', {}).get('id')
-        image = utils.find_resource(image_client.images, image_id)
+        image = image_client.get_image(image_id)
 
         kwargs = {}
         if parsed_args.property:
@@ -2195,10 +2193,7 @@ class RescueServer(command.Command):
 
         image = None
         if parsed_args.image:
-            image = utils.find_resource(
-                image_client.images,
-                parsed_args.image,
-            )
+            image = image_client.find_image(parsed_args.image)
 
         utils.find_resource(
             compute_client.servers,

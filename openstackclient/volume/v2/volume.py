@@ -193,9 +193,8 @@ class CreateVolume(command.ShowOne):
 
         image = None
         if parsed_args.image:
-            image = utils.find_resource(
-                image_client.images,
-                parsed_args.image).id
+            image = image_client.find_image(parsed_args.image,
+                                            ignore_missing=False).id
 
         size = parsed_args.size
 

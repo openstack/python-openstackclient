@@ -79,14 +79,11 @@ class CreateServerImage(command.ShowOne):
         )
 
         image_client = self.app.client_manager.image
-        image = utils.find_resource(
-            image_client.images,
-            image_id,
-        )
+        image = image_client.find_image(image_id)
 
         if parsed_args.wait:
             if utils.wait_for_status(
-                image_client.images.get,
+                image_client.get_image,
                 image_id,
                 callback=_show_progress,
             ):

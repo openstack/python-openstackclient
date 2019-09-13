@@ -18,9 +18,9 @@ import random
 from unittest import mock
 import uuid
 
-from glanceclient.v2 import schemas
+from openstack.image.v2 import image
+from openstack.image.v2 import member
 from osc_lib.cli import format_columns
-import warlock
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -154,6 +154,12 @@ class FakeImagev2Client(object):
         self.image_members.resource_class = fakes.FakeResource(None, {})
         self.image_tags = mock.Mock()
         self.image_tags.resource_class = fakes.FakeResource(None, {})
+
+        self.find_image = mock.Mock()
+        self.find_image.resource_class = fakes.FakeResource(None, {})
+
+        self.get_image = mock.Mock()
+        self.get_image.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
         self.version = 2.0
@@ -197,8 +203,8 @@ class FakeImage(object):
         image_info = {
             'id': str(uuid.uuid4()),
             'name': 'image-name' + uuid.uuid4().hex,
-            'owner': 'image-owner' + uuid.uuid4().hex,
-            'protected': bool(random.choice([0, 1])),
+            'owner_id': 'image-owner' + uuid.uuid4().hex,
+            'is_protected': bool(random.choice([0, 1])),
             'visibility': random.choice(['public', 'private']),
             'tags': [uuid.uuid4().hex for r in range(2)],
         }
@@ -206,13 +212,7 @@ class FakeImage(object):
         # Overwrite default attributes if there are some attributes set
         image_info.update(attrs)
 
-        # Set up the schema
-        model = warlock.model_factory(
-            IMAGE_schema,
-            schemas.SchemaBasedModel,
-        )
-
-        return model(**image_info)
+        return image.Image(**image_info)
 
     @staticmethod
     def create_images(attrs=None, count=2):
@@ -306,6 +306,8 @@ class FakeImage(object):
 
         # Overwrite default attributes if there are some attributes set
         image_member_info.update(attrs)
+
+        return member.Member(**image_member_info)
 
         image_member = fakes.FakeModel(
             copy.deepcopy(image_member_info))
