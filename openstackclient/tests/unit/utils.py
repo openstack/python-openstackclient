@@ -17,6 +17,7 @@
 import os
 
 import fixtures
+from six.moves import StringIO
 import testtools
 
 from cliff import columns as cliff_columns
@@ -72,10 +73,13 @@ class TestCommand(TestCase):
 
     def check_parser(self, cmd, args, verify_args):
         cmd_parser = cmd.get_parser('check_parser')
-        try:
-            parsed_args = cmd_parser.parse_args(args)
-        except SystemExit:
-            raise ParserException("Argument parse failed")
+        stderr = StringIO()
+        with fixtures.MonkeyPatch('sys.stderr', stderr):
+            try:
+                parsed_args = cmd_parser.parse_args(args)
+            except SystemExit:
+                raise ParserException("Argument parse failed: %s" %
+                                      stderr.getvalue())
         for av in verify_args:
             attr, value = av
             if attr:

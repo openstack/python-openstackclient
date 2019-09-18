@@ -626,7 +626,8 @@ class TestServerVolumeV279(TestServerVolume):
         ex = self.assertRaises(utils.ParserException,
                                self.check_parser,
                                self.cmd, arglist, verifylist)
-        self.assertIn('Argument parse failed', str(ex))
+        self.assertIn('argument --disable-delete-on-termination: not allowed '
+                      'with argument --enable-delete-on-termination', str(ex))
 
 
 class TestServerAddNetwork(TestServer):
