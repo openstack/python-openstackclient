@@ -18,12 +18,18 @@ Delete compute service(s)
 .. _compute_service_delete-service:
 .. describe:: <service>
 
-    Compute service(s) to delete (ID only)
+    Compute service(s) to delete (ID only). If using
+    ``--os-compute-api-version`` 2.53 or greater, the ID is a UUID which can
+    be retrieved by listing compute services using the same 2.53+ microversion.
 
 compute service list
 --------------------
 
 List compute services
+
+Using ``--os-compute-api-version`` 2.53 or greater will return the ID as a
+UUID value which can be used to uniquely identify the service in a multi-cell
+deployment.
 
 .. program:: compute service list
 .. code:: bash
