@@ -675,7 +675,7 @@ class TestServerCreate(TestServer):
             ('key_name', 'keyname'),
             ('property', {'Beta': 'b'}),
             ('security_group', ['securitygroup']),
-            ('hint', ['a=b', 'a=c']),
+            ('hint', {'a': ['b', 'c']}),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -1847,6 +1847,29 @@ class TestServerCreate(TestServer):
         self.assertRaises(exceptions.CommandError,
                           self.cmd.take_action,
                           parsed_args)
+
+    def test_server_create_invalid_hint(self):
+        # Not a key-value pair
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--hint', 'a0cf03a5-d921-4877-bb5c-86d26cf818e1',
+            self.new_server.name,
+        ]
+        self.assertRaises(argparse.ArgumentTypeError,
+                          self.check_parser,
+                          self.cmd, arglist, [])
+
+        # Empty key
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--hint', '=a0cf03a5-d921-4877-bb5c-86d26cf818e1',
+            self.new_server.name,
+        ]
+        self.assertRaises(argparse.ArgumentTypeError,
+                          self.check_parser,
+                          self.cmd, arglist, [])
 
 
 class TestServerDelete(TestServer):
