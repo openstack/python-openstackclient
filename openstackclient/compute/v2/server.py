@@ -201,6 +201,36 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
     return info
 
 
+# TODO(stephenfin): Migrate this to osc-lib
+class KeyValueAppendAction(argparse.Action):
+    """A custom action to parse arguments as key=value pairs
+
+    Ensures that ``dest`` is a dict and values are lists of strings.
+    """
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        # Make sure we have an empty dict rather than None
+        if getattr(namespace, self.dest, None) is None:
+            setattr(namespace, self.dest, {})
+
+        # Add value if an assignment else remove it
+        if '=' in values:
+            key, value = values.split('=', 1)
+            # NOTE(qtang): Prevent null key setting in property
+            if '' == key:
+                msg = _("Property key must be specified: %s")
+                raise argparse.ArgumentTypeError(msg % str(values))
+
+            dest = getattr(namespace, self.dest)
+            if key in dest:
+                dest[key].append(value)
+            else:
+                dest[key] = [value]
+        else:
+            msg = _("Expected 'key=value' type, but got: %s")
+            raise argparse.ArgumentTypeError(msg % str(values))
+
+
 class AddFixedIP(command.Command):
     _description = _("Add fixed IP address to server")
 
@@ -650,8 +680,8 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--hint',
             metavar='<key=value>',
-            action='append',
-            default=[],
+            action=KeyValueAppendAction,
+            default={},
             help=_('Hints for the scheduler (optional extension)'),
         )
         parser.add_argument(
@@ -947,16 +977,12 @@ class CreateServer(command.ShowOne):
                 security_group_names.append(sg['name'])
 
         hints = {}
-        for hint in parsed_args.hint:
-            key, _sep, value = hint.partition('=')
-            # NOTE(vish): multiple copies of the same hint will
-            #             result in a list of values
-            if key in hints:
-                if isinstance(hints[key], six.string_types):
-                    hints[key] = [hints[key]]
-                hints[key] += [value]
+        for key, values in parsed_args.hint.items():
+            # only items with multiple values will result in a list
+            if len(values) == 1:
+                hints[key] = values[0]
             else:
-                hints[key] = value
+                hints[key] = values
 
         # What does a non-boolean value for config-drive do?
         # --config-drive argument is either a volume id or
