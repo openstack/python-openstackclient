@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``server migrate confirm`` and ``server migrate revert`` commands.
+    These are aliases of the ``server resize confirm`` and ``server resize revert``
+    commands, respectively.
