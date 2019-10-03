@@ -17,6 +17,7 @@ Show service versions:
         [--interface <interface>]
         [--region-name <region-name>]
         [--service <service>]
+        [--status <status>]
 
 .. option:: --all-interfaces
 
@@ -30,12 +31,21 @@ Show service versions:
 
 .. option:: --region-name <region-name>
 
-    Limit results to only those from region-name
+    Limit results to only those from a given region.
 
 .. option:: --service <service>
 
     Limit results to only those for service. The argument should be either
     an exact match to what is in the catalog or a known official value or
     alias from `service-types-authority`_.
+
+.. option:: --status <status>
+
+    Limit results to only those in the given state. Valid values are:
+
+    - SUPPORTED
+    - CURRENT
+    - DEPRECATED
+    - EXPERIMENTAL
 
 .. _service-types-authority: https://service-types.openstack.org/

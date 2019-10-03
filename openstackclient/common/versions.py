@@ -45,12 +45,12 @@ class ShowVersions(command.Lister):
         )
         parser.add_argument(
             '--service',
-            metavar='<region_name>',
+            metavar='<service>',
             help=_('Show versions for a specific service.'),
         )
         parser.add_argument(
             '--status',
-            metavar='<region_name>',
+            metavar='<status>',
             help=_('Show versions for a specific status.'
                    ' [Valid values are SUPPORTED, CURRENT,'
                    ' DEPRECATED, EXPERIMENTAL]'),
