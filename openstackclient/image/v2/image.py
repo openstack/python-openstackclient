@@ -32,6 +32,13 @@ import six
 from openstackclient.i18n import _
 from openstackclient.identity import common
 
+from openstackoid.interpreter import get_interpreter
+from openstackoid.client.image import image_list_scope
+from openstackoid.configuration import SERVICES_CATALOG_PATH
+
+
+interpreter = get_interpreter(SERVICES_CATALOG_PATH)
+
 
 CONTAINER_CHOICES = ["ami", "ari", "aki", "bare", "docker", "ova", "ovf"]
 DEFAULT_CONTAINER_FORMAT = 'bare'
@@ -564,6 +571,7 @@ class ListImage(command.Lister):
         )
         return parser
 
+    @image_list_scope(interpreter)
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
 
