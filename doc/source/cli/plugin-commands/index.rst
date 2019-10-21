@@ -25,6 +25,7 @@ Plugin Commands
    searchlight
    senlin
    trove
+   watcher
    zaqar
    zun
 
@@ -44,8 +45,3 @@ Plugin Commands
 .. # tripleoclient is not in global-requirements
 .. # list-plugins:: openstack.tripleoclient.v1
 .. #   :detailed:
-
-.. watcher
-.. # watcherclient is not in global-requirements
-.. # list-plugins:: openstack.infra_optim.v1
-.. #  :detailed:
