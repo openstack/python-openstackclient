@@ -1,5 +1,4 @@
 aodh
 ----
 
-.. list-plugins:: openstack.alarming.v2
-   :detailed:
+.. autoprogram-cliff:: openstack.alarming.v2

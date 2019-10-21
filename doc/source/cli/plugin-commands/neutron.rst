@@ -1,5 +1,4 @@
 neutron
 -------
 
-.. list-plugins:: openstack.neutronclient.v2
-   :detailed:
+.. autoprogram-cliff:: openstack.neutronclient.v2

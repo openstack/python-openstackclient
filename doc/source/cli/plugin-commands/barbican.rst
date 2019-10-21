@@ -1,5 +1,4 @@
 barbican
 --------
 
-.. list-plugins:: openstack.key_manager.v1
-   :detailed:
+.. autoprogram-cliff:: openstack.key_manager.v1

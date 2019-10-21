@@ -1,5 +1,4 @@
 gnocchi
 -------
 
-.. list-plugins:: openstack.metric.v1
-   :detailed:
+.. autoprogram-cliff:: openstack.metric.v1

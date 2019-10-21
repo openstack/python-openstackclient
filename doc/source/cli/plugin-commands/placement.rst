@@ -1,5 +1,4 @@
 placement
 ---------
 
-.. list-plugins:: openstack.placement.v1
-   :detailed:
+.. autoprogram-cliff:: openstack.placement.v1

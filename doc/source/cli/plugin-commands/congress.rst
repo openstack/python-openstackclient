@@ -1,5 +1,4 @@
 congress
 --------
 
-.. list-plugins:: openstack.congressclient.v1
-   :detailed:
+.. autoprogram-cliff:: openstack.congressclient.v1

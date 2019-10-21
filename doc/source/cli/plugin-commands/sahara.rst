@@ -1,5 +1,4 @@
 sahara
 ------
 
-.. list-plugins:: openstack.data_processing.v1
-   :detailed:
+.. autoprogram-cliff:: openstack.data_processing.v1
