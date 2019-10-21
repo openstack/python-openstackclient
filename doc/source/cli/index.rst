@@ -8,7 +8,7 @@
    Manual Page <man/openstack>
    command-list
    commands
-   plugin-commands
+   plugin-commands/index
    authentication
    interactive
    decoder
