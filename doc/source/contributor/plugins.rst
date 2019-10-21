@@ -25,6 +25,7 @@ The following is a list of projects that are an OpenStackClient plugin.
 
 - aodhclient
 - gnocchiclient
+- osc-placement
 - python-barbicanclient
 - python-congressclient
 - python-designateclient

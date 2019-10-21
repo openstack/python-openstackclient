@@ -87,6 +87,12 @@ octavia
 .. list-plugins:: openstack.load_balancer.v2
    :detailed:
 
+placement
+---------
+
+.. list-plugins:: openstack.placement.v1
+   :detailed:
+
 rsd
 ---
 
