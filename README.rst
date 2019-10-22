@@ -24,9 +24,8 @@ language to describe operations in OpenStack.
 
 * `PyPi`_ - package installation
 * `Online Documentation`_
-* `Launchpad project`_ - release management
-* `Blueprints`_ - feature specifications
-* `Bugs`_ - issue tracking
+* `Storyboard project`_ - bugs and feature requests
+* `Blueprints`_ - feature specifications (historical only)
 * `Source`_
 * `Developer`_ - getting started as a developer
 * `Contributing`_ - contributing code
@@ -36,9 +35,8 @@ language to describe operations in OpenStack.
 
 .. _PyPi: https://pypi.org/project/python-openstackclient
 .. _Online Documentation: https://docs.openstack.org/python-openstackclient/latest/
-.. _Launchpad project: https://launchpad.net/python-openstackclient
 .. _Blueprints: https://blueprints.launchpad.net/python-openstackclient
-.. _Bugs: https://storyboard.openstack.org/#!/project/975
+.. _`Storyboard project`: https://storyboard.openstack.org/#!/project/openstack/python-openstackclient
 .. _Source: https://opendev.org/openstack/python-openstackclient
 .. _Developer: https://docs.openstack.org/project-team-guide/project-setup/python.html
 .. _Contributing: https://docs.openstack.org/infra/manual/developers.html
