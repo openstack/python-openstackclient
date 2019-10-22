@@ -1,5 +1,4 @@
 heat
 ----
 
-.. list-plugins:: openstack.orchestration.v1
-   :detailed:
+.. autoprogram-cliff:: openstack.orchestration.v1

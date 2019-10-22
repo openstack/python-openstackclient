@@ -1,5 +1,4 @@
 searchlight
 -----------
 
-.. list-plugins:: openstack.search.v1
-   :detailed:
+.. autoprogram-cliff:: openstack.search.v1

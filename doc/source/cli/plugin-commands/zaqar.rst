@@ -1,5 +1,4 @@
 zaqar
 -----
 
-.. list-plugins:: openstack.messaging.v2
-   :detailed:
+.. autoprogram-cliff:: openstack.messaging.v2

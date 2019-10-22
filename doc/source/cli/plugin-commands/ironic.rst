@@ -1,5 +1,4 @@
 ironic
 ------
 
-.. list-plugins:: openstack.baremetal.v1
-   :detailed:
+.. autoprogram-cliff:: openstack.baremetal.v1
