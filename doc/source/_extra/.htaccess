@@ -20,3 +20,4 @@ redirectmatch 301 ^/python-openstackclient/([^/]+)/command-wrappers.html$ /pytho
 redirectmatch 301 ^/python-openstackclient/([^/]+)/developing.html$ /python-openstackclient/$1/contributor/developing.html
 redirectmatch 301 ^/python-openstackclient/([^/]+)/humaninterfaceguide.html$ /python-openstackclient/$1/contributor/humaninterfaceguide.html
 redirectmatch 301 ^/python-openstackclient/([^/]+)/plugins.html$ /python-openstackclient/$1/contributor/plugins.html
+redirectmatch 301 ^/python-openstackclient/([^/]+)/cli/plugin-commands.html$ /python-openstackclient/$1/cli/plugin-commands/index.html
