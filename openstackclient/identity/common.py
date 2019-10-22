@@ -207,7 +207,7 @@ def _find_identity_resource(identity_client_manager, name_or_id,
                                                 name_or_id, **kwargs)
         if identity_resource is not None:
             return identity_resource
-    except identity_exc.Forbidden:
+    except exceptions.Forbidden:
         pass
 
     return resource_type(None, {'id': name_or_id, 'name': name_or_id})
