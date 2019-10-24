@@ -63,6 +63,49 @@ class ServerTests(common.ComputeTestCase):
         self.assertNotIn(name1, col_name)
         self.assertIn(name2, col_name)
 
+    def test_server_list_with_marker_and_deleted(self):
+        """Test server list with deleted and marker"""
+        cmd_output = self.server_create(cleanup=False)
+        name1 = cmd_output['name']
+        cmd_output = self.server_create(cleanup=False)
+        name2 = cmd_output['name']
+        id2 = cmd_output['id']
+        self.wait_for_status(name1, "ACTIVE")
+        self.wait_for_status(name2, "ACTIVE")
+
+        # Test list --marker with ID
+        cmd_output = json.loads(self.openstack(
+            'server list -f json --marker ' + id2
+        ))
+        col_name = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, col_name)
+
+        # Test list --marker with Name
+        cmd_output = json.loads(self.openstack(
+            'server list -f json --marker ' + name2
+        ))
+        col_name = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, col_name)
+
+        self.openstack('server delete --wait ' + name1)
+        self.openstack('server delete --wait ' + name2)
+
+        # Test list --deleted --marker with ID
+        cmd_output = json.loads(self.openstack(
+            'server list -f json --deleted --marker ' + id2
+        ))
+        col_name = [x["Name"] for x in cmd_output]
+        self.assertIn(name1, col_name)
+
+        # Test list --deleted --marker with Name
+        try:
+            cmd_output = json.loads(self.openstack(
+                'server list -f json --deleted --marker ' + name2
+            ))
+        except exceptions.CommandFailed as e:
+            self.assertIn('marker [%s] not found (HTTP 400)' % (name2),
+                          e.stderr.decode('utf-8'))
+
     def test_server_list_with_changes_before(self):
         """Test server list.
 
