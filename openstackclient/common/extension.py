@@ -89,9 +89,9 @@ class ListExtension(command.Lister):
                 LOG.warning(message)
 
         if parsed_args.compute or show_all:
-            compute_client = self.app.client_manager.compute
+            compute_client = self.app.client_manager.sdk_connection.compute
             try:
-                data += compute_client.list_extensions.show_all()
+                data += compute_client.extensions()
             except Exception:
                 message = _("Extensions list not supported by Compute API")
                 LOG.warning(message)
